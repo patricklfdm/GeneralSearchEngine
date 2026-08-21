@@ -13,8 +13,8 @@ import org.example.generalsearch.catalog.CatalogSnapshot;
 import org.example.generalsearch.catalog.CatalogSnapshotBuilder;
 import org.example.generalsearch.engine.mutation.CatalogMutation;
 import org.example.generalsearch.engine.mutation.MutationTask;
-import org.example.generalsearch.filter.ProductFilter;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.query.Query;
 import org.example.generalsearch.query.SnapshotSearcher;
 
 public final class SnapshotUpdateEngine implements ProductSearchEngine {
@@ -60,8 +60,8 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     }
 
     @Override
-    public List<Product> search(ProductFilter filter) {
-        return searcher.search(current.get(), filter);
+    public List<Product> search(Query<Product> query) {
+        return searcher.search(current.get(), query);
     }
 
     CatalogSnapshot snapshotForTesting() {

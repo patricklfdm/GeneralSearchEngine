@@ -3,6 +3,7 @@ package org.example.generalsearch.filter;
 import java.util.Objects;
 import org.example.generalsearch.model.Product;
 
+@SuppressWarnings("deprecation")
 public record NameFilter(String prefix) implements ProductFilter {
     public NameFilter {
         Objects.requireNonNull(prefix, "prefix");

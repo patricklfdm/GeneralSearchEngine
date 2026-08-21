@@ -8,13 +8,10 @@ import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import org.example.generalsearch.engine.SnapshotEngineConfig;
 import org.example.generalsearch.engine.SnapshotUpdateEngine;
-import org.example.generalsearch.filter.AndFilter;
-import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
-import org.example.generalsearch.filter.PrimeFilter;
-import org.example.generalsearch.filter.ProductFilter;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.query.Query;
 
 /**
  * Lightweight engineering smoke benchmark. Use JMH for publishable results.
@@ -26,7 +23,7 @@ public final class ProductFilterBenchmark {
         int productCount = intArg(args, "--products", 100_000);
         int queryCount = intArg(args, "--queries", 100_000);
         Random random = new Random(42);
-        List<ProductFilter> queries = queries(queryCount, random);
+        List<Query<Product>> queries = queries(queryCount, random);
 
         try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine(
                 new SnapshotEngineConfig(100_000, 1_000, Duration.ofMillis(2)))) {
@@ -42,7 +39,7 @@ public final class ProductFilterBenchmark {
 
             long checksum = 0;
             long started = System.nanoTime();
-            for (ProductFilter query : queries) {
+            for (Query<Product> query : queries) {
                 checksum += engine.search(query).size();
             }
             double seconds = (System.nanoTime() - started) / 1_000_000_000.0;
@@ -63,16 +60,20 @@ public final class ProductFilterBenchmark {
         );
     }
 
-    private static List<ProductFilter> queries(int count, Random random) {
-        List<ProductFilter> filters = new ArrayList<>(count);
+    private static List<Query<Product>> queries(int count, Random random) {
+        List<Query<Product>> filters = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             Category category = Category.values()[random.nextInt(Category.values().length)];
             filters.add(switch (random.nextInt(4)) {
-                case 0 -> new CategoryFilter(category);
-                case 1 -> new PrimeFilter(random.nextBoolean());
-                case 2 -> new PriceRangeFilter(random.nextInt(500), 500 + random.nextInt(500));
-                default -> new AndFilter(List.of(
-                        new CategoryFilter(category), new PrimeFilter(random.nextBoolean())));
+                case 0 -> Query.eq(ProductFields.CATEGORY, category);
+                case 1 -> Query.eq(ProductFields.PRIME, random.nextBoolean());
+                case 2 -> Query.between(
+                        ProductFields.PRICE,
+                        (double) random.nextInt(500),
+                        (double) (500 + random.nextInt(500)));
+                default -> Query.and(
+                        Query.eq(ProductFields.CATEGORY, category),
+                        Query.eq(ProductFields.PRIME, random.nextBoolean()));
             });
         }
         return List.copyOf(filters);

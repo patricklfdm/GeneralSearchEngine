@@ -3,17 +3,11 @@ package org.example.generalsearch.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.List;
 import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.filter.AndFilter;
 import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.NameFilter;
-import org.example.generalsearch.filter.NotFilter;
-import org.example.generalsearch.filter.OrFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
-import org.example.generalsearch.filter.RatingFilter;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +25,10 @@ class CandidatePlannerTest {
 
     @Test
     void priceRangeUsesItsIndex() {
-        CandidateResult result = planner.plan(snapshot, new PriceRangeFilter(20, 50)).orElseThrow();
+        CandidateResult result = planner.plan(
+                snapshot,
+                Query.between(ProductFields.PRICE, 20.0, 50.0)
+        ).orElseThrow();
         assertEquals(CandidateAccuracy.EXACT, result.accuracy());
         assertEquals(2, result.bitmap().cardinality());
         assertTrue(result.bitmap().get(1));
@@ -40,19 +37,33 @@ class CandidatePlannerTest {
 
     @Test
     void andWithAnUnindexedFilterReturnsASuperset() {
-        CandidateResult result = planner.plan(snapshot, new AndFilter(List.of(
-                new CategoryFilter(Category.ELECTRONICS),
-                new RatingFilter(4.0)
-        ))).orElseThrow();
+        CandidateResult result = planner.plan(snapshot, Query.and(
+                Query.eq(ProductFields.CATEGORY, Category.ELECTRONICS),
+                Query.between(ProductFields.RATING, 4.0, 5.0)
+        )).orElseThrow();
         assertEquals(CandidateAccuracy.SUPERSET, result.accuracy());
         assertEquals(2, result.bitmap().cardinality());
     }
 
     @Test
     void unsafeOrAndNotFallBackToScanning() {
-        assertTrue(planner.plan(snapshot, new OrFilter(List.of(
-                new CategoryFilter(Category.BOOKS), new NameFilter("Lap")))).isEmpty());
-        assertTrue(planner.plan(snapshot, new NotFilter(new NameFilter("Lap"))).isEmpty());
+        assertTrue(planner.plan(snapshot, Query.or(
+                Query.eq(ProductFields.CATEGORY, Category.BOOKS),
+                Query.prefix(ProductFields.NAME, "Lap")
+        )).isEmpty());
+        assertTrue(planner.plan(snapshot,
+                Query.not(Query.prefix(ProductFields.NAME, "Lap"))).isEmpty());
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void formerProductFiltersRemainPlannable() {
+        CandidateResult result = planner.plan(
+                snapshot,
+                new CategoryFilter(Category.BOOKS)
+        ).orElseThrow();
+        assertEquals(CandidateAccuracy.EXACT, result.accuracy());
+        assertTrue(result.bitmap().get(1));
     }
 
     private static Product product(

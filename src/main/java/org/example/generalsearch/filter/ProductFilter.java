@@ -1,8 +1,8 @@
 package org.example.generalsearch.filter;
 
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.query.Query;
 
 @FunctionalInterface
-public interface ProductFilter {
-    boolean matches(Product product);
-}
+@Deprecated(forRemoval = false)
+public interface ProductFilter extends Query<Product> {}

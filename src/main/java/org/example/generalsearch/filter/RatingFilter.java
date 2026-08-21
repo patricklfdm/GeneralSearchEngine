@@ -2,6 +2,7 @@ package org.example.generalsearch.filter;
 
 import org.example.generalsearch.model.Product;
 
+@SuppressWarnings("deprecation")
 public record RatingFilter(double minRating, double maxRating) implements ProductFilter {
     public RatingFilter(double minRating) {
         this(minRating, Double.MAX_VALUE);

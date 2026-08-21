@@ -9,16 +9,10 @@ import java.util.Random;
 import java.util.Set;
 import org.example.generalsearch.engine.SnapshotUpdateEngine;
 import org.example.generalsearch.engine.SnapshotEngineConfig;
-import org.example.generalsearch.filter.AndFilter;
-import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.NameFilter;
-import org.example.generalsearch.filter.OrFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
-import org.example.generalsearch.filter.PrimeFilter;
-import org.example.generalsearch.filter.ProductFilter;
-import org.example.generalsearch.filter.RatingFilter;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.query.Query;
 import org.junit.jupiter.api.Test;
 
 class SearchDifferentialTest {
@@ -51,8 +45,8 @@ class SearchDifferentialTest {
 
                 if (operation % 25 == 0) {
                     for (int query = 0; query < 10; query++) {
-                        ProductFilter filter = randomFilter(random);
-                        assertEquals(fullScan(oracle, filter), ids(engine.search(filter)));
+                        Query<Product> querySpec = randomQuery(random);
+                        assertEquals(fullScan(oracle, querySpec), ids(engine.search(querySpec)));
                     }
                 }
             }
@@ -71,25 +65,27 @@ class SearchDifferentialTest {
         );
     }
 
-    private static ProductFilter randomFilter(Random random) {
+    private static Query<Product> randomQuery(Random random) {
         Category category = Category.values()[random.nextInt(Category.values().length)];
         return switch (random.nextInt(7)) {
-            case 0 -> new CategoryFilter(category);
-            case 1 -> new PrimeFilter(random.nextBoolean());
-            case 2 -> new PriceRangeFilter(50, 200);
-            case 3 -> new NameFilter("Alpha");
-            case 4 -> new RatingFilter(3.5);
-            case 5 -> new AndFilter(List.of(
-                    new CategoryFilter(category), new PriceRangeFilter(10, 300)));
-            default -> new OrFilter(List.of(
-                    new CategoryFilter(category), new PrimeFilter(random.nextBoolean())));
+            case 0 -> Query.eq(ProductFields.CATEGORY, category);
+            case 1 -> Query.eq(ProductFields.PRIME, random.nextBoolean());
+            case 2 -> Query.between(ProductFields.PRICE, 50.0, 200.0);
+            case 3 -> Query.prefix(ProductFields.NAME, "Alpha");
+            case 4 -> Query.between(ProductFields.RATING, 3.5, 5.0);
+            case 5 -> Query.and(
+                    Query.eq(ProductFields.CATEGORY, category),
+                    Query.between(ProductFields.PRICE, 10.0, 300.0));
+            default -> Query.or(
+                    Query.eq(ProductFields.CATEGORY, category),
+                    Query.eq(ProductFields.PRIME, random.nextBoolean()));
         };
     }
 
-    private static Set<String> fullScan(Product[] products, ProductFilter filter) {
+    private static Set<String> fullScan(Product[] products, Query<Product> query) {
         Set<String> ids = new HashSet<>();
         for (Product product : products) {
-            if (product != null && filter.matches(product)) {
+            if (product != null && query.matches(product)) {
                 ids.add(product.id());
             }
         }

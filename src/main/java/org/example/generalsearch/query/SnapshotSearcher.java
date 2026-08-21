@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 import org.example.generalsearch.bitmap.ImmutableBitmap;
 import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.filter.ProductFilter;
 import org.example.generalsearch.model.Product;
 
 public final class SnapshotSearcher {
@@ -19,16 +18,16 @@ public final class SnapshotSearcher {
         this.planner = Objects.requireNonNull(planner, "planner");
     }
 
-    public List<Product> search(CatalogSnapshot snapshot, ProductFilter filter) {
+    public List<Product> search(CatalogSnapshot snapshot, Query<Product> query) {
         Objects.requireNonNull(snapshot, "snapshot");
-        Objects.requireNonNull(filter, "filter");
-        ImmutableBitmap candidates = planner.plan(snapshot, filter)
+        Objects.requireNonNull(query, "query");
+        ImmutableBitmap candidates = planner.plan(snapshot, query)
                 .map(CandidateResult::bitmap)
                 .orElse(snapshot.activeProducts());
         List<Product> products = new ArrayList<>();
         candidates.forEachSetBit(docId -> {
             Product product = snapshot.get(docId);
-            if (product != null && filter.matches(product)) {
+            if (product != null && query.matches(product)) {
                 products.add(product);
             }
         });

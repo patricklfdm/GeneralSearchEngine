@@ -2,8 +2,8 @@ package org.example.generalsearch.engine;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import org.example.generalsearch.filter.ProductFilter;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.query.Query;
 
 public interface ProductSearchEngine extends AutoCloseable {
     CompletableFuture<Void> add(int docId, Product product);
@@ -14,7 +14,7 @@ public interface ProductSearchEngine extends AutoCloseable {
 
     Product get(int docId);
 
-    List<Product> search(ProductFilter filter);
+    List<Product> search(Query<Product> query);
 
     @Override
     void close();

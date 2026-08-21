@@ -1,7 +1,8 @@
 # GeneralSearchEngine
 
-GeneralSearchEngine is a Java 21 in-memory product search engine. It uses immutable
-catalog snapshots and persistent, block-based bitmaps so readers can search without
+GeneralSearchEngine is evolving into a generic Java 21 in-memory object search engine.
+Product is currently its reference document type. The engine uses immutable catalog
+snapshots and persistent, block-based bitmaps so readers can search without
 locking while a single writer batches mutations and atomically publishes new snapshots.
 
 ## Requirements
@@ -24,7 +25,8 @@ scan oracle.
 ```text
 org.example.generalsearch
 ├── model       Product domain types
-├── filter      Simple and composite query predicates
+├── schema      Type-safe fields and document schemas
+├── filter      Compatibility layer for former Product filters
 ├── bitmap      Persistent tree and immutable bitmap primitives
 ├── index       Immutable field indexes and batch builders
 ├── catalog     Product storage and complete catalog snapshots
@@ -41,23 +43,27 @@ of the catalog model.
 ```java
 import java.util.List;
 import org.example.generalsearch.engine.SnapshotUpdateEngine;
-import org.example.generalsearch.filter.AndFilter;
-import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.query.Query;
 
 try (var engine = new SnapshotUpdateEngine()) {
     engine.add(0, new Product(
             "p1", "Laptop", Category.ELECTRONICS, 999.99, true, 4.7
     )).join();
 
-    List<Product> products = engine.search(new AndFilter(List.of(
-            new CategoryFilter(Category.ELECTRONICS),
-            new PriceRangeFilter(500, 1_500)
-    )));
+    List<Product> products = engine.search(Query.and(
+            Query.eq(ProductFields.CATEGORY, Category.ELECTRONICS),
+            Query.between(ProductFields.PRICE, 500.0, 1_500.0)
+    ));
 }
 ```
+
+`ProductFields` contains the canonical `Field<Product, V>` definitions and a complete
+`SearchSchema<Product>`. Field extractors keep the query DSL type-safe without runtime
+reflection. The old `ProductFilter` types remain temporarily source-compatible but are
+deprecated; new code should use `Query<T>`.
 
 Mutation methods are asynchronous. Completion means the mutation is visible in the
 published snapshot. Mutations submitted through one engine are applied in submission
@@ -70,23 +76,23 @@ batch window.
 
 ## Query planning
 
-Category, Prime and price-range filters currently have bitmap indexes. Name and rating
-filters are evaluated by scanning the safe candidate set. Composite planning follows
+Product category, Prime and price queries currently have bitmap indexes. Name-prefix
+and rating queries are evaluated by scanning the safe candidate set. Composite planning follows
 these rules:
 
 - `AND` can use any indexed children and returns a safe superset when some children are
   not indexed.
 - `OR` uses a bitmap only when every child can provide a safe candidate set.
 - `NOT` uses a bitmap complement only when its child result is exact.
-- Every candidate product is evaluated by `ProductFilter.matches`, regardless of the
+- Every candidate product is evaluated by `Query.matches`, regardless of the
   planner result.
 
-## Adding a filter or index
+## Adding a query or index
 
-To add an unindexed filter:
+To add an unindexed query:
 
-1. Add a `ProductFilter` implementation in `filter`.
-2. Implement its `matches(Product)` behavior.
+1. Define or reuse a type-safe `Field<T,V>`.
+2. Add a `Query<T>` implementation and implement `matches(T)`.
 3. Add direct and composite-query tests. The searcher will safely fall back to scanning.
 
 To index that filter as well:

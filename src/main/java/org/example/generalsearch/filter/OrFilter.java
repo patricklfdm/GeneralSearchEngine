@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import org.example.generalsearch.model.Product;
 
+@SuppressWarnings("deprecation")
 public record OrFilter(List<ProductFilter> filters) implements ProductFilter {
     public OrFilter {
         filters = List.copyOf(Objects.requireNonNull(filters, "filters"));

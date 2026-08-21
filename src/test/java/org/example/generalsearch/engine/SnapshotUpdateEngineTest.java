@@ -6,14 +6,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
-import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.query.Query;
 import org.junit.jupiter.api.Test;
 
 class SnapshotUpdateEngineTest {
@@ -27,8 +27,10 @@ class SnapshotUpdateEngineTest {
             engine.update(7, updated).join();
 
             assertEquals(updated, engine.get(7));
-            assertEquals(List.of(updated), engine.search(new PriceRangeFilter(15, 25)));
-            assertTrue(engine.search(new CategoryFilter(Category.BOOKS)).isEmpty());
+            assertEquals(List.of(updated), engine.search(
+                    Query.between(ProductFields.PRICE, 15.0, 25.0)));
+            assertTrue(engine.search(
+                    Query.eq(ProductFields.CATEGORY, Category.BOOKS)).isEmpty());
 
             engine.remove(7).join();
             assertNull(engine.get(7));
@@ -57,7 +59,8 @@ class SnapshotUpdateEngineTest {
         engine.close();
 
         accepted.forEach(CompletableFuture::join);
-        assertEquals(500, engine.search(new CategoryFilter(Category.HOME)).size());
+        assertEquals(500, engine.search(
+                Query.eq(ProductFields.CATEGORY, Category.HOME)).size());
     }
 
     private static Product product(String id, Category category, double price) {
