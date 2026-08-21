@@ -25,7 +25,7 @@ differential tests against full-scan oracles.
 ```text
 org.example.generalsearch
 ├── model       Product domain types
-├── schema      Type-safe fields and document schemas
+├── schema      Type-safe fields, schemas and annotation generation
 ├── filter      Compatibility layer for former Product filters
 ├── bitmap      Persistent tree and immutable bitmap primitives
 ├── index       Immutable field indexes and batch builders
@@ -36,8 +36,8 @@ org.example.generalsearch
 
 Dependencies flow from the engine toward the lower-level packages. The bitmap package
 is domain-independent, storage and query components operate on any document type `T`,
-and indexes advertise their own query capabilities. Product defaults are assembled only
-at the Product engine boundary.
+and indexes advertise their own query capabilities. Product's canonical fields and
+default indexes are generated once from its annotations at startup.
 
 ## Basic usage
 
@@ -63,9 +63,9 @@ try (var engine = new SnapshotUpdateEngine()) {
 
 `ProductFields` contains the canonical `Field<Product, V>` definitions and a complete
 `SearchSchema<Product, String>`. Field extractors keep the query DSL and business ID
-type-safe without runtime
-reflection. The old `ProductFilter` types remain temporarily source-compatible but are
-deprecated; new code should use `Query<T>`.
+type-safe without exposing reflection to the search core. The old `ProductFilter` types
+remain temporarily source-compatible but are deprecated; new code should use
+`Query<T>`.
 
 Mutation methods are asynchronous. Completion means the mutation is visible in the
 published snapshot. Mutations submitted through one engine are applied in submission
@@ -118,6 +118,43 @@ try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
 `SnapshotSearcher<T>` remain the lower-level domain-independent search chain.
 `SnapshotUpdateEngine` is the Product convenience boundary that supplies Product's
 schema and default indexes while retaining the deprecated ProductFilter adapter.
+
+## Annotation-generated configuration
+
+`AnnotatedSchemaFactory` generates a normal `SearchSchema<T,K>` and startup index
+definitions. Reflection is limited to member discovery and startup validation; member
+extractors are pre-bound as method handles.
+
+```java
+record Item(
+        @SearchId Long id,
+        @SearchIndex(IndexType.EQUALITY) String warehouse,
+        @SearchIndex(IndexType.RANGE) int quantity,
+        String name
+) {}
+
+AnnotatedSearchConfiguration<Item, Long> configuration =
+        AnnotatedSchemaFactory.create(Item.class, Long.class);
+
+Field<Item, String> warehouse =
+        configuration.schema().requireField("warehouse", String.class);
+
+try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
+        configuration.schema(), configuration.indexDefinitions())) {
+    engine.add(new Item(1001L, "north", 120, "Cable")).join();
+    List<Item> items = engine.search(Query.eq(warehouse, "north"));
+}
+```
+
+All record components become schema fields. For ordinary classes, only fields and
+zero-argument getters carrying `@SearchId` or `@SearchIndex` are included. Private
+members are accepted only when `trySetAccessible()` succeeds. Primitive member types
+are exposed through their boxed classes.
+
+Exactly one ID is required. Duplicate logical field names, an ID type mismatch, static
+annotated members, invalid getters and incompatible index types fail during generation.
+`EQUALITY` and `RANGE` are currently available. `PREFIX` is reserved and validated, but
+its index implementation belongs to the next phase.
 
 ## Query planning
 

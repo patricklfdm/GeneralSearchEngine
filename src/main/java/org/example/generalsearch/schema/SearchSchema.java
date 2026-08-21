@@ -60,6 +60,18 @@ public final class SearchSchema<T, K> {
                 () -> new IllegalArgumentException("unknown field: " + name));
     }
 
+    @SuppressWarnings("unchecked")
+    public <V> Field<T, V> requireField(String name, Class<V> valueType) {
+        Objects.requireNonNull(valueType, "valueType");
+        Field<T, ?> field = requireField(name);
+        if (field.valueType() != valueType) {
+            throw new IllegalArgumentException(
+                    "field '" + name + "' has type " + field.valueType().getName()
+                            + ", not " + valueType.getName());
+        }
+        return (Field<T, V>) field;
+    }
+
     public static final class Builder<T, K> {
         private final Class<T> documentType;
         private final Map<String, Field<T, ?>> fields = new LinkedHashMap<>();

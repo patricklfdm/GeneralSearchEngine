@@ -1,13 +1,16 @@
 package org.example.generalsearch.model;
 
 import java.util.Objects;
+import org.example.generalsearch.schema.annotation.IndexType;
+import org.example.generalsearch.schema.annotation.SearchId;
+import org.example.generalsearch.schema.annotation.SearchIndex;
 
 public record Product(
-        String id,
+        @SearchId String id,
         String name,
-        Category category,
-        double price,
-        boolean prime,
+        @SearchIndex(IndexType.EQUALITY) Category category,
+        @SearchIndex(IndexType.RANGE) double price,
+        @SearchIndex(IndexType.EQUALITY) boolean prime,
         double rating
 ) {
     public Product {
