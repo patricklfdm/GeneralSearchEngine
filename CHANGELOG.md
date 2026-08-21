@@ -12,7 +12,7 @@ Semantic Versioning once the first stable artifact is published.
 - Immutable snapshots, persistent bitmaps, asynchronous batched mutations, and dynamic
   index creation/drop with atomic publication.
 - Operational metrics, stable asynchronous failure types, concurrent stress runner,
-  and nine JMH benchmarks.
+  and thirteen JMH benchmarks.
 - Frozen v1 boundary semantics and source/JVM-descriptor compatibility checks.
 - Release profile producing main, sources, and Javadoc JARs plus reproducible-build
   verification.
