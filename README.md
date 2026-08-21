@@ -20,6 +20,12 @@ The test suite contains unit tests for the persistent tree, immutable bitmap, ge
 storage, query planner and engine lifecycle, plus randomized Product and non-Product
 differential tests against full-scan oracles.
 
+Run only the frozen v1 source/JVM-descriptor compatibility fixture with:
+
+```bash
+mvn clean -Papi-compat test
+```
+
 ## Package layout
 
 ```text
@@ -177,11 +183,27 @@ Invalid arguments and invalid builder/schema configuration fail synchronously wi
 index failure remains the original build failure rather than being hidden by a generic
 wrapper.
 
-Prefix matching intentionally has the same semantics as `String.startsWith`: it is
-case-sensitive, performs no Locale conversion or Unicode normalization, and indexes
-raw UTF-16 strings. Canonically equivalent strings such as precomposed and decomposed
-accented text remain distinct. Null field values are not indexed; an empty prefix
-matches every non-null value.
+## V1 boundary semantics
+
+The complete contract is recorded in
+[V1_SEMANTICS.md](docs/V1_SEMANTICS.md). The important boundaries are:
+
+- The engine retains object references rather than copying documents. Treat accepted
+  objects as immutable and use `update(newDocument)` for every change.
+- Documents and IDs are non-null. Other fields may be null; built-in indexes omit null
+  values, while `eq(field, null)` remains correct by falling back to a scan.
+- Equality uses `Objects.equals`. Ranges are inclusive and use Java natural ordering;
+  reversed bounds match nothing. A Range index conservatively treats equality as a
+  candidate superset because some Comparable types are inconsistent with equals.
+  Custom comparators are not available in v1.
+- Strings are case-sensitive raw UTF-16 values. There is no Locale conversion, Unicode
+  normalization, trimming, or case folding.
+- `Float`/`Double` use their Java wrapper semantics, including NaN, infinities, and
+  distinct signed-zero equality keys.
+
+The supported v1 surface and change policy are recorded in
+[V1_API_COMPATIBILITY.md](docs/V1_API_COMPATIBILITY.md). Public types in low-level
+implementation packages are not automatically part of that application-level promise.
 
 ## Query planning
 

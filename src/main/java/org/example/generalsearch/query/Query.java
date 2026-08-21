@@ -7,10 +7,12 @@ import org.example.generalsearch.schema.Field;
 public interface Query<T> {
     boolean matches(T document);
 
+    /** Uses {@link java.util.Objects#equals(Object, Object)}; null is a valid value. */
     static <T, V> EqualQuery<T, V> eq(Field<T, V> field, V expectedValue) {
         return new EqualQuery<>(field, expectedValue);
     }
 
+    /** Creates an inclusive range using the value type's natural ordering. */
     static <T, V extends Comparable<? super V>> RangeQuery<T, V> between(
             Field<T, V> field,
             V minValue,
@@ -19,6 +21,7 @@ public interface Query<T> {
         return new RangeQuery<>(field, minValue, maxValue);
     }
 
+    /** Uses case-sensitive {@link String#startsWith(String)} semantics. */
     static <T> PrefixQuery<T> prefix(Field<T, String> field, String prefix) {
         return new PrefixQuery<>(field, prefix);
     }

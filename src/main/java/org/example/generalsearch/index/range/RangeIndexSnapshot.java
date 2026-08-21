@@ -70,7 +70,13 @@ public final class RangeIndexSnapshot<T, V extends Comparable<? super V>>
             if (equal.expectedValue() == null) {
                 return Optional.empty();
             }
-            return exact(values.getOrDefault(equal.expectedValue(), ImmutableBitmap.empty()));
+            // TreeMap key identity is compareTo == 0, whereas EqualQuery uses
+            // Objects.equals. Comparable types are allowed to make those semantics
+            // differ (BigDecimal is the common example), so this is only a superset.
+            return Optional.of(new CandidateResult(
+                    values.getOrDefault(equal.expectedValue(), ImmutableBitmap.empty()),
+                    CandidateAccuracy.SUPERSET
+            ));
         }
         if (query instanceof RangeQuery<?, ?> range && range.field() == field) {
             return exact(getByRange(value(range.minValue()), value(range.maxValue())));

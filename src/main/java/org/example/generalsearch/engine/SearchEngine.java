@@ -38,10 +38,16 @@ public interface SearchEngine<K, T> extends AutoCloseable {
         return annotatedBuilder(documentType, idType).build();
     }
 
-    /** Adds a document; duplicate business IDs fail with DocumentAlreadyExistsException. */
+    /**
+     * Adds a document reference; duplicate business IDs fail with
+     * DocumentAlreadyExistsException. Accepted documents must be treated as immutable.
+     */
     CompletableFuture<Void> add(T document);
 
-    /** Updates an active document; missing IDs fail with DocumentNotFoundException. */
+    /**
+     * Replaces an active document reference; missing IDs fail with
+     * DocumentNotFoundException. A business ID cannot be changed by an update.
+     */
     CompletableFuture<Void> update(T document);
 
     /** Removes a document by business ID; removing a missing ID is idempotent. */
@@ -59,8 +65,10 @@ public interface SearchEngine<K, T> extends AutoCloseable {
      */
     CompletableFuture<Void> dropIndex(String fieldName);
 
+    /** Returns the retained document reference, or null when the ID is not active. */
     T get(K id);
 
+    /** Returns retained document references in ascending internal document-ID order. */
     List<T> search(Query<T> query);
 
     /** Returns the canonical schema whose fields should be used by queries and indexes. */

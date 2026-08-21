@@ -29,9 +29,12 @@ class IndexRegistryTest {
         initialBuilder.add(1, cable);
         IndexRegistry<InventoryItem> first = initialBuilder.build();
 
-        assertCandidate(first, Query.eq(CATEGORY, "book"), 0, true);
-        assertCandidate(first, Query.eq(STOCK, 10), 0, true);
-        assertCandidate(first, Query.between(STOCK, 20, 50), 1, true);
+        assertCandidate(first, Query.eq(CATEGORY, "book"), 0, true,
+                CandidateAccuracy.EXACT);
+        assertCandidate(first, Query.eq(STOCK, 10), 0, true,
+                CandidateAccuracy.SUPERSET);
+        assertCandidate(first, Query.between(STOCK, 20, 50), 1, true,
+                CandidateAccuracy.EXACT);
         assertTrue(first.candidates(Query.prefix(NAME, "Ca")).isEmpty());
 
         InventoryItem updatedBook = new InventoryItem("electronics", "Book", 25);
@@ -40,10 +43,14 @@ class IndexRegistryTest {
         updateBuilder.remove(1, cable);
         IndexRegistry<InventoryItem> second = updateBuilder.build();
 
-        assertCandidate(first, Query.eq(CATEGORY, "book"), 0, true);
-        assertCandidate(second, Query.eq(CATEGORY, "book"), 0, false);
-        assertCandidate(second, Query.eq(CATEGORY, "electronics"), 0, true);
-        assertCandidate(second, Query.between(STOCK, 20, 50), 1, false);
+        assertCandidate(first, Query.eq(CATEGORY, "book"), 0, true,
+                CandidateAccuracy.EXACT);
+        assertCandidate(second, Query.eq(CATEGORY, "book"), 0, false,
+                CandidateAccuracy.EXACT);
+        assertCandidate(second, Query.eq(CATEGORY, "electronics"), 0, true,
+                CandidateAccuracy.EXACT);
+        assertCandidate(second, Query.between(STOCK, 20, 50), 1, false,
+                CandidateAccuracy.EXACT);
     }
 
     @Test
@@ -63,6 +70,22 @@ class IndexRegistryTest {
         )));
     }
 
+    @Test
+    void prefersAnExactCandidateWhenEqualSizedIndexesCoexist() {
+        IndexRegistryBuilder<InventoryItem> builder = IndexRegistry.create(List.of(
+                IndexDefinition.range(STOCK),
+                IndexDefinition.equality(STOCK)
+        )).toBuilder();
+        builder.add(0, new InventoryItem("book", "Book", 10));
+
+        CandidateResult result = builder.build()
+                .candidates(Query.eq(STOCK, 10))
+                .orElseThrow();
+
+        assertEquals(CandidateAccuracy.EXACT, result.accuracy());
+        assertTrue(result.bitmap().get(0));
+    }
+
     private static IndexRegistry<InventoryItem> registry() {
         return IndexRegistry.create(List.of(
                 IndexDefinition.equality(CATEGORY),
@@ -74,10 +97,11 @@ class IndexRegistryTest {
             IndexRegistry<InventoryItem> indexes,
             Query<InventoryItem> query,
             int docId,
-            boolean expected
+            boolean expected,
+            CandidateAccuracy expectedAccuracy
     ) {
         CandidateResult result = indexes.candidates(query).orElseThrow();
-        assertEquals(CandidateAccuracy.EXACT, result.accuracy());
+        assertEquals(expectedAccuracy, result.accuracy());
         assertEquals(expected, result.bitmap().get(docId));
     }
 

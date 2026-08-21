@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.example.generalsearch.query.CandidateAccuracy;
 import org.example.generalsearch.query.CandidateResult;
 import org.example.generalsearch.query.Query;
 import org.example.generalsearch.schema.Field;
@@ -46,7 +47,11 @@ public final class IndexRegistry<T> {
         return indexes.stream()
                 .map(index -> index.candidates(query))
                 .flatMap(Optional::stream)
-                .min(Comparator.comparingInt(result -> result.bitmap().cardinality()));
+                .min(Comparator
+                        .comparingInt((CandidateResult result) ->
+                                result.bitmap().cardinality())
+                        .thenComparingInt(result ->
+                                result.accuracy() == CandidateAccuracy.EXACT ? 0 : 1));
     }
 
     public List<IndexSnapshot<T>> indexes() {

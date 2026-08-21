@@ -1,7 +1,5 @@
 package org.example.generalsearch.index.range;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 import org.example.generalsearch.bitmap.ImmutableBitmap;
@@ -14,7 +12,10 @@ public final class RangeIndexBuilder<T, V extends Comparable<? super V>>
         implements IndexBuilder<T> {
     private final RangeIndexSnapshot<T, V> base;
     private final Field<T, V> field;
-    private final Map<V, ImmutableBitmapBuilder> dirty = new HashMap<>();
+    // Range keys use compareTo identity, just like the snapshot's TreeMap. A HashMap
+    // would split values such as BigDecimal("1.0") and BigDecimal("1.00") even though
+    // they occupy one natural-order bucket.
+    private final TreeMap<V, ImmutableBitmapBuilder> dirty = new TreeMap<>();
     private boolean built;
 
     public RangeIndexBuilder(RangeIndexSnapshot<T, V> base) {

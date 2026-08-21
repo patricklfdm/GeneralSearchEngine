@@ -5,6 +5,10 @@ import java.util.function.Function;
 
 /**
  * A type-safe description of a searchable document field.
+ *
+ * <p>The extractor may return {@code null} for non-ID fields. Built-in indexes omit
+ * null values; query-specific matching semantics still apply. The ID field of a
+ * {@link SearchSchema} must extract a non-null value.</p>
  */
 public record Field<T, V>(
         String name,
