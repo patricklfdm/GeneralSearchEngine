@@ -6,14 +6,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import org.example.generalsearch.bitmap.ImmutableBitmap;
-import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.filter.ProductFilter;
-import org.example.generalsearch.filter.ProductFilterAdapter;
-import org.example.generalsearch.model.Product;
+import org.example.generalsearch.storage.SearchSnapshot;
 
-@SuppressWarnings("deprecation")
-public final class CandidatePlanner {
-    public Optional<CandidateResult> plan(CatalogSnapshot snapshot, Query<Product> filter) {
+public final class CandidatePlanner<T> {
+    public Optional<CandidateResult> plan(SearchSnapshot<T> snapshot, Query<T> filter) {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(filter, "filter");
 
@@ -22,36 +18,30 @@ public final class CandidatePlanner {
             return indexed;
         }
         if (filter instanceof MatchAllQuery<?>) {
-            return exact(snapshot.activeProducts());
+            return exact(snapshot.activeDocuments());
         }
         if (filter instanceof AndQuery<?> and) {
-            return planAnd(snapshot, productQueries(and.queries()));
+            return planAnd(snapshot, typedQueries(and.queries()));
         }
         if (filter instanceof OrQuery<?> or) {
-            return planOr(snapshot, productQueries(or.queries()));
+            return planOr(snapshot, typedQueries(or.queries()));
         }
         if (filter instanceof NotQuery<?> not) {
-            Optional<CandidateResult> child = plan(snapshot, productQuery(not.query()));
+            Optional<CandidateResult> child = plan(snapshot, typedQuery(not.query()));
             return complementExact(snapshot, child);
         }
 
-        if (filter instanceof ProductFilter legacyFilter) {
-            Query<Product> adapted = ProductFilterAdapter.toQuery(legacyFilter);
-            if (adapted != filter) {
-                return plan(snapshot, adapted);
-            }
-        }
         return Optional.empty();
     }
 
     private Optional<CandidateResult> planAnd(
-            CatalogSnapshot snapshot,
-            List<? extends Query<Product>> filters
+            SearchSnapshot<T> snapshot,
+            List<? extends Query<T>> filters
     ) {
         List<ImmutableBitmap> indexed = new ArrayList<>();
         CandidateAccuracy accuracy = CandidateAccuracy.EXACT;
 
-        for (Query<Product> filter : filters) {
+        for (Query<T> filter : filters) {
             Optional<CandidateResult> child = plan(snapshot, filter);
             if (child.isEmpty()) {
                 accuracy = CandidateAccuracy.SUPERSET;
@@ -81,8 +71,8 @@ public final class CandidatePlanner {
     }
 
     private Optional<CandidateResult> planOr(
-            CatalogSnapshot snapshot,
-            List<? extends Query<Product>> filters
+            SearchSnapshot<T> snapshot,
+            List<? extends Query<T>> filters
     ) {
         if (filters.isEmpty()) {
             return exact(ImmutableBitmap.empty());
@@ -90,7 +80,7 @@ public final class CandidatePlanner {
 
         ImmutableBitmap candidates = ImmutableBitmap.empty();
         CandidateAccuracy accuracy = CandidateAccuracy.EXACT;
-        for (Query<Product> filter : filters) {
+        for (Query<T> filter : filters) {
             Optional<CandidateResult> child = plan(snapshot, filter);
             if (child.isEmpty()) {
                 return Optional.empty();
@@ -108,22 +98,22 @@ public final class CandidatePlanner {
     }
 
     private Optional<CandidateResult> complementExact(
-            CatalogSnapshot snapshot,
+            SearchSnapshot<T> snapshot,
             Optional<CandidateResult> child
     ) {
         if (child.isEmpty() || child.get().accuracy() != CandidateAccuracy.EXACT) {
             return Optional.empty();
         }
-        return exact(snapshot.activeProducts().andNot(child.get().bitmap()));
+        return exact(snapshot.activeDocuments().andNot(child.get().bitmap()));
     }
 
     @SuppressWarnings("unchecked")
-    private Query<Product> productQuery(Query<?> query) {
-        return (Query<Product>) query;
+    private Query<T> typedQuery(Query<?> query) {
+        return (Query<T>) query;
     }
 
     @SuppressWarnings("unchecked")
-    private List<? extends Query<Product>> productQueries(List<? extends Query<?>> queries) {
-        return (List<? extends Query<Product>>) (List<?>) queries;
+    private List<? extends Query<T>> typedQueries(List<? extends Query<?>> queries) {
+        return (List<? extends Query<T>>) (List<?>) queries;
     }
 }

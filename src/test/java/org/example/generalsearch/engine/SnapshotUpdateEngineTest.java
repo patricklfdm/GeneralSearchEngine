@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import org.example.generalsearch.filter.CategoryFilter;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
@@ -80,6 +81,17 @@ class SnapshotUpdateEngineTest {
                     .bitmap()
                     .get(0));
             assertEquals(List.of(product), engine.search(query));
+        }
+    }
+
+    @Test
+    @SuppressWarnings("deprecation")
+    void keepsFormerProductFiltersCompatibleAtTheProductBoundary() {
+        try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine()) {
+            Product book = product("p1", Category.BOOKS, 10);
+            engine.add(0, book).join();
+
+            assertEquals(List.of(book), engine.search(new CategoryFilter(Category.BOOKS)));
         }
     }
 

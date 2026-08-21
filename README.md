@@ -1,7 +1,7 @@
 # GeneralSearchEngine
 
 GeneralSearchEngine is evolving into a generic Java 21 in-memory object search engine.
-Product is currently its reference document type. The engine uses immutable catalog
+Product is currently its reference document type. The engine uses immutable search
 snapshots and persistent, block-based bitmaps so readers can search without
 locking while a single writer batches mutations and atomically publishes new snapshots.
 
@@ -16,9 +16,9 @@ locking while a single writer batches mutations and atomically publishes new sna
 mvn test
 ```
 
-The test suite contains unit tests for the persistent tree, immutable bitmap, catalog,
-query planner and engine lifecycle, plus a randomized differential test against a full
-scan oracle.
+The test suite contains unit tests for the persistent tree, immutable bitmap, generic
+storage, query planner and engine lifecycle, plus randomized Product and non-Product
+differential tests against full-scan oracles.
 
 ## Package layout
 
@@ -29,14 +29,15 @@ org.example.generalsearch
 ├── filter      Compatibility layer for former Product filters
 ├── bitmap      Persistent tree and immutable bitmap primitives
 ├── index       Immutable field indexes and batch builders
-├── catalog     Product storage and complete catalog snapshots
+├── storage     Generic document tables and immutable search snapshots
 ├── query       Candidate planning and final result evaluation
 └── engine      Public API, mutation queue and snapshot publication
 ```
 
 Dependencies flow from the engine toward the lower-level packages. The bitmap package
-is domain-independent, indexes do not interpret filters, and query planning is kept out
-of the catalog model.
+is domain-independent, storage and query components operate on any document type `T`,
+and indexes advertise their own query capabilities. Product defaults are assembled only
+at the Product engine boundary.
 
 ## Basic usage
 
@@ -74,17 +75,45 @@ for the writer thread to finish.
 wait. The default is a 100,000-item queue, batches of up to 1,000 mutations and a 5 ms
 batch window.
 
+## Generic storage and search
+
+`DocumentTable<T>`, `SearchSnapshot<T>`, `CandidatePlanner<T>` and
+`SnapshotSearcher<T>` form the domain-independent search chain. A second document type
+can use it by defining fields and startup indexes:
+
+```java
+Field<Item, String> warehouse =
+        Field.of("warehouse", String.class, Item::warehouse);
+Field<Item, Integer> quantity =
+        Field.of("quantity", Integer.class, Item::quantity);
+
+var snapshot = new SearchSnapshot<Item>(List.of(
+        IndexDefinition.equality(warehouse),
+        IndexDefinition.range(quantity)
+));
+snapshot = snapshot.add(0, new Item("sku-1", "north", 120));
+
+var searcher = new SnapshotSearcher<Item>();
+List<Item> items = searcher.search(snapshot, Query.and(
+        Query.eq(warehouse, "north"),
+        Query.between(quantity, 100, 200)
+));
+```
+
+The asynchronous public engine is still Product-specific. Generalizing that boundary
+and mapping business IDs to internal document IDs is the next development phase.
+
 ## Query planning
 
 Product category, Prime and price queries currently have bitmap indexes. Name-prefix
-and rating queries are evaluated by scanning the safe candidate set. Composite planning follows
-these rules:
+and rating queries are evaluated by scanning the safe candidate set. Composite planning
+follows these rules:
 
 - `AND` can use any indexed children and returns a safe superset when some children are
   not indexed.
 - `OR` uses a bitmap only when every child can provide a safe candidate set.
 - `NOT` uses a bitmap complement only when its child result is exact.
-- Every candidate product is evaluated by `Query.matches`, regardless of the
+- Every candidate document is evaluated by `Query.matches`, regardless of the
   planner result.
 
 ## Adding a query or index
@@ -110,7 +139,8 @@ var engine = new SnapshotUpdateEngine(SnapshotEngineConfig.DEFAULT, indexes);
 
 `EqualityIndex` works with enums, booleans, strings and other exact values. `RangeIndex`
 works with `Comparable` values and also answers exact equality queries. Adding another
-field with either built-in index does not require changes to Catalog or CandidatePlanner.
+field with either built-in index does not require changes to SearchSnapshot or
+CandidatePlanner.
 
 To add a new index algorithm:
 

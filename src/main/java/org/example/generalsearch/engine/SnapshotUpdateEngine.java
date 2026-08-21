@@ -10,30 +10,33 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.catalog.CatalogSnapshotBuilder;
 import org.example.generalsearch.engine.mutation.CatalogMutation;
 import org.example.generalsearch.engine.mutation.MutationTask;
+import org.example.generalsearch.filter.ProductFilter;
+import org.example.generalsearch.filter.ProductFilterAdapter;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductIndexDefinitions;
 import org.example.generalsearch.query.Query;
 import org.example.generalsearch.query.SnapshotSearcher;
+import org.example.generalsearch.storage.SearchSnapshot;
+import org.example.generalsearch.storage.SearchSnapshotBuilder;
 
 public final class SnapshotUpdateEngine implements ProductSearchEngine {
-    private final AtomicReference<CatalogSnapshot> current;
+    private final AtomicReference<SearchSnapshot<Product>> current;
     private final BlockingQueue<MutationTask> queue;
     private final SnapshotEngineConfig config;
-    private final SnapshotSearcher searcher;
+    private final SnapshotSearcher<Product> searcher;
     private final Thread writerThread;
     private final Object lifecycleMonitor = new Object();
     private volatile boolean accepting = true;
 
     public SnapshotUpdateEngine() {
-        this(SnapshotEngineConfig.DEFAULT, CatalogSnapshot.defaultIndexDefinitions());
+        this(SnapshotEngineConfig.DEFAULT, ProductIndexDefinitions.defaults());
     }
 
     public SnapshotUpdateEngine(SnapshotEngineConfig config) {
-        this(config, CatalogSnapshot.defaultIndexDefinitions());
+        this(config, ProductIndexDefinitions.defaults());
     }
 
     public SnapshotUpdateEngine(
@@ -41,9 +44,9 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
             Collection<? extends IndexDefinition<Product>> indexDefinitions
     ) {
         this.config = Objects.requireNonNull(config, "config");
-        this.current = new AtomicReference<>(new CatalogSnapshot(indexDefinitions));
+        this.current = new AtomicReference<>(new SearchSnapshot<>(indexDefinitions));
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
-        this.searcher = new SnapshotSearcher();
+        this.searcher = new SnapshotSearcher<>();
         this.writerThread = new Thread(this::writerLoop, "product-snapshot-writer");
         this.writerThread.start();
     }
@@ -69,11 +72,15 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public List<Product> search(Query<Product> query) {
-        return searcher.search(current.get(), query);
+        Query<Product> effectiveQuery = query instanceof ProductFilter productFilter
+                ? ProductFilterAdapter.toQuery(productFilter)
+                : query;
+        return searcher.search(current.get(), effectiveQuery);
     }
 
-    CatalogSnapshot snapshotForTesting() {
+    SearchSnapshot<Product> snapshotForTesting() {
         return current.get();
     }
 
@@ -153,7 +160,7 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     }
 
     private void processBatch(List<MutationTask> batch) {
-        CatalogSnapshotBuilder builder = new CatalogSnapshotBuilder(current.get());
+        SearchSnapshotBuilder<Product> builder = new SearchSnapshotBuilder<>(current.get());
         List<MutationTask> successful = new ArrayList<>(batch.size());
         for (MutationTask task : batch) {
             try {
@@ -170,7 +177,7 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
         successful.forEach(task -> task.completion().complete(null));
     }
 
-    private void apply(CatalogSnapshotBuilder builder, CatalogMutation mutation) {
+    private void apply(SearchSnapshotBuilder<Product> builder, CatalogMutation mutation) {
         switch (mutation) {
             case CatalogMutation.Add add -> builder.add(add.docId(), add.product());
             case CatalogMutation.Update update -> builder.update(update.docId(), update.product());

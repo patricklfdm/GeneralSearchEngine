@@ -4,22 +4,22 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
-import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.filter.CategoryFilter;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
 import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.model.ProductIndexDefinitions;
+import org.example.generalsearch.storage.SearchSnapshot;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CandidatePlannerTest {
-    private final CandidatePlanner planner = new CandidatePlanner();
-    private CatalogSnapshot snapshot;
+    private final CandidatePlanner<Product> planner = new CandidatePlanner<>();
+    private SearchSnapshot<Product> snapshot;
 
     @BeforeEach
     void buildCatalog() {
-        snapshot = new CatalogSnapshot()
+        snapshot = new SearchSnapshot<>(ProductIndexDefinitions.defaults())
                 .add(0, product("p0", "Laptop", Category.ELECTRONICS, 999, 4.8))
                 .add(1, product("p1", "Book", Category.BOOKS, 25, 4.9))
                 .add(2, product("p2", "Mouse", Category.ELECTRONICS, 40, 3.0));
@@ -58,19 +58,8 @@ class CandidatePlannerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    void formerProductFiltersRemainPlannable() {
-        CandidateResult result = planner.plan(
-                snapshot,
-                new CategoryFilter(Category.BOOKS)
-        ).orElseThrow();
-        assertEquals(CandidateAccuracy.EXACT, result.accuracy());
-        assertTrue(result.bitmap().get(1));
-    }
-
-    @Test
     void usesAStartupRegisteredIndexWithoutPlannerChanges() {
-        CatalogSnapshot ratingIndexed = new CatalogSnapshot(List.of(
+        SearchSnapshot<Product> ratingIndexed = new SearchSnapshot<>(List.of(
                 IndexDefinition.range(ProductFields.RATING)
         )).add(0, product("p0", "Laptop", Category.ELECTRONICS, 999, 4.8))
                 .add(1, product("p1", "Mouse", Category.ELECTRONICS, 40, 3.0));
