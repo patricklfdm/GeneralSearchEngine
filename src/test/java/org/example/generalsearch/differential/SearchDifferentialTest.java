@@ -25,7 +25,7 @@ class SearchDifferentialTest {
             for (int docId = 0; docId < oracle.length; docId++) {
                 Product product = randomProduct(docId, random);
                 oracle[docId] = product;
-                engine.add(docId, product).join();
+                engine.add(product).join();
             }
 
             for (int operation = 0; operation < 2_000; operation++) {
@@ -33,14 +33,14 @@ class SearchDifferentialTest {
                 if (oracle[docId] == null) {
                     Product product = randomProduct(docId, random);
                     oracle[docId] = product;
-                    engine.add(docId, product).join();
+                    engine.add(product).join();
                 } else if (random.nextInt(5) == 0) {
                     oracle[docId] = null;
-                    engine.remove(docId).join();
+                    engine.remove("p" + docId).join();
                 } else {
                     Product product = randomProduct(docId, random);
                     oracle[docId] = product;
-                    engine.update(docId, product).join();
+                    engine.update(product).join();
                 }
 
                 if (operation % 25 == 0) {

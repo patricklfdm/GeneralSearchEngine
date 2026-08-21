@@ -20,9 +20,8 @@ public final class ProductFields {
     public static final Field<Product, Double> RATING =
             Field.of("rating", Double.class, Product::rating);
 
-    public static final SearchSchema<Product> SCHEMA =
-            SearchSchema.builder(Product.class)
-                    .id(ID)
+    public static final SearchSchema<Product, String> SCHEMA =
+            SearchSchema.builder(Product.class, ID)
                     .field(NAME)
                     .field(CATEGORY)
                     .field(PRICE)

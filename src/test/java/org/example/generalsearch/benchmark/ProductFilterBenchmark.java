@@ -29,7 +29,7 @@ public final class ProductFilterBenchmark {
                 new SnapshotEngineConfig(100_000, 1_000, Duration.ofMillis(2)))) {
             List<CompletableFuture<Void>> pending = new ArrayList<>(1_000);
             for (int docId = 0; docId < productCount; docId++) {
-                pending.add(engine.add(docId, product(docId, random)));
+                pending.add(engine.add(product(docId, random)));
                 if (pending.size() == 1_000) {
                     CompletableFuture.allOf(pending.toArray(CompletableFuture[]::new)).join();
                     pending.clear();

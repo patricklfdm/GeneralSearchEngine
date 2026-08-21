@@ -9,14 +9,14 @@ import java.util.Optional;
 /**
  * Immutable metadata describing a searchable document type and its known fields.
  */
-public final class SearchSchema<T> {
+public final class SearchSchema<T, K> {
     private final Class<T> documentType;
-    private final Field<T, ?> idField;
+    private final Field<T, K> idField;
     private final Map<String, Field<T, ?>> fields;
 
     private SearchSchema(
             Class<T> documentType,
-            Field<T, ?> idField,
+            Field<T, K> idField,
             Map<String, Field<T, ?>> fields
     ) {
         this.documentType = documentType;
@@ -24,16 +24,26 @@ public final class SearchSchema<T> {
         this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
     }
 
-    public static <T> Builder<T> builder(Class<T> documentType) {
-        return new Builder<>(documentType);
+    public static <T, K> Builder<T, K> builder(
+            Class<T> documentType,
+            Field<T, K> idField
+    ) {
+        return new Builder<>(documentType, idField);
     }
 
     public Class<T> documentType() {
         return documentType;
     }
 
-    public Field<T, ?> idField() {
+    public Field<T, K> idField() {
         return idField;
+    }
+
+    public K idOf(T document) {
+        return Objects.requireNonNull(
+                idField.valueOf(document),
+                "document id must not be null"
+        );
     }
 
     public Map<String, Field<T, ?>> fields() {
@@ -50,34 +60,23 @@ public final class SearchSchema<T> {
                 () -> new IllegalArgumentException("unknown field: " + name));
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T, K> {
         private final Class<T> documentType;
         private final Map<String, Field<T, ?>> fields = new LinkedHashMap<>();
-        private Field<T, ?> idField;
+        private final Field<T, K> idField;
 
-        private Builder(Class<T> documentType) {
+        private Builder(Class<T> documentType, Field<T, K> idField) {
             this.documentType = Objects.requireNonNull(documentType, "documentType");
+            this.idField = Objects.requireNonNull(idField, "idField");
+            register(idField);
         }
 
-        public <V> Builder<T> id(Field<T, V> field) {
-            Objects.requireNonNull(field, "field");
-            if (idField != null && idField != field) {
-                throw new IllegalStateException("id field has already been configured");
-            }
-            idField = field;
-            register(field);
-            return this;
-        }
-
-        public <V> Builder<T> field(Field<T, V> field) {
+        public <V> Builder<T, K> field(Field<T, V> field) {
             register(Objects.requireNonNull(field, "field"));
             return this;
         }
 
-        public SearchSchema<T> build() {
-            if (idField == null) {
-                throw new IllegalStateException("an id field is required");
-            }
+        public SearchSchema<T, K> build() {
             return new SearchSchema<>(documentType, idField, fields);
         }
 

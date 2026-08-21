@@ -50,7 +50,7 @@ import org.example.generalsearch.model.ProductFields;
 import org.example.generalsearch.query.Query;
 
 try (var engine = new SnapshotUpdateEngine()) {
-    engine.add(0, new Product(
+    engine.add(new Product(
             "p1", "Laptop", Category.ELECTRONICS, 999.99, true, 4.7
     )).join();
 
@@ -62,7 +62,8 @@ try (var engine = new SnapshotUpdateEngine()) {
 ```
 
 `ProductFields` contains the canonical `Field<Product, V>` definitions and a complete
-`SearchSchema<Product>`. Field extractors keep the query DSL type-safe without runtime
+`SearchSchema<Product, String>`. Field extractors keep the query DSL and business ID
+type-safe without runtime
 reflection. The old `ProductFilter` types remain temporarily source-compatible but are
 deprecated; new code should use `Query<T>`.
 
@@ -71,37 +72,52 @@ published snapshot. Mutations submitted through one engine are applied in submis
 order. Closing the engine stops new submissions, drains accepted mutations and waits
 for the writer thread to finish.
 
+The public API uses business IDs. The engine assigns internal integer document IDs and
+keeps their mapping in the same atomically published state as the search snapshot.
+Duplicate `add` and `update` of a missing ID fail through their returned futures;
+removing a missing ID is idempotent. Removed internal document IDs are not reused.
+
 `SnapshotEngineConfig` controls queue capacity, maximum batch size and maximum batch
 wait. The default is a 100,000-item queue, batches of up to 1,000 mutations and a 5 ms
 batch window.
 
-## Generic storage and search
+## Generic engine
 
-`DocumentTable<T>`, `SearchSnapshot<T>`, `CandidatePlanner<T>` and
-`SnapshotSearcher<T>` form the domain-independent search chain. A second document type
-can use it by defining fields and startup indexes:
+`SearchEngine<K,T>` is implemented by `SnapshotSearchEngine<K,T>`. A document type only
+needs a typed ID field, a schema and its startup indexes:
 
 ```java
+record Item(Long id, String warehouse, int quantity) {}
+
+Field<Item, Long> id = Field.of("id", Long.class, Item::id);
 Field<Item, String> warehouse =
         Field.of("warehouse", String.class, Item::warehouse);
 Field<Item, Integer> quantity =
         Field.of("quantity", Integer.class, Item::quantity);
 
-var snapshot = new SearchSnapshot<Item>(List.of(
-        IndexDefinition.equality(warehouse),
-        IndexDefinition.range(quantity)
-));
-snapshot = snapshot.add(0, new Item("sku-1", "north", 120));
+SearchSchema<Item, Long> schema = SearchSchema.builder(Item.class, id)
+        .field(warehouse)
+        .field(quantity)
+        .build();
 
-var searcher = new SnapshotSearcher<Item>();
-List<Item> items = searcher.search(snapshot, Query.and(
-        Query.eq(warehouse, "north"),
-        Query.between(quantity, 100, 200)
-));
+try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
+        schema,
+        List.of(
+                IndexDefinition.equality(warehouse),
+                IndexDefinition.range(quantity)
+        ))) {
+    engine.add(new Item(1001L, "north", 120)).join();
+    List<Item> items = engine.search(Query.and(
+            Query.eq(warehouse, "north"),
+            Query.between(quantity, 100, 200)
+    ));
+}
 ```
 
-The asynchronous public engine is still Product-specific. Generalizing that boundary
-and mapping business IDs to internal document IDs is the next development phase.
+`DocumentTable<T>`, `SearchSnapshot<T>`, `CandidatePlanner<T>` and
+`SnapshotSearcher<T>` remain the lower-level domain-independent search chain.
+`SnapshotUpdateEngine` is the Product convenience boundary that supplies Product's
+schema and default indexes while retaining the deprecated ProductFilter adapter.
 
 ## Query planning
 
