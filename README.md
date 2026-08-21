@@ -264,12 +264,61 @@ mutation submissions rejected because the queue is full or the engine is closed.
 Metrics are intended for polling and monitoring adapters. They describe one instant
 and may be stale immediately after return; collecting them never locks search readers.
 
-## Engineering benchmark
+## JMH performance baselines
+
+Formal performance measurements use JMH 1.37 in an opt-in Maven profile. Benchmark
+sources live under `src/jmh/java`; they are excluded from the normal build and
+`mvn test` never executes them. Build the self-contained forkable JAR with:
+
+```bash
+mvn -Pjmh -DskipTests clean package
+java -jar target/benchmarks.jar -l
+```
+
+The suite contains nine benchmarks in three groups:
+
+- `ProductQueryBenchmark`: Equality, Range, Prefix, indexed composite and unindexed
+  range-scan throughput.
+- `ProductMutationBenchmark`: end-to-end single update and 100-update batch
+  publication latency. The batch result is normalized per document operation.
+- `DynamicIndexBuildBenchmark`: end-to-end Rating Range/Equality build, publication
+  and drop latency.
+
+The annotations default to 10,000 documents, two forked JVMs, explicit warmup and five
+measurement iterations. Override the data size and select a group using JMH options:
+
+```bash
+java -jar target/benchmarks.jar 'ProductQueryBenchmark.*' \
+  -p productCount=100000 \
+  -prof gc -prof mempool \
+  -rf json -rff target/jmh-query.json
+
+java -jar target/benchmarks.jar 'ProductMutationBenchmark.*' \
+  -p productCount=100000 -prof gc \
+  -rf json -rff target/jmh-mutation.json
+
+java -jar target/benchmarks.jar 'DynamicIndexBuildBenchmark.*' \
+  -p productCount=100000 -prof gc \
+  -rf json -rff target/jmh-index-build.json
+```
+
+`gc.alloc.rate.norm` is normalized allocation per operation in bytes. The `mempool`
+profiler reports JVM pool occupancy and is useful for same-environment footprint
+comparisons, but it is not an engine-only retained-object size. Use `-prof jfr` or a
+heap dump when retained-object paths need investigation. Keep the JDK, heap settings,
+collector, hardware, document count and benchmark options identical when comparing
+runs. JSON result files under `target` are intentionally disposable build artifacts.
+
+For IntelliJ, run the Maven goal above and execute the resulting JAR from the built-in
+terminal. Direct, non-forked IDE runs are suitable only for debugging benchmark setup,
+not for recording baselines.
+
+## Lightweight engineering benchmark
 
 The repository retains a lightweight smoke benchmark covering all Product default
 indexes, including name prefixes. It reports total load time, approximate memory growth
-and mixed-query throughput. These values are useful for local regression checks but are
-not a replacement for JMH or a memory profiler.
+and mixed-query throughput. These values are useful for quick local regression checks
+but are not accepted as formal JMH or memory results.
 
 ```bash
 mvn test-compile
@@ -301,5 +350,5 @@ All arguments are optional. Defaults are 100,000 products, up to 8 readers, 2 wr
 add/update/remove mutations, and concurrent Range/Equality index builds followed by
 drop operations. It prints query and mutation throughput only after the worker checks
 and final oracle comparison pass. This is a correctness-oriented soak runner rather
-than a statistically rigorous microbenchmark; JMH remains the planned tool for stable
-performance baselines.
+than a statistically rigorous microbenchmark; use the JMH suite above for stable
+performance and allocation baselines.
