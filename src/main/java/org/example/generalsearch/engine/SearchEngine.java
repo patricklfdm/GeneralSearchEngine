@@ -8,6 +8,16 @@ import org.example.generalsearch.query.Query;
 import org.example.generalsearch.schema.Field;
 import org.example.generalsearch.schema.SearchSchema;
 
+/**
+ * Thread-safe in-memory search engine over documents identified by a business key.
+ *
+ * <p>Reads observe immutable snapshots. Mutations and index lifecycle operations are
+ * asynchronous; successful completion means the resulting snapshot is visible to new
+ * reads. Accepted documents must be treated as immutable.</p>
+ *
+ * @param <K> business ID type
+ * @param <T> document type
+ */
 public interface SearchEngine<K, T> extends AutoCloseable {
     /** Starts a builder from an immutable, complete schema. */
     static <K, T> SearchEngineBuilder<K, T> builder(SearchSchema<T, K> schema) {

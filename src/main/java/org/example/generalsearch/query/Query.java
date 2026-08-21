@@ -3,8 +3,14 @@ package org.example.generalsearch.query;
 import java.util.List;
 import org.example.generalsearch.schema.Field;
 
+/**
+ * Predicate evaluated against documents after optional index-based candidate planning.
+ *
+ * @param <T> queried document type
+ */
 @FunctionalInterface
 public interface Query<T> {
+    /** Returns whether one non-null document satisfies this query. */
     boolean matches(T document);
 
     /** Uses {@link java.util.Objects#equals(Object, Object)}; null is a valid value. */

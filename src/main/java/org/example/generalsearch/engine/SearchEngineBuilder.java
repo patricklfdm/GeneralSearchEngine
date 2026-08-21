@@ -10,7 +10,16 @@ import org.example.generalsearch.schema.AnnotatedSearchConfiguration;
 import org.example.generalsearch.schema.Field;
 import org.example.generalsearch.schema.SearchSchema;
 
-/** Fluent construction entry point for generic snapshot search engines. */
+/**
+ * Fluent construction entry point for generic snapshot search engines.
+ *
+ * <p>A builder created from a document type assembles its schema and automatically
+ * registers fields referenced by startup indexes. A builder created from an existing
+ * schema requires every index to use that schema's canonical field instance.</p>
+ *
+ * @param <K> business ID type
+ * @param <T> document type
+ */
 public final class SearchEngineBuilder<K, T> {
     private final SearchSchema<T, K> fixedSchema;
     private final SearchSchema.Builder<T, K> schemaBuilder;
@@ -68,6 +77,7 @@ public final class SearchEngineBuilder<K, T> {
         return this;
     }
 
+    /** Builds and starts a new engine instance owned by the caller. */
     public SearchEngine<K, T> build() {
         SearchSchema<T, K> schema = fixedSchema == null
                 ? schemaBuilder.build()

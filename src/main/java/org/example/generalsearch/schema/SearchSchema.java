@@ -8,6 +8,9 @@ import java.util.Optional;
 
 /**
  * Immutable metadata describing a searchable document type and its known fields.
+ *
+ * @param <T> document type
+ * @param <K> non-null business ID type
  */
 public final class SearchSchema<T, K> {
     private final Class<T> documentType;

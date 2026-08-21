@@ -26,6 +26,30 @@ Run only the frozen v1 source/JVM-descriptor compatibility fixture with:
 mvn clean -Papi-compat test
 ```
 
+## Release engineering
+
+The release profile runs strict structural Javadoc validation and attaches the main,
+sources, and Javadoc JARs:
+
+```bash
+mvn clean -Prelease verify
+```
+
+Release archives use a fixed `project.build.outputTimestamp` and pinned lifecycle
+plugin versions. Verify that two clean builds are byte-for-byte identical with:
+
+```bash
+bash scripts/verify-reproducible-build.sh
+```
+
+The script skips tests because release verification runs them separately, then compares
+all three JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
+major version; `.gitattributes` fixes repository text files to LF across platforms.
+See [CHANGELOG.md](CHANGELOG.md) and
+[RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) before cutting a version. External
+publishing remains blocked until the placeholder `org.example` coordinates and project
+license are intentionally selected.
+
 ## Package layout
 
 ```text

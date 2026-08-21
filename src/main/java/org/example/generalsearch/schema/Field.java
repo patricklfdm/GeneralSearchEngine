@@ -9,6 +9,12 @@ import java.util.function.Function;
  * <p>The extractor may return {@code null} for non-ID fields. Built-in indexes omit
  * null values; query-specific matching semantics still apply. The ID field of a
  * {@link SearchSchema} must extract a non-null value.</p>
+ *
+ * @param <T> document type
+ * @param <V> extracted value type
+ * @param name unique logical name within a schema
+ * @param valueType runtime value type used for schema validation
+ * @param extractor pre-bound document value extractor
  */
 public record Field<T, V>(
         String name,

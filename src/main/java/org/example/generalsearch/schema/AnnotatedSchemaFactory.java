@@ -19,9 +19,14 @@ import org.example.generalsearch.schema.annotation.IndexType;
 import org.example.generalsearch.schema.annotation.SearchId;
 import org.example.generalsearch.schema.annotation.SearchIndex;
 
+/** Generates immutable schemas and startup indexes from annotated document members. */
 public final class AnnotatedSchemaFactory {
     private AnnotatedSchemaFactory() {}
 
+    /**
+     * Inspects one document type, validates its annotated members, and binds reusable
+     * extractors during startup.
+     */
     public static <T, K> AnnotatedSearchConfiguration<T, K> create(
             Class<T> documentType,
             Class<K> idType
