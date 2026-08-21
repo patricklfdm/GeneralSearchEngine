@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
+import org.example.generalsearch.query.Query;
 import org.junit.jupiter.api.Test;
 
 class CatalogSnapshotTest {
@@ -19,11 +21,15 @@ class CatalogSnapshotTest {
 
         assertEquals(original, first.get(50_000));
         assertEquals(updated, second.get(50_000));
-        assertTrue(first.priceIndex().get(10).get(50_000));
-        assertFalse(second.priceIndex().get(10).get(50_000));
-        assertTrue(second.priceIndex().get(25).get(50_000));
-        assertFalse(second.primeIndex().primeProducts().get(50_000));
-        assertTrue(second.categoryIndex().get(Category.ELECTRONICS).get(50_000));
+        assertTrue(hasCandidate(first, Query.eq(ProductFields.PRICE, 10.0), 50_000));
+        assertFalse(hasCandidate(second, Query.eq(ProductFields.PRICE, 10.0), 50_000));
+        assertTrue(hasCandidate(second, Query.eq(ProductFields.PRICE, 25.0), 50_000));
+        assertTrue(hasCandidate(second, Query.eq(ProductFields.PRIME, false), 50_000));
+        assertTrue(hasCandidate(
+                second,
+                Query.eq(ProductFields.CATEGORY, Category.ELECTRONICS),
+                50_000
+        ));
     }
 
     @Test
@@ -36,8 +42,16 @@ class CatalogSnapshotTest {
         CatalogSnapshot snapshot = builder.build();
 
         assertEquals(35, snapshot.get(0).price());
-        assertTrue(snapshot.primeIndex().primeProducts().get(0));
+        assertTrue(hasCandidate(snapshot, Query.eq(ProductFields.PRIME, true), 0));
         assertNull(snapshot.get(2_000));
+    }
+
+    private static boolean hasCandidate(
+            CatalogSnapshot snapshot,
+            Query<Product> query,
+            int docId
+    ) {
+        return snapshot.indexes().candidates(query).orElseThrow().bitmap().get(docId);
     }
 
     private static Product product(String id, Category category, double price, boolean prime) {

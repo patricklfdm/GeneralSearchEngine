@@ -7,16 +7,9 @@ import java.util.Objects;
 import java.util.Optional;
 import org.example.generalsearch.bitmap.ImmutableBitmap;
 import org.example.generalsearch.catalog.CatalogSnapshot;
-import org.example.generalsearch.filter.AndFilter;
-import org.example.generalsearch.filter.CategoryFilter;
-import org.example.generalsearch.filter.NotFilter;
-import org.example.generalsearch.filter.OrFilter;
-import org.example.generalsearch.filter.PriceRangeFilter;
-import org.example.generalsearch.filter.PrimeFilter;
 import org.example.generalsearch.filter.ProductFilter;
-import org.example.generalsearch.model.Category;
+import org.example.generalsearch.filter.ProductFilterAdapter;
 import org.example.generalsearch.model.Product;
-import org.example.generalsearch.model.ProductFields;
 
 @SuppressWarnings("deprecation")
 public final class CandidatePlanner {
@@ -24,14 +17,12 @@ public final class CandidatePlanner {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(filter, "filter");
 
+        Optional<CandidateResult> indexed = snapshot.indexes().candidates(filter);
+        if (indexed.isPresent()) {
+            return indexed;
+        }
         if (filter instanceof MatchAllQuery<?>) {
             return exact(snapshot.activeProducts());
-        }
-        if (filter instanceof EqualQuery<?, ?> equal) {
-            return planEqual(snapshot, equal);
-        }
-        if (filter instanceof RangeQuery<?, ?> range) {
-            return planRange(snapshot, range);
         }
         if (filter instanceof AndQuery<?> and) {
             return planAnd(snapshot, productQueries(and.queries()));
@@ -44,71 +35,13 @@ public final class CandidatePlanner {
             return complementExact(snapshot, child);
         }
 
-        // Compatibility with the former Product-specific query types.
-        if (filter instanceof CategoryFilter category) {
-            return exact(snapshot.categoryIndex().get(category.category()));
-        }
-        if (filter instanceof PrimeFilter prime) {
-            ImmutableBitmap candidates = prime.requirePrime()
-                    ? snapshot.primeIndex().primeProducts()
-                    : snapshot.activeProducts().andNot(snapshot.primeIndex().primeProducts());
-            return exact(candidates);
-        }
-        if (filter instanceof PriceRangeFilter price) {
-            return exact(snapshot.priceIndex().getByRange(price.minPrice(), price.maxPrice()));
-        }
-        if (filter instanceof AndFilter and) {
-            return planAnd(snapshot, and.filters());
-        }
-        if (filter instanceof OrFilter or) {
-            return planOr(snapshot, or.filters());
-        }
-        if (filter instanceof NotFilter not) {
-            Optional<CandidateResult> child = plan(snapshot, not.filter());
-            return complementExact(snapshot, child);
-        }
-        return Optional.empty();
-    }
-
-    private Optional<CandidateResult> planEqual(
-            CatalogSnapshot snapshot,
-            EqualQuery<?, ?> query
-    ) {
-        if (query.field() == ProductFields.CATEGORY) {
-            Object value = query.expectedValue();
-            return value instanceof Category category
-                    ? exact(snapshot.categoryIndex().get(category))
-                    : exact(ImmutableBitmap.empty());
-        }
-        if (query.field() == ProductFields.PRIME) {
-            Object value = query.expectedValue();
-            if (!(value instanceof Boolean prime)) {
-                return exact(ImmutableBitmap.empty());
+        if (filter instanceof ProductFilter legacyFilter) {
+            Query<Product> adapted = ProductFilterAdapter.toQuery(legacyFilter);
+            if (adapted != filter) {
+                return plan(snapshot, adapted);
             }
-            return exact(prime
-                    ? snapshot.primeIndex().primeProducts()
-                    : snapshot.activeProducts().andNot(snapshot.primeIndex().primeProducts()));
-        }
-        if (query.field() == ProductFields.PRICE) {
-            Object value = query.expectedValue();
-            return value instanceof Double price
-                    ? exact(snapshot.priceIndex().get(price))
-                    : exact(ImmutableBitmap.empty());
         }
         return Optional.empty();
-    }
-
-    private Optional<CandidateResult> planRange(
-            CatalogSnapshot snapshot,
-            RangeQuery<?, ?> query
-    ) {
-        if (query.field() != ProductFields.PRICE) {
-            return Optional.empty();
-        }
-        return exact(snapshot.priceIndex().getByRange(
-                (Double) query.minValue(),
-                (Double) query.maxValue()
-        ));
     }
 
     private Optional<CandidateResult> planAnd(

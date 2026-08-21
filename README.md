@@ -95,12 +95,29 @@ To add an unindexed query:
 2. Add a `Query<T>` implementation and implement `matches(T)`.
 3. Add direct and composite-query tests. The searcher will safely fall back to scanning.
 
-To index that filter as well:
+Built-in indexes can be selected dynamically when the engine starts:
 
-1. Add an immutable snapshot and batch builder in `index`.
-2. Add the index to `CatalogSnapshot` and `CatalogSnapshotBuilder`.
-3. Teach `CandidatePlanner` how to produce an `EXACT` or `SUPERSET` candidate bitmap.
-4. Add mutation regression tests and randomized differential coverage.
+```java
+var indexes = List.<IndexDefinition<Product>>of(
+        IndexDefinition.equality(ProductFields.CATEGORY),
+        IndexDefinition.equality(ProductFields.PRIME),
+        IndexDefinition.range(ProductFields.PRICE),
+        IndexDefinition.range(ProductFields.RATING)
+);
+
+var engine = new SnapshotUpdateEngine(SnapshotEngineConfig.DEFAULT, indexes);
+```
+
+`EqualityIndex` works with enums, booleans, strings and other exact values. `RangeIndex`
+works with `Comparable` values and also answers exact equality queries. Adding another
+field with either built-in index does not require changes to Catalog or CandidatePlanner.
+
+To add a new index algorithm:
+
+1. Implement `IndexDefinition<T>`, `IndexSnapshot<T>` and `IndexBuilder<T>`.
+2. Let the snapshot report candidates for the query types it supports.
+3. Register the definition when creating the engine.
+4. Add mutation, snapshot-isolation and randomized differential tests.
 
 ## Engineering benchmark
 

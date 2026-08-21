@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
 import org.example.generalsearch.model.ProductFields;
@@ -61,6 +62,25 @@ class SnapshotUpdateEngineTest {
         accepted.forEach(CompletableFuture::join);
         assertEquals(500, engine.search(
                 Query.eq(ProductFields.CATEGORY, Category.HOME)).size());
+    }
+
+    @Test
+    void acceptsDynamicIndexDefinitionsAtStartup() {
+        try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine(
+                SnapshotEngineConfig.DEFAULT,
+                List.of(IndexDefinition.range(ProductFields.RATING)))) {
+            Product product = product("p1", Category.BOOKS, 10);
+            engine.add(0, product).join();
+
+            Query<Product> query = Query.between(ProductFields.RATING, 4.0, 5.0);
+            assertTrue(engine.snapshotForTesting()
+                    .indexes()
+                    .candidates(query)
+                    .orElseThrow()
+                    .bitmap()
+                    .get(0));
+            assertEquals(List.of(product), engine.search(query));
+        }
     }
 
     private static Product product(String id, Category category, double price) {

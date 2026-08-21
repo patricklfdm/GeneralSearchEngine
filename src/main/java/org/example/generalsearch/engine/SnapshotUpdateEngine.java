@@ -1,6 +1,7 @@
 package org.example.generalsearch.engine;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -13,13 +14,13 @@ import org.example.generalsearch.catalog.CatalogSnapshot;
 import org.example.generalsearch.catalog.CatalogSnapshotBuilder;
 import org.example.generalsearch.engine.mutation.CatalogMutation;
 import org.example.generalsearch.engine.mutation.MutationTask;
+import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Product;
 import org.example.generalsearch.query.Query;
 import org.example.generalsearch.query.SnapshotSearcher;
 
 public final class SnapshotUpdateEngine implements ProductSearchEngine {
-    private final AtomicReference<CatalogSnapshot> current =
-            new AtomicReference<>(new CatalogSnapshot());
+    private final AtomicReference<CatalogSnapshot> current;
     private final BlockingQueue<MutationTask> queue;
     private final SnapshotEngineConfig config;
     private final SnapshotSearcher searcher;
@@ -28,11 +29,19 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     private volatile boolean accepting = true;
 
     public SnapshotUpdateEngine() {
-        this(SnapshotEngineConfig.DEFAULT);
+        this(SnapshotEngineConfig.DEFAULT, CatalogSnapshot.defaultIndexDefinitions());
     }
 
     public SnapshotUpdateEngine(SnapshotEngineConfig config) {
+        this(config, CatalogSnapshot.defaultIndexDefinitions());
+    }
+
+    public SnapshotUpdateEngine(
+            SnapshotEngineConfig config,
+            Collection<? extends IndexDefinition<Product>> indexDefinitions
+    ) {
         this.config = Objects.requireNonNull(config, "config");
+        this.current = new AtomicReference<>(new CatalogSnapshot(indexDefinitions));
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
         this.searcher = new SnapshotSearcher();
         this.writerThread = new Thread(this::writerLoop, "product-snapshot-writer");

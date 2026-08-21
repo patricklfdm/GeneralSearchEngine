@@ -3,8 +3,10 @@ package org.example.generalsearch.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import org.example.generalsearch.catalog.CatalogSnapshot;
 import org.example.generalsearch.filter.CategoryFilter;
+import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
 import org.example.generalsearch.model.ProductFields;
@@ -64,6 +66,23 @@ class CandidatePlannerTest {
         ).orElseThrow();
         assertEquals(CandidateAccuracy.EXACT, result.accuracy());
         assertTrue(result.bitmap().get(1));
+    }
+
+    @Test
+    void usesAStartupRegisteredIndexWithoutPlannerChanges() {
+        CatalogSnapshot ratingIndexed = new CatalogSnapshot(List.of(
+                IndexDefinition.range(ProductFields.RATING)
+        )).add(0, product("p0", "Laptop", Category.ELECTRONICS, 999, 4.8))
+                .add(1, product("p1", "Mouse", Category.ELECTRONICS, 40, 3.0));
+
+        CandidateResult result = planner.plan(
+                ratingIndexed,
+                Query.between(ProductFields.RATING, 4.0, 5.0)
+        ).orElseThrow();
+
+        assertEquals(CandidateAccuracy.EXACT, result.accuracy());
+        assertEquals(1, result.bitmap().cardinality());
+        assertTrue(result.bitmap().get(0));
     }
 
     private static Product product(

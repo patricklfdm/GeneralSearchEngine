@@ -1,41 +1,40 @@
 package org.example.generalsearch.catalog;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import org.example.generalsearch.bitmap.ImmutableBitmap;
-import org.example.generalsearch.index.CategoryIndexSnapshot;
-import org.example.generalsearch.index.PriceIndexSnapshot;
-import org.example.generalsearch.index.PrimeIndexSnapshot;
+import org.example.generalsearch.index.IndexDefinition;
+import org.example.generalsearch.index.IndexRegistry;
+import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
+import org.example.generalsearch.model.ProductFields;
 
 public final class CatalogSnapshot {
     private final ProductTable productTable;
     private final ImmutableBitmap activeProducts;
-    private final CategoryIndexSnapshot categoryIndex;
-    private final PrimeIndexSnapshot primeIndex;
-    private final PriceIndexSnapshot priceIndex;
+    private final IndexRegistry<Product> indexes;
 
     public CatalogSnapshot() {
+        this(defaultIndexDefinitions());
+    }
+
+    public CatalogSnapshot(Collection<? extends IndexDefinition<Product>> definitions) {
         this(
                 new ProductTable(),
                 ImmutableBitmap.empty(),
-                new CategoryIndexSnapshot(),
-                new PrimeIndexSnapshot(),
-                new PriceIndexSnapshot()
+                IndexRegistry.create(definitions)
         );
     }
 
     CatalogSnapshot(
             ProductTable productTable,
             ImmutableBitmap activeProducts,
-            CategoryIndexSnapshot categoryIndex,
-            PrimeIndexSnapshot primeIndex,
-            PriceIndexSnapshot priceIndex
+            IndexRegistry<Product> indexes
     ) {
         this.productTable = Objects.requireNonNull(productTable, "productTable");
         this.activeProducts = Objects.requireNonNull(activeProducts, "activeProducts");
-        this.categoryIndex = Objects.requireNonNull(categoryIndex, "categoryIndex");
-        this.primeIndex = Objects.requireNonNull(primeIndex, "primeIndex");
-        this.priceIndex = Objects.requireNonNull(priceIndex, "priceIndex");
+        this.indexes = Objects.requireNonNull(indexes, "indexes");
     }
 
     public Product get(int docId) {
@@ -68,15 +67,15 @@ public final class CatalogSnapshot {
         return activeProducts;
     }
 
-    public CategoryIndexSnapshot categoryIndex() {
-        return categoryIndex;
+    public IndexRegistry<Product> indexes() {
+        return indexes;
     }
 
-    public PrimeIndexSnapshot primeIndex() {
-        return primeIndex;
-    }
-
-    public PriceIndexSnapshot priceIndex() {
-        return priceIndex;
+    public static List<IndexDefinition<Product>> defaultIndexDefinitions() {
+        return List.of(
+                IndexDefinition.<Product, Category>equality(ProductFields.CATEGORY),
+                IndexDefinition.<Product, Boolean>equality(ProductFields.PRIME),
+                IndexDefinition.<Product, Double>range(ProductFields.PRICE)
+        );
     }
 }
