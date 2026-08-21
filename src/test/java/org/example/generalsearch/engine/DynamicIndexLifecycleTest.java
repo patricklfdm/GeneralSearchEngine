@@ -2,6 +2,7 @@ package org.example.generalsearch.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.example.generalsearch.engine.exception.IndexLifecycleException;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.index.range.RangeIndexSnapshot;
 import org.example.generalsearch.query.CandidateAccuracy;
@@ -50,7 +52,12 @@ class DynamicIndexLifecycleTest {
 
             CompletableFuture<Void> duplicate =
                     engine.createIndex(IndexDefinition.range(score));
-            assertThrows(CompletionException.class, duplicate::join);
+            CompletionException duplicateFailure =
+                    assertThrows(CompletionException.class, duplicate::join);
+            IndexLifecycleException duplicateCause = assertInstanceOf(
+                    IndexLifecycleException.class, duplicateFailure.getCause());
+            assertEquals(IndexLifecycleException.Reason.BUILD_IN_PROGRESS,
+                    duplicateCause.reason());
 
             engine.update(new Item(0, 950)).join();
             engine.remove(1L).join();
@@ -94,7 +101,12 @@ class DynamicIndexLifecycleTest {
             assertTrue(extractor.awaitBuildStart());
 
             engine.dropIndex("score").join();
-            assertThrows(CompletionException.class, create::join);
+            CompletionException cancelledFailure =
+                    assertThrows(CompletionException.class, create::join);
+            IndexLifecycleException cancelledCause = assertInstanceOf(
+                    IndexLifecycleException.class, cancelledFailure.getCause());
+            assertEquals(IndexLifecycleException.Reason.CANCELLED,
+                    cancelledCause.reason());
             engine.dropIndex("score").join();
             assertTrue(new CandidatePlanner<Item>()
                     .plan(engine.snapshotForTesting(), Query.between(score, 0, 100))

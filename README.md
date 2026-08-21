@@ -83,8 +83,8 @@ batch window.
 
 ## Generic engine
 
-`SearchEngine<K,T>` is implemented by `SnapshotSearchEngine<K,T>`. A document type only
-needs a typed ID field, a schema and its startup indexes:
+`SearchEngine<K,T>` is the primary public entry point. A document type only needs a
+typed ID field and its searchable fields/indexes:
 
 ```java
 record Item(Long id, String warehouse, int quantity) {}
@@ -95,17 +95,10 @@ Field<Item, String> warehouse =
 Field<Item, Integer> quantity =
         Field.of("quantity", Integer.class, Item::quantity);
 
-SearchSchema<Item, Long> schema = SearchSchema.builder(Item.class, id)
-        .field(warehouse)
-        .field(quantity)
-        .build();
-
-try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
-        schema,
-        List.of(
-                IndexDefinition.equality(warehouse),
-                IndexDefinition.range(quantity)
-        ))) {
+try (SearchEngine<Long, Item> engine = SearchEngine.builder(Item.class, id)
+        .index(IndexDefinition.equality(warehouse))
+        .index(IndexDefinition.range(quantity))
+        .build()) {
     engine.add(new Item(1001L, "north", 120)).join();
     List<Item> items = engine.search(Query.and(
             Query.eq(warehouse, "north"),
@@ -114,16 +107,27 @@ try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
 }
 ```
 
+`index(...)` automatically registers its canonical field when the builder is assembling
+a manual schema. Use `field(...)` for unindexed fields. An already assembled schema can
+instead be supplied through `SearchEngine.builder(schema)`. Both builders accept
+`config(SnapshotEngineConfig)` and multiple `indexes(...)`.
+
+`engine.schema()` returns the immutable canonical schema. Fields retrieved from this
+schema should be used for queries and runtime indexes, especially with annotation-
+generated engines.
+
 `DocumentTable<T>`, `SearchSnapshot<T>`, `CandidatePlanner<T>` and
 `SnapshotSearcher<T>` remain the lower-level domain-independent search chain.
 `SnapshotUpdateEngine` is the Product convenience boundary that supplies Product's
 schema and default indexes while retaining the deprecated ProductFilter adapter.
+The concrete `SnapshotSearchEngine` constructors remain compatible for lower-level
+callers, but new application code should construct engines through `SearchEngine`.
 
 ## Annotation-generated configuration
 
-`AnnotatedSchemaFactory` generates a normal `SearchSchema<T,K>` and startup index
-definitions. Reflection is limited to member discovery and startup validation; member
-extractors are pre-bound as method handles.
+`SearchEngine.fromAnnotatedClass` is the short factory for annotated documents.
+Reflection is limited to member discovery and startup validation; member extractors
+are pre-bound as method handles.
 
 ```java
 record Item(
@@ -133,18 +137,18 @@ record Item(
         String name
 ) {}
 
-AnnotatedSearchConfiguration<Item, Long> configuration =
-        AnnotatedSchemaFactory.create(Item.class, Long.class);
-
-Field<Item, String> warehouse =
-        configuration.schema().requireField("warehouse", String.class);
-
-try (SearchEngine<Long, Item> engine = new SnapshotSearchEngine<>(
-        configuration.schema(), configuration.indexDefinitions())) {
+try (SearchEngine<Long, Item> engine =
+        SearchEngine.fromAnnotatedClass(Item.class, Long.class)) {
+    Field<Item, String> warehouse =
+            engine.schema().requireField("warehouse", String.class);
     engine.add(new Item(1001L, "north", 120, "Cable")).join();
     List<Item> items = engine.search(Query.eq(warehouse, "north"));
 }
 ```
+
+Use `SearchEngine.annotatedBuilder(...)` instead when engine configuration must be
+customized before `build()`. `AnnotatedSchemaFactory` remains available as the
+lower-level configuration generator.
 
 All record components become schema fields. For ordinary classes, only fields and
 zero-argument getters carrying `@SearchId` or `@SearchIndex` are included. Private
@@ -154,6 +158,24 @@ are exposed through their boxed classes.
 Exactly one ID is required. Duplicate logical field names, an ID type mismatch, static
 annotated members, invalid getters and incompatible index types fail during generation.
 `EQUALITY`, `RANGE` and `PREFIX` are available.
+
+## Failure contract
+
+Mutation and dynamic-index operations return `CompletableFuture<Void>`. Operational
+failures are available as the cause of `CompletionException` from `join()`:
+
+- `DocumentAlreadyExistsException`: `add` received an active business ID.
+- `DocumentNotFoundException`: `update` received a missing business ID.
+- `EngineRejectedExecutionException`: the engine is closed or its writer queue is full;
+  inspect `reason()` for `CLOSED` or `QUEUE_FULL`.
+- `IndexLifecycleException`: an index already exists, the same build is in progress, or
+  a pending build was cancelled by `dropIndex`; inspect `reason()` and `fieldName()`.
+
+Removing a missing ID and dropping a known field without indexes remain idempotent.
+Invalid arguments and invalid builder/schema configuration fail synchronously with
+`IllegalArgumentException` or `SchemaGenerationException`. A field extractor or custom
+index failure remains the original build failure rather than being hidden by a generic
+wrapper.
 
 Prefix matching intentionally has the same semantics as `String.startsWith`: it is
 case-sensitive, performs no Locale conversion or Unicode normalization, and indexes

@@ -19,12 +19,10 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
-import org.example.generalsearch.engine.mutation.CreateIndexTask;
-import org.example.generalsearch.engine.mutation.DropIndexTask;
-import org.example.generalsearch.engine.mutation.InstallIndexTask;
-import org.example.generalsearch.engine.mutation.MutationTask;
-import org.example.generalsearch.engine.mutation.SearchMutation;
-import org.example.generalsearch.engine.mutation.WriterTask;
+import org.example.generalsearch.engine.exception.DocumentAlreadyExistsException;
+import org.example.generalsearch.engine.exception.DocumentNotFoundException;
+import org.example.generalsearch.engine.exception.EngineRejectedExecutionException;
+import org.example.generalsearch.engine.exception.IndexLifecycleException;
 import org.example.generalsearch.engine.metrics.IndexBuildFailure;
 import org.example.generalsearch.engine.metrics.IndexBuildMetrics;
 import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
@@ -66,6 +64,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private Optional<IndexBuildFailure> lastIndexBuildFailure = Optional.empty();
     private volatile boolean accepting = true;
 
+    /** Compatibility constructor; new application code should prefer SearchEngine.builder. */
     public SnapshotSearchEngine(
             SearchSchema<T, K> schema,
             Collection<? extends IndexDefinition<T>> indexDefinitions
@@ -73,6 +72,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         this(SnapshotEngineConfig.DEFAULT, schema, indexDefinitions);
     }
 
+    /** Compatibility constructor; new application code should prefer SearchEngine.builder. */
     public SnapshotSearchEngine(
             SnapshotEngineConfig config,
             SearchSchema<T, K> schema,
@@ -145,6 +145,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     @Override
+    public SearchSchema<T, K> schema() {
+        return schema;
+    }
+
+    @Override
     public SearchEngineMetrics metrics() {
         PublishedState<K, T> state = current.get();
         WriterMetrics writer = writerMetrics.get();
@@ -189,11 +194,13 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         synchronized (lifecycleMonitor) {
             if (!accepting) {
                 task.completion().completeExceptionally(
-                        new IllegalStateException("engine is closed"));
+                        new EngineRejectedExecutionException(
+                                EngineRejectedExecutionException.Reason.CLOSED));
                 recordRejectedMutation(task);
             } else if (!queue.offer(task)) {
                 task.completion().completeExceptionally(
-                        new RejectedExecutionException("writer queue is full"));
+                        new EngineRejectedExecutionException(
+                                EngineRejectedExecutionException.Reason.QUEUE_FULL));
                 recordRejectedMutation(task);
             }
         }
@@ -371,16 +378,17 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         }
         if (current.get().snapshot().indexes()
                 .contains(requestedField, emptyIndex.getClass())) {
-            throw new IllegalStateException(
-                    "index already exists for field: " + requestedField.name());
+            throw new IndexLifecycleException(
+                    requestedField.name(),
+                    IndexLifecycleException.Reason.ALREADY_EXISTS);
         }
         boolean alreadyBuilding = pendingIndexBuilds.values().stream().anyMatch(pending ->
                 pending.field() == requestedField
                         && pending.indexType() == emptyIndex.getClass());
         if (alreadyBuilding) {
-            throw new IllegalStateException(
-                    "index build is already in progress for field: "
-                            + requestedField.name());
+            throw new IndexLifecycleException(
+                    requestedField.name(),
+                    IndexLifecycleException.Reason.BUILD_IN_PROGRESS);
         }
 
         if (nextIndexBuildId < 0) {
@@ -538,8 +546,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             if (build.field() == field) {
                 pending.remove();
                 indexBuildsCancelled++;
-                build.completion().completeExceptionally(new IllegalStateException(
-                        "index build was cancelled by dropIndex: " + task.fieldName()));
+                build.completion().completeExceptionally(new IndexLifecycleException(
+                        task.fieldName(), IndexLifecycleException.Reason.CANCELLED));
             }
         }
 
@@ -702,7 +710,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         private IndexChange<T> add(T document) {
             K id = schema.idOf(document);
             if (documentIds.containsKey(id)) {
-                throw new IllegalStateException("document id already exists: " + id);
+                throw new DocumentAlreadyExistsException(id);
             }
             if (nextDocId < 0) {
                 throw new IllegalStateException("internal document id space is exhausted");
@@ -717,7 +725,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             K id = schema.idOf(document);
             Integer docId = documentIds.get(id);
             if (docId == null) {
-                throw new IllegalStateException("document id does not exist: " + id);
+                throw new DocumentNotFoundException(id);
             }
             T oldDocument = Objects.requireNonNull(snapshots.get(docId));
             snapshots.update(docId, document);
@@ -767,6 +775,88 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     private record VersionedChange<T>(long version, IndexChange<T> change) {}
+
+    private interface WriterTask<K, T> {
+        CompletableFuture<Void> completion();
+    }
+
+    private record MutationTask<K, T>(
+            SearchMutation<K, T> mutation,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private MutationTask {
+            Objects.requireNonNull(mutation, "mutation");
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record CreateIndexTask<K, T>(
+            IndexDefinition<T> definition,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private CreateIndexTask {
+            Objects.requireNonNull(definition, "definition");
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record DropIndexTask<K, T>(
+            String fieldName,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private DropIndexTask {
+            if (fieldName == null || fieldName.isBlank()) {
+                throw new IllegalArgumentException("fieldName must not be blank");
+            }
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record InstallIndexTask<K, T>(
+            long buildId,
+            IndexSnapshot<T> index,
+            Throwable failure,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private InstallIndexTask {
+            if (buildId < 0) {
+                throw new IllegalArgumentException("buildId must not be negative");
+            }
+            if ((index == null) == (failure == null)) {
+                throw new IllegalArgumentException(
+                        "exactly one of index or failure must be present");
+            }
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record SearchMutation<K, T>(Type type, K id, T document) {
+        private enum Type {
+            ADD,
+            UPDATE,
+            REMOVE
+        }
+
+        private SearchMutation {
+            Objects.requireNonNull(type, "type");
+            switch (type) {
+                case ADD, UPDATE -> Objects.requireNonNull(document, "document");
+                case REMOVE -> Objects.requireNonNull(id, "id");
+            }
+        }
+
+        private static <K, T> SearchMutation<K, T> add(T document) {
+            return new SearchMutation<>(Type.ADD, null, document);
+        }
+
+        private static <K, T> SearchMutation<K, T> update(T document) {
+            return new SearchMutation<>(Type.UPDATE, null, document);
+        }
+
+        private static <K, T> SearchMutation<K, T> remove(K id) {
+            return new SearchMutation<>(Type.REMOVE, id, null);
+        }
+    }
 
     private record PendingIndexBuild<T>(
             long id,

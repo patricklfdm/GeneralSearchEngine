@@ -11,6 +11,7 @@ import org.example.generalsearch.model.Product;
 import org.example.generalsearch.model.ProductFields;
 import org.example.generalsearch.model.ProductIndexDefinitions;
 import org.example.generalsearch.query.Query;
+import org.example.generalsearch.schema.SearchSchema;
 import org.example.generalsearch.storage.SearchSnapshot;
 
 /**
@@ -80,6 +81,11 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     @Override
     public SearchEngineMetrics metrics() {
         return delegate.metrics();
+    }
+
+    @Override
+    public SearchSchema<Product, String> schema() {
+        return delegate.schema();
     }
 
     SearchSnapshot<Product> snapshotForTesting() {

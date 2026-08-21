@@ -5,12 +5,46 @@ import java.util.concurrent.CompletableFuture;
 import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.query.Query;
+import org.example.generalsearch.schema.Field;
+import org.example.generalsearch.schema.SearchSchema;
 
 public interface SearchEngine<K, T> extends AutoCloseable {
+    /** Starts a builder from an immutable, complete schema. */
+    static <K, T> SearchEngineBuilder<K, T> builder(SearchSchema<T, K> schema) {
+        return new SearchEngineBuilder<>(schema);
+    }
+
+    /** Starts a builder that will assemble a manual schema around the ID field. */
+    static <K, T> SearchEngineBuilder<K, T> builder(
+            Class<T> documentType,
+            Field<T, K> idField
+    ) {
+        return new SearchEngineBuilder<>(documentType, idField);
+    }
+
+    /** Generates an annotated schema and returns a configurable engine builder. */
+    static <K, T> SearchEngineBuilder<K, T> annotatedBuilder(
+            Class<T> documentType,
+            Class<K> idType
+    ) {
+        return SearchEngineBuilder.annotated(documentType, idType);
+    }
+
+    /** Generates an annotated schema and immediately builds an engine. */
+    static <K, T> SearchEngine<K, T> fromAnnotatedClass(
+            Class<T> documentType,
+            Class<K> idType
+    ) {
+        return annotatedBuilder(documentType, idType).build();
+    }
+
+    /** Adds a document; duplicate business IDs fail with DocumentAlreadyExistsException. */
     CompletableFuture<Void> add(T document);
 
+    /** Updates an active document; missing IDs fail with DocumentNotFoundException. */
     CompletableFuture<Void> update(T document);
 
+    /** Removes a document by business ID; removing a missing ID is idempotent. */
     CompletableFuture<Void> remove(K id);
 
     /**
@@ -28,6 +62,9 @@ public interface SearchEngine<K, T> extends AutoCloseable {
     T get(K id);
 
     List<T> search(Query<T> query);
+
+    /** Returns the canonical schema whose fields should be used by queries and indexes. */
+    SearchSchema<T, K> schema();
 
     /** Returns a lock-free, immutable operational snapshot of this engine. */
     SearchEngineMetrics metrics();
