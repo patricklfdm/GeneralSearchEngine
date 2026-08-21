@@ -32,6 +32,9 @@ The test suite contains unit tests for the persistent tree, immutable bitmap, ge
 storage, query planner and engine lifecycle, plus randomized Product and non-Product
 differential tests against full-scan oracles.
 
+See the completed v1 [performance baseline](docs/PERFORMANCE_BASELINE.md) for the
+environment- and workload-specific JMH regression results.
+
 Run only the frozen v1 source/JVM-descriptor compatibility fixture with:
 
 ```bash
