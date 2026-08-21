@@ -366,7 +366,7 @@ mvn -Pjmh -DskipTests clean package
 java -jar target/benchmarks.jar -l
 ```
 
-The suite contains nine benchmarks in three groups:
+The suite contains thirteen benchmarks in five groups:
 
 - `ProductQueryBenchmark`: Equality, Range, Prefix, indexed composite and unindexed
   range-scan throughput.
@@ -374,9 +374,18 @@ The suite contains nine benchmarks in three groups:
   publication latency. The batch result is normalized per document operation.
 - `DynamicIndexBuildBenchmark`: end-to-end Rating Range/Equality build, publication
   and drop latency.
+- `RangeIndexComparisonBenchmark`: same-field indexed-versus-scanned Range queries at
+  controlled selectivities, plus candidate-only construction.
+- `MutationBatchScalingBenchmark`: total latency and allocation for 1, 10, 100, and
+  1,000 updates with a one-publication assertion.
 
-The annotations default to 10,000 documents, two forked JVMs, explicit warmup and five
-measurement iterations. Override the data size and select a group using JMH options:
+The diagnostic round-two protocol and IntelliJ terminal commands are documented in
+[JMH_DIAGNOSTIC_ROUND_2.md](docs/JMH_DIAGNOSTIC_ROUND_2.md).
+
+The original baseline groups default to 10,000 documents, while the round-two
+diagnostic groups default to 100,000. All groups use two forked JVMs, explicit warmup
+and five measurement iterations. Override the data size and select a group using JMH
+options:
 
 ```bash
 java -jar target/benchmarks.jar 'ProductQueryBenchmark.*' \
