@@ -70,7 +70,7 @@ remain temporarily source-compatible but are deprecated; new code should use
 Mutation methods are asynchronous. Completion means the mutation is visible in the
 published snapshot. Mutations submitted through one engine are applied in submission
 order. Closing the engine stops new submissions, drains accepted mutations and waits
-for the writer thread to finish.
+for the writer thread and accepted index builds to finish.
 
 The public API uses business IDs. The engine assigns internal integer document IDs and
 keeps their mapping in the same atomically published state as the search snapshot.
@@ -182,7 +182,7 @@ To add an unindexed query:
 2. Add a `Query<T>` implementation and implement `matches(T)`.
 3. Add direct and composite-query tests. The searcher will safely fall back to scanning.
 
-Built-in indexes can be selected dynamically when the engine starts:
+Built-in indexes can be selected when the engine starts:
 
 ```java
 var indexes = List.<IndexDefinition<Product>>of(
@@ -202,11 +202,38 @@ works with self-compatible `Comparable` values and also answers exact equality q
 queries. Adding another field with any built-in index does not require changes to
 SearchSnapshot or CandidatePlanner.
 
+## Runtime index management
+
+Indexes can also be created and dropped while reads and mutations continue:
+
+```java
+engine.createIndex(IndexDefinition.range(ProductFields.RATING)).join();
+
+List<Product> highlyRated = engine.search(
+        Query.between(ProductFields.RATING, 4.5, 5.0)
+);
+
+engine.dropIndex("rating").join();
+```
+
+`createIndex` captures an immutable snapshot and its version, builds the index on a
+dedicated background thread, journals successful document mutations, replays changes
+newer than the captured version, and finally publishes the new registry atomically on
+the writer thread. Until publication, queries continue using the previous registry and
+safely fall back to scanning when necessary.
+
+Dynamic definitions must use the exact canonical `Field` instance from the engine's
+schema. Creating the same index algorithm for the same field twice fails, including
+when an equivalent build is already running. Different algorithms may coexist on one
+field. `dropIndex(fieldName)` removes every index for that field and cancels pending
+builds. Dropping a known field with no index is idempotent; an unknown field name fails.
+Completion of either operation means the resulting registry is visible to readers.
+
 To add a new index algorithm:
 
 1. Implement `IndexDefinition<T>`, `IndexSnapshot<T>` and `IndexBuilder<T>`.
 2. Let the snapshot report candidates for the query types it supports.
-3. Register the definition when creating the engine.
+3. Register the definition at startup or through `createIndex`.
 4. Add mutation, snapshot-isolation and randomized differential tests.
 
 ## Engineering benchmark

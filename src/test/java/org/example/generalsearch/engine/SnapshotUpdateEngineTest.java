@@ -16,6 +16,9 @@ import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
 import org.example.generalsearch.model.ProductFields;
 import org.example.generalsearch.query.Query;
+import org.example.generalsearch.query.CandidateAccuracy;
+import org.example.generalsearch.query.CandidatePlanner;
+import org.example.generalsearch.schema.Field;
 import org.junit.jupiter.api.Test;
 
 class SnapshotUpdateEngineTest {
@@ -111,6 +114,39 @@ class SnapshotUpdateEngineTest {
             engine.add(product("p1", Category.HOME, 20)).join();
 
             assertTrue(engine.internalDocIdForTesting("p1") > firstDocId);
+        }
+    }
+
+    @Test
+    void createsAndDropsIndexesAtRuntime() {
+        try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine()) {
+            Product book = product("p1", Category.BOOKS, 10);
+            engine.add(book).join();
+            Query<Product> rating = Query.between(ProductFields.RATING, 4.0, 5.0);
+            CandidatePlanner<Product> planner = new CandidatePlanner<>();
+            long initialVersion = engine.snapshotForTesting().version();
+
+            assertTrue(planner.plan(engine.snapshotForTesting(), rating).isEmpty());
+            engine.createIndex(IndexDefinition.range(ProductFields.RATING)).join();
+
+            var candidate = planner.plan(engine.snapshotForTesting(), rating).orElseThrow();
+            assertEquals(CandidateAccuracy.EXACT, candidate.accuracy());
+            assertEquals(List.of(book), engine.search(rating));
+            assertTrue(engine.snapshotForTesting().version() > initialVersion);
+            assertThrows(CompletionException.class,
+                    () -> engine.createIndex(
+                            IndexDefinition.range(ProductFields.RATING)).join());
+
+            engine.dropIndex("rating").join();
+            assertTrue(planner.plan(engine.snapshotForTesting(), rating).isEmpty());
+            engine.dropIndex("rating").join();
+
+            Field<Product, Double> nonCanonical =
+                    Field.of("rating", Double.class, Product::rating);
+            assertThrows(CompletionException.class,
+                    () -> engine.createIndex(IndexDefinition.range(nonCanonical)).join());
+            assertThrows(CompletionException.class,
+                    () -> engine.dropIndex("unknown").join());
         }
     }
 

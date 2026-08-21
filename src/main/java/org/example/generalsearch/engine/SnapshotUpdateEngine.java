@@ -53,6 +53,16 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
     }
 
     @Override
+    public CompletableFuture<Void> createIndex(IndexDefinition<Product> definition) {
+        return delegate.createIndex(definition);
+    }
+
+    @Override
+    public CompletableFuture<Void> dropIndex(String fieldName) {
+        return delegate.dropIndex(fieldName);
+    }
+
+    @Override
     public Product get(String id) {
         return delegate.get(id);
     }

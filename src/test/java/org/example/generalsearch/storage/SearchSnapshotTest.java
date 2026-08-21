@@ -20,6 +20,8 @@ class SearchSnapshotTest {
         SearchSnapshot<Product> first = emptyProductSnapshot().add(50_000, original);
         SearchSnapshot<Product> second = first.update(50_000, updated);
 
+        assertEquals(1, first.version());
+        assertEquals(2, second.version());
         assertEquals(original, first.get(50_000));
         assertEquals(updated, second.get(50_000));
         assertTrue(hasCandidate(first, Query.eq(ProductFields.PRICE, 10.0), 50_000));

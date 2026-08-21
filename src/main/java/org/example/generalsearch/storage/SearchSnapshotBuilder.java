@@ -8,6 +8,7 @@ public final class SearchSnapshotBuilder<T> {
     private final DocumentTableBuilder<T> documents;
     private final ImmutableBitmapBuilder activeDocuments;
     private final IndexRegistryBuilder<T> indexes;
+    private final long nextVersion;
     private boolean built;
 
     public SearchSnapshotBuilder(SearchSnapshot<T> base) {
@@ -15,6 +16,12 @@ public final class SearchSnapshotBuilder<T> {
         this.documents = new DocumentTableBuilder<>(base.documents());
         this.activeDocuments = new ImmutableBitmapBuilder(base.activeDocuments());
         this.indexes = base.indexes().toBuilder();
+        this.nextVersion = Math.addExact(base.version(), 1);
+    }
+
+    public T get(int docId) {
+        ensureOpen();
+        return activeDocuments.get(docId) ? documents.get(docId) : null;
     }
 
     public void add(int docId, T document) {
@@ -53,7 +60,8 @@ public final class SearchSnapshotBuilder<T> {
         return new SearchSnapshot<>(
                 documents.build(),
                 activeDocuments.build(),
-                indexes.build()
+                indexes.build(),
+                nextVersion
         );
     }
 

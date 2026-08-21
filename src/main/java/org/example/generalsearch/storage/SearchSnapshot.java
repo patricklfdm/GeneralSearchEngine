@@ -10,23 +10,30 @@ public final class SearchSnapshot<T> {
     private final DocumentTable<T> documents;
     private final ImmutableBitmap activeDocuments;
     private final IndexRegistry<T> indexes;
+    private final long version;
 
     public SearchSnapshot(Collection<? extends IndexDefinition<T>> definitions) {
         this(
                 new DocumentTable<>(),
                 ImmutableBitmap.empty(),
-                IndexRegistry.create(definitions)
+                IndexRegistry.create(definitions),
+                0
         );
     }
 
     SearchSnapshot(
             DocumentTable<T> documents,
             ImmutableBitmap activeDocuments,
-            IndexRegistry<T> indexes
+            IndexRegistry<T> indexes,
+            long version
     ) {
         this.documents = Objects.requireNonNull(documents, "documents");
         this.activeDocuments = Objects.requireNonNull(activeDocuments, "activeDocuments");
         this.indexes = Objects.requireNonNull(indexes, "indexes");
+        if (version < 0) {
+            throw new IllegalArgumentException("version must not be negative");
+        }
+        this.version = version;
     }
 
     public T get(int docId) {
@@ -61,5 +68,22 @@ public final class SearchSnapshot<T> {
 
     public IndexRegistry<T> indexes() {
         return indexes;
+    }
+
+    public long version() {
+        return version;
+    }
+
+    public SearchSnapshot<T> withIndexes(IndexRegistry<T> newIndexes) {
+        Objects.requireNonNull(newIndexes, "newIndexes");
+        if (newIndexes == indexes) {
+            return this;
+        }
+        return new SearchSnapshot<>(
+                documents,
+                activeDocuments,
+                newIndexes,
+                Math.addExact(version, 1)
+        );
     }
 }

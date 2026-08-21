@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.example.generalsearch.query.CandidateResult;
 import org.example.generalsearch.query.Query;
+import org.example.generalsearch.schema.Field;
 
 public final class IndexRegistry<T> {
     private final List<IndexSnapshot<T>> indexes;
@@ -50,6 +51,32 @@ public final class IndexRegistry<T> {
 
     public List<IndexSnapshot<T>> indexes() {
         return indexes;
+    }
+
+    public boolean contains(Field<T, ?> field, Class<?> indexType) {
+        Objects.requireNonNull(field, "field");
+        Objects.requireNonNull(indexType, "indexType");
+        return indexes.stream().anyMatch(index ->
+                index.field() == field && index.getClass() == indexType);
+    }
+
+    public IndexRegistry<T> withIndex(IndexSnapshot<T> index) {
+        Objects.requireNonNull(index, "index");
+        if (contains(index.field(), index.getClass())) {
+            throw new IllegalStateException(
+                    "index already exists for field: " + index.field().name());
+        }
+        List<IndexSnapshot<T>> updated = new ArrayList<>(indexes);
+        updated.add(index);
+        return new IndexRegistry<>(updated);
+    }
+
+    public IndexRegistry<T> withoutIndexes(Field<T, ?> field) {
+        Objects.requireNonNull(field, "field");
+        List<IndexSnapshot<T>> updated = indexes.stream()
+                .filter(index -> index.field() != field)
+                .toList();
+        return updated.size() == indexes.size() ? this : new IndexRegistry<>(updated);
     }
 
     public IndexRegistryBuilder<T> toBuilder() {
