@@ -249,3 +249,29 @@ java -cp target/classes:target/test-classes \
   org.example.generalsearch.benchmark.ProductFilterBenchmark \
   --products=100000 --queries=100000
 ```
+
+## Concurrency stress testing
+
+The normal `mvn test` lifecycle includes a bounded concurrency regression test. It
+runs readers, independent writers and runtime index create/drop operations together,
+checks every returned document against its query, rejects duplicate IDs, and performs
+a final differential comparison with a full-scan oracle.
+
+Long-running stress is opt-in and is not discovered by Surefire. In IntelliJ, open
+`ProductEngineConcurrencyStress`, run its `main` method, and set program arguments in
+the run configuration. The same runner is available from a terminal:
+
+```bash
+mvn test-compile
+java -cp target/classes:target/test-classes \
+  org.example.generalsearch.benchmark.ProductEngineConcurrencyStress \
+  --products=100000 --readers=8 --writers=2 --seconds=300 --seed=42
+```
+
+All arguments are optional. Defaults are 100,000 products, up to 8 readers, 2 writers,
+60 seconds and seed 42. The runner continuously mixes indexed and unindexed queries,
+add/update/remove mutations, and concurrent Range/Equality index builds followed by
+drop operations. It prints query and mutation throughput only after the worker checks
+and final oracle comparison pass. This is a correctness-oriented soak runner rather
+than a statistically rigorous microbenchmark; JMH remains the planned tool for stable
+performance baselines.
