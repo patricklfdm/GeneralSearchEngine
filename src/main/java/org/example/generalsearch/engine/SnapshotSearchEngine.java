@@ -1,12 +1,15 @@
 package org.example.generalsearch.engine;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -14,6 +17,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.example.generalsearch.engine.mutation.CreateIndexTask;
 import org.example.generalsearch.engine.mutation.DropIndexTask;
@@ -21,6 +25,9 @@ import org.example.generalsearch.engine.mutation.InstallIndexTask;
 import org.example.generalsearch.engine.mutation.MutationTask;
 import org.example.generalsearch.engine.mutation.SearchMutation;
 import org.example.generalsearch.engine.mutation.WriterTask;
+import org.example.generalsearch.engine.metrics.IndexBuildFailure;
+import org.example.generalsearch.engine.metrics.IndexBuildMetrics;
+import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
 import org.example.generalsearch.index.IndexBuilder;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.index.IndexRegistry;
@@ -35,6 +42,9 @@ import org.example.generalsearch.storage.SearchSnapshotBuilder;
 public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final SearchSchema<T, K> schema;
     private final AtomicReference<PublishedState<K, T>> current;
+    private final AtomicReference<WriterMetrics> writerMetrics =
+            new AtomicReference<>(WriterMetrics.empty());
+    private final AtomicLong rejectedMutations = new AtomicLong();
     private final BlockingQueue<WriterTask<K, T>> queue;
     private final SnapshotEngineConfig config;
     private final SnapshotSearcher<T> searcher;
@@ -46,6 +56,14 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final Map<Long, PendingIndexBuild<T>> pendingIndexBuilds = new HashMap<>();
     private final List<VersionedChange<T>> mutationJournal = new ArrayList<>();
     private long nextIndexBuildId;
+    private long successfulMutations;
+    private long failedMutations;
+    private long indexBuildsStarted;
+    private long indexBuildsSucceeded;
+    private long indexBuildsFailed;
+    private long indexBuildsCancelled;
+    private Optional<Duration> lastSuccessfulIndexBuildDuration = Optional.empty();
+    private Optional<IndexBuildFailure> lastIndexBuildFailure = Optional.empty();
     private volatile boolean accepting = true;
 
     public SnapshotSearchEngine(
@@ -126,6 +144,39 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         return searcher.search(current.get().snapshot(), query);
     }
 
+    @Override
+    public SearchEngineMetrics metrics() {
+        PublishedState<K, T> state = current.get();
+        WriterMetrics writer = writerMetrics.get();
+        long observedAt = System.nanoTime();
+        List<IndexBuildMetrics> activeBuilds = writer.activeIndexBuilds().stream()
+                .map(build -> new IndexBuildMetrics(
+                        build.buildId(),
+                        build.fieldName(),
+                        build.indexType(),
+                        build.baseSnapshotVersion(),
+                        elapsed(build.startedNanos(), observedAt)))
+                .toList();
+        return new SearchEngineMetrics(
+                state.snapshot().version(),
+                state.snapshot().activeDocuments().cardinality(),
+                state.snapshot().indexes().indexes().size(),
+                queue.size(),
+                config.queueCapacity(),
+                writer.mutationJournalLength(),
+                writer.successfulMutations(),
+                writer.failedMutations() + rejectedMutations.get(),
+                writer.indexBuildsStarted(),
+                writer.indexBuildsSucceeded(),
+                writer.indexBuildsFailed(),
+                writer.indexBuildsCancelled(),
+                accepting,
+                writer.lastSuccessfulIndexBuildDuration(),
+                writer.lastIndexBuildFailure(),
+                activeBuilds
+        );
+    }
+
     SearchSnapshot<T> snapshotForTesting() {
         return current.get().snapshot();
     }
@@ -139,12 +190,20 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             if (!accepting) {
                 task.completion().completeExceptionally(
                         new IllegalStateException("engine is closed"));
+                recordRejectedMutation(task);
             } else if (!queue.offer(task)) {
                 task.completion().completeExceptionally(
                         new RejectedExecutionException("writer queue is full"));
+                recordRejectedMutation(task);
             }
         }
         return task.completion();
+    }
+
+    private void recordRejectedMutation(WriterTask<K, T> task) {
+        if (task instanceof MutationTask<?, ?>) {
+            rejectedMutations.incrementAndGet();
+        }
     }
 
     private void writerLoop() {
@@ -180,8 +239,12 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     try {
                         processBatch(collected.mutations());
                     } catch (Throwable failure) {
-                        collected.mutations().forEach(mutation ->
-                                mutation.completion().completeExceptionally(failure));
+                        collected.mutations().forEach(mutation -> {
+                            if (mutation.completion().completeExceptionally(failure)) {
+                                failedMutations++;
+                            }
+                        });
+                        publishWriterMetrics();
                         stopAfterFailure(failure);
                         return;
                     }
@@ -240,9 +303,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 }
             } catch (RuntimeException failure) {
                 task.completion().completeExceptionally(failure);
+                failedMutations++;
             }
         }
         if (successful.isEmpty()) {
+            publishWriterMetrics();
             return;
         }
 
@@ -253,6 +318,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     mutationJournal.add(new VersionedChange<>(version, change)));
         }
         current.set(published);
+        successfulMutations += successful.size();
+        publishWriterMetrics();
         successful.forEach(task -> task.completion().complete(null));
     }
 
@@ -326,6 +393,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 baseSnapshot.version(),
                 requestedField,
                 emptyIndex.getClass(),
+                System.nanoTime(),
                 task.completion()
         );
         pendingIndexBuilds.put(buildId, pending);
@@ -336,9 +404,12 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     emptyIndex,
                     task.completion()
             ));
+            indexBuildsStarted++;
+            publishWriterMetrics();
         } catch (RejectedExecutionException failure) {
             pendingIndexBuilds.remove(buildId);
             pruneMutationJournal();
+            publishWriterMetrics();
             throw failure;
         }
     }
@@ -406,8 +477,10 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         }
         if (task.failure() != null) {
             pendingIndexBuilds.remove(task.buildId());
-            pending.completion().completeExceptionally(task.failure());
+            recordIndexBuildFailure(pending, task.failure());
             pruneMutationJournal();
+            publishWriterMetrics();
+            pending.completion().completeExceptionally(task.failure());
             return;
         }
 
@@ -428,12 +501,18 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     state.nextDocId()
             ));
             pendingIndexBuilds.remove(task.buildId());
+            indexBuildsSucceeded++;
+            lastSuccessfulIndexBuildDuration = Optional.of(
+                    elapsed(pending.startedNanos(), System.nanoTime()));
+            pruneMutationJournal();
+            publishWriterMetrics();
             pending.completion().complete(null);
         } catch (RuntimeException failure) {
             pendingIndexBuilds.remove(task.buildId());
-            pending.completion().completeExceptionally(failure);
-        } finally {
+            recordIndexBuildFailure(pending, failure);
             pruneMutationJournal();
+            publishWriterMetrics();
+            pending.completion().completeExceptionally(failure);
         }
     }
 
@@ -458,6 +537,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             PendingIndexBuild<T> build = pending.next();
             if (build.field() == field) {
                 pending.remove();
+                indexBuildsCancelled++;
                 build.completion().completeExceptionally(new IllegalStateException(
                         "index build was cancelled by dropIndex: " + task.fieldName()));
             }
@@ -474,7 +554,52 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             ));
         }
         pruneMutationJournal();
+        publishWriterMetrics();
         task.completion().complete(null);
+    }
+
+    private void recordIndexBuildFailure(
+            PendingIndexBuild<T> pending,
+            Throwable failure
+    ) {
+        Duration duration = elapsed(pending.startedNanos(), System.nanoTime());
+        indexBuildsFailed++;
+        lastIndexBuildFailure = Optional.of(new IndexBuildFailure(
+                pending.id(),
+                pending.field().name(),
+                pending.indexType().getName(),
+                failure.getClass().getName(),
+                Optional.ofNullable(failure.getMessage()),
+                duration
+        ));
+    }
+
+    private void publishWriterMetrics() {
+        List<ActiveIndexBuild> activeBuilds = pendingIndexBuilds.values().stream()
+                .sorted(Comparator.comparingLong(PendingIndexBuild::id))
+                .map(pending -> new ActiveIndexBuild(
+                        pending.id(),
+                        pending.field().name(),
+                        pending.indexType().getName(),
+                        pending.baseVersion(),
+                        pending.startedNanos()))
+                .toList();
+        writerMetrics.set(new WriterMetrics(
+                mutationJournal.size(),
+                successfulMutations,
+                failedMutations,
+                indexBuildsStarted,
+                indexBuildsSucceeded,
+                indexBuildsFailed,
+                indexBuildsCancelled,
+                lastSuccessfulIndexBuildDuration,
+                lastIndexBuildFailure,
+                activeBuilds
+        ));
+    }
+
+    private static Duration elapsed(long startedNanos, long finishedNanos) {
+        return Duration.ofNanos(Math.max(0, finishedNanos - startedNanos));
     }
 
     private void pruneMutationJournal() {
@@ -492,12 +617,18 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private void failPending(Throwable failure) {
         WriterTask<K, T> task;
         while ((task = queue.poll()) != null) {
-            task.completion().completeExceptionally(failure);
+            if (task.completion().completeExceptionally(failure)
+                    && task instanceof MutationTask<?, ?>) {
+                failedMutations++;
+            }
         }
-        pendingIndexBuilds.values().forEach(pending ->
-                pending.completion().completeExceptionally(failure));
+        pendingIndexBuilds.values().forEach(pending -> {
+            recordIndexBuildFailure(pending, failure);
+            pending.completion().completeExceptionally(failure);
+        });
         pendingIndexBuilds.clear();
         mutationJournal.clear();
+        publishWriterMetrics();
     }
 
     private void stopAfterFailure(Throwable failure) {
@@ -642,6 +773,38 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             long baseVersion,
             Field<T, ?> field,
             Class<?> indexType,
+            long startedNanos,
             CompletableFuture<Void> completion
     ) {}
+
+    private record ActiveIndexBuild(
+            long buildId,
+            String fieldName,
+            String indexType,
+            long baseSnapshotVersion,
+            long startedNanos
+    ) {}
+
+    private record WriterMetrics(
+            int mutationJournalLength,
+            long successfulMutations,
+            long failedMutations,
+            long indexBuildsStarted,
+            long indexBuildsSucceeded,
+            long indexBuildsFailed,
+            long indexBuildsCancelled,
+            Optional<Duration> lastSuccessfulIndexBuildDuration,
+            Optional<IndexBuildFailure> lastIndexBuildFailure,
+            List<ActiveIndexBuild> activeIndexBuilds
+    ) {
+        private WriterMetrics {
+            activeIndexBuilds = List.copyOf(activeIndexBuilds);
+        }
+
+        private static WriterMetrics empty() {
+            return new WriterMetrics(
+                    0, 0, 0, 0, 0, 0, 0,
+                    Optional.empty(), Optional.empty(), List.of());
+        }
+    }
 }

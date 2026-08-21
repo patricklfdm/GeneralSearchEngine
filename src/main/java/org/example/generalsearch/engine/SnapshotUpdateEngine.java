@@ -3,6 +3,7 @@ package org.example.generalsearch.engine;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
 import org.example.generalsearch.filter.ProductFilter;
 import org.example.generalsearch.filter.ProductFilterAdapter;
 import org.example.generalsearch.index.IndexDefinition;
@@ -74,6 +75,11 @@ public final class SnapshotUpdateEngine implements ProductSearchEngine {
                 ? ProductFilterAdapter.toQuery(productFilter)
                 : query;
         return delegate.search(effectiveQuery);
+    }
+
+    @Override
+    public SearchEngineMetrics metrics() {
+        return delegate.metrics();
     }
 
     SearchSnapshot<Product> snapshotForTesting() {

@@ -2,6 +2,7 @@ package org.example.generalsearch.engine;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.query.Query;
 
@@ -27,6 +28,9 @@ public interface SearchEngine<K, T> extends AutoCloseable {
     T get(K id);
 
     List<T> search(Query<T> query);
+
+    /** Returns a lock-free, immutable operational snapshot of this engine. */
+    SearchEngineMetrics metrics();
 
     @Override
     void close();

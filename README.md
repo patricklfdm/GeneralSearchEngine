@@ -236,6 +236,34 @@ To add a new index algorithm:
 3. Register the definition at startup or through `createIndex`.
 4. Add mutation, snapshot-isolation and randomized differential tests.
 
+## Operational metrics
+
+Every engine exposes a lock-free, immutable operational snapshot:
+
+```java
+SearchEngineMetrics metrics = engine.metrics();
+
+System.out.println(metrics.documentCount());
+System.out.println(metrics.mutationJournalLength());
+System.out.println(metrics.activeIndexBuilds());
+```
+
+The snapshot includes the published snapshot version, document and registered-index
+counts, writer queue depth/capacity, journal length, successful/failed mutations and
+index-build started/succeeded/failed/cancelled totals. `activeIndexBuilds` reports the
+field, concrete index snapshot type, captured base version and elapsed duration for
+each build that has not reached publication.
+
+`lastSuccessfulIndexBuildDuration` measures scan, queue wait and mutation replay up to
+atomic publication. `lastIndexBuildFailure` retains only the build identity, exception
+class name, optional message and duration; it deliberately does not retain the
+Throwable object. Cancellation through `dropIndex` has its own counter and is not
+reported as a build failure. Mutation totals cover writer-processed operations and
+mutation submissions rejected because the queue is full or the engine is closed.
+
+Metrics are intended for polling and monitoring adapters. They describe one instant
+and may be stale immediately after return; collecting them never locks search readers.
+
 ## Engineering benchmark
 
 The repository retains a lightweight smoke benchmark covering all Product default

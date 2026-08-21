@@ -19,6 +19,7 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.concurrent.atomic.LongAdder;
 import org.example.generalsearch.engine.SnapshotEngineConfig;
 import org.example.generalsearch.engine.SnapshotUpdateEngine;
+import org.example.generalsearch.engine.metrics.SearchEngineMetrics;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
@@ -82,6 +83,7 @@ public final class ProductEngineConcurrencyStress {
                     throw new IllegalStateException("stress worker failed", workerFailure);
                 }
                 verifyFinalState(engine, oracle);
+                SearchEngineMetrics metrics = engine.metrics();
 
                 System.out.printf(Locale.US,
                         "products=%,d readers=%d writers=%d duration=%,.2f s "
@@ -99,6 +101,22 @@ public final class ProductEngineConcurrencyStress {
                         mutations.sum() / runSeconds,
                         indexCycles.sum(),
                         checksum.sum());
+                System.out.printf(Locale.US,
+                        "snapshot_version=%d documents=%,d indexes=%d queue=%d/%d "
+                                + "journal=%d mutations_ok=%,d mutations_failed=%,d "
+                                + "index_builds=%d/%d/%d/%d%n",
+                        metrics.snapshotVersion(),
+                        metrics.documentCount(),
+                        metrics.registeredIndexCount(),
+                        metrics.writerQueueDepth(),
+                        metrics.writerQueueCapacity(),
+                        metrics.mutationJournalLength(),
+                        metrics.successfulMutations(),
+                        metrics.failedMutations(),
+                        metrics.indexBuildsStarted(),
+                        metrics.indexBuildsSucceeded(),
+                        metrics.indexBuildsFailed(),
+                        metrics.indexBuildsCancelled());
             } finally {
                 workers.shutdownNow();
                 workers.awaitTermination(10, TimeUnit.SECONDS);
