@@ -48,13 +48,21 @@ class CandidatePlannerTest {
     }
 
     @Test
-    void unsafeOrAndNotFallBackToScanning() {
-        assertTrue(planner.plan(snapshot, Query.or(
+    void indexedPrefixEnablesExactOrAndNotPlanning() {
+        CandidateResult or = planner.plan(snapshot, Query.or(
                 Query.eq(ProductFields.CATEGORY, Category.BOOKS),
                 Query.prefix(ProductFields.NAME, "Lap")
-        )).isEmpty());
+        )).orElseThrow();
+        CandidateResult not = planner.plan(snapshot,
+                Query.not(Query.prefix(ProductFields.NAME, "Lap"))).orElseThrow();
+
+        assertEquals(CandidateAccuracy.EXACT, or.accuracy());
+        assertEquals(2, or.bitmap().cardinality());
+        assertEquals(CandidateAccuracy.EXACT, not.accuracy());
+        assertEquals(2, not.bitmap().cardinality());
+
         assertTrue(planner.plan(snapshot,
-                Query.not(Query.prefix(ProductFields.NAME, "Lap"))).isEmpty());
+                Query.not(Query.between(ProductFields.RATING, 4.0, 5.0))).isEmpty());
     }
 
     @Test

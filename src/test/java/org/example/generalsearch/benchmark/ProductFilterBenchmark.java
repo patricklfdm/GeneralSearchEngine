@@ -23,7 +23,9 @@ public final class ProductFilterBenchmark {
         int productCount = intArg(args, "--products", 100_000);
         int queryCount = intArg(args, "--queries", 100_000);
         Random random = new Random(42);
-        List<Query<Product>> queries = queries(queryCount, random);
+        List<Query<Product>> queries = queries(queryCount, productCount, random);
+        long memoryBeforeLoad = usedMemory();
+        long loadStarted = System.nanoTime();
 
         try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine(
                 new SnapshotEngineConfig(100_000, 1_000, Duration.ofMillis(2)))) {
@@ -36,6 +38,11 @@ public final class ProductFilterBenchmark {
                 }
             }
             CompletableFuture.allOf(pending.toArray(CompletableFuture[]::new)).join();
+            double loadMillis = (System.nanoTime() - loadStarted) / 1_000_000.0;
+            double approximateMemoryMiB = Math.max(
+                    0,
+                    usedMemory() - memoryBeforeLoad
+            ) / (1024.0 * 1024.0);
 
             long checksum = 0;
             long started = System.nanoTime();
@@ -44,8 +51,14 @@ public final class ProductFilterBenchmark {
             }
             double seconds = (System.nanoTime() - started) / 1_000_000_000.0;
             System.out.printf(Locale.US,
-                    "products=%,d queries=%,d throughput=%,.0f q/s checksum=%d%n",
-                    productCount, queryCount, queryCount / seconds, checksum);
+                    "products=%,d queries=%,d load=%,.1f ms "
+                            + "approx_memory=%,.1f MiB throughput=%,.0f q/s checksum=%d%n",
+                    productCount,
+                    queryCount,
+                    loadMillis,
+                    approximateMemoryMiB,
+                    queryCount / seconds,
+                    checksum);
         }
     }
 
@@ -60,23 +73,35 @@ public final class ProductFilterBenchmark {
         );
     }
 
-    private static List<Query<Product>> queries(int count, Random random) {
+    private static List<Query<Product>> queries(
+            int count,
+            int productCount,
+            Random random
+    ) {
         List<Query<Product>> filters = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             Category category = Category.values()[random.nextInt(Category.values().length)];
-            filters.add(switch (random.nextInt(4)) {
+            filters.add(switch (random.nextInt(5)) {
                 case 0 -> Query.eq(ProductFields.CATEGORY, category);
                 case 1 -> Query.eq(ProductFields.PRIME, random.nextBoolean());
                 case 2 -> Query.between(
                         ProductFields.PRICE,
                         (double) random.nextInt(500),
                         (double) (500 + random.nextInt(500)));
-                default -> Query.and(
+                case 3 -> Query.and(
                         Query.eq(ProductFields.CATEGORY, category),
                         Query.eq(ProductFields.PRIME, random.nextBoolean()));
+                default -> Query.prefix(
+                        ProductFields.NAME,
+                        "Product " + random.nextInt(productCount));
             });
         }
         return List.copyOf(filters);
+    }
+
+    private static long usedMemory() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
     }
 
     private static int intArg(String[] args, String name, int fallback) {

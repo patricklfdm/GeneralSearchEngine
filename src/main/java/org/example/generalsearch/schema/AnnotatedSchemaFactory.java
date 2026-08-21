@@ -295,8 +295,7 @@ public final class AnnotatedSchemaFactory {
                     throw error(documentType, "PREFIX index requires a String field: "
                             + member.field().name());
                 }
-                throw error(documentType, "PREFIX indexes are not implemented yet: "
-                        + member.field().name());
+                yield IndexDefinition.prefix((Field) member.field());
             }
         };
     }

@@ -153,13 +153,18 @@ are exposed through their boxed classes.
 
 Exactly one ID is required. Duplicate logical field names, an ID type mismatch, static
 annotated members, invalid getters and incompatible index types fail during generation.
-`EQUALITY` and `RANGE` are currently available. `PREFIX` is reserved and validated, but
-its index implementation belongs to the next phase.
+`EQUALITY`, `RANGE` and `PREFIX` are available.
+
+Prefix matching intentionally has the same semantics as `String.startsWith`: it is
+case-sensitive, performs no Locale conversion or Unicode normalization, and indexes
+raw UTF-16 strings. Canonically equivalent strings such as precomposed and decomposed
+accented text remain distinct. Null field values are not indexed; an empty prefix
+matches every non-null value.
 
 ## Query planning
 
-Product category, Prime and price queries currently have bitmap indexes. Name-prefix
-and rating queries are evaluated by scanning the safe candidate set. Composite planning
+Product category, Prime, price and name-prefix queries currently have bitmap indexes.
+Rating queries are evaluated by scanning the safe candidate set. Composite planning
 follows these rules:
 
 - `AND` can use any indexed children and returns a safe superset when some children are
@@ -184,6 +189,7 @@ var indexes = List.<IndexDefinition<Product>>of(
         IndexDefinition.equality(ProductFields.CATEGORY),
         IndexDefinition.equality(ProductFields.PRIME),
         IndexDefinition.range(ProductFields.PRICE),
+        IndexDefinition.prefix(ProductFields.NAME),
         IndexDefinition.range(ProductFields.RATING)
 );
 
@@ -191,9 +197,10 @@ var engine = new SnapshotUpdateEngine(SnapshotEngineConfig.DEFAULT, indexes);
 ```
 
 `EqualityIndex` works with enums, booleans, strings and other exact values. `RangeIndex`
-works with `Comparable` values and also answers exact equality queries. Adding another
-field with either built-in index does not require changes to SearchSnapshot or
-CandidatePlanner.
+works with self-compatible `Comparable` values and also answers exact equality queries.
+`PrefixIndex` uses a sorted value map to answer `startsWith` and string equality
+queries. Adding another field with any built-in index does not require changes to
+SearchSnapshot or CandidatePlanner.
 
 To add a new index algorithm:
 
@@ -204,8 +211,10 @@ To add a new index algorithm:
 
 ## Engineering benchmark
 
-The repository retains a lightweight smoke benchmark. It is useful for local regression
-checks but is not a replacement for JMH.
+The repository retains a lightweight smoke benchmark covering all Product default
+indexes, including name prefixes. It reports total load time, approximate memory growth
+and mixed-query throughput. These values are useful for local regression checks but are
+not a replacement for JMH or a memory profiler.
 
 ```bash
 mvn test-compile

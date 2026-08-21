@@ -26,7 +26,8 @@ class GenericSnapshotSearchTest {
         InventoryItem[] oracle = new InventoryItem[300];
         SearchSnapshot<InventoryItem> snapshot = new SearchSnapshot<>(List.of(
                 IndexDefinition.equality(WAREHOUSE),
-                IndexDefinition.range(QUANTITY)
+                IndexDefinition.range(QUANTITY),
+                IndexDefinition.prefix(NAME)
         ));
         SnapshotSearcher<InventoryItem> searcher = new SnapshotSearcher<>();
 

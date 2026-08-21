@@ -41,7 +41,8 @@ class GenericSnapshotEngineDifferentialTest {
                              SCHEMA,
                              List.of(
                                      IndexDefinition.equality(WAREHOUSE),
-                                     IndexDefinition.range(QUANTITY)
+                                     IndexDefinition.range(QUANTITY),
+                                     IndexDefinition.prefix(NAME)
                              ))) {
             SearchEngine<Long, InventoryItem> publicApi = engine;
             for (int slot = 0; slot < oracle.length; slot++) {

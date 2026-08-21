@@ -12,6 +12,7 @@ import org.example.generalsearch.engine.SearchEngine;
 import org.example.generalsearch.engine.SnapshotSearchEngine;
 import org.example.generalsearch.index.IndexDefinition;
 import org.example.generalsearch.index.equality.EqualityIndexDefinition;
+import org.example.generalsearch.index.prefix.PrefixIndexDefinition;
 import org.example.generalsearch.index.range.RangeIndexDefinition;
 import org.example.generalsearch.model.Category;
 import org.example.generalsearch.model.Product;
@@ -49,6 +50,7 @@ class AnnotatedSchemaFactoryTest {
                 ));
         assertEquals(Map.of(
                 "category", EqualityIndexDefinition.class,
+                "name", PrefixIndexDefinition.class,
                 "price", RangeIndexDefinition.class,
                 "prime", EqualityIndexDefinition.class
         ), indexesByField);
@@ -72,6 +74,8 @@ class AnnotatedSchemaFactoryTest {
                 generated.schema().requireField("category", Category.class);
         Field<Product, Double> price =
                 generated.schema().requireField("price", Double.class);
+        Field<Product, String> name =
+                generated.schema().requireField("name", String.class);
         Product laptop = new Product(
                 "p1", "Laptop", Category.ELECTRONICS, 999, true, 4.8);
 
@@ -81,7 +85,8 @@ class AnnotatedSchemaFactoryTest {
 
             assertEquals(List.of(laptop), engine.search(Query.and(
                     Query.eq(category, Category.ELECTRONICS),
-                    Query.between(price, 900.0, 1_100.0)
+                    Query.between(price, 900.0, 1_100.0),
+                    Query.prefix(name, "Lap")
             )));
         }
     }
@@ -122,7 +127,7 @@ class AnnotatedSchemaFactoryTest {
     }
 
     @Test
-    void rejectsInvalidOrUnavailableIndexTypesAndInvalidMembers() {
+    void rejectsInvalidIndexTypesAndInvalidMembers() {
         SchemaGenerationException rangeFailure = assertThrows(
                 SchemaGenerationException.class,
                 () -> AnnotatedSchemaFactory.create(InvalidRange.class, Long.class));
@@ -133,10 +138,10 @@ class AnnotatedSchemaFactoryTest {
                 () -> AnnotatedSchemaFactory.create(InvalidPrefixType.class, Long.class));
         assertTrue(prefixTypeFailure.getMessage().contains("String"));
 
-        SchemaGenerationException unavailablePrefix = assertThrows(
-                SchemaGenerationException.class,
-                () -> AnnotatedSchemaFactory.create(UnavailablePrefix.class, Long.class));
-        assertTrue(unavailablePrefix.getMessage().contains("not implemented"));
+        AnnotatedSearchConfiguration<AvailablePrefix, Long> prefix =
+                AnnotatedSchemaFactory.create(AvailablePrefix.class, Long.class);
+        assertTrue(prefix.indexDefinitions().stream()
+                .anyMatch(PrefixIndexDefinition.class::isInstance));
 
         assertThrows(SchemaGenerationException.class,
                 () -> AnnotatedSchemaFactory.create(InvalidGetter.class, Long.class));
@@ -234,7 +239,7 @@ class AnnotatedSchemaFactoryTest {
         private int code;
     }
 
-    private static final class UnavailablePrefix {
+    private static final class AvailablePrefix {
         @SearchId
         private long id;
 

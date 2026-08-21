@@ -7,7 +7,7 @@ import org.example.generalsearch.schema.annotation.SearchIndex;
 
 public record Product(
         @SearchId String id,
-        String name,
+        @SearchIndex(IndexType.PREFIX) String name,
         @SearchIndex(IndexType.EQUALITY) Category category,
         @SearchIndex(IndexType.RANGE) double price,
         @SearchIndex(IndexType.EQUALITY) boolean prime,
