@@ -1,8 +1,11 @@
-# GeneralSearchEngine v1 boundary semantics
+# GeneralSearchEngine v1.0.0 boundary semantics
 
-This document freezes the observable behavior of the v1 API. It describes the current
-contract, not planned capabilities. In particular, v1 does not provide configurable
+This document freezes the observable behavior of the v1.0.0 API. It describes the
+released contract, not planned capabilities. In particular, v1.0.0 does not provide configurable
 null policies, custom range comparators, or automatic string normalization.
+
+Full-text search/BM25, fuzzy search, WAL/persistence, and distributed search/sharding
+are also explicitly out of scope for v1.0.0.
 
 ## Documents and identity
 
@@ -41,7 +44,7 @@ All built-in indexes use the same fixed v1 policy:
 - An empty prefix matches every non-null string.
 - Updates between null and non-null values remove/add the appropriate index entry.
 
-There is deliberately no `NullPolicy` configuration in v1. Introducing indexed nulls
+There is deliberately no `NullPolicy` configuration in v1.0.0. Introducing indexed nulls
 or rejecting nullable fields would be a future additive feature with explicit schema
 configuration.
 
@@ -53,7 +56,7 @@ type's `equals` implementation; it is not based on string conversion or ordering
 Range fields must implement `Comparable` for their own type. Ranges are inclusive on
 both ends and use `compareTo` in both full scans and Range indexes. A lower bound that
 orders after its upper bound produces no matches. Custom comparators are not supported
-in v1.
+in v1.0.0.
 
 Some types, notably `BigDecimal`, can return zero from `compareTo` while returning
 false from `equals`. A Range index groups such values into one ordering bucket and
@@ -97,5 +100,5 @@ and zone (for example `Instant`) before indexing.
   keeps its position; removing and re-adding the same business ID allocates a new
   internal ID and therefore a new position.
 
-Result ordering is deterministic for one mutation history, but v1 exposes no sorting
+Result ordering is deterministic for one mutation history, but v1.0.0 exposes no sorting
 API and applications should not treat insertion order as relevance ordering.

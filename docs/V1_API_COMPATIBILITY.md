@@ -1,8 +1,10 @@
-# GeneralSearchEngine v1 API compatibility
+# GeneralSearchEngine v1.0.0 API compatibility
 
-The project maintains a compile-time consumer fixture and key erased JVM descriptor
-checks for its supported v1 application API. The fixture runs in the normal test suite
-and can also be executed alone:
+The v1.0.0 artifact is `io.github.patricklfdm:general-search-engine:1.0.0`, and its Java
+packages are rooted at `io.github.patricklfdm.generalsearch`. The project maintains a
+compile-time consumer fixture and key erased JVM descriptor checks for its supported
+v1 application API. The fixture runs in the normal test suite and can also be executed
+alone:
 
 ```bash
 mvn clean -Papi-compat test
@@ -25,6 +27,9 @@ not part of the v1 application compatibility promise even where a type is curren
 public. They remain available for internal composition and advanced experiments, but
 may be reorganized before a dedicated low-level SPI is declared.
 
+Full-text search/BM25, fuzzy search, WAL/persistence, and distributed search/sharding
+are explicitly out of scope for v1.0.0 and are not part of this compatibility surface.
+
 ## Change policy
 
 - Adding a new type, method, overload, enum value, or default behavior that does not
@@ -39,6 +44,6 @@ may be reorganized before a dedicated low-level SPI is declared.
 
 `V1ApiCompatibilityTest` intentionally allows additive APIs. Its source fixture catches
 source-incompatible generic and overload changes, while reflection assertions preserve
-the JVM descriptors needed by already-compiled clients. Once version 1.0 is published
+the JVM descriptors needed by already-compiled clients. Once version 1.0.0 is published
 to an artifact repository, release verification should additionally compare the built
 JAR against that artifact with an artifact-level binary compatibility tool.

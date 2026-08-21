@@ -3,7 +3,7 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## Unreleased — 1.0.0 candidate
+## 1.0.0 — 2026-08-21
 
 ### Added
 
@@ -16,6 +16,9 @@ Semantic Versioning once the first stable artifact is published.
 - Frozen v1 boundary semantics and source/JVM-descriptor compatibility checks.
 - Release profile producing main, sources, and Javadoc JARs plus reproducible-build
   verification.
+- Maven coordinates `io.github.patricklfdm:general-search-engine:1.0.0` and Java root
+  package `io.github.patricklfdm.generalsearch`.
+- Apache License 2.0 project and Maven metadata.
 
 ### Compatibility
 
@@ -27,3 +30,8 @@ Semantic Versioning once the first stable artifact is published.
 
 - Range indexes now preserve correctness for Comparable values whose `compareTo`
   equivalence differs from `equals`, including BigDecimal scale variants.
+
+### Scope
+
+Full-text search/BM25, fuzzy search, WAL/persistence, and distributed search/sharding
+are intentionally out of scope for v1.0.0.

@@ -20,10 +20,13 @@ build_and_capture() {
     "${maven_command[@]}" -q -Prelease -DskipTests clean package
     mkdir -p "$destination"
 
-    mapfile -t artifacts < <(
+    artifacts=()
+    while IFS= read -r artifact; do
+        artifacts+=("$artifact")
+    done < <(
         find target -maxdepth 1 -type f \
             -name 'general-search-engine-*.jar' \
-            -printf '%f\n' | sort
+            -exec basename {} \; | sort
     )
     if [[ ${#artifacts[@]} -ne 3 ]]; then
         echo "expected main, sources, and javadoc JARs; found ${#artifacts[@]}" >&2
@@ -41,7 +44,10 @@ build_and_capture "$work_dir/second"
 
 while IFS= read -r artifact; do
     cmp "$work_dir/first/$artifact" "$work_dir/second/$artifact"
-done < <(find "$work_dir/first" -maxdepth 1 -type f -printf '%f\n' | sort)
+done < <(
+    find "$work_dir/first" -maxdepth 1 -type f \
+        -exec basename {} \; | sort
+)
 
 echo "Reproducible release artifacts:"
 sha256sum target/general-search-engine-*.jar

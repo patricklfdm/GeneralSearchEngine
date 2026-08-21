@@ -1,7 +1,7 @@
 # GeneralSearchEngine
 
-GeneralSearchEngine is evolving into a generic Java 21 in-memory object search engine.
-Product is currently its reference document type. The engine uses immutable search
+GeneralSearchEngine v1.0.0 is a generic Java 21 in-memory object search engine.
+Product is its reference document type. The engine uses immutable search
 snapshots and persistent, block-based bitmaps so readers can search without
 locking while a single writer batches mutations and atomically publishes new snapshots.
 
@@ -10,10 +10,22 @@ locking while a single writer batches mutations and atomically publishes new sna
 - JDK 21 or newer
 - Maven 3.9 or newer
 
+## Maven coordinates
+
+The v1.0.0 release identity is:
+
+```xml
+<dependency>
+    <groupId>io.github.patricklfdm</groupId>
+    <artifactId>general-search-engine</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
+
 ## Build and test
 
 ```bash
-mvn test
+mvn clean test
 ```
 
 The test suite contains unit tests for the persistent tree, immutable bitmap, generic
@@ -47,13 +59,24 @@ all three JARs and prints their SHA-256 checksums. Reproduction assumes the same
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md) and
 [RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) before cutting a version. External
-publishing remains blocked until the placeholder `org.example` coordinates and project
-license are intentionally selected.
+repository credentials and signing configuration remain environment-specific. The
+project identity and Apache License 2.0 metadata are finalized for v1.0.0.
+
+## v1.0.0 scope
+
+Version 1.0.0 is frozen around typed equality, inclusive range, prefix and boolean
+queries over immutable in-memory snapshots. The following capabilities are explicitly
+out of scope for v1.0.0:
+
+- full-text search and BM25 ranking;
+- fuzzy search;
+- write-ahead logging (WAL) and persistence;
+- distributed search and sharding.
 
 ## Package layout
 
 ```text
-org.example.generalsearch
+io.github.patricklfdm.generalsearch
 ├── model       Product domain types
 ├── schema      Type-safe fields, schemas and annotation generation
 ├── filter      Compatibility layer for former Product filters
@@ -73,11 +96,11 @@ default indexes are generated once from its annotations at startup.
 
 ```java
 import java.util.List;
-import org.example.generalsearch.engine.SnapshotUpdateEngine;
-import org.example.generalsearch.model.Category;
-import org.example.generalsearch.model.Product;
-import org.example.generalsearch.model.ProductFields;
-import org.example.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.engine.SnapshotUpdateEngine;
+import io.github.patricklfdm.generalsearch.model.Category;
+import io.github.patricklfdm.generalsearch.model.Product;
+import io.github.patricklfdm.generalsearch.model.ProductFields;
+import io.github.patricklfdm.generalsearch.query.Query;
 
 try (var engine = new SnapshotUpdateEngine()) {
     engine.add(new Product(
@@ -391,7 +414,7 @@ but are not accepted as formal JMH or memory results.
 ```bash
 mvn test-compile
 java -cp target/classes:target/test-classes \
-  org.example.generalsearch.benchmark.ProductFilterBenchmark \
+  io.github.patricklfdm.generalsearch.benchmark.ProductFilterBenchmark \
   --products=100000 --queries=100000
 ```
 
@@ -409,7 +432,7 @@ the run configuration. The same runner is available from a terminal:
 ```bash
 mvn test-compile
 java -cp target/classes:target/test-classes \
-  org.example.generalsearch.benchmark.ProductEngineConcurrencyStress \
+  io.github.patricklfdm.generalsearch.benchmark.ProductEngineConcurrencyStress \
   --products=100000 --readers=8 --writers=2 --seconds=300 --seed=42
 ```
 
@@ -420,3 +443,8 @@ drop operations. It prints query and mutation throughput only after the worker c
 and final oracle comparison pass. This is a correctness-oriented soak runner rather
 than a statistically rigorous microbenchmark; use the JMH suite above for stable
 performance and allocation baselines.
+
+## License
+
+GeneralSearchEngine v1.0.0 is licensed under the
+[Apache License 2.0](LICENSE).

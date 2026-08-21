@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
+    <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <name>GeneralSearchEngine</name>
     <description>
@@ -15,6 +15,14 @@
     </description>
     <url>https://github.com/patricklfdm/GeneralSearchEngine</url>
     <inceptionYear>2026</inceptionYear>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
     <developers>
         <developer>
@@ -28,12 +36,12 @@
         <connection>scm:git:https://github.com/patricklfdm/GeneralSearchEngine.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/patricklfdm/GeneralSearchEngine.git</developerConnection>
         <url>https://github.com/patricklfdm/GeneralSearchEngine</url>
-        <tag>HEAD</tag>
+        <tag>v1.0.0</tag>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/patricklfdm/GeneralSearchEngine/issues</url>
+        <url>https://github.com/patricklfdm/GeneralSearchEngine</url>
     </issueManagement>
 
     <properties>
@@ -85,7 +93,7 @@
                     <configuration>
                         <archive>
                             <manifestEntries>
-                                <Automatic-Module-Name>org.example.generalsearch</Automatic-Module-Name>
+                                <Automatic-Module-Name>io.github.patricklfdm.generalsearch</Automatic-Module-Name>
                                 <Build-Jdk-Spec>${maven.compiler.release}</Build-Jdk-Spec>
                                 <Implementation-Title>${project.name}</Implementation-Title>
                                 <Implementation-Version>${project.version}</Implementation-Version>
