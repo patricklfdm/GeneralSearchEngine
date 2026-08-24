@@ -16,11 +16,13 @@ public final class RangeIndexBuilder<T, V extends Comparable<? super V>>
     // would split values such as BigDecimal("1.0") and BigDecimal("1.00") even though
     // they occupy one natural-order bucket.
     private final TreeMap<V, ImmutableBitmapBuilder> dirty = new TreeMap<>();
+    private int indexedDocumentCount;
     private boolean built;
 
     public RangeIndexBuilder(RangeIndexSnapshot<T, V> base) {
         this.base = Objects.requireNonNull(base, "base");
         this.field = base.field();
+        this.indexedDocumentCount = base.statistics().indexedDocumentCount();
     }
 
     @Override
@@ -59,18 +61,30 @@ public final class RangeIndexBuilder<T, V extends Comparable<? super V>>
             }
         });
         built = true;
-        return RangeIndexSnapshot.fromOwnedValues(field, values);
+        return RangeIndexSnapshot.fromOwnedValues(
+                field,
+                values,
+                indexedDocumentCount
+        );
     }
 
     private void addValue(V value, int docId) {
         if (value != null) {
-            builderFor(value).set(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (!builder.get(docId)) {
+                builder.set(docId);
+                indexedDocumentCount++;
+            }
         }
     }
 
     private void removeValue(V value, int docId) {
         if (value != null) {
-            builderFor(value).clear(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (builder.get(docId)) {
+                builder.clear(docId);
+                indexedDocumentCount--;
+            }
         }
     }
 

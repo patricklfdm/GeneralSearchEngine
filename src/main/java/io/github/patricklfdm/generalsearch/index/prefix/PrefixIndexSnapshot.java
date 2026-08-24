@@ -6,8 +6,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
+import io.github.patricklfdm.generalsearch.index.CandidateEstimate;
+import io.github.patricklfdm.generalsearch.index.EstimateQuality;
+import io.github.patricklfdm.generalsearch.index.EstimatingIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
-import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.index.IndexStatistics;
 import io.github.patricklfdm.generalsearch.query.CandidateAccuracy;
 import io.github.patricklfdm.generalsearch.query.CandidateResult;
 import io.github.patricklfdm.generalsearch.query.EqualQuery;
@@ -15,27 +18,31 @@ import io.github.patricklfdm.generalsearch.query.PrefixQuery;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.schema.Field;
 
-public final class PrefixIndexSnapshot<T> implements IndexSnapshot<T> {
+public final class PrefixIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
     private final Field<T, String> field;
     private final NavigableMap<String, ImmutableBitmap> values;
+    private final IndexStatistics statistics;
 
     private PrefixIndexSnapshot(
             Field<T, String> field,
-            NavigableMap<String, ImmutableBitmap> values
+            NavigableMap<String, ImmutableBitmap> values,
+            int indexedDocumentCount
     ) {
         this.field = Objects.requireNonNull(field, "field");
         this.values = Collections.unmodifiableNavigableMap(new TreeMap<>(values));
+        this.statistics = new IndexStatistics(indexedDocumentCount, this.values.size());
     }
 
     public static <T> PrefixIndexSnapshot<T> empty(Field<T, String> field) {
-        return new PrefixIndexSnapshot<>(field, new TreeMap<>());
+        return new PrefixIndexSnapshot<>(field, new TreeMap<>(), 0);
     }
 
     static <T> PrefixIndexSnapshot<T> fromOwnedValues(
             Field<T, String> field,
-            NavigableMap<String, ImmutableBitmap> values
+            NavigableMap<String, ImmutableBitmap> values,
+            int indexedDocumentCount
     ) {
-        return new PrefixIndexSnapshot<>(field, values);
+        return new PrefixIndexSnapshot<>(field, values, indexedDocumentCount);
     }
 
     @Override
@@ -74,6 +81,32 @@ public final class PrefixIndexSnapshot<T> implements IndexSnapshot<T> {
     }
 
     @Override
+    public IndexStatistics statistics() {
+        return statistics;
+    }
+
+    @Override
+    public Optional<CandidateEstimate> estimateCandidates(Query<T> query) {
+        Objects.requireNonNull(query, "query");
+        if (query instanceof PrefixQuery<?> prefix && prefix.field() == field) {
+            return Optional.of(estimate(matchingValues(prefix.prefix())));
+        }
+        if (query instanceof EqualQuery<?, ?> equal && equal.field() == field) {
+            if (equal.expectedValue() == null) {
+                return Optional.empty();
+            }
+            ImmutableBitmap bitmap = values.get(equal.expectedValue());
+            return Optional.of(new CandidateEstimate(
+                    bitmap == null ? 0 : bitmap.cardinality(),
+                    bitmap == null ? 0 : 1,
+                    EstimateQuality.EXACT,
+                    CandidateAccuracy.EXACT
+            ));
+        }
+        return Optional.empty();
+    }
+
+    @Override
     public IndexBuilder<T> toBuilder() {
         return new PrefixIndexBuilder<>(this);
     }
@@ -105,5 +138,18 @@ public final class PrefixIndexSnapshot<T> implements IndexSnapshot<T> {
 
     private Optional<CandidateResult> exact(ImmutableBitmap bitmap) {
         return Optional.of(new CandidateResult(bitmap, CandidateAccuracy.EXACT));
+    }
+
+    private CandidateEstimate estimate(NavigableMap<String, ImmutableBitmap> matches) {
+        int cardinality = 0;
+        for (ImmutableBitmap bitmap : matches.values()) {
+            cardinality = Math.addExact(cardinality, bitmap.cardinality());
+        }
+        return new CandidateEstimate(
+                cardinality,
+                matches.size(),
+                EstimateQuality.EXACT,
+                CandidateAccuracy.EXACT
+        );
     }
 }

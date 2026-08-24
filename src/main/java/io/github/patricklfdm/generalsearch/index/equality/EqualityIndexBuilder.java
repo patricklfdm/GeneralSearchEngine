@@ -13,11 +13,13 @@ public final class EqualityIndexBuilder<T, V> implements IndexBuilder<T> {
     private final EqualityIndexSnapshot<T, V> base;
     private final Field<T, V> field;
     private final Map<V, ImmutableBitmapBuilder> dirty = new HashMap<>();
+    private int indexedDocumentCount;
     private boolean built;
 
     public EqualityIndexBuilder(EqualityIndexSnapshot<T, V> base) {
         this.base = Objects.requireNonNull(base, "base");
         this.field = base.field();
+        this.indexedDocumentCount = base.statistics().indexedDocumentCount();
     }
 
     @Override
@@ -56,18 +58,30 @@ public final class EqualityIndexBuilder<T, V> implements IndexBuilder<T> {
             }
         });
         built = true;
-        return EqualityIndexSnapshot.fromOwnedValues(field, values);
+        return EqualityIndexSnapshot.fromOwnedValues(
+                field,
+                values,
+                indexedDocumentCount
+        );
     }
 
     private void addValue(V value, int docId) {
         if (value != null) {
-            builderFor(value).set(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (!builder.get(docId)) {
+                builder.set(docId);
+                indexedDocumentCount++;
+            }
         }
     }
 
     private void removeValue(V value, int docId) {
         if (value != null) {
-            builderFor(value).clear(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (builder.get(docId)) {
+                builder.clear(docId);
+                indexedDocumentCount--;
+            }
         }
     }
 

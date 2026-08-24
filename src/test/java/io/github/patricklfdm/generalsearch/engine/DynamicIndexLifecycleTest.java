@@ -17,7 +17,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import io.github.patricklfdm.generalsearch.engine.exception.IndexLifecycleException;
+import io.github.patricklfdm.generalsearch.index.CandidateEstimate;
+import io.github.patricklfdm.generalsearch.index.EstimatingIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.IndexStatistics;
 import io.github.patricklfdm.generalsearch.index.range.RangeIndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.CandidateAccuracy;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
@@ -75,8 +78,21 @@ class DynamicIndexLifecycleTest {
                     .orElseThrow();
             assertEquals(CandidateAccuracy.EXACT, candidate.accuracy());
             assertEquals(3, candidate.bitmap().cardinality());
-            assertTrue(engine.snapshotForTesting().indexes().indexes().stream()
-                    .anyMatch(RangeIndexSnapshot.class::isInstance));
+            var rangeIndex = assertInstanceOf(
+                    RangeIndexSnapshot.class,
+                    engine.snapshotForTesting().indexes().indexes().stream()
+                            .filter(RangeIndexSnapshot.class::isInstance)
+                            .findFirst()
+                            .orElseThrow()
+            );
+            EstimatingIndexSnapshot<Item> estimatingIndex = estimating(rangeIndex);
+            assertEquals(new IndexStatistics(100, 100), estimatingIndex.statistics());
+            CandidateEstimate estimate = estimatingIndex
+                    .estimateCandidates(highScore)
+                    .orElseThrow();
+            assertEquals(3, estimate.estimatedCandidateCardinality());
+            assertEquals(3, estimate.estimatedSourceCount());
+            assertEquals(CandidateAccuracy.EXACT, estimate.accuracy());
         } finally {
             extractor.releaseBuild();
         }
@@ -177,6 +193,14 @@ class DynamicIndexLifecycleTest {
         Set<Long> ids = new HashSet<>();
         items.forEach(item -> ids.add(item.id()));
         return ids;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static EstimatingIndexSnapshot<Item> estimating(Object index) {
+        return (EstimatingIndexSnapshot<Item>) assertInstanceOf(
+                EstimatingIndexSnapshot.class,
+                index
+        );
     }
 
     private record Item(long id, int score) {}

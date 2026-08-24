@@ -14,11 +14,13 @@ public final class PrefixIndexBuilder<T> implements IndexBuilder<T> {
     private final PrefixIndexSnapshot<T> base;
     private final Field<T, String> field;
     private final Map<String, ImmutableBitmapBuilder> dirty = new HashMap<>();
+    private int indexedDocumentCount;
     private boolean built;
 
     public PrefixIndexBuilder(PrefixIndexSnapshot<T> base) {
         this.base = Objects.requireNonNull(base, "base");
         this.field = base.field();
+        this.indexedDocumentCount = base.statistics().indexedDocumentCount();
     }
 
     @Override
@@ -57,18 +59,30 @@ public final class PrefixIndexBuilder<T> implements IndexBuilder<T> {
             }
         });
         built = true;
-        return PrefixIndexSnapshot.fromOwnedValues(field, values);
+        return PrefixIndexSnapshot.fromOwnedValues(
+                field,
+                values,
+                indexedDocumentCount
+        );
     }
 
     private void addValue(String value, int docId) {
         if (value != null) {
-            builderFor(value).set(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (!builder.get(docId)) {
+                builder.set(docId);
+                indexedDocumentCount++;
+            }
         }
     }
 
     private void removeValue(String value, int docId) {
         if (value != null) {
-            builderFor(value).clear(docId);
+            ImmutableBitmapBuilder builder = builderFor(value);
+            if (builder.get(docId)) {
+                builder.clear(docId);
+                indexedDocumentCount--;
+            }
         }
     }
 
