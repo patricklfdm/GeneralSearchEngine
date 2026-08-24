@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
+import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 
 public final class CandidatePlanner<T> {
@@ -78,19 +79,28 @@ public final class CandidatePlanner<T> {
             return exact(ImmutableBitmap.empty());
         }
 
-        ImmutableBitmap candidates = ImmutableBitmap.empty();
+        ImmutableBitmap candidates = null;
+        ImmutableBitmapBuilder accumulator = null;
         CandidateAccuracy accuracy = CandidateAccuracy.EXACT;
         for (Query<T> filter : filters) {
             Optional<CandidateResult> child = plan(snapshot, filter);
             if (child.isEmpty()) {
                 return Optional.empty();
             }
-            candidates = candidates.or(child.get().bitmap());
+            if (candidates == null) {
+                candidates = child.get().bitmap();
+            } else {
+                if (accumulator == null) {
+                    accumulator = new ImmutableBitmapBuilder(candidates);
+                }
+                accumulator.or(child.get().bitmap());
+            }
             if (child.get().accuracy() == CandidateAccuracy.SUPERSET) {
                 accuracy = CandidateAccuracy.SUPERSET;
             }
         }
-        return Optional.of(new CandidateResult(candidates, accuracy));
+        ImmutableBitmap result = accumulator == null ? candidates : accumulator.build();
+        return Optional.of(new CandidateResult(result, accuracy));
     }
 
     private Optional<CandidateResult> exact(ImmutableBitmap bitmap) {

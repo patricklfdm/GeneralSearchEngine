@@ -30,13 +30,14 @@ public final class ImmutableBitmapBuilder {
 
     public void set(int docId) {
         requireDocId(docId);
+        if (get(docId)) {
+            return;
+        }
         BitSet bits = mutableBlock(docId / ImmutableBitmap.BLOCK_SIZE);
         int offset = docId % ImmutableBitmap.BLOCK_SIZE;
-        if (!bits.get(offset)) {
-            bits.set(offset);
-            cardinality++;
-            blockCount = Math.max(blockCount, docId / ImmutableBitmap.BLOCK_SIZE + 1);
-        }
+        bits.set(offset);
+        cardinality++;
+        blockCount = Math.max(blockCount, docId / ImmutableBitmap.BLOCK_SIZE + 1);
     }
 
     public void clear(int docId) {
@@ -48,17 +49,54 @@ public final class ImmutableBitmapBuilder {
         cardinality--;
     }
 
+    /**
+     * Adds every document from {@code other} to this builder.
+     *
+     * <p>The operation merges complete bitmap blocks and leaves freezing to
+     * {@link #build()}, allowing callers to accumulate many sources without creating
+     * an immutable intermediate for every source.</p>
+     *
+     * @param other bitmap whose documents are added
+     */
+    public void or(ImmutableBitmap other) {
+        ensureOpen();
+        Objects.requireNonNull(other, "other");
+        if (other.isEmpty() || (other == base && dirtyBlocks.isEmpty())) {
+            return;
+        }
+        other.blocks().forEachPresent((blockIndex, block) -> {
+            BitSet bits = mutableBlock(blockIndex);
+            int previousCardinality = bits.cardinality();
+            block.orInto(bits);
+            cardinality += bits.cardinality() - previousCardinality;
+            blockCount = Math.max(blockCount, blockIndex + 1);
+        });
+    }
+
     public ImmutableBitmap build() {
         ensureOpen();
+        if (dirtyBlocks.isEmpty()) {
+            built = true;
+            return base;
+        }
         PersistentBlockTree<BitBlock> updated = base.blocks();
+        boolean changed = false;
         for (Map.Entry<Integer, BitSet> entry : dirtyBlocks.entrySet()) {
             BitSet bits = entry.getValue();
+            BitBlock existing = base.block(entry.getKey());
+            if (existing == null ? bits.isEmpty() : existing.hasSameBits(bits)) {
+                continue;
+            }
             updated = updated.with(
                     entry.getKey(),
                     bits.isEmpty() ? null : BitBlock.fromOwnedBits(bits)
             );
+            changed = true;
         }
         built = true;
+        if (!changed) {
+            return base;
+        }
         return new ImmutableBitmap(updated, blockCount, cardinality);
     }
 

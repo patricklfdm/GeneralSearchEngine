@@ -6,6 +6,7 @@ import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
 import io.github.patricklfdm.generalsearch.schema.Field;
 
 public final class RangeIndexBuilder<T, V extends Comparable<? super V>>
@@ -51,17 +52,26 @@ public final class RangeIndexBuilder<T, V extends Comparable<? super V>>
     @Override
     public IndexSnapshot<T> build() {
         ensureOpen();
-        TreeMap<V, ImmutableBitmap> values = base.copyValues();
-        dirty.forEach((value, builder) -> {
-            ImmutableBitmap bitmap = builder.build();
+        if (dirty.isEmpty()) {
+            built = true;
+            return base;
+        }
+        PersistentAvlMap<V, ImmutableBitmap> values = base.values();
+        for (var entry : dirty.entrySet()) {
+            V value = entry.getKey();
+            ImmutableBitmap bitmap = entry.getValue().build();
             if (bitmap.isEmpty()) {
-                values.remove(value);
+                values = values.without(value);
             } else {
-                values.put(value, bitmap);
+                values = values.with(value, bitmap);
             }
-        });
+        }
         built = true;
-        return RangeIndexSnapshot.fromOwnedValues(
+        if (values == base.values()
+                && indexedDocumentCount == base.statistics().indexedDocumentCount()) {
+            return base;
+        }
+        return RangeIndexSnapshot.fromValues(
                 field,
                 values,
                 indexedDocumentCount

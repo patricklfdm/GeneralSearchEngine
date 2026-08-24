@@ -5,11 +5,12 @@ import java.util.List;
 import java.util.Objects;
 
 public final class IndexRegistryBuilder<T> {
+    private final IndexRegistry<T> base;
     private final List<IndexBuilder<T>> builders;
     private boolean built;
 
     public IndexRegistryBuilder(IndexRegistry<T> base) {
-        Objects.requireNonNull(base, "base");
+        this.base = Objects.requireNonNull(base, "base");
         this.builders = base.indexes().stream()
                 .map(IndexSnapshot::toBuilder)
                 .toList();
@@ -35,6 +36,13 @@ public final class IndexRegistryBuilder<T> {
         List<IndexSnapshot<T>> indexes = new ArrayList<>(builders.size());
         builders.forEach(builder -> indexes.add(builder.build()));
         built = true;
+        boolean unchanged = indexes.size() == base.indexes().size();
+        for (int index = 0; unchanged && index < indexes.size(); index++) {
+            unchanged = indexes.get(index) == base.indexes().get(index);
+        }
+        if (unchanged) {
+            return base;
+        }
         return IndexRegistry.fromSnapshots(indexes);
     }
 

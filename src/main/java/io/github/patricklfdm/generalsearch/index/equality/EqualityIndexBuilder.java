@@ -1,12 +1,15 @@
 package io.github.patricklfdm.generalsearch.index.equality;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.internal.index.ImmutableOverlayMap;
 import io.github.patricklfdm.generalsearch.schema.Field;
 
 public final class EqualityIndexBuilder<T, V> implements IndexBuilder<T> {
@@ -48,17 +51,28 @@ public final class EqualityIndexBuilder<T, V> implements IndexBuilder<T> {
     @Override
     public IndexSnapshot<T> build() {
         ensureOpen();
-        Map<V, ImmutableBitmap> values = base.copyValues();
+        if (dirty.isEmpty()) {
+            built = true;
+            return base;
+        }
+        Map<V, ImmutableBitmap> replacements = new HashMap<>();
+        Set<V> removals = new HashSet<>();
         dirty.forEach((value, builder) -> {
             ImmutableBitmap bitmap = builder.build();
             if (bitmap.isEmpty()) {
-                values.remove(value);
+                removals.add(value);
             } else {
-                values.put(value, bitmap);
+                replacements.put(value, bitmap);
             }
         });
+        ImmutableOverlayMap<V, ImmutableBitmap> values =
+                base.values().withChanges(replacements, removals);
         built = true;
-        return EqualityIndexSnapshot.fromOwnedValues(
+        if (values == base.values()
+                && indexedDocumentCount == base.statistics().indexedDocumentCount()) {
+            return base;
+        }
+        return EqualityIndexSnapshot.fromValues(
                 field,
                 values,
                 indexedDocumentCount

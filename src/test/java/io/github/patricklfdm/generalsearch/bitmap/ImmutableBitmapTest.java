@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.bitmap;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -42,6 +43,52 @@ class ImmutableBitmapTest {
         for (int bit = expected.nextSetBit(0); bit >= 0; bit = expected.nextSetBit(bit + 1)) {
             assertTrue(actual.get(bit));
         }
+    }
+
+    @Test
+    void bulkUnionAgreesWithBitSetForSparseDenseAndOverlappingSources() {
+        Random random = new Random(19);
+        BitSet expected = new BitSet();
+        ImmutableBitmapBuilder accumulator =
+                new ImmutableBitmapBuilder(ImmutableBitmap.empty());
+
+        for (int source = 0; source < 80; source++) {
+            ImmutableBitmapBuilder sourceBuilder =
+                    new ImmutableBitmapBuilder(ImmutableBitmap.empty());
+            int values = source % 4 == 0 ? 4_000 : 40;
+            for (int index = 0; index < values; index++) {
+                int docId = random.nextInt(250_000);
+                sourceBuilder.set(docId);
+                expected.set(docId);
+            }
+            accumulator.or(sourceBuilder.build());
+        }
+
+        ImmutableBitmap actual = accumulator.build();
+        assertEquals(expected.cardinality(), actual.cardinality());
+        for (int docId = 0; docId < 250_000; docId++) {
+            assertEquals(expected.get(docId), actual.get(docId), "docId=" + docId);
+        }
+    }
+
+    @Test
+    void builderReusesBaseWhenOperationsDoNotChangeItsContents() {
+        ImmutableBitmap base = bitmapOf(1, 1_024, 80_000);
+
+        ImmutableBitmapBuilder unchanged = new ImmutableBitmapBuilder(base);
+        unchanged.set(1);
+        unchanged.or(base);
+        assertSame(base, unchanged.build());
+
+        ImmutableBitmapBuilder reverted = new ImmutableBitmapBuilder(base);
+        reverted.clear(1_024);
+        reverted.set(1_024);
+        assertSame(base, reverted.build());
+
+        ImmutableBitmapBuilder restoredByUnion = new ImmutableBitmapBuilder(base);
+        restoredByUnion.clear(80_000);
+        restoredByUnion.or(base);
+        assertSame(base, restoredByUnion.build());
     }
 
     private static ImmutableBitmap bitmapOf(int... values) {

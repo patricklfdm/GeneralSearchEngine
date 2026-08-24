@@ -28,6 +28,14 @@ public final class BitBlock {
         return (BitSet) bits.clone();
     }
 
+    void orInto(BitSet target) {
+        target.or(bits);
+    }
+
+    boolean hasSameBits(BitSet other) {
+        return bits.equals(other);
+    }
+
     void forEachSetBit(int baseDocId, IntConsumer consumer) {
         for (int offset = bits.nextSetBit(0); offset >= 0; offset = bits.nextSetBit(offset + 1)) {
             consumer.accept(baseDocId + offset);

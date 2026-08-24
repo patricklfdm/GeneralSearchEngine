@@ -3,11 +3,11 @@ package io.github.patricklfdm.generalsearch.index.prefix;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
 import io.github.patricklfdm.generalsearch.schema.Field;
 
 public final class PrefixIndexBuilder<T> implements IndexBuilder<T> {
@@ -49,17 +49,26 @@ public final class PrefixIndexBuilder<T> implements IndexBuilder<T> {
     @Override
     public IndexSnapshot<T> build() {
         ensureOpen();
-        TreeMap<String, ImmutableBitmap> values = base.copyValues();
-        dirty.forEach((value, builder) -> {
-            ImmutableBitmap bitmap = builder.build();
+        if (dirty.isEmpty()) {
+            built = true;
+            return base;
+        }
+        PersistentAvlMap<String, ImmutableBitmap> values = base.values();
+        for (var entry : dirty.entrySet()) {
+            String value = entry.getKey();
+            ImmutableBitmap bitmap = entry.getValue().build();
             if (bitmap.isEmpty()) {
-                values.remove(value);
+                values = values.without(value);
             } else {
-                values.put(value, bitmap);
+                values = values.with(value, bitmap);
             }
-        });
+        }
         built = true;
-        return PrefixIndexSnapshot.fromOwnedValues(
+        if (values == base.values()
+                && indexedDocumentCount == base.statistics().indexedDocumentCount()) {
+            return base;
+        }
+        return PrefixIndexSnapshot.fromValues(
                 field,
                 values,
                 indexedDocumentCount

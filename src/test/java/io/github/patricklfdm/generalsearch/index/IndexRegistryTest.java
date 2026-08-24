@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.index;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -84,6 +85,21 @@ class IndexRegistryTest {
 
         assertEquals(CandidateAccuracy.EXACT, result.accuracy());
         assertTrue(result.bitmap().get(0));
+    }
+
+    @Test
+    void noOpPublicationReusesTheRegistryAndIndexSnapshots() {
+        IndexRegistry<InventoryItem> empty = registry();
+        assertSame(empty, empty.toBuilder().build());
+
+        InventoryItem item = new InventoryItem("book", "Book", 10);
+        IndexRegistryBuilder<InventoryItem> initial = empty.toBuilder();
+        initial.add(0, item);
+        IndexRegistry<InventoryItem> populated = initial.build();
+
+        IndexRegistryBuilder<InventoryItem> unchanged = populated.toBuilder();
+        unchanged.update(0, item, new InventoryItem("book", "Renamed", 10));
+        assertSame(populated, unchanged.build());
     }
 
     private static IndexRegistry<InventoryItem> registry() {

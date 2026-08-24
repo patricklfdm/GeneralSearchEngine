@@ -87,7 +87,7 @@ public final class ImmutableBitmap {
             return this;
         }
         ImmutableBitmapBuilder result = new ImmutableBitmapBuilder(this);
-        other.forEachSetBit(result::set);
+        result.or(other);
         return result.build();
     }
 
