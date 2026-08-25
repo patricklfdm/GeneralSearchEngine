@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.query.PlannerConfig;
 import io.github.patricklfdm.generalsearch.schema.AnnotatedSchemaFactory;
 import io.github.patricklfdm.generalsearch.schema.AnnotatedSearchConfiguration;
 import io.github.patricklfdm.generalsearch.schema.Field;
@@ -25,6 +26,7 @@ public final class SearchEngineBuilder<K, T> {
     private final SearchSchema.Builder<T, K> schemaBuilder;
     private final List<IndexDefinition<T>> indexDefinitions = new ArrayList<>();
     private SnapshotEngineConfig config = SnapshotEngineConfig.DEFAULT;
+    private PlannerConfig plannerConfig = PlannerConfig.DEFAULT;
 
     SearchEngineBuilder(SearchSchema<T, K> schema) {
         fixedSchema = Objects.requireNonNull(schema, "schema");
@@ -77,12 +79,23 @@ public final class SearchEngineBuilder<K, T> {
         return this;
     }
 
+    /** Configures snapshot-local query access-path selection. */
+    public SearchEngineBuilder<K, T> plannerConfig(PlannerConfig plannerConfig) {
+        this.plannerConfig = Objects.requireNonNull(plannerConfig, "plannerConfig");
+        return this;
+    }
+
     /** Builds and starts a new engine instance owned by the caller. */
     public SearchEngine<K, T> build() {
         SearchSchema<T, K> schema = fixedSchema == null
                 ? schemaBuilder.build()
                 : fixedSchema;
-        return new SnapshotSearchEngine<>(config, schema, List.copyOf(indexDefinitions));
+        return new SnapshotSearchEngine<>(
+                config,
+                plannerConfig,
+                schema,
+                List.copyOf(indexDefinitions)
+        );
     }
 
     private void registerIndexField(Field<T, ?> field) {

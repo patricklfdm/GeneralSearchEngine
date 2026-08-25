@@ -22,6 +22,8 @@ import io.github.patricklfdm.generalsearch.model.Category;
 import io.github.patricklfdm.generalsearch.model.Product;
 import io.github.patricklfdm.generalsearch.model.ProductFields;
 import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.query.PlannerConfig;
+import io.github.patricklfdm.generalsearch.query.RangePlanningMode;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
@@ -47,6 +49,7 @@ class SearchEnginePublicApiTest {
                 .index(IndexDefinition.equality(WAREHOUSE))
                 .index(IndexDefinition.range(QUANTITY))
                 .config(config)
+                .plannerConfig(new PlannerConfig(RangePlanningMode.COST_AWARE))
                 .build()) {
             Item cable = new Item(7, "north", 120, "cable");
             engine.add(cable).join();

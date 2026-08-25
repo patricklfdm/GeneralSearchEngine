@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.internal.index;
 
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.function.ToLongFunction;
 
 /**
  * Internal immutable ordered dictionary using AVL path copying.
@@ -14,14 +15,33 @@ import java.util.function.BiConsumer;
  */
 public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
     private final Node<K, V> root;
+    private final ToLongFunction<? super V> weightFunction;
 
-    private PersistentAvlMap(Node<K, V> root) {
+    private PersistentAvlMap(
+            Node<K, V> root,
+            ToLongFunction<? super V> weightFunction
+    ) {
         this.root = root;
+        this.weightFunction = weightFunction;
     }
 
     /** Returns an empty immutable ordered dictionary. */
     public static <K extends Comparable<? super K>, V> PersistentAvlMap<K, V> empty() {
-        return new PersistentAvlMap<>(null);
+        return empty(ignored -> 0L);
+    }
+
+    /**
+     * Returns an empty dictionary that maintains a non-negative aggregate value weight.
+     *
+     * @param weightFunction immutable value-to-weight function
+     */
+    public static <K extends Comparable<? super K>, V> PersistentAvlMap<K, V> empty(
+            ToLongFunction<? super V> weightFunction
+    ) {
+        return new PersistentAvlMap<>(
+                null,
+                Objects.requireNonNull(weightFunction, "weightFunction")
+        );
     }
 
     /** Returns the value for {@code key}, or {@code null} when absent. */
@@ -48,19 +68,57 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
         return height(root);
     }
 
+    /** Returns the sum of configured value weights in the requested key range. */
+    public long aggregateWeightInRange(
+            K lowerBound,
+            boolean lowerInclusive,
+            K upperBound,
+            boolean upperInclusive
+    ) {
+        if (isEmptyRange(lowerBound, lowerInclusive, upperBound, upperInclusive)) {
+            return 0L;
+        }
+        long upperWeight = upperBound == null
+                ? aggregateWeight(root)
+                : aggregateWeightBefore(upperBound, upperInclusive);
+        long lowerWeight = lowerBound == null
+                ? 0L
+                : aggregateWeightBefore(lowerBound, !lowerInclusive);
+        return Math.subtractExact(upperWeight, lowerWeight);
+    }
+
+    /** Returns the number of entries in the requested key range. */
+    public int entryCountInRange(
+            K lowerBound,
+            boolean lowerInclusive,
+            K upperBound,
+            boolean upperInclusive
+    ) {
+        if (isEmptyRange(lowerBound, lowerInclusive, upperBound, upperInclusive)) {
+            return 0;
+        }
+        int upperCount = upperBound == null
+                ? size(root)
+                : entryCountBefore(upperBound, upperInclusive);
+        int lowerCount = lowerBound == null
+                ? 0
+                : entryCountBefore(lowerBound, !lowerInclusive);
+        return upperCount - lowerCount;
+    }
+
     /** Returns a dictionary with {@code key} associated with {@code value}. */
     public PersistentAvlMap<K, V> with(K key, V value) {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(value, "value");
         Node<K, V> updated = put(root, key, value);
-        return updated == root ? this : new PersistentAvlMap<>(updated);
+        return updated == root ? this : new PersistentAvlMap<>(updated, weightFunction);
     }
 
     /** Returns a dictionary without {@code key}. */
     public PersistentAvlMap<K, V> without(K key) {
         Objects.requireNonNull(key, "key");
         Node<K, V> updated = remove(root, key);
-        return updated == root ? this : new PersistentAvlMap<>(updated);
+        return updated == root ? this : new PersistentAvlMap<>(updated, weightFunction);
     }
 
     /**
@@ -80,13 +138,13 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
 
     private Node<K, V> put(Node<K, V> node, K key, V value) {
         if (node == null) {
-            return new Node<>(key, value, null, null);
+            return node(key, value, null, null);
         }
         int comparison = key.compareTo(node.key);
         if (comparison == 0) {
             return Objects.equals(node.value, value)
                     ? node
-                    : new Node<>(node.key, value, node.left, node.right);
+                    : node(node.key, value, node.left, node.right);
         }
         Node<K, V> updatedChild = comparison < 0
                 ? put(node.left, key, value)
@@ -95,8 +153,8 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
             return node;
         }
         return comparison < 0
-                ? balance(new Node<>(node.key, node.value, updatedChild, node.right))
-                : balance(new Node<>(node.key, node.value, node.left, updatedChild));
+                ? balance(node(node.key, node.value, updatedChild, node.right))
+                : balance(node(node.key, node.value, node.left, updatedChild));
     }
 
     private Node<K, V> remove(Node<K, V> node, K key) {
@@ -108,13 +166,13 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
             Node<K, V> updatedLeft = remove(node.left, key);
             return updatedLeft == node.left
                     ? node
-                    : balance(new Node<>(node.key, node.value, updatedLeft, node.right));
+                    : balance(node(node.key, node.value, updatedLeft, node.right));
         }
         if (comparison > 0) {
             Node<K, V> updatedRight = remove(node.right, key);
             return updatedRight == node.right
                     ? node
-                    : balance(new Node<>(node.key, node.value, node.left, updatedRight));
+                    : balance(node(node.key, node.value, node.left, updatedRight));
         }
         if (node.left == null) {
             return node.right;
@@ -123,7 +181,7 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
             return node.left;
         }
         Node<K, V> successor = minimum(node.right);
-        return balance(new Node<>(
+        return balance(node(
                 successor.key,
                 successor.value,
                 node.left,
@@ -135,7 +193,7 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
         if (node.left == null) {
             return node.right;
         }
-        return balance(new Node<>(
+        return balance(node(
                 node.key,
                 node.value,
                 removeMinimum(node.left),
@@ -158,28 +216,87 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
             if (height(left.left) < height(left.right)) {
                 left = rotateLeft(left);
             }
-            return rotateRight(new Node<>(node.key, node.value, left, node.right));
+            return rotateRight(node(node.key, node.value, left, node.right));
         }
         if (balance < -1) {
             Node<K, V> right = node.right;
             if (height(right.right) < height(right.left)) {
                 right = rotateRight(right);
             }
-            return rotateLeft(new Node<>(node.key, node.value, node.left, right));
+            return rotateLeft(node(node.key, node.value, node.left, right));
         }
         return node;
     }
 
     private Node<K, V> rotateLeft(Node<K, V> node) {
         Node<K, V> pivot = node.right;
-        Node<K, V> moved = new Node<>(node.key, node.value, node.left, pivot.left);
-        return new Node<>(pivot.key, pivot.value, moved, pivot.right);
+        Node<K, V> moved = node(node.key, node.value, node.left, pivot.left);
+        return node(pivot.key, pivot.value, moved, pivot.right);
     }
 
     private Node<K, V> rotateRight(Node<K, V> node) {
         Node<K, V> pivot = node.left;
-        Node<K, V> moved = new Node<>(node.key, node.value, pivot.right, node.right);
-        return new Node<>(pivot.key, pivot.value, pivot.left, moved);
+        Node<K, V> moved = node(node.key, node.value, pivot.right, node.right);
+        return node(pivot.key, pivot.value, pivot.left, moved);
+    }
+
+    private Node<K, V> node(
+            K key,
+            V value,
+            Node<K, V> left,
+            Node<K, V> right
+    ) {
+        long weight = weightFunction.applyAsLong(value);
+        if (weight < 0L) {
+            throw new IllegalArgumentException("value weight must not be negative");
+        }
+        return new Node<>(key, value, weight, left, right);
+    }
+
+    private long aggregateWeightBefore(K bound, boolean inclusive) {
+        long result = 0L;
+        Node<K, V> current = root;
+        while (current != null) {
+            int comparison = current.key.compareTo(bound);
+            if (comparison < 0 || (inclusive && comparison == 0)) {
+                result = Math.addExact(result, aggregateWeight(current.left));
+                result = Math.addExact(result, current.weight);
+                current = current.right;
+            } else {
+                current = current.left;
+            }
+        }
+        return result;
+    }
+
+    private int entryCountBefore(K bound, boolean inclusive) {
+        int result = 0;
+        Node<K, V> current = root;
+        while (current != null) {
+            int comparison = current.key.compareTo(bound);
+            if (comparison < 0 || (inclusive && comparison == 0)) {
+                result = Math.addExact(result, size(current.left));
+                result = Math.addExact(result, 1);
+                current = current.right;
+            } else {
+                current = current.left;
+            }
+        }
+        return result;
+    }
+
+    private boolean isEmptyRange(
+            K lowerBound,
+            boolean lowerInclusive,
+            K upperBound,
+            boolean upperInclusive
+    ) {
+        if (lowerBound == null || upperBound == null) {
+            return false;
+        }
+        int comparison = lowerBound.compareTo(upperBound);
+        return comparison > 0
+                || (comparison == 0 && (!lowerInclusive || !upperInclusive));
     }
 
     private void visit(
@@ -221,19 +338,39 @@ public final class PersistentAvlMap<K extends Comparable<? super K>, V> {
         return node == null ? 0 : node.size;
     }
 
+    private static long aggregateWeight(Node<?, ?> node) {
+        return node == null ? 0L : node.aggregateWeight;
+    }
+
     private static final class Node<K, V> {
         private final K key;
         private final V value;
         private final Node<K, V> left;
         private final Node<K, V> right;
+        private final long weight;
+        private final long aggregateWeight;
         private final int height;
         private final int size;
 
-        private Node(K key, V value, Node<K, V> left, Node<K, V> right) {
+        private Node(
+                K key,
+                V value,
+                long weight,
+                Node<K, V> left,
+                Node<K, V> right
+        ) {
             this.key = key;
             this.value = value;
+            this.weight = weight;
             this.left = left;
             this.right = right;
+            this.aggregateWeight = Math.addExact(
+                    Math.addExact(
+                            PersistentAvlMap.aggregateWeight(left),
+                            PersistentAvlMap.aggregateWeight(right)
+                    ),
+                    weight
+            );
             this.height = Math.max(PersistentAvlMap.height(left),
                     PersistentAvlMap.height(right)) + 1;
             this.size = Math.addExact(Math.addExact(

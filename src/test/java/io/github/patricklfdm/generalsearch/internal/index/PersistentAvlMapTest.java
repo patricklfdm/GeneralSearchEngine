@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.internal.index;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -60,5 +61,94 @@ class PersistentAvlMapTest {
         assertEquals("two", base.get(2));
         assertEquals("changed", updated.get(1));
         assertEquals(1, updated.size());
+    }
+
+    @Test
+    void weightedRangesMatchTreeMapAcrossRandomBoundsAndUpdates() {
+        PersistentAvlMap<Integer, Integer> actual =
+                PersistentAvlMap.empty(Integer::longValue);
+        TreeMap<Integer, Integer> expected = new TreeMap<>();
+        Random random = new Random(47);
+
+        for (int operation = 0; operation < 5_000; operation++) {
+            int key = random.nextInt(500);
+            if (random.nextBoolean()) {
+                int weight = random.nextInt(201);
+                actual = actual.with(key, weight);
+                expected.put(key, weight);
+            } else {
+                actual = actual.without(key);
+                expected.remove(key);
+            }
+
+            if (operation % 25 == 0) {
+                Integer lower = random.nextBoolean() ? null : random.nextInt(550) - 25;
+                Integer upper = random.nextBoolean() ? null : random.nextInt(550) - 25;
+                boolean lowerInclusive = random.nextBoolean();
+                boolean upperInclusive = random.nextBoolean();
+                assertWeightedRange(
+                        expected,
+                        actual,
+                        lower,
+                        lowerInclusive,
+                        upper,
+                        upperInclusive
+                );
+            }
+        }
+
+        assertWeightedRange(expected, actual, null, true, null, true);
+        assertWeightedRange(expected, actual, 100, true, 100, true);
+        assertWeightedRange(expected, actual, 100, false, 100, true);
+        assertWeightedRange(expected, actual, 300, true, 200, true);
+    }
+
+    @Test
+    void weightedTreesPreserveOldSnapshotsAndRejectNegativeWeights() {
+        PersistentAvlMap<Integer, Integer> base =
+                PersistentAvlMap.<Integer, Integer>empty(Integer::longValue)
+                        .with(1, 10)
+                        .with(2, 20);
+        PersistentAvlMap<Integer, Integer> updated = base.with(1, 100).without(2);
+
+        assertEquals(30L, base.aggregateWeightInRange(null, true, null, true));
+        assertEquals(2, base.entryCountInRange(null, true, null, true));
+        assertEquals(100L, updated.aggregateWeightInRange(null, true, null, true));
+        assertEquals(1, updated.entryCountInRange(null, true, null, true));
+        assertThrows(IllegalArgumentException.class, () -> base.with(3, -1));
+    }
+
+    private static void assertWeightedRange(
+            TreeMap<Integer, Integer> expected,
+            PersistentAvlMap<Integer, Integer> actual,
+            Integer lower,
+            boolean lowerInclusive,
+            Integer upper,
+            boolean upperInclusive
+    ) {
+        boolean empty = lower != null && upper != null
+                && (lower > upper || lower.equals(upper)
+                && (!lowerInclusive || !upperInclusive));
+        long expectedWeight = 0L;
+        int expectedCount = 0;
+        if (!empty) {
+            for (var entry : expected.entrySet()) {
+                boolean aboveLower = lower == null || entry.getKey() > lower
+                        || lowerInclusive && entry.getKey().equals(lower);
+                boolean belowUpper = upper == null || entry.getKey() < upper
+                        || upperInclusive && entry.getKey().equals(upper);
+                if (aboveLower && belowUpper) {
+                    expectedWeight += entry.getValue();
+                    expectedCount++;
+                }
+            }
+        }
+
+        assertEquals(expectedWeight, actual.aggregateWeightInRange(
+                lower, lowerInclusive, upper, upperInclusive
+        ));
+        assertEquals(expectedCount, actual.entryCountInRange(
+                lower, lowerInclusive, upper, upperInclusive
+        ));
     }
 }

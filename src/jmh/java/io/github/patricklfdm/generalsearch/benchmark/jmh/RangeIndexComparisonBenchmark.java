@@ -3,9 +3,9 @@ package io.github.patricklfdm.generalsearch.benchmark.jmh;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig;
-import io.github.patricklfdm.generalsearch.engine.SnapshotUpdateEngine;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
@@ -13,6 +13,8 @@ import io.github.patricklfdm.generalsearch.model.Product;
 import io.github.patricklfdm.generalsearch.model.ProductFields;
 import io.github.patricklfdm.generalsearch.model.ProductIndexDefinitions;
 import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.query.PlannerConfig;
+import io.github.patricklfdm.generalsearch.query.RangePlanningMode;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -43,8 +45,9 @@ public class RangeIndexComparisonBenchmark {
     @Param({"0.01", "0.1", "1.0", "10.0", "25.0", "50.0", "100.0"})
     public double selectivityPercent;
 
-    private SnapshotUpdateEngine indexedEngine;
-    private SnapshotUpdateEngine scannedEngine;
+    private SearchEngine<String, Product> costAwareEngine;
+    private SearchEngine<String, Product> forcedIndexEngine;
+    private SearchEngine<String, Product> forcedScanEngine;
     private IndexSnapshot<Product> priceIndex;
     private Query<Product> priceQuery;
 
@@ -74,16 +77,12 @@ public class RangeIndexComparisonBenchmark {
         double maximumPrice = sortedPrices.get(expectedMatches - 1);
         priceQuery = Query.between(ProductFields.PRICE, 0.0, maximumPrice);
 
-        indexedEngine = new SnapshotUpdateEngine();
-        List<IndexDefinition<Product>> indexesWithoutPrice =
-                ProductIndexDefinitions.defaults().stream()
-                        .filter(definition -> definition.field() != ProductFields.PRICE)
-                        .toList();
-        scannedEngine = new SnapshotUpdateEngine(
-                SnapshotEngineConfig.DEFAULT,
-                indexesWithoutPrice);
-        ProductBenchmarkData.load(indexedEngine, productCount);
-        ProductBenchmarkData.load(scannedEngine, productCount);
+        costAwareEngine = engine(RangePlanningMode.COST_AWARE);
+        forcedIndexEngine = engine(RangePlanningMode.FORCE_INDEX);
+        forcedScanEngine = engine(RangePlanningMode.FORCE_SCAN);
+        load(costAwareEngine, products);
+        load(forcedIndexEngine, products);
+        load(forcedScanEngine, products);
 
         IndexBuilder<Product> priceIndexBuilder =
                 IndexDefinition.range(ProductFields.PRICE)
@@ -94,18 +93,21 @@ public class RangeIndexComparisonBenchmark {
         }
         priceIndex = priceIndexBuilder.build();
 
-        int indexedMatches = indexedEngine.search(priceQuery).size();
-        int scannedMatches = scannedEngine.search(priceQuery).size();
+        int costAwareMatches = costAwareEngine.search(priceQuery).size();
+        int indexedMatches = forcedIndexEngine.search(priceQuery).size();
+        int scannedMatches = forcedScanEngine.search(priceQuery).size();
         int candidateMatches = priceIndex.candidates(priceQuery)
                 .orElseThrow()
                 .bitmap()
                 .cardinality();
-        if (indexedMatches != expectedMatches
+        if (costAwareMatches != expectedMatches
+                || indexedMatches != expectedMatches
                 || scannedMatches != expectedMatches
                 || candidateMatches != expectedMatches) {
             throw new IllegalStateException(
                     "range comparison produced unequal result counts: expected="
                             + expectedMatches
+                            + ", costAware=" + costAwareMatches
                             + ", indexed=" + indexedMatches
                             + ", scanned=" + scannedMatches
                             + ", candidates=" + candidateMatches);
@@ -114,22 +116,30 @@ public class RangeIndexComparisonBenchmark {
 
     @TearDown(Level.Trial)
     public void tearDown() {
-        if (indexedEngine != null) {
-            indexedEngine.close();
+        if (costAwareEngine != null) {
+            costAwareEngine.close();
         }
-        if (scannedEngine != null) {
-            scannedEngine.close();
+        if (forcedIndexEngine != null) {
+            forcedIndexEngine.close();
+        }
+        if (forcedScanEngine != null) {
+            forcedScanEngine.close();
         }
     }
 
     @Benchmark
-    public int indexedPriceRange() {
-        return indexedEngine.search(priceQuery).size();
+    public int costAwarePriceRange() {
+        return costAwareEngine.search(priceQuery).size();
     }
 
     @Benchmark
-    public int scannedPriceRange() {
-        return scannedEngine.search(priceQuery).size();
+    public int forcedIndexPriceRange() {
+        return forcedIndexEngine.search(priceQuery).size();
+    }
+
+    @Benchmark
+    public int forcedScanPriceRange() {
+        return forcedScanEngine.search(priceQuery).size();
     }
 
     @Benchmark
@@ -138,5 +148,31 @@ public class RangeIndexComparisonBenchmark {
                 .orElseThrow()
                 .bitmap()
                 .cardinality();
+    }
+
+    private static SearchEngine<String, Product> engine(RangePlanningMode mode) {
+        return SearchEngine.builder(ProductFields.SCHEMA)
+                .indexes(ProductIndexDefinitions.defaults())
+                .plannerConfig(new PlannerConfig(mode))
+                .build();
+    }
+
+    private static void load(
+            SearchEngine<String, Product> engine,
+            List<Product> products
+    ) {
+        List<CompletableFuture<Void>> pending = new ArrayList<>(1_000);
+        for (Product product : products) {
+            pending.add(engine.add(product));
+            if (pending.size() == 1_000) {
+                await(pending);
+            }
+        }
+        await(pending);
+    }
+
+    private static void await(List<CompletableFuture<Void>> pending) {
+        CompletableFuture.allOf(pending.toArray(CompletableFuture[]::new)).join();
+        pending.clear();
     }
 }

@@ -33,7 +33,11 @@ public final class PrefixIndexSnapshot<T> implements EstimatingIndexSnapshot<T> 
     }
 
     public static <T> PrefixIndexSnapshot<T> empty(Field<T, String> field) {
-        return new PrefixIndexSnapshot<>(field, PersistentAvlMap.empty(), 0);
+        return new PrefixIndexSnapshot<>(
+                field,
+                PersistentAvlMap.empty(ImmutableBitmap::cardinality),
+                0
+        );
     }
 
     static <T> PrefixIndexSnapshot<T> fromValues(
@@ -85,11 +89,15 @@ public final class PrefixIndexSnapshot<T> implements EstimatingIndexSnapshot<T> 
     public Optional<CandidateEstimate> estimateCandidates(Query<T> query) {
         Objects.requireNonNull(query, "query");
         if (query instanceof PrefixQuery<?> prefix && prefix.field() == field) {
-            CardinalityCounter counter = new CardinalityCounter();
-            forEachMatching(prefix.prefix(), (ignored, bitmap) -> counter.add(bitmap));
+            String lowerBound = prefix.prefix().isEmpty() ? null : prefix.prefix();
+            String upperBound = prefix.prefix().isEmpty()
+                    ? null
+                    : exclusiveUpperBound(prefix.prefix());
             return Optional.of(new CandidateEstimate(
-                    counter.cardinality,
-                    counter.sourceCount,
+                    Math.toIntExact(values.aggregateWeightInRange(
+                            lowerBound, true, upperBound, false
+                    )),
+                    values.entryCountInRange(lowerBound, true, upperBound, false),
                     EstimateQuality.EXACT,
                     CandidateAccuracy.EXACT
             ));
@@ -170,16 +178,6 @@ public final class PrefixIndexSnapshot<T> implements EstimatingIndexSnapshot<T> 
                 return ImmutableBitmap.empty();
             }
             return builder == null ? first : builder.build();
-        }
-    }
-
-    private static final class CardinalityCounter {
-        private int cardinality;
-        private int sourceCount;
-
-        private void add(ImmutableBitmap bitmap) {
-            cardinality = Math.addExact(cardinality, bitmap.cardinality());
-            sourceCount++;
         }
     }
 }

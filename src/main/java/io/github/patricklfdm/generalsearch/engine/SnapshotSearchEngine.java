@@ -31,6 +31,8 @@ import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexRegistry;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
+import io.github.patricklfdm.generalsearch.query.PlannerConfig;
 import io.github.patricklfdm.generalsearch.query.SnapshotSearcher;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
@@ -78,14 +80,25 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             SearchSchema<T, K> schema,
             Collection<? extends IndexDefinition<T>> indexDefinitions
     ) {
+        this(config, PlannerConfig.DEFAULT, schema, indexDefinitions);
+    }
+
+    /** Compatibility constructor with additive planner configuration. */
+    public SnapshotSearchEngine(
+            SnapshotEngineConfig config,
+            PlannerConfig plannerConfig,
+            SearchSchema<T, K> schema,
+            Collection<? extends IndexDefinition<T>> indexDefinitions
+    ) {
         this.config = Objects.requireNonNull(config, "config");
+        Objects.requireNonNull(plannerConfig, "plannerConfig");
         this.schema = Objects.requireNonNull(schema, "schema");
         validateIndexDefinitions(indexDefinitions);
         SearchSnapshot<T> emptySnapshot = new SearchSnapshot<>(indexDefinitions);
         this.current = new AtomicReference<>(
                 new PublishedState<>(emptySnapshot, Map.of(), 0));
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
-        this.searcher = new SnapshotSearcher<>();
+        this.searcher = new SnapshotSearcher<>(new CandidatePlanner<>(plannerConfig));
         this.indexBuildExecutor = Executors.newSingleThreadExecutor(task -> {
             Thread thread = new Thread(
                     task,

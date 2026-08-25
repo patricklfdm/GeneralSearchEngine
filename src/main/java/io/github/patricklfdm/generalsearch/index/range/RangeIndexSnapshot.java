@@ -36,7 +36,11 @@ public final class RangeIndexSnapshot<T, V extends Comparable<? super V>>
     public static <T, V extends Comparable<? super V>> RangeIndexSnapshot<T, V> empty(
             Field<T, V> field
     ) {
-        return new RangeIndexSnapshot<>(field, PersistentAvlMap.empty(), 0);
+        return new RangeIndexSnapshot<>(
+                field,
+                PersistentAvlMap.empty(ImmutableBitmap::cardinality),
+                0
+        );
     }
 
     static <T, V extends Comparable<? super V>> RangeIndexSnapshot<T, V> fromValues(
@@ -113,12 +117,11 @@ public final class RangeIndexSnapshot<T, V extends Comparable<? super V>>
             if (minValue.compareTo(maxValue) > 0) {
                 return Optional.of(estimate(0, 0, CandidateAccuracy.EXACT));
             }
-            CardinalityCounter counter = new CardinalityCounter();
-            values.forEachInRange(minValue, true, maxValue, true,
-                    (ignored, bitmap) -> counter.add(bitmap));
             return Optional.of(estimate(
-                    counter.cardinality,
-                    counter.sourceCount,
+                    Math.toIntExact(values.aggregateWeightInRange(
+                            minValue, true, maxValue, true
+                    )),
+                    values.entryCountInRange(minValue, true, maxValue, true),
                     CandidateAccuracy.EXACT
             ));
         }
@@ -181,16 +184,6 @@ public final class RangeIndexSnapshot<T, V extends Comparable<? super V>>
                 return ImmutableBitmap.empty();
             }
             return builder == null ? first : builder.build();
-        }
-    }
-
-    private static final class CardinalityCounter {
-        private int cardinality;
-        private int sourceCount;
-
-        private void add(ImmutableBitmap bitmap) {
-            cardinality = Math.addExact(cardinality, bitmap.cardinality());
-            sourceCount++;
         }
     }
 }
