@@ -22,7 +22,7 @@ The following remain outside the v1.0.0 scope:
 
 ## v2.0.0
 
-Version 2.0.0 is the current validated release candidate. Its release artifacts are:
+Version 2.0.0 is the current published stable release. Its release artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:2.0.0`.
@@ -45,10 +45,12 @@ guidance is available in [`docs/v2/MIGRATION_GUIDE.md`](docs/v2/MIGRATION_GUIDE.
 and the compatibility boundary is recorded in
 [`docs/v2/API_COMPATIBILITY.md`](docs/v2/API_COMPATIBILITY.md).
 
-The v2.0.0 candidate has completed correctness, compatibility, consumer, concurrency,
-performance, Javadoc, signing, artifact, and reproducible-build validation. The final
-release checklist is maintained in
-[`docs/v2/RELEASE_CHECKLIST.md`](docs/v2/RELEASE_CHECKLIST.md).
+The v2.0.0 release completed correctness, compatibility, consumer, concurrency,
+performance, Javadoc, signing, artifact, and reproducible-build validation before its
+August 25, 2026 publication. The frozen release record is maintained in
+[`docs/v2/RELEASE_CHECKLIST.md`](docs/v2/RELEASE_CHECKLIST.md), and the public release is
+available from the
+[`v2.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.0.0).
 
 ## v2.0.0 scope boundaries
 

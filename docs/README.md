@@ -1,9 +1,9 @@
 # GeneralSearchEngine documentation
 
-This directory separates the published v1 record from the completed v2 development
-phases. The repository root [`README.md`](../README.md) remains the user-facing entry
-point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) remains the phase
-history and decision source of truth.
+This directory preserves the published v1 and v2 records together with the completed
+v2 development phases. The repository root [`README.md`](../README.md) remains the
+user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
+remains the phase history and decision source of truth.
 
 ## v1 — published and frozen
 
@@ -13,11 +13,11 @@ history and decision source of truth.
 - [JMH diagnostic round 2](v1/JMH_DIAGNOSTIC_ROUND_2.md)
 - [Historical v1 release checklist](v1/RELEASE_CHECKLIST.md)
 
-## v2 — validated release candidate
+## v2 — published and frozen
 
 - [Migration guide](v2/MIGRATION_GUIDE.md)
 - [API compatibility audit](v2/API_COMPATIBILITY.md)
-- [Final release checklist](v2/RELEASE_CHECKLIST.md)
+- [Published release record](v2/RELEASE_CHECKLIST.md)
 
 ## v2 phase evidence
 

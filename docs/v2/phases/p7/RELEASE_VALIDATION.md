@@ -4,7 +4,8 @@
 
 P7 is `COMPLETED`. Correctness, compatibility, consumer, release, signature, artifact,
 reproducibility, the 141-row representative JMH regression matrix, and the target-machine
-long-soak gate all pass. Release conversion and publication remain separate actions.
+long-soak gate all pass. Release conversion and publication were subsequently completed
+from the signed `v2.0.0` tag on August 25, 2026.
 
 All performance data is environment- and workload-specific regression evidence, not a
 universal latency, throughput, allocation, scaling, or capacity guarantee.

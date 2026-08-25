@@ -2,15 +2,19 @@
 
 ## Current state
 
-P7 validation and final version conversion of the `2.0.0` release candidate are
-complete. Do not publish, tag, or commit without separate owner approval.
+Version 2.0.0 was published on August 25, 2026 from the signed `v2.0.0` tag after P7
+validation, final version conversion, Central Portal validation, and artifact review.
 The representative JMH regression matrix is recorded in
 [`phases/p7/PERFORMANCE_BASELINE.md`](phases/p7/PERFORMANCE_BASELINE.md).
 
-Release artifacts are:
+Published release artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:2.0.0`.
+
+The public release is available from the
+[`v2.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.0.0),
+with both Maven artifacts published under the `io.github.patricklfdm` namespace.
 
 Both use Java 21 bytecode, Apache License 2.0, the
 `patricklfdm/GeneralSearchEngine` repository metadata, and manual Central Portal
@@ -18,7 +22,7 @@ publication through server ID `central`.
 `general-search-engine-reactor` is a local-only aggregator with deployment explicitly
 disabled; it is not a third Central artifact.
 
-## Candidate freeze
+## Frozen release gate
 
 - [x] P1–P6 are complete and their semantics/performance evidence is frozen.
 - [x] No P7 feature or performance optimization was added.
@@ -46,7 +50,7 @@ Run the target-machine commands in
 [`phases/p7/RELEASE_VALIDATION.md`](phases/p7/RELEASE_VALIDATION.md) separately because they
 are intentionally excluded from normal Maven test execution.
 
-## Final version conversion
+## Completed final version conversion
 
 After every gate is accepted:
 
@@ -62,7 +66,7 @@ After every gate is accepted:
 - [x] confirm the core JAR contains no annotation-processor service entry and the
   processor JAR contains exactly the expected entry.
 
-Final candidate validation on 2026-08-25: core 118 tests, processor 4 tests, frozen-v1
+Final release validation on 2026-08-25: core 118 tests, processor 4 tests, frozen-v1
 fixture 3 tests, published-v1 artifact comparison, both independent consumers, strict
 Javadocs, all signatures, service isolation, and six-JAR reproducibility all PASS.
 
@@ -73,15 +77,16 @@ validated together:
 mvn -f reactor/pom.xml clean -Prelease verify
 ```
 
-## Deployment — only after separate approval
+## Publication record
 
-From the exact approved release commit/tag, upload and wait for Central validation:
+Both artifacts were uploaded together from the exact approved release tag with:
 
 ```bash
 mvn -f reactor/pom.xml clean -Prelease deploy
 ```
 
-`autoPublish=false`; a successful deploy must remain unpublished until both artifact
-coordinates, signatures, sources, Javadocs, and Portal validation are reviewed. Publish
-or drop the deployment manually. Do not commit, tag, push, deploy, or publish as an
-implicit part of this checklist.
+`autoPublish=false` kept the deployment unpublished while both artifact coordinates,
+signatures, sources, Javadocs, and Portal validation were reviewed. The validated
+deployment was then published manually to Maven Central, the signed `v2.0.0` tag was
+published to GitHub, and the corresponding GitHub Release was completed. Version 2.0.0
+is immutable; any later correction requires a new version.

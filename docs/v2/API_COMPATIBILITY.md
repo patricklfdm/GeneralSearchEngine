@@ -2,7 +2,7 @@
 
 ## Status
 
-The `2.0.0` release candidate is binary- and source-compatible with the
+The published `2.0.0` release is binary- and source-compatible with the
 published `io.github.patricklfdm:general-search-engine:1.0.0` supported application API.
 P7 verifies this with the frozen compile/reflection fixture and an artifact-level
 comparison against the Maven Central JAR.
@@ -18,7 +18,7 @@ remain unsupported implementation surfaces.
 ## Artifact-level gate
 
 The `artifact-compat` profile uses `japicmp-maven-plugin` 0.24.2. It resolves the
-published v1.0.0 JAR, compares it with the newly packaged candidate, writes HTML,
+published v1.0.0 JAR, compares it with the packaged v2.0.0 artifact, writes HTML,
 Markdown, XML, and text reports under `target/japicmp`, and fails on either binary or
 source incompatibility:
 
@@ -48,14 +48,14 @@ built-in snapshot engine overrides them.
 ## Consumer fixtures
 
 Independent Maven projects compile both a v1-style application and a v2-style
-application against locally installed candidate artifacts. The v2 fixture also runs
+application against locally installed release artifacts. The v2 fixture also runs
 the separate annotation processor and consumes its generated schema and field class:
 
 ```bash
 bash scripts/verify-consumer-projects.sh
 ```
 
-For a non-SNAPSHOT release candidate, pass the audited version to the consumer reactor:
+To verify the published release version explicitly, pass it to the consumer reactor:
 
 ```bash
 mvn -f compatibility/pom.xml -Dgse.version=2.0.0 clean test
