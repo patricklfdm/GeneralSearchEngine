@@ -16,15 +16,18 @@ public final class SearchSchema<T, K> {
     private final Class<T> documentType;
     private final Field<T, K> idField;
     private final Map<String, Field<T, ?>> fields;
+    private final Map<String, TextField<T>> textFields;
 
     private SearchSchema(
             Class<T> documentType,
             Field<T, K> idField,
-            Map<String, Field<T, ?>> fields
+            Map<String, Field<T, ?>> fields,
+            Map<String, TextField<T>> textFields
     ) {
         this.documentType = documentType;
         this.idField = idField;
         this.fields = Collections.unmodifiableMap(new LinkedHashMap<>(fields));
+        this.textFields = Collections.unmodifiableMap(new LinkedHashMap<>(textFields));
     }
 
     public static <T, K> Builder<T, K> builder(
@@ -75,9 +78,27 @@ public final class SearchSchema<T, K> {
         return (Field<T, V>) field;
     }
 
+    /** Returns canonical text configurations keyed by their logical field names. */
+    public Map<String, TextField<T>> textFields() {
+        return textFields;
+    }
+
+    /** Returns the canonical text configuration for {@code name}, when registered. */
+    public Optional<TextField<T>> textField(String name) {
+        Objects.requireNonNull(name, "name");
+        return Optional.ofNullable(textFields.get(name));
+    }
+
+    /** Returns the canonical text configuration or rejects an unconfigured field. */
+    public TextField<T> requireTextField(String name) {
+        return textField(name).orElseThrow(
+                () -> new IllegalArgumentException("unknown text field: " + name));
+    }
+
     public static final class Builder<T, K> {
         private final Class<T> documentType;
         private final Map<String, Field<T, ?>> fields = new LinkedHashMap<>();
+        private final Map<String, TextField<T>> textFields = new LinkedHashMap<>();
         private final Field<T, K> idField;
 
         private Builder(Class<T> documentType, Field<T, K> idField) {
@@ -91,8 +112,20 @@ public final class SearchSchema<T, K> {
             return this;
         }
 
+        /** Registers one canonical Analyzer configuration for a String field. */
+        public Builder<T, K> textField(TextField<T> textField) {
+            TextField<T> checked = Objects.requireNonNull(textField, "textField");
+            register(checked.field());
+            TextField<T> existing = textFields.putIfAbsent(checked.name(), checked);
+            if (existing != null && existing != checked) {
+                throw new IllegalArgumentException(
+                        "duplicate text field name: " + checked.name());
+            }
+            return this;
+        }
+
         public SearchSchema<T, K> build() {
-            return new SearchSchema<>(documentType, idField, fields);
+            return new SearchSchema<>(documentType, idField, fields, textFields);
         }
 
         private void register(Field<T, ?> field) {

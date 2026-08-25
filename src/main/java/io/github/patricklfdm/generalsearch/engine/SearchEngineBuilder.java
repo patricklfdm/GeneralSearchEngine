@@ -5,11 +5,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
 import io.github.patricklfdm.generalsearch.schema.AnnotatedSchemaFactory;
 import io.github.patricklfdm.generalsearch.schema.AnnotatedSearchConfiguration;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /**
  * Fluent construction entry point for generic snapshot search engines.
@@ -58,10 +60,24 @@ public final class SearchEngineBuilder<K, T> {
         return this;
     }
 
+    /** Registers a canonical analyzed-text configuration when assembling a schema. */
+    public SearchEngineBuilder<K, T> textField(TextField<T> textField) {
+        if (schemaBuilder == null) {
+            throw new IllegalStateException(
+                    "text fields cannot be added to an existing SearchSchema");
+        }
+        schemaBuilder.textField(Objects.requireNonNull(textField, "textField"));
+        return this;
+    }
+
     /** Registers one startup index and its field in a manually built schema. */
     public SearchEngineBuilder<K, T> index(IndexDefinition<T> definition) {
         IndexDefinition<T> checked = Objects.requireNonNull(definition, "definition");
-        registerIndexField(checked.field());
+        if (checked instanceof TextIndexDefinition<T> text) {
+            registerTextIndexField(text.textField());
+        } else {
+            registerIndexField(checked.field());
+        }
         indexDefinitions.add(checked);
         return this;
     }
@@ -108,6 +124,19 @@ public final class SearchEngineBuilder<K, T> {
         if (canonical != field) {
             throw new IllegalArgumentException(
                     "indexes require canonical schema fields: " + field.name());
+        }
+    }
+
+    private void registerTextIndexField(TextField<T> textField) {
+        Objects.requireNonNull(textField, "textField");
+        if (schemaBuilder != null) {
+            schemaBuilder.textField(textField);
+            return;
+        }
+        if (fixedSchema.requireTextField(textField.name()) != textField) {
+            throw new IllegalArgumentException(
+                    "text indexes require canonical schema text fields: "
+                            + textField.name());
         }
     }
 }

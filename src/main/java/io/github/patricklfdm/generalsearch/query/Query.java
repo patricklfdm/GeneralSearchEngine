@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.query;
 
 import java.util.List;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /**
  * Predicate evaluated against documents after optional index-based candidate planning.
@@ -30,6 +31,21 @@ public interface Query<T> {
     /** Uses case-sensitive {@link String#startsWith(String)} semantics. */
     static <T> PrefixQuery<T> prefix(Field<T, String> field, String prefix) {
         return new PrefixQuery<>(field, prefix);
+    }
+
+    /** Creates a query whose text must analyze to exactly one distinct token. */
+    static <T> TermQuery<T> term(TextField<T> field, String queryText) {
+        return new TermQuery<>(field, queryText);
+    }
+
+    /** Matches at least one distinct analyzed query token; zero tokens match nothing. */
+    static <T> AnyTermsQuery<T> anyTerms(TextField<T> field, String queryText) {
+        return new AnyTermsQuery<>(field, queryText);
+    }
+
+    /** Matches every distinct analyzed query token; zero tokens match nothing. */
+    static <T> AllTermsQuery<T> allTerms(TextField<T> field, String queryText) {
+        return new AllTermsQuery<>(field, queryText);
     }
 
     @SafeVarargs

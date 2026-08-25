@@ -3,7 +3,9 @@ package io.github.patricklfdm.generalsearch.index;
 import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexDefinition;
 import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexDefinition;
 import io.github.patricklfdm.generalsearch.index.range.RangeIndexDefinition;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /**
  * Reusable definition that creates an empty immutable index snapshot.
@@ -33,5 +35,9 @@ public interface IndexDefinition<T> {
 
     static <T> PrefixIndexDefinition<T> prefix(Field<T, String> field) {
         return new PrefixIndexDefinition<>(field);
+    }
+
+    static <T> TextIndexDefinition<T> text(TextField<T> field) {
+        return new TextIndexDefinition<>(field);
     }
 }

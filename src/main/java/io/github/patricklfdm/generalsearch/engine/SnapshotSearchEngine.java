@@ -30,6 +30,7 @@ import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexRegistry;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
@@ -370,6 +371,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
 
     private void processCreateIndex(CreateIndexTask<K, T> task) {
         IndexDefinition<T> definition = task.definition();
+        validateTextIndexDefinition(definition);
         Field<T, ?> requestedField = Objects.requireNonNull(
                 definition.field(),
                 "index field"
@@ -488,6 +490,17 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 throw new IllegalArgumentException(
                         "indexes require canonical schema fields: " + field.name());
             }
+            validateTextIndexDefinition(checked);
+        }
+    }
+
+    private void validateTextIndexDefinition(IndexDefinition<T> definition) {
+        if (definition instanceof TextIndexDefinition<T> text
+                && schema.requireTextField(text.textField().name())
+                != text.textField()) {
+            throw new IllegalArgumentException(
+                    "text indexes require canonical schema text fields: "
+                            + text.textField().name());
         }
     }
 

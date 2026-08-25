@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.model.Category;
 import io.github.patricklfdm.generalsearch.model.Product;
 import io.github.patricklfdm.generalsearch.model.ProductFields;
@@ -49,5 +50,38 @@ class SearchSchemaTest {
                 () -> schema.idOf(new NullableIdDocument(null)));
     }
 
+    @Test
+    void registersOneCanonicalTextConfigurationPerLogicalField() {
+        Field<TextDocument, Long> id = Field.of("id", Long.class, TextDocument::id);
+        Field<TextDocument, String> body =
+                Field.of("body", String.class, TextDocument::body);
+        TextField<TextDocument> text = TextField.of(body, Analyzer.simple());
+
+        SearchSchema<TextDocument, Long> schema =
+                SearchSchema.builder(TextDocument.class, id)
+                        .textField(text)
+                        .build();
+
+        assertSame(body, schema.requireField("body"));
+        assertSame(text, schema.requireTextField("body"));
+        assertSame(text, schema.textFields().get("body"));
+    }
+
+    @Test
+    void rejectsCompetingTextConfigurationsForTheSameLogicalField() {
+        Field<TextDocument, Long> id = Field.of("id", Long.class, TextDocument::id);
+        Field<TextDocument, String> body =
+                Field.of("body", String.class, TextDocument::body);
+        TextField<TextDocument> first = TextField.of(body, Analyzer.simple());
+        TextField<TextDocument> competing = TextField.of(body, Analyzer.simple());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> SearchSchema.builder(TextDocument.class, id)
+                        .textField(first)
+                        .textField(competing));
+    }
+
     private record NullableIdDocument(String id) {}
+
+    private record TextDocument(long id, String body) {}
 }
