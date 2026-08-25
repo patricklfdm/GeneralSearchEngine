@@ -2,11 +2,11 @@
 
 ## Current state
 
-Version `2.1.0` is the frozen release candidate. Version `2.0.0` remains the current
-Maven Central release until publication completes and is the immediate compatibility
-baseline. Version `1.0.0` remains the original supported application-API baseline.
+Version `2.1.0` was published to Maven Central and released on GitHub on 2026-08-25.
+Version `2.0.0` remains the immediate compatibility baseline, and version `1.0.0`
+remains the original supported application-API baseline.
 
-The intended Central artifacts are:
+The published Central artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.1.0`;
 - `io.github.patricklfdm:general-search-engine-processor:2.1.0`.
@@ -16,10 +16,8 @@ release retains Java 21 bytecode, Apache License 2.0, the
 `patricklfdm/GeneralSearchEngine` SCM metadata, signed artifacts, and manual Central
 Portal publication through server ID `central`.
 
-Known release blocker: the final release profile reaches the GPG signing phase, but
-the validation environment does not contain a secret key (`gpg: no default secret
-key`). Import the project owner's release key before signing or deployment; do not
-disable the signature gate.
+The release artifacts and signed tag use OpenPGP fingerprint
+`91AA B7A2 B0FB 55C3 BBB3 3453 4B61 0314 8D64 3AB3`.
 
 ## Release scope
 
@@ -36,7 +34,7 @@ disable the signature gate.
   the compile-time type-safety path.
 - [x] The reactor-compiled travel example and one-command runner represent the
   documented newcomer workflow.
-- [ ] No unrelated feature or performance work is included after release freeze.
+- [x] No unrelated feature or performance work is included after release freeze.
 
 ## Source and review gate
 
@@ -45,12 +43,12 @@ disable the signature gate.
   `docs/v2/API_COMPATIBILITY.md`.
 - [x] No generated report, benchmark output, local repository, IDE file, credential,
   signature, or `target/` artifact is tracked.
-- [ ] The working tree is clean and the release commit is present on `master`.
+- [x] The working tree is clean and the release commit is present on `master`.
 - [x] JDK 21 and Maven 3.9 or newer are used for validation (OpenJDK 21.0.12 and
   Maven 3.9.11).
 - [ ] CI runs the same core, reactor, compatibility, and consumer gates as the local
   release validation.
-- [ ] The project owner approves the frozen 2.1.0 scope.
+- [x] The project owner approves the frozen 2.1.0 scope.
 
 ## Compatibility gate
 
@@ -118,7 +116,7 @@ After every snapshot gate is accepted:
 - [x] Freeze `project.build.outputTimestamp` in both publishable POMs to
   `2026-08-25T19:15:48Z`.
 - [x] Confirm that `rg -n "2.1.0-SNAPSHOT"` returns no release-facing occurrence.
-- [ ] Commit the conversion as `chore(release): prepare version 2.1.0`.
+- [x] Commit the conversion as `chore(release): prepare version 2.1.0`.
 
 ## Final release validation
 
@@ -139,15 +137,15 @@ bash scripts/verify-reproducible-build.sh
 - [x] Frozen v1 fixture test count: recorded in the release record below.
 - [x] Both Japicmp baselines pass from an isolated Maven repository.
 - [x] Consumer fixtures use `2.1.0`, not a snapshot or locally overwritten `2.0.0`.
-- [ ] The release profile validates Javadocs, sources, signatures, and both published
+- [x] The release profile validates Javadocs, sources, signatures, and both published
   modules without deploying the reactor or example.
-- [ ] The final working tree is clean after validation.
+- [x] The final working tree is clean after validation.
 
 ## Artifact inspection
 
 - [x] Core main, sources, and Javadoc JARs exist for `2.1.0`.
 - [x] Processor main, sources, and Javadoc JARs exist for `2.1.0`.
-- [ ] Both POMs and all six JARs have valid detached ASCII-armored signatures.
+- [x] Both POMs and all six JARs have valid detached ASCII-armored signatures.
 - [x] Manifest `Implementation-Version` values are exactly `2.1.0`.
 - [x] Core and processor artifacts contain the expected license, SCM, developer,
   issue-management, Java 21, and module-name metadata.
@@ -160,18 +158,19 @@ bash scripts/verify-reproducible-build.sh
 
 ## Tag and publication
 
-- [ ] The final release commit is on `master`, reviewed, and has a clean working tree.
-- [ ] Create signed tag `v2.1.0` on the exact approved release commit.
-- [ ] Verify the tag signature before building the deployment.
-- [ ] Run `mvn -f reactor/pom.xml clean -Prelease deploy` from the tagged commit.
-- [ ] Confirm `autoPublish=false` leaves the Central deployment unpublished.
-- [ ] Inspect both coordinates, POMs, JARs, sources, Javadocs, signatures, checksums,
+- [x] The final release commit is on `master`, reviewed, and has a clean working tree.
+- [x] Create signed tag `v2.1.0` on the exact approved release commit.
+- [x] Verify the tag signature before building the deployment.
+- [x] Run `mvn -f reactor/pom.xml clean -Prelease deploy` from the tagged commit.
+- [x] Confirm `autoPublish=false` leaves the Central deployment unpublished.
+- [x] Inspect both coordinates, POMs, JARs, sources, Javadocs, signatures, checksums,
   and service isolation in Central Portal.
-- [ ] Publish the validated Central deployment manually.
-- [ ] Verify both `2.1.0` coordinates resolve from Maven Central in a clean repository.
-- [ ] Push the signed tag and create the GitHub `v2.1.0` release from the matching
+- [x] Publish the validated Central deployment manually.
+- [x] Verify both `2.1.0` coordinates resolve from Maven Central in a clean repository.
+- [x] Push the signed tag and create the GitHub `v2.1.0` release from the matching
   changelog section.
-- [ ] Verify README links, Maven Central links, GitHub release assets, and tag links.
+- [x] Verify README links, Maven Central links, GitHub release page and generated source
+  archives, and tag links.
 
 Published Maven Central versions are immutable. If validation fails before manual
 publication, discard the Central deployment and fix the release branch. If a defect is
@@ -181,10 +180,11 @@ found after publication, prepare a new patch version; never replace `2.1.0` arti
 
 Complete this section before marking the release finished:
 
-- Release date: Pending (release candidate frozen 2026-08-25)
-- Release commit: Pending
-- Signed tag and verification: Pending
-- Central deployment ID: Pending
+- Release date: 2026-08-25
+- Release commit: `e62b91dc3341a39aefd60c472fdc0333c77a4305`
+- Signed tag and verification: `v2.1.0` — PASS, fingerprint
+  `91AA B7A2 B0FB 55C3 BBB3 3453 4B61 0314 8D64 3AB3`
+- Central deployment ID: `bb742373-e72b-4af9-b7db-51a8ad7f24a5`
 - Core tests: PASS — 122 tests, 0 failures/errors/skips
 - Processor tests: PASS — 5 tests, 0 failures/errors/skips
 - Frozen v1 fixture tests: PASS — 3 tests, 0 failures/errors/skips
@@ -192,7 +192,7 @@ Complete this section before marking the release finished:
 - Japicmp 2.0.0 report: PASS — `target/japicmp/compare-published-v2-api.*`
 - Consumer fixtures: PASS — v1-style and v2.1-style
 - Travel example: PASS — structured, text, filtered BM25, and dynamic index
-- Strict Javadocs and signatures: Javadocs PASS; signatures BLOCKED — no GPG secret key
+- Strict Javadocs and signatures: PASS — both POMs and all six JARs verified
 - Reproducible-build result: PASS — all six JARs matched byte-for-byte
 - Core JAR SHA-256: `7b6dc19497dbb3b1cb88061fc93712baf30e8512dc25f7def795050fa56d9b19`
 - Core sources JAR SHA-256: `1849d0e6e0a5df910a3cf5f3a00c92dc9b303658962aaeaaf8dd103dd3d8a6c9`
@@ -200,5 +200,9 @@ Complete this section before marking the release finished:
 - Processor JAR SHA-256: `1bd6a4352ef6ba1fd9d025e687ea84860eda17eed5a4948019d69a386bf3c841`
 - Processor sources JAR SHA-256: `07a623268f884a5e33ca16b6800c908100a738732abae83f720d8e44c00a80b0`
 - Processor Javadoc JAR SHA-256: `abefdee831097d5730b0ce317fa5170b57d0d83a0c899824faf04f17d90b76bb`
-- Central publication verification: Pending
-- GitHub release: Pending
+- Central publication verification: PASS — both coordinates resolved from a clean
+  Maven repository; all eight remote POM/JAR files matched the validated bundle and
+  passed detached-signature verification
+- GitHub release: PASS —
+  `https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.1.0`, published
+  2026-08-25T20:17:39Z
