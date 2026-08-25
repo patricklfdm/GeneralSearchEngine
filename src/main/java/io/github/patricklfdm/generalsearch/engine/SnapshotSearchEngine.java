@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentAlreadyExistsException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundException;
+import io.github.patricklfdm.generalsearch.engine.exception.BulkMutationException;
 import io.github.patricklfdm.generalsearch.engine.exception.EngineRejectedExecutionException;
 import io.github.patricklfdm.generalsearch.engine.exception.IndexLifecycleException;
 import io.github.patricklfdm.generalsearch.engine.metrics.IndexBuildFailure;
@@ -139,6 +141,30 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     @Override
+    public CompletableFuture<Void> addAll(Collection<? extends T> documents) {
+        Objects.requireNonNull(documents, "documents");
+        List<SearchMutation<K, T>> mutations = new ArrayList<>(documents.size());
+        documents.forEach(document -> mutations.add(SearchMutation.add(document)));
+        return submitBulk(mutations);
+    }
+
+    @Override
+    public CompletableFuture<Void> updateAll(Collection<? extends T> documents) {
+        Objects.requireNonNull(documents, "documents");
+        List<SearchMutation<K, T>> mutations = new ArrayList<>(documents.size());
+        documents.forEach(document -> mutations.add(SearchMutation.update(document)));
+        return submitBulk(mutations);
+    }
+
+    @Override
+    public CompletableFuture<Void> removeAll(Collection<? extends K> ids) {
+        Objects.requireNonNull(ids, "ids");
+        List<SearchMutation<K, T>> mutations = new ArrayList<>(ids.size());
+        ids.forEach(id -> mutations.add(SearchMutation.remove(id)));
+        return submitBulk(mutations);
+    }
+
+    @Override
     public CompletableFuture<Void> createIndex(IndexDefinition<T> definition) {
         CompletableFuture<Void> completion = new CompletableFuture<>();
         return submit(new CreateIndexTask<>(definition, completion));
@@ -231,9 +257,27 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         return task.completion();
     }
 
+    private CompletableFuture<Void> submitBulk(List<SearchMutation<K, T>> mutations) {
+        List<SearchMutation<K, T>> copied = List.copyOf(mutations);
+        if (copied.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        if (copied.size() > config.maxBatchSize()) {
+            rejectedMutations.addAndGet(copied.size());
+            completion.completeExceptionally(BulkMutationException.tooLarge(
+                    copied.size(),
+                    config.maxBatchSize()));
+            return completion;
+        }
+        return submit(new BulkMutationTask<>(copied, completion));
+    }
+
     private void recordRejectedMutation(WriterTask<K, T> task) {
         if (task instanceof MutationTask<?, ?>) {
             rejectedMutations.incrementAndGet();
+        } else if (task instanceof BulkMutationTask<?, ?> bulk) {
+            rejectedMutations.addAndGet(bulk.mutations().size());
         }
     }
 
@@ -275,6 +319,18 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                                 failedMutations++;
                             }
                         });
+                        publishWriterMetrics();
+                        stopAfterFailure(failure);
+                        return;
+                    }
+                } else if (task instanceof BulkMutationTask<?, ?>) {
+                    BulkMutationTask<K, T> bulk = asBulkMutationTask(task);
+                    try {
+                        processBulk(bulk);
+                    } catch (Throwable failure) {
+                        if (bulk.completion().completeExceptionally(failure)) {
+                            failedMutations += bulk.mutations().size();
+                        }
                         publishWriterMetrics();
                         stopAfterFailure(failure);
                         return;
@@ -355,11 +411,70 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     private IndexChange<T> apply(BatchState state, SearchMutation<K, T> mutation) {
+        return apply(state, mutation, mutationId(mutation));
+    }
+
+    private IndexChange<T> apply(
+            BatchState state,
+            SearchMutation<K, T> mutation,
+            K id
+    ) {
         return switch (mutation.type()) {
-            case ADD -> state.add(mutation.document());
-            case UPDATE -> state.update(mutation.document());
-            case REMOVE -> state.remove(mutation.id());
+            case ADD -> state.add(id, mutation.document());
+            case UPDATE -> state.update(id, mutation.document());
+            case REMOVE -> state.remove(id);
         };
+    }
+
+    private K mutationId(SearchMutation<K, T> mutation) {
+        return switch (mutation.type()) {
+            case ADD, UPDATE -> schema.idOf(mutation.document());
+            case REMOVE -> mutation.id();
+        };
+    }
+
+    private void processBulk(BulkMutationTask<K, T> task) {
+        try {
+            List<K> ids = new ArrayList<>(task.mutations().size());
+            HashSet<K> distinctIds = new HashSet<>();
+            for (SearchMutation<K, T> mutation : task.mutations()) {
+                K id = mutationId(mutation);
+                if (!distinctIds.add(id)) {
+                    throw BulkMutationException.duplicateId(
+                            id,
+                            task.mutations().size(),
+                            config.maxBatchSize());
+                }
+                ids.add(id);
+            }
+
+            BatchState state = new BatchState(current.get());
+            List<IndexChange<T>> changes = new ArrayList<>(task.mutations().size());
+            for (int index = 0; index < task.mutations().size(); index++) {
+                IndexChange<T> change = apply(
+                        state,
+                        task.mutations().get(index),
+                        ids.get(index));
+                if (change != null) {
+                    changes.add(change);
+                }
+            }
+
+            PublishedState<K, T> published = state.build();
+            if (!pendingIndexBuilds.isEmpty()) {
+                long version = published.snapshot().version();
+                changes.forEach(change ->
+                        mutationJournal.add(new VersionedChange<>(version, change)));
+            }
+            current.set(published);
+            successfulMutations += task.mutations().size();
+            publishWriterMetrics();
+            task.completion().complete(null);
+        } catch (RuntimeException failure) {
+            failedMutations += task.mutations().size();
+            publishWriterMetrics();
+            task.completion().completeExceptionally(failure);
+        }
     }
 
     private void processControlTask(WriterTask<K, T> task) {
@@ -661,9 +776,12 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private void failPending(Throwable failure) {
         WriterTask<K, T> task;
         while ((task = queue.poll()) != null) {
-            if (task.completion().completeExceptionally(failure)
-                    && task instanceof MutationTask<?, ?>) {
-                failedMutations++;
+            if (task.completion().completeExceptionally(failure)) {
+                if (task instanceof MutationTask<?, ?>) {
+                    failedMutations++;
+                } else if (task instanceof BulkMutationTask<?, ?> bulk) {
+                    failedMutations += bulk.mutations().size();
+                }
             }
         }
         pendingIndexBuilds.values().forEach(pending -> {
@@ -718,6 +836,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     @SuppressWarnings("unchecked")
+    private BulkMutationTask<K, T> asBulkMutationTask(WriterTask<K, T> task) {
+        return (BulkMutationTask<K, T>) task;
+    }
+
+    @SuppressWarnings("unchecked")
     private CreateIndexTask<K, T> asCreateIndexTask(WriterTask<K, T> task) {
         return (CreateIndexTask<K, T>) task;
     }
@@ -743,8 +866,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             nextDocId = base.nextDocId();
         }
 
-        private IndexChange<T> add(T document) {
-            K id = schema.idOf(document);
+        private IndexChange<T> add(K id, T document) {
             if (documentIds.containsKey(id)) {
                 throw new DocumentAlreadyExistsException(id);
             }
@@ -757,8 +879,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             return new IndexChange<>(docId, null, document);
         }
 
-        private IndexChange<T> update(T document) {
-            K id = schema.idOf(document);
+        private IndexChange<T> update(K id, T document) {
             Integer docId = documentIds.get(id);
             if (docId == null) {
                 throw new DocumentNotFoundException(id);
@@ -822,6 +943,19 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     ) implements WriterTask<K, T> {
         private MutationTask {
             Objects.requireNonNull(mutation, "mutation");
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record BulkMutationTask<K, T>(
+            List<SearchMutation<K, T>> mutations,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private BulkMutationTask {
+            mutations = List.copyOf(mutations);
+            if (mutations.isEmpty()) {
+                throw new IllegalArgumentException("bulk mutations must not be empty");
+            }
             Objects.requireNonNull(completion, "completion");
         }
     }

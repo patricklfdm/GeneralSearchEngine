@@ -1,5 +1,6 @@
 package io.github.patricklfdm.generalsearch.engine;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -65,6 +66,30 @@ public interface SearchEngine<K, T> extends AutoCloseable {
 
     /** Removes a document by business ID; removing a missing ID is idempotent. */
     CompletableFuture<Void> remove(K id);
+
+    /**
+     * Atomically adds an explicit collection when this implementation supports bulk
+     * mutation. The collection's iteration order defines internal document-ID order.
+     */
+    default CompletableFuture<Void> addAll(Collection<? extends T> documents) {
+        Objects.requireNonNull(documents, "documents");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support bulk mutation");
+    }
+
+    /** Atomically updates an explicit collection in its iteration order. */
+    default CompletableFuture<Void> updateAll(Collection<? extends T> documents) {
+        Objects.requireNonNull(documents, "documents");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support bulk mutation");
+    }
+
+    /** Atomically removes an explicit collection of business IDs. */
+    default CompletableFuture<Void> removeAll(Collection<? extends K> ids) {
+        Objects.requireNonNull(ids, "ids");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support bulk mutation");
+    }
 
     /**
      * Builds and atomically publishes an index without blocking readers or mutations.

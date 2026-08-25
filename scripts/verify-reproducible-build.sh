@@ -17,24 +17,24 @@ fi
 
 build_and_capture() {
     local destination=$1
-    "${maven_command[@]}" -q -Prelease -DskipTests clean package
+    "${maven_command[@]}" -q -f reactor/pom.xml -Prelease -DskipTests clean package
     mkdir -p "$destination"
 
     artifacts=()
     while IFS= read -r artifact; do
         artifacts+=("$artifact")
     done < <(
-        find target -maxdepth 1 -type f \
-            -name 'general-search-engine-*.jar' \
-            -exec basename {} \; | sort
+        find target general-search-engine-processor/target -maxdepth 1 -type f \
+            \( -name 'general-search-engine-*.jar' \
+            -o -name 'general-search-engine-processor-*.jar' \) | sort
     )
-    if [[ ${#artifacts[@]} -ne 3 ]]; then
-        echo "expected main, sources, and javadoc JARs; found ${#artifacts[@]}" >&2
+    if [[ ${#artifacts[@]} -ne 6 ]]; then
+        echo "expected main, sources, and javadoc JARs for two artifacts; found ${#artifacts[@]}" >&2
         printf '  %s\n' "${artifacts[@]}" >&2
         return 1
     fi
     for artifact in "${artifacts[@]}"; do
-        cp "target/$artifact" "$destination/$artifact"
+        cp "$artifact" "$destination/$(basename "$artifact")"
     done
 }
 
@@ -50,4 +50,6 @@ done < <(
 )
 
 echo "Reproducible release artifacts:"
-sha256sum target/general-search-engine-*.jar
+sha256sum \
+    target/general-search-engine-*.jar \
+    general-search-engine-processor/target/general-search-engine-processor-*.jar
