@@ -5,10 +5,10 @@ reference document type. The engine uses immutable search snapshots and persiste
 block-based bitmaps so readers can search without locking while a single writer batches
 mutations and atomically publishes new snapshots.
 
-Version 2.0.0 is the current published stable release. Its signed `v2.0.0` tag and both
-Maven artifacts were published on August 25, 2026. This branch is the
-`2.1.0-SNAPSHOT` development line. The completed v2 work and compatibility constraints
-are recorded in the
+Version 2.1.0 is the current stable release. Its signed `v2.1.0` tag and both Maven
+artifacts were released on August 25, 2026. Version 2.0.0 remains the immediate
+compatibility baseline. The completed v2 work and compatibility constraints are
+recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [v2 architecture contracts](docs/v2/phases/p0/ARCHITECTURE.md).
 The complete document map is available in [`docs/README.md`](docs/README.md).
@@ -20,53 +20,30 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Install
 
-### Stable 2.0.0
+### Stable 2.1.0
 
-The v2.0.0 runtime dependency is:
+The runtime dependency is:
 
 ```xml
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:2.0.0`. Existing v1 users should
+`io.github.patricklfdm:general-search-engine-processor:2.1.0`. Existing v1 users should
 read the [migration guide](docs/v2/MIGRATION_GUIDE.md); the published v1 coordinates
 remain recorded in the [v1 documentation](docs/v1/API_COMPATIBILITY.md).
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/2.0.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/2.1.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/2.0.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/2.1.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v2.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.0.0).
-
-The 2.1 convenience APIs documented below are not part of the published 2.0.0 artifact.
-Use the
-[`v2.0.0` README](https://github.com/patricklfdm/GeneralSearchEngine/blob/v2.0.0/README.md)
-for stable-release examples.
-
-### Current 2.1 development API
-
-Install the current core and optional processor into the local Maven repository:
-
-```bash
-mvn -f reactor/pom.xml clean install
-```
-
-Then use the development version in an application:
-
-```xml
-<dependency>
-    <groupId>io.github.patricklfdm</groupId>
-    <artifactId>general-search-engine</artifactId>
-    <version>2.1.0-SNAPSHOT</version>
-</dependency>
-```
+[`v2.1.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.1.0).
 
 ## Quick start: annotated search
 
@@ -191,13 +168,13 @@ bash scripts/verify-reproducible-build.sh
 The script skips tests because release verification runs them separately, then compares
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
-See [CHANGELOG.md](CHANGELOG.md), the
-[v2 release checklist](docs/v2/RELEASE_CHECKLIST.md), and the
-[P7 validation record](docs/v2/phases/p7/RELEASE_VALIDATION.md) for the frozen v2.0.0
-release evidence. The
-[v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remains historical. External
-repository credentials and signing configuration remain environment-specific. The
-project identity and Apache License 2.0 metadata are finalized for v2.0.0.
+See [CHANGELOG.md](CHANGELOG.md) and the
+[v2.1 release checklist](docs/v2.1/RELEASE_CHECKLIST.md) for current release
+preparation. The [v2.0 release record](docs/v2/RELEASE_CHECKLIST.md),
+[P7 validation record](docs/v2/phases/p7/RELEASE_VALIDATION.md), and
+[v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
+External repository credentials and signing configuration remain environment-specific.
+The project identity and Apache License 2.0 metadata are finalized for v2.1.0.
 
 ## v1.0.0 scope
 
@@ -471,7 +448,7 @@ Add the separate processor only when compile-time typed field constants are usef
             <path>
                 <groupId>io.github.patricklfdm</groupId>
                 <artifactId>general-search-engine-processor</artifactId>
-                <version>2.1.0-SNAPSHOT</version>
+                <version>2.1.0</version>
             </path>
         </annotationProcessorPaths>
     </configuration>

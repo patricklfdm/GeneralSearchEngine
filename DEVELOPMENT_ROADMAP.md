@@ -20,9 +20,25 @@ The following remain outside the v1.0.0 scope:
 - write-ahead logging (WAL) and persistence;
 - distributed search and sharding.
 
-## v2.0.0
+## v2.1.0
 
-Version 2.0.0 is the current published stable release. Its release artifacts are:
+Version 2.1.0 is the current stable release. Its release artifacts are:
+
+- `io.github.patricklfdm:general-search-engine:2.1.0`;
+- `io.github.patricklfdm:general-search-engine-processor:2.1.0`.
+
+Version 2.1.0 preserves the v1 and v2 supported application APIs while improving the
+newcomer configuration path with runtime `@SearchField` discovery,
+`textIndex(fieldName, analyzer)`, direct canonical field accessors, actionable lookup
+diagnostics, an optional generated-field path, and a reactor-compiled travel example.
+Its compatibility and release gates are recorded in
+[`docs/v2/API_COMPATIBILITY.md`](docs/v2/API_COMPATIBILITY.md) and
+[`docs/v2.1/RELEASE_CHECKLIST.md`](docs/v2.1/RELEASE_CHECKLIST.md).
+
+## v2.0.0 (previous stable)
+
+Version 2.0.0 is the previous stable release and the immediate compatibility baseline.
+Its release artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:2.0.0`.

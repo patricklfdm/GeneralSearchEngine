@@ -2,10 +2,9 @@
 
 ## Status
 
-The published `2.0.0` release is binary- and source-compatible with the
-published `io.github.patricklfdm:general-search-engine:1.0.0` supported application API.
-P7 verifies this with the frozen compile/reflection fixture and an artifact-level
-comparison against the Maven Central JAR.
+Version `2.1.0` is binary- and source-compatible with the supported application APIs
+published in `1.0.0` and `2.0.0`. The frozen v1 compile/reflection fixture and the dual
+artifact-level gate verify these guarantees against the Maven Central JARs.
 
 The compatibility result does not promote every public implementation class to a
 supported API. The v1 boundary remains the application surface documented in
@@ -18,17 +17,27 @@ remain unsupported implementation surfaces.
 ## Artifact-level gate
 
 The `artifact-compat` profile uses `japicmp-maven-plugin` 0.24.2. It resolves the
-published v1.0.0 JAR, compares it with the currently packaged artifact, writes HTML,
-Markdown, XML, and text reports under `target/japicmp`, and fails on either binary or
-source incompatibility:
+published `1.0.0` and `2.0.0` core JARs from Maven Central and compares each baseline
+with the currently packaged artifact. Both executions write HTML, Markdown, XML, and
+text reports under `target/japicmp`; the build fails when either comparison finds a
+binary or source incompatibility:
 
 ```bash
 mvn clean -Partifact-compat verify
 ```
 
-The accepted P7 comparison reports no incompatible modification. Existing classes,
-generic signatures, record descriptors, constructors, methods, exceptions, and enum
-constants remain linkable. Reported changes are additive or internal:
+The reports are separated by baseline:
+
+```text
+target/japicmp/compare-published-v1-api.*
+target/japicmp/compare-published-v2-api.*
+```
+
+The accepted P7 comparison against 1.0.0 reports no incompatible modification. The
+2.0.0 baseline additionally protects APIs introduced by the stable v2 release when
+preparing 2.1. Existing classes, generic signatures, record descriptors, constructors,
+methods, exceptions, and enum constants must remain linkable. Reported changes from
+1.0.0 through 2.0.0 are additive or internal:
 
 | Phase | Public change | Classification |
 |---|---|---|
@@ -47,10 +56,9 @@ capability. The built-in snapshot engine overrides them.
 
 ## Consumer fixtures
 
-Independent Maven projects compile both a v1-style application and a current v2.1-style
-application against locally installed development artifacts. The v2.1 fixture also
-runs the separate annotation processor and consumes its generated schema and field
-class:
+Independent Maven projects compile both a v1-style application and a v2.1-style
+application against locally installed `2.1.0` artifacts. The v2.1 fixture also runs the
+separate annotation processor and consumes its generated schema and field class:
 
 ```bash
 bash scripts/verify-consumer-projects.sh
@@ -63,14 +71,14 @@ mvn -f compatibility/v1-style-consumer/pom.xml \
     -Dgse.version=2.0.0 clean test
 ```
 
-The current v2.1 consumer intentionally exercises APIs added after 2.0.0 and therefore
-must use the locally installed `2.1.0-SNAPSHOT` artifacts.
+The v2.1 consumer intentionally exercises APIs added after 2.0.0 and therefore must use
+the locally installed `2.1.0` artifacts.
 
 Behavioral compatibility remains guarded separately by the v1 semantics and the
 randomized/differential suites. Artifact compatibility alone cannot prove query truth,
 ordering, publication, or concurrency behavior.
 
-## Development-line configuration behavior
+## 2.1 additive configuration behavior
 
 The schema-copy behavior added after the frozen 2.0.0 release changes no existing
 public method or descriptor. `SearchEngine.builder(schema)` now supports additive field

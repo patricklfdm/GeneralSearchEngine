@@ -3,7 +3,7 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## Unreleased
+## 2.1.0 — 2026-08-25
 
 ### Added
 
@@ -20,8 +20,8 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Changed
 
-- The development build now uses `2.1.0-SNAPSHOT`, keeping its new examples distinct
-  from the published `2.0.0` API.
+- Core, processor, reactor, examples, and compatibility consumers now use the final
+  `2.1.0` coordinates.
 - The processor-free travel demo is now a reactor-compiled example module, and the
   README puts development installation and the annotated quick start before internals.
 - Unknown field lookups now list canonical choices and suggest close spellings; the

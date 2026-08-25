@@ -19,6 +19,10 @@ remains the phase history and decision source of truth.
 - [API compatibility audit](v2/API_COMPATIBILITY.md)
 - [Published release record](v2/RELEASE_CHECKLIST.md)
 
+## v2.1 — release candidate
+
+- [Release checklist](v2.1/RELEASE_CHECKLIST.md)
+
 ## v2 phase evidence
 
 | Phase | Scope | Documentation |
