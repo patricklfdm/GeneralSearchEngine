@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.model.Category;
@@ -79,6 +80,32 @@ class SearchSchemaTest {
                 () -> SearchSchema.builder(TextDocument.class, id)
                         .textField(first)
                         .textField(competing));
+    }
+
+    @Test
+    void lookupFailuresSuggestCloseCanonicalNamesAndListChoices() {
+        Field<TextDocument, Long> id = Field.of("id", Long.class, TextDocument::id);
+        Field<TextDocument, String> body =
+                Field.of("body", String.class, TextDocument::body);
+        SearchSchema<TextDocument, Long> schema =
+                SearchSchema.builder(TextDocument.class, id)
+                        .textField(TextField.of(body, Analyzer.simple()))
+                        .build();
+
+        IllegalArgumentException unknownField = assertThrows(
+                IllegalArgumentException.class,
+                () -> schema.requireField("bod"));
+        assertTrue(unknownField.getMessage().contains("Did you mean 'body'?"));
+        assertTrue(unknownField.getMessage().contains("Available fields: [id, body]"));
+
+        IllegalArgumentException unknownTextField = assertThrows(
+                IllegalArgumentException.class,
+                () -> schema.requireTextField("Bodyy"));
+        assertTrue(unknownTextField.getMessage().contains("Did you mean 'body'?"));
+        assertTrue(unknownTextField.getMessage().contains(
+                "Configured text fields: [body]"));
+        assertTrue(unknownTextField.getMessage().contains(
+                "textIndex(fieldName, analyzer)"));
     }
 
     private record NullableIdDocument(String id) {}

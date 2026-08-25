@@ -19,9 +19,16 @@ import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexStatistics;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
+import io.github.patricklfdm.generalsearch.ranking.TextScoringQuery;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchField;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 import org.junit.jupiter.api.Test;
 
 class TextSearchEngineTest {
@@ -211,6 +218,48 @@ class TextSearchEngineTest {
         }
     }
 
+    @Test
+    void runtimeAnnotationsConfigureTextAndUnindexedClassFieldsDirectly() {
+        AnnotatedArticle first = new AnnotatedArticle(
+                1, "guide", 4.9, "java java search");
+        AnnotatedArticle second = new AnnotatedArticle(
+                2, "guide", 4.4, "java memory");
+        AnnotatedArticle third = new AnnotatedArticle(
+                3, "news", 4.8, "java search");
+
+        try (SearchEngine<Long, AnnotatedArticle> engine = SearchEngine
+                .annotatedBuilder(AnnotatedArticle.class, Long.class)
+                .textIndex("body", Analyzer.simple())
+                .build()) {
+            TextField<AnnotatedArticle> body =
+                    engine.textField("body");
+            Field<AnnotatedArticle, String> category =
+                    engine.field("category", String.class);
+            Field<AnnotatedArticle, Double> rating =
+                    engine.field("rating", Double.class);
+
+            assertSame(engine.schema().requireTextField("body"), body);
+            engine.addAll(List.of(first, second, third)).join();
+
+            assertEquals(List.of(first, second), engine.search(Query.and(
+                    Query.eq(category, "guide"),
+                    Query.term(body, "java"))));
+            List<SearchHit<AnnotatedArticle>> ranked = engine.searchTopK(
+                    RankedSearchRequest.filtered(
+                            TextScoringQuery.of(body, "java search"),
+                            Query.eq(category, "guide"),
+                            10));
+            assertEquals(List.of(first, second), ranked.stream()
+                    .map(SearchHit::document)
+                    .toList());
+
+            engine.createIndex(IndexDefinition.range(rating)).join();
+            assertEquals(List.of(first, third), engine.search(
+                    Query.between(rating, 4.7, 5.0)));
+            assertEquals(3, engine.metrics().registeredIndexCount());
+        }
+    }
+
     @SafeVarargs
     private static void add(SearchEngine<Long, Article> engine, Article... articles) {
         for (Article article : articles) {
@@ -225,6 +274,33 @@ class TextSearchEngineTest {
     }
 
     private record Article(long id, String body, String category) {}
+
+    private static final class AnnotatedArticle {
+        @SearchId
+        private final long id;
+
+        @SearchIndex(IndexType.EQUALITY)
+        private final String category;
+
+        @SearchField
+        private final double rating;
+
+        @SearchField
+        private final String body;
+
+        private AnnotatedArticle(long id, String category, double rating, String body) {
+            this.id = id;
+            this.category = category;
+            this.rating = rating;
+            this.body = body;
+        }
+
+        @Override
+        public String toString() {
+            return "AnnotatedArticle[id=" + id + ", category=" + category
+                    + ", rating=" + rating + ", body=" + body + "]";
+        }
+    }
 
     private static final class BlockingAnalyzer implements Analyzer {
         private final AtomicBoolean armed = new AtomicBoolean();

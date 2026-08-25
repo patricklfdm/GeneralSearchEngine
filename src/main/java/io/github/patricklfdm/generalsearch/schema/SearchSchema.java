@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.schema;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -63,7 +64,7 @@ public final class SearchSchema<T, K> {
 
     public Field<T, ?> requireField(String name) {
         return field(name).orElseThrow(
-                () -> new IllegalArgumentException("unknown field: " + name));
+                () -> new IllegalArgumentException(unknownFieldMessage(name)));
     }
 
     @SuppressWarnings("unchecked")
@@ -92,7 +93,77 @@ public final class SearchSchema<T, K> {
     /** Returns the canonical text configuration or rejects an unconfigured field. */
     public TextField<T> requireTextField(String name) {
         return textField(name).orElseThrow(
-                () -> new IllegalArgumentException("unknown text field: " + name));
+                () -> new IllegalArgumentException(unknownTextFieldMessage(name)));
+    }
+
+    private String unknownFieldMessage(String name) {
+        StringBuilder message = new StringBuilder("Unknown field '")
+                .append(name)
+                .append("'.");
+        appendSuggestion(message, name, fields.keySet());
+        return message.append(" Available fields: ")
+                .append(fields.keySet())
+                .append('.')
+                .toString();
+    }
+
+    private String unknownTextFieldMessage(String name) {
+        StringBuilder message = new StringBuilder("Text field '")
+                .append(name)
+                .append("' is not configured.");
+        appendSuggestion(message, name, textFields.keySet());
+        return message.append(" Configured text fields: ")
+                .append(textFields.keySet())
+                .append(". Configure one with textIndex(fieldName, analyzer) while ")
+                .append("building the engine, or register a TextField explicitly.")
+                .toString();
+    }
+
+    private static void appendSuggestion(
+            StringBuilder message,
+            String requested,
+            Iterable<String> candidates
+    ) {
+        String closest = null;
+        int closestDistance = Integer.MAX_VALUE;
+        for (String candidate : candidates) {
+            int distance = editDistance(requested, candidate);
+            if (distance < closestDistance) {
+                closest = candidate;
+                closestDistance = distance;
+            }
+        }
+        int maximumDistance = requested.length() <= 4
+                ? 1
+                : Math.max(2, requested.length() / 3);
+        if (closest != null && closestDistance <= maximumDistance) {
+            message.append(" Did you mean '").append(closest).append("'?");
+        }
+    }
+
+    private static int editDistance(String left, String right) {
+        String normalizedLeft = left.toLowerCase(Locale.ROOT);
+        String normalizedRight = right.toLowerCase(Locale.ROOT);
+        int[] previous = new int[normalizedRight.length() + 1];
+        for (int column = 0; column < previous.length; column++) {
+            previous[column] = column;
+        }
+        for (int row = 1; row <= normalizedLeft.length(); row++) {
+            int[] current = new int[normalizedRight.length() + 1];
+            current[0] = row;
+            for (int column = 1; column <= normalizedRight.length(); column++) {
+                int substitutionCost = normalizedLeft.charAt(row - 1)
+                                == normalizedRight.charAt(column - 1)
+                        ? 0
+                        : 1;
+                current[column] = Math.min(
+                        Math.min(current[column - 1] + 1, previous[column] + 1),
+                        previous[column - 1] + substitutionCost
+                );
+            }
+            previous = current;
+        }
+        return previous[normalizedRight.length()];
     }
 
     public static final class Builder<T, K> {
@@ -132,7 +203,9 @@ public final class SearchSchema<T, K> {
             Field<T, ?> existing = fields.putIfAbsent(field.name(), field);
             if (existing != null && existing != field) {
                 throw new IllegalArgumentException(
-                        "duplicate field name: " + field.name());
+                        "Field '" + field.name() + "' is already registered with a "
+                                + "different Field instance. Reuse the canonical field "
+                                + "from the schema or generated *SearchFields class.");
             }
         }
     }

@@ -9,35 +9,48 @@ import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.ranking.TextScoringQuery;
 import io.github.patricklfdm.generalsearch.schema.TextField;
-import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
-import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
-import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 
 public final class V2StyleConsumer {
     private V2StyleConsumer() {}
 
-    public static List<SearchHit<Article>> search() {
-        TextField<Article> text = TextField.of(
-                ArticleSearchFields.BODY, Analyzer.simple());
-        try (SearchEngine<Long, Article> engine =
-                     SearchEngine.builder(ArticleSearchFields.SCHEMA)
-                             .indexes(ArticleSearchFields.INDEX_DEFINITIONS)
-                             .index(IndexDefinition.text(text))
+    public static SearchResult search() {
+        try (SearchEngine<Long, TravelPlace> engine =
+                     SearchEngine.builder(TravelPlaceSearchFields.SCHEMA)
+                             .indexes(TravelPlaceSearchFields.INDEX_DEFINITIONS)
+                             .textIndex("description", Analyzer.simple())
                              .build()) {
-            engine.addAll(List.of(
-                    new Article(1L, "guide", 20, "java search"),
-                    new Article(2L, "guide", 30, "java java engine"))).join();
-            return engine.searchTopK(RankedSearchRequest.filtered(
-                    TextScoringQuery.of(text, "java"),
-                    Query.eq(ArticleSearchFields.CATEGORY, "guide"),
-                    10));
+            TextField<TravelPlace> description =
+                    engine.textField("description");
+            TravelPlace museum = new TravelPlace(
+                    1L, "Paris", 120.0, 4.9, "museum museum riverside");
+            TravelPlace guide = new TravelPlace(
+                    2L, "Paris", 90.0, 4.4, "museum city guide");
+            TravelPlace otherCity = new TravelPlace(
+                    3L, "Rome", 80.0, 4.8, "museum museum");
+            engine.addAll(List.of(museum, guide, otherCity)).join();
+
+            List<TravelPlace> structured = engine.search(Query.and(
+                    Query.eq(TravelPlaceSearchFields.CITY, "Paris"),
+                    Query.between(TravelPlaceSearchFields.PRICE, 80.0, 130.0),
+                    Query.term(description, "museum")));
+            List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
+                    RankedSearchRequest.filtered(
+                            TextScoringQuery.of(description, "museum"),
+                            Query.eq(TravelPlaceSearchFields.CITY, "Paris"),
+                            10));
+
+            // RATING is in the generated schema even without a startup index.
+            engine.createIndex(IndexDefinition.range(
+                    TravelPlaceSearchFields.RATING)).join();
+            List<TravelPlace> highlyRated = engine.search(Query.between(
+                    TravelPlaceSearchFields.RATING, 4.7, 5.0));
+            return new SearchResult(structured, ranked, highlyRated);
         }
     }
-}
 
-record Article(
-        @SearchId long id,
-        @SearchIndex(IndexType.EQUALITY) String category,
-        @SearchIndex(IndexType.RANGE) int price,
-        String body
-) {}
+    public record SearchResult(
+            List<TravelPlace> structured,
+            List<SearchHit<TravelPlace>> ranked,
+            List<TravelPlace> highlyRated
+    ) {}
+}

@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchField;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 
@@ -95,8 +96,9 @@ public final class AnnotatedSchemaFactory {
         for (Class<?> type : hierarchy) {
             for (java.lang.reflect.Field reflectedField : type.getDeclaredFields()) {
                 SearchId id = reflectedField.getAnnotation(SearchId.class);
+                SearchField searchField = reflectedField.getAnnotation(SearchField.class);
                 SearchIndex index = reflectedField.getAnnotation(SearchIndex.class);
-                if (id == null && index == null) {
+                if (id == null && searchField == null && index == null) {
                     continue;
                 }
                 if (Modifier.isStatic(reflectedField.getModifiers())) {
@@ -120,8 +122,9 @@ public final class AnnotatedSchemaFactory {
             }
             for (Method method : type.getDeclaredMethods()) {
                 SearchId id = method.getAnnotation(SearchId.class);
+                SearchField searchField = method.getAnnotation(SearchField.class);
                 SearchIndex index = method.getAnnotation(SearchIndex.class);
-                if (id == null && index == null) {
+                if (id == null && searchField == null && index == null) {
                     continue;
                 }
                 validateGetter(documentType, method);
