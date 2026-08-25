@@ -5,6 +5,15 @@ Product is its reference document type. The engine uses immutable search
 snapshots and persistent, block-based bitmaps so readers can search without
 locking while a single writer batches mutations and atomically publishes new snapshots.
 
+Version 1.0.0 is the published stable release. The current source tree is the validated
+`2.0.0` release candidate; all v2 development phases and final version conversion are
+complete, while commit, tag, deployment, and publication require separate owner
+approval. v2 work and
+compatibility constraints are tracked in the
+[development roadmap](DEVELOPMENT_ROADMAP.md) and
+[v2 architecture contracts](docs/v2/phases/p0/ARCHITECTURE.md).
+The complete document map is available in [`docs/README.md`](docs/README.md).
+
 ## Requirements
 
 - JDK 21 or newer
@@ -12,15 +21,20 @@ locking while a single writer batches mutations and atomically publishes new sna
 
 ## Maven coordinates
 
-The v1.0.0 release identity is:
+The v2.0.0 runtime dependency is:
 
 ```xml
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
+
+The optional annotation processor is published separately as
+`io.github.patricklfdm:general-search-engine-processor:2.0.0`. Existing v1 users should
+read the [migration guide](docs/v2/MIGRATION_GUIDE.md); the published v1 coordinates
+remain recorded in the [v1 documentation](docs/v1/API_COMPATIBILITY.md).
 
 ## Build and test
 
@@ -32,8 +46,21 @@ The test suite contains unit tests for the persistent tree, immutable bitmap, ge
 storage, query planner and engine lifecycle, plus randomized Product and non-Product
 differential tests against full-scan oracles.
 
-See the completed v1 [performance baseline](docs/PERFORMANCE_BASELINE.md) for the
+See the completed v1 [performance baseline](docs/v1/PERFORMANCE_BASELINE.md) for the
 environment- and workload-specific JMH regression results.
+
+The v2 baselines are staged by phase: [P1 estimate/statistics results](docs/v2/phases/p1/PERFORMANCE_BASELINE.md),
+the [P2 bitmap/publication baseline](docs/v2/phases/p2/PERFORMANCE_BASELINE.md), and the
+[P3 planner performance baseline](docs/v2/phases/p3/PERFORMANCE_BASELINE.md). P4 analyzed-text
+semantics and the accepted 58-row
+[P4 performance baseline](docs/v2/phases/p4/PERFORMANCE_BASELINE.md) are now frozen. P5 BM25
+semantics and its accepted
+[70-row performance baseline](docs/v2/phases/p5/PERFORMANCE_BASELINE.md) are now frozen.
+P6 atomic-bulk and generated-field semantics and its accepted
+[eight-row explicit-bulk baseline](docs/v2/phases/p6/PERFORMANCE_BASELINE.md) are now frozen.
+The representative 141-row
+[P7 regression baseline](docs/v2/phases/p7/PERFORMANCE_BASELINE.md) is accepted; the separate
+target-machine concurrency soak also passed.
 
 Run only the frozen v1 source/JVM-descriptor compatibility fixture with:
 
@@ -44,10 +71,11 @@ mvn clean -Papi-compat test
 ## Release engineering
 
 The release profile runs strict structural Javadoc validation and attaches the main,
-sources, and Javadoc JARs:
+sources, and Javadoc JARs. Validate both the runtime and optional processor artifacts
+through the reactor:
 
 ```bash
-mvn clean -Prelease verify
+mvn -f reactor/pom.xml clean -Prelease verify
 ```
 
 Release archives use a fixed `project.build.outputTimestamp` and pinned lifecycle
@@ -58,12 +86,14 @@ bash scripts/verify-reproducible-build.sh
 ```
 
 The script skips tests because release verification runs them separately, then compares
-all three JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
+all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
-See [CHANGELOG.md](CHANGELOG.md) and
-[RELEASE_CHECKLIST.md](docs/RELEASE_CHECKLIST.md) before cutting a version. External
+See [CHANGELOG.md](CHANGELOG.md), the
+[v2 release checklist](docs/v2/RELEASE_CHECKLIST.md), and the
+[P7 validation record](docs/v2/phases/p7/RELEASE_VALIDATION.md) before cutting v2. The
+[v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remains historical. External
 repository credentials and signing configuration remain environment-specific. The
-project identity and Apache License 2.0 metadata are finalized for v1.0.0.
+project identity and Apache License 2.0 metadata are finalized for v2.0.0.
 
 ## v1.0.0 scope
 
@@ -81,12 +111,14 @@ out of scope for v1.0.0:
 ```text
 io.github.patricklfdm.generalsearch
 ├── model       Product domain types
+├── analysis    Deterministic analyzed-text tokenization
 ├── schema      Type-safe fields, schemas and annotation generation
 ├── filter      Compatibility layer for former Product filters
 ├── bitmap      Persistent tree and immutable bitmap primitives
 ├── index       Immutable field indexes and batch builders
 ├── storage     Generic document tables and immutable search snapshots
 ├── query       Candidate planning and final result evaluation
+├── ranking     BM25 requests, scoring, hits and bounded top-K retrieval
 └── engine      Public API, mutation queue and snapshot publication
 ```
 
@@ -128,6 +160,22 @@ published snapshot. Mutations submitted through one engine are applied in submis
 order. Closing the engine stops new submissions, drains accepted mutations and waits
 for the writer thread and accepted index builds to finish.
 
+The v2 development line also provides explicit atomic collection mutations:
+
+```java
+engine.addAll(List.of(first, second, third)).join();
+engine.updateAll(List.of(updatedFirst, updatedSecond)).join();
+engine.removeAll(List.of(first.id(), second.id())).join();
+```
+
+A non-empty explicit collection occupies one writer-queue slot and publishes at most
+one snapshot. Duplicate IDs, an existing `addAll` ID, a missing `updateAll` ID, or an
+extractor failure rejects the complete collection without partial visibility. The
+collection size is bounded by `SnapshotEngineConfig.maxBatchSize()`; missing IDs in
+`removeAll` remain idempotent. See the
+[P6 developer-experience contract](docs/v2/phases/p6/DEVELOPER_EXPERIENCE.md) for exact ordering,
+failure, empty-input, metrics, and close behavior.
+
 The public API uses business IDs. The engine assigns internal integer document IDs and
 keeps their mapping in the same atomically published state as the search snapshot.
 Duplicate `add` and `update` of a missing ID fail through their returned futures;
@@ -166,7 +214,8 @@ try (SearchEngine<Long, Item> engine = SearchEngine.builder(Item.class, id)
 `index(...)` automatically registers its canonical field when the builder is assembling
 a manual schema. Use `field(...)` for unindexed fields. An already assembled schema can
 instead be supplied through `SearchEngine.builder(schema)`. Both builders accept
-`config(SnapshotEngineConfig)` and multiple `indexes(...)`.
+`config(SnapshotEngineConfig)`, `plannerConfig(PlannerConfig)`, and multiple
+`indexes(...)`.
 
 `engine.schema()` returns the immutable canonical schema. Fields retrieved from this
 schema should be used for queries and runtime indexes, especially with annotation-
@@ -178,6 +227,63 @@ generated engines.
 schema and default indexes while retaining the deprecated ProductFilter adapter.
 The concrete `SnapshotSearchEngine` constructors remain compatible for lower-level
 callers, but new application code should construct engines through `SearchEngine`.
+
+## Analyzed text in the v2 development line
+
+Version `2.0.0` adds unranked full-text membership without changing
+v1 query behavior. One canonical `TextField<T>` binds a String field to its Analyzer,
+and the same instance is used by queries, scan fallback, and the inverted index:
+
+```java
+record Article(Long id, String body) {}
+
+Field<Article, Long> id = Field.of("id", Long.class, Article::id);
+Field<Article, String> body = Field.of("body", String.class, Article::body);
+TextField<Article> analyzedBody = TextField.of(body, Analyzer.simple());
+
+try (SearchEngine<Long, Article> engine = SearchEngine.builder(Article.class, id)
+        .index(IndexDefinition.text(analyzedBody))
+        .build()) {
+    engine.add(new Article(1L, "Fast Java search")).join();
+
+    List<Article> java = engine.search(Query.term(analyzedBody, "JAVA"));
+    List<Article> any = engine.search(Query.anyTerms(analyzedBody, "java memory"));
+    List<Article> all = engine.search(Query.allTerms(analyzedBody, "fast search"));
+}
+```
+
+`Analyzer.simple()` applies NFKC normalization, locale-independent lowercase, and
+Unicode letter/digit token boundaries. Text queries are boolean and unranked; BM25,
+top-K, phrases, fuzzy search, persistence, and distributed search are not part of P4.
+See the frozen [v2 analyzed-text semantics](docs/v2/phases/p4/TEXT_SEMANTICS.md) for null,
+zero-token, duplicate-term, identity, and lifecycle behavior.
+
+## BM25 ranking in the v2 development line
+
+P5 keeps scoring separate from boolean eligibility. A ranked request contains one text
+scoring query, an optional existing `Query<T>` filter, a positive K, and BM25 config:
+
+```java
+try (SearchEngine<Long, Article> engine = SearchEngine.builder(Article.class, id)
+        .index(IndexDefinition.text(analyzedBody))
+        .build()) {
+    engine.add(new Article(1L, "Fast Java search")).join();
+    RankedSearchRequest<Article> request = RankedSearchRequest.filtered(
+            TextScoringQuery.of(analyzedBody, "java search"),
+            Query.term(analyzedBody, "fast"),
+            10
+    );
+    List<SearchHit<Article>> hits = engine.searchTopK(request);
+}
+```
+
+The default formula uses `k1=1.2` and `b=0.75`. Hits are ordered by descending score,
+then ascending internal document ID for deterministic ties. Existing
+`search(Query<T>)` remains boolean, unranked, and ordered exactly as before. Ranking
+requires the canonical text index; repeated query terms are deduplicated and zero-token
+queries return no hits. See the frozen
+[BM25 ranking semantics](docs/v2/phases/p5/RANKING_SEMANTICS.md) for the exact formula, metadata,
+filter, lifecycle, and compatibility contract.
 
 ## Annotation-generated configuration
 
@@ -215,6 +321,15 @@ Exactly one ID is required. Duplicate logical field names, an ID type mismatch, 
 annotated members, invalid getters and incompatible index types fail during generation.
 `EQUALITY`, `RANGE` and `PREFIX` are available.
 
+P6 adds an optional compile-time alternative in the separate
+`io.github.patricklfdm:general-search-engine-processor` artifact. Opting in through
+Maven's `annotationProcessorPaths` generates a same-package `ItemSearchFields`
+companion containing typed field constants, one canonical `SCHEMA`, and matching
+`INDEX_DEFINITIONS`. The runtime reflection APIs above remain supported, and the core
+JAR does not auto-discover the processor. Supported visibility, nesting, primitive
+boxing, naming, collision, and fallback rules are frozen in the
+[P6 developer-experience contract](docs/v2/phases/p6/DEVELOPER_EXPERIENCE.md).
+
 ## Failure contract
 
 Mutation and dynamic-index operations return `CompletableFuture<Void>`. Operational
@@ -224,6 +339,8 @@ failures are available as the cause of `CompletionException` from `join()`:
 - `DocumentNotFoundException`: `update` received a missing business ID.
 - `EngineRejectedExecutionException`: the engine is closed or its writer queue is full;
   inspect `reason()` for `CLOSED` or `QUEUE_FULL`.
+- `BulkMutationException`: an explicit collection contains a duplicate ID or exceeds
+  the configured maximum; inspect `reason()`, `batchSize()`, and related context.
 - `IndexLifecycleException`: an index already exists, the same build is in progress, or
   a pending build was cancelled by `dropIndex`; inspect `reason()` and `fieldName()`.
 
@@ -236,7 +353,7 @@ wrapper.
 ## V1 boundary semantics
 
 The complete contract is recorded in
-[V1_SEMANTICS.md](docs/V1_SEMANTICS.md). The important boundaries are:
+[v1 semantics](docs/v1/SEMANTICS.md). The important boundaries are:
 
 - The engine retains object references rather than copying documents. Treat accepted
   objects as immutable and use `update(newDocument)` for every change.
@@ -252,21 +369,35 @@ The complete contract is recorded in
   distinct signed-zero equality keys.
 
 The supported v1 surface and change policy are recorded in
-[V1_API_COMPATIBILITY.md](docs/V1_API_COMPATIBILITY.md). Public types in low-level
+[v1 API compatibility](docs/v1/API_COMPATIBILITY.md). Public types in low-level
 implementation packages are not automatically part of that application-level promise.
 
 ## Query planning
 
 Product category, Prime, price and name-prefix queries currently have bitmap indexes.
-Rating queries are evaluated by scanning the safe candidate set. Composite planning
-follows these rules:
+Rating queries are evaluated by scanning the safe candidate set. In the v2 development
+tree, a direct Range query estimates first and chooses its least-cost index only when
+the internal relative-work model prefers it to scanning active documents. Rejected
+estimating paths are not materialized. Composite planning follows these rules:
 
-- `AND` can use any indexed children and returns a safe superset when some children are
-  not indexed.
+- `AND` starts with one lowest-cost useful path and materializes an additional exact
+  path only when it guarantees enough reduced verification work; otherwise final
+  predicate evaluation handles skipped children through a safe superset.
 - `OR` uses a bitmap only when every child can provide a safe candidate set.
 - `NOT` uses a bitmap complement only when its child result is exact.
 - Every candidate document is evaluated by `Query.matches`, regardless of the
   planner result.
+
+The generic builder accepts an additive planner configuration without changing
+`SnapshotEngineConfig`:
+
+```java
+.plannerConfig(new PlannerConfig(RangePlanningMode.COST_AWARE))
+```
+
+`FORCE_INDEX` and `FORCE_SCAN` are regression/benchmark controls. They preserve query
+truth and are not recommendations for a universal crossover. Cost-aware OR/NOT is not
+part of P3.
 
 ## Adding a query or index
 
@@ -369,7 +500,7 @@ mvn -Pjmh -DskipTests clean package
 java -jar target/benchmarks.jar -l
 ```
 
-The suite contains thirteen benchmarks in five groups:
+The suite contains 51 benchmark methods in twenty groups:
 
 - `ProductQueryBenchmark`: Equality, Range, Prefix, indexed composite and unindexed
   range-scan throughput.
@@ -377,13 +508,47 @@ The suite contains thirteen benchmarks in five groups:
   publication latency. The batch result is normalized per document operation.
 - `DynamicIndexBuildBenchmark`: end-to-end Rating Range/Equality build, publication
   and drop latency.
-- `RangeIndexComparisonBenchmark`: same-field indexed-versus-scanned Range queries at
-  controlled selectivities, plus candidate-only construction.
+- `RangeIndexComparisonBenchmark`: cost-aware, forced-index, and forced-scan Range
+  execution at controlled selectivities, plus candidate-only construction.
 - `MutationBatchScalingBenchmark`: total latency and allocation for 1, 10, 100, and
   1,000 updates with a one-publication assertion.
+- `RangeEstimateBenchmark`: direct Range estimate versus candidate materialization at
+  0.01%, 0.1%, 1%, 10%, 25%, 50%, and 100% selectivity.
+- `RangeBucketSpreadBenchmark`: equal-selectivity estimate/materialization with 100,
+  10,000, and 100,000 distinct values.
+- `AndPlannerBenchmark`: conservative AND versus scan under positive, negative, and
+  independent-like child correlation.
+- `IndexStatisticsPublicationBenchmark`: direct Range index publication at equal
+  document count with low and high distinct-key counts.
+- `BitmapUnionBenchmark`: repeated immutable union versus P2 single-freeze
+  accumulation across selectivity, source-count, and overlap dimensions.
+- `DictionaryStrategyBenchmark`: bounded overlay, persistent AVL, and full-copy
+  publication controls across dictionary size, dirty count, and removal histories.
+- `DictionaryLookupBenchmark`: point lookup at compacted and maximum overlay depth.
+- `TextTermQueryBenchmark`: posting lookup, indexed term search, and analyzed scan by
+  document frequency.
+- `TextMultiTermQueryBenchmark`: indexed/scanned any/all analyzed-term queries.
+- `TextIndexPublicationBenchmark`: text dictionary publication by vocabulary and batch.
+- `TextIndexBuildBenchmark`: raw and dynamic text index construction.
+- `Bm25TopKBenchmark`: bounded top-K retention versus exhaustive full sort.
+- `Bm25MultiTermBenchmark`: single/multi-term BM25 with structured filtering.
+- `RankedMetadataPublicationBenchmark`: posting plus document-length publication.
+- `ExplicitBulkMutationBenchmark`: successful atomic publication and invalid rollback.
 
 The diagnostic round-two protocol and IntelliJ terminal commands are documented in
-[JMH_DIAGNOSTIC_ROUND_2.md](docs/JMH_DIAGNOSTIC_ROUND_2.md).
+[v1 JMH diagnostic round 2](docs/v1/JMH_DIAGNOSTIC_ROUND_2.md).
+The accepted P1 results are recorded in
+[P1 performance baseline](docs/v2/phases/p1/PERFORMANCE_BASELINE.md).
+The accepted P2 results and D3 representation decision are recorded in
+[P2 performance baseline](docs/v2/phases/p2/PERFORMANCE_BASELINE.md).
+The accepted P3 planner results and commands are recorded in
+[P3 performance baseline](docs/v2/phases/p3/PERFORMANCE_BASELINE.md).
+The accepted analyzed-text, ranking, and explicit-bulk matrices are recorded in the
+[P4](docs/v2/phases/p4/PERFORMANCE_BASELINE.md),
+[P5](docs/v2/phases/p5/PERFORMANCE_BASELINE.md), and
+[P6](docs/v2/phases/p6/PERFORMANCE_BASELINE.md) baselines. The accepted P7 representative
+rerun is recorded in [P7 performance baseline](docs/v2/phases/p7/PERFORMANCE_BASELINE.md);
+the soak evidence is in [P7 release validation](docs/v2/phases/p7/RELEASE_VALIDATION.md).
 
 The original baseline groups default to 10,000 documents, while the round-two
 diagnostic groups default to 100,000. All groups use two forked JVMs, explicit warmup

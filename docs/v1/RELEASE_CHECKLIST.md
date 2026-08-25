@@ -1,5 +1,8 @@
 # GeneralSearchEngine v1.0.0 release checklist
 
+This is the historical v1 checklist. Use
+[`../v2/RELEASE_CHECKLIST.md`](../v2/RELEASE_CHECKLIST.md) for the active v2 candidate.
+
 This checklist prepares the v1.0.0 release candidate. Its Maven identity is
 `io.github.patricklfdm:general-search-engine:1.0.0`, its Java root package is
 `io.github.patricklfdm.generalsearch`, and it is licensed under Apache License 2.0.

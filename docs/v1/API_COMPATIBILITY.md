@@ -39,11 +39,11 @@ are explicitly out of scope for v1.0.0 and are not part of this compatibility su
   requires a major release.
 - Deprecated Product filters remain callable throughout v1. New code should use
   `Query<T>`; removal is reserved for a later major version.
-- Behavior documented in `V1_SEMANTICS.md` is part of the compatibility contract even
+- Behavior documented in [`SEMANTICS.md`](SEMANTICS.md) is part of the compatibility contract even
   when method descriptors are unchanged.
 
 `V1ApiCompatibilityTest` intentionally allows additive APIs. Its source fixture catches
 source-incompatible generic and overload changes, while reflection assertions preserve
-the JVM descriptors needed by already-compiled clients. Once version 1.0.0 is published
-to an artifact repository, release verification should additionally compare the built
-JAR against that artifact with an artifact-level binary compatibility tool.
+the JVM descriptors needed by already-compiled clients. P7 additionally compares the
+candidate JAR with the published v1.0.0 artifact and fails on binary or source
+incompatibility; see [`../v2/API_COMPATIBILITY.md`](../v2/API_COMPATIBILITY.md).
