@@ -11,6 +11,8 @@ Semantic Versioning once the first stable artifact is published.
   startup index, enabling consistent dynamic-index and analyzed-text configuration.
 - `SearchEngineBuilder.textIndex(fieldName, analyzer)` for direct runtime-annotation
   and generated-schema text configuration without manual `TextField` assembly.
+- `SearchEngine.field(...)` and `SearchEngine.textField(...)` default methods for
+  concise access to canonical query fields without traversing `engine.schema()`.
 - External travel-domain consumer coverage for generated structured fields, analyzed
   text, filtered BM25, atomic bulk mutation, and a dynamic Range index.
 - Clear generated-source comments and README guidance for annotation processing,

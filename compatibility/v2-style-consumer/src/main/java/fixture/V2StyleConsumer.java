@@ -20,7 +20,7 @@ public final class V2StyleConsumer {
                              .textIndex("description", Analyzer.simple())
                              .build()) {
             TextField<TravelPlace> description =
-                    engine.schema().requireTextField("description");
+                    engine.textField("description");
             TravelPlace museum = new TravelPlace(
                     1L, "Paris", 120.0, 4.9, "museum museum riverside");
             TravelPlace guide = new TravelPlace(

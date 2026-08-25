@@ -73,16 +73,24 @@ class SearchEnginePublicApiTest {
         try (SearchEngine<Long, AnnotatedItem> engine =
                      SearchEngine.fromAnnotatedClass(AnnotatedItem.class, Long.class)) {
             Field<AnnotatedItem, String> warehouse =
-                    engine.schema().requireField("warehouse", String.class);
+                    engine.field("warehouse", String.class);
             Field<AnnotatedItem, Integer> score =
-                    engine.schema().requireField("score", Integer.class);
+                    engine.field("score", Integer.class);
             AnnotatedItem item = new AnnotatedItem(3, "west", 88);
             engine.add(item).join();
 
+            assertSame(engine.schema().requireField("warehouse"), warehouse);
+            assertSame(engine.schema().requireField("score"), score);
+            assertSame(warehouse, engine.field("warehouse"));
             assertEquals(List.of(item), engine.search(Query.eq(warehouse, "west")));
             assertFalse(engine.search(Query.between(score, 80, 90)).isEmpty());
             engine.createIndex(IndexDefinition.range(score)).join();
             assertEquals(2, engine.metrics().registeredIndexCount());
+
+            IllegalArgumentException wrongType = assertThrows(
+                    IllegalArgumentException.class,
+                    () -> engine.field("score", String.class));
+            assertTrue(wrongType.getMessage().contains("java.lang.Integer"));
         }
     }
 

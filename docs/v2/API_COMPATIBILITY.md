@@ -82,3 +82,8 @@ The development line also adds the `@SearchField` annotation and
 existing annotation discovery is unchanged, `@SearchIndex` still implies schema
 registration plus a startup index, and advanced explicit `TextField` configuration
 remains supported.
+
+`SearchEngine.field(...)` and `SearchEngine.textField(...)` are additive default
+methods that delegate to `schema()`. Existing third-party implementations therefore
+inherit the convenience API without recompilation or implementation changes, and the
+returned objects preserve canonical schema identity.

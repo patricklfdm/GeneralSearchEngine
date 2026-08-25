@@ -64,10 +64,11 @@ SearchEngine.annotatedBuilder(Article.class, Long.class)
         .build();
 ```
 
-Retrieve the resulting canonical text configuration through
-`engine.schema().requireTextField("body")`. For ordinary classes, `@SearchField` adds a
-member to the schema without creating a startup index; record components continue to
-be included automatically.
+Retrieve canonical fields directly through `engine.field("name", ValueType.class)` and
+the resulting text configuration through `engine.textField("body")`. These convenience
+methods delegate to the immutable schema; `engine.schema()` remains available for
+inspection. For ordinary classes, `@SearchField` adds a member to the schema without
+creating a startup index; record components continue to be included automatically.
 
 Exact analyzed-text, ranking, and bulk contracts are documented in
 [`phases/p4/TEXT_SEMANTICS.md`](phases/p4/TEXT_SEMANTICS.md),

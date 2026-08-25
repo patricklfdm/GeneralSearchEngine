@@ -232,11 +232,13 @@ class TextSearchEngineTest {
                 .textIndex("body", Analyzer.simple())
                 .build()) {
             TextField<AnnotatedArticle> body =
-                    engine.schema().requireTextField("body");
+                    engine.textField("body");
             Field<AnnotatedArticle, String> category =
-                    engine.schema().requireField("category", String.class);
+                    engine.field("category", String.class);
             Field<AnnotatedArticle, Double> rating =
-                    engine.schema().requireField("rating", Double.class);
+                    engine.field("rating", Double.class);
+
+            assertSame(engine.schema().requireTextField("body"), body);
             engine.addAll(List.of(first, second, third)).join();
 
             assertEquals(List.of(first, second), engine.search(Query.and(

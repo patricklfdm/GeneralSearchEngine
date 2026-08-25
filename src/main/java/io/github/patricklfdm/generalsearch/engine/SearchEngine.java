@@ -11,6 +11,7 @@ import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /**
  * Thread-safe in-memory search engine over documents identified by a business key.
@@ -122,6 +123,41 @@ public interface SearchEngine<K, T> extends AutoCloseable {
 
     /** Returns the canonical schema whose fields should be used by queries and indexes. */
     SearchSchema<T, K> schema();
+
+    /**
+     * Returns a canonical schema field by name.
+     *
+     * @param name field name
+     * @return the field registered under {@code name}
+     * @throws IllegalArgumentException when the field is unknown
+     */
+    default Field<T, ?> field(String name) {
+        return schema().requireField(name);
+    }
+
+    /**
+     * Returns a canonical schema field by name and validates its value type.
+     *
+     * @param name field name
+     * @param valueType expected boxed value type
+     * @param <V> field value type
+     * @return the typed field registered under {@code name}
+     * @throws IllegalArgumentException when the field is unknown or has another type
+     */
+    default <V> Field<T, V> field(String name, Class<V> valueType) {
+        return schema().requireField(name, valueType);
+    }
+
+    /**
+     * Returns the canonical analyzed-text configuration for a field.
+     *
+     * @param name text field name
+     * @return the analyzed-text field registered under {@code name}
+     * @throws IllegalArgumentException when no text configuration is registered
+     */
+    default TextField<T> textField(String name) {
+        return schema().requireTextField(name);
+    }
 
     /** Returns a lock-free, immutable operational snapshot of this engine. */
     SearchEngineMetrics metrics();

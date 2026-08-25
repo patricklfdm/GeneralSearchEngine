@@ -134,11 +134,10 @@ is domain-independent, storage and query components operate on any document type
 and indexes advertise their own query capabilities. Product's canonical fields and
 default indexes are generated once from its annotations at startup.
 
-## Quick start: annotated structured search
+## Quick start: annotated search
 
 The shortest path uses runtime annotation discovery and does not require the optional
-annotation processor. Put searchable models in their own top-level source files so the
-type remains easy to reuse as the application grows:
+annotation processor:
 
 ```java
 public record TravelPlace(
@@ -151,19 +150,28 @@ public record TravelPlace(
 ```
 
 ```java
-try (SearchEngine<Long, TravelPlace> engine =
-        SearchEngine.fromAnnotatedClass(TravelPlace.class, Long.class)) {
-    Field<TravelPlace, String> city =
-            engine.schema().requireField("city", String.class);
+try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+        .annotatedBuilder(TravelPlace.class, Long.class)
+        .textIndex("description", Analyzer.simple())
+        .build()) {
+    Field<TravelPlace, String> city = engine.field("city", String.class);
+    TextField<TravelPlace> description = engine.textField("description");
+
     engine.add(new TravelPlace(
             1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
 
-    List<TravelPlace> results = engine.search(Query.eq(city, "Paris"));
+    List<TravelPlace> results = engine.search(Query.and(
+            Query.eq(city, "Paris"),
+            Query.term(description, "museum")));
 }
 ```
 
-Use `SearchEngine.annotatedBuilder(...)` when queue or planner configuration must be
-customized before `build()`. The generated-field workflow described below is optional.
+Every record component is available through `engine.field(...)`. `@SearchIndex` also
+creates a startup structured index, while `textIndex(...)` selects the analyzer and
+creates a startup text index. For ordinary classes, annotate fields or zero-argument
+getters with `@SearchField` when they should be available without a startup index.
+`SearchEngine.fromAnnotatedClass(...)` remains the shortest option when no builder
+configuration is needed. The generated-field workflow described below is optional.
 
 ## Product convenience API
 
@@ -340,7 +348,7 @@ record Item(
 try (SearchEngine<Long, Item> engine =
         SearchEngine.fromAnnotatedClass(Item.class, Long.class)) {
     Field<Item, String> warehouse =
-            engine.schema().requireField("warehouse", String.class);
+            engine.field("warehouse", String.class);
     engine.add(new Item(1001L, "north", 120, "Cable")).join();
     List<Item> items = engine.search(Query.eq(warehouse, "north"));
 }
@@ -372,9 +380,9 @@ try (SearchEngine<Long, TravelPlace> engine = SearchEngine
         .textIndex("description", Analyzer.simple())
         .build()) {
     TextField<TravelPlace> description =
-            engine.schema().requireTextField("description");
+            engine.textField("description");
     Field<TravelPlace, String> city =
-            engine.schema().requireField("city", String.class);
+            engine.field("city", String.class);
 
     engine.addAll(List.of(museum, guide)).join();
     List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
@@ -388,7 +396,8 @@ try (SearchEngine<Long, TravelPlace> engine = SearchEngine
 For a normal class, mark `description` with `@SearchField`; records already include all
 components, so the annotation is optional there. `textIndex(...)` explicitly selects
 the Analyzer, installs the startup text index, and publishes its canonical `TextField`
-through `engine.schema()` for boolean and ranked queries.
+through `engine.textField(...)` for boolean and ranked queries. `engine.schema()`
+remains available for schema inspection and advanced configuration.
 
 ## Generated fields (optional)
 
@@ -444,7 +453,7 @@ try (SearchEngine<Long, TravelPlace> engine =
                 .textIndex("description", Analyzer.simple())
                 .build()) {
     TextField<TravelPlace> description =
-            engine.schema().requireTextField("description");
+            engine.textField("description");
     TravelPlace museum = new TravelPlace(
             1L, "Paris", 120.0, 4.9, "museum museum riverside");
     TravelPlace guide = new TravelPlace(
