@@ -4,7 +4,17 @@ set -euo pipefail
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 project_dir="$(cd "${script_dir}/.." && pwd)"
 
-mvn -q -f "${project_dir}/reactor/pom.xml" -DskipTests install
-mvn -q -f "${project_dir}/compatibility/pom.xml" clean test
+if [[ -n "${MAVEN_CMD:-}" ]]; then
+    maven_command=("$MAVEN_CMD")
+elif [[ -x "$project_dir/mvnw" ]]; then
+    maven_command=("$project_dir/mvnw")
+else
+    maven_command=(mvn)
+fi
+
+"${maven_command[@]}" --batch-mode --no-transfer-progress \
+    -q -f "${project_dir}/reactor/pom.xml" -DskipTests install
+"${maven_command[@]}" --batch-mode --no-transfer-progress \
+    -q -f "${project_dir}/compatibility/pom.xml" clean test
 
 echo "Independent v1-style and v2-style consumer compilation: PASS"

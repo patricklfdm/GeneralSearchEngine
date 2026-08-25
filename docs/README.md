@@ -1,5 +1,7 @@
 # GeneralSearchEngine documentation
 
+- [CI/CD and release operations](CI_CD.md)
+
 This directory preserves the published v1 and v2 records together with the completed
 v2 development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
