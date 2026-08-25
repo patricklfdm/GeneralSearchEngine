@@ -71,32 +71,50 @@ Then use the development version in an application:
 ## Quick start: annotated search
 
 The shortest 2.1 path uses runtime annotation discovery and does not require the
-optional annotation processor:
+optional annotation processor. Save this complete example as
+`TravelSearchQuickStart.java`:
 
 ```java
-public record TravelPlace(
-        @SearchId long id,
-        @SearchIndex(IndexType.EQUALITY) String city,
-        @SearchIndex(IndexType.RANGE) double price,
-        double rating,
-        String description
-) {}
-```
+import java.util.List;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
+import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 
-```java
-try (SearchEngine<Long, TravelPlace> engine = SearchEngine
-        .annotatedBuilder(TravelPlace.class, Long.class)
-        .textIndex("description", Analyzer.simple())
-        .build()) {
-    Field<TravelPlace, String> city = engine.field("city", String.class);
-    TextField<TravelPlace> description = engine.textField("description");
+public final class TravelSearchQuickStart {
+    private TravelSearchQuickStart() {}
 
-    engine.add(new TravelPlace(
-            1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
+    public static void main(String[] args) {
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .annotatedBuilder(TravelPlace.class, Long.class)
+                .textIndex("description", Analyzer.simple())
+                .build()) {
+            Field<TravelPlace, String> city =
+                    engine.field("city", String.class);
+            TextField<TravelPlace> description =
+                    engine.textField("description");
 
-    List<TravelPlace> results = engine.search(Query.and(
-            Query.eq(city, "Paris"),
-            Query.term(description, "museum")));
+            engine.add(new TravelPlace(
+                    1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
+
+            List<TravelPlace> results = engine.search(Query.and(
+                    Query.eq(city, "Paris"),
+                    Query.term(description, "museum")));
+            System.out.println(results);
+        }
+    }
+
+    record TravelPlace(
+            @SearchId long id,
+            @SearchIndex(IndexType.EQUALITY) String city,
+            @SearchIndex(IndexType.RANGE) double price,
+            double rating,
+            String description
+    ) {}
 }
 ```
 
@@ -113,7 +131,8 @@ Every record component is available through `engine.field(...)`. `textIndex(...)
 selects the analyzer and creates a startup text index. Use
 `SearchEngine.fromAnnotatedClass(...)` when no builder configuration is needed. The
 generated-field workflow described later is an optional compile-time type-safety
-enhancement.
+enhancement. Named field lookups fail immediately, list the canonical choices, and
+suggest close spellings for common typos.
 
 The complete runnable version is in the
 [`travel-search` example](examples/travel-search/README.md).

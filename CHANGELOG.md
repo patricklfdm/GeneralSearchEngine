@@ -24,6 +24,8 @@ Semantic Versioning once the first stable artifact is published.
   from the published `2.0.0` API.
 - The processor-free travel demo is now a reactor-compiled example module, and the
   README puts development installation and the annotated quick start before internals.
+- Unknown field lookups now list canonical choices and suggest close spellings; the
+  travel example also has a one-command runner.
 - `SearchEngine.builder(existingSchema)` can safely extend a copied configuration.
   Adding `IndexDefinition.text(textField)` automatically registers the text field
   without mutating the supplied schema or requiring manual schema reconstruction.

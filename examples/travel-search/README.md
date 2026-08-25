@@ -3,17 +3,11 @@
 This processor-free example uses runtime annotations, structured indexes, analyzed
 text, filtered BM25 ranking, atomic bulk insertion, and a dynamic range index.
 
-From the repository root, compile the complete reactor:
+From the repository root, build and run it with one command:
 
 ```bash
-mvn -f reactor/pom.xml clean test
+bash scripts/run-travel-example.sh
 ```
 
-Then run the example:
-
-```bash
-java -cp target/classes:examples/travel-search/target/classes \
-  example.travel.TravelSearchDemo
-```
-
-On Windows, replace the classpath separator `:` with `;`.
+The script builds the core and example modules directly from the checkout; a prior
+local install is not required.
