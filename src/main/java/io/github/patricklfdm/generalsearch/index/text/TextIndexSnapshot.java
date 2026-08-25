@@ -26,32 +26,47 @@ import io.github.patricklfdm.generalsearch.schema.TextField;
 public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
     private final TextField<T> textField;
     private final PersistentAvlMap<String, PostingList> postings;
+    private final PersistentAvlMap<Integer, Integer> documentLengths;
+    private final long totalDocumentLength;
     private final IndexStatistics statistics;
 
     private TextIndexSnapshot(
             TextField<T> textField,
             PersistentAvlMap<String, PostingList> postings,
-            int indexedDocumentCount
+            PersistentAvlMap<Integer, Integer> documentLengths,
+            long totalDocumentLength
     ) {
         this.textField = Objects.requireNonNull(textField, "textField");
         this.postings = Objects.requireNonNull(postings, "postings");
-        this.statistics = new IndexStatistics(indexedDocumentCount, postings.size());
+        this.documentLengths = Objects.requireNonNull(documentLengths, "documentLengths");
+        if (totalDocumentLength < 0) {
+            throw new IllegalArgumentException("totalDocumentLength must not be negative");
+        }
+        this.totalDocumentLength = totalDocumentLength;
+        this.statistics = new IndexStatistics(documentLengths.size(), postings.size());
     }
 
     public static <T> TextIndexSnapshot<T> empty(TextField<T> textField) {
         return new TextIndexSnapshot<>(
                 textField,
                 PersistentAvlMap.empty(PostingList::documentFrequency),
-                0
+                PersistentAvlMap.empty(Integer::longValue),
+                0L
         );
     }
 
     static <T> TextIndexSnapshot<T> fromPostings(
             TextField<T> textField,
             PersistentAvlMap<String, PostingList> postings,
-            int indexedDocumentCount
+            PersistentAvlMap<Integer, Integer> documentLengths,
+            long totalDocumentLength
     ) {
-        return new TextIndexSnapshot<>(textField, postings, indexedDocumentCount);
+        return new TextIndexSnapshot<>(
+                textField,
+                postings,
+                documentLengths,
+                totalDocumentLength
+        );
     }
 
     public TextField<T> textField() {
@@ -67,6 +82,34 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
         Objects.requireNonNull(term, "term");
         PostingList posting = postings.get(term);
         return posting == null ? PostingList.empty() : posting;
+    }
+
+    /** Returns the analyzed token count for one indexed document, or zero when absent. */
+    public int documentLength(int docId) {
+        if (docId < 0) {
+            throw new IllegalArgumentException("docId must not be negative");
+        }
+        Integer length = documentLengths.get(docId);
+        return length == null ? 0 : length;
+    }
+
+    /** Returns the sum of analyzed token counts across indexed documents. */
+    public long totalDocumentLength() {
+        return totalDocumentLength;
+    }
+
+    /** Returns the mean analyzed length, or zero for an empty text index. */
+    public double averageDocumentLength() {
+        return statistics.indexedDocumentCount() == 0
+                ? 0.0
+                : (double) totalDocumentLength / statistics.indexedDocumentCount();
+    }
+
+    /** Returns exact candidates containing at least one supplied normalized term. */
+    public ImmutableBitmap documentsContainingAny(List<String> normalizedTerms) {
+        Objects.requireNonNull(normalizedTerms, "normalizedTerms");
+        normalizedTerms.forEach(term -> Objects.requireNonNull(term, "term"));
+        return union(normalizedTerms);
     }
 
     @Override
@@ -147,6 +190,10 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
 
     PersistentAvlMap<String, PostingList> postings() {
         return postings;
+    }
+
+    PersistentAvlMap<Integer, Integer> documentLengths() {
+        return documentLengths;
     }
 
     private ImmutableBitmap union(List<String> terms) {

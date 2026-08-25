@@ -17,31 +17,33 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
     private final TextIndexSnapshot<T> base;
     private final TextField<T> textField;
     private final Map<String, PostingList> dirty = new TreeMap<>();
-    private int indexedDocumentCount;
+    private PersistentAvlMap<Integer, Integer> documentLengths;
+    private long totalDocumentLength;
     private boolean built;
 
     public TextIndexBuilder(TextIndexSnapshot<T> base) {
         this.base = Objects.requireNonNull(base, "base");
         this.textField = base.textField();
-        this.indexedDocumentCount = base.statistics().indexedDocumentCount();
+        this.documentLengths = base.documentLengths();
+        this.totalDocumentLength = base.totalDocumentLength();
     }
 
     @Override
     public void add(int docId, T document) {
         ensureOpen();
-        apply(docId, Map.of(), termFrequencies(document));
+        apply(docId, AnalyzedDocument.empty(), analyze(document));
     }
 
     @Override
     public void remove(int docId, T document) {
         ensureOpen();
-        apply(docId, termFrequencies(document), Map.of());
+        apply(docId, analyze(document), AnalyzedDocument.empty());
     }
 
     @Override
     public void update(int docId, T oldDocument, T newDocument) {
         ensureOpen();
-        apply(docId, termFrequencies(oldDocument), termFrequencies(newDocument));
+        apply(docId, analyze(oldDocument), analyze(newDocument));
     }
 
     @Override
@@ -60,29 +62,35 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
         }
         built = true;
         if (postings == base.postings()
-                && indexedDocumentCount == base.statistics().indexedDocumentCount()) {
+                && documentLengths == base.documentLengths()
+                && totalDocumentLength == base.totalDocumentLength()) {
             return base;
         }
         return TextIndexSnapshot.fromPostings(
                 textField,
                 postings,
-                indexedDocumentCount
+                documentLengths,
+                totalDocumentLength
         );
     }
 
     private void apply(
             int docId,
-            Map<String, Integer> oldTerms,
-            Map<String, Integer> newTerms
+            AnalyzedDocument oldDocument,
+            AnalyzedDocument newDocument
     ) {
+        Map<String, Integer> oldTerms = oldDocument.termFrequencies();
+        Map<String, Integer> newTerms = newDocument.termFrequencies();
         if (oldTerms.equals(newTerms)) {
             return;
         }
-        if (oldTerms.isEmpty() && !newTerms.isEmpty()) {
-            indexedDocumentCount++;
-        } else if (!oldTerms.isEmpty() && newTerms.isEmpty()) {
-            indexedDocumentCount--;
-        }
+        documentLengths = newDocument.length() == 0
+                ? documentLengths.without(docId)
+                : documentLengths.with(docId, newDocument.length());
+        totalDocumentLength = Math.addExact(
+                totalDocumentLength,
+                (long) newDocument.length() - oldDocument.length()
+        );
         Set<String> changedTerms = new HashSet<>(oldTerms.keySet());
         changedTerms.addAll(newTerms.keySet());
         for (String term : changedTerms) {
@@ -98,17 +106,28 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
         }
     }
 
-    private Map<String, Integer> termFrequencies(T document) {
+    private AnalyzedDocument analyze(T document) {
         Map<String, Integer> frequencies = new HashMap<>();
+        int length = 0;
         for (Token token : textField.analyzeDocument(document)) {
             frequencies.merge(token.term(), 1, Math::addExact);
+            length = Math.addExact(length, 1);
         }
-        return frequencies;
+        return new AnalyzedDocument(frequencies, length);
     }
 
     private void ensureOpen() {
         if (built) {
             throw new IllegalStateException("builder has already been built");
+        }
+    }
+
+    private record AnalyzedDocument(
+            Map<String, Integer> termFrequencies,
+            int length
+    ) {
+        private static AnalyzedDocument empty() {
+            return new AnalyzedDocument(Map.of(), 0);
         }
     }
 }

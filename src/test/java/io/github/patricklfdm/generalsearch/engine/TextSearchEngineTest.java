@@ -131,6 +131,12 @@ class TextSearchEngineTest {
                     .findFirst()
                     .orElseThrow();
             assertEquals(new IndexStatistics(100, 5), index.statistics());
+            assertEquals(2, index.documentLength(
+                    engine.internalDocIdForTesting(0L)));
+            assertEquals(2, index.documentLength(
+                    engine.internalDocIdForTesting(1_000L)));
+            assertEquals(200, index.totalDocumentLength());
+            assertEquals(2.0, index.averageDocumentLength());
         } finally {
             analyzer.releaseBuild();
         }

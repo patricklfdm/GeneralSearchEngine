@@ -1,10 +1,13 @@
 package io.github.patricklfdm.generalsearch.engine;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import io.github.patricklfdm.generalsearch.engine.metrics.SearchEngineMetrics;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 
@@ -80,6 +83,17 @@ public interface SearchEngine<K, T> extends AutoCloseable {
 
     /** Returns retained document references in ascending internal document-ID order. */
     List<T> search(Query<T> query);
+
+    /**
+     * Returns BM25-ranked hits when this implementation supports ranked retrieval.
+     * Existing third-party v1 implementations remain binary-compatible and reject the
+     * additive capability until they override it.
+     */
+    default List<SearchHit<T>> searchTopK(RankedSearchRequest<T> request) {
+        Objects.requireNonNull(request, "request");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support ranked retrieval");
+    }
 
     /** Returns the canonical schema whose fields should be used by queries and indexes. */
     SearchSchema<T, K> schema();

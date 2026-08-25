@@ -33,6 +33,11 @@ class TextIndexTest {
         TextIndexSnapshot<Article> index = textIndex(builder.build());
 
         assertEquals(new IndexStatistics(2, 3), index.statistics());
+        assertEquals(3, index.documentLength(0));
+        assertEquals(2, index.documentLength(1));
+        assertEquals(0, index.documentLength(2));
+        assertEquals(5, index.totalDocumentLength());
+        assertEquals(2.5, index.averageDocumentLength());
         PostingList java = index.posting("java");
         assertEquals(1, java.documentFrequency());
         assertEquals(2, java.termFrequency(0));
@@ -66,6 +71,12 @@ class TextIndexTest {
         assertEquals(0, updated.posting("search").documentFrequency());
         assertEquals(2, updated.posting("engine").termFrequency(0));
         assertEquals(new IndexStatistics(1, 1), updated.statistics());
+        assertEquals(2, base.documentLength(0));
+        assertEquals(1, base.documentLength(1));
+        assertEquals(2, updated.documentLength(0));
+        assertEquals(0, updated.documentLength(1));
+        assertEquals(2, updated.totalDocumentLength());
+        assertEquals(2.0, updated.averageDocumentLength());
     }
 
     @Test

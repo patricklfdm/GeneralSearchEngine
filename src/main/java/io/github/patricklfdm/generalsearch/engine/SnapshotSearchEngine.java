@@ -35,6 +35,9 @@ import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
 import io.github.patricklfdm.generalsearch.query.SnapshotSearcher;
+import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
+import io.github.patricklfdm.generalsearch.ranking.RankedSearcher;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
@@ -49,6 +52,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final BlockingQueue<WriterTask<K, T>> queue;
     private final SnapshotEngineConfig config;
     private final SnapshotSearcher<T> searcher;
+    private final RankedSearcher<T> rankedSearcher;
     private final ExecutorService indexBuildExecutor;
     private final Thread writerThread;
     private final Object lifecycleMonitor = new Object();
@@ -100,6 +104,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 new PublishedState<>(emptySnapshot, Map.of(), 0));
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
         this.searcher = new SnapshotSearcher<>(new CandidatePlanner<>(plannerConfig));
+        this.rankedSearcher = new RankedSearcher<>(new CandidatePlanner<>(plannerConfig));
         this.indexBuildExecutor = Executors.newSingleThreadExecutor(task -> {
             Thread thread = new Thread(
                     task,
@@ -156,6 +161,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     @Override
     public List<T> search(Query<T> query) {
         return searcher.search(current.get().snapshot(), query);
+    }
+
+    @Override
+    public List<SearchHit<T>> searchTopK(RankedSearchRequest<T> request) {
+        return rankedSearcher.search(current.get().snapshot(), request);
     }
 
     @Override
