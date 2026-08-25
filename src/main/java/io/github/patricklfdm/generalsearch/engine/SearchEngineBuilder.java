@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
@@ -65,6 +66,26 @@ public final class SearchEngineBuilder<K, T> {
     public SearchEngineBuilder<K, T> textField(TextField<T> textField) {
         registerTextIndexField(Objects.requireNonNull(textField, "textField"));
         return this;
+    }
+
+    /**
+     * Adds a startup text index for a named String field already present in the schema.
+     * The canonical {@link TextField} can be retrieved from {@code engine.schema()}
+     * after building and reused by boolean text and ranked queries.
+     *
+     * @param fieldName canonical schema field name
+     * @param analyzer deterministic analysis semantics for documents and queries
+     * @return this builder
+     */
+    public SearchEngineBuilder<K, T> textIndex(
+            String fieldName,
+            Analyzer analyzer
+    ) {
+        Objects.requireNonNull(fieldName, "fieldName");
+        Objects.requireNonNull(analyzer, "analyzer");
+        Field<T, String> field = schemaBuilder.build()
+                .requireField(fieldName, String.class);
+        return index(IndexDefinition.text(TextField.of(field, analyzer)));
     }
 
     /** Registers one startup index and its field in a manually built schema. */

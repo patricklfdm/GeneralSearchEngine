@@ -350,14 +350,45 @@ Use `SearchEngine.annotatedBuilder(...)` instead when engine configuration must 
 customized before `build()`. `AnnotatedSchemaFactory` remains available as the
 lower-level configuration generator.
 
-All record components become schema fields. For ordinary classes, only fields and
-zero-argument getters carrying `@SearchId` or `@SearchIndex` are included. Private
-members are accepted only when `trySetAccessible()` succeeds. Primitive member types
-are exposed through their boxed classes.
+All record components become schema fields. For ordinary classes, fields and
+zero-argument getters carrying `@SearchId`, `@SearchIndex`, or `@SearchField` are
+included. `@SearchField` registers a field without creating a startup index, which is
+useful for analyzed text and later dynamic indexes. Private members are accepted only
+when `trySetAccessible()` succeeds. Primitive member types are exposed through their
+boxed classes.
 
 Exactly one ID is required. Duplicate logical field names, an ID type mismatch, static
 annotated members, invalid getters and incompatible index types fail during generation.
 `EQUALITY`, `RANGE` and `PREFIX` are available.
+
+### Runtime annotations with text and BM25
+
+The runtime path can configure analyzed text directly without an annotation processor
+or generated class:
+
+```java
+try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+        .annotatedBuilder(TravelPlace.class, Long.class)
+        .textIndex("description", Analyzer.simple())
+        .build()) {
+    TextField<TravelPlace> description =
+            engine.schema().requireTextField("description");
+    Field<TravelPlace, String> city =
+            engine.schema().requireField("city", String.class);
+
+    engine.addAll(List.of(museum, guide)).join();
+    List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
+            RankedSearchRequest.filtered(
+                    TextScoringQuery.of(description, "museum river art"),
+                    Query.eq(city, "Paris"),
+                    10));
+}
+```
+
+For a normal class, mark `description` with `@SearchField`; records already include all
+components, so the annotation is optional there. `textIndex(...)` explicitly selects
+the Analyzer, installs the startup text index, and publishes its canonical `TextField`
+through `engine.schema()` for boolean and ranked queries.
 
 ## Generated fields (optional)
 
@@ -403,20 +434,17 @@ boxing, collision, and fallback rules are frozen in the
 
 ## Text and BM25 with generated fields
 
-A normal generated schema can be extended directly with analyzed text. `Field` owns
-value extraction; `TextField` adds the analyzer that defines token semantics. Adding
-the text index registers that `TextField` in the engine schema automatically:
+A normal generated schema can use the same `textIndex(...)` convenience. `Field` owns
+value extraction; `TextField` adds the analyzer that defines token semantics:
 
 ```java
-TextField<TravelPlace> description = TextField.of(
-        TravelPlaceSearchFields.DESCRIPTION,
-        Analyzer.simple());
-
 try (SearchEngine<Long, TravelPlace> engine =
         SearchEngine.builder(TravelPlaceSearchFields.SCHEMA)
                 .indexes(TravelPlaceSearchFields.INDEX_DEFINITIONS)
-                .index(IndexDefinition.text(description))
+                .textIndex("description", Analyzer.simple())
                 .build()) {
+    TextField<TravelPlace> description =
+            engine.schema().requireTextField("description");
     TravelPlace museum = new TravelPlace(
             1L, "Paris", 120.0, 4.9, "museum museum riverside");
     TravelPlace guide = new TravelPlace(
@@ -437,8 +465,8 @@ try (SearchEngine<Long, TravelPlace> engine =
 ```
 
 The same `description` instance is used for the text index, boolean text queries, and
-BM25 requests. No manual schema reconstruction or separate `.textField(...)` call is
-needed.
+BM25 requests. No manual schema reconstruction is needed. Advanced callers can still
+construct a `TextField` explicitly and pass `IndexDefinition.text(description)`.
 
 ## Dynamic index on a generated field
 

@@ -14,15 +14,13 @@ public final class V2StyleConsumer {
     private V2StyleConsumer() {}
 
     public static SearchResult search() {
-        TextField<TravelPlace> description = TextField.of(
-                TravelPlaceSearchFields.DESCRIPTION,
-                Analyzer.simple());
         try (SearchEngine<Long, TravelPlace> engine =
                      SearchEngine.builder(TravelPlaceSearchFields.SCHEMA)
                              .indexes(TravelPlaceSearchFields.INDEX_DEFINITIONS)
-                             // The text index safely extends the generated schema.
-                             .index(IndexDefinition.text(description))
+                             .textIndex("description", Analyzer.simple())
                              .build()) {
+            TextField<TravelPlace> description =
+                    engine.schema().requireTextField("description");
             TravelPlace museum = new TravelPlace(
                     1L, "Paris", 120.0, 4.9, "museum museum riverside");
             TravelPlace guide = new TravelPlace(

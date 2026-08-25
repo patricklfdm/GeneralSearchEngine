@@ -1,2 +1,2 @@
-/** Annotations for generating ID fields and startup indexes from document members. */
+/** Annotations for generating searchable fields, IDs, and startup indexes. */
 package io.github.patricklfdm.generalsearch.schema.annotation;

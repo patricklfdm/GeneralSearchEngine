@@ -55,6 +55,20 @@ that does not extend its schema continues to receive the original schema instanc
 schema or generated companion rather than constructing a second field with the same
 name.
 
+Runtime annotation users can avoid the lower-level configuration factory when adding
+analyzed text:
+
+```java
+SearchEngine.annotatedBuilder(Article.class, Long.class)
+        .textIndex("body", Analyzer.simple())
+        .build();
+```
+
+Retrieve the resulting canonical text configuration through
+`engine.schema().requireTextField("body")`. For ordinary classes, `@SearchField` adds a
+member to the schema without creating a startup index; record components continue to
+be included automatically.
+
 Exact analyzed-text, ranking, and bulk contracts are documented in
 [`phases/p4/TEXT_SEMANTICS.md`](phases/p4/TEXT_SEMANTICS.md),
 [`phases/p5/RANKING_SEMANTICS.md`](phases/p5/RANKING_SEMANTICS.md), and

@@ -36,10 +36,13 @@ import javax.tools.JavaFileObject;
 
 /** Generates one canonical {@code *SearchFields} companion for annotated documents. */
 @SupportedAnnotationTypes({
+        SearchFieldsProcessor.SEARCH_FIELD,
         SearchFieldsProcessor.SEARCH_ID,
         SearchFieldsProcessor.SEARCH_INDEX
 })
 public final class SearchFieldsProcessor extends AbstractProcessor {
+    static final String SEARCH_FIELD =
+            "io.github.patricklfdm.generalsearch.schema.annotation.SearchField";
     static final String SEARCH_ID =
             "io.github.patricklfdm.generalsearch.schema.annotation.SearchId";
     static final String SEARCH_INDEX =
@@ -67,6 +70,7 @@ public final class SearchFieldsProcessor extends AbstractProcessor {
             return false;
         }
         Map<String, TypeElement> documents = new LinkedHashMap<>();
+        collectAnnotatedOwners(roundEnvironment, SEARCH_FIELD, documents);
         collectAnnotatedOwners(roundEnvironment, SEARCH_ID, documents);
         collectAnnotatedOwners(roundEnvironment, SEARCH_INDEX, documents);
         documents.values().stream()
@@ -188,7 +192,8 @@ public final class SearchFieldsProcessor extends AbstractProcessor {
     private List<MemberModel> classMembers(TypeElement document) {
         List<MemberModel> members = new ArrayList<>();
         for (Element element : document.getEnclosedElements()) {
-            if (!hasAnnotation(element, SEARCH_ID)
+            if (!hasAnnotation(element, SEARCH_FIELD)
+                    && !hasAnnotation(element, SEARCH_ID)
                     && !hasAnnotation(element, SEARCH_INDEX)) {
                 continue;
             }

@@ -76,3 +76,9 @@ identity behavior covered by the frozen v1 compatibility fixture.
 Canonical-field validation remains intact. Existing v1-style builders, third-party
 `SearchEngine` implementations, query truth, snapshot publication, mutation behavior,
 and ranked retrieval are unaffected.
+
+The development line also adds the `@SearchField` annotation and
+`SearchEngineBuilder.textIndex(String, Analyzer)` convenience. Both are additive:
+existing annotation discovery is unchanged, `@SearchIndex` still implies schema
+registration plus a startup index, and advanced explicit `TextField` configuration
+remains supported.

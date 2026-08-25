@@ -102,6 +102,7 @@ class SearchFieldsProcessorTest {
                 package fixture;
 
                 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
+                import io.github.patricklfdm.generalsearch.schema.annotation.SearchField;
                 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
                 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 
@@ -109,8 +110,8 @@ class SearchFieldsProcessorTest {
                         @SearchId long id,
                         @SearchIndex(IndexType.EQUALITY) String city,
                         @SearchIndex(IndexType.RANGE) double price,
-                        double rating,
-                        String description
+                        @SearchField double rating,
+                        @SearchField String description
                 ) {}
                 """;
         Compilation compilation = compile(
@@ -159,21 +160,25 @@ class SearchFieldsProcessorTest {
                 package fixture;
 
                 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
+                import io.github.patricklfdm.generalsearch.schema.annotation.SearchField;
                 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
                 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 
                 public final class Customer {
                     private final long id;
                     private final String region;
+                    private final String note;
 
-                    public Customer(long id, String region) {
+                    public Customer(long id, String region, String note) {
                         this.id = id;
                         this.region = region;
+                        this.note = note;
                     }
 
                     @SearchId public long getId() { return id; }
                     @SearchIndex(IndexType.PREFIX)
                     public String getRegion() { return region; }
+                    @SearchField public String getNote() { return note; }
                     public int ignored() { return 1; }
                 }
                 """;
@@ -186,6 +191,8 @@ class SearchFieldsProcessorTest {
                 "fixture/CustomerSearchFields.java"));
         assertTrue(generated.contains("Customer::getId"));
         assertTrue(generated.contains("Customer::getRegion"));
+        assertTrue(generated.contains("Customer::getNote"));
+        assertTrue(generated.contains(" NOTE ="));
         assertFalse(generated.contains("IGNORED"));
 
         String nestedSource = """
