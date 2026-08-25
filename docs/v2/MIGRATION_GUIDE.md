@@ -32,6 +32,29 @@ change which documents match.
   `annotationProcessorPaths` to generate typed `*SearchFields` companions. Runtime
   reflection generation remains supported.
 
+## Configuration-builder polish on the development line
+
+`SearchEngine.builder(existingSchema)` can now extend a copied configuration with new
+fields and analyzed-text definitions while leaving `existingSchema` immutable. In
+particular, a generated schema can be combined directly with a text index:
+
+```java
+TextField<Article> body = TextField.of(
+        ArticleSearchFields.BODY,
+        Analyzer.simple());
+
+SearchEngine.builder(ArticleSearchFields.SCHEMA)
+        .indexes(ArticleSearchFields.INDEX_DEFINITIONS)
+        .index(IndexDefinition.text(body))
+        .build();
+```
+
+Adding the text index registers `body` in the engine's extended schema. Existing code
+that does not extend its schema continues to receive the original schema instance from
+`engine.schema()`. Canonical identity is still enforced: reuse fields from the supplied
+schema or generated companion rather than constructing a second field with the same
+name.
+
 Exact analyzed-text, ranking, and bulk contracts are documented in
 [`phases/p4/TEXT_SEMANTICS.md`](phases/p4/TEXT_SEMANTICS.md),
 [`phases/p5/RANKING_SEMANTICS.md`](phases/p5/RANKING_SEMANTICS.md), and

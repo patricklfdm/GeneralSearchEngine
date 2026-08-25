@@ -42,6 +42,7 @@ import io.github.patricklfdm.generalsearch.ranking.RankedSearcher;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
@@ -506,7 +507,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 definition.field(),
                 "index field"
         );
-        Field<T, ?> schemaField = schema.requireField(requestedField.name());
+        Field<T, ?> schemaField = schema.field(requestedField.name())
+                .orElseThrow(() -> unregisteredIndexField(requestedField.name()));
         if (schemaField != requestedField) {
             throw new IllegalArgumentException(
                     "dynamic indexes require the canonical schema field: "
@@ -616,7 +618,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         for (IndexDefinition<T> definition : definitions) {
             IndexDefinition<T> checked = Objects.requireNonNull(definition, "definition");
             Field<T, ?> field = Objects.requireNonNull(checked.field(), "index field");
-            if (schema.requireField(field.name()) != field) {
+            Field<T, ?> canonical = schema.field(field.name())
+                    .orElseThrow(() -> unregisteredIndexField(field.name()));
+            if (canonical != field) {
                 throw new IllegalArgumentException(
                         "indexes require canonical schema fields: " + field.name());
             }
@@ -625,13 +629,29 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     }
 
     private void validateTextIndexDefinition(IndexDefinition<T> definition) {
-        if (definition instanceof TextIndexDefinition<T> text
-                && schema.requireTextField(text.textField().name())
-                != text.textField()) {
-            throw new IllegalArgumentException(
-                    "text indexes require canonical schema text fields: "
-                            + text.textField().name());
+        if (definition instanceof TextIndexDefinition<T> text) {
+            TextField<T> canonical = schema.textField(text.textField().name())
+                    .orElseThrow(() -> new IllegalArgumentException(
+                            "Text field '" + text.textField().name()
+                                    + "' is not registered in this engine schema. "
+                                    + "Register it with SearchEngine.builder(...)."
+                                    + "textField(...), or add its text index while "
+                                    + "building the engine."));
+            if (canonical != text.textField()) {
+                throw new IllegalArgumentException(
+                        "Text index for '" + text.textField().name()
+                                + "' must reuse the canonical TextField from the "
+                                + "engine schema.");
+            }
         }
+    }
+
+    private IllegalArgumentException unregisteredIndexField(String fieldName) {
+        return new IllegalArgumentException(
+                "Field '" + fieldName + "' is not registered in this engine schema. "
+                        + "Add it with SearchEngine.builder(...).field(...) before "
+                        + "building the engine, or use the complete schema from the "
+                        + "generated *SearchFields class.");
     }
 
     private void processInstallIndex(InstallIndexTask<K, T> task) {

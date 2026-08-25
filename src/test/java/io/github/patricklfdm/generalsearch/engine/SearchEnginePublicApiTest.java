@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentAlreadyExistsException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundException;
 import io.github.patricklfdm.generalsearch.engine.exception.EngineRejectedExecutionException;
@@ -25,6 +27,8 @@ import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
 import io.github.patricklfdm.generalsearch.query.RangePlanningMode;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
@@ -152,6 +156,38 @@ class SearchEnginePublicApiTest {
         } finally {
             extractor.releaseWriter();
             engine.close();
+        }
+    }
+
+    @Test
+    void configurationFailuresExplainCanonicalAndRegistrationFixes() {
+        SearchSchema<Item, Long> schema = SearchSchema.builder(Item.class, ID)
+                .field(WAREHOUSE)
+                .field(NOTE)
+                .build();
+        Field<Item, String> competingWarehouse =
+                Field.of("warehouse", String.class, Item::warehouse);
+
+        IllegalArgumentException competing = assertThrows(
+                IllegalArgumentException.class,
+                () -> SearchEngine.builder(schema).field(competingWarehouse));
+        assertTrue(competing.getMessage().contains("Reuse the canonical field"));
+
+        TextField<Item> text = TextField.of(NOTE, Analyzer.simple());
+        IllegalArgumentException missingText = assertThrows(
+                IllegalArgumentException.class,
+                () -> new SnapshotSearchEngine<>(
+                        schema,
+                        List.of(IndexDefinition.text(text))));
+        assertTrue(missingText.getMessage().contains(
+                "Register it with SearchEngine.builder(...).textField(...)"));
+
+        try (SearchEngine<Long, Item> engine = SearchEngine.builder(schema).build()) {
+            IllegalArgumentException missingField = assertCause(
+                    IllegalArgumentException.class,
+                    () -> engine.createIndex(IndexDefinition.range(QUANTITY)).join());
+            assertTrue(missingField.getMessage().contains(
+                    "use the complete schema from the generated *SearchFields class"));
         }
     }
 

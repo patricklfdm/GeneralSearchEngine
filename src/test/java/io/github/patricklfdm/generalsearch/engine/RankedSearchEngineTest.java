@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.engine;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -12,6 +13,7 @@ import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.ranking.TextScoringQuery;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import org.junit.jupiter.api.Test;
 
@@ -83,9 +85,74 @@ class RankedSearchEngineTest {
         }
     }
 
-    private static List<Article> documents(List<SearchHit<Article>> hits) {
+    @Test
+    void existingSchemaCanAddTextAndLaterIndexAnUnindexedField() {
+        Field<TravelPlace, Long> id = Field.of("id", Long.class, TravelPlace::id);
+        Field<TravelPlace, String> city =
+                Field.of("city", String.class, TravelPlace::city);
+        Field<TravelPlace, Double> price =
+                Field.of("price", Double.class, TravelPlace::price);
+        Field<TravelPlace, Double> rating =
+                Field.of("rating", Double.class, TravelPlace::rating);
+        Field<TravelPlace, String> description =
+                Field.of("description", String.class, TravelPlace::description);
+        SearchSchema<TravelPlace, Long> generatedStyleSchema =
+                SearchSchema.builder(TravelPlace.class, id)
+                        .field(city)
+                        .field(price)
+                        .field(rating)
+                        .field(description)
+                        .build();
+        TextField<TravelPlace> text = TextField.of(description, Analyzer.simple());
+
+        TravelPlace first = new TravelPlace(
+                1, "Paris", 120.0, 4.9, "museum museum museum");
+        TravelPlace second = new TravelPlace(
+                2, "Paris", 90.0, 4.4, "museum guide");
+        TravelPlace third = new TravelPlace(
+                3, "Rome", 80.0, 4.8, "museum museum");
+
+        try (SearchEngine<Long, TravelPlace> engine =
+                     SearchEngine.builder(generatedStyleSchema)
+                             .indexes(List.of(
+                                     IndexDefinition.equality(city),
+                                     IndexDefinition.range(price)))
+                             .index(IndexDefinition.text(text))
+                             .build()) {
+            assertTrue(generatedStyleSchema.textFields().isEmpty());
+            assertSame(text, engine.schema().requireTextField("description"));
+            engine.addAll(List.of(first, second, third)).join();
+
+            assertEquals(List.of(first, second), engine.search(Query.and(
+                    Query.eq(city, "Paris"),
+                    Query.between(price, 80.0, 130.0),
+                    Query.term(text, "museum"))));
+
+            List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
+                    RankedSearchRequest.filtered(
+                            TextScoringQuery.of(text, "museum"),
+                            Query.eq(city, "Paris"),
+                            10));
+            assertEquals(List.of(first, second), documents(ranked));
+
+            engine.createIndex(IndexDefinition.range(rating)).join();
+            assertEquals(List.of(first, third), engine.search(
+                    Query.between(rating, 4.7, 5.0)));
+            assertEquals(4, engine.metrics().registeredIndexCount());
+        }
+    }
+
+    private static <T> List<T> documents(List<SearchHit<T>> hits) {
         return hits.stream().map(SearchHit::document).toList();
     }
 
     private record Article(long id, String body, String category) {}
+
+    private record TravelPlace(
+            long id,
+            String city,
+            double price,
+            double rating,
+            String description
+    ) {}
 }

@@ -3,6 +3,23 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## Unreleased
+
+### Added
+
+- External travel-domain consumer coverage for generated structured fields, analyzed
+  text, filtered BM25, atomic bulk mutation, and a dynamic Range index.
+- Clear generated-source comments and README guidance for annotation processing,
+  generated-source locations, and deterministic nested-type naming.
+
+### Changed
+
+- `SearchEngine.builder(existingSchema)` can safely extend a copied configuration.
+  Adding `IndexDefinition.text(textField)` automatically registers the text field
+  without mutating the supplied schema or requiring manual schema reconstruction.
+- Configuration failures now explain how to reuse canonical generated fields or
+  register analyzed-text definitions.
+
 ## 2.0.0 — 2026-08-25
 
 ### Added

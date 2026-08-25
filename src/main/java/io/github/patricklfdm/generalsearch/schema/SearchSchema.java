@@ -92,7 +92,11 @@ public final class SearchSchema<T, K> {
     /** Returns the canonical text configuration or rejects an unconfigured field. */
     public TextField<T> requireTextField(String name) {
         return textField(name).orElseThrow(
-                () -> new IllegalArgumentException("unknown text field: " + name));
+                () -> new IllegalArgumentException(
+                        "Text field '" + name + "' is not registered in this schema. "
+                                + "Register the TextField before adding its text index, "
+                                + "or add IndexDefinition.text(...) while building "
+                                + "the engine."));
     }
 
     public static final class Builder<T, K> {
@@ -132,7 +136,9 @@ public final class SearchSchema<T, K> {
             Field<T, ?> existing = fields.putIfAbsent(field.name(), field);
             if (existing != null && existing != field) {
                 throw new IllegalArgumentException(
-                        "duplicate field name: " + field.name());
+                        "Field '" + field.name() + "' is already registered with a "
+                                + "different Field instance. Reuse the canonical field "
+                                + "from the schema or generated *SearchFields class.");
             }
         }
     }

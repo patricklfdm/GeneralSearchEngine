@@ -64,3 +64,15 @@ mvn -f compatibility/pom.xml -Dgse.version=2.0.0 clean test
 Behavioral compatibility remains guarded separately by the v1 semantics and the
 randomized/differential suites. Artifact compatibility alone cannot prove query truth,
 ordering, publication, or concurrency behavior.
+
+## Development-line configuration behavior
+
+The configuration polish after the frozen 2.0.0 release changes no public method or
+descriptor. `SearchEngine.builder(schema)` now supports additive field and `TextField`
+registration by creating a new immutable schema only when the configuration is
+extended. An unextended builder preserves the supplied schema instance, including the
+identity behavior covered by the frozen v1 compatibility fixture.
+
+Canonical-field validation remains intact. Existing v1-style builders, third-party
+`SearchEngine` implementations, query truth, snapshot publication, mutation behavior,
+and ranked retrieval are unaffected.

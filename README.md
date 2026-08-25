@@ -134,7 +134,38 @@ is domain-independent, storage and query components operate on any document type
 and indexes advertise their own query capabilities. Product's canonical fields and
 default indexes are generated once from its annotations at startup.
 
-## Basic usage
+## Quick start: annotated structured search
+
+The shortest path uses runtime annotation discovery and does not require the optional
+annotation processor. Put searchable models in their own top-level source files so the
+type remains easy to reuse as the application grows:
+
+```java
+public record TravelPlace(
+        @SearchId long id,
+        @SearchIndex(IndexType.EQUALITY) String city,
+        @SearchIndex(IndexType.RANGE) double price,
+        double rating,
+        String description
+) {}
+```
+
+```java
+try (SearchEngine<Long, TravelPlace> engine =
+        SearchEngine.fromAnnotatedClass(TravelPlace.class, Long.class)) {
+    Field<TravelPlace, String> city =
+            engine.schema().requireField("city", String.class);
+    engine.add(new TravelPlace(
+            1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
+
+    List<TravelPlace> results = engine.search(Query.eq(city, "Paris"));
+}
+```
+
+Use `SearchEngine.annotatedBuilder(...)` when queue or planner configuration must be
+customized before `build()`. The generated-field workflow described below is optional.
+
+## Product convenience API
 
 ```java
 import java.util.List;
@@ -218,11 +249,11 @@ try (SearchEngine<Long, Item> engine = SearchEngine.builder(Item.class, id)
 }
 ```
 
-`index(...)` automatically registers its canonical field when the builder is assembling
-a manual schema. Use `field(...)` for unindexed fields. An already assembled schema can
-instead be supplied through `SearchEngine.builder(schema)`. Both builders accept
-`config(SnapshotEngineConfig)`, `plannerConfig(PlannerConfig)`, and multiple
-`indexes(...)`.
+`index(...)` automatically registers its canonical field. Use `field(...)` for
+unindexed fields. `SearchEngine.builder(schema)` safely copies and extends the
+configuration when a new field or `TextField` is added; the supplied immutable schema
+is never mutated. Both builder forms accept `config(SnapshotEngineConfig)`,
+`plannerConfig(PlannerConfig)`, and multiple `indexes(...)`.
 
 `engine.schema()` returns the immutable canonical schema. Fields retrieved from this
 schema should be used for queries and runtime indexes, especially with annotation-
@@ -292,7 +323,7 @@ queries return no hits. See the frozen
 [BM25 ranking semantics](docs/v2/phases/p5/RANKING_SEMANTICS.md) for the exact formula, metadata,
 filter, lifecycle, and compatibility contract.
 
-## Annotation-generated configuration
+## Runtime annotation configuration
 
 `SearchEngine.fromAnnotatedClass` is the short factory for annotated documents.
 Reflection is limited to member discovery and startup validation; member extractors
@@ -328,14 +359,100 @@ Exactly one ID is required. Duplicate logical field names, an ID type mismatch, 
 annotated members, invalid getters and incompatible index types fail during generation.
 `EQUALITY`, `RANGE` and `PREFIX` are available.
 
-P6 adds an optional compile-time alternative in the separate
-`io.github.patricklfdm:general-search-engine-processor` artifact. Opting in through
-Maven's `annotationProcessorPaths` generates a same-package `ItemSearchFields`
-companion containing typed field constants, one canonical `SCHEMA`, and matching
-`INDEX_DEFINITIONS`. The runtime reflection APIs above remain supported, and the core
-JAR does not auto-discover the processor. Supported visibility, nesting, primitive
-boxing, naming, collision, and fallback rules are frozen in the
+## Generated fields (optional)
+
+Add the separate processor only when compile-time typed field constants are useful:
+
+```xml
+<plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>3.15.0</version>
+    <configuration>
+        <annotationProcessorPaths>
+            <path>
+                <groupId>io.github.patricklfdm</groupId>
+                <artifactId>general-search-engine-processor</artifactId>
+                <version>2.0.0</version>
+            </path>
+        </annotationProcessorPaths>
+    </configuration>
+</plugin>
+```
+
+During `mvn compile`, javac transforms:
+
+```text
+TravelPlace.java
+→ target/generated-sources/annotations/TravelPlaceSearchFields.java
+```
+
+The generated companion is marked as generated and says not to edit it manually. It
+contains `ID`, `CITY`, `PRICE`, `RATING`, and `DESCRIPTION`, plus a canonical `SCHEMA`
+containing every record component and `INDEX_DEFINITIONS` containing only the indexes
+requested by annotations. An IDE can briefly show `Cannot resolve symbol` before the
+first annotation-processing build; run `mvn compile` and make sure annotation
+processing is enabled in the IDE.
+
+Top-level model types produce the predictable name `TravelPlaceSearchFields`. Nested
+types join enclosing simple names with `_`: `TravelDemo.TravelPlace` produces
+`TravelDemo_TravelPlaceSearchFields`. The runtime reflection quick start remains
+available when generated sources are undesirable. Supported visibility, primitive
+boxing, collision, and fallback rules are frozen in the
 [P6 developer-experience contract](docs/v2/phases/p6/DEVELOPER_EXPERIENCE.md).
+
+## Text and BM25 with generated fields
+
+A normal generated schema can be extended directly with analyzed text. `Field` owns
+value extraction; `TextField` adds the analyzer that defines token semantics. Adding
+the text index registers that `TextField` in the engine schema automatically:
+
+```java
+TextField<TravelPlace> description = TextField.of(
+        TravelPlaceSearchFields.DESCRIPTION,
+        Analyzer.simple());
+
+try (SearchEngine<Long, TravelPlace> engine =
+        SearchEngine.builder(TravelPlaceSearchFields.SCHEMA)
+                .indexes(TravelPlaceSearchFields.INDEX_DEFINITIONS)
+                .index(IndexDefinition.text(description))
+                .build()) {
+    TravelPlace museum = new TravelPlace(
+            1L, "Paris", 120.0, 4.9, "museum museum riverside");
+    TravelPlace guide = new TravelPlace(
+            2L, "Paris", 90.0, 4.4, "museum city guide");
+    engine.addAll(List.of(museum, guide)).join();
+
+    List<TravelPlace> structuredAndText = engine.search(Query.and(
+            Query.eq(TravelPlaceSearchFields.CITY, "Paris"),
+            Query.between(TravelPlaceSearchFields.PRICE, 80.0, 130.0),
+            Query.term(description, "museum")));
+
+    List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
+            RankedSearchRequest.filtered(
+                    TextScoringQuery.of(description, "museum"),
+                    Query.eq(TravelPlaceSearchFields.CITY, "Paris"),
+                    10));
+}
+```
+
+The same `description` instance is used for the text index, boolean text queries, and
+BM25 requests. No manual schema reconstruction or separate `.textField(...)` call is
+needed.
+
+## Dynamic index on a generated field
+
+Generated record schemas include fields that do not have startup indexes. `RATING` can
+therefore receive an index later without being manually registered during engine
+construction:
+
+```java
+engine.createIndex(IndexDefinition.range(
+        TravelPlaceSearchFields.RATING)).join();
+
+List<TravelPlace> highlyRated = engine.search(Query.between(
+        TravelPlaceSearchFields.RATING, 4.7, 5.0));
+```
 
 ## Failure contract
 

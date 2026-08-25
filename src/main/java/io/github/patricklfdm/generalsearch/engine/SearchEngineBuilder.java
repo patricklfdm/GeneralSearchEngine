@@ -18,25 +18,27 @@ import io.github.patricklfdm.generalsearch.schema.TextField;
  *
  * <p>A builder created from a document type assembles its schema and automatically
  * registers fields referenced by startup indexes. A builder created from an existing
- * schema requires every index to use that schema's canonical field instance.</p>
+ * schema preserves its canonical instances and can safely extend a copy with additional
+ * fields or analyzed-text configuration.</p>
  *
  * @param <K> business ID type
  * @param <T> document type
  */
 public final class SearchEngineBuilder<K, T> {
-    private final SearchSchema<T, K> fixedSchema;
+    private final SearchSchema<T, K> baseSchema;
     private final SearchSchema.Builder<T, K> schemaBuilder;
     private final List<IndexDefinition<T>> indexDefinitions = new ArrayList<>();
     private SnapshotEngineConfig config = SnapshotEngineConfig.DEFAULT;
     private PlannerConfig plannerConfig = PlannerConfig.DEFAULT;
+    private boolean schemaExtended;
 
     SearchEngineBuilder(SearchSchema<T, K> schema) {
-        fixedSchema = Objects.requireNonNull(schema, "schema");
-        schemaBuilder = null;
+        baseSchema = Objects.requireNonNull(schema, "schema");
+        schemaBuilder = copySchema(baseSchema);
     }
 
     SearchEngineBuilder(Class<T> documentType, Field<T, K> idField) {
-        fixedSchema = null;
+        baseSchema = null;
         schemaBuilder = SearchSchema.builder(documentType, idField);
     }
 
@@ -50,23 +52,18 @@ public final class SearchEngineBuilder<K, T> {
                 .indexes(generated.indexDefinitions());
     }
 
-    /** Adds a field when building the schema manually. */
+    /** Adds a field to the engine schema without mutating a supplied existing schema. */
     public <V> SearchEngineBuilder<K, T> field(Field<T, V> field) {
-        if (schemaBuilder == null) {
-            throw new IllegalStateException(
-                    "fields cannot be added to an existing SearchSchema");
-        }
-        schemaBuilder.field(Objects.requireNonNull(field, "field"));
+        registerIndexField(Objects.requireNonNull(field, "field"));
         return this;
     }
 
-    /** Registers a canonical analyzed-text configuration when assembling a schema. */
+    /**
+     * Registers a canonical analyzed-text configuration in the engine schema.
+     * Existing schemas are copied and extended; the supplied schema remains immutable.
+     */
     public SearchEngineBuilder<K, T> textField(TextField<T> textField) {
-        if (schemaBuilder == null) {
-            throw new IllegalStateException(
-                    "text fields cannot be added to an existing SearchSchema");
-        }
-        schemaBuilder.textField(Objects.requireNonNull(textField, "textField"));
+        registerTextIndexField(Objects.requireNonNull(textField, "textField"));
         return this;
     }
 
@@ -103,9 +100,9 @@ public final class SearchEngineBuilder<K, T> {
 
     /** Builds and starts a new engine instance owned by the caller. */
     public SearchEngine<K, T> build() {
-        SearchSchema<T, K> schema = fixedSchema == null
-                ? schemaBuilder.build()
-                : fixedSchema;
+        SearchSchema<T, K> schema = baseSchema != null && !schemaExtended
+                ? baseSchema
+                : schemaBuilder.build();
         return new SnapshotSearchEngine<>(
                 config,
                 plannerConfig,
@@ -116,27 +113,33 @@ public final class SearchEngineBuilder<K, T> {
 
     private void registerIndexField(Field<T, ?> field) {
         Objects.requireNonNull(field, "index field");
-        if (schemaBuilder != null) {
-            schemaBuilder.field(field);
-            return;
-        }
-        Field<T, ?> canonical = fixedSchema.requireField(field.name());
-        if (canonical != field) {
-            throw new IllegalArgumentException(
-                    "indexes require canonical schema fields: " + field.name());
+        schemaBuilder.field(field);
+        if (baseSchema == null || baseSchema.field(field.name()).orElse(null) != field) {
+            schemaExtended = true;
         }
     }
 
     private void registerTextIndexField(TextField<T> textField) {
-        Objects.requireNonNull(textField, "textField");
-        if (schemaBuilder != null) {
-            schemaBuilder.textField(textField);
-            return;
+        schemaBuilder.textField(Objects.requireNonNull(textField, "textField"));
+        if (baseSchema == null
+                || baseSchema.textField(textField.name()).orElse(null) != textField) {
+            schemaExtended = true;
         }
-        if (fixedSchema.requireTextField(textField.name()) != textField) {
-            throw new IllegalArgumentException(
-                    "text indexes require canonical schema text fields: "
-                            + textField.name());
+    }
+
+    private static <K, T> SearchSchema.Builder<T, K> copySchema(
+            SearchSchema<T, K> schema
+    ) {
+        SearchSchema.Builder<T, K> copy = SearchSchema.builder(
+                schema.documentType(),
+                schema.idField()
+        );
+        for (Field<T, ?> field : schema.fields().values()) {
+            copy.field(field);
         }
+        for (TextField<T> textField : schema.textFields().values()) {
+            copy.textField(textField);
+        }
+        return copy;
     }
 }
