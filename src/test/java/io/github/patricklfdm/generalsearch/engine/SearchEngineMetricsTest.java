@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -21,6 +22,29 @@ import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import org.junit.jupiter.api.Test;
 
 class SearchEngineMetricsTest {
+    @Test
+    void mutationMetricsArePublishedBeforeCompletionCallbacksRun() {
+        Field<Item, Long> id = Field.of("id", Long.class, Item::id);
+        SearchSchema<Item, Long> schema = SearchSchema.builder(Item.class, id)
+                .build();
+        SnapshotEngineConfig config =
+                new SnapshotEngineConfig(100, 3, Duration.ofSeconds(30));
+
+        try (SnapshotSearchEngine<Long, Item> engine =
+                     new SnapshotSearchEngine<>(config, schema, List.of())) {
+            CompletableFuture<Void> first = engine.add(new Item(1, 10));
+            CompletableFuture<Void> duplicate = engine.add(new Item(1, 20));
+            CompletableFuture<Long> observedFailureCount = duplicate.handle(
+                    (ignored, failure) -> engine.metrics().failedMutations());
+            CompletableFuture<Void> third = engine.add(new Item(2, 30));
+
+            first.join();
+            third.join();
+            assertThrows(CompletionException.class, duplicate::join);
+            assertEquals(1, observedFailureCount.join());
+        }
+    }
+
     @Test
     void productFacadeReportsDocumentsIndexesAndMutationOutcomes() {
         try (SnapshotUpdateEngine engine = new SnapshotUpdateEngine()) {

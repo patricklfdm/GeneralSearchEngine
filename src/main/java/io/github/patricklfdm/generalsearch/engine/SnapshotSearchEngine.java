@@ -243,15 +243,15 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private CompletableFuture<Void> submit(WriterTask<K, T> task) {
         synchronized (lifecycleMonitor) {
             if (!accepting) {
+                recordRejectedMutation(task);
                 task.completion().completeExceptionally(
                         new EngineRejectedExecutionException(
                                 EngineRejectedExecutionException.Reason.CLOSED));
-                recordRejectedMutation(task);
             } else if (!queue.offer(task)) {
+                recordRejectedMutation(task);
                 task.completion().completeExceptionally(
                         new EngineRejectedExecutionException(
                                 EngineRejectedExecutionException.Reason.QUEUE_FULL));
-                recordRejectedMutation(task);
             }
         }
         return task.completion();
@@ -380,6 +380,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private void processBatch(List<MutationTask<K, T>> batch) {
         BatchState state = new BatchState(current.get());
         List<MutationTask<K, T>> successful = new ArrayList<>(batch.size());
+        List<FailedMutation<K, T>> failed = new ArrayList<>(batch.size());
         List<IndexChange<T>> changes = new ArrayList<>(batch.size());
         for (MutationTask<K, T> task : batch) {
             try {
@@ -389,12 +390,14 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     changes.add(change);
                 }
             } catch (RuntimeException failure) {
-                task.completion().completeExceptionally(failure);
+                failed.add(new FailedMutation<>(task, failure));
                 failedMutations++;
             }
         }
         if (successful.isEmpty()) {
             publishWriterMetrics();
+            failed.forEach(item -> item.task().completion()
+                    .completeExceptionally(item.failure()));
             return;
         }
 
@@ -407,6 +410,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         current.set(published);
         successfulMutations += successful.size();
         publishWriterMetrics();
+        failed.forEach(item -> item.task().completion()
+                .completeExceptionally(item.failure()));
         successful.forEach(task -> task.completion().complete(null));
     }
 
@@ -946,6 +951,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             Objects.requireNonNull(completion, "completion");
         }
     }
+
+    private record FailedMutation<K, T>(
+            MutationTask<K, T> task,
+            RuntimeException failure
+    ) {}
 
     private record BulkMutationTask<K, T>(
             List<SearchMutation<K, T>> mutations,

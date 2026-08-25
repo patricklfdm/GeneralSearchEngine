@@ -11,7 +11,7 @@
     <name>GeneralSearchEngine</name>
     <description>
         A generic Java 21 in-memory object search engine with immutable snapshots,
-        type-safe queries, and dynamically managed indexes.
+        cost-aware typed queries, deterministic full-text analysis, and BM25 ranking.
     </description>
     <url>https://github.com/patricklfdm/GeneralSearchEngine</url>
     <inceptionYear>2026</inceptionYear>
@@ -53,6 +53,7 @@
         <central.publishing.maven.plugin.version>0.11.0</central.publishing.maven.plugin.version>
         <junit.version>5.11.4</junit.version>
         <jmh.version>1.37</jmh.version>
+        <japicmp.maven.plugin.version>0.24.2</japicmp.maven.plugin.version>
         <maven.clean.plugin.version>3.5.0</maven.clean.plugin.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.deploy.plugin.version>3.1.4</maven.deploy.plugin.version>
@@ -220,6 +221,49 @@
                             <autoPublish>false</autoPublish>
                             <waitUntil>validated</waitUntil>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>artifact-compat</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.siom79.japicmp</groupId>
+                        <artifactId>japicmp-maven-plugin</artifactId>
+                        <version>${japicmp.maven.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>compare-published-v1-api</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>cmp</goal>
+                                </goals>
+                                <configuration>
+                                    <oldVersion>
+                                        <dependency>
+                                            <groupId>io.github.patricklfdm</groupId>
+                                            <artifactId>general-search-engine</artifactId>
+                                            <version>1.0.0</version>
+                                            <type>jar</type>
+                                        </dependency>
+                                    </oldVersion>
+                                    <newVersion>
+                                        <file>
+                                            <path>${project.build.directory}/${project.build.finalName}.jar</path>
+                                        </file>
+                                    </newVersion>
+                                    <parameter>
+                                        <accessModifier>public</accessModifier>
+                                        <onlyModified>true</onlyModified>
+                                        <includeSynthetic>false</includeSynthetic>
+                                        <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                                        <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+                                    </parameter>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

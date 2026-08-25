@@ -12,6 +12,10 @@
     <name>GeneralSearchEngine reactor</name>
     <description>Local reactor for the runtime core and optional field processor.</description>
 
+    <properties>
+        <maven.deploy.skip>true</maven.deploy.skip>
+    </properties>
+
     <modules>
         <module>../pom.xml</module>
         <module>../general-search-engine-processor/pom.xml</module>

@@ -175,6 +175,42 @@ class TextSearchEngineTest {
         }
     }
 
+    @Test
+    void failedAnalyzerMutationPublishesNeitherDocumentNorRankingMetadata() {
+        Analyzer analyzer = text -> {
+            if (text != null && text.contains("explode")) {
+                throw new IllegalStateException("synthetic analyzer failure");
+            }
+            return Analyzer.simple().analyze(text);
+        };
+        TextField<Article> text = TextField.of(BODY, analyzer);
+        SearchSchema<Article, Long> schema = SearchSchema.builder(Article.class, ID)
+                .field(CATEGORY)
+                .textField(text)
+                .build();
+        Article original = new Article(1, "stable java", "guide");
+
+        try (SnapshotSearchEngine<Long, Article> engine =
+                     new SnapshotSearchEngine<>(
+                             schema, List.of(IndexDefinition.text(text)))) {
+            engine.add(original).join();
+            long version = engine.metrics().snapshotVersion();
+
+            assertThrows(CompletionException.class,
+                    () -> engine.update(
+                            new Article(1, "explode update", "news")).join());
+            assertThrows(CompletionException.class,
+                    () -> engine.add(
+                            new Article(2, "explode add", "guide")).join());
+
+            assertEquals(version, engine.metrics().snapshotVersion());
+            assertEquals(original, engine.get(1L));
+            assertEquals(null, engine.get(2L));
+            assertEquals(Set.of(1L), ids(engine.search(Query.term(text, "stable"))));
+            assertTrue(engine.search(Query.term(text, "update")).isEmpty());
+        }
+    }
+
     @SafeVarargs
     private static void add(SearchEngine<Long, Article> engine, Article... articles) {
         for (Article article : articles) {
