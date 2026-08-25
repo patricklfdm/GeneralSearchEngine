@@ -1,0 +1,185 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
+
+jobs:
+  validate:
+    name: Validate release tag
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out the exact tag
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Verify tag, signature, changelog, and versions
+        run: scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+
+      - name: Test the reactor
+        run: ./mvnw -f reactor/pom.xml clean test
+
+      - name: Run the frozen source and reflection fixture
+        run: ./mvnw clean -Papi-compat test
+
+      - name: Compare both published API baselines
+        run: |
+          compat_repo=$(mktemp -d "$RUNNER_TEMP/gse-compat-m2.XXXXXX")
+          ./mvnw -Dmaven.repo.local="$compat_repo" clean -Partifact-compat verify
+
+      - name: Compile independent consumers
+        run: scripts/verify-consumer-projects.sh
+
+      - name: Run the travel example
+        run: scripts/run-travel-example.sh
+
+      - name: Verify release packaging without private keys
+        run: ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
+
+      - name: Inspect release artifact contents
+        run: scripts/verify-release-artifacts.sh
+
+      - name: Verify reproducible artifacts
+        run: scripts/verify-reproducible-build.sh
+
+  publication-preflight:
+    name: Reject an existing Central version
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Maven Central immutability
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version=${RELEASE_TAG#v}
+          for artifact in general-search-engine general-search-engine-processor; do
+            url="https://repo1.maven.org/maven2/io/github/patricklfdm/$artifact/$version/$artifact-$version.pom"
+            status=$(curl --silent --show-error --location --output /dev/null --write-out '%{http_code}' "$url")
+            case "$status" in
+              404) ;;
+              200)
+                echo "::error::$artifact:$version is already published; never redeploy an immutable Central version"
+                exit 1
+                ;;
+              *)
+                echo "::error::Maven Central preflight returned HTTP $status for $url"
+                exit 1
+                ;;
+            esac
+          done
+
+  publish:
+    name: Publish approved release
+    needs:
+      - validate
+      - publication-preflight
+    environment: production-release
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out the exact tag
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java and Central credentials
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          server-id: central
+          server-username: CENTRAL_USERNAME
+          server-password: CENTRAL_PASSWORD
+
+      - name: Import the ephemeral release key
+        env:
+          GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
+        run: printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
+
+      - name: Reconfirm the approved tag
+        run: scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+
+      - name: Build, sign, and inspect release artifacts
+        env:
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.useagent=false verify
+          scripts/verify-release-artifacts.sh --require-signatures
+
+      - name: Publish both artifacts to Maven Central
+        env:
+          CENTRAL_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+        run: |
+          ./mvnw -f reactor/pom.xml -Prelease -DskipTests -Dgpg.useagent=false deploy \
+            -Dcentral.autoPublish=true \
+            -Dcentral.waitUntil=published
+
+      - name: Verify clean Maven Central resolution
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version=${RELEASE_TAG#v}
+          verify_repo=$(mktemp -d "$RUNNER_TEMP/gse-central-m2.XXXXXX")
+          ./mvnw -Dmaven.repo.local="$verify_repo" \
+            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:get \
+            -Dartifact="io.github.patricklfdm:general-search-engine:$version" \
+            -Dtransitive=false
+          ./mvnw -Dmaven.repo.local="$verify_repo" \
+            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:get \
+            -Dartifact="io.github.patricklfdm:general-search-engine-processor:$version" \
+            -Dtransitive=false
+
+      - name: Prepare GitHub release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version=${RELEASE_TAG#v}
+          {
+            echo "## Maven Central"
+            echo
+            echo "- [io.github.patricklfdm:general-search-engine:$version](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/$version)"
+            echo "- [io.github.patricklfdm:general-search-engine-processor:$version](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/$version)"
+            echo
+            echo "## Changes"
+            scripts/extract-release-notes.sh "$version"
+            echo
+            echo "[Full changelog](https://github.com/${GITHUB_REPOSITORY}/blob/${RELEASE_TAG}/CHANGELOG.md)"
+          } > "$RUNNER_TEMP/release-notes.md"
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          version=${RELEASE_TAG#v}
+          gh release create "$RELEASE_TAG" \
+            --verify-tag \
+            --latest \
+            --title "GeneralSearchEngine $version" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"

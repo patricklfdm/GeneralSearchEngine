@@ -16,7 +16,7 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 ## Requirements
 
 - JDK 21 or newer
-- Maven 3.9 or newer
+- Maven 3.9 or newer, or the included Maven Wrapper
 
 ## Install
 
@@ -117,14 +117,19 @@ The complete runnable version is in the
 ## Build and test
 
 ```bash
-mvn -f reactor/pom.xml clean test
+./mvnw -f reactor/pom.xml clean test
 ```
 
 This compiles the core, optional processor, and runnable examples, and executes their
-tests. Use `mvn clean test` when only the core module is needed. The test suite contains
+tests. Use `./mvnw clean test` when only the core module is needed. The test suite contains
 unit tests for the persistent tree, immutable bitmap, generic storage, query planner
 and engine lifecycle, plus randomized Product and non-Product differential tests
 against full-scan oracles.
+
+Pull requests and `master` pushes run the same correctness, compatibility, consumer,
+release-packaging, and reproducibility gates in GitHub Actions. See the
+[CI/CD and release operations guide](docs/CI_CD.md) for required repository settings,
+tag-based publication, secrets, and recovery procedures.
 
 See the completed v1 [performance baseline](docs/v1/PERFORMANCE_BASELINE.md) for the
 environment- and workload-specific JMH regression results.

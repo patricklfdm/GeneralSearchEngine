@@ -3,6 +3,12 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## Unreleased
+
+### Changed
+
+- Opened the `2.2.0-SNAPSHOT` development line after the 2.1.0 release.
+
 ## 2.1.0 — 2026-08-25
 
 ### Added
