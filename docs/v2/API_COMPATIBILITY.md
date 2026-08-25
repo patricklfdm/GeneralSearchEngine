@@ -18,7 +18,7 @@ remain unsupported implementation surfaces.
 ## Artifact-level gate
 
 The `artifact-compat` profile uses `japicmp-maven-plugin` 0.24.2. It resolves the
-published v1.0.0 JAR, compares it with the packaged v2.0.0 artifact, writes HTML,
+published v1.0.0 JAR, compares it with the currently packaged artifact, writes HTML,
 Markdown, XML, and text reports under `target/japicmp`, and fails on either binary or
 source incompatibility:
 
@@ -40,26 +40,31 @@ constants remain linkable. Reported changes are additive or internal:
 | P6 | `addAll`/`updateAll`/`removeAll`, bulk failure context | additive default interface capability |
 | P6 | separate generated-field processor artifact | opt-in compile-time artifact; absent from core service metadata |
 
-The new `SearchEngine` methods are defaults so already compiled third-party v1 engine
-implementations still link. They throw `UnsupportedOperationException` until that
-implementation explicitly supports ranked retrieval or atomic bulk mutation. The
-built-in snapshot engine overrides them.
+The ranked-retrieval and bulk-mutation `SearchEngine` methods are defaults so already
+compiled third-party v1 engine implementations still link. They throw
+`UnsupportedOperationException` until that implementation explicitly supports the
+capability. The built-in snapshot engine overrides them.
 
 ## Consumer fixtures
 
-Independent Maven projects compile both a v1-style application and a v2-style
-application against locally installed release artifacts. The v2 fixture also runs
-the separate annotation processor and consumes its generated schema and field class:
+Independent Maven projects compile both a v1-style application and a current v2.1-style
+application against locally installed development artifacts. The v2.1 fixture also
+runs the separate annotation processor and consumes its generated schema and field
+class:
 
 ```bash
 bash scripts/verify-consumer-projects.sh
 ```
 
-To verify the published release version explicitly, pass it to the consumer reactor:
+To verify the published 2.0.0 release explicitly, run the stable v1-style consumer:
 
 ```bash
-mvn -f compatibility/pom.xml -Dgse.version=2.0.0 clean test
+mvn -f compatibility/v1-style-consumer/pom.xml \
+    -Dgse.version=2.0.0 clean test
 ```
+
+The current v2.1 consumer intentionally exercises APIs added after 2.0.0 and therefore
+must use the locally installed `2.1.0-SNAPSHOT` artifacts.
 
 Behavioral compatibility remains guarded separately by the v1 semantics and the
 randomized/differential suites. Artifact compatibility alone cannot prove query truth,
@@ -67,11 +72,12 @@ ordering, publication, or concurrency behavior.
 
 ## Development-line configuration behavior
 
-The configuration polish after the frozen 2.0.0 release changes no public method or
-descriptor. `SearchEngine.builder(schema)` now supports additive field and `TextField`
-registration by creating a new immutable schema only when the configuration is
-extended. An unextended builder preserves the supplied schema instance, including the
-identity behavior covered by the frozen v1 compatibility fixture.
+The schema-copy behavior added after the frozen 2.0.0 release changes no existing
+public method or descriptor. `SearchEngine.builder(schema)` now supports additive field
+and `TextField` registration by creating a new immutable schema only when the
+configuration is extended. An unextended builder preserves the supplied schema
+instance, including the identity behavior covered by the frozen v1 compatibility
+fixture.
 
 Canonical-field validation remains intact. Existing v1-style builders, third-party
 `SearchEngine` implementations, query truth, snapshot publication, mutation behavior,

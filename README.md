@@ -1,13 +1,14 @@
 # GeneralSearchEngine
 
-GeneralSearchEngine v2.0.0 is a generic Java 21 in-memory object search engine.
-Product is its reference document type. The engine uses immutable search
-snapshots and persistent, block-based bitmaps so readers can search without
-locking while a single writer batches mutations and atomically publishes new snapshots.
+GeneralSearchEngine is a generic Java 21 in-memory object search engine. Product is its
+reference document type. The engine uses immutable search snapshots and persistent,
+block-based bitmaps so readers can search without locking while a single writer batches
+mutations and atomically publishes new snapshots.
 
 Version 2.0.0 is the current published stable release. Its signed `v2.0.0` tag and both
-Maven artifacts were published on August 25, 2026. The completed v2 work and
-compatibility constraints are recorded in the
+Maven artifacts were published on August 25, 2026. This branch is the
+`2.1.0-SNAPSHOT` development line. The completed v2 work and compatibility constraints
+are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [v2 architecture contracts](docs/v2/phases/p0/ARCHITECTURE.md).
 The complete document map is available in [`docs/README.md`](docs/README.md).
@@ -17,7 +18,9 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 - JDK 21 or newer
 - Maven 3.9 or newer
 
-## Maven coordinates
+## Install
+
+### Stable 2.0.0
 
 The v2.0.0 runtime dependency is:
 
@@ -42,15 +45,90 @@ artifacts are available from Maven Central. Release notes and direct-download ar
 are available from the
 [`v2.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v2.0.0).
 
+The 2.1 convenience APIs documented below are not part of the published 2.0.0 artifact.
+Use the
+[`v2.0.0` README](https://github.com/patricklfdm/GeneralSearchEngine/blob/v2.0.0/README.md)
+for stable-release examples.
+
+### Current 2.1 development API
+
+Install the current core and optional processor into the local Maven repository:
+
+```bash
+mvn -f reactor/pom.xml clean install
+```
+
+Then use the development version in an application:
+
+```xml
+<dependency>
+    <groupId>io.github.patricklfdm</groupId>
+    <artifactId>general-search-engine</artifactId>
+    <version>2.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+## Quick start: annotated search
+
+The shortest 2.1 path uses runtime annotation discovery and does not require the
+optional annotation processor:
+
+```java
+public record TravelPlace(
+        @SearchId long id,
+        @SearchIndex(IndexType.EQUALITY) String city,
+        @SearchIndex(IndexType.RANGE) double price,
+        double rating,
+        String description
+) {}
+```
+
+```java
+try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+        .annotatedBuilder(TravelPlace.class, Long.class)
+        .textIndex("description", Analyzer.simple())
+        .build()) {
+    Field<TravelPlace, String> city = engine.field("city", String.class);
+    TextField<TravelPlace> description = engine.textField("description");
+
+    engine.add(new TravelPlace(
+            1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
+
+    List<TravelPlace> results = engine.search(Query.and(
+            Query.eq(city, "Paris"),
+            Query.term(description, "museum")));
+}
+```
+
+Mutation methods are asynchronous. Calling `join()` waits until a successful mutation
+is visible to subsequent searches.
+
+| Annotation | Meaning |
+|---|---|
+| `@SearchId` | Declares the single business-ID member. |
+| `@SearchIndex` | Adds a member to the schema and creates its startup structured index. |
+| `@SearchField` | Adds an ordinary-class field or getter without a startup index. It is optional on record components. |
+
+Every record component is available through `engine.field(...)`. `textIndex(...)`
+selects the analyzer and creates a startup text index. Use
+`SearchEngine.fromAnnotatedClass(...)` when no builder configuration is needed. The
+generated-field workflow described later is an optional compile-time type-safety
+enhancement.
+
+The complete runnable version is in the
+[`travel-search` example](examples/travel-search/README.md).
+
 ## Build and test
 
 ```bash
-mvn clean test
+mvn -f reactor/pom.xml clean test
 ```
 
-The test suite contains unit tests for the persistent tree, immutable bitmap, generic
-storage, query planner and engine lifecycle, plus randomized Product and non-Product
-differential tests against full-scan oracles.
+This compiles the core, optional processor, and runnable examples, and executes their
+tests. Use `mvn clean test` when only the core module is needed. The test suite contains
+unit tests for the persistent tree, immutable bitmap, generic storage, query planner
+and engine lifecycle, plus randomized Product and non-Product differential tests
+against full-scan oracles.
 
 See the completed v1 [performance baseline](docs/v1/PERFORMANCE_BASELINE.md) for the
 environment- and workload-specific JMH regression results.
@@ -133,45 +211,6 @@ Dependencies flow from the engine toward the lower-level packages. The bitmap pa
 is domain-independent, storage and query components operate on any document type `T`,
 and indexes advertise their own query capabilities. Product's canonical fields and
 default indexes are generated once from its annotations at startup.
-
-## Quick start: annotated search
-
-The shortest path uses runtime annotation discovery and does not require the optional
-annotation processor:
-
-```java
-public record TravelPlace(
-        @SearchId long id,
-        @SearchIndex(IndexType.EQUALITY) String city,
-        @SearchIndex(IndexType.RANGE) double price,
-        double rating,
-        String description
-) {}
-```
-
-```java
-try (SearchEngine<Long, TravelPlace> engine = SearchEngine
-        .annotatedBuilder(TravelPlace.class, Long.class)
-        .textIndex("description", Analyzer.simple())
-        .build()) {
-    Field<TravelPlace, String> city = engine.field("city", String.class);
-    TextField<TravelPlace> description = engine.textField("description");
-
-    engine.add(new TravelPlace(
-            1L, "Paris", 120.0, 4.9, "Museum beside the river")).join();
-
-    List<TravelPlace> results = engine.search(Query.and(
-            Query.eq(city, "Paris"),
-            Query.term(description, "museum")));
-}
-```
-
-Every record component is available through `engine.field(...)`. `@SearchIndex` also
-creates a startup structured index, while `textIndex(...)` selects the analyzer and
-creates a startup text index. For ordinary classes, annotate fields or zero-argument
-getters with `@SearchField` when they should be available without a startup index.
-`SearchEngine.fromAnnotatedClass(...)` remains the shortest option when no builder
-configuration is needed. The generated-field workflow described below is optional.
 
 ## Product convenience API
 
@@ -413,7 +452,7 @@ Add the separate processor only when compile-time typed field constants are usef
             <path>
                 <groupId>io.github.patricklfdm</groupId>
                 <artifactId>general-search-engine-processor</artifactId>
-                <version>2.0.0</version>
+                <version>2.1.0-SNAPSHOT</version>
             </path>
         </annotationProcessorPaths>
     </configuration>
