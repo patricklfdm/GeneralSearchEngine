@@ -11,6 +11,13 @@ position-aware analysis, phrase and fuzzy search, Explain, and a new internal
 planner/plan/executor pipeline. Phase 0 freezes public, semantic, and compatibility
 contracts without implementing the new retrieval engine.
 
+Phase 1 is complete. Its frozen scope adds the
+immutable `AnalyzedToken` model and an additive default
+`Analyzer.analyzeWithPositions(String)` adapter while leaving every existing text,
+index, ranking, and engine call path unchanged. Positional consumption and storage begin
+only in a later phase. The contract and acceptance gates are recorded under
+[`docs/v3/phases/p1/`](docs/v3/phases/p1/).
+
 V3.0 deliberately excludes phrase slop, `minimumShouldMatch`, automatic multi-token
 fuzzy, fuzzy phrase, spell correction, stemming, synonym dictionaries, highlighting,
 offset storage, BM25F, DisMax, custom scoring, WAND, plan caching, prepared queries,

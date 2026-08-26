@@ -2,7 +2,9 @@ package fixture;
 
 import java.util.List;
 import java.util.Optional;
+import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
+import io.github.patricklfdm.generalsearch.analysis.Token;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
@@ -43,6 +45,12 @@ public final class V3StyleConsumer {
 
     public static SearchRequest<TravelPlace> defaultRequest() {
         return SearchRequest.of(SearchQueries.text(DESCRIPTION_TEXT, "museum"));
+    }
+
+    public static List<AnalyzedToken> positionAwareAnalysis() {
+        Analyzer legacy = text -> List.of(new Token(text));
+        List<AnalyzedToken> adapted = legacy.analyzeWithPositions("museum");
+        return List.of(adapted.getFirst(), new AnalyzedToken("gallery", 0));
     }
 
     public static SearchResult<TravelPlace> search(

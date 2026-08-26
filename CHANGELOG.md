@@ -7,6 +7,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- Position-aware analysis through the immutable `AnalyzedToken` record and the
+  backward-compatible default `Analyzer.analyzeWithPositions(String)` adapter, while
+  preserving existing Analyzer lambdas and all legacy text execution paths.
 - V3 Phase 0 request, ranked-query, result, and explanation model contracts under
   `io.github.patricklfdm.generalsearch.search`, plus additive default request-search and
   Explain capabilities on `SearchEngine`.
