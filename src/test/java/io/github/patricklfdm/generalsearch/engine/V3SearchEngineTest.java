@@ -24,6 +24,7 @@ import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
+import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import org.junit.jupiter.api.Test;
 
 class V3SearchEngineTest {
@@ -39,6 +40,13 @@ class V3SearchEngineTest {
         assertTrue(SnapshotSearchEngine.class
                 .getDeclaredMethod("search", SearchRequest.class)
                 .getReturnType() == SearchResult.class);
+        assertTrue(SnapshotSearchEngine.class
+                .getDeclaredMethod(
+                        "explain",
+                        SearchRequest.class,
+                        Object.class
+                )
+                .getReturnType() == java.util.Optional.class);
 
         Article first = new Article(1, "java java");
         Article second = new Article(2, "java search");
