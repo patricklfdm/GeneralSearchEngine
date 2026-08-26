@@ -15,7 +15,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
-| Phase 4 | bool, boost, and cross-field ranked search | Planned |
+| Phase 4 | bool, boost, and cross-field ranked search | Contract frozen |
 | Phase 5 | exact phrase search | Planned |
 | Phase 6 | fuzzy term search | Planned |
 | Phase 7 | Explain execution | Planned |
@@ -127,6 +127,14 @@ the frozen logical encounter order.
 
 Phase 4 adds no phrase, fuzzy, `minimumShouldMatch`, ranked `mustNot`, BM25F, DisMax, or
 hidden normalization.
+
+Before implementation, Phase 4 freezes whole-tree unsupported-shape preflight,
+deterministic per-occurrence normalization, zero-term match-none leaves, canonical-index
+requirements only for non-empty leaves, node-by-node checked BOOST arithmetic, and
+matched state independent from score positivity. The complete boundary is recorded in
+[`phases/p4/RANKED_COMPOSITION.md`](phases/p4/RANKED_COMPOSITION.md); implementation and
+validation are tracked in
+[`phases/p4/PHASE_4_CHECKLIST.md`](phases/p4/PHASE_4_CHECKLIST.md).
 
 ## Phase 5 — Exact phrase search
 
