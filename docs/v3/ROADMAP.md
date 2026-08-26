@@ -14,7 +14,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 0 | public API, architecture, semantics, and compatibility freeze | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
-| Phase 3 | SearchRequest planning and execution pipeline | Contract frozen |
+| Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked search | Planned |
 | Phase 5 | exact phrase search | Planned |
 | Phase 6 | fuzzy term search | Planned |

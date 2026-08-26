@@ -2,9 +2,9 @@
 
 ## Status
 
-The Phase 3 contract is frozen and implementation has not started. Phase 3 introduces
-the built-in V3 `SearchRequest` execution path and replaces duplicate single-field
-ranking logic with one snapshot-bound planning and execution pipeline.
+The Phase 3 contract and implementation are complete. Phase 3 introduces the built-in
+V3 `SearchRequest` execution path and replaces duplicate single-field ranking logic
+with one snapshot-bound planning and execution pipeline.
 
 Phase 0 ranked-search semantics, Phase 1 positioned analysis, Phase 2 positional
 storage, and the V3 compatibility contract remain authoritative.
@@ -293,6 +293,20 @@ continue passing.
 Phase 3 adds no performance claim. The JMH profile must compile, and a focused existing
 BM25 top-K smoke run should show no obvious full-scan, unbounded-retention, per-document
 analysis, or per-document IDF regression. No numeric release threshold is frozen here.
+
+### Phase 3 smoke evidence
+
+On 2026-08-25, OpenJDK 21.0.12 compiled all JMH sources and completed the existing
+`Bm25TopKBenchmark` matrix with one 100 ms warmup and one 100 ms measurement iteration.
+The run covered 100,000 documents, three document-frequency levels, filtered and
+unfiltered candidates, and limits from 1 through 100,000.
+
+The smoke run confirmed posting-driven candidate work, bounded retention for finite
+limits, and structured-candidate restriction. As expected, retaining every eligible
+hit can favor exhaustive sorting, while bounded top-K was competitive or lower-cost in
+representative selective and small-limit rows. These short-run observations are
+regression evidence only; they establish no universal speedup, crossover, or release
+threshold.
 
 ## Full gates
 

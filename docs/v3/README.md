@@ -11,7 +11,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 0 | API, architecture, semantics, and compatibility contracts | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
-| Phase 3 | SearchRequest planning and execution pipeline | Contract frozen |
+| Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phases 4–8 | composition, phrase, fuzzy, Explain, and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -25,9 +25,9 @@ Phase 2 is the first positioned-analysis consumer. Index, scan, and BM25 term
 projection now consistently use validated positioned output, while internal primitive
 position storage retains the facts needed by later phrase execution.
 
-Phase 3 freezes one snapshot-bound pipeline for direct V3 text requests and the legacy
-V2 ranked adapter. It preserves frozen legacy terms, configured filter planning, BM25
-arithmetic, bounded top-K retention, and deterministic ordering.
+Phase 3 implements one snapshot-bound pipeline for direct V3 text requests and the
+legacy V2 ranked adapter. It preserves frozen legacy terms, configured filter planning,
+BM25 arithmetic, bounded top-K retention, and deterministic ordering.
 
 ## Contracts
 

@@ -13,150 +13,150 @@
 
 ## Internal architecture and visibility
 
-- [ ] Add package-private immutable normalized text-search input.
-- [ ] Keep the exact frozen `TextField`, term order, optional filter, limit, and BM25
+- [x] Add package-private immutable normalized text-search input.
+- [x] Keep the exact frozen `TextField`, term order, optional filter, limit, and BM25
   configuration in that input.
-- [ ] Add package-private `SearchPlanner`, immutable `SearchPlan`, and `SearchExecutor`
+- [x] Add package-private `SearchPlanner`, immutable `SearchPlan`, and `SearchExecutor`
   in the search package.
-- [ ] Keep every existing `SearchQueryNode` and its accessor package-private.
-- [ ] Add only the frozen bytecode-public `SearchExecutionAccess` sibling-package
+- [x] Keep every existing `SearchQueryNode` and its accessor package-private.
+- [x] Add only the frozen bytecode-public `SearchExecutionAccess` sibling-package
   bridge.
-- [ ] Mark the bridge `@hidden`, document it unsupported, and prevent construction.
-- [ ] Expose no node, plan, posting, bitmap, position, or internal document ID through
+- [x] Mark the bridge `@hidden`, document it unsupported, and prevent construction.
+- [x] Expose no node, plan, posting, bitmap, position, or internal document ID through
   the bridge or supported public API.
-- [ ] Use no reflection or method-handle access to decode `SearchQuery`.
-- [ ] Confirm no other Phase 3 implementation type becomes public.
+- [x] Use no reflection or method-handle access to decode `SearchQuery`.
+- [x] Confirm no other Phase 3 implementation type becomes public.
 
 ## V3 query decoding and analysis
 
-- [ ] Accept only a direct `SearchQueries.text(...)` leaf in Phase 3.
-- [ ] Reject bool, boost, phrase, and fuzzy shapes with clear
+- [x] Accept only a direct `SearchQueries.text(...)` leaf in Phase 3.
+- [x] Reject bool, boost, phrase, and fuzzy shapes with clear
   `UnsupportedOperationException`.
-- [ ] Reject unsupported shapes before Analyzer and text-index work.
-- [ ] Analyze V3 raw query text exactly once per request through positioned analysis.
-- [ ] Apply the complete Phase 2 null/increment/overflow validation contract.
-- [ ] Propagate Analyzer-thrown exceptions unchanged.
-- [ ] Deduplicate V3 terms in first-encounter order.
-- [ ] Keep valid position increments semantically irrelevant to term-only scoring.
-- [ ] Prove default-adapted and native positioned Analyzers use the expected query
+- [x] Reject unsupported shapes before Analyzer and text-index work.
+- [x] Analyze V3 raw query text exactly once per request through positioned analysis.
+- [x] Apply the complete Phase 2 null/increment/overflow validation contract.
+- [x] Propagate Analyzer-thrown exceptions unchanged.
+- [x] Deduplicate V3 terms in first-encounter order.
+- [x] Keep valid position increments semantically irrelevant to term-only scoring.
+- [x] Prove default-adapted and native positioned Analyzers use the expected query
   terms.
 
 ## Validation and planning order
 
-- [ ] Null-check public request and snapshot arguments according to existing contracts.
-- [ ] Produce an empty plan/result for zero frozen terms.
-- [ ] Return empty for zero terms without requiring a text index.
-- [ ] Require an identity-equal canonical text index for every non-empty request.
-- [ ] Preserve the V2-style missing-index `IllegalStateException` and field context.
-- [ ] Treat unknown terms as valid absent postings.
-- [ ] Return empty when every non-empty term is unknown, after index resolution.
-- [ ] Resolve the text index, document count, and average length once per request.
-- [ ] Prepare each known posting, document frequency, and IDF once per request.
-- [ ] Retain scoring terms in frozen logical encounter order.
+- [x] Null-check public request and snapshot arguments according to existing contracts.
+- [x] Produce an empty plan/result for zero frozen terms.
+- [x] Return empty for zero terms without requiring a text index.
+- [x] Require an identity-equal canonical text index for every non-empty request.
+- [x] Preserve the V2-style missing-index `IllegalStateException` and field context.
+- [x] Treat unknown terms as valid absent postings.
+- [x] Return empty when every non-empty term is unknown, after index resolution.
+- [x] Resolve the text index, document count, and average length once per request.
+- [x] Prepare each known posting, document frequency, and IDF once per request.
+- [x] Retain scoring terms in frozen logical encounter order.
 
 ## Snapshot-bound plan and candidates
 
-- [ ] Store the exact `SearchSnapshot<T>` reference in every plan.
-- [ ] Do not accept a second snapshot at execution time.
-- [ ] Make plan fields and collections immutable.
-- [ ] Prepare text candidates as the union of known-term postings.
-- [ ] Reuse the configured `CandidatePlanner<T>` for structured filters.
-- [ ] Preserve injected `PlannerConfig` semantics for both engine ranked paths.
-- [ ] Preserve caller-injected `CandidatePlanner` semantics in direct
+- [x] Store the exact `SearchSnapshot<T>` reference in every plan.
+- [x] Do not accept a second snapshot at execution time.
+- [x] Make plan fields and collections immutable.
+- [x] Prepare text candidates as the union of known-term postings.
+- [x] Reuse the configured `CandidatePlanner<T>` for structured filters.
+- [x] Preserve injected `PlannerConfig` semantics for both engine ranked paths.
+- [x] Preserve caller-injected `CandidatePlanner` semantics in direct
   `RankedSearcher` use.
-- [ ] Intersect only safe exact/superset filter candidates.
-- [ ] Evaluate final `filter.matches(document)` for every surviving candidate.
-- [ ] Evaluate an unindexed filter only against text candidates.
-- [ ] Never substitute a ranked full-document scan for a missing text index.
-- [ ] Add no candidate false negative.
+- [x] Intersect only safe exact/superset filter candidates.
+- [x] Evaluate final `filter.matches(document)` for every surviving candidate.
+- [x] Evaluate an unindexed filter only against text candidates.
+- [x] Never substitute a ranked full-document scan for a missing text index.
+- [x] Add no candidate false negative.
 
 ## Canonical execution and scoring
 
-- [ ] Read documents, postings, lengths, and statistics from the plan's one snapshot.
-- [ ] Skip inactive/null documents defensively.
-- [ ] Preserve the exact V2 BM25 formula and arithmetic operation order.
-- [ ] Accumulate scores in frozen term order.
-- [ ] Preserve zero contribution for structured filters.
-- [ ] Preserve non-positive score skipping.
-- [ ] Retain at most `limit` candidates in a bounded top-K heap.
-- [ ] Order final hits by score descending, then internal document ID ascending.
-- [ ] Return existing `SearchHit<T>` values inside existing `SearchResult<T>`.
-- [ ] Add no position, phrase, field, coordination, or normalization bonus.
-- [ ] Maintain only one BM25, top-K, and final-ordering implementation.
+- [x] Read documents, postings, lengths, and statistics from the plan's one snapshot.
+- [x] Skip inactive/null documents defensively.
+- [x] Preserve the exact V2 BM25 formula and arithmetic operation order.
+- [x] Accumulate scores in frozen term order.
+- [x] Preserve zero contribution for structured filters.
+- [x] Preserve non-positive score skipping.
+- [x] Retain at most `limit` candidates in a bounded top-K heap.
+- [x] Order final hits by score descending, then internal document ID ascending.
+- [x] Return existing `SearchHit<T>` values inside existing `SearchResult<T>`.
+- [x] Add no position, phrase, field, coordination, or normalization bonus.
+- [x] Maintain only one BM25, top-K, and final-ordering implementation.
 
 ## Engine and legacy integration
 
-- [ ] Override `SnapshotSearchEngine.search(SearchRequest<T>)`.
-- [ ] Capture `current.get()` exactly once per V3 ranked request.
-- [ ] Keep third-party `SearchEngine` default unsupported behavior unchanged.
-- [ ] Route `SnapshotSearchEngine.searchTopK(...)` through the canonical pipeline.
-- [ ] Keep `RankedSearcher` as a thin compatibility façade over that pipeline.
-- [ ] Preserve both public `RankedSearcher` constructors and its search descriptor.
-- [ ] Copy `TextScoringQuery.terms()` exactly for legacy requests.
-- [ ] Never re-analyze legacy `TextScoringQuery.queryText()` during execution.
-- [ ] Preserve legacy empty-query/missing-index precedence.
-- [ ] Preserve legacy documents, filter truth, exact scores, order, and limits.
+- [x] Override `SnapshotSearchEngine.search(SearchRequest<T>)`.
+- [x] Capture `current.get()` exactly once per V3 ranked request.
+- [x] Keep third-party `SearchEngine` default unsupported behavior unchanged.
+- [x] Route `SnapshotSearchEngine.searchTopK(...)` through the canonical pipeline.
+- [x] Keep `RankedSearcher` as a thin compatibility façade over that pipeline.
+- [x] Preserve both public `RankedSearcher` constructors and its search descriptor.
+- [x] Copy `TextScoringQuery.terms()` exactly for legacy requests.
+- [x] Never re-analyze legacy `TextScoringQuery.queryText()` during execution.
+- [x] Preserve legacy empty-query/missing-index precedence.
+- [x] Preserve legacy documents, filter truth, exact scores, order, and limits.
 
 ## Focused and differential tests
 
-- [ ] Cover single-term, multi-term, repeated-term, unknown-term, and empty queries.
-- [ ] Cover limit 1, exact match count, oversized limit, and custom BM25 configuration.
-- [ ] Cover indexed and unindexed filters, match-all, match-none, and final predicate
+- [x] Cover single-term, multi-term, repeated-term, unknown-term, and empty queries.
+- [x] Cover limit 1, exact match count, oversized limit, and custom BM25 configuration.
+- [x] Cover indexed and unindexed filters, match-all, match-none, and final predicate
   verification.
-- [ ] Cover missing index, competing `TextField`, and canonical identity.
-- [ ] Cover empty query with no text index.
-- [ ] Cover equal-score internal-ID tie ordering.
-- [ ] Cover direct TEXT success and bool/boost/phrase/fuzzy rejection.
-- [ ] Cover native positioned query terms and malformed positioned output.
-- [ ] Prove V3 query analysis occurs once per invocation.
-- [ ] Prove legacy execution performs no Analyzer call after query construction.
-- [ ] Cover direct `RankedSearcher` and injected planner compatibility.
-- [ ] Add a blocking/concurrent regression proving one-snapshot planning/execution.
-- [ ] Compare equivalent V2 and V3 requests for exact document, score, and order.
-- [ ] Add deterministic randomized differential coverage across mutations, documents,
+- [x] Cover missing index, competing `TextField`, and canonical identity.
+- [x] Cover empty query with no text index.
+- [x] Cover equal-score internal-ID tie ordering.
+- [x] Cover direct TEXT success and bool/boost/phrase/fuzzy rejection.
+- [x] Cover native positioned query terms and malformed positioned output.
+- [x] Prove V3 query analysis occurs once per invocation.
+- [x] Prove legacy execution performs no Analyzer call after query construction.
+- [x] Cover direct `RankedSearcher` and injected planner compatibility.
+- [x] Add a blocking/concurrent regression proving one-snapshot planning/execution.
+- [x] Compare equivalent V2 and V3 requests for exact document, score, and order.
+- [x] Add deterministic randomized differential coverage across mutations, documents,
   repeated terms, filters, limits, and valid BM25 configurations.
-- [ ] Keep the independent exhaustive BM25 oracle passing.
+- [x] Keep the independent exhaustive BM25 oracle passing.
 
 ## Compatibility and scope audit
 
-- [ ] Extend the v3 independent consumer with a supported text-only SearchRequest call.
-- [ ] Keep v1- and v2-style consumers unchanged and passing.
-- [ ] Frozen v1 source/reflection fixture passes.
-- [ ] Japicmp passes against 1.0.0, 2.0.0, and 2.1.0 in normal and isolated repositories.
-- [ ] Public inspection finds no query-tree, plan, executor, posting, bitmap, position,
+- [x] Extend the v3 independent consumer with a supported text-only SearchRequest call.
+- [x] Keep v1- and v2-style consumers unchanged and passing.
+- [x] Frozen v1 source/reflection fixture passes.
+- [x] Japicmp passes against 1.0.0, 2.0.0, and 2.1.0 in normal and isolated repositories.
+- [x] Public inspection finds no query-tree, plan, executor, posting, bitmap, position,
   or internal-document-ID leak.
-- [ ] Public inspection finds only the documented hidden bridge visibility exception.
-- [ ] No bool, boost, cross-field, phrase, fuzzy, or Explain execution is added.
-- [ ] No WAND, plan cache, prepared query, pagination, total hits, or unrelated refactor
+- [x] Public inspection finds only the documented hidden bridge visibility exception.
+- [x] No bool, boost, cross-field, phrase, fuzzy, or Explain execution is added.
+- [x] No WAND, plan cache, prepared query, pagination, total hits, or unrelated refactor
   is added.
-- [ ] Bitmap representation, writer concurrency, and snapshot publication remain
+- [x] Bitmap representation, writer concurrency, and snapshot publication remain
   unchanged.
 
 ## Performance evidence
 
-- [ ] JMH sources compile after the pipeline refactor.
-- [ ] Run a focused existing BM25 top-K smoke benchmark.
-- [ ] Confirm no obvious full scan, unbounded hit retention, per-document analysis, or
+- [x] JMH sources compile after the pipeline refactor.
+- [x] Run a focused existing BM25 top-K smoke benchmark.
+- [x] Confirm no obvious full scan, unbounded hit retention, per-document analysis, or
   per-document IDF calculation.
-- [ ] Record observations without claiming a universal speedup or freezing a numeric
+- [x] Record observations without claiming a universal speedup or freezing a numeric
   release threshold.
 
 ## Documentation and full validation
 
-- [ ] Update `CHANGELOG.md` after implementation.
-- [ ] Mark Phase 3 complete in the roadmap and V3 phase map only after every gate passes.
-- [ ] `git diff --check` passes.
-- [ ] `scripts/verify-version-alignment.sh 3.0.0-SNAPSHOT` passes.
-- [ ] `./mvnw -f reactor/pom.xml clean test` passes.
-- [ ] `scripts/run-travel-example.sh` passes with unchanged observable output.
-- [ ] `./mvnw clean -Papi-compat test` passes.
-- [ ] `./mvnw clean -Partifact-compat verify` passes in normal and isolated repositories.
-- [ ] `scripts/verify-consumer-projects.sh` passes.
-- [ ] Strict core and processor Javadocs pass.
-- [ ] `./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify` passes.
-- [ ] `scripts/verify-release-artifacts.sh 3.0.0-SNAPSHOT` passes.
-- [ ] `scripts/verify-reproducible-build.sh` passes.
-- [ ] No generated artifact, local repository, credential, IDE file, or root Codex
+- [x] Update `CHANGELOG.md` after implementation.
+- [x] Mark Phase 3 complete in the roadmap and V3 phase map only after every gate passes.
+- [x] `git diff --check` passes.
+- [x] `scripts/verify-version-alignment.sh 3.0.0-SNAPSHOT` passes.
+- [x] `./mvnw -f reactor/pom.xml clean test` passes.
+- [x] `scripts/run-travel-example.sh` passes with unchanged observable output.
+- [x] `./mvnw clean -Papi-compat test` passes.
+- [x] `./mvnw clean -Partifact-compat verify` passes in normal and isolated repositories.
+- [x] `scripts/verify-consumer-projects.sh` passes.
+- [x] Strict core and processor Javadocs pass.
+- [x] `./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify` passes.
+- [x] `scripts/verify-release-artifacts.sh 3.0.0-SNAPSHOT` passes.
+- [x] `scripts/verify-reproducible-build.sh` passes.
+- [x] No generated artifact, local repository, credential, IDE file, or root Codex
   prompt is tracked.
 
 Phase 3 is complete only when built-in V3 text requests execute through one

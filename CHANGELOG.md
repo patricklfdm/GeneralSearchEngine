@@ -7,6 +7,12 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- V3 direct text `SearchRequest` execution with one immutable snapshot-bound planning
+  and BM25 pipeline, including optional structured filters, custom BM25 configuration,
+  deterministic bounded top-K ordering, and positioned query analysis.
+- Focused request-pipeline, visibility, frozen-term, configured-planner, concurrent
+  snapshot, and randomized V2/V3 exact-equivalence coverage; the independent V3
+  consumer now executes a supported text request against the built-in engine.
 - Internal primitive-backed positional posting storage, position-sensitive immutable
   text-index mutations, deterministic randomized differential coverage, and a focused
   Phase 2 build/publication allocation baseline.
@@ -22,6 +28,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Changed
 
+- Legacy `RankedSearcher` and built-in `searchTopK` now adapt frozen V2 terms into the
+  same canonical execution core as V3 without re-analysis, while preserving all V2
+  scores, filters, limits, ordering, constructors, and planner configuration.
 - Text indexing, indexed and scan text-query projection, and legacy BM25 query
   projection now consistently consume validated position-aware Analyzer output. Legacy
   analyzers retain their default-adapted terms, frequencies, lengths, and ranking.
