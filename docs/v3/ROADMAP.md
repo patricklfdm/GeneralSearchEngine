@@ -14,7 +14,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 0 | public API, architecture, semantics, and compatibility freeze | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
-| Phase 3 | SearchRequest planning and execution pipeline | Planned |
+| Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked search | Planned |
 | Phase 5 | exact phrase search | Planned |
 | Phase 6 | fuzzy term search | Planned |
@@ -97,6 +97,12 @@ Phase 3 implements internal `SearchPlanner`, immutable snapshot-bound `SearchPla
 request filter, limit, and BM25 configuration, and implements the built-in
 `SearchEngine.search(SearchRequest<T>)` capability.
 
+The package-private query representation and pipeline remain hidden behind one narrow
+Javadoc-hidden cross-package execution bridge required by Java visibility. V3 raw text
+is normalized once through positioned analysis; V2 requests pass their already-frozen
+`TextScoringQuery.terms()` into the same planner without re-analysis. Empty terms return
+before text-index resolution, preserving existing V2 failure precedence.
+
 The legacy V2 ranked request path may route through the canonical internal pipeline only
 after equivalence is proven and without re-analyzing the terms already frozen in a
 `TextScoringQuery`. Equivalent legacy and V3 text requests must return the same hit set,
@@ -104,6 +110,9 @@ scores, and order.
 
 Phase 3 adds no bool, boost, cross-field, phrase, fuzzy, Explain, plan cache, prepared
 query, or WAND behavior.
+
+The complete frozen boundary is recorded in
+[`phases/p3/SEARCH_PIPELINE.md`](phases/p3/SEARCH_PIPELINE.md).
 
 ## Phase 4 — Bool, boost, and cross-field ranked search
 

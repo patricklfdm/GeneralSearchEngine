@@ -40,6 +40,26 @@ Previously compiled third-party `SearchEngine` implementations therefore continu
 link. Until an implementation overrides these capabilities, non-null calls fail with
 `UnsupportedOperationException`; null arguments fail first with `NullPointerException`.
 
+## Phase 3 internal execution bridge
+
+The frozen Phase 3 package layout keeps `SearchQueryNode`, `SearchPlanner`, `SearchPlan`,
+and `SearchExecutor` package-private in
+`io.github.patricklfdm.generalsearch.search`. Java sibling-package access requires one
+narrow bytecode-public `SearchExecutionAccess` bridge for the built-in engine and the
+legacy ranking façade.
+
+This bridge is Javadoc-hidden and explicitly unsupported application infrastructure.
+Its Java visibility is not permission to expose query nodes, plans, postings, candidate
+bitmaps, positions, or internal document IDs. It performs complete request execution
+only. No method is added to the supported `SearchQuery` façade to reveal its internal
+representation.
+
+Japicmp may report the bridge as an additive class after Phase 3 implementation. The
+supported compatibility surface remains the existing public request, result, engine,
+ranking, schema, query, and index APIs. The bridge carries no application compatibility
+guarantee and exists only to accommodate the current package boundaries without using
+reflection or widening the query-tree API.
+
 ## Accepted null-literal ambiguity
 
 Adding `search(SearchRequest<T>)` creates one narrow source-resolution incompatibility:
