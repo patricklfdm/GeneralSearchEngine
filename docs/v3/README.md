@@ -14,7 +14,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked composition | Complete |
 | Phase 5 | exact phrase search | Complete |
-| Phase 6 | single-term fuzzy search | Contract frozen |
+| Phase 6 | single-term fuzzy search | Complete |
 | Phases 7–8 | Explain and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -43,11 +43,12 @@ BM25, recursive composition, and failure precedence through one narrow hidden
 positional bridge. Focused, randomized, lifecycle, consumer, compatibility, release,
 reproducibility, and performance-smoke gates cover the completed implementation.
 
-Phase 6 has a frozen pre-implementation contract for single-emitted-token analysis,
-Unicode code-point AUTO thresholds, bounded Optimal String Alignment distance,
-deterministic full vocabulary expansion, exact-term priority, best-expansion BM25,
-recursive composition, and one narrow hidden vocabulary bridge. Implementation has not
-started, so the phase is not yet complete.
+Phase 6 implements single-emitted-token fuzzy analysis, Unicode code-point AUTO
+thresholds, bounded Optimal String Alignment distance, deterministic full vocabulary
+expansion, exact-term priority, best-expansion BM25, and recursive composition through
+one narrow hidden vocabulary bridge. Randomized differential and lifecycle tests,
+independent-consumer coverage, compatibility/release gates, and focused JMH evidence
+cover the completed implementation.
 
 ## Contracts
 
@@ -73,6 +74,7 @@ started, so the phase is not yet complete.
 - [Phase 5 performance smoke](phases/p5/PERFORMANCE_BASELINE.md)
 - [Phase 6 single-term fuzzy search contract](phases/p6/FUZZY_SEARCH.md)
 - [Phase 6 implementation checklist](phases/p6/PHASE_6_CHECKLIST.md)
+- [Phase 6 performance smoke](phases/p6/PERFORMANCE_BASELINE.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,

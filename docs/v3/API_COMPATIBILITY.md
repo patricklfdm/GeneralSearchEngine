@@ -119,10 +119,11 @@ expansion, plan, score, or internal document ID; retains no snapshot or callback
 performs no analysis, distance, expansion, candidate, or scoring work. No method is
 added to supported `TextIndexSnapshot`, `PostingList`, or query APIs.
 
-Japicmp may report this bridge as one additive class after Phase 6 implementation.
-That report is expected and must be reviewed against this exact hidden boundary; it
-does not make vocabulary traversal a supported application SPI. Phase 6 otherwise adds
-no supported public type, method, field, constructor, record component, or descriptor.
+Japicmp reports `FuzzyVocabularyAccess` as the one additive bytecode-public Phase 6
+class. Normal and isolated comparisons against 1.0.0, 2.0.0, and 2.1.0 confirm that
+exact hidden boundary. It does not make vocabulary traversal a supported application
+SPI. Phase 6 otherwise adds no supported public type, method, field, constructor,
+record component, or descriptor.
 `SearchExecutionAccess` and `PhrasePositionAccess` remain otherwise unchanged, and no
 second Phase 6 bridge is permitted.
 

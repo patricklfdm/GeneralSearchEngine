@@ -2,7 +2,7 @@
 
 ## Status
 
-This contract is frozen for implementation. Phase 6 implementation has not started.
+This contract is implemented and validated. Phase 6 is complete.
 
 The Phase 0 fuzzy semantics and ranked-search contracts, Phase 1 positioned analysis,
 Phase 2 positional text storage, Phase 3 snapshot-bound pipeline, Phase 4 recursive
