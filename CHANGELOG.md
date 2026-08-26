@@ -7,6 +7,14 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- V3 per-business-document Explain execution through the canonical snapshot-bound
+  ranked plan, with top-K-independent match/score parity and deterministic generic
+  diagnostics for TEXT, PHRASE, FUZZY, BOOL, BOOST, cross-field BM25, and structured
+  filter outcomes.
+- Explain coverage for missing and non-matching IDs, BM25 facts, empty analysis,
+  malformed Analyzer output, exact phrase and fuzzy selection, recursive randomized
+  invariants, concurrent publication, dynamic indexes, mutations, and an executable
+  independent V3 consumer example.
 - V3 single-term fuzzy execution with complete positioned-output validation, Unicode
   code-point AUTO edit bounds, bounded Optimal String Alignment, deterministic full
   vocabulary expansion, exact candidates, exact-term priority, and best-expansion

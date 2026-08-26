@@ -2,7 +2,7 @@
 
 ## Status
 
-This contract is frozen before implementation. Phase 7 implementation has not started.
+This contract is implemented and validated. Phase 7 is complete.
 
 The Phase 0 public explanation model and ranked semantics, Phase 1 positioned analysis,
 Phase 2 positional storage, Phase 3 snapshot-bound pipeline, Phase 4 recursive
@@ -225,9 +225,12 @@ general per-document evaluation SPI. `SnapshotSearchEngine` performs missing-ID
 handling before invoking it. No new bridge class or second Phase 7 method is allowed.
 
 Japicmp may report this method as an addition to the already unsupported bytecode-public
-bridge. No supported public type, method, field, constructor, record component, or
-descriptor changes in Phase 7; third-party `SearchEngine` implementations keep the
-existing default unsupported behavior.
+bridge. It may also report the required concrete `SnapshotSearchEngine.explain(...)`
+override of the Phase 0 interface method. That override is the only supported class
+descriptor addition and introduces no new public API shape. No other supported public
+type, method, field, constructor, record component, or descriptor changes in Phase 7;
+third-party `SearchEngine` implementations keep the existing default unsupported
+behavior.
 
 ## Lifecycle and concurrency
 

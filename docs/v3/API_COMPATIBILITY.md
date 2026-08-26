@@ -141,11 +141,15 @@ to cross the existing Java package boundary efficiently. The method must not ret
 retain that ID, mention it in public descriptions, expose any snapshot, plan, posting,
 candidate, position, or score-state handle, or become a general evaluation SPI.
 
-Japicmp may report this one additive method on an already unsupported internal bridge
-after Phase 7 implementation. No new bridge class or second Phase 7 method is allowed.
+Japicmp reports this one additive method on the already unsupported internal bridge.
+No new bridge class or second Phase 7 method is present.
 The supported `SearchEngine.explain(...)`, `SearchExplanation`, and `ExplanationNode`
-descriptors were frozen in Phase 0 and do not change. Third-party `SearchEngine`
-implementations continue to inherit the existing default unsupported behavior.
+API shapes were frozen in Phase 0 and do not change. Japicmp additionally reports the
+required concrete `SnapshotSearchEngine.explain(...)` override; that override is the
+only supported class descriptor addition in Phase 7. Normal and isolated comparisons
+against 1.0.0, 2.0.0, and 2.1.0 confirm this exact boundary. Third-party
+`SearchEngine` implementations continue to inherit the existing default unsupported
+behavior.
 
 ## Accepted null-literal ambiguity
 

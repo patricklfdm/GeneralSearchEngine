@@ -15,7 +15,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 4 | bool, boost, and cross-field ranked composition | Complete |
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | single-term fuzzy search | Complete |
-| Phase 7 | Explain execution | Contract frozen |
+| Phase 7 | Explain execution | Complete |
 | Phase 8 | hardening and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -51,11 +51,12 @@ one narrow hidden vocabulary bridge. Randomized differential and lifecycle tests
 independent-consumer coverage, compatibility/release gates, and focused JMH evidence
 cover the completed implementation.
 
-Phase 7 has a frozen pre-implementation contract for missing-ID precedence,
-snapshot-local plan reuse, top-K-independent per-document evaluation, deterministic
+Phase 7 implements missing-ID precedence, snapshot-local canonical-plan reuse,
+top-K-independent per-document evaluation, deterministic
 TEXT/PHRASE/FUZZY/BOOL/BOOST/filter diagnostics, shared scoring arithmetic, and no
-explanation allocation on the normal search path. Implementation has not started, so
-the phase is not yet complete.
+explanation allocation on the normal search path. Focused and randomized invariants,
+lifecycle/concurrency coverage, independent consumers, compatibility, release, and
+reproducibility gates cover the completed implementation.
 
 ## Contracts
 
