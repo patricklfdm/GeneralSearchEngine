@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,6 +17,7 @@ import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.analysis.Token;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.Bm25Config;
@@ -200,6 +203,73 @@ class FuzzySearchTest {
     }
 
     @Test
+    void composesWithPhraseAndIndexedUnindexedAndBooleanFilters() {
+        Article both = new Article(
+                0,
+                "quiet neighborhood",
+                "restarant",
+                "guide"
+        );
+        Article phraseOnly = new Article(
+                1,
+                "quiet neighborhood",
+                "other",
+                "reference"
+        );
+        Article fuzzyOnly = new Article(
+                2,
+                "neighborhood quiet",
+                "restarant",
+                "guide"
+        );
+        SearchSnapshot<Article> snapshot = snapshot(both, phraseOnly, fuzzyOnly);
+        double phraseScore = scoreOf(execute(
+                snapshot,
+                SearchQueries.phrase(TITLE_TEXT, "quiet neighborhood")
+        ), 0);
+        double fuzzyScore = scoreOf(execute(
+                snapshot,
+                SearchQueries.fuzzy(BODY_TEXT, "restaurant")
+        ), 0);
+        SearchQuery<Article> composed = SearchQueries.<Article>bool()
+                .must(SearchQueries.phrase(
+                        TITLE_TEXT,
+                        "quiet neighborhood"
+                ))
+                .should(SearchQueries.fuzzy(
+                        BODY_TEXT,
+                        "restaurant"
+                ).boost(2.0))
+                .build();
+        List<SearchHit<Article>> unfiltered = execute(snapshot, composed);
+
+        assertEquals(List.of(both, phraseOnly), documents(unfiltered));
+        assertEquals(
+                phraseScore + fuzzyScore * 2.0,
+                unfiltered.getFirst().score()
+        );
+
+        Query<Article> unindexed = article -> article.category().equals("guide");
+        List<SearchHit<Article>> unindexedHits = execute(
+                snapshot,
+                filtered(composed, unindexed)
+        );
+        assertEquals(List.of(both), documents(unindexedHits));
+        assertEquals(unfiltered.getFirst().score(), unindexedHits.getFirst().score());
+
+        Query<Article> byId = article -> article.id() == 0;
+        List<SearchHit<Article>> booleanHits = execute(
+                snapshot,
+                filtered(composed, Query.and(
+                        Query.eq(CATEGORY, "guide"),
+                        byId
+                ))
+        );
+        assertEquals(List.of(both), documents(booleanHits));
+        assertEquals(unfiltered.getFirst().score(), booleanHits.getFirst().score());
+    }
+
+    @Test
     void enforcesFuzzyAnalysisCardinalityBeforeIndexLookup() {
         Analyzer duplicate = positioned(List.of(
                 new AnalyzedToken("same", 1),
@@ -222,6 +292,42 @@ class FuzzySearchTest {
             assertTrue(failure.getMessage().contains("body"));
             assertTrue(failure.getMessage().contains("exactly one"));
         }
+    }
+
+    @Test
+    void validatesCompletePositionedAnalysisAndPropagatesAnalyzerFailures() {
+        assertInvalidFuzzy(text -> null, "null token list");
+        assertInvalidFuzzy(
+                text -> Arrays.asList((AnalyzedToken) null),
+                "null token at index 0"
+        );
+        assertInvalidFuzzy(
+                text -> List.of(new AnalyzedToken("term", 0)),
+                "non-positive first position increment"
+        );
+        assertInvalidFuzzy(
+                text -> List.of(
+                        new AnalyzedToken("first", Integer.MAX_VALUE),
+                        new AnalyzedToken("second", 2)
+                ),
+                "overflowed logical position"
+        );
+
+        RuntimeException expected = new RuntimeException("analyzer failure");
+        Analyzer throwing = text -> {
+            throw expected;
+        };
+        RuntimeException actual = assertThrows(
+                RuntimeException.class,
+                () -> execute(
+                        new SearchSnapshot<>(List.of()),
+                        SearchQueries.fuzzy(
+                                TextField.of(BODY, throwing),
+                                "query"
+                        )
+                )
+        );
+        assertSame(expected, actual);
     }
 
     @Test
@@ -248,6 +354,30 @@ class FuzzySearchTest {
                 indexed,
                 SearchQueries.fuzzy(BODY_TEXT, "restaurant")
         ).isEmpty());
+    }
+
+    @Test
+    void requiresCanonicalIndexesForRootMustAndShouldInLogicalOrder() {
+        TextField<Article> competing = TextField.of(BODY, Analyzer.simple());
+        SearchSnapshot<Article> snapshot = snapshot(
+                new Article(0, "title", "restaurant", "guide")
+        );
+
+        assertMissing(snapshot, SearchQueries.fuzzy(competing, "restaurant"));
+        assertMissing(snapshot, SearchQueries.<Article>bool()
+                .must(SearchQueries.fuzzy(competing, "restaurant"))
+                .should(SearchQueries.fuzzy(BODY_TEXT, "restaurant"))
+                .build());
+        assertMissing(snapshot, SearchQueries.<Article>bool()
+                .must(SearchQueries.fuzzy(BODY_TEXT, "unknown"))
+                .should(SearchQueries.fuzzy(competing, "restaurant"))
+                .build());
+
+        TextField<Article> empty = TextField.of(TITLE, positioned(List.of()));
+        assertMissing(snapshot, SearchQueries.<Article>bool()
+                .must(SearchQueries.fuzzy(empty, "empty"))
+                .should(SearchQueries.fuzzy(competing, "restaurant"))
+                .build());
     }
 
     @Test
@@ -318,6 +448,78 @@ class FuzzySearchTest {
         assertThrows(ArithmeticException.class, () -> execute(snapshot, overflow));
     }
 
+    @Test
+    void keepsAnUnderflowedExactBm25AsAMatchedCanonicalZero() {
+        SearchSnapshot<Article> snapshot = snapshot(
+                new Article(0, "", "restaurant", "guide")
+        );
+        RankedSearchInput<Article> input = RankedSearchInput.from(
+                snapshot,
+                request(SearchQueries.fuzzy(BODY_TEXT, "restaurant"))
+        );
+        @SuppressWarnings("unchecked")
+        NormalizedFuzzyNode<Article> normalized =
+                (NormalizedFuzzyNode<Article>) input.root();
+        TextIndexSnapshot<Article> textIndex = normalized.textIndex();
+        var posting = textIndex.posting("restaurant");
+        Bm25Config config = new Bm25Config(1.0, 1.0);
+        FuzzyPlan<Article> plan = new FuzzyPlan<>(
+                textIndex,
+                "restaurant",
+                List.of(new FuzzyScoringExpansion(
+                        "restaurant",
+                        new ScoringTerm(posting, Double.MIN_VALUE),
+                        0,
+                        1.0
+                )),
+                posting.documents(),
+                config,
+                Double.MIN_NORMAL
+        );
+
+        FuzzyEvaluation evaluation = plan.evaluateFuzzy(0);
+        assertTrue(evaluation.result().matched());
+        assertEquals(0.0, evaluation.result().score());
+        assertEquals("restaurant", evaluation.selectedTerm());
+    }
+
+    private static void assertInvalidFuzzy(
+            PositionedAnalysis analysis,
+            String expectedDetail
+    ) {
+        Analyzer analyzer = new Analyzer() {
+            @Override
+            public List<Token> analyze(String text) {
+                return List.of();
+            }
+
+            @Override
+            public List<AnalyzedToken> analyzeWithPositions(String text) {
+                return analysis.analyze(text);
+            }
+        };
+        IllegalArgumentException failure = assertThrows(
+                IllegalArgumentException.class,
+                () -> execute(
+                        new SearchSnapshot<>(List.of()),
+                        SearchQueries.fuzzy(TextField.of(BODY, analyzer), "query")
+                )
+        );
+        assertTrue(failure.getMessage().contains("body"));
+        assertTrue(failure.getMessage().contains(expectedDetail));
+    }
+
+    private static void assertMissing(
+            SearchSnapshot<Article> snapshot,
+            SearchQuery<Article> query
+    ) {
+        IllegalStateException failure = assertThrows(
+                IllegalStateException.class,
+                () -> execute(snapshot, query)
+        );
+        assertTrue(failure.getMessage().contains("body"));
+    }
+
     private static Analyzer positioned(List<AnalyzedToken> result) {
         return new Analyzer() {
             @Override
@@ -370,6 +572,17 @@ class FuzzySearchTest {
                 .build();
     }
 
+    private static SearchRequest<Article> filtered(
+            SearchQuery<Article> query,
+            Query<Article> filter
+    ) {
+        return SearchRequest.<Article>builder()
+                .query(query)
+                .filter(filter)
+                .limit(100)
+                .build();
+    }
+
     private static List<SearchHit<Article>> execute(
             SearchSnapshot<Article> snapshot,
             SearchQuery<Article> query
@@ -405,6 +618,11 @@ class FuzzySearchTest {
 
     private static List<Article> documents(List<SearchHit<Article>> hits) {
         return hits.stream().map(SearchHit::document).toList();
+    }
+
+    @FunctionalInterface
+    private interface PositionedAnalysis {
+        List<AnalyzedToken> analyze(String text);
     }
 
     private record Article(int id, String title, String body, String category) {

@@ -35,4 +35,14 @@ class V3StyleConsumerTest {
                         .toList()
         );
     }
+
+    @Test
+    void executesSingleTermFuzzySearchThroughPublishedApiOnly() {
+        assertEquals(
+                List.of(1L),
+                V3StyleConsumer.supportedFuzzySearch().hits().stream()
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+    }
 }
