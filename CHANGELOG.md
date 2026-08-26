@@ -7,6 +7,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- Internal primitive-backed positional posting storage, position-sensitive immutable
+  text-index mutations, deterministic randomized differential coverage, and a focused
+  Phase 2 build/publication allocation baseline.
 - Position-aware analysis through the immutable `AnalyzedToken` record and the
   backward-compatible default `Analyzer.analyzeWithPositions(String)` adapter, while
   preserving existing Analyzer lambdas and all legacy text execution paths.
@@ -19,6 +22,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Changed
 
+- Text indexing, indexed and scan text-query projection, and legacy BM25 query
+  projection now consistently consume validated position-aware Analyzer output. Legacy
+  analyzers retain their default-adapted terms, frequencies, lengths, and ranking.
 - Opened the `3.0.0-SNAPSHOT` development line after the 2.1.0 release, beginning with
   additive request/query/result contracts and frozen semantics before new execution.
 

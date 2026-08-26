@@ -2,9 +2,10 @@
 
 ## Status
 
-The Phase 2 contract is frozen and implementation has not started. Phase 2 makes the
-existing text index position-capable without implementing phrase search or changing the
-published behavior of legacy analyzers.
+The Phase 2 contract remains frozen and implementation is complete. The existing text
+index is now position-capable without implementing phrase search or changing the
+published behavior of legacy analyzers. Focused, randomized, lifecycle, performance,
+compatibility, consumer, packaging, and reproducibility gates pass.
 
 The Phase 0 positional semantics and Phase 1 position-aware analysis contract remain
 authoritative. This document freezes the first consumer, storage, compatibility, and

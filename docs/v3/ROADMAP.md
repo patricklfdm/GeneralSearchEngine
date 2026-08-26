@@ -13,7 +13,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 |---|---|---|
 | Phase 0 | public API, architecture, semantics, and compatibility freeze | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
-| Phase 2 | positional posting storage and consistent positioned-term consumption | Contract frozen |
+| Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phase 3 | SearchRequest planning and execution pipeline | Planned |
 | Phase 4 | bool, boost, and cross-field ranked search | Planned |
 | Phase 5 | exact phrase search | Planned |
@@ -86,9 +86,9 @@ and snapshot behavior remains unchanged for legacy analyzers.
 Phase 2 adds no phrase execution, new request pipeline, cross-field execution, fuzzy
 execution, Explain execution, position compression, or unrelated public API.
 
-A focused positional build/mutation and memory baseline is recorded in Phase 2 so an
-obvious representation regression is not deferred until release hardening. Compression
-and evidence-driven optimization remain later work.
+A focused positional build/mutation and allocation baseline records no obvious
+pathological regression for the representative workload. Compression and
+evidence-driven optimization remain later work.
 
 ## Phase 3 — SearchRequest execution pipeline
 

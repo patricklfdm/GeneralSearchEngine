@@ -10,7 +10,7 @@ remains the current stable release until 3.0.0 is published.
 |---|---|---|
 | Phase 0 | API, architecture, semantics, and compatibility contracts | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
-| Phase 2 | positional posting storage and consistent positioned-term consumption | Contract frozen |
+| Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phases 3–8 | ranked pipeline, composition, phrase, fuzzy, Explain, and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -20,9 +20,9 @@ Phase 1 adds only the position-aware Analyzer model and backward-compatible defa
 adapter. Existing text execution still uses legacy tokens; positional consumption and
 storage remain deferred.
 
-Phase 2 is the first positioned-analysis consumer. Its frozen contract keeps index,
-scan, and BM25 term projection consistent while changing only the storage facts needed
-by later phrase execution.
+Phase 2 is the first positioned-analysis consumer. Index, scan, and BM25 term
+projection now consistently use validated positioned output, while internal primitive
+position storage retains the facts needed by later phrase execution.
 
 ## Contracts
 
@@ -37,6 +37,7 @@ by later phrase execution.
 - [Phase 1 implementation checklist](phases/p1/PHASE_1_CHECKLIST.md)
 - [Phase 2 positional storage contract](phases/p2/POSITIONAL_STORAGE.md)
 - [Phase 2 implementation checklist](phases/p2/PHASE_2_CHECKLIST.md)
+- [Phase 2 performance baseline](phases/p2/PERFORMANCE_BASELINE.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,
