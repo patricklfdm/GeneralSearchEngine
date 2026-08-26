@@ -279,7 +279,7 @@ class PhraseSearchTest {
     }
 
     @Test
-    void preservesEmptyMissingIndexAndWholeTreePreflightPrecedence() {
+    void preservesEmptyAndMissingIndexPrecedence() {
         AtomicInteger calls = new AtomicInteger();
         Analyzer analyzer = positioned(text -> {
             calls.incrementAndGet();
@@ -307,17 +307,6 @@ class PhraseSearchTest {
         );
         assertTrue(missingFailure.getMessage().contains("body"));
 
-        calls.set(0);
-        SearchQuery<Article> fuzzyTree = SearchQueries.<Article>bool()
-                .must(SearchQueries.phrase(indexed, "would-analyze"))
-                .should(SearchQueries.fuzzy(missing, "jvaa"))
-                .build();
-        UnsupportedOperationException unsupported = assertThrows(
-                UnsupportedOperationException.class,
-                () -> execute(new SearchSnapshot<>(List.of()), fuzzyTree)
-        );
-        assertTrue(unsupported.getMessage().contains("FUZZY"));
-        assertEquals(0, calls.get());
     }
 
     @Test

@@ -16,9 +16,21 @@ import io.github.patricklfdm.generalsearch.ranking.Bm25Config;
 /** Builds immutable snapshot-bound recursive ranked plans. */
 final class SearchPlanner<T> {
     private final CandidatePlanner<T> filterPlanner;
+    private final FuzzyTermExpander fuzzyTermExpander;
 
     SearchPlanner(CandidatePlanner<T> filterPlanner) {
+        this(filterPlanner, new VocabularyScanningFuzzyTermExpander());
+    }
+
+    SearchPlanner(
+            CandidatePlanner<T> filterPlanner,
+            FuzzyTermExpander fuzzyTermExpander
+    ) {
         this.filterPlanner = Objects.requireNonNull(filterPlanner, "filterPlanner");
+        this.fuzzyTermExpander = Objects.requireNonNull(
+                fuzzyTermExpander,
+                "fuzzyTermExpander"
+        );
     }
 
     SearchPlan<T> plan(RankedSearchInput<T> input) {
@@ -62,6 +74,12 @@ final class SearchPlanner<T> {
             NormalizedPhraseNode<T> phrase =
                     (NormalizedPhraseNode<T>) untypedPhrase;
             return compilePhrase(phrase, config);
+        }
+        if (node instanceof NormalizedFuzzyNode<?> untypedFuzzy) {
+            @SuppressWarnings("unchecked")
+            NormalizedFuzzyNode<T> fuzzy =
+                    (NormalizedFuzzyNode<T>) untypedFuzzy;
+            return compileFuzzy(fuzzy, config);
         }
         if (node instanceof NormalizedBoolNode<?> untypedBool) {
             @SuppressWarnings("unchecked")
@@ -219,6 +237,68 @@ final class SearchPlanner<T> {
                 relativePositions,
                 alternativesBySlot,
                 anchorSlot
+        );
+    }
+
+    private FuzzyPlan<T> compileFuzzy(
+            NormalizedFuzzyNode<T> fuzzy,
+            Bm25Config config
+    ) {
+        if (fuzzy.normalizedTerm() == null) {
+            return FuzzyPlan.empty(config);
+        }
+
+        TextIndexSnapshot<T> textIndex = Objects.requireNonNull(fuzzy.textIndex());
+        List<FuzzyExpansion> lexicalExpansions = fuzzyTermExpander.expand(
+                textIndex,
+                fuzzy.normalizedTerm(),
+                BoundedOptimalStringAlignment.autoMaxEdits(fuzzy.normalizedTerm())
+        );
+        int documentCount = textIndex.statistics().indexedDocumentCount();
+        List<FuzzyScoringExpansion> scoringExpansions = new ArrayList<>(
+                lexicalExpansions.size()
+        );
+        ImmutableBitmap firstCandidates = null;
+        ImmutableBitmapBuilder candidateUnion = null;
+        for (FuzzyExpansion expansion : lexicalExpansions) {
+            int documentFrequency = expansion.posting().documentFrequency();
+            if (documentFrequency <= 0) {
+                throw new IllegalStateException(
+                        "fuzzy vocabulary term has an empty posting: "
+                                + expansion.term()
+                );
+            }
+            scoringExpansions.add(new FuzzyScoringExpansion(
+                    expansion.term(),
+                    new ScoringTerm(
+                            expansion.posting(),
+                            inverseDocumentFrequency(
+                                    documentCount,
+                                    documentFrequency
+                            )
+                    ),
+                    expansion.editDistance(),
+                    expansion.similarity()
+            ));
+            if (firstCandidates == null) {
+                firstCandidates = expansion.posting().documents();
+            } else {
+                if (candidateUnion == null) {
+                    candidateUnion = new ImmutableBitmapBuilder(firstCandidates);
+                }
+                candidateUnion.or(expansion.posting().documents());
+            }
+        }
+        ImmutableBitmap candidates = firstCandidates == null
+                ? ImmutableBitmap.empty()
+                : candidateUnion == null ? firstCandidates : candidateUnion.build();
+        return new FuzzyPlan<>(
+                textIndex,
+                fuzzy.normalizedTerm(),
+                scoringExpansions,
+                candidates,
+                config,
+                textIndex.averageDocumentLength()
         );
     }
 

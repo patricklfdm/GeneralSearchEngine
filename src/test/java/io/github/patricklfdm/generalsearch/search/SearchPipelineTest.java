@@ -92,19 +92,16 @@ class SearchPipelineTest {
     }
 
     @Test
-    void rejectsFuzzyBeforeAnalysisOrIndexWork() {
-        Analyzer forbidden = text -> {
-            throw new AssertionError("analysis must not run");
-        };
-        TextField<Article> field = TextField.of(BODY, forbidden);
-        UnsupportedOperationException failure = assertThrows(
-                UnsupportedOperationException.class,
+    void rejectsMultiTermFuzzyBeforeIndexWork() {
+        TextField<Article> field = TextField.of(BODY, Analyzer.simple());
+        IllegalArgumentException failure = assertThrows(
+                IllegalArgumentException.class,
                 () -> execute(
                         new SearchSnapshot<>(List.of()),
-                        SearchRequest.of(SearchQueries.fuzzy(field, "jvaa"))
+                        SearchRequest.of(SearchQueries.fuzzy(field, "java search"))
                 )
         );
-        assertTrue(failure.getMessage().contains("not implemented"));
+        assertTrue(failure.getMessage().contains("exactly one"));
     }
 
     @Test

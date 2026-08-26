@@ -7,6 +7,13 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- V3 single-term fuzzy execution with complete positioned-output validation, Unicode
+  code-point AUTO edit bounds, bounded Optimal String Alignment, deterministic full
+  vocabulary expansion, exact candidates, exact-term priority, and best-expansion
+  similarity-weighted BM25 scoring inside recursive BOOL/BOOST plans.
+- Fuzzy randomized distance, expansion, match/score/order, mutation, snapshot, and
+  dynamic-index lifecycle coverage; an executable independent V3 consumer typo query;
+  and focused JMH planning/execution evidence across multiple vocabulary sizes.
 - V3 exact phrase execution with normalized relative-position slots, same-position
   alternatives, repeated-term matching, posting-based safe candidates, deterministic
   anchor verification, and ordinary distinct-term field-local BM25 scoring.

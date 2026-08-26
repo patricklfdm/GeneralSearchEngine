@@ -63,14 +63,11 @@ public final class V3StyleConsumer {
                 .build());
     }
 
-    public static SearchRequest<TravelPlace> laterPhaseRequest() {
-        return SearchRequest.of(SearchQueries.<TravelPlace>bool()
-                .should(SearchQueries.phrase(
-                        DESCRIPTION_TEXT,
-                        "quiet neighborhood"
-                ))
-                .should(SearchQueries.fuzzy(DESCRIPTION_TEXT, "restarant"))
-                .build());
+    public static SearchRequest<TravelPlace> fuzzyRequest() {
+        return SearchRequest.of(SearchQueries.fuzzy(
+                DESCRIPTION_TEXT,
+                "restarant"
+        ));
     }
 
     public static List<AnalyzedToken> positionAwareAnalysis() {
@@ -165,6 +162,31 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(exact, separated, otherCity)).join();
             return engine.search(phraseRequest());
+        }
+    }
+
+    public static SearchResult<TravelPlace> supportedFuzzySearch() {
+        TravelPlace restaurant = new TravelPlace(
+                1L,
+                "Tokyo",
+                "quiet restaurant near the temple"
+        );
+        TravelPlace resort = new TravelPlace(
+                2L,
+                "Tokyo",
+                "quiet resort near the beach"
+        );
+        TravelPlace museum = new TravelPlace(
+                3L,
+                "Paris",
+                "modern museum beside the river"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(restaurant, resort, museum)).join();
+            return engine.search(fuzzyRequest());
         }
     }
 

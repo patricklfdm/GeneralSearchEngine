@@ -8,8 +8,11 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import io.github.patricklfdm.generalsearch.index.text.FuzzyVocabularyAccess;
 import io.github.patricklfdm.generalsearch.index.text.PhrasePositionAccess;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import org.junit.jupiter.api.Test;
 
 class SearchPipelineVisibilityTest {
@@ -18,6 +21,7 @@ class SearchPipelineVisibilityTest {
             NormalizedScoringNode.class,
             NormalizedTextNode.class,
             NormalizedPhraseNode.class,
+            NormalizedFuzzyNode.class,
             NormalizedBoolNode.class,
             NormalizedBoostNode.class,
             PhraseSlot.class,
@@ -30,12 +34,19 @@ class SearchPipelineVisibilityTest {
             ScoringPlanNode.class,
             TextPlan.class,
             PhrasePlan.class,
+            FuzzyPlan.class,
             BoolPlan.class,
             BoostPlan.class,
             ScoreMatch.class,
             ScoringTerm.class,
+            FuzzyScoringExpansion.class,
+            FuzzyEvaluation.class,
             Bm25Scorer.class,
             ScoreArithmetic.class,
+            BoundedOptimalStringAlignment.class,
+            FuzzyTermExpander.class,
+            FuzzyExpansion.class,
+            VocabularyScanningFuzzyTermExpander.class,
             SearchQueryNode.class,
             LeafSearchQueryNode.class,
             BoolSearchQueryNode.class,
@@ -43,7 +54,7 @@ class SearchPipelineVisibilityTest {
     );
 
     @Test
-    void keepsImplementationTypesHiddenBehindTheTwoFrozenBridges() {
+    void keepsImplementationTypesHiddenBehindTheThreeFrozenBridges() {
         INTERNAL_TYPES.forEach(type -> assertFalse(
                 Modifier.isPublic(type.getModifiers()),
                 type.getName()
@@ -56,6 +67,11 @@ class SearchPipelineVisibilityTest {
         assertTrue(Modifier.isPublic(PhrasePositionAccess.class.getModifiers()));
         assertTrue(Modifier.isFinal(PhrasePositionAccess.class.getModifiers()));
         assertTrue(Arrays.stream(PhrasePositionAccess.class.getDeclaredConstructors())
+                .allMatch(constructor -> Modifier.isPrivate(
+                        constructor.getModifiers())));
+        assertTrue(Modifier.isPublic(FuzzyVocabularyAccess.class.getModifiers()));
+        assertTrue(Modifier.isFinal(FuzzyVocabularyAccess.class.getModifiers()));
+        assertTrue(Arrays.stream(FuzzyVocabularyAccess.class.getDeclaredConstructors())
                 .allMatch(constructor -> Modifier.isPrivate(
                         constructor.getModifiers())));
     }
@@ -83,6 +99,18 @@ class SearchPipelineVisibilityTest {
                         parameter.getTypeName().contains("IntPositions"),
                         parameter.getTypeName()
                 ));
+        List<java.lang.reflect.Method> vocabularyMethods = Arrays.stream(
+                        FuzzyVocabularyAccess.class.getDeclaredMethods())
+                .filter(method -> Modifier.isPublic(method.getModifiers()))
+                .toList();
+        assertEquals(List.of("forEachTerm"), vocabularyMethods.stream()
+                .map(method -> method.getName())
+                .toList());
+        assertEquals(void.class, vocabularyMethods.getFirst().getReturnType());
+        assertEquals(
+                List.of(TextIndexSnapshot.class, Consumer.class),
+                Arrays.asList(vocabularyMethods.getFirst().getParameterTypes())
+        );
 
         Set<String> publicQueryMethods = Arrays.stream(
                         SearchQuery.class.getDeclaredMethods())

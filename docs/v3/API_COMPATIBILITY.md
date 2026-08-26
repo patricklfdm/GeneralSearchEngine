@@ -103,6 +103,30 @@ frozen boundary; it does not make the bridge a supported application API. The Ph
 `SearchExecutionAccess` remains complete-execution-only. No further visibility bridge
 or supported public descriptor is permitted in Phase 5.
 
+## Phase 6 internal vocabulary bridge
+
+The canonical normalized vocabulary remains inside the package-private posting map of
+`TextIndexSnapshot`, while Phase 6 expansion and planning remain package-private in the
+search package. Phase 6 therefore permits one additional bytecode-public class,
+conceptually named `FuzzyVocabularyAccess`, solely to cross that Java package boundary
+without reflection or a supported vocabulary API.
+
+The class is Javadoc-hidden, final, non-instantiable, stateless, synchronous, and
+explicitly unsupported. Its only operation visits normalized vocabulary terms from one
+supplied `TextIndexSnapshot` through a standard string consumer. It returns no term
+collection, posting, dictionary, bitmap, position, iterator, stream, snapshot handle,
+expansion, plan, score, or internal document ID; retains no snapshot or callback; and
+performs no analysis, distance, expansion, candidate, or scoring work. No method is
+added to supported `TextIndexSnapshot`, `PostingList`, or query APIs.
+
+Japicmp reports `FuzzyVocabularyAccess` as the one additive bytecode-public Phase 6
+class. Normal and isolated comparisons against 1.0.0, 2.0.0, and 2.1.0 confirm that
+exact hidden boundary. It does not make vocabulary traversal a supported application
+SPI. Phase 6 otherwise adds no supported public type, method, field, constructor,
+record component, or descriptor.
+`SearchExecutionAccess` and `PhrasePositionAccess` remain otherwise unchanged, and no
+second Phase 6 bridge is permitted.
+
 ## Accepted null-literal ambiguity
 
 Adding `search(SearchRequest<T>)` creates one narrow source-resolution incompatibility:

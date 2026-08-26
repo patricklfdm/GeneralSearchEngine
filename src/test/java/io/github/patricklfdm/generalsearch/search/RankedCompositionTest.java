@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -119,8 +120,8 @@ class RankedCompositionTest {
     }
 
     @Test
-    void preflightsTheWholeTreeBeforeAnyAnalysisOrIndexWork() {
-        AtomicInteger calls = new AtomicInteger();
+    void acceptsTheWholeSupportedTreeAndAnalyzesInLogicalOrder() {
+        List<String> analyzed = new ArrayList<>();
         Analyzer analyzer = new Analyzer() {
             @Override
             public List<Token> analyze(String text) {
@@ -129,8 +130,8 @@ class RankedCompositionTest {
 
             @Override
             public List<AnalyzedToken> analyzeWithPositions(String text) {
-                calls.incrementAndGet();
-                throw new AssertionError("analysis must not run during preflight");
+                analyzed.add(text);
+                return List.of();
             }
         };
         TextField<Article> unindexed = TextField.of(TITLE, analyzer);
@@ -142,12 +143,8 @@ class RankedCompositionTest {
                         .build())
                 .build();
 
-        UnsupportedOperationException failure = assertThrows(
-                UnsupportedOperationException.class,
-                () -> execute(new SearchSnapshot<>(List.of()), query)
-        );
-        assertTrue(failure.getMessage().contains("FUZZY"));
-        assertEquals(0, calls.get());
+        assertTrue(execute(new SearchSnapshot<>(List.of()), query).isEmpty());
+        assertEquals(List.of("java", "search", "jvaa"), analyzed);
     }
 
     @Test

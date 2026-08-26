@@ -17,7 +17,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked search | Complete |
 | Phase 5 | exact phrase search | Complete |
-| Phase 6 | fuzzy term search | Planned |
+| Phase 6 | fuzzy term search | Complete |
 | Phase 7 | Explain execution | Planned |
 | Phase 8 | hardening and 3.0.0 release | Planned |
 
@@ -163,13 +163,28 @@ performance evidence in
 
 ## Phase 6 — Fuzzy term search
 
-Phase 6 implements `SearchQueries.fuzzy(...)`, an internal fuzzy plan and expander,
-bounded Optimal String Alignment distance over Unicode code points, AUTO edit distance,
-candidate union, and the frozen fuzzy scoring rules. The initial expander may scan the
-bounded vocabulary behind an internal abstraction.
+Phase 6 implements `SearchQueries.fuzzy(...)` through the existing snapshot-bound
+recursive scoring tree. One emitted normalized token is expanded by a bounded scan of
+the canonical field vocabulary using Unicode code-point AUTO thresholds and bounded
+Optimal String Alignment distance. Expansion order, candidate union, exact-term
+priority, and max-not-sum similarity-weighted BM25 follow the frozen rules.
+
+The completed implementation enforces whole-tree validation and failure precedence,
+checked arithmetic, deterministic expansion and tie-breaking, snapshot and
+dynamic-index lifecycle isolation, and one narrow Javadoc-hidden vocabulary traversal
+bridge. Planning may scale with vocabulary size but performs no lexical work per
+document. Focused, randomized differential, lifecycle, consumer, compatibility,
+release, reproducibility, and JMH smoke gates cover the implementation.
 
 It adds no automatic multi-token fuzzy, fuzzy phrase, spelling correction, magic
 max-expansion truncation, persistent fuzzy trie, or Levenshtein automaton.
+
+The complete boundary is recorded in
+[`phases/p6/FUZZY_SEARCH.md`](phases/p6/FUZZY_SEARCH.md); implementation and validation
+are tracked in
+[`phases/p6/PHASE_6_CHECKLIST.md`](phases/p6/PHASE_6_CHECKLIST.md), with focused
+performance evidence in
+[`phases/p6/PERFORMANCE_BASELINE.md`](phases/p6/PERFORMANCE_BASELINE.md).
 
 ## Phase 7 — Explain
 
