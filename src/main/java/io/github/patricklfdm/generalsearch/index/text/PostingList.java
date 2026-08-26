@@ -1,19 +1,21 @@
 package io.github.patricklfdm.generalsearch.index.text;
 
+import java.util.Objects;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
 
-/** Immutable term membership and per-document frequency retained for P5 scoring. */
+/** Immutable term membership and per-document occurrence facts retained for scoring. */
 public final class PostingList {
     private final ImmutableBitmap documents;
-    private final PersistentAvlMap<Integer, Integer> termFrequencies;
+    private final PersistentAvlMap<Integer, IntPositions> positionsByDocument;
 
     private PostingList(
             ImmutableBitmap documents,
-            PersistentAvlMap<Integer, Integer> termFrequencies
+            PersistentAvlMap<Integer, IntPositions> positionsByDocument
     ) {
-        this.documents = documents;
-        this.termFrequencies = termFrequencies;
+        this.documents = Objects.requireNonNull(documents, "documents");
+        this.positionsByDocument = Objects.requireNonNull(
+                positionsByDocument, "positionsByDocument");
     }
 
     public static PostingList empty() {
@@ -29,8 +31,7 @@ public final class PostingList {
     }
 
     public int termFrequency(int docId) {
-        Integer frequency = termFrequencies.get(docId);
-        return frequency == null ? 0 : frequency;
+        return positions(docId).size();
     }
 
     public PostingList withTermFrequency(int docId, int frequency) {
@@ -43,10 +44,29 @@ public final class PostingList {
         if (termFrequency(docId) == frequency) {
             return this;
         }
+        return withPositions(docId, IntPositions.sequential(frequency));
+    }
+
+    PostingList withPositions(int docId, IntPositions positions) {
+        if (docId < 0) {
+            throw new IllegalArgumentException("docId must not be negative");
+        }
+        Objects.requireNonNull(positions, "positions");
+        if (positions.size() == 0) {
+            throw new IllegalArgumentException("positions must not be empty");
+        }
+        if (positions.equals(positions(docId))) {
+            return this;
+        }
         return new PostingList(
                 documents.withSet(docId),
-                termFrequencies.with(docId, frequency)
+                positionsByDocument.with(docId, positions)
         );
+    }
+
+    IntPositions positions(int docId) {
+        IntPositions positions = positionsByDocument.get(docId);
+        return positions == null ? IntPositions.empty() : positions;
     }
 
     public PostingList without(int docId) {
@@ -58,7 +78,7 @@ public final class PostingList {
         }
         return new PostingList(
                 documents.withClear(docId),
-                termFrequencies.without(docId)
+                positionsByDocument.without(docId)
         );
     }
 }

@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import io.github.patricklfdm.generalsearch.analysis.Token;
+import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
 import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
@@ -49,7 +49,9 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
     @Override
     public IndexSnapshot<T> build() {
         ensureOpen();
-        if (dirty.isEmpty()) {
+        if (dirty.isEmpty()
+                && documentLengths == base.documentLengths()
+                && totalDocumentLength == base.totalDocumentLength()) {
             built = true;
             return base;
         }
@@ -79,41 +81,95 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
             AnalyzedDocument oldDocument,
             AnalyzedDocument newDocument
     ) {
-        Map<String, Integer> oldTerms = oldDocument.termFrequencies();
-        Map<String, Integer> newTerms = newDocument.termFrequencies();
-        if (oldTerms.equals(newTerms)) {
+        if (oldDocument.equals(newDocument)) {
             return;
         }
-        documentLengths = newDocument.length() == 0
+        Map<String, IntPositions> oldTerms = oldDocument.positionsByTerm();
+        Map<String, IntPositions> newTerms = newDocument.positionsByTerm();
+        PersistentAvlMap<Integer, Integer> updatedLengths = newDocument.tokenCount() == 0
                 ? documentLengths.without(docId)
-                : documentLengths.with(docId, newDocument.length());
-        totalDocumentLength = Math.addExact(
+                : documentLengths.with(docId, newDocument.tokenCount());
+        long updatedTotalLength = Math.addExact(
                 totalDocumentLength,
-                (long) newDocument.length() - oldDocument.length()
+                (long) newDocument.tokenCount() - oldDocument.tokenCount()
         );
         Set<String> changedTerms = new HashSet<>(oldTerms.keySet());
         changedTerms.addAll(newTerms.keySet());
+        Map<String, PostingList> updatedPostings = new TreeMap<>();
         for (String term : changedTerms) {
-            int oldFrequency = oldTerms.getOrDefault(term, 0);
-            int newFrequency = newTerms.getOrDefault(term, 0);
-            if (oldFrequency == newFrequency) {
+            IntPositions oldPositions = oldTerms.getOrDefault(
+                    term, IntPositions.empty());
+            IntPositions newPositions = newTerms.getOrDefault(
+                    term, IntPositions.empty());
+            if (oldPositions.equals(newPositions)) {
                 continue;
             }
-            PostingList posting = dirty.computeIfAbsent(term, base::posting);
-            dirty.put(term, newFrequency == 0
+            PostingList posting = dirty.getOrDefault(term, base.posting(term));
+            updatedPostings.put(term, newPositions.size() == 0
                     ? posting.without(docId)
-                    : posting.withTermFrequency(docId, newFrequency));
+                    : posting.withPositions(docId, newPositions));
         }
+        documentLengths = updatedLengths;
+        totalDocumentLength = updatedTotalLength;
+        dirty.putAll(updatedPostings);
     }
 
     private AnalyzedDocument analyze(T document) {
-        Map<String, Integer> frequencies = new HashMap<>();
-        int length = 0;
-        for (Token token : textField.analyzeDocument(document)) {
-            frequencies.merge(token.term(), 1, Math::addExact);
-            length = Math.addExact(length, 1);
+        String text = textField.field().valueOf(document);
+        var tokens = textField.analyzer().analyzeWithPositions(text);
+        if (tokens == null) {
+            throw invalidAnalysis("returned a null token list");
         }
-        return new AnalyzedDocument(frequencies, length);
+        Map<String, IntPositions.Builder> builders = new HashMap<>();
+        int logicalPosition = -1;
+        int tokenCount = 0;
+        for (int index = 0; index < tokens.size(); index++) {
+            AnalyzedToken token = tokens.get(index);
+            if (token == null) {
+                throw invalidAnalysis("returned a null token at index " + index);
+            }
+            if (token.term() == null || token.term().isEmpty()) {
+                throw invalidAnalysis("returned an empty term at index " + index);
+            }
+            int increment = token.positionIncrement();
+            if (index == 0 && increment < 1) {
+                throw invalidAnalysis(
+                        "returned a non-positive first position increment");
+            }
+            if (increment < 0) {
+                throw invalidAnalysis(
+                        "returned a negative position increment at index " + index);
+            }
+            try {
+                logicalPosition = Math.addExact(logicalPosition, increment);
+            } catch (ArithmeticException failure) {
+                throw invalidAnalysis(
+                        "overflowed logical position at token index " + index,
+                        failure
+                );
+            }
+            builders.computeIfAbsent(token.term(), ignored -> IntPositions.builder())
+                    .add(logicalPosition);
+            tokenCount = Math.addExact(tokenCount, 1);
+        }
+        Map<String, IntPositions> positionsByTerm = new HashMap<>();
+        builders.forEach((term, builder) -> positionsByTerm.put(term, builder.build()));
+        return new AnalyzedDocument(Map.copyOf(positionsByTerm), tokenCount);
+    }
+
+    private IllegalArgumentException invalidAnalysis(String detail) {
+        return new IllegalArgumentException(
+                "Analyzer for text field '" + textField.name() + "' " + detail);
+    }
+
+    private IllegalArgumentException invalidAnalysis(
+            String detail,
+            RuntimeException cause
+    ) {
+        return new IllegalArgumentException(
+                "Analyzer for text field '" + textField.name() + "' " + detail,
+                cause
+        );
     }
 
     private void ensureOpen() {
@@ -123,8 +179,8 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
     }
 
     private record AnalyzedDocument(
-            Map<String, Integer> termFrequencies,
-            int length
+            Map<String, IntPositions> positionsByTerm,
+            int tokenCount
     ) {
         private static AnalyzedDocument empty() {
             return new AnalyzedDocument(Map.of(), 0);
