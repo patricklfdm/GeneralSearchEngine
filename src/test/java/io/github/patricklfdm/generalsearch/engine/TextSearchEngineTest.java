@@ -13,10 +13,12 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.analysis.Token;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexStatistics;
+import io.github.patricklfdm.generalsearch.index.text.PostingPositionsTestAccess;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
@@ -73,6 +75,47 @@ class TextSearchEngineTest {
             engine.createIndex(IndexDefinition.text(TEXT)).join();
             assertEquals(Set.of(3L),
                     ids(engine.search(Query.allTerms(TEXT, "search engine"))));
+        }
+    }
+
+    @Test
+    void nativePositionedAnalysisIsConsistentWithAndWithoutTextIndex() {
+        Analyzer analyzer = new Analyzer() {
+            @Override
+            public List<Token> analyze(String text) {
+                return List.of(new Token("legacy"));
+            }
+
+            @Override
+            public List<AnalyzedToken> analyzeWithPositions(String text) {
+                return switch (text) {
+                    case "query-target" ->
+                            List.of(new AnalyzedToken("target", 3));
+                    case "query-both", "matching" -> List.of(
+                            new AnalyzedToken("target", 1),
+                            new AnalyzedToken("alternative", 0));
+                    case "target-only" ->
+                            List.of(new AnalyzedToken("target", 2));
+                    default -> List.of(new AnalyzedToken("other", 1));
+                };
+            }
+        };
+        TextField<Article> text = TextField.of(BODY, analyzer);
+
+        try (SearchEngine<Long, Article> engine = SearchEngine.builder(Article.class, ID)
+                .textField(text)
+                .index(IndexDefinition.text(text))
+                .build()) {
+            Article matching = new Article(1, "matching", "guide");
+            add(engine, matching,
+                    new Article(2, "target-only", "guide"),
+                    new Article(3, "missing", "guide"));
+
+            assertEquals(List.of(new Token("legacy")), text.analyzeDocument(matching));
+            assertPositionedQueryResults(engine, text);
+
+            engine.dropIndex("body").join();
+            assertPositionedQueryResults(engine, text);
         }
     }
 
@@ -141,6 +184,12 @@ class TextSearchEngineTest {
             assertEquals(2, index.documentLength(
                     engine.internalDocIdForTesting(0L)));
             assertEquals(2, index.documentLength(
+                    engine.internalDocIdForTesting(1_000L)));
+            assertEquals(List.of(1), PostingPositionsTestAccess.positions(
+                    index.posting("replay"),
+                    engine.internalDocIdForTesting(0L)));
+            assertEquals(List.of(0), PostingPositionsTestAccess.positions(
+                    index.posting("replay"),
                     engine.internalDocIdForTesting(1_000L)));
             assertEquals(200, index.totalDocumentLength());
             assertEquals(2.0, index.averageDocumentLength());
@@ -219,6 +268,59 @@ class TextSearchEngineTest {
     }
 
     @Test
+    void malformedPositionedMutationPublishesNeitherDocumentNorIndexState() {
+        Analyzer analyzer = new Analyzer() {
+            @Override
+            public List<Token> analyze(String text) {
+                return Analyzer.simple().analyze(text);
+            }
+
+            @Override
+            public List<AnalyzedToken> analyzeWithPositions(String text) {
+                if (text != null && text.contains("malformed")) {
+                    return List.of(new AnalyzedToken("bad", 0));
+                }
+                return Analyzer.super.analyzeWithPositions(text);
+            }
+        };
+        TextField<Article> text = TextField.of(BODY, analyzer);
+        Article original = new Article(1, "stable java", "guide");
+
+        try (SearchEngine<Long, Article> engine = SearchEngine.builder(Article.class, ID)
+                .textField(text)
+                .index(IndexDefinition.text(text))
+                .build()) {
+            engine.add(original).join();
+            long version = engine.metrics().snapshotVersion();
+
+            CompletionException updateFailure = assertThrows(
+                    CompletionException.class,
+                    () -> engine.update(
+                            new Article(1, "malformed update", "news")).join());
+            CompletionException addFailure = assertThrows(
+                    CompletionException.class,
+                    () -> engine.add(
+                            new Article(2, "malformed add", "guide")).join());
+            CompletionException bulkFailure = assertThrows(
+                    CompletionException.class,
+                    () -> engine.addAll(List.of(
+                            new Article(3, "valid addition", "guide"),
+                            new Article(4, "malformed bulk", "guide"))).join());
+
+            assertTrue(updateFailure.getCause() instanceof IllegalArgumentException);
+            assertTrue(addFailure.getCause() instanceof IllegalArgumentException);
+            assertTrue(bulkFailure.getCause() instanceof IllegalArgumentException);
+            assertEquals(version, engine.metrics().snapshotVersion());
+            assertEquals(original, engine.get(1L));
+            assertEquals(null, engine.get(2L));
+            assertEquals(null, engine.get(3L));
+            assertEquals(null, engine.get(4L));
+            assertEquals(Set.of(1L), ids(engine.search(Query.term(text, "stable"))));
+            assertTrue(engine.search(Query.term(text, "addition")).isEmpty());
+        }
+    }
+
+    @Test
     void runtimeAnnotationsConfigureTextAndUnindexedClassFieldsDirectly() {
         AnnotatedArticle first = new AnnotatedArticle(
                 1, "guide", 4.9, "java java search");
@@ -271,6 +373,18 @@ class TextSearchEngineTest {
         Set<Long> ids = new HashSet<>();
         articles.forEach(article -> ids.add(article.id()));
         return ids;
+    }
+
+    private static void assertPositionedQueryResults(
+            SearchEngine<Long, Article> engine,
+            TextField<Article> text
+    ) {
+        assertEquals(Set.of(1L, 2L),
+                ids(engine.search(Query.term(text, "query-target"))));
+        assertEquals(Set.of(1L, 2L),
+                ids(engine.search(Query.anyTerms(text, "query-both"))));
+        assertEquals(Set.of(1L),
+                ids(engine.search(Query.allTerms(text, "query-both"))));
     }
 
     private record Article(long id, String body, String category) {}

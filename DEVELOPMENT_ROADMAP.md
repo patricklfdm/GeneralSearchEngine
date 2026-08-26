@@ -18,6 +18,13 @@ index, ranking, and engine call path unchanged. Positional consumption and stora
 only in a later phase. The contract and acceptance gates are recorded under
 [`docs/v3/phases/p1/`](docs/v3/phases/p1/).
 
+Phase 2 is the active frozen implementation boundary. It introduces internal immutable
+positional posting storage and consistently activates positioned-term projection across
+current index, scan, and BM25 analysis paths. It preserves published legacy behavior
+through the default Analyzer adapter and adds no phrase execution. The canonical phase
+order is in [`docs/v3/ROADMAP.md`](docs/v3/ROADMAP.md), with Phase 2 gates under
+[`docs/v3/phases/p2/`](docs/v3/phases/p2/).
+
 V3.0 deliberately excludes phrase slop, `minimumShouldMatch`, automatic multi-token
 fuzzy, fuzzy phrase, spell correction, stemming, synonym dictionaries, highlighting,
 offset storage, BM25F, DisMax, custom scoring, WAND, plan caching, prepared queries,
