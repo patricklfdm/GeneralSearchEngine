@@ -138,42 +138,42 @@
 - [x] Reproducible build passes and final six-JAR SHA-256 hashes are recorded.
 - [x] Working tree contains no generated output, credentials, signatures, prompt, or
   temporary evidence.
-- [ ] Final release-preparation PR passes `CI / Required` and is approved.
-- [ ] Approved final state is merged to protected `master`.
-- [ ] Required `master` CI passes on the exact intended tag commit.
+- [x] Final release-preparation PR passes `CI / Required` and merges under the
+  protected-branch rules.
+- [x] Final release state is merged to protected `master`.
+- [x] Required `master` CI passes on the exact intended tag commit.
 
 ## Signed tag and protected publication
 
-- [ ] Create annotated signed `v3.0.0` on the exact approved `master` commit.
-- [ ] Verify the tag locally against the expected OpenPGP fingerprint.
-- [ ] Push only the verified tag.
-- [ ] Release workflow validates the exact tag and commit.
-- [ ] Protected workflow builds and verifies all eight detached signatures.
-- [ ] Maven Central immutability preflight passes.
-- [ ] Owner approves the `production-release` environment deployment.
-- [ ] Both 3.0.0 artifacts publish successfully to Maven Central.
-- [ ] Workflow waits for Central publication and does not redeploy.
-- [ ] GitHub Release is created from the exact signed tag.
+- [x] Create annotated signed `v3.0.0` on the exact approved `master` commit.
+- [x] Verify the tag locally against the expected OpenPGP fingerprint.
+- [x] Push only the verified tag.
+- [x] Release workflow validates the exact tag and commit.
+- [x] Protected workflow builds and verifies all eight detached signatures.
+- [x] Maven Central immutability preflight passes.
+- [x] Owner approves the `production-release` environment deployment.
+- [x] Both 3.0.0 artifacts publish successfully to Maven Central.
+- [x] Workflow waits for Central publication and does not redeploy.
+- [x] GitHub Release is created from the exact signed tag.
 
 ## Post-publication verification and record
 
-- [ ] Both coordinates resolve from a fresh isolated Maven repository.
-- [ ] Remote POM/main/sources/Javadoc artifacts match the validated release evidence.
-- [ ] Published detached signatures and checksums verify.
-- [ ] Clean published-3.0.0 V3 consumer compilation/execution passes without local
+- [x] Both coordinates resolve from a fresh isolated Maven repository.
+- [x] Remote POM/main/sources/Javadoc artifacts match the validated release evidence.
+- [x] Published detached signatures and checksums verify.
+- [x] Clean published-3.0.0 V3 consumer compilation/execution passes without local
   reactor installation.
-- [ ] Central artifact pages and GitHub tag/release links are verified.
-- [ ] Release record contains actual release date and exact tag/master commit.
-- [ ] Release record contains actual fingerprint, workflow/deployment result, test
+- [x] Central artifact pages and GitHub tag/release links are verified.
+- [x] Release record contains actual release date and exact tag/master commit.
+- [x] Release record contains actual fingerprint, workflow/deployment result, test
   counts, compatibility reports, consumer/example results, and six JAR hashes.
-- [ ] Release record contains actual Central resolution and GitHub Release facts.
-- [ ] A post-publication documentation commit identifies 3.0.0 as current stable.
-- [ ] Future compatibility planning retains 1.0.0, 2.0.0, and 2.1.0 and adds 3.0.0
+- [x] Release record contains actual Central resolution and GitHub Release facts.
+- [x] A post-publication documentation commit identifies 3.0.0 as current stable.
+- [x] Future compatibility planning retains 1.0.0, 2.0.0, and 2.1.0 and adds 3.0.0
   only after its publication can be resolved.
-- [ ] Published 3.0.0 artifacts are treated as immutable; later fixes use a new version.
-- [ ] Phase 8 is marked complete only after every applicable post-publication item is
+- [x] Published 3.0.0 artifacts are treated as immutable; later fixes use a new version.
+- [x] Phase 8 is marked complete only after every applicable post-publication item is
   supported by real evidence.
 
-Phase 8 being release-ready is not the same as Phase 8 being released. The checklist
-is complete only after clean published-artifact and consumer verification succeeds and
-the post-publication record is committed.
+Phase 8 completed after clean published-artifact and consumer verification succeeded
+and the post-publication record was prepared outside the immutable signed tag.

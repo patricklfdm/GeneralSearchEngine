@@ -2,10 +2,15 @@
 
 ## Baseline
 
-V3 development is additive to the application APIs published in `1.0.0`, `2.0.0`, and
-`2.1.0`. The artifact compatibility profile compares the current core JAR directly
-against all three published core artifacts. The frozen v1 source/reflection fixture and
-independent v1-, v2-, and v3-style consumers provide separate source-level coverage.
+V3.0 is additive to the application APIs published in `1.0.0`, `2.0.0`, and `2.1.0`.
+The 3.0.0 release artifact compatibility profile compared the final core JAR directly
+against all three earlier published core artifacts. The frozen v1 source/reflection
+fixture and independent v1-, v2-, and v3-style consumers provided separate
+source-level coverage.
+
+Published `3.0.0` is now an immutable compatibility baseline for subsequent V3.x
+development. The next development-version change must retain the 1.0.0, 2.0.0, and
+2.1.0 comparisons and add a direct comparison with the published 3.0.0 core artifact.
 
 The optional processor remains covered by its compilation, generated-consumer,
 Javadoc, service-entry, and release-artifact checks. Phase 0 does not establish a new
@@ -184,9 +189,9 @@ an exact text index cannot drift from its scan predicate. `TextField.analyzeDocu
 retains its existing descriptor and legacy behavior, and no public posting-positions API
 is added.
 
-## Phase 8 public API freeze audit
+## Published 3.0.0 public API freeze
 
-The 3.0.0 release-candidate Japicmp reports against 1.0.0, 2.0.0, and 2.1.0 contain no
+The final 3.0.0 Japicmp reports against 1.0.0, 2.0.0, and 2.1.0 contain no
 binary or source incompatibility. The supported additive V3 surface is exactly:
 
 - `AnalyzedToken` and the default `Analyzer.analyzeWithPositions(String)` method;
@@ -212,4 +217,4 @@ cross Java sibling packages and remain unsupported application infrastructure.
 Changes reported on `PostingList`, `TextIndexBuilder`, `RankedSearcher`, and
 `TextScoringQuery` do not add or remove public descriptors; they reflect private
 positional and canonical-execution implementation changes. No other accidental public
-V3 type or method is accepted into the 3.0.0 compatibility contract.
+V3 type or method is accepted into the published 3.0.0 compatibility contract.
