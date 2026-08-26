@@ -3,6 +3,7 @@ package io.github.patricklfdm.generalsearch.engine;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import io.github.patricklfdm.generalsearch.engine.metrics.SearchEngineMetrics;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
@@ -12,6 +13,9 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.search.SearchExplanation;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.SearchResult;
 
 /**
  * Thread-safe in-memory search engine over documents identified by a business key.
@@ -119,6 +123,39 @@ public interface SearchEngine<K, T> extends AutoCloseable {
         Objects.requireNonNull(request, "request");
         throw new UnsupportedOperationException(
                 "this SearchEngine implementation does not support ranked retrieval");
+    }
+
+    /**
+     * Returns V3 ranked-search results when this implementation supports the additive
+     * request capability.
+     *
+     * @param request non-null ranked-search request
+     * @return immutable ranked-search result
+     * @throws NullPointerException when {@code request} is null
+     * @throws UnsupportedOperationException when the implementation does not support
+     *         V3 search requests
+     */
+    default SearchResult<T> search(SearchRequest<T> request) {
+        Objects.requireNonNull(request, "request");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support search requests");
+    }
+
+    /**
+     * Explains one document when this implementation supports the additive capability.
+     *
+     * @param request non-null ranked-search request
+     * @param id non-null business ID
+     * @return explanation for an existing document, or empty when the ID is missing
+     * @throws NullPointerException when either argument is null
+     * @throws UnsupportedOperationException when the implementation does not support
+     *         search explanations
+     */
+    default Optional<SearchExplanation<T>> explain(SearchRequest<T> request, K id) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(id, "id");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support search explanations");
     }
 
     /** Returns the canonical schema whose fields should be used by queries and indexes. */

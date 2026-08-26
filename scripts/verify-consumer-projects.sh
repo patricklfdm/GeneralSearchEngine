@@ -17,4 +17,4 @@ fi
 "${maven_command[@]}" --batch-mode --no-transfer-progress \
     -q -f "${project_dir}/compatibility/pom.xml" clean test
 
-echo "Independent v1-style and v2-style consumer compilation: PASS"
+echo "Independent v1-style, v2-style, and v3-style consumer compilation: PASS"

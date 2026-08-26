@@ -1,5 +1,22 @@
 # GeneralSearchEngine development roadmap
 
+## v3.0.0 development
+
+Version `3.0.0-SNAPSHOT` is the active development line. Version 2.1.0 remains the
+current stable release until 3.0.0 is published.
+
+The V3 theme is high-quality ranked text retrieval. Planned capabilities include
+`SearchRequest`/`SearchResult`, the `SearchQuery` façade, cross-field ranked retrieval,
+position-aware analysis, phrase and fuzzy search, Explain, and a new internal
+planner/plan/executor pipeline. Phase 0 freezes public, semantic, and compatibility
+contracts without implementing the new retrieval engine.
+
+V3.0 deliberately excludes phrase slop, `minimumShouldMatch`, automatic multi-token
+fuzzy, fuzzy phrase, spell correction, stemming, synonym dictionaries, highlighting,
+offset storage, BM25F, DisMax, custom scoring, WAND, plan caching, prepared queries,
+pagination/search-after, aggregations, persistence/WAL, vector search, and distributed
+search. The active contract map is in [`docs/v3/README.md`](docs/v3/README.md).
+
 ## v1.0.0 freeze
 
 Version 1.0.0 is published and feature-frozen. Its release identity is

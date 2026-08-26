@@ -5,9 +5,19 @@ Semantic Versioning once the first stable artifact is published.
 
 ## Unreleased
 
+### Added
+
+- V3 Phase 0 request, ranked-query, result, and explanation model contracts under
+  `io.github.patricklfdm.generalsearch.search`, plus additive default request-search and
+  Explain capabilities on `SearchEngine`.
+- Frozen V3 architecture, ranked-search, positional, fuzzy, and API compatibility
+  documents; a v3-style independent consumer; and a direct Japicmp baseline against
+  published `2.1.0`.
+
 ### Changed
 
-- Opened the `2.2.0-SNAPSHOT` development line after the 2.1.0 release.
+- Opened the `3.0.0-SNAPSHOT` development line after the 2.1.0 release, beginning with
+  additive request/query/result contracts and frozen semantics before new execution.
 
 ## 2.1.0 — 2026-08-25
 

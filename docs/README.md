@@ -7,6 +7,16 @@ v2 development phases. The repository root [`README.md`](../README.md) remains t
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
+## v3 — active development
+
+- [Development overview and contract map](v3/README.md)
+- [API compatibility](v3/API_COMPATIBILITY.md)
+- [Phase 0 architecture](v3/phases/p0/ARCHITECTURE.md)
+- [Ranked-search semantics](v3/phases/p0/SEARCH_SEMANTICS.md)
+- [Positional semantics](v3/phases/p0/POSITIONAL_SEMANTICS.md)
+- [Fuzzy semantics](v3/phases/p0/FUZZY_SEMANTICS.md)
+- [Phase 0 checklist](v3/phases/p0/PHASE_0_CHECKLIST.md)
+
 ## v1 — published and frozen
 
 - [Semantics](v1/SEMANTICS.md)
@@ -21,7 +31,7 @@ remains the phase history and decision source of truth.
 - [API compatibility audit](v2/API_COMPATIBILITY.md)
 - [Published release record](v2/RELEASE_CHECKLIST.md)
 
-## v2.1 — release candidate
+## v2.1 — current stable release
 
 - [Release checklist](v2.1/RELEASE_CHECKLIST.md)
 

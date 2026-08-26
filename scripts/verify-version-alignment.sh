@@ -36,6 +36,7 @@ checks=(
     "examples/travel-search/pom.xml:project.version"
     "compatibility/v1-style-consumer/pom.xml:gse.version"
     "compatibility/v2-style-consumer/pom.xml:gse.version"
+    "compatibility/v3-style-consumer/pom.xml:gse.version"
 )
 
 for check in "${checks[@]}"; do

@@ -62,7 +62,7 @@ jobs:
       - name: Run the frozen source and reflection fixture
         run: ./mvnw clean -Papi-compat test
 
-      - name: Compare both published API baselines
+      - name: Compare published API baselines
         run: |
           compat_repo=$(mktemp -d "$RUNNER_TEMP/gse-compat-m2.XXXXXX")
           ./mvnw -Dmaven.repo.local="$compat_repo" clean -Partifact-compat verify

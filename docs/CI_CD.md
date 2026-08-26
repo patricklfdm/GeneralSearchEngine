@@ -31,8 +31,8 @@ The workflow runs three parallel gates:
 1. `Reactor tests` checks version alignment, compiles all reactor modules, runs the
    core and processor tests, and executes the travel example.
 2. `Compatibility` runs the frozen source/reflection fixture, compares the public API
-   with published 1.0.0 and 2.0.0 artifacts from an isolated Maven repository, and
-   compiles both independent consumers.
+   with published 1.0.0, 2.0.0, and 2.1.0 artifacts from an isolated Maven repository,
+   and compiles all three independent consumers.
 3. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
    skipped; checks all six JARs, Manifest versions, and processor service isolation;
    then verifies that all six publishable JARs are reproducible.
