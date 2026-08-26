@@ -2,12 +2,12 @@
 
 - [CI/CD and release operations](CI_CD.md)
 
-This directory preserves the published v1 and v2 records together with the completed
-v2 development phases. The repository root [`README.md`](../README.md) remains the
+This directory preserves the published v1, v2, and v3 records together with completed
+development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
-## v3 — active development
+## v3 — current stable release
 
 - [Development overview and contract map](v3/README.md)
 - [API compatibility](v3/API_COMPATIBILITY.md)
@@ -36,7 +36,7 @@ remains the phase history and decision source of truth.
 - [API compatibility audit](v2/API_COMPATIBILITY.md)
 - [Published release record](v2/RELEASE_CHECKLIST.md)
 
-## v2.1 — current stable release
+## v2.1 — previous stable release
 
 - [Release checklist](v2.1/RELEASE_CHECKLIST.md)
 

@@ -1,9 +1,12 @@
 # GeneralSearchEngine development roadmap
 
-## v3.0.0 release candidate
+## v3.0.0 current stable release
 
-Version `3.0.0` is frozen for publication. Version 2.1.0 remains the current stable
-release until 3.0.0 publication succeeds.
+Version `3.0.0` was published on August 26, 2026 as the current stable release:
+
+- `io.github.patricklfdm:general-search-engine:3.0.0`;
+- `io.github.patricklfdm:general-search-engine-processor:3.0.0`;
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.0.0).
 
 The V3 theme is high-quality ranked text retrieval. Phase 0 froze the public, semantic,
 architecture, and compatibility contracts. Phases 1–7 completed position-aware
@@ -11,7 +14,7 @@ analysis, positional postings, the canonical `SearchRequest` pipeline, recursive
 BOOL/BOOST and cross-field ranking, exact phrase search, single-term fuzzy search, and
 per-document Explain while preserving the published V1/V2 APIs.
 
-Phase 8 is the active frozen boundary. It adds no search feature. It performs final
+Phase 8 is complete. It added no search feature. It performed final
 public-API and correctness hardening, compatibility validation, performance and memory
 measurement, documentation/example finalization, version conversion, protected
 tag-based publication, and post-publication verification. Its normative contract and
@@ -22,7 +25,7 @@ V3.0 deliberately excludes phrase slop, `minimumShouldMatch`, automatic multi-to
 fuzzy, fuzzy phrase, spell correction, stemming, synonym dictionaries, highlighting,
 offset storage, BM25F, DisMax, custom scoring, WAND, plan caching, prepared queries,
 pagination/search-after, aggregations, persistence/WAL, vector search, and distributed
-search. The active contract map is in [`docs/v3/README.md`](docs/v3/README.md).
+search. The published contract map is in [`docs/v3/README.md`](docs/v3/README.md).
 
 ## v1.0.0 freeze
 
@@ -44,9 +47,9 @@ The following remain outside the v1.0.0 scope:
 - write-ahead logging (WAL) and persistence;
 - distributed search and sharding.
 
-## v2.1.0
+## v2.1.0 (previous stable)
 
-Version 2.1.0 is the current stable release. Its release artifacts are:
+Version 2.1.0 is the previous stable release. Its release artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.1.0`;
 - `io.github.patricklfdm:general-search-engine-processor:2.1.0`.
@@ -59,9 +62,9 @@ Its compatibility and release gates are recorded in
 [`docs/v2/API_COMPATIBILITY.md`](docs/v2/API_COMPATIBILITY.md) and
 [`docs/v2.1/RELEASE_CHECKLIST.md`](docs/v2.1/RELEASE_CHECKLIST.md).
 
-## v2.0.0 (previous stable)
+## v2.0.0 (earlier stable)
 
-Version 2.0.0 is the previous stable release and the immediate compatibility baseline.
+Version 2.0.0 is an earlier stable release and retained compatibility baseline.
 Its release artifacts are:
 
 - `io.github.patricklfdm:general-search-engine:2.0.0`;

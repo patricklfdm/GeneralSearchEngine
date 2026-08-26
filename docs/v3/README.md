@@ -1,8 +1,7 @@
-# GeneralSearchEngine v3 release candidate
+# GeneralSearchEngine v3.0
 
-Version `3.0.0` is frozen for publication with a higher-level ranked text retrieval API
-while preserving the structured and ranked APIs published through 2.1.0. Version
-2.1.0 remains the current stable release until 3.0.0 publication succeeds.
+Version `3.0.0` is the current stable release. It adds a higher-level ranked text
+retrieval API while preserving the structured and ranked APIs published through 2.1.0.
 
 ## Phase map
 
@@ -16,7 +15,7 @@ while preserving the structured and ranked APIs published through 2.1.0. Version
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | single-term fuzzy search | Complete |
 | Phase 7 | Explain execution | Complete |
-| Phase 8 | hardening and release | In progress |
+| Phase 8 | hardening and release | Complete |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
 later implementation auditable and difficult to change accidentally.
@@ -97,5 +96,5 @@ tag-triggered 3.0.0 publication and post-publication verification state machine.
 - [Phase 8 checklist](phases/p8/PHASE_8_CHECKLIST.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
-the additive development line and must not be read as changing existing query truth,
+the published additive V3 line and must not be read as changing existing query truth,
 ordering, mutation, snapshot, or `searchTopK` behavior.

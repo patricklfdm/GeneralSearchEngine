@@ -1,10 +1,10 @@
-# GeneralSearchEngine V3 development roadmap
+# GeneralSearchEngine V3 roadmap
 
 ## Status
 
-Current stable release: `2.1.0`
+Current stable release: `3.0.0`
 
-Current V3 release candidate: `3.0.0`
+Immediate prior stable release: `2.1.0`
 
 V3 develops high-quality ranked text retrieval with stable public APIs, exact phrase
 search, fuzzy term tolerance, cross-field relevance, and Explain.
@@ -19,7 +19,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | fuzzy term search | Complete |
 | Phase 7 | Explain execution | Complete |
-| Phase 8 | hardening and 3.0.0 release | In progress |
+| Phase 8 | hardening and 3.0.0 release | Complete |
 
 Each phase starts from the previous phase merged to `master`. A phase is complete only
 after its focused tests, full correctness suite, compatibility baselines, independent
@@ -211,13 +211,13 @@ validation are tracked in
 
 ## Phase 8 — Hardening and 3.0.0 release
 
-Phase 8 adds no features. It completes correctness, randomized/differential, mutation,
+Phase 8 added no features. It completed correctness, randomized/differential, mutation,
 snapshot, legacy-equivalence, and Explain-invariant validation; performance baselines
 and evidence-driven optimization; compatibility and independent-consumer gates; public
 documentation and examples; release artifacts, signing, reproducibility, CI/CD, Maven
-Central, and GitHub Release preparation.
+Central publication, remote verification, and the GitHub Release.
 
-The travel example should demonstrate structured filtering, text ranking, cross-field
+The travel example demonstrates structured filtering, text ranking, cross-field
 ranking, exact phrase search, fuzzy typo tolerance, Explain, and dynamic-index behavior.
 
 The frozen execution boundary, evidence states, performance limits, and exact

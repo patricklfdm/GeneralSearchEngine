@@ -50,7 +50,9 @@ until it actually occurs; release-ready does not mean released.
     processor main.
 - [x] Final release-preparation PR passes `CI / Required` and is merged to protected
   `master` as `a47009e53765c99b792c255cee3584cebabf16ee`.
-- [ ] Required `master` CI passes on the exact intended tag commit.
+- [x] Required `master` CI passes on exact tag commit
+  `a47009e53765c99b792c255cee3584cebabf16ee` in
+  [run 33007043891](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33007043891).
 
 ## State 3 — signed publication and remote verification
 
@@ -58,15 +60,18 @@ until it actually occurs; release-ready does not mean released.
   `a47009e53765c99b792c255cee3584cebabf16ee`.
 - [x] Local tag verification matches OpenPGP fingerprint
   `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
-- [ ] Tag-triggered workflow validates tests, compatibility, consumers, travel,
-  packaging, reproducibility, signatures, and Central immutability.
-- [ ] `production-release` deployment is approved.
-- [ ] Core and processor `3.0.0` publish automatically to Maven Central.
-- [ ] Remote POM, main, sources, Javadoc, `.asc`, and checksum files verify from a fresh
+- [x] Protected recovery [run 33009580128](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33009580128)
+  validates the exact immutable tag, tests, compatibility, consumers, travel,
+  packaging, reproducibility, signatures, and Central immutability after the initial
+  tag-triggered runner-tool failure.
+- [x] `production-release` deployment `6111290282` is approved and finishes with
+  `success`.
+- [x] Core and processor `3.0.0` were published automatically to Maven Central.
+- [x] Remote POM, main, sources, Javadoc, `.asc`, and checksum files verify from a fresh
   isolated repository/cache.
-- [ ] A clean V3 consumer compiles and runs against published `3.0.0` without installing
-  the reactor.
-- [ ] GitHub Release is created from the exact verified tag.
+- [x] A clean V3 consumer compiles and runs 5 tests against published `3.0.0` without
+  installing the reactor.
+- [x] GitHub Release is created from the exact verified tag.
 
 ## Pre-publication recovery record
 
@@ -75,23 +80,33 @@ until it actually occurs; release-ready does not mean released.
 - [x] No release secret, protected-environment approval, Central upload, or GitHub
   Release occurred before that failure.
 - [x] The pushed signed `v3.0.0` tag remains unchanged.
-- [ ] The reviewed portable-validator and immutable-tag recovery workflow are merged to
+- [x] The reviewed portable-validator and immutable-tag recovery workflow are merged to
   protected `master` and `CI / Required` passes.
-- [ ] `Release` is manually dispatched with `release_tag=v3.0.0`.
-- [ ] The recovery run completes all validation and publication evidence in State 3.
+- [x] `Release` is manually dispatched with `release_tag=v3.0.0`.
+- [x] The recovery run completes all validation and publication evidence in State 3.
 
-## Post-publication record — currently `PENDING`
+## Post-publication record — complete
 
-- Release date: `PENDING`
-- Tag/master commit: `PENDING`
-- OpenPGP fingerprint: `PENDING`
-- Workflow run and deployment ID: `PENDING`
-- Maven Central resolution evidence: `PENDING`
-- GitHub Release URL and publication time: `PENDING`
-- Published consumer result: `PENDING`
-- Final stable-version documentation commit: `PENDING`
-- Published 3.0.0 compatibility-baseline addition: `PENDING`
+- Release date: `2026-08-26`.
+- Tag/master commit: signed `v3.0.0` ->
+  `a47009e53765c99b792c255cee3584cebabf16ee`.
+- OpenPGP fingerprint: `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
+- Workflow and deployment: recovery
+  [run 33009580128](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33009580128),
+  successful `production-release` deployment `6111290282`.
+- Maven Central resolution evidence: published
+  [`general-search-engine:3.0.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.0.0)
+  and
+  [`general-search-engine-processor:3.0.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.0.0)
+  were independently reverified at `2026-08-26T20:54:37Z`; all eight POM/main/sources/
+  Javadoc artifacts, detached signatures, and SHA-1 files passed.
+- GitHub Release: [GeneralSearchEngine 3.0.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.0.0),
+  published at `2026-08-26T20:25:36Z`.
+- Published consumer result: clean isolated V3 consumer build and all 5 tests passed.
+- Final stable-version documentation: the documentation-only commit containing this
+  record, outside the immutable signed tag.
+- Published 3.0.0 compatibility baseline: recorded as mandatory for the next
+  development-version change in [API compatibility](API_COMPATIBILITY.md).
 
-After publication, fill this section from real remote evidence in a documentation-only
-follow-up commit outside the immutable signed tag. Never overwrite published 3.0.0;
-later fixes use 3.0.1 or a later version.
+Published 3.0.0 and its signed tag are immutable. Later fixes use 3.0.1 or a later
+version.
