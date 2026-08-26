@@ -17,7 +17,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked search | Complete |
 | Phase 5 | exact phrase search | Complete |
-| Phase 6 | fuzzy term search | Planned |
+| Phase 6 | fuzzy term search | Contract frozen |
 | Phase 7 | Explain execution | Planned |
 | Phase 8 | hardening and 3.0.0 release | Planned |
 
@@ -168,8 +168,21 @@ bounded Optimal String Alignment distance over Unicode code points, AUTO edit di
 candidate union, and the frozen fuzzy scoring rules. The initial expander may scan the
 bounded vocabulary behind an internal abstraction.
 
+Before implementation, Phase 6 freezes emitted-token cardinality and positioned-output
+validation, empty-leaf and missing-index precedence, exact Unicode code-point ordering,
+the bounded OSA sentinel contract, full deterministic expansion without truncation,
+exact-term scoring priority, max-not-sum similarity-weighted BM25, checked arithmetic,
+snapshot/dynamic-index lifecycle, and one narrow Javadoc-hidden vocabulary traversal
+bridge. Planning may scale with vocabulary size but performs no lexical work per
+document.
+
 It adds no automatic multi-token fuzzy, fuzzy phrase, spelling correction, magic
 max-expansion truncation, persistent fuzzy trie, or Levenshtein automaton.
+
+The complete boundary is recorded in
+[`phases/p6/FUZZY_SEARCH.md`](phases/p6/FUZZY_SEARCH.md); implementation and validation
+are tracked in
+[`phases/p6/PHASE_6_CHECKLIST.md`](phases/p6/PHASE_6_CHECKLIST.md).
 
 ## Phase 7 — Explain
 
