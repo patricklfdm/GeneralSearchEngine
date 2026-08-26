@@ -25,4 +25,14 @@ class V3StyleConsumerTest {
                         .toList()
         );
     }
+
+    @Test
+    void executesExactPhraseThroughPublishedApiOnly() {
+        assertEquals(
+                List.of(1L, 2L),
+                V3StyleConsumer.supportedPhraseSearch().hits().stream()
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+    }
 }
