@@ -27,40 +27,68 @@ final class BoundedOptimalStringAlignment {
     }
 
     static int distance(int[] leftPoints, int[] rightPoints, int maxEdits) {
+        return distance(
+                leftPoints,
+                leftPoints.length,
+                rightPoints,
+                rightPoints.length,
+                maxEdits,
+                new Workspace()
+        );
+    }
+
+    static int distance(
+            int[] leftPoints,
+            int leftLength,
+            int[] rightPoints,
+            int rightLength,
+            int maxEdits,
+            Workspace workspace
+    ) {
         Objects.requireNonNull(leftPoints, "leftPoints");
         Objects.requireNonNull(rightPoints, "rightPoints");
+        Objects.requireNonNull(workspace, "workspace");
+        if (leftLength < 0 || leftLength > leftPoints.length
+                || rightLength < 0 || rightLength > rightPoints.length) {
+            throw new IllegalArgumentException(
+                    "logical code-point lengths are out of range");
+        }
         if (maxEdits < 0 || maxEdits > MAX_AUTO_EDITS) {
             throw new IllegalArgumentException("maxEdits must be between 0 and 2");
         }
-        if (Arrays.equals(leftPoints, rightPoints)) {
+        if (equalPrefix(leftPoints, leftLength, rightPoints, rightLength)) {
             return 0;
         }
 
         int sentinel = maxEdits + 1;
-        if (Math.abs(leftPoints.length - rightPoints.length) > maxEdits) {
+        if (Math.abs(leftLength - rightLength) > maxEdits) {
             return sentinel;
         }
-        if (rightPoints.length > leftPoints.length) {
+        if (rightLength > leftLength) {
             int[] held = leftPoints;
             leftPoints = rightPoints;
             rightPoints = held;
+            int heldLength = leftLength;
+            leftLength = rightLength;
+            rightLength = heldLength;
         }
 
-        int[] twoRowsBack = new int[rightPoints.length + 1];
-        int[] previous = new int[rightPoints.length + 1];
-        int[] current = new int[rightPoints.length + 1];
-        Arrays.fill(twoRowsBack, sentinel);
-        Arrays.fill(previous, sentinel);
+        workspace.ensureCapacity(rightLength + 1);
+        int[] twoRowsBack = workspace.twoRowsBack;
+        int[] previous = workspace.previous;
+        int[] current = workspace.current;
+        Arrays.fill(twoRowsBack, 0, rightLength + 1, sentinel);
+        Arrays.fill(previous, 0, rightLength + 1, sentinel);
         for (int column = 0;
-                column <= Math.min(rightPoints.length, maxEdits);
+                column <= Math.min(rightLength, maxEdits);
                 column++) {
             previous[column] = column;
         }
 
-        for (int row = 1; row <= leftPoints.length; row++) {
-            Arrays.fill(current, sentinel);
+        for (int row = 1; row <= leftLength; row++) {
+            Arrays.fill(current, 0, rightLength + 1, sentinel);
             int firstColumn = Math.max(0, row - maxEdits);
-            int lastColumn = Math.min(rightPoints.length, row + maxEdits);
+            int lastColumn = Math.min(rightLength, row + maxEdits);
             if (firstColumn == 0) {
                 current[0] = row;
             }
@@ -95,7 +123,7 @@ final class BoundedOptimalStringAlignment {
             current = reusable;
         }
 
-        return Math.min(previous[rightPoints.length], sentinel);
+        return Math.min(previous[rightLength], sentinel);
     }
 
     static int compareCodePoints(String left, String right) {
@@ -121,5 +149,37 @@ final class BoundedOptimalStringAlignment {
 
     private static int increment(int value, int sentinel) {
         return value >= sentinel ? sentinel : value + 1;
+    }
+
+    private static boolean equalPrefix(
+            int[] left,
+            int leftLength,
+            int[] right,
+            int rightLength
+    ) {
+        if (leftLength != rightLength) {
+            return false;
+        }
+        for (int index = 0; index < leftLength; index++) {
+            if (left[index] != right[index]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static final class Workspace {
+        private int[] twoRowsBack = new int[0];
+        private int[] previous = new int[0];
+        private int[] current = new int[0];
+
+        private void ensureCapacity(int required) {
+            if (previous.length >= required) {
+                return;
+            }
+            twoRowsBack = new int[required];
+            previous = new int[required];
+            current = new int[required];
+        }
     }
 }
