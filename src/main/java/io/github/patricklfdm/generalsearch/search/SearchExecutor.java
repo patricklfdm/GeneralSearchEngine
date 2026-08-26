@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
-import io.github.patricklfdm.generalsearch.ranking.Bm25Config;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 
 /** Executes one immutable search plan without consulting another snapshot. */
@@ -29,10 +28,11 @@ final class SearchExecutor<T> {
                     || (plan.filter() != null && !plan.filter().matches(document))) {
                 return;
             }
-            double score = score(plan, docId);
-            if (score <= 0.0) {
+            ScoreMatch result = Objects.requireNonNull(plan.root()).evaluate(docId);
+            if (!result.matched()) {
                 return;
             }
+            double score = result.score();
             RankedCandidate<T> candidate = new RankedCandidate<>(docId, document, score);
             if (top.size() < plan.limit()) {
                 top.add(candidate);
@@ -47,31 +47,6 @@ final class SearchExecutor<T> {
         return ranked.stream()
                 .map(candidate -> new SearchHit<>(candidate.document(), candidate.score()))
                 .toList();
-    }
-
-    private double score(SearchPlan<T> plan, int docId) {
-        int documentLength = Objects.requireNonNull(plan.textIndex())
-                .documentLength(docId);
-        double averageLength = plan.averageDocumentLength();
-        if (averageLength == 0.0 || documentLength == 0) {
-            return 0.0;
-        }
-        Bm25Config config = plan.config();
-        double normalization = config.k1() * (
-                1.0 - config.b()
-                        + config.b() * documentLength / averageLength
-        );
-        double score = 0.0;
-        for (SearchPlan.ScoringTerm term : plan.scoringTerms()) {
-            int termFrequency = term.posting().termFrequency(docId);
-            if (termFrequency == 0) {
-                continue;
-            }
-            score += term.inverseDocumentFrequency()
-                    * (termFrequency * (config.k1() + 1.0))
-                    / (termFrequency + normalization);
-        }
-        return score;
     }
 
     private boolean isBetter(
