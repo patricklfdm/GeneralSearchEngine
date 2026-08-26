@@ -197,6 +197,27 @@ public final class V3StyleConsumer {
         return engine.explain(request(), id);
     }
 
+    public static SearchExplanation<TravelPlace> supportedExplain() {
+        TravelPlace target = new TravelPlace(
+                1L,
+                "Tokyo",
+                "historic temple in a quiet neighborhood"
+        );
+        TravelPlace other = new TravelPlace(
+                2L,
+                "Kyoto",
+                "historic temple garden"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(CITY_TEXT))
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(target, other)).join();
+            return explain(engine, 1L).orElseThrow();
+        }
+    }
+
     public static SearchResult<TravelPlace> externalResult(TravelPlace place) {
         return new SearchResult<>(List.of(new SearchHit<>(place, 1.0)));
     }

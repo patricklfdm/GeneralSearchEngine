@@ -464,11 +464,16 @@ class FuzzySearchTest {
         var posting = textIndex.posting("restaurant");
         Bm25Config config = new Bm25Config(1.0, 1.0);
         FuzzyPlan<Article> plan = new FuzzyPlan<>(
+                "body",
                 textIndex,
                 "restaurant",
                 List.of(new FuzzyScoringExpansion(
                         "restaurant",
-                        new ScoringTerm(posting, Double.MIN_VALUE),
+                        new ScoringTerm(
+                                "restaurant",
+                                posting,
+                                Double.MIN_VALUE
+                        ),
                         0,
                         1.0
                 )),
@@ -481,6 +486,10 @@ class FuzzySearchTest {
         assertTrue(evaluation.result().matched());
         assertEquals(0.0, evaluation.result().score());
         assertEquals("restaurant", evaluation.selectedTerm());
+        ExplanationNode explanation = plan.explain(0);
+        assertTrue(explanation.matched());
+        assertEquals(0.0, explanation.score());
+        assertEquals(0.0, explanation.children().getFirst().score());
     }
 
     private static void assertInvalidFuzzy(
