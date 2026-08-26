@@ -35,11 +35,11 @@ final class SearchPlanner<T> {
 
     SearchPlan<T> plan(RankedSearchInput<T> input) {
         Objects.requireNonNull(input, "input");
+        ScoringPlanNode<T> root = compile(input.root(), input.config());
         if (!input.hasNonEmptyScoringLeaf()) {
-            return SearchPlan.empty(input);
+            return SearchPlan.empty(input, root);
         }
 
-        ScoringPlanNode<T> root = compile(input.root(), input.config());
         ImmutableBitmap candidates = root.candidates();
         if (input.filter() != null) {
             var filterCandidates = filterPlanner.plan(
@@ -110,7 +110,9 @@ final class SearchPlanner<T> {
     ) {
         if (text.frozenTerms().isEmpty()) {
             return new TextPlan<>(
+                    text.textField().name(),
                     null,
+                    List.of(),
                     List.of(),
                     ImmutableBitmap.empty(),
                     config,
@@ -130,11 +132,10 @@ final class SearchPlanner<T> {
             if (documentFrequency == 0) {
                 continue;
             }
-            double inverseDocumentFrequency = Math.log1p(
-                    (documentCount - documentFrequency + 0.5)
-                            / (documentFrequency + 0.5)
-            );
+            double inverseDocumentFrequency = Bm25Scorer
+                    .inverseDocumentFrequency(documentCount, documentFrequency);
             scoringTerms.add(new ScoringTerm(
+                    term,
                     posting,
                     inverseDocumentFrequency
             ));
@@ -153,7 +154,9 @@ final class SearchPlanner<T> {
                 : candidateUnion == null ? firstCandidates : candidateUnion.build();
 
         return new TextPlan<>(
+                text.textField().name(),
                 textIndex,
+                text.frozenTerms(),
                 scoringTerms,
                 candidates,
                 config,
@@ -166,7 +169,7 @@ final class SearchPlanner<T> {
             Bm25Config config
     ) {
         if (phrase.slots().isEmpty()) {
-            return PhrasePlan.empty(config);
+            return PhrasePlan.empty(phrase.textField().name(), config);
         }
 
         TextIndexSnapshot<T> textIndex = Objects.requireNonNull(phrase.textIndex());
@@ -223,20 +226,27 @@ final class SearchPlanner<T> {
                 continue;
             }
             scoringTerms.add(new ScoringTerm(
+                    term,
                     posting,
-                    inverseDocumentFrequency(documentCount, documentFrequency)
+                    Bm25Scorer.inverseDocumentFrequency(
+                            documentCount,
+                            documentFrequency
+                    )
             ));
         }
 
         return new PhrasePlan<>(
+                phrase.textField().name(),
                 textIndex,
                 scoringTerms,
+                phrase.scoringTerms(),
                 candidates,
                 config,
                 textIndex.averageDocumentLength(),
                 relativePositions,
                 alternativesBySlot,
-                anchorSlot
+                anchorSlot,
+                phrase.slots()
         );
     }
 
@@ -245,7 +255,7 @@ final class SearchPlanner<T> {
             Bm25Config config
     ) {
         if (fuzzy.normalizedTerm() == null) {
-            return FuzzyPlan.empty(config);
+            return FuzzyPlan.empty(fuzzy.textField().name(), config);
         }
 
         TextIndexSnapshot<T> textIndex = Objects.requireNonNull(fuzzy.textIndex());
@@ -271,8 +281,9 @@ final class SearchPlanner<T> {
             scoringExpansions.add(new FuzzyScoringExpansion(
                     expansion.term(),
                     new ScoringTerm(
+                            expansion.term(),
                             expansion.posting(),
-                            inverseDocumentFrequency(
+                            Bm25Scorer.inverseDocumentFrequency(
                                     documentCount,
                                     documentFrequency
                             )
@@ -293,6 +304,7 @@ final class SearchPlanner<T> {
                 ? ImmutableBitmap.empty()
                 : candidateUnion == null ? firstCandidates : candidateUnion.build();
         return new FuzzyPlan<>(
+                fuzzy.textField().name(),
                 textIndex,
                 fuzzy.normalizedTerm(),
                 scoringExpansions,
@@ -312,16 +324,6 @@ final class SearchPlanner<T> {
             union.or(alternatives[index].documents());
         }
         return union.build();
-    }
-
-    private double inverseDocumentFrequency(
-            int documentCount,
-            int documentFrequency
-    ) {
-        return Math.log1p(
-                (documentCount - documentFrequency + 0.5)
-                        / (documentFrequency + 0.5)
-        );
     }
 
     private ImmutableBitmap boolCandidates(

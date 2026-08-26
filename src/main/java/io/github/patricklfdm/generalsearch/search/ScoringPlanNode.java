@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.search;
 
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -16,6 +17,8 @@ sealed interface ScoringPlanNode<T>
     ImmutableBitmap candidates();
 
     ScoreMatch evaluate(int docId);
+
+    ExplanationNode explain(int docId);
 }
 
 record ScoreMatch(boolean matched, double score) {
@@ -44,13 +47,17 @@ record ScoreMatch(boolean matched, double score) {
 }
 
 record TextPlan<T>(
+        String fieldName,
         TextIndexSnapshot<T> textIndex,
+        List<String> diagnosticTerms,
         List<ScoringTerm> scoringTerms,
         ImmutableBitmap candidates,
         Bm25Config config,
         double averageDocumentLength
 ) implements ScoringPlanNode<T> {
     TextPlan {
+        Objects.requireNonNull(fieldName, "fieldName");
+        diagnosticTerms = List.copyOf(diagnosticTerms);
         scoringTerms = List.copyOf(scoringTerms);
         if (textIndex == null && !scoringTerms.isEmpty()) {
             throw new IllegalArgumentException(
@@ -79,29 +86,64 @@ record TextPlan<T>(
                 false
         );
     }
+
+    @Override
+    public ExplanationNode explain(int docId) {
+        if (textIndex == null) {
+            return ExplanationSupport.node(
+                    ScoreMatch.noMatch(),
+                    "TEXT field=" + ExplanationSupport.quote(fieldName)
+                            + " analysis produced no scoring terms",
+                    List.of()
+            );
+        }
+        ScoreMatch result = evaluate(docId);
+        List<ExplanationNode> children = ExplanationSupport.bm25Terms(
+                fieldName,
+                textIndex,
+                diagnosticTerms,
+                scoringTerms,
+                config,
+                averageDocumentLength,
+                docId
+        );
+        return ExplanationSupport.node(
+                result,
+                "TEXT field=" + ExplanationSupport.quote(fieldName),
+                children
+        );
+    }
 }
 
 final class PhrasePlan<T> implements ScoringPlanNode<T> {
+    private final String fieldName;
     private final TextIndexSnapshot<T> textIndex;
     private final List<ScoringTerm> scoringTerms;
+    private final List<String> diagnosticScoringTerms;
     private final ImmutableBitmap candidates;
     private final Bm25Config config;
     private final double averageDocumentLength;
     private final int[] relativePositions;
     private final PostingList[][] alternativesBySlot;
     private final int anchorSlot;
+    private final List<PhraseSlot> diagnosticSlots;
 
     PhrasePlan(
+            String fieldName,
             TextIndexSnapshot<T> textIndex,
             List<ScoringTerm> scoringTerms,
+            List<String> diagnosticScoringTerms,
             ImmutableBitmap candidates,
             Bm25Config config,
             double averageDocumentLength,
             int[] relativePositions,
             PostingList[][] alternativesBySlot,
-            int anchorSlot
+            int anchorSlot,
+            List<PhraseSlot> diagnosticSlots
     ) {
+        this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
         this.scoringTerms = List.copyOf(scoringTerms);
+        this.diagnosticScoringTerms = List.copyOf(diagnosticScoringTerms);
         this.candidates = Objects.requireNonNull(candidates, "candidates");
         this.config = Objects.requireNonNull(config, "config");
         if (!Double.isFinite(averageDocumentLength)
@@ -115,9 +157,14 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
                 "relativePositions"
         ).clone();
         this.alternativesBySlot = copyAlternatives(alternativesBySlot);
+        this.diagnosticSlots = List.copyOf(diagnosticSlots);
         if (this.relativePositions.length != this.alternativesBySlot.length) {
             throw new IllegalArgumentException(
                     "relative positions and alternative slots must have equal length");
+        }
+        if (this.relativePositions.length != this.diagnosticSlots.size()) {
+            throw new IllegalArgumentException(
+                    "relative positions and diagnostic slots must have equal length");
         }
         if (this.relativePositions.length == 0) {
             if (textIndex != null || !this.scoringTerms.isEmpty() || anchorSlot != -1) {
@@ -132,16 +179,19 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
         this.anchorSlot = anchorSlot;
     }
 
-    static <T> PhrasePlan<T> empty(Bm25Config config) {
+    static <T> PhrasePlan<T> empty(String fieldName, Bm25Config config) {
         return new PhrasePlan<>(
+                fieldName,
                 null,
+                List.of(),
                 List.of(),
                 ImmutableBitmap.empty(),
                 config,
                 0.0,
                 new int[0],
                 new PostingList[0][],
-                -1
+                -1,
+                List.of()
         );
     }
 
@@ -170,6 +220,45 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
                 averageDocumentLength,
                 docId,
                 true
+        );
+    }
+
+    @Override
+    public ExplanationNode explain(int docId) {
+        if (textIndex == null) {
+            return ExplanationSupport.node(
+                    ScoreMatch.noMatch(),
+                    "PHRASE field=" + ExplanationSupport.quote(fieldName)
+                            + " analysis produced no phrase slots",
+                    List.of()
+            );
+        }
+        ScoreMatch result = evaluate(docId);
+        ExplanationNode relation = new ExplanationNode(
+                result.matched(),
+                0.0,
+                "exact analyzed relative-position pattern "
+                        + (result.matched() ? "matched " : "did not match ")
+                        + ExplanationSupport.phrasePattern(diagnosticSlots),
+                List.of()
+        );
+        List<ExplanationNode> children = new ArrayList<>();
+        children.add(relation);
+        if (result.matched()) {
+            children.addAll(ExplanationSupport.bm25Terms(
+                    fieldName,
+                    textIndex,
+                    diagnosticScoringTerms,
+                    scoringTerms,
+                    config,
+                    averageDocumentLength,
+                    docId
+            ));
+        }
+        return ExplanationSupport.node(
+                result,
+                "PHRASE field=" + ExplanationSupport.quote(fieldName),
+                children
         );
     }
 
@@ -225,6 +314,7 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
 }
 
 final class FuzzyPlan<T> implements ScoringPlanNode<T> {
+    private final String fieldName;
     private final TextIndexSnapshot<T> textIndex;
     private final String normalizedQueryTerm;
     private final List<FuzzyScoringExpansion> expansions;
@@ -233,6 +323,7 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
     private final double averageDocumentLength;
 
     FuzzyPlan(
+            String fieldName,
             TextIndexSnapshot<T> textIndex,
             String normalizedQueryTerm,
             List<FuzzyScoringExpansion> expansions,
@@ -240,6 +331,7 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
             Bm25Config config,
             double averageDocumentLength
     ) {
+        this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
         this.expansions = List.copyOf(expansions);
         this.candidates = Objects.requireNonNull(candidates, "candidates");
         this.config = Objects.requireNonNull(config, "config");
@@ -268,8 +360,9 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
         this.normalizedQueryTerm = normalizedQueryTerm;
     }
 
-    static <T> FuzzyPlan<T> empty(Bm25Config config) {
+    static <T> FuzzyPlan<T> empty(String fieldName, Bm25Config config) {
         return new FuzzyPlan<>(
+                fieldName,
                 null,
                 null,
                 List.of(),
@@ -287,6 +380,92 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
     @Override
     public ScoreMatch evaluate(int docId) {
         return evaluateFuzzy(docId).result();
+    }
+
+    @Override
+    public ExplanationNode explain(int docId) {
+        if (textIndex == null) {
+            return ExplanationSupport.node(
+                    ScoreMatch.noMatch(),
+                    "FUZZY field=" + ExplanationSupport.quote(fieldName)
+                            + " analysis produced no query term",
+                    List.of()
+            );
+        }
+        int queryLength = normalizedQueryTerm.codePointCount(
+                0,
+                normalizedQueryTerm.length()
+        );
+        int maxEdits = BoundedOptimalStringAlignment.autoMaxEdits(
+                normalizedQueryTerm
+        );
+        FuzzyEvaluation evaluation = evaluateFuzzy(docId);
+        String prefix = "FUZZY field=" + ExplanationSupport.quote(fieldName)
+                + " query=" + ExplanationSupport.quote(normalizedQueryTerm)
+                + " codePointLength=" + queryLength
+                + " autoMaxEdits=" + maxEdits;
+        if (!evaluation.result().matched()) {
+            String reason = expansions.isEmpty()
+                    ? " no indexed term is within the allowed edit threshold"
+                    : " no expanded term matches this document";
+            return ExplanationSupport.node(
+                    evaluation.result(),
+                    prefix + reason,
+                    List.of()
+            );
+        }
+
+        FuzzyScoringExpansion selected = expansions.stream()
+                .filter(expansion -> expansion.term().equals(
+                        evaluation.selectedTerm()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException(
+                        "selected fuzzy expansion is not prepared"));
+        int documentLength = textIndex.documentLength(docId);
+        int termFrequency = selected.scoringTerm().posting().termFrequency(docId);
+        double bm25 = 0.0;
+        if (documentLength != 0 && averageDocumentLength != 0.0) {
+            double normalization = Bm25Scorer.normalization(
+                    config,
+                    averageDocumentLength,
+                    documentLength
+            );
+            bm25 = Bm25Scorer.termScore(
+                    selected.scoringTerm(),
+                    termFrequency,
+                    config,
+                    normalization
+            );
+        }
+        String priority = selected.editDistance() == 0
+                ? " exact-term priority"
+                : " best weighted expansion";
+        ExplanationNode selectedNode = new ExplanationNode(
+                true,
+                evaluation.result().score(),
+                "selected term=" + ExplanationSupport.quote(selected.term())
+                        + priority
+                        + " editDistance=" + selected.editDistance()
+                        + " similarity=" + selected.similarity()
+                        + " tf=" + termFrequency
+                        + " df=" + selected.scoringTerm().posting()
+                                .documentFrequency()
+                        + " N=" + textIndex.statistics().indexedDocumentCount()
+                        + " dl=" + documentLength
+                        + " avgdl=" + averageDocumentLength
+                        + " k1=" + config.k1()
+                        + " b=" + config.b()
+                        + " idf=" + selected.scoringTerm()
+                                .inverseDocumentFrequency()
+                        + " bm25=" + bm25
+                        + " weighted=" + evaluation.result().score(),
+                List.of()
+        );
+        return ExplanationSupport.node(
+                evaluation.result(),
+                prefix,
+                List.of(selectedNode)
+        );
     }
 
     FuzzyEvaluation evaluateFuzzy(int docId) {
@@ -437,6 +616,31 @@ record BoolPlan<T>(
         }
         return ScoreMatch.match(score);
     }
+
+    @Override
+    public ExplanationNode explain(int docId) {
+        ScoreMatch result = evaluate(docId);
+        List<ExplanationNode> children = new ArrayList<>(must.size() + should.size());
+        for (ScoringPlanNode<T> child : must) {
+            ExplanationNode detail = child.explain(docId);
+            children.add(new ExplanationNode(
+                    detail.matched(),
+                    detail.score(),
+                    "MUST clause",
+                    List.of(detail)
+            ));
+        }
+        for (ScoringPlanNode<T> child : should) {
+            ExplanationNode detail = child.explain(docId);
+            children.add(new ExplanationNode(
+                    detail.matched(),
+                    detail.score(),
+                    "SHOULD clause",
+                    List.of(detail)
+            ));
+        }
+        return ExplanationSupport.node(result, "BOOL ranked query", children);
+    }
 }
 
 record BoostPlan<T>(
@@ -465,10 +669,28 @@ record BoostPlan<T>(
                 ))
                 : ScoreMatch.noMatch();
     }
+
+    @Override
+    public ExplanationNode explain(int docId) {
+        ScoreMatch result = evaluate(docId);
+        return ExplanationSupport.node(
+                result,
+                "BOOST multiplier=" + multiplier,
+                List.of(child.explain(docId))
+        );
+    }
 }
 
-record ScoringTerm(PostingList posting, double inverseDocumentFrequency) {
+record ScoringTerm(
+        String term,
+        PostingList posting,
+        double inverseDocumentFrequency
+) {
     ScoringTerm {
+        Objects.requireNonNull(term, "term");
+        if (term.isEmpty()) {
+            throw new IllegalArgumentException("term must not be empty");
+        }
         Objects.requireNonNull(posting, "posting");
         ScoreArithmetic.requireValid(
                 inverseDocumentFrequency,
@@ -583,6 +805,19 @@ final class Bm25Scorer {
         return ScoreArithmetic.requireValid(normalization, "BM25 normalization");
     }
 
+    static double inverseDocumentFrequency(
+            int documentCount,
+            int documentFrequency
+    ) {
+        return ScoreArithmetic.requireValid(
+                Math.log1p(
+                        (documentCount - documentFrequency + 0.5)
+                                / (documentFrequency + 0.5)
+                ),
+                "inverse document frequency"
+        );
+    }
+
     static double termScore(
             ScoringTerm term,
             int termFrequency,
@@ -617,5 +852,129 @@ final class ScoreArithmetic {
                     operation + " produced an invalid score: " + value);
         }
         return value == 0.0 ? 0.0 : value;
+    }
+}
+
+final class ExplanationSupport {
+    private ExplanationSupport() {
+    }
+
+    static ExplanationNode node(
+            ScoreMatch result,
+            String description,
+            List<ExplanationNode> children
+    ) {
+        return new ExplanationNode(
+                result.matched(),
+                result.score(),
+                description,
+                children
+        );
+    }
+
+    static List<ExplanationNode> bm25Terms(
+            String fieldName,
+            TextIndexSnapshot<?> textIndex,
+            List<String> diagnosticTerms,
+            List<ScoringTerm> scoringTerms,
+            Bm25Config config,
+            double averageDocumentLength,
+            int docId
+    ) {
+        int documentLength = textIndex.documentLength(docId);
+        int documentCount = textIndex.statistics().indexedDocumentCount();
+        double normalization = averageDocumentLength == 0.0 || documentLength == 0
+                ? 0.0
+                : Bm25Scorer.normalization(
+                        config,
+                        averageDocumentLength,
+                        documentLength
+                );
+        List<ExplanationNode> children = new ArrayList<>(diagnosticTerms.size());
+        for (String diagnosticTerm : diagnosticTerms) {
+            ScoringTerm term = null;
+            for (ScoringTerm prepared : scoringTerms) {
+                if (prepared.term().equals(diagnosticTerm)) {
+                    term = prepared;
+                    break;
+                }
+            }
+            if (term == null) {
+                PostingList posting = textIndex.posting(diagnosticTerm);
+                term = new ScoringTerm(
+                        diagnosticTerm,
+                        posting,
+                        Bm25Scorer.inverseDocumentFrequency(
+                                documentCount,
+                                posting.documentFrequency()
+                        )
+                );
+            }
+            int termFrequency = term.posting().termFrequency(docId);
+            boolean matched = termFrequency > 0;
+            double contribution = matched
+                    && documentLength != 0
+                    && averageDocumentLength != 0.0
+                    ? Bm25Scorer.termScore(
+                            term,
+                            termFrequency,
+                            config,
+                            normalization
+                    )
+                    : 0.0;
+            children.add(new ExplanationNode(
+                    matched,
+                    contribution,
+                    "BM25 term=" + quote(term.term())
+                            + " field=" + quote(fieldName)
+                            + " tf=" + termFrequency
+                            + " df=" + term.posting().documentFrequency()
+                            + " N=" + documentCount
+                            + " dl=" + documentLength
+                            + " avgdl=" + averageDocumentLength
+                            + " k1=" + config.k1()
+                            + " b=" + config.b()
+                            + " idf=" + term.inverseDocumentFrequency()
+                            + " contribution=" + contribution,
+                    List.of()
+            ));
+        }
+        return List.copyOf(children);
+    }
+
+    static String phrasePattern(List<PhraseSlot> slots) {
+        StringBuilder pattern = new StringBuilder("slots=[");
+        for (int slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
+            if (slotIndex > 0) {
+                pattern.append(", ");
+            }
+            PhraseSlot slot = slots.get(slotIndex);
+            pattern.append(slot.relativePosition()).append(':');
+            for (int alternative = 0;
+                    alternative < slot.alternatives().size();
+                    alternative++) {
+                if (alternative > 0) {
+                    pattern.append('|');
+                }
+                pattern.append(quote(slot.alternatives().get(alternative)));
+            }
+        }
+        return pattern.append(']').toString();
+    }
+
+    static String quote(String value) {
+        Objects.requireNonNull(value, "value");
+        StringBuilder escaped = new StringBuilder(value.length() + 2).append('"');
+        value.codePoints().forEach(codePoint -> {
+            switch (codePoint) {
+                case '\\' -> escaped.append("\\\\");
+                case '"' -> escaped.append("\\\"");
+                case '\n' -> escaped.append("\\n");
+                case '\r' -> escaped.append("\\r");
+                case '\t' -> escaped.append("\\t");
+                default -> escaped.appendCodePoint(codePoint);
+            }
+        });
+        return escaped.append('"').toString();
     }
 }

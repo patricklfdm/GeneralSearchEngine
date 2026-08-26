@@ -15,16 +15,20 @@ record SearchPlan<T>(
 ) {
     SearchPlan {
         Objects.requireNonNull(snapshot, "snapshot");
+        Objects.requireNonNull(root, "root");
         Objects.requireNonNull(candidates, "candidates");
         if (limit <= 0) {
             throw new IllegalArgumentException("limit must be positive");
         }
     }
 
-    static <T> SearchPlan<T> empty(RankedSearchInput<T> input) {
+    static <T> SearchPlan<T> empty(
+            RankedSearchInput<T> input,
+            ScoringPlanNode<T> root
+    ) {
         return new SearchPlan<>(
                 input.snapshot(),
-                null,
+                root,
                 ImmutableBitmap.empty(),
                 input.filter(),
                 input.limit()
