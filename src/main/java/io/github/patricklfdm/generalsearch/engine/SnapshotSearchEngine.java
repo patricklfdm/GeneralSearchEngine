@@ -44,6 +44,7 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchExecutionAccess;
+import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
@@ -206,6 +207,26 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         Objects.requireNonNull(request, "request");
         SearchSnapshot<T> snapshot = current.get().snapshot();
         return SearchExecutionAccess.search(snapshot, request, candidatePlanner);
+    }
+
+    @Override
+    public Optional<SearchExplanation<T>> explain(
+            SearchRequest<T> request,
+            K id
+    ) {
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(id, "id");
+        PublishedState<K, T> state = current.get();
+        Integer documentId = state.documentIds().get(id);
+        if (documentId == null) {
+            return Optional.empty();
+        }
+        return Optional.of(SearchExecutionAccess.explain(
+                state.snapshot(),
+                request,
+                documentId,
+                candidatePlanner
+        ));
     }
 
     @Override

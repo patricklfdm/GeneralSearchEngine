@@ -35,6 +35,34 @@ public final class SearchExecutionAccess {
     }
 
     /**
+     * Explains one already-resolved internal document through the canonical V3 plan.
+     *
+     * @hidden
+     */
+    public static <T> SearchExplanation<T> explain(
+            SearchSnapshot<T> snapshot,
+            SearchRequest<T> request,
+            int documentId,
+            CandidatePlanner<T> filterPlanner
+    ) {
+        Objects.requireNonNull(snapshot, "snapshot");
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(filterPlanner, "filterPlanner");
+        if (documentId < 0) {
+            throw new IllegalArgumentException(
+                    "documentId must not be negative");
+        }
+        T document = snapshot.get(documentId);
+        if (document == null) {
+            throw new IllegalArgumentException(
+                    "documentId must identify an active snapshot document");
+        }
+        RankedSearchInput<T> input = RankedSearchInput.from(snapshot, request);
+        SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
+        return new ExplainExecutor<T>().explain(plan, documentId, document);
+    }
+
+    /**
      * Executes a legacy request through the internal snapshot-bound pipeline.
      *
      * @hidden
