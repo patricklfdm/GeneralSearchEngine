@@ -43,6 +43,9 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.search.SearchExecutionAccess;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.SearchResult;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
@@ -55,6 +58,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final BlockingQueue<WriterTask<K, T>> queue;
     private final SnapshotEngineConfig config;
     private final SnapshotSearcher<T> searcher;
+    private final CandidatePlanner<T> candidatePlanner;
     private final RankedSearcher<T> rankedSearcher;
     private final ExecutorService indexBuildExecutor;
     private final Thread writerThread;
@@ -106,8 +110,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         this.current = new AtomicReference<>(
                 new PublishedState<>(emptySnapshot, Map.of(), 0));
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
-        this.searcher = new SnapshotSearcher<>(new CandidatePlanner<>(plannerConfig));
-        this.rankedSearcher = new RankedSearcher<>(new CandidatePlanner<>(plannerConfig));
+        this.candidatePlanner = new CandidatePlanner<>(plannerConfig);
+        this.searcher = new SnapshotSearcher<>(candidatePlanner);
+        this.rankedSearcher = new RankedSearcher<>(candidatePlanner);
         this.indexBuildExecutor = Executors.newSingleThreadExecutor(task -> {
             Thread thread = new Thread(
                     task,
@@ -192,7 +197,15 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
 
     @Override
     public List<SearchHit<T>> searchTopK(RankedSearchRequest<T> request) {
+        Objects.requireNonNull(request, "request");
         return rankedSearcher.search(current.get().snapshot(), request);
+    }
+
+    @Override
+    public SearchResult<T> search(SearchRequest<T> request) {
+        Objects.requireNonNull(request, "request");
+        SearchSnapshot<T> snapshot = current.get().snapshot();
+        return SearchExecutionAccess.search(snapshot, request, candidatePlanner);
     }
 
     @Override
