@@ -122,17 +122,17 @@
 
 ## Final version conversion — `3.0.0`
 
-- [ ] Convert core, processor, reactor, example, and current-version consumer properties
+- [x] Convert core, processor, reactor, example, and current-version consumer properties
   together; leave historical published baselines unchanged.
-- [ ] Freeze `project.build.outputTimestamp` consistently in both publishable POMs.
-- [ ] Convert the changelog to `3.0.0 — <actual release date>`.
-- [ ] Update release-facing coordinates and links without claiming publication success.
-- [ ] No release-facing `3.0.0-SNAPSHOT` occurrence remains.
-- [ ] Version alignment passes for `3.0.0`.
-- [ ] Rerun every snapshot correctness and compatibility gate against final version.
-- [ ] Final release-profile packaging and artifact inspection pass.
-- [ ] Reproducible build passes and final six-JAR SHA-256 hashes are recorded.
-- [ ] Working tree contains no generated output, credentials, signatures, prompt, or
+- [x] Freeze `project.build.outputTimestamp` consistently in both publishable POMs.
+- [x] Convert the changelog to `3.0.0 — <actual release date>`.
+- [x] Update release-facing coordinates and links without claiming publication success.
+- [x] No release-facing `3.0.0-SNAPSHOT` occurrence remains.
+- [x] Version alignment passes for `3.0.0`.
+- [x] Rerun every snapshot correctness and compatibility gate against final version.
+- [x] Final release-profile packaging and artifact inspection pass.
+- [x] Reproducible build passes and final six-JAR SHA-256 hashes are recorded.
+- [x] Working tree contains no generated output, credentials, signatures, prompt, or
   temporary evidence.
 - [ ] Final release-preparation PR passes `CI / Required` and is approved.
 - [ ] Approved final state is merged to protected `master`.

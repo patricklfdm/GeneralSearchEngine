@@ -4,7 +4,7 @@
 
 Current stable release: `2.1.0`
 
-Current V3 development line: `3.0.0-SNAPSHOT`
+Current V3 release candidate: `3.0.0`
 
 V3 develops high-quality ranked text retrieval with stable public APIs, exact phrase
 search, fuzzy term tolerance, cross-field relevance, and Explain.

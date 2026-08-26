@@ -1,8 +1,8 @@
-# GeneralSearchEngine v3 development
+# GeneralSearchEngine v3 release candidate
 
-Version `3.0.0-SNAPSHOT` develops a higher-level ranked text retrieval API while
-preserving the structured and ranked APIs published through 2.1.0. Version 2.1.0
-remains the current stable release until 3.0.0 is published.
+Version `3.0.0` is frozen for publication with a higher-level ranked text retrieval API
+while preserving the structured and ranked APIs published through 2.1.0. Version
+2.1.0 remains the current stable release until 3.0.0 publication succeeds.
 
 ## Phase map
 

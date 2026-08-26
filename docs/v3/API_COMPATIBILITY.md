@@ -186,8 +186,8 @@ is added.
 
 ## Phase 8 public API freeze audit
 
-The 3.0.0 snapshot Japicmp reports against 1.0.0, 2.0.0, and 2.1.0 contain no binary or
-source incompatibility. The supported additive V3 surface is exactly:
+The 3.0.0 release-candidate Japicmp reports against 1.0.0, 2.0.0, and 2.1.0 contain no
+binary or source incompatibility. The supported additive V3 surface is exactly:
 
 - `AnalyzedToken` and the default `Analyzer.analyzeWithPositions(String)` method;
 - `SearchRequest` and its builder;

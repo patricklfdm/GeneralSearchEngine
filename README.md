@@ -114,12 +114,12 @@ suggest close spellings for common typos.
 The complete runnable version is in the
 [`travel-search` example](examples/travel-search/README.md).
 
-## V3 preview from this checkout
+## V3 release candidate from this checkout
 
-Version `3.0.0-SNAPSHOT` is not yet published; 2.1.0 remains the stable dependency.
-The V3 branch adds one ranked query model while keeping `search(Query)` and
-`searchTopK(RankedSearchRequest)` supported. After obtaining canonical text fields from
-the engine, a V3 request looks like this:
+Version `3.0.0` is frozen for publication but is not yet published; 2.1.0 remains the
+current stable dependency until publication succeeds. V3 adds one ranked query model
+while keeping `search(Query)` and `searchTopK(RankedSearchRequest)` supported. After
+obtaining canonical text fields from the engine, a V3 request looks like this:
 
 ```java
 SearchRequest<TravelPlace> request = SearchRequest.<TravelPlace>builder()
