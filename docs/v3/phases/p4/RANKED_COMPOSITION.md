@@ -2,7 +2,9 @@
 
 ## Status
 
-This contract is frozen before implementation. Phase 4 implementation has not started.
+The Phase 4 contract and implementation are complete. TEXT, BOOL, and BOOST now execute
+through one recursive snapshot-bound scoring plan, including cross-field composition,
+checked deterministic arithmetic, and matched zero-score retention.
 
 Phase 0 ranked-search semantics, Phase 1 positioned analysis, Phase 2 positional
 storage, the completed Phase 3 search pipeline, and the V3 API compatibility contract
@@ -343,7 +345,6 @@ alignment gates remain mandatory.
 
 ## Completion rule
 
-Phase 4 is complete only when the implementation and every checklist item pass, the
-roadmap and changelog describe the implemented boundary accurately, and no Phase 5+
-feature or unsupported public surface has been added. Until then, its status is
-`Contract frozen`.
+Phase 4 is complete: every implementation and validation checklist item passes, the
+roadmap and changelog describe the implemented boundary, and no Phase 5+ feature or
+unsupported public surface was added.

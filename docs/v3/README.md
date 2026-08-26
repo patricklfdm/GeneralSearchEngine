@@ -12,7 +12,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
-| Phase 4 | bool, boost, and cross-field ranked composition | Contract frozen |
+| Phase 4 | bool, boost, and cross-field ranked composition | Complete |
 | Phases 5–8 | phrase, fuzzy, Explain, and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -30,10 +30,10 @@ Phase 3 implements one snapshot-bound pipeline for direct V3 text requests and t
 legacy V2 ranked adapter. It preserves frozen legacy terms, configured filter planning,
 BM25 arithmetic, bounded top-K retention, and deterministic ordering.
 
-Phase 4 has a frozen pre-implementation contract for recursive TEXT/BOOL/BOOST plans,
-whole-tree shape validation, empty-leaf and missing-index precedence, field-local BM25,
-checked deterministic arithmetic, and matched zero-score retention. Its implementation
-has not started, so the phase is not yet complete.
+Phase 4 implements recursive TEXT/BOOL/BOOST plans, whole-tree shape validation,
+empty-leaf and missing-index precedence, field-local cross-field BM25, checked
+deterministic arithmetic, and matched zero-score retention. Physical candidate
+composition remains separate from logical scoring order.
 
 ## Contracts
 
@@ -53,6 +53,7 @@ has not started, so the phase is not yet complete.
 - [Phase 3 implementation checklist](phases/p3/PHASE_3_CHECKLIST.md)
 - [Phase 4 ranked composition contract](phases/p4/RANKED_COMPOSITION.md)
 - [Phase 4 implementation checklist](phases/p4/PHASE_4_CHECKLIST.md)
+- [Phase 4 performance smoke](phases/p4/PERFORMANCE_BASELINE.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,
