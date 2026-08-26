@@ -3,7 +3,7 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## Unreleased
+## 3.0.0 — 2026-08-26
 
 ### Added
 
@@ -73,7 +73,7 @@ Semantic Versioning once the first stable artifact is published.
 - Text indexing, indexed and scan text-query projection, and legacy BM25 query
   projection now consistently consume validated position-aware Analyzer output. Legacy
   analyzers retain their default-adapted terms, frequencies, lengths, and ranking.
-- Opened the `3.0.0-SNAPSHOT` development line after the 2.1.0 release, beginning with
+- Opened the `3.0.0` development line after the 2.1.0 release, beginning with
   additive request/query/result contracts and frozen semantics before new execution.
 
 ### Fixed

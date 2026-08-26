@@ -20,19 +20,34 @@ until it actually occurs; release-ready does not mean released.
   snapshot tree.
 - [x] CI and release workflow audit, including clean published consumer and remote
   artifact/signature/checksum verification, is complete.
-- [ ] Snapshot commit and test counts are recorded.
+- [x] Snapshot commit and test counts are recorded: protected `master` snapshot commit
+  `05eee9d254c889314cf65ab72fd1a70dd2a176b2`; core 246 tests and processor 5 tests
+  (251 total) passed.
 
 ## State 2 — final release preparation (`3.0.0`)
 
-- [ ] Core, processor, reactor, example, and current consumer versions are aligned at
+- [x] Core, processor, reactor, example, and current consumer versions are aligned at
   `3.0.0`; historical baseline versions are unchanged.
-- [ ] Reproducible output timestamps and dated changelog heading are frozen.
-- [ ] No release-facing `3.0.0-SNAPSHOT` reference remains.
-- [ ] Every snapshot gate is rerun against the final version.
-- [ ] Core and processor main/sources/Javadoc JARs pass content inspection.
-- [ ] Core contains no processor service entry; processor contains exactly the expected
+- [x] Reproducible output timestamps and dated changelog heading are frozen.
+- [x] No release-facing `3.0.0-SNAPSHOT` reference remains; remaining occurrences are
+  historical snapshot evidence or state-transition instructions.
+- [x] Every snapshot gate is rerun against the final version.
+- [x] Core and processor main/sources/Javadoc JARs pass content inspection.
+- [x] Core contains no processor service entry; processor contains exactly the expected
   processor service entry.
-- [ ] Final six-JAR SHA-256 hashes are recorded.
+- [x] Final six-JAR SHA-256 hashes are recorded:
+  - `c5635248ea8769b3121feaeb73d38a9e3b4ecd137a39905003b0b89fd7fb854d`
+    core Javadoc;
+  - `0bf00d2270858cf8d7a8027976dfc76a149babdf4599c686b9b22ff315dca106`
+    core sources;
+  - `3b0ed72877f3c5f2ef225d1a87cac8d9546b109c91c0bec8d8dcea12e2d101f2`
+    core main;
+  - `432f0a3b64cb0ad15d6620038e125ba02975ed8e376c6a8315a0af804d11e9fd`
+    processor Javadoc;
+  - `8b4093f66bb2b678594b4f7ec69dae882e03a3b57d8a6359fbe84b23b2ab8fed`
+    processor sources;
+  - `3c040a2d5ebc0cdfe61636b7d2f8072225ed4feac0ee156b7661f1ebd7941d77`
+    processor main.
 - [ ] Final release-preparation PR passes `CI / Required`, is approved, and is merged to
   protected `master`.
 - [ ] Required `master` CI passes on the exact intended tag commit.

@@ -1,9 +1,9 @@
 # GeneralSearchEngine development roadmap
 
-## v3.0.0 development
+## v3.0.0 release candidate
 
-Version `3.0.0-SNAPSHOT` is the active development line. Version 2.1.0 remains the
-current stable release until 3.0.0 is published.
+Version `3.0.0` is frozen for publication. Version 2.1.0 remains the current stable
+release until 3.0.0 publication succeeds.
 
 The V3 theme is high-quality ranked text retrieval. Phase 0 froze the public, semantic,
 architecture, and compatibility contracts. Phases 1–7 completed position-aware
