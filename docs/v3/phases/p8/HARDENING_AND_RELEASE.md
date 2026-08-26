@@ -185,10 +185,13 @@ merge or squash commit, that protected-branch result—not the feature-branch pr
 the tag target.
 
 Verify the local signed tag before pushing. The push triggers the established workflow;
-do not run a separate manual deploy. Maven Central versions are immutable. A failure
-before publication is fixed through a new reviewed commit and tag attempt as permitted
-by repository policy; a defect after publication requires 3.0.1 or later and never an
-overwrite of 3.0.0.
+do not run a separate manual deploy. Maven Central versions and pushed signed release
+tags are immutable. A source or metadata defect before publication requires a new
+reviewed commit and patch version. If only release infrastructure fails before secrets
+or upload, a reviewed workflow recovery may dispatch the same exact tag through the
+same validation, Central preflight, protected approval, signing, publication, and
+remote-verification jobs. The recovery must not alter tagged source. A defect after
+publication requires 3.0.1 or later and never an overwrite of 3.0.0.
 
 ## Release record boundary
 

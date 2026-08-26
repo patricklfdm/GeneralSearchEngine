@@ -48,14 +48,16 @@ until it actually occurs; release-ready does not mean released.
     processor sources;
   - `3c040a2d5ebc0cdfe61636b7d2f8072225ed4feac0ee156b7661f1ebd7941d77`
     processor main.
-- [ ] Final release-preparation PR passes `CI / Required`, is approved, and is merged to
-  protected `master`.
+- [x] Final release-preparation PR passes `CI / Required` and is merged to protected
+  `master` as `a47009e53765c99b792c255cee3584cebabf16ee`.
 - [ ] Required `master` CI passes on the exact intended tag commit.
 
 ## State 3 — signed publication and remote verification
 
-- [ ] Signed annotated `v3.0.0` tag points to the exact approved `master` commit.
-- [ ] Local tag verification matches the expected OpenPGP fingerprint.
+- [x] Signed annotated `v3.0.0` tag points to the exact approved `master` commit
+  `a47009e53765c99b792c255cee3584cebabf16ee`.
+- [x] Local tag verification matches OpenPGP fingerprint
+  `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
 - [ ] Tag-triggered workflow validates tests, compatibility, consumers, travel,
   packaging, reproducibility, signatures, and Central immutability.
 - [ ] `production-release` deployment is approved.
@@ -65,6 +67,18 @@ until it actually occurs; release-ready does not mean released.
 - [ ] A clean V3 consumer compiles and runs against published `3.0.0` without installing
   the reactor.
 - [ ] GitHub Release is created from the exact verified tag.
+
+## Pre-publication recovery record
+
+- [x] The initial tag-triggered run stopped in the unprivileged validation job because
+  the tagged validator assumed `rg` was installed on the runner.
+- [x] No release secret, protected-environment approval, Central upload, or GitHub
+  Release occurred before that failure.
+- [x] The pushed signed `v3.0.0` tag remains unchanged.
+- [ ] The reviewed portable-validator and immutable-tag recovery workflow are merged to
+  protected `master` and `CI / Required` passes.
+- [ ] `Release` is manually dispatched with `release_tag=v3.0.0`.
+- [ ] The recovery run completes all validation and publication evidence in State 3.
 
 ## Post-publication record — currently `PENDING`
 
