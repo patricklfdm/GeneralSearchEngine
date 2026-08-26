@@ -5,6 +5,7 @@ GeneralSearchEngine separates continuous integration from release publication:
 ```text
 pull request or master push -> CI validation only
 signed vX.Y.Z tag           -> release validation -> approval -> publication
+immutable-tag recovery      -> explicit dispatch -> same validation and approval
 ```
 
 A merge to `master` never publishes Maven artifacts. Publication requires an exact,
@@ -152,15 +153,29 @@ The reactor and travel example keep `maven.deploy.skip=true` and are never publi
 Normal Maven library JARs are not copied to GitHub Release assets.
 
 Release workflow concurrency is scoped to the tag and never cancels a running release.
+The manual dispatch accepts an existing signed tag only as a recovery mechanism. Both
+tag push and recovery use the selected tag as the concurrency key, and both validation
+and publication jobs explicitly check out that exact tag.
 
 ## Failure and recovery
 
 ### Validation fails before approval
 
-No secret is exposed and nothing is uploaded. Fix the release commit and prepare a
-new signed tag. If the bad tag has never produced a published release, the owner may
-use the tag-ruleset bypass to remove it before replacement. Never move a published
-tag.
+No secret is exposed and nothing is uploaded. If release source, metadata, or the
+signed commit is defective, fix it under a new reviewed commit and patch version; do
+not move the pushed tag.
+
+If the immutable tag is correct and only the release runner or orchestration failed,
+merge the infrastructure fix to protected `master`, wait for `CI / Required`, and
+manually dispatch `Release` with the existing tag. The recovery run still validates
+the tag signature and exact commit, checks that the commit is reachable from
+`origin/master`, reruns every release gate, rejects an existing Central version, and
+waits for `production-release` approval. Legacy validator dependencies may be added to
+the ephemeral runner, but files used to build the release continue to come from the
+exact tag.
+
+Never delete, recreate, or force-update a pushed signed release tag as a recovery
+shortcut.
 
 ### Central upload or validation fails
 

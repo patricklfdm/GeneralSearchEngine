@@ -1,19 +1,27 @@
 name: Release
+run-name: Release ${{ inputs.release_tag || github.ref_name }}
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing immutable signed tag to recover
+        required: true
+        type: string
 
 permissions:
   contents: read
 
 concurrency:
-  group: release-${{ github.ref_name }}
+  group: release-${{ inputs.release_tag || github.ref_name }}
   cancel-in-progress: false
 
 env:
   MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
+  RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
 
 jobs:
   validate:
@@ -25,6 +33,14 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Install tagged validator dependencies
+        run: |
+          if grep -Eq '(^|[[:space:]])rg([[:space:]]|$)' scripts/verify-release-tag.sh; then
+            sudo apt-get update
+            sudo apt-get install --yes ripgrep
+          fi
 
       - name: Set up Java 21
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -35,7 +51,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Verify tag, signature, changelog, and versions
-        run: scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+        run: scripts/verify-release-tag.sh "$RELEASE_TAG"
 
       - name: Test the reactor
         run: ./mvnw -f reactor/pom.xml clean test
@@ -73,8 +89,6 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check Maven Central immutability
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version=${RELEASE_TAG#v}
           for artifact in general-search-engine general-search-engine-processor; do
@@ -108,6 +122,14 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           fetch-depth: 0
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Install tagged validator dependencies
+        run: |
+          if grep -Eq '(^|[[:space:]])rg([[:space:]]|$)' scripts/verify-release-tag.sh; then
+            sudo apt-get update
+            sudo apt-get install --yes ripgrep
+          fi
 
       - name: Set up Java and Central credentials
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
@@ -124,7 +146,7 @@ jobs:
         run: printf '%s\n' "$GPG_PRIVATE_KEY" | gpg --batch --import
 
       - name: Reconfirm the approved tag
-        run: scripts/verify-release-tag.sh "$GITHUB_REF_NAME"
+        run: scripts/verify-release-tag.sh "$RELEASE_TAG"
 
       - name: Build, sign, and inspect release artifacts
         env:
@@ -144,15 +166,11 @@ jobs:
             -Dcentral.waitUntil=published
 
       - name: Verify remote artifacts and a clean published V3 consumer
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version=${RELEASE_TAG#v}
           scripts/verify-published-release.sh "$version"
 
       - name: Prepare GitHub release notes
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version=${RELEASE_TAG#v}
           {
@@ -170,7 +188,6 @@ jobs:
       - name: Create the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version=${RELEASE_TAG#v}
           gh release create "$RELEASE_TAG" \

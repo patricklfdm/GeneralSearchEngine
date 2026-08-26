@@ -101,6 +101,10 @@
 - [x] Published POM/main/sources/Javadocs/signatures/checksums are remotely verified.
 - [x] A clean V3 consumer compiles/runs without reactor installation.
 - [x] GitHub Release is created from the exact verified signed tag.
+- [x] Manual recovery is explicit, keyed to the immutable selected tag, and shares the
+  same Central preflight and protected publication path as a tag push.
+- [x] Validation and publication recovery jobs both check out the exact selected tag;
+  legacy runner dependencies do not change tagged release inputs.
 
 ## Snapshot validation — `3.0.0-SNAPSHOT`
 

@@ -16,7 +16,8 @@ version=${tag#v}
 
 "$script_dir/verify-version-alignment.sh" "$version"
 
-if ! rg -q "^## ${version} — [0-9]{4}-[0-9]{2}-[0-9]{2}$" "$project_dir/CHANGELOG.md"; then
+if ! grep -Eq "^## ${version} — [0-9]{4}-[0-9]{2}-[0-9]{2}$" \
+        "$project_dir/CHANGELOG.md"; then
     echo "CHANGELOG.md has no dated release heading for $version" >&2
     exit 1
 fi
