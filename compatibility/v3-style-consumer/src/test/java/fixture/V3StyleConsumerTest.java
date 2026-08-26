@@ -1,6 +1,7 @@
 package fixture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -44,5 +45,15 @@ class V3StyleConsumerTest {
                         .map(hit -> hit.document().id())
                         .toList()
         );
+    }
+
+    @Test
+    void explainsOneBusinessDocumentThroughPublishedApiOnly() {
+        var explanation = V3StyleConsumer.supportedExplain();
+
+        assertEquals(1L, explanation.document().id());
+        assertTrue(explanation.matched());
+        assertTrue(explanation.score() > 0.0);
+        assertEquals("SEARCH REQUEST", explanation.detail().description());
     }
 }
