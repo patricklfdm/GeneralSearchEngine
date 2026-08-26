@@ -53,6 +53,16 @@ public final class V3StyleConsumer {
         return SearchRequest.of(SearchQueries.text(DESCRIPTION_TEXT, "museum"));
     }
 
+    public static SearchRequest<TravelPlace> phraseRequest() {
+        return SearchRequest.of(SearchQueries.<TravelPlace>bool()
+                .must(SearchQueries.text(CITY_TEXT, "Tokyo"))
+                .should(SearchQueries.phrase(
+                        DESCRIPTION_TEXT,
+                        "quiet neighborhood"
+                ).boost(2.0))
+                .build());
+    }
+
     public static SearchRequest<TravelPlace> laterPhaseRequest() {
         return SearchRequest.of(SearchQueries.<TravelPlace>bool()
                 .should(SearchQueries.phrase(
@@ -129,6 +139,32 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(tokyoTemple, tokyoMuseum, kyotoTemple)).join();
             return search(engine);
+        }
+    }
+
+    public static SearchResult<TravelPlace> supportedPhraseSearch() {
+        TravelPlace exact = new TravelPlace(
+                1L,
+                "Tokyo",
+                "historic temple in a quiet neighborhood"
+        );
+        TravelPlace separated = new TravelPlace(
+                2L,
+                "Tokyo",
+                "quiet residential neighborhood near a museum"
+        );
+        TravelPlace otherCity = new TravelPlace(
+                3L,
+                "Kyoto",
+                "quiet neighborhood beside a temple"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(CITY_TEXT))
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(exact, separated, otherCity)).join();
+            return engine.search(phraseRequest());
         }
     }
 

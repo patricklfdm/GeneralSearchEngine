@@ -92,26 +92,19 @@ class SearchPipelineTest {
     }
 
     @Test
-    void rejectsPhraseAndFuzzyBeforeAnalysisOrIndexWork() {
+    void rejectsFuzzyBeforeAnalysisOrIndexWork() {
         Analyzer forbidden = text -> {
             throw new AssertionError("analysis must not run");
         };
         TextField<Article> field = TextField.of(BODY, forbidden);
-        List<SearchQuery<Article>> unsupported = List.of(
-                SearchQueries.phrase(field, "java search"),
-                SearchQueries.fuzzy(field, "jvaa")
+        UnsupportedOperationException failure = assertThrows(
+                UnsupportedOperationException.class,
+                () -> execute(
+                        new SearchSnapshot<>(List.of()),
+                        SearchRequest.of(SearchQueries.fuzzy(field, "jvaa"))
+                )
         );
-
-        for (SearchQuery<Article> query : unsupported) {
-            UnsupportedOperationException failure = assertThrows(
-                    UnsupportedOperationException.class,
-                    () -> execute(
-                            new SearchSnapshot<>(List.of()),
-                            SearchRequest.of(query)
-                    )
-            );
-            assertTrue(failure.getMessage().contains("not implemented"));
-        }
+        assertTrue(failure.getMessage().contains("not implemented"));
     }
 
     @Test

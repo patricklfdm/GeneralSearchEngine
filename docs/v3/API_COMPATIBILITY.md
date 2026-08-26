@@ -69,15 +69,39 @@ different existing canonical `TextField<T>` values.
 
 The normalized recursive query representation, `TextPlan`/`BoolPlan`/`BoostPlan`
 equivalents, matched-plus-score value, prepared postings/statistics, and candidate
-bitmaps remain package-private. The existing Javadoc-hidden `SearchExecutionAccess`
-class remains the only bytecode-public bridge, continues to expose complete execution
-only, and does not reveal or accept any Phase 4 internal representation.
+bitmaps remain package-private. At the Phase 4 boundary, the existing Javadoc-hidden
+`SearchExecutionAccess` class remains the only bytecode-public bridge, continues to
+expose complete execution only, and does not reveal or accept any Phase 4 internal
+representation.
 
 Japicmp is therefore expected to report no Phase 4 public addition. The normal and
 isolated artifact comparisons against 1.0.0, 2.0.0, and 2.1.0, the frozen v1 fixture,
 and the independent v1-, v2-, and v3-style consumers remain mandatory. Third-party
 `SearchEngine` implementations retain the existing default unsupported V3 behavior,
 and all V2 ranked descriptors and frozen-term execution semantics remain unchanged.
+
+## Phase 5 internal positional bridge
+
+Phase 2 keeps `IntPositions` and direct posting-position reads package-private in the
+text-index implementation package, while Phase 5 phrase plans remain package-private
+in the search package. Exact phrase execution therefore permits one additional narrow
+bytecode-public class, conceptually named `PhrasePositionAccess`, solely to cross this
+Java package boundary without reflection or a supported positions API.
+
+The class is Javadoc-hidden, final, non-instantiable, stateless, and explicitly
+unsupported. Its one role is to return exact phrase match truth for an internal
+document ID from already-prepared relative slots, alternative postings, and an anchor.
+It does not analyze text, resolve indexes, build candidates, score hits, or retain
+request state. It returns no `IntPositions`, raw position array, collection, iterator,
+stream, callback, query node, plan, snapshot, candidate bitmap, score state, or other
+position handle. No position method is added to the supported `PostingList`,
+`TextIndexSnapshot`, or application query APIs.
+
+Japicmp may report this hidden bridge as one additive class after Phase 5
+implementation. That report is expected and must be reviewed to confirm the exact
+frozen boundary; it does not make the bridge a supported application API. The Phase 3
+`SearchExecutionAccess` remains complete-execution-only. No further visibility bridge
+or supported public descriptor is permitted in Phase 5.
 
 ## Accepted null-literal ambiguity
 

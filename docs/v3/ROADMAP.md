@@ -16,7 +16,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked search | Complete |
-| Phase 5 | exact phrase search | Planned |
+| Phase 5 | exact phrase search | Complete |
 | Phase 6 | fuzzy term search | Planned |
 | Phase 7 | Explain execution | Planned |
 | Phase 8 | hardening and 3.0.0 release | Planned |
@@ -143,8 +143,23 @@ candidate generation, and exact relative-position verification. V3.0 supports sl
 only. Repeated terms remain positional and phrase scoring uses distinct phrase terms
 with ordinary BM25 contributions.
 
+The completed implementation enforces full positioned-output validation, normalized
+relative slots, same-position alternatives, empty-leaf and missing-index precedence,
+slot-union/phrase-intersection candidates, deterministic union-cardinality anchor
+selection, checked relative-position arithmetic, and exact positional verification
+through one narrow Javadoc-hidden internal bridge. Phrase scoring remains ordinary
+field-local distinct-term BM25 in Analyzer encounter order and composes through the
+existing BOOL/BOOST tree.
+
 It adds no phrase slop, fuzzy phrase, offsets, highlighting, phrase-frequency bonus, or
 proximity scoring.
+
+The complete boundary is recorded in
+[`phases/p5/EXACT_PHRASE_SEARCH.md`](phases/p5/EXACT_PHRASE_SEARCH.md); implementation
+and validation are tracked in
+[`phases/p5/PHASE_5_CHECKLIST.md`](phases/p5/PHASE_5_CHECKLIST.md), with focused
+performance evidence in
+[`phases/p5/PERFORMANCE_BASELINE.md`](phases/p5/PERFORMANCE_BASELINE.md).
 
 ## Phase 6 — Fuzzy term search
 

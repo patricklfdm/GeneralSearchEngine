@@ -7,6 +7,12 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- V3 exact phrase execution with normalized relative-position slots, same-position
+  alternatives, repeated-term matching, posting-based safe candidates, deterministic
+  anchor verification, and ordinary distinct-term field-local BM25 scoring.
+- Whole-tree PHRASE/FUZZY failure precedence, snapshot and dynamic-index lifecycle
+  coverage, randomized exact-match/score/order differential tests, an executable V3
+  consumer phrase example, and a focused exact-phrase JMH smoke.
 - V3 recursive ranked BOOL and BOOST execution with MUST/SHOULD candidate composition,
   nested query support, cross-field field-local BM25 statistics, checked deterministic
   score arithmetic, and matched zero-score retention.

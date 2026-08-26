@@ -2,7 +2,9 @@ package io.github.patricklfdm.generalsearch.search;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
@@ -21,7 +23,7 @@ final class SearchPlanner<T> {
 
     SearchPlan<T> plan(RankedSearchInput<T> input) {
         Objects.requireNonNull(input, "input");
-        if (!input.hasNonEmptyText()) {
+        if (!input.hasNonEmptyScoringLeaf()) {
             return SearchPlan.empty(input);
         }
 
@@ -54,6 +56,12 @@ final class SearchPlanner<T> {
             @SuppressWarnings("unchecked")
             NormalizedTextNode<T> text = (NormalizedTextNode<T>) untypedText;
             return compileText(text, config);
+        }
+        if (node instanceof NormalizedPhraseNode<?> untypedPhrase) {
+            @SuppressWarnings("unchecked")
+            NormalizedPhraseNode<T> phrase =
+                    (NormalizedPhraseNode<T>) untypedPhrase;
+            return compilePhrase(phrase, config);
         }
         if (node instanceof NormalizedBoolNode<?> untypedBool) {
             @SuppressWarnings("unchecked")
@@ -135,6 +143,107 @@ final class SearchPlanner<T> {
         );
     }
 
+    private PhrasePlan<T> compilePhrase(
+            NormalizedPhraseNode<T> phrase,
+            Bm25Config config
+    ) {
+        if (phrase.slots().isEmpty()) {
+            return PhrasePlan.empty(config);
+        }
+
+        TextIndexSnapshot<T> textIndex = Objects.requireNonNull(phrase.textIndex());
+        int slotCount = phrase.slots().size();
+        int[] relativePositions = new int[slotCount];
+        PostingList[][] alternativesBySlot = new PostingList[slotCount][];
+        List<IndexedCandidates> slotCandidates = new ArrayList<>(slotCount);
+        Map<String, PostingList> postingsByTerm = new LinkedHashMap<>();
+
+        int anchorSlot = 0;
+        int anchorCardinality = Integer.MAX_VALUE;
+        for (int slotIndex = 0; slotIndex < slotCount; slotIndex++) {
+            PhraseSlot slot = phrase.slots().get(slotIndex);
+            relativePositions[slotIndex] = slot.relativePosition();
+            PostingList[] alternatives = new PostingList[slot.alternatives().size()];
+            for (int alternativeIndex = 0;
+                    alternativeIndex < slot.alternatives().size();
+                    alternativeIndex++) {
+                String term = slot.alternatives().get(alternativeIndex);
+                alternatives[alternativeIndex] = postingsByTerm.computeIfAbsent(
+                        term,
+                        textIndex::posting
+                );
+            }
+            alternativesBySlot[slotIndex] = alternatives;
+            ImmutableBitmap candidates = unionCandidates(alternatives);
+            slotCandidates.add(new IndexedCandidates(slotIndex, candidates));
+            int cardinality = candidates.cardinality();
+            if (cardinality < anchorCardinality) {
+                anchorSlot = slotIndex;
+                anchorCardinality = cardinality;
+            }
+        }
+
+        List<IndexedCandidates> physical = new ArrayList<>(slotCandidates);
+        physical.sort(Comparator
+                .comparingInt((IndexedCandidates slot) ->
+                        slot.candidates().cardinality())
+                .thenComparingInt(IndexedCandidates::slotIndex));
+        ImmutableBitmap candidates = physical.getFirst().candidates();
+        for (int index = 1; index < physical.size(); index++) {
+            candidates = candidates.and(physical.get(index).candidates());
+            if (candidates.isEmpty()) {
+                break;
+            }
+        }
+
+        int documentCount = textIndex.statistics().indexedDocumentCount();
+        List<ScoringTerm> scoringTerms = new ArrayList<>(phrase.scoringTerms().size());
+        for (String term : phrase.scoringTerms()) {
+            PostingList posting = Objects.requireNonNull(postingsByTerm.get(term));
+            int documentFrequency = posting.documentFrequency();
+            if (documentFrequency == 0) {
+                continue;
+            }
+            scoringTerms.add(new ScoringTerm(
+                    posting,
+                    inverseDocumentFrequency(documentCount, documentFrequency)
+            ));
+        }
+
+        return new PhrasePlan<>(
+                textIndex,
+                scoringTerms,
+                candidates,
+                config,
+                textIndex.averageDocumentLength(),
+                relativePositions,
+                alternativesBySlot,
+                anchorSlot
+        );
+    }
+
+    private ImmutableBitmap unionCandidates(PostingList[] alternatives) {
+        ImmutableBitmap first = alternatives[0].documents();
+        if (alternatives.length == 1) {
+            return first;
+        }
+        ImmutableBitmapBuilder union = new ImmutableBitmapBuilder(first);
+        for (int index = 1; index < alternatives.length; index++) {
+            union.or(alternatives[index].documents());
+        }
+        return union.build();
+    }
+
+    private double inverseDocumentFrequency(
+            int documentCount,
+            int documentFrequency
+    ) {
+        return Math.log1p(
+                (documentCount - documentFrequency + 0.5)
+                        / (documentFrequency + 0.5)
+        );
+    }
+
     private ImmutableBitmap boolCandidates(
             List<ScoringPlanNode<T>> must,
             List<ScoringPlanNode<T>> should
@@ -169,5 +278,14 @@ final class SearchPlanner<T> {
             return ImmutableBitmap.empty();
         }
         return union == null ? first : union.build();
+    }
+}
+
+record IndexedCandidates(int slotIndex, ImmutableBitmap candidates) {
+    IndexedCandidates {
+        if (slotIndex < 0) {
+            throw new IllegalArgumentException("slotIndex must not be negative");
+        }
+        Objects.requireNonNull(candidates, "candidates");
     }
 }

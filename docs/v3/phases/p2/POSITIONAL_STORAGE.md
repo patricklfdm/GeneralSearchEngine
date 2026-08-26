@@ -160,6 +160,11 @@ The position-aware update and read operations are package-private. An absent doc
 reads as empty positions. No public positions method, raw array, or supported positional
 SPI is added.
 
+Phase 5 later consumes these package-private reads inside the text-index package through
+its frozen Javadoc-hidden `PhrasePositionAccess` exact-match bridge. That bridge returns
+match truth only and does not expose `IntPositions`, position contents, or a supported
+positional SPI; it does not revise the Phase 2 storage or application API boundary.
+
 ## Builder mutation and no-op semantics
 
 `TextIndexBuilder` analyzes each supplied old or new document exactly once per index

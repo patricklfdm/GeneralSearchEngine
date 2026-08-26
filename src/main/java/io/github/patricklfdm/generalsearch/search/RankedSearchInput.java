@@ -21,7 +21,7 @@ record RankedSearchInput<T>(
         Query<T> filter,
         int limit,
         Bm25Config config,
-        boolean hasNonEmptyText
+        boolean hasNonEmptyScoringLeaf
 ) {
     RankedSearchInput {
         Objects.requireNonNull(snapshot, "snapshot");
@@ -47,7 +47,7 @@ record RankedSearchInput<T>(
                 request.filter().orElse(null),
                 request.limit(),
                 request.bm25(),
-                containsNonEmptyText(root)
+                containsNonEmptyScoringLeaf(root)
         );
     }
 
@@ -76,9 +76,9 @@ record RankedSearchInput<T>(
 
     private static <T> void validateSupportedTree(SearchQueryNode<T> node) {
         if (node instanceof LeafSearchQueryNode<?> untypedLeaf) {
-            if (untypedLeaf.kind() != SearchLeafKind.TEXT) {
+            if (untypedLeaf.kind() == SearchLeafKind.FUZZY) {
                 throw new UnsupportedOperationException(
-                        "Phase 4 supports TEXT, BOOL, and BOOST; "
+                        "Phase 5 supports TEXT, PHRASE, BOOL, and BOOST; "
                                 + untypedLeaf.kind() + " execution is not implemented"
                 );
             }
@@ -112,11 +112,21 @@ record RankedSearchInput<T>(
         if (node instanceof LeafSearchQueryNode<?> untypedLeaf) {
             @SuppressWarnings("unchecked")
             LeafSearchQueryNode<T> leaf = (LeafSearchQueryNode<T>) untypedLeaf;
-            return normalizedText(
-                    snapshot,
-                    leaf.field(),
-                    analyzeTerms(leaf.field(), leaf.text())
-            );
+            PositionedAnalysis analysis = analyze(leaf.field(), leaf.text());
+            return switch (leaf.kind()) {
+                case TEXT -> normalizedText(
+                        snapshot,
+                        leaf.field(),
+                        analysis.distinctTerms()
+                );
+                case PHRASE -> normalizedPhrase(
+                        snapshot,
+                        leaf.field(),
+                        analysis
+                );
+                case FUZZY -> throw new IllegalStateException(
+                        "validated ranked query changed leaf kind: FUZZY");
+            };
         }
         if (node instanceof BoolSearchQueryNode<?> untypedBool) {
             @SuppressWarnings("unchecked")
@@ -155,32 +165,53 @@ record RankedSearchInput<T>(
         return new NormalizedTextNode<>(field, frozenTerms, textIndex);
     }
 
-    private static boolean containsNonEmptyText(NormalizedScoringNode<?> node) {
+    private static <T> NormalizedPhraseNode<T> normalizedPhrase(
+            SearchSnapshot<T> snapshot,
+            TextField<T> field,
+            PositionedAnalysis analysis
+    ) {
+        List<PhraseSlot> slots = phraseSlots(analysis.occurrences());
+        TextIndexSnapshot<T> textIndex = slots.isEmpty()
+                ? null
+                : requireTextIndex(snapshot, field);
+        return new NormalizedPhraseNode<>(
+                field,
+                slots,
+                analysis.distinctTerms(),
+                textIndex
+        );
+    }
+
+    private static boolean containsNonEmptyScoringLeaf(NormalizedScoringNode<?> node) {
         if (node instanceof NormalizedTextNode<?> text) {
             return !text.frozenTerms().isEmpty();
         }
+        if (node instanceof NormalizedPhraseNode<?> phrase) {
+            return !phrase.slots().isEmpty();
+        }
         if (node instanceof NormalizedBoolNode<?> bool) {
             for (NormalizedScoringNode<?> child : bool.must()) {
-                if (containsNonEmptyText(child)) {
+                if (containsNonEmptyScoringLeaf(child)) {
                     return true;
                 }
             }
             for (NormalizedScoringNode<?> child : bool.should()) {
-                if (containsNonEmptyText(child)) {
+                if (containsNonEmptyScoringLeaf(child)) {
                     return true;
                 }
             }
             return false;
         }
-        return containsNonEmptyText(((NormalizedBoostNode<?>) node).child());
+        return containsNonEmptyScoringLeaf(((NormalizedBoostNode<?>) node).child());
     }
 
-    private static List<String> analyzeTerms(TextField<?> field, String text) {
+    private static PositionedAnalysis analyze(TextField<?> field, String text) {
         List<AnalyzedToken> tokens = field.analyzer().analyzeWithPositions(text);
         if (tokens == null) {
             throw invalidAnalysis(field, "returned a null token list");
         }
 
+        List<PositionedTerm> occurrences = new ArrayList<>(tokens.size());
         LinkedHashSet<String> terms = new LinkedHashSet<>();
         int logicalPosition = -1;
         for (int index = 0; index < tokens.size(); index++) {
@@ -210,9 +241,46 @@ record RankedSearchInput<T>(
                         failure
                 );
             }
+            occurrences.add(new PositionedTerm(token.term(), logicalPosition));
             terms.add(token.term());
         }
-        return List.copyOf(terms);
+        return new PositionedAnalysis(
+                occurrences,
+                List.copyOf(terms)
+        );
+    }
+
+    private static List<PhraseSlot> phraseSlots(List<PositionedTerm> occurrences) {
+        if (occurrences.isEmpty()) {
+            return List.of();
+        }
+
+        int firstPosition = occurrences.getFirst().logicalPosition();
+        List<PhraseSlot> slots = new ArrayList<>();
+        int currentRelativePosition = -1;
+        LinkedHashSet<String> alternatives = new LinkedHashSet<>();
+        for (PositionedTerm occurrence : occurrences) {
+            int relativePosition = Math.subtractExact(
+                    occurrence.logicalPosition(),
+                    firstPosition
+            );
+            if (relativePosition != currentRelativePosition) {
+                if (!alternatives.isEmpty()) {
+                    slots.add(new PhraseSlot(
+                            currentRelativePosition,
+                            List.copyOf(alternatives)
+                    ));
+                }
+                currentRelativePosition = relativePosition;
+                alternatives = new LinkedHashSet<>();
+            }
+            alternatives.add(occurrence.term());
+        }
+        slots.add(new PhraseSlot(
+                currentRelativePosition,
+                List.copyOf(alternatives)
+        ));
+        return List.copyOf(slots);
     }
 
     private static <T> TextIndexSnapshot<T> requireTextIndex(
@@ -253,7 +321,8 @@ record RankedSearchInput<T>(
 }
 
 sealed interface NormalizedScoringNode<T>
-        permits NormalizedTextNode, NormalizedBoolNode, NormalizedBoostNode {
+        permits NormalizedTextNode, NormalizedPhraseNode,
+        NormalizedBoolNode, NormalizedBoostNode {
 }
 
 record NormalizedTextNode<T>(
@@ -265,6 +334,54 @@ record NormalizedTextNode<T>(
         Objects.requireNonNull(textField, "textField");
         frozenTerms = List.copyOf(frozenTerms);
         if (!frozenTerms.isEmpty()) {
+            Objects.requireNonNull(textIndex, "textIndex");
+        }
+    }
+}
+
+record PhraseSlot(int relativePosition, List<String> alternatives) {
+    PhraseSlot {
+        if (relativePosition < 0) {
+            throw new IllegalArgumentException(
+                    "relativePosition must not be negative");
+        }
+        alternatives = List.copyOf(alternatives);
+        if (alternatives.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "a phrase slot requires at least one alternative");
+        }
+    }
+}
+
+record NormalizedPhraseNode<T>(
+        TextField<T> textField,
+        List<PhraseSlot> slots,
+        List<String> scoringTerms,
+        TextIndexSnapshot<T> textIndex
+) implements NormalizedScoringNode<T> {
+    NormalizedPhraseNode {
+        Objects.requireNonNull(textField, "textField");
+        slots = List.copyOf(slots);
+        scoringTerms = List.copyOf(scoringTerms);
+        int previousPosition = -1;
+        for (int index = 0; index < slots.size(); index++) {
+            PhraseSlot slot = slots.get(index);
+            if (index == 0 && slot.relativePosition() != 0) {
+                throw new IllegalArgumentException(
+                        "the first phrase slot must have relative position zero");
+            }
+            if (slot.relativePosition() <= previousPosition) {
+                throw new IllegalArgumentException(
+                        "phrase slot positions must be strictly increasing");
+            }
+            previousPosition = slot.relativePosition();
+        }
+        if (slots.isEmpty()) {
+            if (!scoringTerms.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "an empty phrase cannot carry scoring terms");
+            }
+        } else {
             Objects.requireNonNull(textIndex, "textIndex");
         }
     }
@@ -289,5 +406,25 @@ record NormalizedBoostNode<T>(
         if (!Double.isFinite(multiplier) || multiplier <= 0.0) {
             throw new IllegalArgumentException("boost must be finite and positive");
         }
+    }
+}
+
+record PositionedTerm(String term, int logicalPosition) {
+    PositionedTerm {
+        Objects.requireNonNull(term, "term");
+        if (logicalPosition < 0) {
+            throw new IllegalArgumentException(
+                    "logicalPosition must not be negative");
+        }
+    }
+}
+
+record PositionedAnalysis(
+        List<PositionedTerm> occurrences,
+        List<String> distinctTerms
+) {
+    PositionedAnalysis {
+        occurrences = List.copyOf(occurrences);
+        distinctTerms = List.copyOf(distinctTerms);
     }
 }
