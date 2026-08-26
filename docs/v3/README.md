@@ -9,11 +9,15 @@ remains the current stable release until 3.0.0 is published.
 | Phase | Scope | Status |
 |---|---|---|
 | Phase 0 | API, architecture, semantics, and compatibility contracts | Complete |
-| Phase 1 | position-aware Analyzer API and legacy adapter | Contract frozen |
+| Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
 | Later phases | positional storage, phrase/fuzzy execution, planner, executor, and Explain | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
 later implementation auditable and difficult to change accidentally.
+
+Phase 1 adds only the position-aware Analyzer model and backward-compatible default
+adapter. Existing text execution still uses legacy tokens; positional consumption and
+storage remain deferred.
 
 ## Contracts
 

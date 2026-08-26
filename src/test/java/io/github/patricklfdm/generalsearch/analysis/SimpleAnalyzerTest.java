@@ -31,6 +31,18 @@ class SimpleAnalyzerTest {
     }
 
     @Test
+    void adaptsExistingTermsToUnitPositionIncrements() {
+        String text = "Café ＪＡＶＡ-21, Java";
+
+        assertEquals(
+                analyzer.analyze(text).stream()
+                        .map(token -> new AnalyzedToken(token.term(), 1))
+                        .toList(),
+                analyzer.analyzeWithPositions(text)
+        );
+    }
+
+    @Test
     void tokenRejectsEmptyTerms() {
         assertThrows(IllegalArgumentException.class, () -> new Token(""));
         assertThrows(IllegalArgumentException.class, () -> new Token(null));

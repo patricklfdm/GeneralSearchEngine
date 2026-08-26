@@ -2,9 +2,9 @@
 
 ## Status
 
-The Phase 1 contract is frozen and implementation has not started. Phase 1 adds the
-position-aware Analyzer model required by later positional indexing without changing
-any existing text-query, indexing, BM25, or engine behavior.
+The Phase 1 contract remains frozen and its implementation is complete. Phase 1 adds
+the position-aware Analyzer model required by later positional indexing without
+changing any existing text-query, indexing, BM25, or engine behavior.
 
 The Phase 0 positional contract remains authoritative. This document makes its Phase 1
 delivery boundary and verification requirements executable.
