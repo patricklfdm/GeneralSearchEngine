@@ -2,7 +2,7 @@
 
 ## Status
 
-This contract is frozen for implementation. Phase 5 implementation has not started.
+This contract is implemented and validated. Phase 5 is complete.
 
 Phase 0 ranked-search and positional semantics, Phase 1 positioned analysis, Phase 2
 positional storage, the Phase 3 snapshot-bound search pipeline, the completed Phase 4

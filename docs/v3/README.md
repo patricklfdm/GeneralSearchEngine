@@ -13,7 +13,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 2 | positional posting storage and consistent positioned-term consumption | Complete |
 | Phase 3 | SearchRequest planning and execution pipeline | Complete |
 | Phase 4 | bool, boost, and cross-field ranked composition | Complete |
-| Phase 5 | exact phrase search | Contract frozen |
+| Phase 5 | exact phrase search | Complete |
 | Phases 6–8 | fuzzy, Explain, and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
@@ -36,10 +36,11 @@ empty-leaf and missing-index precedence, field-local cross-field BM25, checked
 deterministic arithmetic, and matched zero-score retention. Physical candidate
 composition remains separate from logical scoring order.
 
-Phase 5 has a frozen pre-implementation contract for positioned phrase normalization,
-posting-based safe candidates, deterministic anchor verification, distinct-term BM25,
-recursive composition, failure precedence, and a narrow hidden positional bridge. Its
-implementation has not started, so the phase is not yet complete.
+Phase 5 implements positioned phrase normalization, posting-based safe candidates,
+deterministic anchor verification, exact relative-position matching, distinct-term
+BM25, recursive composition, and failure precedence through one narrow hidden
+positional bridge. Focused, randomized, lifecycle, consumer, compatibility, release,
+reproducibility, and performance-smoke gates cover the completed implementation.
 
 ## Contracts
 
@@ -62,6 +63,7 @@ implementation has not started, so the phase is not yet complete.
 - [Phase 4 performance smoke](phases/p4/PERFORMANCE_BASELINE.md)
 - [Phase 5 exact phrase search contract](phases/p5/EXACT_PHRASE_SEARCH.md)
 - [Phase 5 implementation checklist](phases/p5/PHASE_5_CHECKLIST.md)
+- [Phase 5 performance smoke](phases/p5/PERFORMANCE_BASELINE.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,
