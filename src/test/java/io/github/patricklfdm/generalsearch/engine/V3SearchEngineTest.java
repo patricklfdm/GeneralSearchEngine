@@ -115,6 +115,71 @@ class V3SearchEngineTest {
     }
 
     @Test
+    void crossFieldCompositionUsesOneSnapshotDuringConcurrentPublication()
+            throws Exception {
+        Field<Place, Integer> id = Field.of("id", Integer.class, Place::id);
+        Field<Place, String> city = Field.of("city", String.class, Place::city);
+        Field<Place, String> description = Field.of(
+                "description",
+                String.class,
+                Place::description
+        );
+        CountDownLatch queryEntered = new CountDownLatch(1);
+        CountDownLatch releaseQuery = new CountDownLatch(1);
+        AtomicBoolean blockQuery = new AtomicBoolean();
+        Analyzer blocking = new Analyzer() {
+            @Override
+            public List<Token> analyze(String text) {
+                return Analyzer.simple().analyze(text);
+            }
+
+            @Override
+            public List<AnalyzedToken> analyzeWithPositions(String text) {
+                if (text.equals("blocked-temple") && blockQuery.get()) {
+                    queryEntered.countDown();
+                    await(releaseQuery);
+                    return List.of(new AnalyzedToken("temple", 1));
+                }
+                return Analyzer.super.analyzeWithPositions(text);
+            }
+        };
+        TextField<Place> cityText = TextField.of(city, Analyzer.simple());
+        TextField<Place> descriptionText = TextField.of(description, blocking);
+        Place original = new Place(1, "Tokyo", "historic temple");
+        Place updated = new Place(1, "Paris", "modern museum");
+
+        try (SearchEngine<Integer, Place> engine = SearchEngine
+                .builder(Place.class, id)
+                .index(IndexDefinition.text(cityText))
+                .index(IndexDefinition.text(descriptionText))
+                .build()) {
+            engine.add(original).join();
+            blockQuery.set(true);
+            CompletableFuture<SearchResult<Place>> result = CompletableFuture
+                    .supplyAsync(() -> engine.search(SearchRequest.of(
+                            SearchQueries.<Place>bool()
+                                    .must(SearchQueries.text(cityText, "Tokyo"))
+                                    .must(SearchQueries.text(
+                                            descriptionText,
+                                            "blocked-temple"
+                                    ))
+                                    .build()
+                    )));
+
+            assertTrue(queryEntered.await(5, TimeUnit.SECONDS));
+            engine.update(updated).join();
+            releaseQuery.countDown();
+
+            assertEquals(
+                    List.of(original),
+                    result.get(5, TimeUnit.SECONDS).hits().stream()
+                            .map(hit -> hit.document())
+                            .toList()
+            );
+        }
+    }
+
+    @Test
     void configuredPlannerGovernsBothV2AndV3RankedPaths() {
         AtomicInteger rangeMatches = new AtomicInteger();
         Field<Article, Integer> identifier = Field.of(
@@ -167,5 +232,8 @@ class V3SearchEngineTest {
     }
 
     private record Article(int id, String body) {
+    }
+
+    private record Place(int id, String city, String description) {
     }
 }
