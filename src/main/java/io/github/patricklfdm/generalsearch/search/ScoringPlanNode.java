@@ -1,7 +1,9 @@
 package io.github.patricklfdm.generalsearch.search;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.index.text.PhrasePositionAccess;
 import io.github.patricklfdm.generalsearch.index.text.PostingList;
@@ -9,7 +11,8 @@ import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.ranking.Bm25Config;
 
 /** Package-private exact-match and score contract for prepared ranked nodes. */
-sealed interface ScoringPlanNode<T> permits TextPlan, PhrasePlan, BoolPlan, BoostPlan {
+sealed interface ScoringPlanNode<T>
+        permits TextPlan, PhrasePlan, FuzzyPlan, BoolPlan, BoostPlan {
     ImmutableBitmap candidates();
 
     ScoreMatch evaluate(int docId);
@@ -221,6 +224,184 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
     }
 }
 
+final class FuzzyPlan<T> implements ScoringPlanNode<T> {
+    private final TextIndexSnapshot<T> textIndex;
+    private final String normalizedQueryTerm;
+    private final List<FuzzyScoringExpansion> expansions;
+    private final ImmutableBitmap candidates;
+    private final Bm25Config config;
+    private final double averageDocumentLength;
+
+    FuzzyPlan(
+            TextIndexSnapshot<T> textIndex,
+            String normalizedQueryTerm,
+            List<FuzzyScoringExpansion> expansions,
+            ImmutableBitmap candidates,
+            Bm25Config config,
+            double averageDocumentLength
+    ) {
+        this.expansions = List.copyOf(expansions);
+        this.candidates = Objects.requireNonNull(candidates, "candidates");
+        this.config = Objects.requireNonNull(config, "config");
+        if (!Double.isFinite(averageDocumentLength)
+                || averageDocumentLength < 0.0) {
+            throw new IllegalArgumentException(
+                    "average document length must be finite and non-negative");
+        }
+        this.averageDocumentLength = averageDocumentLength;
+        if (normalizedQueryTerm == null) {
+            if (textIndex != null
+                    || !this.expansions.isEmpty()
+                    || !candidates.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "an empty fuzzy plan cannot carry prepared scoring state");
+            }
+        } else {
+            if (normalizedQueryTerm.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "normalizedQueryTerm must not be empty");
+            }
+            Objects.requireNonNull(textIndex, "textIndex");
+            validateExpansions(normalizedQueryTerm, this.expansions);
+        }
+        this.textIndex = textIndex;
+        this.normalizedQueryTerm = normalizedQueryTerm;
+    }
+
+    static <T> FuzzyPlan<T> empty(Bm25Config config) {
+        return new FuzzyPlan<>(
+                null,
+                null,
+                List.of(),
+                ImmutableBitmap.empty(),
+                config,
+                0.0
+        );
+    }
+
+    @Override
+    public ImmutableBitmap candidates() {
+        return candidates;
+    }
+
+    @Override
+    public ScoreMatch evaluate(int docId) {
+        return evaluateFuzzy(docId).result();
+    }
+
+    FuzzyEvaluation evaluateFuzzy(int docId) {
+        if (textIndex == null || !candidates.get(docId)) {
+            return FuzzyEvaluation.noMatch();
+        }
+
+        int documentLength = textIndex.documentLength(docId);
+        double normalization = averageDocumentLength == 0.0 || documentLength == 0
+                ? 0.0
+                : Bm25Scorer.normalization(
+                        config,
+                        averageDocumentLength,
+                        documentLength
+                );
+        for (FuzzyScoringExpansion expansion : expansions) {
+            if (expansion.editDistance() != 0) {
+                break;
+            }
+            int termFrequency = expansion.scoringTerm()
+                    .posting()
+                    .termFrequency(docId);
+            if (termFrequency > 0) {
+                double score = documentLength == 0 || averageDocumentLength == 0.0
+                        ? 0.0
+                        : Bm25Scorer.termScore(
+                                expansion.scoringTerm(),
+                                termFrequency,
+                                config,
+                                normalization
+                        );
+                return FuzzyEvaluation.match(score, expansion.term());
+            }
+        }
+
+        boolean matched = false;
+        double bestScore = 0.0;
+        String selectedTerm = null;
+        for (FuzzyScoringExpansion expansion : expansions) {
+            if (expansion.editDistance() == 0) {
+                continue;
+            }
+            int termFrequency = expansion.scoringTerm()
+                    .posting()
+                    .termFrequency(docId);
+            if (termFrequency == 0) {
+                continue;
+            }
+            double termScore = documentLength == 0 || averageDocumentLength == 0.0
+                    ? 0.0
+                    : Bm25Scorer.termScore(
+                            expansion.scoringTerm(),
+                            termFrequency,
+                            config,
+                            normalization
+                    );
+            double weightedScore = ScoreArithmetic.multiply(
+                    termScore,
+                    expansion.similarity()
+            );
+            if (!matched || Double.compare(weightedScore, bestScore) > 0) {
+                matched = true;
+                bestScore = weightedScore;
+                selectedTerm = expansion.term();
+            }
+        }
+        return matched
+                ? FuzzyEvaluation.match(bestScore, selectedTerm)
+                : FuzzyEvaluation.noMatch();
+    }
+
+    String normalizedQueryTerm() {
+        return normalizedQueryTerm;
+    }
+
+    List<FuzzyScoringExpansion> expansions() {
+        return expansions;
+    }
+
+    private static void validateExpansions(
+            String normalizedQueryTerm,
+            List<FuzzyScoringExpansion> expansions
+    ) {
+        Set<String> terms = new HashSet<>();
+        FuzzyScoringExpansion previous = null;
+        for (FuzzyScoringExpansion expansion : expansions) {
+            if (!terms.add(expansion.term())) {
+                throw new IllegalArgumentException(
+                        "fuzzy expansions must contain unique terms");
+            }
+            if ((expansion.editDistance() == 0)
+                    != expansion.term().equals(normalizedQueryTerm)) {
+                throw new IllegalArgumentException(
+                        "only the normalized query term may have distance zero");
+            }
+            if (previous != null) {
+                int comparison = Integer.compare(
+                        previous.editDistance(),
+                        expansion.editDistance()
+                );
+                if (comparison > 0
+                        || (comparison == 0
+                        && BoundedOptimalStringAlignment.compareCodePoints(
+                                previous.term(),
+                                expansion.term()
+                        ) >= 0)) {
+                    throw new IllegalArgumentException(
+                            "fuzzy expansions must use deterministic order");
+                }
+            }
+            previous = expansion;
+        }
+    }
+}
+
 record BoolPlan<T>(
         List<ScoringPlanNode<T>> must,
         List<ScoringPlanNode<T>> should,
@@ -296,6 +477,57 @@ record ScoringTerm(PostingList posting, double inverseDocumentFrequency) {
     }
 }
 
+record FuzzyScoringExpansion(
+        String term,
+        ScoringTerm scoringTerm,
+        int editDistance,
+        double similarity
+) {
+    FuzzyScoringExpansion {
+        Objects.requireNonNull(term, "term");
+        Objects.requireNonNull(scoringTerm, "scoringTerm");
+        if (term.isEmpty()) {
+            throw new IllegalArgumentException("term must not be empty");
+        }
+        if (editDistance < 0
+                || editDistance > BoundedOptimalStringAlignment.MAX_AUTO_EDITS) {
+            throw new IllegalArgumentException(
+                    "editDistance must be between 0 and 2");
+        }
+        ScoreArithmetic.requireValid(similarity, "fuzzy similarity");
+        if (similarity > 1.0) {
+            throw new ArithmeticException(
+                    "fuzzy similarity must not be greater than 1: " + similarity);
+        }
+    }
+}
+
+record FuzzyEvaluation(ScoreMatch result, String selectedTerm) {
+    private static final FuzzyEvaluation NO_MATCH = new FuzzyEvaluation(
+            ScoreMatch.noMatch(),
+            null
+    );
+
+    FuzzyEvaluation {
+        Objects.requireNonNull(result, "result");
+        if (result.matched() != (selectedTerm != null)) {
+            throw new IllegalArgumentException(
+                    "selectedTerm must be present exactly when fuzzy matched");
+        }
+    }
+
+    static FuzzyEvaluation noMatch() {
+        return NO_MATCH;
+    }
+
+    static FuzzyEvaluation match(double score, String selectedTerm) {
+        return new FuzzyEvaluation(
+                ScoreMatch.match(score),
+                Objects.requireNonNull(selectedTerm, "selectedTerm")
+        );
+    }
+}
+
 final class Bm25Scorer {
     private Bm25Scorer() {
     }
@@ -314,11 +546,11 @@ final class Bm25Scorer {
                     ? ScoreMatch.match(0.0)
                     : ScoreMatch.noMatch();
         }
-        double normalization = config.k1() * (
-                1.0 - config.b()
-                        + config.b() * documentLength / averageDocumentLength
+        double normalization = normalization(
+                config,
+                averageDocumentLength,
+                documentLength
         );
-        ScoreArithmetic.requireValid(normalization, "BM25 normalization");
 
         boolean matched = matchAlreadyEstablished;
         double score = 0.0;
@@ -328,16 +560,42 @@ final class Bm25Scorer {
                 continue;
             }
             matched = true;
-            double numerator = term.inverseDocumentFrequency()
-                    * (termFrequency * (config.k1() + 1.0));
-            ScoreArithmetic.requireValid(numerator, "BM25 numerator");
-            double denominator = termFrequency + normalization;
-            ScoreArithmetic.requireValid(denominator, "BM25 denominator");
-            double termScore = numerator / denominator;
-            ScoreArithmetic.requireValid(termScore, "BM25 term score");
+            double termScore = termScore(
+                    term,
+                    termFrequency,
+                    config,
+                    normalization
+            );
             score = ScoreArithmetic.add(score, termScore);
         }
         return matched ? ScoreMatch.match(score) : ScoreMatch.noMatch();
+    }
+
+    static double normalization(
+            Bm25Config config,
+            double averageDocumentLength,
+            int documentLength
+    ) {
+        double normalization = config.k1() * (
+                1.0 - config.b()
+                        + config.b() * documentLength / averageDocumentLength
+        );
+        return ScoreArithmetic.requireValid(normalization, "BM25 normalization");
+    }
+
+    static double termScore(
+            ScoringTerm term,
+            int termFrequency,
+            Bm25Config config,
+            double normalization
+    ) {
+        double numerator = term.inverseDocumentFrequency()
+                * (termFrequency * (config.k1() + 1.0));
+        ScoreArithmetic.requireValid(numerator, "BM25 numerator");
+        double denominator = termFrequency + normalization;
+        ScoreArithmetic.requireValid(denominator, "BM25 denominator");
+        double termScore = numerator / denominator;
+        return ScoreArithmetic.requireValid(termScore, "BM25 term score");
     }
 }
 

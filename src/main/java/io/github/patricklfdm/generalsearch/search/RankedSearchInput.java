@@ -75,13 +75,7 @@ record RankedSearchInput<T>(
     }
 
     private static <T> void validateSupportedTree(SearchQueryNode<T> node) {
-        if (node instanceof LeafSearchQueryNode<?> untypedLeaf) {
-            if (untypedLeaf.kind() == SearchLeafKind.FUZZY) {
-                throw new UnsupportedOperationException(
-                        "Phase 5 supports TEXT, PHRASE, BOOL, and BOOST; "
-                                + untypedLeaf.kind() + " execution is not implemented"
-                );
-            }
+        if (node instanceof LeafSearchQueryNode<?>) {
             return;
         }
         if (node instanceof BoolSearchQueryNode<?> untypedBool) {
@@ -124,8 +118,11 @@ record RankedSearchInput<T>(
                         leaf.field(),
                         analysis
                 );
-                case FUZZY -> throw new IllegalStateException(
-                        "validated ranked query changed leaf kind: FUZZY");
+                case FUZZY -> normalizedFuzzy(
+                        snapshot,
+                        leaf.field(),
+                        analysis
+                );
             };
         }
         if (node instanceof BoolSearchQueryNode<?> untypedBool) {
@@ -182,12 +179,37 @@ record RankedSearchInput<T>(
         );
     }
 
+    private static <T> NormalizedFuzzyNode<T> normalizedFuzzy(
+            SearchSnapshot<T> snapshot,
+            TextField<T> field,
+            PositionedAnalysis analysis
+    ) {
+        int tokenCount = analysis.occurrences().size();
+        if (tokenCount > 1) {
+            throw invalidAnalysis(
+                    field,
+                    "returned " + tokenCount
+                            + " tokens for a fuzzy query; exactly one is required"
+            );
+        }
+        String normalizedTerm = tokenCount == 0
+                ? null
+                : analysis.occurrences().getFirst().term();
+        TextIndexSnapshot<T> textIndex = normalizedTerm == null
+                ? null
+                : requireTextIndex(snapshot, field);
+        return new NormalizedFuzzyNode<>(field, normalizedTerm, textIndex);
+    }
+
     private static boolean containsNonEmptyScoringLeaf(NormalizedScoringNode<?> node) {
         if (node instanceof NormalizedTextNode<?> text) {
             return !text.frozenTerms().isEmpty();
         }
         if (node instanceof NormalizedPhraseNode<?> phrase) {
             return !phrase.slots().isEmpty();
+        }
+        if (node instanceof NormalizedFuzzyNode<?> fuzzy) {
+            return fuzzy.normalizedTerm() != null;
         }
         if (node instanceof NormalizedBoolNode<?> bool) {
             for (NormalizedScoringNode<?> child : bool.must()) {
@@ -321,7 +343,7 @@ record RankedSearchInput<T>(
 }
 
 sealed interface NormalizedScoringNode<T>
-        permits NormalizedTextNode, NormalizedPhraseNode,
+        permits NormalizedTextNode, NormalizedPhraseNode, NormalizedFuzzyNode,
         NormalizedBoolNode, NormalizedBoostNode {
 }
 
@@ -382,6 +404,28 @@ record NormalizedPhraseNode<T>(
                         "an empty phrase cannot carry scoring terms");
             }
         } else {
+            Objects.requireNonNull(textIndex, "textIndex");
+        }
+    }
+}
+
+record NormalizedFuzzyNode<T>(
+        TextField<T> textField,
+        String normalizedTerm,
+        TextIndexSnapshot<T> textIndex
+) implements NormalizedScoringNode<T> {
+    NormalizedFuzzyNode {
+        Objects.requireNonNull(textField, "textField");
+        if (normalizedTerm == null) {
+            if (textIndex != null) {
+                throw new IllegalArgumentException(
+                        "an empty fuzzy node cannot carry a text index");
+            }
+        } else {
+            if (normalizedTerm.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "normalizedTerm must not be empty");
+            }
             Objects.requireNonNull(textIndex, "textIndex");
         }
     }
