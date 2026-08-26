@@ -92,18 +92,14 @@ class SearchPipelineTest {
     }
 
     @Test
-    void rejectsEveryLaterPhaseShapeBeforeAnalysisOrIndexWork() {
+    void rejectsPhraseAndFuzzyBeforeAnalysisOrIndexWork() {
         Analyzer forbidden = text -> {
             throw new AssertionError("analysis must not run");
         };
         TextField<Article> field = TextField.of(BODY, forbidden);
         List<SearchQuery<Article>> unsupported = List.of(
                 SearchQueries.phrase(field, "java search"),
-                SearchQueries.fuzzy(field, "jvaa"),
-                SearchQueries.text(field, "java").boost(2.0),
-                SearchQueries.<Article>bool()
-                        .must(SearchQueries.text(field, "java"))
-                        .build()
+                SearchQueries.fuzzy(field, "jvaa")
         );
 
         for (SearchQuery<Article> query : unsupported) {
@@ -114,7 +110,7 @@ class SearchPipelineTest {
                             SearchRequest.of(query)
                     )
             );
-            assertTrue(failure.getMessage().contains("direct text query leaf"));
+            assertTrue(failure.getMessage().contains("not implemented"));
         }
     }
 
@@ -246,9 +242,12 @@ class SearchPipelineTest {
                 0,
                 new Article(0, "other", "guide")
         );
-        TextSearchInput<Article> input = TextSearchInput.from(request(TEXT, "java"));
+        RankedSearchInput<Article> input = RankedSearchInput.from(
+                first,
+                request(TEXT, "java")
+        );
         SearchPlan<Article> plan = new SearchPlanner<Article>(new CandidatePlanner<>())
-                .plan(first, input);
+                .plan(input);
 
         assertSame(first, plan.snapshot());
         assertEquals(List.of(original), documents(new SearchExecutor<Article>()

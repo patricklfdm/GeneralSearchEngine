@@ -15,4 +15,14 @@ class V3StyleConsumerTest {
                         .toList()
         );
     }
+
+    @Test
+    void executesBoolBoostAndCrossFieldRequestThroughPublishedApiOnly() {
+        assertEquals(
+                List.of(1L),
+                V3StyleConsumer.supportedCompositionSearch().hits().stream()
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+    }
 }

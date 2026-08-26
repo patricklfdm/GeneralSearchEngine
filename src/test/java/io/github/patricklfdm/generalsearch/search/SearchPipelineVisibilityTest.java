@@ -13,10 +13,21 @@ import org.junit.jupiter.api.Test;
 
 class SearchPipelineVisibilityTest {
     private static final List<Class<?>> INTERNAL_TYPES = List.of(
-            TextSearchInput.class,
+            RankedSearchInput.class,
+            NormalizedScoringNode.class,
+            NormalizedTextNode.class,
+            NormalizedBoolNode.class,
+            NormalizedBoostNode.class,
             SearchPlanner.class,
             SearchPlan.class,
             SearchExecutor.class,
+            ScoringPlanNode.class,
+            TextPlan.class,
+            BoolPlan.class,
+            BoostPlan.class,
+            ScoreMatch.class,
+            ScoringTerm.class,
+            ScoreArithmetic.class,
             SearchQueryNode.class,
             LeafSearchQueryNode.class,
             BoolSearchQueryNode.class,

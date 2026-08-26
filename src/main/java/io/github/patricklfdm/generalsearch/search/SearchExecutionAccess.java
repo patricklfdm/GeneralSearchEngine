@@ -29,8 +29,8 @@ public final class SearchExecutionAccess {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(filterPlanner, "filterPlanner");
-        TextSearchInput<T> input = TextSearchInput.from(request);
-        SearchPlan<T> plan = new SearchPlanner<>(filterPlanner).plan(snapshot, input);
+        RankedSearchInput<T> input = RankedSearchInput.from(snapshot, request);
+        SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
         return new SearchResult<>(new SearchExecutor<T>().execute(plan));
     }
 
@@ -47,8 +47,8 @@ public final class SearchExecutionAccess {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(filterPlanner, "filterPlanner");
-        TextSearchInput<T> input = TextSearchInput.from(request);
-        SearchPlan<T> plan = new SearchPlanner<>(filterPlanner).plan(snapshot, input);
+        RankedSearchInput<T> input = RankedSearchInput.from(snapshot, request);
+        SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
         return new SearchExecutor<T>().execute(plan);
     }
 }

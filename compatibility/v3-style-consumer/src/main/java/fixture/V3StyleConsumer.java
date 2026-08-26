@@ -25,6 +25,8 @@ public final class V3StyleConsumer {
             Field.of("city", String.class, TravelPlace::city);
     private static final Field<TravelPlace, String> DESCRIPTION =
             Field.of("description", String.class, TravelPlace::description);
+    private static final TextField<TravelPlace> CITY_TEXT =
+            TextField.of(CITY, Analyzer.simple());
     private static final TextField<TravelPlace> DESCRIPTION_TEXT =
             TextField.of(DESCRIPTION, Analyzer.simple());
 
@@ -33,10 +35,11 @@ public final class V3StyleConsumer {
 
     public static SearchRequest<TravelPlace> request() {
         SearchQuery<TravelPlace> query = SearchQueries.<TravelPlace>bool()
-                .must(SearchQueries.text(DESCRIPTION_TEXT, "historic temple"))
-                .should(SearchQueries.phrase(
-                        DESCRIPTION_TEXT, "quiet neighborhood").boost(2.0))
-                .should(SearchQueries.fuzzy(DESCRIPTION_TEXT, "restarant"))
+                .must(SearchQueries.text(
+                        DESCRIPTION_TEXT,
+                        "historic temple"
+                ).boost(3.0))
+                .should(SearchQueries.text(CITY_TEXT, "Tokyo"))
                 .build();
 
         return SearchRequest.<TravelPlace>builder()
@@ -48,6 +51,16 @@ public final class V3StyleConsumer {
 
     public static SearchRequest<TravelPlace> defaultRequest() {
         return SearchRequest.of(SearchQueries.text(DESCRIPTION_TEXT, "museum"));
+    }
+
+    public static SearchRequest<TravelPlace> laterPhaseRequest() {
+        return SearchRequest.of(SearchQueries.<TravelPlace>bool()
+                .should(SearchQueries.phrase(
+                        DESCRIPTION_TEXT,
+                        "quiet neighborhood"
+                ))
+                .should(SearchQueries.fuzzy(DESCRIPTION_TEXT, "restarant"))
+                .build());
     }
 
     public static List<AnalyzedToken> positionAwareAnalysis() {
@@ -90,6 +103,32 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(museum, guide, other)).join();
             return supportedTextSearch(engine);
+        }
+    }
+
+    public static SearchResult<TravelPlace> supportedCompositionSearch() {
+        TravelPlace tokyoTemple = new TravelPlace(
+                1L,
+                "Tokyo",
+                "historic temple quiet neighborhood"
+        );
+        TravelPlace tokyoMuseum = new TravelPlace(
+                2L,
+                "Tokyo",
+                "modern museum riverside"
+        );
+        TravelPlace kyotoTemple = new TravelPlace(
+                3L,
+                "Kyoto",
+                "historic temple garden"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(CITY_TEXT))
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(tokyoTemple, tokyoMuseum, kyotoTemple)).join();
+            return search(engine);
         }
     }
 

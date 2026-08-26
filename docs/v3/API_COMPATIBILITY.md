@@ -60,6 +60,25 @@ ranking, schema, query, and index APIs. The bridge carries no application compat
 guarantee and exists only to accommodate the current package boundaries without using
 reflection or widening the query-tree API.
 
+## Phase 4 internal ranked composition
+
+Phase 4 implements the BOOL and BOOST façades already added and frozen in Phase 0. It
+adds no supported public type, method, field, constructor, or descriptor. Cross-field
+ranked search is ordinary composition of existing `SearchQueries.text(...)` leaves on
+different existing canonical `TextField<T>` values.
+
+The normalized recursive query representation, `TextPlan`/`BoolPlan`/`BoostPlan`
+equivalents, matched-plus-score value, prepared postings/statistics, and candidate
+bitmaps remain package-private. The existing Javadoc-hidden `SearchExecutionAccess`
+class remains the only bytecode-public bridge, continues to expose complete execution
+only, and does not reveal or accept any Phase 4 internal representation.
+
+Japicmp is therefore expected to report no Phase 4 public addition. The normal and
+isolated artifact comparisons against 1.0.0, 2.0.0, and 2.1.0, the frozen v1 fixture,
+and the independent v1-, v2-, and v3-style consumers remain mandatory. Third-party
+`SearchEngine` implementations retain the existing default unsupported V3 behavior,
+and all V2 ranked descriptors and frozen-term execution semantics remain unchanged.
+
 ## Accepted null-literal ambiguity
 
 Adding `search(SearchRequest<T>)` creates one narrow source-resolution incompatibility:

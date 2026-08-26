@@ -7,6 +7,12 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- V3 recursive ranked BOOL and BOOST execution with MUST/SHOULD candidate composition,
+  nested query support, cross-field field-local BM25 statistics, checked deterministic
+  score arithmetic, and matched zero-score retention.
+- Whole-tree ranked-query validation, per-occurrence positioned analysis, empty-leaf
+  and missing-index precedence coverage, randomized recursive differential tests, a
+  cross-field independent consumer, and a focused ranked-composition JMH smoke.
 - V3 direct text `SearchRequest` execution with one immutable snapshot-bound planning
   and BM25 pipeline, including optional structured filters, custom BM25 configuration,
   deterministic bounded top-K ordering, and positioned query analysis.
@@ -28,6 +34,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Changed
 
+- The Phase 3 single-text plan is now an internal immutable recursive scoring tree while
+  preserving direct V3 text and frozen-term V2 scores, filters, limits, ordering,
+  snapshot behavior, and public descriptors.
 - Legacy `RankedSearcher` and built-in `searchTopK` now adapt frozen V2 terms into the
   same canonical execution core as V3 without re-analysis, while preserving all V2
   scores, filters, limits, ordering, constructors, and planner configuration.
