@@ -183,3 +183,33 @@ overrides become active consistently across indexed, scan, and BM25 term project
 an exact text index cannot drift from its scan predicate. `TextField.analyzeDocument(T)`
 retains its existing descriptor and legacy behavior, and no public posting-positions API
 is added.
+
+## Phase 8 public API freeze audit
+
+The 3.0.0 snapshot Japicmp reports against 1.0.0, 2.0.0, and 2.1.0 contain no binary or
+source incompatibility. The supported additive V3 surface is exactly:
+
+- `AnalyzedToken` and the default `Analyzer.analyzeWithPositions(String)` method;
+- `SearchRequest` and its builder;
+- the final `SearchQuery` façade, `SearchQueries`, and its BOOL builder;
+- `SearchResult`, `SearchExplanation`, and `ExplanationNode`;
+- the default `SearchEngine.search(SearchRequest)` and `SearchEngine.explain` methods;
+- the corresponding concrete overrides on `SnapshotSearchEngine`.
+
+The review confirms that the supported request/query/result/explanation types expose no
+query node, planner, plan, posting, vocabulary, position, candidate bitmap, score state,
+snapshot handle, or internal document ID. Their generic descriptors, construction
+validation, immutable collection boundaries, defaults, and exception behavior match the
+Phase 0–7 contracts. Public Javadocs state the builder thread-safety boundary, analyzer
+concurrency requirement, invocation-local snapshot behavior, top-K-independent Explain
+semantics, and diagnostic—not parseable—description contract.
+
+Japicmp also reports the three already reviewed Javadoc-hidden package bridges:
+`SearchExecutionAccess`, `PhrasePositionAccess`, and `FuzzyVocabularyAccess`. Their
+exact Phase 3/5/6/7 boundaries above remain unchanged. They are bytecode-public only to
+cross Java sibling packages and remain unsupported application infrastructure.
+
+Changes reported on `PostingList`, `TextIndexBuilder`, `RankedSearcher`, and
+`TextScoringQuery` do not add or remove public descriptors; they reflect private
+positional and canonical-execution implementation changes. No other accidental public
+V3 type or method is accepted into the 3.0.0 compatibility contract.

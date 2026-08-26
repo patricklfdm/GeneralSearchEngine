@@ -19,7 +19,8 @@ public final class SearchQuery<T> {
      *
      * @param boost finite, strictly positive multiplier
      * @return a new boosted query
-     * @throws IllegalArgumentException when {@code boost} is not finite and positive
+     * @throws IllegalArgumentException when {@code boost} is not finite or is not
+     *         strictly positive
      */
     public SearchQuery<T> boost(double boost) {
         if (!Double.isFinite(boost) || boost <= 0.0) {

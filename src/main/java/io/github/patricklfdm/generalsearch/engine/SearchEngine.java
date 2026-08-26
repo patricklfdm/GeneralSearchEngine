@@ -130,7 +130,8 @@ public interface SearchEngine<K, T> extends AutoCloseable {
      * request capability.
      *
      * @param request non-null ranked-search request
-     * @return immutable ranked-search result
+     * @return immutable ranked-search result from the snapshot captured by this
+     *         invocation, ordered by score descending and deterministic tie-break
      * @throws NullPointerException when {@code request} is null
      * @throws UnsupportedOperationException when the implementation does not support
      *         V3 search requests
@@ -146,10 +147,16 @@ public interface SearchEngine<K, T> extends AutoCloseable {
      *
      * @param request non-null ranked-search request
      * @param id non-null business ID
-     * @return explanation for an existing document, or empty when the ID is missing
+     * @return explanation for an existing document in the snapshot captured by this
+     *         invocation, or empty when the ID is missing; an existing non-match is
+     *         represented with {@code matched == false} and score zero
      * @throws NullPointerException when either argument is null
      * @throws UnsupportedOperationException when the implementation does not support
      *         search explanations
+     *
+     * <p>An explanation is independent of request limit and top-K membership. Each
+     * invocation observes its own current snapshot and does not reuse the snapshot of
+     * an earlier search.</p>
      */
     default Optional<SearchExplanation<T>> explain(SearchRequest<T> request, K id) {
         Objects.requireNonNull(request, "request");

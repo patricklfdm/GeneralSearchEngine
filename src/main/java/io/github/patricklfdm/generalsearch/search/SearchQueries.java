@@ -71,6 +71,7 @@ public final class SearchQueries {
 
     /**
      * Mutable reusable builder that creates immutable ordered boolean query snapshots.
+     * Builder instances are not thread-safe.
      *
      * @param <T> document type
      */

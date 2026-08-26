@@ -3,7 +3,13 @@ package io.github.patricklfdm.generalsearch.search;
 import java.util.List;
 import java.util.Objects;
 
-/** Immutable generic node in a future ranked-search explanation tree. */
+/**
+ * Immutable generic node in a ranked-search explanation tree.
+ *
+ * <p>Descriptions are deterministic human-readable diagnostics, not a stable
+ * parseable format. Applications should use the structured match, score, and child
+ * values instead of parsing description text.</p>
+ */
 public final class ExplanationNode {
     private final boolean matched;
     private final double score;

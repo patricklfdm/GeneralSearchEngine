@@ -3,7 +3,9 @@ package io.github.patricklfdm.generalsearch.search;
 import java.util.Objects;
 
 /**
- * Immutable top-level explanation for one existing document.
+ * Immutable top-level explanation for one existing document. The object retains the
+ * document reference supplied by the engine; applications must continue to follow the
+ * engine's document-immutability contract.
  *
  * @param <T> document type
  */

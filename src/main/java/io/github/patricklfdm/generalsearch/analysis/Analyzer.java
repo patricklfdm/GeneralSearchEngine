@@ -2,12 +2,20 @@ package io.github.patricklfdm.generalsearch.analysis;
 
 import java.util.List;
 
-/** Immutable, deterministic, thread-safe conversion from text to normalized tokens. */
+/**
+ * Deterministic conversion from text to normalized tokens.
+ *
+ * <p>An analyzer may be called concurrently by search and index operations. Custom
+ * implementations used by an engine must therefore be thread-safe.</p>
+ */
 @FunctionalInterface
 public interface Analyzer {
     /**
      * Analyzes text in deterministic encounter order. Null and empty input may produce
      * an empty list, and duplicate tokens may be retained.
+     *
+     * @param text source text; implementations define null handling
+     * @return non-null tokens in deterministic encounter order
      */
     List<Token> analyze(String text);
 
@@ -19,7 +27,8 @@ public interface Analyzer {
      * increment must be non-negative.
      *
      * @param text original text passed unchanged to {@link #analyze(String)}
-     * @return unmodifiable position-aware tokens in legacy encounter order
+     * @return non-null position-aware tokens in deterministic encounter order; the
+     *         default adapter returns an unmodifiable list
      * @throws RuntimeException if legacy analysis throws one; the same exception is
      *         propagated unchanged
      */
