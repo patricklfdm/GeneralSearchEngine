@@ -6,6 +6,7 @@ import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.analysis.Token;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
@@ -18,6 +19,8 @@ import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 
 public final class V3StyleConsumer {
+    private static final Field<TravelPlace, Long> ID =
+            Field.of("id", Long.class, TravelPlace::id);
     private static final Field<TravelPlace, String> CITY =
             Field.of("city", String.class, TravelPlace::city);
     private static final Field<TravelPlace, String> DESCRIPTION =
@@ -57,6 +60,37 @@ public final class V3StyleConsumer {
             SearchEngine<Long, TravelPlace> engine
     ) {
         return engine.search(request());
+    }
+
+    public static SearchResult<TravelPlace> supportedTextSearch(
+            SearchEngine<Long, TravelPlace> engine
+    ) {
+        return engine.search(defaultRequest());
+    }
+
+    public static SearchResult<TravelPlace> supportedTextSearch() {
+        TravelPlace museum = new TravelPlace(
+                1L,
+                "Paris",
+                "museum museum riverside"
+        );
+        TravelPlace guide = new TravelPlace(
+                2L,
+                "Paris",
+                "museum city guide"
+        );
+        TravelPlace other = new TravelPlace(
+                3L,
+                "Rome",
+                "historic temple"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(museum, guide, other)).join();
+            return supportedTextSearch(engine);
+        }
     }
 
     public static Optional<SearchExplanation<TravelPlace>> explain(
