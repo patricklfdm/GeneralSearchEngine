@@ -19,7 +19,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | fuzzy term search | Complete |
 | Phase 7 | Explain execution | Complete |
-| Phase 8 | hardening and 3.0.0 release | Planned |
+| Phase 8 | hardening and 3.0.0 release | In progress |
 
 Each phase starts from the previous phase merged to `master`. A phase is complete only
 after its focused tests, full correctness suite, compatibility baselines, independent
@@ -219,6 +219,11 @@ Central, and GitHub Release preparation.
 
 The travel example should demonstrate structured filtering, text ranking, cross-field
 ranking, exact phrase search, fuzzy typo tolerance, Explain, and dynamic-index behavior.
+
+The frozen execution boundary, evidence states, performance limits, and exact
+tag/publication procedure are recorded in
+[the Phase 8 contract](phases/p8/HARDENING_AND_RELEASE.md) and
+[checklist](phases/p8/PHASE_8_CHECKLIST.md).
 
 ## V3.0 explicit exclusions
 

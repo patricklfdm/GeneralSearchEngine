@@ -7,6 +7,12 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Added
 
+- Phase 8 release hardening with bounded BOOL/phrase/fuzzy stress coverage, a named V3
+  JMH and retained-memory baseline, a 2.1-to-3.0 migration guide, a state-aware release
+  checklist, and a complete supported-public-API travel scenario.
+- CI JMH forked smoke validation and post-publication verification of remote POM/main/
+  sources/Javadoc artifacts, detached signatures, checksums, service entries,
+  manifests, and a clean published V3 consumer.
 - V3 per-business-document Explain execution through the canonical snapshot-bound
   ranked plan, with top-K-independent match/score parity and deterministic generic
   diagnostics for TEXT, PHRASE, FUZZY, BOOL, BOOST, cross-field BM25, and structured
@@ -55,6 +61,9 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Changed
 
+- Bounded OSA fuzzy expansion now reuses its code-point and dynamic-programming
+  workspace across vocabulary terms, preserving complete Unicode expansion semantics
+  while removing the measured per-term temporary-array allocation pathology.
 - The Phase 3 single-text plan is now an internal immutable recursive scoring tree while
   preserving direct V3 text and frozen-term V2 scores, filters, limits, ordering,
   snapshot behavior, and public descriptors.
@@ -66,6 +75,12 @@ Semantic Versioning once the first stable artifact is published.
   analyzers retain their default-adapted terms, frequencies, lengths, and ranking.
 - Opened the `3.0.0-SNAPSHOT` development line after the 2.1.0 release, beginning with
   additive request/query/result contracts and frozen semantics before new execution.
+
+### Fixed
+
+- JMH packaging now overwrites invalid first-pass generated harness classes with the
+  explicitly recompiled output; the required smoke case proves the shaded harness can
+  fork and execute instead of treating package success as sufficient.
 
 ## 2.1.0 — 2026-08-25
 

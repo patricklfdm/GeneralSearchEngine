@@ -16,7 +16,7 @@ remains the current stable release until 3.0.0 is published.
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | single-term fuzzy search | Complete |
 | Phase 7 | Explain execution | Complete |
-| Phase 8 | hardening and release | Planned |
+| Phase 8 | hardening and release | In progress |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
 later implementation auditable and difficult to change accidentally.
@@ -58,9 +58,17 @@ explanation allocation on the normal search path. Focused and randomized invaria
 lifecycle/concurrency coverage, independent consumers, compatibility, release, and
 reproducibility gates cover the completed implementation.
 
+Phase 8 adds no search capability. It freezes the supported V3 surface, closes only
+release-critical validation gaps, records bounded performance and memory evidence,
+finalizes migration/newcomer/release documentation, and follows the protected
+tag-triggered 3.0.0 publication and post-publication verification state machine.
+
 ## Contracts
 
 - [API compatibility](API_COMPATIBILITY.md)
+- [2.1-to-3.0 migration guide](MIGRATION_GUIDE.md)
+- [V3.0 performance and memory baseline](PERFORMANCE_BASELINE.md)
+- [V3.0 release checklist](RELEASE_CHECKLIST.md)
 - [Canonical V3 roadmap](ROADMAP.md)
 - [Architecture](phases/p0/ARCHITECTURE.md)
 - [Ranked-search semantics](phases/p0/SEARCH_SEMANTICS.md)
@@ -85,6 +93,8 @@ reproducibility gates cover the completed implementation.
 - [Phase 6 performance smoke](phases/p6/PERFORMANCE_BASELINE.md)
 - [Phase 7 Explain execution contract](phases/p7/EXPLAIN_EXECUTION.md)
 - [Phase 7 implementation checklist](phases/p7/PHASE_7_CHECKLIST.md)
+- [Phase 8 hardening and release contract](phases/p8/HARDENING_AND_RELEASE.md)
+- [Phase 8 checklist](phases/p8/PHASE_8_CHECKLIST.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,

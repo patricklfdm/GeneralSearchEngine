@@ -5,25 +5,18 @@
 Version `3.0.0-SNAPSHOT` is the active development line. Version 2.1.0 remains the
 current stable release until 3.0.0 is published.
 
-The V3 theme is high-quality ranked text retrieval. Planned capabilities include
-`SearchRequest`/`SearchResult`, the `SearchQuery` façade, cross-field ranked retrieval,
-position-aware analysis, phrase and fuzzy search, Explain, and a new internal
-planner/plan/executor pipeline. Phase 0 freezes public, semantic, and compatibility
-contracts without implementing the new retrieval engine.
+The V3 theme is high-quality ranked text retrieval. Phase 0 froze the public, semantic,
+architecture, and compatibility contracts. Phases 1–7 completed position-aware
+analysis, positional postings, the canonical `SearchRequest` pipeline, recursive
+BOOL/BOOST and cross-field ranking, exact phrase search, single-term fuzzy search, and
+per-document Explain while preserving the published V1/V2 APIs.
 
-Phase 1 is complete. Its frozen scope adds the
-immutable `AnalyzedToken` model and an additive default
-`Analyzer.analyzeWithPositions(String)` adapter while leaving every existing text,
-index, ranking, and engine call path unchanged. Positional consumption and storage begin
-only in a later phase. The contract and acceptance gates are recorded under
-[`docs/v3/phases/p1/`](docs/v3/phases/p1/).
-
-Phase 2 is the active frozen implementation boundary. It introduces internal immutable
-positional posting storage and consistently activates positioned-term projection across
-current index, scan, and BM25 analysis paths. It preserves published legacy behavior
-through the default Analyzer adapter and adds no phrase execution. The canonical phase
-order is in [`docs/v3/ROADMAP.md`](docs/v3/ROADMAP.md), with Phase 2 gates under
-[`docs/v3/phases/p2/`](docs/v3/phases/p2/).
+Phase 8 is the active frozen boundary. It adds no search feature. It performs final
+public-API and correctness hardening, compatibility validation, performance and memory
+measurement, documentation/example finalization, version conversion, protected
+tag-based publication, and post-publication verification. Its normative contract and
+checklist are under [`docs/v3/phases/p8/`](docs/v3/phases/p8/); the canonical phase
+order remains in [`docs/v3/ROADMAP.md`](docs/v3/ROADMAP.md).
 
 V3.0 deliberately excludes phrase slop, `minimumShouldMatch`, automatic multi-token
 fuzzy, fuzzy phrase, spell correction, stemming, synonym dictionaries, highlighting,
