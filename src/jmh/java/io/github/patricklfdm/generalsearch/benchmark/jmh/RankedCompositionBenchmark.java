@@ -54,6 +54,8 @@ public class RankedCompositionBenchmark {
     private SearchSnapshot<Document> snapshot;
     private SearchRequest<Document> mustShould;
     private SearchRequest<Document> allShould;
+    private SearchRequest<Document> multipleMust;
+    private SearchRequest<Document> nestedBoost;
 
     @Setup(Level.Trial)
     public void setUp() {
@@ -90,9 +92,24 @@ public class RankedCompositionBenchmark {
                         .build())
                 .limit(10)
                 .build();
+        multipleMust = SearchRequest.of(SearchQueries.<Document>bool()
+                .must(SearchQueries.text(TITLE_TEXT, "java"))
+                .must(SearchQueries.text(BODY_TEXT, "search"))
+                .build());
+        SearchQuery<Document> nested = SearchQueries.<Document>bool()
+                .should(SearchQueries.text(TITLE_TEXT, "java"))
+                .should(SearchQueries.text(BODY_TEXT, "search"))
+                .build()
+                .boost(1.5);
+        nestedBoost = SearchRequest.of(SearchQueries.<Document>bool()
+                .must(nested)
+                .should(SearchQueries.text(BODY_TEXT, "stable").boost(2.0))
+                .build());
 
         verify(SearchExecutionAccess.search(snapshot, mustShould, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, allShould, planner).hits());
+        verify(SearchExecutionAccess.search(snapshot, multipleMust, planner).hits());
+        verify(SearchExecutionAccess.search(snapshot, nestedBoost, planner).hits());
     }
 
     @Benchmark
@@ -109,6 +126,24 @@ public class RankedCompositionBenchmark {
         return firstScore(SearchExecutionAccess.search(
                 snapshot,
                 allShould,
+                planner
+        ).hits());
+    }
+
+    @Benchmark
+    public double multipleMustTop10() {
+        return firstScore(SearchExecutionAccess.search(
+                snapshot,
+                multipleMust,
+                planner
+        ).hits());
+    }
+
+    @Benchmark
+    public double nestedBoolBoostTop10() {
+        return firstScore(SearchExecutionAccess.search(
+                snapshot,
+                nestedBoost,
                 planner
         ).hits());
     }

@@ -44,8 +44,20 @@ public class FuzzySearchBenchmark {
     private static final TextField<Document> BODY_TEXT =
             TextField.of(BODY, Analyzer.simple());
 
-    @Param({"100", "1000", "10000"})
+    @Param({"10000", "100000"})
     public int vocabularySize;
+
+    @Param({
+            "exact",
+            "substitution",
+            "insertion",
+            "deletion",
+            "transposition",
+            "two-edits",
+            "no-match",
+            "high-expansion"
+    })
+    public String scenario;
 
     private final CandidatePlanner<Document> planner = new CandidatePlanner<>();
     private SearchSnapshot<Document> snapshot;
@@ -64,19 +76,20 @@ public class FuzzySearchBenchmark {
             builder.add(docId, new Document(
                     docId,
                     docId % 3 == 0 ? "featured travel" : "standard travel",
-                    vocabularyTerm(docId)
+                    vocabularyTerm(docId, scenario)
             ));
         }
         snapshot = builder.build();
+        String queryText = queryText(scenario);
         fuzzy = SearchRequest.<Document>builder()
-                .query(SearchQueries.fuzzy(BODY_TEXT, "destinaton00000"))
+                .query(SearchQueries.fuzzy(BODY_TEXT, queryText))
                 .limit(10)
                 .build();
         composedFuzzy = SearchRequest.<Document>builder()
                 .query(SearchQueries.<Document>bool()
                         .must(SearchQueries.fuzzy(
                                 BODY_TEXT,
-                                "destinaton00000"
+                                queryText
                         ))
                         .should(SearchQueries.text(
                                 TITLE_TEXT,
@@ -86,12 +99,16 @@ public class FuzzySearchBenchmark {
                 .limit(10)
                 .build();
 
-        verify(SearchExecutionAccess.search(snapshot, fuzzy, planner).hits());
+        boolean expectMatch = !"no-match".equals(scenario);
+        verify(
+                SearchExecutionAccess.search(snapshot, fuzzy, planner).hits(),
+                expectMatch
+        );
         verify(SearchExecutionAccess.search(
                 snapshot,
                 composedFuzzy,
                 planner
-        ).hits());
+        ).hits(), expectMatch);
     }
 
     @Benchmark
@@ -112,13 +129,47 @@ public class FuzzySearchBenchmark {
         ).hits());
     }
 
-    private static String vocabularyTerm(int value) {
+    private static String vocabularyTerm(int value, String scenario) {
+        if ("high-expansion".equals(scenario)) {
+            if (value == 0) {
+                return "aaaaaaaa";
+            }
+            if (value <= 625) {
+                int pair = value - 1;
+                char first = (char) ('b' + pair / 25);
+                char second = (char) ('b' + pair % 25);
+                return new String(new char[]{
+                        first, second, 'a', 'a', 'a', 'a', 'a', 'a'
+                });
+            }
+        }
         return String.format(Locale.ROOT, "destination%05d", value);
     }
 
-    private static void verify(List<SearchHit<Document>> hits) {
-        if (hits.size() != 10) {
-            throw new IllegalStateException("expected ten benchmark hits");
+    private static String queryText(String scenario) {
+        return switch (scenario) {
+            case "exact" -> "destination00000";
+            case "substitution" -> "xestination00000";
+            case "insertion" -> "xdestination00000";
+            case "deletion" -> "estination00000";
+            case "transposition" -> "edstination00000";
+            case "two-edits" -> "xxstination00000";
+            case "no-match" -> "zzzzzzzzzzzzzzzz";
+            case "high-expansion" -> "aaaaaaaa";
+            default -> throw new IllegalArgumentException(
+                    "unknown fuzzy scenario: " + scenario);
+        };
+    }
+
+    private static void verify(
+            List<SearchHit<Document>> hits,
+            boolean expectMatch
+    ) {
+        if (hits.isEmpty() == expectMatch) {
+            throw new IllegalStateException(
+                    expectMatch
+                            ? "expected benchmark hits"
+                            : "expected no benchmark hits");
         }
         double previous = Double.POSITIVE_INFINITY;
         for (SearchHit<Document> hit : hits) {
