@@ -127,6 +127,26 @@ record component, or descriptor.
 `SearchExecutionAccess` and `PhrasePositionAccess` remain otherwise unchanged, and no
 second Phase 6 bridge is permitted.
 
+## Phase 7 internal Explain entry point
+
+`SnapshotSearchEngine` owns the atomic published-state business-ID map in the engine
+package, while `SearchPlanner`, `SearchPlan`, scoring nodes, and Explain execution stay
+package-private in the search package. Phase 7 therefore permits exactly one additive
+Javadoc-hidden method on the existing bytecode-public `SearchExecutionAccess` bridge.
+
+The method consumes one captured `SearchSnapshot`, the existing `SearchRequest`, the
+already-resolved internal document ID, and the existing `CandidatePlanner`, and returns
+only the supported `SearchExplanation`. Accepting the internal ID is permitted solely
+to cross the existing Java package boundary efficiently. The method must not return or
+retain that ID, mention it in public descriptions, expose any snapshot, plan, posting,
+candidate, position, or score-state handle, or become a general evaluation SPI.
+
+Japicmp may report this one additive method on an already unsupported internal bridge
+after Phase 7 implementation. No new bridge class or second Phase 7 method is allowed.
+The supported `SearchEngine.explain(...)`, `SearchExplanation`, and `ExplanationNode`
+descriptors were frozen in Phase 0 and do not change. Third-party `SearchEngine`
+implementations continue to inherit the existing default unsupported behavior.
+
 ## Accepted null-literal ambiguity
 
 Adding `search(SearchRequest<T>)` creates one narrow source-resolution incompatibility:

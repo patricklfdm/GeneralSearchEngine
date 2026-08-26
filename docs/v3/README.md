@@ -15,7 +15,8 @@ remains the current stable release until 3.0.0 is published.
 | Phase 4 | bool, boost, and cross-field ranked composition | Complete |
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | single-term fuzzy search | Complete |
-| Phases 7–8 | Explain and release | Planned |
+| Phase 7 | Explain execution | Contract frozen |
+| Phase 8 | hardening and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
 later implementation auditable and difficult to change accidentally.
@@ -50,6 +51,12 @@ one narrow hidden vocabulary bridge. Randomized differential and lifecycle tests
 independent-consumer coverage, compatibility/release gates, and focused JMH evidence
 cover the completed implementation.
 
+Phase 7 has a frozen pre-implementation contract for missing-ID precedence,
+snapshot-local plan reuse, top-K-independent per-document evaluation, deterministic
+TEXT/PHRASE/FUZZY/BOOL/BOOST/filter diagnostics, shared scoring arithmetic, and no
+explanation allocation on the normal search path. Implementation has not started, so
+the phase is not yet complete.
+
 ## Contracts
 
 - [API compatibility](API_COMPATIBILITY.md)
@@ -75,6 +82,8 @@ cover the completed implementation.
 - [Phase 6 single-term fuzzy search contract](phases/p6/FUZZY_SEARCH.md)
 - [Phase 6 implementation checklist](phases/p6/PHASE_6_CHECKLIST.md)
 - [Phase 6 performance smoke](phases/p6/PERFORMANCE_BASELINE.md)
+- [Phase 7 Explain execution contract](phases/p7/EXPLAIN_EXECUTION.md)
+- [Phase 7 implementation checklist](phases/p7/PHASE_7_CHECKLIST.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,

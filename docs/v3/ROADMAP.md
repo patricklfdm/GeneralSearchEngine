@@ -18,7 +18,7 @@ search, fuzzy term tolerance, cross-field relevance, and Explain.
 | Phase 4 | bool, boost, and cross-field ranked search | Complete |
 | Phase 5 | exact phrase search | Complete |
 | Phase 6 | fuzzy term search | Complete |
-| Phase 7 | Explain execution | Planned |
+| Phase 7 | Explain execution | Contract frozen |
 | Phase 8 | hardening and 3.0.0 release | Planned |
 
 Each phase starts from the previous phase merged to `master`. A phase is complete only
@@ -196,6 +196,16 @@ and BM25 details.
 Normal matched state must equal explained matched state, and normal score must equal
 explained score. Explain exposes no internal document IDs, posting references, raw
 positions, snapshot handles, or public planner nodes.
+
+Before implementation, Phase 7 freezes missing-ID and planning failure precedence,
+all-empty-plan retention, top-K independence, deterministic generic tree structure,
+leaf diagnostic facts, normal-search allocation isolation, snapshot/dynamic-index
+lifecycle, and the one-method extension of the existing hidden execution bridge.
+
+The complete boundary is recorded in
+[`phases/p7/EXPLAIN_EXECUTION.md`](phases/p7/EXPLAIN_EXECUTION.md); implementation and
+validation are tracked in
+[`phases/p7/PHASE_7_CHECKLIST.md`](phases/p7/PHASE_7_CHECKLIST.md).
 
 ## Phase 8 — Hardening and 3.0.0 release
 
