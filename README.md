@@ -114,6 +114,38 @@ suggest close spellings for common typos.
 The complete runnable version is in the
 [`travel-search` example](examples/travel-search/README.md).
 
+## V3 preview from this checkout
+
+Version `3.0.0-SNAPSHOT` is not yet published; 2.1.0 remains the stable dependency.
+The V3 branch adds one ranked query model while keeping `search(Query)` and
+`searchTopK(RankedSearchRequest)` supported. After obtaining canonical text fields from
+the engine, a V3 request looks like this:
+
+```java
+SearchRequest<TravelPlace> request = SearchRequest.<TravelPlace>builder()
+        .query(SearchQueries.<TravelPlace>bool()
+                .must(SearchQueries.text(description, "museum"))
+                .should(SearchQueries.phrase(
+                        description,
+                        "museum beside the river"
+                ).boost(2.0))
+                .should(SearchQueries.text(cityText, "Paris").boost(1.5))
+                .build())
+        .filter(Query.between(price, 80.0, 200.0))
+        .limit(10)
+        .build();
+
+SearchResult<TravelPlace> result = engine.search(request);
+engine.explain(request, 1L).ifPresent(System.out::println);
+```
+
+`SearchQueries.fuzzy(textField, "musuem")` adds single-term typo tolerance, and
+`SearchQueries.phrase(...)` is exact (slop zero). See the runnable
+[travel example](examples/travel-search/README.md), the
+[2.1-to-3.0 migration guide](docs/v3/MIGRATION_GUIDE.md), and the
+[frozen V3 semantics](docs/v3/phases/p0/SEARCH_SEMANTICS.md) before adopting the
+snapshot API.
+
 ## Build and test
 
 ```bash
