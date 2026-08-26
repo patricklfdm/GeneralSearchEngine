@@ -5,7 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
+import io.github.patricklfdm.generalsearch.analysis.Token;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.schema.Field;
@@ -126,6 +128,39 @@ class Bm25RankingTest {
                 new SearchSnapshot<>(List.of(IndexDefinition.text(TEXT))),
                 RankedSearchRequest.of(scoring, 10)
         ).isEmpty());
+    }
+
+    @Test
+    void scoringAndIndexingUseNativePositionedAnalysis() {
+        Analyzer analyzer = new Analyzer() {
+            @Override
+            public List<Token> analyze(String text) {
+                return List.of(new Token("legacy"));
+            }
+
+            @Override
+            public List<AnalyzedToken> analyzeWithPositions(String text) {
+                return switch (text) {
+                    case "query" -> List.of(new AnalyzedToken("target", 4));
+                    case "matching" -> List.of(
+                            new AnalyzedToken("target", 2),
+                            new AnalyzedToken("synonym", 0));
+                    default -> List.of(new AnalyzedToken("other", 1));
+                };
+            }
+        };
+        TextField<Article> text = TextField.of(BODY, analyzer);
+        Article matching = new Article(1, "matching", "guide");
+        Article other = new Article(2, "other", "guide");
+        SearchSnapshot<Article> snapshot = new SearchSnapshot<Article>(
+                List.of(IndexDefinition.text(text)))
+                .add(1, matching)
+                .add(2, other);
+        TextScoringQuery<Article> scoring = TextScoringQuery.of(text, "query");
+
+        assertEquals(List.of("target"), scoring.terms());
+        assertEquals(List.of(matching), documents(searcher.search(
+                snapshot, RankedSearchRequest.of(scoring, 10))));
     }
 
     private static SearchSnapshot<Article> snapshot() {
