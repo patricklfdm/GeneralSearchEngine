@@ -42,7 +42,7 @@ public class PositionalTextIndexBenchmark {
     @Param("16")
     public int tokenCount;
 
-    @Param("100")
+    @Param({"1", "100"})
     public int mutationBatchSize;
 
     @Param({"default-adapter", "native-positioned"})

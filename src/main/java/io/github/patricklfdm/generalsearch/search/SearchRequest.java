@@ -73,7 +73,8 @@ public final class SearchRequest<T> {
     }
 
     /**
-     * Mutable reusable builder that creates immutable request snapshots.
+     * Mutable reusable builder that creates immutable request snapshots. Builder
+     * instances are not thread-safe.
      *
      * @param <T> document type
      */

@@ -79,17 +79,23 @@ final class VocabularyScanningFuzzyTermExpander implements FuzzyTermExpander {
 
         int[] queryPoints = normalizedQueryTerm.codePoints().toArray();
         int queryLength = queryPoints.length;
+        int[] candidatePoints = new int[queryLength + maxEdits];
+        BoundedOptimalStringAlignment.Workspace distanceWorkspace =
+                new BoundedOptimalStringAlignment.Workspace();
         List<FuzzyExpansion> expansions = new ArrayList<>();
         FuzzyVocabularyAccess.forEachTerm(textIndex, candidate -> {
             int candidateLength = candidate.codePointCount(0, candidate.length());
             if (Math.abs(candidateLength - queryLength) > maxEdits) {
                 return;
             }
-            int[] candidatePoints = candidate.codePoints().toArray();
+            copyCodePoints(candidate, candidatePoints, candidateLength);
             int distance = BoundedOptimalStringAlignment.distance(
                     queryPoints,
+                    queryLength,
                     candidatePoints,
-                    maxEdits
+                    candidateLength,
+                    maxEdits,
+                    distanceWorkspace
             );
             if (distance > maxEdits) {
                 return;
@@ -106,5 +112,22 @@ final class VocabularyScanningFuzzyTermExpander implements FuzzyTermExpander {
         });
         expansions.sort(EXPANSION_ORDER);
         return List.copyOf(expansions);
+    }
+
+    private static void copyCodePoints(
+            String value,
+            int[] destination,
+            int expectedLength
+    ) {
+        int offset = 0;
+        int index = 0;
+        while (offset < value.length()) {
+            int codePoint = value.codePointAt(offset);
+            destination[index++] = codePoint;
+            offset += Character.charCount(codePoint);
+        }
+        if (index != expectedLength) {
+            throw new IllegalStateException("code-point length changed during traversal");
+        }
     }
 }

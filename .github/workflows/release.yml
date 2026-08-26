@@ -54,6 +54,9 @@ jobs:
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 
+      - name: Compile and execute a bounded JMH smoke case
+        run: scripts/verify-jmh-smoke.sh
+
       - name: Verify release packaging without private keys
         run: ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
 
@@ -140,20 +143,12 @@ jobs:
             -Dcentral.autoPublish=true \
             -Dcentral.waitUntil=published
 
-      - name: Verify clean Maven Central resolution
+      - name: Verify remote artifacts and a clean published V3 consumer
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           version=${RELEASE_TAG#v}
-          verify_repo=$(mktemp -d "$RUNNER_TEMP/gse-central-m2.XXXXXX")
-          ./mvnw -Dmaven.repo.local="$verify_repo" \
-            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:get \
-            -Dartifact="io.github.patricklfdm:general-search-engine:$version" \
-            -Dtransitive=false
-          ./mvnw -Dmaven.repo.local="$verify_repo" \
-            org.apache.maven.plugins:maven-dependency-plugin:3.9.0:get \
-            -Dartifact="io.github.patricklfdm:general-search-engine-processor:$version" \
-            -Dtransitive=false
+          scripts/verify-published-release.sh "$version"
 
       - name: Prepare GitHub release notes
         env:

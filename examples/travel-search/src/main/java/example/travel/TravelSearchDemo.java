@@ -5,14 +5,14 @@ import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
-import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
-import io.github.patricklfdm.generalsearch.ranking.SearchHit;
-import io.github.patricklfdm.generalsearch.ranking.TextScoringQuery;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
+import io.github.patricklfdm.generalsearch.search.SearchQueries;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.SearchResult;
 
 /** Processor-free travel search example for the current development API. */
 public final class TravelSearchDemo {
@@ -21,11 +21,13 @@ public final class TravelSearchDemo {
     public static void main(String[] args) {
         try (SearchEngine<Long, TravelPlace> engine = SearchEngine
                 .annotatedBuilder(TravelPlace.class, Long.class)
+                .textIndex("city", Analyzer.simple())
                 .textIndex("description", Analyzer.simple())
                 .build()) {
             Field<TravelPlace, String> city = engine.field("city", String.class);
             Field<TravelPlace, Double> price = engine.field("price", Double.class);
             Field<TravelPlace, Double> rating = engine.field("rating", Double.class);
+            TextField<TravelPlace> cityText = engine.textField("city");
             TextField<TravelPlace> description = engine.textField("description");
 
             engine.addAll(List.of(
@@ -62,25 +64,62 @@ public final class TravelSearchDemo {
             ));
             System.out.println("Structured + text: " + parisMuseums);
 
-            List<SearchHit<TravelPlace>> ranked = engine.searchTopK(
-                    RankedSearchRequest.filtered(
-                            TextScoringQuery.of(description, "museum river art"),
-                            Query.eq(city, "Paris"),
-                            3
+            SearchRequest<TravelPlace> rankedRequest = SearchRequest
+                    .<TravelPlace>builder()
+                    .query(SearchQueries.text(description, "museum river art"))
+                    .filter(Query.eq(city, "Paris"))
+                    .limit(3)
+                    .build();
+            printHits("V3 ranked TEXT + filter", engine.search(rankedRequest));
+
+            SearchRequest<TravelPlace> discoveryRequest = SearchRequest.of(
+                    SearchQueries.<TravelPlace>bool()
+                            .must(SearchQueries.text(description, "museum"))
+                            .should(SearchQueries.text(cityText, "Paris").boost(1.5))
+                            .should(SearchQueries.phrase(
+                                    description,
+                                    "museum beside the river"
+                            ).boost(2.0))
+                            .build()
+            );
+            printHits("Cross-field BOOL + BOOST", engine.search(discoveryRequest));
+
+            printHits("Exact PHRASE", engine.search(SearchRequest.of(
+                    SearchQueries.phrase(description, "museum beside the river")
+            )));
+            printHits("FUZZY typo", engine.search(SearchRequest.of(
+                    SearchQueries.fuzzy(description, "musuem")
+            )));
+
+            engine.explain(discoveryRequest, 1L).ifPresent(explanation ->
+                    System.out.printf(
+                            "Explain id=1: matched=%s score=%.4f root=%s%n",
+                            explanation.matched(),
+                            explanation.score(),
+                            explanation.detail().description()
                     ));
-            System.out.println("Filtered BM25:");
-            ranked.forEach(hit -> System.out.printf(
-                    "  score=%.4f  %s%n",
-                    hit.score(),
-                    hit.document()
-            ));
 
             engine.createIndex(IndexDefinition.range(rating)).join();
             List<TravelPlace> highlyRated = engine.search(
                     Query.between(rating, 4.7, 5.0));
             System.out.println("Dynamic rating index: " + highlyRated);
+            engine.dropIndex("rating").join();
+            System.out.println("After dynamic index drop (scan fallback): "
+                    + engine.search(Query.between(rating, 4.7, 5.0)));
             System.out.println("Metrics: " + engine.metrics());
         }
+    }
+
+    private static void printHits(
+            String label,
+            SearchResult<TravelPlace> result
+    ) {
+        System.out.println(label + ":");
+        result.hits().forEach(hit -> System.out.printf(
+                "  score=%.4f  %s%n",
+                hit.score(),
+                hit.document()
+        ));
     }
 
     record TravelPlace(

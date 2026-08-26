@@ -86,6 +86,9 @@ jobs:
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
+      - name: Compile and execute a bounded JMH smoke case
+        run: scripts/verify-jmh-smoke.sh
+
       - name: Verify release packaging without private keys
         run: ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
 

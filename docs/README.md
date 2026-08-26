@@ -11,11 +11,16 @@ remains the phase history and decision source of truth.
 
 - [Development overview and contract map](v3/README.md)
 - [API compatibility](v3/API_COMPATIBILITY.md)
+- [2.1-to-3.0 migration guide](v3/MIGRATION_GUIDE.md)
+- [V3.0 performance and memory baseline](v3/PERFORMANCE_BASELINE.md)
+- [V3.0 release checklist](v3/RELEASE_CHECKLIST.md)
 - [Phase 0 architecture](v3/phases/p0/ARCHITECTURE.md)
 - [Ranked-search semantics](v3/phases/p0/SEARCH_SEMANTICS.md)
 - [Positional semantics](v3/phases/p0/POSITIONAL_SEMANTICS.md)
 - [Fuzzy semantics](v3/phases/p0/FUZZY_SEMANTICS.md)
 - [Phase 0 checklist](v3/phases/p0/PHASE_0_CHECKLIST.md)
+- [Phase 8 hardening and release contract](v3/phases/p8/HARDENING_AND_RELEASE.md)
+- [Phase 8 checklist](v3/phases/p8/PHASE_8_CHECKLIST.md)
 
 ## v1 — published and frozen
 

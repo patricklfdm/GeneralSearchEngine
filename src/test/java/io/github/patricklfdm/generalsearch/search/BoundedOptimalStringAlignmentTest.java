@@ -72,6 +72,44 @@ class BoundedOptimalStringAlignmentTest {
     }
 
     @Test
+    void reusableWorkspaceHonorsLogicalLengthsAndIgnoresBufferTails() {
+        int[] queryBuffer = {'t', 'e', 'h', 0x1f600, 'x'};
+        int[] candidateBuffer = {'t', 'h', 'e', 0xe000, 'y', 'z'};
+        BoundedOptimalStringAlignment.Workspace workspace =
+                new BoundedOptimalStringAlignment.Workspace();
+
+        assertEquals(1, BoundedOptimalStringAlignment.distance(
+                queryBuffer,
+                3,
+                candidateBuffer,
+                3,
+                1,
+                workspace
+        ));
+
+        candidateBuffer[0] = 't';
+        candidateBuffer[1] = 'e';
+        candidateBuffer[2] = 'h';
+        candidateBuffer[3] = 's';
+        assertEquals(0, BoundedOptimalStringAlignment.distance(
+                queryBuffer,
+                3,
+                candidateBuffer,
+                3,
+                2,
+                workspace
+        ));
+        assertEquals(1, BoundedOptimalStringAlignment.distance(
+                queryBuffer,
+                3,
+                candidateBuffer,
+                4,
+                1,
+                workspace
+        ));
+    }
+
+    @Test
     void randomizedBoundedDistanceMatchesFullMatrixOsa() {
         Random random = new Random(SEED);
         for (int iteration = 0; iteration < 20_000; iteration++) {
