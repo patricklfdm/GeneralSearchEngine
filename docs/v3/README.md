@@ -10,7 +10,8 @@ remains the current stable release until 3.0.0 is published.
 |---|---|---|
 | Phase 0 | API, architecture, semantics, and compatibility contracts | Complete |
 | Phase 1 | position-aware Analyzer API and legacy adapter | Complete |
-| Later phases | positional storage, phrase/fuzzy execution, planner, executor, and Explain | Planned |
+| Phase 2 | positional posting storage and consistent positioned-term consumption | Contract frozen |
+| Phases 3–8 | ranked pipeline, composition, phrase, fuzzy, Explain, and release | Planned |
 
 Phase 0 deliberately adds no new ranked-search execution. Its purpose is to make the
 later implementation auditable and difficult to change accidentally.
@@ -19,9 +20,14 @@ Phase 1 adds only the position-aware Analyzer model and backward-compatible defa
 adapter. Existing text execution still uses legacy tokens; positional consumption and
 storage remain deferred.
 
+Phase 2 is the first positioned-analysis consumer. Its frozen contract keeps index,
+scan, and BM25 term projection consistent while changing only the storage facts needed
+by later phrase execution.
+
 ## Contracts
 
 - [API compatibility](API_COMPATIBILITY.md)
+- [Canonical V3 roadmap](ROADMAP.md)
 - [Architecture](phases/p0/ARCHITECTURE.md)
 - [Ranked-search semantics](phases/p0/SEARCH_SEMANTICS.md)
 - [Positional semantics](phases/p0/POSITIONAL_SEMANTICS.md)
@@ -29,6 +35,8 @@ storage remain deferred.
 - [Phase 0 checklist](phases/p0/PHASE_0_CHECKLIST.md)
 - [Phase 1 position-aware analysis contract](phases/p1/POSITION_AWARE_ANALYSIS.md)
 - [Phase 1 implementation checklist](phases/p1/PHASE_1_CHECKLIST.md)
+- [Phase 2 positional storage contract](phases/p2/POSITIONAL_STORAGE.md)
+- [Phase 2 implementation checklist](phases/p2/PHASE_2_CHECKLIST.md)
 
 The v1 and v2 documents remain frozen historical records. V3 documents describe only
 the additive development line and must not be read as changing existing query truth,

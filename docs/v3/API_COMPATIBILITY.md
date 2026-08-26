@@ -59,10 +59,16 @@ engine.search((SearchRequest<MyDocument>) null);
 Ordinary typed calls remain source compatible. This accepted edge case is not detected
 by Japicmp and is not a reason to rename the V3 overload.
 
-## Future Analyzer addition
+## Position-aware Analyzer addition
 
-A later phase will add `AnalyzedToken` and the default
-`Analyzer.analyzeWithPositions(String)` method frozen in the positional contract. It is
-not implemented in Phase 0. The future default method must preserve `Analyzer` as a
-functional interface and keep existing analyzer implementations source- and
-binary-compatible.
+Phase 1 added `AnalyzedToken` and the default
+`Analyzer.analyzeWithPositions(String)` method frozen in the positional contract.
+`Analyzer` remains a functional interface, and existing implementations inherit a
+default all-ones projection of their unchanged legacy token output.
+
+Phase 2 is the first production consumer. Existing pre-Phase-1 analyzers retain their
+published text and BM25 behavior through the default adapter. V3-native positional
+overrides become active consistently across indexed, scan, and BM25 term projection so
+an exact text index cannot drift from its scan predicate. `TextField.analyzeDocument(T)`
+retains its existing descriptor and legacy behavior, and no public posting-positions API
+is added.
