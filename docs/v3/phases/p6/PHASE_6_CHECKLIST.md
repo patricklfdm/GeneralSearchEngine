@@ -15,14 +15,14 @@
 
 - [ ] Add an immutable package-private normalized FUZZY node.
 - [ ] Add a package-private `FuzzyPlan` under the recursive scoring-node contract.
-- [ ] Add package-private fuzzy expansion values and `FuzzyTermExpander` abstraction.
-- [ ] Implement the initial bounded vocabulary-scan expander without another index.
-- [ ] Add only the frozen Javadoc-hidden `FuzzyVocabularyAccess` bridge.
-- [ ] Make the bridge final, non-instantiable, stateless, synchronous, and unsupported.
-- [ ] Let the bridge visit normalized terms only; expose no postings, maps, arrays,
+- [x] Add package-private fuzzy expansion values and `FuzzyTermExpander` abstraction.
+- [x] Implement the initial bounded vocabulary-scan expander without another index.
+- [x] Add only the frozen Javadoc-hidden `FuzzyVocabularyAccess` bridge.
+- [x] Make the bridge final, non-instantiable, stateless, synchronous, and unsupported.
+- [x] Let the bridge visit normalized terms only; expose no postings, maps, arrays,
   collections, iterators, streams, snapshots, plans, scores, or internal document IDs.
-- [ ] Retain no callback or snapshot and add no method to supported index/query APIs.
-- [ ] Add no reflection decoder, duplicate vocabulary, or second Phase 6 bridge.
+- [x] Retain no callback or snapshot and add no method to supported index/query APIs.
+- [x] Add no reflection decoder, duplicate vocabulary, or second Phase 6 bridge.
 - [ ] Keep every fuzzy plan, expansion, distance, candidate, and selected term internal.
 
 ## Analysis and failure precedence
@@ -47,35 +47,35 @@
 
 ## Unicode AUTO and bounded OSA
 
-- [ ] Compute semantic lengths from Unicode code points, never UTF-16 code units.
-- [ ] Use AUTO 0 edits for lengths 1–2, 1 edit for 3–5, and 2 edits for 6+.
-- [ ] Cap every AUTO query at two edits with no public or hidden override.
-- [ ] Implement insertion, deletion, substitution, and adjacent transposition at cost 1.
-- [ ] Implement Optimal String Alignment, not unrestricted Damerau or Levenshtein.
-- [ ] Operate on code-point arrays and support supplementary characters.
-- [ ] Reject length differences greater than the bound before dynamic programming.
-- [ ] Return exact in-bound distance and one out-of-range sentinel.
-- [ ] Use bounded primitive work arrays and only correctness-safe early exits.
-- [ ] Add no third-party fuzzy dependency or boxed full matrix in production.
-- [ ] Differential-test bounds 0/1/2 against a full trusted OSA reference.
-- [ ] Cover exact, threshold, threshold-plus-one, multi-edit, and transposition-heavy pairs.
+- [x] Compute semantic lengths from Unicode code points, never UTF-16 code units.
+- [x] Use AUTO 0 edits for lengths 1–2, 1 edit for 3–5, and 2 edits for 6+.
+- [x] Cap every AUTO query at two edits with no public or hidden override.
+- [x] Implement insertion, deletion, substitution, and adjacent transposition at cost 1.
+- [x] Implement Optimal String Alignment, not unrestricted Damerau or Levenshtein.
+- [x] Operate on code-point arrays and support supplementary characters.
+- [x] Reject length differences greater than the bound before dynamic programming.
+- [x] Return exact in-bound distance and one out-of-range sentinel.
+- [x] Use bounded primitive work arrays and only correctness-safe early exits.
+- [x] Add no third-party fuzzy dependency or boxed full matrix in production.
+- [x] Differential-test bounds 0/1/2 against a full trusted OSA reference.
+- [x] Cover exact, threshold, threshold-plus-one, multi-edit, and transposition-heavy pairs.
 
 ## Expansion and candidates
 
 - [ ] Scan the canonical immutable snapshot vocabulary once per non-empty occurrence.
 - [ ] Permit an exact-lookup shortcut for bound zero with identical semantics.
-- [ ] Include every and only vocabulary term whose OSA distance is within AUTO.
-- [ ] Include an existing exact normalized query term at distance zero.
-- [ ] Deduplicate identical normalized vocabulary terms naturally/exactly once.
-- [ ] Add no expansion truncation, DF cutoff, prefix heuristic, or approximate match.
-- [ ] Sort by distance, then numeric Unicode code-point lexicographic order.
-- [ ] Do not rely on AVL UTF-16 traversal order for the frozen ordering.
+- [x] Include every and only vocabulary term whose OSA distance is within AUTO.
+- [x] Include an existing exact normalized query term at distance zero.
+- [x] Deduplicate identical normalized vocabulary terms naturally/exactly once.
+- [x] Add no expansion truncation, DF cutoff, prefix heuristic, or approximate match.
+- [x] Sort by distance, then numeric Unicode code-point lexicographic order.
+- [x] Do not rely on AVL UTF-16 traversal order for the frozen ordering.
 - [ ] Prepare term, posting, distance, lengths, similarity, IDF, N, and avgdl once.
 - [ ] Union every expansion posting into an exact fuzzy candidate bitmap.
 - [ ] Return empty candidates without error when there are no expansions.
 - [ ] Perform no per-document analysis, term enumeration, edit distance, or preparation.
-- [ ] Differential-test production expansion sets/order against brute-force reference.
-- [ ] Use explicit deterministic seeds and include supplementary-code-point ordering.
+- [x] Differential-test production expansion sets/order against brute-force reference.
+- [x] Use explicit deterministic seeds and include supplementary-code-point ordering.
 
 ## Scoring and recursive composition
 
@@ -113,8 +113,8 @@
 
 - [ ] Cover zero, one, repeated, same-position, and multiple analyzed tokens.
 - [ ] Cover complete malformed positioned output and Analyzer invocation counts.
-- [ ] Cover AUTO lengths 1, 2, 3, 5, 6, long, and supplementary-code-point cases.
-- [ ] Cover controlled exact expansion sets, exclusions, empty vocabulary, and no match.
+- [x] Cover AUTO lengths 1, 2, 3, 5, 6, long, and supplementary-code-point cases.
+- [x] Cover controlled exact expansion sets, exclusions, empty vocabulary, and no match.
 - [ ] Cover exact-term priority, max-not-sum, deterministic tie, and similarity formula.
 - [ ] Cover default/custom BM25, expansion TF/DF, equal order, zero, and overflow.
 - [ ] Cover fuzzy root/MUST/SHOULD/nested/boosted composition with TEXT and PHRASE.
@@ -123,8 +123,8 @@
 - [ ] Cover root/MUST/SHOULD missing canonical indexes and competing field identity.
 - [ ] Cover later failures after an earlier empty or no-expansion leaf.
 - [ ] Cover exact candidate union and candidate equality/superset assertions.
-- [ ] Add randomized bounded-distance differential tests.
-- [ ] Add randomized expansion-set/order differential tests.
+- [x] Add randomized bounded-distance differential tests.
+- [x] Add randomized expansion-set/order differential tests.
 - [ ] Add recursive end-to-end match/score/order differential tests across mutations.
 - [ ] Preserve direct TEXT, exact PHRASE, BOOL/BOOST, V2 `searchTopK`, and direct
   `RankedSearcher` behavior.
