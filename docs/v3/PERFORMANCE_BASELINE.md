@@ -133,3 +133,9 @@ during measurement—per-term fuzzy temporary arrays and a JMH uber-JAR overwrit
 failure—received narrow internal fixes and focused/full validation. The performance
 gate accepts complete vocabulary scan and raw primitive positions for 3.0.0 with the
 limitations above.
+
+Post-release document-scale, top-K, corpus-shape, mixed-concurrency, percentile, and
+soak coverage is defined in the
+[production performance testing guide](PRODUCTION_PERFORMANCE_TESTING.md). Its raw
+results are persisted outside `target/` so they can be reviewed without changing this
+frozen 3.0.0 release baseline.
