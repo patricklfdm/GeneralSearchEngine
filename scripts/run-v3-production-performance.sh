@@ -45,6 +45,51 @@ finish() {
 }
 trap finish EXIT
 
+jvm_options=${GSE_PERF_JVM_OPTIONS:--Xms2g -Xmx6g}
+if [ "$mode" = "quick" ]; then
+  forks=${GSE_JMH_FORKS:-1}
+  warmups=${GSE_JMH_WARMUPS:-1}
+  iterations=${GSE_JMH_ITERATIONS:-2}
+  duration=${GSE_JMH_DURATION:-300ms}
+else
+  forks=${GSE_JMH_FORKS:-2}
+  warmups=${GSE_JMH_WARMUPS:-3}
+  iterations=${GSE_JMH_ITERATIONS:-5}
+  duration=${GSE_JMH_DURATION:-1s}
+fi
+
+concurrency_documents=${GSE_CONCURRENCY_DOCUMENTS:-100000}
+if [[ ! "$concurrency_documents" =~ ^[1-9][0-9]*$ ]]; then
+  echo "GSE_CONCURRENCY_DOCUMENTS must be a positive integer" >&2
+  exit 2
+fi
+if [ -n "${GSE_CONCURRENCY_THREAD_GROUPS:-}" ]; then
+  read -r -a thread_groups <<< "$GSE_CONCURRENCY_THREAD_GROUPS"
+elif [ "$mode" = "quick" ]; then
+  thread_groups=("4,1")
+else
+  thread_groups=("1,1" "4,1" "16,1")
+fi
+if [ "${#thread_groups[@]}" -eq 0 ]; then
+  echo "GSE_CONCURRENCY_THREAD_GROUPS must contain at least one reader,writer group" >&2
+  exit 2
+fi
+for group in "${thread_groups[@]}"; do
+  if [[ ! "$group" =~ ^[1-9][0-9]*,[1-9][0-9]*$ ]]; then
+    echo "Invalid concurrency thread group: $group (expected readers,writers)" >&2
+    exit 2
+  fi
+done
+
+write_metadata_if_set() {
+  key=$1
+  variable=$2
+  value=${!variable-}
+  if [ -n "$value" ]; then
+    printf '%s=%s\n' "$key" "$value"
+  fi
+}
+
 {
   echo "started_utc=$timestamp"
   echo "mode=$mode"
@@ -52,7 +97,25 @@ trap finish EXIT
   echo "git_branch=$(git branch --show-current)"
   echo "logical_cpus=$(getconf _NPROCESSORS_ONLN)"
   echo "java_home=${JAVA_HOME:-unset}"
-  echo "jvm_options=${GSE_PERF_JVM_OPTIONS:--Xms2g -Xmx6g}"
+  echo "jvm_options=$jvm_options"
+  echo "jmh_forks=$forks"
+  echo "jmh_warmups=$warmups"
+  echo "jmh_iterations=$iterations"
+  echo "jmh_duration=$duration"
+  echo "concurrency_documents=$concurrency_documents"
+  printf 'concurrency_thread_groups=%s\n' "${thread_groups[*]}"
+  write_metadata_if_set cloud_provider GSE_CLOUD_PROVIDER
+  write_metadata_if_set cloud_project GSE_CLOUD_PROJECT
+  write_metadata_if_set cloud_zone GSE_CLOUD_ZONE
+  write_metadata_if_set cloud_machine_type GSE_CLOUD_MACHINE_TYPE
+  write_metadata_if_set cloud_provisioning GSE_CLOUD_PROVISIONING
+  write_metadata_if_set cloud_instance_name GSE_CLOUD_INSTANCE_NAME
+  write_metadata_if_set cloud_image_project GSE_CLOUD_IMAGE_PROJECT
+  write_metadata_if_set cloud_image_family GSE_CLOUD_IMAGE_FAMILY
+  write_metadata_if_set cloud_image GSE_CLOUD_IMAGE
+  write_metadata_if_set cloud_image_id GSE_CLOUD_IMAGE_ID
+  write_metadata_if_set cloud_image_self_link GSE_CLOUD_IMAGE_SELF_LINK
+  write_metadata_if_set cloud_image_created_at GSE_CLOUD_IMAGE_CREATED_AT
   echo "working_tree_begin"
   git status --short
   echo "working_tree_end"
@@ -68,25 +131,17 @@ trap finish EXIT
   if command -v free >/dev/null 2>&1; then
     free -h
   fi
+  if command -v dpkg-query >/dev/null 2>&1; then
+    echo "jdk_packages_begin"
+    dpkg-query -W -f='${binary:Package}=${Version}\n' 'openjdk-21-*' 2>/dev/null || true
+    echo "jdk_packages_end"
+  fi
 } > "$run_dir/environment.txt" 2>&1
 
 echo "Building the JMH uber-JAR..."
 ./mvnw clean -Pjmh -DskipTests package 2>&1 | tee "$run_dir/build.log"
 
-jvm_options=${GSE_PERF_JVM_OPTIONS:--Xms2g -Xmx6g}
 read -r -a jvm_args <<< "$jvm_options"
-
-if [ "$mode" = "quick" ]; then
-  forks=${GSE_JMH_FORKS:-1}
-  warmups=${GSE_JMH_WARMUPS:-1}
-  iterations=${GSE_JMH_ITERATIONS:-2}
-  duration=${GSE_JMH_DURATION:-300ms}
-else
-  forks=${GSE_JMH_FORKS:-2}
-  warmups=${GSE_JMH_WARMUPS:-3}
-  iterations=${GSE_JMH_ITERATIONS:-5}
-  duration=${GSE_JMH_DURATION:-1s}
-fi
 
 run_jmh() {
   name=$1
@@ -136,20 +191,15 @@ run_benchmarks() {
 }
 
 run_concurrency() {
-  if [ "$mode" = "quick" ]; then
-    thread_groups=("4,1")
-  else
-    thread_groups=("1,1" "4,1" "16,1")
-  fi
   for group in "${thread_groups[@]}"; do
     label=${group/,/-}
     run_jmh "concurrent-latency-$label" \
       'V3ConcurrentMixedWorkloadBenchmark.mixed' \
-      -p documentCount=100000 \
+      -p "documentCount=$concurrency_documents" \
       -tg "$group" -bm sample -tu us -prof gc
     run_jmh "concurrent-throughput-$label" \
       'V3ConcurrentMixedWorkloadBenchmark.mixed' \
-      -p documentCount=100000 \
+      -p "documentCount=$concurrency_documents" \
       -tg "$group" -bm thrpt -tu s -prof gc
   done
 }

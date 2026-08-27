@@ -100,3 +100,7 @@ distinguish engine behavior from environment noise.
 
 The reviewed follow-up evidence and bounded gate decision are recorded in the
 [production performance results](PRODUCTION_PERFORMANCE_RESULTS.md).
+
+For reproducible C3D execution independent of a developer workstation, use the
+[GCP cloud performance runner](CLOUD_PERFORMANCE_TESTING.md). It invokes this same
+benchmark suite rather than maintaining a second workload implementation.
