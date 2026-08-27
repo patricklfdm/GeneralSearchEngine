@@ -157,6 +157,23 @@ assert_contains "$fake_state/commands.log" 'compute instances start'
 assert_contains "$fake_state/commands.log" 'compute instances delete'
 test -d "$test_repo/benchmark-results/v3-production/partial" \
   || fail 'Interrupted evidence was not retained as partial'
+preempted_record=$(sed -n 's/^Cloud orchestration record: //p' "$output_file" | tail -n 1)
+assert_contains "$preempted_record" 'interruption_evidence=spot_instance_terminated'
+assert_contains "$preempted_record" 'shutdown_marker_preempted=true'
+assert_contains "$preempted_record" 'recovery_restart_succeeded=true'
+
+run_expect 40 preempted_marker_missing quick
+assert_contains "$fake_state/commands.log" 'compute instances start'
+assert_contains "$fake_state/commands.log" 'compute instances delete'
+test ! -f "$fake_state/interruption.properties" \
+  || fail 'Marker-missing scenario unexpectedly created a shutdown marker'
+markerless_record=$(sed -n 's/^Cloud orchestration record: //p' "$output_file" | tail -n 1)
+assert_contains "$markerless_record" 'preempted=true'
+assert_contains "$markerless_record" 'interruption_evidence=spot_instance_terminated'
+assert_contains "$markerless_record" 'shutdown_marker_preempted=missing'
+assert_contains "$markerless_record" 'primary_exit_code=40'
+test -d "$test_repo/benchmark-results/v3-production/partial" \
+  || fail 'Marker-missing interruption evidence was not retained as partial'
 
 run_expect 40 bootstrap_preempted quick
 assert_contains "$fake_state/commands.log" 'compute instances start'

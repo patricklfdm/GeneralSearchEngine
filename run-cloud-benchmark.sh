@@ -451,12 +451,15 @@ remote_commit=
 artifact_recovered=false
 checksum_verified=false
 preempted=false
+interruption_evidence=
+shutdown_marker_preempted=not_checked
 run_complete=false
 provision_attempted=false
 cleanup_attempted=false
 cleanup_succeeded=false
 local_result_path=
 recovery_restart_attempted=false
+recovery_restart_succeeded=false
 
 write_record() {
   temporary="$orchestration_record.tmp.$$"
@@ -474,7 +477,11 @@ write_record() {
     printf 'stage=%s\nssh_exit_code=%s\nremote_state=%s\n' "$stage" "$ssh_exit_code" "$remote_state"
     printf 'remote_benchmark_exit_code=%s\n' "$remote_benchmark_exit_code"
     printf 'artifact_recovered=%s\nchecksum_verified=%s\n' "$artifact_recovered" "$checksum_verified"
-    printf 'preempted=%s\nrun_complete=%s\n' "$preempted" "$run_complete"
+    printf 'preempted=%s\ninterruption_evidence=%s\n' "$preempted" "$interruption_evidence"
+    printf 'shutdown_marker_preempted=%s\n' "$shutdown_marker_preempted"
+    printf 'recovery_restart_attempted=%s\nrecovery_restart_succeeded=%s\n' \
+      "$recovery_restart_attempted" "$recovery_restart_succeeded"
+    printf 'run_complete=%s\n' "$run_complete"
     printf 'primary_exit_code=%s\nprovision_attempted=%s\n' "$primary_exit_code" "$provision_attempted"
     printf 'cleanup_attempted=%s\ncleanup_succeeded=%s\n' "$cleanup_attempted" "$cleanup_succeeded"
     printf 'local_result_path=%s\n' "$local_result_path"
@@ -588,25 +595,35 @@ recover_confirmed_spot_interruption() {
     --format='value(status)' 2>/dev/null || true)
   [ "$recovery_status" = TERMINATED ] || return 1
 
+  # A Spot VM unexpectedly reaching TERMINATED while the runner owns an active
+  # SSH operation is sufficient interruption evidence. GCE shutdown scripts are
+  # best effort, so their marker may be missing even after a real preemption.
+  preempted=true
+  interruption_evidence=spot_instance_terminated
+  remote_state=INTERRUPTED
   recovery_restart_attempted=true
   stage=INTERRUPTION_RECOVERY
   write_record
   if ! gcloud compute instances start "$instance" --project="$project" --zone="$zone" --quiet \
       >> "$orchestration_log" 2>&1; then
-    return 1
+    write_record
+    return 0
   fi
-  wait_for_ssh 40 15 || return 1
+  recovery_restart_succeeded=true
+  if ! wait_for_ssh 40 15; then
+    write_record
+    return 0
+  fi
   fetch_remote_state || true
   if fetch_remote_file "$STATE_DIR/interruption.properties"; then
     property_value preempted "$remote_file_content" || true
-    if [ "$property_result" = true ]; then
-      preempted=true
-      remote_state=INTERRUPTED
-      write_record
-      return 0
-    fi
+    shutdown_marker_preempted=${property_result:-invalid}
+  else
+    shutdown_marker_preempted=missing
   fi
-  return 1
+  remote_state=INTERRUPTED
+  write_record
+  return 0
 }
 
 stage=PROVISIONING
