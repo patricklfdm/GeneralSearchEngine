@@ -98,6 +98,23 @@ jobs:
       - name: Verify reproducible artifacts
         run: scripts/verify-reproducible-build.sh
 
+  cloud-runner-tests:
+    name: Cloud runner (no GCP)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Check cloud shell syntax
+        run: |
+          bash -n run-cloud-benchmark.sh
+          bash -n scripts/run-v3-production-performance.sh
+          bash -n scripts/cloud/*.sh
+
+      - name: Exercise cloud lifecycle with fake gcloud
+        run: scripts/cloud/test-cloud-runner.sh
+
   required:
     name: Required
     if: ${{ always() }}
@@ -105,6 +122,7 @@ jobs:
       - reactor-tests
       - compatibility
       - release-artifacts
+      - cloud-runner-tests
     runs-on: ubuntu-latest
     timeout-minutes: 2
     steps:
@@ -113,7 +131,9 @@ jobs:
           REACTOR_RESULT: ${{ needs.reactor-tests.result }}
           COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
           RELEASE_RESULT: ${{ needs.release-artifacts.result }}
+          CLOUD_RUNNER_RESULT: ${{ needs.cloud-runner-tests.result }}
         run: |
           test "$REACTOR_RESULT" = success
           test "$COMPATIBILITY_RESULT" = success
           test "$RELEASE_RESULT" = success
+          test "$CLOUD_RUNNER_RESULT" = success

@@ -165,6 +165,9 @@ tag-based publication, secrets, and recovery procedures.
 See the completed v1 [performance baseline](docs/v1/PERFORMANCE_BASELINE.md) for the
 environment- and workload-specific JMH regression results.
 
+For reproducible cloud-scale execution of the V3 production benchmark suite, see the
+[GCP performance testing guide](docs/v3/CLOUD_PERFORMANCE_TESTING.md).
+
 The v2 baselines are staged by phase: [P1 estimate/statistics results](docs/v2/phases/p1/PERFORMANCE_BASELINE.md),
 the [P2 bitmap/publication baseline](docs/v2/phases/p2/PERFORMANCE_BASELINE.md), and the
 [P3 planner performance baseline](docs/v2/phases/p3/PERFORMANCE_BASELINE.md). P4 analyzed-text

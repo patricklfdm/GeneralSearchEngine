@@ -13,6 +13,7 @@ remains the phase history and decision source of truth.
 - [API compatibility](v3/API_COMPATIBILITY.md)
 - [2.1-to-3.0 migration guide](v3/MIGRATION_GUIDE.md)
 - [V3.0 performance and memory baseline](v3/PERFORMANCE_BASELINE.md)
+- [Reproducible GCP performance testing](v3/CLOUD_PERFORMANCE_TESTING.md)
 - [V3.0 release checklist](v3/RELEASE_CHECKLIST.md)
 - [Phase 0 architecture](v3/phases/p0/ARCHITECTURE.md)
 - [Ranked-search semantics](v3/phases/p0/SEARCH_SEMANTICS.md)
