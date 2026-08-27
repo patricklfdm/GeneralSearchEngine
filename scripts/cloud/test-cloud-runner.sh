@@ -52,6 +52,10 @@ cp "$source_root/scripts/cloud/remote-bootstrap.sh" \
 cp "$source_root/benchmark-results/v3-production/.gitignore" \
   "$test_repo/benchmark-results/v3-production/"
 
+# The only-script Maven Wrapper falls back from ZIP to tar.gz when unzip is absent,
+# but distributionSha256Sum pins the ZIP. Keep unzip an explicit VM prerequisite.
+assert_contains "$test_repo/scripts/cloud/remote-bootstrap.sh" '  unzip'
+
 git -C "$test_repo" init --quiet
 git -C "$test_repo" config user.name 'Cloud Runner Test'
 git -C "$test_repo" config user.email 'cloud-runner@example.test'

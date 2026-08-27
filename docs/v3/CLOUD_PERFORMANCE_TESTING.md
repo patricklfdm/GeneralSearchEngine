@@ -101,9 +101,11 @@ exact image name, and evidence records its name, numeric ID, self-link, creation
 and requested family. `GSE_CLOUD_IMAGE=EXACT_IMAGE_NAME` repeats a run with a previously
 resolved image.
 
-Ubuntu's OpenJDK 21 package is installed on the VM. The complete Java output and exact
-installed package version are recorded. An apt-installed JDK is not claimed to be pinned
-merely because its major version is 21; compare those fields before comparing runs.
+Ubuntu's OpenJDK 21 package and `unzip` are installed on the VM. `unzip` is required so
+the Maven Wrapper downloads the ZIP pinned by `distributionSha256Sum` rather than falling
+back to the differently hashed tarball. The complete Java output and exact installed
+package version are recorded. An apt-installed JDK is not claimed to be pinned merely
+because its major version is 21; compare those fields before comparing runs.
 
 ## Commands
 

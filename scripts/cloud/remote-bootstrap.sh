@@ -18,15 +18,16 @@ write_state() {
 
 write_state BOOTSTRAPPING
 
-export DEBIAN_FRONTEND=noninteractive
 sudo apt-get update
-sudo apt-get install -y --no-install-recommends \
+sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
   openjdk-21-jdk-headless \
   git \
   ca-certificates \
-  curl
+  curl \
+  unzip
 
 java -version
 git --version
+unzip -v | sed -n '1p'
 
 write_state READY
