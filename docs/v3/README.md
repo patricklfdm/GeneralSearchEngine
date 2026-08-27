@@ -67,6 +67,8 @@ tag-triggered 3.0.0 publication and post-publication verification state machine.
 - [API compatibility](API_COMPATIBILITY.md)
 - [2.1-to-3.0 migration guide](MIGRATION_GUIDE.md)
 - [V3.0 performance and memory baseline](PERFORMANCE_BASELINE.md)
+- [Production performance testing](PRODUCTION_PERFORMANCE_TESTING.md)
+- [Production performance follow-up results](PRODUCTION_PERFORMANCE_RESULTS.md)
 - [V3.0 release checklist](RELEASE_CHECKLIST.md)
 - [Canonical V3 roadmap](ROADMAP.md)
 - [Architecture](phases/p0/ARCHITECTURE.md)
