@@ -193,3 +193,6 @@ freeze benchmark-only controls before implementation, minimally:
 Only those controls can determine whether an engine investigation is justified and
 which subsystem it should target. The numbers in this report remain workload-specific
 diagnostic evidence, not a portable SLA or a release regression threshold.
+
+The benchmark-only follow-up is frozen in the
+[cloud soak root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md).

@@ -71,6 +71,7 @@ tag-triggered 3.0.0 publication and post-publication verification state machine.
 - [Reproducible GCP performance testing](CLOUD_PERFORMANCE_TESTING.md)
 - [Cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md)
 - [Cloud soak diagnostic results](CLOUD_SOAK_DIAGNOSTIC_RESULTS.md)
+- [Cloud soak root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md)
 - [Production performance follow-up results](PRODUCTION_PERFORMANCE_RESULTS.md)
 - [V3.0 release checklist](RELEASE_CHECKLIST.md)
 - [Canonical V3 roadmap](ROADMAP.md)
