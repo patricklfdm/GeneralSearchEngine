@@ -57,6 +57,19 @@ Run the default 30-minute soak separately:
 scripts/run-v3-production-performance.sh soak
 ```
 
+Run one benchmark-only root-cause cell with per-query and corpus/snapshot evidence:
+
+```bash
+GSE_SOAK_INVESTIGATION_CELL=read-only \
+scripts/run-v3-production-performance.sh investigation
+```
+
+The other cells are `stable-update` and `revision-update`. Investigation derives the
+writer count, update behavior, disabled index lifecycle, and per-query metrics; a
+conflicting `GSE_SOAK_WRITERS` or `GSE_SOAK_INDEX_CYCLES` value fails before creating a
+result directory. `GSE_SOAK_PROFILE=jfr` is an investigation-only profile run and must
+not be compared numerically with unprofiled timing evidence.
+
 Run both the full matrix and soak in one result directory:
 
 ```bash
@@ -81,6 +94,9 @@ must be recorded with the result.
 control required to distinguish mixed search/update behavior from continuous dynamic
 range-index create/drop work. Every completed soak includes the deterministic
 `soak/soak-analysis.properties` report before checksums are generated.
+Investigation additionally includes `soak-query-samples.csv`, corpus and snapshot
+identity in the summary, and `soak/soak-investigation-analysis.properties`. JFR runs
+also retain `soak/profile.jfr` and `soak/profile-summary.txt`.
 
 Reproduce that report without modifying retained evidence by writing to a separate file:
 

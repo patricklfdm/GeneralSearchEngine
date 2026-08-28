@@ -116,8 +116,24 @@ Routine runs use a `c3d-standard-30` Spot VM by default:
 ./run-cloud-benchmark.sh full
 ./run-cloud-benchmark.sh concurrency
 ./run-cloud-benchmark.sh soak
+./run-cloud-benchmark.sh investigation
 ./run-cloud-benchmark.sh all
 ```
+
+The investigation mode requires one frozen cell and should use Standard provisioning
+for evidence intended for comparison:
+
+```bash
+GSE_CLOUD_PROVISIONING=standard \
+GSE_SOAK_INVESTIGATION_CELL=revision-update \
+GSE_SOAK_PROFILE=none \
+./run-cloud-benchmark.sh investigation
+```
+
+Accepted cells are `read-only`, `stable-update`, and `revision-update`. Use
+`GSE_SOAK_PROFILE=jfr` only for a separate diagnostic profile after an unprofiled
+contrast has been established. See the frozen
+[root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md).
 
 Only the top-level `concurrency` mode receives the stronger cloud default ratios:
 
@@ -190,10 +206,13 @@ GSE_PERF_JVM_OPTIONS='-Xms32g -Xmx64g' \
 | `GSE_SOAK_READERS` / `GSE_SOAK_WRITERS` | Existing runner defaults |
 | `GSE_SOAK_DOCUMENTS` | Existing runner default |
 | `GSE_SOAK_INDEX_CYCLES` | `true`; accepts `true` or `false` |
+| `GSE_SOAK_INVESTIGATION_CELL` | Required only for `investigation`; `read-only`, `stable-update`, or `revision-update` |
+| `GSE_SOAK_PROFILE` | `none`; accepts `none` or `jfr` only for `investigation` |
 | `GSE_JMH_FORKS` / `GSE_JMH_WARMUPS` / `GSE_JMH_ITERATIONS` / `GSE_JMH_DURATION` | Existing runner defaults |
 
 Mode-derived compute caps are two hours for quick, twelve for full, eight for concurrency,
-the requested soak plus two hours, and twenty-four hours for all. The VM also carries
+the requested soak or investigation duration plus two hours, and twenty-four hours for
+all. The VM also carries
 searchable `purpose=gse-benchmark` labels. The cap limits compute after a dead local
 orchestrator; it does not replace deletion, and a stopped Spot boot disk can still cost money.
 

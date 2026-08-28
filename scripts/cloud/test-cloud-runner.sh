@@ -36,7 +36,7 @@ assert_contains() {
 assert_not_contains() {
   file=$1
   unexpected=$2
-  if grep -F -- "$unexpected" "$file" >/dev/null; then
+  if [ -f "$file" ] && grep -F -- "$unexpected" "$file" >/dev/null; then
     fail "Did not expect '$unexpected' in $file"
   fi
 }
@@ -46,6 +46,7 @@ cp "$source_root/run-cloud-benchmark.sh" "$test_repo/"
 cp "$source_root/pom.xml" "$source_root/mvnw" "$test_repo/"
 cp "$source_root/scripts/run-v3-production-performance.sh" \
   "$source_root/scripts/analyze-v3-soak.sh" \
+  "$source_root/scripts/analyze-v3-soak-investigation.sh" \
   "$test_repo/scripts/"
 cp "$source_root/scripts/cloud/remote-bootstrap.sh" \
   "$source_root/scripts/cloud/remote-run-benchmark.sh" \
@@ -121,6 +122,39 @@ assert_not_contains "$fake_state/commands.log" 'compute instances create'
 assert_not_contains "$fake_state/commands.log" 'compute instances delete'
 assert_not_contains "$fake_state/commands.log" 'compute ssh'
 assert_not_contains "$fake_state/commands.log" 'compute scp'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=investigation-dry \
+  GSE_CLOUD_PROVISIONING=standard \
+  GSE_SOAK_INVESTIGATION_CELL=read-only GSE_SOAK_PROFILE=jfr \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run investigation \
+  > "$output_file" 2>&1
+investigation_exit=$?
+set -e
+[ "$investigation_exit" -eq 0 ] \
+  || fail "Investigation dry run returned $investigation_exit"
+assert_contains "$output_file" 'Mode:         investigation'
+assert_contains "$output_file" 'GSE_SOAK_INVESTIGATION_CELL=read-only'
+assert_contains "$output_file" 'GSE_SOAK_PROFILE=jfr'
+assert_contains "$output_file" 'GSE_SOAK_WRITERS=0'
+assert_contains "$output_file" 'GSE_SOAK_INDEX_CYCLES=false'
+assert_contains "$output_file" '--max-run-duration=9000s'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=invalid-investigation \
+  GSE_SOAK_INVESTIGATION_CELL=read-only GSE_SOAK_WRITERS=1 \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run investigation \
+  > "$output_file" 2>&1
+invalid_investigation_exit=$?
+set -e
+[ "$invalid_investigation_exit" -eq 2 ] \
+  || fail "Conflicting investigation config returned $invalid_investigation_exit"
+assert_contains "$output_file" 'GSE_SOAK_WRITERS conflicts with read-only'
+test ! -s "$fake_state/commands.log" \
+  || fail 'Invalid investigation config called gcloud before failing'
 
 reset_fake
 set +e
