@@ -189,6 +189,7 @@ GSE_PERF_JVM_OPTIONS='-Xms32g -Xmx64g' \
 | `GSE_SOAK_SECONDS` | `1800` |
 | `GSE_SOAK_READERS` / `GSE_SOAK_WRITERS` | Existing runner defaults |
 | `GSE_SOAK_DOCUMENTS` | Existing runner default |
+| `GSE_SOAK_INDEX_CYCLES` | `true`; accepts `true` or `false` |
 | `GSE_JMH_FORKS` / `GSE_JMH_WARMUPS` / `GSE_JMH_ITERATIONS` / `GSE_JMH_DURATION` | Existing runner defaults |
 
 Mode-derived compute caps are two hours for quick, twelve for full, eight for concurrency,
@@ -263,11 +264,18 @@ Normal CI and local development validate shell syntax and run a deterministic fa
 lifecycle suite:
 
 ```bash
-bash -n run-cloud-benchmark.sh scripts/run-v3-production-performance.sh scripts/cloud/*.sh
+bash -n run-cloud-benchmark.sh \
+  scripts/run-v3-production-performance.sh \
+  scripts/analyze-v3-soak.sh \
+  scripts/test-v3-soak-analysis.sh \
+  scripts/cloud/*.sh
+scripts/test-v3-soak-analysis.sh
 scripts/cloud/test-cloud-runner.sh
 ```
 
-The fake suite covers immutable-image creation, Spot/Standard flags, no-service-account
+The synthetic analyzer suite covers stable, drifting, queue-pressure, malformed, and
+counter-regression evidence. The fake cloud suite covers immutable-image creation,
+Spot/Standard flags, no-service-account
 creation, dry run, IAP, benchmark failure, preemption, partial artifacts, checksum and SCP
 failure, partial provisioning, cleanup failure, dirty source, and an unpushed commit. It
 does not prove project IAM, quota, network reachability, current gcloud flag compatibility,
