@@ -87,7 +87,7 @@ class Fixture:
         self.raw = self.results / run_id
         self.orchestration_dir = self.results / "cloud-orchestration"
         self.raw.mkdir(parents=True)
-        self.orchestration_dir.mkdir(parents=True)
+        self.orchestration_dir.mkdir(parents=True, exist_ok=True)
         self.instance = instance
         self.raw_schema = raw_schema
         self.mode = mode
@@ -106,28 +106,42 @@ class Fixture:
             (self.raw / "document-scale.json").write_text(
                 json.dumps([jmh_entry()], sort_keys=True) + "\n", encoding="utf-8"
             )
-            latency_name = (
-                "concurrent-latency-4-1.json"
-                if raw_schema == 1
-                else "concurrent-read-write-4-1.json"
-            )
-            (self.raw / latency_name).write_text(
-                json.dumps(
-                    [jmh_entry("sample", benchmark="example.Concurrent.mixed", threads=5)],
-                    sort_keys=True,
+            groups = ((1, 1), (4, 1), (16, 1)) if raw_schema == 1 and mode == "full" else ((4, 1),)
+            for readers, writers in groups:
+                latency_name = (
+                    f"concurrent-latency-{readers}-{writers}.json"
+                    if raw_schema == 1
+                    else f"concurrent-read-write-{readers}-{writers}.json"
                 )
-                + "\n",
-                encoding="utf-8",
-            )
-            if raw_schema == 1:
-                (self.raw / "concurrent-throughput-4-1.json").write_text(
+                (self.raw / latency_name).write_text(
                     json.dumps(
-                        [jmh_entry("thrpt", benchmark="example.Concurrent.mixed", threads=5)],
+                        [
+                            jmh_entry(
+                                "sample",
+                                benchmark="example.Concurrent.mixed",
+                                threads=readers + writers,
+                            )
+                        ],
                         sort_keys=True,
                     )
                     + "\n",
                     encoding="utf-8",
                 )
+                if raw_schema == 1:
+                    (self.raw / f"concurrent-throughput-{readers}-{writers}.json").write_text(
+                        json.dumps(
+                            [
+                                jmh_entry(
+                                    "thrpt",
+                                    benchmark="example.Concurrent.mixed",
+                                    threads=readers + writers,
+                                )
+                            ],
+                            sort_keys=True,
+                        )
+                        + "\n",
+                        encoding="utf-8",
+                    )
         elif mode == "concurrency":
             (self.raw / "concurrent-latency-4-1.json").write_text(
                 json.dumps(
@@ -159,7 +173,11 @@ class Fixture:
             "jmh_iterations": "5",
             "jmh_duration": "1s",
             "concurrency_documents": "100000",
-            "concurrency_thread_groups": "4,1",
+            "concurrency_thread_groups": (
+                "1,1 4,1 16,1"
+                if self.raw_schema == 1 and self.mode == "full"
+                else "4,1"
+            ),
             "soak_index_cycles": "true",
             "cloud_provider": "gcp",
             "cloud_project": "ignored-project",
@@ -194,6 +212,8 @@ class Fixture:
                     "java_vm_version": "21.0.8+9-LTS",
                 }
             )
+            if self.mode == "full":
+                values["benchmark_preset_id"] = "v3-production-full-v1"
         return values
 
     def _orchestration(self) -> dict[str, str]:
@@ -209,6 +229,12 @@ class Fixture:
             "resolved_image_id": "5563818848645508791",
             "resolved_image_self_link": "https://compute.example/images/5563818848645508791",
             "resolved_image_created_at": "2026-08-26T04:39:04Z",
+            "boot_disk_type": "pd-balanced",
+            "boot_disk_size": "100GB",
+            "max_run_duration": "43200s",
+            "network": "default",
+            "subnet": "",
+            "ssh_transport": "external_ip",
             "requested_commit": COMMIT,
             "benchmark_mode": self.mode,
             "remote_commit": COMMIT,
@@ -241,6 +267,7 @@ class Fixture:
                 "seconds": "1800",
                 "status": "CONFIGURED",
                 "top_k": "10",
+                "update_mode": "revision",
                 "writers": "1",
             },
         )
@@ -306,6 +333,32 @@ class BenchmarkV2Test(unittest.TestCase):
             callable_()
         self.assertEqual(code, caught.exception.exit_code)
 
+    def canonical_set_controls(self):
+        return {
+            "bootDiskSize": "100GB",
+            "bootDiskType": "pd-balanced",
+            "externalIp": "true",
+            "imageFamily": "ubuntu-2404-lts-amd64",
+            "imageProject": "ubuntu-os-cloud",
+            "jvmOptions": "-Xms8g -Xmx16g",
+            "machineType": "c3d-standard-30",
+            "maxRunDuration": "43200s",
+            "network": "default",
+            "project": "ignored-project",
+            "provisioning": "standard",
+            "resolvedImage": "ubuntu-2404-noble-amd64-v20260826",
+            "resolvedImageCreatedAt": "2026-08-26T04:39:04Z",
+            "resolvedImageId": "5563818848645508791",
+            "resolvedImageSelfLink": "https://compute.example/images/5563818848645508791",
+            "useIap": "false",
+            "zone": "us-west4-a",
+        }
+
+    def complete_fixture_attempt(self, workspace, slot, fixture):
+        intent = v2.begin_set_attempt(workspace, slot)
+        intent["pointer"].write_text(str(fixture.orchestration_path.resolve()) + "\n", encoding="utf-8")
+        self.assertEqual(0, v2.record_set_attempt(workspace, slot, 0))
+
     def test_schema1_manifest_metrics_and_raw_immutability(self):
         fixture = Fixture(self.root)
         raw_before = v2.snapshot_raw(fixture.raw)
@@ -323,7 +376,7 @@ class BenchmarkV2Test(unittest.TestCase):
             if item["statistic"] == "sample_percentile_99.0"
             and item["identity"]["metricRole"] == "read"
         ]
-        self.assertEqual(1, len(sample_p99))
+        self.assertEqual(3, len(sample_p99))
         self.assertEqual("ms/op", sample_p99[0]["canonicalUnit"])
         self.assertEqual(4.0, sample_p99[0]["canonicalValue"])
         avgt_percentiles = [
@@ -348,6 +401,199 @@ class BenchmarkV2Test(unittest.TestCase):
         second = {path.name: path.read_bytes() for path in output_again.iterdir()}
         self.assertEqual(first, second)
         self.assertEqual(manifest, manifest_again)
+
+    def test_three_member_set_is_deterministic_and_retains_extremes(self):
+        fixtures = []
+        for ordinal, score in enumerate((2000.0, 2500.0, 4000.0), 1):
+            fixture = Fixture(
+                self.root,
+                run_id=f"20260828T00000{ordinal}Z-0123456789ab-full",
+                instance=f"gse-fixture-{ordinal}",
+            )
+            document = fixture.raw / "document-scale.json"
+            entries = json.loads(document.read_text(encoding="utf-8"))
+            entries[0]["primaryMetric"]["score"] = score
+            entries[0]["primaryMetric"]["scoreConfidence"] = [score - 1, score + 1]
+            entries[0]["primaryMetric"]["rawData"] = [[score]]
+            document.write_text(json.dumps(entries, sort_keys=True) + "\n", encoding="utf-8")
+            fixture.refresh_checksums()
+            fixtures.append(fixture)
+        workspace = fixtures[0].results / "sets" / "in-progress" / "fixture-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "canonical",
+            3,
+            "full",
+            "v3-production-full-v1",
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            self.canonical_set_controls(),
+        )
+        for slot, fixture in enumerate(fixtures, 1):
+            self.complete_fixture_attempt(workspace, slot, fixture)
+        destination, manifest = v2.finalize_benchmark_set(workspace)
+        self.assertEqual("VALID_CANONICAL_SET", manifest["status"])
+        self.assertEqual(3, len(manifest["members"]))
+        first_bytes = {path.name: path.read_bytes() for path in destination.iterdir()}
+        again, again_manifest = v2.finalize_benchmark_set(workspace)
+        self.assertEqual(destination, again)
+        self.assertEqual(manifest, again_manifest)
+        self.assertEqual(first_bytes, {path.name: path.read_bytes() for path in again.iterdir()})
+        aggregate = v2.read_json(destination / "aggregate-metrics.json")
+        document_primary = next(
+            item
+            for item in aggregate["metrics"]
+            if item["identity"]["workload"] == "document-scale"
+            and item["identity"]["metricRole"] == "primary"
+        )
+        self.assertEqual([2.0, 2.5, 4.0], [item["value"] for item in document_primary["values"]])
+        self.assertEqual(2.0, document_primary["minimum"])
+        self.assertEqual(2.5, document_primary["median"])
+        self.assertEqual(4.0, document_primary["maximum"])
+        self.assertEqual(2.0, document_primary["absoluteRange"])
+        self.assertEqual(80.0, document_primary["relativeRangePct"])
+
+    def test_aggregate_even_median_zero_and_consensus(self):
+        def document(value, categorical):
+            return {
+                "metrics": [
+                    {
+                        "canonicalUnit": "count",
+                        "canonicalValue": value,
+                        "direction": "diagnostic",
+                        "id": "m1-numeric",
+                        "identity": {"metricName": "growth"},
+                        "statistic": "diagnostic_bytes",
+                    },
+                    {
+                        "canonicalUnit": "boolean",
+                        "canonicalValue": categorical,
+                        "direction": "categorical",
+                        "id": "m1-consensus",
+                        "identity": {"metricName": "valid"},
+                        "statistic": "decision",
+                    },
+                ]
+            }
+
+        aggregate = v2.aggregate_member_metrics(
+            "gse-set-v1-test",
+            {"name": "v3-production", "schemaVersion": 1},
+            [(1, "a", document(-1, True)), (2, "b", document(1, True))],
+        )
+        numeric = next(item for item in aggregate["metrics"] if item["metricId"] == "m1-numeric")
+        consensus = next(item for item in aggregate["metrics"] if item["metricId"] == "m1-consensus")
+        self.assertEqual(0.0, numeric["median"])
+        self.assertIsNone(numeric["relativeRangePct"])
+        self.assertEqual("median_zero", numeric["relativeRangeUnavailableReason"])
+        self.assertTrue(consensus["allEqual"])
+        self.assertIs(True, consensus["unanimousValue"])
+
+    def test_infrastructure_replacement_is_explicit_and_audited(self):
+        fixture = Fixture(self.root)
+        workspace = fixture.results / "sets" / "in-progress" / "replacement-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "canonical",
+            3,
+            "full",
+            "v3-production-full-v1",
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            self.canonical_set_controls(),
+        )
+        intent = v2.begin_set_attempt(workspace, 1)
+        fixture.orchestration["primary_exit_code"] = "10"
+        fixture.rewrite_orchestration()
+        intent["pointer"].write_text(
+            str(fixture.orchestration_path.resolve()) + "\n", encoding="utf-8"
+        )
+        self.assertEqual(10, v2.record_set_attempt(workspace, 1, 10))
+        self.assert_error(v2.EXIT_CONFIG, lambda: v2.begin_set_attempt(workspace, 1))
+        self.assert_error(
+            v2.EXIT_CONFIG,
+            lambda: v2.authorize_set_replacement(workspace, 1, "provision failed", False),
+        )
+        authorization = v2.authorize_set_replacement(
+            workspace, 1, "provision failed before benchmark", True
+        )
+        self.assertTrue(authorization.is_file())
+        replacement = v2.begin_set_attempt(workspace, 1)
+        self.assertEqual(2, replacement["attempt"])
+
+    def test_member_environment_mismatch_stops_before_later_slot(self):
+        first = Fixture(self.root, instance="gse-compatible")
+        second = Fixture(
+            self.root,
+            run_id="20260828T000002Z-0123456789ab-full",
+            instance="gse-incompatible",
+        )
+        second.metadata["java_vm_version"] = "21.0.99+1-LTS"
+        second.rewrite_metadata()
+        second.refresh_checksums()
+        workspace = first.results / "sets" / "in-progress" / "incompatible-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "canonical",
+            3,
+            "full",
+            "v3-production-full-v1",
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            self.canonical_set_controls(),
+        )
+        self.complete_fixture_attempt(workspace, 1, first)
+        intent = v2.begin_set_attempt(workspace, 2)
+        intent["pointer"].write_text(str(second.orchestration_path.resolve()) + "\n", encoding="utf-8")
+        self.assertEqual(v2.EXIT_INCOMPATIBLE_SET, v2.record_set_attempt(workspace, 2, 0))
+        _, _, checkpoint = v2.load_set_workspace(workspace)
+        self.assertEqual("INCOMPATIBLE", checkpoint["state"])
+        self.assertEqual("PENDING", checkpoint["slots"][2]["state"])
+        self.assert_error(v2.EXIT_CONFIG, lambda: v2.begin_set_attempt(workspace, 3))
+
+    def test_completed_set_detects_artifact_corruption(self):
+        fixtures = [
+            Fixture(
+                self.root,
+                run_id=f"20260828T10000{slot}Z-0123456789ab-full",
+                instance=f"gse-corruption-{slot}",
+            )
+            for slot in range(1, 4)
+        ]
+        workspace = fixtures[0].results / "sets" / "in-progress" / "corruption-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "canonical",
+            3,
+            "full",
+            "v3-production-full-v1",
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            self.canonical_set_controls(),
+        )
+        for slot, fixture in enumerate(fixtures, 1):
+            self.complete_fixture_attempt(workspace, slot, fixture)
+        destination, _ = v2.finalize_benchmark_set(workspace)
+        (destination / "aggregate-metrics.json").write_text("{}\n", encoding="utf-8")
+        self.assert_error(v2.EXIT_CONTRADICTION, lambda: v2.finalize_benchmark_set(workspace))
+
+    def test_running_attempt_without_finalized_pointer_becomes_unresolved(self):
+        fixture = Fixture(self.root)
+        workspace = fixture.results / "sets" / "in-progress" / "unresolved-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "experiment",
+            1,
+            "quick",
+            None,
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            {"provisioning": "spot"},
+        )
+        v2.begin_set_attempt(workspace, 1)
+        self.assertEqual(v2.EXIT_INCOMPATIBLE_SET, v2.reconcile_running_attempt(workspace))
+        _, _, checkpoint = v2.load_set_workspace(workspace)
+        self.assertEqual("UNRESOLVED", checkpoint["state"])
 
     def test_instance_timestamp_project_and_branch_do_not_change_fingerprints(self):
         first = Fixture(self.root / "a", instance="gse-a", branch="feature-a")
@@ -400,11 +646,26 @@ class BenchmarkV2Test(unittest.TestCase):
         _, manifest, _ = v2.derive_manifest(fixture.raw, evidence_profile="canonical")
         self.assertEqual("VALID_CANONICAL_MEMBER", manifest["status"])
         self.assertTrue(manifest["canonicalEligibility"])
+        self.assertEqual("v3-production-full-v1", manifest["benchmark"]["presetId"])
         quick = Fixture(self.root / "quick", mode="quick", instance="gse-quick")
         self.assert_error(
             v2.EXIT_CONFIG,
             lambda: v2.derive_manifest(quick.raw, evidence_profile="canonical"),
         )
+
+    def test_canonical_member_requires_matching_versioned_preset(self):
+        fixture = Fixture(self.root)
+        fixture.metadata.pop("benchmark_preset_id")
+        fixture.rewrite_metadata()
+        fixture.refresh_checksums()
+        self.assert_error(
+            v2.EXIT_INVALID_EVIDENCE,
+            lambda: v2.derive_manifest(fixture.raw, evidence_profile="canonical"),
+        )
+        fixture.metadata["benchmark_preset_id"] = "v3-production-concurrency-v1"
+        fixture.rewrite_metadata()
+        fixture.refresh_checksums()
+        self.assert_error(v2.EXIT_INVALID_EVIDENCE, lambda: v2.derive_manifest(fixture.raw))
 
     def test_schema0_explicit_adapter_is_experimental(self):
         fixture = Fixture(self.root, raw_schema=0)

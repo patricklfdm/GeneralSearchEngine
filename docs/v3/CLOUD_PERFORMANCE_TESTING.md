@@ -189,8 +189,64 @@ GSE_CLOUD_PROVISIONING=standard ./run-cloud-benchmark.sh all
 ```
 
 A canonical baseline requires at least three independent ephemeral Standard runs with
-the same exact image, machine, JVM, and workload configuration. Retain every raw run and
-report medians and run-to-run variation; do not select the fastest run.
+the same exact image, machine, JVM, and workload configuration. Use the set wrapper
+below so every raw run is retained and medians and run-to-run variation are derived
+without selecting the fastest run.
+
+## Independent Cloud Benchmark V2 run sets
+
+Cloud Benchmark V2 Phase 2 automates a sequential set of independent V1 VM lifecycles.
+Start with a mutation-free plan review:
+
+```bash
+GSE_CLOUD_PROVISIONING=standard \
+./run-cloud-benchmark-set.sh --dry-run \
+  --evidence-profile canonical --repeats 3 full
+```
+
+The wrapper resolves one exact image, freezes the production workload preset, and runs
+the existing V1 dry-run checks. It creates neither a set workspace nor a VM. After
+reviewing the plan, acknowledge the worst-case VM count explicitly:
+
+```bash
+GSE_CLOUD_PROVISIONING=standard \
+./run-cloud-benchmark-set.sh \
+  --evidence-profile canonical --repeats 3 \
+  --confirm-paid-run full
+```
+
+Canonical modes are `full`, `concurrency`, `soak`, and `all`; canonical sets accept 3
+through 10 slots. Each mode selects its versioned `v3-production-<mode>-v1` preset.
+Every slot creates and cleans up a separate Standard VM. The wrapper stops on the first
+invalid attempt and returns the underlying V1 or Phase 1 exit instead of hiding it.
+
+Resume only untouched pending slots with:
+
+```bash
+./run-cloud-benchmark-set.sh \
+  --resume benchmark-results/v3-production/sets/in-progress/WORKSPACE \
+  --confirm-paid-run
+```
+
+If the current slot is explicitly classified `INFRASTRUCTURE_INVALID`, authorize one
+replacement without inspecting or selecting benchmark scores:
+
+```bash
+./run-cloud-benchmark-set.sh \
+  --replace benchmark-results/v3-production/sets/in-progress/WORKSPACE \
+  --slot 2 \
+  --reason 'VM terminated before evidence recovery' \
+  --confirm-no-score-selection \
+  --confirm-paid-run
+```
+
+Benchmark, configuration, analyzer/evidence, incompatible-environment, and unresolved
+failures are not replacement eligible. A valid slow member is never discarded.
+Completed content-addressed artifacts are written under
+`benchmark-results/v3-production/sets/gse-set-v1-.../v1/`; the completed in-progress
+workspace remains as the attempt and replacement audit trail. The exact schemas and
+state transitions are frozen in the
+[Phase 2 aggregation contract](CLOUD_BENCHMARK_V2_PHASE_2.md).
 
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
@@ -289,8 +345,10 @@ left null and no environment fingerprint is invented.
 
 `--evidence-profile canonical` validates one potential canonical set member. It requires
 schema 1, a clean source, Standard provisioning, a canonical mode, a complete strict
-environment fingerprint, and ordinary cleanup proof. It does not turn one run into a
-canonical baseline; independent set aggregation remains Phase 2.
+environment fingerprint, ordinary cleanup proof, and a matching versioned benchmark
+preset in raw metadata. Prefer `run-cloud-benchmark-set.sh` for canonical evidence; it
+sets and validates that preset automatically. One run never becomes a canonical
+baseline by itself.
 
 Interrupted evidence is placed below `partial/`; checksum-invalid evidence is placed
 below `quarantine/`. These directories remain ignored by Git. The orchestrator never
@@ -346,6 +404,7 @@ lifecycle suite:
 
 ```bash
 bash -n run-cloud-benchmark.sh \
+  run-cloud-benchmark-set.sh \
   scripts/run-v3-production-performance.sh \
   scripts/analyze-v3-soak.sh \
   scripts/analyze-v3-soak-stabilization.sh \
@@ -358,6 +417,7 @@ scripts/test-v3-soak-stabilized-comparison.sh
 scripts/test-v3-soak-stabilization-e2e.sh
 scripts/cloud/test-benchmark-system-facts.sh
 scripts/cloud/test-cloud-runner.sh
+scripts/cloud/test-benchmark-set-runner.sh
 python3 -m unittest scripts.cloud.test_benchmark_v2
 ```
 
@@ -373,4 +433,8 @@ The V2 fixture suite additionally covers schema-1 and explicit schema-0 adapters
 immutability, checksum and orchestration contradictions, detached branches, byte-stable
 serialization, fingerprint inclusion/exclusion, JMH average/sample/throughput and
 string-`NaN` semantics, soak properties, duplicate metric identities, and derived-output
-boundaries. It uses no `gcloud` command and creates no paid resource.
+boundaries. Phase 2 fixtures add mutation-free set dry runs, paid-run confirmation,
+exact attempt binding, three-member finalization, deterministic set identity, odd/even
+median and range semantics, categorical consensus, incompatible-member stops,
+crash-safe resume, and explicitly attested infrastructure replacement. They use no real
+`gcloud` command and create no paid resource.

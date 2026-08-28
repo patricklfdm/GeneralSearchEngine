@@ -263,6 +263,38 @@ assert_contains "$success_record" 'checksum_verified=true'
 assert_contains "$success_record" 'primary_exit_code=0'
 assert_contains "$success_record" 'cleanup_succeeded=true'
 
+reset_fake
+pointer_parent="$test_root/pointer-control"
+mkdir -p "$pointer_parent"
+pointer_file="$pointer_parent/attempt-001.orchestration-pointer"
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=pointer-success \
+  GSE_CLOUD_ORCHESTRATION_POINTER_FILE="$pointer_file" \
+  GSE_BENCHMARK_PRESET_ID=v3-production-full-v1 \
+  "$test_repo/run-cloud-benchmark.sh" quick > "$output_file" 2>&1
+pointer_exit=$?
+set -e
+[ "$pointer_exit" -eq 0 ] || fail "Pointer scenario returned $pointer_exit"
+[ -f "$pointer_file" ] || fail 'V1 did not create the orchestration pointer'
+pointer_record=$(sed -n '1p' "$pointer_file")
+[ -n "$pointer_record" ] && [ -f "$pointer_record" ] \
+  || fail 'V1 pointer did not bind an existing orchestration record'
+assert_contains "$fake_state/commands.log" 'GSE_BENCHMARK_PRESET_ID=v3-production-full-v1'
+
+reset_fake
+mkdir -p "$pointer_parent/existing"
+existing_pointer="$pointer_parent/existing/pointer"
+printf 'occupied\n' > "$existing_pointer"
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=pointer-existing \
+  GSE_CLOUD_ORCHESTRATION_POINTER_FILE="$existing_pointer" \
+  "$test_repo/run-cloud-benchmark.sh" quick > "$output_file" 2>&1
+existing_pointer_exit=$?
+set -e
+[ "$existing_pointer_exit" -eq 2 ] || fail "Existing pointer returned $existing_pointer_exit"
+assert_contains "$output_file" 'Orchestration pointer target must not already exist'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
 run_expect 30 benchmark_fail quick
 assert_contains "$fake_state/commands.log" 'compute instances delete'
 

@@ -120,6 +120,7 @@ jobs:
       - name: Check cloud shell syntax
         run: |
           bash -n run-cloud-benchmark.sh
+          bash -n run-cloud-benchmark-set.sh
           bash -n scripts/run-v3-production-performance.sh
           bash -n scripts/analyze-v3-soak.sh
           bash -n scripts/analyze-v3-soak-investigation.sh
@@ -143,7 +144,9 @@ jobs:
           scripts/test-v3-soak-stabilized-comparison.sh
 
       - name: Exercise cloud lifecycle with fake gcloud
-        run: scripts/cloud/test-cloud-runner.sh
+        run: |
+          scripts/cloud/test-cloud-runner.sh
+          scripts/cloud/test-benchmark-set-runner.sh
 
       - name: Validate Cloud Benchmark V2 evidence derivation
         run: |

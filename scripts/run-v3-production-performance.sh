@@ -260,6 +260,7 @@ system_facts=$(scripts/cloud/collect-benchmark-system-facts.sh)
   write_metadata_if_set cloud_image_id GSE_CLOUD_IMAGE_ID
   write_metadata_if_set cloud_image_self_link GSE_CLOUD_IMAGE_SELF_LINK
   write_metadata_if_set cloud_image_created_at GSE_CLOUD_IMAGE_CREATED_AT
+  write_metadata_if_set benchmark_preset_id GSE_BENCHMARK_PRESET_ID
   echo "working_tree_begin"
   git status --short
   echo "working_tree_end"
