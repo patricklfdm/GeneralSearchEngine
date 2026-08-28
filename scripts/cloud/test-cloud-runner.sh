@@ -44,7 +44,9 @@ assert_not_contains() {
 mkdir -p "$test_repo/scripts/cloud" "$test_repo/benchmark-results/v3-production" "$fake_bin"
 cp "$source_root/run-cloud-benchmark.sh" "$test_repo/"
 cp "$source_root/pom.xml" "$source_root/mvnw" "$test_repo/"
-cp "$source_root/scripts/run-v3-production-performance.sh" "$test_repo/scripts/"
+cp "$source_root/scripts/run-v3-production-performance.sh" \
+  "$source_root/scripts/analyze-v3-soak.sh" \
+  "$test_repo/scripts/"
 cp "$source_root/scripts/cloud/remote-bootstrap.sh" \
   "$source_root/scripts/cloud/remote-run-benchmark.sh" \
   "$source_root/scripts/cloud/spot-shutdown.sh" \
@@ -123,7 +125,7 @@ assert_not_contains "$fake_state/commands.log" 'compute scp'
 reset_fake
 set +e
 env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=standard-dry \
-  GSE_CLOUD_PROVISIONING=standard \
+  GSE_CLOUD_PROVISIONING=standard GSE_SOAK_INDEX_CYCLES=false \
   "$test_repo/run-cloud-benchmark.sh" --dry-run full > "$output_file" 2>&1
 standard_exit=$?
 set -e
@@ -131,6 +133,19 @@ set -e
 assert_not_contains "$output_file" '--provisioning-model=SPOT'
 assert_not_contains "$output_file" '--instance-termination-action=STOP'
 assert_contains "$output_file" '--instance-termination-action=DELETE'
+assert_contains "$output_file" 'GSE_SOAK_INDEX_CYCLES=false'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=invalid-soak-boolean \
+  GSE_SOAK_INDEX_CYCLES=invalid \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run soak > "$output_file" 2>&1
+invalid_soak_boolean_exit=$?
+set -e
+[ "$invalid_soak_boolean_exit" -eq 2 ] \
+  || fail "Invalid soak boolean returned $invalid_soak_boolean_exit instead of 2"
+assert_contains "$output_file" 'GSE_SOAK_INDEX_CYCLES must be true or false'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
 
 run_expect 0 success quick
 assert_contains "$output_file" 'Local benchmark result:'
