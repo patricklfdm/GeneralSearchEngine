@@ -16,6 +16,7 @@ import re
 import shlex
 import sys
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -24,12 +25,39 @@ EXIT_CONFIG = 2
 EXIT_INVALID_EVIDENCE = 80
 EXIT_UNSUPPORTED = 81
 EXIT_CONTRADICTION = 82
+EXIT_INCOMPATIBLE_SET = 83
 
 MANIFEST_SCHEMA_VERSION = 1
 METRICS_SCHEMA_VERSION = 1
 FINGERPRINT_SCHEMA_VERSION = 1
 SUPPORTED_RAW_SCHEMAS = {0, 1}
 CANONICAL_MODES = {"full", "concurrency", "soak", "all"}
+CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
+    "v3-production-full-v1": {
+        "mode": "full",
+        "threadGroups": "1,1 4,1 16,1",
+        "jmh": True,
+        "soak": False,
+    },
+    "v3-production-concurrency-v1": {
+        "mode": "concurrency",
+        "threadGroups": "1,1 4,1 8,1 16,1 24,1 30,1",
+        "jmh": True,
+        "soak": False,
+    },
+    "v3-production-soak-v1": {
+        "mode": "soak",
+        "threadGroups": "1,1 4,1 16,1",
+        "jmh": False,
+        "soak": True,
+    },
+    "v3-production-all-v1": {
+        "mode": "all",
+        "threadGroups": "1,1 4,1 16,1",
+        "jmh": True,
+        "soak": True,
+    },
+}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
 CURRENT_CONCURRENCY_RE = re.compile(
@@ -784,6 +812,65 @@ def fingerprint(payload: dict[str, Any]) -> str:
     return "sha256:" + sha256_bytes(canonical_json_bytes(envelope))
 
 
+def validate_benchmark_preset(
+    preset_id: str | None,
+    mode: str,
+    metadata: dict[str, str],
+    jmh_configs: list[dict[str, Any]],
+    soak_config: dict[str, Any] | None,
+) -> None:
+    if preset_id is None:
+        return
+    preset = CANONICAL_PRESETS.get(preset_id)
+    if preset is None:
+        raise fail_unsupported(f"Unsupported benchmark preset: {preset_id}")
+    if mode != preset["mode"]:
+        raise fail_invalid(f"Benchmark preset {preset_id} contradicts mode {mode}")
+    expected_metadata = {
+        "concurrency_documents": "100000",
+        "concurrency_thread_groups": preset["threadGroups"],
+    }
+    if preset["jmh"]:
+        expected_metadata.update(
+            {
+                "jmh_forks": "2",
+                "jmh_warmups": "3",
+                "jmh_iterations": "5",
+                "jmh_duration": "1s",
+            }
+        )
+        if not jmh_configs:
+            raise fail_invalid(f"Benchmark preset {preset_id} requires JMH evidence")
+    elif jmh_configs:
+        raise fail_invalid(f"Benchmark preset {preset_id} forbids JMH evidence")
+    for key, expected in expected_metadata.items():
+        if metadata.get(key) != expected:
+            raise fail_invalid(
+                f"Benchmark preset {preset_id} requires {key}={expected}"
+            )
+    if preset["soak"]:
+        if soak_config is None:
+            raise fail_invalid(f"Benchmark preset {preset_id} requires soak evidence")
+        expected_soak: dict[str, Any] = {
+            "corpus_profile": "zipf-en-medium-4",
+            "documents": 100000,
+            "index_cycles": True,
+            "readers": 16,
+            "sample_seconds": 1,
+            "seconds": 1800,
+            "top_k": 10,
+            "update_mode": "revision",
+            "writers": 1,
+        }
+        for key, expected in expected_soak.items():
+            if soak_config.get(key) != expected:
+                raise fail_invalid(
+                    f"Benchmark preset {preset_id} requires soak {key}={expected}"
+                )
+    elif soak_config is not None:
+        raise fail_invalid(f"Benchmark preset {preset_id} forbids soak evidence")
+
+
 def environment_from_metadata(
     metadata: dict[str, str], raw_schema: int, warnings: list[str]
 ) -> tuple[dict[str, Any], str | None, bool]:
@@ -970,6 +1057,8 @@ def derive_manifest(
     )
     jmh_metrics, jmh_configs = extract_jmh(raw_dir, raw_schema, suite_schema, metadata)
     soak_metrics, soak_config = extract_soak(raw_dir, suite_schema)
+    preset_id = metadata.get("benchmark_preset_id") or None
+    validate_benchmark_preset(preset_id, mode, metadata, jmh_configs, soak_config)
     metrics = reject_duplicate_metrics([*jmh_metrics, *soak_metrics])
     if not metrics:
         raise fail_unsupported("Raw run contains no supported benchmark metrics")
@@ -1007,6 +1096,8 @@ def derive_manifest(
         "suiteSchemaVersion": suite_schema,
         "workloads": sorted(logical_workloads),
     }
+    if preset_id is not None:
+        benchmark_config_payload["presetId"] = preset_id
     benchmark_config_fingerprint = fingerprint(benchmark_config_payload)
     cleanup_attempted = boolean_property(record, "cleanup_attempted", record_path)
     canonical_reasons: list[str] = []
@@ -1022,6 +1113,8 @@ def derive_manifest(
         canonical_reasons.append("ordinary cleanup proof is required")
     if mode not in CANONICAL_MODES:
         canonical_reasons.append(f"mode {mode} is experiment-only")
+    if preset_id is None:
+        canonical_reasons.append("versioned benchmark preset is required")
     evidence_reasons = list(canonical_reasons)
     if evidence_profile == "experiment":
         evidence_reasons.append("evidence profile is experiment")
@@ -1045,6 +1138,7 @@ def derive_manifest(
                 "workloads": benchmark_config_payload["workloads"],
             },
             "mode": mode,
+            "presetId": preset_id,
         },
         "benchmarkConfigFingerprint": benchmark_config_fingerprint,
         "canonicalEligibility": canonical_eligible,
@@ -1113,6 +1207,797 @@ def derive_manifest(
     return output_dir, manifest, metrics_document
 
 
+SET_PLAN_SCHEMA_VERSION = 1
+SET_CHECKPOINT_SCHEMA_VERSION = 1
+SET_MANIFEST_SCHEMA_VERSION = 1
+SET_METRICS_SCHEMA_VERSION = 1
+SET_AUDIT_SCHEMA_VERSION = 1
+INFRASTRUCTURE_EXITS = {10, 20, 40, 50, 60, 70}
+EVIDENCE_EXITS = {80, 81, 82}
+SLOT_STATES = {
+    "PENDING",
+    "RUNNING",
+    "VALID_MEMBER",
+    "INFRASTRUCTURE_INVALID",
+    "BENCHMARK_FAILURE",
+    "CONFIGURATION_FAILURE",
+    "EVIDENCE_INVALID",
+    "UNRESOLVED",
+}
+
+
+def atomic_write_bytes(path: Path, content: bytes) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    handle, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    try:
+        with os.fdopen(handle, "wb") as target:
+            target.write(content)
+            target.flush()
+            os.fsync(target.fileno())
+        os.replace(temporary_name, path)
+        directory_fd = os.open(path.parent, os.O_RDONLY)
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        if os.path.exists(temporary_name):
+            os.unlink(temporary_name)
+
+
+def atomic_write_json(path: Path, value: Any, *, immutable: bool = False) -> None:
+    content = canonical_json_bytes(value)
+    if path.exists():
+        if immutable and path.read_bytes() == content:
+            return
+        if immutable:
+            raise fail_contradiction(f"Immutable state already differs: {path}")
+    atomic_write_bytes(path, content)
+
+
+def parse_controls(items: list[str]) -> dict[str, str]:
+    controls: dict[str, str] = {}
+    for item in items:
+        if "=" not in item:
+            raise fail_config(f"Set control must be KEY=VALUE: {item!r}")
+        key, value = item.split("=", 1)
+        if not re.fullmatch(r"[a-z][A-Za-z0-9]*", key) or key in controls:
+            raise fail_config(f"Invalid or duplicate set control: {key!r}")
+        if "\n" in value or "\r" in value:
+            raise fail_config(f"Set control {key} must be a single line")
+        controls[key] = value
+    return dict(sorted(controls.items()))
+
+
+def validate_set_plan_inputs(
+    profile: str,
+    repeats: int,
+    mode: str,
+    preset_id: str | None,
+    repository: str,
+    commit: str,
+    controls: dict[str, str],
+) -> dict[str, Any]:
+    if profile not in {"canonical", "experiment"}:
+        raise fail_config("Set evidence profile must be canonical or experiment")
+    minimum = 3 if profile == "canonical" else 1
+    if repeats < minimum or repeats > 10:
+        raise fail_config(f"{profile} set repeats must be between {minimum} and 10")
+    if mode not in {"quick", "full", "concurrency", "soak", "investigation", "stabilized-investigation", "all"}:
+        raise fail_config(f"Unsupported V1 benchmark mode: {mode}")
+    if not repository or "\n" in repository or "\r" in repository:
+        raise fail_config("Source repository must be a non-empty single line")
+    if not COMMIT_RE.fullmatch(commit):
+        raise fail_config("Set source commit must be an exact lowercase 40-character SHA")
+    if profile == "canonical":
+        expected = f"v3-production-{mode}-v1"
+        if mode not in CANONICAL_MODES:
+            raise fail_config(f"Mode {mode} is not canonical set eligible")
+        if preset_id != expected or preset_id not in CANONICAL_PRESETS:
+            raise fail_config(f"Canonical mode {mode} requires preset {expected}")
+        if controls.get("provisioning", "").lower() != "standard":
+            raise fail_config("Canonical sets require Standard provisioning")
+        for key in (
+            "project",
+            "zone",
+            "machineType",
+            "imageProject",
+            "imageFamily",
+            "resolvedImage",
+            "resolvedImageId",
+            "resolvedImageSelfLink",
+            "resolvedImageCreatedAt",
+            "jvmOptions",
+            "bootDiskSize",
+            "bootDiskType",
+            "useIap",
+            "externalIp",
+            "maxRunDuration",
+        ):
+            if not controls.get(key):
+                raise fail_config(f"Canonical set control {key} is required")
+        if not controls.get("network") and not controls.get("subnet"):
+            raise fail_config("Canonical set requires a frozen network or subnet")
+    elif preset_id is not None and preset_id not in CANONICAL_PRESETS:
+        raise fail_config(f"Unknown set preset: {preset_id}")
+    return {
+        "controls": controls,
+        "evidenceProfile": profile,
+        "kind": "benchmark-set-plan",
+        "mode": mode,
+        "presetId": preset_id,
+        "repeats": repeats,
+        "schemaVersion": SET_PLAN_SCHEMA_VERSION,
+        "slots": list(range(1, repeats + 1)),
+        "source": {"commit": commit, "repository": repository},
+        "stateSchemas": {
+            "attemptAudit": SET_AUDIT_SCHEMA_VERSION,
+            "checkpoint": SET_CHECKPOINT_SCHEMA_VERSION,
+            "manifest": SET_MANIFEST_SCHEMA_VERSION,
+            "metrics": SET_METRICS_SCHEMA_VERSION,
+        },
+    }
+
+
+def initial_checkpoint(plan: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "currentAttempt": None,
+        "finalSetId": None,
+        "kind": "benchmark-set-checkpoint",
+        "nextPendingSlot": 1,
+        "planSha256": sha256_bytes(canonical_json_bytes(plan)),
+        "revision": 0,
+        "schemaVersion": SET_CHECKPOINT_SCHEMA_VERSION,
+        "slots": [
+            {"attemptCount": 0, "selectedAttempt": None, "slot": slot, "state": "PENDING"}
+            for slot in plan["slots"]
+        ],
+        "state": "READY",
+    }
+
+
+def load_set_workspace(workspace: Path) -> tuple[Path, dict[str, Any], dict[str, Any]]:
+    root = workspace.resolve()
+    plan = read_json(root / "set-plan.json")
+    checkpoint = read_json(root / "checkpoint.json")
+    if not isinstance(plan, dict) or plan.get("kind") != "benchmark-set-plan" or plan.get("schemaVersion") != 1:
+        raise fail_invalid("Unsupported or invalid set plan")
+    if not isinstance(checkpoint, dict) or checkpoint.get("kind") != "benchmark-set-checkpoint" or checkpoint.get("schemaVersion") != 1:
+        raise fail_invalid("Unsupported or invalid set checkpoint")
+    expected = sha256_bytes(canonical_json_bytes(plan))
+    if checkpoint.get("planSha256") != expected:
+        raise fail_contradiction("Checkpoint does not bind the immutable set plan")
+    return root, plan, checkpoint
+
+
+def checkpoint_slot(checkpoint: dict[str, Any], number: int) -> dict[str, Any]:
+    slots = checkpoint.get("slots")
+    if not isinstance(slots, list) or number < 1 or number > len(slots):
+        raise fail_config(f"Slot {number} is outside the declared set")
+    slot = slots[number - 1]
+    if slot.get("slot") != number or slot.get("state") not in SLOT_STATES:
+        raise fail_contradiction("Checkpoint slot structure is invalid")
+    return slot
+
+
+def save_checkpoint(root: Path, checkpoint: dict[str, Any]) -> None:
+    checkpoint["revision"] = int(checkpoint["revision"]) + 1
+    atomic_write_json(root / "checkpoint.json", checkpoint)
+
+
+def initialize_set_workspace(
+    workspace: Path,
+    profile: str,
+    repeats: int,
+    mode: str,
+    preset_id: str | None,
+    repository: str,
+    commit: str,
+    controls: dict[str, str],
+) -> tuple[Path, dict[str, Any]]:
+    plan = validate_set_plan_inputs(profile, repeats, mode, preset_id, repository, commit, controls)
+    root = workspace.resolve()
+    if root.exists():
+        raise fail_config(f"Set workspace already exists: {root}")
+    root.mkdir(parents=True)
+    atomic_write_json(root / "set-plan.json", plan, immutable=True)
+    atomic_write_json(root / "checkpoint.json", initial_checkpoint(plan))
+    return root, plan
+
+
+def begin_set_attempt(workspace: Path, slot_number: int) -> dict[str, Any]:
+    root, _, checkpoint = load_set_workspace(workspace)
+    if checkpoint["state"] in {"COMPLETE", "INCOMPATIBLE", "UNRESOLVED", "BLOCKED_FAILURE"}:
+        raise fail_config(f"Cannot begin an attempt while set state is {checkpoint['state']}")
+    if checkpoint.get("currentAttempt") is not None:
+        raise fail_config("A set attempt is already RUNNING")
+    slot = checkpoint_slot(checkpoint, slot_number)
+    if any(item["state"] == "VALID_MEMBER" for item in checkpoint["slots"][slot_number:]):
+        raise fail_contradiction("A later slot has already completed")
+    replacement = slot["state"] == "INFRASTRUCTURE_INVALID"
+    if slot["state"] not in {"PENDING", "INFRASTRUCTURE_INVALID"}:
+        raise fail_config(f"Slot {slot_number} is not runnable from {slot['state']}")
+    attempt = int(slot["attemptCount"]) + 1
+    if replacement:
+        replacement_path = root / "replacements" / f"slot-{slot_number:03d}" / f"replacement-{attempt - 1:03d}.json"
+        if not replacement_path.is_file():
+            raise fail_config("Infrastructure replacement has not been explicitly authorized")
+    pointer_relative = f"control/slot-{slot_number:03d}-attempt-{attempt:03d}.orchestration-pointer"
+    log_relative = f"logs/slot-{slot_number:03d}-attempt-{attempt:03d}.log"
+    pointer = root / pointer_relative
+    log = root / log_relative
+    pointer.parent.mkdir(parents=True, exist_ok=True)
+    log.parent.mkdir(parents=True, exist_ok=True)
+    if pointer.exists() or pointer.is_symlink() or log.exists():
+        raise fail_contradiction("Attempt control or log target already exists")
+    intent = {
+        "attempt": attempt,
+        "log": log_relative,
+        "orchestrationPointer": pointer_relative,
+        "slot": slot_number,
+    }
+    slot["attemptCount"] = attempt
+    slot["state"] = "RUNNING"
+    checkpoint["currentAttempt"] = intent
+    checkpoint["nextPendingSlot"] = slot_number
+    checkpoint["state"] = "RUNNING"
+    save_checkpoint(root, checkpoint)
+    return {"attempt": attempt, "log": log, "pointer": pointer, "slot": slot_number}
+
+
+def portable_reference(path: Path, results_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(results_root.resolve()).as_posix()
+    except ValueError as error:
+        raise fail_contradiction(f"Evidence path is outside the results root: {path}") from error
+
+
+def classify_attempt_exit(exit_code: int) -> str:
+    if exit_code == 0:
+        return "VALID_MEMBER"
+    if exit_code in INFRASTRUCTURE_EXITS:
+        return "INFRASTRUCTURE_INVALID"
+    if exit_code == 30:
+        return "BENCHMARK_FAILURE"
+    if exit_code == 2:
+        return "CONFIGURATION_FAILURE"
+    if exit_code in EVIDENCE_EXITS:
+        return "EVIDENCE_INVALID"
+    return "UNRESOLVED"
+
+
+def read_attempt_pointer(pointer: Path) -> Path:
+    if not pointer.is_file() or pointer.is_symlink():
+        raise fail_contradiction("Attempt orchestration pointer is missing or not a regular file")
+    try:
+        lines = pointer.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as error:
+        raise fail_contradiction(f"Cannot read attempt orchestration pointer: {error}") from error
+    if len(lines) != 1 or not lines[0] or not Path(lines[0]).is_absolute():
+        raise fail_contradiction("Attempt orchestration pointer must contain one absolute path")
+    return Path(lines[0]).resolve()
+
+
+def metric_signature(metric: dict[str, Any]) -> dict[str, Any]:
+    excluded = {"canonicalValue", "sourceValue", "error", "confidence"}
+    return {key: value for key, value in metric.items() if key not in excluded}
+
+
+def member_compatibility_key(manifest: dict[str, Any], metrics: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "benchmarkConfigFingerprint": manifest.get("benchmarkConfigFingerprint"),
+        "environmentFingerprint": manifest.get("environmentFingerprint"),
+        "evidenceProfile": manifest.get("evidenceProfile"),
+        "metricSignatures": [metric_signature(metric) for metric in metrics.get("metrics", [])],
+        "mode": manifest.get("benchmark", {}).get("mode"),
+        "presetId": manifest.get("benchmark", {}).get("presetId"),
+        "source": {
+            "commit": manifest.get("source", {}).get("commit"),
+            "repository": manifest.get("source", {}).get("repository"),
+        },
+        "suite": manifest.get("suite"),
+    }
+
+
+def validate_member_against_plan(
+    plan: dict[str, Any], manifest: dict[str, Any], record: dict[str, str]
+) -> None:
+    expected_status = (
+        "VALID_CANONICAL_MEMBER"
+        if plan["evidenceProfile"] == "canonical"
+        else "VALID_EXPERIMENT"
+    )
+    checks = {
+        "member status": (manifest.get("status"), expected_status),
+        "evidence profile": (manifest.get("evidenceProfile"), plan["evidenceProfile"]),
+        "source repository": (manifest.get("source", {}).get("repository"), plan["source"]["repository"]),
+        "source commit": (manifest.get("source", {}).get("commit"), plan["source"]["commit"]),
+        "benchmark mode": (manifest.get("benchmark", {}).get("mode"), plan["mode"]),
+        "benchmark preset": (manifest.get("benchmark", {}).get("presetId"), plan["presetId"]),
+        "project": (record.get("project"), plan["controls"].get("project")),
+    }
+    environment = manifest.get("environment", {})
+    image = environment.get("image", {})
+    try:
+        planned_jvm_options = shlex.split(plan["controls"].get("jvmOptions", ""))
+    except ValueError as error:
+        raise fail_contradiction(f"Invalid JVM options in set plan: {error}") from error
+    checks.update(
+        {
+            "zone": (environment.get("zone"), plan["controls"].get("zone")),
+            "machine type": (environment.get("machineType"), plan["controls"].get("machineType")),
+            "provisioning": (environment.get("provisioning"), plan["controls"].get("provisioning", "").lower()),
+            "resolved image": (image.get("resolvedName"), plan["controls"].get("resolvedImage")),
+            "resolved image ID": (image.get("id"), plan["controls"].get("resolvedImageId")),
+            "resolved image self-link": (image.get("selfLink"), plan["controls"].get("resolvedImageSelfLink")),
+            "resolved image creation": (image.get("createdAt"), plan["controls"].get("resolvedImageCreatedAt")),
+            "ordered JVM options": (environment.get("jvmOptions"), planned_jvm_options),
+            "boot disk size": (record.get("boot_disk_size"), plan["controls"].get("bootDiskSize")),
+            "boot disk type": (record.get("boot_disk_type"), plan["controls"].get("bootDiskType")),
+            "maximum runtime": (record.get("max_run_duration"), plan["controls"].get("maxRunDuration")),
+            "network": (record.get("network", ""), plan["controls"].get("network", "")),
+            "subnet": (record.get("subnet", ""), plan["controls"].get("subnet", "")),
+            "SSH transport": (
+                record.get("ssh_transport"),
+                "iap" if plan["controls"].get("useIap") == "true" else "external_ip",
+            ),
+        }
+    )
+    for label, (actual, expected) in checks.items():
+        if actual != expected:
+            raise fail_invalid(f"Set plan {label} mismatch: expected {expected!r}, got {actual!r}")
+
+
+def selected_member_documents(root: Path, checkpoint: dict[str, Any]) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
+    results_root = root.parents[2]
+    selected = []
+    for slot in checkpoint["slots"]:
+        if slot["state"] != "VALID_MEMBER":
+            continue
+        attempt_path = root / "attempts" / f"slot-{slot['slot']:03d}" / f"attempt-{slot['selectedAttempt']:03d}.json"
+        attempt = read_json(attempt_path)
+        manifest = read_json(results_root / attempt["member"]["manifestReference"])
+        metrics_path = results_root / attempt["member"]["metricsReference"]
+        metrics = read_json(metrics_path)
+        if manifest.get("metrics", {}).get("sha256") != sha256_file(metrics_path):
+            raise fail_contradiction("Member manifest does not bind its normalized metrics")
+        selected.append((attempt, manifest, metrics))
+    return selected
+
+
+def record_set_attempt(workspace: Path, slot_number: int, v1_exit: int) -> int:
+    root, plan, checkpoint = load_set_workspace(workspace)
+    intent = checkpoint.get("currentAttempt")
+    if not isinstance(intent, dict) or intent.get("slot") != slot_number:
+        raise fail_config("No matching RUNNING attempt exists")
+    slot = checkpoint_slot(checkpoint, slot_number)
+    attempt_number = int(intent["attempt"])
+    results_root = root.parents[2]
+    outcome = classify_attempt_exit(v1_exit)
+    attempt_record: dict[str, Any] = {
+        "attempt": attempt_number,
+        "classification": outcome,
+        "member": None,
+        "orchestration": None,
+        "phase1Exit": None,
+        "schemaVersion": 1,
+        "slot": slot_number,
+        "v1Exit": v1_exit,
+    }
+    pointer = root / intent["orchestrationPointer"]
+    record_path: Path | None = None
+    if pointer.exists() or pointer.is_symlink():
+        try:
+            record_path = read_attempt_pointer(pointer)
+            record, _ = read_properties(record_path)
+            if record.get("stage") != "FINISHED" or record.get("primary_exit_code") != str(v1_exit):
+                raise fail_contradiction("Orchestration record does not match the finalized V1 exit")
+            attempt_record["orchestration"] = {
+                "digest": "sha256:" + sha256_file(record_path),
+                "instance": record.get("instance_name"),
+                "reference": portable_reference(record_path, results_root),
+            }
+        except BenchmarkV2Error:
+            record_path = None
+            outcome = "UNRESOLVED"
+            attempt_record["classification"] = outcome
+    elif v1_exit != 2:
+        outcome = "UNRESOLVED"
+        attempt_record["classification"] = outcome
+    if v1_exit == 0:
+        if record_path is None:
+            outcome = "UNRESOLVED"
+            attempt_record["classification"] = outcome
+        else:
+            record, _ = read_properties(record_path)
+            raw_text = record.get("local_result_path", "")
+            try:
+                if not raw_text:
+                    raise fail_invalid("Successful V1 record has no local_result_path")
+                output, manifest, _ = derive_manifest(
+                    Path(raw_text),
+                    orchestration_record=record_path,
+                    evidence_profile=plan["evidenceProfile"],
+                )
+                validate_member_against_plan(plan, manifest, record)
+                manifest_path = output / "benchmark-manifest.json"
+                metrics_path = output / "normalized-metrics.json"
+                attempt_record["member"] = {
+                    "instance": manifest["environment"].get("machineType") and record.get("instance_name"),
+                    "manifestDigest": "sha256:" + sha256_file(manifest_path),
+                    "manifestReference": portable_reference(manifest_path, results_root),
+                    "metricsDigest": "sha256:" + sha256_file(metrics_path),
+                    "metricsReference": portable_reference(metrics_path, results_root),
+                    "rawRunId": manifest["runId"],
+                }
+            except BenchmarkV2Error as error:
+                outcome = "EVIDENCE_INVALID"
+                attempt_record["classification"] = outcome
+                attempt_record["phase1Exit"] = error.exit_code
+    attempt_path = root / "attempts" / f"slot-{slot_number:03d}" / f"attempt-{attempt_number:03d}.json"
+    atomic_write_json(attempt_path, attempt_record, immutable=True)
+    slot["state"] = outcome
+    checkpoint["currentAttempt"] = None
+    checkpoint["nextPendingSlot"] = None
+    if outcome == "VALID_MEMBER":
+        slot["selectedAttempt"] = attempt_number
+        selected = selected_member_documents(root, checkpoint)
+        compatibility = [member_compatibility_key(manifest, metrics) for _, manifest, metrics in selected]
+        if compatibility and any(item != compatibility[0] for item in compatibility[1:]):
+            checkpoint["state"] = "INCOMPATIBLE"
+            save_checkpoint(root, checkpoint)
+            return EXIT_INCOMPATIBLE_SET
+        identity_columns = [
+            [item[0]["member"]["rawRunId"] for item in selected],
+            [item[0]["orchestration"]["instance"] for item in selected],
+            [item[0]["orchestration"]["digest"] for item in selected],
+            [item[0]["member"]["manifestDigest"] for item in selected],
+        ]
+        if any(len(values) != len(set(values)) for values in identity_columns):
+            checkpoint["state"] = "INCOMPATIBLE"
+            save_checkpoint(root, checkpoint)
+            return EXIT_INCOMPATIBLE_SET
+        pending = next((item["slot"] for item in checkpoint["slots"] if item["state"] == "PENDING"), None)
+        checkpoint["nextPendingSlot"] = pending
+        checkpoint["state"] = "READY"
+    elif outcome == "INFRASTRUCTURE_INVALID":
+        checkpoint["state"] = "BLOCKED_INFRASTRUCTURE"
+    elif outcome == "UNRESOLVED":
+        checkpoint["state"] = "UNRESOLVED"
+    else:
+        checkpoint["state"] = "BLOCKED_FAILURE"
+    save_checkpoint(root, checkpoint)
+    if outcome == "EVIDENCE_INVALID":
+        return int(attempt_record["phase1Exit"] or EXIT_INVALID_EVIDENCE)
+    if outcome == "UNRESOLVED" and v1_exit == 0:
+        return EXIT_INCOMPATIBLE_SET
+    return v1_exit
+
+
+def reconcile_running_attempt(workspace: Path) -> int:
+    root, _, checkpoint = load_set_workspace(workspace)
+    intent = checkpoint.get("currentAttempt")
+    if not isinstance(intent, dict):
+        return 0
+    pointer = root / intent["orchestrationPointer"]
+    try:
+        record_path = read_attempt_pointer(pointer)
+        record, _ = read_properties(record_path)
+        if record.get("stage") != "FINISHED" or not record.get("primary_exit_code", "").isdigit():
+            raise fail_contradiction("RUNNING attempt has no finalized orchestration outcome")
+        return record_set_attempt(root, int(intent["slot"]), int(record["primary_exit_code"]))
+    except BenchmarkV2Error:
+        slot = checkpoint_slot(checkpoint, int(intent["slot"]))
+        attempt_number = int(intent["attempt"])
+        attempt_record = {
+            "attempt": attempt_number,
+            "classification": "UNRESOLVED",
+            "member": None,
+            "orchestration": None,
+            "phase1Exit": None,
+            "schemaVersion": 1,
+            "slot": int(intent["slot"]),
+            "v1Exit": None,
+        }
+        attempt_path = root / "attempts" / f"slot-{intent['slot']:03d}" / f"attempt-{attempt_number:03d}.json"
+        atomic_write_json(attempt_path, attempt_record, immutable=True)
+        slot["state"] = "UNRESOLVED"
+        checkpoint["currentAttempt"] = None
+        checkpoint["state"] = "UNRESOLVED"
+        checkpoint["nextPendingSlot"] = None
+        save_checkpoint(root, checkpoint)
+        return EXIT_INCOMPATIBLE_SET
+
+
+def authorize_set_replacement(workspace: Path, slot_number: int, reason: str, confirmed: bool) -> Path:
+    root, _, checkpoint = load_set_workspace(workspace)
+    if not confirmed:
+        raise fail_config("Replacement requires --confirm-no-score-selection")
+    if not reason or len(reason) > 500 or "\n" in reason or "\r" in reason:
+        raise fail_config("Replacement reason must be 1..500 single-line UTF-8 characters")
+    slot = checkpoint_slot(checkpoint, slot_number)
+    if slot["state"] != "INFRASTRUCTURE_INVALID" or checkpoint["state"] != "BLOCKED_INFRASTRUCTURE":
+        raise fail_config("Only an infrastructure-invalid blocked slot is replaceable")
+    if any(item["state"] != "PENDING" for item in checkpoint["slots"][slot_number:]):
+        raise fail_config("Replacement is forbidden after a later slot has started")
+    prior_attempt = int(slot["attemptCount"])
+    attempt_path = root / "attempts" / f"slot-{slot_number:03d}" / f"attempt-{prior_attempt:03d}.json"
+    attempt = read_json(attempt_path)
+    authorization = {
+        "confirmedWithoutScoreSelection": True,
+        "infrastructureClassification": attempt["classification"],
+        "nextAttempt": prior_attempt + 1,
+        "priorAttempt": prior_attempt,
+        "priorOrchestration": attempt.get("orchestration"),
+        "priorV1Exit": attempt["v1Exit"],
+        "reason": reason,
+        "schemaVersion": 1,
+        "slot": slot_number,
+    }
+    path = root / "replacements" / f"slot-{slot_number:03d}" / f"replacement-{prior_attempt:03d}.json"
+    atomic_write_json(path, authorization, immutable=True)
+    checkpoint["nextPendingSlot"] = slot_number
+    checkpoint["state"] = "READY"
+    save_checkpoint(root, checkpoint)
+    return path
+
+
+def median(values: list[int | float]) -> int | float:
+    ordered = sorted(values)
+    middle = len(ordered) // 2
+    if len(ordered) % 2:
+        return ordered[middle]
+    return (ordered[middle - 1] + ordered[middle]) / 2
+
+
+def aggregate_member_metrics(
+    set_id: str,
+    suite: dict[str, Any],
+    members: list[tuple[int, str, dict[str, Any]]],
+) -> dict[str, Any]:
+    by_member = [{item["id"]: item for item in document["metrics"]} for _, _, document in members]
+    metric_ids = [item["id"] for item in members[0][2]["metrics"]]
+    if any(set(values) != set(metric_ids) for values in by_member):
+        raise fail_contradiction("Member metric ID sets differ")
+    aggregates = []
+    for metric_id in sorted(metric_ids):
+        source = by_member[0][metric_id]
+        values = [
+            {"runId": run_id, "slot": slot, "value": metrics[metric_id].get("canonicalValue")}
+            for (slot, run_id, _), metrics in zip(members, by_member)
+        ]
+        raw_values = [item["value"] for item in values]
+        base = {
+            "direction": source["direction"],
+            "identity": source["identity"],
+            "metricId": metric_id,
+            "statistic": source["statistic"],
+            "unit": source["canonicalUnit"],
+            "values": values,
+        }
+        if "percentile" in source:
+            base["percentile"] = source["percentile"]
+        categorical = source["direction"] == "categorical" or any(
+            isinstance(value, (bool, str)) or value is None for value in raw_values
+        )
+        if categorical:
+            distinct = []
+            for value in raw_values:
+                if value not in distinct:
+                    distinct.append(value)
+            base.update(
+                {
+                    "aggregationKind": "consensus",
+                    "allEqual": len(distinct) == 1,
+                    "distinctValues": distinct,
+                    "unanimousValue": distinct[0] if len(distinct) == 1 else None,
+                }
+            )
+        else:
+            if any(isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) for value in raw_values):
+                raise fail_contradiction(f"Metric {metric_id} has a non-finite numeric value")
+            minimum = min(raw_values)
+            maximum = max(raw_values)
+            middle = median(raw_values)
+            absolute_range = maximum - minimum
+            base.update(
+                {
+                    "absoluteRange": absolute_range,
+                    "aggregationKind": (
+                        "median_of_run_percentile"
+                        if source["statistic"].startswith("sample_percentile_")
+                        else "median_of_independent_run_values"
+                    ),
+                    "count": len(raw_values),
+                    "maximum": maximum,
+                    "median": middle,
+                    "minimum": minimum,
+                    "relativeRangePct": None if middle == 0 else absolute_range / abs(middle) * 100,
+                }
+            )
+            if middle == 0:
+                base["relativeRangeUnavailableReason"] = "median_zero"
+        aggregates.append(base)
+    return {
+        "aggregationMethod": "median-and-range-of-independent-runs",
+        "kind": "aggregate-benchmark-metrics",
+        "memberCount": len(members),
+        "metrics": aggregates,
+        "schemaVersion": SET_METRICS_SCHEMA_VERSION,
+        "setId": set_id,
+        "suite": suite,
+    }
+
+
+def verify_final_set_directory(destination: Path) -> None:
+    expected_names = {
+        "aggregate-metrics.json",
+        "benchmark-set-manifest.json",
+        "set-attempt-audit.json",
+        "set-checksums.sha256",
+    }
+    actual_names = {path.name for path in destination.iterdir() if path.is_file()}
+    if actual_names != expected_names:
+        raise fail_contradiction("Completed set artifact file set differs")
+    checksum_path = destination / "set-checksums.sha256"
+    entries = checksum_path.read_text(encoding="utf-8").splitlines()
+    expected_lines = []
+    for name in (
+        "benchmark-set-manifest.json",
+        "aggregate-metrics.json",
+        "set-attempt-audit.json",
+    ):
+        expected_lines.append(f"{sha256_file(destination / name)}  {name}")
+    if entries != expected_lines:
+        raise fail_contradiction("Completed set checksum verification failed")
+
+
+def finalize_benchmark_set(workspace: Path) -> tuple[Path, dict[str, Any]]:
+    root, plan, checkpoint = load_set_workspace(workspace)
+    if checkpoint["state"] == "COMPLETE":
+        set_id = checkpoint["finalSetId"]
+        destination = root.parents[2] / "sets" / set_id / "v1"
+        verify_final_set_directory(destination)
+        return destination, read_json(destination / "benchmark-set-manifest.json")
+    if checkpoint.get("currentAttempt") is not None or any(slot["state"] != "VALID_MEMBER" for slot in checkpoint["slots"]):
+        raise BenchmarkV2Error("Set is not complete", EXIT_INCOMPATIBLE_SET)
+    selected = selected_member_documents(root, checkpoint)
+    minimum = 3 if plan["evidenceProfile"] == "canonical" else 1
+    if len(selected) < minimum:
+        raise BenchmarkV2Error("Set has too few valid members", EXIT_INCOMPATIBLE_SET)
+    compatibility = [member_compatibility_key(manifest, metrics) for _, manifest, metrics in selected]
+    if any(item != compatibility[0] for item in compatibility[1:]):
+        raise BenchmarkV2Error("Set members are incompatible", EXIT_INCOMPATIBLE_SET)
+    audit_slots = []
+    slot_identities = []
+    final_members = []
+    metric_members = []
+    results_root = root.parents[2]
+    for slot, (selected_attempt, manifest, metrics) in zip(checkpoint["slots"], selected):
+        attempt_dir = root / "attempts" / f"slot-{slot['slot']:03d}"
+        attempts = [read_json(path) for path in sorted(attempt_dir.glob("attempt-*.json"))]
+        replacement_dir = root / "replacements" / f"slot-{slot['slot']:03d}"
+        replacements = [read_json(path) for path in sorted(replacement_dir.glob("replacement-*.json"))] if replacement_dir.is_dir() else []
+        slot_audit = {
+            "attempts": attempts,
+            "replacements": replacements,
+            "selectedAttempt": slot["selectedAttempt"],
+            "slot": slot["slot"],
+        }
+        slot_audit_digest = "sha256:" + sha256_bytes(canonical_json_bytes(slot_audit))
+        audit_slots.append(slot_audit)
+        member = selected_attempt["member"]
+        orchestration = selected_attempt["orchestration"]
+        slot_identities.append(
+            {
+                "instance": orchestration["instance"],
+                "memberManifestSha256": member["manifestDigest"],
+                "rawRunId": member["rawRunId"],
+                "slot": slot["slot"],
+                "slotAttemptAuditSha256": slot_audit_digest,
+            }
+        )
+        final_members.append(
+            {
+                "instance": orchestration["instance"],
+                "manifestReference": member["manifestReference"],
+                "manifestSha256": member["manifestDigest"],
+                "metricsReference": member["metricsReference"],
+                "metricsSha256": member["metricsDigest"],
+                "orchestrationReference": orchestration["reference"],
+                "orchestrationSha256": orchestration["digest"],
+                "rawRunId": member["rawRunId"],
+                "slot": slot["slot"],
+                "slotAttemptAuditSha256": slot_audit_digest,
+            }
+        )
+        metric_members.append((slot["slot"], member["rawRunId"], metrics))
+    base_manifest = selected[0][1]
+    identity = {
+        "benchmarkConfigFingerprint": base_manifest["benchmarkConfigFingerprint"],
+        "environmentFingerprint": base_manifest["environmentFingerprint"],
+        "evidenceProfile": plan["evidenceProfile"],
+        "mode": plan["mode"],
+        "schemaVersion": 1,
+        "slots": slot_identities,
+        "sourceCommit": plan["source"]["commit"],
+        "suite": {
+            "name": base_manifest["suite"]["name"],
+            "schemaVersion": base_manifest["suite"]["schemaVersion"],
+        },
+    }
+    set_id = "gse-set-v1-" + sha256_bytes(canonical_json_bytes(identity))
+    audit = {
+        "kind": "benchmark-set-attempt-audit",
+        "schemaVersion": SET_AUDIT_SCHEMA_VERSION,
+        "setId": set_id,
+        "slots": audit_slots,
+    }
+    aggregate = aggregate_member_metrics(set_id, identity["suite"], metric_members)
+    aggregate_bytes = canonical_json_bytes(aggregate)
+    audit_bytes = canonical_json_bytes(audit)
+    manifest = {
+        "aggregateMetrics": {
+            "count": len(aggregate["metrics"]),
+            "path": "aggregate-metrics.json",
+            "sha256": "sha256:" + sha256_bytes(aggregate_bytes),
+        },
+        "aggregationMethod": aggregate["aggregationMethod"],
+        "attemptAudit": {
+            "path": "set-attempt-audit.json",
+            "sha256": "sha256:" + sha256_bytes(audit_bytes),
+        },
+        "benchmarkConfigFingerprint": base_manifest["benchmarkConfigFingerprint"],
+        "environmentFingerprint": base_manifest["environmentFingerprint"],
+        "evidenceProfile": plan["evidenceProfile"],
+        "kind": "benchmark-set",
+        "members": final_members,
+        "mode": plan["mode"],
+        "presetId": plan["presetId"],
+        "schemaVersion": SET_MANIFEST_SCHEMA_VERSION,
+        "setId": set_id,
+        "source": plan["source"],
+        "status": "VALID_CANONICAL_SET" if plan["evidenceProfile"] == "canonical" else "VALID_EXPERIMENT_SET",
+        "suite": identity["suite"],
+        "warnings": sorted({warning for _, member_manifest, _ in selected for warning in member_manifest["warnings"]}),
+    }
+    manifest_bytes = canonical_json_bytes(manifest)
+    checksum_bytes = (
+        f"{sha256_bytes(manifest_bytes)}  benchmark-set-manifest.json\n"
+        f"{sha256_bytes(aggregate_bytes)}  aggregate-metrics.json\n"
+        f"{sha256_bytes(audit_bytes)}  set-attempt-audit.json\n"
+    ).encode("utf-8")
+    destination = results_root / "sets" / set_id / "v1"
+    expected_files = {
+        "aggregate-metrics.json": aggregate_bytes,
+        "benchmark-set-manifest.json": manifest_bytes,
+        "set-attempt-audit.json": audit_bytes,
+        "set-checksums.sha256": checksum_bytes,
+    }
+    if destination.exists():
+        actual = {path.name: path.read_bytes() for path in destination.iterdir() if path.is_file()}
+        if actual != expected_files:
+            raise fail_contradiction(f"Existing final set artifact collision: {destination}")
+    else:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        staging = destination.parent / f".v1.{uuid.uuid4().hex}"
+        staging.mkdir()
+        try:
+            for name, content in expected_files.items():
+                atomic_write_bytes(staging / name, content)
+            os.replace(staging, destination)
+        finally:
+            if staging.exists():
+                for child in staging.iterdir():
+                    child.unlink()
+                staging.rmdir()
+    checkpoint["finalSetId"] = set_id
+    checkpoint["nextPendingSlot"] = None
+    checkpoint["state"] = "COMPLETE"
+    save_checkpoint(root, checkpoint)
+    return destination, manifest
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="GeneralSearchEngine Cloud Benchmark V2 analysis")
     parser.add_argument("--version", action="version", version="benchmark_v2 schema 1")
@@ -1124,6 +2009,41 @@ def build_parser() -> argparse.ArgumentParser:
     manifest.add_argument(
         "--evidence-profile", choices=("experiment", "canonical"), default="experiment"
     )
+    def add_plan_arguments(command: argparse.ArgumentParser) -> None:
+        command.add_argument("--evidence-profile", choices=("experiment", "canonical"), required=True)
+        command.add_argument("--repeats", type=int, required=True)
+        command.add_argument("--mode", required=True)
+        command.add_argument("--preset-id")
+        command.add_argument("--repository", required=True)
+        command.add_argument("--commit", required=True)
+        command.add_argument("--control", action="append", default=[])
+
+    validate_set = subparsers.add_parser("set-validate", help=argparse.SUPPRESS)
+    add_plan_arguments(validate_set)
+    initialize = subparsers.add_parser("set-init", help=argparse.SUPPRESS)
+    initialize.add_argument("workspace", type=Path)
+    add_plan_arguments(initialize)
+    next_slot = subparsers.add_parser("set-next", help=argparse.SUPPRESS)
+    next_slot.add_argument("workspace", type=Path)
+    begin = subparsers.add_parser("set-begin", help=argparse.SUPPRESS)
+    begin.add_argument("workspace", type=Path)
+    begin.add_argument("--slot", type=int, required=True)
+    record = subparsers.add_parser("set-record", help=argparse.SUPPRESS)
+    record.add_argument("workspace", type=Path)
+    record.add_argument("--slot", type=int, required=True)
+    record.add_argument("--v1-exit", type=int, required=True)
+    reconcile = subparsers.add_parser("set-reconcile", help=argparse.SUPPRESS)
+    reconcile.add_argument("workspace", type=Path)
+    authorize = subparsers.add_parser("set-authorize", help=argparse.SUPPRESS)
+    authorize.add_argument("workspace", type=Path)
+    authorize.add_argument("--slot", type=int, required=True)
+    authorize.add_argument("--reason", required=True)
+    authorize.add_argument("--confirm-no-score-selection", action="store_true")
+    value = subparsers.add_parser("set-value", help=argparse.SUPPRESS)
+    value.add_argument("workspace", type=Path)
+    value.add_argument("key")
+    finalize = subparsers.add_parser("set-finalize", help=argparse.SUPPRESS)
+    finalize.add_argument("workspace", type=Path)
     return parser
 
 
@@ -1143,6 +2063,89 @@ def main(arguments: list[str] | None = None) -> int:
             print(f"Manifest: {output_dir / 'benchmark-manifest.json'}")
             print(f"Normalized metrics: {output_dir / 'normalized-metrics.json'}")
             print(f"Status: {manifest['status']}; metrics={len(metrics['metrics'])}")
+            return 0
+        if options.command in {"set-validate", "set-init"}:
+            controls = parse_controls(options.control)
+            plan = validate_set_plan_inputs(
+                options.evidence_profile,
+                options.repeats,
+                options.mode,
+                options.preset_id,
+                options.repository,
+                options.commit,
+                controls,
+            )
+            if options.command == "set-validate":
+                print(f"Set plan: VALID; profile={plan['evidenceProfile']}; slots={plan['repeats']}")
+            else:
+                root, _ = initialize_set_workspace(
+                    options.workspace,
+                    options.evidence_profile,
+                    options.repeats,
+                    options.mode,
+                    options.preset_id,
+                    options.repository,
+                    options.commit,
+                    controls,
+                )
+                print(f"Set workspace: {root}")
+            return 0
+        if options.command == "set-next":
+            _, _, checkpoint = load_set_workspace(options.workspace)
+            current = checkpoint.get("currentAttempt")
+            if isinstance(current, dict):
+                print(f"RUNNING\t{current['slot']}\t{current['attempt']}")
+            elif checkpoint["state"] == "COMPLETE":
+                print(f"COMPLETE\t{checkpoint['finalSetId']}")
+            elif checkpoint["state"] != "READY":
+                print(f"{checkpoint['state']}\t-")
+            elif checkpoint["nextPendingSlot"] is None:
+                print("FINALIZE\t-")
+            else:
+                slot = checkpoint_slot(checkpoint, int(checkpoint["nextPendingSlot"]))
+                print(f"PENDING\t{slot['slot']}\t{int(slot['attemptCount']) + 1}")
+            return 0
+        if options.command == "set-begin":
+            intent = begin_set_attempt(options.workspace, options.slot)
+            print(f"{intent['pointer']}\t{intent['log']}\t{intent['attempt']}")
+            return 0
+        if options.command == "set-record":
+            if options.v1_exit < 0 or options.v1_exit > 255:
+                raise fail_config("V1 exit must be between 0 and 255")
+            result = record_set_attempt(options.workspace, options.slot, options.v1_exit)
+            print(f"Attempt recorded: slot={options.slot}; outcome={result}")
+            return result
+        if options.command == "set-reconcile":
+            result = reconcile_running_attempt(options.workspace)
+            print(f"Attempt reconciliation: {result}")
+            return result
+        if options.command == "set-authorize":
+            path = authorize_set_replacement(
+                options.workspace,
+                options.slot,
+                options.reason,
+                options.confirm_no_score_selection,
+            )
+            print(f"Replacement authorization: {path}")
+            return 0
+        if options.command == "set-value":
+            _, plan, checkpoint = load_set_workspace(options.workspace)
+            value: Any = {"plan": plan, "checkpoint": checkpoint}
+            for component in options.key.split("."):
+                if not isinstance(value, dict) or component not in value:
+                    raise fail_config(f"Unknown set value: {options.key}")
+                value = value[component]
+            if value is None:
+                print("")
+            elif isinstance(value, (str, int, float, bool)):
+                print(str(value).lower() if isinstance(value, bool) else value)
+            else:
+                raise fail_config(f"Set value is not scalar: {options.key}")
+            return 0
+        if options.command == "set-finalize":
+            output, manifest = finalize_benchmark_set(options.workspace)
+            print(f"Benchmark set: {output}")
+            print(f"Status: {manifest['status']}; members={len(manifest['members'])}")
             return 0
         raise fail_config(f"Unsupported command: {options.command}")
     except BenchmarkV2Error as error:
