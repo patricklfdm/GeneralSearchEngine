@@ -25,12 +25,13 @@ assert_contains() {
 write_config() {
   directory=$1
   index_cycles=$2
+  writers=$3
   mkdir -p "$directory"
   {
     echo 'status=CONFIGURED'
     echo 'documents=100000'
     echo 'readers=16'
-    echo 'writers=1'
+    echo "writers=$writers"
     echo 'seconds=600'
     echo 'sample_seconds=10'
     echo 'top_k=10'
@@ -57,7 +58,7 @@ write_samples() {
       read_rate=100
       if [ "$mode" = drifting ]; then read_rate=$((100 - bucket * 5)); fi
       reads=$((reads + read_rate * 10))
-      writes=$((writes + 100))
+      if [ "$mode" != read_only ]; then writes=$((writes + 100)); fi
       if [ "$index_cycles" = true ]; then cycles=$((cycles + 10)); fi
     fi
     used_heap=$((2147483648 + (sample % 5) * 10485760))
@@ -82,6 +83,21 @@ write_samples() {
 
 write_summary() {
   directory=$1
+  if [ "$final_writes" -eq 0 ]; then
+    write_rate=0.000
+    write_samples=0
+    write_p50=0.000
+    write_p95=0.000
+    write_p99=0.000
+    write_max=0.000
+  else
+    write_rate=10.000
+    write_samples=20000
+    write_p50=500.000
+    write_p95=700.000
+    write_p99=900.000
+    write_max=1200.000
+  fi
   {
     echo 'status=PASS'
     echo 'errors=0'
@@ -95,17 +111,17 @@ write_summary() {
     echo "final_snapshot_version=$((100 + final_writes + final_cycles * 2))"
     echo 'final_writer_queue_depth=0'
     echo 'read_ops_per_second=90.000'
-    echo 'write_ops_per_second=10.000'
+    echo "write_ops_per_second=$write_rate"
     echo 'read_latency_samples=20000'
     echo 'read_latency_p50_us=1000.000'
     echo 'read_latency_p95_us=2000.000'
     echo 'read_latency_p99_us=3000.000'
     echo 'read_latency_max_us=4000.000'
-    echo 'write_latency_samples=20000'
-    echo 'write_latency_p50_us=500.000'
-    echo 'write_latency_p95_us=700.000'
-    echo 'write_latency_p99_us=900.000'
-    echo 'write_latency_max_us=1200.000'
+    echo "write_latency_samples=$write_samples"
+    echo "write_latency_p50_us=$write_p50"
+    echo "write_latency_p95_us=$write_p95"
+    echo "write_latency_p99_us=$write_p99"
+    echo "write_latency_max_us=$write_max"
   } > "$directory/soak-summary.properties"
 }
 
@@ -113,8 +129,9 @@ make_fixture() {
   name=$1
   mode=$2
   index_cycles=${3:-true}
+  writers=${4:-1}
   directory="$test_root/$name"
-  write_config "$directory" "$index_cycles"
+  write_config "$directory" "$index_cycles" "$writers"
   write_samples "$directory" "$mode" "$index_cycles"
   write_summary "$directory"
 }
@@ -136,6 +153,13 @@ make_fixture no_cycles stable false
 "$analyzer" "$test_root/no_cycles" > "$test_root/no-cycles.properties"
 assert_contains "$test_root/no-cycles.properties" 'configured_index_cycles=false'
 assert_contains "$test_root/no-cycles.properties" 'summary_index_cycles=0'
+
+make_fixture read_only read_only false 0
+"$analyzer" "$test_root/read_only" > "$test_root/read-only.properties"
+assert_contains "$test_root/read-only.properties" 'configured_writers=0'
+assert_contains "$test_root/read-only.properties" 'summary_write_operations=0'
+assert_contains "$test_root/read-only.properties" 'write_rate_drift_pct=0.000000'
+assert_contains "$test_root/read-only.properties" 'flag_write_rate_drift=false'
 
 make_fixture drifting drifting true
 "$analyzer" "$test_root/drifting" > "$test_root/drifting.properties"

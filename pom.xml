@@ -390,6 +390,18 @@
                                     </sources>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>add-jmh-test-sources</id>
+                                <phase>generate-test-sources</phase>
+                                <goals>
+                                    <goal>add-test-source</goal>
+                                </goals>
+                                <configuration>
+                                    <sources>
+                                        <source>src/jmh-test/java</source>
+                                    </sources>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>

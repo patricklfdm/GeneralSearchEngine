@@ -6,14 +6,51 @@ cd "$repo_root"
 
 mode=${1:-quick}
 case "$mode" in
-  quick|full|concurrency|soak|all) ;;
+  quick|full|concurrency|soak|investigation|all) ;;
   *)
-    echo "usage: $0 [quick|full|concurrency|soak|all]" >&2
+    echo "usage: $0 [quick|full|concurrency|soak|investigation|all]" >&2
     exit 2
     ;;
 esac
 
+investigation_cell=${GSE_SOAK_INVESTIGATION_CELL:-}
+soak_profile=${GSE_SOAK_PROFILE:-none}
+soak_update_mode=revision
+soak_per_query_metrics=false
+soak_writers=${GSE_SOAK_WRITERS:-1}
 soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
+
+if [ "$mode" = investigation ]; then
+  case "$investigation_cell" in
+    read-only) expected_writers=0; soak_update_mode=none ;;
+    stable-update) expected_writers=1; soak_update_mode=stable ;;
+    revision-update) expected_writers=1; soak_update_mode=revision ;;
+    *)
+      echo "GSE_SOAK_INVESTIGATION_CELL must be read-only, stable-update, or revision-update" >&2
+      exit 2
+      ;;
+  esac
+  if [ -n "${GSE_SOAK_WRITERS+x}" ] && [ "$GSE_SOAK_WRITERS" != "$expected_writers" ]; then
+    echo "GSE_SOAK_WRITERS conflicts with $investigation_cell (expected $expected_writers)" >&2
+    exit 2
+  fi
+  if [ -n "${GSE_SOAK_INDEX_CYCLES+x}" ] && [ "$GSE_SOAK_INDEX_CYCLES" != false ]; then
+    echo "GSE_SOAK_INDEX_CYCLES conflicts with investigation mode (expected false)" >&2
+    exit 2
+  fi
+  soak_writers=$expected_writers
+  soak_index_cycles=false
+  soak_per_query_metrics=true
+else
+  [ -z "$investigation_cell" ] \
+    || { echo "GSE_SOAK_INVESTIGATION_CELL is only valid in investigation mode" >&2; exit 2; }
+  [ "$soak_profile" = none ] \
+    || { echo "GSE_SOAK_PROFILE is only valid in investigation mode" >&2; exit 2; }
+fi
+case "$soak_profile" in
+  none|jfr) ;;
+  *) echo "GSE_SOAK_PROFILE must be none or jfr" >&2; exit 2 ;;
+esac
 case "$soak_index_cycles" in
   true|false) ;;
   *)
@@ -21,9 +58,17 @@ case "$soak_index_cycles" in
     exit 2
     ;;
 esac
-if { [ "$mode" = soak ] || [ "$mode" = all ]; } \
+if { [ "$mode" = soak ] || [ "$mode" = investigation ] || [ "$mode" = all ]; } \
     && [ ! -x scripts/analyze-v3-soak.sh ]; then
   echo "Missing executable soak analyzer: scripts/analyze-v3-soak.sh" >&2
+  exit 2
+fi
+if [ "$mode" = investigation ] && [ ! -x scripts/analyze-v3-soak-investigation.sh ]; then
+  echo "Missing executable investigation analyzer: scripts/analyze-v3-soak-investigation.sh" >&2
+  exit 2
+fi
+if [ "$soak_profile" = jfr ] && ! command -v jfr >/dev/null 2>&1; then
+  echo "GSE_SOAK_PROFILE=jfr requires the jfr command" >&2
   exit 2
 fi
 
@@ -119,6 +164,10 @@ write_metadata_if_set() {
   echo "concurrency_documents=$concurrency_documents"
   printf 'concurrency_thread_groups=%s\n' "${thread_groups[*]}"
   echo "soak_index_cycles=$soak_index_cycles"
+  echo "soak_investigation_cell=${investigation_cell:-none}"
+  echo "soak_update_mode=$soak_update_mode"
+  echo "soak_per_query_metrics=$soak_per_query_metrics"
+  echo "soak_profile=$soak_profile"
   write_metadata_if_set cloud_provider GSE_CLOUD_PROVIDER
   write_metadata_if_set cloud_project GSE_CLOUD_PROJECT
   write_metadata_if_set cloud_zone GSE_CLOUD_ZONE
@@ -222,10 +271,14 @@ run_concurrency() {
 run_soak() {
   soak_seconds=${GSE_SOAK_SECONDS:-1800}
   soak_readers=${GSE_SOAK_READERS:-16}
-  soak_writers=${GSE_SOAK_WRITERS:-1}
   soak_documents=${GSE_SOAK_DOCUMENTS:-100000}
   echo "Running ${soak_seconds}s production soak..."
-  java "${jvm_args[@]}" -cp target/benchmarks.jar \
+  mkdir -p "$run_dir/soak"
+  soak_jvm_args=("${jvm_args[@]}")
+  if [ "$soak_profile" = jfr ]; then
+    soak_jvm_args+=("-XX:StartFlightRecording=filename=$run_dir/soak/profile.jfr,settings=profile,disk=true,dumponexit=true,maxsize=512m")
+  fi
+  soak_command=(java "${soak_jvm_args[@]}" -cp target/benchmarks.jar
     io.github.patricklfdm.generalsearch.benchmark.jmh.V3ProductionSoak \
     "--output=$run_dir/soak" \
     "--seconds=$soak_seconds" \
@@ -235,7 +288,23 @@ run_soak() {
     --sample-seconds=1 \
     --top-k=10 \
     --corpus-profile=zipf-en-medium-4 \
-    "--index-cycles=$soak_index_cycles" 2>&1 | tee "$run_dir/soak.log"
+    "--index-cycles=$soak_index_cycles" \
+    "--update-mode=$soak_update_mode" \
+    "--per-query-metrics=$soak_per_query_metrics")
+  printf 'soak_java_command=' >> "$run_dir/metadata.txt"
+  printf '%q ' "${soak_command[@]}" >> "$run_dir/metadata.txt"
+  printf '\n' >> "$run_dir/metadata.txt"
+  "${soak_command[@]}" 2>&1 | tee "$run_dir/soak.log"
+
+  if [ "$soak_profile" = jfr ]; then
+    printf 'jfr_summary_command=jfr summary %q\n' \
+      "$run_dir/soak/profile.jfr" >> "$run_dir/metadata.txt"
+    [ -s "$run_dir/soak/profile.jfr" ] \
+      || { echo "JFR profile was not created" >&2; return 1; }
+    jfr summary "$run_dir/soak/profile.jfr" > "$run_dir/soak/profile-summary.txt"
+    [ -s "$run_dir/soak/profile-summary.txt" ] \
+      || { echo "JFR summary was not created" >&2; return 1; }
+  fi
 
   analysis_file="$run_dir/soak/soak-analysis.properties"
   analysis_temporary="$analysis_file.tmp.$$"
@@ -245,12 +314,25 @@ run_soak() {
     rm -f -- "$analysis_temporary"
     return 1
   fi
+
+  if [ "$mode" = investigation ]; then
+    investigation_file="$run_dir/soak/soak-investigation-analysis.properties"
+    investigation_temporary="$investigation_file.tmp.$$"
+    if scripts/analyze-v3-soak-investigation.sh "$run_dir/soak" \
+        > "$investigation_temporary"; then
+      mv "$investigation_temporary" "$investigation_file"
+    else
+      rm -f -- "$investigation_temporary"
+      return 1
+    fi
+  fi
 }
 
 case "$mode" in
   quick|full) run_benchmarks ;;
   concurrency) run_concurrency ;;
   soak) run_soak ;;
+  investigation) run_soak ;;
   all)
     run_benchmarks
     run_soak

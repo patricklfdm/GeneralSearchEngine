@@ -63,7 +63,7 @@ readers=$property_result
 require_positive_uint readers "$readers"
 read_property "$config_file" writers
 writers=$property_result
-require_positive_uint writers "$writers"
+require_uint writers "$writers"
 read_property "$config_file" seconds
 seconds=$property_result
 require_positive_uint seconds "$seconds"
@@ -262,7 +262,17 @@ awk -F, \
       fail("summary counters precede the final sample")
     }
     if (summary_final_queue + 0 > queue_capacity) fail("summary queue depth is invalid")
-    if (previous_snapshot <= first_snapshot) fail("snapshot version did not advance")
+    mutation_expected = configured_writers + 0 > 0 || configured_index_cycles == "true"
+    if (mutation_expected && previous_snapshot <= first_snapshot) {
+      fail("snapshot version did not advance")
+    }
+    if (!mutation_expected && previous_snapshot != first_snapshot) {
+      fail("snapshot version changed without a configured mutation source")
+    }
+    if (configured_writers + 0 == 0 && (summary_write_operations + 0 != 0 ||
+        summary_write_samples + 0 != 0 || summary_write_rate + 0 != 0)) {
+      fail("zero-writer summary contains write activity")
+    }
     if (configured_index_cycles == "true" && summary_index_cycles + 0 == 0) {
       fail("dynamic index cycles were enabled but did not advance")
     }
@@ -285,11 +295,21 @@ awk -F, \
 
     early = 2
     late = 6
-    if (bucket_read_rate[early] <= 0 || bucket_write_rate[early] <= 0) {
-      fail("early steady operation rate is not positive")
+    if (bucket_read_rate[early] <= 0) {
+      fail("early steady read rate is not positive")
+    }
+    if (configured_writers + 0 > 0 && bucket_write_rate[early] <= 0) {
+      fail("early steady write rate is not positive")
+    }
+    if (configured_writers + 0 == 0) {
+      for (bucket = 1; bucket <= 6; bucket++) {
+        if (bucket_write_rate[bucket] != 0) fail("zero-writer bucket contains writes")
+      }
     }
     read_drift = (bucket_read_rate[late] / bucket_read_rate[early] - 1) * 100
-    write_drift = (bucket_write_rate[late] / bucket_write_rate[early] - 1) * 100
+    write_drift = configured_writers + 0 > 0 \
+      ? (bucket_write_rate[late] / bucket_write_rate[early] - 1) * 100 \
+      : 0
     heap_average_growth = bucket_heap_average[late] - bucket_heap_average[early]
     heap_minimum_growth = bucket_heap_min[late] - bucket_heap_min[early]
     read_rate_drift = read_drift <= -10

@@ -7,12 +7,17 @@ import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
@@ -35,6 +40,7 @@ import io.github.patricklfdm.generalsearch.search.SearchRequest;
  */
 public final class V3ProductionSoak {
     private static final int RESERVOIR_SIZE = 20_000;
+    private static final QueryKind[] QUERY_KINDS = QueryKind.values();
 
     private V3ProductionSoak() {
     }
@@ -49,7 +55,16 @@ public final class V3ProductionSoak {
                 config.documentCount(),
                 config.corpusProfile())) {
             double loadSeconds = elapsedSeconds(loadStarted);
-            run(fixture, config, loadSeconds);
+            long initialSnapshotVersion = fixture.engine().metrics().snapshotVersion();
+            String initialCorpusDigest = config.perQueryMetrics()
+                    ? corpusDigest(fixture, config.documentCount())
+                    : null;
+            run(
+                    fixture,
+                    config,
+                    loadSeconds,
+                    initialSnapshotVersion,
+                    initialCorpusDigest);
         } catch (Throwable failure) {
             Files.writeString(
                     config.output().resolve("failure.txt"),
@@ -62,7 +77,9 @@ public final class V3ProductionSoak {
     private static void run(
             V3ProductionBenchmarkSupport.Fixture fixture,
             SoakConfig config,
-            double loadSeconds
+            double loadSeconds,
+            long initialSnapshotVersion,
+            String initialCorpusDigest
     ) throws Exception {
         List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests =
                 V3ProductionBenchmarkSupport.requests(fixture, config.topK());
@@ -72,6 +89,9 @@ public final class V3ProductionSoak {
         LongAdder writeOperations = new LongAdder();
         LongAdder indexCycles = new LongAdder();
         LongAdder errors = new LongAdder();
+        QueryCounters queryCounters = config.perQueryMetrics()
+                ? new QueryCounters()
+                : null;
         CountDownLatch start = new CountDownLatch(1);
         int taskCount = config.readerCount() + config.writerCount()
                 + (config.indexCycles() ? 1 : 0);
@@ -82,13 +102,23 @@ public final class V3ProductionSoak {
         try {
             for (int worker = 0; worker < config.readerCount(); worker++) {
                 int workerId = worker;
-                readers.add(workers.submit(guarded(failure, errors, () -> readLoop(
-                        fixture,
-                        requests,
-                        workerId,
-                        start,
-                        stop,
-                        readOperations))));
+                Callable<WorkerResult> reader = config.perQueryMetrics()
+                        ? () -> readLoopWithQueryMetrics(
+                                fixture,
+                                requests,
+                                workerId,
+                                start,
+                                stop,
+                                readOperations,
+                                queryCounters)
+                        : () -> readLoop(
+                                fixture,
+                                requests,
+                                workerId,
+                                start,
+                                stop,
+                                readOperations);
+                readers.add(workers.submit(guarded(failure, errors, reader)));
             }
             for (int worker = 0; worker < config.writerCount(); worker++) {
                 int workerId = worker;
@@ -123,7 +153,8 @@ public final class V3ProductionSoak {
                     readOperations,
                     writeOperations,
                     indexCycles,
-                    errors);
+                    errors,
+                    queryCounters);
             stop.set(true);
 
             List<WorkerResult> readerResults = await(readers);
@@ -135,17 +166,35 @@ public final class V3ProductionSoak {
             if (workerFailure != null) {
                 throw new IllegalStateException("soak worker failed", workerFailure);
             }
+            double runSeconds = elapsedSeconds(runStarted);
+            String finalCorpusDigest = config.perQueryMetrics()
+                    ? corpusDigest(fixture, config.documentCount())
+                    : null;
+            validateInvestigationOutcome(
+                    fixture,
+                    config,
+                    initialSnapshotVersion,
+                    initialCorpusDigest,
+                    finalCorpusDigest,
+                    readOperations.sum(),
+                    writeOperations.sum(),
+                    indexCycles.sum(),
+                    queryCounters);
             writeSummary(
                     fixture,
                     config,
                     loadSeconds,
-                    elapsedSeconds(runStarted),
+                    runSeconds,
                     readOperations.sum(),
                     writeOperations.sum(),
                     indexCycles.sum(),
                     errors.sum(),
                     readerResults,
-                    writerResults);
+                    writerResults,
+                    queryCounters,
+                    initialSnapshotVersion,
+                    initialCorpusDigest,
+                    finalCorpusDigest);
         } finally {
             stop.set(true);
             start.countDown();
@@ -176,7 +225,42 @@ public final class V3ProductionSoak {
             }
             operations.increment();
         }
-        return new WorkerResult(operations.sum(), latency);
+        return new WorkerResult(
+                operations.sum(),
+                latency,
+                new LatencyReservoir[0]);
+    }
+
+    private static WorkerResult readLoopWithQueryMetrics(
+            V3ProductionBenchmarkSupport.Fixture fixture,
+            List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests,
+            int workerId,
+            CountDownLatch start,
+            AtomicBoolean stop,
+            LongAdder operations,
+            QueryCounters queryCounters
+    ) throws InterruptedException {
+        LatencyReservoir latency = new LatencyReservoir(RESERVOIR_SIZE, workerId + 1L);
+        LatencyReservoir[] queryLatency = queryReservoirs(workerId + 1L);
+        int cursor = workerId;
+        start.await();
+        while (!stop.get()) {
+            int requestIndex = Math.floorMod(cursor++, requests.size());
+            SearchRequest<V3ProductionBenchmarkSupport.Document> request =
+                    requests.get(requestIndex);
+            long started = System.nanoTime();
+            int hitCount = fixture.engine().search(request).hits().size();
+            long elapsed = System.nanoTime() - started;
+            latency.record(elapsed);
+            if (hitCount > request.limit()) {
+                throw new IllegalStateException("soak result exceeded request limit");
+            }
+            operations.increment();
+            QueryKind queryKind = QUERY_KINDS[requestIndex];
+            queryLatency[queryKind.ordinal()].record(elapsed);
+            queryCounters.record(queryKind, elapsed);
+        }
+        return new WorkerResult(operations.sum(), latency, queryLatency);
     }
 
     private static WorkerResult writeLoop(
@@ -194,8 +278,9 @@ public final class V3ProductionSoak {
         start.await();
         while (!stop.get()) {
             int documentId = (int) Math.floorMod(slot, config.documentCount());
-            int documentRevision = Math.toIntExact(
-                    slot / config.documentCount() + 1L);
+            int documentRevision = config.updateMode() == UpdateMode.STABLE
+                    ? 0
+                    : Math.toIntExact(slot / config.documentCount() + 1L);
             var replacement = V3ProductionBenchmarkSupport.replacement(
                     documentId,
                     documentRevision,
@@ -206,7 +291,10 @@ public final class V3ProductionSoak {
             operations.increment();
             slot += config.writerCount();
         }
-        return new WorkerResult(operations.sum(), latency);
+        return new WorkerResult(
+                operations.sum(),
+                latency,
+                new LatencyReservoir[0]);
     }
 
     private static void lifecycleLoop(
@@ -248,57 +336,80 @@ public final class V3ProductionSoak {
             LongAdder reads,
             LongAdder writes,
             LongAdder indexCycles,
-            LongAdder errors
+            LongAdder errors,
+            QueryCounters queryCounters
     ) throws IOException, InterruptedException {
         Path output = config.output().resolve("soak-samples.csv");
+        Path queryOutput = config.output().resolve("soak-query-samples.csv");
         MemoryMXBean memory = ManagementFactory.getMemoryMXBean();
         try (PrintWriter csv = new PrintWriter(Files.newBufferedWriter(
                 output,
-                StandardCharsets.UTF_8))) {
+                StandardCharsets.UTF_8));
+             PrintWriter queryCsv = config.perQueryMetrics()
+                     ? new PrintWriter(Files.newBufferedWriter(
+                             queryOutput,
+                             StandardCharsets.UTF_8))
+                     : null) {
             csv.println("timestamp,elapsed_s,used_heap_bytes,committed_heap_bytes,"
                     + "max_heap_bytes,read_ops,write_ops,index_cycles,errors,"
                     + "writer_queue_depth,writer_queue_capacity,snapshot_version,"
                     + "document_count,gc_count,gc_time_ms");
+            if (queryCsv != null) {
+                queryCsv.println("timestamp,elapsed_s,text_ops,text_latency_ns,"
+                        + "bool_ops,bool_latency_ns,phrase_ops,phrase_latency_ns,"
+                        + "fuzzy_ops,fuzzy_latency_ns");
+            }
             while (System.nanoTime() < deadline && failure.get() == null) {
-                writeSample(
+                writeSamples(
                         csv,
+                        queryCsv,
                         fixture.engine().metrics(),
                         memory.getHeapMemoryUsage(),
                         runStarted,
                         reads.sum(),
                         writes.sum(),
                         indexCycles.sum(),
-                        errors.sum());
+                        errors.sum(),
+                        queryCounters);
                 csv.flush();
+                if (queryCsv != null) {
+                    queryCsv.flush();
+                }
                 TimeUnit.SECONDS.sleep(config.sampleSeconds());
             }
             stop.set(true);
-            writeSample(
+            writeSamples(
                     csv,
+                    queryCsv,
                     fixture.engine().metrics(),
                     memory.getHeapMemoryUsage(),
                     runStarted,
                     reads.sum(),
                     writes.sum(),
                     indexCycles.sum(),
-                    errors.sum());
+                    errors.sum(),
+                    queryCounters);
         }
     }
 
-    private static void writeSample(
+    private static void writeSamples(
             PrintWriter csv,
+            PrintWriter queryCsv,
             SearchEngineMetrics metrics,
             MemoryUsage heap,
             long runStarted,
             long reads,
             long writes,
             long indexCycles,
-            long errors
+            long errors,
+            QueryCounters queryCounters
     ) {
+        Instant timestamp = Instant.now();
+        double elapsed = elapsedSeconds(runStarted);
         csv.printf(Locale.ROOT,
                 "%s,%.3f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d%n",
-                Instant.now(),
-                elapsedSeconds(runStarted),
+                timestamp,
+                elapsed,
                 heap.getUsed(),
                 heap.getCommitted(),
                 heap.getMax(),
@@ -312,6 +423,25 @@ public final class V3ProductionSoak {
                 metrics.documentCount(),
                 gcCount(),
                 gcTimeMillis());
+        if (queryCsv != null) {
+            if (queryCounters == null) {
+                throw new IllegalStateException(
+                        "query output requires per-query counters");
+            }
+            QueryCounterSnapshot querySnapshot = queryCounters.snapshot();
+            queryCsv.printf(Locale.ROOT,
+                    "%s,%.3f,%d,%d,%d,%d,%d,%d,%d,%d%n",
+                    timestamp,
+                    elapsed,
+                    querySnapshot.operations(QueryKind.TEXT),
+                    querySnapshot.latencyNanoseconds(QueryKind.TEXT),
+                    querySnapshot.operations(QueryKind.BOOL),
+                    querySnapshot.latencyNanoseconds(QueryKind.BOOL),
+                    querySnapshot.operations(QueryKind.PHRASE),
+                    querySnapshot.latencyNanoseconds(QueryKind.PHRASE),
+                    querySnapshot.operations(QueryKind.FUZZY),
+                    querySnapshot.latencyNanoseconds(QueryKind.FUZZY));
+        }
     }
 
     private static void writeConfig(SoakConfig config) throws IOException {
@@ -325,6 +455,10 @@ public final class V3ProductionSoak {
         values.setProperty("top_k", Integer.toString(config.topK()));
         values.setProperty("corpus_profile", config.corpusProfile());
         values.setProperty("index_cycles", Boolean.toString(config.indexCycles()));
+        values.setProperty("update_mode", config.updateMode().value());
+        values.setProperty("per_query_metrics",
+                Boolean.toString(config.perQueryMetrics()));
+        values.setProperty("investigation_cell", config.investigationCell());
         try (var output = Files.newOutputStream(
                 config.output().resolve("soak-config.properties"))) {
             values.store(output, "V3 production soak configuration");
@@ -341,7 +475,11 @@ public final class V3ProductionSoak {
             long indexCycles,
             long errors,
             List<WorkerResult> readerResults,
-            List<WorkerResult> writerResults
+            List<WorkerResult> writerResults,
+            QueryCounters queryCounters,
+            long initialSnapshotVersion,
+            String initialCorpusDigest,
+            String finalCorpusDigest
     ) throws IOException {
         long[] readLatency = samples(readerResults);
         long[] writeLatency = samples(writerResults);
@@ -366,6 +504,15 @@ public final class V3ProductionSoak {
                 Integer.toString(metrics.writerQueueDepth()));
         values.setProperty("gc_count", Long.toString(gcCount()));
         values.setProperty("gc_time_ms", Long.toString(gcTimeMillis()));
+        if (config.perQueryMetrics()) {
+            values.setProperty("initial_snapshot_version",
+                    Long.toString(initialSnapshotVersion));
+            values.setProperty("initial_corpus_sha256", initialCorpusDigest);
+            values.setProperty("final_corpus_sha256", finalCorpusDigest);
+            values.setProperty("corpus_changed",
+                    Boolean.toString(!initialCorpusDigest.equals(finalCorpusDigest)));
+            addQuerySummaries(values, runSeconds, readerResults, queryCounters);
+        }
         try (var output = Files.newOutputStream(
                 config.output().resolve("soak-summary.properties"))) {
             values.store(output, "V3 production soak result");
@@ -390,6 +537,28 @@ public final class V3ProductionSoak {
                 decimal(maxNanoseconds / 1_000.0));
     }
 
+    private static void addQuerySummaries(
+            Properties values,
+            double runSeconds,
+            List<WorkerResult> readerResults,
+            QueryCounters queryCounters
+    ) {
+        QueryCounterSnapshot counters = queryCounters.snapshot();
+        for (QueryKind queryKind : QUERY_KINDS) {
+            String prefix = queryKind.value() + "_read";
+            long operations = counters.operations(queryKind);
+            values.setProperty(prefix + "_operations", Long.toString(operations));
+            values.setProperty(prefix + "_ops_per_second",
+                    decimal(operations / runSeconds));
+            long[] latency = querySamples(readerResults, queryKind);
+            addLatency(
+                    values,
+                    prefix,
+                    latency,
+                    queryMaxLatency(readerResults, queryKind));
+        }
+    }
+
     private static long maxLatency(List<WorkerResult> results) {
         return results.stream()
                 .mapToLong(result -> result.latency().max())
@@ -412,12 +581,170 @@ public final class V3ProductionSoak {
         return combined;
     }
 
+    private static long queryMaxLatency(
+            List<WorkerResult> results,
+            QueryKind queryKind
+    ) {
+        return results.stream()
+                .mapToLong(result -> result.queryLatency()[queryKind.ordinal()].max())
+                .max()
+                .orElse(0L);
+    }
+
+    private static long[] querySamples(
+            List<WorkerResult> results,
+            QueryKind queryKind
+    ) {
+        int size = results.stream()
+                .mapToInt(result -> result.queryLatency()[queryKind.ordinal()].size())
+                .sum();
+        long[] combined = new long[size];
+        int offset = 0;
+        for (WorkerResult result : results) {
+            long[] workerSamples =
+                    result.queryLatency()[queryKind.ordinal()].samples();
+            System.arraycopy(workerSamples, 0, combined, offset, workerSamples.length);
+            offset += workerSamples.length;
+        }
+        Arrays.sort(combined);
+        return combined;
+    }
+
     private static double percentile(long[] sorted, double percentile) {
         if (sorted.length == 0) {
             return 0.0;
         }
         int index = (int) Math.ceil(percentile * sorted.length) - 1;
         return sorted[Math.max(0, Math.min(index, sorted.length - 1))];
+    }
+
+    private static LatencyReservoir[] queryReservoirs(long seed) {
+        LatencyReservoir[] reservoirs = new LatencyReservoir[QUERY_KINDS.length];
+        for (QueryKind queryKind : QUERY_KINDS) {
+            reservoirs[queryKind.ordinal()] = new LatencyReservoir(
+                    RESERVOIR_SIZE,
+                    seed * 31L + queryKind.ordinal() + 1L);
+        }
+        return reservoirs;
+    }
+
+    static String corpusDigest(
+            V3ProductionBenchmarkSupport.Fixture fixture,
+            int documentCount
+    ) {
+        MessageDigest digest;
+        try {
+            digest = MessageDigest.getInstance("SHA-256");
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new IllegalStateException("SHA-256 is unavailable", impossible);
+        }
+        for (int id = 0; id < documentCount; id++) {
+            V3ProductionBenchmarkSupport.Document document =
+                    fixture.engine().get((long) id);
+            if (document == null) {
+                throw new IllegalStateException(
+                        "missing document while computing corpus digest: " + id);
+            }
+            updateLong(digest, document.id());
+            updateString(digest, document.category());
+            updateInt(digest, document.popularity());
+            updateString(digest, document.title());
+            updateString(digest, document.body());
+            updateString(digest, document.tags());
+            updateString(digest, document.summary());
+        }
+        return HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static void updateLong(MessageDigest digest, long value) {
+        digest.update(ByteBuffer.allocate(Long.BYTES)
+                .order(ByteOrder.BIG_ENDIAN)
+                .putLong(value)
+                .array());
+    }
+
+    private static void updateInt(MessageDigest digest, int value) {
+        digest.update(ByteBuffer.allocate(Integer.BYTES)
+                .order(ByteOrder.BIG_ENDIAN)
+                .putInt(value)
+                .array());
+    }
+
+    private static void updateString(MessageDigest digest, String value) {
+        byte[] encoded = value.getBytes(StandardCharsets.UTF_8);
+        updateInt(digest, encoded.length);
+        digest.update(encoded);
+    }
+
+    private static void validateInvestigationOutcome(
+            V3ProductionBenchmarkSupport.Fixture fixture,
+            SoakConfig config,
+            long initialSnapshotVersion,
+            String initialCorpusDigest,
+            String finalCorpusDigest,
+            long reads,
+            long writes,
+            long indexCycles,
+            QueryCounters queryCounters
+    ) {
+        if (!config.perQueryMetrics()) {
+            return;
+        }
+        if (fixture.engine().metrics().documentCount() != config.documentCount()) {
+            throw new IllegalStateException("investigation document count changed");
+        }
+        if (indexCycles != 0) {
+            throw new IllegalStateException(
+                    "investigation workload unexpectedly ran index cycles");
+        }
+        QueryCounterSnapshot counters = queryCounters.snapshot();
+        long queryReads = 0;
+        long minimum = Long.MAX_VALUE;
+        long maximum = Long.MIN_VALUE;
+        for (QueryKind queryKind : QUERY_KINDS) {
+            long operations = counters.operations(queryKind);
+            long latency = counters.latencyNanoseconds(queryKind);
+            if (operations <= 0 || latency <= 0) {
+                throw new IllegalStateException(
+                        "investigation query has no evidence: " + queryKind.value());
+            }
+            queryReads = Math.addExact(queryReads, operations);
+            minimum = Math.min(minimum, operations);
+            maximum = Math.max(maximum, operations);
+        }
+        if (queryReads != reads) {
+            throw new IllegalStateException(
+                    "per-query operations do not sum to total reads");
+        }
+        if (maximum - minimum > config.readerCount()) {
+            throw new IllegalStateException(
+                    "deterministic query rotation is unexpectedly unbalanced");
+        }
+        long finalSnapshotVersion = fixture.engine().metrics().snapshotVersion();
+        boolean corpusChanged = !initialCorpusDigest.equals(finalCorpusDigest);
+        switch (config.updateMode()) {
+            case NONE -> {
+                if (writes != 0 || finalSnapshotVersion != initialSnapshotVersion
+                        || corpusChanged) {
+                    throw new IllegalStateException(
+                            "read-only investigation changed engine state");
+                }
+            }
+            case STABLE -> {
+                if (writes <= 0 || finalSnapshotVersion <= initialSnapshotVersion
+                        || corpusChanged) {
+                    throw new IllegalStateException(
+                            "stable-update investigation violated its state contract");
+                }
+            }
+            case REVISION -> {
+                if (writes <= 0 || finalSnapshotVersion <= initialSnapshotVersion
+                        || !corpusChanged) {
+                    throw new IllegalStateException(
+                            "revision-update investigation violated its state contract");
+                }
+            }
+        }
     }
 
     private static <T> Callable<T> guarded(
@@ -485,22 +812,117 @@ public final class V3ProductionSoak {
         return output.toString();
     }
 
-    private record WorkerResult(long operations, LatencyReservoir latency) {
+    private record WorkerResult(
+            long operations,
+            LatencyReservoir latency,
+            LatencyReservoir[] queryLatency
+    ) {
     }
 
-    private static final class LatencyReservoir {
+    enum QueryKind {
+        TEXT("text"),
+        BOOL("bool"),
+        PHRASE("phrase"),
+        FUZZY("fuzzy");
+
+        private final String value;
+
+        QueryKind(String value) {
+            this.value = value;
+        }
+
+        String value() {
+            return value;
+        }
+    }
+
+    enum UpdateMode {
+        NONE("none"),
+        STABLE("stable"),
+        REVISION("revision");
+
+        private final String value;
+
+        UpdateMode(String value) {
+            this.value = value;
+        }
+
+        String value() {
+            return value;
+        }
+
+        static UpdateMode parse(String value) {
+            for (UpdateMode mode : values()) {
+                if (mode.value.equals(value)) {
+                    return mode;
+                }
+            }
+            throw new IllegalArgumentException(
+                    "update mode must be none, stable, or revision: " + value);
+        }
+    }
+
+    static final class QueryCounters {
+        private final LongAdder[] operations = adders();
+        private final LongAdder[] latencyNanoseconds = adders();
+
+        void record(QueryKind queryKind, long latency) {
+            if (latency < 0) {
+                throw new IllegalArgumentException("query latency must not be negative");
+            }
+            latencyNanoseconds[queryKind.ordinal()].add(latency);
+            operations[queryKind.ordinal()].increment();
+        }
+
+        QueryCounterSnapshot snapshot() {
+            long[] operationValues = new long[QUERY_KINDS.length];
+            long[] latencyValues = new long[QUERY_KINDS.length];
+            for (QueryKind queryKind : QUERY_KINDS) {
+                int index = queryKind.ordinal();
+                operationValues[index] = operations[index].sum();
+                latencyValues[index] = latencyNanoseconds[index].sum();
+            }
+            return new QueryCounterSnapshot(operationValues, latencyValues);
+        }
+
+        private static LongAdder[] adders() {
+            LongAdder[] values = new LongAdder[QUERY_KINDS.length];
+            Arrays.setAll(values, ignored -> new LongAdder());
+            return values;
+        }
+    }
+
+    record QueryCounterSnapshot(
+            long[] operations,
+            long[] latencyNanoseconds
+    ) {
+        QueryCounterSnapshot {
+            operations = operations.clone();
+            latencyNanoseconds = latencyNanoseconds.clone();
+        }
+
+        long operations(QueryKind queryKind) {
+            return operations[queryKind.ordinal()];
+        }
+
+        long latencyNanoseconds(QueryKind queryKind) {
+            return latencyNanoseconds[queryKind.ordinal()];
+        }
+    }
+
+    static final class LatencyReservoir {
         private final long[] samples;
         private int size;
         private long seen;
         private long randomState;
         private long max;
 
-        private LatencyReservoir(int capacity, long seed) {
+        LatencyReservoir(int capacity, long seed) {
             samples = new long[capacity];
             randomState = seed;
         }
 
-        private void record(long nanoseconds) {
+        void record(long nanoseconds) {
             seen++;
             max = Math.max(max, nanoseconds);
             if (size < samples.length) {
@@ -515,20 +937,20 @@ public final class V3ProductionSoak {
             }
         }
 
-        private int size() {
+        int size() {
             return size;
         }
 
-        private long[] samples() {
+        long[] samples() {
             return Arrays.copyOf(samples, size);
         }
 
-        private long max() {
+        long max() {
             return max;
         }
     }
 
-    private record SoakConfig(
+    record SoakConfig(
             Path output,
             int documentCount,
             int readerCount,
@@ -537,17 +959,31 @@ public final class V3ProductionSoak {
             int sampleSeconds,
             int topK,
             String corpusProfile,
-            boolean indexCycles
+            boolean indexCycles,
+            UpdateMode updateMode,
+            boolean perQueryMetrics
     ) {
-        private SoakConfig {
-            if (documentCount <= 0 || readerCount <= 0 || writerCount <= 0
+        SoakConfig {
+            if (documentCount <= 0 || readerCount <= 0 || writerCount < 0
                     || seconds <= 0 || sampleSeconds <= 0 || topK <= 0) {
                 throw new IllegalArgumentException(
-                        "numeric soak arguments must be positive");
+                        "numeric soak arguments are outside their valid range");
+            }
+            if ((writerCount == 0) != (updateMode == UpdateMode.NONE)) {
+                throw new IllegalArgumentException(
+                        "writers=0 requires update mode none and vice versa");
+            }
+            if (perQueryMetrics && indexCycles) {
+                throw new IllegalArgumentException(
+                        "investigation metrics require index cycles to be disabled");
+            }
+            if (perQueryMetrics && writerCount > 1) {
+                throw new IllegalArgumentException(
+                        "investigation mutation cells require exactly one writer");
             }
         }
 
-        private static SoakConfig parse(String[] args) {
+        static SoakConfig parse(String[] args) {
             int readers = Math.max(2, Math.min(
                     16,
                     Runtime.getRuntime().availableProcessors() - 2));
@@ -560,7 +996,20 @@ public final class V3ProductionSoak {
                     intArg(args, "--sample-seconds", 1),
                     intArg(args, "--top-k", 10),
                     stringArg(args, "--corpus-profile", "zipf-en-medium-4"),
-                    booleanArg(args, "--index-cycles", true));
+                    booleanArg(args, "--index-cycles", true),
+                    UpdateMode.parse(stringArg(args, "--update-mode", "revision")),
+                    booleanArg(args, "--per-query-metrics", false));
+        }
+
+        String investigationCell() {
+            if (!perQueryMetrics) {
+                return "none";
+            }
+            return switch (updateMode) {
+                case NONE -> "read-only";
+                case STABLE -> "stable-update";
+                case REVISION -> "revision-update";
+            };
         }
 
         private static int intArg(String[] args, String name, int fallback) {
@@ -572,10 +1021,13 @@ public final class V3ProductionSoak {
                 String name,
                 boolean fallback
         ) {
-            return Boolean.parseBoolean(stringArg(
-                    args,
-                    name,
-                    Boolean.toString(fallback)));
+            String value = stringArg(args, name, Boolean.toString(fallback));
+            return switch (value) {
+                case "true" -> true;
+                case "false" -> false;
+                default -> throw new IllegalArgumentException(
+                        name + " must be true or false: " + value);
+            };
         }
 
         private static String stringArg(
