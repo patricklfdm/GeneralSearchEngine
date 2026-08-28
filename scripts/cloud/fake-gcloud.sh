@@ -86,7 +86,9 @@ case "${1:-} ${2:-} ${3:-}" in
     ;;
   'compute instances start')
     printf 'RUNNING\n' > "$status_file"
-    printf 'preempted=true\nobserved_utc=20260827T000000Z\n' > "$marker_file"
+    if [ "$scenario" != preempted_marker_missing ]; then
+      printf 'preempted=true\nobserved_utc=20260827T000000Z\n' > "$marker_file"
+    fi
     ;;
   'compute ssh '*)
     [ -f "$instance_file" ] || exit 1
@@ -104,7 +106,7 @@ case "${1:-} ${2:-} ${3:-}" in
         ;;
       env\ *)
         requested_commit=$(git -C "$FAKE_GCLOUD_REPO" rev-parse HEAD)
-        if [ "$scenario" = preempted ]; then
+        if [ "$scenario" = preempted ] || [ "$scenario" = preempted_marker_missing ]; then
           create_result RUNNING false
           printf 'state=RUNNING\nrequested_commit=%s\nremote_commit=%s\nbenchmark_exit_code=\nresult_path=%s\n' \
             "$requested_commit" "$requested_commit" "$remote_result_path" > "$remote_state_file"

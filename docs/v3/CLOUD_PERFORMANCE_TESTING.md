@@ -101,9 +101,11 @@ exact image name, and evidence records its name, numeric ID, self-link, creation
 and requested family. `GSE_CLOUD_IMAGE=EXACT_IMAGE_NAME` repeats a run with a previously
 resolved image.
 
-Ubuntu's OpenJDK 21 package is installed on the VM. The complete Java output and exact
-installed package version are recorded. An apt-installed JDK is not claimed to be pinned
-merely because its major version is 21; compare those fields before comparing runs.
+Ubuntu's OpenJDK 21 package and `unzip` are installed on the VM. `unzip` is required so
+the Maven Wrapper downloads the ZIP pinned by `distributionSha256Sum` rather than falling
+back to the differently hashed tarball. The complete Java output and exact installed
+package version are recorded. An apt-installed JDK is not claimed to be pinned merely
+because its major version is 21; compare those fields before comparing runs.
 
 ## Commands
 
@@ -225,9 +227,12 @@ Spot run may retain incomplete evidence without a checksum, but is never reporte
 | 70 | cleanup failure when no earlier primary failure exists |
 
 The remote boot disk stores atomic benchmark state, the benchmark exit code, an
-orchestration log, and a best-effort Spot shutdown marker. If SSH drops while a Spot VM
-is stopped, the runner attempts at most one restart and waits at most ten minutes, solely
-to recover evidence. It never resumes or relaunches the interrupted benchmark.
+orchestration log, and a best-effort Spot shutdown marker. If an active SSH operation
+fails and the Spot VM is observed in `TERMINATED`, the runner classifies the run as an
+interruption even when the best-effort shutdown marker is missing. It attempts at most
+one restart and waits at most ten minutes, solely to recover evidence. It never resumes
+or relaunches the interrupted benchmark. The orchestration record distinguishes the
+instance-status evidence, shutdown-marker value, and restart outcome.
 
 Default cleanup covers success, failure, Ctrl-C, and partial VM creation. `--keep-vm`
 is a deliberate debugging escape hatch and prints the exact deletion command.
