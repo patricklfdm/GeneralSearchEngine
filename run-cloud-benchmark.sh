@@ -18,7 +18,7 @@ usage() {
     'Run the existing V3 production benchmark suite on one ephemeral GCP Compute Engine VM.' \
     '' \
     'Modes:' \
-    '  quick  full  concurrency  soak  all' \
+    '  quick  full  concurrency  soak  investigation  all' \
     '' \
     'Options:' \
     '  --dry-run  Validate and print the plan without creating, deleting, SSHing, or copying.' \
@@ -45,7 +45,9 @@ usage() {
     '  GSE_CONCURRENCY_DOCUMENTS' \
     '  GSE_CONCURRENCY_THREAD_GROUPS' \
     '  GSE_SOAK_SECONDS' \
-    '  GSE_SOAK_INDEX_CYCLES          Default: true'
+    '  GSE_SOAK_INDEX_CYCLES          Default: true' \
+    '  GSE_SOAK_INVESTIGATION_CELL    read-only, stable-update, or revision-update' \
+    '  GSE_SOAK_PROFILE               none (default) or jfr; investigation only'
 }
 
 dry_run=false
@@ -76,9 +78,9 @@ for argument in "$@"; do
 done
 
 case "$mode" in
-  quick|full|concurrency|soak|all) ;;
+  quick|full|concurrency|soak|investigation|all) ;;
   *)
-    echo "A mode is required: quick, full, concurrency, soak, or all" >&2
+    echo "A mode is required: quick, full, concurrency, soak, investigation, or all" >&2
     usage >&2
     exit "$EXIT_CONFIG"
     ;;
@@ -157,6 +159,42 @@ property_value() {
 
 export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
+investigation_cell=${GSE_SOAK_INVESTIGATION_CELL:-}
+soak_profile=${GSE_SOAK_PROFILE:-none}
+soak_writers=${GSE_SOAK_WRITERS:-1}
+soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
+if [ "$mode" = investigation ]; then
+  case "$investigation_cell" in
+    read-only) expected_soak_writers=0 ;;
+    stable-update|revision-update) expected_soak_writers=1 ;;
+    *) fail "$EXIT_CONFIG" \
+      "GSE_SOAK_INVESTIGATION_CELL must be read-only, stable-update, or revision-update" ;;
+  esac
+  if [ -n "${GSE_SOAK_WRITERS+x}" ] \
+      && [ "$GSE_SOAK_WRITERS" != "$expected_soak_writers" ]; then
+    fail "$EXIT_CONFIG" \
+      "GSE_SOAK_WRITERS conflicts with $investigation_cell (expected $expected_soak_writers)"
+  fi
+  if [ -n "${GSE_SOAK_INDEX_CYCLES+x}" ] && [ "$GSE_SOAK_INDEX_CYCLES" != false ]; then
+    fail "$EXIT_CONFIG" \
+      "GSE_SOAK_INDEX_CYCLES conflicts with investigation mode (expected false)"
+  fi
+  soak_writers=$expected_soak_writers
+  soak_index_cycles=false
+else
+  [ -z "$investigation_cell" ] \
+    || fail "$EXIT_CONFIG" "GSE_SOAK_INVESTIGATION_CELL is only valid in investigation mode"
+  [ "$soak_profile" = none ] \
+    || fail "$EXIT_CONFIG" "GSE_SOAK_PROFILE is only valid in investigation mode"
+fi
+case "$soak_profile" in
+  none|jfr) ;;
+  *) fail "$EXIT_CONFIG" "GSE_SOAK_PROFILE must be none or jfr" ;;
+esac
+validate_boolean GSE_SOAK_INDEX_CYCLES "$soak_index_cycles"
+[[ "$soak_writers" =~ ^[0-9]+$ ]] \
+  || fail "$EXIT_CONFIG" "GSE_SOAK_WRITERS must be an unsigned integer"
+
 require_command git
 require_command gcloud
 require_command sha256sum
@@ -169,6 +207,7 @@ actual_root=$(git rev-parse --show-toplevel)
   || fail "$EXIT_CONFIG" "Repository root mismatch: expected $repo_root, got $actual_root"
 [ -f pom.xml ] && [ -x mvnw ] && [ -f scripts/run-v3-production-performance.sh ] \
   && [ -x scripts/analyze-v3-soak.sh ] \
+  && [ -x scripts/analyze-v3-soak-investigation.sh ] \
   || fail "$EXIT_CONFIG" "This does not look like the GeneralSearchEngine repository"
 
 dirty=$(git status --porcelain --untracked-files=normal)
@@ -272,8 +311,6 @@ fi
 soak_seconds=${GSE_SOAK_SECONDS:-1800}
 [[ "$soak_seconds" =~ ^[1-9][0-9]*$ ]] \
   || fail "$EXIT_CONFIG" "GSE_SOAK_SECONDS must be a positive integer"
-soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
-validate_boolean GSE_SOAK_INDEX_CYCLES "$soak_index_cycles"
 if [ "${#soak_seconds}" -gt 6 ] || [ "$soak_seconds" -gt 597600 ]; then
   fail "$EXIT_CONFIG" "GSE_SOAK_SECONDS plus the 2-hour recovery grace must fit within 7 days"
 fi
@@ -284,14 +321,14 @@ else
     quick) duration_seconds=7200 ;;
     full) duration_seconds=43200 ;;
     concurrency) duration_seconds=28800 ;;
-    soak) duration_seconds=$((soak_seconds + 7200)) ;;
+    soak|investigation) duration_seconds=$((soak_seconds + 7200)) ;;
     all) duration_seconds=86400 ;;
   esac
   [ "$duration_seconds" -le 604800 ] \
     || fail "$EXIT_CONFIG" "Requested soak plus recovery grace exceeds the 7-day v1 cap"
 fi
 max_run_duration="${duration_seconds}s"
-if { [ "$mode" = soak ] || [ "$mode" = all ]; } \
+if { [ "$mode" = soak ] || [ "$mode" = investigation ] || [ "$mode" = all ]; } \
     && [ "$duration_seconds" -lt $((soak_seconds + 7200)) ]; then
   fail "$EXIT_CONFIG" "Max run duration must exceed the requested soak by at least 2 hours"
 fi
@@ -411,6 +448,13 @@ remote_environment=(env
   "GSE_PERF_JVM_OPTIONS=$jvm_options"
   "GSE_SOAK_INDEX_CYCLES=$soak_index_cycles")
 
+if [ "$mode" = investigation ]; then
+  remote_environment+=(
+    "GSE_SOAK_INVESTIGATION_CELL=$investigation_cell"
+    "GSE_SOAK_PROFILE=$soak_profile"
+    "GSE_SOAK_WRITERS=$soak_writers")
+fi
+
 if [ "$mode" = concurrency ]; then
   remote_environment+=("GSE_CONCURRENCY_DOCUMENTS=${GSE_CONCURRENCY_DOCUMENTS:-100000}")
   remote_environment+=("GSE_CONCURRENCY_THREAD_GROUPS=${GSE_CONCURRENCY_THREAD_GROUPS:-1,1 4,1 8,1 16,1 24,1 30,1}")
@@ -422,7 +466,7 @@ else
     remote_environment+=("GSE_CONCURRENCY_THREAD_GROUPS=$GSE_CONCURRENCY_THREAD_GROUPS")
   fi
 fi
-for variable in GSE_SOAK_SECONDS GSE_SOAK_READERS GSE_SOAK_WRITERS GSE_SOAK_DOCUMENTS \
+for variable in GSE_SOAK_SECONDS GSE_SOAK_READERS GSE_SOAK_DOCUMENTS \
   GSE_JMH_FORKS GSE_JMH_WARMUPS GSE_JMH_ITERATIONS GSE_JMH_DURATION; do
   if [ -n "${!variable:-}" ]; then
     remote_environment+=("$variable=${!variable}")
@@ -477,6 +521,8 @@ write_record() {
     printf 'boot_disk_type=%s\nboot_disk_size=%s\nmax_run_duration=%s\n' "$boot_disk_type" "$boot_disk_size" "$max_run_duration"
     printf 'network=%s\nsubnet=%s\nssh_transport=%s\n' "$network" "$subnet" "$ssh_transport"
     printf 'requested_commit=%s\nbenchmark_mode=%s\n' "$commit" "$mode"
+    printf 'investigation_cell=%s\nsoak_profile=%s\n' \
+      "${investigation_cell:-none}" "$soak_profile"
     printf 'remote_commit=%s\n' "$remote_commit"
     printf 'orchestrator_started_utc=%s\norchestrator_finished_utc=%s\n' "$orchestrator_started" "$orchestrator_finished"
     printf 'stage=%s\nssh_exit_code=%s\nremote_state=%s\n' "$stage" "$ssh_exit_code" "$remote_state"
