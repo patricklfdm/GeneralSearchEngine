@@ -13,6 +13,20 @@ case "$mode" in
     ;;
 esac
 
+soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
+case "$soak_index_cycles" in
+  true|false) ;;
+  *)
+    echo "GSE_SOAK_INDEX_CYCLES must be true or false" >&2
+    exit 2
+    ;;
+esac
+if { [ "$mode" = soak ] || [ "$mode" = all ]; } \
+    && [ ! -x scripts/analyze-v3-soak.sh ]; then
+  echo "Missing executable soak analyzer: scripts/analyze-v3-soak.sh" >&2
+  exit 2
+fi
+
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 commit=$(git rev-parse --short=12 HEAD)
 results_root=${GSE_PERF_RESULTS_ROOT:-benchmark-results/v3-production}
@@ -104,6 +118,7 @@ write_metadata_if_set() {
   echo "jmh_duration=$duration"
   echo "concurrency_documents=$concurrency_documents"
   printf 'concurrency_thread_groups=%s\n' "${thread_groups[*]}"
+  echo "soak_index_cycles=$soak_index_cycles"
   write_metadata_if_set cloud_provider GSE_CLOUD_PROVIDER
   write_metadata_if_set cloud_project GSE_CLOUD_PROJECT
   write_metadata_if_set cloud_zone GSE_CLOUD_ZONE
@@ -220,7 +235,16 @@ run_soak() {
     --sample-seconds=1 \
     --top-k=10 \
     --corpus-profile=zipf-en-medium-4 \
-    --index-cycles=true 2>&1 | tee "$run_dir/soak.log"
+    "--index-cycles=$soak_index_cycles" 2>&1 | tee "$run_dir/soak.log"
+
+  analysis_file="$run_dir/soak/soak-analysis.properties"
+  analysis_temporary="$analysis_file.tmp.$$"
+  if scripts/analyze-v3-soak.sh "$run_dir/soak" > "$analysis_temporary"; then
+    mv "$analysis_temporary" "$analysis_file"
+  else
+    rm -f -- "$analysis_temporary"
+    return 1
+  fi
 }
 
 case "$mode" in

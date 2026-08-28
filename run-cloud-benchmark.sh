@@ -44,7 +44,8 @@ usage() {
     '  GSE_PERF_JVM_OPTIONS            Default: -Xms8g -Xmx16g' \
     '  GSE_CONCURRENCY_DOCUMENTS' \
     '  GSE_CONCURRENCY_THREAD_GROUPS' \
-    '  GSE_SOAK_SECONDS'
+    '  GSE_SOAK_SECONDS' \
+    '  GSE_SOAK_INDEX_CYCLES          Default: true'
 }
 
 dry_run=false
@@ -167,6 +168,7 @@ actual_root=$(git rev-parse --show-toplevel)
 [ "$actual_root" = "$repo_root" ] \
   || fail "$EXIT_CONFIG" "Repository root mismatch: expected $repo_root, got $actual_root"
 [ -f pom.xml ] && [ -x mvnw ] && [ -f scripts/run-v3-production-performance.sh ] \
+  && [ -x scripts/analyze-v3-soak.sh ] \
   || fail "$EXIT_CONFIG" "This does not look like the GeneralSearchEngine repository"
 
 dirty=$(git status --porcelain --untracked-files=normal)
@@ -270,6 +272,8 @@ fi
 soak_seconds=${GSE_SOAK_SECONDS:-1800}
 [[ "$soak_seconds" =~ ^[1-9][0-9]*$ ]] \
   || fail "$EXIT_CONFIG" "GSE_SOAK_SECONDS must be a positive integer"
+soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
+validate_boolean GSE_SOAK_INDEX_CYCLES "$soak_index_cycles"
 if [ "${#soak_seconds}" -gt 6 ] || [ "$soak_seconds" -gt 597600 ]; then
   fail "$EXIT_CONFIG" "GSE_SOAK_SECONDS plus the 2-hour recovery grace must fit within 7 days"
 fi
@@ -404,7 +408,8 @@ remote_environment=(env
   "GSE_CLOUD_IMAGE_ID=$resolved_image_id"
   "GSE_CLOUD_IMAGE_SELF_LINK=$resolved_image_self_link"
   "GSE_CLOUD_IMAGE_CREATED_AT=$resolved_image_created_at"
-  "GSE_PERF_JVM_OPTIONS=$jvm_options")
+  "GSE_PERF_JVM_OPTIONS=$jvm_options"
+  "GSE_SOAK_INDEX_CYCLES=$soak_index_cycles")
 
 if [ "$mode" = concurrency ]; then
   remote_environment+=("GSE_CONCURRENCY_DOCUMENTS=${GSE_CONCURRENCY_DOCUMENTS:-100000}")

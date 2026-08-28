@@ -110,7 +110,12 @@ jobs:
         run: |
           bash -n run-cloud-benchmark.sh
           bash -n scripts/run-v3-production-performance.sh
+          bash -n scripts/analyze-v3-soak.sh
+          bash -n scripts/test-v3-soak-analysis.sh
           bash -n scripts/cloud/*.sh
+
+      - name: Analyze synthetic soak evidence
+        run: scripts/test-v3-soak-analysis.sh
 
       - name: Exercise cloud lifecycle with fake gcloud
         run: scripts/cloud/test-cloud-runner.sh

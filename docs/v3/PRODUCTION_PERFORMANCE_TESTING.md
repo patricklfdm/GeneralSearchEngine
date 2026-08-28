@@ -77,6 +77,19 @@ Useful JMH overrides are `GSE_JMH_FORKS`, `GSE_JMH_WARMUPS`,
 `GSE_JMH_ITERATIONS`, and `GSE_JMH_DURATION`. Reduced values are diagnostic only and
 must be recorded with the result.
 
+`GSE_SOAK_INDEX_CYCLES` accepts `true` (the default) or `false`. It provides the frozen
+control required to distinguish mixed search/update behavior from continuous dynamic
+range-index create/drop work. Every completed soak includes the deterministic
+`soak/soak-analysis.properties` report before checksums are generated.
+
+Reproduce that report without modifying retained evidence by writing to a separate file:
+
+```bash
+scripts/analyze-v3-soak.sh \
+  benchmark-results/v3-production/RUN_DIRECTORY/soak \
+  > /tmp/soak-analysis.properties
+```
+
 ## Review protocol
 
 Before comparing two runs, confirm the commit, Java version, heap settings, logical
@@ -100,6 +113,12 @@ distinguish engine behavior from environment noise.
 
 The reviewed follow-up evidence and bounded gate decision are recorded in the
 [production performance results](PRODUCTION_PERFORMANCE_RESULTS.md).
+
+When a cloud soak shows sustained throughput or heap-band drift, use the frozen
+[cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) before proposing an engine
+optimization. Its flags trigger review and controlled experiments; they are not SLAs.
+The completed screening, confirmation, and investigation boundary are recorded in the
+[cloud soak diagnostic results](CLOUD_SOAK_DIAGNOSTIC_RESULTS.md).
 
 For reproducible C3D execution independent of a developer workstation, use the
 [GCP cloud performance runner](CLOUD_PERFORMANCE_TESTING.md). It invokes this same
