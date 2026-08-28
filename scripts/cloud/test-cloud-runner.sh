@@ -47,6 +47,7 @@ cp "$source_root/pom.xml" "$source_root/mvnw" "$test_repo/"
 cp "$source_root/scripts/run-v3-production-performance.sh" \
   "$source_root/scripts/analyze-v3-soak.sh" \
   "$source_root/scripts/analyze-v3-soak-investigation.sh" \
+  "$source_root/scripts/analyze-v3-soak-stabilization.sh" \
   "$test_repo/scripts/"
 cp "$source_root/scripts/cloud/remote-bootstrap.sh" \
   "$source_root/scripts/cloud/remote-run-benchmark.sh" \
@@ -118,6 +119,76 @@ assert_contains "$output_file" '--instance-termination-action=STOP'
 assert_contains "$output_file" '--no-service-account'
 assert_contains "$output_file" '--no-scopes'
 assert_contains "$output_file" '--max-run-duration=28800s'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=confirmation-dry \
+  GSE_CLOUD_PROVISIONING=standard \
+  GSE_GCP_ZONE=us-west4-a \
+  GSE_CLOUD_IMAGE=ubuntu-2404-noble-amd64-v20260826 \
+  GSE_SOAK_INVESTIGATION_CELL=revision-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=confirmation \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run stabilized-investigation \
+  > "$output_file" 2>&1
+confirmation_exit=$?
+set -e
+[ "$confirmation_exit" -eq 0 ] \
+  || fail "Confirmation dry run returned $confirmation_exit"
+assert_contains "$output_file" 'GSE_SOAK_STABILIZATION_PURPOSE=confirmation'
+assert_contains "$output_file" 'GSE_SOAK_SECONDS=1800'
+assert_contains "$output_file" '--max-run-duration=9300s'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=profile-dry \
+  GSE_CLOUD_PROVISIONING=standard \
+  GSE_GCP_ZONE=us-west4-a \
+  GSE_CLOUD_IMAGE=ubuntu-2404-noble-amd64-v20260826 \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=profile \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run stabilized-investigation \
+  > "$output_file" 2>&1
+profile_exit=$?
+set -e
+[ "$profile_exit" -eq 0 ] || fail "Profile dry run returned $profile_exit"
+assert_contains "$output_file" 'GSE_SOAK_STABILIZATION_PURPOSE=profile'
+assert_contains "$output_file" 'GSE_SOAK_PROFILE=jfr'
+assert_contains "$output_file" '--max-run-duration=8100s'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=reduced-rejected \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=reduced-test \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run stabilized-investigation \
+  > "$output_file" 2>&1
+reduced_exit=$?
+set -e
+[ "$reduced_exit" -eq 2 ] || fail "Cloud reduced-test returned $reduced_exit"
+assert_contains "$output_file" 'reduced-test is local-only'
+test ! -s "$fake_state/commands.log" \
+  || fail 'Cloud reduced-test called gcloud before failing'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=stabilized-dry \
+  GSE_CLOUD_PROVISIONING=standard \
+  GSE_GCP_ZONE=us-west4-a \
+  GSE_CLOUD_IMAGE=ubuntu-2404-noble-amd64-v20260826 \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=screening \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run stabilized-investigation \
+  > "$output_file" 2>&1
+stabilized_exit=$?
+set -e
+[ "$stabilized_exit" -eq 0 ] \
+  || fail "Stabilized dry run returned $stabilized_exit"
+assert_contains "$output_file" 'Mode:         stabilized-investigation'
+assert_contains "$output_file" 'GSE_SOAK_STABILIZATION_PURPOSE=screening'
+assert_contains "$output_file" 'GSE_SOAK_STABILIZATION_SECONDS=300'
+assert_contains "$output_file" 'GSE_SOAK_STABILIZATION_WINDOW_SECONDS=60'
+assert_contains "$output_file" '--max-run-duration=8100s'
 assert_not_contains "$fake_state/commands.log" 'compute instances create'
 assert_not_contains "$fake_state/commands.log" 'compute instances delete'
 assert_not_contains "$fake_state/commands.log" 'compute ssh'

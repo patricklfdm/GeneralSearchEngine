@@ -41,5 +41,21 @@ expect_config_failure profile-outside-investigation \
 expect_config_failure cell-outside-investigation \
   'GSE_SOAK_INVESTIGATION_CELL is only valid in investigation mode' \
   GSE_SOAK_INVESTIGATION_CELL=read-only "$runner" quick
+expect_config_failure missing-stabilization-purpose \
+  'GSE_SOAK_STABILIZATION_PURPOSE must be' \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  "$runner" stabilized-investigation
+expect_config_failure screening-duration-conflict \
+  'GSE_SOAK_SECONDS conflicts with stabilization purpose screening' \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=screening GSE_SOAK_SECONDS=12 \
+  "$runner" stabilized-investigation
+expect_config_failure reduced-window-conflict \
+  'reduced-test requires five positive windows' \
+  GSE_SOAK_INVESTIGATION_CELL=stable-update \
+  GSE_SOAK_STABILIZATION_PURPOSE=reduced-test \
+  GSE_SOAK_STABILIZATION_SECONDS=9 \
+  GSE_SOAK_STABILIZATION_WINDOW_SECONDS=2 \
+  "$runner" stabilized-investigation
 
 echo 'V3 investigation runner validation tests: PASS'

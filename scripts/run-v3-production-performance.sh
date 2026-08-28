@@ -6,9 +6,9 @@ cd "$repo_root"
 
 mode=${1:-quick}
 case "$mode" in
-  quick|full|concurrency|soak|investigation|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|all) ;;
   *)
-    echo "usage: $0 [quick|full|concurrency|soak|investigation|all]" >&2
+    echo "usage: $0 [quick|full|concurrency|soak|investigation|stabilized-investigation|all]" >&2
     exit 2
     ;;
 esac
@@ -19,8 +19,12 @@ soak_update_mode=revision
 soak_per_query_metrics=false
 soak_writers=${GSE_SOAK_WRITERS:-1}
 soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
+stabilization_purpose=${GSE_SOAK_STABILIZATION_PURPOSE:-}
+stabilization_seconds=0
+stabilization_window_seconds=60
+allow_reduced_stabilization_test=false
 
-if [ "$mode" = investigation ]; then
+if [ "$mode" = investigation ] || [ "$mode" = stabilized-investigation ]; then
   case "$investigation_cell" in
     read-only) expected_writers=0; soak_update_mode=none ;;
     stable-update) expected_writers=1; soak_update_mode=stable ;;
@@ -41,11 +45,68 @@ if [ "$mode" = investigation ]; then
   soak_writers=$expected_writers
   soak_index_cycles=false
   soak_per_query_metrics=true
+  if [ "$mode" = stabilized-investigation ]; then
+    case "$stabilization_purpose" in
+      screening) expected_seconds=600; stabilization_seconds=300; stabilization_window_seconds=60; expected_profile=none ;;
+      confirmation) expected_seconds=1800; stabilization_seconds=300; stabilization_window_seconds=60; expected_profile=none ;;
+      profile) expected_seconds=600; stabilization_seconds=300; stabilization_window_seconds=60; expected_profile=jfr ;;
+      reduced-test)
+        stabilization_seconds=${GSE_SOAK_STABILIZATION_SECONDS:-10}
+        stabilization_window_seconds=${GSE_SOAK_STABILIZATION_WINDOW_SECONDS:-2}
+        expected_seconds=${GSE_SOAK_SECONDS:-12}
+        expected_profile=${GSE_SOAK_PROFILE:-none}
+        allow_reduced_stabilization_test=true
+        for numeric in "$stabilization_seconds" "$stabilization_window_seconds" "$expected_seconds"; do
+          [[ "$numeric" =~ ^[1-9][0-9]*$ ]] || {
+            echo "reduced-test durations must be positive integers" >&2
+            exit 2
+          }
+        done
+        if [ "$stabilization_seconds" -ne $((5 * stabilization_window_seconds)) ] \
+            || [ "$expected_seconds" -lt 12 ]; then
+          echo "reduced-test requires five positive windows and at least 12 measurement seconds" >&2
+          exit 2
+        fi
+        ;;
+      *)
+        echo "GSE_SOAK_STABILIZATION_PURPOSE must be screening, confirmation, profile, or reduced-test" >&2
+        exit 2
+        ;;
+    esac
+    for pair in \
+      "GSE_SOAK_SECONDS:${GSE_SOAK_SECONDS:-}:$expected_seconds" \
+      "GSE_SOAK_STABILIZATION_SECONDS:${GSE_SOAK_STABILIZATION_SECONDS:-}:$stabilization_seconds" \
+      "GSE_SOAK_STABILIZATION_WINDOW_SECONDS:${GSE_SOAK_STABILIZATION_WINDOW_SECONDS:-}:$stabilization_window_seconds" \
+      "GSE_SOAK_PROFILE:${GSE_SOAK_PROFILE:-}:$expected_profile"; do
+      IFS=: read -r name supplied expected <<< "$pair"
+      if [ -n "$supplied" ] && [ "$supplied" != "$expected" ]; then
+        echo "$name conflicts with stabilization purpose $stabilization_purpose (expected $expected)" >&2
+        exit 2
+      fi
+    done
+    soak_profile=$expected_profile
+    if [ "$stabilization_purpose" != reduced-test ]; then
+      for pair in \
+        "GSE_SOAK_READERS:${GSE_SOAK_READERS:-}:16" \
+        "GSE_SOAK_DOCUMENTS:${GSE_SOAK_DOCUMENTS:-}:100000"; do
+        IFS=: read -r name supplied expected <<< "$pair"
+        if [ -n "$supplied" ] && [ "$supplied" != "$expected" ]; then
+          echo "$name conflicts with production stabilization (expected $expected)" >&2
+          exit 2
+        fi
+      done
+    fi
+  elif [ -n "$stabilization_purpose" ]; then
+    echo "GSE_SOAK_STABILIZATION_PURPOSE is only valid in stabilized-investigation mode" >&2
+    exit 2
+  fi
 else
   [ -z "$investigation_cell" ] \
     || { echo "GSE_SOAK_INVESTIGATION_CELL is only valid in investigation mode" >&2; exit 2; }
   [ "$soak_profile" = none ] \
     || { echo "GSE_SOAK_PROFILE is only valid in investigation mode" >&2; exit 2; }
+  [ -z "$stabilization_purpose" ] \
+    || { echo "GSE_SOAK_STABILIZATION_PURPOSE is only valid in stabilized-investigation mode" >&2; exit 2; }
 fi
 case "$soak_profile" in
   none|jfr) ;;
@@ -58,13 +119,19 @@ case "$soak_index_cycles" in
     exit 2
     ;;
 esac
-if { [ "$mode" = soak ] || [ "$mode" = investigation ] || [ "$mode" = all ]; } \
+if { [ "$mode" = soak ] || [ "$mode" = investigation ] \
+    || [ "$mode" = stabilized-investigation ] || [ "$mode" = all ]; } \
     && [ ! -x scripts/analyze-v3-soak.sh ]; then
   echo "Missing executable soak analyzer: scripts/analyze-v3-soak.sh" >&2
   exit 2
 fi
 if [ "$mode" = investigation ] && [ ! -x scripts/analyze-v3-soak-investigation.sh ]; then
   echo "Missing executable investigation analyzer: scripts/analyze-v3-soak-investigation.sh" >&2
+  exit 2
+fi
+if [ "$mode" = stabilized-investigation ] \
+    && [ ! -x scripts/analyze-v3-soak-stabilization.sh ]; then
+  echo "Missing executable stabilization analyzer: scripts/analyze-v3-soak-stabilization.sh" >&2
   exit 2
 fi
 if [ "$soak_profile" = jfr ] && ! command -v jfr >/dev/null 2>&1; then
@@ -156,6 +223,7 @@ write_metadata_if_set() {
   echo "git_branch=$(git branch --show-current)"
   echo "logical_cpus=$(getconf _NPROCESSORS_ONLN)"
   echo "java_home=${JAVA_HOME:-unset}"
+  echo "java_runtime=$(java -version 2>&1 | sed -n '1p')"
   echo "jvm_options=$jvm_options"
   echo "jmh_forks=$forks"
   echo "jmh_warmups=$warmups"
@@ -168,6 +236,15 @@ write_metadata_if_set() {
   echo "soak_update_mode=$soak_update_mode"
   echo "soak_per_query_metrics=$soak_per_query_metrics"
   echo "soak_profile=$soak_profile"
+  echo "soak_stabilization_purpose=${stabilization_purpose:-none}"
+  echo "soak_stabilization_seconds=$stabilization_seconds"
+  echo "soak_stabilization_window_seconds=$stabilization_window_seconds"
+  if [ "$mode" = stabilized-investigation ] && [ "$soak_profile" = jfr ]; then
+    echo 'jfr_configuration=jdk-profile'
+    echo 'jfr_recording_start_phase=MEASURE_SELECTED_CELL'
+    echo 'jfr_recording_stop_phase=MEASUREMENT_WORKERS_JOINED'
+    echo 'jfr_recording_scope=measurement-only'
+  fi
   write_metadata_if_set cloud_provider GSE_CLOUD_PROVIDER
   write_metadata_if_set cloud_project GSE_CLOUD_PROJECT
   write_metadata_if_set cloud_zone GSE_CLOUD_ZONE
@@ -269,13 +346,17 @@ run_concurrency() {
 }
 
 run_soak() {
-  soak_seconds=${GSE_SOAK_SECONDS:-1800}
+  if [ "$mode" = stabilized-investigation ]; then
+    soak_seconds=$expected_seconds
+  else
+    soak_seconds=${GSE_SOAK_SECONDS:-1800}
+  fi
   soak_readers=${GSE_SOAK_READERS:-16}
   soak_documents=${GSE_SOAK_DOCUMENTS:-100000}
   echo "Running ${soak_seconds}s production soak..."
   mkdir -p "$run_dir/soak"
   soak_jvm_args=("${jvm_args[@]}")
-  if [ "$soak_profile" = jfr ]; then
+  if [ "$soak_profile" = jfr ] && [ "$mode" = investigation ]; then
     soak_jvm_args+=("-XX:StartFlightRecording=filename=$run_dir/soak/profile.jfr,settings=profile,disk=true,dumponexit=true,maxsize=512m")
   fi
   soak_command=(java "${soak_jvm_args[@]}" -cp target/benchmarks.jar
@@ -291,10 +372,40 @@ run_soak() {
     "--index-cycles=$soak_index_cycles" \
     "--update-mode=$soak_update_mode" \
     "--per-query-metrics=$soak_per_query_metrics")
+  if [ "$mode" = stabilized-investigation ]; then
+    soak_command+=(
+      "--stabilization-purpose=$stabilization_purpose"
+      "--stabilization-seconds=$stabilization_seconds"
+      "--stabilization-window-seconds=$stabilization_window_seconds"
+      "--allow-reduced-stabilization-test=$allow_reduced_stabilization_test")
+    if [ "$soak_profile" = jfr ]; then
+      soak_command+=("--jfr-output=$run_dir/soak/profile.jfr")
+    fi
+  fi
   printf 'soak_java_command=' >> "$run_dir/metadata.txt"
   printf '%q ' "${soak_command[@]}" >> "$run_dir/metadata.txt"
   printf '\n' >> "$run_dir/metadata.txt"
+  set +e
   "${soak_command[@]}" 2>&1 | tee "$run_dir/soak.log"
+  soak_exit_code=${PIPESTATUS[0]}
+  set -e
+
+  if [ "$mode" = stabilized-investigation ]; then
+    stabilization_file="$run_dir/soak/soak-stabilization-analysis.properties"
+    stabilization_temporary="$stabilization_file.tmp.$$"
+    if scripts/analyze-v3-soak-stabilization.sh "$run_dir/soak" \
+        > "$stabilization_temporary"; then
+      mv "$stabilization_temporary" "$stabilization_file"
+    else
+      rm -f -- "$stabilization_temporary"
+      return 1
+    fi
+    if [ "$soak_exit_code" -ne 0 ]; then
+      return "$soak_exit_code"
+    fi
+  elif [ "$soak_exit_code" -ne 0 ]; then
+    return "$soak_exit_code"
+  fi
 
   if [ "$soak_profile" = jfr ]; then
     printf 'jfr_summary_command=jfr summary %q\n' \
@@ -315,7 +426,7 @@ run_soak() {
     return 1
   fi
 
-  if [ "$mode" = investigation ]; then
+  if [ "$mode" = investigation ] || [ "$mode" = stabilized-investigation ]; then
     investigation_file="$run_dir/soak/soak-investigation-analysis.properties"
     investigation_temporary="$investigation_file.tmp.$$"
     if scripts/analyze-v3-soak-investigation.sh "$run_dir/soak" \
@@ -333,6 +444,7 @@ case "$mode" in
   concurrency) run_concurrency ;;
   soak) run_soak ;;
   investigation) run_soak ;;
+  stabilized-investigation) run_soak ;;
   all)
     run_benchmarks
     run_soak

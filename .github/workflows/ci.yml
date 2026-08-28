@@ -43,6 +43,9 @@ jobs:
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
+      - name: Exercise reduced stabilization and measurement-only JFR
+        run: scripts/test-v3-soak-stabilization-e2e.sh
+
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 
@@ -115,9 +118,14 @@ jobs:
           bash -n scripts/run-v3-production-performance.sh
           bash -n scripts/analyze-v3-soak.sh
           bash -n scripts/analyze-v3-soak-investigation.sh
+          bash -n scripts/analyze-v3-soak-stabilization.sh
+          bash -n scripts/compare-v3-soak-stabilized.sh
           bash -n scripts/test-v3-soak-analysis.sh
           bash -n scripts/test-v3-soak-investigation-analysis.sh
           bash -n scripts/test-v3-investigation-runner.sh
+          bash -n scripts/test-v3-soak-stabilization-analysis.sh
+          bash -n scripts/test-v3-soak-stabilized-comparison.sh
+          bash -n scripts/test-v3-soak-stabilization-e2e.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence
@@ -125,6 +133,8 @@ jobs:
           scripts/test-v3-soak-analysis.sh
           scripts/test-v3-soak-investigation-analysis.sh
           scripts/test-v3-investigation-runner.sh
+          scripts/test-v3-soak-stabilization-analysis.sh
+          scripts/test-v3-soak-stabilized-comparison.sh
 
       - name: Exercise cloud lifecycle with fake gcloud
         run: scripts/cloud/test-cloud-runner.sh

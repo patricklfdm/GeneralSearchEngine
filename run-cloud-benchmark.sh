@@ -18,7 +18,7 @@ usage() {
     'Run the existing V3 production benchmark suite on one ephemeral GCP Compute Engine VM.' \
     '' \
     'Modes:' \
-    '  quick  full  concurrency  soak  investigation  all' \
+    '  quick  full  concurrency  soak  investigation  stabilized-investigation  all' \
     '' \
     'Options:' \
     '  --dry-run  Validate and print the plan without creating, deleting, SSHing, or copying.' \
@@ -47,7 +47,8 @@ usage() {
     '  GSE_SOAK_SECONDS' \
     '  GSE_SOAK_INDEX_CYCLES          Default: true' \
     '  GSE_SOAK_INVESTIGATION_CELL    read-only, stable-update, or revision-update' \
-    '  GSE_SOAK_PROFILE               none (default) or jfr; investigation only'
+    '  GSE_SOAK_PROFILE               none (default) or jfr; investigation only' \
+    '  GSE_SOAK_STABILIZATION_PURPOSE screening, confirmation, or profile'
 }
 
 dry_run=false
@@ -78,9 +79,9 @@ for argument in "$@"; do
 done
 
 case "$mode" in
-  quick|full|concurrency|soak|investigation|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|all) ;;
   *)
-    echo "A mode is required: quick, full, concurrency, soak, investigation, or all" >&2
+    echo "A mode is required: quick, full, concurrency, soak, investigation, stabilized-investigation, or all" >&2
     usage >&2
     exit "$EXIT_CONFIG"
     ;;
@@ -163,7 +164,10 @@ investigation_cell=${GSE_SOAK_INVESTIGATION_CELL:-}
 soak_profile=${GSE_SOAK_PROFILE:-none}
 soak_writers=${GSE_SOAK_WRITERS:-1}
 soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
-if [ "$mode" = investigation ]; then
+stabilization_purpose=${GSE_SOAK_STABILIZATION_PURPOSE:-}
+stabilization_seconds=0
+stabilization_window_seconds=60
+if [ "$mode" = investigation ] || [ "$mode" = stabilized-investigation ]; then
   case "$investigation_cell" in
     read-only) expected_soak_writers=0 ;;
     stable-update|revision-update) expected_soak_writers=1 ;;
@@ -181,11 +185,57 @@ if [ "$mode" = investigation ]; then
   fi
   soak_writers=$expected_soak_writers
   soak_index_cycles=false
+  if [ "$mode" = stabilized-investigation ]; then
+    [ "$investigation_cell" != read-only ] \
+      || fail "$EXIT_CONFIG" \
+        "production stabilization requires stable-update or revision-update"
+    case "$stabilization_purpose" in
+      screening) expected_soak_seconds=600; stabilization_seconds=300; expected_profile=none ;;
+      confirmation) expected_soak_seconds=1800; stabilization_seconds=300; expected_profile=none ;;
+      profile) expected_soak_seconds=600; stabilization_seconds=300; expected_profile=jfr ;;
+      reduced-test) fail "$EXIT_CONFIG" "reduced-test is local-only and cannot provision GCP resources" ;;
+      *) fail "$EXIT_CONFIG" \
+        "GSE_SOAK_STABILIZATION_PURPOSE must be screening, confirmation, or profile" ;;
+    esac
+    [ "${GSE_CLOUD_PROVISIONING:-spot}" = standard ] \
+      || fail "$EXIT_CONFIG" \
+        "stabilized-investigation requires GSE_CLOUD_PROVISIONING=standard"
+    for pair in \
+      "GSE_GCP_ZONE:${GSE_GCP_ZONE:-}:us-west4-a" \
+      "GSE_CLOUD_MACHINE_TYPE:${GSE_CLOUD_MACHINE_TYPE:-c3d-standard-30}:c3d-standard-30" \
+      "GSE_CLOUD_IMAGE:${GSE_CLOUD_IMAGE:-}:ubuntu-2404-noble-amd64-v20260826" \
+      "GSE_PERF_JVM_OPTIONS:${GSE_PERF_JVM_OPTIONS:--Xms8g -Xmx16g}:-Xms8g -Xmx16g" \
+      "GSE_SOAK_READERS:${GSE_SOAK_READERS:-16}:16" \
+      "GSE_SOAK_DOCUMENTS:${GSE_SOAK_DOCUMENTS:-100000}:100000"; do
+      IFS=: read -r name supplied expected <<< "$pair"
+      [ "$supplied" = "$expected" ] \
+        || fail "$EXIT_CONFIG" \
+          "$name conflicts with the frozen stabilized cloud cell (expected $expected)"
+    done
+    stabilization_window_seconds=60
+    for pair in \
+      "GSE_SOAK_SECONDS:${GSE_SOAK_SECONDS:-}:$expected_soak_seconds" \
+      "GSE_SOAK_STABILIZATION_SECONDS:${GSE_SOAK_STABILIZATION_SECONDS:-}:$stabilization_seconds" \
+      "GSE_SOAK_STABILIZATION_WINDOW_SECONDS:${GSE_SOAK_STABILIZATION_WINDOW_SECONDS:-}:$stabilization_window_seconds" \
+      "GSE_SOAK_PROFILE:${GSE_SOAK_PROFILE:-}:$expected_profile"; do
+      IFS=: read -r name supplied expected <<< "$pair"
+      if [ -n "$supplied" ] && [ "$supplied" != "$expected" ]; then
+        fail "$EXIT_CONFIG" "$name conflicts with $stabilization_purpose (expected $expected)"
+      fi
+    done
+    soak_profile=$expected_profile
+  elif [ -n "$stabilization_purpose" ]; then
+    fail "$EXIT_CONFIG" \
+      "GSE_SOAK_STABILIZATION_PURPOSE is only valid in stabilized-investigation mode"
+  fi
 else
   [ -z "$investigation_cell" ] \
     || fail "$EXIT_CONFIG" "GSE_SOAK_INVESTIGATION_CELL is only valid in investigation mode"
   [ "$soak_profile" = none ] \
     || fail "$EXIT_CONFIG" "GSE_SOAK_PROFILE is only valid in investigation mode"
+  [ -z "$stabilization_purpose" ] \
+    || fail "$EXIT_CONFIG" \
+      "GSE_SOAK_STABILIZATION_PURPOSE is only valid in stabilized-investigation mode"
 fi
 case "$soak_profile" in
   none|jfr) ;;
@@ -208,6 +258,7 @@ actual_root=$(git rev-parse --show-toplevel)
 [ -f pom.xml ] && [ -x mvnw ] && [ -f scripts/run-v3-production-performance.sh ] \
   && [ -x scripts/analyze-v3-soak.sh ] \
   && [ -x scripts/analyze-v3-soak-investigation.sh ] \
+  && [ -x scripts/analyze-v3-soak-stabilization.sh ] \
   || fail "$EXIT_CONFIG" "This does not look like the GeneralSearchEngine repository"
 
 dirty=$(git status --porcelain --untracked-files=normal)
@@ -308,7 +359,11 @@ if [ -n "${GSE_CONCURRENCY_THREAD_GROUPS:-}" ]; then
   done
 fi
 
-soak_seconds=${GSE_SOAK_SECONDS:-1800}
+if [ "$mode" = stabilized-investigation ]; then
+  soak_seconds=$expected_soak_seconds
+else
+  soak_seconds=${GSE_SOAK_SECONDS:-1800}
+fi
 [[ "$soak_seconds" =~ ^[1-9][0-9]*$ ]] \
   || fail "$EXIT_CONFIG" "GSE_SOAK_SECONDS must be a positive integer"
 if [ "${#soak_seconds}" -gt 6 ] || [ "$soak_seconds" -gt 597600 ]; then
@@ -322,14 +377,20 @@ else
     full) duration_seconds=43200 ;;
     concurrency) duration_seconds=28800 ;;
     soak|investigation) duration_seconds=$((soak_seconds + 7200)) ;;
+    stabilized-investigation) duration_seconds=$((stabilization_seconds + soak_seconds + 7200)) ;;
     all) duration_seconds=86400 ;;
   esac
   [ "$duration_seconds" -le 604800 ] \
     || fail "$EXIT_CONFIG" "Requested soak plus recovery grace exceeds the 7-day v1 cap"
 fi
 max_run_duration="${duration_seconds}s"
-if { [ "$mode" = soak ] || [ "$mode" = investigation ] || [ "$mode" = all ]; } \
-    && [ "$duration_seconds" -lt $((soak_seconds + 7200)) ]; then
+required_soak_duration=$((soak_seconds + 7200))
+if [ "$mode" = stabilized-investigation ]; then
+  required_soak_duration=$((stabilization_seconds + soak_seconds + 7200))
+fi
+if { [ "$mode" = soak ] || [ "$mode" = investigation ] \
+    || [ "$mode" = stabilized-investigation ] || [ "$mode" = all ]; } \
+    && [ "$duration_seconds" -lt "$required_soak_duration" ]; then
   fail "$EXIT_CONFIG" "Max run duration must exceed the requested soak by at least 2 hours"
 fi
 
@@ -448,11 +509,18 @@ remote_environment=(env
   "GSE_PERF_JVM_OPTIONS=$jvm_options"
   "GSE_SOAK_INDEX_CYCLES=$soak_index_cycles")
 
-if [ "$mode" = investigation ]; then
+if [ "$mode" = investigation ] || [ "$mode" = stabilized-investigation ]; then
   remote_environment+=(
     "GSE_SOAK_INVESTIGATION_CELL=$investigation_cell"
     "GSE_SOAK_PROFILE=$soak_profile"
     "GSE_SOAK_WRITERS=$soak_writers")
+fi
+if [ "$mode" = stabilized-investigation ]; then
+  remote_environment+=(
+    "GSE_SOAK_STABILIZATION_PURPOSE=$stabilization_purpose"
+    "GSE_SOAK_STABILIZATION_SECONDS=$stabilization_seconds"
+    "GSE_SOAK_STABILIZATION_WINDOW_SECONDS=$stabilization_window_seconds"
+    "GSE_SOAK_SECONDS=$soak_seconds")
 fi
 
 if [ "$mode" = concurrency ]; then
@@ -523,6 +591,10 @@ write_record() {
     printf 'requested_commit=%s\nbenchmark_mode=%s\n' "$commit" "$mode"
     printf 'investigation_cell=%s\nsoak_profile=%s\n' \
       "${investigation_cell:-none}" "$soak_profile"
+    printf 'stabilization_purpose=%s\nstabilization_seconds=%s\n' \
+      "${stabilization_purpose:-none}" "$stabilization_seconds"
+    printf 'stabilization_window_seconds=%s\nsoak_seconds=%s\n' \
+      "$stabilization_window_seconds" "$soak_seconds"
     printf 'remote_commit=%s\n' "$remote_commit"
     printf 'orchestrator_started_utc=%s\norchestrator_finished_utc=%s\n' "$orchestrator_started" "$orchestrator_finished"
     printf 'stage=%s\nssh_exit_code=%s\nremote_state=%s\n' "$stage" "$ssh_exit_code" "$remote_state"
