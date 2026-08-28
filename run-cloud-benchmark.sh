@@ -256,6 +256,7 @@ actual_root=$(git rev-parse --show-toplevel)
 [ "$actual_root" = "$repo_root" ] \
   || fail "$EXIT_CONFIG" "Repository root mismatch: expected $repo_root, got $actual_root"
 [ -f pom.xml ] && [ -x mvnw ] && [ -f scripts/run-v3-production-performance.sh ] \
+  && [ -x scripts/cloud/collect-benchmark-system-facts.sh ] \
   && [ -x scripts/analyze-v3-soak.sh ] \
   && [ -x scripts/analyze-v3-soak-investigation.sh ] \
   && [ -x scripts/analyze-v3-soak-stabilization.sh ] \
@@ -495,6 +496,7 @@ printf '%s\n' \
 
 remote_environment=(env
   "GSE_CLOUD_PROVIDER=gcp"
+  "GSE_CLOUD_SOURCE_REPOSITORY=$repo_url"
   "GSE_CLOUD_PROJECT=$project"
   "GSE_CLOUD_ZONE=$zone"
   "GSE_CLOUD_MACHINE_TYPE=$machine_type"

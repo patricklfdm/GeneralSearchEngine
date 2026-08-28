@@ -256,6 +256,42 @@ Separate local lifecycle records and logs are under:
 benchmark-results/v3-production/cloud-orchestration/
 ```
 
+### Derive a Cloud Benchmark V2 run
+
+Phase 1 adds deterministic post-processing without changing the V1 cloud lifecycle.
+It requires Python 3.11 or newer locally or in CI; Python is not installed on the
+benchmark VM for this purpose. After a verified V1 run, derive experiment evidence with:
+
+```bash
+python3 scripts/cloud/benchmark_v2.py manifest \
+  benchmark-results/v3-production/RAW_RUN_ID
+```
+
+The analyzer finds the matching finalized orchestration record by instance identity,
+revalidates every raw checksum and the raw/record relationship, then writes only to:
+
+```text
+benchmark-results/v3-production/derived/runs/RAW_RUN_ID/v1/
+  benchmark-manifest.json
+  normalized-metrics.json
+  derived-checksums.sha256
+```
+
+Reprocessing identical evidence is byte-stable. An existing derived file with different
+bytes is rejected instead of overwritten. The raw run is never modified. Use
+`--orchestration-record PATH` only when the record is stored outside its normal sibling
+directory, and `--output-dir PATH` for a separate derived destination.
+
+New raw runs carry evidence schema 1 and exact CPU topology, memory, kernel, image,
+Java/VM, ordered JVM option, suite, and repository facts. Explicitly supported historical
+schema-0 JMH shapes remain usable as `VALID_EXPERIMENT`, but missing strict facts are
+left null and no environment fingerprint is invented.
+
+`--evidence-profile canonical` validates one potential canonical set member. It requires
+schema 1, a clean source, Standard provisioning, a canonical mode, a complete strict
+environment fingerprint, and ordinary cleanup proof. It does not turn one run into a
+canonical baseline; independent set aggregation remains Phase 2.
+
 Interrupted evidence is placed below `partial/`; checksum-invalid evidence is placed
 below `quarantine/`. These directories remain ignored by Git. The orchestrator never
 adds its own properties to the downloaded checksum payload.
@@ -320,7 +356,9 @@ scripts/test-v3-soak-analysis.sh
 scripts/test-v3-soak-stabilization-analysis.sh
 scripts/test-v3-soak-stabilized-comparison.sh
 scripts/test-v3-soak-stabilization-e2e.sh
+scripts/cloud/test-benchmark-system-facts.sh
 scripts/cloud/test-cloud-runner.sh
+python3 -m unittest scripts.cloud.test_benchmark_v2
 ```
 
 The synthetic analyzer suite covers stable, drifting, queue-pressure, malformed, and
@@ -330,3 +368,9 @@ creation, dry run, IAP, benchmark failure, preemption, partial artifacts, checks
 failure, partial provisioning, cleanup failure, dirty source, and an unpushed commit. It
 does not prove project IAM, quota, network reachability, current gcloud flag compatibility,
 or real C3D performance; the user performs the first real quick run manually.
+
+The V2 fixture suite additionally covers schema-1 and explicit schema-0 adapters, raw
+immutability, checksum and orchestration contradictions, detached branches, byte-stable
+serialization, fingerprint inclusion/exclusion, JMH average/sample/throughput and
+string-`NaN` semantics, soak properties, duplicate metric identities, and derived-output
+boundaries. It uses no `gcloud` command and creates no paid resource.

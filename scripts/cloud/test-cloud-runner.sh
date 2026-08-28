@@ -51,6 +51,7 @@ cp "$source_root/scripts/run-v3-production-performance.sh" \
   "$test_repo/scripts/"
 cp "$source_root/scripts/cloud/remote-bootstrap.sh" \
   "$source_root/scripts/cloud/remote-run-benchmark.sh" \
+  "$source_root/scripts/cloud/collect-benchmark-system-facts.sh" \
   "$source_root/scripts/cloud/spot-shutdown.sh" \
   "$test_repo/scripts/cloud/"
 cp "$source_root/benchmark-results/v3-production/.gitignore" \
@@ -119,6 +120,7 @@ assert_contains "$output_file" '--instance-termination-action=STOP'
 assert_contains "$output_file" '--no-service-account'
 assert_contains "$output_file" '--no-scopes'
 assert_contains "$output_file" '--max-run-duration=28800s'
+assert_contains "$output_file" "GSE_CLOUD_SOURCE_REPOSITORY=$remote_repo"
 assert_not_contains "$fake_state/commands.log" 'compute instances create'
 
 reset_fake
