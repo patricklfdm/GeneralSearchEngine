@@ -98,6 +98,23 @@ Investigation additionally includes `soak-query-samples.csv`, corpus and snapsho
 identity in the summary, and `soak/soak-investigation-analysis.properties`. JFR runs
 also retain `soak/profile.jfr` and `soak/profile-summary.txt`.
 
+The opt-in stabilized path pays five readiness windows before starting fresh
+measurement workers. Production purposes are frozen by the
+[early-window stabilization contract](CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md):
+
+```bash
+GSE_SOAK_INVESTIGATION_CELL=stable-update \
+GSE_SOAK_STABILIZATION_PURPOSE=screening \
+scripts/run-v3-production-performance.sh stabilized-investigation
+```
+
+`screening`, `confirmation`, and `profile` derive exact durations and reject conflicting
+overrides. `reduced-test` is local-only and exists solely for bounded integration checks.
+Every stabilized run retains raw stabilization samples, the Java readiness summary, and
+an independently recomputed stabilization analysis. `NOT_READY` evidence is retained and
+checksummed, but the selected measurement cell never starts. Profile JFR starts only
+after READY and covers only the measured phase.
+
 Reproduce that report without modifying retained evidence by writing to a separate file:
 
 ```bash
