@@ -8,3 +8,17 @@ not remove them.
 Keep a result directory unchanged until it has been reviewed. A stable, curated
 summary may then be added to `docs/v3/`; raw machine-specific output should normally
 remain local.
+
+Cloud Benchmark V2 keeps derived evidence beside, never inside, immutable raw runs:
+
+```text
+derived/runs/<raw-run-id>/v1/
+sets/in-progress/<workspace-id>/
+sets/<gse-set-v1-id>/v1/
+```
+
+The in-progress workspace is resumable control state and remains after completion for
+audit. A content-addressed set directory contains the deterministic set manifest,
+aggregate metrics, complete attempt/replacement audit, and checksums. See
+[`docs/v3/CLOUD_PERFORMANCE_TESTING.md`](../../docs/v3/CLOUD_PERFORMANCE_TESTING.md)
+for the canonical set dry-run, paid-run, resume, and replacement commands.

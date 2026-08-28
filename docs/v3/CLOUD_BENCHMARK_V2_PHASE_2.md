@@ -419,15 +419,15 @@ Required tests include:
 
 ## Phase 2 completion checklist
 
-- [ ] V1 one-run CLI remains behavior compatible.
-- [ ] Canonical presets and paid-run confirmation are enforced before mutation.
-- [ ] Set plans, checkpoints, attempts, and replacements follow versioned schemas.
-- [ ] Every V1 attempt binds to one exact orchestration record without log guessing.
-- [ ] Resume and replacement cannot rerun or silently discard valid evidence.
-- [ ] Three or more compatible independent members are required for canonical status.
-- [ ] Set identity binds ordered members and complete attempt audit.
-- [ ] Numeric and categorical aggregation follow the frozen semantics.
-- [ ] Raw runs and Phase 1 derived runs remain immutable.
-- [ ] Final artifacts are deterministic, portable, checksummed, and collision-safe.
-- [ ] All synthetic/no-cloud and existing repository gates pass.
-- [ ] No comparison, registry, GCS, workflow-dispatch, or product work is included.
+- [x] V1 one-run CLI remains behavior compatible.
+- [x] Canonical presets and paid-run confirmation are enforced before mutation.
+- [x] Set plans, checkpoints, attempts, and replacements follow versioned schemas.
+- [x] Every V1 attempt binds to one exact orchestration record without log guessing.
+- [x] Resume and replacement cannot rerun or silently discard valid evidence.
+- [x] Three or more compatible independent members are required for canonical status.
+- [x] Set identity binds ordered members and complete attempt audit.
+- [x] Numeric and categorical aggregation follow the frozen semantics.
+- [x] Raw runs and Phase 1 derived runs remain immutable.
+- [x] Final artifacts are deterministic, portable, checksummed, and collision-safe.
+- [x] All synthetic/no-cloud and existing repository gates pass.
+- [x] No comparison, registry, GCS, workflow-dispatch, or product work is included.
