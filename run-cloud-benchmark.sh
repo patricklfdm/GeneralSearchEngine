@@ -161,12 +161,22 @@ property_value() {
 export CLOUDSDK_CORE_DISABLE_PROMPTS=1
 
 investigation_cell=${GSE_SOAK_INVESTIGATION_CELL:-}
+benchmark_preset_id=${GSE_BENCHMARK_PRESET_ID:-}
+orchestration_pointer_file=${GSE_CLOUD_ORCHESTRATION_POINTER_FILE:-}
 soak_profile=${GSE_SOAK_PROFILE:-none}
 soak_writers=${GSE_SOAK_WRITERS:-1}
 soak_index_cycles=${GSE_SOAK_INDEX_CYCLES:-true}
 stabilization_purpose=${GSE_SOAK_STABILIZATION_PURPOSE:-}
 stabilization_seconds=0
 stabilization_window_seconds=60
+if [ -n "$benchmark_preset_id" ]; then
+  require_single_line GSE_BENCHMARK_PRESET_ID "$benchmark_preset_id"
+  [[ "$benchmark_preset_id" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] \
+    || fail "$EXIT_CONFIG" "GSE_BENCHMARK_PRESET_ID must be a lowercase hyphenated identifier"
+fi
+if [ -n "$orchestration_pointer_file" ]; then
+  require_single_line GSE_CLOUD_ORCHESTRATION_POINTER_FILE "$orchestration_pointer_file"
+fi
 if [ "$mode" = investigation ] || [ "$mode" = stabilized-investigation ]; then
   case "$investigation_cell" in
     read-only) expected_soak_writers=0 ;;
@@ -542,6 +552,9 @@ for variable in GSE_SOAK_SECONDS GSE_SOAK_READERS GSE_SOAK_DOCUMENTS \
     remote_environment+=("$variable=${!variable}")
   fi
 done
+if [ -n "$benchmark_preset_id" ]; then
+  remote_environment+=("GSE_BENCHMARK_PRESET_ID=$benchmark_preset_id")
+fi
 
 remote_command=$(shell_join "${remote_environment[@]}" bash -s -- \
   "$repo_url" "$commit" "$mode" "$STATE_DIR")
@@ -559,6 +572,22 @@ fi
 mkdir -p "$local_results_root/cloud-orchestration"
 orchestration_record="$local_results_root/cloud-orchestration/$instance.properties"
 orchestration_log="$local_results_root/cloud-orchestration/$instance.log"
+if [ -n "$orchestration_pointer_file" ]; then
+  [[ "$orchestration_pointer_file" = /* ]] \
+    || fail "$EXIT_CONFIG" "GSE_CLOUD_ORCHESTRATION_POINTER_FILE must be absolute"
+  pointer_parent=$(dirname "$orchestration_pointer_file")
+  [ -d "$pointer_parent" ] \
+    || fail "$EXIT_CONFIG" "Orchestration pointer parent does not exist: $pointer_parent"
+  if [ -e "$orchestration_pointer_file" ] || [ -L "$orchestration_pointer_file" ]; then
+    fail "$EXIT_CONFIG" "Orchestration pointer target must not already exist: $orchestration_pointer_file"
+  fi
+  pointer_temporary="$pointer_parent/.orchestration-pointer.tmp.$$"
+  if [ -e "$pointer_temporary" ] || [ -L "$pointer_temporary" ]; then
+    fail "$EXIT_CONFIG" "Orchestration pointer temporary target already exists: $pointer_temporary"
+  fi
+  printf '%s\n' "$orchestration_record" > "$pointer_temporary"
+  mv "$pointer_temporary" "$orchestration_pointer_file"
+fi
 orchestrator_started=$(date -u +%Y%m%dT%H%M%SZ)
 orchestrator_finished=
 stage=PREFLIGHT_COMPLETE
