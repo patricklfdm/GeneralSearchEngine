@@ -69,6 +69,7 @@ tag-triggered 3.0.0 publication and post-publication verification state machine.
 - [V3.0 performance and memory baseline](PERFORMANCE_BASELINE.md)
 - [Production performance testing](PRODUCTION_PERFORMANCE_TESTING.md)
 - [Reproducible GCP performance testing](CLOUD_PERFORMANCE_TESTING.md)
+- [Cloud Benchmark V2 Phase 0 evidence model](CLOUD_BENCHMARK_V2_PHASE_0.md)
 - [Cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md)
 - [Cloud soak diagnostic results](CLOUD_SOAK_DIAGNOSTIC_RESULTS.md)
 - [Cloud soak root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md)

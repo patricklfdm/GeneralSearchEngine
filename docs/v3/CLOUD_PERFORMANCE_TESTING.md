@@ -11,6 +11,11 @@ The runner never enables APIs, changes billing or IAM, creates networks/firewall
 or creates service accounts. Pull-request CI uses a fake `gcloud` implementation and
 never authenticates to GCP or creates billable resources.
 
+The frozen evidence, aggregation, comparison, and retention layer planned above this
+single-run lifecycle is defined separately in the
+[Cloud Benchmark V2 Phase 0 evidence model](CLOUD_BENCHMARK_V2_PHASE_0.md). That
+contract does not change the V1 commands documented here.
+
 ## One-time prerequisites
 
 Install the Google Cloud CLI, then authenticate and select a project:
