@@ -216,7 +216,10 @@ write_metadata_if_set() {
   fi
 }
 
+system_facts=$(scripts/cloud/collect-benchmark-system-facts.sh)
+
 {
+  printf '%s\n' "$system_facts"
   echo "started_utc=$timestamp"
   echo "mode=$mode"
   echo "git_commit=$(git rev-parse HEAD)"
