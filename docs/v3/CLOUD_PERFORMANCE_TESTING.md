@@ -117,6 +117,7 @@ Routine runs use a `c3d-standard-30` Spot VM by default:
 ./run-cloud-benchmark.sh concurrency
 ./run-cloud-benchmark.sh soak
 ./run-cloud-benchmark.sh investigation
+./run-cloud-benchmark.sh stabilized-investigation
 ./run-cloud-benchmark.sh all
 ```
 
@@ -134,6 +135,24 @@ Accepted cells are `read-only`, `stable-update`, and `revision-update`. Use
 `GSE_SOAK_PROFILE=jfr` only for a separate diagnostic profile after an unprofiled
 contrast has been established. See the frozen
 [root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md).
+
+The stabilized path requires Standard provisioning, a stable or revision cell, and one
+frozen purpose. A screening example is:
+
+```bash
+GSE_CLOUD_PROVISIONING=standard \
+GSE_GCP_ZONE=us-west4-a \
+GSE_CLOUD_IMAGE=ubuntu-2404-noble-amd64-v20260826 \
+GSE_SOAK_INVESTIGATION_CELL=stable-update \
+GSE_SOAK_STABILIZATION_PURPOSE=screening \
+./run-cloud-benchmark.sh --dry-run stabilized-investigation
+```
+
+Remove `--dry-run` only after reviewing the immutable plan. Cloud rejects `reduced-test`
+before any GCP command. Its mode-derived cap is stabilization plus measurement plus two
+hours (8,100 seconds for screening/profile and 9,300 for confirmation). See the frozen
+[early-window stabilization contract](CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md) before
+running the paid alternating matrix.
 
 Only the top-level `concurrency` mode receives the stronger cloud default ratios:
 
@@ -206,8 +225,10 @@ GSE_PERF_JVM_OPTIONS='-Xms32g -Xmx64g' \
 | `GSE_SOAK_READERS` / `GSE_SOAK_WRITERS` | Existing runner defaults |
 | `GSE_SOAK_DOCUMENTS` | Existing runner default |
 | `GSE_SOAK_INDEX_CYCLES` | `true`; accepts `true` or `false` |
-| `GSE_SOAK_INVESTIGATION_CELL` | Required only for `investigation`; `read-only`, `stable-update`, or `revision-update` |
-| `GSE_SOAK_PROFILE` | `none`; accepts `none` or `jfr` only for `investigation` |
+| `GSE_SOAK_INVESTIGATION_CELL` | Required for investigation modes; stabilized production accepts `stable-update` or `revision-update` |
+| `GSE_SOAK_PROFILE` | Purpose-derived for stabilized runs; `jfr` remains opt-in for ordinary investigation |
+| `GSE_SOAK_STABILIZATION_PURPOSE` | Required only for `stabilized-investigation`; cloud accepts `screening`, `confirmation`, or `profile` |
+| `GSE_SOAK_STABILIZATION_SECONDS` / `GSE_SOAK_STABILIZATION_WINDOW_SECONDS` | Purpose-derived and strictly checked |
 | `GSE_JMH_FORKS` / `GSE_JMH_WARMUPS` / `GSE_JMH_ITERATIONS` / `GSE_JMH_DURATION` | Existing runner defaults |
 
 Mode-derived compute caps are two hours for quick, twelve for full, eight for concurrency,
@@ -286,9 +307,14 @@ lifecycle suite:
 bash -n run-cloud-benchmark.sh \
   scripts/run-v3-production-performance.sh \
   scripts/analyze-v3-soak.sh \
+  scripts/analyze-v3-soak-stabilization.sh \
+  scripts/compare-v3-soak-stabilized.sh \
   scripts/test-v3-soak-analysis.sh \
   scripts/cloud/*.sh
 scripts/test-v3-soak-analysis.sh
+scripts/test-v3-soak-stabilization-analysis.sh
+scripts/test-v3-soak-stabilized-comparison.sh
+scripts/test-v3-soak-stabilization-e2e.sh
 scripts/cloud/test-cloud-runner.sh
 ```
 

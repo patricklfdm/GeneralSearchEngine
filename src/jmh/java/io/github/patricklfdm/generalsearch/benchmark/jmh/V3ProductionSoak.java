@@ -3,6 +3,8 @@ package io.github.patricklfdm.generalsearch.benchmark.jmh;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import jdk.jfr.Configuration;
+import jdk.jfr.Recording;
 import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -28,6 +30,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.LongAdder;
 import io.github.patricklfdm.generalsearch.engine.metrics.SearchEngineMetrics;
@@ -59,12 +62,40 @@ public final class V3ProductionSoak {
             String initialCorpusDigest = config.perQueryMetrics()
                     ? corpusDigest(fixture, config.documentCount())
                     : null;
-            run(
+            List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests =
+                    V3ProductionBenchmarkSupport.requests(fixture, config.topK());
+            StabilizationResult stabilization = config.stabilizationEnabled()
+                    ? stabilize(
+                            fixture,
+                            config,
+                            requests,
+                            initialSnapshotVersion,
+                            initialCorpusDigest)
+                    : null;
+            if (stabilization != null) {
+                writeStabilizationSummary(config, stabilization, null);
+                if (nextPhaseAfterReadiness(stabilization.readiness().ready())
+                        == SoakPhase.NOT_READY) {
+                    throw new StabilizationNotReadyException(
+                            "stabilization readiness gate did not pass");
+                }
+            }
+            MeasurementTiming measurement = run(
                     fixture,
                     config,
+                    requests,
                     loadSeconds,
                     initialSnapshotVersion,
                     initialCorpusDigest);
+            if (stabilization != null) {
+                double handoffSeconds = (measurement.firstSampleNano()
+                        - stabilization.lastSampleNano()) / 1_000_000_000.0;
+                writeStabilizationSummary(config, stabilization, handoffSeconds);
+                if (config.productionStabilization() && handoffSeconds > 30.0) {
+                    throw new IllegalStateException(
+                            "stabilization handoff exceeded 30 seconds");
+                }
+            }
         } catch (Throwable failure) {
             Files.writeString(
                     config.output().resolve("failure.txt"),
@@ -74,15 +105,14 @@ public final class V3ProductionSoak {
         }
     }
 
-    private static void run(
+    private static MeasurementTiming run(
             V3ProductionBenchmarkSupport.Fixture fixture,
             SoakConfig config,
+            List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests,
             double loadSeconds,
             long initialSnapshotVersion,
             String initialCorpusDigest
     ) throws Exception {
-        List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests =
-                V3ProductionBenchmarkSupport.requests(fixture, config.topK());
         AtomicBoolean stop = new AtomicBoolean();
         AtomicReference<Throwable> failure = new AtomicReference<>();
         LongAdder readOperations = new LongAdder();
@@ -92,6 +122,7 @@ public final class V3ProductionSoak {
         QueryCounters queryCounters = config.perQueryMetrics()
                 ? new QueryCounters()
                 : null;
+        AtomicLong firstSampleNano = new AtomicLong();
         CountDownLatch start = new CountDownLatch(1);
         int taskCount = config.readerCount() + config.writerCount()
                 + (config.indexCycles() ? 1 : 0);
@@ -99,6 +130,7 @@ public final class V3ProductionSoak {
         List<Future<WorkerResult>> readers = new ArrayList<>();
         List<Future<WorkerResult>> writers = new ArrayList<>();
         Future<?> lifecycle = null;
+        Recording recording = null;
         try {
             for (int worker = 0; worker < config.readerCount(); worker++) {
                 int workerId = worker;
@@ -140,9 +172,14 @@ public final class V3ProductionSoak {
                         indexCycles));
             }
 
+            if (config.jfrOutput() != null) {
+                recording = createMeasurementRecording(config.jfrOutput());
+                recording.start();
+            }
+            long gcCountStarted = gcCount();
+            long gcTimeStarted = gcTimeMillis();
             long runStarted = System.nanoTime();
             long deadline = runStarted + TimeUnit.SECONDS.toNanos(config.seconds());
-            start.countDown();
             sampleUntilFinished(
                     fixture,
                     config,
@@ -154,13 +191,20 @@ public final class V3ProductionSoak {
                     writeOperations,
                     indexCycles,
                     errors,
-                    queryCounters);
+                    queryCounters,
+                    firstSampleNano,
+                    start);
             stop.set(true);
 
             List<WorkerResult> readerResults = await(readers);
             List<WorkerResult> writerResults = await(writers);
             if (lifecycle != null) {
                 lifecycle.get();
+            }
+            if (recording != null) {
+                recording.stop();
+                recording.close();
+                recording = null;
             }
             Throwable workerFailure = failure.get();
             if (workerFailure != null) {
@@ -194,12 +238,18 @@ public final class V3ProductionSoak {
                     queryCounters,
                     initialSnapshotVersion,
                     initialCorpusDigest,
-                    finalCorpusDigest);
+                    finalCorpusDigest,
+                    gcCountStarted,
+                    gcTimeStarted);
+            return new MeasurementTiming(firstSampleNano.get());
         } finally {
             stop.set(true);
             start.countDown();
             workers.shutdownNow();
             workers.awaitTermination(30, TimeUnit.SECONDS);
+            if (recording != null) {
+                recording.close();
+            }
         }
     }
 
@@ -326,6 +376,314 @@ public final class V3ProductionSoak {
         }
     }
 
+    private static StabilizationResult stabilize(
+            V3ProductionBenchmarkSupport.Fixture fixture,
+            SoakConfig config,
+            List<SearchRequest<V3ProductionBenchmarkSupport.Document>> requests,
+            long loadedSnapshotVersion,
+            String loadedCorpusDigest
+    ) throws Exception {
+        AtomicBoolean stop = new AtomicBoolean();
+        AtomicReference<Throwable> failure = new AtomicReference<>();
+        LongAdder reads = new LongAdder();
+        LongAdder errors = new LongAdder();
+        QueryCounters queryCounters = new QueryCounters();
+        CountDownLatch start = new CountDownLatch(1);
+        ExecutorService workers = Executors.newFixedThreadPool(config.readerCount());
+        List<Future<WorkerResult>> readers = new ArrayList<>();
+        List<StabilizationSample> samples = new ArrayList<>();
+        long gcCountStarted = gcCount();
+        long gcTimeStarted = gcTimeMillis();
+        long lastSampleNano;
+        try {
+            for (int worker = 0; worker < config.readerCount(); worker++) {
+                int workerId = worker;
+                readers.add(workers.submit(guarded(failure, errors, () ->
+                        readLoopWithQueryMetrics(
+                                fixture,
+                                requests,
+                                workerId,
+                                start,
+                                stop,
+                                reads,
+                                queryCounters))));
+            }
+            Path evidence = config.output().resolve(
+                    "soak-stabilization-samples.csv");
+            MemoryMXBean memory = ManagementFactory.getMemoryMXBean();
+            long started = System.nanoTime();
+            long deadline = started + TimeUnit.SECONDS.toNanos(
+                    config.stabilizationSeconds());
+            start.countDown();
+            try (PrintWriter csv = new PrintWriter(Files.newBufferedWriter(
+                    evidence,
+                    StandardCharsets.UTF_8))) {
+                csv.println("timestamp,elapsed_s,used_heap_bytes,committed_heap_bytes,"
+                        + "max_heap_bytes,read_ops,read_latency_ns,text_ops,"
+                        + "text_latency_ns,bool_ops,bool_latency_ns,phrase_ops,"
+                        + "phrase_latency_ns,fuzzy_ops,fuzzy_latency_ns,errors,"
+                        + "snapshot_version,document_count,gc_count,gc_time_ms");
+                while (System.nanoTime() < deadline && failure.get() == null) {
+                    samples.add(writeStabilizationSample(
+                            csv,
+                            fixture.engine().metrics(),
+                            memory.getHeapMemoryUsage(),
+                            started,
+                            reads.sum(),
+                            errors.sum(),
+                            queryCounters));
+                    csv.flush();
+                    TimeUnit.SECONDS.sleep(config.sampleSeconds());
+                }
+                stop.set(true);
+                samples.add(writeStabilizationSample(
+                        csv,
+                        fixture.engine().metrics(),
+                        memory.getHeapMemoryUsage(),
+                        started,
+                        reads.sum(),
+                        errors.sum(),
+                        queryCounters));
+                csv.flush();
+            }
+            lastSampleNano = System.nanoTime();
+            List<WorkerResult> readerResults = await(readers);
+            Throwable workerFailure = failure.get();
+            if (workerFailure != null) {
+                throw new IllegalStateException(
+                        "stabilization worker failed",
+                        workerFailure);
+            }
+            SearchEngineMetrics postMetrics = fixture.engine().metrics();
+            String postCorpusDigest = corpusDigest(fixture, config.documentCount());
+            ReadinessDecision readiness = evaluateReadiness(
+                    config,
+                    samples,
+                    loadedSnapshotVersion,
+                    postMetrics.snapshotVersion(),
+                    loadedCorpusDigest,
+                    postCorpusDigest,
+                    postMetrics.documentCount(),
+                    errors.sum(),
+                    readerResults.stream().allMatch(
+                            result -> result.latency().size() > 0));
+            return new StabilizationResult(
+                    samples,
+                    readiness,
+                    loadedSnapshotVersion,
+                    postMetrics.snapshotVersion(),
+                    loadedCorpusDigest,
+                    postCorpusDigest,
+                    postMetrics.documentCount(),
+                    samples.get(samples.size() - 1).readOperations(),
+                    errors.sum(),
+                    gcCount() - gcCountStarted,
+                    gcTimeMillis() - gcTimeStarted,
+                    lastSampleNano);
+        } finally {
+            stop.set(true);
+            start.countDown();
+            workers.shutdownNow();
+            workers.awaitTermination(30, TimeUnit.SECONDS);
+        }
+    }
+
+    private static StabilizationSample writeStabilizationSample(
+            PrintWriter csv,
+            SearchEngineMetrics metrics,
+            MemoryUsage heap,
+            long started,
+            long reads,
+            long errors,
+            QueryCounters queryCounters
+    ) {
+        Instant timestamp = Instant.now();
+        double elapsed = elapsedSeconds(started);
+        QueryCounterSnapshot query = queryCounters.snapshot();
+        long totalLatency = 0L;
+        for (QueryKind kind : QUERY_KINDS) {
+            totalLatency = Math.addExact(
+                    totalLatency,
+                    query.latencyNanoseconds(kind));
+        }
+        StabilizationSample sample = new StabilizationSample(
+                timestamp,
+                elapsed,
+                heap.getUsed(),
+                heap.getCommitted(),
+                heap.getMax(),
+                reads,
+                totalLatency,
+                query,
+                errors,
+                metrics.snapshotVersion(),
+                metrics.documentCount(),
+                gcCount(),
+                gcTimeMillis());
+        csv.printf(Locale.ROOT,
+                "%s,%.9f,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d%n",
+                timestamp,
+                elapsed,
+                heap.getUsed(),
+                heap.getCommitted(),
+                heap.getMax(),
+                reads,
+                totalLatency,
+                query.operations(QueryKind.TEXT),
+                query.latencyNanoseconds(QueryKind.TEXT),
+                query.operations(QueryKind.BOOL),
+                query.latencyNanoseconds(QueryKind.BOOL),
+                query.operations(QueryKind.PHRASE),
+                query.latencyNanoseconds(QueryKind.PHRASE),
+                query.operations(QueryKind.FUZZY),
+                query.latencyNanoseconds(QueryKind.FUZZY),
+                errors,
+                metrics.snapshotVersion(),
+                metrics.documentCount(),
+                sample.gcCount(),
+                sample.gcTimeMillis());
+        return sample;
+    }
+
+    static ReadinessDecision evaluateReadiness(
+            SoakConfig config,
+            List<StabilizationSample> samples,
+            long loadedSnapshotVersion,
+            long postSnapshotVersion,
+            String loadedCorpusDigest,
+            String postCorpusDigest,
+            int postDocumentCount,
+            long errors,
+            boolean latencyEvidence
+    ) {
+        int windows = 5;
+        @SuppressWarnings("unchecked")
+        List<StabilizationSample>[] byWindow = new List[windows];
+        Arrays.setAll(byWindow, ignored -> new ArrayList<>());
+        boolean monotonic = true;
+        StabilizationSample previous = null;
+        for (StabilizationSample sample : samples) {
+            int window = Math.min(
+                    (int) Math.floor(sample.elapsedSeconds()
+                            / config.stabilizationWindowSeconds()),
+                    windows - 1);
+            byWindow[window].add(sample);
+            if (previous != null && !sample.monotonicFrom(previous)) {
+                monotonic = false;
+            }
+            previous = sample;
+        }
+        int expected = (int) Math.floor(
+                (config.stabilizationSeconds()
+                        / (double) config.sampleSeconds()) * 0.95) + 1;
+        boolean sampleCoverage = samples.size() >= expected;
+        boolean windowCoverage = true;
+        boolean positiveCoverage = true;
+        double[][] rates = new double[QUERY_KINDS.length + 1][3];
+        double[][] latencyMeans = new double[QUERY_KINDS.length + 1][3];
+        boolean finitePositive = true;
+        for (int window = 0; window < windows; window++) {
+            windowCoverage &= byWindow[window].size() >= 2;
+            if (window < 2 || byWindow[window].size() < 2) {
+                continue;
+            }
+            StabilizationSample first = byWindow[window].get(0);
+            StabilizationSample last = byWindow[window].get(
+                    byWindow[window].size() - 1);
+            double elapsed = last.elapsedSeconds() - first.elapsedSeconds();
+            long operations = last.readOperations() - first.readOperations();
+            long latency = last.readLatencyNanoseconds()
+                    - first.readLatencyNanoseconds();
+            int band = window - 2;
+            rates[0][band] = operations / elapsed;
+            latencyMeans[0][band] = latency / (double) operations;
+            positiveCoverage &= elapsed > 0.0 && operations > 0 && latency > 0;
+            finitePositive &= finitePositive(rates[0][band])
+                    && finitePositive(latencyMeans[0][band]);
+            for (QueryKind kind : QUERY_KINDS) {
+                long queryOperations = last.query().operations(kind)
+                        - first.query().operations(kind);
+                long queryLatency = last.query().latencyNanoseconds(kind)
+                        - first.query().latencyNanoseconds(kind);
+                int metric = kind.ordinal() + 1;
+                rates[metric][band] = queryOperations / elapsed;
+                latencyMeans[metric][band] = queryLatency
+                        / (double) queryOperations;
+                positiveCoverage &= queryOperations > 0 && queryLatency > 0;
+                finitePositive &= finitePositive(rates[metric][band])
+                        && finitePositive(latencyMeans[metric][band]);
+            }
+        }
+        boolean[] rateStable = new boolean[rates.length];
+        boolean[] latencyStable = new boolean[latencyMeans.length];
+        for (int metric = 0; metric < rates.length; metric++) {
+            rateStable[metric] = relativeRange(rates[metric]) <= 0.05;
+            latencyStable[metric] = relativeRange(latencyMeans[metric]) <= 0.10;
+        }
+        QueryCounterSnapshot finalQueries = samples.isEmpty()
+                ? new QueryCounterSnapshot(new long[QUERY_KINDS.length],
+                        new long[QUERY_KINDS.length])
+                : samples.get(samples.size() - 1).query();
+        long minimum = Long.MAX_VALUE;
+        long maximum = Long.MIN_VALUE;
+        for (QueryKind kind : QUERY_KINDS) {
+            long count = finalQueries.operations(kind);
+            minimum = Math.min(minimum, count);
+            maximum = Math.max(maximum, count);
+        }
+        boolean queryBalance = maximum - minimum <= config.readerCount();
+        boolean noErrors = errors == 0;
+        boolean documentsUnchanged = postDocumentCount == config.documentCount();
+        boolean snapshotUnchanged = postSnapshotVersion == loadedSnapshotVersion;
+        boolean corpusUnchanged = loadedCorpusDigest.equals(postCorpusDigest);
+        boolean zeroMutations = config.writerCount() <= 1
+                && !config.indexCycles();
+        boolean ready = sampleCoverage && windowCoverage && positiveCoverage
+                && finitePositive && monotonic && noErrors && documentsUnchanged
+                && snapshotUnchanged && corpusUnchanged && zeroMutations
+                && queryBalance && latencyEvidence
+                && all(rateStable) && all(latencyStable);
+        return new ReadinessDecision(
+                ready,
+                sampleCoverage,
+                windowCoverage,
+                positiveCoverage,
+                finitePositive,
+                monotonic,
+                noErrors,
+                documentsUnchanged,
+                snapshotUnchanged,
+                corpusUnchanged,
+                zeroMutations,
+                queryBalance,
+                latencyEvidence,
+                rateStable,
+                latencyStable,
+                rates,
+                latencyMeans,
+                Arrays.stream(byWindow).mapToInt(List::size).toArray());
+    }
+
+    private static boolean finitePositive(double value) {
+        return Double.isFinite(value) && value > 0.0;
+    }
+
+    private static double relativeRange(double[] values) {
+        double minimum = Arrays.stream(values).min().orElse(Double.NaN);
+        double maximum = Arrays.stream(values).max().orElse(Double.NaN);
+        double mean = Arrays.stream(values).average().orElse(Double.NaN);
+        return (maximum - minimum) / mean;
+    }
+
+    private static boolean all(boolean[] values) {
+        for (boolean value : values) {
+            if (!value) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static void sampleUntilFinished(
             V3ProductionBenchmarkSupport.Fixture fixture,
             SoakConfig config,
@@ -337,7 +695,9 @@ public final class V3ProductionSoak {
             LongAdder writes,
             LongAdder indexCycles,
             LongAdder errors,
-            QueryCounters queryCounters
+            QueryCounters queryCounters,
+            AtomicLong firstSampleNano,
+            CountDownLatch measurementStart
     ) throws IOException, InterruptedException {
         Path output = config.output().resolve("soak-samples.csv");
         Path queryOutput = config.output().resolve("soak-query-samples.csv");
@@ -370,11 +730,13 @@ public final class V3ProductionSoak {
                         writes.sum(),
                         indexCycles.sum(),
                         errors.sum(),
-                        queryCounters);
+                        queryCounters,
+                        firstSampleNano);
                 csv.flush();
                 if (queryCsv != null) {
                     queryCsv.flush();
                 }
+                measurementStart.countDown();
                 TimeUnit.SECONDS.sleep(config.sampleSeconds());
             }
             stop.set(true);
@@ -388,7 +750,8 @@ public final class V3ProductionSoak {
                     writes.sum(),
                     indexCycles.sum(),
                     errors.sum(),
-                    queryCounters);
+                    queryCounters,
+                    firstSampleNano);
         }
     }
 
@@ -402,8 +765,10 @@ public final class V3ProductionSoak {
             long writes,
             long indexCycles,
             long errors,
-            QueryCounters queryCounters
+            QueryCounters queryCounters,
+            AtomicLong firstSampleNano
     ) {
+        firstSampleNano.compareAndSet(0L, System.nanoTime());
         Instant timestamp = Instant.now();
         double elapsed = elapsedSeconds(runStarted);
         csv.printf(Locale.ROOT,
@@ -444,6 +809,119 @@ public final class V3ProductionSoak {
         }
     }
 
+    private static void writeStabilizationSummary(
+            SoakConfig config,
+            StabilizationResult result,
+            Double handoffSeconds
+    ) throws IOException {
+        ReadinessDecision readiness = result.readiness();
+        Properties values = new Properties();
+        values.setProperty("stabilization_status",
+                readiness.ready() ? "READY" : "NOT_READY");
+        values.setProperty("measurement_started",
+                Boolean.toString(handoffSeconds != null));
+        values.setProperty("final_phase_state",
+                readiness.ready()
+                        ? (handoffSeconds == null
+                                ? SoakPhase.EVALUATE_READINESS.name()
+                                : SoakPhase.COMPLETE.name())
+                        : SoakPhase.NOT_READY.name());
+        values.setProperty("stabilization_purpose",
+                config.stabilizationPurpose().value());
+        values.setProperty("configured_seconds",
+                Integer.toString(config.stabilizationSeconds()));
+        values.setProperty("configured_window_seconds",
+                Integer.toString(config.stabilizationWindowSeconds()));
+        values.setProperty("sample_count",
+                Integer.toString(result.samples().size()));
+        values.setProperty("read_operations", Long.toString(result.reads()));
+        values.setProperty("write_operations", "0");
+        values.setProperty("index_cycles", "0");
+        values.setProperty("errors", Long.toString(result.errors()));
+        values.setProperty("loaded_snapshot_version",
+                Long.toString(result.loadedSnapshotVersion()));
+        values.setProperty("post_snapshot_version",
+                Long.toString(result.postSnapshotVersion()));
+        values.setProperty("loaded_corpus_sha256", result.loadedCorpusDigest());
+        values.setProperty("post_corpus_sha256", result.postCorpusDigest());
+        values.setProperty("post_document_count",
+                Integer.toString(result.postDocumentCount()));
+        values.setProperty("stabilization_gc_count",
+                Long.toString(result.gcCount()));
+        values.setProperty("stabilization_gc_time_ms",
+                Long.toString(result.gcTimeMillis()));
+        addReadinessFlag(values, "sample_coverage", readiness.sampleCoverage());
+        addReadinessFlag(values, "window_coverage", readiness.windowCoverage());
+        addReadinessFlag(values, "positive_coverage", readiness.positiveCoverage());
+        addReadinessFlag(values, "finite_positive", readiness.finitePositive());
+        addReadinessFlag(values, "monotonic", readiness.monotonic());
+        addReadinessFlag(values, "no_errors", readiness.noErrors());
+        addReadinessFlag(values, "documents_unchanged",
+                readiness.documentsUnchanged());
+        addReadinessFlag(values, "snapshot_unchanged",
+                readiness.snapshotUnchanged());
+        addReadinessFlag(values, "corpus_unchanged", readiness.corpusUnchanged());
+        addReadinessFlag(values, "zero_mutations", readiness.zeroMutations());
+        addReadinessFlag(values, "query_balance", readiness.queryBalance());
+        addReadinessFlag(values, "latency_evidence", readiness.latencyEvidence());
+        String[] metrics = {"aggregate", "text", "bool", "phrase", "fuzzy"};
+        for (int metric = 0; metric < metrics.length; metric++) {
+            addReadinessFlag(values,
+                    metrics[metric] + "_rate_stable",
+                    readiness.rateStable()[metric]);
+            addReadinessFlag(values,
+                    metrics[metric] + "_latency_stable",
+                    readiness.latencyStable()[metric]);
+            for (int band = 0; band < 3; band++) {
+                int window = band + 3;
+                values.setProperty(metrics[metric] + "_window_" + window
+                                + "_ops_per_second",
+                        Double.toString(readiness.rates()[metric][band]));
+                values.setProperty(metrics[metric] + "_window_" + window
+                                + "_mean_latency_ns",
+                        Double.toString(readiness.latencyMeans()[metric][band]));
+            }
+        }
+        for (int window = 0; window < readiness.windowSampleCounts().length;
+                window++) {
+            values.setProperty("window_" + (window + 1) + "_sample_count",
+                    Integer.toString(readiness.windowSampleCounts()[window]));
+        }
+        if (handoffSeconds != null) {
+            values.setProperty("stabilization_handoff_seconds",
+                    Double.toString(handoffSeconds));
+            values.setProperty("handoff_within_30_seconds",
+                    Boolean.toString(handoffSeconds <= 30.0));
+        }
+        try (var output = Files.newOutputStream(config.output().resolve(
+                "soak-stabilization-summary.properties"))) {
+            values.store(output, "V3 soak stabilization readiness result");
+        }
+    }
+
+    private static void addReadinessFlag(
+            Properties values,
+            String name,
+            boolean value
+    ) {
+        values.setProperty("readiness_" + name, Boolean.toString(value));
+    }
+
+    private static Recording createMeasurementRecording(Path output)
+            throws Exception {
+        Path parent = output.toAbsolutePath().getParent();
+        if (parent != null) {
+            Files.createDirectories(parent);
+        }
+        Recording recording = new Recording(Configuration.getConfiguration("profile"));
+        recording.setName("v3-soak-measurement-only");
+        recording.setToDisk(true);
+        recording.setDumpOnExit(true);
+        recording.setMaxSize(512L * 1024L * 1024L);
+        recording.setDestination(output);
+        return recording;
+    }
+
     private static void writeConfig(SoakConfig config) throws IOException {
         Properties values = new Properties();
         values.setProperty("status", "CONFIGURED");
@@ -459,6 +937,16 @@ public final class V3ProductionSoak {
         values.setProperty("per_query_metrics",
                 Boolean.toString(config.perQueryMetrics()));
         values.setProperty("investigation_cell", config.investigationCell());
+        values.setProperty("stabilization_purpose",
+                config.stabilizationPurpose().value());
+        values.setProperty("stabilization_seconds",
+                Integer.toString(config.stabilizationSeconds()));
+        values.setProperty("stabilization_window_seconds",
+                Integer.toString(config.stabilizationWindowSeconds()));
+        values.setProperty("allow_reduced_stabilization_test",
+                Boolean.toString(config.allowReducedStabilizationTest()));
+        values.setProperty("jfr_output",
+                config.jfrOutput() == null ? "none" : config.jfrOutput().toString());
         try (var output = Files.newOutputStream(
                 config.output().resolve("soak-config.properties"))) {
             values.store(output, "V3 production soak configuration");
@@ -479,7 +967,9 @@ public final class V3ProductionSoak {
             QueryCounters queryCounters,
             long initialSnapshotVersion,
             String initialCorpusDigest,
-            String finalCorpusDigest
+            String finalCorpusDigest,
+            long gcCountStarted,
+            long gcTimeStarted
     ) throws IOException {
         long[] readLatency = samples(readerResults);
         long[] writeLatency = samples(writerResults);
@@ -504,6 +994,10 @@ public final class V3ProductionSoak {
                 Integer.toString(metrics.writerQueueDepth()));
         values.setProperty("gc_count", Long.toString(gcCount()));
         values.setProperty("gc_time_ms", Long.toString(gcTimeMillis()));
+        values.setProperty("measurement_gc_count",
+                Long.toString(gcCount() - gcCountStarted));
+        values.setProperty("measurement_gc_time_ms",
+                Long.toString(gcTimeMillis() - gcTimeStarted));
         if (config.perQueryMetrics()) {
             values.setProperty("initial_snapshot_version",
                     Long.toString(initialSnapshotVersion));
@@ -819,6 +1313,110 @@ public final class V3ProductionSoak {
     ) {
     }
 
+    private record MeasurementTiming(long firstSampleNano) {
+        MeasurementTiming {
+            if (firstSampleNano <= 0L) {
+                throw new IllegalStateException(
+                        "measurement did not emit a first sample");
+            }
+        }
+    }
+
+    record StabilizationSample(
+            Instant timestamp,
+            double elapsedSeconds,
+            long usedHeapBytes,
+            long committedHeapBytes,
+            long maxHeapBytes,
+            long readOperations,
+            long readLatencyNanoseconds,
+            QueryCounterSnapshot query,
+            long errors,
+            long snapshotVersion,
+            int documentCount,
+            long gcCount,
+            long gcTimeMillis
+    ) {
+        boolean monotonicFrom(StabilizationSample previous) {
+            if (elapsedSeconds < previous.elapsedSeconds
+                    || readOperations < previous.readOperations
+                    || readLatencyNanoseconds < previous.readLatencyNanoseconds
+                    || errors < previous.errors
+                    || gcCount < previous.gcCount
+                    || gcTimeMillis < previous.gcTimeMillis) {
+                return false;
+            }
+            for (QueryKind kind : QUERY_KINDS) {
+                if (query.operations(kind) < previous.query.operations(kind)
+                        || query.latencyNanoseconds(kind)
+                        < previous.query.latencyNanoseconds(kind)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    record ReadinessDecision(
+            boolean ready,
+            boolean sampleCoverage,
+            boolean windowCoverage,
+            boolean positiveCoverage,
+            boolean finitePositive,
+            boolean monotonic,
+            boolean noErrors,
+            boolean documentsUnchanged,
+            boolean snapshotUnchanged,
+            boolean corpusUnchanged,
+            boolean zeroMutations,
+            boolean queryBalance,
+            boolean latencyEvidence,
+            boolean[] rateStable,
+            boolean[] latencyStable,
+            double[][] rates,
+            double[][] latencyMeans,
+            int[] windowSampleCounts
+    ) {
+    }
+
+    private record StabilizationResult(
+            List<StabilizationSample> samples,
+            ReadinessDecision readiness,
+            long loadedSnapshotVersion,
+            long postSnapshotVersion,
+            String loadedCorpusDigest,
+            String postCorpusDigest,
+            int postDocumentCount,
+            long reads,
+            long errors,
+            long gcCount,
+            long gcTimeMillis,
+            long lastSampleNano
+    ) {
+    }
+
+    private static final class StabilizationNotReadyException
+            extends IllegalStateException {
+        private StabilizationNotReadyException(String message) {
+            super(message);
+        }
+    }
+
+    enum SoakPhase {
+        LOAD_FIXTURE,
+        CAPTURE_LOADED_IDENTITY,
+        STABILIZE_READ_ONLY,
+        CAPTURE_POST_STABILIZATION_IDENTITY,
+        EVALUATE_READINESS,
+        MEASURE_SELECTED_CELL,
+        COMPLETE,
+        NOT_READY
+    }
+
+    static SoakPhase nextPhaseAfterReadiness(boolean ready) {
+        return ready ? SoakPhase.MEASURE_SELECTED_CELL : SoakPhase.NOT_READY;
+    }
+
     enum QueryKind {
         TEXT("text"),
         BOOL("bool"),
@@ -859,6 +1457,35 @@ public final class V3ProductionSoak {
             }
             throw new IllegalArgumentException(
                     "update mode must be none, stable, or revision: " + value);
+        }
+    }
+
+    enum StabilizationPurpose {
+        NONE("none"),
+        SCREENING("screening"),
+        CONFIRMATION("confirmation"),
+        PROFILE("profile"),
+        REDUCED_TEST("reduced-test");
+
+        private final String value;
+
+        StabilizationPurpose(String value) {
+            this.value = value;
+        }
+
+        String value() {
+            return value;
+        }
+
+        static StabilizationPurpose parse(String value) {
+            for (StabilizationPurpose purpose : values()) {
+                if (purpose.value.equals(value)) {
+                    return purpose;
+                }
+            }
+            throw new IllegalArgumentException(
+                    "stabilization purpose must be none, screening, confirmation, "
+                            + "profile, or reduced-test: " + value);
         }
     }
 
@@ -961,7 +1588,12 @@ public final class V3ProductionSoak {
             String corpusProfile,
             boolean indexCycles,
             UpdateMode updateMode,
-            boolean perQueryMetrics
+            boolean perQueryMetrics,
+            StabilizationPurpose stabilizationPurpose,
+            int stabilizationSeconds,
+            int stabilizationWindowSeconds,
+            boolean allowReducedStabilizationTest,
+            Path jfrOutput
     ) {
         SoakConfig {
             if (documentCount <= 0 || readerCount <= 0 || writerCount < 0
@@ -981,6 +1613,19 @@ public final class V3ProductionSoak {
                 throw new IllegalArgumentException(
                         "investigation mutation cells require exactly one writer");
             }
+            validateStabilization(
+                    readerCount,
+                    writerCount,
+                    seconds,
+                    sampleSeconds,
+                    indexCycles,
+                    updateMode,
+                    perQueryMetrics,
+                    stabilizationPurpose,
+                    stabilizationSeconds,
+                    stabilizationWindowSeconds,
+                    allowReducedStabilizationTest,
+                    jfrOutput);
         }
 
         static SoakConfig parse(String[] args) {
@@ -998,7 +1643,26 @@ public final class V3ProductionSoak {
                     stringArg(args, "--corpus-profile", "zipf-en-medium-4"),
                     booleanArg(args, "--index-cycles", true),
                     UpdateMode.parse(stringArg(args, "--update-mode", "revision")),
-                    booleanArg(args, "--per-query-metrics", false));
+                    booleanArg(args, "--per-query-metrics", false),
+                    StabilizationPurpose.parse(stringArg(
+                            args,
+                            "--stabilization-purpose",
+                            "none")),
+                    intArg(args, "--stabilization-seconds", 0),
+                    intArg(args, "--stabilization-window-seconds", 60),
+                    booleanArg(args,
+                            "--allow-reduced-stabilization-test",
+                            false),
+                    pathArg(args, "--jfr-output"));
+        }
+
+        boolean stabilizationEnabled() {
+            return stabilizationPurpose != StabilizationPurpose.NONE;
+        }
+
+        boolean productionStabilization() {
+            return stabilizationPurpose != StabilizationPurpose.NONE
+                    && stabilizationPurpose != StabilizationPurpose.REDUCED_TEST;
         }
 
         String investigationCell() {
@@ -1014,6 +1678,78 @@ public final class V3ProductionSoak {
 
         private static int intArg(String[] args, String name, int fallback) {
             return Integer.parseInt(stringArg(args, name, Integer.toString(fallback)));
+        }
+
+        private static Path pathArg(String[] args, String name) {
+            String value = stringArg(args, name, "");
+            return value.isEmpty() ? null : Path.of(value);
+        }
+
+        private static void validateStabilization(
+                int readers,
+                int writers,
+                int measurementSeconds,
+                int sampleSeconds,
+                boolean indexCycles,
+                UpdateMode updateMode,
+                boolean perQueryMetrics,
+                StabilizationPurpose purpose,
+                int stabilizationSeconds,
+                int windowSeconds,
+                boolean allowReduced,
+                Path jfrOutput
+        ) {
+            if (purpose == StabilizationPurpose.NONE) {
+                if (stabilizationSeconds != 0 || allowReduced || jfrOutput != null) {
+                    throw new IllegalArgumentException(
+                            "purpose none requires zero stabilization, no reduced flag, "
+                                    + "and no JFR output");
+                }
+                return;
+            }
+            if (!perQueryMetrics || indexCycles || writers > 1
+                    || updateMode == UpdateMode.NONE) {
+                if (purpose != StabilizationPurpose.REDUCED_TEST
+                        || !perQueryMetrics || indexCycles || writers > 1) {
+                    throw new IllegalArgumentException(
+                            "stabilization requires investigation metrics, no index "
+                                    + "cycles, and at most one writer");
+                }
+            }
+            if (sampleSeconds != 1) {
+                throw new IllegalArgumentException(
+                        "stabilization requires one-second evidence sampling");
+            }
+            if (purpose == StabilizationPurpose.REDUCED_TEST) {
+                if (!allowReduced || windowSeconds <= 0
+                        || stabilizationSeconds != 5 * windowSeconds
+                        || measurementSeconds < 12) {
+                    throw new IllegalArgumentException(
+                            "reduced-test requires five positive windows, at least "
+                                    + "12 measurement seconds, and the reduced flag");
+                }
+                return;
+            }
+            if (allowReduced || readers != 16 || writers != 1
+                    || (updateMode != UpdateMode.STABLE
+                    && updateMode != UpdateMode.REVISION)
+                    || stabilizationSeconds != 300 || windowSeconds != 60) {
+                throw new IllegalArgumentException(
+                        "production stabilization requires 16 readers, one mutation "
+                                + "writer, stable/revision mode, and 300s/60s windows");
+            }
+            int requiredMeasurement = purpose == StabilizationPurpose.CONFIRMATION
+                    ? 1_800
+                    : 600;
+            if (measurementSeconds != requiredMeasurement) {
+                throw new IllegalArgumentException(
+                        "measurement duration does not match stabilization purpose");
+            }
+            if ((purpose == StabilizationPurpose.PROFILE) != (jfrOutput != null)) {
+                throw new IllegalArgumentException(
+                        "profile requires JFR output and other production purposes "
+                                + "forbid it");
+            }
         }
 
         private static boolean booleanArg(

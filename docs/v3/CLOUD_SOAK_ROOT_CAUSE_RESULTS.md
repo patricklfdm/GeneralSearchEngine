@@ -176,6 +176,9 @@ This investigation closes with **inconclusive without product work**:
 - any follow-up must begin with a new frozen contract, likely targeting early-window
   stabilization and absolute-rate controls before profiling a search path.
 
+That follow-up is frozen separately in the
+[cloud soak early-window stabilization contract](CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md).
+
 The result is workload- and environment-specific diagnostic evidence, not a portable
 SLA or a release regression threshold. The governing methodology remains the
 [cloud soak root-cause investigation contract](CLOUD_SOAK_ROOT_CAUSE_INVESTIGATION.md),
