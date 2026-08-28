@@ -152,6 +152,10 @@ A canonical baseline requires at least three independent ephemeral Standard runs
 the same exact image, machine, JVM, and workload configuration. Retain every raw run and
 report medians and run-to-run variation; do not select the fastest run.
 
+Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
+factor-controlled heap and dynamic-index investigation when a soak does not reach a
+stable operating band.
+
 A larger experiment is configurable without changing scripts:
 
 ```bash
