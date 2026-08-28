@@ -152,6 +152,8 @@ When a cloud soak shows sustained throughput or heap-band drift, use the frozen
 optimization. Its flags trigger review and controlled experiments; they are not SLAs.
 The completed screening, confirmation, and investigation boundary are recorded in the
 [cloud soak diagnostic results](CLOUD_SOAK_DIAGNOSTIC_RESULTS.md).
+The stabilized target/control follow-up and measurement-only JFR evidence are recorded
+in the [cloud soak early-window stabilization results](CLOUD_SOAK_EARLY_WINDOW_STABILIZATION_RESULTS.md).
 
 For reproducible C3D execution independent of a developer workstation, use the
 [GCP cloud performance runner](CLOUD_PERFORMANCE_TESTING.md). It invokes this same
