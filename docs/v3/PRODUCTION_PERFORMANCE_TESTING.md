@@ -117,6 +117,8 @@ The reviewed follow-up evidence and bounded gate decision are recorded in the
 When a cloud soak shows sustained throughput or heap-band drift, use the frozen
 [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) before proposing an engine
 optimization. Its flags trigger review and controlled experiments; they are not SLAs.
+The completed screening, confirmation, and investigation boundary are recorded in the
+[cloud soak diagnostic results](CLOUD_SOAK_DIAGNOSTIC_RESULTS.md).
 
 For reproducible C3D execution independent of a developer workstation, use the
 [GCP cloud performance runner](CLOUD_PERFORMANCE_TESTING.md). It invokes this same
