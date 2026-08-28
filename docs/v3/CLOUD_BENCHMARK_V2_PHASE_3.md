@@ -416,6 +416,22 @@ immutable gs:// set-manifest URI and numeric object generation
 upload-receipt ID and SHA-256
 ```
 
+The schema-1 JSON field names are:
+
+```text
+setId
+setManifestSha256
+evidenceProfile
+sourceCommit
+releaseLabel (optional)
+environmentFingerprint
+benchmarkConfigFingerprint
+manifestUri
+manifestGeneration
+uploadReceiptId
+uploadReceiptSha256
+```
+
 Set IDs match `gse-set-v1-<64 lowercase hex>`. Receipt IDs match
 `gse-upload-receipt-v1-<64 lowercase hex>`. SHA-256 fields use
 `sha256:<64 lowercase hex>`. Commits are exact 40-character lowercase Git IDs. Object
@@ -505,14 +521,14 @@ environment variable. Normal CI remains unauthenticated and free of paid trigger
 
 ## Phase 3 completion checklist
 
-- [ ] Direct canonical comparison requires two compatible completed sets.
-- [ ] Exploratory comparison is explicit, warning-labeled, and allowlist-bounded.
-- [ ] Every operand is checksum-, digest-, schema-, and identity-validated.
-- [ ] Continuous classification follows policy v1 without rounded arithmetic.
-- [ ] Categorical, health, diagnostic, zero-baseline, and missing-variation cases are explicit.
-- [ ] Suspected regressions produce evidence and exit `0`; there is no hard gate.
-- [ ] Comparison ID and final artifacts are deterministic and collision-safe.
-- [ ] Markdown is a faithful, escaped rendering of canonical JSON.
-- [ ] Registry schema/list/lookup are read-only until Phase 5 receipt production exists.
-- [ ] No placeholder baseline, local-path baseline, VM, GCS, IAM, or workflow work is included.
-- [ ] Synthetic comparison/registry tests and all existing gates pass.
+- [x] Direct canonical comparison requires two compatible completed sets.
+- [x] Exploratory comparison is explicit, warning-labeled, and allowlist-bounded.
+- [x] Every operand is checksum-, digest-, schema-, and identity-validated.
+- [x] Continuous classification follows policy v1 without rounded arithmetic.
+- [x] Categorical, health, diagnostic, zero-baseline, and missing-variation cases are explicit.
+- [x] Suspected regressions produce evidence and exit `0`; there is no hard gate.
+- [x] Comparison ID and final artifacts are deterministic and collision-safe.
+- [x] Markdown is a faithful, escaped rendering of canonical JSON.
+- [x] Registry schema/list/lookup are read-only until Phase 5 receipt production exists.
+- [x] No placeholder baseline, local-path baseline, VM, GCS, IAM, or workflow work is included.
+- [x] Synthetic comparison/registry tests and all existing gates pass.
