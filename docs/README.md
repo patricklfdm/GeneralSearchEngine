@@ -14,6 +14,7 @@ remains the phase history and decision source of truth.
 - [2.1-to-3.0 migration guide](v3/MIGRATION_GUIDE.md)
 - [V3.0 performance and memory baseline](v3/PERFORMANCE_BASELINE.md)
 - [Reproducible GCP performance testing](v3/CLOUD_PERFORMANCE_TESTING.md)
+- [Cloud Benchmark V2 Phase 0 evidence model](v3/CLOUD_BENCHMARK_V2_PHASE_0.md)
 - [Cloud soak diagnostics contract](v3/CLOUD_SOAK_DIAGNOSTICS.md)
 - [Cloud soak root-cause investigation results](v3/CLOUD_SOAK_ROOT_CAUSE_RESULTS.md)
 - [Cloud soak early-window stabilization contract](v3/CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md)
