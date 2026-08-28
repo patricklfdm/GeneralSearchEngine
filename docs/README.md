@@ -15,6 +15,7 @@ remains the phase history and decision source of truth.
 - [V3.0 performance and memory baseline](v3/PERFORMANCE_BASELINE.md)
 - [Reproducible GCP performance testing](v3/CLOUD_PERFORMANCE_TESTING.md)
 - [Cloud soak diagnostics contract](v3/CLOUD_SOAK_DIAGNOSTICS.md)
+- [Cloud soak root-cause investigation results](v3/CLOUD_SOAK_ROOT_CAUSE_RESULTS.md)
 - [V3.0 release checklist](v3/RELEASE_CHECKLIST.md)
 - [Phase 0 architecture](v3/phases/p0/ARCHITECTURE.md)
 - [Ranked-search semantics](v3/phases/p0/SEARCH_SEMANTICS.md)
