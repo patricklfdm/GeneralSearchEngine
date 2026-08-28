@@ -15,10 +15,13 @@ Cloud Benchmark V2 keeps derived evidence beside, never inside, immutable raw ru
 derived/runs/<raw-run-id>/v1/
 sets/in-progress/<workspace-id>/
 sets/<gse-set-v1-id>/v1/
+comparisons/<gse-comparison-v1-id>/v1/
 ```
 
 The in-progress workspace is resumable control state and remains after completion for
 audit. A content-addressed set directory contains the deterministic set manifest,
-aggregate metrics, complete attempt/replacement audit, and checksums. See
+aggregate metrics, complete attempt/replacement audit, and checksums. A comparison
+directory contains canonical JSON, a deterministic Markdown rendering, and checksums.
+See
 [`docs/v3/CLOUD_PERFORMANCE_TESTING.md`](../../docs/v3/CLOUD_PERFORMANCE_TESTING.md)
-for the canonical set dry-run, paid-run, resume, and replacement commands.
+for the canonical set and local comparison commands.

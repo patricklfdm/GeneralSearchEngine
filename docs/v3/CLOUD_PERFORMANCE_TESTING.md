@@ -248,6 +248,47 @@ workspace remains as the attempt and replacement audit trail. The exact schemas 
 state transitions are frozen in the
 [Phase 2 aggregation contract](CLOUD_BENCHMARK_V2_PHASE_2.md).
 
+## Deterministic local comparison
+
+Compare two completed canonical sets without contacting GCP or GCS:
+
+```bash
+./compare-cloud-benchmark.sh \
+  benchmark-results/v3-production/sets/BASELINE_SET_ID/v1 \
+  benchmark-results/v3-production/sets/CANDIDATE_SET_ID/v1
+```
+
+The command validates the complete checksum-bound inputs, requires matching benchmark
+and environment fingerprints, and writes deterministic artifacts below
+`benchmark-results/v3-production/comparisons/<comparison-id>/v1/`. Suspected
+regressions remain review evidence and return exit `0`; valid but incompatible inputs
+produce an explicit report and return exit `84`.
+
+A run, experiment set, or provisioning-only Spot/Standard comparison requires the
+explicit exploratory mode:
+
+```bash
+./compare-cloud-benchmark.sh --allow-exploratory BASELINE CANDIDATE
+```
+
+The flag does not permit machine, zone, image, JVM, workload, suite, or metric-schema
+mismatches. Single-run comparisons report no independent-run variation and do not
+invent confidence intervals.
+
+The tracked baseline registry is read-only until Phase 5 implements verified upload
+receipts. Validate or list it locally with:
+
+```bash
+python3 scripts/cloud/benchmark_v2.py registry-validate \
+  docs/v3/cloud-benchmark-baselines.json
+scripts/cloud/list-baselines.sh
+```
+
+Registry names may be used only as the baseline operand and resolve only an exact local
+set. Phase 3 never downloads missing evidence. The detailed compatibility and
+classification rules are frozen in the
+[Phase 3 comparison contract](CLOUD_BENCHMARK_V2_PHASE_3.md).
+
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
 stable operating band.
@@ -405,6 +446,7 @@ lifecycle suite:
 ```bash
 bash -n run-cloud-benchmark.sh \
   run-cloud-benchmark-set.sh \
+  compare-cloud-benchmark.sh \
   scripts/run-v3-production-performance.sh \
   scripts/analyze-v3-soak.sh \
   scripts/analyze-v3-soak-stabilization.sh \
@@ -418,7 +460,9 @@ scripts/test-v3-soak-stabilization-e2e.sh
 scripts/cloud/test-benchmark-system-facts.sh
 scripts/cloud/test-cloud-runner.sh
 scripts/cloud/test-benchmark-set-runner.sh
-python3 -m unittest scripts.cloud.test_benchmark_v2
+python3 -m unittest \
+  scripts.cloud.test_benchmark_v2 \
+  scripts.cloud.test_benchmark_comparison_v2
 ```
 
 The synthetic analyzer suite covers stable, drifting, queue-pressure, malformed, and

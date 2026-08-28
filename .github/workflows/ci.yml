@@ -121,6 +121,7 @@ jobs:
         run: |
           bash -n run-cloud-benchmark.sh
           bash -n run-cloud-benchmark-set.sh
+          bash -n compare-cloud-benchmark.sh
           bash -n scripts/run-v3-production-performance.sh
           bash -n scripts/analyze-v3-soak.sh
           bash -n scripts/analyze-v3-soak-investigation.sh
@@ -151,8 +152,8 @@ jobs:
       - name: Validate Cloud Benchmark V2 evidence derivation
         run: |
           python --version
-          python -m py_compile scripts/cloud/benchmark_v2.py scripts/cloud/test_benchmark_v2.py
-          python -m unittest scripts.cloud.test_benchmark_v2
+          python -m py_compile scripts/cloud/benchmark_v2.py scripts/cloud/test_benchmark_v2.py scripts/cloud/test_benchmark_comparison_v2.py
+          python -m unittest scripts.cloud.test_benchmark_v2 scripts.cloud.test_benchmark_comparison_v2
 
   required:
     name: Required

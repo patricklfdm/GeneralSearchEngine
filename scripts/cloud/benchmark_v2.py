@@ -26,6 +26,8 @@ EXIT_INVALID_EVIDENCE = 80
 EXIT_UNSUPPORTED = 81
 EXIT_CONTRADICTION = 82
 EXIT_INCOMPATIBLE_SET = 83
+EXIT_INCOMPARABLE = 84
+EXIT_REGISTRY = 85
 
 MANIFEST_SCHEMA_VERSION = 1
 METRICS_SCHEMA_VERSION = 1
@@ -67,6 +69,12 @@ LEGACY_CONCURRENCY_RE = re.compile(
     r"^concurrent-read-write-([1-9][0-9]*)-([1-9][0-9]*)$"
 )
 SYNTHETIC_PERCENTILE_RE = re.compile(r"^(?:read:|write:)?p[0-9.]+$")
+SET_ID_RE = re.compile(r"^gse-set-v1-[0-9a-f]{64}$")
+RECEIPT_ID_RE = re.compile(r"^gse-upload-receipt-v1-[0-9a-f]{64}$")
+PREFIXED_SHA256_RE = re.compile(r"^sha256:[0-9a-f]{64}$")
+BASELINE_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9._-]{0,63}$")
+COMPARISON_POLICY_ID = "gse-comparison-policy-v1"
+COMPARISON_SCHEMA_VERSION = 1
 
 
 class BenchmarkV2Error(Exception):
@@ -89,6 +97,10 @@ def fail_unsupported(message: str) -> BenchmarkV2Error:
 
 def fail_contradiction(message: str) -> BenchmarkV2Error:
     return BenchmarkV2Error(message, EXIT_CONTRADICTION)
+
+
+def fail_registry(message: str) -> BenchmarkV2Error:
+    return BenchmarkV2Error(message, EXIT_REGISTRY)
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -1998,6 +2010,1079 @@ def finalize_benchmark_set(workspace: Path) -> tuple[Path, dict[str, Any]]:
     return destination, manifest
 
 
+def require_object(value: Any, field: str) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        raise fail_invalid(f"{field} must be an object")
+    return value
+
+
+def require_list(value: Any, field: str) -> list[Any]:
+    if not isinstance(value, list):
+        raise fail_invalid(f"{field} must be an array")
+    return value
+
+
+def require_string(value: Any, field: str) -> str:
+    if not isinstance(value, str) or not value:
+        raise fail_invalid(f"{field} must be a non-empty string")
+    return value
+
+
+def require_integer_value(value: Any, field: str, *, minimum: int = 0) -> int:
+    if isinstance(value, bool) or not isinstance(value, int) or value < minimum:
+        raise fail_invalid(f"{field} must be an integer >= {minimum}")
+    return value
+
+
+def canonical_document(path: Path) -> tuple[dict[str, Any], bytes]:
+    value = require_object(read_json(path), str(path))
+    encoded = canonical_json_bytes(value)
+    try:
+        source = path.read_bytes()
+    except OSError as error:
+        raise fail_invalid(f"Cannot read {path}: {error}") from error
+    if source != encoded:
+        raise fail_invalid(f"JSON evidence is not canonical: {path}")
+    return value, source
+
+
+def verify_exact_checksum_file(
+    root: Path, checksum_name: str, data_names: tuple[str, ...]
+) -> None:
+    expected_names = {*data_names, checksum_name}
+    try:
+        entries = list(root.iterdir())
+    except OSError as error:
+        raise fail_invalid(f"Cannot inspect evidence directory {root}: {error}") from error
+    if {entry.name for entry in entries} != expected_names:
+        raise fail_invalid(f"Evidence file set differs in {root}")
+    if any(not entry.is_file() or entry.is_symlink() for entry in entries):
+        raise fail_invalid(f"Evidence contains a non-regular or symlinked file in {root}")
+    checksum_path = root / checksum_name
+    try:
+        lines = checksum_path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as error:
+        raise fail_invalid(f"Cannot read checksum file {checksum_path}: {error}") from error
+    expected_lines = [f"{sha256_file(root / name)}  {name}" for name in data_names]
+    if lines != expected_lines:
+        raise fail_invalid(f"Checksum verification failed in {root}")
+
+
+def evidence_directory(operand: Path) -> tuple[Path, str]:
+    path = operand.resolve()
+    if path.is_dir():
+        root = path
+    elif path.is_file() and path.name in {
+        "benchmark-set-manifest.json",
+        "benchmark-manifest.json",
+    }:
+        root = path.parent
+    elif path.exists():
+        raise fail_config(f"Unsupported evidence operand: {operand}")
+    else:
+        raise fail_config(f"Evidence operand does not exist: {operand}")
+    if (root / "benchmark-set-manifest.json").is_file():
+        return root, "set"
+    if (root / "benchmark-manifest.json").is_file():
+        return root, "run"
+    raise fail_invalid(f"Evidence directory has no supported manifest: {root}")
+
+
+def safe_results_reference(results_root: Path, reference: Any) -> Path:
+    text = require_string(reference, "portable evidence reference")
+    relative = Path(text)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise fail_contradiction(f"Unsafe portable evidence reference: {text}")
+    root = results_root.resolve()
+    target = (root / relative).resolve()
+    try:
+        target.relative_to(root)
+    except ValueError as error:
+        raise fail_contradiction(f"Evidence reference escapes the results root: {text}") from error
+    return target
+
+
+def comparison_metric_signature(metric: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "aggregationKind": metric["aggregationKind"],
+        "direction": metric["direction"],
+        "identity": metric["identity"],
+        "percentile": metric.get("percentile"),
+        "statistic": metric["statistic"],
+        "unit": metric["unit"],
+    }
+
+
+def validate_metric_common(metric: dict[str, Any], field: str) -> None:
+    require_string(metric.get("direction"), f"{field}.direction")
+    require_object(metric.get("identity"), f"{field}.identity")
+    require_string(metric.get("statistic"), f"{field}.statistic")
+    require_string(metric.get("unit"), f"{field}.unit")
+    if metric.get("percentile") is not None:
+        finite_number(metric["percentile"], f"{field}.percentile")
+
+
+def source_and_suite(manifest: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any]]:
+    source = require_object(manifest.get("source"), "manifest.source")
+    repository = source.get("repository")
+    if repository is not None and (not isinstance(repository, str) or not repository):
+        raise fail_contradiction("Manifest source repository must be null or a non-empty string")
+    commit = require_string(source.get("commit"), "manifest.source.commit")
+    if not COMMIT_RE.fullmatch(commit):
+        raise fail_contradiction("Manifest source commit is not an exact lowercase Git ID")
+    suite = require_object(manifest.get("suite"), "manifest.suite")
+    require_string(suite.get("name"), "manifest.suite.name")
+    require_integer_value(suite.get("schemaVersion"), "manifest.suite.schemaVersion", minimum=0)
+    return {"commit": commit, "repository": repository}, {
+        "name": suite["name"],
+        "schemaVersion": suite["schemaVersion"],
+    }
+
+
+def representative_environment(
+    manifest: dict[str, Any], results_root: Path
+) -> dict[str, Any] | None:
+    members = require_list(manifest.get("members"), "set manifest members")
+    if not members:
+        return None
+    member = require_object(members[0], "set manifest member 0")
+    target = safe_results_reference(results_root, member.get("manifestReference"))
+    if not target.is_file() or target.is_symlink():
+        return None
+    expected = require_string(member.get("manifestSha256"), "member manifest digest")
+    if not PREFIXED_SHA256_RE.fullmatch(expected):
+        raise fail_contradiction("Member manifest digest has an invalid form")
+    if "sha256:" + sha256_file(target) != expected:
+        raise fail_contradiction("Representative member manifest digest contradicts the set")
+    document, _ = canonical_document(target)
+    if document.get("kind") != "benchmark-run" or document.get("schemaVersion") != 1:
+        raise fail_unsupported("Representative member manifest schema is unsupported")
+    if document.get("environmentFingerprint") != manifest.get("environmentFingerprint"):
+        raise fail_contradiction("Representative member environment fingerprint contradicts the set")
+    return require_object(document.get("environment"), "representative member environment")
+
+
+def validate_set_evidence(root: Path, results_root: Path) -> dict[str, Any]:
+    verify_exact_checksum_file(
+        root,
+        "set-checksums.sha256",
+        ("benchmark-set-manifest.json", "aggregate-metrics.json", "set-attempt-audit.json"),
+    )
+    manifest, manifest_bytes = canonical_document(root / "benchmark-set-manifest.json")
+    aggregate, aggregate_bytes = canonical_document(root / "aggregate-metrics.json")
+    audit, audit_bytes = canonical_document(root / "set-attempt-audit.json")
+    if manifest.get("kind") != "benchmark-set":
+        raise fail_unsupported("Set manifest kind is unsupported")
+    if manifest.get("schemaVersion") != SET_MANIFEST_SCHEMA_VERSION:
+        raise fail_unsupported("Set manifest schema is unsupported")
+    status = manifest.get("status")
+    if status not in {"VALID_CANONICAL_SET", "VALID_EXPERIMENT_SET"}:
+        raise fail_unsupported(f"Set status is unsupported: {status!r}")
+    set_id = require_string(manifest.get("setId"), "set manifest setId")
+    if not SET_ID_RE.fullmatch(set_id):
+        raise fail_contradiction("Set ID has an invalid form")
+    if root.name != "v1" or root.parent.name != set_id:
+        raise fail_contradiction("Set directory and manifest set ID disagree")
+    source, suite = source_and_suite(manifest)
+    if suite["schemaVersion"] != 1:
+        raise fail_unsupported("Set suite schema is unsupported")
+    if source["repository"] is None:
+        raise fail_contradiction("Set source repository is unavailable")
+    profile = require_string(manifest.get("evidenceProfile"), "set evidence profile")
+    expected_profile = "canonical" if status == "VALID_CANONICAL_SET" else "experiment"
+    if profile != expected_profile:
+        raise fail_contradiction("Set status and evidence profile disagree")
+    for key in ("benchmarkConfigFingerprint", "environmentFingerprint"):
+        fingerprint_value = manifest.get(key)
+        if not isinstance(fingerprint_value, str) or not PREFIXED_SHA256_RE.fullmatch(fingerprint_value):
+            raise fail_contradiction(f"Set {key} has an invalid form")
+    preset_id = manifest.get("presetId")
+    if preset_id is not None and (not isinstance(preset_id, str) or not preset_id):
+        raise fail_contradiction("Set preset ID must be null or a non-empty string")
+    members = require_list(manifest.get("members"), "set members")
+    minimum = 3 if profile == "canonical" else 1
+    if len(members) < minimum:
+        raise fail_contradiction("Set has too few members for its evidence profile")
+    slots: list[int] = []
+    for index, value in enumerate(members):
+        member = require_object(value, f"set member {index}")
+        slot = require_integer_value(member.get("slot"), f"set member {index}.slot", minimum=1)
+        slots.append(slot)
+        require_string(member.get("rawRunId"), f"set member {index}.rawRunId")
+        for key in ("manifestSha256", "metricsSha256", "orchestrationSha256", "slotAttemptAuditSha256"):
+            digest = require_string(member.get(key), f"set member {index}.{key}")
+            if not PREFIXED_SHA256_RE.fullmatch(digest):
+                raise fail_contradiction(f"Set member {index}.{key} has an invalid digest")
+        for key in ("manifestReference", "metricsReference", "orchestrationReference"):
+            safe_results_reference(results_root, member.get(key))
+    if slots != list(range(1, len(members) + 1)):
+        raise fail_contradiction("Set member slots are not ordered and contiguous")
+    aggregate_binding = require_object(manifest.get("aggregateMetrics"), "set aggregate binding")
+    audit_binding = require_object(manifest.get("attemptAudit"), "set audit binding")
+    if aggregate_binding.get("path") != "aggregate-metrics.json":
+        raise fail_contradiction("Set aggregate path is contradictory")
+    if audit_binding.get("path") != "set-attempt-audit.json":
+        raise fail_contradiction("Set audit path is contradictory")
+    if aggregate_binding.get("sha256") != "sha256:" + sha256_bytes(aggregate_bytes):
+        raise fail_contradiction("Set aggregate digest is contradictory")
+    if audit_binding.get("sha256") != "sha256:" + sha256_bytes(audit_bytes):
+        raise fail_contradiction("Set audit digest is contradictory")
+    if audit.get("kind") != "benchmark-set-attempt-audit" or audit.get("schemaVersion") != 1:
+        raise fail_unsupported("Set attempt-audit schema is unsupported")
+    if audit.get("setId") != set_id:
+        raise fail_contradiction("Set attempt audit belongs to another set")
+    if aggregate.get("kind") != "aggregate-benchmark-metrics":
+        raise fail_unsupported("Aggregate metrics kind is unsupported")
+    if aggregate.get("schemaVersion") != SET_METRICS_SCHEMA_VERSION:
+        raise fail_unsupported("Aggregate metrics schema is unsupported")
+    if aggregate.get("setId") != set_id or aggregate.get("suite") != suite:
+        raise fail_contradiction("Aggregate metrics identity contradicts the set manifest")
+    if aggregate.get("memberCount") != len(members):
+        raise fail_contradiction("Aggregate member count contradicts the set manifest")
+    metric_values = require_list(aggregate.get("metrics"), "aggregate metrics")
+    if aggregate_binding.get("count") != len(metric_values):
+        raise fail_contradiction("Aggregate metric count contradicts the set manifest")
+    metrics: dict[str, dict[str, Any]] = {}
+    observed_ids: list[str] = []
+    for index, value in enumerate(metric_values):
+        metric = require_object(value, f"aggregate metric {index}")
+        metric_id = require_string(metric.get("metricId"), f"aggregate metric {index}.metricId")
+        if metric_id in metrics:
+            raise fail_contradiction(f"Duplicate aggregate metric ID: {metric_id}")
+        observed_ids.append(metric_id)
+        validate_metric_common(metric, f"aggregate metric {metric_id}")
+        values = require_list(metric.get("values"), f"aggregate metric {metric_id}.values")
+        if len(values) != len(members):
+            raise fail_contradiction(f"Aggregate metric {metric_id} member count differs")
+        raw_values = []
+        for member_index, member_value in enumerate(values):
+            entry = require_object(member_value, f"aggregate metric {metric_id} value {member_index}")
+            if entry.get("slot") != member_index + 1:
+                raise fail_contradiction(f"Aggregate metric {metric_id} slots are not ordered")
+            if entry.get("runId") != members[member_index]["rawRunId"]:
+                raise fail_contradiction(f"Aggregate metric {metric_id} run identity differs")
+            raw_values.append(entry.get("value"))
+        aggregation_kind = metric.get("aggregationKind")
+        if aggregation_kind == "consensus":
+            distinct: list[Any] = []
+            for raw in raw_values:
+                if raw not in distinct:
+                    distinct.append(raw)
+            if metric.get("distinctValues") != distinct:
+                raise fail_contradiction(f"Aggregate metric {metric_id} consensus differs")
+            all_equal = len(distinct) == 1
+            if metric.get("allEqual") is not all_equal:
+                raise fail_contradiction(f"Aggregate metric {metric_id} unanimity differs")
+            expected_unanimous = distinct[0] if all_equal else None
+            if metric.get("unanimousValue") != expected_unanimous:
+                raise fail_contradiction(f"Aggregate metric {metric_id} unanimous value differs")
+            comparison_value: Any = {
+                "allEqual": all_equal,
+                "distinctValues": distinct,
+                "unanimousValue": expected_unanimous,
+            }
+            variation = None
+            variation_reason = "categorical_metric"
+        elif aggregation_kind in {
+            "median_of_independent_run_values",
+            "median_of_run_percentile",
+        }:
+            numeric = [finite_number(raw, f"aggregate metric {metric_id} value") for raw in raw_values]
+            middle = median(numeric)
+            minimum = min(numeric)
+            maximum = max(numeric)
+            absolute_range = maximum - minimum
+            expected = {
+                "absoluteRange": absolute_range,
+                "count": len(numeric),
+                "maximum": maximum,
+                "median": middle,
+                "minimum": minimum,
+                "relativeRangePct": None if middle == 0 else absolute_range / abs(middle) * 100,
+            }
+            if any(metric.get(key) != expected_value for key, expected_value in expected.items()):
+                raise fail_contradiction(f"Aggregate metric {metric_id} statistics differ")
+            if middle == 0 and metric.get("relativeRangeUnavailableReason") != "median_zero":
+                raise fail_contradiction(f"Aggregate metric {metric_id} lacks zero-median reason")
+            comparison_value = middle
+            variation = metric.get("relativeRangePct")
+            variation_reason = "median_zero" if variation is None else None
+        else:
+            raise fail_unsupported(f"Aggregate metric {metric_id} aggregation kind is unsupported")
+        metrics[metric_id] = {
+            "aggregationKind": aggregation_kind,
+            "direction": metric["direction"],
+            "identity": metric["identity"],
+            "percentile": metric.get("percentile"),
+            "statistic": metric["statistic"],
+            "unit": metric["unit"],
+            "value": comparison_value,
+            "variationPct": variation,
+            "variationUnavailableReason": variation_reason,
+        }
+    if observed_ids != sorted(observed_ids):
+        raise fail_contradiction("Aggregate metric IDs are not sorted")
+    environment = representative_environment(manifest, results_root)
+    return {
+        "benchmarkConfigFingerprint": require_string(
+            manifest.get("benchmarkConfigFingerprint"), "set benchmark configuration fingerprint"
+        ),
+        "environment": environment,
+        "environmentFingerprint": require_string(
+            manifest.get("environmentFingerprint"), "set environment fingerprint"
+        ),
+        "id": set_id,
+        "kind": "set",
+        "manifestDigest": "sha256:" + sha256_bytes(manifest_bytes),
+        "memberCount": len(members),
+        "metrics": metrics,
+        "metricsDigest": "sha256:" + sha256_bytes(aggregate_bytes),
+        "mode": require_string(manifest.get("mode"), "set mode"),
+        "presetId": preset_id,
+        "profile": profile,
+        "source": source,
+        "status": status,
+        "suite": suite,
+    }
+
+
+def validate_run_evidence(root: Path) -> dict[str, Any]:
+    verify_exact_checksum_file(
+        root,
+        "derived-checksums.sha256",
+        ("benchmark-manifest.json", "normalized-metrics.json"),
+    )
+    manifest, manifest_bytes = canonical_document(root / "benchmark-manifest.json")
+    metrics_document, metrics_bytes = canonical_document(root / "normalized-metrics.json")
+    if manifest.get("kind") != "benchmark-run":
+        raise fail_unsupported("Run manifest kind is unsupported")
+    if manifest.get("schemaVersion") != MANIFEST_SCHEMA_VERSION:
+        raise fail_unsupported("Run manifest schema is unsupported")
+    status = manifest.get("status")
+    if status not in {"VALID_CANONICAL_MEMBER", "VALID_EXPERIMENT"}:
+        raise fail_unsupported(f"Run status is unsupported: {status!r}")
+    run_id = require_string(manifest.get("runId"), "run ID")
+    if root.name != "v1" or root.parent.name != run_id:
+        raise fail_contradiction("Run directory and manifest run ID disagree")
+    source, suite = source_and_suite(manifest)
+    if suite["schemaVersion"] not in {0, 1}:
+        raise fail_unsupported("Run suite schema is unsupported")
+    if suite["schemaVersion"] == 1 and source["repository"] is None:
+        raise fail_contradiction("Schema-1 run source repository is unavailable")
+    if metrics_document.get("kind") != "normalized-benchmark-metrics":
+        raise fail_unsupported("Normalized metrics kind is unsupported")
+    if metrics_document.get("schemaVersion") != METRICS_SCHEMA_VERSION:
+        raise fail_unsupported("Normalized metrics schema is unsupported")
+    if metrics_document.get("runId") != run_id or metrics_document.get("suite") != {
+        "name": suite["name"],
+        "schemaVersion": suite["schemaVersion"],
+    }:
+        raise fail_contradiction("Normalized metrics identity contradicts the run manifest")
+    binding = require_object(manifest.get("metrics"), "run metrics binding")
+    if binding.get("path") != "normalized-metrics.json" or binding.get("schemaVersion") != 1:
+        raise fail_contradiction("Run metrics binding is contradictory")
+    metrics_digest = sha256_bytes(metrics_bytes)
+    if binding.get("sha256") != metrics_digest:
+        raise fail_contradiction("Run metrics digest is contradictory")
+    metric_values = require_list(metrics_document.get("metrics"), "normalized metrics")
+    if binding.get("count") != len(metric_values):
+        raise fail_contradiction("Run metric count is contradictory")
+    metrics: dict[str, dict[str, Any]] = {}
+    observed_ids: list[str] = []
+    for index, value in enumerate(metric_values):
+        metric = require_object(value, f"run metric {index}")
+        metric_id = require_string(metric.get("id"), f"run metric {index}.id")
+        if metric_id in metrics:
+            raise fail_contradiction(f"Duplicate run metric ID: {metric_id}")
+        observed_ids.append(metric_id)
+        normalized = {
+            "direction": metric.get("direction"),
+            "identity": metric.get("identity"),
+            "percentile": metric.get("percentile"),
+            "statistic": metric.get("statistic"),
+            "unit": metric.get("canonicalUnit"),
+        }
+        validate_metric_common(normalized, f"run metric {metric_id}")
+        value = metric.get("canonicalValue")
+        if isinstance(value, bool) or isinstance(value, str) or value is None or metric.get("direction") == "categorical":
+            comparison_value: Any = {
+                "allEqual": True,
+                "distinctValues": [value],
+                "unanimousValue": value,
+            }
+            aggregation_kind = "consensus"
+            variation_reason = "categorical_metric"
+        else:
+            comparison_value = finite_number(value, f"run metric {metric_id}.canonicalValue")
+            aggregation_kind = (
+                "median_of_run_percentile"
+                if str(metric.get("statistic", "")).startswith("sample_percentile_")
+                else "median_of_independent_run_values"
+            )
+            variation_reason = "single_run_has_no_independent_variation"
+        metrics[metric_id] = {
+            "aggregationKind": aggregation_kind,
+            **normalized,
+            "value": comparison_value,
+            "variationPct": None,
+            "variationUnavailableReason": variation_reason,
+        }
+    if observed_ids != sorted(observed_ids):
+        raise fail_contradiction("Run metric IDs are not sorted")
+    benchmark = require_object(manifest.get("benchmark"), "run benchmark")
+    profile = require_string(manifest.get("evidenceProfile"), "run evidence profile")
+    expected_profile = "canonical" if status == "VALID_CANONICAL_MEMBER" else "experiment"
+    if profile != expected_profile:
+        raise fail_contradiction("Run status and evidence profile disagree")
+    config_fingerprint = manifest.get("benchmarkConfigFingerprint")
+    if not isinstance(config_fingerprint, str) or not PREFIXED_SHA256_RE.fullmatch(config_fingerprint):
+        raise fail_contradiction("Run benchmark configuration fingerprint has an invalid form")
+    environment_fingerprint = manifest.get("environmentFingerprint")
+    if environment_fingerprint is not None and (
+        not isinstance(environment_fingerprint, str)
+        or not PREFIXED_SHA256_RE.fullmatch(environment_fingerprint)
+    ):
+        raise fail_contradiction("Run environment fingerprint has an invalid form")
+    preset_id = benchmark.get("presetId")
+    if preset_id is not None and (not isinstance(preset_id, str) or not preset_id):
+        raise fail_contradiction("Run preset ID must be null or a non-empty string")
+    return {
+        "benchmarkConfigFingerprint": config_fingerprint,
+        "environment": require_object(manifest.get("environment"), "run environment"),
+        "environmentFingerprint": environment_fingerprint,
+        "id": run_id,
+        "kind": "run",
+        "manifestDigest": "sha256:" + sha256_bytes(manifest_bytes),
+        "memberCount": 1,
+        "metrics": metrics,
+        "metricsDigest": "sha256:" + metrics_digest,
+        "mode": require_string(benchmark.get("mode"), "run mode"),
+        "presetId": preset_id,
+        "profile": profile,
+        "source": source,
+        "status": status,
+        "suite": suite,
+    }
+
+
+def load_comparison_evidence(operand: Path, results_root: Path) -> dict[str, Any]:
+    root, kind = evidence_directory(operand)
+    if kind == "set":
+        return validate_set_evidence(root, results_root)
+    return validate_run_evidence(root)
+
+
+def scientific_environment(environment: dict[str, Any] | None) -> dict[str, Any] | None:
+    if environment is None:
+        return None
+    return {key: value for key, value in environment.items() if key != "provisioning"}
+
+
+def compatibility_decision(
+    baseline: dict[str, Any], candidate: dict[str, Any], allow_exploratory: bool
+) -> dict[str, Any]:
+    reasons: list[str] = []
+    warnings: list[str] = []
+    comparable_fields = {
+        "benchmark_configuration_fingerprint_mismatch": "benchmarkConfigFingerprint",
+        "benchmark_mode_mismatch": "mode",
+        "benchmark_preset_mismatch": "presetId",
+        "source_repository_mismatch": None,
+        "suite_mismatch": "suite",
+    }
+    for code, key in comparable_fields.items():
+        if key is None:
+            differs = baseline["source"]["repository"] != candidate["source"]["repository"]
+        else:
+            differs = baseline.get(key) != candidate.get(key)
+        if differs:
+            reasons.append(code)
+    baseline_ids = set(baseline["metrics"])
+    candidate_ids = set(candidate["metrics"])
+    if baseline_ids != candidate_ids:
+        reasons.append("metric_id_set_mismatch")
+    else:
+        for metric_id in sorted(baseline_ids):
+            if comparison_metric_signature(baseline["metrics"][metric_id]) != comparison_metric_signature(
+                candidate["metrics"][metric_id]
+            ):
+                reasons.append(f"metric_signature_mismatch:{metric_id}")
+    environment_equal = baseline.get("environmentFingerprint") == candidate.get("environmentFingerprint")
+    provisioning_only = False
+    if not environment_equal:
+        left_environment = baseline.get("environment")
+        right_environment = candidate.get("environment")
+        if (
+            left_environment is not None
+            and right_environment is not None
+            and scientific_environment(left_environment) == scientific_environment(right_environment)
+            and {left_environment.get("provisioning"), right_environment.get("provisioning")}
+            == {"spot", "standard"}
+        ):
+            provisioning_only = True
+        else:
+            reasons.append("environment_fingerprint_mismatch")
+    directly_comparable = (
+        not reasons
+        and environment_equal
+        and baseline["kind"] == "set"
+        and candidate["kind"] == "set"
+        and baseline["status"] == "VALID_CANONICAL_SET"
+        and candidate["status"] == "VALID_CANONICAL_SET"
+    )
+    if directly_comparable:
+        return {"reasons": [], "status": "DIRECTLY_COMPARABLE", "warnings": []}
+    if not allow_exploratory:
+        if baseline["kind"] == "run" or candidate["kind"] == "run":
+            reasons.append("derived_run_requires_exploratory")
+        if baseline["profile"] != "canonical" or candidate["profile"] != "canonical":
+            reasons.append("experiment_evidence_requires_exploratory")
+        if provisioning_only:
+            reasons.append("provisioning_mismatch_requires_exploratory")
+        if not reasons:
+            reasons.append("direct_comparison_requires_two_canonical_sets")
+        return {"reasons": sorted(set(reasons)), "status": "INCOMPARABLE", "warnings": []}
+    if reasons:
+        return {"reasons": sorted(set(reasons)), "status": "INCOMPARABLE", "warnings": []}
+    if baseline["kind"] == "run" or candidate["kind"] == "run":
+        warnings.append("single_run_evidence_has_no_independent_run_variation")
+    if baseline["profile"] != "canonical" or candidate["profile"] != "canonical":
+        warnings.append("experiment_evidence_is_exploratory")
+    if provisioning_only:
+        warnings.append("provisioning_models_differ_comparison_is_exploratory")
+    return {
+        "reasons": [],
+        "status": "COMPARABLE_WITH_WARNINGS",
+        "warnings": sorted(set(warnings)),
+    }
+
+
+CONTINUOUS_STATISTICS = {
+    "allocation_per_operation",
+    "mean_time",
+    "sample_mean",
+    "throughput",
+}
+CLASSIFICATIONS = (
+    "MATERIAL_IMPROVEMENT",
+    "IMPROVEMENT",
+    "NEUTRAL",
+    "WARNING",
+    "POSSIBLE_REGRESSION",
+    "INCOMPARABLE",
+    "INVALID",
+)
+
+
+def health_metric_name(metric: dict[str, Any]) -> str | None:
+    name = metric["identity"].get("metricName")
+    return name if isinstance(name, str) else None
+
+
+def healthy_consensus(name: str, value: dict[str, Any]) -> bool | None:
+    if not value["allEqual"]:
+        return None
+    unanimous = value["unanimousValue"]
+    if name == "errors":
+        return not isinstance(unanimous, bool) and isinstance(unanimous, (int, float)) and unanimous == 0
+    if name == "analysis_status":
+        return unanimous == "VALID"
+    if name == "status":
+        return unanimous == "PASS"
+    if name == "review_required" or name.startswith("flag_"):
+        return unanimous is False
+    return None
+
+
+def classify_metric(
+    metric_id: str, baseline: dict[str, Any], candidate: dict[str, Any]
+) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "absoluteDelta": None,
+        "baseline": {
+            "value": baseline["value"],
+            "variationPct": baseline["variationPct"],
+            "variationUnavailableReason": baseline["variationUnavailableReason"],
+        },
+        "benefitPct": None,
+        "candidate": {
+            "value": candidate["value"],
+            "variationPct": candidate["variationPct"],
+            "variationUnavailableReason": candidate["variationUnavailableReason"],
+        },
+        "classification": None,
+        "deltaPct": None,
+        "direction": baseline["direction"],
+        "identity": baseline["identity"],
+        "materialLimitPct": None,
+        "metricId": metric_id,
+        "neutralLimitPct": None,
+        "percentile": baseline.get("percentile"),
+        "policyId": "diagnostic-only-v1",
+        "reason": "diagnostic_metric_has_no_ordered_policy",
+        "statistic": baseline["statistic"],
+        "unit": baseline["unit"],
+        "variationPct": None,
+    }
+    statistic = baseline["statistic"]
+    continuous = statistic in CONTINUOUS_STATISTICS or statistic.startswith("sample_percentile_")
+    if continuous and baseline["direction"] in {"higher", "lower"}:
+        result["policyId"] = "continuous-relative-v1"
+        baseline_value = baseline["value"]
+        candidate_value = candidate["value"]
+        if baseline_value == 0:
+            result["reason"] = "baseline_median_zero"
+            return result
+        if baseline["variationPct"] is None or candidate["variationPct"] is None:
+            result["reason"] = "independent_variation_unavailable"
+            return result
+        absolute_delta = candidate_value - baseline_value
+        delta_pct = absolute_delta / abs(baseline_value) * 100
+        variation = max(baseline["variationPct"], candidate["variationPct"])
+        neutral = max(5, variation)
+        material = max(10, 2 * variation)
+        benefit = delta_pct if baseline["direction"] == "higher" else -delta_pct
+        if abs(benefit) <= neutral:
+            classification = "NEUTRAL"
+        elif benefit > 0:
+            classification = "MATERIAL_IMPROVEMENT" if benefit >= material else "IMPROVEMENT"
+        else:
+            classification = "POSSIBLE_REGRESSION" if -benefit >= material else "WARNING"
+        result.update(
+            {
+                "absoluteDelta": absolute_delta,
+                "benefitPct": benefit,
+                "classification": classification,
+                "deltaPct": delta_pct,
+                "materialLimitPct": material,
+                "neutralLimitPct": neutral,
+                "reason": None,
+                "variationPct": variation,
+            }
+        )
+        return result
+    name = health_metric_name(baseline)
+    is_health = name in {"errors", "analysis_status", "status", "review_required"} or bool(
+        name and name.startswith("flag_")
+    )
+    if is_health and isinstance(baseline["value"], dict) and isinstance(candidate["value"], dict):
+        result["policyId"] = "health-consensus-v1"
+        baseline_health = healthy_consensus(name or "", baseline["value"])
+        candidate_health = healthy_consensus(name or "", candidate["value"])
+        if baseline_health is not True:
+            classification = "INVALID"
+        elif candidate_health is True:
+            classification = "NEUTRAL"
+        elif candidate_health is False and (name == "review_required" or str(name).startswith("flag_")):
+            classification = "WARNING"
+        else:
+            classification = "INVALID"
+        result.update({"classification": classification, "reason": None})
+        return result
+    if baseline["aggregationKind"] == "consensus":
+        result["policyId"] = "categorical-observation-v1"
+        if (
+            baseline["value"]["allEqual"]
+            and candidate["value"]["allEqual"]
+            and baseline["value"]["unanimousValue"] == candidate["value"]["unanimousValue"]
+        ):
+            result.update({"classification": "NEUTRAL", "reason": None})
+        else:
+            result["reason"] = "categorical_change_has_no_ordered_policy"
+    return result
+
+
+def compact_evidence(view: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+        "environmentFingerprint": view["environmentFingerprint"],
+        "evidenceId": view["id"],
+        "evidenceKind": view["kind"],
+        "manifestDigest": view["manifestDigest"],
+        "memberCount": view["memberCount"],
+        "metricsDigest": view["metricsDigest"],
+        "mode": view["mode"],
+        "presetId": view["presetId"],
+        "profile": view["profile"],
+        "source": view["source"],
+        "status": view["status"],
+        "suite": view["suite"],
+    }
+
+
+def comparison_identity(
+    baseline: dict[str, Any], candidate: dict[str, Any], allow_exploratory: bool
+) -> dict[str, Any]:
+    def evidence_identity(view: dict[str, Any]) -> dict[str, Any]:
+        return {
+            "evidenceId": view["id"],
+            "evidenceKind": view["kind"],
+            "manifestDigest": view["manifestDigest"],
+            "metricsDigest": view["metricsDigest"],
+        }
+
+    return {
+        "baseline": evidence_identity(baseline),
+        "candidate": evidence_identity(candidate),
+        "comparisonPolicy": {"id": COMPARISON_POLICY_ID, "schemaVersion": 1},
+        "requestedMode": "exploratory" if allow_exploratory else "direct",
+        "schemaVersion": COMPARISON_SCHEMA_VERSION,
+    }
+
+
+def markdown_escape(value: Any) -> str:
+    text = str(value).replace("\\", "\\\\").replace("|", "\\|")
+    return "".join(" " if ord(character) < 32 or ord(character) == 127 else character for character in text)
+
+
+def display_number(value: Any) -> str:
+    if value is None:
+        return "—"
+    if isinstance(value, bool):
+        return str(value).lower()
+    if isinstance(value, (int, float)):
+        rendered = f"{value:.6f}".rstrip("0").rstrip(".")
+        return "0" if rendered == "-0" else rendered
+    if isinstance(value, dict):
+        if value.get("allEqual"):
+            return markdown_escape(value.get("unanimousValue"))
+        return markdown_escape(value.get("distinctValues"))
+    return markdown_escape(value)
+
+
+def render_comparison_markdown(document: dict[str, Any]) -> bytes:
+    compatibility = document["compatibility"]
+    summary = document["summary"]
+    lines = [
+        "# Cloud benchmark comparison",
+        "",
+        f"Comparison ID: `{document['comparisonId']}`",
+        "",
+        "## Evidence",
+        "",
+        "| Role | Kind | ID | Commit | Profile | Mode | Members |",
+        "|---|---|---|---|---|---|---:|",
+    ]
+    for role in ("baseline", "candidate"):
+        evidence = document[role]
+        lines.append(
+            "| "
+            + " | ".join(
+                markdown_escape(value)
+                for value in (
+                    role,
+                    evidence["evidenceKind"],
+                    evidence["evidenceId"],
+                    evidence["source"]["commit"],
+                    evidence["profile"],
+                    evidence["mode"],
+                    evidence["memberCount"],
+                )
+            )
+            + " |"
+        )
+    lines.extend(["", "## Compatibility", "", f"Status: **{compatibility['status']}**"])
+    if compatibility["reasons"]:
+        lines.extend(["", "Reasons:", "", *[f"- `{markdown_escape(item)}`" for item in compatibility["reasons"]]])
+    if compatibility["warnings"]:
+        lines.extend(["", "Warnings:", "", *[f"- `{markdown_escape(item)}`" for item in compatibility["warnings"]]])
+    lines.extend(
+        [
+            "",
+            "## Classification summary",
+            "",
+            "| Classification | Count |",
+            "|---|---:|",
+            *[f"| {name} | {summary['classificationCounts'][name]} |" for name in CLASSIFICATIONS],
+            f"| UNCLASSIFIED | {summary['unclassified']} |",
+        ]
+    )
+    groups = (
+        ("Continuous performance", lambda item: item["policyId"] == "continuous-relative-v1"),
+        ("Categorical and health findings", lambda item: item["policyId"] in {"health-consensus-v1", "categorical-observation-v1"}),
+        ("Diagnostic and unclassified observations", lambda item: item["policyId"] == "diagnostic-only-v1"),
+    )
+    for title, predicate in groups:
+        rows = [item for item in document["metrics"] if predicate(item)]
+        lines.extend(
+            [
+                "",
+                f"## {title}",
+                "",
+                "| Metric | Statistic | Baseline | Candidate | Unit | Delta % | Classification | Note |",
+                "|---|---|---:|---:|---|---:|---|---|",
+            ]
+        )
+        for item in rows:
+            statistic = item["statistic"]
+            if statistic.startswith("sample_percentile_"):
+                statistic += " (median of run percentiles)"
+            lines.append(
+                "| "
+                + " | ".join(
+                    (
+                        markdown_escape(item["metricId"]),
+                        markdown_escape(statistic),
+                        display_number(item["baseline"]["value"]),
+                        display_number(item["candidate"]["value"]),
+                        markdown_escape(item["unit"]),
+                        display_number(item["deltaPct"]),
+                        markdown_escape(item["classification"] or "UNCLASSIFIED"),
+                        markdown_escape(item["reason"] or ""),
+                    )
+                )
+                + " |"
+            )
+        if not rows:
+            lines.append("| _none_ | — | — | — | — | — | — | — |")
+    lines.extend(
+        [
+            "",
+            "## Evidence limitations",
+            "",
+            "Set percentiles are medians of independent run percentiles, not pooled request percentiles.",
+            "Single-run evidence has no independent-run variation and receives no synthetic confidence interval.",
+            "This Phase 3 report is evidence for review and is not a hard performance gate.",
+            "",
+        ]
+    )
+    return "\n".join(lines).encode("utf-8")
+
+
+def write_comparison_artifacts(
+    results_root: Path, comparison_id: str, document: dict[str, Any]
+) -> Path:
+    json_bytes = canonical_json_bytes(document)
+    markdown_bytes = render_comparison_markdown(document)
+    checksum_bytes = (
+        f"{sha256_bytes(json_bytes)}  comparison.json\n"
+        f"{sha256_bytes(markdown_bytes)}  comparison.md\n"
+    ).encode("utf-8")
+    expected = {
+        "comparison-checksums.sha256": checksum_bytes,
+        "comparison.json": json_bytes,
+        "comparison.md": markdown_bytes,
+    }
+    destination = results_root.resolve() / "comparisons" / comparison_id / "v1"
+    if destination.exists():
+        try:
+            actual = {
+                entry.name: entry.read_bytes()
+                for entry in destination.iterdir()
+                if entry.is_file() and not entry.is_symlink()
+            }
+        except OSError as error:
+            raise fail_contradiction(f"Cannot validate existing comparison output: {error}") from error
+        if actual != expected or {entry.name for entry in destination.iterdir()} != set(expected):
+            raise fail_contradiction(f"Existing comparison artifact collision: {destination}")
+        return destination
+    try:
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        staging = destination.parent / f".v1.{uuid.uuid4().hex}"
+        staging.mkdir()
+    except OSError as error:
+        raise fail_config(f"Cannot create comparison output directory: {error}") from error
+    try:
+        try:
+            for name, content in expected.items():
+                atomic_write_bytes(staging / name, content)
+            os.replace(staging, destination)
+        except OSError as error:
+            raise fail_config(f"Cannot finalize comparison output: {error}") from error
+    finally:
+        if staging.exists():
+            for child in staging.iterdir():
+                child.unlink()
+            staging.rmdir()
+    return destination
+
+
+REGISTRY_ENTRY_KEYS = {
+    "benchmarkConfigFingerprint",
+    "environmentFingerprint",
+    "evidenceProfile",
+    "manifestGeneration",
+    "manifestUri",
+    "setId",
+    "setManifestSha256",
+    "sourceCommit",
+    "uploadReceiptId",
+    "uploadReceiptSha256",
+}
+
+
+def validate_baseline_registry(path: Path) -> dict[str, Any]:
+    try:
+        source_bytes = path.read_bytes()
+    except OSError as error:
+        raise fail_registry(f"Cannot read baseline registry {path}: {error}") from error
+    try:
+        document = json.loads(source_bytes.decode("utf-8"), object_pairs_hook=strict_object)
+    except BenchmarkV2Error as error:
+        raise fail_registry(str(error)) from error
+    except (UnicodeError, json.JSONDecodeError) as error:
+        raise fail_registry(f"Cannot parse baseline registry {path}: {error}") from error
+    if not isinstance(document, dict):
+        raise fail_registry("Baseline registry must be an object")
+    try:
+        if source_bytes != canonical_json_bytes(document):
+            raise fail_registry("Baseline registry is not canonical JSON")
+    except BenchmarkV2Error as error:
+        raise fail_registry(str(error)) from error
+    if set(document) != {"baselines", "kind", "schemaVersion"}:
+        raise fail_registry("Baseline registry top-level fields differ")
+    if document.get("kind") != "cloud-benchmark-baseline-registry" or document.get("schemaVersion") != 1:
+        raise fail_registry("Baseline registry kind or schema is unsupported")
+    baselines = document.get("baselines")
+    if not isinstance(baselines, dict):
+        raise fail_registry("Baseline registry baselines must be an object")
+    if list(baselines) != sorted(baselines):
+        raise fail_registry("Baseline registry names are not sorted")
+    for name, raw_entry in baselines.items():
+        if not BASELINE_NAME_RE.fullmatch(name):
+            raise fail_registry(f"Invalid baseline name: {name}")
+        if not isinstance(raw_entry, dict):
+            raise fail_registry(f"Baseline {name} must be an object")
+        allowed = REGISTRY_ENTRY_KEYS | {"releaseLabel"}
+        if set(raw_entry) - allowed or not REGISTRY_ENTRY_KEYS <= set(raw_entry):
+            raise fail_registry(f"Baseline {name} fields differ")
+        set_id = raw_entry.get("setId")
+        if not isinstance(set_id, str) or not SET_ID_RE.fullmatch(set_id):
+            raise fail_registry(f"Baseline {name} has an invalid set ID")
+        for key in ("setManifestSha256", "environmentFingerprint", "benchmarkConfigFingerprint", "uploadReceiptSha256"):
+            value = raw_entry.get(key)
+            if not isinstance(value, str) or not PREFIXED_SHA256_RE.fullmatch(value):
+                raise fail_registry(f"Baseline {name} has an invalid {key}")
+        if raw_entry.get("evidenceProfile") != "canonical":
+            raise fail_registry(f"Baseline {name} is not canonical")
+        commit = raw_entry.get("sourceCommit")
+        if not isinstance(commit, str) or not COMMIT_RE.fullmatch(commit):
+            raise fail_registry(f"Baseline {name} has an invalid source commit")
+        receipt_id = raw_entry.get("uploadReceiptId")
+        if not isinstance(receipt_id, str) or not RECEIPT_ID_RE.fullmatch(receipt_id):
+            raise fail_registry(f"Baseline {name} has an invalid upload receipt ID")
+        generation = raw_entry.get("manifestGeneration")
+        if not isinstance(generation, str) or not re.fullmatch(r"[1-9][0-9]*", generation):
+            raise fail_registry(f"Baseline {name} has an invalid manifest generation")
+        uri = raw_entry.get("manifestUri")
+        expected_uri = re.compile(
+            rf"^gs://[a-z0-9][a-z0-9._-]{{1,61}}[a-z0-9]/general-search-engine/sets/"
+            rf"{re.escape(set_id)}/v1/benchmark-set-manifest\.json$"
+        )
+        if (
+            not isinstance(uri, str)
+            or expected_uri.fullmatch(uri) is None
+        ):
+            raise fail_registry(f"Baseline {name} has an invalid immutable manifest URI")
+        if "releaseLabel" in raw_entry:
+            label = raw_entry["releaseLabel"]
+            if not isinstance(label, str) or not label or len(label) > 100 or "\n" in label or "\r" in label:
+                raise fail_registry(f"Baseline {name} has an invalid release label")
+    return document
+
+
+def resolve_registry_baseline(
+    name: str, registry_path: Path, results_root: Path
+) -> Path:
+    if not BASELINE_NAME_RE.fullmatch(name):
+        raise fail_config(f"Baseline operand is neither a path nor a valid registry name: {name}")
+    registry = validate_baseline_registry(registry_path)
+    entry = registry["baselines"].get(name)
+    if entry is None:
+        raise fail_registry(f"Unknown baseline name: {name}")
+    root = results_root.resolve() / "sets" / entry["setId"] / "v1"
+    if not root.is_dir():
+        raise fail_registry(f"Registered baseline has no local set: {name}")
+    try:
+        view = validate_set_evidence(root, results_root)
+    except BenchmarkV2Error as error:
+        raise fail_registry(f"Registered baseline local set is invalid: {error}") from error
+    expected = {
+        "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+        "environmentFingerprint": view["environmentFingerprint"],
+        "evidenceProfile": view["profile"],
+        "setId": view["id"],
+        "setManifestSha256": view["manifestDigest"],
+        "sourceCommit": view["source"]["commit"],
+    }
+    if any(entry.get(key) != value for key, value in expected.items()):
+        raise fail_registry(f"Registered baseline local binding differs: {name}")
+    return root
+
+
+def validate_immutable_baseline_name(
+    registry: dict[str, Any], name: str, proposed_entry: dict[str, Any]
+) -> bool:
+    if not BASELINE_NAME_RE.fullmatch(name):
+        raise fail_registry(f"Invalid baseline name: {name}")
+    baselines = registry.get("baselines")
+    if not isinstance(baselines, dict):
+        raise fail_registry("Baseline registry baselines must be an object")
+    existing = baselines.get(name)
+    if existing is None:
+        return False
+    if existing != proposed_entry:
+        raise fail_registry(f"Immutable baseline name already has different evidence: {name}")
+    return True
+
+
+def compare_benchmarks(
+    baseline_operand: str | Path,
+    candidate_operand: str | Path,
+    *,
+    results_root: Path,
+    registry_path: Path,
+    allow_exploratory: bool = False,
+) -> tuple[Path, dict[str, Any], int]:
+    results = results_root.resolve()
+    baseline_path = Path(baseline_operand)
+    if not baseline_path.exists():
+        baseline_path = resolve_registry_baseline(str(baseline_operand), registry_path, results)
+    candidate_path = Path(candidate_operand)
+    if not candidate_path.exists():
+        raise fail_config(f"Candidate evidence operand does not exist: {candidate_operand}")
+    baseline = load_comparison_evidence(baseline_path, results)
+    candidate = load_comparison_evidence(candidate_path, results)
+    compatibility = compatibility_decision(baseline, candidate, allow_exploratory)
+    identity = comparison_identity(baseline, candidate, allow_exploratory)
+    comparison_id = "gse-comparison-v1-" + sha256_bytes(canonical_json_bytes(identity))
+    metric_results: list[dict[str, Any]] = []
+    if compatibility["status"] in {"DIRECTLY_COMPARABLE", "COMPARABLE_WITH_WARNINGS"}:
+        metric_results = [
+            classify_metric(metric_id, baseline["metrics"][metric_id], candidate["metrics"][metric_id])
+            for metric_id in sorted(baseline["metrics"])
+        ]
+    counts = {name: 0 for name in CLASSIFICATIONS}
+    unclassified = 0
+    for metric in metric_results:
+        classification = metric["classification"]
+        if classification is None:
+            unclassified += 1
+        else:
+            counts[classification] += 1
+    document = {
+        "baseline": compact_evidence(baseline),
+        "candidate": compact_evidence(candidate),
+        "comparisonId": comparison_id,
+        "compatibility": compatibility,
+        "identity": identity,
+        "kind": "benchmark-comparison",
+        "metrics": metric_results,
+        "policy": {"id": COMPARISON_POLICY_ID, "schemaVersion": 1},
+        "requestedMode": "exploratory" if allow_exploratory else "direct",
+        "schemaVersion": COMPARISON_SCHEMA_VERSION,
+        "status": "COMPLETE",
+        "summary": {
+            "classificationCounts": counts,
+            "metricsCompared": len(metric_results),
+            "unclassified": unclassified,
+        },
+    }
+    output = write_comparison_artifacts(results, comparison_id, document)
+    exit_code = EXIT_INCOMPARABLE if compatibility["status"] == "INCOMPARABLE" else 0
+    return output, document, exit_code
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="GeneralSearchEngine Cloud Benchmark V2 analysis")
     parser.add_argument("--version", action="version", version="benchmark_v2 schema 1")
@@ -2044,6 +3129,18 @@ def build_parser() -> argparse.ArgumentParser:
     value.add_argument("key")
     finalize = subparsers.add_parser("set-finalize", help=argparse.SUPPRESS)
     finalize.add_argument("workspace", type=Path)
+    compare = subparsers.add_parser("compare", help="compare completed benchmark evidence")
+    compare.add_argument("--allow-exploratory", action="store_true")
+    compare.add_argument("--results-root", type=Path, required=True)
+    compare.add_argument("--registry", type=Path, required=True)
+    compare.add_argument("baseline")
+    compare.add_argument("candidate")
+    registry_validate = subparsers.add_parser(
+        "registry-validate", help="validate the read-only baseline registry"
+    )
+    registry_validate.add_argument("registry", type=Path)
+    registry_list = subparsers.add_parser("registry-list", help=argparse.SUPPRESS)
+    registry_list.add_argument("registry", type=Path)
     return parser
 
 
@@ -2147,6 +3244,29 @@ def main(arguments: list[str] | None = None) -> int:
             print(f"Benchmark set: {output}")
             print(f"Status: {manifest['status']}; members={len(manifest['members'])}")
             return 0
+        if options.command == "registry-validate":
+            registry = validate_baseline_registry(options.registry)
+            print(f"Baseline registry: VALID; baselines={len(registry['baselines'])}")
+            return 0
+        if options.command == "registry-list":
+            registry = validate_baseline_registry(options.registry)
+            for name, entry in registry["baselines"].items():
+                print(f"{name}\t{entry['setId']}\t{entry['sourceCommit']}")
+            return 0
+        if options.command == "compare":
+            output, document, result = compare_benchmarks(
+                options.baseline,
+                options.candidate,
+                results_root=options.results_root,
+                registry_path=options.registry,
+                allow_exploratory=options.allow_exploratory,
+            )
+            print(f"Comparison: {output}")
+            print(
+                f"Compatibility: {document['compatibility']['status']}; "
+                f"metrics={document['summary']['metricsCompared']}"
+            )
+            return result
         raise fail_config(f"Unsupported command: {options.command}")
     except BenchmarkV2Error as error:
         print(f"ERROR: {error}", file=sys.stderr)
