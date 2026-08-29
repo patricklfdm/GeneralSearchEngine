@@ -155,9 +155,9 @@ gs://<bucket>/general-search-engine/
 
 `commit`, `run-id`, and `set-id` are validated identities from the source manifests;
 they are never taken from an untrusted destination argument. Relative paths use `/`,
-contain no empty, `.` or `..` segment, and are derived only from validated regular
-files. The local source path, username, project ID, branch name, VM IP, and invocation
-time do not enter an object name.
+contain no empty, `.`, `..`, `#`, or `?` segment/content, and are derived only from
+validated regular files. The local source path, username, project ID, branch name, VM
+IP, and invocation time do not enter an object name.
 
 Large raw objects are uploaded once at run-owned paths. A set refers to its member run
 identities and does not duplicate member bytes under the set prefix. Phase 5 reserves
@@ -466,18 +466,18 @@ They are not acceptance requirements for the implementation PR.
 
 ## Phase 5 completion checklist
 
-- [ ] V1 run, set, comparison, and registry-list CLIs remain unchanged.
-- [ ] Local analysis and comparison remain fully usable without GCS.
-- [ ] Only validated derived runs and completed sets are accepted.
-- [ ] Object inventory and GCS layout are deterministic and path-safe.
-- [ ] Every copy uses generation-zero create-only semantics.
-- [ ] Identical collisions are verified; conflicting collisions never overwrite.
-- [ ] Remote URI, generation, size, CRC32C, SHA-256 metadata, and optional MD5 are verified.
-- [ ] Source evidence remains byte-identical after upload.
-- [ ] Receipt identity, full checksum, local path, and remote path are deterministic.
-- [ ] Partial uploads are safely resumable and cannot finalize a false receipt.
-- [ ] Only verified canonical sets can produce baseline registry entries.
-- [ ] Existing baseline names are immutable and registry writes are atomic.
-- [ ] The tracked registry remains empty during synthetic implementation tests.
-- [ ] No bucket, IAM, workflow, download, comparison upload, or real-cloud work is included.
-- [ ] Phase-specific tests and all existing no-cost gates pass.
+- [x] V1 run, set, comparison, and registry-list CLIs remain unchanged.
+- [x] Local analysis and comparison remain fully usable without GCS.
+- [x] Only validated derived runs and completed sets are accepted.
+- [x] Object inventory and GCS layout are deterministic and path-safe.
+- [x] Every copy uses generation-zero create-only semantics.
+- [x] Identical collisions are verified; conflicting collisions never overwrite.
+- [x] Remote URI, generation, size, CRC32C, SHA-256 metadata, and optional MD5 are verified.
+- [x] Source evidence remains byte-identical after upload.
+- [x] Receipt identity, full checksum, local path, and remote path are deterministic.
+- [x] Partial uploads are safely resumable and cannot finalize a false receipt.
+- [x] Only verified canonical sets can produce baseline registry entries.
+- [x] Existing baseline names are immutable and registry writes are atomic.
+- [x] The tracked registry remains empty during synthetic implementation tests.
+- [x] No bucket, IAM, workflow, download, comparison upload, or real-cloud work is included.
+- [x] Phase-specific tests and all existing no-cost gates pass.

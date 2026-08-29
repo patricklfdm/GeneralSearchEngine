@@ -303,8 +303,7 @@ The flag does not permit machine, zone, image, JVM, workload, suite, or metric-s
 mismatches. Single-run comparisons report no independent-run variation and do not
 invent confidence intervals.
 
-The tracked baseline registry is read-only until Phase 5 implements verified upload
-receipts. Validate or list it locally with:
+Validate or list the tracked baseline registry locally with:
 
 ```bash
 python3 scripts/cloud/benchmark_v2.py registry-validate \
@@ -316,6 +315,54 @@ Registry names may be used only as the baseline operand and resolve only an exac
 set. Phase 3 never downloads missing evidence. The detailed compatibility and
 classification rules are frozen in the
 [Phase 3 comparison contract](CLOUD_BENCHMARK_V2_PHASE_3.md).
+
+## Durable GCS retention and baseline registration
+
+Cloud Benchmark V2 Phase 5 retains already verified evidence; it does not create a
+bucket, change IAM, run a VM, or make GCS mandatory for local analysis. Configure one
+existing bucket and first review a mutation-free upload plan:
+
+```bash
+export GSE_BENCHMARK_GCS_BUCKET=gs://my-gse-benchmarks
+
+./upload-cloud-benchmark.sh --dry-run \
+  benchmark-results/v3-production/sets/SET_ID/v1
+```
+
+The source may be one derived run or one completed set. A set upload retains every
+member's checksum-bound raw, orchestration, and derived evidence once, followed by its
+set artifacts. Execute only after reviewing the fixed object paths:
+
+```bash
+./upload-cloud-benchmark.sh --confirm-upload \
+  benchmark-results/v3-production/sets/SET_ID/v1
+```
+
+Every object uses a generation-zero create precondition. A retry accepts an existing
+object only after URI, generation, size, CRC32C, tool-owned SHA-256 metadata, and any
+available MD5 match. The command then writes a separate local and remote receipt under
+`upload-receipts/RECEIPT_ID/v1/`; it never edits source manifests.
+
+After human review, preview a canonical baseline registry entry without GCS access or
+local mutation:
+
+```bash
+./register-cloud-baseline.sh --dry-run \
+  --receipt benchmark-results/v3-production/upload-receipts/RECEIPT_ID/v1 \
+  --release-label 'v3.0.0 reviewed cloud baseline' \
+  v3.0.0-cloud \
+  benchmark-results/v3-production/sets/SET_ID/v1
+```
+
+Remove `--dry-run` only when ready to re-verify every receipt object and atomically add
+the new name to `docs/v3/cloud-benchmark-baselines.json`. Existing names cannot be
+replaced, including by an identical entry. The command does not commit or push the
+registry; review that small metadata change in a separate PR. If exactly one receipt
+binds the set, `--receipt` may be omitted; ambiguity is always rejected.
+
+Phase 5 does not download a missing registered set or upload comparison reports. Its
+complete storage, receipt, retry, security, and registration rules are frozen in the
+[Phase 5 durable-retention contract](CLOUD_BENCHMARK_V2_PHASE_5.md).
 
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
@@ -337,6 +384,7 @@ GSE_PERF_JVM_OPTIONS='-Xms32g -Xmx64g' \
 | `GSE_GCP_PROJECT` | Current gcloud project, otherwise required |
 | `GSE_GCP_ZONE` | Current gcloud compute zone, otherwise required |
 | `GSE_CLOUD_REPO_URL` | Public GeneralSearchEngine GitHub URL |
+| `GSE_BENCHMARK_GCS_BUCKET` | No default; exact existing `gs://bucket` used only by explicit Phase 5 upload |
 | `GSE_CLOUD_MACHINE_TYPE` | `c3d-standard-30` |
 | `GSE_CLOUD_PROVISIONING` | `spot`; accepts `spot` or `standard` |
 | `GSE_CLOUD_IMAGE_PROJECT` | `ubuntu-os-cloud` |
