@@ -11,6 +11,10 @@ The runner never enables APIs, changes billing or IAM, creates networks/firewall
 or creates service accounts. Pull-request CI uses a fake `gcloud` implementation and
 never authenticates to GCP or creates billable resources.
 
+For protected-workflow input meanings, mode selection, expected duration, and dated
+cost-planning ranges, see the
+[cloud benchmark selection and cost guide](CLOUD_BENCHMARK_SELECTION_GUIDE.md).
+
 The frozen evidence, aggregation, comparison, and retention layer planned above this
 single-run lifecycle is defined separately in the
 [Cloud Benchmark V2 Phase 0 evidence model](CLOUD_BENCHMARK_V2_PHASE_0.md). That
@@ -408,6 +412,8 @@ security, input, artifact, and failure contract is frozen in
 [Cloud Benchmark V2 Phase 6](CLOUD_BENCHMARK_V2_PHASE_6.md). The deployed identity,
 least-privilege role, storage policy, and successful first-smoke evidence are in the
 [Cloud Benchmark V2 operations record](CLOUD_BENCHMARK_V2_OPERATIONS.md).
+The first reviewed registry entry and its metric interpretation are recorded in the
+[V3 canonical cloud baseline results](CLOUD_CANONICAL_BASELINE_RESULTS.md).
 
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
