@@ -8,12 +8,14 @@ validates recovered V1 evidence and writes only to the sibling derived tree.
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import math
 import os
 import re
 import shlex
+import subprocess
 import sys
 import tempfile
 import uuid
@@ -28,6 +30,7 @@ EXIT_CONTRADICTION = 82
 EXIT_INCOMPATIBLE_SET = 83
 EXIT_INCOMPARABLE = 84
 EXIT_REGISTRY = 85
+EXIT_UPLOAD = 86
 
 MANIFEST_SCHEMA_VERSION = 1
 METRICS_SCHEMA_VERSION = 1
@@ -101,6 +104,10 @@ def fail_contradiction(message: str) -> BenchmarkV2Error:
 
 def fail_registry(message: str) -> BenchmarkV2Error:
     return BenchmarkV2Error(message, EXIT_REGISTRY)
+
+
+def fail_upload(message: str) -> BenchmarkV2Error:
+    return BenchmarkV2Error(message, EXIT_UPLOAD)
 
 
 def canonical_json_bytes(value: Any) -> bytes:
@@ -2900,6 +2907,494 @@ def write_comparison_artifacts(
     return destination
 
 
+GCS_BUCKET_RE = re.compile(r"^gs://([a-z0-9][a-z0-9._-]{1,61}[a-z0-9])$")
+CRC32C_RE = re.compile(r"^[A-Za-z0-9+/]{6}==$")
+MD5_RE = re.compile(r"^[A-Za-z0-9+/]{22}==$")
+RECEIPT_SCHEMA_VERSION = 1
+
+
+def make_crc32c_table() -> tuple[int, ...]:
+    values = []
+    for byte in range(256):
+        crc = byte
+        for _ in range(8):
+            crc = (crc >> 1) ^ (0x82F63B78 if crc & 1 else 0)
+        values.append(crc)
+    return tuple(values)
+
+
+CRC32C_TABLE = make_crc32c_table()
+
+
+def validate_gcs_bucket(value: str) -> str:
+    if not isinstance(value, str) or GCS_BUCKET_RE.fullmatch(value) is None:
+        raise fail_config(
+            "GSE_BENCHMARK_GCS_BUCKET must be one bucket URI such as gs://example-bucket"
+        )
+    return value
+
+
+def split_gcs_uri(uri: str) -> tuple[str, str]:
+    match = re.fullmatch(r"gs://([^/]+)/(.+)", uri)
+    if match is None or any(ord(character) < 32 for character in uri):
+        raise fail_contradiction(f"Invalid immutable GCS object URI: {uri!r}")
+    return match.group(1), match.group(2)
+
+
+def crc32c_file(path: Path) -> str:
+    crc = 0xFFFFFFFF
+    try:
+        with path.open("rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                for byte in chunk:
+                    crc = CRC32C_TABLE[(crc ^ byte) & 0xFF] ^ (crc >> 8)
+    except OSError as error:
+        raise fail_invalid(f"Cannot calculate CRC32C for {path}: {error}") from error
+    value = (crc ^ 0xFFFFFFFF).to_bytes(4, "big")
+    return base64.b64encode(value).decode("ascii")
+
+
+def md5_file(path: Path) -> str:
+    digest = hashlib.md5(usedforsecurity=False)
+    try:
+        with path.open("rb") as source:
+            for chunk in iter(lambda: source.read(1024 * 1024), b""):
+                digest.update(chunk)
+    except OSError as error:
+        raise fail_invalid(f"Cannot calculate MD5 for {path}: {error}") from error
+    return base64.b64encode(digest.digest()).decode("ascii")
+
+
+def local_object_integrity(path: Path) -> dict[str, str]:
+    if not path.is_file() or path.is_symlink():
+        raise fail_invalid(f"Upload source is missing, non-regular, or symlinked: {path}")
+    return {
+        "crc32c": crc32c_file(path),
+        "md5": md5_file(path),
+        "sha256": sha256_file(path),
+        "size": str(path.stat().st_size),
+    }
+
+
+def regular_files(root: Path) -> list[Path]:
+    if not root.is_dir() or root.is_symlink():
+        raise fail_invalid(f"Evidence directory is missing or symlinked: {root}")
+    files: list[Path] = []
+    for current, directories, names in os.walk(root, followlinks=False):
+        current_path = Path(current)
+        for directory in directories:
+            if (current_path / directory).is_symlink():
+                raise fail_invalid(f"Evidence contains a symlinked directory: {current_path / directory}")
+        for name in names:
+            path = current_path / name
+            if not path.is_file() or path.is_symlink():
+                raise fail_invalid(f"Evidence contains a non-regular or symlinked file: {path}")
+            files.append(path)
+    return sorted(files, key=lambda path: path.relative_to(root).as_posix())
+
+
+def checked_relative(path: Path, owner: Path) -> str:
+    try:
+        relative = path.resolve().relative_to(owner.resolve())
+    except ValueError as error:
+        raise fail_contradiction(f"Upload source escapes its evidence owner: {path}") from error
+    text = relative.as_posix()
+    if (
+        not text
+        or text.startswith("/")
+        or "\\" in text
+        or "#" in text
+        or "?" in text
+        or any(part in {"", ".", ".."} for part in relative.parts)
+        or any(ord(character) < 32 for character in text)
+    ):
+        raise fail_contradiction(f"Unsafe upload relative path: {text!r}")
+    return text
+
+
+def upload_object(role: str, owner: Path, path: Path, uri: str) -> dict[str, Any]:
+    integrity = local_object_integrity(path)
+    return {
+        "crc32c": integrity["crc32c"],
+        "md5": integrity["md5"],
+        "relativePath": checked_relative(path, owner),
+        "role": role,
+        "sha256": "sha256:" + integrity["sha256"],
+        "size": integrity["size"],
+        "sourcePath": path.resolve(),
+        "uri": uri,
+    }
+
+
+def results_root_for_evidence(root: Path, kind: str) -> Path:
+    if kind == "run":
+        if root.name != "v1" or root.parent.parent.name != "runs" or root.parent.parent.parent.name != "derived":
+            raise fail_contradiction("Derived-run evidence is outside the fixed results layout")
+        return root.parents[3]
+    if root.name != "v1" or root.parent.parent.name != "sets":
+        raise fail_contradiction("Set evidence is outside the fixed results layout")
+    return root.parents[2]
+
+
+def run_upload_plan(root: Path, results_root: Path, bucket: str) -> dict[str, Any]:
+    view = validate_run_evidence(root)
+    expected_root = results_root / "derived" / "runs" / view["id"] / "v1"
+    if root.resolve() != expected_root.resolve():
+        raise fail_contradiction("Derived-run directory does not match its validated run ID")
+    raw = results_root / view["id"]
+    output, manifest, _ = derive_manifest(raw, evidence_profile=view["profile"])
+    if output.resolve() != root.resolve() or "sha256:" + sha256_file(output / "benchmark-manifest.json") != view["manifestDigest"]:
+        raise fail_contradiction("Derived-run source reconstruction differs from the supplied evidence")
+    metadata, _ = read_properties(raw / "metadata.txt", metadata=True)
+    record_path = orchestration_path_for(raw, metadata, None)
+    _, record_digest, _ = validate_orchestration(
+        raw,
+        metadata,
+        read_properties(raw / "status.properties")[0],
+        record_path,
+    )
+    if manifest.get("evidence", {}).get("orchestrationRecordSha256") != record_digest:
+        raise fail_contradiction("Derived run no longer binds its orchestration record")
+    commit = view["source"]["commit"]
+    prefix = f"{bucket}/general-search-engine"
+    objects = [
+        upload_object(
+            "raw", raw, path,
+            f"{prefix}/raw/{commit}/{view['id']}/{checked_relative(path, raw)}",
+        )
+        for path in regular_files(raw)
+    ]
+    record_owner = record_path.parent
+    objects.append(
+        upload_object(
+            "orchestration", record_owner, record_path,
+            f"{prefix}/orchestration/{commit}/{view['id']}/{record_path.name}",
+        )
+    )
+    log_path = record_path.with_suffix(".log")
+    if log_path.exists() or log_path.is_symlink():
+        objects.append(
+            upload_object(
+                "orchestration", record_owner, log_path,
+                f"{prefix}/orchestration/{commit}/{view['id']}/{log_path.name}",
+            )
+        )
+    objects.extend(
+        upload_object(
+            "derived-run", root, path,
+            f"{prefix}/derived/runs/{view['id']}/v1/{checked_relative(path, root)}",
+        )
+        for path in regular_files(root)
+    )
+    return {
+        "_manifestPath": root / "benchmark-manifest.json",
+        "_orchestrationPath": record_path.resolve(),
+        "objects": sorted(objects, key=lambda item: item["uri"]),
+        "source": {
+            "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+            "environmentFingerprint": view["environmentFingerprint"],
+            "evidenceProfile": view["profile"],
+            "id": view["id"],
+            "kind": "derived-run",
+            "manifestSha256": view["manifestDigest"],
+            "sourceCommit": commit,
+        },
+    }
+
+
+def deduplicate_upload_objects(objects: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_uri: dict[str, dict[str, Any]] = {}
+    for item in objects:
+        existing = by_uri.get(item["uri"])
+        if existing is None:
+            by_uri[item["uri"]] = item
+        elif any(existing[key] != item[key] for key in ("sha256", "size", "crc32c", "md5")):
+            raise fail_contradiction(f"Upload URI maps to contradictory source bytes: {item['uri']}")
+    return [by_uri[uri] for uri in sorted(by_uri)]
+
+
+def set_upload_plan(root: Path, results_root: Path, bucket: str) -> dict[str, Any]:
+    view = validate_set_evidence(root, results_root)
+    expected_root = results_root / "sets" / view["id"] / "v1"
+    if root.resolve() != expected_root.resolve():
+        raise fail_contradiction("Set directory does not match its validated set ID")
+    manifest = require_object(read_json(root / "benchmark-set-manifest.json"), "set manifest")
+    member_objects: list[dict[str, Any]] = []
+    for index, raw_member in enumerate(require_list(manifest.get("members"), "set members")):
+        member = require_object(raw_member, f"set member {index}")
+        manifest_path = safe_results_reference(results_root, member.get("manifestReference"))
+        member_plan = run_upload_plan(manifest_path.parent, results_root, bucket)
+        source = member_plan["source"]
+        checks = {
+            "run ID": (source["id"], member.get("rawRunId")),
+            "manifest digest": (source["manifestSha256"], member.get("manifestSha256")),
+            "profile": (source["evidenceProfile"], view["profile"]),
+            "source commit": (source["sourceCommit"], view["source"]["commit"]),
+            "environment fingerprint": (source["environmentFingerprint"], view["environmentFingerprint"]),
+            "benchmark fingerprint": (source["benchmarkConfigFingerprint"], view["benchmarkConfigFingerprint"]),
+        }
+        for label, (actual, expected) in checks.items():
+            if actual != expected:
+                raise fail_contradiction(f"Set member {index} {label} differs during upload planning")
+        orchestration_path = safe_results_reference(results_root, member.get("orchestrationReference"))
+        if orchestration_path.resolve() != member_plan["_orchestrationPath"]:
+            raise fail_contradiction(f"Set member {index} orchestration reference differs")
+        if "sha256:" + sha256_file(orchestration_path) != member.get("orchestrationSha256"):
+            raise fail_contradiction(f"Set member {index} orchestration digest differs")
+        metrics_path = safe_results_reference(results_root, member.get("metricsReference"))
+        if metrics_path.resolve() != manifest_path.parent / "normalized-metrics.json":
+            raise fail_contradiction(f"Set member {index} metrics reference differs")
+        if "sha256:" + sha256_file(metrics_path) != member.get("metricsSha256"):
+            raise fail_contradiction(f"Set member {index} metrics digest differs")
+        member_objects.extend(member_plan["objects"])
+    prefix = f"{bucket}/general-search-engine/sets/{view['id']}/v1"
+    set_objects = [
+        upload_object(
+            "benchmark-set", root, path, f"{prefix}/{checked_relative(path, root)}"
+        )
+        for path in regular_files(root)
+    ]
+    return {
+        "_manifestPath": root / "benchmark-set-manifest.json",
+        "objects": deduplicate_upload_objects([*member_objects, *set_objects]),
+        "source": {
+            "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+            "environmentFingerprint": view["environmentFingerprint"],
+            "evidenceProfile": view["profile"],
+            "id": view["id"],
+            "kind": "benchmark-set",
+            "manifestSha256": view["manifestDigest"],
+            "sourceCommit": view["source"]["commit"],
+        },
+    }
+
+
+def plan_evidence_upload(operand: Path, results_root: Path, bucket: str) -> dict[str, Any]:
+    canonical_bucket = validate_gcs_bucket(bucket)
+    root, kind = evidence_directory(operand)
+    expected_results = results_root.resolve()
+    if results_root_for_evidence(root, kind).resolve() != expected_results:
+        raise fail_config("Upload evidence is outside the configured results root")
+    plan = (
+        set_upload_plan(root, expected_results, canonical_bucket)
+        if kind == "set"
+        else run_upload_plan(root, expected_results, canonical_bucket)
+    )
+    plan["bucket"] = canonical_bucket
+    return plan
+
+
+def normalized_remote_metadata(metadata: Any, uri: str) -> dict[str, Any]:
+    if not isinstance(metadata, dict):
+        raise fail_upload(f"Remote object metadata is not an object: {uri}")
+    bucket, name = split_gcs_uri(uri)
+    generation = str(metadata.get("generation", ""))
+    size = str(metadata.get("size", ""))
+    custom = metadata.get("custom_fields")
+    if metadata.get("bucket") != bucket or metadata.get("name") != name:
+        raise fail_upload(f"Remote object identity differs: {uri}")
+    if re.fullmatch(r"[1-9][0-9]*", generation) is None:
+        raise fail_upload(f"Remote object generation is invalid: {uri}")
+    if re.fullmatch(r"0|[1-9][0-9]*", size) is None:
+        raise fail_upload(f"Remote object size is invalid: {uri}")
+    crc32c = metadata.get("crc32c_hash")
+    if not isinstance(crc32c, str) or CRC32C_RE.fullmatch(crc32c) is None:
+        raise fail_upload(f"Remote object CRC32C is unavailable: {uri}")
+    if not isinstance(custom, dict) or set(custom) != {"gse-sha256"}:
+        raise fail_upload(f"Remote object SHA-256 metadata is unavailable: {uri}")
+    sha256 = custom.get("gse-sha256")
+    if not isinstance(sha256, str) or SHA256_RE.fullmatch(sha256) is None:
+        raise fail_upload(f"Remote object SHA-256 metadata is invalid: {uri}")
+    md5 = metadata.get("md5_hash")
+    if md5 is not None and (not isinstance(md5, str) or MD5_RE.fullmatch(md5) is None):
+        raise fail_upload(f"Remote object MD5 metadata is invalid: {uri}")
+    return {
+        "bucket": bucket,
+        "crc32c": crc32c,
+        "generation": generation,
+        "md5": md5,
+        "name": name,
+        "sha256": sha256,
+        "size": size,
+    }
+
+
+def verify_remote_upload_object(item: dict[str, Any], metadata: Any) -> dict[str, Any]:
+    remote = normalized_remote_metadata(metadata, item["uri"])
+    expected_sha = item["sha256"].removeprefix("sha256:")
+    checks = {
+        "size": (remote["size"], item["size"]),
+        "CRC32C": (remote["crc32c"], item["crc32c"]),
+        "SHA-256 metadata": (remote["sha256"], expected_sha),
+    }
+    if remote["md5"] is not None:
+        checks["MD5"] = (remote["md5"], item["md5"])
+    for label, (actual, expected) in checks.items():
+        if actual != expected:
+            raise fail_upload(f"Remote object {label} differs: {item['uri']}")
+    entry = {
+        "crc32c": remote["crc32c"],
+        "generation": remote["generation"],
+        "relativePath": item["relativePath"],
+        "role": item["role"],
+        "sha256": item["sha256"],
+        "size": remote["size"],
+        "uri": item["uri"],
+    }
+    if remote["md5"] is not None:
+        entry["md5"] = remote["md5"]
+    return entry
+
+
+class GcloudStorage:
+    def _run(self, arguments: list[str]) -> subprocess.CompletedProcess[str]:
+        try:
+            return subprocess.run(
+                ["gcloud", *arguments],
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+            )
+        except OSError as error:
+            raise fail_upload(f"Cannot execute gcloud storage command: {error}") from error
+
+    def describe(self, uri: str) -> dict[str, Any] | None:
+        result = self._run([
+            "storage", "objects", "describe", uri,
+            "--format=json(bucket,name,generation,size,crc32c_hash,md5_hash,custom_fields)",
+        ])
+        if result.returncode != 0:
+            return None
+        try:
+            value = json.loads(result.stdout, object_pairs_hook=strict_object)
+        except (BenchmarkV2Error, json.JSONDecodeError) as error:
+            raise fail_upload(f"Cannot parse remote object metadata for {uri}") from error
+        if not isinstance(value, dict):
+            raise fail_upload(f"Remote object metadata is not an object: {uri}")
+        return value
+
+    def create(self, source: Path, uri: str, sha256_hex: str) -> None:
+        result = self._run([
+            "storage", "cp", str(source), uri,
+            "--if-generation-match=0",
+            f"--custom-metadata=gse-sha256={sha256_hex}",
+            "--quiet",
+        ])
+        if result.returncode != 0:
+            raise fail_upload(f"Create-only GCS upload failed: {uri}")
+
+
+def upload_and_verify_object(item: dict[str, Any], storage: Any) -> dict[str, Any]:
+    current = local_object_integrity(item["sourcePath"])
+    if any(
+        current[key] != item[key]
+        for key in ("crc32c", "md5", "size")
+    ) or "sha256:" + current["sha256"] != item["sha256"]:
+        raise fail_contradiction(f"Upload source changed after planning: {item['sourcePath']}")
+    metadata = storage.describe(item["uri"])
+    if metadata is None:
+        try:
+            storage.create(item["sourcePath"], item["uri"], current["sha256"])
+        except BenchmarkV2Error as error:
+            metadata = storage.describe(item["uri"])
+            if metadata is None:
+                raise error
+        if metadata is None:
+            metadata = storage.describe(item["uri"])
+    if metadata is None:
+        raise fail_upload(f"Uploaded object is missing during verification: {item['uri']}")
+    return verify_remote_upload_object(item, metadata)
+
+
+def receipt_documents(plan: dict[str, Any], objects: list[dict[str, Any]]) -> tuple[dict[str, Any], bytes, bytes]:
+    identity = {
+        "bucket": plan["bucket"],
+        "kind": "cloud-benchmark-upload-receipt",
+        "objects": sorted(objects, key=lambda item: item["uri"]),
+        "schemaVersion": RECEIPT_SCHEMA_VERSION,
+        "source": plan["source"],
+    }
+    receipt_id = "gse-upload-receipt-v1-" + sha256_bytes(canonical_json_bytes(identity))
+    receipt = {**identity, "receiptId": receipt_id}
+    content = canonical_json_bytes(receipt)
+    checksum = f"{sha256_bytes(content)}  upload-receipt.json\n".encode("utf-8")
+    return receipt, content, checksum
+
+
+def receipt_upload_objects(
+    bucket: str, receipt: dict[str, Any], receipt_path: Path, checksum_path: Path
+) -> list[dict[str, Any]]:
+    prefix = f"{bucket}/general-search-engine/receipts/{receipt['receiptId']}/v1"
+    return [
+        upload_object("receipt", receipt_path.parent, receipt_path, f"{prefix}/upload-receipt.json"),
+        upload_object("receipt", checksum_path.parent, checksum_path, f"{prefix}/upload-receipt.sha256"),
+    ]
+
+
+def write_immutable_directory(destination: Path, files: dict[str, bytes]) -> None:
+    if destination.exists():
+        if not destination.is_dir() or destination.is_symlink():
+            raise fail_contradiction(f"Immutable artifact path is not a directory: {destination}")
+        entries = list(destination.iterdir())
+        if {entry.name for entry in entries} != set(files):
+            raise fail_contradiction(f"Immutable artifact file set differs: {destination}")
+        if any(not entry.is_file() or entry.is_symlink() for entry in entries):
+            raise fail_contradiction(f"Immutable artifact contains a non-regular file: {destination}")
+        if any((destination / name).read_bytes() != content for name, content in files.items()):
+            raise fail_contradiction(f"Immutable artifact collision: {destination}")
+        return
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    staging = destination.parent / f".{destination.name}.{uuid.uuid4().hex}"
+    staging.mkdir()
+    try:
+        for name, content in files.items():
+            atomic_write_bytes(staging / name, content)
+        os.replace(staging, destination)
+    except OSError as error:
+        raise fail_contradiction(f"Cannot finalize immutable artifact directory: {error}") from error
+    finally:
+        if staging.exists():
+            for child in staging.iterdir():
+                child.unlink()
+            staging.rmdir()
+
+
+def upload_evidence(
+    operand: Path,
+    results_root: Path,
+    bucket: str,
+    *,
+    storage: Any | None = None,
+    confirmed: bool = False,
+    dry_run: bool = False,
+) -> tuple[Path | None, dict[str, Any]]:
+    plan = plan_evidence_upload(operand, results_root, bucket)
+    if dry_run:
+        return None, plan
+    if not confirmed:
+        raise fail_config("Upload requires --confirm-upload before contacting GCS")
+    backend = storage if storage is not None else GcloudStorage()
+    verified = [upload_and_verify_object(item, backend) for item in plan["objects"]]
+    receipt, content, checksum = receipt_documents(plan, verified)
+    with tempfile.TemporaryDirectory(prefix="gse-upload-receipt.") as temporary:
+        temporary_root = Path(temporary)
+        receipt_path = temporary_root / "upload-receipt.json"
+        checksum_path = temporary_root / "upload-receipt.sha256"
+        receipt_path.write_bytes(content)
+        checksum_path.write_bytes(checksum)
+        for item in receipt_upload_objects(plan["bucket"], receipt, receipt_path, checksum_path):
+            upload_and_verify_object(item, backend)
+    destination = (
+        results_root.resolve() / "upload-receipts" / receipt["receiptId"] / "v1"
+    )
+    write_immutable_directory(
+        destination,
+        {"upload-receipt.json": content, "upload-receipt.sha256": checksum},
+    )
+    return destination, receipt
+
+
 REGISTRY_ENTRY_KEYS = {
     "benchmarkConfigFingerprint",
     "environmentFingerprint",
@@ -3029,6 +3524,290 @@ def validate_immutable_baseline_name(
     return True
 
 
+def valid_base64(value: Any, pattern: re.Pattern[str], field: str) -> str:
+    if not isinstance(value, str) or pattern.fullmatch(value) is None:
+        raise fail_registry(f"Upload receipt {field} is invalid")
+    try:
+        base64.b64decode(value, validate=True)
+    except ValueError as error:
+        raise fail_registry(f"Upload receipt {field} is invalid") from error
+    return value
+
+
+def validate_upload_receipt(path: Path, results_root: Path) -> tuple[Path, dict[str, Any], str]:
+    candidate = path.resolve()
+    root = candidate.parent if candidate.is_file() and candidate.name == "upload-receipt.json" else candidate
+    try:
+        verify_exact_checksum_file(root, "upload-receipt.sha256", ("upload-receipt.json",))
+        receipt, content = canonical_document(root / "upload-receipt.json")
+    except BenchmarkV2Error as error:
+        raise fail_registry(f"Upload receipt is invalid: {error}") from error
+    if set(receipt) != {"bucket", "kind", "objects", "receiptId", "schemaVersion", "source"}:
+        raise fail_registry("Upload receipt top-level fields differ")
+    if receipt.get("kind") != "cloud-benchmark-upload-receipt" or receipt.get("schemaVersion") != 1:
+        raise fail_registry("Upload receipt kind or schema is unsupported")
+    receipt_id = receipt.get("receiptId")
+    if not isinstance(receipt_id, str) or RECEIPT_ID_RE.fullmatch(receipt_id) is None:
+        raise fail_registry("Upload receipt ID is invalid")
+    expected_root = results_root.resolve() / "upload-receipts" / receipt_id / "v1"
+    if root != expected_root:
+        raise fail_registry("Upload receipt is outside its fixed local identity path")
+    bucket = receipt.get("bucket")
+    try:
+        validate_gcs_bucket(bucket)
+    except BenchmarkV2Error as error:
+        raise fail_registry(str(error)) from error
+    source = receipt.get("source")
+    if not isinstance(source, dict) or set(source) != {
+        "benchmarkConfigFingerprint",
+        "environmentFingerprint",
+        "evidenceProfile",
+        "id",
+        "kind",
+        "manifestSha256",
+        "sourceCommit",
+    }:
+        raise fail_registry("Upload receipt source fields differ")
+    if source.get("kind") not in {"derived-run", "benchmark-set"}:
+        raise fail_registry("Upload receipt source kind is unsupported")
+    if source.get("evidenceProfile") not in {"experiment", "canonical"}:
+        raise fail_registry("Upload receipt evidence profile is invalid")
+    source_id = source.get("id")
+    expected_id = (
+        SET_ID_RE if source.get("kind") == "benchmark-set" else re.compile(r"^[A-Za-z0-9._-]+$")
+    )
+    if not isinstance(source_id, str) or expected_id.fullmatch(source_id) is None:
+        raise fail_registry("Upload receipt source ID is invalid")
+    if not isinstance(source.get("sourceCommit"), str) or COMMIT_RE.fullmatch(source["sourceCommit"]) is None:
+        raise fail_registry("Upload receipt source commit is invalid")
+    for key in ("manifestSha256", "benchmarkConfigFingerprint"):
+        if not isinstance(source.get(key), str) or PREFIXED_SHA256_RE.fullmatch(source[key]) is None:
+            raise fail_registry(f"Upload receipt source {key} is invalid")
+    environment_fingerprint = source.get("environmentFingerprint")
+    if environment_fingerprint is not None and (
+        not isinstance(environment_fingerprint, str)
+        or PREFIXED_SHA256_RE.fullmatch(environment_fingerprint) is None
+    ):
+        raise fail_registry("Upload receipt source environmentFingerprint is invalid")
+    raw_objects = receipt.get("objects")
+    if not isinstance(raw_objects, list) or not raw_objects:
+        raise fail_registry("Upload receipt objects must be a non-empty array")
+    uris: list[str] = []
+    for index, raw in enumerate(raw_objects):
+        if not isinstance(raw, dict):
+            raise fail_registry(f"Upload receipt object {index} must be an object")
+        required = {"crc32c", "generation", "relativePath", "role", "sha256", "size", "uri"}
+        if set(raw) not in {frozenset(required), frozenset(required | {"md5"})}:
+            raise fail_registry(f"Upload receipt object {index} fields differ")
+        if raw.get("role") not in {"raw", "orchestration", "derived-run", "benchmark-set"}:
+            raise fail_registry(f"Upload receipt object {index} role is invalid")
+        relative = raw.get("relativePath")
+        if (
+            not isinstance(relative, str)
+            or not relative
+            or relative.startswith("/")
+            or "\\" in relative
+            or "#" in relative
+            or "?" in relative
+            or any(part in {"", ".", ".."} for part in Path(relative).parts)
+            or any(ord(character) < 32 for character in relative)
+        ):
+            raise fail_registry(f"Upload receipt object {index} relative path is invalid")
+        uri = raw.get("uri")
+        if not isinstance(uri, str) or not uri.startswith(bucket + "/general-search-engine/"):
+            raise fail_registry(f"Upload receipt object {index} URI is invalid")
+        try:
+            split_gcs_uri(uri)
+        except BenchmarkV2Error as error:
+            raise fail_registry(str(error)) from error
+        uris.append(uri)
+        if not isinstance(raw.get("generation"), str) or re.fullmatch(r"[1-9][0-9]*", raw["generation"]) is None:
+            raise fail_registry(f"Upload receipt object {index} generation is invalid")
+        if not isinstance(raw.get("size"), str) or re.fullmatch(r"0|[1-9][0-9]*", raw["size"]) is None:
+            raise fail_registry(f"Upload receipt object {index} size is invalid")
+        if not isinstance(raw.get("sha256"), str) or PREFIXED_SHA256_RE.fullmatch(raw["sha256"]) is None:
+            raise fail_registry(f"Upload receipt object {index} SHA-256 is invalid")
+        valid_base64(raw.get("crc32c"), CRC32C_RE, f"object {index} CRC32C")
+        if "md5" in raw:
+            valid_base64(raw["md5"], MD5_RE, f"object {index} MD5")
+    if uris != sorted(uris) or len(uris) != len(set(uris)):
+        raise fail_registry("Upload receipt object URIs are not sorted and unique")
+    identity = {key: value for key, value in receipt.items() if key != "receiptId"}
+    expected_receipt_id = "gse-upload-receipt-v1-" + sha256_bytes(canonical_json_bytes(identity))
+    if receipt_id != expected_receipt_id:
+        raise fail_registry("Upload receipt ID contradicts its identity projection")
+    return root, receipt, "sha256:" + sha256_bytes(content)
+
+
+def verify_recorded_remote_object(entry: dict[str, Any], storage: Any) -> None:
+    metadata = storage.describe(entry["uri"])
+    if metadata is None:
+        raise fail_upload(f"Registered receipt object is missing: {entry['uri']}")
+    remote = normalized_remote_metadata(metadata, entry["uri"])
+    expected = {
+        "CRC32C": (remote["crc32c"], entry["crc32c"]),
+        "generation": (remote["generation"], entry["generation"]),
+        "SHA-256 metadata": (remote["sha256"], entry["sha256"].removeprefix("sha256:")),
+        "size": (remote["size"], entry["size"]),
+    }
+    if "md5" in entry:
+        expected["MD5"] = (remote["md5"], entry["md5"])
+    for label, (actual, wanted) in expected.items():
+        if actual != wanted:
+            raise fail_upload(f"Registered receipt object {label} differs: {entry['uri']}")
+
+
+def matching_receipt_paths(results_root: Path, set_id: str, manifest_digest: str) -> list[Path]:
+    parent = results_root.resolve() / "upload-receipts"
+    if not parent.is_dir():
+        return []
+    matches: list[Path] = []
+    for candidate in sorted(parent.glob("*/v1")):
+        try:
+            root, receipt, _ = validate_upload_receipt(candidate, results_root)
+        except BenchmarkV2Error:
+            continue
+        source = receipt["source"]
+        if (
+            source["kind"] == "benchmark-set"
+            and source["id"] == set_id
+            and source["manifestSha256"] == manifest_digest
+        ):
+            matches.append(root)
+    return matches
+
+
+def atomic_replace_registry(path: Path, document: dict[str, Any]) -> None:
+    content = canonical_json_bytes(document)
+    try:
+        handle, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+        temporary = Path(temporary_name)
+        with os.fdopen(handle, "wb") as target:
+            target.write(content)
+            target.flush()
+            os.fsync(target.fileno())
+        validate_baseline_registry(temporary)
+        os.replace(temporary, path)
+        try:
+            directory_handle = os.open(path.parent, os.O_RDONLY)
+            try:
+                os.fsync(directory_handle)
+            finally:
+                os.close(directory_handle)
+        except OSError:
+            pass
+    except BenchmarkV2Error:
+        raise
+    except OSError as error:
+        raise fail_registry(f"Cannot atomically update baseline registry: {error}") from error
+    finally:
+        if "temporary" in locals() and temporary.exists():
+            temporary.unlink()
+
+
+def register_cloud_baseline(
+    name: str,
+    set_operand: Path,
+    results_root: Path,
+    registry_path: Path,
+    *,
+    receipt_path: Path | None = None,
+    release_label: str | None = None,
+    storage: Any | None = None,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    try:
+        root, kind = evidence_directory(set_operand)
+        if kind != "set":
+            raise fail_registry("Only a completed canonical set can be registered")
+        if results_root_for_evidence(root, kind).resolve() != results_root.resolve():
+            raise fail_registry("Baseline set is outside the configured results root")
+        view = validate_set_evidence(root, results_root.resolve())
+    except BenchmarkV2Error as error:
+        if error.exit_code == EXIT_REGISTRY:
+            raise
+        raise fail_registry(f"Baseline set is invalid: {error}") from error
+    if view["status"] != "VALID_CANONICAL_SET" or view["profile"] != "canonical":
+        raise fail_registry("Only VALID_CANONICAL_SET evidence can be registered")
+    if release_label is not None and (
+        not release_label or len(release_label) > 100 or "\n" in release_label or "\r" in release_label
+    ):
+        raise fail_registry("Baseline release label is invalid")
+    if receipt_path is None:
+        matches = matching_receipt_paths(results_root, view["id"], view["manifestDigest"])
+        if not matches:
+            raise fail_registry("No verified local upload receipt binds the canonical set")
+        if len(matches) != 1:
+            raise fail_registry("Multiple upload receipts bind the set; use --receipt")
+        selected_receipt = matches[0]
+    else:
+        selected_receipt = receipt_path
+    receipt_root, receipt, receipt_digest = validate_upload_receipt(selected_receipt, results_root)
+    source = receipt["source"]
+    expected_source = {
+        "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+        "environmentFingerprint": view["environmentFingerprint"],
+        "evidenceProfile": "canonical",
+        "id": view["id"],
+        "kind": "benchmark-set",
+        "manifestSha256": view["manifestDigest"],
+        "sourceCommit": view["source"]["commit"],
+    }
+    if source != expected_source:
+        raise fail_registry("Upload receipt does not bind the exact canonical set")
+    manifest_uri = (
+        f"{receipt['bucket']}/general-search-engine/sets/{view['id']}/v1/benchmark-set-manifest.json"
+    )
+    manifest_entry = next((item for item in receipt["objects"] if item["uri"] == manifest_uri), None)
+    if manifest_entry is None or manifest_entry["sha256"] != view["manifestDigest"]:
+        raise fail_registry("Upload receipt lacks the exact canonical set manifest")
+    entry = {
+        "benchmarkConfigFingerprint": view["benchmarkConfigFingerprint"],
+        "environmentFingerprint": view["environmentFingerprint"],
+        "evidenceProfile": "canonical",
+        "manifestGeneration": manifest_entry["generation"],
+        "manifestUri": manifest_uri,
+        "setId": view["id"],
+        "setManifestSha256": view["manifestDigest"],
+        "sourceCommit": view["source"]["commit"],
+        "uploadReceiptId": receipt["receiptId"],
+        "uploadReceiptSha256": receipt_digest,
+    }
+    if release_label is not None:
+        entry["releaseLabel"] = release_label
+    registry = validate_baseline_registry(registry_path)
+    if not BASELINE_NAME_RE.fullmatch(name):
+        raise fail_registry(f"Invalid baseline name: {name}")
+    if name in registry["baselines"]:
+        raise fail_registry(f"Immutable baseline name already exists: {name}")
+    candidate = {
+        **registry,
+        "baselines": {
+            key: value
+            for key, value in sorted({**registry["baselines"], name: entry}.items())
+        },
+    }
+    if dry_run:
+        return entry
+    backend = storage if storage is not None else GcloudStorage()
+    for item in receipt["objects"]:
+        verify_recorded_remote_object(item, backend)
+    prefix = f"{receipt['bucket']}/general-search-engine/receipts/{receipt['receiptId']}/v1"
+    for item in receipt_upload_objects(
+        receipt["bucket"], receipt,
+        receipt_root / "upload-receipt.json",
+        receipt_root / "upload-receipt.sha256",
+    ):
+        metadata = backend.describe(item["uri"])
+        if metadata is None:
+            raise fail_upload(f"Remote upload receipt object is missing: {item['uri']}")
+        verify_remote_upload_object(item, metadata)
+        if not item["uri"].startswith(prefix + "/"):
+            raise fail_registry("Remote receipt path contradicts its receipt ID")
+    atomic_replace_registry(registry_path, candidate)
+    return entry
+
+
 def compare_benchmarks(
     baseline_operand: str | Path,
     candidate_operand: str | Path,
@@ -3144,6 +3923,20 @@ def build_parser() -> argparse.ArgumentParser:
     registry_validate.add_argument("registry", type=Path)
     registry_list = subparsers.add_parser("registry-list", help=argparse.SUPPRESS)
     registry_list.add_argument("registry", type=Path)
+    upload = subparsers.add_parser("upload", help="retain verified evidence in immutable GCS objects")
+    upload.add_argument("--results-root", type=Path, required=True)
+    upload.add_argument("--bucket", required=True)
+    upload.add_argument("--dry-run", action="store_true")
+    upload.add_argument("--confirm-upload", action="store_true")
+    upload.add_argument("operand", type=Path)
+    register = subparsers.add_parser("baseline-register", help="register a verified canonical set")
+    register.add_argument("--results-root", type=Path, required=True)
+    register.add_argument("--registry", type=Path, required=True)
+    register.add_argument("--receipt", type=Path)
+    register.add_argument("--release-label")
+    register.add_argument("--dry-run", action="store_true")
+    register.add_argument("name")
+    register.add_argument("set_operand", type=Path)
     return parser
 
 
@@ -3255,6 +4048,42 @@ def main(arguments: list[str] | None = None) -> int:
             registry = validate_baseline_registry(options.registry)
             for name, entry in registry["baselines"].items():
                 print(f"{name}\t{entry['setId']}\t{entry['sourceCommit']}")
+            return 0
+        if options.command == "upload":
+            destination, result = upload_evidence(
+                options.operand,
+                options.results_root,
+                options.bucket,
+                confirmed=options.confirm_upload,
+                dry_run=options.dry_run,
+            )
+            if options.dry_run:
+                print(f"Upload plan: VALID; source={result['source']['kind']}; objects={len(result['objects'])}")
+                print(f"Bucket: {result['bucket']}")
+                for item in result["objects"]:
+                    print(
+                        f"Object: {item['role']}\t{item['size']}\t"
+                        f"{item['sha256']}\t{item['uri']}"
+                    )
+            else:
+                print(f"Upload receipt: {destination}")
+                print(f"Receipt ID: {result['receiptId']}; objects={len(result['objects'])}")
+            return 0
+        if options.command == "baseline-register":
+            entry = register_cloud_baseline(
+                options.name,
+                options.set_operand,
+                options.results_root,
+                options.registry,
+                receipt_path=options.receipt,
+                release_label=options.release_label,
+                dry_run=options.dry_run,
+            )
+            action = "Registration plan" if options.dry_run else "Baseline registered"
+            print(f"{action}: {options.name}; set={entry['setId']}")
+            if options.dry_run:
+                print(f"Manifest: {entry['manifestUri']}#{entry['manifestGeneration']}")
+                print(f"Receipt: {entry['uploadReceiptId']} {entry['uploadReceiptSha256']}")
             return 0
         if options.command == "compare":
             output, document, result = compare_benchmarks(
