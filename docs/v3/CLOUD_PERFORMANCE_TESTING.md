@@ -196,6 +196,32 @@ without selecting the fastest run.
 ## Independent Cloud Benchmark V2 run sets
 
 Cloud Benchmark V2 Phase 2 automates a sequential set of independent V1 VM lifecycles.
+The existing `./run-cloud-benchmark.sh MODE` command remains the shortest exploratory
+path. Use the set wrapper when the experiment itself needs checkpointing or multiple
+independent slots.
+
+Review a one-slot Spot experiment without creating a workspace or VM:
+
+```bash
+GSE_CLOUD_PROVISIONING=spot \
+./run-cloud-benchmark-set.sh --dry-run \
+  --evidence-profile experiment --repeats 1 quick
+```
+
+Run it only after explicitly acknowledging the paid VM lifecycle:
+
+```bash
+GSE_CLOUD_PROVISIONING=spot \
+./run-cloud-benchmark-set.sh \
+  --evidence-profile experiment --repeats 1 \
+  --confirm-paid-run quick
+```
+
+Experiment sets accept 1 through 10 slots and every V1 mode. A preset is optional; if
+provided, it must be a known preset for the selected mode. Experiment evidence remains
+exploratory even with Standard provisioning, three members, or a canonical-shaped
+workload. It cannot be directly compared or registered as canonical evidence.
+
 Start with a mutation-free plan review:
 
 ```bash
@@ -247,6 +273,8 @@ Completed content-addressed artifacts are written under
 workspace remains as the attempt and replacement audit trail. The exact schemas and
 state transitions are frozen in the
 [Phase 2 aggregation contract](CLOUD_BENCHMARK_V2_PHASE_2.md).
+The profile matrix and V1 compatibility boundary are audited in the
+[Phase 4 profile-hardening contract](CLOUD_BENCHMARK_V2_PHASE_4.md).
 
 ## Deterministic local comparison
 

@@ -42,6 +42,13 @@ common=(
 )
 mkdir -p "$test_root/gcloud-state"
 
+set +e
+"$source_root/run-cloud-benchmark.sh" --evidence-profile experiment quick > "$output" 2>&1
+v1_profile_exit=$?
+set -e
+[ "$v1_profile_exit" -eq 2 ] || fail "V1 evidence-profile option returned $v1_profile_exit"
+assert_contains "$output" 'Unknown option: --evidence-profile'
+
 env "${common[@]}" "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
   --evidence-profile canonical --repeats 3 full > "$output" 2>&1 \
   || fail 'Canonical set dry run failed'
@@ -103,5 +110,70 @@ assert_contains "$blocked_workspace/checkpoint.json" '"state":"COMPLETE"'
 replacement=$(find "$blocked_workspace/replacements/slot-001" -name 'replacement-*.json' -type f | sed -n '1p')
 [ -n "$replacement" ] || fail 'Replacement authorization was not retained'
 assert_contains "$replacement" '"confirmedWithoutScoreSelection":true'
+
+workspace_count_before=$(find "$test_repo/benchmark-results/v3-production/sets/in-progress" \
+  -mindepth 1 -maxdepth 1 -type d | wc -l)
+
+env "${common[@]}" GSE_CLOUD_PROVISIONING=spot \
+  "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
+  --evidence-profile experiment --repeats 1 quick > "$output" 2>&1 \
+  || fail 'One-slot experiment dry run failed'
+assert_contains "$output" 'Set evidence profile: experiment'
+assert_contains "$output" 'Independent slots:   1'
+assert_contains "$output" 'Preset:              none'
+workspace_count_after=$(find "$test_repo/benchmark-results/v3-production/sets/in-progress" \
+  -mindepth 1 -maxdepth 1 -type d | wc -l)
+[ "$workspace_count_after" -eq "$workspace_count_before" ] \
+  || fail 'Experiment dry run created a set workspace'
+
+set +e
+env "${common[@]}" GSE_CLOUD_PROVISIONING=spot \
+  "$test_repo/run-cloud-benchmark-set.sh" \
+  --evidence-profile experiment --repeats 1 quick > "$output" 2>&1
+unconfirmed_experiment_exit=$?
+set -e
+[ "$unconfirmed_experiment_exit" -eq 2 ] \
+  || fail "Unconfirmed experiment returned $unconfirmed_experiment_exit"
+workspace_count_after=$(find "$test_repo/benchmark-results/v3-production/sets/in-progress" \
+  -mindepth 1 -maxdepth 1 -type d | wc -l)
+[ "$workspace_count_after" -eq "$workspace_count_before" ] \
+  || fail 'Unconfirmed experiment created a set workspace'
+
+set +e
+env "${common[@]}" GSE_CLOUD_PROVISIONING=spot \
+  "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
+  --evidence-profile experiment --repeats 1 \
+  --preset v3-production-soak-v1 full > "$output" 2>&1
+mismatched_preset_exit=$?
+set -e
+[ "$mismatched_preset_exit" -eq 2 ] \
+  || fail "Mismatched experiment preset returned $mismatched_preset_exit"
+assert_contains "$output" 'Set mode full is incompatible with preset v3-production-soak-v1'
+workspace_count_after=$(find "$test_repo/benchmark-results/v3-production/sets/in-progress" \
+  -mindepth 1 -maxdepth 1 -type d | wc -l)
+[ "$workspace_count_after" -eq "$workspace_count_before" ] \
+  || fail 'Mismatched experiment preset created a set workspace'
+
+env "${common[@]}" GSE_CLOUD_PROVISIONING=spot \
+  "$test_repo/run-cloud-benchmark-set.sh" \
+  --evidence-profile experiment --repeats 1 \
+  --confirm-paid-run quick > "$output" 2>&1 \
+  || fail 'One-slot Spot experiment failed'
+assert_contains "$output" 'Status: VALID_EXPERIMENT_SET; members=1'
+experiment_manifest=$(find "$test_repo/benchmark-results/v3-production/sets" \
+  -path '*/v1/benchmark-set-manifest.json' -type f \
+  -exec grep -l '"status":"VALID_EXPERIMENT_SET"' {} \; | sed -n '1p')
+[ -n "$experiment_manifest" ] || fail 'Experiment final manifest is missing'
+assert_contains "$experiment_manifest" '"evidenceProfile":"experiment"'
+assert_contains "$experiment_manifest" '"presetId":null'
+
+set +e
+"$test_repo/run-cloud-benchmark-set.sh" --resume "$workspace" \
+  --evidence-profile experiment --confirm-paid-run > "$output" 2>&1
+resume_profile_exit=$?
+set -e
+[ "$resume_profile_exit" -eq 2 ] \
+  || fail "Resume profile override returned $resume_profile_exit"
+assert_contains "$output" 'Resume/replace reads profile, repeats, preset, and mode from the immutable plan'
 
 echo 'Cloud Benchmark V2 set runner tests: PASS'

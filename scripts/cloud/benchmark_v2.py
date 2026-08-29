@@ -1330,8 +1330,11 @@ def validate_set_plan_inputs(
                 raise fail_config(f"Canonical set control {key} is required")
         if not controls.get("network") and not controls.get("subnet"):
             raise fail_config("Canonical set requires a frozen network or subnet")
-    elif preset_id is not None and preset_id not in CANONICAL_PRESETS:
-        raise fail_config(f"Unknown set preset: {preset_id}")
+    elif preset_id is not None:
+        if preset_id not in CANONICAL_PRESETS:
+            raise fail_config(f"Unknown set preset: {preset_id}")
+        if CANONICAL_PRESETS[preset_id]["mode"] != mode:
+            raise fail_config(f"Set mode {mode} is incompatible with preset {preset_id}")
     return {
         "controls": controls,
         "evidenceProfile": profile,

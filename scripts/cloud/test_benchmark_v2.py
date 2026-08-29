@@ -359,6 +359,163 @@ class BenchmarkV2Test(unittest.TestCase):
         intent["pointer"].write_text(str(fixture.orchestration_path.resolve()) + "\n", encoding="utf-8")
         self.assertEqual(0, v2.record_set_attempt(workspace, slot, 0))
 
+    def test_profile_repeat_mode_provisioning_and_preset_matrix(self):
+        repository = "https://github.com/patricklfdm/GeneralSearchEngine.git"
+        for repeats in (1, 10):
+            for mode in (
+                "quick",
+                "full",
+                "concurrency",
+                "soak",
+                "investigation",
+                "stabilized-investigation",
+                "all",
+            ):
+                with self.subTest(profile="experiment", repeats=repeats, mode=mode):
+                    plan = v2.validate_set_plan_inputs(
+                        "experiment",
+                        repeats,
+                        mode,
+                        None,
+                        repository,
+                        COMMIT,
+                        {"provisioning": "spot"},
+                    )
+                    self.assertEqual("experiment", plan["evidenceProfile"])
+                    self.assertIsNone(plan["presetId"])
+        for repeats in (0, 11):
+            self.assert_error(
+                v2.EXIT_CONFIG,
+                lambda repeats=repeats: v2.validate_set_plan_inputs(
+                    "experiment",
+                    repeats,
+                    "quick",
+                    None,
+                    repository,
+                    COMMIT,
+                    {"provisioning": "spot"},
+                ),
+            )
+        for repeats in (3, 10):
+            for mode in ("full", "concurrency", "soak", "all"):
+                with self.subTest(profile="canonical", repeats=repeats, mode=mode):
+                    preset = f"v3-production-{mode}-v1"
+                    plan = v2.validate_set_plan_inputs(
+                        "canonical",
+                        repeats,
+                        mode,
+                        preset,
+                        repository,
+                        COMMIT,
+                        self.canonical_set_controls(),
+                    )
+                    self.assertEqual("canonical", plan["evidenceProfile"])
+                    self.assertEqual(preset, plan["presetId"])
+        for repeats in (1, 2, 11):
+            self.assert_error(
+                v2.EXIT_CONFIG,
+                lambda repeats=repeats: v2.validate_set_plan_inputs(
+                    "canonical",
+                    repeats,
+                    "full",
+                    "v3-production-full-v1",
+                    repository,
+                    COMMIT,
+                    self.canonical_set_controls(),
+                ),
+            )
+        for mode in ("quick", "investigation", "stabilized-investigation"):
+            self.assert_error(
+                v2.EXIT_CONFIG,
+                lambda mode=mode: v2.validate_set_plan_inputs(
+                    "canonical",
+                    3,
+                    mode,
+                    f"v3-production-{mode}-v1",
+                    repository,
+                    COMMIT,
+                    self.canonical_set_controls(),
+                ),
+            )
+        spot_controls = {**self.canonical_set_controls(), "provisioning": "spot"}
+        self.assert_error(
+            v2.EXIT_CONFIG,
+            lambda: v2.validate_set_plan_inputs(
+                "canonical",
+                3,
+                "full",
+                "v3-production-full-v1",
+                repository,
+                COMMIT,
+                spot_controls,
+            ),
+        )
+        for preset in (None, "v3-production-soak-v1", "unknown-preset"):
+            self.assert_error(
+                v2.EXIT_CONFIG,
+                lambda preset=preset: v2.validate_set_plan_inputs(
+                    "canonical",
+                    3,
+                    "full",
+                    preset,
+                    repository,
+                    COMMIT,
+                    self.canonical_set_controls(),
+                ),
+            )
+
+    def test_experiment_preset_must_match_selected_mode(self):
+        repository = "https://github.com/patricklfdm/GeneralSearchEngine.git"
+        matching = v2.validate_set_plan_inputs(
+            "experiment",
+            1,
+            "full",
+            "v3-production-full-v1",
+            repository,
+            COMMIT,
+            {"provisioning": "spot"},
+        )
+        self.assertEqual("v3-production-full-v1", matching["presetId"])
+        self.assert_error(
+            v2.EXIT_CONFIG,
+            lambda: v2.validate_set_plan_inputs(
+                "experiment",
+                1,
+                "full",
+                "v3-production-soak-v1",
+                repository,
+                COMMIT,
+                {"provisioning": "spot"},
+            ),
+        )
+        self.assert_error(
+            v2.EXIT_CONFIG,
+            lambda: v2.validate_set_plan_inputs(
+                "experiment",
+                1,
+                "full",
+                "unknown-preset",
+                repository,
+                COMMIT,
+                {"provisioning": "spot"},
+            ),
+        )
+
+    def test_profile_is_bound_into_plan_checkpoint_hash(self):
+        repository = "https://github.com/patricklfdm/GeneralSearchEngine.git"
+        experiment = v2.validate_set_plan_inputs(
+            "experiment", 3, "full", "v3-production-full-v1", repository, COMMIT,
+            self.canonical_set_controls(),
+        )
+        canonical = v2.validate_set_plan_inputs(
+            "canonical", 3, "full", "v3-production-full-v1", repository, COMMIT,
+            self.canonical_set_controls(),
+        )
+        self.assertNotEqual(
+            v2.initial_checkpoint(experiment)["planSha256"],
+            v2.initial_checkpoint(canonical)["planSha256"],
+        )
+
     def test_schema1_manifest_metrics_and_raw_immutability(self):
         fixture = Fixture(self.root)
         raw_before = v2.snapshot_raw(fixture.raw)
