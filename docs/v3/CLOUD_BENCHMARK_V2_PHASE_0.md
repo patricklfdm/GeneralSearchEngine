@@ -565,7 +565,9 @@ request and push CI never authenticate to GCP, create a VM, upload to GCS, or ru
 benchmarks.
 
 Workflow inputs are enumerated choices for evidence profile, supported mode/preset,
-machine, and optional reviewed baseline. They are not arbitrary shell fragments.
+and machine. A reviewed baseline may be exposed only after the workflow has a frozen,
+checksum-verified remote retrieval path; until then the input is omitted rather than
+accepted and silently ignored. Inputs are not arbitrary shell fragments.
 Canonical workflow execution requires durable GCS configuration and explicit dispatch;
 experiment output may use bounded Actions artifacts according to documented size limits.
 

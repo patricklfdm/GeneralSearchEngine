@@ -148,6 +148,7 @@ jobs:
 
       - name: Exercise cloud lifecycle with fake gcloud
         run: |
+          scripts/cloud/test-cloud-performance-workflow.sh
           scripts/cloud/test-cloud-runner.sh
           scripts/cloud/test-benchmark-set-runner.sh
           scripts/cloud/test-benchmark-upload-runner.sh
@@ -155,8 +156,8 @@ jobs:
       - name: Validate Cloud Benchmark V2 evidence derivation
         run: |
           python --version
-          python -m py_compile scripts/cloud/benchmark_v2.py scripts/cloud/fake-gcloud-storage.py scripts/cloud/test_benchmark_v2.py scripts/cloud/test_benchmark_comparison_v2.py scripts/cloud/test_benchmark_upload_v2.py
-          python -m unittest scripts.cloud.test_benchmark_v2 scripts.cloud.test_benchmark_comparison_v2 scripts.cloud.test_benchmark_upload_v2
+          python -m py_compile scripts/cloud/benchmark_v2.py scripts/cloud/cloud_workflow_v2.py scripts/cloud/fake-gcloud-storage.py scripts/cloud/test_benchmark_v2.py scripts/cloud/test_benchmark_comparison_v2.py scripts/cloud/test_benchmark_upload_v2.py scripts/cloud/test_cloud_workflow_v2.py
+          python -m unittest scripts.cloud.test_benchmark_v2 scripts.cloud.test_benchmark_comparison_v2 scripts.cloud.test_benchmark_upload_v2 scripts.cloud.test_cloud_workflow_v2
 
   required:
     name: Required

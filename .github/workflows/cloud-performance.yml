@@ -1,0 +1,344 @@
+name: Cloud performance
+
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_profile:
+        description: Evidence profile
+        required: true
+        type: choice
+        default: experiment
+        options:
+          - experiment
+          - canonical
+      mode:
+        description: Existing Cloud Benchmark V1 mode
+        required: true
+        type: choice
+        default: quick
+        options:
+          - quick
+          - full
+          - concurrency
+          - soak
+          - all
+      repeats:
+        description: Independent ephemeral VM slots
+        required: true
+        type: choice
+        default: '1'
+        options:
+          - '1'
+          - '3'
+          - '5'
+      provisioning:
+        description: Compute Engine provisioning model
+        required: true
+        type: choice
+        default: spot
+        options:
+          - spot
+          - standard
+      machine_type:
+        description: Reviewed C3D machine type
+        required: true
+        type: choice
+        default: c3d-standard-30
+        options:
+          - c3d-standard-30
+          - c3d-standard-60
+      soak_duration:
+        description: Soak duration preset (soak/all only)
+        required: true
+        type: choice
+        default: 30m
+        options:
+          - 30m
+          - 2h
+      retention:
+        description: Lightweight Actions artifact or immutable GCS evidence
+        required: true
+        type: choice
+        default: actions
+        options:
+          - actions
+          - gcs
+      source_commit:
+        description: Optional exact protected-master commit (defaults to dispatch SHA)
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloud-performance-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Validate manual benchmark request
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      source_commit: ${{ steps.plan.outputs.source_commit }}
+    steps:
+      - name: Check out protected workflow source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Validate bounded request and protected source
+        id: plan
+        env:
+          INPUT_EVIDENCE_PROFILE: ${{ inputs.evidence_profile }}
+          INPUT_MACHINE_TYPE: ${{ inputs.machine_type }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_PROVISIONING: ${{ inputs.provisioning }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          INPUT_RETENTION: ${{ inputs.retention }}
+          INPUT_SOAK_DURATION: ${{ inputs.soak_duration }}
+          INPUT_SOURCE_COMMIT: ${{ inputs.source_commit }}
+        run: |
+          state_directory="$RUNNER_TEMP/gse-cloud-preflight"
+          mkdir -p "$state_directory"
+          python3 scripts/cloud/cloud_workflow_v2.py plan \
+            --evidence-profile "$INPUT_EVIDENCE_PROFILE" \
+            --mode "$INPUT_MODE" \
+            --repeats "$INPUT_REPEATS" \
+            --provisioning "$INPUT_PROVISIONING" \
+            --machine-type "$INPUT_MACHINE_TYPE" \
+            --soak-duration "$INPUT_SOAK_DURATION" \
+            --retention "$INPUT_RETENTION" \
+            --source-commit "$INPUT_SOURCE_COMMIT" \
+            --dispatch-sha "$GITHUB_SHA" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --trusted-ref origin/master \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --output "$state_directory/workflow-plan.json" \
+            --github-output "$GITHUB_OUTPUT"
+          python3 scripts/cloud/cloud_workflow_v2.py plan-summary \
+            --plan "$state_directory/workflow-plan.json" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+  benchmark:
+    name: Approved paid cloud benchmark
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    environment: cloud-benchmark
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GSE_RESULTS_ROOT: benchmark-results/v3-production
+      GSE_CLOUD_WIF_PROVIDER: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
+      GSE_CLOUD_SERVICE_ACCOUNT: ${{ vars.GSE_CLOUD_SERVICE_ACCOUNT }}
+      GSE_GCP_PROJECT: ${{ vars.GSE_GCP_PROJECT }}
+      GSE_GCP_ZONE: ${{ vars.GSE_GCP_ZONE }}
+      GSE_CLOUD_IMAGE: ${{ vars.GSE_CLOUD_IMAGE }}
+      GSE_BENCHMARK_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
+    steps:
+      - name: Check out exact validated benchmark source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.preflight.outputs.source_commit }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Revalidate request and initialize workflow state
+        id: plan
+        env:
+          INPUT_EVIDENCE_PROFILE: ${{ inputs.evidence_profile }}
+          INPUT_MACHINE_TYPE: ${{ inputs.machine_type }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_PROVISIONING: ${{ inputs.provisioning }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          INPUT_RETENTION: ${{ inputs.retention }}
+          INPUT_SOAK_DURATION: ${{ inputs.soak_duration }}
+          VALIDATED_SOURCE_COMMIT: ${{ needs.preflight.outputs.source_commit }}
+        run: |
+          state_directory="$RUNNER_TEMP/gse-cloud-workflow"
+          mkdir -p "$state_directory"
+          python3 scripts/cloud/cloud_workflow_v2.py plan \
+            --evidence-profile "$INPUT_EVIDENCE_PROFILE" \
+            --mode "$INPUT_MODE" \
+            --repeats "$INPUT_REPEATS" \
+            --provisioning "$INPUT_PROVISIONING" \
+            --machine-type "$INPUT_MACHINE_TYPE" \
+            --soak-duration "$INPUT_SOAK_DURATION" \
+            --retention "$INPUT_RETENTION" \
+            --source-commit "$VALIDATED_SOURCE_COMMIT" \
+            --dispatch-sha "$VALIDATED_SOURCE_COMMIT" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --trusted-ref origin/master \
+            --run-id "$GITHUB_RUN_ID" \
+            --run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --output "$state_directory/workflow-plan.json" \
+            --github-output "$GITHUB_OUTPUT"
+          python3 scripts/cloud/cloud_workflow_v2.py assert-fresh \
+            --results-root "$GSE_RESULTS_ROOT"
+
+      - name: Validate reviewed cloud configuration
+        id: config
+        run: |
+          python3 scripts/cloud/cloud_workflow_v2.py validate-config \
+            --plan "$RUNNER_TEMP/gse-cloud-workflow/workflow-plan.json"
+
+      - name: Authenticate to Google Cloud with short-lived WIF
+        id: auth
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
+          service_account: ${{ vars.GSE_CLOUD_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install exact Google Cloud CLI
+        id: gcloud
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Dry-run and execute one checkpointed set
+        id: execute
+        continue-on-error: true
+        env:
+          INPUT_EVIDENCE_PROFILE: ${{ inputs.evidence_profile }}
+          INPUT_MACHINE_TYPE: ${{ inputs.machine_type }}
+          INPUT_MODE: ${{ inputs.mode }}
+          INPUT_PROVISIONING: ${{ inputs.provisioning }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          GSE_CLOUD_REPO_URL: https://github.com/patricklfdm/GeneralSearchEngine.git
+          GSE_CLOUD_MACHINE_TYPE: ${{ inputs.machine_type }}
+          GSE_CLOUD_PROVISIONING: ${{ inputs.provisioning }}
+          GSE_CLOUD_IMAGE_PROJECT: ubuntu-os-cloud
+          GSE_CLOUD_IMAGE_FAMILY: ubuntu-2404-lts-amd64
+          GSE_CLOUD_BOOT_DISK_SIZE: 100GB
+          GSE_CLOUD_BOOT_DISK_TYPE: pd-balanced
+          GSE_CLOUD_USE_IAP: 'false'
+          GSE_CLOUD_EXTERNAL_IP: 'true'
+          GSE_PERF_JVM_OPTIONS: -Xms8g -Xmx16g
+          GSE_SOAK_SECONDS: ${{ steps.plan.outputs.soak_seconds }}
+          GSE_CLOUD_MAX_RUN_DURATION: ${{ steps.plan.outputs.max_vm_runtime_seconds }}s
+        run: |
+          state_directory="$RUNNER_TEMP/gse-cloud-workflow"
+          set_arguments=(
+            --evidence-profile "$INPUT_EVIDENCE_PROFILE"
+            --repeats "$INPUT_REPEATS"
+          )
+          set +e
+          ./run-cloud-benchmark-set.sh --dry-run \
+            "${set_arguments[@]}" "$INPUT_MODE" 2>&1 | tee "$state_directory/set-dry-run.log"
+          dry_run_exit=${PIPESTATUS[0]}
+          benchmark_exit=0
+          if [ "$dry_run_exit" -eq 0 ]; then
+            ./run-cloud-benchmark-set.sh \
+              "${set_arguments[@]}" --confirm-paid-run "$INPUT_MODE" \
+              2>&1 | tee "$state_directory/set-execution.log"
+            benchmark_exit=${PIPESTATUS[0]}
+          fi
+          set -e
+          python3 scripts/cloud/cloud_workflow_v2.py benchmark-result \
+            --plan "$state_directory/workflow-plan.json" \
+            --results-root "$GSE_RESULTS_ROOT" \
+            --dry-run-exit "$dry_run_exit" \
+            --benchmark-exit "$benchmark_exit" \
+            --output "$state_directory/workflow-result.json" \
+            --github-output "$GITHUB_OUTPUT"
+
+      - name: Apply selected retention policy
+        id: retention
+        if: ${{ steps.execute.outcome == 'success' }}
+        continue-on-error: true
+        env:
+          INPUT_RETENTION: ${{ inputs.retention }}
+          PRIMARY_EXIT: ${{ steps.execute.outputs.primary_exit }}
+          SET_PATH: ${{ steps.execute.outputs.set_path }}
+        run: |
+          state_directory="$RUNNER_TEMP/gse-cloud-workflow"
+          upload_exit=0
+          if [ "$PRIMARY_EXIT" -eq 0 ] && [ "$INPUT_RETENTION" = gcs ]; then
+            set +e
+            ./upload-cloud-benchmark.sh --confirm-upload "$SET_PATH" \
+              2>&1 | tee "$state_directory/upload.log"
+            upload_exit=${PIPESTATUS[0]}
+            set -e
+          fi
+          python3 scripts/cloud/cloud_workflow_v2.py record-upload \
+            --plan "$state_directory/workflow-plan.json" \
+            --result "$state_directory/workflow-result.json" \
+            --results-root "$GSE_RESULTS_ROOT" \
+            --upload-exit "$upload_exit"
+
+      - name: Render evidence-bounded summary
+        id: summary
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          python3 scripts/cloud/cloud_workflow_v2.py summary \
+            --plan "$RUNNER_TEMP/gse-cloud-workflow/workflow-plan.json" \
+            --result "$RUNNER_TEMP/gse-cloud-workflow/workflow-result.json" \
+            --output "$RUNNER_TEMP/gse-cloud-workflow/workflow-summary.md" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Stage allowlisted lightweight evidence
+        id: staging
+        if: ${{ always() }}
+        continue-on-error: true
+        run: |
+          python3 scripts/cloud/cloud_workflow_v2.py stage-artifact \
+            --plan "$RUNNER_TEMP/gse-cloud-workflow/workflow-plan.json" \
+            --result "$RUNNER_TEMP/gse-cloud-workflow/workflow-result.json" \
+            --summary "$RUNNER_TEMP/gse-cloud-workflow/workflow-summary.md" \
+            --results-root "$GSE_RESULTS_ROOT" \
+            --staging "$RUNNER_TEMP/gse-cloud-workflow/artifact"
+
+      - name: Upload bounded workflow evidence
+        id: artifact_upload
+        if: ${{ always() && steps.staging.outcome == 'success' }}
+        continue-on-error: true
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.plan.outputs.artifact_name }}
+          path: ${{ runner.temp }}/gse-cloud-workflow/artifact
+          retention-days: 14
+          if-no-files-found: error
+          include-hidden-files: false
+          overwrite: false
+
+      - name: Preserve the original workflow outcome
+        if: ${{ always() }}
+        env:
+          CONFIG_OUTCOME: ${{ steps.config.outcome }}
+          AUTH_OUTCOME: ${{ steps.auth.outcome }}
+          GCLOUD_OUTCOME: ${{ steps.gcloud.outcome }}
+          EXECUTION_OUTCOME: ${{ steps.execute.outcome }}
+          RETENTION_OUTCOME: ${{ steps.retention.outcome }}
+          SUMMARY_OUTCOME: ${{ steps.summary.outcome }}
+          STAGING_OUTCOME: ${{ steps.staging.outcome }}
+          ARTIFACT_OUTCOME: ${{ steps.artifact_upload.outcome }}
+        run: |
+          python3 scripts/cloud/cloud_workflow_v2.py final-exit \
+            --result "$RUNNER_TEMP/gse-cloud-workflow/workflow-result.json" \
+            --outcome "$CONFIG_OUTCOME" \
+            --outcome "$AUTH_OUTCOME" \
+            --outcome "$GCLOUD_OUTCOME" \
+            --outcome "$EXECUTION_OUTCOME" \
+            --outcome "$RETENTION_OUTCOME" \
+            --outcome "$SUMMARY_OUTCOME" \
+            --outcome "$STAGING_OUTCOME" \
+            --outcome "$ARTIFACT_OUTCOME"

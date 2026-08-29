@@ -41,3 +41,6 @@ build/
 ### Python analysis tooling ###
 __pycache__/
 *.py[cod]
+
+### GitHub Actions Google authentication ###
+gha-creds-*.json
