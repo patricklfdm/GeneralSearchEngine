@@ -1,8 +1,9 @@
 # Cloud Benchmark V2 operations record
 
-This document records the deployed, keyless Google Cloud configuration and the first
-successful protected manual smoke for Cloud Benchmark V2. It is an operations record,
-not a performance baseline, SLA, or baseline-registry entry.
+This document records the deployed, keyless Google Cloud configuration, protected
+workflow rollout, cross-VM calibration, and first registered canonical set for Cloud
+Benchmark V2. It is an operations record; metric interpretation lives in the linked
+results document, and neither document defines an SLA.
 
 The state below was revalidated on 2026-08-28 PDT (2026-08-29 UTC). Secrets, SSH keys,
 OIDC tokens, raw benchmark directories, and downloaded Actions artifacts are not stored
@@ -184,3 +185,26 @@ Environment fingerprint version 2 therefore retains exact memory provenance but 
 nearest-MiB capacity. Derivation fills only the proven zero-count `gc.time = 0 ms` case,
 and incompatibility diagnostics compare metric membership by ID. This calibration run
 is not a completed set, was not uploaded to GCS, and is not baseline evidence.
+
+The fixes were confirmed by protected run
+[33244046761](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33244046761),
+which completed `experiment / quick / 3 / standard / c3d-standard-30 / actions` as
+`VALID_EXPERIMENT_SET`. All three members shared the normalized environment and metric
+identity set. The calibration remains experimental evidence and is not a baseline.
+
+## First registered canonical baseline
+
+Protected workflow run
+[33245212380](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33245212380)
+used source `4e446ba9bccebe8f9c3c848738ec9f27f18e1288` with
+`canonical / all / 3 / standard / c3d-standard-30 / 30m / gcs`. All three members
+completed on their first attempt, shared one environment and configuration fingerprint,
+and produced `VALID_CANONICAL_SET`
+`gse-set-v1-4767465528d42ea635ea7f1ed9a6d42b244f2c4e49acc8addc45eba180d06cfb`.
+All VMs were deleted successfully.
+
+The durable receipt covers 103 immutable GCS objects. After independent artifact and
+remote-object verification, the set was registered as `v3.0.0-cloud`. The reviewed
+metrics and the known V3 soak review signal are documented in the
+[canonical cloud baseline results](CLOUD_CANONICAL_BASELINE_RESULTS.md). Registration
+establishes a comparison anchor, not an SLA or an automatic pass threshold.
