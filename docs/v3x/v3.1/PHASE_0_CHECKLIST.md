@@ -32,14 +32,16 @@ Status: contract freeze complete; production implementation has not started.
 
 ## Implementation entry gates
 
-These are deliberately not completed in the contract-only change:
+The first three gates were completed by Phase 1. The protected cloud extension
+remains a later implementation phase:
 
-- [ ] Add direct Japicmp comparison with published `3.0.0` while retaining all older
+- [x] Add direct Japicmp comparison with published `3.0.0` while retaining all older
   comparisons.
-- [ ] Capture focused pre-change phrase and fuzzy profiles from the unmodified V3.0
+- [x] Capture focused pre-change phrase and fuzzy profiles from the unmodified V3.0
   implementation.
-- [ ] Materialize the frozen fixture/oracle matrix as tests without sharing production
-  implementation helpers.
+- [x] Materialize the independent Phase 1 phrase/BOOL reference models and focused
+  V3.0-default fixtures without sharing production implementation helpers. The full
+  feature matrix remains an implementation exit gate.
 - [ ] Implement and synthetically validate the frozen `ranked-v31` cloud extension
   before any paid run.
 

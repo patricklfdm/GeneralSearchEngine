@@ -7,9 +7,9 @@ artifact compatibility profile must compare the candidate core JAR directly with
 four published artifacts. The frozen V1 fixture and independent V1-, V2-, and V3-style
 consumer builds remain mandatory.
 
-Before feature implementation, the build must add a published-`3.0.0` Japicmp
-execution. It uses the same public-access, synthetic filtering, and binary/source
-incompatibility failure policy as the existing published baselines.
+The `artifact-compat` profile includes a published-`3.0.0` Japicmp execution before
+feature implementation. It uses the same public-access, synthetic filtering, and
+binary/source incompatibility failure policy as the existing published baselines.
 
 ## Supported public additions
 
