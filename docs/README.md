@@ -18,6 +18,7 @@ remains the phase history and decision source of truth.
 - [Cloud Benchmark V2 Phase 2 canonical set aggregation](v3/CLOUD_BENCHMARK_V2_PHASE_2.md)
 - [Cloud Benchmark V2 Phase 3 baseline comparison and reports](v3/CLOUD_BENCHMARK_V2_PHASE_3.md)
 - [Cloud Benchmark V2 Phase 4 evidence profile hardening](v3/CLOUD_BENCHMARK_V2_PHASE_4.md)
+- [Cloud Benchmark V2 Phase 5 durable retention and baseline registration](v3/CLOUD_BENCHMARK_V2_PHASE_5.md)
 - [Cloud soak diagnostics contract](v3/CLOUD_SOAK_DIAGNOSTICS.md)
 - [Cloud soak root-cause investigation results](v3/CLOUD_SOAK_ROOT_CAUSE_RESULTS.md)
 - [Cloud soak early-window stabilization contract](v3/CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md)
