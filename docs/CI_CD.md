@@ -105,16 +105,23 @@ name, not a family. Bucket is one existing `gs://bucket` URI. No service-account
 key or Maven release secret belongs in this Environment.
 
 Create the WIF pool, provider, service account, IAM bindings, and bucket outside the
-workflow. Map at least `google.subject`, `attribute.repository`, `attribute.ref`,
+workflow. Map at least `google.subject`, `attribute.repository`,
+`attribute.repository_id`, `attribute.repository_owner_id`, `attribute.ref`,
 `attribute.workflow_ref`, and `attribute.environment` from the corresponding GitHub
 claims. The provider condition must require all of:
 
 ```text
 assertion.repository == 'patricklfdm/GeneralSearchEngine'
+assertion.repository_id == '1341513206'
+assertion.repository_owner_id == '147357093'
 assertion.ref == 'refs/heads/master'
 assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master'
 assertion.environment == 'cloud-benchmark'
 ```
+
+Keep `google.subject = assertion.sub`, but do not add a redundant complete `sub`
+comparison to the provider condition. The immutable IDs plus the independently bounded
+repository, ref, workflow, and Environment are the authorization boundary.
 
 Grant `roles/iam.workloadIdentityUser` on the dedicated service account only to the
 provider's repository principal set. In the dedicated benchmark project, grant only
@@ -141,6 +148,9 @@ source_commit    = <empty, meaning the selected master commit>
 Review Environment approval, OIDC authentication, the dry-run plan, VM cleanup, the
 bounded 14-day artifact, and the final summary. Only then dispatch Standard/GCS
 canonical evidence. The workflow never registers or replaces a baseline.
+
+The deployed resource inventory, exact least-privilege role, and first successful smoke
+are recorded in the [Cloud Benchmark V2 operations record](v3/CLOUD_BENCHMARK_V2_OPERATIONS.md).
 
 ## Production release Environment
 

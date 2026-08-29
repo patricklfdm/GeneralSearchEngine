@@ -388,7 +388,9 @@ separate human-reviewed local command and PR.
 One-time Environment, WIF, IAM, and first-smoke instructions are in the
 [CI/CD operations guide](../CI_CD.md#cloud-benchmark-environment-and-wif). The complete
 security, input, artifact, and failure contract is frozen in
-[Cloud Benchmark V2 Phase 6](CLOUD_BENCHMARK_V2_PHASE_6.md).
+[Cloud Benchmark V2 Phase 6](CLOUD_BENCHMARK_V2_PHASE_6.md). The deployed identity,
+least-privilege role, storage policy, and successful first-smoke evidence are in the
+[Cloud Benchmark V2 operations record](CLOUD_BENCHMARK_V2_OPERATIONS.md).
 
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
