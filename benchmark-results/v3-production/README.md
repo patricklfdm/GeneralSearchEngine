@@ -16,12 +16,16 @@ derived/runs/<raw-run-id>/v1/
 sets/in-progress/<workspace-id>/
 sets/<gse-set-v1-id>/v1/
 comparisons/<gse-comparison-v1-id>/v1/
+upload-receipts/<gse-upload-receipt-v1-id>/v1/
 ```
 
 The in-progress workspace is resumable control state and remains after completion for
 audit. A content-addressed set directory contains the deterministic set manifest,
 aggregate metrics, complete attempt/replacement audit, and checksums. A comparison
 directory contains canonical JSON, a deterministic Markdown rendering, and checksums.
+An upload-receipt directory is a separate immutable binding between local evidence and
+verified create-only GCS object generations; source manifests are never amended with a
+storage location.
 See
 [`docs/v3/CLOUD_PERFORMANCE_TESTING.md`](../../docs/v3/CLOUD_PERFORMANCE_TESTING.md)
 for the canonical set and local comparison commands.
