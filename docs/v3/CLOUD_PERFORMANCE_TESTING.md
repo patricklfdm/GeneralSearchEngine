@@ -382,8 +382,10 @@ artifact. Raw run directories are never uploaded to Actions.
 When a set stops as incomplete or incompatible, the set runner prints a deterministic
 comparison against the first selected member. Fingerprint mismatches include the exact
 nested environment fields bound by the environment fingerprint; metric-signature and
-other compatibility differences use their stable schema paths. Values and the number
-of reported differences are bounded so the workflow log remains reviewable.
+other compatibility differences use their stable schema paths. Metric membership is
+compared by stable metric ID rather than list position, so one absent metric does not
+produce cascading index differences. Values and the number of reported differences are
+bounded so the workflow log remains reviewable.
 
 A failed workflow artifact retains an allowlisted diagnostic subset when a matching
 in-progress workspace exists: the immutable set plan, current checkpoint, finalized
@@ -502,6 +504,12 @@ New raw runs carry evidence schema 1 and exact CPU topology, memory, kernel, ima
 Java/VM, ordered JVM option, suite, and repository facts. Explicitly supported historical
 schema-0 JMH shapes remain usable as `VALID_EXPERIMENT`, but missing strict facts are
 left null and no environment fingerprint is invented.
+
+The environment manifest retains exact `memoryBytes`; environment fingerprint version
+2 rounds it to the nearest MiB to exclude sub-MiB boot-reservation jitter. JMH
+`gc.time` omitted alongside an exact zero `gc.count` is normalized to `0 ms` with an
+explicit `normalization` provenance record. A missing `gc.time` after any observed
+collection is invalid evidence.
 
 `--evidence-profile canonical` validates one potential canonical set member. It requires
 schema 1, a clean source, Standard provisioning, a canonical mode, a complete strict

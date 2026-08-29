@@ -346,6 +346,16 @@ benchmark image is separately implemented, exact JDK build equality is mandatory
 Java 21 builds that differ by patch, package, vendor, runtime, or VM version are not
 directly comparable canonical environments.
 
+### Environment fingerprint version 2
+
+Version 2 supersedes version 1 for newly derived evidence after real independent C3D
+boots demonstrated an 8 KiB `MemTotal` difference on otherwise identical machines. The
+manifest still records exact `memoryBytes` as observed provenance. The fingerprint uses
+that value rounded to the nearest MiB as `memoryMiB`; every other version-1 environment
+input remains unchanged. This removes boot-reservation noise without treating a
+material capacity change as comparable. Benchmark configuration fingerprint version 1
+is unchanged.
+
 ### Benchmark configuration fingerprint version 1
 
 Required inputs are:
