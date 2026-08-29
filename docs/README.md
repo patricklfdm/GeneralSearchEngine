@@ -20,6 +20,7 @@ remains the phase history and decision source of truth.
 - [Cloud Benchmark V2 Phase 4 evidence profile hardening](v3/CLOUD_BENCHMARK_V2_PHASE_4.md)
 - [Cloud Benchmark V2 Phase 5 durable retention and baseline registration](v3/CLOUD_BENCHMARK_V2_PHASE_5.md)
 - [Cloud Benchmark V2 Phase 6 secure manual workflow](v3/CLOUD_BENCHMARK_V2_PHASE_6.md)
+- [Cloud Benchmark V2 operations record](v3/CLOUD_BENCHMARK_V2_OPERATIONS.md)
 - [Cloud soak diagnostics contract](v3/CLOUD_SOAK_DIAGNOSTICS.md)
 - [Cloud soak root-cause investigation results](v3/CLOUD_SOAK_ROOT_CAUSE_RESULTS.md)
 - [Cloud soak early-window stabilization contract](v3/CLOUD_SOAK_EARLY_WINDOW_STABILIZATION.md)
