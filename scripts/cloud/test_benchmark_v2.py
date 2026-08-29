@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import io
 import json
 import tempfile
 import unittest
@@ -702,7 +704,15 @@ class BenchmarkV2Test(unittest.TestCase):
         self.complete_fixture_attempt(workspace, 1, first)
         intent = v2.begin_set_attempt(workspace, 2)
         intent["pointer"].write_text(str(second.orchestration_path.resolve()) + "\n", encoding="utf-8")
-        self.assertEqual(v2.EXIT_INCOMPATIBLE_SET, v2.record_set_attempt(workspace, 2, 0))
+        diagnostics = io.StringIO()
+        with contextlib.redirect_stderr(diagnostics):
+            self.assertEqual(v2.EXIT_INCOMPATIBLE_SET, v2.record_set_attempt(workspace, 2, 0))
+        output = diagnostics.getvalue()
+        self.assertIn("reference slot=1, candidate slot=2", output)
+        self.assertIn("environmentFingerprint", output)
+        self.assertIn("environment.java.vmVersion", output)
+        self.assertIn('reference="21.0.8+9-LTS"', output)
+        self.assertIn('candidate="21.0.99+1-LTS"', output)
         _, _, checkpoint = v2.load_set_workspace(workspace)
         self.assertEqual("INCOMPATIBLE", checkpoint["state"])
         self.assertEqual("PENDING", checkpoint["slots"][2]["state"])
