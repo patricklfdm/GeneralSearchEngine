@@ -34,7 +34,9 @@ EXIT_UPLOAD = 86
 
 MANIFEST_SCHEMA_VERSION = 1
 METRICS_SCHEMA_VERSION = 1
-FINGERPRINT_SCHEMA_VERSION = 1
+BENCHMARK_CONFIG_FINGERPRINT_SCHEMA_VERSION = 1
+ENVIRONMENT_FINGERPRINT_SCHEMA_VERSION = 2
+MEMORY_FINGERPRINT_UNIT_BYTES = 1024 * 1024
 SUPPORTED_RAW_SCHEMAS = {0, 1}
 CANONICAL_MODES = {"full", "concurrency", "soak", "all"}
 CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
@@ -565,6 +567,31 @@ def validate_jmh_metadata(config: dict[str, Any], metadata: dict[str, str], raw_
         raise fail_invalid("JMH measurement time contradicts raw metadata")
 
 
+def normalize_optional_gc_time(
+    secondary: dict[str, Any], path: Path
+) -> dict[str, Any]:
+    normalized = dict(secondary)
+    if "gc.time" in normalized or "gc.count" not in normalized:
+        return normalized
+    count_metric = normalized["gc.count"]
+    if not isinstance(count_metric, dict):
+        raise fail_invalid(f"JMH secondary metric 'gc.count' is not an object in {path.name}")
+    count_unit = count_metric.get("scoreUnit")
+    if count_unit != "counts":
+        raise fail_invalid(f"Unexpected gc.count unit in {path.name}: {count_unit!r}")
+    count = finite_number(count_metric.get("score"), f"{path.name}:secondaryMetrics.gc.count.score")
+    if count != 0:
+        raise fail_invalid(f"JMH gc.time is missing despite non-zero gc.count in {path.name}")
+    normalized["gc.time"] = {
+        "_gseZeroGcTimeNormalization": True,
+        "score": 0.0,
+        "scoreConfidence": ["NaN", "NaN"],
+        "scoreError": "NaN",
+        "scoreUnit": "ms",
+    }
+    return normalized
+
+
 def extract_jmh(
     raw_dir: Path, raw_schema: int, suite_schema: int, metadata: dict[str, str]
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -596,6 +623,7 @@ def extract_jmh(
             secondary = entry.get("secondaryMetrics", {})
             if not isinstance(primary, dict) or not isinstance(secondary, dict):
                 raise fail_invalid(f"Invalid JMH metric objects in {path.name}")
+            secondary = normalize_optional_gc_time(secondary, path)
             metric_objects: list[tuple[str, str, dict[str, Any], str]] = [
                 ("primary", "primary", primary, "primaryMetric")
             ]
@@ -623,27 +651,31 @@ def extract_jmh(
                     convert_optional_number(value, unit, f"{path.name}:{field_prefix}.scoreConfidence")
                     for value in confidence_value
                 ]
-                metrics.append(
-                    make_metric(
-                        suite_schema=suite_schema,
-                        workload=workload,
-                        benchmark=benchmark,
-                        mode=mode,
-                        params=params,
-                        threads=threads,
-                        group=group,
-                        role=role,
-                        name=name,
-                        statistic=score_statistic(mode, name),
-                        source_file=path.name,
-                        source_field=f"{field_prefix}.score",
-                        source_value=score,
-                        source_unit=unit,
-                        direction=metric_direction(mode, role, name),
-                        error=error,
-                        confidence=confidence,
-                    )
+                normalized_metric = make_metric(
+                    suite_schema=suite_schema,
+                    workload=workload,
+                    benchmark=benchmark,
+                    mode=mode,
+                    params=params,
+                    threads=threads,
+                    group=group,
+                    role=role,
+                    name=name,
+                    statistic=score_statistic(mode, name),
+                    source_file=path.name,
+                    source_field=f"{field_prefix}.score",
+                    source_value=score,
+                    source_unit=unit,
+                    direction=metric_direction(mode, role, name),
+                    error=error,
+                    confidence=confidence,
                 )
+                if metric_object.get("_gseZeroGcTimeNormalization") is True:
+                    normalized_metric["normalization"] = {
+                        "kind": "zero-gc-time-when-count-is-zero",
+                        "sourceField": "secondaryMetrics.gc.count.score",
+                    }
+                metrics.append(normalized_metric)
                 if mode == "sample" and role in {"primary", "read", "write"}:
                     percentiles = metric_object.get("scorePercentiles")
                     if not isinstance(percentiles, dict) or not percentiles:
@@ -826,8 +858,8 @@ def reject_duplicate_metrics(metrics: Iterable[dict[str, Any]]) -> list[dict[str
     return [by_id[key] for key in sorted(by_id)]
 
 
-def fingerprint(payload: dict[str, Any]) -> str:
-    envelope = {"fingerprintSchemaVersion": FINGERPRINT_SCHEMA_VERSION, "payload": payload}
+def fingerprint(payload: dict[str, Any], schema_version: int) -> str:
+    envelope = {"fingerprintSchemaVersion": schema_version, "payload": payload}
     return "sha256:" + sha256_bytes(canonical_json_bytes(envelope))
 
 
@@ -982,19 +1014,26 @@ def environment_from_metadata(
             },
         }
     )
-    return common, fingerprint(environment_fingerprint_payload(common)), True
+    return common, fingerprint(
+        environment_fingerprint_payload(common), ENVIRONMENT_FINGERPRINT_SCHEMA_VERSION
+    ), True
+
+
+def normalized_memory_mib(memory_bytes: int) -> int:
+    return (memory_bytes + MEMORY_FINGERPRINT_UNIT_BYTES // 2) // MEMORY_FINGERPRINT_UNIT_BYTES
 
 
 def environment_fingerprint_payload(environment: dict[str, Any]) -> dict[str, Any]:
     """Return exactly the stable fields bound by an environment fingerprint."""
     image = environment.get("image", {})
+    memory_bytes = environment.get("memoryBytes")
     return {
         "provider": environment.get("provider"),
         "zone": environment.get("zone"),
         "machineType": environment.get("machineType"),
         "provisioning": environment.get("provisioning"),
         "cpu": environment.get("cpu"),
-        "memoryBytes": environment.get("memoryBytes"),
+        "memoryMiB": normalized_memory_mib(memory_bytes) if isinstance(memory_bytes, int) else None,
         "image": {
             "project": image.get("project"),
             "resolvedName": image.get("resolvedName"),
@@ -1122,7 +1161,9 @@ def derive_manifest(
     }
     if preset_id is not None:
         benchmark_config_payload["presetId"] = preset_id
-    benchmark_config_fingerprint = fingerprint(benchmark_config_payload)
+    benchmark_config_fingerprint = fingerprint(
+        benchmark_config_payload, BENCHMARK_CONFIG_FINGERPRINT_SCHEMA_VERSION
+    )
     cleanup_attempted = boolean_property(record, "cleanup_attempted", record_path)
     canonical_reasons: list[str] = []
     if raw_schema != 1:
@@ -1506,7 +1547,7 @@ def read_attempt_pointer(pointer: Path) -> Path:
 
 
 def metric_signature(metric: dict[str, Any]) -> dict[str, Any]:
-    excluded = {"canonicalValue", "sourceValue", "error", "confidence"}
+    excluded = {"canonicalValue", "sourceValue", "error", "confidence", "normalization"}
     return {key: value for key, value in metric.items() if key not in excluded}
 
 
@@ -1515,7 +1556,9 @@ def member_compatibility_key(manifest: dict[str, Any], metrics: dict[str, Any]) 
         "benchmarkConfigFingerprint": manifest.get("benchmarkConfigFingerprint"),
         "environmentFingerprint": manifest.get("environmentFingerprint"),
         "evidenceProfile": manifest.get("evidenceProfile"),
-        "metricSignatures": [metric_signature(metric) for metric in metrics.get("metrics", [])],
+        "metricSignatures": {
+            metric["id"]: metric_signature(metric) for metric in metrics.get("metrics", [])
+        },
         "mode": manifest.get("benchmark", {}).get("mode"),
         "presetId": manifest.get("benchmark", {}).get("presetId"),
         "source": {
@@ -1575,7 +1618,35 @@ def member_compatibility_differences(
     for key in sorted(reference):
         if reference[key] == candidate[key]:
             continue
-        differences.extend(structured_differences(reference[key], candidate[key], key))
+        if key == "metricSignatures":
+            reference_signatures = reference[key]
+            candidate_signatures = candidate[key]
+            for metric_id in sorted(reference_signatures.keys() - candidate_signatures.keys()):
+                differences.append(
+                    (
+                        f"metricSignatures.missingFromCandidate[{metric_id}]",
+                        reference_signatures[metric_id],
+                        _DIAGNOSTIC_MISSING,
+                    )
+                )
+            for metric_id in sorted(candidate_signatures.keys() - reference_signatures.keys()):
+                differences.append(
+                    (
+                        f"metricSignatures.missingFromReference[{metric_id}]",
+                        _DIAGNOSTIC_MISSING,
+                        candidate_signatures[metric_id],
+                    )
+                )
+            for metric_id in sorted(reference_signatures.keys() & candidate_signatures.keys()):
+                differences.extend(
+                    structured_differences(
+                        reference_signatures[metric_id],
+                        candidate_signatures[metric_id],
+                        f"metricSignatures[{metric_id}]",
+                    )
+                )
+        else:
+            differences.extend(structured_differences(reference[key], candidate[key], key))
         if key == "environmentFingerprint":
             differences.extend(
                 structured_differences(

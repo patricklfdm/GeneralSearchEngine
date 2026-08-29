@@ -552,6 +552,60 @@ class BenchmarkV2Test(unittest.TestCase):
         ]
         self.assertTrue(any(item["unavailableReason"] == "source_nan" for item in nan_errors))
 
+    def test_zero_gc_count_synthesizes_stable_zero_gc_time(self):
+        missing = Fixture(self.root / "missing", instance="gse-missing-gc-time")
+        missing_document = missing.raw / "document-scale.json"
+        missing_entries = json.loads(missing_document.read_text(encoding="utf-8"))
+        missing_entries[0]["secondaryMetrics"]["gc.count"]["score"] = 0.0
+        missing_entries[0]["secondaryMetrics"].pop("gc.time")
+        missing_document.write_text(json.dumps(missing_entries, sort_keys=True) + "\n", encoding="utf-8")
+        missing.refresh_checksums()
+
+        explicit = Fixture(
+            self.root / "explicit",
+            run_id="20260828T000001Z-0123456789ab-full",
+            instance="gse-explicit-gc-time",
+        )
+        explicit_document = explicit.raw / "document-scale.json"
+        explicit_entries = json.loads(explicit_document.read_text(encoding="utf-8"))
+        explicit_entries[0]["secondaryMetrics"]["gc.count"]["score"] = 0.0
+        explicit_entries[0]["secondaryMetrics"]["gc.time"]["score"] = 0.0
+        explicit_document.write_text(
+            json.dumps(explicit_entries, sort_keys=True) + "\n", encoding="utf-8"
+        )
+        explicit.refresh_checksums()
+
+        _, missing_manifest, missing_metrics = v2.derive_manifest(missing.raw)
+        _, explicit_manifest, explicit_metrics = v2.derive_manifest(explicit.raw)
+        synthesized = next(
+            metric
+            for metric in missing_metrics["metrics"]
+            if metric["workload"] == "document-scale"
+            and metric["identity"]["metricName"] == "gc.time"
+        )
+        self.assertEqual(0.0, synthesized["sourceValue"])
+        self.assertEqual("ms", synthesized["sourceUnit"])
+        self.assertEqual(
+            {
+                "kind": "zero-gc-time-when-count-is-zero",
+                "sourceField": "secondaryMetrics.gc.count.score",
+            },
+            synthesized["normalization"],
+        )
+        self.assertEqual(
+            v2.member_compatibility_key(missing_manifest, missing_metrics),
+            v2.member_compatibility_key(explicit_manifest, explicit_metrics),
+        )
+
+    def test_missing_gc_time_with_nonzero_count_is_invalid(self):
+        fixture = Fixture(self.root, instance="gse-invalid-gc-time")
+        document = fixture.raw / "document-scale.json"
+        entries = json.loads(document.read_text(encoding="utf-8"))
+        entries[0]["secondaryMetrics"].pop("gc.time")
+        document.write_text(json.dumps(entries, sort_keys=True) + "\n", encoding="utf-8")
+        fixture.refresh_checksums()
+        self.assert_error(v2.EXIT_INVALID_EVIDENCE, lambda: v2.derive_manifest(fixture.raw))
+
     def test_derivation_is_byte_stable_and_idempotent(self):
         fixture = Fixture(self.root)
         output, manifest, _ = v2.derive_manifest(fixture.raw)
@@ -779,6 +833,77 @@ class BenchmarkV2Test(unittest.TestCase):
         _, right, _ = v2.derive_manifest(second.raw)
         self.assertEqual(left["environmentFingerprint"], right["environmentFingerprint"])
         self.assertEqual(left["benchmarkConfigFingerprint"], right["benchmarkConfigFingerprint"])
+
+    def test_environment_fingerprint_normalizes_sub_mib_memory_jitter(self):
+        baseline = Fixture(self.root / "baseline", instance="gse-memory-baseline")
+        jitter = Fixture(
+            self.root / "jitter",
+            run_id="20260829T010204Z-0123456789ab-full",
+            instance="gse-memory-jitter",
+        )
+        jitter.metadata["memory_bytes"] = str(int(jitter.metadata["memory_bytes"]) + 8192)
+        jitter.rewrite_metadata()
+        jitter.refresh_checksums()
+        different = Fixture(
+            self.root / "different",
+            run_id="20260829T010205Z-0123456789ab-full",
+            instance="gse-memory-different",
+        )
+        different.metadata["memory_bytes"] = str(
+            int(different.metadata["memory_bytes"]) + 2 * 1024 * 1024
+        )
+        different.rewrite_metadata()
+        different.refresh_checksums()
+
+        _, baseline_manifest, _ = v2.derive_manifest(baseline.raw)
+        _, jitter_manifest, _ = v2.derive_manifest(jitter.raw)
+        _, different_manifest, _ = v2.derive_manifest(different.raw)
+        self.assertNotEqual(
+            baseline_manifest["environment"]["memoryBytes"],
+            jitter_manifest["environment"]["memoryBytes"],
+        )
+        self.assertEqual(
+            baseline_manifest["environmentFingerprint"], jitter_manifest["environmentFingerprint"]
+        )
+        self.assertNotEqual(
+            baseline_manifest["environmentFingerprint"],
+            different_manifest["environmentFingerprint"],
+        )
+
+    def test_metric_signature_diagnostics_use_metric_id_sets(self):
+        manifest = {
+            "benchmark": {"mode": "quick", "presetId": None},
+            "benchmarkConfigFingerprint": "sha256:" + "1" * 64,
+            "environment": {},
+            "environmentFingerprint": "sha256:" + "2" * 64,
+            "evidenceProfile": "experiment",
+            "source": {"commit": COMMIT, "repository": "repository"},
+            "suite": {"name": "v3-production", "schemaVersion": 1},
+        }
+        shared = {"canonicalValue": 1.0, "id": "m1-shared", "identity": {"metricName": "shared"}}
+        reference_only = {
+            "canonicalValue": 2.0,
+            "id": "m1-reference",
+            "identity": {"metricName": "reference"},
+        }
+        candidate_only = {
+            "canonicalValue": 3.0,
+            "id": "m1-candidate",
+            "identity": {"metricName": "candidate"},
+        }
+        differences = v2.member_compatibility_differences(
+            manifest,
+            {"metrics": [shared, reference_only]},
+            manifest,
+            {"metrics": [candidate_only, shared]},
+        )
+        self.assertEqual(
+            [
+                "metricSignatures.missingFromCandidate[m1-reference]",
+                "metricSignatures.missingFromReference[m1-candidate]",
+            ],
+            [path for path, _, _ in differences],
+        )
 
     def test_environment_and_configuration_inputs_change_separate_fingerprints(self):
         baseline = Fixture(self.root / "base", instance="gse-base")
