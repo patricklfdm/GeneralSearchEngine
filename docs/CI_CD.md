@@ -112,7 +112,7 @@ claims. The provider condition must require all of:
 ```text
 assertion.repository == 'patricklfdm/GeneralSearchEngine'
 assertion.ref == 'refs/heads/master'
-assertion.job_workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master'
+assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master'
 assertion.environment == 'cloud-benchmark'
 ```
 
