@@ -35,7 +35,7 @@ done < <(grep -E '^[[:space:]]+uses:' "$workflow")
 assert_contains "$workflow" 'google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3'
 assert_contains "$workflow" 'google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3'
 assert_contains "$workflow" "version: '582.0.0'"
-assert_contains "$workflow" 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4'
+assert_contains "$workflow" 'actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1'
 
 checkout_line=$(grep -n 'Check out exact validated benchmark source' "$workflow" | cut -d: -f1)
 auth_line=$(grep -n 'Authenticate to Google Cloud with short-lived WIF' "$workflow" | cut -d: -f1)
