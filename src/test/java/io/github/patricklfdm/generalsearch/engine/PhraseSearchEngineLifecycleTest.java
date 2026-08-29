@@ -58,11 +58,16 @@ class PhraseSearchEngineLifecycleTest {
             engine.update(new Article(0, "search java updated")).join();
             engine.remove(1L).join();
             engine.add(new Article(1_000, "java search added")).join();
+            engine.add(new Article(1_001, "java stable search added")).join();
 
             analyzer.releaseBuild();
             creation.join();
 
             assertEquals(Set.of(1_000L), phraseIds(engine, text, "java search"));
+            assertEquals(
+                    Set.of(1_000L, 1_001L),
+                    phraseIds(engine, text, "java search", 1)
+            );
             assertEquals(Set.of(0L), phraseIds(engine, text, "search java"));
 
             engine.updateAll(List.of(
@@ -76,6 +81,10 @@ class PhraseSearchEngineLifecycleTest {
 
             engine.removeAll(List.of(2L, 1_000L)).join();
             assertEquals(Set.of(0L), phraseIds(engine, text, "java search"));
+            assertEquals(
+                    Set.of(0L, 1_001L),
+                    phraseIds(engine, text, "java search", 1)
+            );
 
             engine.dropIndex(BODY.name()).join();
             assertThrows(
@@ -131,13 +140,19 @@ class PhraseSearchEngineLifecycleTest {
                 .build()) {
             engine.add(original).join();
             blockQuery.set(true);
-            CompletableFuture<SearchResult<Article>> result =
-                    CompletableFuture.supplyAsync(() -> engine.search(
-                            SearchRequest.of(SearchQueries.phrase(
+            SearchRequest<Article> request = SearchRequest.of(
+                    SearchQueries.<Article>bool()
+                            .should(SearchQueries.phrase(
                                     text,
-                                    "blocked-phrase"
+                                    "blocked-phrase",
+                                    1
                             ))
-                    ));
+                            .should(SearchQueries.text(text, "engine"))
+                            .minimumShouldMatch(2)
+                            .build()
+            );
+            CompletableFuture<SearchResult<Article>> result =
+                    CompletableFuture.supplyAsync(() -> engine.search(request));
 
             assertTrue(queryEntered.await(5, TimeUnit.SECONDS));
             engine.update(reordered).join();
@@ -160,8 +175,17 @@ class PhraseSearchEngineLifecycleTest {
             TextField<Article> text,
             String phrase
     ) {
+        return phraseIds(engine, text, phrase, 0);
+    }
+
+    private static Set<Long> phraseIds(
+            SearchEngine<Long, Article> engine,
+            TextField<Article> text,
+            String phrase,
+            int slop
+    ) {
         return engine.search(SearchRequest.of(
-                        SearchQueries.phrase(text, phrase)))
+                        SearchQueries.phrase(text, phrase, slop)))
                 .hits()
                 .stream()
                 .map(hit -> hit.document().id())
