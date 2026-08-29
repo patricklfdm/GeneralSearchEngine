@@ -23,6 +23,7 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 2 checklist](v3x/v3.1/PHASE_2_CHECKLIST.md)
 - [V3.1 Phase 2 local diagnostic baseline](v3x/v3.1/PHASE_2_BASELINE.md)
 - [V3.1 Phase 3 checklist](v3x/v3.1/PHASE_3_CHECKLIST.md)
+- [V3.1 Phase 4 checklist](v3x/v3.1/PHASE_4_CHECKLIST.md)
 
 ## v3 — current stable release
 
