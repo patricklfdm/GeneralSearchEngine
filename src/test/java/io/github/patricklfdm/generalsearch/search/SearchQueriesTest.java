@@ -30,12 +30,19 @@ class SearchQueriesTest {
         assertThrows(NullPointerException.class,
                 () -> SearchQueries.phrase(TEXT, null));
         assertThrows(NullPointerException.class,
+                () -> SearchQueries.phrase(null, "phrase", 0));
+        assertThrows(NullPointerException.class,
+                () -> SearchQueries.phrase(TEXT, null, 0));
+        assertThrows(IllegalArgumentException.class,
+                () -> SearchQueries.phrase(null, null, -1));
+        assertThrows(NullPointerException.class,
                 () -> SearchQueries.fuzzy(null, "fuzzy"));
         assertThrows(NullPointerException.class,
                 () -> SearchQueries.fuzzy(TEXT, null));
 
         assertDoesNotThrow(() -> SearchQueries.text(TEXT, ""));
         assertDoesNotThrow(() -> SearchQueries.phrase(TEXT, ""));
+        assertDoesNotThrow(() -> SearchQueries.phrase(TEXT, "", 4));
         assertDoesNotThrow(() -> SearchQueries.fuzzy(TEXT, ""));
 
         LeafSearchQueryNode<Document> leaf = leaf(
@@ -43,6 +50,12 @@ class SearchQueriesTest {
         assertSame(TEXT, leaf.field());
         assertEquals("  raw Phrase  ", leaf.text());
         assertEquals(SearchLeafKind.PHRASE, leaf.kind());
+        assertEquals(0, leaf.slop());
+        assertEquals(
+                leaf,
+                leaf(SearchQueries.phrase(TEXT, "  raw Phrase  ", 0))
+        );
+        assertEquals(3, leaf(SearchQueries.phrase(TEXT, "phrase", 3)).slop());
     }
 
     @Test
@@ -56,6 +69,7 @@ class SearchQueriesTest {
 
         SearchQueries.text(counting, "text");
         SearchQueries.phrase(counting, "two terms");
+        SearchQueries.phrase(counting, "sloppy terms", 2);
         SearchQueries.fuzzy(counting, "also two terms");
 
         assertEquals(0, calls.get());

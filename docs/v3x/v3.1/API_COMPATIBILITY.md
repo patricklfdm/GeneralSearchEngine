@@ -7,9 +7,13 @@ artifact compatibility profile must compare the candidate core JAR directly with
 four published artifacts. The frozen V1 fixture and independent V1-, V2-, and V3-style
 consumer builds remain mandatory.
 
-The `artifact-compat` profile includes a published-`3.0.0` Japicmp execution before
-feature implementation. It uses the same public-access, synthetic filtering, and
-binary/source incompatibility failure policy as the existing published baselines.
+The `artifact-compat` profile copies the published `3.0.0` artifact into an isolated
+compatibility-baseline path and verifies its pinned SHA-256 before running Japicmp.
+This is required while the candidate retains version `3.0.0`: dependency coordinates
+alone could otherwise resolve a locally installed candidate and silently compare the
+JAR with itself. A mismatched baseline fails closed. The execution uses the same
+public-access, synthetic filtering, and binary/source incompatibility failure policy
+as the existing published baselines.
 
 ## Supported public additions
 
@@ -63,8 +67,8 @@ necessity is reviewed before implementation.
 
 V3.1 requires no annotation-processor API or generated-source change. The processor,
 generated fields, generated schemas, and travel example must continue to compile and
-run through the reactor. The independent V3 consumer gains phrase-slop and
-`minimumShouldMatch` usage only after the supported API exists.
+run through the reactor. The independent V3 consumer gains phrase-slop usage in Phase
+2 and `minimumShouldMatch` usage only after the Phase 3 supported API exists.
 
 ## Version and release evidence
 

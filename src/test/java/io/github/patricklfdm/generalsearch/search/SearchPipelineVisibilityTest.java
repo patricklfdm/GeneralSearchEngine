@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import io.github.patricklfdm.generalsearch.index.text.FuzzyVocabularyAccess;
 import io.github.patricklfdm.generalsearch.index.text.PhrasePositionAccess;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 import org.junit.jupiter.api.Test;
 
 class SearchPipelineVisibilityTest {
@@ -92,15 +93,22 @@ class SearchPipelineVisibilityTest {
                         PhrasePositionAccess.class.getDeclaredMethods())
                 .filter(method -> Modifier.isPublic(method.getModifiers()))
                 .toList();
-        assertEquals(List.of("matches"), positionalMethods.stream()
+        assertEquals(Set.of("matches", "minimumConsumedSlop"), positionalMethods.stream()
                 .map(method -> method.getName())
-                .toList());
-        assertEquals(boolean.class, positionalMethods.getFirst().getReturnType());
-        Arrays.stream(positionalMethods.getFirst().getParameterTypes())
-                .forEach(parameter -> assertFalse(
-                        parameter.getTypeName().contains("IntPositions"),
-                        parameter.getTypeName()
-                ));
+                .collect(Collectors.toSet()));
+        positionalMethods.forEach(method -> {
+            assertEquals(
+                    method.getName().equals("matches")
+                            ? boolean.class
+                            : long.class,
+                    method.getReturnType()
+            );
+            Arrays.stream(method.getParameterTypes())
+                    .forEach(parameter -> assertFalse(
+                            parameter.getTypeName().contains("IntPositions"),
+                            parameter.getTypeName()
+                    ));
+        });
         List<java.lang.reflect.Method> vocabularyMethods = Arrays.stream(
                         FuzzyVocabularyAccess.class.getDeclaredMethods())
                 .filter(method -> Modifier.isPublic(method.getModifiers()))
@@ -120,5 +128,24 @@ class SearchPipelineVisibilityTest {
                 .map(method -> method.getName())
                 .collect(Collectors.toSet());
         assertEquals(Set.of("boost"), publicQueryMethods);
+
+        List<java.lang.reflect.Method> phraseFactories = Arrays.stream(
+                        SearchQueries.class.getDeclaredMethods())
+                .filter(method -> Modifier.isPublic(method.getModifiers()))
+                .filter(method -> method.getName().equals("phrase"))
+                .toList();
+        assertEquals(2, phraseFactories.size());
+        assertTrue(phraseFactories.stream().allMatch(method ->
+                Modifier.isStatic(method.getModifiers())
+                        && method.getReturnType() == SearchQuery.class));
+        assertEquals(
+                Set.of(
+                        List.of(TextField.class, String.class),
+                        List.of(TextField.class, String.class, int.class)
+                ),
+                phraseFactories.stream()
+                        .map(method -> Arrays.asList(method.getParameterTypes()))
+                        .collect(Collectors.toSet())
+        );
     }
 }

@@ -116,7 +116,8 @@ record RankedSearchInput<T>(
                 case PHRASE -> normalizedPhrase(
                         snapshot,
                         leaf.field(),
-                        analysis
+                        analysis,
+                        leaf.slop()
                 );
                 case FUZZY -> normalizedFuzzy(
                         snapshot,
@@ -165,7 +166,8 @@ record RankedSearchInput<T>(
     private static <T> NormalizedPhraseNode<T> normalizedPhrase(
             SearchSnapshot<T> snapshot,
             TextField<T> field,
-            PositionedAnalysis analysis
+            PositionedAnalysis analysis,
+            int slop
     ) {
         List<PhraseSlot> slots = phraseSlots(analysis.occurrences());
         TextIndexSnapshot<T> textIndex = slots.isEmpty()
@@ -175,7 +177,8 @@ record RankedSearchInput<T>(
                 field,
                 slots,
                 analysis.distinctTerms(),
-                textIndex
+                textIndex,
+                slop
         );
     }
 
@@ -379,10 +382,14 @@ record NormalizedPhraseNode<T>(
         TextField<T> textField,
         List<PhraseSlot> slots,
         List<String> scoringTerms,
-        TextIndexSnapshot<T> textIndex
+        TextIndexSnapshot<T> textIndex,
+        int slop
 ) implements NormalizedScoringNode<T> {
     NormalizedPhraseNode {
         Objects.requireNonNull(textField, "textField");
+        if (slop < 0) {
+            throw new IllegalArgumentException("slop must not be negative");
+        }
         slots = List.copyOf(slots);
         scoringTerms = List.copyOf(scoringTerms);
         int previousPosition = -1;

@@ -33,7 +33,38 @@ public final class SearchQueries {
      * @throws NullPointerException when {@code field} or {@code text} is null
      */
     public static <T> SearchQuery<T> phrase(TextField<T> field, String text) {
-        return leaf(SearchLeafKind.PHRASE, field, text);
+        return phrase(field, text, 0);
+    }
+
+    /**
+     * Retains a raw ordered phrase query with an extra-gap budget for later planning.
+     * Query position gaps remain minimum required gaps and term transposition is not
+     * permitted.
+     *
+     * @param field canonical analyzed-text field
+     * @param text raw query text
+     * @param slop non-negative ordered extra-gap budget
+     * @param <T> document type
+     * @return immutable phrase query
+     * @throws IllegalArgumentException when {@code slop} is negative
+     * @throws NullPointerException when {@code field} or {@code text} is null
+     */
+    public static <T> SearchQuery<T> phrase(
+            TextField<T> field,
+            String text,
+            int slop
+    ) {
+        if (slop < 0) {
+            throw new IllegalArgumentException("slop must not be negative");
+        }
+        Objects.requireNonNull(field, "field");
+        Objects.requireNonNull(text, "text");
+        return new SearchQuery<>(new LeafSearchQueryNode<>(
+                SearchLeafKind.PHRASE,
+                field,
+                text,
+                slop
+        ));
     }
 
     /**
@@ -66,7 +97,7 @@ public final class SearchQueries {
     ) {
         Objects.requireNonNull(field, "field");
         Objects.requireNonNull(text, "text");
-        return new SearchQuery<>(new LeafSearchQueryNode<>(kind, field, text));
+        return new SearchQuery<>(new LeafSearchQueryNode<>(kind, field, text, 0));
     }
 
     /**

@@ -11,7 +11,8 @@ atomic-publication architecture.
   `3.0.0`. V3.x documents do not rewrite it.
 - [V3.x roadmap](ROADMAP.md) defines version scope, ordering, and entry gates.
 - [`v3.1/`](v3.1/PHASE_0_CHECKLIST.md) freezes the first executable V3.x contract;
-  [Phase 1](v3.1/PHASE_1_CHECKLIST.md) establishes its implementation baseline.
+  [Phase 1](v3.1/PHASE_1_CHECKLIST.md) establishes its implementation baseline and
+  [Phase 2](v3.1/PHASE_2_CHECKLIST.md) implements phrase slop.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -26,6 +27,8 @@ atomic-publication architecture.
 - [Phase 0 checklist](v3.1/PHASE_0_CHECKLIST.md)
 - [Phase 1 checklist](v3.1/PHASE_1_CHECKLIST.md)
 - [Phase 1 local diagnostic baseline](v3.1/PHASE_1_BASELINE.md)
+- [Phase 2 checklist](v3.1/PHASE_2_CHECKLIST.md)
+- [Phase 2 local diagnostic baseline](v3.1/PHASE_2_BASELINE.md)
 
 ## Stable boundaries
 
