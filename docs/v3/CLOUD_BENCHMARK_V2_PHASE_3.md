@@ -202,8 +202,8 @@ Even with the flag, these differences remain `INCOMPARABLE`:
 
 - repository, mode, preset, suite, or supported schema;
 - benchmark configuration fingerprint;
-- provider, zone, machine type, CPU identity/topology, memory, resolved image identity,
-  kernel, exact JDK/VM build, or ordered JVM options;
+- provider, zone, machine type, CPU identity/topology, normalized memory capacity,
+  resolved image identity, kernel, exact JDK/VM build, or ordered JVM options;
 - metric ID set, identity, statistic, unit, direction, percentile, or aggregation kind.
 
 To distinguish the provisioning-only exception from another environment mismatch,

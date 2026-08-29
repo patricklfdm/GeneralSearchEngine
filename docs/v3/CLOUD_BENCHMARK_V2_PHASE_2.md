@@ -283,8 +283,14 @@ A final canonical set requires exactly one selected member for every declared sl
 
 Branch and timestamps are provenance and need not match. Different project IDs are not
 fingerprint inputs, but the frozen execution plan requires one project for the set.
-Exact JDK, image, kernel, zone, CPU/topology, memory, provisioning, JVM, or configuration
-fingerprint mismatch makes the set incomplete with exit `83`.
+Exact JDK, image, kernel, zone, CPU/topology, normalized memory capacity, provisioning,
+JVM, or configuration fingerprint mismatch makes the set incomplete with exit `83`.
+
+JMH may omit `gc.time` when `gc.count` is zero. Derivation normalizes that exact shape
+to `gc.time = 0 ms`, records the inference in the metric's `normalization` provenance,
+and preserves a stable metric identity set across independent runs.
+Missing `gc.time` with a non-zero `gc.count` remains invalid evidence; no other missing
+profiler metric is manufactured.
 
 An experiment set uses `VALID_EXPERIMENT` members, requires identical source/mode/config
 fingerprints and metric identities, and requires environment fingerprints to be equal
