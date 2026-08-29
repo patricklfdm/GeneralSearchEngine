@@ -420,6 +420,106 @@ def require_regular(path: Path) -> None:
         raise WorkflowError("Generated credential files are forbidden in artifacts", EXIT_CONTRADICTION)
 
 
+def locate_failure_workspace(results_root: Path, plan: dict[str, Any]) -> Path | None:
+    request = plan["request"]
+    candidates: list[Path] = []
+    for plan_path in sorted((results_root / "sets" / "in-progress").glob("*/set-plan.json")):
+        workspace = plan_path.parent
+        if workspace.is_symlink() or not workspace.is_dir():
+            continue
+        try:
+            workspace.resolve().relative_to(results_root.resolve())
+            set_plan = read_json(plan_path)
+        except (ValueError, WorkflowError):
+            continue
+        if not isinstance(set_plan, dict):
+            continue
+        source = set_plan.get("source", {})
+        controls = set_plan.get("controls", {})
+        if (
+            set_plan.get("kind") == "benchmark-set-plan"
+            and set_plan.get("schemaVersion") == 1
+            and set_plan.get("evidenceProfile") == request["evidenceProfile"]
+            and set_plan.get("mode") == request["mode"]
+            and set_plan.get("repeats") == request["repeats"]
+            and set_plan.get("presetId") == plan["derived"]["presetId"]
+            and source.get("commit") == plan["source"]["commit"]
+            and source.get("repository") == REPOSITORY
+            and controls.get("provisioning", "").lower() == request["provisioning"]
+            and controls.get("machineType") == request["machineType"]
+        ):
+            candidates.append(workspace)
+    if len(candidates) > 1:
+        raise WorkflowError(
+            f"Expected at most one matching failed set workspace; found {len(candidates)}",
+            EXIT_CONTRADICTION,
+        )
+    return candidates[0] if candidates else None
+
+
+def require_workspace_file(workspace: Path, path: Path) -> Path:
+    try:
+        path.resolve(strict=True).relative_to(workspace.resolve())
+        relative = path.relative_to(workspace)
+    except (OSError, ValueError) as error:
+        raise WorkflowError(
+            "Failed set diagnostic path escapes its workspace", EXIT_CONTRADICTION
+        ) from error
+    current = workspace
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            raise WorkflowError("Failed set diagnostic path contains a symlink", EXIT_CONTRADICTION)
+    return path
+
+
+def failure_diagnostic_sources(
+    results_root: Path, plan: dict[str, Any]
+) -> list[tuple[Path, Path]]:
+    workspace = locate_failure_workspace(results_root, plan)
+    if workspace is None:
+        return []
+    prefix = Path("failure-diagnostics")
+    workspace_prefix = prefix / "workspace" / workspace.name
+    sources: list[tuple[Path, Path]] = [
+        (workspace / "set-plan.json", workspace_prefix / "set-plan.json"),
+        (workspace / "checkpoint.json", workspace_prefix / "checkpoint.json"),
+    ]
+    attempts = sorted(workspace.glob("attempts/slot-*/attempt-*.json"))
+    replacements = sorted(workspace.glob("replacements/slot-*/replacement-*.json"))
+    for record_path in [*attempts, *replacements]:
+        require_workspace_file(workspace, record_path)
+        relative = record_path.relative_to(workspace)
+        sources.append((record_path, workspace_prefix / relative))
+    for attempt_path in attempts:
+        attempt = read_json(attempt_path)
+        if not isinstance(attempt, dict):
+            raise WorkflowError("Failed set attempt record is invalid", EXIT_CONTRADICTION)
+        member = attempt.get("member")
+        if isinstance(member, dict):
+            manifest = safe_results_path(results_root, member.get("manifestReference"))
+            metrics = safe_results_path(results_root, member.get("metricsReference"))
+            if (
+                manifest.name != "benchmark-manifest.json"
+                or metrics.name != "normalized-metrics.json"
+                or manifest.parent != metrics.parent
+            ):
+                raise WorkflowError("Failed set member references are invalid", EXIT_CONTRADICTION)
+            for name in DERIVED_FILES:
+                source = manifest.parent / name
+                sources.append((source, prefix / "evidence" / source.relative_to(results_root)))
+        orchestration = attempt.get("orchestration")
+        if isinstance(orchestration, dict):
+            source = safe_results_path(results_root, orchestration.get("reference"))
+            sources.append((source, prefix / "evidence" / source.relative_to(results_root)))
+            retained_log = source.with_suffix(".log")
+            if retained_log.exists():
+                sources.append(
+                    (retained_log, prefix / "evidence" / retained_log.relative_to(results_root))
+                )
+    return sources
+
+
 def stage_artifact(options: argparse.Namespace) -> dict[str, Any]:
     plan_path = Path(options.plan).resolve()
     result_path = Path(options.result).resolve()
@@ -463,15 +563,22 @@ def stage_artifact(options: argparse.Namespace) -> dict[str, Any]:
         receipt_root = results_root / "upload-receipts" / receipt_info["id"] / "v1"
         for name in ("upload-receipt.json", "upload-receipt.sha256"):
             sources.append((receipt_root / name, Path("evidence/upload-receipts") / receipt_info["id"] / "v1" / name))
+    if result["primary"]["exit"] != 0:
+        sources.extend(failure_diagnostic_sources(results_root, plan))
 
     total = 0
-    seen: set[str] = set()
+    seen: dict[str, Path] = {}
     for source, relative in sources:
         require_regular(source)
         relative_text = relative.as_posix()
-        if relative.is_absolute() or ".." in relative.parts or relative_text in seen:
+        if relative.is_absolute() or ".." in relative.parts:
             raise WorkflowError("Artifact destination is unsafe or duplicated", EXIT_CONTRADICTION)
-        seen.add(relative_text)
+        prior = seen.get(relative_text)
+        if prior is not None:
+            if prior.resolve() == source.resolve():
+                continue
+            raise WorkflowError("Artifact destination is unsafe or duplicated", EXIT_CONTRADICTION)
+        seen[relative_text] = source
         size = source.stat().st_size
         total += size
         if total > MAX_ARTIFACT_BYTES:

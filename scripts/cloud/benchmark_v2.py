@@ -982,23 +982,28 @@ def environment_from_metadata(
             },
         }
     )
-    fingerprint_payload = {
-        "provider": common["provider"],
-        "zone": common["zone"],
-        "machineType": common["machineType"],
-        "provisioning": common["provisioning"],
-        "cpu": common["cpu"],
-        "memoryBytes": common["memoryBytes"],
+    return common, fingerprint(environment_fingerprint_payload(common)), True
+
+
+def environment_fingerprint_payload(environment: dict[str, Any]) -> dict[str, Any]:
+    """Return exactly the stable fields bound by an environment fingerprint."""
+    image = environment.get("image", {})
+    return {
+        "provider": environment.get("provider"),
+        "zone": environment.get("zone"),
+        "machineType": environment.get("machineType"),
+        "provisioning": environment.get("provisioning"),
+        "cpu": environment.get("cpu"),
+        "memoryBytes": environment.get("memoryBytes"),
         "image": {
-            "project": common["image"]["project"],
-            "resolvedName": common["image"]["resolvedName"],
-            "id": common["image"]["id"],
+            "project": image.get("project"),
+            "resolvedName": image.get("resolvedName"),
+            "id": image.get("id"),
         },
-        "kernelRelease": common["kernelRelease"],
-        "java": common["java"],
-        "jvmOptions": common["jvmOptions"],
+        "kernelRelease": environment.get("kernelRelease"),
+        "java": environment.get("java"),
+        "jvmOptions": environment.get("jvmOptions"),
     }
-    return common, fingerprint(fingerprint_payload), True
 
 
 def write_stable_files(output_dir: Path, files: dict[str, bytes]) -> None:
@@ -1521,6 +1526,100 @@ def member_compatibility_key(manifest: dict[str, Any], metrics: dict[str, Any]) 
     }
 
 
+_DIAGNOSTIC_MISSING = object()
+_MAX_COMPATIBILITY_DIFFERENCES = 50
+_MAX_DIAGNOSTIC_VALUE_CHARS = 240
+
+
+def diagnostic_value(value: Any) -> str:
+    if value is _DIAGNOSTIC_MISSING:
+        return "<missing>"
+    rendered = canonical_json_bytes(value).decode("utf-8").rstrip("\n")
+    if len(rendered) > _MAX_DIAGNOSTIC_VALUE_CHARS:
+        return rendered[: _MAX_DIAGNOSTIC_VALUE_CHARS - 3] + "..."
+    return rendered
+
+
+def structured_differences(
+    reference: Any, candidate: Any, path: str
+) -> list[tuple[str, Any, Any]]:
+    if reference == candidate:
+        return []
+    if isinstance(reference, dict) and isinstance(candidate, dict):
+        differences: list[tuple[str, Any, Any]] = []
+        for key in sorted(set(reference) | set(candidate)):
+            left = reference.get(key, _DIAGNOSTIC_MISSING)
+            right = candidate.get(key, _DIAGNOSTIC_MISSING)
+            child = f"{path}.{key}" if path else key
+            differences.extend(structured_differences(left, right, child))
+        return differences
+    if isinstance(reference, list) and isinstance(candidate, list):
+        differences = []
+        for index in range(max(len(reference), len(candidate))):
+            left = reference[index] if index < len(reference) else _DIAGNOSTIC_MISSING
+            right = candidate[index] if index < len(candidate) else _DIAGNOSTIC_MISSING
+            differences.extend(structured_differences(left, right, f"{path}[{index}]"))
+        return differences
+    return [(path, reference, candidate)]
+
+
+def member_compatibility_differences(
+    reference_manifest: dict[str, Any],
+    reference_metrics: dict[str, Any],
+    candidate_manifest: dict[str, Any],
+    candidate_metrics: dict[str, Any],
+) -> list[tuple[str, Any, Any]]:
+    reference = member_compatibility_key(reference_manifest, reference_metrics)
+    candidate = member_compatibility_key(candidate_manifest, candidate_metrics)
+    differences: list[tuple[str, Any, Any]] = []
+    for key in sorted(reference):
+        if reference[key] == candidate[key]:
+            continue
+        differences.extend(structured_differences(reference[key], candidate[key], key))
+        if key == "environmentFingerprint":
+            differences.extend(
+                structured_differences(
+                    environment_fingerprint_payload(reference_manifest.get("environment", {})),
+                    environment_fingerprint_payload(candidate_manifest.get("environment", {})),
+                    "environment",
+                )
+            )
+    return differences
+
+
+def emit_member_compatibility_diagnostics(
+    selected: list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]
+) -> None:
+    if not selected:
+        return
+    reference_attempt, reference_manifest, reference_metrics = selected[0]
+    reference_slot = reference_attempt.get("slot")
+    for candidate_attempt, candidate_manifest, candidate_metrics in selected[1:]:
+        differences = member_compatibility_differences(
+            reference_manifest,
+            reference_metrics,
+            candidate_manifest,
+            candidate_metrics,
+        )
+        if not differences:
+            continue
+        candidate_slot = candidate_attempt.get("slot")
+        print(
+            "ERROR: Set member compatibility mismatch: "
+            f"reference slot={reference_slot}, candidate slot={candidate_slot}",
+            file=sys.stderr,
+        )
+        for path, reference_value, candidate_value in differences[:_MAX_COMPATIBILITY_DIFFERENCES]:
+            print(
+                f"  {path}: reference={diagnostic_value(reference_value)}; "
+                f"candidate={diagnostic_value(candidate_value)}",
+                file=sys.stderr,
+            )
+        remaining = len(differences) - _MAX_COMPATIBILITY_DIFFERENCES
+        if remaining > 0:
+            print(f"  ... {remaining} additional differences omitted", file=sys.stderr)
+
+
 def validate_member_against_plan(
     plan: dict[str, Any], manifest: dict[str, Any], record: dict[str, str]
 ) -> None:
@@ -1666,16 +1765,23 @@ def record_set_attempt(workspace: Path, slot_number: int, v1_exit: int) -> int:
         selected = selected_member_documents(root, checkpoint)
         compatibility = [member_compatibility_key(manifest, metrics) for _, manifest, metrics in selected]
         if compatibility and any(item != compatibility[0] for item in compatibility[1:]):
+            emit_member_compatibility_diagnostics(selected)
             checkpoint["state"] = "INCOMPATIBLE"
             save_checkpoint(root, checkpoint)
             return EXIT_INCOMPATIBLE_SET
-        identity_columns = [
-            [item[0]["member"]["rawRunId"] for item in selected],
-            [item[0]["orchestration"]["instance"] for item in selected],
-            [item[0]["orchestration"]["digest"] for item in selected],
-            [item[0]["member"]["manifestDigest"] for item in selected],
-        ]
-        if any(len(values) != len(set(values)) for values in identity_columns):
+        identity_columns = {
+            "rawRunId": [item[0]["member"]["rawRunId"] for item in selected],
+            "orchestration.instance": [item[0]["orchestration"]["instance"] for item in selected],
+            "orchestration.digest": [item[0]["orchestration"]["digest"] for item in selected],
+            "member.manifestDigest": [item[0]["member"]["manifestDigest"] for item in selected],
+        }
+        duplicate_identity = {
+            label: values for label, values in identity_columns.items() if len(values) != len(set(values))
+        }
+        if duplicate_identity:
+            print("ERROR: Set member identity is not unique", file=sys.stderr)
+            for label, values in duplicate_identity.items():
+                print(f"  {label}: values={diagnostic_value(values)}", file=sys.stderr)
             checkpoint["state"] = "INCOMPATIBLE"
             save_checkpoint(root, checkpoint)
             return EXIT_INCOMPATIBLE_SET

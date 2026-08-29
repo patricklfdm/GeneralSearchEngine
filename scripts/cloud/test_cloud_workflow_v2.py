@@ -312,6 +312,129 @@ class CloudWorkflowV2Test(unittest.TestCase):
         self.assertFalse(any(path.name == "environment.txt" for path in staging.rglob("*")))
         self.assertFalse(any("raw" in path.parts for path in staging.rglob("*")))
 
+    def test_failed_set_artifact_retains_bounded_diagnostics(self) -> None:
+        plan = self.plan(
+            evidence_profile="canonical",
+            mode="all",
+            repeats="3",
+            provisioning="standard",
+            retention="gcs",
+        )
+        results = self.root / "failed-results"
+        workspace = results / "sets" / "in-progress" / "failed-workspace"
+        write_json(
+            workspace / "set-plan.json",
+            {
+                "controls": {
+                    "machineType": plan["request"]["machineType"],
+                    "provisioning": plan["request"]["provisioning"],
+                },
+                "evidenceProfile": plan["request"]["evidenceProfile"],
+                "kind": "benchmark-set-plan",
+                "mode": plan["request"]["mode"],
+                "presetId": plan["derived"]["presetId"],
+                "repeats": plan["request"]["repeats"],
+                "schemaVersion": 1,
+                "source": {"commit": plan["source"]["commit"], "repository": workflow.REPOSITORY},
+            },
+        )
+        write_json(
+            workspace / "checkpoint.json",
+            {
+                "kind": "benchmark-set-checkpoint",
+                "schemaVersion": 1,
+                "slots": [
+                    {"selectedAttempt": 1, "slot": 1, "state": "VALID_MEMBER"},
+                    {"selectedAttempt": 1, "slot": 2, "state": "VALID_MEMBER"},
+                    {"selectedAttempt": None, "slot": 3, "state": "PENDING"},
+                ],
+                "state": "INCOMPATIBLE",
+            },
+        )
+        for slot in (1, 2):
+            run_id = f"failed-run-{slot}"
+            derived = results / "derived" / "runs" / run_id / "v1"
+            derived.mkdir(parents=True)
+            write_json(
+                derived / "benchmark-manifest.json",
+                {
+                    "environment": {"memoryBytes": 1000 + slot},
+                    "environmentFingerprint": "sha256:" + str(slot) * 64,
+                    "runId": run_id,
+                },
+            )
+            write_json(derived / "normalized-metrics.json", {"metrics": [], "runId": run_id})
+            (derived / "derived-checksums.sha256").write_text("bounded\n", encoding="utf-8")
+            orchestration = results / "cloud-orchestration" / f"instance-{slot}.properties"
+            orchestration.parent.mkdir(exist_ok=True)
+            orchestration.write_text("stage=FINISHED\nprimary_exit_code=0\n", encoding="utf-8")
+            orchestration.with_suffix(".log").write_text("bounded orchestration log\n", encoding="utf-8")
+            write_json(
+                workspace / "attempts" / f"slot-{slot:03d}" / "attempt-001.json",
+                {
+                    "classification": "VALID_MEMBER",
+                    "member": {
+                        "manifestReference": (derived / "benchmark-manifest.json").relative_to(results).as_posix(),
+                        "metricsReference": (derived / "normalized-metrics.json").relative_to(results).as_posix(),
+                    },
+                    "orchestration": {
+                        "reference": orchestration.relative_to(results).as_posix(),
+                    },
+                    "schemaVersion": 1,
+                    "slot": slot,
+                },
+            )
+        (workspace / "control").mkdir()
+        (workspace / "control" / "unsafe-pointer").write_text("/absolute/path\n", encoding="utf-8")
+        raw = results / "failed-run-1"
+        raw.mkdir()
+        (raw / "environment.txt").write_text("raw=true\n", encoding="utf-8")
+
+        plan_path = self.root / "failed-workflow-plan.json"
+        result_path = self.root / "failed-workflow-result.json"
+        summary = self.root / "failed-workflow-summary.md"
+        write_json(plan_path, plan)
+        result = {
+            "benchmark": {"dryRunExit": 0, "exit": 83, "status": "failed"},
+            "kind": "cloud-benchmark-workflow-result",
+            "primary": {"category": "set-incompatible", "exit": 83, "stage": "benchmark"},
+            "schemaVersion": 1,
+            "set": None,
+            "upload": {"exit": None, "receipt": None, "status": "not-run"},
+        }
+        write_json(result_path, result)
+        summary.write_text(workflow.render_summary(plan, result), encoding="utf-8")
+        staging = self.root / "failed-staging"
+        staged = workflow.stage_artifact(
+            argparse.Namespace(
+                plan=str(plan_path),
+                result=str(result_path),
+                summary=str(summary),
+                results_root=str(results),
+                staging=str(staging),
+            )
+        )
+
+        diagnostics = staging / "failure-diagnostics"
+        self.assertGreater(staged["fileCount"], 4)
+        self.assertTrue((diagnostics / "workspace/failed-workspace/checkpoint.json").is_file())
+        self.assertTrue(
+            (diagnostics / "workspace/failed-workspace/attempts/slot-002/attempt-001.json").is_file()
+        )
+        self.assertTrue(
+            (diagnostics / "evidence/derived/runs/failed-run-2/v1/benchmark-manifest.json").is_file()
+        )
+        self.assertTrue(
+            (diagnostics / "evidence/cloud-orchestration/instance-2.properties").is_file()
+        )
+        self.assertFalse(any("control" in path.parts for path in diagnostics.rglob("*")))
+        self.assertFalse(any(path.name == "environment.txt" for path in diagnostics.rglob("*")))
+        artifact_checksums = staging / "artifact-checksums.sha256"
+        self.assertTrue(artifact_checksums.is_file())
+        for line in artifact_checksums.read_text(encoding="utf-8").splitlines():
+            digest, relative = line.split("  ", 1)
+            self.assertEqual(digest, checksum(staging / relative))
+
     def test_artifact_staging_rejects_symlink_and_size_limit(self) -> None:
         plan = self.plan()
         results, manifest = self.create_set(plan)

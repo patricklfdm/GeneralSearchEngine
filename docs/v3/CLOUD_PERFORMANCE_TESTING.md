@@ -379,6 +379,21 @@ require Standard provisioning, three or five independent slots, a frozen product
 preset, and GCS retention. Experiments may use a temporary lightweight Actions
 artifact. Raw run directories are never uploaded to Actions.
 
+When a set stops as incomplete or incompatible, the set runner prints a deterministic
+comparison against the first selected member. Fingerprint mismatches include the exact
+nested environment fields bound by the environment fingerprint; metric-signature and
+other compatibility differences use their stable schema paths. Values and the number
+of reported differences are bounded so the workflow log remains reviewable.
+
+A failed workflow artifact retains an allowlisted diagnostic subset when a matching
+in-progress workspace exists: the immutable set plan, current checkpoint, finalized
+attempt and replacement records, referenced derived manifests/metrics/checksums, and
+referenced orchestration records/logs. It excludes raw benchmark directories, mutable
+control pointers, generated credentials, and unreferenced files. The same 100 MiB
+artifact limit and an artifact-wide checksum manifest still apply. These diagnostics
+explain the failure but are not a completed set and cannot be uploaded or registered as
+a baseline.
+
 Phase 6 intentionally exposes no baseline input. The registry currently resolves only
 locally available evidence, while Phase 5 uploads but does not implement verified remote
 download. The workflow therefore reports that no comparison was performed instead of
@@ -588,5 +603,7 @@ string-`NaN` semantics, soak properties, duplicate metric identities, and derive
 boundaries. Phase 2 fixtures add mutation-free set dry runs, paid-run confirmation,
 exact attempt binding, three-member finalization, deterministic set identity, odd/even
 median and range semantics, categorical consensus, incompatible-member stops,
-crash-safe resume, and explicitly attested infrastructure replacement. They use no real
-`gcloud` command and create no paid resource.
+field-level compatibility diagnostics, crash-safe resume, and explicitly attested
+infrastructure replacement. Workflow fixtures additionally cover allowlisted bounded
+diagnostic staging for failed sets. They use no real `gcloud` command and create no paid
+resource.
