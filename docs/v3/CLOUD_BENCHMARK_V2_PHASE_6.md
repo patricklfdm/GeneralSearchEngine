@@ -109,8 +109,11 @@ of weakening the comparison evidence model.
 `source_commit` is the only non-choice input because commits cannot be enumerated in a
 static workflow. The preflight resolves an empty value to the dispatch commit, otherwise
 requires exactly 40 lowercase hexadecimal characters, fetches it from the same
-`patricklfdm/GeneralSearchEngine` repository, and verifies the object is a commit. It is
-passed as one quoted action/script value and never evaluated as shell.
+`patricklfdm/GeneralSearchEngine` repository, verifies the object is a commit, and
+requires it to be an ancestor of protected `origin/master`. A commit that exists only
+on another repository branch cannot run repository scripts with the paid job's cloud
+identity. The value is passed as one quoted action/script value and never evaluated as
+shell.
 
 ## Input compatibility matrix
 
@@ -451,18 +454,18 @@ evidence. Codex does not perform these external mutations or dispatch a paid wor
 
 ## Phase 6 completion checklist
 
-- [ ] The workflow has exactly one manual trigger and no automatic paid path.
-- [ ] The protected Environment, non-cancelling concurrency, and six-hour bound are enforced.
-- [ ] Every input and compatibility combination is validated before authentication.
-- [ ] Only an exact same-repository commit is benchmarked.
-- [ ] Authentication uses short-lived WIF with no service-account JSON key.
-- [ ] Job permissions and third-party action pins are minimal and explicit.
-- [ ] Existing set/upload wrappers remain the only execution and retention paths.
-- [ ] Canonical workflows require Standard provisioning, three/five repeats, and GCS.
-- [ ] No workflow path automatically registers a baseline.
-- [ ] Lightweight artifacts are allowlisted, checksummed, size-bounded, and temporary.
-- [ ] Success/failure summaries are evidence-bounded and secret-free.
-- [ ] Original benchmark/upload failure remains visible after summary/artifact handling.
-- [ ] Registry download, comparison retrieval, IAM setup, and real dispatch are excluded.
-- [ ] Normal CI remains credential-free and cloud-cost-free.
-- [ ] Phase-specific tests and all existing no-cost gates pass.
+- [x] The workflow has exactly one manual trigger and no automatic paid path.
+- [x] The protected Environment, non-cancelling concurrency, and six-hour bound are enforced.
+- [x] Every input and compatibility combination is validated before authentication.
+- [x] Only an exact commit reachable from protected `master` is benchmarked.
+- [x] Authentication uses short-lived WIF with no service-account JSON key.
+- [x] Job permissions and third-party action pins are minimal and explicit.
+- [x] Existing set/upload wrappers remain the only execution and retention paths.
+- [x] Canonical workflows require Standard provisioning, three/five repeats, and GCS.
+- [x] No workflow path automatically registers a baseline.
+- [x] Lightweight artifacts are allowlisted, checksummed, size-bounded, and temporary.
+- [x] Success/failure summaries are evidence-bounded and secret-free.
+- [x] Original benchmark/upload failure remains visible after summary/artifact handling.
+- [x] Registry download, comparison retrieval, IAM setup, and real dispatch are excluded.
+- [x] Normal CI remains credential-free and cloud-cost-free.
+- [x] Phase-specific tests and all existing no-cost gates pass.

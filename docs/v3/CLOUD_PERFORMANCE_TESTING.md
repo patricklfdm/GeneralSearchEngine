@@ -364,6 +364,32 @@ Phase 5 does not download a missing registered set or upload comparison reports.
 complete storage, receipt, retry, security, and registration rules are frozen in the
 [Phase 5 durable-retention contract](CLOUD_BENCHMARK_V2_PHASE_5.md).
 
+## Secure manual GitHub Actions workflow
+
+Cloud Benchmark V2 Phase 6 adds one protected manual entry point at
+`.github/workflows/cloud-performance.yml`. It is `workflow_dispatch` only: ordinary CI
+never requests a Google OIDC token or creates a paid resource. A no-cloud preflight
+rejects invalid profile/mode/repeat/provisioning/retention combinations and commits not
+reachable from protected `master` before the paid job enters the `cloud-benchmark`
+Environment.
+
+The paid job reuses `run-cloud-benchmark-set.sh` and `upload-cloud-benchmark.sh`. It does
+not duplicate VM, aggregation, upload, or receipt logic in YAML. Canonical dispatches
+require Standard provisioning, three or five independent slots, a frozen production
+preset, and GCS retention. Experiments may use a temporary lightweight Actions
+artifact. Raw run directories are never uploaded to Actions.
+
+Phase 6 intentionally exposes no baseline input. The registry currently resolves only
+locally available evidence, while Phase 5 uploads but does not implement verified remote
+download. The workflow therefore reports that no comparison was performed instead of
+accepting a baseline name it cannot substantiate. Baseline registration remains a
+separate human-reviewed local command and PR.
+
+One-time Environment, WIF, IAM, and first-smoke instructions are in the
+[CI/CD operations guide](../CI_CD.md#cloud-benchmark-environment-and-wif). The complete
+security, input, artifact, and failure contract is frozen in
+[Cloud Benchmark V2 Phase 6](CLOUD_BENCHMARK_V2_PHASE_6.md).
+
 Use the frozen [cloud soak diagnostics contract](CLOUD_SOAK_DIAGNOSTICS.md) for
 factor-controlled heap and dynamic-index investigation when a soak does not reach a
 stable operating band.
@@ -536,9 +562,13 @@ scripts/test-v3-soak-stabilization-e2e.sh
 scripts/cloud/test-benchmark-system-facts.sh
 scripts/cloud/test-cloud-runner.sh
 scripts/cloud/test-benchmark-set-runner.sh
+scripts/cloud/test-benchmark-upload-runner.sh
+scripts/cloud/test-cloud-performance-workflow.sh
 python3 -m unittest \
   scripts.cloud.test_benchmark_v2 \
-  scripts.cloud.test_benchmark_comparison_v2
+  scripts.cloud.test_benchmark_comparison_v2 \
+  scripts.cloud.test_benchmark_upload_v2 \
+  scripts.cloud.test_cloud_workflow_v2
 ```
 
 The synthetic analyzer suite covers stable, drifting, queue-pressure, malformed, and

@@ -27,7 +27,7 @@ supported for the local emergency release procedure.
 `.github/workflows/ci.yml` runs for pull requests, pushes to `master`, and manual
 dispatches. It has read-only repository permission and receives no release secrets.
 
-The workflow runs three parallel gates:
+The workflow runs four parallel gates:
 
 1. `Reactor tests` checks version alignment, compiles all reactor modules, runs the
    core and processor tests, and executes the travel example.
@@ -37,6 +37,9 @@ The workflow runs three parallel gates:
 3. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
    skipped; checks all six JARs, Manifest versions, and processor service isolation;
    then verifies that all six publishable JARs are reproducible.
+4. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
+   workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
+   It receives no OIDC permission or cloud Environment and creates no paid resource.
 
 The stable required status check is:
 
@@ -67,6 +70,77 @@ Create a separate active tag ruleset targeting `v*`:
 - keep the owner as the only emergency bypass actor.
 
 Never update or delete a tag after its Maven version has been published.
+
+## Cloud benchmark Environment and WIF
+
+`.github/workflows/cloud-performance.yml` is a separate, manually dispatched paid
+workflow. It does not run on pull requests, pushes, tags, or schedules. Its no-cloud
+preflight validates the bounded input matrix and requires the selected source commit to
+be reachable from protected `master`. The paid job then waits for the GitHub Environment:
+
+```text
+cloud-benchmark
+```
+
+Configure a required reviewer and restrict deployment branches to `master`. A solo
+maintainer may allow self-review; when another maintainer is available, prevent
+self-review. Repository-wide non-cancelling concurrency permits only one paid cloud
+workflow at a time.
+
+The Environment stores six non-secret variables:
+
+```text
+GSE_CLOUD_WIF_PROVIDER
+GSE_CLOUD_SERVICE_ACCOUNT
+GSE_GCP_PROJECT
+GSE_GCP_ZONE
+GSE_CLOUD_IMAGE
+GSE_BENCHMARK_GCS_BUCKET
+```
+
+The provider value is the full
+`projects/NUMBER/locations/global/workloadIdentityPools/POOL/providers/PROVIDER`
+resource name; the service-account value is its email. Image is one immutable image
+name, not a family. Bucket is one existing `gs://bucket` URI. No service-account JSON
+key or Maven release secret belongs in this Environment.
+
+Create the WIF pool, provider, service account, IAM bindings, and bucket outside the
+workflow. Map at least `google.subject`, `attribute.repository`, `attribute.ref`,
+`attribute.workflow_ref`, and `attribute.environment` from the corresponding GitHub
+claims. The provider condition must require all of:
+
+```text
+assertion.repository == 'patricklfdm/GeneralSearchEngine'
+assertion.ref == 'refs/heads/master'
+assertion.job_workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master'
+assertion.environment == 'cloud-benchmark'
+```
+
+Grant `roles/iam.workloadIdentityUser` on the dedicated service account only to the
+provider's repository principal set. In the dedicated benchmark project, grant only
+the Compute instance lifecycle and existing-network use needed by the V1 runner. On the
+dedicated evidence bucket, grant object creator plus object viewer; do not grant object
+admin, bucket admin, project owner, IAM admin, or service-account-key admin. The VM is
+still created with no service account and no OAuth scopes. Projects using OS Login or
+IAP need their existing narrowly scoped SSH/IAP roles; the frozen workflow uses the
+reviewed external-IP path.
+
+After setup and merge, manually dispatch the least expensive smoke first:
+
+```text
+evidence_profile = experiment
+mode             = quick
+repeats          = 1
+provisioning     = spot
+machine_type     = c3d-standard-30
+soak_duration    = 30m
+retention        = actions
+source_commit    = <empty, meaning the selected master commit>
+```
+
+Review Environment approval, OIDC authentication, the dry-run plan, VM cleanup, the
+bounded 14-day artifact, and the final summary. Only then dispatch Standard/GCS
+canonical evidence. The workflow never registers or replaces a baseline.
 
 ## Production release Environment
 
