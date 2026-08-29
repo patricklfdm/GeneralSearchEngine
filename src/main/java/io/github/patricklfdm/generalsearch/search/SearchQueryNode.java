@@ -14,8 +14,21 @@ enum SearchLeafKind {
     FUZZY
 }
 
-record LeafSearchQueryNode<T>(SearchLeafKind kind, TextField<T> field, String text)
-        implements SearchQueryNode<T> {
+record LeafSearchQueryNode<T>(
+        SearchLeafKind kind,
+        TextField<T> field,
+        String text,
+        int slop
+) implements SearchQueryNode<T> {
+    LeafSearchQueryNode {
+        if (slop < 0) {
+            throw new IllegalArgumentException("slop must not be negative");
+        }
+        if (kind != SearchLeafKind.PHRASE && slop != 0) {
+            throw new IllegalArgumentException(
+                    "only a phrase leaf may carry slop");
+        }
+    }
 }
 
 record BoolSearchQueryNode<T>(List<SearchQuery<T>> must, List<SearchQuery<T>> should)

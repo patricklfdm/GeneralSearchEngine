@@ -28,7 +28,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
-/** Measures posting-filtered exact phrase verification and ranked composition. */
+/** Measures posting-filtered exact and ordered-slop phrase verification. */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3, time = 1)
@@ -55,6 +55,8 @@ public class PhraseSearchBenchmark {
     private final CandidatePlanner<Document> planner = new CandidatePlanner<>();
     private SearchSnapshot<Document> snapshot;
     private SearchRequest<Document> exactPhrase;
+    private SearchRequest<Document> explicitZeroPhrase;
+    private SearchRequest<Document> sloppyPhrase;
     private SearchRequest<Document> composedPhrase;
     private SearchRequest<Document> selectivePhrase;
     private SearchRequest<Document> commonPhrase;
@@ -99,6 +101,22 @@ public class PhraseSearchBenchmark {
                 ))
                 .limit(10)
                 .build();
+        explicitZeroPhrase = SearchRequest.<Document>builder()
+                .query(SearchQueries.phrase(
+                        BODY_TEXT,
+                        "noise cancelling headphones",
+                        0
+                ))
+                .limit(10)
+                .build();
+        sloppyPhrase = SearchRequest.<Document>builder()
+                .query(SearchQueries.phrase(
+                        BODY_TEXT,
+                        "premium cancelling headphones",
+                        1
+                ))
+                .limit(10)
+                .build();
         composedPhrase = SearchRequest.<Document>builder()
                 .query(SearchQueries.<Document>bool()
                         .must(SearchQueries.text(TITLE_TEXT, "wireless"))
@@ -130,7 +148,22 @@ public class PhraseSearchBenchmark {
                 "quiet neighborhood"
         ));
 
-        verify(SearchExecutionAccess.search(snapshot, exactPhrase, planner).hits());
+        List<SearchHit<Document>> exactHits = SearchExecutionAccess.search(
+                snapshot,
+                exactPhrase,
+                planner
+        ).hits();
+        List<SearchHit<Document>> explicitZeroHits = SearchExecutionAccess.search(
+                snapshot,
+                explicitZeroPhrase,
+                planner
+        ).hits();
+        verify(exactHits);
+        if (!exactHits.equals(explicitZeroHits)) {
+            throw new IllegalStateException(
+                    "legacy and explicit-zero phrase results differ");
+        }
+        verify(SearchExecutionAccess.search(snapshot, sloppyPhrase, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, composedPhrase, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, selectivePhrase, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, commonPhrase, planner).hits());
@@ -144,6 +177,15 @@ public class PhraseSearchBenchmark {
         return firstScore(SearchExecutionAccess.search(
                 snapshot,
                 exactPhrase,
+                planner
+        ).hits());
+    }
+
+    @Benchmark
+    public double sloppyPhraseTop10() {
+        return firstScore(SearchExecutionAccess.search(
+                snapshot,
+                sloppyPhrase,
                 planner
         ).hits());
     }

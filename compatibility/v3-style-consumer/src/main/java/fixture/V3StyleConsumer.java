@@ -70,6 +70,14 @@ public final class V3StyleConsumer {
         ));
     }
 
+    public static SearchRequest<TravelPlace> phraseSlopRequest() {
+        return SearchRequest.of(SearchQueries.phrase(
+                DESCRIPTION_TEXT,
+                "quiet neighborhood",
+                1
+        ));
+    }
+
     public static List<AnalyzedToken> positionAwareAnalysis() {
         Analyzer legacy = text -> List.of(new Token(text));
         List<AnalyzedToken> adapted = legacy.analyzeWithPositions("museum");
@@ -187,6 +195,36 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(restaurant, resort, museum)).join();
             return engine.search(fuzzyRequest());
+        }
+    }
+
+    public static SearchResult<TravelPlace> supportedPhraseSlopSearch() {
+        TravelPlace exact = new TravelPlace(
+                1L,
+                "Tokyo",
+                "quiet neighborhood"
+        );
+        TravelPlace oneGap = new TravelPlace(
+                2L,
+                "Tokyo",
+                "quiet residential neighborhood"
+        );
+        TravelPlace twoGaps = new TravelPlace(
+                3L,
+                "Tokyo",
+                "quiet historic residential neighborhood"
+        );
+        TravelPlace reversed = new TravelPlace(
+                4L,
+                "Tokyo",
+                "neighborhood quiet"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(exact, oneGap, twoGaps, reversed)).join();
+            return engine.search(phraseSlopRequest());
         }
     }
 

@@ -4,7 +4,8 @@ Status: complete. No production ranked-search behavior changed in this phase.
 
 ## Compatibility foundation
 
-- [x] Compare the candidate core JAR directly with published `3.0.0`.
+- [x] Add the candidate-versus-`3.0.0` Japicmp execution. Phase 2 subsequently pins
+  and checksums the published artifact to prevent same-version self-resolution.
 - [x] Retain direct published `1.0.0`, `2.0.0`, and `2.1.0` comparisons.
 - [x] Preserve the existing public-access, synthetic filtering, and binary/source
   incompatibility failure policy for every comparison.
@@ -48,6 +49,7 @@ foundations into the full randomized and lifecycle matrix frozen by
 - [x] Independent V1/V2/V3 consumer compilation: pass.
 - [x] JMH packaging and smoke execution: pass.
 
-Phase 2 may now add the phrase-slop public model and execution path. It must preserve
-the exact-phrase defaults and use the independent Phase 1 oracle rather than
-production internals as its semantic reference.
+Phase 2 added the phrase-slop public model and execution path while preserving the
+exact-phrase defaults and using the independent Phase 1 oracle rather than production
+internals as its semantic reference. Its completion record is in
+[the Phase 2 checklist](PHASE_2_CHECKLIST.md).

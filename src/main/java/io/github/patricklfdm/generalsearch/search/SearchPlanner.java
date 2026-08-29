@@ -169,7 +169,11 @@ final class SearchPlanner<T> {
             Bm25Config config
     ) {
         if (phrase.slots().isEmpty()) {
-            return PhrasePlan.empty(phrase.textField().name(), config);
+            return PhrasePlan.empty(
+                    phrase.textField().name(),
+                    config,
+                    phrase.slop()
+            );
         }
 
         TextIndexSnapshot<T> textIndex = Objects.requireNonNull(phrase.textIndex());
@@ -246,7 +250,8 @@ final class SearchPlanner<T> {
                 relativePositions,
                 alternativesBySlot,
                 anchorSlot,
-                phrase.slots()
+                phrase.slots(),
+                phrase.slop()
         );
     }
 

@@ -37,6 +37,7 @@ class ExplainPlanDifferentialTest {
         List<SearchQuery<Document>> queries = List.of(
                 SearchQueries.text(TITLE_TEXT, "java search"),
                 SearchQueries.phrase(BODY_TEXT, "quiet restaurant"),
+                SearchQueries.phrase(BODY_TEXT, "quiet district", 2),
                 SearchQueries.fuzzy(BODY_TEXT, "restarant"),
                 SearchQueries.<Document>bool()
                         .must(SearchQueries.text(TITLE_TEXT, "java"))
@@ -243,8 +244,16 @@ class ExplainPlanDifferentialTest {
         return switch (random.nextInt(6)) {
             case 0 -> SearchQueries.text(TITLE_TEXT, "java search");
             case 1 -> SearchQueries.text(TITLE_TEXT, "travel absent");
-            case 2 -> SearchQueries.phrase(BODY_TEXT, "quiet restaurant");
-            case 3 -> SearchQueries.phrase(BODY_TEXT, "museum district");
+            case 2 -> SearchQueries.phrase(
+                    BODY_TEXT,
+                    "quiet restaurant",
+                    random.nextInt(3)
+            );
+            case 3 -> SearchQueries.phrase(
+                    BODY_TEXT,
+                    "museum district",
+                    random.nextInt(3)
+            );
             case 4 -> SearchQueries.fuzzy(BODY_TEXT, "restarant");
             default -> SearchQueries.fuzzy(BODY_TEXT, "musuem");
         };

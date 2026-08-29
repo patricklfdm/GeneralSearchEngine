@@ -48,6 +48,16 @@ class V3StyleConsumerTest {
     }
 
     @Test
+    void executesOrderedPhraseSlopThroughPublishedApiOnly() {
+        assertEquals(
+                List.of(1L, 2L),
+                V3StyleConsumer.supportedPhraseSlopSearch().hits().stream()
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+    }
+
+    @Test
     void explainsOneBusinessDocumentThroughPublishedApiOnly() {
         var explanation = V3StyleConsumer.supportedExplain();
 

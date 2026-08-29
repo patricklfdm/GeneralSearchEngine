@@ -127,6 +127,7 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
     private final PostingList[][] alternativesBySlot;
     private final int anchorSlot;
     private final List<PhraseSlot> diagnosticSlots;
+    private final int requestedSlop;
 
     PhrasePlan(
             String fieldName,
@@ -139,9 +140,15 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
             int[] relativePositions,
             PostingList[][] alternativesBySlot,
             int anchorSlot,
-            List<PhraseSlot> diagnosticSlots
+            List<PhraseSlot> diagnosticSlots,
+            int requestedSlop
     ) {
         this.fieldName = Objects.requireNonNull(fieldName, "fieldName");
+        if (requestedSlop < 0) {
+            throw new IllegalArgumentException(
+                    "requestedSlop must not be negative");
+        }
+        this.requestedSlop = requestedSlop;
         this.scoringTerms = List.copyOf(scoringTerms);
         this.diagnosticScoringTerms = List.copyOf(diagnosticScoringTerms);
         this.candidates = Objects.requireNonNull(candidates, "candidates");
@@ -179,7 +186,11 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
         this.anchorSlot = anchorSlot;
     }
 
-    static <T> PhrasePlan<T> empty(String fieldName, Bm25Config config) {
+    static <T> PhrasePlan<T> empty(
+            String fieldName,
+            Bm25Config config,
+            int requestedSlop
+    ) {
         return new PhrasePlan<>(
                 fieldName,
                 null,
@@ -191,7 +202,8 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
                 new int[0],
                 new PostingList[0][],
                 -1,
-                List.of()
+                List.of(),
+                requestedSlop
         );
     }
 
@@ -202,15 +214,8 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
 
     @Override
     public ScoreMatch evaluate(int docId) {
-        if (textIndex == null || !candidates.get(docId)) {
-            return ScoreMatch.noMatch();
-        }
-        if (!PhrasePositionAccess.matches(
-                docId,
-                relativePositions,
-                alternativesBySlot,
-                anchorSlot
-        )) {
+        long consumedSlop = consumedSlop(docId);
+        if (consumedSlop < 0L) {
             return ScoreMatch.noMatch();
         }
         return Bm25Scorer.evaluate(
@@ -229,17 +234,32 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
             return ExplanationSupport.node(
                     ScoreMatch.noMatch(),
                     "PHRASE field=" + ExplanationSupport.quote(fieldName)
+                            + " requestedSlop=" + requestedSlop
                             + " analysis produced no phrase slots",
                     List.of()
             );
         }
-        ScoreMatch result = evaluate(docId);
+        long consumedSlop = consumedSlop(docId);
+        ScoreMatch result = consumedSlop < 0L
+                ? ScoreMatch.noMatch()
+                : Bm25Scorer.evaluate(
+                        textIndex,
+                        scoringTerms,
+                        config,
+                        averageDocumentLength,
+                        docId,
+                        true
+                );
         ExplanationNode relation = new ExplanationNode(
                 result.matched(),
                 0.0,
-                "exact analyzed relative-position pattern "
+                "ordered analyzed relative-position pattern "
                         + (result.matched() ? "matched " : "did not match ")
-                        + ExplanationSupport.phrasePattern(diagnosticSlots),
+                        + ExplanationSupport.phrasePattern(diagnosticSlots)
+                        + " requestedSlop=" + requestedSlop
+                        + (result.matched()
+                                ? " minimumConsumedSlop=" + consumedSlop
+                                : ""),
                 List.of()
         );
         List<ExplanationNode> children = new ArrayList<>();
@@ -257,13 +277,39 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
         }
         return ExplanationSupport.node(
                 result,
-                "PHRASE field=" + ExplanationSupport.quote(fieldName),
+                "PHRASE field=" + ExplanationSupport.quote(fieldName)
+                        + " requestedSlop=" + requestedSlop,
                 children
         );
     }
 
     int anchorSlot() {
         return anchorSlot;
+    }
+
+    int requestedSlop() {
+        return requestedSlop;
+    }
+
+    private long consumedSlop(int docId) {
+        if (textIndex == null || !candidates.get(docId)) {
+            return -1L;
+        }
+        if (requestedSlop == 0) {
+            return PhrasePositionAccess.matches(
+                    docId,
+                    relativePositions,
+                    alternativesBySlot,
+                    anchorSlot
+            ) ? 0L : -1L;
+        }
+        return PhrasePositionAccess.minimumConsumedSlop(
+                docId,
+                relativePositions,
+                alternativesBySlot,
+                anchorSlot,
+                requestedSlop
+        );
     }
 
     private static PostingList[][] copyAlternatives(PostingList[][] supplied) {

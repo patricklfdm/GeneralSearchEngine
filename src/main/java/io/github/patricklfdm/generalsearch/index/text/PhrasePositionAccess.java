@@ -3,7 +3,7 @@ package io.github.patricklfdm.generalsearch.index.text;
 import java.util.Objects;
 
 /**
- * Unsupported internal bridge for exact phrase-position verification.
+ * Unsupported internal bridge for ordered phrase-position verification.
  *
  * @hidden
  */
@@ -46,6 +46,158 @@ public final class PhrasePositionAccess {
             }
         }
         return false;
+    }
+
+    /**
+     * Finds the minimum consumed ordered extra-gap budget for one internal document.
+     * Query gaps are minimum gaps and term transposition is never permitted.
+     *
+     * @param docId internal document identifier
+     * @param relativePositions strictly increasing slot positions beginning at zero
+     * @param alternativesBySlot prepared alternative postings for every slot
+     * @param anchorSlot deterministic slot whose occurrences drive verification
+     * @param requestedSlop non-negative maximum extra-gap budget
+     * @return minimum consumed slop no greater than {@code requestedSlop}, or
+     *         {@code -1} when no qualifying witness exists
+     * @hidden
+     */
+    public static long minimumConsumedSlop(
+            int docId,
+            int[] relativePositions,
+            PostingList[][] alternativesBySlot,
+            int anchorSlot,
+            int requestedSlop
+    ) {
+        if (requestedSlop < 0) {
+            throw new IllegalArgumentException(
+                    "requestedSlop must not be negative");
+        }
+        validate(docId, relativePositions, alternativesBySlot, anchorSlot);
+        long best = Long.MAX_VALUE;
+        for (PostingList anchorPosting : alternativesBySlot[anchorSlot]) {
+            IntPositions anchorPositions = anchorPosting.positions(docId);
+            for (int index = 0; index < anchorPositions.size(); index++) {
+                long consumed = consumedAt(
+                        docId,
+                        relativePositions,
+                        alternativesBySlot,
+                        anchorSlot,
+                        anchorPositions.get(index)
+                );
+                if (consumed >= 0L && consumed <= requestedSlop) {
+                    best = Math.min(best, consumed);
+                    if (best == 0L) {
+                        return 0L;
+                    }
+                }
+            }
+        }
+        return best == Long.MAX_VALUE ? -1L : best;
+    }
+
+    private static long consumedAt(
+            int docId,
+            int[] relativePositions,
+            PostingList[][] alternativesBySlot,
+            int anchorSlot,
+            int anchorDocumentPosition
+    ) {
+        int left = anchorDocumentPosition;
+        for (int slot = anchorSlot - 1; slot >= 0; slot--) {
+            long minimumGap = (long) relativePositions[slot + 1]
+                    - relativePositions[slot];
+            int selected = latestAtOrBefore(
+                    alternativesBySlot[slot],
+                    docId,
+                    (long) left - minimumGap
+            );
+            if (selected < 0) {
+                return -1L;
+            }
+            left = selected;
+        }
+
+        int right = anchorDocumentPosition;
+        for (int slot = anchorSlot + 1;
+                slot < relativePositions.length;
+                slot++) {
+            long minimumGap = (long) relativePositions[slot]
+                    - relativePositions[slot - 1];
+            int selected = earliestAtOrAfter(
+                    alternativesBySlot[slot],
+                    docId,
+                    (long) right + minimumGap
+            );
+            if (selected < 0) {
+                return -1L;
+            }
+            right = selected;
+        }
+
+        long documentSpan = (long) right - left;
+        long querySpan = (long) relativePositions[relativePositions.length - 1]
+                - relativePositions[0];
+        return documentSpan - querySpan;
+    }
+
+    private static int latestAtOrBefore(
+            PostingList[] alternatives,
+            int docId,
+            long maximum
+    ) {
+        if (maximum < 0L) {
+            return -1;
+        }
+        int latest = -1;
+        for (PostingList posting : alternatives) {
+            IntPositions positions = posting.positions(docId);
+            int low = 0;
+            int high = positions.size() - 1;
+            int candidate = -1;
+            while (low <= high) {
+                int middle = low + ((high - low) >>> 1);
+                int position = positions.get(middle);
+                if (position <= maximum) {
+                    candidate = position;
+                    low = middle + 1;
+                } else {
+                    high = middle - 1;
+                }
+            }
+            latest = Math.max(latest, candidate);
+        }
+        return latest;
+    }
+
+    private static int earliestAtOrAfter(
+            PostingList[] alternatives,
+            int docId,
+            long minimum
+    ) {
+        if (minimum > Integer.MAX_VALUE) {
+            return -1;
+        }
+        int earliest = -1;
+        for (PostingList posting : alternatives) {
+            IntPositions positions = posting.positions(docId);
+            int low = 0;
+            int high = positions.size() - 1;
+            int candidate = -1;
+            while (low <= high) {
+                int middle = low + ((high - low) >>> 1);
+                int position = positions.get(middle);
+                if (position >= minimum) {
+                    candidate = position;
+                    high = middle - 1;
+                } else {
+                    low = middle + 1;
+                }
+            }
+            if (candidate >= 0 && (earliest < 0 || candidate < earliest)) {
+                earliest = candidate;
+            }
+        }
+        return earliest;
     }
 
     private static boolean matchesAt(

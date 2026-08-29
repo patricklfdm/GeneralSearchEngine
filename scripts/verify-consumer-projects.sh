@@ -12,9 +12,14 @@ else
     maven_command=(mvn)
 fi
 
+consumer_repository=${GSE_CONSUMER_MAVEN_REPO:-${project_dir}/target/consumer-maven-repository}
+mkdir -p "$consumer_repository"
+
 "${maven_command[@]}" --batch-mode --no-transfer-progress \
+    -Dmaven.repo.local="$consumer_repository" \
     -q -f "${project_dir}/reactor/pom.xml" -DskipTests install
 "${maven_command[@]}" --batch-mode --no-transfer-progress \
+    -Dmaven.repo.local="$consumer_repository" \
     -q -f "${project_dir}/compatibility/pom.xml" clean test
 
 echo "Independent v1-style, v2-style, and v3-style consumer compilation: PASS"
