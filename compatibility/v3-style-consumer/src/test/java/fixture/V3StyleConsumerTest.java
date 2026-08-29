@@ -58,6 +58,16 @@ class V3StyleConsumerTest {
     }
 
     @Test
+    void executesMinimumShouldMatchThroughPublishedApiOnly() {
+        assertEquals(
+                List.of(1L),
+                V3StyleConsumer.supportedMinimumShouldMatchSearch().hits().stream()
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+    }
+
+    @Test
     void explainsOneBusinessDocumentThroughPublishedApiOnly() {
         var explanation = V3StyleConsumer.supportedExplain();
 

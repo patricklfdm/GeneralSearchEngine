@@ -31,11 +31,28 @@ record LeafSearchQueryNode<T>(
     }
 }
 
-record BoolSearchQueryNode<T>(List<SearchQuery<T>> must, List<SearchQuery<T>> should)
-        implements SearchQueryNode<T> {
+record BoolSearchQueryNode<T>(
+        List<SearchQuery<T>> must,
+        List<SearchQuery<T>> should,
+        Integer minimumShouldMatch
+) implements SearchQueryNode<T> {
     BoolSearchQueryNode {
         must = List.copyOf(must);
         should = List.copyOf(should);
+        if (minimumShouldMatch != null) {
+            if (minimumShouldMatch < 0) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch must not be negative");
+            }
+            if (minimumShouldMatch > should.size()) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch must not exceed the SHOULD clause count");
+            }
+            if (minimumShouldMatch == 0 && must.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch zero requires at least one MUST clause");
+            }
+        }
     }
 }
 

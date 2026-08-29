@@ -54,6 +54,7 @@ public class RankedCompositionBenchmark {
     private SearchSnapshot<Document> snapshot;
     private SearchRequest<Document> mustShould;
     private SearchRequest<Document> allShould;
+    private SearchRequest<Document> minimumShouldMatch;
     private SearchRequest<Document> multipleMust;
     private SearchRequest<Document> nestedBoost;
 
@@ -92,6 +93,18 @@ public class RankedCompositionBenchmark {
                         .build())
                 .limit(10)
                 .build();
+        minimumShouldMatch = SearchRequest.<Document>builder()
+                .query(SearchQueries.<Document>bool()
+                        .should(SearchQueries.text(TITLE_TEXT, "java"))
+                        .should(SearchQueries.text(
+                                BODY_TEXT,
+                                "search"
+                        ).boost(2.0))
+                        .should(SearchQueries.text(BODY_TEXT, "stable"))
+                        .minimumShouldMatch(2)
+                        .build())
+                .limit(10)
+                .build();
         multipleMust = SearchRequest.of(SearchQueries.<Document>bool()
                 .must(SearchQueries.text(TITLE_TEXT, "java"))
                 .must(SearchQueries.text(BODY_TEXT, "search"))
@@ -108,6 +121,11 @@ public class RankedCompositionBenchmark {
 
         verify(SearchExecutionAccess.search(snapshot, mustShould, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, allShould, planner).hits());
+        verify(SearchExecutionAccess.search(
+                snapshot,
+                minimumShouldMatch,
+                planner
+        ).hits());
         verify(SearchExecutionAccess.search(snapshot, multipleMust, planner).hits());
         verify(SearchExecutionAccess.search(snapshot, nestedBoost, planner).hits());
     }
@@ -126,6 +144,15 @@ public class RankedCompositionBenchmark {
         return firstScore(SearchExecutionAccess.search(
                 snapshot,
                 allShould,
+                planner
+        ).hits());
+    }
+
+    @Benchmark
+    public double minimumShouldMatchTop10() {
+        return firstScore(SearchExecutionAccess.search(
+                snapshot,
+                minimumShouldMatch,
                 planner
         ).hits());
     }

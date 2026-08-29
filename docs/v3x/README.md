@@ -13,6 +13,7 @@ atomic-publication architecture.
 - [`v3.1/`](v3.1/PHASE_0_CHECKLIST.md) freezes the first executable V3.x contract;
   [Phase 1](v3.1/PHASE_1_CHECKLIST.md) establishes its implementation baseline and
   [Phase 2](v3.1/PHASE_2_CHECKLIST.md) implements phrase slop.
+  [Phase 3](v3.1/PHASE_3_CHECKLIST.md) implements BOOL `minimumShouldMatch`.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -29,6 +30,7 @@ atomic-publication architecture.
 - [Phase 1 local diagnostic baseline](v3.1/PHASE_1_BASELINE.md)
 - [Phase 2 checklist](v3.1/PHASE_2_CHECKLIST.md)
 - [Phase 2 local diagnostic baseline](v3.1/PHASE_2_BASELINE.md)
+- [Phase 3 checklist](v3.1/PHASE_3_CHECKLIST.md)
 
 ## Stable boundaries
 

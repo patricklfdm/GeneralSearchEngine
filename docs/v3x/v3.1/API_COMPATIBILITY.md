@@ -67,8 +67,8 @@ necessity is reviewed before implementation.
 
 V3.1 requires no annotation-processor API or generated-source change. The processor,
 generated fields, generated schemas, and travel example must continue to compile and
-run through the reactor. The independent V3 consumer gains phrase-slop usage in Phase
-2 and `minimumShouldMatch` usage only after the Phase 3 supported API exists.
+run through the reactor. The independent V3 consumer exercises phrase slop from Phase
+2 and `minimumShouldMatch` from Phase 3.
 
 ## Version and release evidence
 

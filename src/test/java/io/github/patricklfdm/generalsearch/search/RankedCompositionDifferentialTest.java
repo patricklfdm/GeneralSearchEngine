@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.search;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -51,6 +52,56 @@ class RankedCompositionDifferentialTest {
             if (filtered) {
                 builder.filter(Query.eq(CATEGORY, "guide"));
             }
+            SearchRequest<Document> request = builder.build();
+            SearchPlan<Document> plan = new SearchPlanner<Document>(
+                    new CandidatePlanner<>()).plan(
+                            RankedSearchInput.from(snapshot, request)
+                    );
+
+            for (Document document : documents) {
+                Eval expectedRanked = spec.evaluate(document.id(), leafScores);
+                if (expectedRanked.matched()) {
+                    assertTrue(
+                            plan.root().candidates().get(document.id()),
+                            "candidate false negative at iteration " + iteration
+                                    + ": " + spec
+                    );
+                }
+                ScoreMatch actualRanked = plan.root().evaluate(document.id());
+                assertEquals(
+                        expectedRanked.matched(),
+                        actualRanked.matched(),
+                        "ranked match mismatch at iteration " + iteration
+                                + ": " + spec
+                );
+                assertEquals(
+                        expectedRanked.matched() ? expectedRanked.score() : 0.0,
+                        actualRanked.score(),
+                        "ranked score mismatch at iteration " + iteration
+                                + ": " + spec
+                );
+
+                boolean filterMatched = !filtered
+                        || document.category().equals("guide");
+                SearchExplanation<Document> explanation =
+                        new ExplainExecutor<Document>().explain(
+                                plan,
+                                document.id(),
+                                document
+                        );
+                assertEquals(
+                        expectedRanked.matched() && filterMatched,
+                        explanation.matched(),
+                        "Explain match mismatch at iteration " + iteration
+                                + ": " + spec
+                );
+                assertEquals(
+                        explanation.matched() ? expectedRanked.score() : 0.0,
+                        explanation.score(),
+                        "Explain score mismatch at iteration " + iteration
+                                + ": " + spec
+                );
+            }
 
             List<Expected> expected = documents.stream()
                     .filter(document -> !filtered || document.category().equals("guide"))
@@ -66,11 +117,8 @@ class RankedCompositionDifferentialTest {
                     .limit(limit)
                     .toList();
 
-            List<SearchHit<Document>> actual = SearchExecutionAccess.search(
-                    snapshot,
-                    builder.build(),
-                    new CandidatePlanner<>()
-            ).hits();
+            List<SearchHit<Document>> actual = new SearchExecutor<Document>()
+                    .execute(plan);
             assertEquals(
                     expected.stream().map(Expected::id).toList(),
                     actual.stream().map(hit -> hit.document().id()).toList(),
@@ -111,7 +159,13 @@ class RankedCompositionDifferentialTest {
         for (int index = 0; index < shouldCount; index++) {
             should.add(randomSpec(random, depth - 1));
         }
-        return new BoolSpec(must, should);
+        Integer explicitMinimum = null;
+        if (random.nextBoolean()) {
+            explicitMinimum = must.isEmpty()
+                    ? 1 + random.nextInt(should.size())
+                    : random.nextInt(should.size() + 1);
+        }
+        return new BoolSpec(must, should, explicitMinimum);
     }
 
     private static Map<LeafKey, Map<Integer, Double>> leafScores(
@@ -201,7 +255,11 @@ class RankedCompositionDifferentialTest {
         }
     }
 
-    private record BoolSpec(List<Spec> must, List<Spec> should) implements Spec {
+    private record BoolSpec(
+            List<Spec> must,
+            List<Spec> should,
+            Integer explicitMinimum
+    ) implements Spec {
         BoolSpec {
             must = List.copyOf(must);
             should = List.copyOf(should);
@@ -212,6 +270,9 @@ class RankedCompositionDifferentialTest {
             SearchQueries.BoolBuilder<Document> builder = SearchQueries.bool();
             must.forEach(child -> builder.must(child.query()));
             should.forEach(child -> builder.should(child.query()));
+            if (explicitMinimum != null) {
+                builder.minimumShouldMatch(explicitMinimum);
+            }
             return builder.build();
         }
 
@@ -220,25 +281,25 @@ class RankedCompositionDifferentialTest {
                 int id,
                 Map<LeafKey, Map<Integer, Double>> leafScores
         ) {
-            double score = 0.0;
-            for (Spec child : must) {
-                Eval result = child.evaluate(id, leafScores);
-                if (!result.matched()) {
-                    return Eval.NO_MATCH;
-                }
-                score += result.score();
-            }
-            boolean anyShould = false;
-            for (Spec child : should) {
-                Eval result = child.evaluate(id, leafScores);
-                if (result.matched()) {
-                    anyShould = true;
-                    score += result.score();
-                }
-            }
-            return must.isEmpty() && !anyShould
-                    ? Eval.NO_MATCH
-                    : new Eval(true, score);
+            List<V31TestReference.Evaluation> required = must.stream()
+                    .map(child -> reference(child.evaluate(id, leafScores)))
+                    .toList();
+            List<V31TestReference.Evaluation> optional = should.stream()
+                    .map(child -> reference(child.evaluate(id, leafScores)))
+                    .toList();
+            V31TestReference.Evaluation result = V31TestReference.evaluateBool(
+                    required,
+                    optional,
+                    explicitMinimum
+            );
+            return new Eval(result.matched(), result.score());
+        }
+
+        private static V31TestReference.Evaluation reference(Eval value) {
+            return new V31TestReference.Evaluation(
+                    value.matched(),
+                    value.score()
+            );
         }
     }
 

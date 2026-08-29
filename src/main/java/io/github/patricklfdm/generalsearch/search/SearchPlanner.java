@@ -86,7 +86,12 @@ final class SearchPlanner<T> {
             NormalizedBoolNode<T> bool = (NormalizedBoolNode<T>) untypedBool;
             List<ScoringPlanNode<T>> must = compileChildren(bool.must(), config);
             List<ScoringPlanNode<T>> should = compileChildren(bool.should(), config);
-            return new BoolPlan<>(must, should, boolCandidates(must, should));
+            return new BoolPlan<>(
+                    must,
+                    should,
+                    bool.minimumShouldMatch(),
+                    boolCandidates(must, should, bool.minimumShouldMatch())
+            );
         }
         @SuppressWarnings("unchecked")
         NormalizedBoostNode<T> boost = (NormalizedBoostNode<T>) node;
@@ -333,38 +338,77 @@ final class SearchPlanner<T> {
 
     private ImmutableBitmap boolCandidates(
             List<ScoringPlanNode<T>> must,
-            List<ScoringPlanNode<T>> should
+            List<ScoringPlanNode<T>> should,
+            int minimumShouldMatch
     ) {
-        if (!must.isEmpty()) {
-            List<ScoringPlanNode<T>> physical = new ArrayList<>(must);
-            physical.sort(Comparator.comparingInt(
-                    child -> child.candidates().cardinality()));
-            ImmutableBitmap candidates = physical.getFirst().candidates();
-            for (int index = 1; index < physical.size(); index++) {
-                candidates = candidates.and(physical.get(index).candidates());
-                if (candidates.isEmpty()) {
-                    break;
-                }
-            }
-            return candidates;
+        ImmutableBitmap mustCandidates = intersectCandidates(must);
+        if (minimumShouldMatch == 0) {
+            return Objects.requireNonNull(mustCandidates);
         }
 
-        ImmutableBitmap first = null;
-        ImmutableBitmapBuilder union = null;
-        for (ScoringPlanNode<T> child : should) {
-            if (first == null) {
-                first = child.candidates();
-            } else {
-                if (union == null) {
-                    union = new ImmutableBitmapBuilder(first);
-                }
-                union.or(child.candidates());
+        ImmutableBitmap shouldCandidates = thresholdCandidates(
+                should,
+                minimumShouldMatch
+        );
+        return mustCandidates == null
+                ? shouldCandidates
+                : mustCandidates.and(shouldCandidates);
+    }
+
+    private ImmutableBitmap intersectCandidates(
+            List<ScoringPlanNode<T>> children
+    ) {
+        if (children.isEmpty()) {
+            return null;
+        }
+        List<ScoringPlanNode<T>> physical = new ArrayList<>(children);
+        physical.sort(Comparator.comparingInt(
+                child -> child.candidates().cardinality()));
+        ImmutableBitmap candidates = physical.getFirst().candidates();
+        for (int index = 1; index < physical.size(); index++) {
+            candidates = candidates.and(physical.get(index).candidates());
+            if (candidates.isEmpty()) {
+                break;
             }
         }
-        if (first == null) {
-            return ImmutableBitmap.empty();
+        return candidates;
+    }
+
+    private ImmutableBitmap thresholdCandidates(
+            List<ScoringPlanNode<T>> children,
+            int minimumShouldMatch
+    ) {
+        if (minimumShouldMatch == 1) {
+            ImmutableBitmap first = children.getFirst().candidates();
+            if (children.size() == 1) {
+                return first;
+            }
+            ImmutableBitmapBuilder union = new ImmutableBitmapBuilder(first);
+            for (int index = 1; index < children.size(); index++) {
+                union.or(children.get(index).candidates());
+            }
+            return union.build();
         }
-        return union == null ? first : union.build();
+        if (minimumShouldMatch == children.size()) {
+            return Objects.requireNonNull(intersectCandidates(children));
+        }
+
+        Map<Integer, Integer> occurrenceCounts = new LinkedHashMap<>();
+        for (ScoringPlanNode<T> child : children) {
+            child.candidates().forEachSetBit(docId -> occurrenceCounts.merge(
+                    docId,
+                    1,
+                    Integer::sum
+            ));
+        }
+        ImmutableBitmapBuilder threshold = new ImmutableBitmapBuilder(
+                ImmutableBitmap.empty());
+        occurrenceCounts.forEach((docId, count) -> {
+            if (count >= minimumShouldMatch) {
+                threshold.set(docId);
+            }
+        });
+        return threshold.build();
     }
 }
 
