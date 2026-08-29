@@ -78,6 +78,15 @@ public final class V3StyleConsumer {
         ));
     }
 
+    public static SearchRequest<TravelPlace> minimumShouldMatchRequest() {
+        return SearchRequest.of(SearchQueries.<TravelPlace>bool()
+                .should(SearchQueries.text(CITY_TEXT, "Tokyo"))
+                .should(SearchQueries.text(DESCRIPTION_TEXT, "historic"))
+                .should(SearchQueries.text(DESCRIPTION_TEXT, "temple"))
+                .minimumShouldMatch(3)
+                .build());
+    }
+
     public static List<AnalyzedToken> positionAwareAnalysis() {
         Analyzer legacy = text -> List.of(new Token(text));
         List<AnalyzedToken> adapted = legacy.analyzeWithPositions("museum");
@@ -225,6 +234,36 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(exact, oneGap, twoGaps, reversed)).join();
             return engine.search(phraseSlopRequest());
+        }
+    }
+
+    public static SearchResult<TravelPlace> supportedMinimumShouldMatchSearch() {
+        TravelPlace tokyoTemple = new TravelPlace(
+                1L,
+                "Tokyo",
+                "historic temple"
+        );
+        TravelPlace tokyoMuseum = new TravelPlace(
+                2L,
+                "Tokyo",
+                "modern museum"
+        );
+        TravelPlace kyotoTemple = new TravelPlace(
+                3L,
+                "Kyoto",
+                "historic temple"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(CITY_TEXT))
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(
+                    tokyoTemple,
+                    tokyoMuseum,
+                    kyotoTemple
+            )).join();
+            return engine.search(minimumShouldMatchRequest());
         }
     }
 

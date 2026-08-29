@@ -630,11 +630,20 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
 record BoolPlan<T>(
         List<ScoringPlanNode<T>> must,
         List<ScoringPlanNode<T>> should,
+        int minimumShouldMatch,
         ImmutableBitmap candidates
 ) implements ScoringPlanNode<T> {
     BoolPlan {
         must = List.copyOf(must);
         should = List.copyOf(should);
+        if (minimumShouldMatch < 0 || minimumShouldMatch > should.size()) {
+            throw new IllegalArgumentException(
+                    "minimumShouldMatch must be within the SHOULD clause count");
+        }
+        if (minimumShouldMatch == 0 && must.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "minimumShouldMatch zero requires at least one MUST clause");
+        }
         Objects.requireNonNull(candidates, "candidates");
     }
 
@@ -649,15 +658,15 @@ record BoolPlan<T>(
             score = ScoreArithmetic.add(score, result.score());
         }
 
-        boolean anyShouldMatched = false;
+        int matchedShouldCount = 0;
         for (ScoringPlanNode<T> child : should) {
             ScoreMatch result = child.evaluate(docId);
             if (result.matched()) {
-                anyShouldMatched = true;
+                matchedShouldCount++;
                 score = ScoreArithmetic.add(score, result.score());
             }
         }
-        if (must.isEmpty() && !anyShouldMatched) {
+        if (matchedShouldCount < minimumShouldMatch) {
             return ScoreMatch.noMatch();
         }
         return ScoreMatch.match(score);
@@ -685,7 +694,17 @@ record BoolPlan<T>(
                     List.of(detail)
             ));
         }
-        return ExplanationSupport.node(result, "BOOL ranked query", children);
+        long matchedShouldCount = children.stream()
+                .skip(must.size())
+                .filter(ExplanationNode::matched)
+                .count();
+        return ExplanationSupport.node(
+                result,
+                "BOOL ranked query effectiveMinimumShouldMatch="
+                        + minimumShouldMatch
+                        + " matchedShouldCount=" + matchedShouldCount,
+                children
+        );
     }
 }
 

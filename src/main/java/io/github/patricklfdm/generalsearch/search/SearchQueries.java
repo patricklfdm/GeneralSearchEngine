@@ -109,6 +109,7 @@ public final class SearchQueries {
     public static final class BoolBuilder<T> {
         private final List<SearchQuery<T>> must = new ArrayList<>();
         private final List<SearchQuery<T>> should = new ArrayList<>();
+        private Integer minimumShouldMatch;
 
         private BoolBuilder() {
         }
@@ -138,16 +139,51 @@ public final class SearchQueries {
         }
 
         /**
+         * Sets the required number of matching SHOULD clause occurrences.
+         * The last supplied value is retained. An explicit zero requires at least
+         * one MUST clause when {@link #build()} captures the query.
+         *
+         * @param value non-negative required SHOULD occurrence count
+         * @return this builder
+         * @throws IllegalArgumentException when {@code value} is negative
+         */
+        public BoolBuilder<T> minimumShouldMatch(int value) {
+            if (value < 0) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch must not be negative");
+            }
+            minimumShouldMatch = value;
+            return this;
+        }
+
+        /**
          * Captures the current ordered clauses in an immutable query.
          *
          * @return immutable boolean query snapshot
          * @throws IllegalStateException when no clauses have been added
+         * @throws IllegalArgumentException when the explicit minimum exceeds the
+         *         SHOULD count or zero is used without a MUST clause
          */
         public SearchQuery<T> build() {
             if (must.isEmpty() && should.isEmpty()) {
                 throw new IllegalStateException("a bool query requires at least one clause");
             }
-            return new SearchQuery<>(new BoolSearchQueryNode<>(must, should));
+            if (minimumShouldMatch != null
+                    && minimumShouldMatch > should.size()) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch must not exceed the SHOULD clause count");
+            }
+            if (minimumShouldMatch != null
+                    && minimumShouldMatch == 0
+                    && must.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "minimumShouldMatch zero requires at least one MUST clause");
+            }
+            return new SearchQuery<>(new BoolSearchQueryNode<>(
+                    must,
+                    should,
+                    minimumShouldMatch
+            ));
         }
     }
 }

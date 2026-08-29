@@ -147,5 +147,20 @@ class SearchPipelineVisibilityTest {
                         .map(method -> Arrays.asList(method.getParameterTypes()))
                         .collect(Collectors.toSet())
         );
+
+        List<java.lang.reflect.Method> minimumFactories = Arrays.stream(
+                        SearchQueries.BoolBuilder.class.getDeclaredMethods())
+                .filter(method -> Modifier.isPublic(method.getModifiers()))
+                .filter(method -> method.getName().equals("minimumShouldMatch"))
+                .toList();
+        assertEquals(1, minimumFactories.size());
+        assertEquals(
+                SearchQueries.BoolBuilder.class,
+                minimumFactories.getFirst().getReturnType()
+        );
+        assertEquals(
+                List.of(int.class),
+                Arrays.asList(minimumFactories.getFirst().getParameterTypes())
+        );
     }
 }

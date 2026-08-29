@@ -137,7 +137,14 @@ record RankedSearchInput<T>(
             for (SearchQuery<T> child : bool.should()) {
                 should.add(normalize(snapshot, child.node()));
             }
-            return new NormalizedBoolNode<>(must, should);
+            int effectiveMinimumShouldMatch = bool.minimumShouldMatch() == null
+                    ? (must.isEmpty() ? 1 : 0)
+                    : bool.minimumShouldMatch();
+            return new NormalizedBoolNode<>(
+                    must,
+                    should,
+                    effectiveMinimumShouldMatch
+            );
         }
         if (node instanceof BoostSearchQueryNode<?> untypedBoost) {
             @SuppressWarnings("unchecked")
@@ -440,11 +447,20 @@ record NormalizedFuzzyNode<T>(
 
 record NormalizedBoolNode<T>(
         List<NormalizedScoringNode<T>> must,
-        List<NormalizedScoringNode<T>> should
+        List<NormalizedScoringNode<T>> should,
+        int minimumShouldMatch
 ) implements NormalizedScoringNode<T> {
     NormalizedBoolNode {
         must = List.copyOf(must);
         should = List.copyOf(should);
+        if (minimumShouldMatch < 0 || minimumShouldMatch > should.size()) {
+            throw new IllegalArgumentException(
+                    "minimumShouldMatch must be within the SHOULD clause count");
+        }
+        if (minimumShouldMatch == 0 && must.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "minimumShouldMatch zero requires at least one MUST clause");
+        }
     }
 }
 

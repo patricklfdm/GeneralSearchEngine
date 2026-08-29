@@ -237,6 +237,12 @@ class ExplainPlanDifferentialTest {
         for (int index = 0; index < shouldCount; index++) {
             builder.should(randomQuery(random, depth - 1));
         }
+        if (random.nextBoolean()) {
+            int minimum = mustCount == 0
+                    ? 1 + random.nextInt(shouldCount)
+                    : random.nextInt(shouldCount + 1);
+            builder.minimumShouldMatch(minimum);
+        }
         return builder.build();
     }
 

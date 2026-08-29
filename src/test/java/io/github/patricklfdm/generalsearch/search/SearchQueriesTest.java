@@ -112,6 +112,7 @@ class SearchQueriesTest {
         BoolSearchQueryNode<Document> laterNode = bool(later);
         assertEquals(List.of(first, second), initialNode.must());
         assertEquals(List.of(first), initialNode.should());
+        assertEquals(null, initialNode.minimumShouldMatch());
         assertEquals(List.of(first, third), laterNode.should());
 
         SearchQuery<Document> nested = SearchQueries.<Document>bool()
@@ -136,6 +137,52 @@ class SearchQueriesTest {
                 .build());
         assertEquals(List.of(repeated, repeated), node.must());
         assertEquals(List.of(repeated), node.should());
+    }
+
+    @Test
+    void minimumShouldMatchValidatesShapeAndFreezesBuilderSnapshots() {
+        SearchQuery<Document> first = SearchQueries.text(TEXT, "first");
+        SearchQuery<Document> second = SearchQueries.text(TEXT, "second");
+        SearchQueries.BoolBuilder<Document> builder = SearchQueries.<Document>bool()
+                .should(first)
+                .should(second)
+                .minimumShouldMatch(1);
+        SearchQuery<Document> oneRequired = builder.build();
+        SearchQuery<Document> twoRequired = builder
+                .minimumShouldMatch(2)
+                .build();
+        assertEquals(1, bool(oneRequired).minimumShouldMatch());
+        assertEquals(2, bool(twoRequired).minimumShouldMatch());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.minimumShouldMatch(-1)
+        );
+        assertEquals(2, bool(builder.build()).minimumShouldMatch());
+
+        SearchQueries.BoolBuilder<Document> aboveCount = SearchQueries
+                .<Document>bool()
+                .should(first)
+                .minimumShouldMatch(2);
+        assertThrows(IllegalArgumentException.class, aboveCount::build);
+        assertDoesNotThrow(() -> aboveCount.should(second).build());
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> SearchQueries.<Document>bool()
+                        .should(first)
+                        .minimumShouldMatch(0)
+                        .build()
+        );
+        assertDoesNotThrow(() -> SearchQueries.<Document>bool()
+                .must(first)
+                .minimumShouldMatch(0)
+                .build());
+
+        SearchQueries.BoolBuilder<Document> empty = SearchQueries
+                .<Document>bool()
+                .minimumShouldMatch(0);
+        assertThrows(IllegalStateException.class, empty::build);
     }
 
     @SuppressWarnings("unchecked")
