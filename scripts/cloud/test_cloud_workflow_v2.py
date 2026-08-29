@@ -205,7 +205,11 @@ class CloudWorkflowV2Test(unittest.TestCase):
         write_json(set_root / "set-attempt-audit.json", {"slots": []})
         lines = [
             f"{checksum(set_root / name)}  {name}"
-            for name in workflow.SET_FILES[:3]
+            for name in (
+                "benchmark-set-manifest.json",
+                "aggregate-metrics.json",
+                "set-attempt-audit.json",
+            )
         ]
         (set_root / "set-checksums.sha256").write_text("\n".join(lines) + "\n", encoding="utf-8")
         if unexpected:

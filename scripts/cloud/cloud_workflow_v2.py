@@ -34,10 +34,12 @@ WIF_RE = re.compile(
 SERVICE_ACCOUNT_RE = re.compile(
     r"^[a-z][a-z0-9-]{4,28}[a-z0-9]@[a-z][a-z0-9-]{4,28}[a-z0-9]\.iam\.gserviceaccount\.com$"
 )
-SET_FILES = (
-    "aggregate-metrics.json",
+SET_CHECKSUM_FILES = (
     "benchmark-set-manifest.json",
+    "aggregate-metrics.json",
     "set-attempt-audit.json",
+)
+SET_FILES = SET_CHECKSUM_FILES + (
     "set-checksums.sha256",
 )
 DERIVED_FILES = (
@@ -295,7 +297,7 @@ def locate_set(results_root: Path, plan: dict[str, Any]) -> tuple[Path, dict[str
     expected_status = "VALID_CANONICAL_SET" if plan["request"]["evidenceProfile"] == "canonical" else "VALID_EXPERIMENT_SET"
     if manifest.get("status") != expected_status:
         raise WorkflowError("Completed set status contradicts the workflow profile", EXIT_CONTRADICTION)
-    verify_checksums(root, "set-checksums.sha256", SET_FILES[:3])
+    verify_checksums(root, "set-checksums.sha256", SET_CHECKSUM_FILES)
     return root, manifest
 
 
@@ -327,6 +329,7 @@ def benchmark_result(options: argparse.Namespace) -> dict[str, Any]:
                 "status": manifest["status"],
             }
         except WorkflowError as error:
+            print(f"ERROR: {error}", file=sys.stderr)
             result["benchmark"]["status"] = "failed"
             result["primary"] = {
                 "category": exit_category(error.code),
