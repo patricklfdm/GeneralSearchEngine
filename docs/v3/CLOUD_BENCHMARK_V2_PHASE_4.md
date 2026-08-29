@@ -145,9 +145,12 @@ The canonical preset mapping remains:
 | `all` | `v3-production-all-v1` |
 
 `quick`, `investigation`, and `stabilized-investigation` remain experiment-only even on
-Standard provisioning with three or more repeats. A canonical request with Spot,
-fewer than three or more than ten repeats, an ineligible mode, a missing preset, or a
-different preset fails with exit `2` before a workspace or cloud resource is created.
+Standard provisioning with three or more repeats. For an eligible canonical mode, the
+public wrapper deterministically selects the mode-owned preset when `--preset` is
+omitted; an explicitly different preset is rejected. Canonical Spot, fewer than three
+or more than ten repeats, an ineligible mode, or a preset contradiction fails with exit
+`2` before a workspace or cloud resource is created. The internal Python plan validator
+always receives and requires the resolved canonical preset.
 
 An experiment preset may be omitted. When supplied, it must be one of the supported
 versioned preset IDs and must remain compatible with the selected mode. Phase 4 does
@@ -335,14 +338,14 @@ or execute an arbitrary command supplied through an untrusted environment variab
 
 ## Phase 4 completion checklist
 
-- [ ] The existing V1 command and CLI remain unchanged.
-- [ ] Exactly one checkpointed V2 set wrapper owns evidence-profile selection.
-- [ ] Experiment and canonical eligibility matrices are enforced before mutation.
-- [ ] Experiment profile is covered end to end through a one-slot fake Spot lifecycle.
-- [ ] Canonical mode, repeat, provisioning, preset, and environment rules remain strict.
-- [ ] Profile state is immutable and bound through plan, checkpoint, members, set, comparison, and registry.
-- [ ] Evidence-profile spelling remains distinct from `GSE_SOAK_PROFILE` and workload mode.
-- [ ] Experiment evidence cannot be promoted, directly compared, or registered as canonical.
-- [ ] No schema bump or production change exists without a focused failing invariant test.
-- [ ] No GCS, receipt, registry mutation, paid workflow, product, or real-cloud work is included.
-- [ ] Profile-specific tests and all existing no-cost gates pass.
+- [x] The existing V1 command and CLI remain unchanged.
+- [x] Exactly one checkpointed V2 set wrapper owns evidence-profile selection.
+- [x] Experiment and canonical eligibility matrices are enforced before mutation.
+- [x] Experiment profile is covered end to end through a one-slot fake Spot lifecycle.
+- [x] Canonical mode, repeat, provisioning, preset, and environment rules remain strict.
+- [x] Profile state is immutable and bound through plan, checkpoint, members, set, comparison, and registry.
+- [x] Evidence-profile spelling remains distinct from `GSE_SOAK_PROFILE` and workload mode.
+- [x] Experiment evidence cannot be promoted, directly compared, or registered as canonical.
+- [x] No schema bump or production change exists without a focused failing invariant test.
+- [x] No GCS, receipt, registry mutation, paid workflow, product, or real-cloud work is included.
+- [x] Profile-specific tests and all existing no-cost gates pass.
