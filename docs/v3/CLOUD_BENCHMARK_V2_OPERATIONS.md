@@ -161,3 +161,26 @@ The successful smoke closes the one-time configuration gate. Future exploratory 
 may use the protected manual workflow. Canonical evidence still requires Standard
 provisioning, a frozen production preset, three or five independent members, GCS
 retention, durable evidence review, and a separate baseline-registration PR.
+
+## Independent-VM calibration finding
+
+Protected workflow run
+[33242718920](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33242718920)
+used source `45a701d985b36e1d432556fbeae907e9bd5d1dc3` with
+`experiment / quick / 3 / standard / c3d-standard-30 / actions`. Slots one and two
+completed as individually valid members; compatibility stopped slot three with exit
+`83`. Both VMs were deleted.
+
+The bounded failure artifact retained 18 checksum-covered files and exposed two
+normalization defects rather than a product-performance result:
+
+- exact `MemTotal` differed by 8 KiB (`126603755520` versus `126603763712` bytes) while
+  machine type, CPU/topology, image, kernel, Java/VM, and JVM options agreed;
+- the two normalized documents contained 201 and 200 metrics because JMH omitted
+  `gc.time` exactly where the corresponding `gc.count` was zero. Their symmetric
+  difference was five `gc.time` identities, not thousands of schema changes.
+
+Environment fingerprint version 2 therefore retains exact memory provenance but binds
+nearest-MiB capacity. Derivation fills only the proven zero-count `gc.time = 0 ms` case,
+and incompatibility diagnostics compare metric membership by ID. This calibration run
+is not a completed set, was not uploaded to GCS, and is not baseline evidence.
