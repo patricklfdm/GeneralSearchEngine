@@ -10,7 +10,8 @@ atomic-publication architecture.
 - [`docs/v3/`](../v3/README.md) is the frozen historical record for published
   `3.0.0`. V3.x documents do not rewrite it.
 - [V3.x roadmap](ROADMAP.md) defines version scope, ordering, and entry gates.
-- [`v3.1/`](v3.1/PHASE_0_CHECKLIST.md) freezes the first executable V3.x contract.
+- [`v3.1/`](v3.1/PHASE_0_CHECKLIST.md) freezes the first executable V3.x contract;
+  [Phase 1](v3.1/PHASE_1_CHECKLIST.md) establishes its implementation baseline.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -23,6 +24,8 @@ atomic-publication architecture.
 - [Validation](v3.1/VALIDATION.md)
 - [Cloud Benchmark feature-lane extension](v3.1/CLOUD_BENCHMARK_EXTENSION.md)
 - [Phase 0 checklist](v3.1/PHASE_0_CHECKLIST.md)
+- [Phase 1 checklist](v3.1/PHASE_1_CHECKLIST.md)
+- [Phase 1 local diagnostic baseline](v3.1/PHASE_1_BASELINE.md)
 
 ## Stable boundaries
 

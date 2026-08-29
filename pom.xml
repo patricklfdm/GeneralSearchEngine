@@ -335,6 +335,41 @@
                                     </parameter>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>compare-published-v3-api</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>cmp</goal>
+                                </goals>
+                                <configuration>
+                                    <oldVersion>
+                                        <dependency>
+                                            <groupId>io.github.patricklfdm</groupId>
+                                            <artifactId>general-search-engine</artifactId>
+                                            <version>3.0.0</version>
+                                            <type>jar</type>
+                                        </dependency>
+                                    </oldVersion>
+                                    <newVersion>
+                                        <file>
+                                            <path>
+                                                ${project.build.directory}/${project.build.finalName}.jar
+                                            </path>
+                                        </file>
+                                    </newVersion>
+                                    <parameter>
+                                        <accessModifier>public</accessModifier>
+                                        <onlyModified>true</onlyModified>
+                                        <includeSynthetic>false</includeSynthetic>
+                                        <breakBuildOnBinaryIncompatibleModifications>
+                                            true
+                                        </breakBuildOnBinaryIncompatibleModifications>
+                                        <breakBuildOnSourceIncompatibleModifications>
+                                            true
+                                        </breakBuildOnSourceIncompatibleModifications>
+                                    </parameter>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>

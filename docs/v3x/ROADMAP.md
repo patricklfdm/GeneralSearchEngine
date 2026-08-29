@@ -4,7 +4,8 @@
 
 Published baseline: `3.0.0`
 
-Active contract: V3.1 Phase 0
+Active implementation: V3.1 Phase 1 complete; Phase 2 is the next implementation
+boundary.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
