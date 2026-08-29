@@ -7,6 +7,18 @@ development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
+## v3.x — active development line
+
+- [Development overview and contract map](v3x/README.md)
+- [Roadmap](v3x/ROADMAP.md)
+- [V3.1 architecture](v3x/v3.1/ARCHITECTURE.md)
+- [V3.1 ranked-search semantics](v3x/v3.1/RANKED_SEARCH_SEMANTICS.md)
+- [V3.1 API compatibility](v3x/v3.1/API_COMPATIBILITY.md)
+- [V3.1 performance and evidence](v3x/v3.1/PERFORMANCE_AND_EVIDENCE.md)
+- [V3.1 validation](v3x/v3.1/VALIDATION.md)
+- [V3.1 Cloud Benchmark extension](v3x/v3.1/CLOUD_BENCHMARK_EXTENSION.md)
+- [V3.1 Phase 0 checklist](v3x/v3.1/PHASE_0_CHECKLIST.md)
+
 ## v3 — current stable release
 
 - [Development overview and contract map](v3/README.md)

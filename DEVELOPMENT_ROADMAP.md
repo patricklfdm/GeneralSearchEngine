@@ -1,5 +1,19 @@
 # GeneralSearchEngine development roadmap
 
+## v3.x active development line
+
+V3.x is the active post-3.0 development line. It matures ranked semantics, text-search
+experience, application-facing retrieval APIs, and final in-memory engineering without
+changing the immutable-snapshot or single-writer publication boundary. Its version
+scope and V3.1 contract map are maintained under
+[`docs/v3x/`](docs/v3x/README.md).
+
+V3.1 is currently contract-frozen before implementation. Its required scope is ordered
+phrase slop, `minimumShouldMatch`, profile-guided phrase hardening, a
+semantics-preserving persistent fuzzy dictionary, and 1M concurrency evidence. Ranked
+`mustNot` and public fuzzy tuning are not V3.1 blockers. Published 1.0.0, 2.0.0,
+2.1.0, and 3.0.0 APIs remain compatibility baselines.
+
 ## v3.0.0 current stable release
 
 Version `3.0.0` was published on August 26, 2026 as the current stable release:
