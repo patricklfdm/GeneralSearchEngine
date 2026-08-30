@@ -141,9 +141,9 @@ write-drift, or sustained-queue flag. Median read-rate drift improves from -11.5
 plateau. These are known diagnostic boundaries, not an SLA or permission to omit later
 long-run hardening.
 
-## Remaining gate
+## Registration outcome
 
 Phase 7 now has both required cloud lanes reviewed. The ranked feature set documented
-in [the feature canonical review](PHASE_7_CANONICAL_REVIEW.md) may next be registered
-under a new immutable name such as `v3.1.0-ranked-cloud`. Registration remains a
-separate explicit operation and must never replace `v3.0.0-cloud`.
+in [the feature canonical review](PHASE_7_CANONICAL_REVIEW.md) was subsequently
+registered under the new immutable name `v3.1.0-ranked-cloud`. The explicit registry
+change preserves `v3.0.0-cloud` and completes the final Phase 7 gate.

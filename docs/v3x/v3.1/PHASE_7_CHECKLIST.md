@@ -1,7 +1,7 @@
 # V3.1 Phase 7 checklist
 
-Status: both protected cloud lanes and the direct regression comparison are reviewed;
-only separate feature-family registration remains.
+Status: complete. Both protected cloud lanes and the direct regression comparison are
+reviewed, and the feature family is registered under its own immutable name.
 
 ## Evidence-lane isolation
 
@@ -91,8 +91,8 @@ entry.
   allocation, GC, writer throughput, queue evidence, and snapshot progress.
 - [x] Run a directly comparable three-member Standard/GCS regression-lane candidate
   with the frozen preset used by `v3.0.0-cloud` and review the comparison report.
-- [ ] Register the reviewed feature family under a new immutable name such as
+- [x] Register the reviewed feature family under the new immutable name
   `v3.1.0-ranked-cloud`; never replace or compare it directly with `v3.0.0-cloud`.
 
-Phase 7 remains open until all required protected evidence is reviewed. Phase 8
-release hardening does not start merely because the infrastructure patch is merged.
+Phase 7 is complete when this registration and checklist change are merged to
+protected `master`. Phase 8 release hardening may then begin from that exact state.
