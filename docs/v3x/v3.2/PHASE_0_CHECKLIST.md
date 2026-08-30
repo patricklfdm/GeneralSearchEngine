@@ -1,7 +1,7 @@
 # V3.2 Phase 0 checklist
 
-Status: contract prepared on an independent branch; protected PR/master acceptance is
-pending and implementation has not started.
+Status: contract accepted on protected `master`; Phase 1 foundation work has started
+from the exact accepted merge commit without production offset/highlighting code.
 
 ## Entry boundary
 
@@ -89,18 +89,19 @@ pending and implementation has not started.
   completion, search-after, total hits, timeout/cancellation, persistence, vectors,
   and distributed retrieval are outside this contract.
 
-## Implementation entry gates — pending
+## Implementation entry gates — accepted
 
-- [ ] Phase 0 PR passes required CI and merges to protected `master`.
-- [ ] Create an independent Phase 1 branch from the accepted merge commit.
-- [ ] Convert all active project/consumer coordinates atomically to
+- [x] Phase 0 PR passes required CI and merges to protected `master` as
+  `9f4825976cb0c6e9c3c8862efabd9e648bc315a4`.
+- [x] Create an independent Phase 1 branch from the accepted merge commit.
+- [x] Convert all active project/consumer coordinates atomically to
   `3.2.0-SNAPSHOT`; published baseline identities remain unchanged.
-- [ ] Rerun normal clean-home and fresh-isolated five-baseline Japicmp before adding
+- [x] Rerun normal clean-home and fresh-isolated five-baseline Japicmp before adding
   public API.
-- [ ] Capture exact-v3.1 ordinary analyzer/index/search and retained-memory baselines.
-- [ ] Materialize independent offset, highlight, phrase-witness, fuzzy-selection, and
+- [x] Capture exact-v3.1 ordinary analyzer/index/search and retained-memory baselines.
+- [x] Materialize independent offset, highlight, phrase-witness, fuzzy-selection, and
   fragment oracles before production execution.
-- [ ] Add reflection/source fixtures for the frozen public descriptors before
+- [x] Add reflection/source fixtures for the frozen public descriptors before
   implementation.
 
 ## Implementation exit gates — frozen, not yet executed
@@ -118,6 +119,7 @@ pending and implementation has not started.
 - [ ] Five published API baselines, all consumers, strict Javadocs, artifacts, and
   reproducibility pass.
 
-Phase 0 is complete only after this contract set is merged to protected `master` with
-required CI. Any later semantic or public-surface change requires a contract amendment
+Phase 0 is accepted. Its historical `3.1.0` identity and documentation-only boundary
+remain correct even though Phase 1 subsequently changes the active development
+coordinate. Any later semantic or public-surface change requires a contract amendment
 before production implementation.

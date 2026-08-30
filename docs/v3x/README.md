@@ -26,9 +26,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
   are accepted and recorded.
 - [`v3.2/`](v3.2/PHASE_0_CHECKLIST.md) freezes the additive offset-capable analyzer and
-  snapshot-consistent structured-highlighting foundation. Its Phase 0 contract is
-  prepared without production implementation or a version change and awaits protected
-  acceptance before Phase 1 begins.
+  snapshot-consistent structured-highlighting foundation. Phase 0 is accepted, and
+  [Phase 1](v3.2/PHASE_1_CHECKLIST.md) establishes the `3.2.0-SNAPSHOT` compatibility,
+  independent-oracle, API-fixture, and pre-change evidence foundation without adding
+  production offset or highlighting code.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -72,6 +73,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Performance and evidence](v3.2/PERFORMANCE_AND_EVIDENCE.md)
 - [Validation](v3.2/VALIDATION.md)
 - [Phase 0 checklist](v3.2/PHASE_0_CHECKLIST.md)
+- [Phase 1 checklist](v3.2/PHASE_1_CHECKLIST.md)
+- [Phase 1 pre-change baseline](v3.2/PHASE_1_BASELINE.md)
 
 ## Stable boundaries
 

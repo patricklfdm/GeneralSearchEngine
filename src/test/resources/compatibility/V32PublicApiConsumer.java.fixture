@@ -1,0 +1,61 @@
+package fixture;
+
+import java.util.List;
+import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzedToken;
+import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzer;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
+import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.search.FieldHighlight;
+import io.github.patricklfdm.generalsearch.search.HighlightFragment;
+import io.github.patricklfdm.generalsearch.search.HighlightSpan;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchHit;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+
+public final class V32PublicApiConsumer {
+    private V32PublicApiConsumer() {
+    }
+
+    public static OffsetAnalyzer analyzer() {
+        OffsetAnalyzer analyzer = text -> List.of(
+                new OffsetAnalyzedToken(text, 1, 0, text.length())
+        );
+        return analyzer;
+    }
+
+    public static HighlightedSearchResult<Document> search(
+            SearchEngine<Long, Document> engine,
+            SearchRequest<Document> request,
+            TextField<Document> field
+    ) {
+        return engine.search(HighlightedSearchRequest.<Document>builder(request)
+                .field(field)
+                .contextCharacters(40)
+                .maxFragmentsPerField(3)
+                .build());
+    }
+
+    public static HighlightedSearchResult<Document> construct(Document document) {
+        HighlightSpan span = new HighlightSpan(0, 4);
+        HighlightFragment fragment = new HighlightFragment(
+                0,
+                4,
+                "text",
+                List.of(span)
+        );
+        FieldHighlight field = new FieldHighlight(
+                "body",
+                List.of(fragment)
+        );
+        HighlightedSearchHit<Document> hit = new HighlightedSearchHit<>(
+                new SearchHit<>(document, 1.0),
+                List.of(field)
+        );
+        return new HighlightedSearchResult<>(List.of(hit));
+    }
+
+    public record Document(long id, String body) {
+    }
+}

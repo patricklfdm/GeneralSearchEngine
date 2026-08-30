@@ -18,10 +18,11 @@ are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
-V3.2 Phase 0 has prepared its executable contract on an independent documentation-only
-branch. Protected-branch acceptance remains the entry gate for implementation. Until
-then, the repository stays at `3.1.0`: no Java API, production behavior, benchmark,
-workflow, or release identity changes as part of Phase 0.
+V3.2 Phase 0 is accepted on protected `master`. Its historical branch remained
+documentation-only at `3.1.0`. Phase 1 now establishes the atomic
+`3.2.0-SNAPSHOT` identity, five published compatibility baselines, independent offset
+and highlight semantic oracles, frozen public-API fixtures, and exact pre-change
+diagnostics. It adds no production offset or highlighting implementation.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured

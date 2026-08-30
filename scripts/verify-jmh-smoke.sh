@@ -6,6 +6,12 @@ cd "$repo_root"
 
 ./mvnw clean -Pjmh -DskipTests package
 java -jar target/benchmarks.jar \
+  'V32AnalyzerBaselineBenchmark.analyzeTerms' \
+  -p shape=nfkc \
+  -p tokenCount=16 \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \
