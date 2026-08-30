@@ -35,6 +35,8 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 7 ranked feature canonical review](v3x/v3.1/PHASE_7_CANONICAL_REVIEW.md)
 - [V3.1 Phase 7 frozen regression review](v3x/v3.1/PHASE_7_REGRESSION_REVIEW.md)
 - [V3.1 Phase 7 checklist](v3x/v3.1/PHASE_7_CHECKLIST.md)
+- [V3.1 Phase 8 hardening and release contract](v3x/v3.1/HARDENING_AND_RELEASE.md)
+- [V3.1 Phase 8 checklist](v3x/v3.1/PHASE_8_CHECKLIST.md)
 
 ## v3 — current stable release
 
