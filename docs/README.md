@@ -31,6 +31,9 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 6 local pre-change baseline](v3x/v3.1/PHASE_6_BASELINE.md)
 - [V3.1 Phase 6 checklist](v3x/v3.1/PHASE_6_CHECKLIST.md)
 - [V3.1 Phase 7 local calibration](v3x/v3.1/PHASE_7_LOCAL_CALIBRATION.md)
+- [V3.1 Phase 7 experiment review](v3x/v3.1/PHASE_7_EXPERIMENT_REVIEW.md)
+- [V3.1 Phase 7 ranked feature canonical review](v3x/v3.1/PHASE_7_CANONICAL_REVIEW.md)
+- [V3.1 Phase 7 frozen regression review](v3x/v3.1/PHASE_7_REGRESSION_REVIEW.md)
 - [V3.1 Phase 7 checklist](v3x/v3.1/PHASE_7_CHECKLIST.md)
 
 ## v3 — current stable release

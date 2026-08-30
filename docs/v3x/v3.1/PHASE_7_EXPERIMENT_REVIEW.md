@@ -2,15 +2,17 @@
 
 ## Decision
 
-Run `33292769552`, attempt 1, is a successful bounded calibration but is not the
+Run `33292769552`, attempt 1, was a successful bounded calibration but is not the
 accepted pre-canonical experiment. It proved that the frozen workload fits the
 60-minute slot cap and that the workflow recovers, verifies, derives, stages, and
 cleans up its evidence. Review also found that `writerQueueMaximum` was normalized
 from JMH's summed AuxCounters score rather than from the maximum raw iteration value.
 
-The derivation must be corrected, merged to protected `master`, and exercised by one
-more experiment before the three-member canonical set. No baseline registration or
-performance comparison is authorized from this attempt.
+The correction was merged to protected `master` and run `33295811488`, attempt 1,
+successfully exercised it. The corrected run is the accepted pre-canonical experiment:
+it preserves the complete matrix, derives queue maximum one from the raw iterations,
+records positive snapshot progress, finishes below the slot cap, and cleans up its VM.
+Neither experiment is canonical evidence or eligible for baseline registration.
 
 ## Frozen identity
 
@@ -85,3 +87,22 @@ maximum one; malformed dimensions fail closed in the Python evidence tests.
 The corrected experiment must preserve the 84 configurations, complete below the
 slot cap, report queue maximum one from `rawData`, retain positive snapshot progress,
 and clean up successfully before canonical evidence is authorized.
+
+## Corrected experiment acceptance
+
+| Control | Observed value |
+|---|---|
+| Workflow run / attempt | `33295811488 / 1` |
+| Source commit | `1daa4489630b9077b0e6decd533f4e4414e6d75d` |
+| Request | `experiment / ranked-v31 / 1 / standard / c3d-standard-30 / 30m / actions` |
+| Set | `gse-set-v1-8f68a9b98055d33188e5624ca55eec28add3b9f0e829a36430c1983ef567e902` |
+| Set status | `VALID_EXPERIMENT_SET` |
+| Orchestration lifetime | 50m 49s |
+| Queue maximum | `1` in both mixed cells |
+
+The orchestrator ran from `20260830T055851Z` to `20260830T064940Z`, leaving 9m 11s
+below the 3,600-second cap. The member contains exactly 84 configurations and 460
+normalized metrics. Artifact recovery, checksums, source identity, result derivation,
+and cleanup all passed without preemption, restart, replacement, or warning. This
+satisfies the correction gate and authorized the separately reviewed three-member
+canonical feature run.
