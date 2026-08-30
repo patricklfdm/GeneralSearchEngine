@@ -5,7 +5,7 @@
 V3.x is the active post-3.0 development line. It matures ranked semantics, text-search
 experience, application-facing retrieval APIs, and final in-memory engineering without
 changing the immutable-snapshot or single-writer publication boundary. Its version
-scope and V3.1 contract map are maintained under
+scope and versioned contract maps are maintained under
 [`docs/v3x/`](docs/v3x/README.md).
 
 V3.1 Phases 0–8 are complete. Ordered phrase slop, `minimumShouldMatch`, profile-guided
@@ -15,6 +15,27 @@ distinct ranked feature family are reviewed, and `v3.1.0-ranked-cloud` is regist
 immutably. Signed `v3.1.0`, Maven Central publication, clean remote verification, and
 the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, and 3.1.0 APIs
 are mandatory compatibility baselines for subsequent V3.x development.
+
+## v3.2 development contract
+
+V3.2 Phase 0 has prepared its executable contract on an independent documentation-only
+branch. Protected-branch acceptance remains the entry gate for implementation. Until
+then, the repository stays at `3.1.0`: no Java API, production behavior, benchmark,
+workflow, or release identity changes as part of Phase 0.
+
+The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
+the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured
+highlighting executed against one captured immutable snapshot. Offsets are half-open
+UTF-16 ranges into original field text. The engine re-analyzes only requested fields of
+returned top-K hits and stores no offset payload in the 1M-document index shape.
+Highlight results expose immutable source fragments and spans rather than HTML, and
+cannot change canonical match, score, order, limit, failure, or Explain behavior.
+
+Analyzer composition, single-token synonyms, stemming, and ranked prefix require
+separate accepted contracts after the foundation; multi-token token-graph synonyms
+remain outside V3.2. The architecture, offset, highlighting, compatibility, validation,
+performance, and Phase 0 acceptance contracts are mapped in
+[`docs/v3x/v3.2/`](docs/v3x/v3.2/ARCHITECTURE.md).
 
 ## v3.1.0 current stable release
 
