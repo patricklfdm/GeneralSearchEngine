@@ -25,7 +25,11 @@ asynchronous-single-writer, and atomic-publication architecture.
   publication, clean remote verification, and the
   [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
   are accepted and recorded.
-- Later V3.x versions receive their own Phase 0 contracts before implementation;
+- [`v3.2/`](v3.2/PHASE_0_CHECKLIST.md) freezes the additive offset-capable analyzer and
+  snapshot-consistent structured-highlighting foundation. Its Phase 0 contract is
+  prepared without production implementation or a version change and awaits protected
+  acceptance before Phase 1 begins.
+- V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
 ## V3.1 contract map
@@ -58,6 +62,16 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 8 hardening and release contract](v3.1/HARDENING_AND_RELEASE.md)
 - [Phase 8 checklist](v3.1/PHASE_8_CHECKLIST.md)
 - [V3.1 release checklist](v3.1/RELEASE_CHECKLIST.md)
+
+## V3.2 contract map
+
+- [Architecture](v3.2/ARCHITECTURE.md)
+- [Token metadata and offset semantics](v3.2/TOKEN_METADATA_AND_OFFSETS.md)
+- [Structured highlighting semantics](v3.2/HIGHLIGHTING.md)
+- [API compatibility](v3.2/API_COMPATIBILITY.md)
+- [Performance and evidence](v3.2/PERFORMANCE_AND_EVIDENCE.md)
+- [Validation](v3.2/VALIDATION.md)
+- [Phase 0 checklist](v3.2/PHASE_0_CHECKLIST.md)
 
 ## Stable boundaries
 

@@ -40,6 +40,13 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 8 checklist](v3x/v3.1/PHASE_8_CHECKLIST.md)
 - [V3.1 release checklist](v3x/v3.1/RELEASE_CHECKLIST.md)
 - [V3.1 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
+- [V3.2 architecture](v3x/v3.2/ARCHITECTURE.md)
+- [V3.2 token metadata and offsets](v3x/v3.2/TOKEN_METADATA_AND_OFFSETS.md)
+- [V3.2 structured highlighting](v3x/v3.2/HIGHLIGHTING.md)
+- [V3.2 API compatibility](v3x/v3.2/API_COMPATIBILITY.md)
+- [V3.2 performance and evidence](v3x/v3.2/PERFORMANCE_AND_EVIDENCE.md)
+- [V3.2 validation](v3x/v3.2/VALIDATION.md)
+- [V3.2 Phase 0 checklist](v3x/v3.2/PHASE_0_CHECKLIST.md)
 
 ## v3.0 — previous stable and frozen release
 

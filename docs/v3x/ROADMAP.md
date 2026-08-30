@@ -10,6 +10,11 @@ passes, and the GitHub Release is available. The ranked feature family remains
 registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
 `v3.0.0-cloud`.
 
+V3.2 Phase 0 has prepared the offset-analysis and structured-highlighting contract
+set. It awaits protected-branch acceptance before implementation may begin. The Phase
+0 branch changes documentation only: the project remains `3.1.0`, and no Java API,
+runtime behavior, benchmark identity, workflow, or published baseline has changed.
+
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
 lock-free reads, one asynchronous writer, background dynamic-index construction, and
@@ -22,7 +27,7 @@ atomic publication.
 - The supported ranked-query model remains a final façade built through
   `SearchQueries`; planner, plan, posting, position, dictionary, candidate bitmap,
   snapshot, and internal document-ID types remain unsupported internals.
-- Existing V1, V2, and V3.0 behavior changes only for a documented correctness fix.
+- Existing V1, V2, V3.0, and V3.1 behavior changes only for a documented correctness fix.
   New functionality is opt-in and existing factory defaults remain unchanged.
 - Physical optimization must preserve match truth, score arithmetic, ordering,
   failure precedence, Explain equivalence, snapshot isolation, and lifecycle behavior.
@@ -63,17 +68,42 @@ The feature lane uses the separately frozen `ranked-v31` mode and
 `v3.1-ranked-v1` preset. Existing `v3-production-<mode>-v1` identities remain the
 directly comparable regression lane.
 
+## V3.2 phase order
+
+| Phase | Scope | Entry/exit rule |
+|---|---|---|
+| 0 | freeze offset metadata, snapshot-bound highlighting, compatibility, validation, and evidence contracts | documentation only; no version or production change |
+| 1 | switch atomically to `3.2.0-SNAPSHOT`; add five-baseline compatibility fixtures and independent oracles; capture pre-change profiles | no offset or highlighting implementation |
+| 2 | add `OffsetAnalyzer`, `OffsetAnalyzedToken`, sequence validation, and built-in `SimpleAnalyzer` offset equivalence | ordinary analysis/index/search remains allocation- and behavior-equivalent |
+| 3 | add the immutable highlighted request/result family, integrated one-snapshot execution, and TEXT highlighting | highlighted hits equal canonical hits bit-for-bit |
+| 4 | add deterministic PHRASE and FUZZY evidence plus recursive BOOL/BOOST composition | independent semantic and differential oracles pass |
+| 5 | lifecycle, mutation, dynamic-index, concurrency, allocation, latency, and retained-memory hardening | no snapshot mixing or ordinary-path regression |
+| 6 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release gates pass |
+
+Analyzer composition, single-token synonyms, stemming, and ranked prefix are not
+silently included in these phases. Each requires a separate accepted semantic and API
+contract; none is required for V3.2 release completion.
+
 ## V3.2 boundary
 
 V3.2 first defines an additive token-metadata capability while preserving
 `Analyzer` as a SAM and leaving the published `AnalyzedToken` record unchanged. The
-contract must select UTF-16 offsets, validation, source-text relationship, storage or
-re-analysis, and unsupported-legacy-analyzer behavior before highlighting begins.
+frozen coordinate system is zero-based half-open UTF-16 ranges into the exact original
+Java string. The built-in engine re-analyzes only explicitly requested fields of the
+final top-K hits inside one snapshot-bound highlighted-search invocation; it does not
+store offsets in postings or a per-document sidecar. A requested field backed by a
+legacy analyzer fails deterministically rather than receiving approximate offsets.
 
-The initial synonym scope, if accepted, is single-token same-position alternatives.
-Multi-token synonyms require position length or a token graph and are outside the
-initial V3.2 scope. Ranked prefix remains optional and must not become a completion,
-popularity, or personalization subsystem.
+Structured highlighting returns immutable source ranges and fragments, never HTML.
+TEXT, one deterministic PHRASE witness, the scoring-selected FUZZY expansion, and all
+matching BOOL/BOOST evidence have explicit composition rules. Highlighting cannot
+change match truth, scores, order, top-K membership, failure precedence, or Explain.
+
+The initial synonym scope, if separately accepted, is single-token same-position
+alternatives. Multi-token synonyms require position length or a token graph and are
+outside V3.2. Ranked prefix remains optional and must not become a completion,
+popularity, or personalization subsystem. The complete frozen contract map is under
+[`v3.2/`](v3.2/ARCHITECTURE.md).
 
 ## V3.3 boundary
 
