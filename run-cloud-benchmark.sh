@@ -171,8 +171,9 @@ stabilization_seconds=0
 stabilization_window_seconds=60
 if [ -n "$benchmark_preset_id" ]; then
   require_single_line GSE_BENCHMARK_PRESET_ID "$benchmark_preset_id"
-  [[ "$benchmark_preset_id" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] \
-    || fail "$EXIT_CONFIG" "GSE_BENCHMARK_PRESET_ID must be a lowercase hyphenated identifier"
+  [[ "$benchmark_preset_id" =~ ^[a-z0-9]+([.-][a-z0-9]+)*$ ]] \
+    || fail "$EXIT_CONFIG" \
+      "GSE_BENCHMARK_PRESET_ID must be a lowercase dotted or hyphenated identifier"
 fi
 if [ -n "$orchestration_pointer_file" ]; then
   require_single_line GSE_CLOUD_ORCHESTRATION_POINTER_FILE "$orchestration_pointer_file"
