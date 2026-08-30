@@ -16,7 +16,7 @@ Profiles:
   experiment  1..10 independent V1 runs; not baseline eligible
 
 Canonical modes:
-  full  concurrency  soak  all
+  full  concurrency  soak  ranked-v31  all
 
 Dry run performs only read-only repository/GCP validation and creates no workspace or VM.
 Every command that can create a VM requires --confirm-paid-run.
@@ -90,7 +90,11 @@ else
     || fail "$EXIT_CONFIG" 'A new set requires --evidence-profile, --repeats, and MODE'
   [[ "$repeats" =~ ^[1-9][0-9]*$ ]] || fail "$EXIT_CONFIG" '--repeats must be a positive integer'
   if [ "$profile" = canonical ]; then
-    expected_preset="v3-production-${mode}-v1"
+    if [ "$mode" = ranked-v31 ]; then
+      expected_preset=v3.1-ranked-v1
+    else
+      expected_preset="v3-production-${mode}-v1"
+    fi
     if [ -z "$preset_id" ]; then preset_id=$expected_preset; fi
     [ "$preset_id" = "$expected_preset" ] \
       || fail "$EXIT_CONFIG" "Canonical mode $mode requires preset $expected_preset"
@@ -190,6 +194,24 @@ configure_preset() {
         GSE_SOAK_SECONDS=1800 GSE_SOAK_READERS=16 GSE_SOAK_WRITERS=1
         GSE_SOAK_DOCUMENTS=100000 GSE_SOAK_INDEX_CYCLES=true)
       ;;
+    v3.1-ranked-v1)
+      require_expected_override GSE_CLOUD_MAX_RUN_DURATION 3600s
+      require_expected_override GSE_PERF_JVM_OPTIONS '-Xms32g -Xmx64g'
+      require_expected_override GSE_JMH_FORKS 2
+      require_expected_override GSE_JMH_WARMUPS 3
+      require_expected_override GSE_JMH_ITERATIONS 5
+      require_expected_override GSE_JMH_DURATION 1s
+      require_expected_override GSE_CONCURRENCY_DOCUMENTS 1000000
+      require_expected_override GSE_CONCURRENCY_THREAD_GROUPS '16,1'
+      [ "$max_run_duration" = 3600s ] \
+        || fail "$EXIT_CONFIG" \
+          "GSE_CLOUD_MAX_RUN_DURATION conflicts with preset $preset_id (expected: 3600s)"
+      [ "$jvm_options" = '-Xms32g -Xmx64g' ] \
+        || fail "$EXIT_CONFIG" \
+          "GSE_PERF_JVM_OPTIONS conflicts with preset $preset_id (expected: -Xms32g -Xmx64g)"
+      run_environment+=(GSE_JMH_FORKS=2 GSE_JMH_WARMUPS=3 GSE_JMH_ITERATIONS=5 GSE_JMH_DURATION=1s
+        GSE_CONCURRENCY_DOCUMENTS=1000000 'GSE_CONCURRENCY_THREAD_GROUPS=16,1')
+      ;;
   esac
 }
 
@@ -250,7 +272,12 @@ if [ "$form" = new ]; then
   IFS=$'\t' read -r resolved_image resolved_image_id resolved_image_self_link resolved_image_created_at <<< "$image_description"
   [ -n "$resolved_image" ] && [ -n "$resolved_image_id" ] && [ -n "$resolved_image_self_link" ] \
     && [ -n "$resolved_image_created_at" ] || fail "$EXIT_CONFIG" 'Image resolution returned incomplete identity'
-  jvm_options=${GSE_PERF_JVM_OPTIONS:--Xms8g -Xmx16g}
+  if [ "$mode" = ranked-v31 ]; then
+    default_jvm_options='-Xms32g -Xmx64g'
+  else
+    default_jvm_options='-Xms8g -Xmx16g'
+  fi
+  jvm_options=${GSE_PERF_JVM_OPTIONS:-$default_jvm_options}
   boot_disk_size=${GSE_CLOUD_BOOT_DISK_SIZE:-100GB}
   boot_disk_type=${GSE_CLOUD_BOOT_DISK_TYPE:-pd-balanced}
   network=${GSE_GCP_NETWORK:-}
@@ -265,6 +292,7 @@ if [ "$form" = new ]; then
       quick) max_run_duration=7200s ;;
       full) max_run_duration=43200s ;;
       concurrency) max_run_duration=28800s ;;
+      ranked-v31) max_run_duration=3600s ;;
       soak|investigation) max_run_duration=$((${GSE_SOAK_SECONDS:-1800} + 7200))s ;;
       stabilized-investigation)
         case "${GSE_SOAK_STABILIZATION_PURPOSE:-}" in

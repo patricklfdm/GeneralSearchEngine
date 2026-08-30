@@ -127,6 +127,7 @@ Routine runs use a `c3d-standard-30` Spot VM by default:
 ./run-cloud-benchmark.sh soak
 ./run-cloud-benchmark.sh investigation
 ./run-cloud-benchmark.sh stabilized-investigation
+./run-cloud-benchmark.sh ranked-v31
 ./run-cloud-benchmark.sh all
 ```
 
@@ -196,6 +197,19 @@ A canonical baseline requires at least three independent ephemeral Standard runs
 the same exact image, machine, JVM, and workload configuration. Use the set wrapper
 below so every raw run is retained and medians and run-to-run variation are derived
 without selecting the fastest run.
+
+The V3.1 ranked feature lane is intentionally separate from the V3 production
+regression presets. Review its protected, non-mutating plan with:
+
+```bash
+GSE_CLOUD_PROVISIONING=standard \
+./run-cloud-benchmark-set.sh --dry-run \
+  --evidence-profile canonical --repeats 3 ranked-v31
+```
+
+The preset fixes suite `v3.1-ranked-suite-v1`, heap `-Xms32g -Xmx64g`, 1M mixed
+documents, thread group `16,1`, and a one-hour VM cap. It never runs the production
+soak and cannot be compared directly with `v3.0.0-cloud`.
 
 ## Independent Cloud Benchmark V2 run sets
 

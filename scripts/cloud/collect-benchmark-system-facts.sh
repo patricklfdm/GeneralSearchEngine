@@ -116,9 +116,18 @@ if [ -z "$source_repository" ] || [[ "$source_repository" == *$'\n'* ]] \
   exit 2
 fi
 
+benchmark_suite=${GSE_BENCHMARK_SUITE:-v3-production}
+case "$benchmark_suite" in
+  v3-production|v3.1-ranked-suite-v1) ;;
+  *)
+    echo 'GSE_BENCHMARK_SUITE must be v3-production or v3.1-ranked-suite-v1' >&2
+    exit 2
+    ;;
+esac
+
 printf '%s\n' \
   'evidence_schema_version=1' \
-  'benchmark_suite=v3-production' \
+  "benchmark_suite=$benchmark_suite" \
   'benchmark_suite_schema_version=1' \
   "source_repository=$source_repository" \
   "kernel_release=$(uname -r)" \

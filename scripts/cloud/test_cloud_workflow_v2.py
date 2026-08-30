@@ -76,7 +76,7 @@ class CloudWorkflowV2Test(unittest.TestCase):
 
     def test_experiment_and_canonical_matrix_edges(self) -> None:
         with mock.patch.object(workflow, "validate_source"):
-            for mode in ("quick", "full", "concurrency", "soak", "all"):
+            for mode in ("quick", "full", "concurrency", "soak", "ranked-v31", "all"):
                 for repeats in ("1", "3", "5"):
                     for provisioning in ("spot", "standard"):
                         for retention in ("actions", "gcs"):
@@ -97,6 +97,16 @@ class CloudWorkflowV2Test(unittest.TestCase):
                         retention="gcs",
                     )
                     self.assertEqual(f"v3-production-{mode}-v1", plan["derived"]["presetId"])
+            ranked = self.plan(
+                evidence_profile="canonical",
+                mode="ranked-v31",
+                repeats="3",
+                provisioning="standard",
+                retention="gcs",
+            )
+            self.assertEqual("v3.1-ranked-v1", ranked["derived"]["presetId"])
+            self.assertEqual(3600, ranked["derived"]["maxVmRuntimeSeconds"])
+            self.assertEqual("-Xms32g -Xmx64g", ranked["derived"]["jvmOptions"])
 
     def test_invalid_matrix_is_rejected(self) -> None:
         invalid = (
@@ -105,6 +115,7 @@ class CloudWorkflowV2Test(unittest.TestCase):
             {"evidence_profile": "canonical", "mode": "full", "repeats": "3", "provisioning": "spot", "retention": "gcs"},
             {"evidence_profile": "canonical", "mode": "full", "repeats": "3", "provisioning": "standard", "retention": "actions"},
             {"mode": "quick", "soak_duration": "2h"},
+            {"mode": "ranked-v31", "soak_duration": "2h"},
             {"mode": "soak", "repeats": "3", "soak_duration": "2h"},
             {"mode": "invalid"},
             {"machine_type": "n2-standard-30"},
@@ -120,6 +131,24 @@ class CloudWorkflowV2Test(unittest.TestCase):
             for mode in ("soak", "all"):
                 plan = self.plan(mode=mode, soak_duration="2h")
                 self.assertEqual(7200, plan["derived"]["soakSeconds"])
+
+    def test_existing_mode_plan_shape_remains_unchanged(self) -> None:
+        with mock.patch.object(workflow, "validate_source"):
+            plan = self.plan(
+                evidence_profile="canonical",
+                mode="full",
+                repeats="3",
+                provisioning="standard",
+                retention="gcs",
+            )
+        self.assertEqual(
+            {
+                "maxVmRuntimeSeconds": 21600,
+                "presetId": "v3-production-full-v1",
+                "soakSeconds": 1800,
+            },
+            plan["derived"],
+        )
 
     def test_source_must_be_exact_protected_master_ancestor(self) -> None:
         trusted = self.plan()

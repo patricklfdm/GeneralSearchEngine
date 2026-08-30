@@ -4,6 +4,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import io
+from itertools import product
 import json
 import tempfile
 import unittest
@@ -155,6 +156,8 @@ class Fixture:
             )
         elif mode in {"soak", "investigation", "stabilized-investigation"}:
             self._write_soak()
+        elif mode == "ranked-v31":
+            self._write_v31_ranked()
         self.orchestration = self._orchestration()
         self.orchestration_path = self.orchestration_dir / f"{instance}.properties"
         self._write_properties(self.orchestration_path, self.orchestration)
@@ -174,11 +177,13 @@ class Fixture:
             "jmh_warmups": "3",
             "jmh_iterations": "5",
             "jmh_duration": "1s",
-            "concurrency_documents": "100000",
+            "concurrency_documents": (
+                "1000000" if self.mode == "ranked-v31" else "100000"
+            ),
             "concurrency_thread_groups": (
                 "1,1 4,1 16,1"
                 if self.raw_schema == 1 and self.mode == "full"
-                else "4,1"
+                else "16,1" if self.mode == "ranked-v31" else "4,1"
             ),
             "soak_index_cycles": "true",
             "cloud_provider": "gcp",
@@ -216,6 +221,11 @@ class Fixture:
             )
             if self.mode == "full":
                 values["benchmark_preset_id"] = "v3-production-full-v1"
+            elif self.mode == "ranked-v31":
+                values["benchmark_suite"] = "v3.1-ranked-suite-v1"
+                values["benchmark_preset_id"] = "v3.1-ranked-v1"
+                values["jvm_options"] = "-Xms32g -Xmx64g"
+                values["v31_document_counts"] = "100000,1000000"
         return values
 
     def _orchestration(self) -> dict[str, str]:
@@ -233,7 +243,9 @@ class Fixture:
             "resolved_image_created_at": "2026-08-26T04:39:04Z",
             "boot_disk_type": "pd-balanced",
             "boot_disk_size": "100GB",
-            "max_run_duration": "43200s",
+            "max_run_duration": (
+                "3600s" if self.mode == "ranked-v31" else "43200s"
+            ),
             "network": "default",
             "subnet": "",
             "ssh_transport": "external_ip",
@@ -299,6 +311,129 @@ class Fixture:
                 "flag_read_rate_drift": "false",
             },
         )
+
+    def _write_v31_ranked(self) -> None:
+        package = "io.github.patricklfdm.generalsearch.benchmark.jmh."
+
+        def write(name: str, entries: list[dict]) -> None:
+            (self.raw / f"{name}.json").write_text(
+                json.dumps(entries, sort_keys=True) + "\n",
+                encoding="utf-8",
+            )
+
+        write(
+            "v31-phrase",
+            [
+                jmh_entry(
+                    benchmark=package + "V31PhraseFeatureBenchmark.search",
+                    params={"documentCount": documents, "scenario": scenario},
+                )
+                for documents, scenario in product(
+                    ("100000", "1000000"),
+                    (
+                        "low-s0", "high-s0", "low-s1", "high-s1",
+                        "low-s2", "high-s2", "low-s4", "high-s4",
+                        "repeated", "analyzer-gap", "same-position",
+                    ),
+                )
+            ],
+        )
+        write(
+            "v31-bool",
+            [
+                jmh_entry(
+                    benchmark=package + "V31MinimumShouldMatchBenchmark.search",
+                    params={
+                        "documentCount": documents,
+                        "minimum": minimum,
+                        "shouldWidth": width,
+                        "withMust": with_must,
+                    },
+                )
+                for documents, minimum, width, with_must in product(
+                    ("100000", "1000000"),
+                    ("one", "half", "all"),
+                    ("4", "16", "64"),
+                    ("false", "true"),
+                )
+            ],
+        )
+        write(
+            "v31-fuzzy",
+            [
+                jmh_entry(
+                    benchmark=package + "V31FuzzyDictionaryBenchmark.traverse",
+                    params={"scenario": scenario, "vocabularySize": vocabulary},
+                )
+                for scenario, vocabulary in product(
+                    ("short-exact", "long-near", "unicode-near", "sparse-miss", "dense-hit"),
+                    ("100000", "1000000"),
+                )
+            ],
+        )
+        write(
+            "v31-text-build",
+            [
+                jmh_entry(
+                    benchmark=package + "V31TextDictionaryBenchmark.build",
+                    params={
+                        "mutationBatchSize": "1",
+                        "transition": "unchanged",
+                        "vocabularySize": vocabulary,
+                    },
+                )
+                for vocabulary in ("100000", "1000000")
+            ],
+        )
+        write(
+            "v31-text-publication",
+            [
+                jmh_entry(
+                    benchmark=package + "V31TextDictionaryBenchmark.publish",
+                    params={
+                        "mutationBatchSize": batch,
+                        "transition": transition,
+                        "vocabularySize": vocabulary,
+                    },
+                )
+                for batch, transition, vocabulary in product(
+                    ("1", "100"),
+                    ("unchanged", "added", "removed"),
+                    ("100000", "1000000"),
+                )
+            ],
+        )
+        concurrency_benchmark = (
+            package + "V31ConcurrentMixedWorkloadBenchmark.mixed"
+        )
+        latency = jmh_entry(
+            "sample",
+            benchmark=concurrency_benchmark,
+            params={"documentCount": "1000000"},
+            threads=17,
+        )
+        latency["secondaryMetrics"].update(
+            {
+                "snapshotPublications": metric(50.0, "#"),
+                "writerQueueMaximum": metric(1.0, "#"),
+                "writerQueueNonzeroSamples": metric(10.0, "#"),
+            }
+        )
+        throughput = jmh_entry(
+            "thrpt",
+            benchmark=concurrency_benchmark,
+            params={"documentCount": "1000000"},
+            threads=17,
+        )
+        throughput["secondaryMetrics"].update(
+            {
+                "snapshotPublications": metric(50.0, "#"),
+                "writerQueueMaximum": metric(1.0, "#"),
+                "writerQueueNonzeroSamples": metric(10.0, "#"),
+            }
+        )
+        write("v31-concurrent-latency-16-1", [latency])
+        write("v31-concurrent-throughput-16-1", [throughput])
 
     @staticmethod
     def _write_properties(path: Path, values: dict[str, str], *, metadata=False) -> None:
@@ -371,6 +506,7 @@ class BenchmarkV2Test(unittest.TestCase):
                 "soak",
                 "investigation",
                 "stabilized-investigation",
+                "ranked-v31",
                 "all",
             ):
                 with self.subTest(profile="experiment", repeats=repeats, mode=mode):
@@ -413,6 +549,16 @@ class BenchmarkV2Test(unittest.TestCase):
                     )
                     self.assertEqual("canonical", plan["evidenceProfile"])
                     self.assertEqual(preset, plan["presetId"])
+            ranked = v2.validate_set_plan_inputs(
+                "canonical",
+                repeats,
+                "ranked-v31",
+                "v3.1-ranked-v1",
+                repository,
+                COMMIT,
+                self.canonical_set_controls(),
+            )
+            self.assertEqual("v3.1-ranked-v1", ranked["presetId"])
         for repeats in (1, 2, 11):
             self.assert_error(
                 v2.EXIT_CONFIG,
@@ -503,6 +649,43 @@ class BenchmarkV2Test(unittest.TestCase):
             ),
         )
 
+    def test_existing_canonical_preset_definitions_remain_frozen(self):
+        self.assertEqual(
+            {
+                "mode": "full",
+                "threadGroups": "1,1 4,1 16,1",
+                "jmh": True,
+                "soak": False,
+            },
+            v2.CANONICAL_PRESETS["v3-production-full-v1"],
+        )
+        self.assertEqual(
+            {
+                "mode": "concurrency",
+                "threadGroups": "1,1 4,1 8,1 16,1 24,1 30,1",
+                "jmh": True,
+                "soak": False,
+            },
+            v2.CANONICAL_PRESETS["v3-production-concurrency-v1"],
+        )
+        self.assertEqual(
+            {
+                "mode": "soak",
+                "threadGroups": "1,1 4,1 16,1",
+                "jmh": False,
+                "soak": True,
+            },
+            v2.CANONICAL_PRESETS["v3-production-soak-v1"],
+        )
+        self.assertEqual(
+            {
+                "mode": "all",
+                "threadGroups": "1,1 4,1 16,1",
+                "jmh": True,
+                "soak": True,
+            },
+            v2.CANONICAL_PRESETS["v3-production-all-v1"],
+        )
     def test_profile_is_bound_into_plan_checkpoint_hash(self):
         repository = "https://github.com/patricklfdm/GeneralSearchEngine.git"
         experiment = v2.validate_set_plan_inputs(
@@ -551,6 +734,57 @@ class BenchmarkV2Test(unittest.TestCase):
             if item["identity"]["metricName"] == "gc.count"
         ]
         self.assertTrue(any(item["unavailableReason"] == "source_nan" for item in nan_errors))
+
+    def test_ranked_v31_canonical_matrix_and_auxiliary_evidence(self):
+        fixture = Fixture(
+            self.root / "ranked",
+            run_id="20260828T000000Z-0123456789ab-ranked-v31",
+            mode="ranked-v31",
+        )
+        _, manifest, metrics = v2.derive_manifest(
+            fixture.raw,
+            evidence_profile="canonical",
+        )
+        self.assertEqual("VALID_CANONICAL_MEMBER", manifest["status"])
+        self.assertTrue(manifest["canonicalEligibility"])
+        self.assertEqual("v3.1-ranked-v1", manifest["benchmark"]["presetId"])
+        self.assertEqual(
+            "v3.1-ranked-suite-v1",
+            manifest["suite"]["name"],
+        )
+        self.assertEqual(84, manifest["benchmark"]["configurationSummary"]["jmhEntryCount"])
+        auxiliary_names = {
+            item["identity"]["metricName"]
+            for item in metrics["metrics"]
+            if item["workload"].startswith("v31-concurrent-")
+        }
+        self.assertTrue(
+            {
+                "snapshotPublications",
+                "writerQueueMaximum",
+                "writerQueueNonzeroSamples",
+            }.issubset(auxiliary_names)
+        )
+
+        incomplete = Fixture(
+            self.root / "incomplete",
+            run_id="20260828T000000Z-0123456789ab-ranked-v31",
+            mode="ranked-v31",
+        )
+        phrase_path = incomplete.raw / "v31-phrase.json"
+        phrase_entries = json.loads(phrase_path.read_text(encoding="utf-8"))
+        phrase_path.write_text(
+            json.dumps(phrase_entries[:-1], sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        incomplete.refresh_checksums()
+        self.assert_error(
+            v2.EXIT_INVALID_EVIDENCE,
+            lambda: v2.derive_manifest(
+                incomplete.raw,
+                evidence_profile="canonical",
+            ),
+        )
 
     def test_zero_gc_count_synthesizes_stable_zero_gc_time(self):
         missing = Fixture(self.root / "missing", instance="gse-missing-gc-time")

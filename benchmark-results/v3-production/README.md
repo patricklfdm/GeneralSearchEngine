@@ -19,6 +19,11 @@ comparisons/<gse-comparison-v1-id>/v1/
 upload-receipts/<gse-upload-receipt-v1-id>/v1/
 ```
 
+The root name remains historical infrastructure naming. Raw members identify their
+actual suite in metadata: existing lanes use `v3-production`, while the isolated V3.1
+feature lane uses `v3.1-ranked-suite-v1`. Derivation and comparison fail closed on a
+suite mismatch.
+
 The in-progress workspace is resumable control state and remains after completion for
 audit. A content-addressed set directory contains the deterministic set manifest,
 aggregate metrics, complete attempt/replacement audit, and checksums. A comparison

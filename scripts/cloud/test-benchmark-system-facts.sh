@@ -55,4 +55,21 @@ line_count=$(printf '%s\n' "$facts" | sed -n '$=')
   exit 1
 }
 
+ranked_facts=$(GSE_CLOUD_SOURCE_REPOSITORY=$fixture_repository \
+  GSE_BENCHMARK_SUITE=v3.1-ranked-suite-v1 \
+  scripts/cloud/collect-benchmark-system-facts.sh)
+facts=$ranked_facts
+[ "$(property benchmark_suite)" = v3.1-ranked-suite-v1 ]
+
+set +e
+GSE_CLOUD_SOURCE_REPOSITORY=$fixture_repository \
+  GSE_BENCHMARK_SUITE=unreviewed-suite \
+  scripts/cloud/collect-benchmark-system-facts.sh >/dev/null 2>&1
+invalid_suite_exit=$?
+set -e
+[ "$invalid_suite_exit" -eq 2 ] || {
+  echo "FAIL: invalid benchmark suite returned $invalid_suite_exit" >&2
+  exit 1
+}
+
 echo 'Benchmark schema-1 system fact tests: PASS'

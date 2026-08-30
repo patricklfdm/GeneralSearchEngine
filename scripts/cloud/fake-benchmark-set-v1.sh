@@ -8,13 +8,18 @@ set -euo pipefail
 for argument in "$@"; do
   if [ "$argument" = --dry-run ]; then
     echo 'Fake V1 dry run complete: no cloud resources were mutated.'
+    printf 'GSE_CONCURRENCY_DOCUMENTS=%s\n' \
+      "${GSE_CONCURRENCY_DOCUMENTS:-unset}"
+    printf 'GSE_CONCURRENCY_THREAD_GROUPS=%s\n' \
+      "${GSE_CONCURRENCY_THREAD_GROUPS:-unset}"
+    printf 'GSE_PERF_JVM_OPTIONS=%s\n' "${GSE_PERF_JVM_OPTIONS:-unset}"
     exit 0
   fi
 done
 
 mode=${!#}
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
   *) echo "Fake set V1 received unsupported mode: $mode" >&2; exit 2 ;;
 esac
 ordinal=0

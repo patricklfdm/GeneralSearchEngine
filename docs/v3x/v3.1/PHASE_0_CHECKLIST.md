@@ -42,7 +42,7 @@ remains a later implementation phase:
 - [x] Materialize the independent Phase 1 phrase/BOOL reference models and focused
   V3.0-default fixtures without sharing production implementation helpers. The full
   feature matrix remains an implementation exit gate.
-- [ ] Implement and synthetically validate the frozen `ranked-v31` cloud extension
+- [x] Implement and synthetically validate the frozen `ranked-v31` cloud extension
   before any paid run.
 
 ## Implementation exit gates
