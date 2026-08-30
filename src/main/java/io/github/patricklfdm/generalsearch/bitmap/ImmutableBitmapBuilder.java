@@ -102,12 +102,16 @@ public final class ImmutableBitmapBuilder {
 
     private BitSet mutableBlock(int blockIndex) {
         ensureOpen();
-        return dirtyBlocks.computeIfAbsent(blockIndex, ignored -> {
-            BitBlock existing = base.block(blockIndex);
-            return existing == null
-                    ? new BitSet(ImmutableBitmap.BLOCK_SIZE)
-                    : existing.copyBits();
-        });
+        BitSet dirty = dirtyBlocks.get(blockIndex);
+        if (dirty != null) {
+            return dirty;
+        }
+        BitBlock existing = base.block(blockIndex);
+        BitSet created = existing == null
+                ? new BitSet(ImmutableBitmap.BLOCK_SIZE)
+                : existing.copyBits();
+        dirtyBlocks.put(blockIndex, created);
+        return created;
     }
 
     private void ensureOpen() {
