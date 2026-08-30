@@ -43,7 +43,8 @@ from the exact accepted merge commit without production offset/highlighting code
   pair.
 - [x] Terms may differ from source spelling/length after normalization, but each range
   identifies the minimal contiguous contributing source.
-- [x] Later logical positions cannot move backward/overlap; same-position alternatives
+- [x] Later logical-position start/end boundaries cannot move backward; monotonic
+  overlap is allowed for multi-token NFKC expansion, and same-position alternatives
   share one exact source range.
 - [x] Position gaps and character gaps remain independent; existing term/position
   output must remain identical.

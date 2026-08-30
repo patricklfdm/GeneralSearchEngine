@@ -18,11 +18,12 @@ are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
-V3.2 Phase 0 is accepted on protected `master`. Its historical branch remained
-documentation-only at `3.1.0`. Phase 1 now establishes the atomic
+V3.2 Phases 0 and 1 are accepted on protected `master`. Phase 1 established the atomic
 `3.2.0-SNAPSHOT` identity, five published compatibility baselines, independent offset
 and highlight semantic oracles, frozen public-API fixtures, and exact pre-change
-diagnostics. It adds no production offset or highlighting implementation.
+diagnostics. Phase 2 now implements the additive offset API, exact built-in Unicode
+source mapping, and sequence validation while preserving direct ordinary analysis. It
+adds no highlighting API, stored offset payload, or cloud-family change.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured

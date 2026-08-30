@@ -48,6 +48,7 @@ Focused fixtures include:
 | supplementary code point | boundaries never split a surrogate pair |
 | composed/decomposed form | normalized term is unchanged from legacy analysis; range maps to original contributors |
 | NFKC expansion/contraction | normalized length may differ while source range remains valid |
+| NFKC source-range/multi-token expansion | successive positions may reuse or monotonically overlap source ranges |
 | punctuation and unpaired surrogate | delimiter behavior and source ranges are deterministic |
 | duplicate term | occurrences retain distinct ordered ranges |
 | same-position alternatives | alternatives share one exact source range |
@@ -57,7 +58,7 @@ Focused fixtures include:
 | invalid list/element/term | field-specific deterministic failure |
 | negative/zero-width/reversed/out-of-bounds range | construction or sequence validation fails |
 | split-surrogate boundary | validation fails before fragment construction |
-| decreasing/overlapping later position | sequence validation fails |
+| decreasing later-position boundary | sequence validation fails; monotonic overlap remains valid |
 | logical-position overflow | existing overflow failure remains |
 
 For randomized Unicode strings, the built-in analyzer's term and positioned projections

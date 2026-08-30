@@ -74,7 +74,8 @@ using any token:
 - later increments are non-negative;
 - logical-position addition cannot overflow;
 - every range is within the source and has valid surrogate boundaries;
-- a token at a later logical position starts at or after the previous position's end;
+- a token at a later logical position has start and end offsets that are each greater
+  than or equal to the previous position's corresponding boundary;
 - all same-position alternatives use exactly the same start and end offsets; and
 - term/position encounter order equals the ordinary positioned-analysis projection.
 
@@ -83,6 +84,14 @@ production. Built-in equivalence is tested exhaustively; custom implementations 
 responsible for the declared deterministic contract. An invalid sequence fails the
 whole operation with an `IllegalArgumentException` naming the text field and token
 index where applicable.
+
+Monotonic overlapping ranges across later positions are required for compatibility
+characters whose source range expands under NFKC into multiple delimiter-separated
+tokens. For example, one `U+FDFA` source character normalizes to four Arabic words, so
+four successive positions reuse one range. More generally, `A½B` normalizes to token
+runs `a1` and `2b`; their minimal contributing ranges cross as `[0,2)` and `[1,3)`.
+Requiring both boundaries to be monotonic preserves source order while representing
+both facts. Either boundary moving backward remains invalid.
 
 Null and empty source field values produce no offset tokens for the built-in analyzer.
 The built-in engine does not create a highlight entry for a null/empty field. Query
@@ -100,6 +109,8 @@ Logical positions retain their published meaning. Character offsets do not repla
 - punctuation and whitespace may create a character gap without creating an extra
   logical position;
 - repeated terms remain separate occurrences; and
+- successive tokens affected by one compatibility source range may reuse or
+  monotonically overlap ranges at successive positions; and
 - the first logical position may contain an initial positive gap that normalization
   later removes exactly as in V3.1.
 
