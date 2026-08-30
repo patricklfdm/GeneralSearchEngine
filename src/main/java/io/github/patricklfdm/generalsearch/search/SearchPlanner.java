@@ -19,7 +19,7 @@ final class SearchPlanner<T> {
     private final FuzzyTermExpander fuzzyTermExpander;
 
     SearchPlanner(CandidatePlanner<T> filterPlanner) {
-        this(filterPlanner, new VocabularyScanningFuzzyTermExpander());
+        this(filterPlanner, new TrieFuzzyTermExpander());
     }
 
     SearchPlanner(

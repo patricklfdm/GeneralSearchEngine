@@ -49,7 +49,7 @@ remains a later implementation phase:
 
 - [ ] Focused unit tests cover every validation and failure-precedence rule.
 - [ ] Randomized phrase and BOOL differential tests pass against independent oracles.
-- [ ] Fuzzy trie traversal passes exhaustive and randomized full-scan equivalence.
+- [x] Fuzzy trie traversal passes exhaustive and randomized full-scan equivalence.
 - [ ] Search and Explain match/score invariants pass for all new shapes.
 - [ ] Mutation, bulk, snapshot, dynamic-index, concurrency, and close lifecycle tests
   pass.

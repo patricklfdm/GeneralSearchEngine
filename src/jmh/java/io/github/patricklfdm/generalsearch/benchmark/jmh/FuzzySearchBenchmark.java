@@ -1,10 +1,15 @@
 package io.github.patricklfdm.generalsearch.benchmark.jmh;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.text.FuzzyVocabularyAccess;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
@@ -27,7 +32,7 @@ import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Warmup;
 
-/** Measures bounded vocabulary-scan planning plus fuzzy top-K execution. */
+/** Measures persistent-trie fuzzy planning plus top-K execution. */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 @Warmup(iterations = 3, time = 1)
@@ -81,6 +86,7 @@ public class FuzzySearchBenchmark {
         }
         snapshot = builder.build();
         String queryText = queryText(scenario);
+        verifyTrieExpansion(snapshot, queryText);
         fuzzy = SearchRequest.<Document>builder()
                 .query(SearchQueries.fuzzy(BODY_TEXT, queryText))
                 .limit(10)
@@ -182,6 +188,111 @@ public class FuzzySearchBenchmark {
 
     private static double firstScore(List<SearchHit<Document>> hits) {
         return hits.isEmpty() ? 0.0 : hits.getFirst().score();
+    }
+
+    private static void verifyTrieExpansion(
+            SearchSnapshot<Document> snapshot,
+            String queryTerm
+    ) {
+        TextIndexSnapshot<?> textIndex = snapshot.indexes().indexes().stream()
+                .filter(index -> index instanceof TextIndexSnapshot<?>)
+                .map(index -> (TextIndexSnapshot<?>) index)
+                .filter(index -> index.textField() == BODY_TEXT)
+                .findFirst()
+                .orElseThrow();
+        int queryLength = queryTerm.codePointCount(0, queryTerm.length());
+        int maxEdits = queryLength <= 2 ? 0 : queryLength <= 5 ? 1 : 2;
+        int[] queryPoints = queryTerm.codePoints().toArray();
+        int[] candidatePoints = new int[queryLength + maxEdits];
+        int[] twoRowsBack = new int[queryLength + 1];
+        int[] previous = new int[queryLength + 1];
+        int[] current = new int[queryLength + 1];
+        Map<String, Integer> expected = new HashMap<>();
+        FuzzyVocabularyAccess.forEachTerm(textIndex, candidate -> {
+            int candidateLength = candidate.codePointCount(0, candidate.length());
+            if (Math.abs(candidateLength - queryLength) > maxEdits) {
+                return;
+            }
+            copyCodePoints(candidate, candidatePoints);
+            int distance = fullOsaDistance(
+                    candidatePoints,
+                    candidateLength,
+                    queryPoints,
+                    twoRowsBack,
+                    previous,
+                    current
+            );
+            if (distance <= maxEdits) {
+                expected.put(candidate, distance);
+            }
+        });
+
+        Map<String, Integer> actual = new HashMap<>();
+        FuzzyVocabularyAccess.forEachWithinEditDistance(
+                textIndex,
+                queryTerm,
+                maxEdits,
+                (term, distance) -> {
+                    if (actual.put(term, distance) != null) {
+                        throw new IllegalStateException(
+                                "duplicate trie expansion: " + term);
+                    }
+                }
+        );
+        if (!expected.equals(actual)) {
+            throw new IllegalStateException(
+                    "trie expansion differs from the full-scan OSA oracle");
+        }
+    }
+
+    private static int fullOsaDistance(
+            int[] left,
+            int leftLength,
+            int[] right,
+            int[] twoRowsBack,
+            int[] previous,
+            int[] current
+    ) {
+        for (int column = 0; column <= right.length; column++) {
+            previous[column] = column;
+        }
+        for (int row = 1; row <= leftLength; row++) {
+            current[0] = row;
+            for (int column = 1; column <= right.length; column++) {
+                int best = Math.min(
+                        previous[column] + 1,
+                        Math.min(
+                                current[column - 1] + 1,
+                                previous[column - 1]
+                                        + (left[row - 1] == right[column - 1]
+                                                ? 0 : 1)
+                        )
+                );
+                if (row > 1
+                        && column > 1
+                        && left[row - 1] == right[column - 2]
+                        && left[row - 2] == right[column - 1]) {
+                    best = Math.min(best, twoRowsBack[column - 2] + 1);
+                }
+                current[column] = best;
+            }
+            int[] reusable = twoRowsBack;
+            twoRowsBack = previous;
+            previous = current;
+            current = reusable;
+        }
+        return previous[right.length];
+    }
+
+    private static void copyCodePoints(String value, int[] destination) {
+        Arrays.fill(destination, 0);
+        int sourceOffset = 0;
+        int destinationOffset = 0;
+        while (sourceOffset < value.length()) {
+            int codePoint = value.codePointAt(sourceOffset);
+            destination[destinationOffset++] = codePoint;
+            sourceOffset += Character.charCount(codePoint);
+        }
     }
 
     private record Document(int id, String title, String body) {
