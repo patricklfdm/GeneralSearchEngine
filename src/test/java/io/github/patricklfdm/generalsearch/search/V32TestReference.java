@@ -39,9 +39,10 @@ final class V32TestReference {
                             "same-position ranges must be equal");
                 }
             } else if (previousPositionRange != null
-                    && term.range().start() < previousPositionRange.end()) {
+                    && (term.range().start() < previousPositionRange.start()
+                    || term.range().end() < previousPositionRange.end())) {
                 throw new IllegalArgumentException(
-                        "later-position ranges must not overlap");
+                        "later-position range boundaries must not move backward");
             }
             previousPosition = logicalPosition;
             previousPositionRange = term.range();

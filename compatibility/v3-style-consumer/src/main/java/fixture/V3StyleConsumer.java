@@ -12,6 +12,8 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.ExplanationNode;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
 import io.github.patricklfdm.generalsearch.search.SearchQuery;
@@ -127,6 +129,27 @@ public final class V3StyleConsumer {
                 .build()) {
             engine.addAll(List.of(museum, guide, other)).join();
             return supportedTextSearch(engine);
+        }
+    }
+
+    public static HighlightedSearchResult<TravelPlace>
+            supportedHighlightedTextSearch() {
+        TravelPlace museum = new TravelPlace(
+                1L,
+                "Paris",
+                "museum beside the river museum"
+        );
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.add(museum).join();
+            return engine.search(HighlightedSearchRequest
+                    .<TravelPlace>builder(defaultRequest())
+                    .field(DESCRIPTION_TEXT)
+                    .contextCharacters(0)
+                    .maxFragmentsPerField(3)
+                    .build());
         }
     }
 

@@ -14,6 +14,8 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 
@@ -140,6 +142,23 @@ public interface SearchEngine<K, T> extends AutoCloseable {
         Objects.requireNonNull(request, "request");
         throw new UnsupportedOperationException(
                 "this SearchEngine implementation does not support search requests");
+    }
+
+    /**
+     * Returns snapshot-consistent structured highlights when supported.
+     *
+     * @param request non-null highlighted-search request
+     * @return immutable highlighted hits in canonical ranked order
+     * @throws NullPointerException when {@code request} is null
+     * @throws UnsupportedOperationException when this implementation does not support
+     *         highlighted search
+     */
+    default HighlightedSearchResult<T> search(
+            HighlightedSearchRequest<T> request
+    ) {
+        Objects.requireNonNull(request, "request");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support highlighted search");
     }
 
     /**

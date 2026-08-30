@@ -18,6 +18,21 @@ class V3StyleConsumerTest {
     }
 
     @Test
+    void executesStructuredTextHighlightingThroughPublishedApiOnly() {
+        var result = V3StyleConsumer.supportedHighlightedTextSearch();
+
+        assertEquals(List.of(1L), result.hits().stream()
+                .map(hit -> hit.hit().document().id())
+                .toList());
+        assertEquals(
+                List.of("museum", "museum"),
+                result.hits().getFirst().highlights().getFirst().fragments().stream()
+                        .map(fragment -> fragment.text())
+                        .toList()
+        );
+    }
+
+    @Test
     void executesBoolBoostAndCrossFieldRequestThroughPublishedApiOnly() {
         assertEquals(
                 List.of(1L),

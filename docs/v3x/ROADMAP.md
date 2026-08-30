@@ -10,11 +10,11 @@ passes, and the GitHub Release is available. The ranked feature family remains
 registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
 `v3.0.0-cloud`.
 
-V3.2 Phases 0 and 1 are accepted on protected `master`. Phase 2 implements the frozen
-`OffsetAnalyzer` and `OffsetAnalyzedToken` family, exact built-in Unicode source
-mapping, and package-private sequence validation. Ordinary analysis remains direct and
-equivalent; no highlighting API, stored offset payload, or cloud-family change is part
-of Phase 2.
+V3.2 Phases 0–2 are accepted on protected `master`. Phase 3 implements the frozen
+immutable highlighted request/result family, integrated one-snapshot execution, and
+TEXT evidence over exact original-source offsets. Ordinary search and canonical hits
+remain unchanged. PHRASE, FUZZY, BOOL, and BOOST evidence are deferred to Phase 4; no
+stored offset payload or cloud-family change is introduced.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

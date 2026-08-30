@@ -14,6 +14,7 @@ import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
 import org.junit.jupiter.api.Test;
 
 class SearchEngineV3DefaultCapabilityTest {
@@ -32,6 +33,9 @@ class SearchEngineV3DefaultCapabilityTest {
                 () -> engine.search(REQUEST));
         assertThrows(UnsupportedOperationException.class,
                 () -> engine.explain(REQUEST, "id"));
+        assertThrows(UnsupportedOperationException.class, () -> engine.search(
+                HighlightedSearchRequest.builder(REQUEST).field(TEXT).build()
+        ));
         assertEquals(List.of(), engine.search(Query.matchAll()));
     }
 
@@ -45,6 +49,8 @@ class SearchEngineV3DefaultCapabilityTest {
                 () -> engine.explain(null, "id"));
         assertThrows(NullPointerException.class,
                 () -> engine.explain(REQUEST, null));
+        assertThrows(NullPointerException.class,
+                () -> engine.search((HighlightedSearchRequest<String>) null));
     }
 
     private static final class MinimalEngine implements SearchEngine<String, String> {

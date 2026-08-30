@@ -5,6 +5,7 @@ import java.util.Objects;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 
 /**
@@ -32,6 +33,42 @@ public final class SearchExecutionAccess {
         RankedSearchInput<T> input = RankedSearchInput.from(snapshot, request);
         SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
         return new SearchResult<>(new SearchExecutor<T>().execute(plan));
+    }
+
+    /**
+     * Executes one Phase 3 TEXT highlighted request through a single prepared plan.
+     *
+     * @hidden
+     */
+    public static <T> HighlightedSearchResult<T> searchHighlighted(
+            SearchSnapshot<T> snapshot,
+            HighlightedSearchRequest<T> request,
+            List<TextField<T>> canonicalFields,
+            CandidatePlanner<T> filterPlanner
+    ) {
+        Objects.requireNonNull(snapshot, "snapshot");
+        Objects.requireNonNull(request, "request");
+        List<TextField<T>> fields = List.copyOf(canonicalFields);
+        Objects.requireNonNull(filterPlanner, "filterPlanner");
+        RankedSearchInput<T> input = RankedSearchInput.from(
+                snapshot,
+                request.searchRequest()
+        );
+        SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
+        if (!(plan.root() instanceof TextPlan<?> untypedText)) {
+            throw new UnsupportedOperationException(
+                    "V3.2 Phase 3 highlighted search supports TEXT queries only");
+        }
+        @SuppressWarnings("unchecked")
+        TextPlan<T> textPlan = (TextPlan<T>) untypedText;
+        List<SearchHit<T>> hits = new SearchExecutor<T>().execute(plan);
+        return TextHighlightAssembler.assemble(
+                hits,
+                fields,
+                textPlan,
+                request.contextCharacters(),
+                request.maxFragmentsPerField()
+        );
     }
 
     /**
