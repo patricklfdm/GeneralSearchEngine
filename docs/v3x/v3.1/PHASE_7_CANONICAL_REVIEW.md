@@ -8,11 +8,11 @@ first attempt, exposed the exact 84-configuration and 460-metric identity, passe
 canonical eligibility, and uploaded checksum-bound evidence to GCS. No member was
 selected or replaced by score.
 
-The set is eligible for human-reviewed registration as a new immutable feature
-family such as `v3.1.0-ranked-cloud`. It is deliberately incomparable with
+The set is registered as the new immutable feature family
+`v3.1.0-ranked-cloud`. It is deliberately incomparable with
 `v3.0.0-cloud`: the suite, preset, heap, configuration fingerprint, and metric set are
 different. The frozen V3 regression lane has now been run and reviewed separately;
-registration remains the final Phase 7 gate.
+the distinct registration completes the final Phase 7 gate.
 
 ## Evidence identity
 
@@ -28,8 +28,11 @@ registration remains the final Phase 7 gate.
 | Configuration fingerprint | `sha256:1c9a9ef7e94776ecf34e0bd804f13d386e47440d0f4a6a3e12cff5c0cdeaae91` |
 | Environment fingerprint | `sha256:51080e358d847728b6aaedb238f4d873158a1fde09b06c43b95a2b13ce2595f9` |
 | Upload receipt | `gse-upload-receipt-v1-eaf81fcee1699ed275f1eb0dbd125ec7b71b7249e650c568b020847751847c50` |
+| Receipt SHA-256 | `sha256:772499303b1e63c4faf3334398e2b0ce349c686e562a12b3e2665b9f78db7deb` |
 | Durable objects | 76 |
+| Durable manifest generation | `1788084628819510` |
 | Durable manifest | `gs://gse-benchmark-evidence-266952534277/general-search-engine/sets/gse-set-v1-bff8407c3732fbe914de11baacf6d5368f28597cbb7b0402b5925afd58d532a2/v1/benchmark-set-manifest.json` |
+| Registry name | `v3.1.0-ranked-cloud` |
 
 The artifact inventory, every member's derived inventory, the set inventory, and the
 upload-receipt checksum all verify. The receipt contains 57 raw, nine derived-run, six
@@ -94,7 +97,7 @@ diagnostic rather than latency-SLA claims. Positive snapshot counts, queue maxim
 and successful teardown in all members show continued writer progress and a drained
 queue.
 
-## Remaining Phase 7 gate
+## Registration and Phase 7 completion
 
 The separately reviewed regression candidate used the unchanged registered-baseline
 shape:
@@ -106,6 +109,7 @@ preset = v3-production-all-v1
 
 That candidate is the only Phase 7 lane directly comparable with `v3.0.0-cloud`; its
 evidence and comparison are recorded in
-[the frozen regression review](PHASE_7_REGRESSION_REVIEW.md). The ranked feature set
-may now be registered under a new immutable name. The protected workflow does not
-perform comparison or registration automatically.
+[the frozen regression review](PHASE_7_REGRESSION_REVIEW.md). After that review, the
+ranked feature set was explicitly registered as `v3.1.0-ranked-cloud`, bound to its
+exact GCS generation and receipt. The protected workflow performed neither comparison
+nor registration automatically. This separate reviewed change completes Phase 7.
