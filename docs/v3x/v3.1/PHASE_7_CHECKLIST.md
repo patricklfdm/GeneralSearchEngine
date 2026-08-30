@@ -78,11 +78,15 @@ entry.
 
 ## Protected evidence still required
 
-- [ ] Merge this implementation to protected `master`; verify CI and exact source
-  ancestry before any paid execution.
-- [ ] Run one Standard, Actions-retained `ranked-v31` experiment to confirm that all
-  84 cells, derivation, cleanup, and upload staging finish below the 60-minute slot
-  cap.
+- [x] Merge the initial implementation to protected `master`; verify CI and exact
+  source ancestry before the first paid execution. The reviewed source was merge
+  commit `672fc7707302b7f9911ba30b62ea39743b9b7796`.
+- [ ] Merge the queue-maximum derivation correction discovered during experiment
+  review, then repeat one Standard, Actions-retained `ranked-v31` experiment from
+  the corrected protected source. The first attempt confirmed the 84-cell shape,
+  cleanup, and 50-minute runtime budget, but its derived queue-maximum metric summed
+  ten per-iteration maxima instead of retaining the true maximum. See
+  [the experiment review](PHASE_7_EXPERIMENT_REVIEW.md).
 - [ ] Run a three-member Standard/GCS `ranked-v31` canonical set; review ranges,
   allocation, GC, writer throughput, queue evidence, and snapshot progress.
 - [ ] Run a directly comparable three-member Standard/GCS regression-lane candidate
