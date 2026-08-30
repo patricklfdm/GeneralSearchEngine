@@ -7,8 +7,9 @@ Published baseline: `3.0.0`
 Completed implementation: V3.1 Phase 7 feature-lane infrastructure,
 protected-master calibration, the ranked-feature canonical set, and the unchanged
 regression-lane comparison are reviewed. The feature family is registered as
-`v3.1.0-ranked-cloud`. Phase 8 snapshot identity conversion and local hardening are
-complete; protected snapshot CI acceptance is next, before final `3.1.0` conversion.
+`v3.1.0-ranked-cloud`. Phase 8 snapshot hardening and protected CI acceptance are
+complete; the final `3.1.0` candidate has passed local release validation and awaits
+its release-preparation PR.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

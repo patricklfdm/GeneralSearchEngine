@@ -3,7 +3,7 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## 3.1.0 — Unreleased
+## 3.1.0 — 2026-08-30
 
 ### Added
 

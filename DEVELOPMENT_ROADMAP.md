@@ -12,10 +12,10 @@ V3.1 feature implementation and Phase 7 evidence are complete. Ordered phrase sl
 `minimumShouldMatch`, profile-guided phrase hardening, the semantics-preserving
 persistent fuzzy dictionary, and 1M concurrency evidence have passed their phase
 contracts. The frozen regression comparison and the distinct ranked feature family are
-reviewed, and `v3.1.0-ranked-cloud` is registered immutably. Phase 8 snapshot identity
-conversion and local hardening are complete; protected snapshot CI acceptance is next,
-before final `3.1.0` conversion. Ranked `mustNot` and public fuzzy tuning are not V3.1
-blockers. Published 1.0.0,
+reviewed, and `v3.1.0-ranked-cloud` is registered immutably. Phase 8 snapshot hardening
+and protected CI acceptance are complete; the final `3.1.0` candidate has passed local
+release validation and awaits its release-preparation PR. Ranked `mustNot` and public
+fuzzy tuning are not V3.1 blockers. Published 1.0.0,
 2.0.0, 2.1.0, and 3.0.0 APIs remain compatibility baselines.
 
 ## v3.0.0 current stable release

@@ -80,7 +80,7 @@ because a new method is source-additive; overload resolution, null literals, era
 record components, default-interface behavior, and independent compilation must also
 be reviewed.
 
-## Phase 8 snapshot review
+## Phase 8 snapshot and final review
 
 The fresh isolated `3.1.0-SNAPSHOT` comparison resolves the published 3.0.0 core JAR
 with SHA-256:
@@ -89,8 +89,9 @@ with SHA-256:
 3b0ed72877f3c5f2ef225d1a87cac8d9546b109c91c0bec8d8dcea12e2d101f2
 ```
 
-Japicmp passes against all four published baselines. The 3.0.0-to-candidate report
-contains exactly four additive public method descriptors:
+The same normal clean-home and fresh-isolated comparisons pass after final `3.1.0`
+conversion. Japicmp passes against all four published baselines. The
+3.0.0-to-candidate report contains exactly four additive public method descriptors:
 
 - supported `SearchQueries.phrase(TextField<T>, String, int)`;
 - supported `SearchQueries.BoolBuilder<T>.minimumShouldMatch(int)`;

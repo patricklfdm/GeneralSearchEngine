@@ -21,8 +21,9 @@ atomic-publication architecture.
   exact persistent code-point trie. [Phase 7](v3.1/PHASE_7_CHECKLIST.md) implements
   the isolated ranked feature lane; its canonical set and frozen regression comparison
   are reviewed, and `v3.1.0-ranked-cloud` is registered as a distinct immutable family.
-  [Phase 8](v3.1/PHASE_8_CHECKLIST.md) has locally completed the V3.1 snapshot
-  hardening gates and now awaits protected CI acceptance before final conversion.
+  [Phase 8](v3.1/PHASE_8_CHECKLIST.md) has passed protected snapshot CI and completed
+  local validation of the final `3.1.0` candidate; release-preparation PR acceptance
+  is next.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 

@@ -2,10 +2,10 @@
 
 ## Release state
 
-V3.1 is currently an unreleased `3.1.0-SNAPSHOT` candidate. Maven Central installation
-must remain on published `3.0.0` until the signed V3.1 release is available. This guide
+V3.1 is currently the final `3.1.0` release candidate. Maven Central installation must
+remain on published `3.0.0` until the signed V3.1 release is available. This guide
 describes the frozen source-compatible upgrade and may be used with a locally built
-snapshot from the repository.
+candidate from the repository.
 
 ## Compatibility
 
@@ -75,7 +75,7 @@ Explain output, and absence of a hidden expansion cap remain unchanged.
 
 ## Validation before adoption
 
-For a local snapshot build:
+For a local candidate build:
 
 ```bash
 ./mvnw -f reactor/pom.xml clean test

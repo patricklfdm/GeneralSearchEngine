@@ -1,7 +1,7 @@
 # V3.1 Phase 8 hardening and release checklist
 
-Status: snapshot conversion and all local hardening gates complete; protected
-PR/master `CI / Required` acceptance is pending before final version conversion.
+Status: the protected snapshot state is accepted and final `3.1.0` local validation is
+complete; final release-preparation PR/master acceptance remains pending.
 
 ## Entry and frozen boundary
 
@@ -135,21 +135,23 @@ PR/master `CI / Required` acceptance is pending before final version conversion.
 - [x] JMH package and forked smoke pass.
 - [x] Python 3.11 Cloud Benchmark unit suite, shell syntax, and synthetic lifecycle
   gates pass.
-- [ ] Protected PR/master `CI / Required` passes for the accepted snapshot state.
+- [x] Protected PR/master `CI / Required` passes for snapshot merge
+  `322527031d31065b1c6921656015ee6d3a100ce3` in
+  [run 33331504798](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33331504798).
 
 ## Final version conversion — `3.1.0`
 
-- [ ] Every snapshot hardening, API, documentation, and evidence-inheritance item is
+- [x] Every snapshot hardening, API, documentation, and evidence-inheritance item is
   accepted before conversion.
-- [ ] Convert all current project and consumer coordinates together to `3.1.0`.
-- [ ] Preserve all published compatibility and cloud baseline identities.
-- [ ] Freeze `project.build.outputTimestamp` according to the accepted release-date
-  convention.
-- [ ] Convert the changelog heading to `3.1.0 — <actual release date>`.
-- [ ] Remove release-facing `3.1.0-SNAPSHOT` references while preserving historical
+- [x] Convert all current project and consumer coordinates together to `3.1.0`.
+- [x] Preserve all published compatibility and cloud baseline identities.
+- [x] Freeze `project.build.outputTimestamp` at `2026-08-30T00:00:00Z`.
+- [x] Convert the changelog heading to `3.1.0 — 2026-08-30`.
+- [x] Remove release-facing `3.1.0-SNAPSHOT` references while preserving historical
   evidence where appropriate.
-- [ ] Repeat every snapshot validation family against `3.1.0`.
-- [ ] Record final artifact hashes and pre-tag evidence in the release record.
+- [x] Repeat every snapshot validation family against `3.1.0`.
+- [x] Record final artifact hashes and local pre-tag evidence in
+  [the release checklist](RELEASE_CHECKLIST.md).
 - [ ] Merge the approved release-preparation PR to protected `master` and wait for
   required CI.
 
