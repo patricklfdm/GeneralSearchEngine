@@ -41,19 +41,38 @@ nor a published release.
   `9d4c43c230abb260ac1736cc3dd4d29d4f29fbe9` changes no production source, JMH
   workload, preset, runner, workflow, JVM/toolchain, or evidence identity. Existing
   regression and ranked-feature cloud evidence is inherited without another paid run.
-- [ ] Snapshot hardening commit and protected PR/master `CI / Required` evidence are
-  recorded after acceptance.
+- [x] Snapshot hardening was merged by PR #47 to protected `master` as
+  `322527031d31065b1c6921656015ee6d3a100ce3`; exact-commit `CI / Required` passed in
+  [run 33331504798](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33331504798).
 
 ## State 2 — final release preparation (`3.1.0`) — `PENDING`
 
-- [ ] Every State 1 item, including protected CI, is accepted before conversion.
-- [ ] Current project and consumer coordinates are aligned at final `3.1.0` while
+- [x] Every State 1 item, including protected CI, is accepted before conversion.
+- [x] Current project and consumer coordinates are aligned at final `3.1.0` while
   historical compatibility and cloud identities remain unchanged.
-- [ ] Reproducible output timestamp and the dated changelog heading are frozen.
-- [ ] Release-facing snapshot references are removed without rewriting historical
+- [x] Reproducible output timestamp is `2026-08-30T00:00:00Z` and the changelog
+  heading is dated `2026-08-30`.
+- [x] Release-facing snapshot references are removed without rewriting historical
   evidence.
-- [ ] Every snapshot validation family is rerun against the final version.
-- [ ] Final six-JAR hashes and exact release-preparation commit are recorded.
+- [x] Every snapshot validation family is rerun against final `3.1.0`: reactor,
+  frozen fixture, normal and fresh-isolated Japicmp, consumers, travel, strict
+  packaging, artifact inspection, reproducibility, JMH, soak, and Python/cloud
+  synthetic lifecycle gates all pass.
+- [x] Final six-JAR SHA-256 hashes are recorded:
+  - `f53f35c0d54bfdaba42d1815163c23ef414d971f517486cb1aed66462600fc5e`
+    core Javadoc;
+  - `1f5777fc0d2f4ff34fa6b37eb06c86a7148884508636908156f6c5f58a3d4d41`
+    core sources;
+  - `d77309b58ceca6b6515177a1edbed20f88d59ec5e3ec9330173e282d53d6c86c`
+    core main;
+  - `2b5501f0c51ce5ec6d7e14d0db82860eb38ff65dec7c8a02319094cf65fddf51`
+    processor Javadoc;
+  - `a9ba5fce93cf1776ad11e8a7535af83784b3937945c22ff1fd621cef2718fe5f`
+    processor sources;
+  - `7e2de871db7f543bc5323ea89b86793b52f8ea2a66eeaddbb1f2456d4e5b37ed`
+    processor main.
+- [ ] Exact release-preparation commit is recorded after commit and protected
+  acceptance.
 - [ ] The release-preparation PR passes `CI / Required`, merges to protected `master`,
   and exact-commit master CI succeeds.
 

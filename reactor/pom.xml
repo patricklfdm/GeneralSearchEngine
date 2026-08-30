@@ -6,7 +6,7 @@
 
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine-reactor</artifactId>
-    <version>3.1.0-SNAPSHOT</version>
+    <version>3.1.0</version>
     <packaging>pom</packaging>
 
     <name>GeneralSearchEngine reactor</name>

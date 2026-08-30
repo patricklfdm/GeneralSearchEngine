@@ -45,11 +45,11 @@ artifacts are available from Maven Central. Release notes and direct-download ar
 are available from the
 [`v3.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.0.0).
 
-### V3.1 development snapshot
+### V3.1 release candidate
 
-The active source tree is the unreleased `3.1.0-SNAPSHOT` development candidate.
-Published installation guidance remains on 3.0.0 until the signed V3.1 release is
-available. V3.1 adds ordered phrase slop and an explicit ranked BOOL SHOULD threshold:
+The active source tree is the final `3.1.0` release candidate. Published installation
+guidance remains on 3.0.0 until the signed V3.1 release is available. V3.1 adds ordered
+phrase slop and an explicit ranked BOOL SHOULD threshold:
 
 ```java
 SearchQuery<TravelPlace> nearbyTerms = SearchQueries.phrase(
