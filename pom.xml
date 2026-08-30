@@ -72,6 +72,9 @@
         <published.v3.sha256>
             3b0ed72877f3c5f2ef225d1a87cac8d9546b109c91c0bec8d8dcea12e2d101f2
         </published.v3.sha256>
+        <published.v3.1.sha256>
+            d77309b58ceca6b6515177a1edbed20f88d59ec5e3ec9330173e282d53d6c86c
+        </published.v3.1.sha256>
     </properties>
 
     <dependencies>
@@ -262,6 +265,19 @@
                                             </destFileName>
                                             <overWrite>true</overWrite>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>io.github.patricklfdm</groupId>
+                                            <artifactId>general-search-engine</artifactId>
+                                            <version>3.1.0</version>
+                                            <type>jar</type>
+                                            <outputDirectory>
+                                                ${project.build.directory}/compat-baselines
+                                            </outputDirectory>
+                                            <destFileName>
+                                                published-general-search-engine-3.1.0.jar
+                                            </destFileName>
+                                            <overWrite>true</overWrite>
+                                        </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>true</overWriteReleases>
                                     <overWriteIfNewer>true</overWriteIfNewer>
@@ -292,6 +308,19 @@
                                                     <equals
                                                             arg1="${resolved.v3.sha256}"
                                                             arg2="${published.v3.sha256}"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                        <checksum
+                                                file="${project.build.directory}/compat-baselines/published-general-search-engine-3.1.0.jar"
+                                                algorithm="SHA-256"
+                                                property="resolved.v3.1.sha256"/>
+                                        <fail message="Resolved 3.1.0 compatibility baseline is not the published Maven Central artifact; run this profile with an isolated Maven repository.">
+                                            <condition>
+                                                <not>
+                                                    <equals
+                                                            arg1="${resolved.v3.1.sha256}"
+                                                            arg2="${published.v3.1.sha256}"/>
                                                 </not>
                                             </condition>
                                         </fail>
@@ -415,6 +444,40 @@
                                         <file>
                                             <path>
                                                 ${project.build.directory}/compat-baselines/published-general-search-engine-3.0.0.jar
+                                            </path>
+                                        </file>
+                                    </oldVersion>
+                                    <newVersion>
+                                        <file>
+                                            <path>
+                                                ${project.build.directory}/${project.build.finalName}.jar
+                                            </path>
+                                        </file>
+                                    </newVersion>
+                                    <parameter>
+                                        <accessModifier>public</accessModifier>
+                                        <onlyModified>true</onlyModified>
+                                        <includeSynthetic>false</includeSynthetic>
+                                        <breakBuildOnBinaryIncompatibleModifications>
+                                            true
+                                        </breakBuildOnBinaryIncompatibleModifications>
+                                        <breakBuildOnSourceIncompatibleModifications>
+                                            true
+                                        </breakBuildOnSourceIncompatibleModifications>
+                                    </parameter>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compare-published-v3-1-api</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>cmp</goal>
+                                </goals>
+                                <configuration>
+                                    <oldVersion>
+                                        <file>
+                                            <path>
+                                                ${project.build.directory}/compat-baselines/published-general-search-engine-3.1.0.jar
                                             </path>
                                         </file>
                                     </oldVersion>

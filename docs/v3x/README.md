@@ -1,9 +1,9 @@
 # GeneralSearchEngine V3.x development line
 
-V3.x is the active development line after published `3.0.0` and before V4 changes
-the process-lifetime durability boundary. It matures the in-memory engine without
-changing its immutable-snapshot, lock-free-reader, asynchronous-single-writer, and
-atomic-publication architecture.
+V3.x contains the current stable `3.1.0` release and remains the active development
+line before V4 changes the process-lifetime durability boundary. It matures the
+in-memory engine without changing its immutable-snapshot, lock-free-reader,
+asynchronous-single-writer, and atomic-publication architecture.
 
 ## Authority and history
 
@@ -21,9 +21,10 @@ atomic-publication architecture.
   exact persistent code-point trie. [Phase 7](v3.1/PHASE_7_CHECKLIST.md) implements
   the isolated ranked feature lane; its canonical set and frozen regression comparison
   are reviewed, and `v3.1.0-ranked-cloud` is registered as a distinct immutable family.
-  [Phase 8](v3.1/PHASE_8_CHECKLIST.md) has passed protected snapshot CI and completed
-  local validation of the final `3.1.0` candidate; release-preparation PR acceptance
-  is next.
+  [Phase 8](v3.1/PHASE_8_CHECKLIST.md) is complete: signed `v3.1.0`, Maven Central
+  publication, clean remote verification, and the
+  [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
+  are accepted and recorded.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 

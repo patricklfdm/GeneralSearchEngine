@@ -5,8 +5,8 @@ reference document type. The engine uses immutable search snapshots and persiste
 block-based bitmaps so readers can search without locking while a single writer batches
 mutations and atomically publishes new snapshots.
 
-Version 3.0.0 is the current stable release. Its signed `v3.0.0` tag and both Maven
-artifacts were published on August 26, 2026. Version 2.1.0 remains the immediate prior
+Version 3.1.0 is the current stable release. Its signed `v3.1.0` tag and both Maven
+artifacts were published on August 30, 2026. Version 3.0.0 remains the immediate prior
 stable release and compatibility baseline. The completed work and compatibility
 constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
@@ -20,7 +20,7 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Install
 
-### Stable 3.0.0
+### Stable 3.1.0
 
 The runtime dependency is:
 
@@ -28,28 +28,27 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>3.0.0</version>
+    <version>3.1.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:3.0.0`. Existing 2.1 users may
-adopt V3 incrementally through the [2.1-to-3.0 migration guide](docs/v3/MIGRATION_GUIDE.md);
-the published v1 and v2 contracts remain recorded in their historical documentation.
+`io.github.patricklfdm:general-search-engine-processor:3.1.0`. Existing 3.0 users can
+upgrade through the [3.0-to-3.1 migration guide](docs/v3x/v3.1/MIGRATION_GUIDE.md);
+the published V1, V2, and V3.0 contracts remain recorded in their historical
+documentation.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.0.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.1.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.0.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.1.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v3.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.0.0).
+[`v3.1.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0).
 
-### V3.1 release candidate
+### What is new in V3.1
 
-The active source tree is the final `3.1.0` release candidate. Published installation
-guidance remains on 3.0.0 until the signed V3.1 release is available. V3.1 adds ordered
-phrase slop and an explicit ranked BOOL SHOULD threshold:
+V3.1 adds ordered phrase slop and an explicit ranked BOOL SHOULD threshold:
 
 ```java
 SearchQuery<TravelPlace> nearbyTerms = SearchQueries.phrase(
@@ -74,7 +73,7 @@ and [V3.1 ranked-search semantics](docs/v3x/v3.1/RANKED_SEARCH_SEMANTICS.md).
 
 ## Quick start: annotated search
 
-The shortest 3.0 path uses runtime annotation discovery and does not require the
+The shortest 3.1 path uses runtime annotation discovery and does not require the
 optional annotation processor. Save this complete example as
 `TravelSearchQuickStart.java`:
 
@@ -235,13 +234,15 @@ The script skips tests because release verification runs them separately, then c
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md) and the
-[v3.0 release record](docs/v3/RELEASE_CHECKLIST.md) for the current release evidence.
-The [v2.1 release checklist](docs/v2.1/RELEASE_CHECKLIST.md),
+[v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for the current release
+evidence.
+The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
+[v2.1 release checklist](docs/v2.1/RELEASE_CHECKLIST.md),
 [v2.0 release record](docs/v2/RELEASE_CHECKLIST.md),
 [P7 validation record](docs/v2/phases/p7/RELEASE_VALIDATION.md), and
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
-The project identity and Apache License 2.0 metadata are finalized for v3.0.0.
+The project identity and Apache License 2.0 metadata are finalized for v3.1.0.
 
 ## v1.0.0 scope
 
@@ -515,7 +516,7 @@ Add the separate processor only when compile-time typed field constants are usef
             <path>
                 <groupId>io.github.patricklfdm</groupId>
                 <artifactId>general-search-engine-processor</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
             </path>
         </annotationProcessorPaths>
     </configuration>

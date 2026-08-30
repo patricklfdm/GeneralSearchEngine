@@ -1,7 +1,7 @@
 # V3.1 Phase 8 hardening and release checklist
 
-Status: the protected snapshot state is accepted and final `3.1.0` local validation is
-complete; final release-preparation PR/master acceptance remains pending.
+Status: complete. Signed `v3.1.0`, Maven Central publication, clean remote
+verification, the GitHub Release, and the post-publication evidence are accepted.
 
 ## Entry and frozen boundary
 
@@ -152,30 +152,39 @@ complete; final release-preparation PR/master acceptance remains pending.
 - [x] Repeat every snapshot validation family against `3.1.0`.
 - [x] Record final artifact hashes and local pre-tag evidence in
   [the release checklist](RELEASE_CHECKLIST.md).
-- [ ] Merge the approved release-preparation PR to protected `master` and wait for
-  required CI.
+- [x] Release-preparation PR #48 merges to protected `master` as
+  `9ad9c716459312a916028d1ecd3946486661b743`; exact-commit required CI passes in
+  [run 33332884970](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33332884970).
 
-## Signed tag and publication — initially `PENDING`
+## Signed tag and publication — complete
 
-- [ ] Create annotated signed `v3.1.0` on the exact approved protected-`master` commit.
-- [ ] Verify tag type, signature fingerprint, version alignment, changelog heading,
-  HEAD identity, and `origin/master` reachability locally.
-- [ ] Push only the verified tag and let the protected Release workflow run.
-- [ ] Release validation and Central immutability preflight pass.
-- [ ] Approve the `production-release` environment after validation.
-- [ ] Core and processor publish successfully to Maven Central with all required
+- [x] Annotated signed `v3.1.0` points to exact approved protected-`master` commit
+  `9ad9c716459312a916028d1ecd3946486661b743`.
+- [x] Local verification of tag type, signature fingerprint, version alignment,
+  changelog heading, HEAD identity, and `origin/master` reachability passes.
+- [x] Only the locally verified immutable tag is pushed.
+- [x] Release validation and Central immutability preflight pass.
+- [x] The owner approves `production-release` in successful recovery
+  [run 33333645494](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33333645494);
+  deployment `6170932080` completes with `success`.
+- [x] Core and processor publish successfully to Maven Central with all required
   signed artifacts.
-- [ ] Clean remote verification and published V3 consumer pass without a local reactor
+- [x] Clean remote verification and published V3 consumer pass without a local reactor
   install.
-- [ ] GitHub Release is created from the exact verified tag and marked latest.
+- [x] [GeneralSearchEngine 3.1.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
+  is created from the exact verified tag and marked latest.
 
-## Post-publication record — initially `PENDING`
+## Post-publication record — complete
 
-- [ ] Record exact tag/master commit, signing fingerprint, workflow run, publication
+- [x] Record exact tag/master commit, signing fingerprint, workflow run, publication
   information, remote verification, and GitHub Release URL/time.
-- [ ] Update root and V3.x documentation to identify `3.1.0` as current stable.
-- [ ] Add published `3.1.0` as a mandatory future compatibility baseline while
+- [x] Update root and V3.x documentation to identify `3.1.0` as current stable.
+- [x] Add published `3.1.0` as a mandatory future compatibility baseline while
   retaining `1.0.0`, `2.0.0`, `2.1.0`, and `3.0.0`.
-- [ ] Treat published `3.1.0` and signed `v3.1.0` as immutable; later fixes use a new
+- [x] Treat published `3.1.0` and signed `v3.1.0` as immutable; later fixes use a new
   version.
-- [ ] Mark Phase 8 and V3.1 complete only after the evidence commit is merged.
+- [x] This evidence change is the final Phase 8 deliverable; its protected-master
+  merge completes Phase 8 and V3.1.
+
+The complete immutable-tag recovery and publication evidence is recorded in the
+[V3.1 release checklist](RELEASE_CHECKLIST.md).

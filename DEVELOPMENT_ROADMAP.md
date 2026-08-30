@@ -8,19 +8,31 @@ changing the immutable-snapshot or single-writer publication boundary. Its versi
 scope and V3.1 contract map are maintained under
 [`docs/v3x/`](docs/v3x/README.md).
 
-V3.1 feature implementation and Phase 7 evidence are complete. Ordered phrase slop,
-`minimumShouldMatch`, profile-guided phrase hardening, the semantics-preserving
-persistent fuzzy dictionary, and 1M concurrency evidence have passed their phase
-contracts. The frozen regression comparison and the distinct ranked feature family are
-reviewed, and `v3.1.0-ranked-cloud` is registered immutably. Phase 8 snapshot hardening
-and protected CI acceptance are complete; the final `3.1.0` candidate has passed local
-release validation and awaits its release-preparation PR. Ranked `mustNot` and public
-fuzzy tuning are not V3.1 blockers. Published 1.0.0,
-2.0.0, 2.1.0, and 3.0.0 APIs remain compatibility baselines.
+V3.1 Phases 0–8 are complete. Ordered phrase slop, `minimumShouldMatch`, profile-guided
+phrase hardening, the semantics-preserving persistent fuzzy dictionary, and 1M
+concurrency evidence passed their contracts. The frozen regression comparison and the
+distinct ranked feature family are reviewed, and `v3.1.0-ranked-cloud` is registered
+immutably. Signed `v3.1.0`, Maven Central publication, clean remote verification, and
+the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, and 3.1.0 APIs
+are mandatory compatibility baselines for subsequent V3.x development.
 
-## v3.0.0 current stable release
+## v3.1.0 current stable release
 
-Version `3.0.0` was published on August 26, 2026 as the current stable release:
+Version `3.1.0` was published on August 30, 2026 as the current stable release:
+
+- `io.github.patricklfdm:general-search-engine:3.1.0`;
+- `io.github.patricklfdm:general-search-engine-processor:3.1.0`;
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0).
+
+V3.1 adds ordered phrase slop and explicit ranked BOOL `minimumShouldMatch`, while
+preserving V3.0 defaults. It also replaces full-scan fuzzy vocabulary expansion with a
+semantics-equivalent persistent code-point trie and completes the separate ranked
+feature evidence lane. Ranked `mustNot` and public fuzzy tuning remain outside V3.1.
+
+## v3.0.0 previous stable release
+
+Version `3.0.0` was published on August 26, 2026 and remains the immediate prior stable
+release and compatibility baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.0.0`;

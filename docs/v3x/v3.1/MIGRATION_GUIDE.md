@@ -2,10 +2,19 @@
 
 ## Release state
 
-V3.1 is currently the final `3.1.0` release candidate. Maven Central installation must
-remain on published `3.0.0` until the signed V3.1 release is available. This guide
-describes the frozen source-compatible upgrade and may be used with a locally built
-candidate from the repository.
+V3.1.0 was published to Maven Central on August 30, 2026 from the signed `v3.1.0`
+tag. Upgrade the runtime dependency and, when used, the optional annotation processor
+to `3.1.0`:
+
+```xml
+<dependency>
+    <groupId>io.github.patricklfdm</groupId>
+    <artifactId>general-search-engine</artifactId>
+    <version>3.1.0</version>
+</dependency>
+```
+
+This guide describes the frozen source-compatible upgrade from published `3.0.0`.
 
 ## Compatibility
 
