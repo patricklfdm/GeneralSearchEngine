@@ -49,6 +49,8 @@ remains the phase history and decision source of truth.
 - [V3.2 Phase 0 checklist](v3x/v3.2/PHASE_0_CHECKLIST.md)
 - [V3.2 Phase 1 checklist](v3x/v3.2/PHASE_1_CHECKLIST.md)
 - [V3.2 Phase 1 pre-change baseline](v3x/v3.2/PHASE_1_BASELINE.md)
+- [V3.2 Phase 2 checklist](v3x/v3.2/PHASE_2_CHECKLIST.md)
+- [V3.2 Phase 2 offset-analysis baseline](v3x/v3.2/PHASE_2_BASELINE.md)
 
 ## v3.0 — previous stable and frozen release
 

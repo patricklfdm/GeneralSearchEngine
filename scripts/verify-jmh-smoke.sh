@@ -12,6 +12,12 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 java -jar target/benchmarks.jar \
+  'V32AnalyzerBaselineBenchmark.analyzeWithOffsets' \
+  -p shape=combining \
+  -p tokenCount=16 \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \

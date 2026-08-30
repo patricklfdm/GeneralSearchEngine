@@ -29,7 +29,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   snapshot-consistent structured-highlighting foundation. Phase 0 is accepted, and
   [Phase 1](v3.2/PHASE_1_CHECKLIST.md) establishes the `3.2.0-SNAPSHOT` compatibility,
   independent-oracle, API-fixture, and pre-change evidence foundation without adding
-  production offset or highlighting code.
+  production offset or highlighting code. [Phase 2](v3.2/PHASE_2_CHECKLIST.md)
+  implements the offset API family, exact built-in Unicode source mapping, sequence
+  validation, and ordinary-path regression controls without introducing highlighting.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -75,6 +77,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 0 checklist](v3.2/PHASE_0_CHECKLIST.md)
 - [Phase 1 checklist](v3.2/PHASE_1_CHECKLIST.md)
 - [Phase 1 pre-change baseline](v3.2/PHASE_1_BASELINE.md)
+- [Phase 2 checklist](v3.2/PHASE_2_CHECKLIST.md)
+- [Phase 2 offset-analysis baseline](v3.2/PHASE_2_BASELINE.md)
 
 ## Stable boundaries
 
