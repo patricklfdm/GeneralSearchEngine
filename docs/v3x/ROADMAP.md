@@ -2,14 +2,13 @@
 
 ## Status
 
-Published baseline: `3.0.0`
+Current stable release: `3.1.0`
 
-Completed implementation: V3.1 Phase 7 feature-lane infrastructure,
-protected-master calibration, the ranked-feature canonical set, and the unchanged
-regression-lane comparison are reviewed. The feature family is registered as
-`v3.1.0-ranked-cloud`. Phase 8 snapshot hardening and protected CI acceptance are
-complete; the final `3.1.0` candidate has passed local release validation and awaits
-its release-preparation PR.
+V3.1 Phases 0–8 are complete. The signed `v3.1.0` tag points to protected master,
+core and processor artifacts are published to Maven Central, clean remote verification
+passes, and the GitHub Release is available. The ranked feature family remains
+registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
+`v3.0.0-cloud`.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

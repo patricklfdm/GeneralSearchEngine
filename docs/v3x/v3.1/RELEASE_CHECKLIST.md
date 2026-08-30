@@ -45,7 +45,7 @@ nor a published release.
   `322527031d31065b1c6921656015ee6d3a100ce3`; exact-commit `CI / Required` passed in
   [run 33331504798](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33331504798).
 
-## State 2 — final release preparation (`3.1.0`) — `PENDING`
+## State 2 — final release preparation (`3.1.0`) — complete
 
 - [x] Every State 1 item, including protected CI, is accepted before conversion.
 - [x] Current project and consumer coordinates are aligned at final `3.1.0` while
@@ -71,32 +71,78 @@ nor a published release.
     processor sources;
   - `7e2de871db7f543bc5323ea89b86793b52f8ea2a66eeaddbb1f2456d4e5b37ed`
     processor main.
-- [ ] Exact release-preparation commit is recorded after commit and protected
-  acceptance.
-- [ ] The release-preparation PR passes `CI / Required`, merges to protected `master`,
-  and exact-commit master CI succeeds.
+- [x] Release-preparation commit
+  `c4186f98d889f7c17edf926f94c4836d4b9af86e` is recorded; PR #48 merged it to
+  protected `master` as `9ad9c716459312a916028d1ecd3946486661b743`.
+- [x] Exact-commit `CI / Required` succeeds on the protected merge in
+  [run 33332884970](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33332884970).
 
-## State 3 — signed tag and publication — `PENDING`
+## State 3 — signed tag and publication — complete
 
-- [ ] Annotated signed `v3.1.0` points to the exact approved protected-`master` commit.
-- [ ] Local tag type, signature fingerprint, version, changelog, HEAD identity, and
+- [x] Annotated signed `v3.1.0` points to the exact approved protected-`master` commit
+  `9ad9c716459312a916028d1ecd3946486661b743`.
+- [x] Local tag type, signature fingerprint, version, changelog, HEAD identity, and
   `origin/master` reachability checks pass.
-- [ ] The protected Release workflow passes validation and Central immutability
-  preflight before `production-release` approval.
-- [ ] Core and processor publish to Maven Central with POM, main, sources, Javadoc,
+- [x] Protected recovery
+  [run 33333645494](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33333645494)
+  passes validation and Central immutability preflight before `production-release`
+  approval.
+- [x] Core and processor publish to Maven Central with POM, main, sources, Javadoc,
   detached signatures, and checksums.
-- [ ] Fresh remote verification and a clean published V3 consumer pass without a
-  reactor install.
-- [ ] GitHub Release is created from the exact verified tag and marked latest.
+- [x] Fresh remote verification passes for all eight artifacts, detached signatures,
+  and SHA-1 files; a clean published V3 consumer passes 7/7 tests without a reactor
+  install.
+- [x] [GeneralSearchEngine 3.1.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0)
+  is created from the exact verified tag and marked latest.
 
-## State 4 — post-publication record — `PENDING`
+## Immutable-tag recovery record
 
-- [ ] Record release date, exact tag/master commit, signing fingerprint, workflow run,
-  deployment, Central coordinates, remote verification, and GitHub Release URL/time.
-- [ ] Update root and V3.x documentation to identify `3.1.0` as current stable.
-- [ ] Add published `3.1.0` as a mandatory future compatibility baseline while
-  retaining `1.0.0`, `2.0.0`, `2.1.0`, and `3.0.0`.
-- [ ] Mark V3.1 Phase 8 complete only after the evidence commit is merged.
+- [x] Initial tag-triggered
+  [run 33333303580](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33333303580)
+  passed unprivileged validation and preflight, then stopped before the publish runner
+  because environment pattern `v*.*.*` was mistakenly typed as a branch policy rather
+  than a tag policy; deployment `6170859742` was rejected.
+- [x] No protected publish step, Central upload, or GitHub Release occurred in the
+  failed run; signed `v3.1.0` remained unchanged.
+- [x] The environment retains `master` as the recovery branch rule and now matches
+  `v*.*.*` as a tag rule. Manual recovery validated and published the same immutable
+  tag in successful run `33333645494`.
+
+## State 4 — post-publication record — complete
+
+- [x] Release date, exact tag/master commit, signing fingerprint, workflow run,
+  deployment, Central coordinates, remote verification, and GitHub Release URL/time
+  are recorded below.
+- [x] Root and V3.x documentation identify `3.1.0` as current stable.
+- [x] Published `3.1.0` is a mandatory future compatibility baseline while retaining
+  `1.0.0`, `2.0.0`, `2.1.0`, and `3.0.0`.
+- [x] The post-publication evidence change is the final V3.1 Phase 8 deliverable; its
+  protected-master merge completes Phase 8.
+
+## Post-publication evidence
+
+- Release date: `2026-08-30`.
+- Tag/master commit: signed `v3.1.0` ->
+  `9ad9c716459312a916028d1ecd3946486661b743`.
+- OpenPGP fingerprint: `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
+- Workflow and deployment: successful protected recovery
+  [run 33333645494](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33333645494)
+  and approved `production-release` deployment `6170932080`, both completed with
+  `success` on exact commit `9ad9c716459312a916028d1ecd3946486661b743`.
+- Maven Central: published
+  [`general-search-engine:3.1.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.1.0)
+  and
+  [`general-search-engine-processor:3.1.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.1.0).
+- Remote verification: all eight POM/main/sources/Javadoc artifacts, detached
+  signatures, and SHA-1 files passed on `2026-08-30`; the main JARs expose the expected
+  processor-service boundary.
+- Published consumer: a clean V3 consumer resolved only remote `3.1.0` artifacts and
+  passed 7/7 tests without a reactor install.
+- GitHub Release: [GeneralSearchEngine 3.1.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0),
+  published at `2026-08-30T20:39:31Z`.
+- Future compatibility: the pinned published 3.1.0 core JAR SHA-256 is
+  `d77309b58ceca6b6515177a1edbed20f88d59ec5e3ec9330173e282d53d6c86c`;
+  all five published baselines remain mandatory.
 
 Published `3.1.0` and signed `v3.1.0`, once they exist, are immutable. Later fixes use
 `3.1.1` or a later version.

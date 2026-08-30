@@ -2,19 +2,19 @@
 
 ## Baseline
 
-V3.1 is additive to published `1.0.0`, `2.0.0`, `2.1.0`, and `3.0.0`. The isolated
-artifact compatibility profile must compare the candidate core JAR directly with all
-four published artifacts. The frozen V1 fixture and independent V1-, V2-, and V3-style
-consumer builds remain mandatory.
+V3.1 is additive to published `1.0.0`, `2.0.0`, `2.1.0`, and `3.0.0`. During V3.1
+development, the isolated artifact compatibility profile compared the candidate core
+JAR directly with all four published artifacts. Following publication, `3.1.0` is also
+a mandatory baseline for every subsequent V3.x candidate. The frozen V1 fixture and
+independent V1-, V2-, and V3-style consumer builds remain mandatory.
 
-The `artifact-compat` profile copies the published `3.0.0` artifact into an isolated
-compatibility-baseline path and verifies its pinned SHA-256 before running Japicmp.
-This was essential while the candidate retained version `3.0.0`, because dependency
-coordinates alone could otherwise resolve a locally installed candidate and silently
-compare the JAR with itself. It remains mandatory after conversion to
-`3.1.0-SNAPSHOT` so the baseline identity continues to fail closed. The execution uses
-the same public-access, synthetic filtering, and binary/source incompatibility failure
-policy as the existing published baselines.
+The `artifact-compat` profile copies the published `3.0.0` and `3.1.0` artifacts into
+isolated compatibility-baseline paths and verifies their pinned SHA-256 values before
+running Japicmp. The 3.0 pin was essential while that candidate retained version
+`3.0.0`; the 3.1 pin now prevents subsequent local development from silently resolving
+a locally installed same-coordinate JAR. Both identities fail closed. Every execution
+uses the same public-access, synthetic filtering, and binary/source incompatibility
+failure policy as the older published baselines.
 
 ## Supported public additions
 
@@ -103,3 +103,16 @@ change. No public class, constructor, record component, interface default, or ex
 method is added, removed, or incompatibly modified beyond the four reviewed additive
 descriptors. The generated report is disposable under `target/japicmp/`; this document
 is the reviewed compatibility record.
+
+## Post-publication baseline
+
+The published 3.1.0 core JAR resolves from Maven Central with SHA-256:
+
+```text
+d77309b58ceca6b6515177a1edbed20f88d59ec5e3ec9330173e282d53d6c86c
+```
+
+That value matches the reproducible final main-JAR hash recorded before tagging. The
+post-publication profile compares the current tree with all five published baselines:
+`1.0.0`, `2.0.0`, `2.1.0`, pinned `3.0.0`, and pinned `3.1.0`. Later V3.x work may add
+new published baselines but must not remove any of these checks.
