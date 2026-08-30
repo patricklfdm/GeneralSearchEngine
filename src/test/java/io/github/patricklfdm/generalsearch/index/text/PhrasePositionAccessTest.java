@@ -183,6 +183,31 @@ class PhrasePositionAccessTest {
                         0
                 )
         );
+
+        NullPointerException missingSlot = assertThrows(
+                NullPointerException.class,
+                () -> PhrasePositionAccess.matches(
+                        1,
+                        new int[]{0},
+                        new PostingList[][]{null},
+                        0
+                )
+        );
+        assertEquals("alternativesBySlot[0]", missingSlot.getMessage());
+
+        NullPointerException missingAlternative = assertThrows(
+                NullPointerException.class,
+                () -> PhrasePositionAccess.matches(
+                        1,
+                        new int[]{0},
+                        new PostingList[][]{{null}},
+                        0
+                )
+        );
+        assertEquals(
+                "alternativesBySlot[0][0]",
+                missingAlternative.getMessage()
+        );
     }
 
     private static PostingList posting(int docId, int... positions) {

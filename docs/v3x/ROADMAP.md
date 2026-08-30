@@ -4,8 +4,8 @@
 
 Published baseline: `3.0.0`
 
-Active implementation: V3.1 Phase 4 complete; Phase 5 is the next implementation
-boundary.
+Active implementation: V3.1 Phase 5 profile-guided phrase optimization is complete;
+Phase 6 fuzzy dictionary implementation is the next implementation boundary.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

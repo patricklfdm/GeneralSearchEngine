@@ -276,19 +276,22 @@ public final class PhrasePositionAccess {
             }
             previousPosition = relativePosition;
 
-            PostingList[] alternatives = Objects.requireNonNull(
-                    alternativesBySlot[slot],
-                    "alternativesBySlot[" + slot + "]"
-            );
+            PostingList[] alternatives = alternativesBySlot[slot];
+            if (alternatives == null) {
+                throw new NullPointerException(
+                        "alternativesBySlot[" + slot + "]"
+                );
+            }
             if (alternatives.length == 0) {
                 throw new IllegalArgumentException(
                         "every phrase slot requires at least one alternative");
             }
             for (int index = 0; index < alternatives.length; index++) {
-                Objects.requireNonNull(
-                        alternatives[index],
-                        "alternativesBySlot[" + slot + "][" + index + "]"
-                );
+                if (alternatives[index] == null) {
+                    throw new NullPointerException(
+                            "alternativesBySlot[" + slot + "][" + index + "]"
+                    );
+                }
             }
         }
     }
