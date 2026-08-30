@@ -10,10 +10,11 @@ passes, and the GitHub Release is available. The ranked feature family remains
 registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
 `v3.0.0-cloud`.
 
-V3.2 Phase 0 has prepared the offset-analysis and structured-highlighting contract
-set. It awaits protected-branch acceptance before implementation may begin. The Phase
-0 branch changes documentation only: the project remains `3.1.0`, and no Java API,
-runtime behavior, benchmark identity, workflow, or published baseline has changed.
+V3.2 Phase 0 is accepted on protected `master`. Phase 1 switches the active development
+identity atomically to `3.2.0-SNAPSHOT`, retains all five published compatibility
+baselines, and materializes independent semantic oracles, frozen public-API fixtures,
+and pre-change diagnostics. No production offset or highlighting implementation is
+part of Phase 1.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
