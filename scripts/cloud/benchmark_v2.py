@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import base64
 import hashlib
+from itertools import product
 import json
 import math
 import os
@@ -38,7 +39,7 @@ BENCHMARK_CONFIG_FINGERPRINT_SCHEMA_VERSION = 1
 ENVIRONMENT_FINGERPRINT_SCHEMA_VERSION = 2
 MEMORY_FINGERPRINT_UNIT_BYTES = 1024 * 1024
 SUPPORTED_RAW_SCHEMAS = {0, 1}
-CANONICAL_MODES = {"full", "concurrency", "soak", "all"}
+CANONICAL_MODES = {"full", "concurrency", "soak", "ranked-v31", "all"}
 CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
     "v3-production-full-v1": {
         "mode": "full",
@@ -64,6 +65,24 @@ CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
         "jmh": True,
         "soak": True,
     },
+    "v3.1-ranked-v1": {
+        "mode": "ranked-v31",
+        "threadGroups": "16,1",
+        "documents": "1000000",
+        "jvmOptions": "-Xms32g -Xmx64g",
+        "jmh": True,
+        "soak": False,
+        "suite": "v3.1-ranked-suite-v1",
+        "workloads": {
+            "v31-phrase",
+            "v31-bool",
+            "v31-fuzzy",
+            "v31-text-build",
+            "v31-text-publication",
+            "v31-concurrent-latency-16-1",
+            "v31-concurrent-throughput-16-1",
+        },
+    },
 }
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 COMMIT_RE = re.compile(r"^[0-9a-f]{40}$")
@@ -72,6 +91,9 @@ CURRENT_CONCURRENCY_RE = re.compile(
 )
 LEGACY_CONCURRENCY_RE = re.compile(
     r"^concurrent-read-write-([1-9][0-9]*)-([1-9][0-9]*)$"
+)
+V31_CONCURRENCY_RE = re.compile(
+    r"^v31-concurrent-(?:latency|throughput)-([1-9][0-9]*)-([1-9][0-9]*)$"
 )
 SYNTHETIC_PERCENTILE_RE = re.compile(r"^(?:read:|write:)?p[0-9.]+$")
 SET_ID_RE = re.compile(r"^gse-set-v1-[0-9a-f]{64}$")
@@ -391,7 +413,11 @@ def convert_optional_number(value: Any, unit: str, field: str) -> dict[str, Any]
 
 
 def thread_group_for(workload: str) -> dict[str, int] | None:
-    match = CURRENT_CONCURRENCY_RE.fullmatch(workload) or LEGACY_CONCURRENCY_RE.fullmatch(workload)
+    match = (
+        CURRENT_CONCURRENCY_RE.fullmatch(workload)
+        or LEGACY_CONCURRENCY_RE.fullmatch(workload)
+        or V31_CONCURRENCY_RE.fullmatch(workload)
+    )
     if match is None:
         return None
     return {"readers": int(match.group(1)), "writers": int(match.group(2))}
@@ -402,6 +428,14 @@ def supported_workload(stem: str, raw_schema: int) -> None:
         return
     if CURRENT_CONCURRENCY_RE.fullmatch(stem):
         return
+    if stem in {
+        "v31-phrase",
+        "v31-bool",
+        "v31-fuzzy",
+        "v31-text-build",
+        "v31-text-publication",
+    } or V31_CONCURRENCY_RE.fullmatch(stem):
+        return
     if raw_schema == 0 and LEGACY_CONCURRENCY_RE.fullmatch(stem):
         return
     raise fail_unsupported(f"Unsupported JMH evidence shape: {stem}.json")
@@ -411,6 +445,10 @@ def metric_direction(mode: str, role: str, name: str) -> str:
     if name == "gc.alloc.rate.norm":
         return "lower"
     if name.startswith("gc."):
+        return "diagnostic"
+    if name in {"writerQueueMaximum", "writerQueueNonzeroSamples"}:
+        return "lower"
+    if name == "snapshotPublications":
         return "diagnostic"
     if role in {"primary", "read", "write"}:
         return "higher" if mode == "thrpt" else "lower"
@@ -426,6 +464,12 @@ def score_statistic(mode: str, name: str) -> str:
         return "gc_count"
     if name == "gc.time":
         return "gc_time"
+    if name in {
+        "snapshotPublications",
+        "writerQueueMaximum",
+        "writerQueueNonzeroSamples",
+    }:
+        return "event_count"
     return {"avgt": "mean_time", "sample": "sample_mean", "thrpt": "throughput"}.get(
         mode, "score"
     )
@@ -630,7 +674,17 @@ def extract_jmh(
             for name, metric_object in sorted(secondary.items()):
                 if SYNTHETIC_PERCENTILE_RE.fullmatch(name):
                     continue
-                if name not in {"read", "write", "gc.alloc.rate", "gc.alloc.rate.norm", "gc.count", "gc.time"}:
+                if name not in {
+                    "read",
+                    "write",
+                    "gc.alloc.rate",
+                    "gc.alloc.rate.norm",
+                    "gc.count",
+                    "gc.time",
+                    "snapshotPublications",
+                    "writerQueueMaximum",
+                    "writerQueueNonzeroSamples",
+                }:
                     raise fail_unsupported(f"Unsupported JMH secondary metric {name!r} in {path.name}")
                 if not isinstance(metric_object, dict):
                     raise fail_invalid(f"JMH secondary metric {name!r} is not an object")
@@ -878,9 +932,16 @@ def validate_benchmark_preset(
     if mode != preset["mode"]:
         raise fail_invalid(f"Benchmark preset {preset_id} contradicts mode {mode}")
     expected_metadata = {
-        "concurrency_documents": "100000",
+        "concurrency_documents": preset.get("documents", "100000"),
         "concurrency_thread_groups": preset["threadGroups"],
     }
+    if "jvmOptions" in preset:
+        expected_metadata["jvm_options"] = preset["jvmOptions"]
+    expected_suite = preset.get("suite", "v3-production")
+    if metadata.get("benchmark_suite") != expected_suite:
+        raise fail_invalid(
+            f"Benchmark preset {preset_id} requires benchmark_suite={expected_suite}"
+        )
     if preset["jmh"]:
         expected_metadata.update(
             {
@@ -920,6 +981,116 @@ def validate_benchmark_preset(
                 )
     elif soak_config is not None:
         raise fail_invalid(f"Benchmark preset {preset_id} forbids soak evidence")
+    expected_workloads = preset.get("workloads")
+    if expected_workloads is not None:
+        observed_workloads = {config["workload"] for config in jmh_configs}
+        if observed_workloads != expected_workloads:
+            raise fail_invalid(
+                f"Benchmark preset {preset_id} has an incomplete workload set"
+            )
+        validate_v31_ranked_configs(jmh_configs)
+
+
+def validate_v31_ranked_configs(configs: list[dict[str, Any]]) -> None:
+    expected: set[tuple[str, str, str, tuple[tuple[str, str], ...], int]] = set()
+
+    def add(
+        workload: str,
+        benchmark: str,
+        mode: str,
+        names: tuple[str, ...],
+        values: Iterable[tuple[str, ...]],
+        threads: int = 1,
+    ) -> None:
+        for combination in values:
+            params = tuple(sorted(zip(names, combination, strict=True)))
+            expected.add((workload, benchmark, mode, params, threads))
+
+    package = "io.github.patricklfdm.generalsearch.benchmark.jmh."
+    add(
+        "v31-phrase",
+        package + "V31PhraseFeatureBenchmark.search",
+        "avgt",
+        ("documentCount", "scenario"),
+        product(
+            ("100000", "1000000"),
+            (
+                "low-s0", "high-s0", "low-s1", "high-s1",
+                "low-s2", "high-s2", "low-s4", "high-s4",
+                "repeated", "analyzer-gap", "same-position",
+            ),
+        ),
+    )
+    add(
+        "v31-bool",
+        package + "V31MinimumShouldMatchBenchmark.search",
+        "avgt",
+        ("documentCount", "minimum", "shouldWidth", "withMust"),
+        product(
+            ("100000", "1000000"),
+            ("one", "half", "all"),
+            ("4", "16", "64"),
+            ("false", "true"),
+        ),
+    )
+    add(
+        "v31-fuzzy",
+        package + "V31FuzzyDictionaryBenchmark.traverse",
+        "avgt",
+        ("scenario", "vocabularySize"),
+        product(
+            ("short-exact", "long-near", "unicode-near", "sparse-miss", "dense-hit"),
+            ("100000", "1000000"),
+        ),
+    )
+    add(
+        "v31-text-build",
+        package + "V31TextDictionaryBenchmark.build",
+        "avgt",
+        ("mutationBatchSize", "transition", "vocabularySize"),
+        product(("1",), ("unchanged",), ("100000", "1000000")),
+    )
+    add(
+        "v31-text-publication",
+        package + "V31TextDictionaryBenchmark.publish",
+        "avgt",
+        ("mutationBatchSize", "transition", "vocabularySize"),
+        product(
+            ("1", "100"),
+            ("unchanged", "added", "removed"),
+            ("100000", "1000000"),
+        ),
+    )
+    add(
+        "v31-concurrent-latency-16-1",
+        package + "V31ConcurrentMixedWorkloadBenchmark.mixed",
+        "sample",
+        ("documentCount",),
+        (("1000000",),),
+        17,
+    )
+    add(
+        "v31-concurrent-throughput-16-1",
+        package + "V31ConcurrentMixedWorkloadBenchmark.mixed",
+        "thrpt",
+        ("documentCount",),
+        (("1000000",),),
+        17,
+    )
+    observed = {
+        (
+            config["workload"],
+            config["benchmark"],
+            config["mode"],
+            tuple(sorted(config["parameters"].items())),
+            config["threads"],
+        )
+        for config in configs
+    }
+    if observed != expected or len(configs) != len(expected):
+        raise fail_invalid(
+            "V3.1 ranked preset differs from the frozen benchmark matrix"
+        )
 
 
 def environment_from_metadata(
@@ -1092,8 +1263,11 @@ def derive_manifest(
     if raw_schema not in SUPPORTED_RAW_SCHEMAS:
         raise fail_unsupported(f"Unsupported raw evidence schema: {raw_schema}")
     if raw_schema == 1:
-        if metadata.get("benchmark_suite") != "v3-production":
-            raise fail_invalid("Raw benchmark_suite must be v3-production")
+        if metadata.get("benchmark_suite") not in {
+            "v3-production",
+            "v3.1-ranked-suite-v1",
+        }:
+            raise fail_invalid("Raw benchmark_suite is unsupported")
         require_property(metadata, "source_repository", metadata_path)
         suite_schema = positive_integer(
             require_property(metadata, "benchmark_suite_schema_version", metadata_path),
@@ -1105,7 +1279,16 @@ def derive_manifest(
     if not COMMIT_RE.fullmatch(commit):
         raise fail_invalid("git_commit must be an exact 40-character lowercase SHA")
     mode = require_property(metadata, "mode", metadata_path)
-    if mode not in {"quick", "full", "concurrency", "soak", "investigation", "stabilized-investigation", "all"}:
+    if mode not in {
+        "quick",
+        "full",
+        "concurrency",
+        "soak",
+        "investigation",
+        "stabilized-investigation",
+        "ranked-v31",
+        "all",
+    }:
         raise fail_unsupported(f"Unsupported benchmark mode: {mode}")
     if status.get("mode") != mode:
         raise fail_invalid("Status mode contradicts metadata mode")
@@ -1149,13 +1332,14 @@ def derive_manifest(
     logical_workloads = {config["workload"] for config in jmh_configs}
     if soak_config is not None:
         logical_workloads.add("soak")
+    benchmark_suite = metadata.get("benchmark_suite", "v3-production")
     benchmark_config_payload = {
         "jmhEntries": sorted(jmh_configs, key=lambda value: canonical_json_bytes(value)),
         "mode": mode,
         "orderedThreadGroups": metadata_thread_groups,
         "soak": soak_config,
         "soakProfile": metadata.get("soak_profile"),
-        "suite": "v3-production",
+        "suite": benchmark_suite,
         "suiteSchemaVersion": suite_schema,
         "workloads": sorted(logical_workloads),
     }
@@ -1191,7 +1375,7 @@ def derive_manifest(
         "metrics": metrics,
         "runId": raw_dir.name,
         "schemaVersion": METRICS_SCHEMA_VERSION,
-        "suite": {"name": "v3-production", "schemaVersion": suite_schema},
+        "suite": {"name": benchmark_suite, "schemaVersion": suite_schema},
     }
     metrics_bytes = canonical_json_bytes(metrics_document)
     metrics_digest = sha256_bytes(metrics_bytes)
@@ -1348,14 +1532,27 @@ def validate_set_plan_inputs(
     minimum = 3 if profile == "canonical" else 1
     if repeats < minimum or repeats > 10:
         raise fail_config(f"{profile} set repeats must be between {minimum} and 10")
-    if mode not in {"quick", "full", "concurrency", "soak", "investigation", "stabilized-investigation", "all"}:
+    if mode not in {
+        "quick",
+        "full",
+        "concurrency",
+        "soak",
+        "investigation",
+        "stabilized-investigation",
+        "ranked-v31",
+        "all",
+    }:
         raise fail_config(f"Unsupported V1 benchmark mode: {mode}")
     if not repository or "\n" in repository or "\r" in repository:
         raise fail_config("Source repository must be a non-empty single line")
     if not COMMIT_RE.fullmatch(commit):
         raise fail_config("Set source commit must be an exact lowercase 40-character SHA")
     if profile == "canonical":
-        expected = f"v3-production-{mode}-v1"
+        expected = (
+            "v3.1-ranked-v1"
+            if mode == "ranked-v31"
+            else f"v3-production-{mode}-v1"
+        )
         if mode not in CANONICAL_MODES:
             raise fail_config(f"Mode {mode} is not canonical set eligible")
         if preset_id != expected or preset_id not in CANONICAL_PRESETS:

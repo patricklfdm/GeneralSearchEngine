@@ -6,9 +6,9 @@ cd "$repo_root"
 
 mode=${1:-quick}
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
   *)
-    echo "usage: $0 [quick|full|concurrency|soak|investigation|stabilized-investigation|all]" >&2
+    echo "usage: $0 [quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all]" >&2
     exit 2
     ;;
 esac
@@ -184,7 +184,11 @@ else
   duration=${GSE_JMH_DURATION:-1s}
 fi
 
-concurrency_documents=${GSE_CONCURRENCY_DOCUMENTS:-100000}
+if [ "$mode" = ranked-v31 ]; then
+  concurrency_documents=${GSE_CONCURRENCY_DOCUMENTS:-1000000}
+else
+  concurrency_documents=${GSE_CONCURRENCY_DOCUMENTS:-100000}
+fi
 if [[ ! "$concurrency_documents" =~ ^[1-9][0-9]*$ ]]; then
   echo "GSE_CONCURRENCY_DOCUMENTS must be a positive integer" >&2
   exit 2
@@ -193,6 +197,8 @@ if [ -n "${GSE_CONCURRENCY_THREAD_GROUPS:-}" ]; then
   read -r -a thread_groups <<< "$GSE_CONCURRENCY_THREAD_GROUPS"
 elif [ "$mode" = "quick" ]; then
   thread_groups=("4,1")
+elif [ "$mode" = ranked-v31 ]; then
+  thread_groups=("16,1")
 else
   thread_groups=("1,1" "4,1" "16,1")
 fi
@@ -216,7 +222,13 @@ write_metadata_if_set() {
   fi
 }
 
-system_facts=$(scripts/cloud/collect-benchmark-system-facts.sh)
+if [ "$mode" = ranked-v31 ]; then
+  benchmark_suite=v3.1-ranked-suite-v1
+else
+  benchmark_suite=v3-production
+fi
+system_facts=$(GSE_BENCHMARK_SUITE="$benchmark_suite" \
+  scripts/cloud/collect-benchmark-system-facts.sh)
 
 {
   printf '%s\n' "$system_facts"
@@ -234,6 +246,7 @@ system_facts=$(scripts/cloud/collect-benchmark-system-facts.sh)
   echo "jmh_duration=$duration"
   echo "concurrency_documents=$concurrency_documents"
   printf 'concurrency_thread_groups=%s\n' "${thread_groups[*]}"
+  echo "v31_document_counts=100000,1000000"
   echo "soak_index_cycles=$soak_index_cycles"
   echo "soak_investigation_cell=${investigation_cell:-none}"
   echo "soak_update_mode=$soak_update_mode"
@@ -349,6 +362,54 @@ run_concurrency() {
   done
 }
 
+run_ranked_v31() {
+  run_jmh v31-phrase \
+    'V31PhraseFeatureBenchmark.search' \
+    -p documentCount=100000,1000000 \
+    -p scenario=low-s0,high-s0,low-s1,high-s1,low-s2,high-s2,low-s4,high-s4,repeated,analyzer-gap,same-position \
+    -bm avgt -tu ms -prof gc
+
+  run_jmh v31-bool \
+    'V31MinimumShouldMatchBenchmark.search' \
+    -p documentCount=100000,1000000 \
+    -p shouldWidth=4,16,64 \
+    -p minimum=one,half,all \
+    -p withMust=false,true \
+    -bm avgt -tu ms -prof gc
+
+  run_jmh v31-fuzzy \
+    'V31FuzzyDictionaryBenchmark.traverse' \
+    -p vocabularySize=100000,1000000 \
+    -p scenario=short-exact,long-near,unicode-near,sparse-miss,dense-hit \
+    -bm avgt -tu ms -prof gc
+
+  run_jmh v31-text-build \
+    'V31TextDictionaryBenchmark.build' \
+    -p vocabularySize=100000,1000000 \
+    -p mutationBatchSize=1 \
+    -p transition=unchanged \
+    -bm avgt -tu ms -prof gc
+
+  run_jmh v31-text-publication \
+    'V31TextDictionaryBenchmark.publish' \
+    -p vocabularySize=100000,1000000 \
+    -p mutationBatchSize=1,100 \
+    -p transition=unchanged,added,removed \
+    -bm avgt -tu ms -prof gc
+
+  for group in "${thread_groups[@]}"; do
+    label=${group/,/-}
+    run_jmh "v31-concurrent-latency-$label" \
+      'V31ConcurrentMixedWorkloadBenchmark.mixed' \
+      -p "documentCount=$concurrency_documents" \
+      -tg "$group" -bm sample -tu us -prof gc
+    run_jmh "v31-concurrent-throughput-$label" \
+      'V31ConcurrentMixedWorkloadBenchmark.mixed' \
+      -p "documentCount=$concurrency_documents" \
+      -tg "$group" -bm thrpt -tu s -prof gc
+  done
+}
+
 run_soak() {
   if [ "$mode" = stabilized-investigation ]; then
     soak_seconds=$expected_seconds
@@ -449,6 +510,7 @@ case "$mode" in
   soak) run_soak ;;
   investigation) run_soak ;;
   stabilized-investigation) run_soak ;;
+  ranked-v31) run_ranked_v31 ;;
   all)
     run_benchmarks
     run_soak

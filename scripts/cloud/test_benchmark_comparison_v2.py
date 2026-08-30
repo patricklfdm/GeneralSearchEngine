@@ -180,6 +180,36 @@ class BenchmarkComparisonV2Test(unittest.TestCase):
             all(item["reason"] == "independent_variation_unavailable" for item in continuous)
         )
 
+    def test_ranked_v31_suite_is_explicitly_incomparable_with_v3_production(self):
+        production = Fixture(
+            self.root,
+            run_id="20260828T070700Z-0123456789ab-full",
+            instance="gse-production-suite",
+        )
+        ranked = Fixture(
+            self.root,
+            run_id="20260828T080800Z-0123456789ab-ranked-v31",
+            mode="ranked-v31",
+            instance="gse-ranked-suite",
+        )
+        production_run = v2.derive_manifest(
+            production.raw,
+            evidence_profile="canonical",
+        )[0]
+        ranked_run = v2.derive_manifest(
+            ranked.raw,
+            evidence_profile="canonical",
+        )[0]
+        _, document, exit_code = v2.compare_benchmarks(
+            production_run,
+            ranked_run,
+            results_root=self.results,
+            registry_path=self.registry,
+        )
+        self.assertEqual(v2.EXIT_INCOMPARABLE, exit_code)
+        self.assertEqual("INCOMPARABLE", document["compatibility"]["status"])
+        self.assertIn("suite_mismatch", document["compatibility"]["reasons"])
+
     def test_legacy_schema_zero_run_remains_explicitly_exploratory(self):
         fixture = Fixture(self.root, raw_schema=0, instance="gse-legacy")
         run = v2.derive_manifest(fixture.raw)[0]

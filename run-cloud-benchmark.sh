@@ -18,7 +18,7 @@ usage() {
     'Run the existing V3 production benchmark suite on one ephemeral GCP Compute Engine VM.' \
     '' \
     'Modes:' \
-    '  quick  full  concurrency  soak  investigation  stabilized-investigation  all' \
+    '  quick  full  concurrency  soak  investigation  stabilized-investigation  ranked-v31  all' \
     '' \
     'Options:' \
     '  --dry-run  Validate and print the plan without creating, deleting, SSHing, or copying.' \
@@ -79,9 +79,9 @@ for argument in "$@"; do
 done
 
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
   *)
-    echo "A mode is required: quick, full, concurrency, soak, investigation, stabilized-investigation, or all" >&2
+    echo "A mode is required: quick, full, concurrency, soak, investigation, stabilized-investigation, ranked-v31, or all" >&2
     usage >&2
     exit "$EXIT_CONFIG"
     ;;
@@ -328,7 +328,12 @@ network=${GSE_GCP_NETWORK:-}
 subnet=${GSE_GCP_SUBNET:-}
 use_iap=${GSE_CLOUD_USE_IAP:-false}
 external_ip=${GSE_CLOUD_EXTERNAL_IP:-true}
-jvm_options=${GSE_PERF_JVM_OPTIONS:--Xms8g -Xmx16g}
+if [ "$mode" = ranked-v31 ]; then
+  default_jvm_options='-Xms32g -Xmx64g'
+else
+  default_jvm_options='-Xms8g -Xmx16g'
+fi
+jvm_options=${GSE_PERF_JVM_OPTIONS:-$default_jvm_options}
 
 case "$provisioning" in spot|standard) ;; *) fail "$EXIT_CONFIG" "GSE_CLOUD_PROVISIONING must be spot or standard" ;; esac
 validate_boolean GSE_CLOUD_USE_IAP "$use_iap"
@@ -387,6 +392,7 @@ else
     quick) duration_seconds=7200 ;;
     full) duration_seconds=43200 ;;
     concurrency) duration_seconds=28800 ;;
+    ranked-v31) duration_seconds=3600 ;;
     soak|investigation) duration_seconds=$((soak_seconds + 7200)) ;;
     stabilized-investigation) duration_seconds=$((stabilization_seconds + soak_seconds + 7200)) ;;
     all) duration_seconds=86400 ;;
@@ -538,6 +544,9 @@ fi
 if [ "$mode" = concurrency ]; then
   remote_environment+=("GSE_CONCURRENCY_DOCUMENTS=${GSE_CONCURRENCY_DOCUMENTS:-100000}")
   remote_environment+=("GSE_CONCURRENCY_THREAD_GROUPS=${GSE_CONCURRENCY_THREAD_GROUPS:-1,1 4,1 8,1 16,1 24,1 30,1}")
+elif [ "$mode" = ranked-v31 ]; then
+  remote_environment+=("GSE_CONCURRENCY_DOCUMENTS=${GSE_CONCURRENCY_DOCUMENTS:-1000000}")
+  remote_environment+=("GSE_CONCURRENCY_THREAD_GROUPS=${GSE_CONCURRENCY_THREAD_GROUPS:-16,1}")
 else
   if [ -n "${GSE_CONCURRENCY_DOCUMENTS:-}" ]; then
     remote_environment+=("GSE_CONCURRENCY_DOCUMENTS=$GSE_CONCURRENCY_DOCUMENTS")

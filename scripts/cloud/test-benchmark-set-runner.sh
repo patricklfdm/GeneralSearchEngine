@@ -56,6 +56,34 @@ assert_contains "$output" 'Set dry run complete: no workspace or cloud resource 
 test ! -d "$test_repo/benchmark-results/v3-production/sets" \
   || fail 'Dry run created a set workspace'
 
+env "${common[@]}" "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
+  --evidence-profile canonical --repeats 3 ranked-v31 > "$output" 2>&1 \
+  || fail 'V3.1 ranked canonical set dry run failed'
+assert_contains "$output" 'Preset:              v3.1-ranked-v1'
+assert_contains "$output" 'GSE_CONCURRENCY_DOCUMENTS=1000000'
+assert_contains "$output" 'GSE_CONCURRENCY_THREAD_GROUPS=16,1'
+assert_contains "$output" 'GSE_PERF_JVM_OPTIONS=-Xms32g -Xmx64g'
+
+set +e
+env "${common[@]}" GSE_PERF_JVM_OPTIONS='-Xms8g -Xmx16g' \
+  "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
+  --evidence-profile canonical --repeats 3 ranked-v31 > "$output" 2>&1
+ranked_heap_exit=$?
+set -e
+[ "$ranked_heap_exit" -eq 2 ] \
+  || fail "V3.1 ranked heap conflict returned $ranked_heap_exit"
+assert_contains "$output" 'GSE_PERF_JVM_OPTIONS conflicts with preset v3.1-ranked-v1'
+
+set +e
+env "${common[@]}" GSE_CLOUD_MAX_RUN_DURATION=3601s \
+  "$test_repo/run-cloud-benchmark-set.sh" --dry-run \
+  --evidence-profile canonical --repeats 3 ranked-v31 > "$output" 2>&1
+ranked_runtime_exit=$?
+set -e
+[ "$ranked_runtime_exit" -eq 2 ] \
+  || fail "V3.1 ranked runtime conflict returned $ranked_runtime_exit"
+assert_contains "$output" 'GSE_CLOUD_MAX_RUN_DURATION conflicts with preset v3.1-ranked-v1'
+
 set +e
 env "${common[@]}" "$test_repo/run-cloud-benchmark-set.sh" \
   --evidence-profile canonical --repeats 3 full > "$output" 2>&1

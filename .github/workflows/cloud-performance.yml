@@ -12,7 +12,7 @@ on:
           - experiment
           - canonical
       mode:
-        description: Existing Cloud Benchmark V1 mode
+        description: Fixed Cloud Benchmark workload mode
         required: true
         type: choice
         default: quick
@@ -21,6 +21,7 @@ on:
           - full
           - concurrency
           - soak
+          - ranked-v31
           - all
       repeats:
         description: Independent ephemeral VM slots
@@ -231,7 +232,7 @@ jobs:
           GSE_CLOUD_BOOT_DISK_TYPE: pd-balanced
           GSE_CLOUD_USE_IAP: 'false'
           GSE_CLOUD_EXTERNAL_IP: 'true'
-          GSE_PERF_JVM_OPTIONS: -Xms8g -Xmx16g
+          GSE_PERF_JVM_OPTIONS: ${{ steps.plan.outputs.jvm_options }}
           GSE_SOAK_SECONDS: ${{ steps.plan.outputs.soak_seconds }}
           GSE_CLOUD_MAX_RUN_DURATION: ${{ steps.plan.outputs.max_vm_runtime_seconds }}s
         run: |

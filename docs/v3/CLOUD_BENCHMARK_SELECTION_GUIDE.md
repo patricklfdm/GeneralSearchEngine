@@ -12,16 +12,17 @@ The protected workflow accepts these combinations:
 
 | Evidence profile | Modes | Repeats | Provisioning | Retention |
 |---|---|---:|---|---|
-| `experiment` | `quick`, `full`, `concurrency`, `soak`, `all` | `1`, `3`, `5` | Spot or Standard | Actions or GCS |
-| `canonical` | `full`, `concurrency`, `soak`, `all` | `3`, `5` | Standard only | GCS only |
+| `experiment` | `quick`, `full`, `concurrency`, `soak`, `ranked-v31`, `all` | `1`, `3`, `5` | Spot or Standard | Actions or GCS |
+| `canonical` | `full`, `concurrency`, `soak`, `ranked-v31`, `all` | `3`, `5` | Standard only | GCS only |
 
 Additional rules are:
 
 - `2h` is accepted only for a one-repeat experiment in `soak` or `all` mode;
 - canonical and multi-repeat `soak` or `all` runs use the frozen `30m` duration;
-- `quick`, `full`, and `concurrency` require the UI's default `30m` selection, but do
-  not execute a soak;
-- canonical mode selects the matching `v3-production-<mode>-v1` preset;
+- `quick`, `full`, `concurrency`, and `ranked-v31` require the UI's default `30m`
+  selection, but do not execute a soak;
+- canonical mode selects the matching `v3-production-<mode>-v1` preset, except that
+  `ranked-v31` selects the isolated `v3.1-ranked-v1` preset;
 - an experiment never becomes canonical merely because its controls resemble a
   canonical run; and
 - invalid combinations fail preflight before authentication or cloud mutation.
@@ -47,6 +48,7 @@ review and a separate tracked change.
 | `full` | Full scale, corpus-shape, top-K, and core concurrency JMH suite |
 | `concurrency` | Focused latency and throughput sweep over the extended concurrency groups |
 | `soak` | Sustained reads and writes with GC, heap, queue, drift, snapshot, and index-cycle evidence |
+| `ranked-v31` | Fixed 100k/1M phrase-slop, BOOL-minimum, fuzzy-trie, dictionary-publication, and 1M `16,1` feature suite |
 | `all` | The complete `full` suite followed by the production soak |
 
 Concurrency groups use `readers,writers` notation. `full` and `all` cover:
@@ -63,6 +65,10 @@ The dedicated `concurrency` preset covers:
 
 Consequently, `all` includes core concurrency evidence but is not a strict superset of
 the dedicated concurrency sweep.
+
+`ranked-v31` is a separate suite and comparison family. It uses the fixed `16,1`
+mixed cell, a 60-minute per-slot cap, and `-Xms32g -Xmx64g`; it neither executes a soak
+nor changes any `v3-production-*` identity.
 
 ### Repeats
 
@@ -198,6 +204,25 @@ Use the two-hour form only for a specific long-tail investigation:
 experiment / soak / 1 / standard / 2h / actions
 ```
 
+### V3.1 ranked feature calibration and evidence
+
+After the implementation commit is merged to protected `master`, calibrate the fixed
+feature suite before requesting a multi-member set:
+
+```text
+experiment / ranked-v31 / 1 / standard / 30m / actions
+```
+
+If the complete 84-cell member finishes below the fixed 60-minute cap and its derived
+evidence is valid, create the independent feature family with:
+
+```text
+canonical / ranked-v31 / 3 / standard / 30m / gcs
+```
+
+This set is intentionally incomparable with `v3.0.0-cloud`. Run the unchanged
+regression preset separately for before/after claims.
+
 ### Comprehensive release baseline
 
 Use:
@@ -234,6 +259,7 @@ and the billing account before each material run.
 | `full` | 20–24 minutes | `$0.51–0.61` | `$1.54–1.84` | `$2.56–3.07` |
 | `concurrency` | 13–16 minutes | `$0.33–0.41` | `$1.00–1.23` | `$1.66–2.05` |
 | `soak 30m` | 32–35 minutes | `$0.82–0.90` | `$2.46–2.69` | `$4.09–4.48` |
+| `ranked-v31` | at most 60 minutes by contract; first calibration pending | at most `$1.54` | at most `$4.61` | at most `$7.68` |
 | `all 30m` | 51–56 minutes | `$1.30–1.43` | `$3.91–4.30` | `$6.52–7.16` |
 | `soak 2h` | 122–125 minutes | `$3.12–3.20` | not accepted | not accepted |
 | `all 2h` | 141–149 minutes | `$3.61–3.81` | not accepted | not accepted |

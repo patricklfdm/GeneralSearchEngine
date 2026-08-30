@@ -143,7 +143,7 @@ def validate_source(repository: Path, source_commit: str, trusted_ref: str) -> N
 def make_plan(options: argparse.Namespace) -> dict[str, Any]:
     allowed = {
         "evidence_profile": {"experiment", "canonical"},
-        "mode": {"quick", "full", "concurrency", "soak", "all"},
+        "mode": {"quick", "full", "concurrency", "soak", "ranked-v31", "all"},
         "repeats": {"1", "3", "5"},
         "provisioning": {"spot", "standard"},
         "machine_type": {"c3d-standard-30", "c3d-standard-60"},
@@ -183,6 +183,7 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
         "full": 21600,
         "concurrency": 21600,
         "soak": soak_seconds + 7200,
+        "ranked-v31": 3600,
         "all": max(21600, soak_seconds + 7200),
     }[mode]
     run_id = single_line(str(options.run_id), "run_id")
@@ -198,13 +199,20 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
         "retention": values["retention"],
         "soakDuration": values["soak_duration"],
     }
+    derived = {
+        "maxVmRuntimeSeconds": max_runtime,
+        "presetId": (
+            "v3.1-ranked-v1"
+            if profile == "canonical" and mode == "ranked-v31"
+            else f"v3-production-{mode}-v1" if profile == "canonical" else None
+        ),
+        "soakSeconds": soak_seconds,
+    }
+    if mode == "ranked-v31":
+        derived["jvmOptions"] = "-Xms32g -Xmx64g"
     return {
         "artifact": {"name": f"cloud-performance-{run_id}-{run_attempt}-{profile}", "retentionDays": 14},
-        "derived": {
-            "maxVmRuntimeSeconds": max_runtime,
-            "presetId": f"v3-production-{mode}-v1" if profile == "canonical" else None,
-            "soakSeconds": soak_seconds,
-        },
+        "derived": derived,
         "kind": "cloud-benchmark-workflow-plan",
         "request": request,
         "run": {"attempt": int(run_attempt), "id": int(run_id)},
@@ -768,6 +776,9 @@ def main(arguments: list[str] | None = None) -> int:
                 options.github_output,
                 {
                     "artifact_name": value["artifact"]["name"],
+                    "jvm_options": value["derived"].get(
+                        "jvmOptions", "-Xms8g -Xmx16g"
+                    ),
                     "max_vm_runtime_seconds": str(value["derived"]["maxVmRuntimeSeconds"]),
                     "soak_seconds": str(value["derived"]["soakSeconds"]),
                     "source_commit": value["source"]["commit"],

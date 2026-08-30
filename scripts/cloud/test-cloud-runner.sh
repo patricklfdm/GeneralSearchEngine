@@ -123,6 +123,13 @@ assert_contains "$output_file" '--max-run-duration=28800s'
 assert_contains "$output_file" "GSE_CLOUD_SOURCE_REPOSITORY=$remote_repo"
 assert_not_contains "$fake_state/commands.log" 'compute instances create'
 
+run_expect 0 ranked-v31-dry --dry-run ranked-v31
+assert_contains "$output_file" '--max-run-duration=3600s'
+assert_contains "$output_file" 'GSE_CONCURRENCY_DOCUMENTS=1000000'
+assert_contains "$output_file" 'GSE_CONCURRENCY_THREAD_GROUPS=16\,1'
+assert_contains "$output_file" 'GSE_PERF_JVM_OPTIONS=-Xms32g\ -Xmx64g'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
 reset_fake
 set +e
 env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=confirmation-dry \

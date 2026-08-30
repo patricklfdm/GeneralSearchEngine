@@ -18,7 +18,8 @@ atomic-publication architecture.
   mutation, and concurrency behavior. [Phase 5](v3.1/PHASE_5_CHECKLIST.md) completes
   the profile-guided phrase allocation work without semantic or API drift, and
   [Phase 6](v3.1/PHASE_6_CHECKLIST.md) replaces full-scan fuzzy expansion with an
-  exact persistent code-point trie.
+  exact persistent code-point trie. [Phase 7](v3.1/PHASE_7_CHECKLIST.md) implements
+  the isolated ranked feature lane; protected cloud evidence remains pending.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -43,6 +44,8 @@ atomic-publication architecture.
 - [Phase 5 checklist](v3.1/PHASE_5_CHECKLIST.md)
 - [Phase 6 local pre-change baseline](v3.1/PHASE_6_BASELINE.md)
 - [Phase 6 checklist](v3.1/PHASE_6_CHECKLIST.md)
+- [Phase 7 local calibration](v3.1/PHASE_7_LOCAL_CALIBRATION.md)
+- [Phase 7 checklist](v3.1/PHASE_7_CHECKLIST.md)
 
 ## Stable boundaries
 

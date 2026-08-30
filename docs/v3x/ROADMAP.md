@@ -4,8 +4,9 @@
 
 Published baseline: `3.0.0`
 
-Active implementation: V3.1 Phase 6 persistent fuzzy dictionary is complete; Phase 7
-1M concurrency and two-lane benchmark evidence is the next implementation boundary.
+Active implementation: V3.1 Phase 7 feature-lane infrastructure and synthetic
+validation are complete; protected-master 1M calibration and two-lane cloud evidence
+remain before Phase 7 can close.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

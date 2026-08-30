@@ -17,6 +17,7 @@ assert_contains "$workflow" 'group: cloud-performance-${{ github.repository }}'
 assert_contains "$workflow" 'cancel-in-progress: false'
 assert_contains "$workflow" 'environment: cloud-benchmark'
 assert_contains "$workflow" 'timeout-minutes: 360'
+assert_contains "$workflow" '          - ranked-v31'
 
 preflight=$(sed -n '/^  preflight:/,/^  benchmark:/p' "$workflow")
 benchmark=$(sed -n '/^  benchmark:/,$p' "$workflow")
