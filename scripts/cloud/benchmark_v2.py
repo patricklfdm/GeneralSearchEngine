@@ -464,11 +464,9 @@ def score_statistic(mode: str, name: str) -> str:
         return "gc_count"
     if name == "gc.time":
         return "gc_time"
-    if name in {
-        "snapshotPublications",
-        "writerQueueMaximum",
-        "writerQueueNonzeroSamples",
-    }:
+    if name == "writerQueueMaximum":
+        return "maximum"
+    if name in {"snapshotPublications", "writerQueueNonzeroSamples"}:
         return "event_count"
     return {"avgt": "mean_time", "sample": "sample_mean", "thrpt": "throughput"}.get(
         mode, "score"
@@ -636,6 +634,60 @@ def normalize_optional_gc_time(
     return normalized
 
 
+def jmh_event_maximum(
+    metric: dict[str, Any],
+    path: Path,
+    field_prefix: str,
+    forks: int,
+    iterations: int,
+) -> int | float:
+    if forks <= 0 or iterations <= 0:
+        raise fail_invalid(
+            f"JMH {field_prefix} requires positive fork and iteration counts "
+            f"in {path.name}"
+        )
+    raw_data = metric.get("rawData")
+    if not isinstance(raw_data, list) or len(raw_data) != forks:
+        raise fail_invalid(
+            f"JMH {field_prefix}.rawData must contain exactly {forks} forks "
+            f"in {path.name}"
+        )
+    values: list[int | float] = []
+    for fork_index, fork_values in enumerate(raw_data):
+        if not isinstance(fork_values, list) or len(fork_values) != iterations:
+            raise fail_invalid(
+                f"JMH {field_prefix}.rawData[{fork_index}] must contain exactly "
+                f"{iterations} iterations in {path.name}"
+            )
+        for iteration_index, value in enumerate(fork_values):
+            parsed = finite_number(
+                value,
+                f"{path.name}:{field_prefix}.rawData"
+                f"[{fork_index}][{iteration_index}]",
+            )
+            if parsed < 0 or not float(parsed).is_integer():
+                raise fail_invalid(
+                    f"JMH {field_prefix}.rawData must contain non-negative "
+                    f"integer event counts in {path.name}"
+                )
+            values.append(parsed)
+    reported = finite_number(
+        metric.get("score"),
+        f"{path.name}:{field_prefix}.score",
+    )
+    if not math.isclose(
+        float(reported),
+        float(sum(values)),
+        rel_tol=1e-12,
+        abs_tol=1e-12,
+    ):
+        raise fail_invalid(
+            f"JMH {field_prefix}.score contradicts its raw event counts in "
+            f"{path.name}"
+        )
+    return max(values)
+
+
 def extract_jmh(
     raw_dir: Path, raw_schema: int, suite_schema: int, metadata: dict[str, str]
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -694,17 +746,46 @@ def extract_jmh(
                 unit = metric_object.get("scoreUnit")
                 if not isinstance(unit, str) or not unit:
                     raise fail_invalid(f"Missing score unit at {path.name}:{field_prefix}")
-                score = finite_number(metric_object.get("score"), f"{path.name}:{field_prefix}.score")
-                error = convert_optional_number(
-                    metric_object.get("scoreError"), unit, f"{path.name}:{field_prefix}.scoreError"
-                )
-                confidence_value = metric_object.get("scoreConfidence")
-                if not isinstance(confidence_value, list) or len(confidence_value) != 2:
-                    raise fail_invalid(f"Invalid scoreConfidence at {path.name}:{field_prefix}")
-                confidence = [
-                    convert_optional_number(value, unit, f"{path.name}:{field_prefix}.scoreConfidence")
-                    for value in confidence_value
-                ]
+                if name == "writerQueueMaximum":
+                    if unit != "#":
+                        raise fail_invalid(
+                            f"Unexpected writerQueueMaximum unit in {path.name}: "
+                            f"{unit!r}"
+                        )
+                    score = jmh_event_maximum(
+                        metric_object,
+                        path,
+                        field_prefix,
+                        config["forks"],
+                        config["measurementIterations"],
+                    )
+                    source_field = f"{field_prefix}.rawData"
+                    error = None
+                    confidence = None
+                else:
+                    score = finite_number(
+                        metric_object.get("score"),
+                        f"{path.name}:{field_prefix}.score",
+                    )
+                    source_field = f"{field_prefix}.score"
+                    error = convert_optional_number(
+                        metric_object.get("scoreError"),
+                        unit,
+                        f"{path.name}:{field_prefix}.scoreError",
+                    )
+                    confidence_value = metric_object.get("scoreConfidence")
+                    if not isinstance(confidence_value, list) or len(confidence_value) != 2:
+                        raise fail_invalid(
+                            f"Invalid scoreConfidence at {path.name}:{field_prefix}"
+                        )
+                    confidence = [
+                        convert_optional_number(
+                            value,
+                            unit,
+                            f"{path.name}:{field_prefix}.scoreConfidence",
+                        )
+                        for value in confidence_value
+                    ]
                 normalized_metric = make_metric(
                     suite_schema=suite_schema,
                     workload=workload,
@@ -717,7 +798,7 @@ def extract_jmh(
                     name=name,
                     statistic=score_statistic(mode, name),
                     source_file=path.name,
-                    source_field=f"{field_prefix}.score",
+                    source_field=source_field,
                     source_value=score,
                     source_unit=unit,
                     direction=metric_direction(mode, role, name),
@@ -728,6 +809,12 @@ def extract_jmh(
                     normalized_metric["normalization"] = {
                         "kind": "zero-gc-time-when-count-is-zero",
                         "sourceField": "secondaryMetrics.gc.count.score",
+                    }
+                if name == "writerQueueMaximum":
+                    normalized_metric["normalization"] = {
+                        "kind": "maximum-over-jmh-forks-and-iterations",
+                        "reportedScoreField": f"{field_prefix}.score",
+                        "sourceField": f"{field_prefix}.rawData",
                     }
                 metrics.append(normalized_metric)
                 if mode == "sample" and role in {"primary", "read", "write"}:

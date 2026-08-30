@@ -415,7 +415,10 @@ class Fixture:
         latency["secondaryMetrics"].update(
             {
                 "snapshotPublications": metric(50.0, "#"),
-                "writerQueueMaximum": metric(1.0, "#"),
+                "writerQueueMaximum": {
+                    **metric(10.0, "#"),
+                    "rawData": [[1.0] * 5, [1.0] * 5],
+                },
                 "writerQueueNonzeroSamples": metric(10.0, "#"),
             }
         )
@@ -428,7 +431,10 @@ class Fixture:
         throughput["secondaryMetrics"].update(
             {
                 "snapshotPublications": metric(50.0, "#"),
-                "writerQueueMaximum": metric(1.0, "#"),
+                "writerQueueMaximum": {
+                    **metric(10.0, "#"),
+                    "rawData": [[1.0] * 5, [1.0] * 5],
+                },
                 "writerQueueNonzeroSamples": metric(10.0, "#"),
             }
         )
@@ -765,6 +771,29 @@ class BenchmarkV2Test(unittest.TestCase):
                 "writerQueueNonzeroSamples",
             }.issubset(auxiliary_names)
         )
+        queue_maxima = [
+            item
+            for item in metrics["metrics"]
+            if item["identity"]["metricName"] == "writerQueueMaximum"
+        ]
+        self.assertEqual(2, len(queue_maxima))
+        for maximum in queue_maxima:
+            self.assertEqual("maximum", maximum["statistic"])
+            self.assertEqual(1.0, maximum["canonicalValue"])
+            self.assertEqual(
+                "secondaryMetrics.writerQueueMaximum.rawData",
+                maximum["source"]["field"],
+            )
+            self.assertNotIn("error", maximum)
+            self.assertNotIn("confidence", maximum)
+            self.assertEqual(
+                {
+                    "kind": "maximum-over-jmh-forks-and-iterations",
+                    "reportedScoreField": "secondaryMetrics.writerQueueMaximum.score",
+                    "sourceField": "secondaryMetrics.writerQueueMaximum.rawData",
+                },
+                maximum["normalization"],
+            )
 
         incomplete = Fixture(
             self.root / "incomplete",
@@ -782,6 +811,31 @@ class BenchmarkV2Test(unittest.TestCase):
             v2.EXIT_INVALID_EVIDENCE,
             lambda: v2.derive_manifest(
                 incomplete.raw,
+                evidence_profile="canonical",
+            ),
+        )
+
+        malformed = Fixture(
+            self.root / "malformed-queue-maximum",
+            run_id="20260828T000000Z-0123456789ab-ranked-v31",
+            mode="ranked-v31",
+        )
+        concurrency_path = malformed.raw / "v31-concurrent-throughput-16-1.json"
+        concurrency_entries = json.loads(
+            concurrency_path.read_text(encoding="utf-8")
+        )
+        concurrency_entries[0]["secondaryMetrics"]["writerQueueMaximum"][
+            "rawData"
+        ][1].pop()
+        concurrency_path.write_text(
+            json.dumps(concurrency_entries, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        malformed.refresh_checksums()
+        self.assert_error(
+            v2.EXIT_INVALID_EVIDENCE,
+            lambda: v2.derive_manifest(
+                malformed.raw,
                 evidence_profile="canonical",
             ),
         )
