@@ -19,7 +19,8 @@ atomic-publication architecture.
   the profile-guided phrase allocation work without semantic or API drift, and
   [Phase 6](v3.1/PHASE_6_CHECKLIST.md) replaces full-scan fuzzy expansion with an
   exact persistent code-point trie. [Phase 7](v3.1/PHASE_7_CHECKLIST.md) implements
-  the isolated ranked feature lane; protected cloud evidence remains pending.
+  the isolated ranked feature lane; its canonical set and frozen regression comparison
+  are reviewed, while feature-family registration remains pending.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -45,6 +46,9 @@ atomic-publication architecture.
 - [Phase 6 local pre-change baseline](v3.1/PHASE_6_BASELINE.md)
 - [Phase 6 checklist](v3.1/PHASE_6_CHECKLIST.md)
 - [Phase 7 local calibration](v3.1/PHASE_7_LOCAL_CALIBRATION.md)
+- [Phase 7 experiment review](v3.1/PHASE_7_EXPERIMENT_REVIEW.md)
+- [Phase 7 ranked feature canonical review](v3.1/PHASE_7_CANONICAL_REVIEW.md)
+- [Phase 7 frozen regression review](v3.1/PHASE_7_REGRESSION_REVIEW.md)
 - [Phase 7 checklist](v3.1/PHASE_7_CHECKLIST.md)
 
 ## Stable boundaries

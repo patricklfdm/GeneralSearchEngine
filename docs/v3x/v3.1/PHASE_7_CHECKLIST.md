@@ -1,7 +1,7 @@
 # V3.1 Phase 7 checklist
 
-Status: implementation and synthetic validation complete; protected-master cloud
-evidence remains pending. No paid run is valid from this feature branch.
+Status: both protected cloud lanes and the direct regression comparison are reviewed;
+only separate feature-family registration remains.
 
 ## Evidence-lane isolation
 
@@ -81,18 +81,18 @@ entry.
 - [x] Merge the initial implementation to protected `master`; verify CI and exact
   source ancestry before the first paid execution. The reviewed source was merge
   commit `672fc7707302b7f9911ba30b62ea39743b9b7796`.
-- [ ] Merge the queue-maximum derivation correction discovered during experiment
+- [x] Merge the queue-maximum derivation correction discovered during experiment
   review, then repeat one Standard, Actions-retained `ranked-v31` experiment from
   the corrected protected source. The first attempt confirmed the 84-cell shape,
   cleanup, and 50-minute runtime budget, but its derived queue-maximum metric summed
   ten per-iteration maxima instead of retaining the true maximum. See
   [the experiment review](PHASE_7_EXPERIMENT_REVIEW.md).
-- [ ] Run a three-member Standard/GCS `ranked-v31` canonical set; review ranges,
+- [x] Run a three-member Standard/GCS `ranked-v31` canonical set; review ranges,
   allocation, GC, writer throughput, queue evidence, and snapshot progress.
-- [ ] Run a directly comparable three-member Standard/GCS regression-lane candidate
+- [x] Run a directly comparable three-member Standard/GCS regression-lane candidate
   with the frozen preset used by `v3.0.0-cloud` and review the comparison report.
 - [ ] Register the reviewed feature family under a new immutable name such as
   `v3.1.0-ranked-cloud`; never replace or compare it directly with `v3.0.0-cloud`.
 
-Phase 7 remains open until the protected evidence is reviewed. Phase 8 release
-hardening does not start merely because the infrastructure patch is merged.
+Phase 7 remains open until all required protected evidence is reviewed. Phase 8
+release hardening does not start merely because the infrastructure patch is merged.
