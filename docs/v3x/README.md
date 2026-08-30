@@ -36,6 +36,7 @@ atomic-publication architecture.
 - [Phase 4 checklist](v3.1/PHASE_4_CHECKLIST.md)
 - [Phase 5 local pre-change baseline](v3.1/PHASE_5_BASELINE.md)
 - [Phase 5 optimization 1](v3.1/PHASE_5_OPTIMIZATION_1.md)
+- [Phase 5 optimization 2](v3.1/PHASE_5_OPTIMIZATION_2.md)
 
 ## Stable boundaries
 
