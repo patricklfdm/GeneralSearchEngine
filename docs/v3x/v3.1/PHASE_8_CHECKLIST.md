@@ -1,6 +1,7 @@
 # V3.1 Phase 8 hardening and release checklist
 
-Status: entry audit and contract freeze complete; snapshot conversion has not started.
+Status: snapshot conversion and all local hardening gates complete; protected
+PR/master `CI / Required` acceptance is pending before final version conversion.
 
 ## Entry and frozen boundary
 
@@ -14,124 +15,125 @@ Status: entry audit and contract freeze complete; snapshot conversion has not st
 - [x] The four Phase 8 evidence states and permitted blocker-fix boundary are frozen in
   [the hardening and release contract](HARDENING_AND_RELEASE.md).
 - [x] Entry project identity remains `3.0.0`; no release or publication claim is made.
-- [ ] Work continues on an independent `feat/v3.1-phase8-hardening-release` branch.
-- [ ] No Phase 8 change introduces a V3.2 feature, ranked `mustNot`, public fuzzy
+- [x] Work continues on an independent `feat/v3.1-phase8-hardening-release` branch.
+- [x] No Phase 8 change introduces a V3.2 feature, ranked `mustNot`, public fuzzy
   controls, broad refactoring, or speculative optimization.
 
 ## Snapshot identity — `3.1.0-SNAPSHOT`
 
-- [ ] Change core, processor, reactor, travel example, and all current consumer
+- [x] Change core, processor, reactor, travel example, and all current consumer
   properties atomically to `3.1.0-SNAPSHOT`.
-- [ ] Preserve published compatibility versions, historical fixture identities,
+- [x] Preserve published compatibility versions, historical fixture identities,
   frozen `docs/v3/` records, and cloud baseline names.
-- [ ] Add an unreleased V3.1 changelog section without claiming publication.
-- [ ] Keep root installation guidance on published `3.0.0` until publication.
-- [ ] `scripts/verify-version-alignment.sh 3.1.0-SNAPSHOT` passes.
+- [x] Add an unreleased V3.1 changelog section without claiming publication.
+- [x] Keep root installation guidance on published `3.0.0` until publication.
+- [x] `scripts/verify-version-alignment.sh 3.1.0-SNAPSHOT` passes.
 
 ## Public API freeze
 
-- [ ] Review the complete Japicmp additions against `1.0.0`, `2.0.0`, `2.1.0`, and
+- [x] Review the complete Japicmp additions against `1.0.0`, `2.0.0`, `2.1.0`, and
   `3.0.0`.
-- [ ] Confirm the only supported additions are the phrase-slop factory and
+- [x] Confirm the only supported additions are the phrase-slop factory and
   `BoolBuilder.minimumShouldMatch(int)`.
-- [ ] Review generic descriptors, overload and null-literal behavior, validation and
+- [x] Review generic descriptors, overload and null-literal behavior, validation and
   exception timing, defaults, immutability, and strict Javadocs.
-- [ ] Confirm `Analyzer` remains a SAM and `AnalyzedToken` remains unchanged.
-- [ ] Confirm no accidental implementation type or new bytecode-public bridge is
+- [x] Confirm `Analyzer` remains a SAM and `AnalyzedToken` remains unchanged.
+- [x] Confirm no accidental implementation type or new bytecode-public bridge is
   introduced.
-- [ ] Confirm `PhrasePositionAccess` and `FuzzyVocabularyAccess` remain narrow,
+- [x] Confirm `PhrasePositionAccess` and `FuzzyVocabularyAccess` remain narrow,
   Javadoc-hidden, unsupported bridges.
-- [ ] Update [API compatibility](API_COMPATIBILITY.md) with the final accepted diff.
+- [x] Update [API compatibility](API_COMPATIBILITY.md) with the final accepted diff.
 
 ## Correctness hardening
 
-- [ ] Audit phrase slop, BOOL minimum, fuzzy-trie equivalence, Explain, structured and
+- [x] Audit phrase slop, BOOL minimum, fuzzy-trie equivalence, Explain, structured and
   V2/V3.0 default behavior, mutation, snapshot, lifecycle, and concurrency coverage.
-- [ ] Preserve all focused and deterministic randomized/differential suites from
+- [x] Preserve all focused and deterministic randomized/differential suites from
   Phases 1–7.
-- [ ] Add only tests that close a named release-critical gap.
-- [ ] Require a failing regression test and minimal fix for every discovered blocker.
-- [ ] Confirm Search and Explain retain identical match and score semantics.
-- [ ] Confirm exact phrase, unspecified BOOL, and fuzzy behavior remain
+- [x] Add only tests that close a named release-critical gap.
+- [x] Require a failing regression test and minimal fix for every discovered blocker.
+- [x] Confirm Search and Explain retain identical match and score semantics.
+- [x] Confirm exact phrase, unspecified BOOL, and fuzzy behavior remain
   V3.0-compatible.
-- [ ] Confirm snapshot, bulk mutation, dynamic index, concurrent publication, close,
+- [x] Confirm snapshot, bulk mutation, dynamic index, concurrent publication, close,
   and failure-precedence invariants.
-- [ ] Close the remaining implementation-exit items in `PHASE_0_CHECKLIST.md` only
+- [x] Close the remaining implementation-exit items in `PHASE_0_CHECKLIST.md` only
   when their evidence is revalidated.
 
 ## Compatibility, consumers, and example
 
-- [ ] Frozen V1 source/reflection fixture passes.
-- [ ] Japicmp passes against published `1.0.0`, `2.0.0`, `2.1.0`, and pinned
+- [x] Frozen V1 source/reflection fixture passes.
+- [x] Japicmp passes against published `1.0.0`, `2.0.0`, `2.1.0`, and pinned
   `3.0.0`.
-- [ ] Normal and fresh-isolated artifact compatibility runs both pass.
-- [ ] V1-style consumer passes unchanged.
-- [ ] V2-style consumer and optional processor path pass unchanged.
-- [ ] V3-style consumer covers phrase slop and `minimumShouldMatch` through supported
+- [x] Normal and fresh-isolated artifact compatibility runs both pass.
+- [x] V1-style consumer passes unchanged.
+- [x] V2-style consumer and optional processor path pass unchanged.
+- [x] V3-style consumer covers phrase slop and `minimumShouldMatch` through supported
   APIs.
-- [ ] Reactor-built travel example compiles and runs through supported APIs.
+- [x] Reactor-built travel example compiles and runs through supported APIs.
 
 ## Phase 7 performance evidence inheritance
 
-- [ ] Audit the diff from both reviewed Phase 7 evidence sources to the release
+- [x] Audit the diff from both reviewed Phase 7 evidence sources to the release
   candidate.
-- [ ] Confirm no production, benchmark, preset, workload, JVM/toolchain,
+- [x] Confirm no production, benchmark, preset, workload, JVM/toolchain,
   configuration, or evidence-identity change invalidates the frozen regression lane.
-- [ ] Confirm the ranked feature family remains separate from the V3.0 regression
+- [x] Confirm the ranked feature family remains separate from the V3.0 regression
   family.
-- [ ] Record that Maven version metadata and documentation-only changes do not require
+- [x] Record that Maven version metadata and documentation-only changes do not require
   another paid cloud run.
-- [ ] If an affecting blocker fix lands, rerun and review the applicable local or cloud
+- [x] If an affecting blocker fix lands, rerun and review the applicable local or cloud
   evidence before release.
-- [ ] JMH source packaging and the bounded forked smoke pass on the final candidate.
+- [x] JMH source packaging and the bounded forked smoke pass on the snapshot candidate.
 
 ## Documentation
 
-- [ ] Root README explains the V3.1 additions and unreleased status without changing
+- [x] Root README explains the V3.1 additions and unreleased status without changing
   the current stable dependency prematurely.
-- [ ] V3.1 newcomer/migration guidance covers phrase slop, BOOL minimum, defaults, and
+- [x] V3.1 newcomer/migration guidance covers phrase slop, BOOL minimum, defaults, and
   compatibility.
-- [ ] Architecture, semantics, compatibility, validation, evidence, hardening, and
+- [x] Architecture, semantics, compatibility, validation, evidence, hardening, and
   checklist documents agree with the final implementation.
-- [ ] `docs/README.md` and `docs/v3x/README.md` link all final V3.1 documents.
-- [ ] `docs/v3x/ROADMAP.md`, `DEVELOPMENT_ROADMAP.md`, and `CHANGELOG.md` describe
+- [x] `docs/README.md` and `docs/v3x/README.md` link all current V3.1 documents.
+- [x] `docs/v3x/ROADMAP.md`, `DEVELOPMENT_ROADMAP.md`, and `CHANGELOG.md` describe
   actual rather than anticipated state.
-- [ ] Frozen V3.0 historical documents remain unchanged except for an explicitly
+- [x] Frozen V3.0 historical documents remain unchanged except for an explicitly
   justified cross-version link, if needed.
-- [ ] A state-aware V3.1 release record exists with pre-tag and post-publication
+- [x] A state-aware V3.1 release record exists with pre-tag and post-publication
   sections.
 
 ## CI, artifacts, and reproducibility
 
-- [ ] `CI / Required` still depends on reactor, compatibility, release-artifact, and
+- [x] `CI / Required` still depends on reactor, compatibility, release-artifact, and
   cloud-runner jobs.
-- [ ] Java 21 and Python 3.11 workflow assumptions remain explicit and valid.
-- [ ] Strict release Javadocs pass for core and processor.
-- [ ] Only core and processor are publishable.
-- [ ] Core has no processor service entry; processor has exactly the expected entry.
-- [ ] Main, sources, and Javadoc JARs exist for both published artifacts.
-- [ ] Two clean builds produce byte-identical six-JAR output.
-- [ ] Central immutability preflight and protected `production-release` approval remain
+- [x] Java 21 and Python 3.11 workflow assumptions remain explicit and valid.
+- [x] Strict release Javadocs pass for core and processor.
+- [x] Only core and processor are publishable.
+- [x] Core has no processor service entry; processor has exactly the expected entry.
+- [x] Main, sources, and Javadoc JARs exist for both publishable artifacts.
+- [x] Two clean builds produce byte-identical six-JAR output.
+- [x] Central immutability preflight and protected `production-release` approval remain
   mandatory.
-- [ ] Tag validation still requires an annotated signed tag reachable from
+- [x] Tag validation still requires an annotated signed tag reachable from
   `origin/master`.
-- [ ] Remote verification still uses a fresh Maven repository and checks POMs, JARs,
+- [x] Remote verification still uses a fresh Maven repository and checks POMs, JARs,
   signatures, checksums, manifests, service entries, and a clean published consumer.
 
 ## Snapshot validation — `3.1.0-SNAPSHOT`
 
-- [ ] `git diff --check` passes.
-- [ ] Version alignment passes.
-- [ ] Full reactor tests pass; record core and processor test counts.
-- [ ] Benchmark instrumentation and reduced stabilization E2E tests pass.
-- [ ] Travel example passes.
-- [ ] Frozen API fixture passes.
-- [ ] Normal and fresh-isolated four-baseline Japicmp pass.
-- [ ] All independent consumers pass.
-- [ ] Unsigned release packaging and artifact inspection pass.
-- [ ] Reproducible-build verification passes; record six hashes.
-- [ ] JMH package and forked smoke pass.
-- [ ] Python 3.11 Cloud Benchmark unit suite, shell syntax, and synthetic lifecycle
+- [x] `git diff --check` passes.
+- [x] Version alignment passes.
+- [x] Full reactor tests pass: 280 core and 5 processor tests.
+- [x] Benchmark instrumentation and reduced stabilization E2E tests pass.
+- [x] Travel example passes.
+- [x] Frozen API fixture passes.
+- [x] Normal clean-home and fresh-isolated four-baseline Japicmp pass.
+- [x] All independent consumers pass.
+- [x] Unsigned release packaging and artifact inspection pass.
+- [x] Reproducible-build verification passes; six hashes are recorded in
+  [the release checklist](RELEASE_CHECKLIST.md).
+- [x] JMH package and forked smoke pass.
+- [x] Python 3.11 Cloud Benchmark unit suite, shell syntax, and synthetic lifecycle
   gates pass.
 - [ ] Protected PR/master `CI / Required` passes for the accepted snapshot state.
 
@@ -175,4 +177,3 @@ Status: entry audit and contract freeze complete; snapshot conversion has not st
 - [ ] Treat published `3.1.0` and signed `v3.1.0` as immutable; later fixes use a new
   version.
 - [ ] Mark Phase 8 and V3.1 complete only after the evidence commit is merged.
-

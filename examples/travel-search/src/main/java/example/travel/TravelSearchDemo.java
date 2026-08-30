@@ -87,6 +87,17 @@ public final class TravelSearchDemo {
             printHits("Exact PHRASE", engine.search(SearchRequest.of(
                     SearchQueries.phrase(description, "museum beside the river")
             )));
+            printHits("Ordered PHRASE slop", engine.search(SearchRequest.of(
+                    SearchQueries.phrase(description, "museum river", 2)
+            )));
+            printHits("BOOL minimumShouldMatch", engine.search(SearchRequest.of(
+                    SearchQueries.<TravelPlace>bool()
+                            .should(SearchQueries.text(description, "museum"))
+                            .should(SearchQueries.text(description, "river"))
+                            .should(SearchQueries.text(cityText, "Paris"))
+                            .minimumShouldMatch(2)
+                            .build()
+            )));
             printHits("FUZZY typo", engine.search(SearchRequest.of(
                     SearchQueries.fuzzy(description, "musuem")
             )));

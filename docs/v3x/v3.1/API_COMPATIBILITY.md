@@ -9,11 +9,12 @@ consumer builds remain mandatory.
 
 The `artifact-compat` profile copies the published `3.0.0` artifact into an isolated
 compatibility-baseline path and verifies its pinned SHA-256 before running Japicmp.
-This is required while the candidate retains version `3.0.0`: dependency coordinates
-alone could otherwise resolve a locally installed candidate and silently compare the
-JAR with itself. A mismatched baseline fails closed. The execution uses the same
-public-access, synthetic filtering, and binary/source incompatibility failure policy
-as the existing published baselines.
+This was essential while the candidate retained version `3.0.0`, because dependency
+coordinates alone could otherwise resolve a locally installed candidate and silently
+compare the JAR with itself. It remains mandatory after conversion to
+`3.1.0-SNAPSHOT` so the baseline identity continues to fail closed. The execution uses
+the same public-access, synthetic filtering, and binary/source incompatibility failure
+policy as the existing published baselines.
 
 ## Supported public additions
 
@@ -78,3 +79,26 @@ existing protected release process. No compatibility exception may be justified 
 because a new method is source-additive; overload resolution, null literals, erasure,
 record components, default-interface behavior, and independent compilation must also
 be reviewed.
+
+## Phase 8 snapshot review
+
+The fresh isolated `3.1.0-SNAPSHOT` comparison resolves the published 3.0.0 core JAR
+with SHA-256:
+
+```text
+3b0ed72877f3c5f2ef225d1a87cac8d9546b109c91c0bec8d8dcea12e2d101f2
+```
+
+Japicmp passes against all four published baselines. The 3.0.0-to-candidate report
+contains exactly four additive public method descriptors:
+
+- supported `SearchQueries.phrase(TextField<T>, String, int)`;
+- supported `SearchQueries.BoolBuilder<T>.minimumShouldMatch(int)`;
+- unsupported bridge `PhrasePositionAccess.minimumConsumedSlop(...)`;
+- unsupported bridge `FuzzyVocabularyAccess.forEachWithinEditDistance(...)`.
+
+`TextIndexSnapshot` is reported as a modified class with no public method or field
+change. No public class, constructor, record component, interface default, or existing
+method is added, removed, or incompatibly modified beyond the four reviewed additive
+descriptors. The generated report is disposable under `target/japicmp/`; this document
+is the reviewed compatibility record.

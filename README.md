@@ -45,6 +45,33 @@ artifacts are available from Maven Central. Release notes and direct-download ar
 are available from the
 [`v3.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.0.0).
 
+### V3.1 development snapshot
+
+The active source tree is the unreleased `3.1.0-SNAPSHOT` development candidate.
+Published installation guidance remains on 3.0.0 until the signed V3.1 release is
+available. V3.1 adds ordered phrase slop and an explicit ranked BOOL SHOULD threshold:
+
+```java
+SearchQuery<TravelPlace> nearbyTerms = SearchQueries.phrase(
+        description,
+        "museum river",
+        2
+);
+
+SearchQuery<TravelPlace> twoOfThree = SearchQueries.<TravelPlace>bool()
+        .should(SearchQueries.text(description, "museum"))
+        .should(SearchQueries.text(description, "river"))
+        .should(SearchQueries.text(cityText, "Paris"))
+        .minimumShouldMatch(2)
+        .build();
+```
+
+Phrase slop is a non-negative ordered extra-gap budget; it never permits term
+transposition and does not alter phrase scoring. The existing two-argument phrase
+factory remains exact slop zero. A BOOL without `minimumShouldMatch(...)` retains its
+V3.0 defaults. See the [3.0-to-3.1 migration guide](docs/v3x/v3.1/MIGRATION_GUIDE.md)
+and [V3.1 ranked-search semantics](docs/v3x/v3.1/RANKED_SEARCH_SEMANTICS.md).
+
 ## Quick start: annotated search
 
 The shortest 3.0 path uses runtime annotation discovery and does not require the
