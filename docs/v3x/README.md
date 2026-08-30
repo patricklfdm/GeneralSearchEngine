@@ -15,7 +15,8 @@ atomic-publication architecture.
   [Phase 2](v3.1/PHASE_2_CHECKLIST.md) implements phrase slop.
   [Phase 3](v3.1/PHASE_3_CHECKLIST.md) implements BOOL `minimumShouldMatch`, and
   [Phase 4](v3.1/PHASE_4_CHECKLIST.md) hardens the combined semantics, lifecycle,
-  mutation, and concurrency behavior.
+  mutation, and concurrency behavior. [Phase 5](v3.1/PHASE_5_CHECKLIST.md) completes
+  the profile-guided phrase allocation work without semantic or API drift.
 - Later V3.x versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -37,6 +38,7 @@ atomic-publication architecture.
 - [Phase 5 local pre-change baseline](v3.1/PHASE_5_BASELINE.md)
 - [Phase 5 optimization 1](v3.1/PHASE_5_OPTIMIZATION_1.md)
 - [Phase 5 optimization 2](v3.1/PHASE_5_OPTIMIZATION_2.md)
+- [Phase 5 checklist](v3.1/PHASE_5_CHECKLIST.md)
 
 ## Stable boundaries
 

@@ -27,6 +27,7 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 5 local pre-change baseline](v3x/v3.1/PHASE_5_BASELINE.md)
 - [V3.1 Phase 5 optimization 1](v3x/v3.1/PHASE_5_OPTIMIZATION_1.md)
 - [V3.1 Phase 5 optimization 2](v3x/v3.1/PHASE_5_OPTIMIZATION_2.md)
+- [V3.1 Phase 5 checklist](v3x/v3.1/PHASE_5_CHECKLIST.md)
 
 ## v3 — current stable release
 
