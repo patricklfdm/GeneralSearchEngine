@@ -32,6 +32,8 @@ class FuzzyTermExpanderTest {
     private static final TextField<Document> TEXT =
             TextField.of(BODY, WHOLE_VALUE);
     private static final FuzzyTermExpander EXPANDER =
+            new TrieFuzzyTermExpander();
+    private static final FuzzyTermExpander FULL_SCAN =
             new VocabularyScanningFuzzyTermExpander();
 
     @Test
@@ -150,6 +152,11 @@ class FuzzyTermExpanderTest {
                     query,
                     maxEdits
             );
+            List<FuzzyExpansion> fullScan = FULL_SCAN.expand(
+                    indexOf(List.copyOf(vocabulary)),
+                    query,
+                    maxEdits
+            );
             String context = "seed=" + SEED + ", iteration=" + iteration
                     + ", query=" + query;
             assertEquals(
@@ -162,7 +169,84 @@ class FuzzyTermExpanderTest {
                     actual.stream().map(FuzzyExpansion::editDistance).toList(),
                     context
             );
+            assertEquals(
+                    fullScan.stream().map(FuzzyExpansion::term).toList(),
+                    actual.stream().map(FuzzyExpansion::term).toList(),
+                    context
+            );
+            assertEquals(
+                    fullScan.stream().map(FuzzyExpansion::editDistance).toList(),
+                    actual.stream().map(FuzzyExpansion::editDistance).toList(),
+                    context
+            );
         }
+    }
+
+    @Test
+    void exhaustiveSmallAlphabetTraversalMatchesFullMatrixOsa() {
+        List<String> vocabulary = allTerms(new int[]{'a', 'b', 'c'}, 4);
+        TextIndexSnapshot<Document> index = indexOf(vocabulary);
+        for (String query : vocabulary) {
+            for (int maxEdits = 0; maxEdits <= 2; maxEdits++) {
+                List<ExpectedExpansion> expected = new ArrayList<>();
+                for (String term : vocabulary) {
+                    int distance = FuzzyTestReference
+                            .optimalStringAlignmentDistance(query, term);
+                    if (distance <= maxEdits) {
+                        expected.add(new ExpectedExpansion(term, distance));
+                    }
+                }
+                expected.sort(Comparator
+                        .comparingInt(ExpectedExpansion::distance)
+                        .thenComparing(
+                                ExpectedExpansion::term,
+                                FuzzyTestReference::compareCodePoints
+                        ));
+
+                List<FuzzyExpansion> actual = EXPANDER.expand(
+                        index,
+                        query,
+                        maxEdits
+                );
+                String context = "query=" + query + ", maxEdits=" + maxEdits;
+                assertEquals(
+                        expected.stream().map(ExpectedExpansion::term).toList(),
+                        actual.stream().map(FuzzyExpansion::term).toList(),
+                        context
+                );
+                assertEquals(
+                        expected.stream().map(ExpectedExpansion::distance).toList(),
+                        actual.stream().map(FuzzyExpansion::editDistance).toList(),
+                        context
+                );
+            }
+        }
+    }
+
+    @Test
+    void longSharedPrefixesAndSupplementaryCodePointsMatchFullScan() {
+        String sharedPrefix = "a".repeat(128);
+        String query = sharedPrefix + "😀bc";
+        TextIndexSnapshot<Document> index = indexOf(List.of(
+                query,
+                sharedPrefix + "😀cb",
+                sharedPrefix + "😀bd",
+                sharedPrefix + "😀bcd",
+                sharedPrefix + "😀",
+                "z".repeat(140)
+        ));
+
+        List<FuzzyExpansion> expected = FULL_SCAN.expand(index, query, 2);
+        List<FuzzyExpansion> actual = EXPANDER.expand(index, query, 2);
+
+        assertEquals(
+                expected.stream().map(FuzzyExpansion::term).toList(),
+                actual.stream().map(FuzzyExpansion::term).toList()
+        );
+        assertEquals(
+                expected.stream().map(FuzzyExpansion::editDistance).toList(),
+                actual.stream().map(FuzzyExpansion::editDistance).toList()
+        );
     }
 
     private static TextIndexSnapshot<Document> indexOf(List<String> terms) {
@@ -183,6 +267,32 @@ class FuzzyTermExpanderTest {
             term.appendCodePoint(ALPHABET[random.nextInt(ALPHABET.length)]);
         }
         return term.toString();
+    }
+
+    private static List<String> allTerms(int[] alphabet, int maximumLength) {
+        List<String> terms = new ArrayList<>();
+        appendTerms(terms, new StringBuilder(), alphabet, maximumLength);
+        return List.copyOf(terms);
+    }
+
+    private static void appendTerms(
+            List<String> terms,
+            StringBuilder prefix,
+            int[] alphabet,
+            int remaining
+    ) {
+        if (!prefix.isEmpty()) {
+            terms.add(prefix.toString());
+        }
+        if (remaining == 0) {
+            return;
+        }
+        for (int codePoint : alphabet) {
+            int previousLength = prefix.length();
+            prefix.appendCodePoint(codePoint);
+            appendTerms(terms, prefix, alphabet, remaining - 1);
+            prefix.setLength(previousLength);
+        }
     }
 
     private record Document(String body) {

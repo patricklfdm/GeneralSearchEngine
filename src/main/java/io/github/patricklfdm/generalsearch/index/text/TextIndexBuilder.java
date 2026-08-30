@@ -56,14 +56,25 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
             return base;
         }
         PersistentAvlMap<String, PostingList> postings = base.postings();
+        PersistentCodePointTrie fuzzyDictionary = base.fuzzyDictionary();
+        Map<String, Boolean> fuzzyMembershipChanges = new TreeMap<>();
         for (var entry : dirty.entrySet()) {
             PostingList posting = entry.getValue();
+            boolean existed = base.posting(entry.getKey()).documentFrequency() > 0;
+            boolean exists = posting.documentFrequency() > 0;
             postings = posting.documentFrequency() == 0
                     ? postings.without(entry.getKey())
                     : postings.with(entry.getKey(), posting);
+            if (existed != exists) {
+                fuzzyMembershipChanges.put(entry.getKey(), exists);
+            }
         }
+        fuzzyDictionary = fuzzyDictionary.withMembershipChanges(
+                fuzzyMembershipChanges
+        );
         built = true;
         if (postings == base.postings()
+                && fuzzyDictionary == base.fuzzyDictionary()
                 && documentLengths == base.documentLengths()
                 && totalDocumentLength == base.totalDocumentLength()) {
             return base;
@@ -71,6 +82,7 @@ public final class TextIndexBuilder<T> implements IndexBuilder<T> {
         return TextIndexSnapshot.fromPostings(
                 textField,
                 postings,
+                fuzzyDictionary,
                 documentLengths,
                 totalDocumentLength
         );

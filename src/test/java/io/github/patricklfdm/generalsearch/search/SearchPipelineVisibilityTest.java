@@ -8,6 +8,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import io.github.patricklfdm.generalsearch.index.text.FuzzyVocabularyAccess;
@@ -50,6 +51,7 @@ class SearchPipelineVisibilityTest {
             FuzzyTermExpander.class,
             FuzzyExpansion.class,
             VocabularyScanningFuzzyTermExpander.class,
+            TrieFuzzyTermExpander.class,
             SearchQueryNode.class,
             LeafSearchQueryNode.class,
             BoolSearchQueryNode.class,
@@ -113,13 +115,29 @@ class SearchPipelineVisibilityTest {
                         FuzzyVocabularyAccess.class.getDeclaredMethods())
                 .filter(method -> Modifier.isPublic(method.getModifiers()))
                 .toList();
-        assertEquals(List.of("forEachTerm"), vocabularyMethods.stream()
-                .map(method -> method.getName())
-                .toList());
-        assertEquals(void.class, vocabularyMethods.getFirst().getReturnType());
         assertEquals(
-                List.of(TextIndexSnapshot.class, Consumer.class),
-                Arrays.asList(vocabularyMethods.getFirst().getParameterTypes())
+                Set.of("forEachTerm", "forEachWithinEditDistance"),
+                vocabularyMethods.stream()
+                .map(method -> method.getName())
+                .collect(Collectors.toSet())
+        );
+        vocabularyMethods.forEach(method -> assertEquals(
+                void.class,
+                method.getReturnType()
+        ));
+        assertEquals(
+                Set.of(
+                        List.of(TextIndexSnapshot.class, Consumer.class),
+                        List.of(
+                                TextIndexSnapshot.class,
+                                String.class,
+                                int.class,
+                                BiConsumer.class
+                        )
+                ),
+                vocabularyMethods.stream()
+                        .map(method -> Arrays.asList(method.getParameterTypes()))
+                        .collect(Collectors.toSet())
         );
 
         Set<String> publicQueryMethods = Arrays.stream(

@@ -131,3 +131,59 @@ final class VocabularyScanningFuzzyTermExpander implements FuzzyTermExpander {
         }
     }
 }
+
+/** Persistent-trie fuzzy expansion with exact bounded OSA traversal. */
+final class TrieFuzzyTermExpander implements FuzzyTermExpander {
+    private static final Comparator<FuzzyExpansion> EXPANSION_ORDER = Comparator
+            .comparingInt(FuzzyExpansion::editDistance)
+            .thenComparing(
+                    FuzzyExpansion::term,
+                    BoundedOptimalStringAlignment::compareCodePoints
+            );
+
+    @Override
+    public List<FuzzyExpansion> expand(
+            TextIndexSnapshot<?> textIndex,
+            String normalizedQueryTerm,
+            int maxEdits
+    ) {
+        Objects.requireNonNull(textIndex, "textIndex");
+        Objects.requireNonNull(normalizedQueryTerm, "normalizedQueryTerm");
+        if (normalizedQueryTerm.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "normalizedQueryTerm must not be empty");
+        }
+        if (maxEdits < 0
+                || maxEdits > BoundedOptimalStringAlignment.MAX_AUTO_EDITS) {
+            throw new IllegalArgumentException("maxEdits must be between 0 and 2");
+        }
+
+        int queryLength = normalizedQueryTerm.codePointCount(
+                0,
+                normalizedQueryTerm.length()
+        );
+        List<FuzzyExpansion> expansions = new ArrayList<>();
+        FuzzyVocabularyAccess.forEachWithinEditDistance(
+                textIndex,
+                normalizedQueryTerm,
+                maxEdits,
+                (candidate, distance) -> {
+                    int candidateLength = candidate.codePointCount(
+                            0,
+                            candidate.length()
+                    );
+                    double similarity = 1.0 - (double) distance
+                            / Math.max(queryLength, candidateLength);
+                    expansions.add(new FuzzyExpansion(
+                            candidate,
+                            textIndex.posting(candidate),
+                            distance,
+                            candidateLength,
+                            similarity
+                    ));
+                }
+        );
+        expansions.sort(EXPANSION_ORDER);
+        return List.copyOf(expansions);
+    }
+}

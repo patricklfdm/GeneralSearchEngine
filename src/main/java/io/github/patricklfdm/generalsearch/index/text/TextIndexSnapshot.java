@@ -26,6 +26,7 @@ import io.github.patricklfdm.generalsearch.schema.TextField;
 public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
     private final TextField<T> textField;
     private final PersistentAvlMap<String, PostingList> postings;
+    private final PersistentCodePointTrie fuzzyDictionary;
     private final PersistentAvlMap<Integer, Integer> documentLengths;
     private final long totalDocumentLength;
     private final IndexStatistics statistics;
@@ -33,11 +34,20 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
     private TextIndexSnapshot(
             TextField<T> textField,
             PersistentAvlMap<String, PostingList> postings,
+            PersistentCodePointTrie fuzzyDictionary,
             PersistentAvlMap<Integer, Integer> documentLengths,
             long totalDocumentLength
     ) {
         this.textField = Objects.requireNonNull(textField, "textField");
         this.postings = Objects.requireNonNull(postings, "postings");
+        this.fuzzyDictionary = Objects.requireNonNull(
+                fuzzyDictionary,
+                "fuzzyDictionary"
+        );
+        if (fuzzyDictionary.size() != postings.size()) {
+            throw new IllegalArgumentException(
+                    "fuzzy dictionary size must equal posting dictionary size");
+        }
         this.documentLengths = Objects.requireNonNull(documentLengths, "documentLengths");
         if (totalDocumentLength < 0) {
             throw new IllegalArgumentException("totalDocumentLength must not be negative");
@@ -50,6 +60,7 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
         return new TextIndexSnapshot<>(
                 textField,
                 PersistentAvlMap.empty(PostingList::documentFrequency),
+                PersistentCodePointTrie.empty(),
                 PersistentAvlMap.empty(Integer::longValue),
                 0L
         );
@@ -58,12 +69,14 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
     static <T> TextIndexSnapshot<T> fromPostings(
             TextField<T> textField,
             PersistentAvlMap<String, PostingList> postings,
+            PersistentCodePointTrie fuzzyDictionary,
             PersistentAvlMap<Integer, Integer> documentLengths,
             long totalDocumentLength
     ) {
         return new TextIndexSnapshot<>(
                 textField,
                 postings,
+                fuzzyDictionary,
                 documentLengths,
                 totalDocumentLength
         );
@@ -190,6 +203,10 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
 
     PersistentAvlMap<String, PostingList> postings() {
         return postings;
+    }
+
+    PersistentCodePointTrie fuzzyDictionary() {
+        return fuzzyDictionary;
     }
 
     PersistentAvlMap<Integer, Integer> documentLengths() {

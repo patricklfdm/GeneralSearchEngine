@@ -62,6 +62,74 @@ class FuzzyVocabularyAccessTest {
         assertSame(expected, actual);
     }
 
+    @Test
+    void visitsBoundedOsaMatchesInNumericCodePointTraversalOrder() {
+        TextIndexSnapshot<Document> index = TextIndexSnapshot.empty(TEXT);
+        IndexBuilder<Document> builder = index.toBuilder();
+        builder.add(0, new Document("tea ten the alpha"));
+        @SuppressWarnings("unchecked")
+        TextIndexSnapshot<Document> built =
+                (TextIndexSnapshot<Document>) builder.build();
+        List<String> visited = new ArrayList<>();
+
+        FuzzyVocabularyAccess.forEachWithinEditDistance(
+                built,
+                "teh",
+                1,
+                (term, distance) -> visited.add(term + ":" + distance)
+        );
+
+        assertEquals(List.of("tea:1", "ten:1", "the:1"), visited);
+    }
+
+    @Test
+    void boundedVisitorValidatesInputsAndPropagatesConsumerFailure() {
+        TextIndexSnapshot<Document> index = TextIndexSnapshot.empty(TEXT);
+        assertThrows(
+                NullPointerException.class,
+                () -> FuzzyVocabularyAccess.forEachWithinEditDistance(
+                        null, "alpha", 1, (term, distance) -> { })
+        );
+        assertThrows(
+                NullPointerException.class,
+                () -> FuzzyVocabularyAccess.forEachWithinEditDistance(
+                        index, null, 1, (term, distance) -> { })
+        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> FuzzyVocabularyAccess.forEachWithinEditDistance(
+                        index, "", 1, (term, distance) -> { })
+        );
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> FuzzyVocabularyAccess.forEachWithinEditDistance(
+                        index, "alpha", 3, (term, distance) -> { })
+        );
+
+        TextIndexSnapshot<Document> built = indexOf("alpha");
+        IllegalStateException expected = new IllegalStateException("stop");
+        IllegalStateException actual = assertThrows(
+                IllegalStateException.class,
+                () -> FuzzyVocabularyAccess.forEachWithinEditDistance(
+                        built,
+                        "alpha",
+                        0,
+                        (term, distance) -> { throw expected; }
+                )
+        );
+        assertSame(expected, actual);
+    }
+
+    private static TextIndexSnapshot<Document> indexOf(String term) {
+        TextIndexSnapshot<Document> index = TextIndexSnapshot.empty(TEXT);
+        IndexBuilder<Document> builder = index.toBuilder();
+        builder.add(0, new Document(term));
+        @SuppressWarnings("unchecked")
+        TextIndexSnapshot<Document> built =
+                (TextIndexSnapshot<Document>) builder.build();
+        return built;
+    }
+
     private record Document(String body) {
     }
 }
