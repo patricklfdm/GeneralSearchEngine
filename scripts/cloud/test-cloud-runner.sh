@@ -132,6 +132,34 @@ assert_not_contains "$fake_state/commands.log" 'compute instances create'
 
 reset_fake
 set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=ranked-v31-preset-dry \
+  GSE_BENCHMARK_PRESET_ID=v3.1-ranked-v1 \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run ranked-v31 \
+  > "$output_file" 2>&1
+ranked_preset_exit=$?
+set -e
+[ "$ranked_preset_exit" -eq 0 ] \
+  || fail "V3.1 ranked preset dry run returned $ranked_preset_exit"
+assert_contains "$output_file" 'GSE_BENCHMARK_PRESET_ID=v3.1-ranked-v1'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
+reset_fake
+set +e
+env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=invalid-preset-dry \
+  GSE_BENCHMARK_PRESET_ID=v3..1-ranked-v1 \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run ranked-v31 \
+  > "$output_file" 2>&1
+invalid_preset_exit=$?
+set -e
+[ "$invalid_preset_exit" -eq 2 ] \
+  || fail "Invalid benchmark preset returned $invalid_preset_exit"
+assert_contains "$output_file" \
+  'GSE_BENCHMARK_PRESET_ID must be a lowercase dotted or hyphenated identifier'
+test ! -s "$fake_state/commands.log" \
+  || fail 'Invalid benchmark preset called gcloud before failing'
+
+reset_fake
+set +e
 env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=confirmation-dry \
   GSE_CLOUD_PROVISIONING=standard \
   GSE_GCP_ZONE=us-west4-a \
