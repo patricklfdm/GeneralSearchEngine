@@ -14,6 +14,7 @@ remains the phase history and decision source of truth.
 - [V3.1 architecture](v3x/v3.1/ARCHITECTURE.md)
 - [V3.1 ranked-search semantics](v3x/v3.1/RANKED_SEARCH_SEMANTICS.md)
 - [V3.1 API compatibility](v3x/v3.1/API_COMPATIBILITY.md)
+- [V3.1 migration guide](v3x/v3.1/MIGRATION_GUIDE.md)
 - [V3.1 performance and evidence](v3x/v3.1/PERFORMANCE_AND_EVIDENCE.md)
 - [V3.1 validation](v3x/v3.1/VALIDATION.md)
 - [V3.1 Cloud Benchmark extension](v3x/v3.1/CLOUD_BENCHMARK_EXTENSION.md)
@@ -35,6 +36,9 @@ remains the phase history and decision source of truth.
 - [V3.1 Phase 7 ranked feature canonical review](v3x/v3.1/PHASE_7_CANONICAL_REVIEW.md)
 - [V3.1 Phase 7 frozen regression review](v3x/v3.1/PHASE_7_REGRESSION_REVIEW.md)
 - [V3.1 Phase 7 checklist](v3x/v3.1/PHASE_7_CHECKLIST.md)
+- [V3.1 Phase 8 hardening and release contract](v3x/v3.1/HARDENING_AND_RELEASE.md)
+- [V3.1 Phase 8 checklist](v3x/v3.1/PHASE_8_CHECKLIST.md)
+- [V3.1 release checklist](v3x/v3.1/RELEASE_CHECKLIST.md)
 
 ## v3 — current stable release
 

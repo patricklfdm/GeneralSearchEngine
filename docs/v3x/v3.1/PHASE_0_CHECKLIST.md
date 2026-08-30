@@ -1,6 +1,7 @@
 # V3.1 Phase 0 checklist
 
-Status: contract freeze complete; production implementation has not started.
+Status: implementation exit gates complete; Phase 8 snapshot hardening is locally
+validated and awaits protected CI acceptance.
 
 ## Frozen decisions
 
@@ -47,15 +48,15 @@ remains a later implementation phase:
 
 ## Implementation exit gates
 
-- [ ] Focused unit tests cover every validation and failure-precedence rule.
-- [ ] Randomized phrase and BOOL differential tests pass against independent oracles.
+- [x] Focused unit tests cover every validation and failure-precedence rule.
+- [x] Randomized phrase and BOOL differential tests pass against independent oracles.
 - [x] Fuzzy trie traversal passes exhaustive and randomized full-scan equivalence.
-- [ ] Search and Explain match/score invariants pass for all new shapes.
-- [ ] Mutation, bulk, snapshot, dynamic-index, concurrency, and close lifecycle tests
+- [x] Search and Explain match/score invariants pass for all new shapes.
+- [x] Mutation, bulk, snapshot, dynamic-index, concurrency, and close lifecycle tests
   pass.
-- [ ] V1, V2, V3.0, processor, generated, and independent consumer gates pass.
-- [ ] Strict Javadocs, release artifacts, and reproducible builds pass.
-- [ ] Frozen regression-lane and distinct feature-lane evidence is reviewed.
+- [x] V1, V2, V3.0, processor, generated, and independent consumer gates pass.
+- [x] Strict Javadocs, release artifacts, and reproducible builds pass.
+- [x] Frozen regression-lane and distinct feature-lane evidence is reviewed.
 
 No production Java, benchmark runner, workflow, or release-version change belongs in
 Phase 0. Implementation starts only from these frozen contracts and records any needed

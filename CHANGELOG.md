@@ -3,6 +3,26 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 3.1.0 — Unreleased
+
+### Added
+
+- Ordered phrase slop through `SearchQueries.phrase(field, text, slop)`, preserving
+  exact phrase behavior at slop zero and existing distinct-term BM25 scoring.
+- Explicit ranked BOOL thresholds through `BoolBuilder.minimumShouldMatch(int)`, while
+  preserving V3.0 matching and scoring when no threshold is configured.
+- Focused, randomized, differential, lifecycle, mutation, concurrency, and Explain
+  coverage for the V3.1 ranked-query additions.
+- A separately identified `ranked-v31` benchmark lane with reviewed 1M concurrency,
+  publication, dynamic-index, failure, and soak evidence.
+
+### Changed
+
+- Fuzzy vocabulary expansion now uses an exact persistent Unicode code-point trie with
+  bounded OSA traversal while retaining the complete V3.0 full-scan result semantics.
+- Phrase planning and verification reduce measured allocation without changing match,
+  score, order, validation, snapshot, or Explain behavior.
+
 ## 3.0.0 — 2026-08-26
 
 ### Added
