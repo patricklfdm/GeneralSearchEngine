@@ -11,6 +11,8 @@ acceptance, signed tagging, publication, and post-publication proof.
 | Active candidate | final `3.3.0`, unpublished |
 | Phase 5 entry / accepted Phase 4 merge | `9b1b880ddc947b5b4747e0251d0bd42708f94bfc` |
 | Final-candidate branch | `release/v3.3.0` |
+| Initial candidate merge | PR #64, `fd15a8df9600bd98ec0b1926810637f0ee40ade5` |
+| Calendar-correction branch | `release/v3.3.0-date-correction` |
 | Final protected-master commit | `PENDING` |
 | Signed tag | `PENDING` |
 | Maven Central | `PENDING`; published `3.2.0` remains stable |
@@ -39,12 +41,17 @@ observed. Final candidate coordinates alone do not imply availability.
   `9b1b880ddc947b5b4747e0251d0bd42708f94bfc` on protected `master`.
 - [x] Convert all seven active project/consumer coordinates together.
 - [x] Preserve all six published baselines and historical release records.
-- [x] Freeze output timestamp `2026-08-30T00:00:00Z` and dated changelog
-  `3.3.0 — 2026-08-30`.
+- [x] Freeze output timestamp `2026-08-31T00:00:00Z` and dated changelog
+  `3.3.0 — 2026-08-31`.
 - [x] Add supported two-page exact-total consumer and travel executions.
 - [x] Add migration, Phase 5, and state-aware release documentation.
 - [x] Repeat every final validation family and record reproducible hashes.
-- [ ] Merge through protected PR and record exact master commit and CI run.
+- [x] Merge the initial candidate through protected PR #64 as
+  `fd15a8df9600bd98ec0b1926810637f0ee40ade5`.
+- [x] Correct the final release date and output timestamp to `2026-08-31`, rerun
+  strict release/artifact/reproducibility gates, and regenerate all six hashes.
+- [ ] Merge the date-corrected candidate through protected PR and record the exact
+  final master commit and CI run.
 
 ## Final candidate evidence
 
@@ -66,12 +73,12 @@ Two clean builds produced byte-identical final artifacts:
 
 | Artifact | SHA-256 |
 |---|---|
-| `general-search-engine-3.3.0.jar` | `8d8deb0d9c93ed81ae12b4bac2b47c5ead6b67914a0f00a1526418346d3689e9` |
-| `general-search-engine-3.3.0-sources.jar` | `4d3d892327141328c2c7fd47594cfc9002187619ccdd30739dc686ab12380fd3` |
-| `general-search-engine-3.3.0-javadoc.jar` | `9035aaa4b38ae329ea47523b0f0a5fee06665249f601c97b3f4a71bb6cce72ee` |
-| `general-search-engine-processor-3.3.0.jar` | `11c272c58ef36a78bf6c5e40489f20a90db572de816ca5736f2284f5985e83e2` |
-| `general-search-engine-processor-3.3.0-sources.jar` | `f7f1da236d8492a777dd7a459d64fbda4ddea9cda13d74874628a06e41014012` |
-| `general-search-engine-processor-3.3.0-javadoc.jar` | `350c6d858b3534606065c1e30bacd5707c97825920fff763aaed253a7975df37` |
+| `general-search-engine-3.3.0.jar` | `18fb6439be074b39e5f22e2b01fba327ee919a4997e6429551481ef7fb8754f4` |
+| `general-search-engine-3.3.0-sources.jar` | `2c5444f3d6e546a8b21a185271654f5d7f70ff8c235c1a98575cbf01ab7acc6e` |
+| `general-search-engine-3.3.0-javadoc.jar` | `9a0a6116ade49dd412cc065e5ad415c003c6f74ea6ec68384121b124225606f0` |
+| `general-search-engine-processor-3.3.0.jar` | `6ddd8ace76364fdab6392923aca8b7cdb83f8db7f74c84d571ed02f97ccc6c19` |
+| `general-search-engine-processor-3.3.0-sources.jar` | `3cf85abfbaf7438ad2d00351ed56031b23393651288d7ee0fa91789bcf9e7307` |
+| `general-search-engine-processor-3.3.0-javadoc.jar` | `2e58b30cb5bf2cd44a22084ff292dcb012a3e8378d2e5447ccc6fc60acf97f4a` |
 
 ## Signed tag verification
 

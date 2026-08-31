@@ -28,8 +28,10 @@ cursor and deterministic strict current-snapshot continuation. Phase 4 completed
 publication, concurrency, retention, scale, and decision hardening without a
 production-source change and was accepted as merge commit
 `9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 final
-`3.3.0` candidate conversion and local release validation are complete on the
-independent release branch; publication is not yet claimed.
+`3.3.0` candidate conversion merged through PR #64 as
+`fd15a8df9600bd98ec0b1926810637f0ee40ade5`. The final calendar-date correction and
+regenerated reproducible hashes are locally complete on an independent follow-up
+branch; publication is not yet claimed.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
