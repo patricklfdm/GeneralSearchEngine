@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.search;
 
 import java.util.List;
 import java.util.Objects;
+import io.github.patricklfdm.generalsearch.engine.exception.SearchCursorException;
 import io.github.patricklfdm.generalsearch.query.CandidatePlanner;
 import io.github.patricklfdm.generalsearch.ranking.RankedSearchRequest;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
@@ -45,11 +46,18 @@ public final class SearchExecutionAccess {
     public static <T> SearchPageResult<T> searchPage(
             SearchSnapshot<T> snapshot,
             SearchPageRequest<T> request,
-            CandidatePlanner<T> filterPlanner
+            CandidatePlanner<T> filterPlanner,
+            Object cursorOwnerToken
     ) {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(request, "request");
         Objects.requireNonNull(filterPlanner, "filterPlanner");
+        Objects.requireNonNull(cursorOwnerToken, "cursorOwnerToken");
+        PageAnchor after = validateCursor(
+                request,
+                snapshot.version(),
+                cursorOwnerToken
+        );
         RankedSearchInput<T> input = RankedSearchInput.from(
                 snapshot,
                 request.searchRequest()
@@ -57,8 +65,40 @@ public final class SearchExecutionAccess {
         SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
         return new SearchExecutor<T>().executePage(
                 plan,
-                request.totalHitsMode()
+                request.totalHitsMode(),
+                after,
+                cursorOwnerToken,
+                request.searchRequest(),
+                snapshot.version()
         );
+    }
+
+    private static PageAnchor validateCursor(
+            SearchPageRequest<?> request,
+            long snapshotVersion,
+            Object cursorOwnerToken
+    ) {
+        SearchAfterCursor supplied = request.after().orElse(null);
+        if (supplied == null) {
+            return null;
+        }
+        if (!(supplied instanceof BuiltInSearchAfterCursor builtIn)) {
+            throw new SearchCursorException(
+                    SearchCursorException.Reason.UNSUPPORTED_CURSOR);
+        }
+        if (!builtIn.belongsTo(cursorOwnerToken)) {
+            throw new SearchCursorException(
+                    SearchCursorException.Reason.DIFFERENT_ENGINE);
+        }
+        if (!builtIn.wraps(request.searchRequest())) {
+            throw new SearchCursorException(
+                    SearchCursorException.Reason.DIFFERENT_REQUEST);
+        }
+        if (!builtIn.captures(snapshotVersion)) {
+            throw new SearchCursorException(
+                    SearchCursorException.Reason.STALE_SNAPSHOT);
+        }
+        return builtIn.anchor();
     }
 
     /**

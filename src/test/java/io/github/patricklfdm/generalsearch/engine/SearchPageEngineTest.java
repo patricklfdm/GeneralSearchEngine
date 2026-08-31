@@ -58,8 +58,8 @@ class SearchPageEngineTest {
 
             assertHitIdentityAndBits(ordinary.hits(), page.hits());
             assertTrue(page.totalHits().isEmpty());
-            assertTrue(page.nextCursor().isEmpty(),
-                    "built-in cursor emission starts in Phase 3");
+            assertTrue(page.nextCursor().isPresent(),
+                    "more matches require a continuation cursor");
         }
     }
 

@@ -1,7 +1,7 @@
 # V3.3 Phase 2 checklist
 
-Status: locally complete on `feat/v3.3-phase2-page-foundation`; full local gate
-results are recorded below before commit review.
+Status: accepted on protected `master` through PR #61 at
+`e444d40bd265c6ca855d788b75b25623ec892b50`.
 
 Phase 2 deliberately stops before built-in cursor creation or continuation. It exposes
 the complete frozen public family now so Phase 3 can add only a private cursor and
@@ -46,8 +46,9 @@ continuation execution rather than changing application descriptors.
   limits 1/2/10/100; TEXT, exact/sloppy PHRASE, FUZZY, nested BOOL/BOOST; filters; and
   default/non-default BM25.
 - [x] Open-engine planning failures preserve ordinary exception type and message.
-- [x] Phase 2 emits no built-in cursor. Every supplied cursor fails after lifecycle
-  admission as `UNSUPPORTED_CURSOR`; `CLOSED` retains precedence.
+- [x] At the Phase 2 boundary, the built-in engine emitted no cursor and every supplied
+  cursor failed after lifecycle admission as `UNSUPPORTED_CURSOR`; `CLOSED` retained
+  precedence. Phase 3 replaces that deliberate intermediate behavior.
 
 ## Exact and disabled totals
 
@@ -98,6 +99,8 @@ continuation execution rather than changing application descriptors.
 - [x] Highlighted pagination, cursor serialization, snapshot pinning, timeout API,
   prepared queries, facets, aggregations, and deep-offset promises remain excluded.
 
-Phase 2 is not a releasable pagination endpoint by itself because it intentionally
-cannot continue beyond the first page. The complete V3.3 release contract remains
-unchanged; Phase 3 supplies the private continuation implementation.
+Phase 2 was an intentionally non-releasable pagination endpoint because it could not
+continue beyond the first page. Exact-commit protected-master `CI / Required` passed
+in [run 33359591742](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33359591742).
+Phase 3 begins from that accepted merge and supplies the private continuation
+implementation.

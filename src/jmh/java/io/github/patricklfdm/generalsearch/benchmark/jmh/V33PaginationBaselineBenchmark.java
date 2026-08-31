@@ -186,7 +186,8 @@ public class V33PaginationBaselineBenchmark {
                 .search(request.searchRequest())
                 .hits();
         if (!page.hits().equals(ordinary)
-                || page.nextCursor().isPresent()
+                || (expectedTotal > ordinary.size())
+                != page.nextCursor().isPresent()
                 || exact != page.totalHits().isPresent()
                 || (exact && page.totalHits().orElseThrow() != expectedTotal)) {
             throw new IllegalStateException("invalid first-page controls");
