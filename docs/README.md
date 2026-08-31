@@ -62,6 +62,13 @@ remains the phase history and decision source of truth.
 - [V3.2 Phase 6 checklist](v3x/v3.2/PHASE_6_CHECKLIST.md)
 - [V3.2 release checklist](v3x/v3.2/RELEASE_CHECKLIST.md)
 - [V3.2 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0)
+- [V3.3 architecture](v3x/v3.3/ARCHITECTURE.md)
+- [V3.3 pagination and total-hits semantics](v3x/v3.3/PAGINATION_AND_TOTAL_HITS.md)
+- [V3.3 API compatibility](v3x/v3.3/API_COMPATIBILITY.md)
+- [V3.3 timeout, cancellation, and preparation decision](v3x/v3.3/TIMEOUT_CANCELLATION_AND_PREPARATION.md)
+- [V3.3 validation](v3x/v3.3/VALIDATION.md)
+- [V3.3 performance and evidence](v3x/v3.3/PERFORMANCE_AND_EVIDENCE.md)
+- [V3.3 Phase 0 checklist](v3x/v3.3/PHASE_0_CHECKLIST.md)
 
 ## v3.0 — earlier stable and frozen release
 

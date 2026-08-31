@@ -21,6 +21,11 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
 compatibility baseline for later candidates.
 
+V3.3 Phase 0 is under review as a documentation-only contract. It freezes strict
+current-snapshot search-after, default-disabled/exact total hits, six-baseline
+compatibility, validation, and evidence boundaries. No `3.3.0-SNAPSHOT` conversion or
+production implementation is authorized before protected-master acceptance.
+
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
 lock-free reads, one asynchronous writer, background dynamic-index construction, and
@@ -112,18 +117,40 @@ outside V3.2. Ranked prefix remains optional and must not become a completion,
 popularity, or personalization subsystem. The complete frozen contract map is under
 [`v3.2/`](v3.2/ARCHITECTURE.md).
 
+## V3.3 phase order
+
+| Phase | Scope | Entry/exit rule |
+|---|---|---|
+| 0 | freeze strict cursor, exact-total, API, compatibility, validation, evidence, and decision contracts | documentation only; no version or production change |
+| 1 | switch atomically to `3.3.0-SNAPSHOT`; add six-baseline fixtures, independent oracles, and exact-V3.2 baselines | no page/cursor production implementation |
+| 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | ordinary ranked and highlighted behavior remains unchanged |
+| 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | exhaustive page walks equal canonical full order |
+| 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | no snapshot pinning or speculative cancellation API |
+| 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release gates and the timeout decision pass |
+
+Prepared queries are implemented only after measured logical-normalization evidence
+and an accepted amendment. Highlighted pagination, lower-bound totals, snapshot
+pin/release, offsets, facets, aggregations, and grouping are not silent additions.
+
 ## V3.3 boundary
 
-Search-after must either reject a cursor when its snapshot version is stale or first
-introduce an explicit snapshot-pinning lifecycle. It must not silently promise stable
-pagination across mutation. Cursor internals remain opaque and query-bound.
+Search-after uses a separate page façade around one exact immutable `SearchRequest`.
+The opaque cursor binds its built-in engine, exact request object, captured snapshot
+version, raw score anchor, and hidden internal document ID. A successful publication
+before the next page captures its snapshot fails as stale; V3.3 introduces no snapshot
+pinning, registry, serialization, or cross-engine/process cursor.
 
-The initial total-hits surface should support disabled and exact modes. The current
-executor already evaluates all scoring candidates; lower-bound semantics become useful
-only with a future early-termination strategy. Timeout and cancellation are
-cooperative and cannot promise preemption inside arbitrary user `Analyzer` or
-`Query.matches` code. A prepared object may cache logical normalization, never a
-physical plan bound to a stale snapshot.
+Canonical order remains score descending then internal document ID ascending. First
+page hits remain bit-for-bit ordinary-search equivalent. `DISABLED` is the default
+total mode; `EXACT` counts the complete full-query/filter match set before cursor and
+limit during the existing evaluation. No lower-bound relation exists without a future
+accepted early-termination strategy.
+
+Timeout and cancellation receive an evidence-backed implement-or-defer decision only
+after page profiling. Any accepted design is cooperative and cannot promise preemption
+inside arbitrary user `Analyzer`, extractor, or `Query.matches` code. A prepared object
+remains deferred and may never cache a physical snapshot-bound plan. The complete
+Phase 0 contract map is under [`v3.3/`](v3.3/ARCHITECTURE.md).
 
 ## Final in-memory hardening
 

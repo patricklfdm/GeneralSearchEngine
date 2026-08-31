@@ -44,7 +44,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   verification, the production deployment, and the
   [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0)
   are complete and recorded.
-- V3.3 and later versions receive their own Phase 0 contracts before implementation;
+- [`v3.3/`](v3.3/PHASE_0_CHECKLIST.md) freezes the strict current-snapshot
+  search-after and disabled/exact total-hits foundation. Phase 0 is documentation-only
+  and remains non-executable until required CI and protected-master acceptance.
+- V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
 ## V3.1 contract map
@@ -101,6 +104,16 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 6 hardening and release contract](v3.2/HARDENING_AND_RELEASE.md)
 - [Phase 6 checklist](v3.2/PHASE_6_CHECKLIST.md)
 - [V3.2 release checklist](v3.2/RELEASE_CHECKLIST.md)
+
+## V3.3 contract map
+
+- [Architecture](v3.3/ARCHITECTURE.md)
+- [Pagination and total-hits semantics](v3.3/PAGINATION_AND_TOTAL_HITS.md)
+- [API compatibility](v3.3/API_COMPATIBILITY.md)
+- [Timeout, cancellation, and preparation decision](v3.3/TIMEOUT_CANCELLATION_AND_PREPARATION.md)
+- [Validation](v3.3/VALIDATION.md)
+- [Performance and evidence](v3.3/PERFORMANCE_AND_EVIDENCE.md)
+- [Phase 0 checklist](v3.3/PHASE_0_CHECKLIST.md)
 
 ## Stable boundaries
 
