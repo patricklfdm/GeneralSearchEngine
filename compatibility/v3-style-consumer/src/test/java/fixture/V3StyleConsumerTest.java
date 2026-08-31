@@ -33,6 +33,23 @@ class V3StyleConsumerTest {
     }
 
     @Test
+    void executesExactSearchAfterThroughPublishedApiOnly() {
+        var pages = V3StyleConsumer.supportedExactPagination();
+
+        assertEquals(
+                List.of(1L, 2L),
+                pages.stream()
+                        .flatMap(page -> page.hits().stream())
+                        .map(hit -> hit.document().id())
+                        .toList()
+        );
+        assertEquals(2L, pages.get(0).totalHits().orElseThrow());
+        assertEquals(2L, pages.get(1).totalHits().orElseThrow());
+        assertTrue(pages.get(0).nextCursor().isPresent());
+        assertTrue(pages.get(1).nextCursor().isEmpty());
+    }
+
+    @Test
     void executesBoolBoostAndCrossFieldRequestThroughPublishedApiOnly() {
         assertEquals(
                 List.of(1L),

@@ -15,10 +15,13 @@ import io.github.patricklfdm.generalsearch.search.ExplanationNode;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
 import io.github.patricklfdm.generalsearch.search.SearchQuery;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
+import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
 
 public final class V3StyleConsumer {
     private static final Field<TravelPlace, Long> ID =
@@ -150,6 +153,48 @@ public final class V3StyleConsumer {
                     .contextCharacters(0)
                     .maxFragmentsPerField(3)
                     .build());
+        }
+    }
+
+    public static List<SearchPageResult<TravelPlace>>
+            supportedExactPagination() {
+        TravelPlace first = new TravelPlace(
+                1L,
+                "Paris",
+                "museum museum riverside"
+        );
+        TravelPlace second = new TravelPlace(
+                2L,
+                "Paris",
+                "museum city guide"
+        );
+        TravelPlace other = new TravelPlace(
+                3L,
+                "Rome",
+                "historic temple"
+        );
+        SearchRequest<TravelPlace> request = SearchRequest
+                .<TravelPlace>builder()
+                .query(SearchQueries.text(DESCRIPTION_TEXT, "museum"))
+                .limit(1)
+                .build();
+        try (SearchEngine<Long, TravelPlace> engine = SearchEngine
+                .builder(TravelPlace.class, ID)
+                .index(IndexDefinition.text(DESCRIPTION_TEXT))
+                .build()) {
+            engine.addAll(List.of(first, second, other)).join();
+            SearchPageResult<TravelPlace> firstPage = engine.search(
+                    SearchPageRequest.<TravelPlace>builder(request)
+                            .totalHits(TotalHitsMode.EXACT)
+                            .build()
+            );
+            SearchPageResult<TravelPlace> secondPage = engine.search(
+                    SearchPageRequest.<TravelPlace>builder(request)
+                            .after(firstPage.nextCursor().orElseThrow())
+                            .totalHits(TotalHitsMode.EXACT)
+                            .build()
+            );
+            return List.of(firstPage, secondPage);
         }
     }
 

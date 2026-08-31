@@ -45,15 +45,20 @@ performance, migration, hardening, and release contracts are mapped in
 
 ## v3.3 development contract
 
-V3.3 Phases 0–3 are accepted on protected `master`. Phase 1 converted atomically to
+V3.3 Phases 0–4 are accepted on protected `master`. Phase 1 converted atomically to
 `3.3.0-SNAPSHOT` and established six-baseline compatibility, public descriptor/source
 fixtures, independent semantic oracles, and exact-V3.2 pre-change evidence. Phase 2
 added the complete frozen page value family, additive default engine capability,
 built-in first-page parity, and default-disabled/explicitly-exact total hits. Phase 3
 added the private constant-sized built-in cursor, frozen owner/request/snapshot
 validation, first-page cursor emission, and deterministic search-after continuation
-without changing the public descriptors. Phase 4 locally completes publication,
-concurrency, retention, and scale hardening without changing production code.
+without changing the public descriptors. Phase 4 completed publication, concurrency,
+retention, and scale hardening without changing production code and was accepted as
+merge commit `9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 converts all active
+coordinates atomically to final
+`3.3.0` and has locally closed consumers, migration and release documentation,
+Japicmp, strict Javadocs, artifacts, reproducibility, performance smoke, and cloud
+local gates. The candidate awaits protected PR review and does not claim publication.
 
 The required implementation scope remains strict current-snapshot search-after. The
 page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter

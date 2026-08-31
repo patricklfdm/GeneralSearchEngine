@@ -3,6 +3,32 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 3.3.0 — 2026-08-30
+
+### Added
+
+- Additive strict search-after pagination through immutable `SearchPageRequest` and
+  `SearchPageResult` values, an opaque engine-owned cursor, and one default
+  `SearchEngine.search(SearchPageRequest)` capability.
+- Opt-in exact total hits that count the complete query/filter match set before the
+  cursor and page limit while leaving the default total mode disabled.
+- Deterministic cursor validation for unsupported, different-engine,
+  different-request, and stale-snapshot use, with frozen failure precedence.
+- Exhaustive page-walk, mutation, dynamic-index, lifecycle, concurrency, retained-heap,
+  deep-page, independent-consumer, and JMH evidence.
+
+### Changed
+
+- The built-in engine can continue canonical ranked order by score descending and
+  hidden internal document ID ascending without exposing or serializing its anchor.
+- Successful snapshot publication invalidates earlier cursors; failed or
+  non-publishing work leaves them usable. Cursors do not pin snapshots or register
+  state in the engine.
+
+This dated heading identifies the final release candidate but does not claim
+publication. Published `3.2.0` remains the current stable release until the signed
+V3.3 release workflow and clean remote verification complete.
+
 ## 3.2.0 — 2026-08-30
 
 ### Added
