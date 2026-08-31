@@ -35,6 +35,24 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 java -jar target/benchmarks.jar \
+  'V32HighlightScaleBenchmark.highlightedSearch' \
+  -p documentCount=1000 \
+  -p topK=10 \
+  -p requestedFieldCount=3 \
+  -p sourceTokenCount=16 \
+  -p queryKind=bool-boost \
+  -p outcome=highlighted \
+  -p contextCharacters=40 \
+  -p maxFragmentsPerField=3 \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
+  'V32HighlightConcurrencyBenchmark.mixed' \
+  -p documentCount=1000 \
+  -p topK=10 \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \

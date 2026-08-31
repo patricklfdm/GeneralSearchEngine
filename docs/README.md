@@ -55,6 +55,8 @@ remains the phase history and decision source of truth.
 - [V3.2 Phase 3 TEXT-highlighting baseline](v3x/v3.2/PHASE_3_BASELINE.md)
 - [V3.2 Phase 4 checklist](v3x/v3.2/PHASE_4_CHECKLIST.md)
 - [V3.2 Phase 4 query-evidence highlighting baseline](v3x/v3.2/PHASE_4_BASELINE.md)
+- [V3.2 Phase 5 checklist](v3x/v3.2/PHASE_5_CHECKLIST.md)
+- [V3.2 Phase 5 hardening and profiling baseline](v3x/v3.2/PHASE_5_BASELINE.md)
 
 ## v3.0 — previous stable and frozen release
 

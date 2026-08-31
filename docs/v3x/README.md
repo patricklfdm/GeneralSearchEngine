@@ -35,7 +35,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   [Phase 3](v3.2/PHASE_3_CHECKLIST.md) adds the immutable highlighted request/result
   family and integrated one-snapshot TEXT highlighting. [Phase 4](v3.2/PHASE_4_CHECKLIST.md)
   adds deterministic PHRASE witnesses, scoring-selected FUZZY evidence, and recursive
-  BOOL/BOOST composition while preserving the canonical hit list exactly.
+  BOOL/BOOST composition while preserving the canonical hit list exactly. [Phase 5](v3.2/PHASE_5_CHECKLIST.md)
+  completes lifecycle, mutation, dynamic-index, mixed-concurrency, storage-boundary,
+  and local scaling hardening without a production-code change.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -87,6 +89,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 3 TEXT-highlighting baseline](v3.2/PHASE_3_BASELINE.md)
 - [Phase 4 checklist](v3.2/PHASE_4_CHECKLIST.md)
 - [Phase 4 query-evidence highlighting baseline](v3.2/PHASE_4_BASELINE.md)
+- [Phase 5 checklist](v3.2/PHASE_5_CHECKLIST.md)
+- [Phase 5 hardening and profiling baseline](v3.2/PHASE_5_BASELINE.md)
 
 ## Stable boundaries
 
