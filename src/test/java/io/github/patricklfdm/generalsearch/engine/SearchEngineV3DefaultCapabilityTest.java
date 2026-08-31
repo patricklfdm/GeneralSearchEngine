@@ -13,6 +13,7 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,8 @@ class SearchEngineV3DefaultCapabilityTest {
             TextField.of(VALUE, Analyzer.simple());
     private static final SearchRequest<String> REQUEST = SearchRequest.of(
             SearchQueries.text(TEXT, "value"));
+    private static final SearchPageRequest<String> PAGE_REQUEST =
+            SearchPageRequest.builder(REQUEST).build();
 
     @Test
     void thirdPartyImplementationInheritsUnsupportedCapabilities() {
@@ -31,6 +34,8 @@ class SearchEngineV3DefaultCapabilityTest {
 
         assertThrows(UnsupportedOperationException.class,
                 () -> engine.search(REQUEST));
+        assertThrows(UnsupportedOperationException.class,
+                () -> engine.search(PAGE_REQUEST));
         assertThrows(UnsupportedOperationException.class,
                 () -> engine.explain(REQUEST, "id"));
         assertThrows(UnsupportedOperationException.class, () -> engine.search(
@@ -45,6 +50,8 @@ class SearchEngineV3DefaultCapabilityTest {
 
         assertThrows(NullPointerException.class,
                 () -> engine.search((SearchRequest<String>) null));
+        assertThrows(NullPointerException.class,
+                () -> engine.search((SearchPageRequest<String>) null));
         assertThrows(NullPointerException.class,
                 () -> engine.explain(null, "id"));
         assertThrows(NullPointerException.class,

@@ -11,7 +11,10 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -58,6 +61,9 @@ public class V33PaginationBaselineBenchmark {
     private SearchEngine<Integer, Document> engine;
     private SearchRequest<Document> ordinaryRequest;
     private SearchRequest<Document> filteredRequest;
+    private SearchPageRequest<Document> firstPageDisabled;
+    private SearchPageRequest<Document> firstPageExact;
+    private SearchPageRequest<Document> filteredFirstPageExact;
 
     @Setup(Level.Trial)
     public void setUp() {
@@ -104,8 +110,18 @@ public class V33PaginationBaselineBenchmark {
                 .filter(Query.eq(CATEGORY, "eligible"))
                 .limit(topK)
                 .build();
+        firstPageDisabled = SearchPageRequest.builder(ordinaryRequest).build();
+        firstPageExact = SearchPageRequest.builder(ordinaryRequest)
+                .totalHits(TotalHitsMode.EXACT)
+                .build();
+        filteredFirstPageExact = SearchPageRequest.builder(filteredRequest)
+                .totalHits(TotalHitsMode.EXACT)
+                .build();
         assertControl(ordinaryRequest, Math.min(topK, matching));
         assertControl(filteredRequest, Math.min(topK, filteredMatching));
+        assertPageControl(firstPageDisabled, matching, false);
+        assertPageControl(firstPageExact, matching, true);
+        assertPageControl(filteredFirstPageExact, filteredMatching, true);
     }
 
     @TearDown(Level.Trial)
@@ -121,6 +137,21 @@ public class V33PaginationBaselineBenchmark {
     @Benchmark
     public long filteredRankedSearch() {
         return checksum(engine.search(filteredRequest).hits());
+    }
+
+    @Benchmark
+    public long firstPageDisabled() {
+        return checksum(engine.search(firstPageDisabled).hits());
+    }
+
+    @Benchmark
+    public long firstPageExact() {
+        return pageChecksum(engine.search(firstPageExact));
+    }
+
+    @Benchmark
+    public long filteredFirstPageExact() {
+        return pageChecksum(engine.search(filteredFirstPageExact));
     }
 
     private void assertControl(SearchRequest<Document> request, int expectedSize) {
@@ -145,6 +176,23 @@ public class V33PaginationBaselineBenchmark {
         }
     }
 
+    private void assertPageControl(
+            SearchPageRequest<Document> request,
+            long expectedTotal,
+            boolean exact
+    ) {
+        SearchPageResult<Document> page = engine.search(request);
+        List<SearchHit<Document>> ordinary = engine
+                .search(request.searchRequest())
+                .hits();
+        if (!page.hits().equals(ordinary)
+                || page.nextCursor().isPresent()
+                || exact != page.totalHits().isPresent()
+                || (exact && page.totalHits().orElseThrow() != expectedTotal)) {
+            throw new IllegalStateException("invalid first-page controls");
+        }
+    }
+
     private static long checksum(List<SearchHit<Document>> hits) {
         long checksum = hits.size();
         for (SearchHit<Document> hit : hits) {
@@ -153,6 +201,13 @@ public class V33PaginationBaselineBenchmark {
                     + Double.doubleToRawLongBits(hit.score());
         }
         return checksum;
+    }
+
+    private static long pageChecksum(SearchPageResult<Document> page) {
+        long checksum = checksum(page.hits());
+        return page.totalHits().isPresent()
+                ? 31L * checksum + page.totalHits().orElseThrow()
+                : checksum;
     }
 
     private record Document(int id, String body, String category) {

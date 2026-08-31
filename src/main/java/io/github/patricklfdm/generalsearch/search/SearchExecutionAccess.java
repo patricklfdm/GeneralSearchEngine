@@ -36,6 +36,32 @@ public final class SearchExecutionAccess {
     }
 
     /**
+     * Executes one V3.3 first-page request through the internal snapshot-bound
+     * pipeline. Built-in continuation is admitted by the engine sibling before this
+     * bridge is invoked.
+     *
+     * @hidden
+     */
+    public static <T> SearchPageResult<T> searchPage(
+            SearchSnapshot<T> snapshot,
+            SearchPageRequest<T> request,
+            CandidatePlanner<T> filterPlanner
+    ) {
+        Objects.requireNonNull(snapshot, "snapshot");
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(filterPlanner, "filterPlanner");
+        RankedSearchInput<T> input = RankedSearchInput.from(
+                snapshot,
+                request.searchRequest()
+        );
+        SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
+        return new SearchExecutor<T>().executePage(
+                plan,
+                request.totalHitsMode()
+        );
+    }
+
+    /**
      * Executes one highlighted request and its recursive evidence through a single
      * prepared plan.
      *
