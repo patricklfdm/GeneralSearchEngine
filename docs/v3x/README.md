@@ -67,8 +67,14 @@ asynchronous-single-writer, and atomic-publication architecture.
   [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
   are complete on protected-master commit
   `b399ee999e65ca363e68503720dedd4ddd2b3c2e`.
-- V3.4 and later versions receive their own Phase 0 contracts before implementation;
-  roadmap descriptions alone are not executable semantics.
+- [`v3.4/`](v3.4/PHASE_0_CHECKLIST.md) freezes the final in-memory hardening line
+  before V4 durability. Phase 0 adds no feature, public API, version conversion,
+  production change, workflow mutation, paid run, or baseline member. It contracts
+  cold construction, extreme corpora, heap diagnostics, multi-producer bursts, one
+  required two-hour run, a separate `final-v34` cloud family, seven-baseline
+  compatibility, and the final V4 handoff gates.
+- Later versions receive their own Phase 0 contracts before implementation; roadmap
+  descriptions alone are not executable semantics.
 
 ## V3.1 contract map
 
@@ -146,6 +152,16 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 5 checklist](v3.3/PHASE_5_CHECKLIST.md)
 - [V3.3 release checklist](v3.3/RELEASE_CHECKLIST.md)
 - [V3.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
+
+## V3.4 contract map
+
+- [Architecture and scope](v3.4/ARCHITECTURE.md)
+- [API compatibility](v3.4/API_COMPATIBILITY.md)
+- [Validation](v3.4/VALIDATION.md)
+- [Performance and evidence](v3.4/PERFORMANCE_AND_EVIDENCE.md)
+- [Cloud Benchmark extension](v3.4/CLOUD_BENCHMARK_EXTENSION.md)
+- [Hardening and V4 handoff](v3.4/HARDENING_AND_V4_HANDOFF.md)
+- [Phase 0 checklist](v3.4/PHASE_0_CHECKLIST.md)
 
 ## Stable boundaries
 

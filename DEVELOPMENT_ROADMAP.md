@@ -84,6 +84,33 @@ lower-bound counts, snapshot pinning, deep offsets, facets, and aggregations rem
 deferred unless a separate contract amendment is accepted. The executable map is under
 [`docs/v3x/v3.3/`](docs/v3x/v3.3/ARCHITECTURE.md).
 
+## v3.4 development contract
+
+V3.4 is the final in-memory hardening line before V4 durability. It is not a feature
+release and authorizes no new public API, query semantics, scoring model, writer model,
+snapshot model, or persistence behavior. Phase 0 freezes a measurement-first program
+over the published `3.3.0` boundary: cold startup and index construction, extreme
+corpora, bounded heap diagnostics, multi-producer mutation bursts, a required two-hour
+mixed workload, and one independent final cloud evidence family.
+
+The new cloud identities are mode `final-v34`, suite
+`v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and eventual
+registration `v3.4.0-in-memory-cloud`. Existing `v3.0.0-cloud`,
+`v3.1.0-ranked-cloud`, and their presets remain immutable. Canonical V3.4 evidence
+requires at least three Standard `c3d-standard-30` members with exact source,
+environment, preset, GCS retention, and cleanup evidence.
+
+One controlled two-hour run is a V3.4 release gate. Six-, twelve-, and twenty-four-hour
+runs remain non-blocking investigations until a separate durable-orchestration contract
+freezes resume, failure, budget, retention, and cleanup semantics. Cross-hardware
+evidence is optional and uses a separate environment family.
+
+Production source remains unchanged by default. A reproducible correctness, liveness,
+bounded-memory, or architecture-level release blocker requires an accepted contract
+amendment before a narrow compatibility-preserving fix. The architecture,
+compatibility, validation, performance, cloud, handoff, and Phase 0 contracts are under
+[`docs/v3x/v3.4/`](docs/v3x/v3.4/ARCHITECTURE.md).
+
 ## v3.3.0 current stable release
 
 Version `3.3.0` was published on August 31, 2026 as the current stable release:

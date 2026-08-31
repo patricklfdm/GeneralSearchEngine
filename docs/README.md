@@ -81,6 +81,13 @@ remains the phase history and decision source of truth.
 - [V3.3 Phase 5 checklist](v3x/v3.3/PHASE_5_CHECKLIST.md)
 - [V3.3 release checklist](v3x/v3.3/RELEASE_CHECKLIST.md)
 - [V3.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
+- [V3.4 architecture and scope](v3x/v3.4/ARCHITECTURE.md)
+- [V3.4 API compatibility](v3x/v3.4/API_COMPATIBILITY.md)
+- [V3.4 validation](v3x/v3.4/VALIDATION.md)
+- [V3.4 performance and evidence](v3x/v3.4/PERFORMANCE_AND_EVIDENCE.md)
+- [V3.4 Cloud Benchmark extension](v3x/v3.4/CLOUD_BENCHMARK_EXTENSION.md)
+- [V3.4 hardening and V4 handoff](v3x/v3.4/HARDENING_AND_V4_HANDOFF.md)
+- [V3.4 Phase 0 checklist](v3x/v3.4/PHASE_0_CHECKLIST.md)
 
 ## v3.0 — earlier stable and frozen release
 

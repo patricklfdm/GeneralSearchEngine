@@ -34,6 +34,13 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Published `3.3.0` is now an immutable
 compatibility baseline for later candidates.
 
+V3.4 Phase 0 freezes the Final In-Memory Hardening line before V4 durability. It adds
+no feature or public API. Its required evidence covers cold construction, extreme
+corpora, bounded heap diagnostics, multi-producer burst/recovery, one controlled
+two-hour run, seven-baseline compatibility, and an independent final cloud family.
+Production source remains unchanged by default; a reproducible release blocker needs
+an accepted amendment before a narrow fix.
+
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
 lock-free reads, one asynchronous writer, background dynamic-index construction, and
@@ -61,7 +68,7 @@ atomic publication.
 | 3.1 | phrase slop, `minimumShouldMatch`, phrase hardening, semantics-preserving fuzzy dictionary optimization, 1M concurrency evidence | ranked `mustNot`, public fuzzy caps/tuning |
 | 3.2 | offset-capable analysis foundation and structured highlighting; bounded analyzer composition after its own contract | multi-token synonym graphs, broad language stemming, completion engine |
 | 3.3 | snapshot-safe search-after decision, total-hits contract, cooperative timeout/cancellation decision | prepared queries unless measured, facets/aggregations unless consumer-driven |
-| 3.4 or 3.3.x | final in-memory soak, burst-writer, heap, cold-build, extreme-corpus, and canonical evidence | new search features |
+| 3.4 | final in-memory soak, burst-writer, heap, cold-build, extreme-corpus, independent canonical evidence, and V4 handoff | new search features and durability implementation |
 | 4.0 | WAL, checkpoint, recovery, crash consistency, persisted reopen | distributed or vector search unless separately contracted |
 
 No optional item is a release blocker merely because it appears in this roadmap.
@@ -161,18 +168,31 @@ also remain deferred because logical normalization is not a demonstrated hotspot
 future prepared object may never cache a physical snapshot-bound plan. The complete
 contract and evidence map is under [`v3.3/`](v3.3/ARCHITECTURE.md).
 
-## Final in-memory hardening
+## V3.4 phase order
 
-Two-hour investigation is supported by the current protected workflow. Six-, twelve-,
-or twenty-four-hour evidence requires a separately frozen Cloud Benchmark extension
-with bounded cost, recovery, cleanup, and retention behavior; it is not an automatic
-release blocker. Cross-hardware results use separate environment fingerprints and
-baseline families.
+| Phase | Scope | Entry/exit rule |
+|---|---|---|
+| 0 | freeze no-feature architecture, seven-baseline compatibility, validation, performance, cloud, and V4 handoff contracts | documentation only; no version, code, workflow, preset, paid-run, or baseline change |
+| 1 | switch atomically to `3.4.0-SNAPSHOT`; add published-3.3 compatibility, zero-addition fixtures, exact-V3.3 references, and pre-change evidence | no production or cloud-family implementation |
+| 2 | cold-process/index-build, extreme-corpus, and bounded heap diagnostic surfaces | deterministic reduced fixtures, resource caps, and local evidence pass |
+| 3 | multi-producer burst/recovery and long-run calibration | single-writer semantics, writer progress, future completion, queue drainage, and final oracles pass |
+| 4 | implement and calibrate isolated `final-v34` cloud mode/suite/preset | all existing modes/presets remain frozen; fake/synthetic lifecycle gates pass before paid execution |
+| 5 | convert to final `3.4.0`; run/review the required two-hour evidence and 3-or-more-member Standard canonical set; close V4 handoff | exact final source/environment identities and durable evidence pass |
+| 6 | final consumers, compatibility, Javadocs, artifacts, reproducibility, documentation, signed release, remote verification, and post-publication evidence | `3.4.0` and `v3.4.0-in-memory-cloud` become immutable final V3.x references |
+
+The V3.4 cloud identities are `final-v34`, `v3.4-final-in-memory-suite-v1`,
+`v3.4-final-in-memory-v1`, and `v3.4.0-in-memory-cloud`. They do not alter or aggregate
+with `v3.0.0-cloud` or `v3.1.0-ranked-cloud`.
+
+One controlled two-hour run is required. Six-, twelve-, and twenty-four-hour evidence
+requires a later durable-orchestration contract and is not a V3.4 release blocker.
+Cross-hardware results are optional and use separate environment fingerprints and
+families. The complete contract map is under [`v3.4/`](v3.4/ARCHITECTURE.md).
 
 ## V4 entry gate
 
 V4 begins only after ranked BOOL and phrase semantics are stable, fuzzy execution has
 no known architecture-level query hotspot, the analyzer/highlighting scope has been
 decided, pagination behavior is explicit, 1M capacity and concurrency have evidence,
-long-run publication behavior is understood, cold build has a baseline, and a final
-V3.x canonical in-memory comparison anchor is registered.
+V3.4 cold/burst/heap/extreme/two-hour gates pass, signed `3.4.0` is remotely verified,
+and `v3.4.0-in-memory-cloud` is registered as the final comparison anchor.
