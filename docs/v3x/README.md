@@ -45,8 +45,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0)
   are complete and recorded.
 - [`v3.3/`](v3.3/PHASE_0_CHECKLIST.md) freezes the strict current-snapshot
-  search-after and disabled/exact total-hits foundation. Phase 0 is documentation-only
-  and remains non-executable until required CI and protected-master acceptance.
+  search-after and disabled/exact total-hits foundation. Phase 0 is accepted on
+  protected `master`; [Phase 1](v3.3/PHASE_1_CHECKLIST.md) establishes the
+  `3.3.0-SNAPSHOT` six-baseline, public-fixture, independent-oracle, and pre-change
+  evidence foundation without production page or cursor implementation.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -114,6 +116,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Validation](v3.3/VALIDATION.md)
 - [Performance and evidence](v3.3/PERFORMANCE_AND_EVIDENCE.md)
 - [Phase 0 checklist](v3.3/PHASE_0_CHECKLIST.md)
+- [Phase 1 checklist](v3.3/PHASE_1_CHECKLIST.md)
+- [Phase 1 pre-change baseline](v3.3/PHASE_1_BASELINE.md)
 
 ## Stable boundaries
 

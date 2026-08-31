@@ -1,0 +1,55 @@
+package fixture;
+
+import java.util.List;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
+import io.github.patricklfdm.generalsearch.search.SearchAfterCursor;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
+
+public final class V33PublicApiConsumer {
+    private V33PublicApiConsumer() {
+    }
+
+    public static SearchPageResult<Document> firstPage(
+            SearchEngine<Long, Document> engine,
+            SearchRequest<Document> request
+    ) {
+        SearchPageRequest<Document> pageRequest = SearchPageRequest
+                .<Document>builder(request)
+                .totalHits(TotalHitsMode.EXACT)
+                .build();
+        return engine.search(pageRequest);
+    }
+
+    public static SearchPageResult<Document> continuation(
+            SearchEngine<Long, Document> engine,
+            SearchRequest<Document> request,
+            SearchAfterCursor cursor
+    ) {
+        return engine.search(SearchPageRequest.<Document>builder(request)
+                .after(cursor)
+                .build());
+    }
+
+    public static List<SearchPageResult<Document>> constructResults(
+            Document document
+    ) {
+        SearchAfterCursor cursor = new ThirdPartyCursor();
+        List<SearchHit<Document>> hits = List.of(new SearchHit<>(document, 1.0));
+        return List.of(
+                SearchPageResult.withoutTotalHits(hits),
+                SearchPageResult.withoutTotalHits(hits, cursor),
+                SearchPageResult.withExactTotalHits(hits, 1L),
+                SearchPageResult.withExactTotalHits(hits, cursor, 1L)
+        );
+    }
+
+    private static final class ThirdPartyCursor implements SearchAfterCursor {
+    }
+
+    public record Document(long id, String body) {
+    }
+}
