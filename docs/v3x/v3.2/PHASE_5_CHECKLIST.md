@@ -1,8 +1,7 @@
 # V3.2 Phase 5 checklist
 
-Status: lifecycle, mutation, dynamic-index, concurrency, allocation, latency, and
-retained-memory hardening are complete on an independent branch; protected PR/master
-acceptance remains pending. Profiling found no justified production-code optimization.
+Status: complete and accepted on protected `master` through PR #55 as merge commit
+`fbbce30`. Profiling found no justified production-code optimization.
 
 ## Accepted entry boundary
 
@@ -108,6 +107,5 @@ acceptance remains pending. Profiling found no justified production-code optimiz
 - [x] Stored offsets, HTML, analyzer composition, cloud highlighting families, and new
   search features remain outside the release handoff.
 
-Phase 5 is complete only after all required gates pass and this branch merges through a
-protected PR. Phase 6 must start from that accepted merge commit on a new independent
-branch.
+Phase 5 is complete. Phase 6 starts from accepted merge commit `fbbce30` on a new
+independent branch.

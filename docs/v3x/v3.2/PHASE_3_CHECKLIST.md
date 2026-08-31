@@ -1,8 +1,8 @@
 # V3.2 Phase 3 checklist
 
-Status: TEXT highlighting implementation and local evidence are complete on an
-independent branch; protected PR/master acceptance remains pending. PHRASE, FUZZY,
-BOOL, and BOOST evidence remain explicitly deferred to Phase 4.
+Status: complete and accepted on protected `master` through PR #53 as merge commit
+`5425299`. The accepted Phase 3 state defers PHRASE, FUZZY, BOOL, and BOOST evidence to
+Phase 4.
 
 ## Accepted entry boundary
 
@@ -84,6 +84,5 @@ BOOL, and BOOST evidence remain explicitly deferred to Phase 4.
 - [x] Stored offsets, HTML, analyzer composition, and cloud-family changes remain
   outside that handoff.
 
-Phase 3 is complete only after all required gates pass and this branch merges through a
-protected PR. Phase 4 must start from that accepted merge commit on a new independent
-branch.
+Phase 3 is complete. Phase 4 started from accepted merge commit `5425299` on a new
+independent branch.

@@ -37,7 +37,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   adds deterministic PHRASE witnesses, scoring-selected FUZZY evidence, and recursive
   BOOL/BOOST composition while preserving the canonical hit list exactly. [Phase 5](v3.2/PHASE_5_CHECKLIST.md)
   completes lifecycle, mutation, dynamic-index, mixed-concurrency, storage-boundary,
-  and local scaling hardening without a production-code change.
+  and local scaling hardening without a production-code change. [Phase 6](v3.2/PHASE_6_CHECKLIST.md)
+  freezes the release boundary and hardens compatibility, consumers, documentation,
+  Javadocs, artifacts, and reproducibility before final version conversion.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -78,6 +80,7 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Token metadata and offset semantics](v3.2/TOKEN_METADATA_AND_OFFSETS.md)
 - [Structured highlighting semantics](v3.2/HIGHLIGHTING.md)
 - [API compatibility](v3.2/API_COMPATIBILITY.md)
+- [3.1-to-3.2 migration guide](v3.2/MIGRATION_GUIDE.md)
 - [Performance and evidence](v3.2/PERFORMANCE_AND_EVIDENCE.md)
 - [Validation](v3.2/VALIDATION.md)
 - [Phase 0 checklist](v3.2/PHASE_0_CHECKLIST.md)
@@ -91,6 +94,9 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 4 query-evidence highlighting baseline](v3.2/PHASE_4_BASELINE.md)
 - [Phase 5 checklist](v3.2/PHASE_5_CHECKLIST.md)
 - [Phase 5 hardening and profiling baseline](v3.2/PHASE_5_BASELINE.md)
+- [Phase 6 hardening and release contract](v3.2/HARDENING_AND_RELEASE.md)
+- [Phase 6 checklist](v3.2/PHASE_6_CHECKLIST.md)
+- [V3.2 release checklist](v3.2/RELEASE_CHECKLIST.md)
 
 ## Stable boundaries
 

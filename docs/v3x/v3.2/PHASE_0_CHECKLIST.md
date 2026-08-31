@@ -1,7 +1,7 @@
 # V3.2 Phase 0 checklist
 
-Status: contract accepted on protected `master`; Phase 1 foundation work has started
-from the exact accepted merge commit without production offset/highlighting code.
+Status: contract accepted on protected `master` as `9f48259`. Its frozen decisions
+remain the authority for the completed implementation phases and Phase 6 hardening.
 
 ## Entry boundary
 
@@ -105,19 +105,19 @@ from the exact accepted merge commit without production offset/highlighting code
 - [x] Add reflection/source fixtures for the frozen public descriptors before
   implementation.
 
-## Implementation exit gates — frozen, not yet executed
+## Implementation exit gates — accepted
 
-- [ ] Built-in offset analysis passes focused and randomized Unicode equivalence.
-- [ ] Highlighted hits equal ordinary search hits on one captured snapshot.
-- [ ] TEXT/PHRASE/FUZZY/BOOL/BOOST ranges pass independent differential oracles.
-- [ ] Invalid offsets, unsupported analyzers, canonical fields, and failure precedence
+- [x] Built-in offset analysis passes focused and randomized Unicode equivalence.
+- [x] Highlighted hits equal ordinary search hits on one captured snapshot.
+- [x] TEXT/PHRASE/FUZZY/BOOL/BOOST ranges pass independent differential oracles.
+- [x] Invalid offsets, unsupported analyzers, canonical fields, and failure precedence
   pass focused matrices.
-- [ ] Mutation, bulk, dynamic-index, snapshot, concurrency, and close lifecycle tests
+- [x] Mutation, bulk, dynamic-index, snapshot, concurrency, and close lifecycle tests
   pass.
-- [ ] Ordinary paths prove no offset-result allocation and retain reviewed regression
+- [x] Ordinary paths prove no offset-result allocation and retain reviewed regression
   behavior.
-- [ ] Highlight allocation/latency evidence is reviewed across the frozen matrix.
-- [ ] Five published API baselines, all consumers, strict Javadocs, artifacts, and
+- [x] Highlight allocation/latency evidence is reviewed across the frozen matrix.
+- [x] Five published API baselines, all consumers, strict Javadocs, artifacts, and
   reproducibility pass.
 
 Phase 0 is accepted. Its historical `3.1.0` identity and documentation-only boundary

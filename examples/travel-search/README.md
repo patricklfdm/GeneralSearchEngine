@@ -3,8 +3,10 @@
 This processor-free example uses runtime annotations and only supported public APIs.
 It demonstrates structured search, V3 ranked TEXT with a filter, cross-field
 BOOL/BOOST composition, exact PHRASE, V3.1 ordered phrase slop and
-`minimumShouldMatch`, FUZZY typo correction, Explain, atomic bulk insertion, and the
-create/drop lifecycle of a dynamic range index.
+`minimumShouldMatch`, FUZZY typo correction, Explain, V3.2 snapshot-bound structured
+highlighting, atomic bulk insertion, and the create/drop lifecycle of a dynamic range
+index. Highlight output is plain source text plus absolute UTF-16 spans; presentation
+markup remains the consumer's responsibility.
 
 From the repository root, build and run it with one command:
 

@@ -12,6 +12,27 @@ generated sources, and travel example remain mandatory. Phase 0 changes no proje
 version. The later implementation entry change to `3.2.0-SNAPSHOT` must update core,
 processor, reactor, examples, and current consumer properties atomically.
 
+## Final Phase 6 API audit
+
+Fresh-isolated Japicmp against published `3.1.0` reports only the frozen additive
+surface:
+
+- new public `OffsetAnalyzer` and `OffsetAnalyzedToken` analysis types;
+- `SimpleAnalyzer` additionally implements `OffsetAnalyzer` and exposes the required
+  offset method while retaining its ordinary methods;
+- one new default highlighted-search overload on `SearchEngine` and its concrete
+  `SnapshotSearchEngine` override;
+- the six final highlighted request/result types plus the final nested request
+  builder; and
+- `SearchExecutionAccess.searchHighlighted`, a Javadoc-hidden sibling-package bridge
+  required by the built-in engine layout.
+
+The concrete override and hidden bridge are implementation consequences, not separate
+application extension points. The bridge remains unsupported alongside the existing
+search and Explain bridge methods. Japicmp reports no removed class, method, field,
+constructor, interface, or generic contract and recommends an additive minor version.
+The same candidate passes comparisons with all five published baselines.
+
 ## Frozen supported additions
 
 The only supported Phase 0 additions authorized for the required V3.2 foundation are:
