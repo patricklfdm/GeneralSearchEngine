@@ -1,7 +1,9 @@
 # V3.3 Phase 0 checklist
 
-Status: contract ready for review on `feat/v3.3-phase0-contract`. It becomes executable
-only after required CI and protected-master acceptance. Phase 0 is documentation-only.
+Status: accepted on protected `master` through PR #59 as merge commit
+`72f94c063d44fe5d758976e58ae30ab9f24b5439`. Exact-commit `CI / Required` passes in
+[run 33355405253](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33355405253).
+Phase 0 is documentation-only.
 
 ## Entry boundary
 
@@ -123,15 +125,18 @@ only after required CI and protected-master acceptance. Phase 0 is documentation
 
 ## Decision and implementation entry gates
 
-- [ ] Phase 0 PR passes required CI and merges to protected `master`; record exact
-  commit and CI run here.
-- [ ] Create an independent Phase 1 branch from that accepted merge.
-- [ ] Convert all active core/processor/reactor/example/consumer coordinates atomically
+- [x] Exact-commit protected-master `CI / Required` passes for
+  `72f94c063d44fe5d758976e58ae30ab9f24b5439` in
+  [run 33355405253](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33355405253).
+- [x] Phase 0 merged to protected `master` through PR #59 as
+  `72f94c063d44fe5d758976e58ae30ab9f24b5439`.
+- [x] Create independent `feat/v3.3-phase1-foundation` from that exact merge.
+- [x] Convert all active core/processor/reactor/example/consumer coordinates atomically
   to `3.3.0-SNAPSHOT` without changing published baseline identities.
-- [ ] Add fresh-isolated six-baseline compatibility and V3.3 public descriptor/source
+- [x] Add fresh-isolated six-baseline compatibility and V3.3 public descriptor/source
   fixtures before production implementation.
-- [ ] Materialize independent order/page/count/snapshot/retention oracles.
-- [ ] Capture exact-v3.2 ordinary ranked, highlighted-regression, and page-harness
+- [x] Materialize independent order/page/count/snapshot/retention oracles.
+- [x] Capture exact-v3.2 ordinary ranked, highlighted-regression, and page-harness
   pre-change evidence.
 
 ## Required V3.3 exit gates

@@ -21,10 +21,10 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
 compatibility baseline for later candidates.
 
-V3.3 Phase 0 is under review as a documentation-only contract. It freezes strict
-current-snapshot search-after, default-disabled/exact total hits, six-baseline
-compatibility, validation, and evidence boundaries. No `3.3.0-SNAPSHOT` conversion or
-production implementation is authorized before protected-master acceptance.
+V3.3 Phase 0 is accepted on protected `master`. Phase 1 converts atomically to
+`3.3.0-SNAPSHOT` and establishes six-baseline compatibility, public descriptor/source
+fixtures, independent pagination/count/snapshot/retention oracles, and exact-V3.2
+pre-change evidence. It adds no production page, cursor, or total-hit implementation.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

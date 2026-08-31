@@ -69,6 +69,8 @@ remains the phase history and decision source of truth.
 - [V3.3 validation](v3x/v3.3/VALIDATION.md)
 - [V3.3 performance and evidence](v3x/v3.3/PERFORMANCE_AND_EVIDENCE.md)
 - [V3.3 Phase 0 checklist](v3x/v3.3/PHASE_0_CHECKLIST.md)
+- [V3.3 Phase 1 checklist](v3x/v3.3/PHASE_1_CHECKLIST.md)
+- [V3.3 Phase 1 pre-change baseline](v3x/v3.3/PHASE_1_BASELINE.md)
 
 ## v3.0 — earlier stable and frozen release
 
