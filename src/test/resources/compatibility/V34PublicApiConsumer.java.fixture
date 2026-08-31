@@ -1,0 +1,84 @@
+package fixture;
+
+import java.util.List;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.ranking.SearchHit;
+import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
+import io.github.patricklfdm.generalsearch.search.SearchAfterCursor;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
+import io.github.patricklfdm.generalsearch.search.SearchQueries;
+import io.github.patricklfdm.generalsearch.search.SearchRequest;
+import io.github.patricklfdm.generalsearch.search.SearchResult;
+import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
+
+public final class V34PublicApiConsumer {
+    private static final Field<Document, Long> ID =
+            Field.of("id", Long.class, Document::id);
+    private static final Field<Document, String> BODY =
+            Field.of("body", String.class, Document::body);
+    private static final TextField<Document> BODY_TEXT =
+            TextField.of(BODY, Analyzer.simple());
+
+    private V34PublicApiConsumer() {
+    }
+
+    public static SearchResult<Document> ordinary(
+            SearchEngine<Long, Document> engine
+    ) {
+        return engine.search(request());
+    }
+
+    public static HighlightedSearchResult<Document> highlighted(
+            SearchEngine<Long, Document> engine
+    ) {
+        return engine.search(HighlightedSearchRequest
+                .<Document>builder(request())
+                .field(BODY_TEXT)
+                .build());
+    }
+
+    public static SearchPageResult<Document> page(
+            SearchEngine<Long, Document> engine,
+            SearchAfterCursor cursor
+    ) {
+        SearchPageRequest.Builder<Document> builder = SearchPageRequest
+                .<Document>builder(request())
+                .totalHits(TotalHitsMode.EXACT);
+        if (cursor != null) {
+            builder.after(cursor);
+        }
+        return engine.search(builder.build());
+    }
+
+    public static List<SearchPageResult<Document>> constructResults(
+            Document document
+    ) {
+        List<SearchHit<Document>> hits = List.of(new SearchHit<>(document, 1.0));
+        return List.of(
+                SearchPageResult.withoutTotalHits(hits),
+                SearchPageResult.withExactTotalHits(hits, 1L)
+        );
+    }
+
+    public static SearchEngine<Long, Document> engine() {
+        return SearchEngine.builder(Document.class, ID)
+                .index(IndexDefinition.text(BODY_TEXT))
+                .build();
+    }
+
+    private static SearchRequest<Document> request() {
+        return SearchRequest.<Document>builder()
+                .query(SearchQueries.text(BODY_TEXT, "stable"))
+                .limit(10)
+                .build();
+    }
+
+    public record Document(long id, String body) {
+    }
+}

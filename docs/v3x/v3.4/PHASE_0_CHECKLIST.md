@@ -1,9 +1,8 @@
 # V3.4 Phase 0 contract checklist
 
-Status: contract frozen locally on `feat/v3.4-phase0-contract` and pending protected
-review. Phase 0 is documentation-only and does not authorize version conversion,
-implementation, workflow mutation, paid execution, or baseline registration before
-the protected merge and exact-commit CI pass.
+Status: accepted on protected `master` through PR #67 at `5d1d108`. Phase 0 is
+documentation-only; its protected acceptance authorizes only the separately reviewed
+Phase 1 foundation, not later hardening, cloud, paid execution, or registration work.
 
 ## Accepted entry boundary
 
@@ -105,13 +104,14 @@ the protected merge and exact-commit CI pass.
 
 ## Implementation entry gates
 
-- [ ] Merge this documentation-only Phase 0 branch through protected review.
-- [ ] Wait for exact-commit protected-master `CI / Required` success.
-- [ ] Create `feat/v3.4-phase1-foundation` from that exact merge.
-- [ ] Convert all seven active coordinates atomically to `3.4.0-SNAPSHOT`.
-- [ ] Add the zero-addition V3.4 fixture, pinned published-3.3 hash, seven-baseline
+- [x] Merge this documentation-only Phase 0 branch through protected review.
+- [x] Wait for exact-commit protected-master `CI / Required` success; attach its
+  durable run identifier during Phase 1 review.
+- [x] Create `feat/v3.4-phase1-foundation` from that exact merge.
+- [x] Convert all seven active coordinates atomically to `3.4.0-SNAPSHOT`.
+- [x] Add the zero-addition V3.4 fixture, pinned published-3.3 hash, seven-baseline
   compatibility, exact-V3.3 reference fixtures, and pre-change evidence.
-- [ ] Write no cold/extreme/heap/burst/cloud production implementation in Phase 1.
+- [x] Write no cold/extreme/heap/burst/cloud production implementation in Phase 1.
 
 ## Required V3.4 exit gates
 

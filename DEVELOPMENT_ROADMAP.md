@@ -93,6 +93,12 @@ over the published `3.3.0` boundary: cold startup and index construction, extrem
 corpora, bounded heap diagnostics, multi-producer mutation bursts, a required two-hour
 mixed workload, and one independent final cloud evidence family.
 
+Phase 0 is accepted through PR #67 at protected-master commit `5d1d108`. Phase 1 is
+locally complete and pending protected review: all seven active coordinates are
+`3.4.0-SNAPSHOT`; published `3.3.0` is a pinned seventh Japicmp baseline; zero-addition
+public, exact-V3.3 semantic, and pre-change JMH fixtures are present. Phase 1 changes no
+production source, cloud workflow/preset, paid execution, or baseline registry.
+
 The new cloud identities are mode `final-v34`, suite
 `v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and eventual
 registration `v3.4.0-in-memory-cloud`. Existing `v3.0.0-cloud`,
