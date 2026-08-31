@@ -11,7 +11,7 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 /** Executes one immutable search plan without consulting another snapshot. */
 final class SearchExecutor<T> {
     List<SearchHit<T>> execute(SearchPlan<T> plan) {
-        return rankedCandidates(plan).stream()
+        return rankedCandidates(plan, null).stream()
                 .map(candidate -> new SearchHit<>(
                         candidate.document(),
                         candidate.score()
@@ -19,8 +19,30 @@ final class SearchExecutor<T> {
                 .toList();
     }
 
+    SearchPageResult<T> executePage(
+            SearchPlan<T> plan,
+            TotalHitsMode totalHitsMode
+    ) {
+        Objects.requireNonNull(totalHitsMode, "totalHitsMode");
+        MatchCounter counter = totalHitsMode == TotalHitsMode.EXACT
+                ? new MatchCounter()
+                : null;
+        List<SearchHit<T>> hits = rankedCandidates(plan, counter).stream()
+                .map(candidate -> new SearchHit<>(
+                        candidate.document(),
+                        candidate.score()
+                ))
+                .toList();
+        return totalHitsMode == TotalHitsMode.EXACT
+                ? SearchPageResult.withExactTotalHits(
+                        hits,
+                        Objects.requireNonNull(counter).value
+                )
+                : SearchPageResult.withoutTotalHits(hits);
+    }
+
     List<ExecutedSearchHit<T>> executeWithDocumentIds(SearchPlan<T> plan) {
-        return rankedCandidates(plan).stream()
+        return rankedCandidates(plan, null).stream()
                 .map(candidate -> new ExecutedSearchHit<>(
                         candidate.docId(),
                         new SearchHit<>(candidate.document(), candidate.score())
@@ -28,7 +50,10 @@ final class SearchExecutor<T> {
                 .toList();
     }
 
-    private List<RankedCandidate<T>> rankedCandidates(SearchPlan<T> plan) {
+    private List<RankedCandidate<T>> rankedCandidates(
+            SearchPlan<T> plan,
+            MatchCounter counter
+    ) {
         Objects.requireNonNull(plan, "plan");
         if (plan.candidates().isEmpty()) {
             return List.of();
@@ -49,6 +74,9 @@ final class SearchExecutor<T> {
             ScoreMatch result = Objects.requireNonNull(plan.root()).evaluate(docId);
             if (!result.matched()) {
                 return;
+            }
+            if (counter != null) {
+                counter.increment();
             }
             double score = result.score();
             RankedCandidate<T> candidate = new RankedCandidate<>(docId, document, score);
@@ -89,6 +117,14 @@ final class SearchExecutor<T> {
     }
 
     private record RankedCandidate<T>(int docId, T document, double score) {
+    }
+
+    private static final class MatchCounter {
+        private long value;
+
+        private void increment() {
+            value = Math.incrementExact(value);
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 # V3.3 Phase 1 checklist
 
-Status: locally complete on `feat/v3.3-phase1-foundation` and ready for commit review.
+Status: accepted on protected `master` through PR #60 at
+`750691eb4bc070e83f76dab7e84e01f1f6fa4a6a`.
 Phase 1 introduces no production page, cursor, total-hit, or search behavior.
 
 ## Accepted entry boundary
@@ -89,5 +90,6 @@ Phase 1 introduces no production page, cursor, total-hit, or search behavior.
 - [x] Any descriptor, total meaning, evaluation-pass, lifecycle, or ordinary-path
   change requires a contract amendment before production implementation.
 
-Phase 1 is ready for commit review. Phase 2 must begin from the future accepted Phase 1
-merge on a separate branch.
+Phase 1 is accepted. Exact-commit protected-master `CI / Required` passed in
+[run 33357515013](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33357515013).
+Phase 2 begins from that accepted merge on a separate branch.

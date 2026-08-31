@@ -49,6 +49,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   protected `master`; [Phase 1](v3.3/PHASE_1_CHECKLIST.md) establishes the
   `3.3.0-SNAPSHOT` six-baseline, public-fixture, independent-oracle, and pre-change
   evidence foundation without production page or cursor implementation.
+  [Phase 2](v3.3/PHASE_2_CHECKLIST.md) adds the frozen page values, default engine
+  capability, built-in first-page parity, and disabled/exact total execution; its
+  [reviewed local baseline](v3.3/PHASE_2_BASELINE.md) records the ordinary-path
+  controls and allocation boundary.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -118,6 +122,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 0 checklist](v3.3/PHASE_0_CHECKLIST.md)
 - [Phase 1 checklist](v3.3/PHASE_1_CHECKLIST.md)
 - [Phase 1 pre-change baseline](v3.3/PHASE_1_BASELINE.md)
+- [Phase 2 checklist](v3.3/PHASE_2_CHECKLIST.md)
+- [Phase 2 reviewed local baseline](v3.3/PHASE_2_BASELINE.md)
 
 ## Stable boundaries
 

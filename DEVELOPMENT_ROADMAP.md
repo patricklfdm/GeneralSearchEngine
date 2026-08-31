@@ -45,14 +45,18 @@ performance, migration, hardening, and release contracts are mapped in
 
 ## v3.3 development contract
 
-V3.3 Phase 0 is accepted on protected `master` and freezes the application-facing
-ranked pagination foundation. Phase 1 converts atomically to `3.3.0-SNAPSHOT` and adds
-six-baseline compatibility, public descriptor/source fixtures, independent semantic
-oracles, and exact-V3.2 pre-change evidence without production page or cursor code.
-The required implementation scope remains strict current-snapshot search-after plus
-default-disabled, explicitly exact total hits. The page façade wraps the existing
-immutable `SearchRequest`; it cannot change query/filter truth, BM25, score bits,
-canonical ordering, failure behavior, Explain, or publication semantics.
+V3.3 Phases 0 and 1 are accepted on protected `master`. Phase 1 converted atomically
+to `3.3.0-SNAPSHOT` and established six-baseline compatibility, public
+descriptor/source fixtures, independent semantic oracles, and exact-V3.2 pre-change
+evidence without production page or cursor code. Phase 2 adds the complete frozen page
+value family, the additive default engine capability, built-in first-page parity, and
+default-disabled/explicitly-exact total hits. Built-in cursor creation and continuation
+remain Phase 3 work; Phase 2 rejects every supplied cursor as unsupported.
+
+The required implementation scope remains strict current-snapshot search-after. The
+page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter
+truth, BM25, score bits, canonical ordering, failure behavior, Explain, or publication
+semantics.
 
 The built-in opaque cursor is bound to one engine, the exact request object, one
 snapshot version, and the hidden canonical order anchor. It does not pin a snapshot or

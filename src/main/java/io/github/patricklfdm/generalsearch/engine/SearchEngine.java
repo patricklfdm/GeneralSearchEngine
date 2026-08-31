@@ -16,6 +16,8 @@ import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 
@@ -142,6 +144,21 @@ public interface SearchEngine<K, T> extends AutoCloseable {
         Objects.requireNonNull(request, "request");
         throw new UnsupportedOperationException(
                 "this SearchEngine implementation does not support search requests");
+    }
+
+    /**
+     * Returns one ranked page when this implementation supports paged search.
+     *
+     * @param request non-null immutable page request
+     * @return immutable ranked page from one captured snapshot
+     * @throws NullPointerException when {@code request} is null
+     * @throws UnsupportedOperationException when this implementation does not support
+     *         paged search
+     */
+    default SearchPageResult<T> search(SearchPageRequest<T> request) {
+        Objects.requireNonNull(request, "request");
+        throw new UnsupportedOperationException(
+                "this SearchEngine implementation does not support paged search");
     }
 
     /**

@@ -26,6 +26,7 @@ import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundExce
 import io.github.patricklfdm.generalsearch.engine.exception.BulkMutationException;
 import io.github.patricklfdm.generalsearch.engine.exception.EngineRejectedExecutionException;
 import io.github.patricklfdm.generalsearch.engine.exception.IndexLifecycleException;
+import io.github.patricklfdm.generalsearch.engine.exception.SearchCursorException;
 import io.github.patricklfdm.generalsearch.engine.metrics.IndexBuildFailure;
 import io.github.patricklfdm.generalsearch.engine.metrics.IndexBuildMetrics;
 import io.github.patricklfdm.generalsearch.engine.metrics.SearchEngineMetrics;
@@ -50,6 +51,8 @@ import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
@@ -210,6 +213,28 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         Objects.requireNonNull(request, "request");
         SearchSnapshot<T> snapshot = current.get().snapshot();
         return SearchExecutionAccess.search(snapshot, request, candidatePlanner);
+    }
+
+    @Override
+    public SearchPageResult<T> search(SearchPageRequest<T> request) {
+        Objects.requireNonNull(request, "request");
+        SearchSnapshot<T> snapshot;
+        synchronized (lifecycleMonitor) {
+            if (!accepting) {
+                throw new EngineRejectedExecutionException(
+                        EngineRejectedExecutionException.Reason.CLOSED);
+            }
+            snapshot = current.get().snapshot();
+        }
+        if (request.after().isPresent()) {
+            throw new SearchCursorException(
+                    SearchCursorException.Reason.UNSUPPORTED_CURSOR);
+        }
+        return SearchExecutionAccess.searchPage(
+                snapshot,
+                request,
+                candidatePlanner
+        );
     }
 
     @Override
