@@ -10,11 +10,13 @@ passes, and the GitHub Release is available. The ranked feature family remains
 registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
 `v3.0.0-cloud`.
 
-V3.2 Phases 0–4 are accepted on protected `master`. Phase 5 hardens mutation and
+V3.2 Phases 0–5 are accepted on protected `master`. Phase 5 completed mutation and
 dynamic-index publication, close admission, mixed highlighted/ordinary/Explain reader
 concurrency, retained storage boundaries, and top-K/field/source/corpus scale evidence.
-Profiling justifies no production optimization: ordinary search and canonical hits
-remain unchanged, and no stored offset payload or cloud-family change is introduced.
+Profiling justified no production optimization: ordinary search and canonical hits
+remain unchanged, and no stored offset payload or cloud-family change was introduced.
+Phase 6 is the active `3.2.0-SNAPSHOT` release-hardening state; final conversion,
+signed tag, publication, and post-publication evidence remain ordered later states.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

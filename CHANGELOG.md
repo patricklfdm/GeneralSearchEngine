@@ -3,6 +3,33 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 3.2.0-SNAPSHOT — Unreleased
+
+### Added
+
+- Additive `OffsetAnalyzer` and `OffsetAnalyzedToken` APIs for deterministic logical
+  positions and exact half-open UTF-16 source ranges without changing the published
+  `Analyzer` SAM or `AnalyzedToken` record.
+- Snapshot-bound structured highlighting through immutable request, hit, field,
+  fragment, and span values. Highlighted hits preserve canonical documents, score
+  bits, ordering, limits, filters, failures, and Explain semantics.
+- Deterministic highlight evidence for TEXT, ordered PHRASE witnesses,
+  scoring-selected FUZZY expansions, and recursive BOOL/BOOST composition.
+- Focused and randomized Unicode mapping, independent differential oracles, mutation,
+  dynamic-index, lifecycle, mixed-concurrency, storage-boundary, allocation, latency,
+  scale, and retained-memory coverage.
+
+### Changed
+
+- The built-in `SimpleAnalyzer` implements the offset capability while preserving its
+  existing ordinary term and positioned-output paths.
+- Explicit highlighting re-analyzes only requested fields of returned top-K documents;
+  no offset, evidence, highlight, or sidecar payload is stored in text snapshots.
+
+This development heading does not claim publication. Published `3.1.0` remains the
+current stable release until the signed V3.2 release workflow and remote verification
+complete.
+
 ## 3.1.0 — 2026-08-30
 
 ### Added

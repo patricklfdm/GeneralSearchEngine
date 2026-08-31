@@ -1,9 +1,8 @@
 # V3.2 Phase 4 checklist
 
-Status: deterministic PHRASE/FUZZY evidence, recursive BOOL/BOOST composition, and
-local evidence are complete on an independent branch; protected PR/master acceptance
-remains pending. Lifecycle, concurrency, retained-memory, and optimization work remain
-explicitly deferred to Phase 5.
+Status: complete and accepted on protected `master` through PR #54 as merge commit
+`1dd81d1`. Lifecycle, concurrency, retained-memory, and optimization decisions remain
+the Phase 5 boundary.
 
 ## Accepted entry boundary
 
@@ -94,6 +93,5 @@ explicitly deferred to Phase 5.
 - [x] Stored offsets, HTML, analyzer composition, and release-family changes remain
   outside this handoff.
 
-Phase 4 is complete only after all required gates pass and this branch merges through a
-protected PR. Phase 5 must start from that accepted merge commit on a new independent
-branch.
+Phase 4 is complete. Phase 5 started from accepted merge commit `1dd81d1` on a new
+independent branch.

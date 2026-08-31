@@ -18,12 +18,14 @@ are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
-V3.2 Phases 0–4 are accepted on protected `master`. Phase 5 hardens add/update/remove
+V3.2 Phases 0–5 are accepted on protected `master`. Phase 5 completed add/update/remove
 and bulk publication, dynamic text-index replay/drop/create, close admission, mixed
 highlighted/ordinary/Explain reader concurrency, storage boundaries, and local scale
-evidence. Profiling justifies no production optimization: canonical hits and ordinary
+evidence. Profiling justified no production optimization: canonical hits and ordinary
 paths remain unchanged, offset cost stays bounded to explicit top-K requested-source
-analysis, and no stored payload or cloud-family change is introduced.
+analysis, and no stored payload or cloud-family change was introduced. Phase 6 now
+hardens the `3.2.0-SNAPSHOT` release candidate across public API, consumers, Javadocs,
+artifacts, reproducibility, documentation, and protected release preparation.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured
@@ -36,7 +38,7 @@ cannot change canonical match, score, order, limit, failure, or Explain behavior
 Analyzer composition, single-token synonyms, stemming, and ranked prefix require
 separate accepted contracts after the foundation; multi-token token-graph synonyms
 remain outside V3.2. The architecture, offset, highlighting, compatibility, validation,
-performance, and Phase 0 acceptance contracts are mapped in
+performance, migration, hardening, and release contracts are mapped in
 [`docs/v3x/v3.2/`](docs/v3x/v3.2/ARCHITECTURE.md).
 
 ## v3.1.0 current stable release

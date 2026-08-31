@@ -10,7 +10,8 @@ artifacts were published on August 30, 2026. Version 3.0.0 remains the immediate
 stable release and compatibility baseline. The completed work and compatibility
 constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[v3 contract map](docs/v3/README.md).
+[V3.x contract map](docs/v3x/README.md). Version `3.2.0-SNAPSHOT` is the active
+unreleased candidate; it must not be treated as a Maven Central release.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Requirements
@@ -70,6 +71,34 @@ transposition and does not alter phrase scoring. The existing two-argument phras
 factory remains exact slop zero. A BOOL without `minimumShouldMatch(...)` retains its
 V3.0 defaults. See the [3.0-to-3.1 migration guide](docs/v3x/v3.1/MIGRATION_GUIDE.md)
 and [V3.1 ranked-search semantics](docs/v3x/v3.1/RANKED_SEARCH_SEMANTICS.md).
+
+### V3.2 development snapshot
+
+V3.2 adds exact source offsets and opt-in structured highlighting without changing
+ordinary query, ranking, index, mutation, or Explain behavior. It stores no offset
+payload in the index and returns source ranges rather than HTML:
+
+```java
+HighlightedSearchResult<TravelPlace> highlighted = engine.search(
+        HighlightedSearchRequest.<TravelPlace>builder(request)
+                .field(description)
+                .contextCharacters(40)
+                .maxFragmentsPerField(3)
+                .build()
+);
+
+for (HighlightedSearchHit<TravelPlace> hit : highlighted.hits()) {
+    hit.highlights().forEach(field ->
+            field.fragments().forEach(System.out::println));
+}
+```
+
+The built-in simple analyzer provides exact half-open UTF-16 ranges. Existing custom
+analyzers remain fully supported for ordinary search; a field explicitly requested for
+highlighting must use `OffsetAnalyzer`. Applications own HTML escaping and markup.
+See the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md) and
+[structured-highlighting contract](docs/v3x/v3.2/HIGHLIGHTING.md). Build the snapshot
+from this checkout; stable dependency guidance remains `3.1.0` until publication.
 
 ## Quick start: annotated search
 
@@ -233,16 +262,18 @@ bash scripts/verify-reproducible-build.sh
 The script skips tests because release verification runs them separately, then compares
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
-See [CHANGELOG.md](CHANGELOG.md) and the
-[v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for the current release
-evidence.
+See [CHANGELOG.md](CHANGELOG.md), the
+[V3.2 release-candidate record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
+[v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for current and historical
+release evidence.
 The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v2.1 release checklist](docs/v2.1/RELEASE_CHECKLIST.md),
 [v2.0 release record](docs/v2/RELEASE_CHECKLIST.md),
 [P7 validation record](docs/v2/phases/p7/RELEASE_VALIDATION.md), and
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
-The project identity and Apache License 2.0 metadata are finalized for v3.1.0.
+The published project identity and Apache License 2.0 metadata are finalized for
+v3.1.0; the active checkout remains an unreleased V3.2 snapshot.
 
 ## v1.0.0 scope
 

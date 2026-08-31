@@ -44,6 +44,7 @@ remains the phase history and decision source of truth.
 - [V3.2 token metadata and offsets](v3x/v3.2/TOKEN_METADATA_AND_OFFSETS.md)
 - [V3.2 structured highlighting](v3x/v3.2/HIGHLIGHTING.md)
 - [V3.2 API compatibility](v3x/v3.2/API_COMPATIBILITY.md)
+- [V3.2 migration guide](v3x/v3.2/MIGRATION_GUIDE.md)
 - [V3.2 performance and evidence](v3x/v3.2/PERFORMANCE_AND_EVIDENCE.md)
 - [V3.2 validation](v3x/v3.2/VALIDATION.md)
 - [V3.2 Phase 0 checklist](v3x/v3.2/PHASE_0_CHECKLIST.md)
@@ -57,6 +58,9 @@ remains the phase history and decision source of truth.
 - [V3.2 Phase 4 query-evidence highlighting baseline](v3x/v3.2/PHASE_4_BASELINE.md)
 - [V3.2 Phase 5 checklist](v3x/v3.2/PHASE_5_CHECKLIST.md)
 - [V3.2 Phase 5 hardening and profiling baseline](v3x/v3.2/PHASE_5_BASELINE.md)
+- [V3.2 Phase 6 hardening and release contract](v3x/v3.2/HARDENING_AND_RELEASE.md)
+- [V3.2 Phase 6 checklist](v3x/v3.2/PHASE_6_CHECKLIST.md)
+- [V3.2 release checklist](v3x/v3.2/RELEASE_CHECKLIST.md)
 
 ## v3.0 — previous stable and frozen release
 

@@ -1,8 +1,7 @@
 # V3.2 Phase 1 checklist
 
-Status: implementation foundation and local evidence are complete on an independent
-branch; protected PR/master acceptance remains pending. No production offset or
-highlighting implementation is present.
+Status: complete and accepted on protected `master` through PR #51 as merge commit
+`65ea455`. The Phase 1 branch introduced no production offset or highlighting code.
 
 ## Accepted entry boundary
 
@@ -85,6 +84,5 @@ highlighting implementation is present.
 - [x] Any change to coordinate semantics, sequence validation, public descriptors, or
   stored-offset policy requires a contract amendment before implementation.
 
-Phase 1 is complete only after this branch passes required CI and merges to protected
-`master`. Phase 2 must start from that accepted merge commit on a new independent
-branch.
+Phase 1 is complete. Phase 2 started from accepted merge commit `65ea455` on a new
+independent branch.

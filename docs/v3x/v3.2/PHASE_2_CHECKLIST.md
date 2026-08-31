@@ -1,8 +1,8 @@
 # V3.2 Phase 2 checklist
 
-Status: offset-analysis implementation, local evidence, and all required local gates
-are complete on an independent branch; protected PR/master acceptance remains pending.
-Highlight request, result, evidence, fragment, and engine APIs remain absent.
+Status: complete and accepted on protected `master` through PR #52 as merge commit
+`0729d77`. That accepted Phase 2 state contains no highlight request, result, evidence,
+fragment, or engine API.
 
 ## Accepted entry boundary
 
@@ -94,6 +94,5 @@ Highlight request, result, evidence, fragment, and engine APIs remain absent.
 - [x] Stored offsets, sidecars, HTML output, and analyzer composition remain outside
   the accepted boundary.
 
-Phase 2 is complete only after all required gates pass and this branch merges through a
-protected PR. Phase 3 must start from that accepted merge commit on a new independent
-branch.
+Phase 2 is complete. Phase 3 started from accepted merge commit `0729d77` on a new
+independent branch.
