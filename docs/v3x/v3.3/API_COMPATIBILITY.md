@@ -22,8 +22,8 @@ V3.2 reflection/source fixtures, V1/V2/V3 independent consumers, processor, gene
 sources, and travel example remain mandatory.
 
 Phase 0 left every active project and consumer coordinate at final `3.2.0`. Phase 1
-converted them atomically to `3.3.0-SNAPSHOT`; Phase 5 converts all seven active
-coordinates atomically to final `3.3.0` only after Phases 1–4 are accepted.
+converted them atomically to `3.3.0-SNAPSHOT`; Phase 5 converted all seven active
+coordinates atomically to final `3.3.0` after Phases 1–4 were accepted.
 
 ## Frozen supported additions
 
@@ -185,10 +185,21 @@ internal/business-ID tie-break field.
 Any accepted timeout/cancellation or highlighted-pagination design requires a Phase 0
 amendment and a new descriptor/source fixture before production implementation.
 
-## Final candidate review
+## Post-publication baseline
 
-The final `3.3.0` candidate contains exactly the frozen additive page family and
-default engine capability above. V1/V2 consumers remain source-unchanged. The V3
-consumer uses only supported APIs to execute two pages and verify exact totals. Fresh
-isolated Japicmp comparison against all six published baselines remains a pre-release
-gate; no baseline coordinate or pinned V3 hash changes during candidate conversion.
+Published `3.3.0` contains exactly the frozen additive page family and default engine
+capability above. V1/V2 consumers remain source-unchanged. The V3 consumer uses only
+supported APIs to execute two pages and verify exact totals. Fresh-isolated Japicmp
+comparison against all six earlier published baselines passed before release.
+
+The published `3.3.0` core JAR resolves from Maven Central with SHA-256:
+
+```text
+3.3.0 core SHA-256
+18fb6439be074b39e5f22e2b01fba327ee919a4997e6429551481ef7fb8754f4
+```
+
+That value matches the reproducible final main-JAR hash recorded before tagging.
+Future candidates compare against all seven published versions: `1.0.0`, `2.0.0`,
+`2.1.0`, `3.0.0`, `3.1.0`, `3.2.0`, and `3.3.0`. The `3.3.0` coordinate and pinned
+hash are immutable.

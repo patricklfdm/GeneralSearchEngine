@@ -1,6 +1,6 @@
 # GeneralSearchEngine V3.x development line
 
-V3.x contains the current stable `3.2.0` release and remains the active development
+V3.x contains the current stable `3.3.0` release and remains the active development
 line before V4 changes the process-lifetime durability boundary. It matures the
 in-memory engine without changing its immutable-snapshot, lock-free-reader,
 asynchronous-single-writer, and atomic-publication architecture.
@@ -62,7 +62,11 @@ asynchronous-single-writer, and atomic-publication architecture.
   timeout/cancellation and prepared queries. [Phase 5](v3.3/PHASE_5_CHECKLIST.md)
   converts all seven active coordinates to final `3.3.0`, adds the supported consumer
   and migration path, and closes compatibility, Javadocs, artifacts,
-  reproducibility, and release preparation. Publication remains a later ordered state.
+  reproducibility, and release preparation. Signed `v3.3.0`, Maven Central
+  publication, clean remote verification, the production deployment, and the
+  [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
+  are complete on protected-master commit
+  `b399ee999e65ca363e68503720dedd4ddd2b3c2e`.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -141,6 +145,7 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [3.2-to-3.3 migration guide](v3.3/MIGRATION_GUIDE.md)
 - [Phase 5 checklist](v3.3/PHASE_5_CHECKLIST.md)
 - [V3.3 release checklist](v3.3/RELEASE_CHECKLIST.md)
+- [V3.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
 
 ## Stable boundaries
 

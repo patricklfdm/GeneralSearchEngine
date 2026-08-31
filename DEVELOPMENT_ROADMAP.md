@@ -13,8 +13,9 @@ phrase hardening, the semantics-preserving persistent fuzzy dictionary, and 1M
 concurrency evidence passed their contracts. The frozen regression comparison and the
 distinct ranked feature family are reviewed, and `v3.1.0-ranked-cloud` is registered
 immutably. Signed `v3.1.0`, Maven Central publication, clean remote verification, and
-the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, 3.1.0, and
-3.2.0 APIs are mandatory compatibility baselines for subsequent V3.x development.
+the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, 3.1.0,
+3.2.0, and 3.3.0 APIs are mandatory compatibility baselines for subsequent V3.x
+development.
 
 ## v3.2 development contract
 
@@ -45,7 +46,7 @@ performance, migration, hardening, and release contracts are mapped in
 
 ## v3.3 development contract
 
-V3.3 Phases 0–4 are accepted on protected `master`. Phase 1 converted atomically to
+V3.3 Phases 0–5 are complete on protected `master`. Phase 1 converted atomically to
 `3.3.0-SNAPSHOT` and established six-baseline compatibility, public descriptor/source
 fixtures, independent semantic oracles, and exact-V3.2 pre-change evidence. Phase 2
 added the complete frozen page value family, additive default engine capability,
@@ -54,13 +55,15 @@ added the private constant-sized built-in cursor, frozen owner/request/snapshot
 validation, first-page cursor emission, and deterministic search-after continuation
 without changing the public descriptors. Phase 4 completed publication, concurrency,
 retention, and scale hardening without changing production code and was accepted as
-merge commit `9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 converts all active
-coordinates atomically to final
-`3.3.0` and has locally closed consumers, migration and release documentation,
-Japicmp, strict Javadocs, artifacts, reproducibility, performance smoke, and cloud
-local gates. The initial candidate merged through PR #64 as
-`fd15a8df9600bd98ec0b1926810637f0ee40ade5`; the date-corrected final metadata and
-reproducible hashes await a follow-up protected PR and do not claim publication.
+merge commit `9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 converted all active
+coordinates atomically to final `3.3.0` and closed consumers, migration and release
+documentation, Japicmp, strict Javadocs, artifacts, reproducibility, performance
+smoke, and cloud local gates. The initial candidate merged through PR #64 as
+`fd15a8df9600bd98ec0b1926810637f0ee40ade5`; the calendar-corrected candidate merged
+through PR #65 as protected-master commit
+`b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Signed `v3.3.0`, Maven Central
+publication, clean remote verification, the production deployment, and the GitHub
+Release are complete at that exact commit.
 
 The required implementation scope remains strict current-snapshot search-after. The
 page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter
@@ -81,9 +84,22 @@ lower-bound counts, snapshot pinning, deep offsets, facets, and aggregations rem
 deferred unless a separate contract amendment is accepted. The executable map is under
 [`docs/v3x/v3.3/`](docs/v3x/v3.3/ARCHITECTURE.md).
 
-## v3.2.0 current stable release
+## v3.3.0 current stable release
 
-Version `3.2.0` was published on August 30, 2026 as the current stable release:
+Version `3.3.0` was published on August 31, 2026 as the current stable release:
+
+- `io.github.patricklfdm:general-search-engine:3.3.0`;
+- `io.github.patricklfdm:general-search-engine-processor:3.3.0`;
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0).
+
+V3.3 adds strict current-snapshot search-after pagination and opt-in exact total hits
+without changing ordinary ranked search, highlighting, Explain, or publication
+semantics.
+
+## v3.2.0 previous stable release
+
+Version `3.2.0` was published on August 30, 2026 and remains the immediate prior
+stable release and compatibility baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.2.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.2.0`;
@@ -92,10 +108,10 @@ Version `3.2.0` was published on August 30, 2026 as the current stable release:
 V3.2 adds exact source offsets and opt-in snapshot-consistent structured highlighting
 without changing ordinary query, ranking, index, mutation, or Explain behavior.
 
-## v3.1.0 previous stable release
+## v3.1.0 earlier stable release
 
-Version `3.1.0` was published on August 30, 2026 and remains the immediate prior stable
-release and compatibility baseline:
+Version `3.1.0` was published on August 30, 2026 and remains a frozen compatibility
+baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.1.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.1.0`;

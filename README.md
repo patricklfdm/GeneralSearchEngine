@@ -5,14 +5,12 @@ reference document type. The engine uses immutable search snapshots and persiste
 block-based bitmaps so readers can search without locking while a single writer batches
 mutations and atomically publishes new snapshots.
 
-Version 3.2.0 is the current stable release. Its signed `v3.2.0` tag and both Maven
-artifacts were published on August 30, 2026. Version 3.1.0 remains the immediate prior
-stable release and compatibility baseline. The completed work and compatibility
-constraints are recorded in the
+Version 3.3.0 is the current stable release. Its signed `v3.3.0` tag, both Maven
+artifacts, production deployment, and GitHub Release completed on August 31, 2026.
+Version 3.2.0 remains the immediate prior stable release and compatibility baseline.
+The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V3.x contract map](docs/v3x/README.md). Version `3.2.0` is available from Maven Central.
-Version `3.3.0` is the active final release candidate in this checkout and must not be
-treated as published until the signed release workflow and remote verification pass.
+[V3.x contract map](docs/v3x/README.md). Version `3.3.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Requirements
@@ -22,7 +20,7 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Install
 
-### Stable 3.2.0
+### Stable 3.3.0
 
 The runtime dependency is:
 
@@ -30,23 +28,23 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>3.2.0</version>
+    <version>3.3.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:3.2.0`. Existing 3.1 users can
-upgrade through the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md);
-the published V1, V2, V3.0, and V3.1 contracts remain recorded in their historical
-documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:3.3.0`. Existing 3.2 users can
+upgrade through the [3.2-to-3.3 migration guide](docs/v3x/v3.3/MIGRATION_GUIDE.md);
+the published V1, V2, V3.0, V3.1, and V3.2 contracts remain recorded in their
+historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.2.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.3.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.2.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.3.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v3.2.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0).
+[`v3.3.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0).
 
 ### What is new in V3.1
 
@@ -100,7 +98,7 @@ highlighting must use `OffsetAnalyzer`. Applications own HTML escaping and marku
 See the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md) and
 [structured-highlighting contract](docs/v3x/v3.2/HIGHLIGHTING.md).
 
-### V3.3 release candidate
+### What is new in V3.3
 
 V3.3 adds opt-in strict search-after pagination and optional exact total hits around
 the existing immutable ranked request:
@@ -130,9 +128,7 @@ The opaque cursor is bound to the built-in engine, the exact request object, and
 current immutable snapshot. Any successful publication before the next page makes it
 stale. It is not serializable, portable, mutation-stable, or a snapshot pin. Disabled
 totals remain the default. See the [3.2-to-3.3 migration guide](docs/v3x/v3.3/MIGRATION_GUIDE.md)
-and [pagination contract](docs/v3x/v3.3/PAGINATION_AND_TOTAL_HITS.md). Build the final
-candidate from this checkout; stable dependency guidance remains `3.2.0` until
-publication.
+and [pagination contract](docs/v3x/v3.3/PAGINATION_AND_TOTAL_HITS.md).
 
 ## Quick start: annotated search
 
@@ -308,7 +304,7 @@ The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
 The published project identity and Apache License 2.0 metadata remain finalized for
-v3.2.0; the active checkout is the unpublished final V3.3 candidate.
+v3.3.0.
 
 ## v1.0.0 scope
 

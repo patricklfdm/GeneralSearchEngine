@@ -7,7 +7,7 @@ lifecycle code. Applications opt in only by wrapping an existing immutable
 
 ## Dependency
 
-The final candidate uses one aligned version for the runtime and optional processor:
+The published release uses one aligned version for the runtime and optional processor:
 
 ```xml
 <dependency>
@@ -17,10 +17,8 @@ The final candidate uses one aligned version for the runtime and optional proces
 </dependency>
 ```
 
-Until the signed release workflow and clean remote verification complete, `3.3.0`
-must be built from this checkout and must not be assumed to exist on Maven Central.
-Published `3.2.0` remains the stable dependency. Java 21 and Maven 3.9 or newer remain
-required.
+Version `3.3.0` is available from Maven Central for both the runtime and optional
+processor. Java 21 and Maven 3.9 or newer remain required.
 
 ## Existing code remains unchanged
 

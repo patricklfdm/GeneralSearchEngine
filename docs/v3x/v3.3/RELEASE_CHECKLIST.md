@@ -8,18 +8,18 @@ acceptance, signed tagging, publication, and post-publication proof.
 | Field | Value |
 |---|---|
 | Target version | `3.3.0` |
-| Active candidate | final `3.3.0`, unpublished |
+| Release state | published and remotely verified |
 | Phase 5 entry / accepted Phase 4 merge | `9b1b880ddc947b5b4747e0251d0bd42708f94bfc` |
 | Final-candidate branch | `release/v3.3.0` |
 | Initial candidate merge | PR #64, `fd15a8df9600bd98ec0b1926810637f0ee40ade5` |
 | Calendar-correction branch | `release/v3.3.0-date-correction` |
-| Final protected-master commit | `PENDING` |
-| Signed tag | `PENDING` |
-| Maven Central | `PENDING`; published `3.2.0` remains stable |
-| GitHub Release | `PENDING` |
+| Final protected-master commit | `b399ee999e65ca363e68503720dedd4ddd2b3c2e` (PR #65) |
+| Signed tag | verified `v3.3.0` at the exact final commit |
+| Maven Central | core and processor `3.3.0` published and remotely verified |
+| GitHub Release | ID `379580761`, published `2026-08-31T07:39:42Z` |
 
-No publication or remote-verification item below is complete until independently
-observed. Final candidate coordinates alone do not imply availability.
+Publication and remote-verification items below were completed only after independent
+observation. Published `3.3.0` is now immutable; later fixes require a new version.
 
 ## Frozen release contents
 
@@ -50,8 +50,9 @@ observed. Final candidate coordinates alone do not imply availability.
   `fd15a8df9600bd98ec0b1926810637f0ee40ade5`.
 - [x] Correct the final release date and output timestamp to `2026-08-31`, rerun
   strict release/artifact/reproducibility gates, and regenerate all six hashes.
-- [ ] Merge the date-corrected candidate through protected PR and record the exact
-  final master commit and CI run.
+- [x] Merge the date-corrected candidate through protected PR #65 as final master
+  commit `b399ee999e65ca363e68503720dedd4ddd2b3c2e`; exact-commit protected-master CI
+  passed before tagging.
 
 ## Final candidate evidence
 
@@ -82,28 +83,40 @@ Two clean builds produced byte-identical final artifacts:
 
 ## Signed tag verification
 
-- [ ] Create annotated signed `v3.3.0` on the exact final protected-master commit.
-- [ ] `git cat-file -t v3.3.0` reports `tag`.
-- [ ] `git tag -v v3.3.0` verifies fingerprint
+- [x] Create annotated signed `v3.3.0` on the exact final protected-master commit.
+- [x] `git cat-file -t v3.3.0` reports `tag`.
+- [x] `git tag -v v3.3.0` verifies fingerprint
   `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
-- [ ] `scripts/verify-release-tag.sh v3.3.0` passes.
-- [ ] `git rev-parse v3.3.0^{commit}` equals the recorded master commit.
-- [ ] Push only after every local check and central immutability preflight pass.
+- [x] `scripts/verify-release-tag.sh v3.3.0` passes.
+- [x] `git rev-parse v3.3.0^{commit}` equals the recorded master commit.
+- [x] Push only after every local check and central immutability preflight pass.
 
 ## Protected publication
 
-- [ ] Tag-triggered release validation checks out the exact tag and passes every gate.
-- [ ] Central immutability preflight confirms `3.3.0` does not already exist.
-- [ ] The repository owner approves `production-release` after validation.
-- [ ] Core and processor POM/main/sources/Javadoc artifacts and all signatures publish.
-- [ ] `scripts/verify-published-release.sh 3.3.0` passes from a clean remote repository.
-- [ ] The published V3 consumer passes without a reactor install.
-- [ ] GitHub Release `GeneralSearchEngine 3.3.0` is created from the verified tag and
+- [x] Tag-triggered release validation checks out the exact tag and passes every gate.
+- [x] Central immutability preflight confirms `3.3.0` does not already exist.
+- [x] The repository owner approves `production-release` after validation.
+- [x] Core and processor POM/main/sources/Javadoc artifacts and all signatures publish.
+- [x] `scripts/verify-published-release.sh 3.3.0` passes from a clean remote repository.
+- [x] The published V3 consumer passes all nine tests without a reactor install.
+- [x] GitHub Release `GeneralSearchEngine 3.3.0` is created from the verified tag and
   marked latest.
 
 ## Post-publication evidence
 
-Record exact tag/master SHA, signing fingerprint, workflow run, production deployment,
-Central links, clean remote verification, consumer result, GitHub Release ID/URL, and
-timestamps only after they exist. Published `3.3.0` and signed `v3.3.0` then become
+| Evidence | Observed result |
+|---|---|
+| Release date | `2026-08-31` |
+| Tag and protected-master SHA | signed `v3.3.0` -> `b399ee999e65ca363e68503720dedd4ddd2b3c2e` |
+| Signing fingerprint | `91AAB7A2B0FB55C3BBB334534B6103148D643AB3` |
+| Release workflow | [run 33368491689](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33368491689), tag push, `success`, `2026-08-31T07:28:01Z` to `2026-08-31T07:39:46Z` |
+| Production deployment | ID `6176948277`, ref `v3.3.0`, same SHA, manually verified `success`, updated `2026-08-31T07:39:46Z` |
+| Maven Central core | [`io.github.patricklfdm:general-search-engine:3.3.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.3.0) |
+| Maven Central processor | [`io.github.patricklfdm:general-search-engine-processor:3.3.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.3.0) |
+| Clean remote verification | PASS — eight remote artifacts, detached signatures, checksums, manifests, and service boundary verified |
+| Published consumer | PASS — V3 supported-public-API consumer, 9/9 tests, no reactor install |
+| GitHub Release | ID `379580761`, [`GeneralSearchEngine 3.3.0`](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0), published `2026-08-31T07:39:42Z`, not draft or prerelease |
+
+The tag, protected-master commit, workflow, deployment, Central artifacts, and GitHub
+Release resolve to one release identity. Published `3.3.0` and signed `v3.3.0` are
 immutable; later fixes use `3.3.1` or a later version.
