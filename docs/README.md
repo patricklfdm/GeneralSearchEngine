@@ -88,6 +88,8 @@ remains the phase history and decision source of truth.
 - [V3.4 Cloud Benchmark extension](v3x/v3.4/CLOUD_BENCHMARK_EXTENSION.md)
 - [V3.4 hardening and V4 handoff](v3x/v3.4/HARDENING_AND_V4_HANDOFF.md)
 - [V3.4 Phase 0 checklist](v3x/v3.4/PHASE_0_CHECKLIST.md)
+- [V3.4 Phase 1 checklist](v3x/v3.4/PHASE_1_CHECKLIST.md)
+- [V3.4 Phase 1 local pre-change baseline](v3x/v3.4/PHASE_1_BASELINE.md)
 
 ## v3.0 — earlier stable and frozen release
 

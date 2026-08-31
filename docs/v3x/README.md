@@ -68,11 +68,13 @@ asynchronous-single-writer, and atomic-publication architecture.
   are complete on protected-master commit
   `b399ee999e65ca363e68503720dedd4ddd2b3c2e`.
 - [`v3.4/`](v3.4/PHASE_0_CHECKLIST.md) freezes the final in-memory hardening line
-  before V4 durability. Phase 0 adds no feature, public API, version conversion,
-  production change, workflow mutation, paid run, or baseline member. It contracts
-  cold construction, extreme corpora, heap diagnostics, multi-producer bursts, one
-  required two-hour run, a separate `final-v34` cloud family, seven-baseline
-  compatibility, and the final V4 handoff gates.
+  before V4 durability. Phase 0 is accepted through PR #67 at `5d1d108`.
+  [Phase 1](v3.4/PHASE_1_CHECKLIST.md) establishes `3.4.0-SNAPSHOT`, the pinned
+  published-3.3 seventh baseline, zero-addition public fixture, exact-V3.3 reference,
+  and [local pre-change evidence](v3.4/PHASE_1_BASELINE.md) without production or
+  cloud implementation. Later phases cover cold construction, extreme corpora, heap
+  diagnostics, multi-producer bursts, one required two-hour run, the independent
+  `final-v34` cloud family, and final V4 handoff gates.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -162,6 +164,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Cloud Benchmark extension](v3.4/CLOUD_BENCHMARK_EXTENSION.md)
 - [Hardening and V4 handoff](v3.4/HARDENING_AND_V4_HANDOFF.md)
 - [Phase 0 checklist](v3.4/PHASE_0_CHECKLIST.md)
+- [Phase 1 checklist](v3.4/PHASE_1_CHECKLIST.md)
+- [Phase 1 local pre-change baseline](v3.4/PHASE_1_BASELINE.md)
 
 ## Stable boundaries
 

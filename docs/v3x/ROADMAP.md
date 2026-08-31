@@ -34,12 +34,14 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Published `3.3.0` is now an immutable
 compatibility baseline for later candidates.
 
-V3.4 Phase 0 freezes the Final In-Memory Hardening line before V4 durability. It adds
-no feature or public API. Its required evidence covers cold construction, extreme
+V3.4 Phase 0 is accepted through PR #67 at `5d1d108` and freezes the Final In-Memory
+Hardening line before V4 durability. Phase 1 is locally complete and pending protected
+review: it establishes `3.4.0-SNAPSHOT`, the pinned published-3.3 seventh baseline,
+zero-addition fixtures, exact-V3.3 references, and pre-change evidence without a
+production or cloud change. Later required evidence covers cold construction, extreme
 corpora, bounded heap diagnostics, multi-producer burst/recovery, one controlled
-two-hour run, seven-baseline compatibility, and an independent final cloud family.
-Production source remains unchanged by default; a reproducible release blocker needs
-an accepted amendment before a narrow fix.
+two-hour run, and an independent final cloud family. Production source remains
+unchanged by default; a reproducible release blocker needs an accepted amendment.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
