@@ -147,3 +147,5 @@ java -jar target/benchmarks.jar \
   -p documentCount=1000 \
   -tg 2,1 -bm thrpt -tu s \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+scripts/verify-v34-local-diagnostics.sh --skip-build

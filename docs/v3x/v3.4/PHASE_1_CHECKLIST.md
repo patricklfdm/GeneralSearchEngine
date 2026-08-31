@@ -1,16 +1,18 @@
 # V3.4 Phase 1 checklist
 
-Status: complete locally on `feat/v3.4-phase1-foundation` and pending protected
-review. Phase 1 introduces no production source, public API, hardening workload,
-cloud identity implementation, workflow mutation, paid run, or baseline registration.
+Status: accepted through PR #68 as protected-master commit
+`331284bd70b0234b97bb43cf693dd10af8e9b7e1`; exact-commit CI run
+`33378644523` succeeded. Phase 1 introduced no production source, public API,
+hardening workload, cloud identity implementation, workflow mutation, paid run, or
+baseline registration.
 
 ## Entry boundary
 
 - [x] Phase 0 merged through PR #67 as protected-master commit
   `5d1d108`.
 - [x] The independent Phase 1 branch starts from that exact merge commit.
-- [x] Exact-commit protected-master CI was required before branch creation; the durable
-  run identifier remains to be attached during protected review.
+- [x] Exact-commit protected-master CI succeeded in run `33378644523` for
+  `331284bd70b0234b97bb43cf693dd10af8e9b7e1`.
 - [x] Published `3.3.0` artifacts, signed tag, release, deployment, and every earlier
   baseline remain immutable.
 - [x] All seven active core, processor, reactor, example, and consumer coordinates
@@ -72,13 +74,12 @@ cloud identity implementation, workflow mutation, paid run, or baseline registra
 
 ## Phase 2 entry
 
-- [ ] Merge this branch through protected review.
-- [ ] Require exact-merge protected-master CI success.
-- [ ] Create a new Phase 2 branch from that exact merge.
-- [ ] Implement only deterministic cold-process/index-build, extreme-corpus, and
+- [x] Merge this branch through protected review as PR #68.
+- [x] Require exact-merge protected-master CI success.
+- [x] Create `feat/v3.4-phase2-local-diagnostics` from that exact merge.
+- [x] Implement only deterministic cold-process/index-build, extreme-corpus, and
   bounded heap diagnostic surfaces contracted by Phase 0.
-- [ ] Do not implement burst, long-run, `final-v34`, paid cloud, or release work in
+- [x] Do not implement burst, long-run, `final-v34`, paid cloud, or release work in
   Phase 2.
 
-Unchecked validation and protected-merge items are required before Phase 1 acceptance.
 No Phase 1 evidence is a release claim or a cloud-family member.

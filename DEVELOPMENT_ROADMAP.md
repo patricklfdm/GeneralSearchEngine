@@ -94,10 +94,16 @@ corpora, bounded heap diagnostics, multi-producer mutation bursts, a required tw
 mixed workload, and one independent final cloud evidence family.
 
 Phase 0 is accepted through PR #67 at protected-master commit `5d1d108`. Phase 1 is
-locally complete and pending protected review: all seven active coordinates are
+accepted through PR #68 at protected-master commit
+`331284bd70b0234b97bb43cf693dd10af8e9b7e1`: all seven active coordinates are
 `3.4.0-SNAPSHOT`; published `3.3.0` is a pinned seventh Japicmp baseline; zero-addition
 public, exact-V3.3 semantic, and pre-change JMH fixtures are present. Phase 1 changes no
 production source, cloud workflow/preset, paid execution, or baseline registry.
+Phase 2 is locally complete and pending protected review. Its benchmark-only
+diagnostics accept five-run 100k/1M cold construction and all nine extreme-corpus
+axes. The required heap cells fail closed on this host because 4g/8g observe active
+swap and 16g exceeds physical memory; reduced and no-swap-relaxed calibration proves
+the harness but does not close the eligible V3.4 heap exit gate.
 
 The new cloud identities are mode `final-v34`, suite
 `v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and eventual

@@ -115,8 +115,8 @@ Phase 1 foundation, not later hardening, cloud, paid execution, or registration 
 
 ## Required V3.4 exit gates
 
-- [ ] Cold construction and dynamic-index build baselines are reviewed.
-- [ ] Extreme-corpus correctness and bounded-resource evidence pass.
+- [x] Cold construction and dynamic-index build baselines are reviewed.
+- [x] Extreme-corpus correctness and bounded-resource evidence pass.
 - [ ] Heap diagnostics distinguish live state, allocation, GC pressure, and invalid
   resource-exhaustion cells.
 - [ ] Multi-producer bursts preserve single-writer semantics and recover to a drained,
