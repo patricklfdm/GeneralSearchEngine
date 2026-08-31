@@ -12,8 +12,11 @@ import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
 import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageRequest;
+import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
+import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
 
 /** Processor-free travel search example for the current development API. */
 public final class TravelSearchDemo {
@@ -100,6 +103,25 @@ public final class TravelSearchDemo {
             );
             printHits("Cross-field BOOL + BOOST", engine.search(discoveryRequest));
 
+            SearchRequest<TravelPlace> pagedRequest = SearchRequest
+                    .<TravelPlace>builder()
+                    .query(SearchQueries.text(description, "museum"))
+                    .limit(2)
+                    .build();
+            SearchPageResult<TravelPlace> firstPage = engine.search(
+                    SearchPageRequest.<TravelPlace>builder(pagedRequest)
+                            .totalHits(TotalHitsMode.EXACT)
+                            .build()
+            );
+            printPage("V3.3 exact page 1", firstPage);
+            SearchPageResult<TravelPlace> secondPage = engine.search(
+                    SearchPageRequest.<TravelPlace>builder(pagedRequest)
+                            .after(firstPage.nextCursor().orElseThrow())
+                            .totalHits(TotalHitsMode.EXACT)
+                            .build()
+            );
+            printPage("V3.3 exact page 2", secondPage);
+
             printHits("Exact PHRASE", engine.search(SearchRequest.of(
                     SearchQueries.phrase(description, "museum beside the river")
             )));
@@ -143,6 +165,23 @@ public final class TravelSearchDemo {
     ) {
         System.out.println(label + ":");
         result.hits().forEach(hit -> System.out.printf(
+                "  score=%.4f  %s%n",
+                hit.score(),
+                hit.document()
+        ));
+    }
+
+    private static void printPage(
+            String label,
+            SearchPageResult<TravelPlace> page
+    ) {
+        System.out.printf(
+                "%s: exactTotal=%d hasNext=%s%n",
+                label,
+                page.totalHits().orElseThrow(),
+                page.nextCursor().isPresent()
+        );
+        page.hits().forEach(hit -> System.out.printf(
                 "  score=%.4f  %s%n",
                 hit.score(),
                 hit.document()

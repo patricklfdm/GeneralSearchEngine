@@ -56,10 +56,13 @@ asynchronous-single-writer, and atomic-publication architecture.
   private built-in cursor, strict validation, and deterministic continuation; its
   [reviewed local baseline](v3.3/PHASE_3_BASELINE.md) records first-page regression,
   cursor depth, exact-count, and allocation evidence. [Phase 4](v3.3/PHASE_4_CHECKLIST.md)
-  locally completes publication, dynamic-index, controlled-concurrency, writer-progress,
+  completes publication, dynamic-index, controlled-concurrency, writer-progress,
   retained-heap, and expensive-query hardening without changing production code. Its
   [reviewed local baseline](v3.3/PHASE_4_BASELINE.md) explicitly defers
-  timeout/cancellation and prepared queries.
+  timeout/cancellation and prepared queries. [Phase 5](v3.3/PHASE_5_CHECKLIST.md)
+  converts all seven active coordinates to final `3.3.0`, adds the supported consumer
+  and migration path, and closes compatibility, Javadocs, artifacts,
+  reproducibility, and release preparation. Publication remains a later ordered state.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -135,6 +138,9 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 3 reviewed local baseline](v3.3/PHASE_3_BASELINE.md)
 - [Phase 4 checklist](v3.3/PHASE_4_CHECKLIST.md)
 - [Phase 4 hardening and decision baseline](v3.3/PHASE_4_BASELINE.md)
+- [3.2-to-3.3 migration guide](v3.3/MIGRATION_GUIDE.md)
+- [Phase 5 checklist](v3.3/PHASE_5_CHECKLIST.md)
+- [V3.3 release checklist](v3.3/RELEASE_CHECKLIST.md)
 
 ## Stable boundaries
 

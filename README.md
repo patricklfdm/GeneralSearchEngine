@@ -11,6 +11,8 @@ stable release and compatibility baseline. The completed work and compatibility
 constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [V3.x contract map](docs/v3x/README.md). Version `3.2.0` is available from Maven Central.
+Version `3.3.0` is the active final release candidate in this checkout and must not be
+treated as published until the signed release workflow and remote verification pass.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Requirements
@@ -98,9 +100,43 @@ highlighting must use `OffsetAnalyzer`. Applications own HTML escaping and marku
 See the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md) and
 [structured-highlighting contract](docs/v3x/v3.2/HIGHLIGHTING.md).
 
+### V3.3 release candidate
+
+V3.3 adds opt-in strict search-after pagination and optional exact total hits around
+the existing immutable ranked request:
+
+```java
+SearchRequest<TravelPlace> request = SearchRequest
+        .<TravelPlace>builder()
+        .query(SearchQueries.text(description, "museum"))
+        .limit(20)
+        .build();
+
+SearchPageResult<TravelPlace> first = engine.search(
+        SearchPageRequest.<TravelPlace>builder(request)
+                .totalHits(TotalHitsMode.EXACT)
+                .build()
+);
+
+SearchPageResult<TravelPlace> second = engine.search(
+        SearchPageRequest.<TravelPlace>builder(request)
+                .after(first.nextCursor().orElseThrow())
+                .totalHits(TotalHitsMode.EXACT)
+                .build()
+);
+```
+
+The opaque cursor is bound to the built-in engine, the exact request object, and the
+current immutable snapshot. Any successful publication before the next page makes it
+stale. It is not serializable, portable, mutation-stable, or a snapshot pin. Disabled
+totals remain the default. See the [3.2-to-3.3 migration guide](docs/v3x/v3.3/MIGRATION_GUIDE.md)
+and [pagination contract](docs/v3x/v3.3/PAGINATION_AND_TOTAL_HITS.md). Build the final
+candidate from this checkout; stable dependency guidance remains `3.2.0` until
+publication.
+
 ## Quick start: annotated search
 
-The shortest 3.2 path uses runtime annotation discovery and does not require the
+The shortest processor-free path uses runtime annotation discovery and does not require the
 optional annotation processor. Save this complete example as
 `TravelSearchQuickStart.java`:
 
@@ -261,6 +297,7 @@ The script skips tests because release verification runs them separately, then c
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md), the
+[V3.3 release record](docs/v3x/v3.3/RELEASE_CHECKLIST.md),
 [V3.2 release record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
 [v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for current and historical
 release evidence.
@@ -271,7 +308,7 @@ The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
 The published project identity and Apache License 2.0 metadata remain finalized for
-v3.2.0.
+v3.2.0; the active checkout is the unpublished final V3.3 candidate.
 
 ## v1.0.0 scope
 

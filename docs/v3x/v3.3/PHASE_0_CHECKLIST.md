@@ -141,16 +141,16 @@ Phase 0 is documentation-only.
 
 ## Required V3.3 exit gates
 
-- [ ] First-page disabled-total results remain bit-for-bit ordinary-search equivalent.
-- [ ] Full unchanged-snapshot cursor walks have no gap, duplicate, or reordering.
-- [ ] Exact totals equal the independent full-match oracle on every page.
-- [ ] Cursor ownership/request/stale reasons and failure precedence pass focused tests.
-- [ ] Mutation, bulk, dynamic-index, close, concurrency, and retention hardening pass.
-- [ ] Six published baselines, consumers, Javadocs, artifacts, reproducibility, and
+- [x] First-page disabled-total results remain bit-for-bit ordinary-search equivalent.
+- [x] Full unchanged-snapshot cursor walks have no gap, duplicate, or reordering.
+- [x] Exact totals equal the independent full-match oracle on every page.
+- [x] Cursor ownership/request/stale reasons and failure precedence pass focused tests.
+- [x] Mutation, bulk, dynamic-index, close, concurrency, and retention hardening pass.
+- [x] Six published baselines, consumers, Javadocs, artifacts, reproducibility, and
   release gates pass.
-- [ ] Timeout/cancellation closes with an accepted implementation amendment or an
-  explicit evidence-backed deferral; no speculative API remains.
-- [ ] Prepared query remains deferred unless a separately accepted evidence-backed
+- [x] Timeout/cancellation closes with an explicit evidence-backed deferral; no
+  speculative API remains.
+- [x] Prepared query remains deferred because no separately accepted evidence-backed
   contract authorizes logical-only caching.
 
 No item below the protected-merge gate authorizes implementation before this Phase 0

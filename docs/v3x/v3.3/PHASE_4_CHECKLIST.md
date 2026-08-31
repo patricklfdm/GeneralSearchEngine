@@ -1,7 +1,8 @@
 # V3.3 Phase 4 checklist
 
-Status: locally complete on `feat/v3.3-phase4-hardening`; full local gate results are
-recorded below before commit review. No production source or public descriptor changes.
+Status: complete and accepted on protected `master` through PR #63 as merge commit
+`9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. No production source or public
+descriptor changes.
 
 ## Accepted entry boundary
 
@@ -85,5 +86,5 @@ recorded below before commit review. No production source or public descriptor c
   totals, snapshot pinning, facets, aggregations, grouping, and deep-offset APIs remain
   outside the release handoff.
 
-Phase 4 is functionally, evidentially, and locally gate-complete and is ready for
-commit review.
+Phase 4 is functionally and evidentially complete and accepted. Phase 5 inherits the
+recorded evidence from the exact protected-master merge.

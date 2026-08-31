@@ -21,8 +21,9 @@ No baseline may resolve from an unverified local same-coordinate install. The V1
 V3.2 reflection/source fixtures, V1/V2/V3 independent consumers, processor, generated
 sources, and travel example remain mandatory.
 
-Phase 0 leaves every active project and consumer coordinate at final `3.2.0`. Version
-conversion to `3.3.0-SNAPSHOT` occurs atomically only after the Phase 0 contract merges.
+Phase 0 left every active project and consumer coordinate at final `3.2.0`. Phase 1
+converted them atomically to `3.3.0-SNAPSHOT`; Phase 5 converts all seven active
+coordinates atomically to final `3.3.0` only after Phases 1–4 are accepted.
 
 ## Frozen supported additions
 
@@ -183,3 +184,11 @@ internal/business-ID tie-break field.
 
 Any accepted timeout/cancellation or highlighted-pagination design requires a Phase 0
 amendment and a new descriptor/source fixture before production implementation.
+
+## Final candidate review
+
+The final `3.3.0` candidate contains exactly the frozen additive page family and
+default engine capability above. V1/V2 consumers remain source-unchanged. The V3
+consumer uses only supported APIs to execute two pages and verify exact totals. Fresh
+isolated Japicmp comparison against all six published baselines remains a pre-release
+gate; no baseline coordinate or pinned V3 hash changes during candidate conversion.

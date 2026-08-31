@@ -77,6 +77,9 @@ remains the phase history and decision source of truth.
 - [V3.3 Phase 3 reviewed local baseline](v3x/v3.3/PHASE_3_BASELINE.md)
 - [V3.3 Phase 4 checklist](v3x/v3.3/PHASE_4_CHECKLIST.md)
 - [V3.3 Phase 4 hardening and decision baseline](v3x/v3.3/PHASE_4_BASELINE.md)
+- [V3.3 migration guide](v3x/v3.3/MIGRATION_GUIDE.md)
+- [V3.3 Phase 5 checklist](v3x/v3.3/PHASE_5_CHECKLIST.md)
+- [V3.3 release checklist](v3x/v3.3/RELEASE_CHECKLIST.md)
 
 ## v3.0 — earlier stable and frozen release
 

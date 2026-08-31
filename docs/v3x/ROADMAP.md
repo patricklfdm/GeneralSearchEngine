@@ -21,12 +21,15 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
 compatibility baseline for later candidates.
 
-V3.3 Phases 0–3 are accepted on protected `master`. Phase 1 established the
+V3.3 Phases 0–4 are accepted on protected `master`. Phase 1 established the
 `3.3.0-SNAPSHOT` six-baseline and pre-change foundation; Phase 2 added the frozen page
 API and disabled/exact first-page execution; Phase 3 added the private constant-sized
-cursor and deterministic strict current-snapshot continuation. Phase 4 locally
-completes publication, concurrency, retention, scale, and decision hardening without a
-production-source change.
+cursor and deterministic strict current-snapshot continuation. Phase 4 completed
+publication, concurrency, retention, scale, and decision hardening without a
+production-source change and was accepted as merge commit
+`9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 final
+`3.3.0` candidate conversion and local release validation are complete on the
+independent release branch; publication is not yet claimed.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
@@ -127,8 +130,8 @@ popularity, or personalization subsystem. The complete frozen contract map is un
 | 1 | switch atomically to `3.3.0-SNAPSHOT`; add six-baseline fixtures, independent oracles, and exact-V3.2 baselines | no page/cursor production implementation |
 | 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | accepted on protected `master`; ordinary ranked and highlighted behavior remains unchanged |
 | 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | accepted on protected `master`; exhaustive page walks equal canonical full order |
-| 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | locally complete; no production change, snapshot pinning, or speculative cancellation API |
-| 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release gates and the timeout decision pass |
+| 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | accepted on protected `master`; no production change, snapshot pinning, or speculative cancellation API |
+| 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | local final-candidate gates pass; protected PR, tag, publication, and evidence remain ordered |
 
 Prepared queries are implemented only after measured logical-normalization evidence
 and an accepted amendment. Highlighted pagination, lower-bound totals, snapshot
