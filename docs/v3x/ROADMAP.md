@@ -10,12 +10,11 @@ passes, and the GitHub Release is available. The ranked feature family remains
 registered as `v3.1.0-ranked-cloud`; the unchanged regression lane remains anchored to
 `v3.0.0-cloud`.
 
-V3.2 Phases 0–3 are accepted on protected `master`. Phase 4 implements deterministic
-PHRASE witnesses, the scoring-selected FUZZY expansion, and recursive BOOL/BOOST
-evidence over the frozen one-snapshot highlighting family. Ordinary search and
-canonical hits remain unchanged. Lifecycle, concurrency, retained-memory, and
-profile-guided hardening are deferred to Phase 5; no stored offset payload or
-cloud-family change is introduced.
+V3.2 Phases 0–4 are accepted on protected `master`. Phase 5 hardens mutation and
+dynamic-index publication, close admission, mixed highlighted/ordinary/Explain reader
+concurrency, retained storage boundaries, and top-K/field/source/corpus scale evidence.
+Profiling justifies no production optimization: ordinary search and canonical hits
+remain unchanged, and no stored offset payload or cloud-family change is introduced.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
