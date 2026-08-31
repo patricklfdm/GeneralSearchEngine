@@ -43,6 +43,26 @@ remain outside V3.2. The architecture, offset, highlighting, compatibility, vali
 performance, migration, hardening, and release contracts are mapped in
 [`docs/v3x/v3.2/`](docs/v3x/v3.2/ARCHITECTURE.md).
 
+## v3.3 development contract
+
+V3.3 Phase 0 freezes the application-facing ranked pagination foundation before any
+implementation or version change. Its required scope is strict current-snapshot
+search-after plus default-disabled, explicitly exact total hits. The page façade wraps
+the existing immutable `SearchRequest`; it cannot change query/filter truth, BM25,
+score bits, canonical ordering, failure behavior, Explain, or publication semantics.
+
+The built-in opaque cursor is bound to one engine, the exact request object, one
+snapshot version, and the hidden canonical order anchor. It does not pin a snapshot or
+expose the internal document ID. Any successful document or dynamic-index publication
+makes an earlier cursor stale. Exact total hits count the complete query/filter match
+set before cursor and limit during the existing candidate evaluation.
+
+Timeout/cancellation must receive an explicit evidence-backed implement-or-defer
+decision before V3.3 release. Prepared queries, highlighted pagination, lower-bound
+counts, snapshot pinning, deep offsets, facets, and aggregations remain deferred unless
+a separate contract amendment is accepted. The executable Phase 0 map is under
+[`docs/v3x/v3.3/`](docs/v3x/v3.3/ARCHITECTURE.md).
+
 ## v3.2.0 current stable release
 
 Version `3.2.0` was published on August 30, 2026 as the current stable release:
