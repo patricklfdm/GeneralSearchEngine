@@ -1,10 +1,10 @@
 # V3.4 Phase 2 checklist
 
-Status: locally complete on `feat/v3.4-phase2-local-diagnostics` and pending
-protected review. Phase 2 adds benchmark-only cold construction, extreme-corpus, and
-bounded-heap diagnostics. It changes no production source, public API, cloud identity,
-workflow, preset, paid resource, baseline registry, burst/long-run surface, or release
-coordinate.
+Status: accepted through PR #69 as protected-master commit
+`07b885790acbc8455db7bbc9a284173a05a19f56`. Phase 2 adds benchmark-only cold
+construction, extreme-corpus, and bounded-heap diagnostics. It changes no production
+source, public API, cloud identity, workflow, preset, paid resource, baseline registry,
+burst/long-run surface, or release coordinate.
 
 ## Entry boundary
 
@@ -74,12 +74,14 @@ coordinate.
 
 ## Phase 3 entry
 
-- [ ] Merge this branch through protected review.
-- [ ] Require exact-merge protected-master CI success.
-- [ ] Create a new Phase 3 branch from that exact merge.
-- [ ] Implement only bounded multi-producer burst/recovery and local long-run
+- [x] Merge this branch through protected review as PR #69 at
+  `07b885790acbc8455db7bbc9a284173a05a19f56`.
+- [x] Require exact-merge protected-master CI success before branch creation; retain
+  its run ID in the Phase 3 review.
+- [x] Create `feat/v3.4-phase3-burst-calibration` from that exact merge.
+- [x] Implement only bounded multi-producer burst/recovery and local long-run
   calibration surfaces.
-- [ ] Do not implement `final-v34`, paid cloud execution, final conversion, release,
+- [x] Do not implement `final-v34`, paid cloud execution, final conversion, release,
   or baseline registration in Phase 3.
 
 The local heap environment exclusion is not a V3.4 heap pass. An eligible

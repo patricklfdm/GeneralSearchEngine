@@ -39,13 +39,16 @@ Hardening line before V4 durability. Phase 1 is accepted through PR #68 at
 `331284bd70b0234b97bb43cf693dd10af8e9b7e1`; it establishes `3.4.0-SNAPSHOT`, the
 pinned published-3.3 seventh baseline,
 zero-addition fixtures, exact-V3.3 references, and pre-change evidence without a
-production or cloud change. Phase 2 is locally complete pending protected review: its
-cold 100k/1M and nine-axis extreme-corpus evidence passes, while the required heap
-matrix is correctly rejected as ineligible on the current swap-active 15.53 GiB host
-and remains an open final gate. Later required evidence covers multi-producer
-burst/recovery, one controlled
-two-hour run, and an independent final cloud family. Production source remains
-unchanged by default; a reproducible release blocker needs an accepted amendment.
+production or cloud change. Phase 2 is accepted through PR #69 at
+`07b885790acbc8455db7bbc9a284173a05a19f56`: its cold 100k/1M and nine-axis
+extreme-corpus evidence passes, while the required heap matrix is correctly rejected
+as ineligible on the current swap-active 15.53 GiB host and remains an open final gate.
+Phase 3 is locally complete pending protected review. Its full producer/batch burst
+matrix and 30-minute calibration pass writer-progress, completion, queue-drainage,
+mixed-reader, lifecycle, final-oracle, and artifact-integrity gates. Later required
+evidence covers one controlled two-hour run and an independent final cloud family.
+Production source remains unchanged by default; a reproducible release blocker needs
+an accepted amendment.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,

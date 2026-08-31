@@ -92,6 +92,8 @@ remains the phase history and decision source of truth.
 - [V3.4 Phase 1 local pre-change baseline](v3x/v3.4/PHASE_1_BASELINE.md)
 - [V3.4 Phase 2 checklist](v3x/v3.4/PHASE_2_CHECKLIST.md)
 - [V3.4 Phase 2 local diagnostics](v3x/v3.4/PHASE_2_BASELINE.md)
+- [V3.4 Phase 3 checklist](v3x/v3.4/PHASE_3_CHECKLIST.md)
+- [V3.4 Phase 3 burst and long-run calibration](v3x/v3.4/PHASE_3_BASELINE.md)
 
 ## v3.0 — earlier stable and frozen release
 

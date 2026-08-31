@@ -117,9 +117,9 @@ Phase 1 foundation, not later hardening, cloud, paid execution, or registration 
 
 - [x] Cold construction and dynamic-index build baselines are reviewed.
 - [x] Extreme-corpus correctness and bounded-resource evidence pass.
-- [ ] Heap diagnostics distinguish live state, allocation, GC pressure, and invalid
+- [x] Heap diagnostics distinguish live state, allocation, GC pressure, and invalid
   resource-exhaustion cells.
-- [ ] Multi-producer bursts preserve single-writer semantics and recover to a drained,
+- [x] Multi-producer bursts preserve single-writer semantics and recover to a drained,
   oracle-correct state.
 - [ ] The required two-hour run passes all correctness, liveness, queue, drift-review,
   evidence-integrity, retention, and cleanup gates.
