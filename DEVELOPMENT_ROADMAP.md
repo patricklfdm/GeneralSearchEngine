@@ -58,7 +58,9 @@ merge commit `9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 converts all ac
 coordinates atomically to final
 `3.3.0` and has locally closed consumers, migration and release documentation,
 Japicmp, strict Javadocs, artifacts, reproducibility, performance smoke, and cloud
-local gates. The candidate awaits protected PR review and does not claim publication.
+local gates. The initial candidate merged through PR #64 as
+`fd15a8df9600bd98ec0b1926810637f0ee40ade5`; the date-corrected final metadata and
+reproducible hashes await a follow-up protected PR and do not claim publication.
 
 The required implementation scope remains strict current-snapshot search-after. The
 page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter

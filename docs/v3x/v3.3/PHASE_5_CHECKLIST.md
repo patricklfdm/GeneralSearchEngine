@@ -1,8 +1,10 @@
 # V3.3 Phase 5 release checklist
 
-Status: final `3.3.0` candidate preparation is locally complete on
-`release/v3.3.0` and ready for protected PR review. Publication and post-publication
-evidence are ordered later states.
+Status: initial final-candidate preparation merged through protected PR #64 as
+`fd15a8df9600bd98ec0b1926810637f0ee40ade5`. The `2026-08-31` calendar correction,
+strict release rerun, and regenerated reproducible hashes are locally complete on
+`release/v3.3.0-date-correction` and ready for follow-up protected PR review.
+Publication and post-publication evidence are ordered later states.
 
 ## Accepted entry boundary
 
@@ -18,8 +20,8 @@ evidence are ordered later states.
 
 - [x] Core, processor, reactor, travel example, and all three compatibility consumer
   coordinates convert atomically from `3.3.0-SNAPSHOT` to `3.3.0`.
-- [x] `project.build.outputTimestamp` remains frozen at `2026-08-30T00:00:00Z`.
-- [x] The changelog receives the dated `3.3.0 — 2026-08-30` candidate heading without
+- [x] `project.build.outputTimestamp` is frozen at `2026-08-31T00:00:00Z`.
+- [x] The changelog receives the dated `3.3.0 — 2026-08-31` candidate heading without
   claiming publication.
 - [x] Published `3.2.0` remains the documented stable dependency until remote
   publication verification completes.
@@ -72,7 +74,8 @@ evidence are ordered later states.
 
 ## Protected release and publication
 
-- [ ] Merge the release-preparation PR and wait for exact-commit protected-master CI.
+- [ ] Merge the date-corrected final-candidate PR and wait for exact-commit
+  protected-master CI.
 - [ ] Create and locally verify signed annotated tag `v3.3.0` on that exact merge.
 - [ ] Push the tag only after central immutability preflight and local verification.
 - [ ] Approve the protected `production-release` deployment only after validation.
