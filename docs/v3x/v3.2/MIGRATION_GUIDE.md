@@ -7,11 +7,8 @@ highlighting.
 
 ## Dependency
 
-The checkout now identifies the final `3.2.0` release candidate. Build it locally for
-evaluation, but continue to use published `3.1.0` in production until the signed
-`v3.2.0` release and Maven Central artifacts exist.
-
-After publication, update both the runtime and optional processor together:
+Published `3.2.0` is available from Maven Central. Update both the runtime and optional
+processor together:
 
 ```xml
 <dependency>

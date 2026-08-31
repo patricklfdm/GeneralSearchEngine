@@ -5,13 +5,12 @@ reference document type. The engine uses immutable search snapshots and persiste
 block-based bitmaps so readers can search without locking while a single writer batches
 mutations and atomically publishes new snapshots.
 
-Version 3.1.0 is the current stable release. Its signed `v3.1.0` tag and both Maven
-artifacts were published on August 30, 2026. Version 3.0.0 remains the immediate prior
+Version 3.2.0 is the current stable release. Its signed `v3.2.0` tag and both Maven
+artifacts were published on August 30, 2026. Version 3.1.0 remains the immediate prior
 stable release and compatibility baseline. The completed work and compatibility
 constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V3.x contract map](docs/v3x/README.md). Version `3.2.0` is the active final release
-candidate; it must not be treated as a Maven Central release until publication.
+[V3.x contract map](docs/v3x/README.md). Version `3.2.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Requirements
@@ -21,7 +20,7 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Install
 
-### Stable 3.1.0
+### Stable 3.2.0
 
 The runtime dependency is:
 
@@ -29,23 +28,23 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>3.1.0</version>
+    <version>3.2.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:3.1.0`. Existing 3.0 users can
-upgrade through the [3.0-to-3.1 migration guide](docs/v3x/v3.1/MIGRATION_GUIDE.md);
-the published V1, V2, and V3.0 contracts remain recorded in their historical
-documentation.
+`io.github.patricklfdm:general-search-engine-processor:3.2.0`. Existing 3.1 users can
+upgrade through the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md);
+the published V1, V2, V3.0, and V3.1 contracts remain recorded in their historical
+documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.1.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.2.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.1.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.2.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v3.1.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.1.0).
+[`v3.2.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0).
 
 ### What is new in V3.1
 
@@ -72,7 +71,7 @@ factory remains exact slop zero. A BOOL without `minimumShouldMatch(...)` retain
 V3.0 defaults. See the [3.0-to-3.1 migration guide](docs/v3x/v3.1/MIGRATION_GUIDE.md)
 and [V3.1 ranked-search semantics](docs/v3x/v3.1/RANKED_SEARCH_SEMANTICS.md).
 
-### V3.2 release candidate
+### What is new in V3.2
 
 V3.2 adds exact source offsets and opt-in structured highlighting without changing
 ordinary query, ranking, index, mutation, or Explain behavior. It stores no offset
@@ -97,12 +96,11 @@ The built-in simple analyzer provides exact half-open UTF-16 ranges. Existing cu
 analyzers remain fully supported for ordinary search; a field explicitly requested for
 highlighting must use `OffsetAnalyzer`. Applications own HTML escaping and markup.
 See the [3.1-to-3.2 migration guide](docs/v3x/v3.2/MIGRATION_GUIDE.md) and
-[structured-highlighting contract](docs/v3x/v3.2/HIGHLIGHTING.md). Build the candidate
-from this checkout; stable dependency guidance remains `3.1.0` until publication.
+[structured-highlighting contract](docs/v3x/v3.2/HIGHLIGHTING.md).
 
 ## Quick start: annotated search
 
-The shortest 3.1 path uses runtime annotation discovery and does not require the
+The shortest 3.2 path uses runtime annotation discovery and does not require the
 optional annotation processor. Save this complete example as
 `TravelSearchQuickStart.java`:
 
@@ -263,7 +261,7 @@ The script skips tests because release verification runs them separately, then c
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md), the
-[V3.2 release-candidate record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
+[V3.2 release record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
 [v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for current and historical
 release evidence.
 The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
@@ -273,7 +271,7 @@ The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
 The published project identity and Apache License 2.0 metadata remain finalized for
-v3.1.0; the active checkout is the unreleased final V3.2 candidate.
+v3.2.0.
 
 ## v1.0.0 scope
 

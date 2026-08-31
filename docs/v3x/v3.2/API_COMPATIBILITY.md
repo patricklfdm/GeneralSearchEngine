@@ -2,10 +2,12 @@
 
 ## Baselines
 
-V3.2 is additive to published `1.0.0`, `2.0.0`, `2.1.0`, `3.0.0`, and `3.1.0`.
-Normal and fresh-isolated `artifact-compat` runs must compare the candidate core JAR
-with all five artifacts. The pinned published 3.0.0 and 3.1.0 JAR identities remain
-fail-closed; no baseline may resolve from an unverified locally installed candidate.
+Published V3.2 is additive to `1.0.0`, `2.0.0`, `2.1.0`, `3.0.0`, and `3.1.0`.
+During V3.2 development, normal and fresh-isolated `artifact-compat` runs compared the
+candidate core JAR with all five artifacts. Following publication, `3.2.0` is also a
+mandatory baseline for every subsequent candidate. The pinned published 3.0.0, 3.1.0,
+and 3.2.0 JAR identities remain fail-closed; no baseline may resolve from an
+unverified locally installed candidate.
 
 The frozen V1 reflection/source fixture, V1/V2/V3 independent consumers, processor,
 generated sources, and travel example remain mandatory. Phase 0 changes no project
@@ -31,9 +33,9 @@ The concrete override and hidden bridge are implementation consequences, not sep
 application extension points. The bridge remains unsupported alongside the existing
 search and Explain bridge methods. Japicmp reports no removed class, method, field,
 constructor, interface, or generic contract and recommends an additive minor version.
-The snapshot candidate and final `3.2.0` candidate both pass fresh-isolated
-comparisons with all five published baselines. The protected release commit must retain
-that result before tagging.
+The snapshot candidate and final `3.2.0` candidate both passed fresh-isolated
+comparisons with all five earlier published baselines. Protected release commit
+`c96a15e41719cac8d7c1ee8f3c064338ef20ac61` retained that result before tagging.
 
 ## Frozen supported additions
 
@@ -202,3 +204,17 @@ stemmer, ranked-prefix query, offset-storage option, HTML formatter, highlight c
 query-clause ID, token graph, position length, search-after cursor, total-hits field,
 timeout, or cancellation token. Any such addition requires its own compatibility and
 semantic contract rather than opportunistic inclusion in the foundation.
+
+## Post-publication baseline
+
+The published 3.2.0 core JAR resolves from Maven Central with SHA-256:
+
+```text
+8cf029b43bdd57ce93c06d71e007f1404c2d1c02c4d4dc6779461dabcd051c1c
+```
+
+That value matches the reproducible final main-JAR hash recorded before tagging. The
+post-publication profile for subsequent development must compare the current tree with
+all six published baselines: `1.0.0`, `2.0.0`, `2.1.0`, pinned `3.0.0`, pinned
+`3.1.0`, and pinned `3.2.0`. Later V3.x work may add published baselines but must not
+remove any of these checks.

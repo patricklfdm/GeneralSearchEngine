@@ -2,7 +2,7 @@
 
 ## Status
 
-Current stable release: `3.1.0`
+Current stable release: `3.2.0`
 
 V3.1 Phases 0–8 are complete. The signed `v3.1.0` tag points to protected master,
 core and processor artifacts are published to Maven Central, clean remote verification
@@ -15,10 +15,11 @@ dynamic-index publication, close admission, mixed highlighted/ordinary/Explain r
 concurrency, retained storage boundaries, and top-K/field/source/corpus scale evidence.
 Profiling justified no production optimization: ordinary search and canonical hits
 remain unchanged, and no stored offset payload or cloud-family change was introduced.
-Phase 6 snapshot hardening is accepted on protected `master`; final `3.2.0` local
-validation is complete on the independent release branch and awaits the
-release-preparation PR. Signed tag, publication, and post-publication evidence remain
-ordered later states.
+Phase 6 is complete. Snapshot and final release validation passed; signed tag
+`v3.2.0`, Maven Central publication, clean remote verification, the protected
+production deployment, and the GitHub Release all resolve to protected-master commit
+`c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
+compatibility baseline for later candidates.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
@@ -32,7 +33,8 @@ atomic publication.
 - The supported ranked-query model remains a final façade built through
   `SearchQueries`; planner, plan, posting, position, dictionary, candidate bitmap,
   snapshot, and internal document-ID types remain unsupported internals.
-- Existing V1, V2, V3.0, and V3.1 behavior changes only for a documented correctness fix.
+- Existing V1, V2, V3.0, V3.1, and V3.2 behavior changes only for a documented
+  correctness fix.
   New functionality is opt-in and existing factory defaults remain unchanged.
 - Physical optimization must preserve match truth, score arithmetic, ordering,
   failure precedence, Explain equivalence, snapshot isolation, and lifecycle behavior.

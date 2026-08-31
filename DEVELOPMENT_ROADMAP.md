@@ -13,8 +13,8 @@ phrase hardening, the semantics-preserving persistent fuzzy dictionary, and 1M
 concurrency evidence passed their contracts. The frozen regression comparison and the
 distinct ranked feature family are reviewed, and `v3.1.0-ranked-cloud` is registered
 immutably. Signed `v3.1.0`, Maven Central publication, clean remote verification, and
-the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, and 3.1.0 APIs
-are mandatory compatibility baselines for subsequent V3.x development.
+the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, 3.1.0, and
+3.2.0 APIs are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
@@ -24,8 +24,10 @@ highlighted/ordinary/Explain reader concurrency, storage boundaries, and local s
 evidence. Profiling justified no production optimization: canonical hits and ordinary
 paths remain unchanged, offset cost stays bounded to explicit top-K requested-source
 analysis, and no stored payload or cloud-family change was introduced. Phase 6
-snapshot hardening is accepted on protected `master`; final `3.2.0` local release
-validation is complete and the candidate awaits its release-preparation PR.
+snapshot hardening and final release validation are accepted. Signed `v3.2.0`, Maven
+Central publication, clean remote verification, the production deployment, and the
+GitHub Release are complete on protected-master commit
+`c96a15e41719cac8d7c1ee8f3c064338ef20ac61`.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured
@@ -41,9 +43,21 @@ remain outside V3.2. The architecture, offset, highlighting, compatibility, vali
 performance, migration, hardening, and release contracts are mapped in
 [`docs/v3x/v3.2/`](docs/v3x/v3.2/ARCHITECTURE.md).
 
-## v3.1.0 current stable release
+## v3.2.0 current stable release
 
-Version `3.1.0` was published on August 30, 2026 as the current stable release:
+Version `3.2.0` was published on August 30, 2026 as the current stable release:
+
+- `io.github.patricklfdm:general-search-engine:3.2.0`;
+- `io.github.patricklfdm:general-search-engine-processor:3.2.0`;
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0).
+
+V3.2 adds exact source offsets and opt-in snapshot-consistent structured highlighting
+without changing ordinary query, ranking, index, mutation, or Explain behavior.
+
+## v3.1.0 previous stable release
+
+Version `3.1.0` was published on August 30, 2026 and remains the immediate prior stable
+release and compatibility baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.1.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.1.0`;
@@ -54,10 +68,10 @@ preserving V3.0 defaults. It also replaces full-scan fuzzy vocabulary expansion 
 semantics-equivalent persistent code-point trie and completes the separate ranked
 feature evidence lane. Ranked `mustNot` and public fuzzy tuning remain outside V3.1.
 
-## v3.0.0 previous stable release
+## v3.0.0 earlier stable release
 
-Version `3.0.0` was published on August 26, 2026 and remains the immediate prior stable
-release and compatibility baseline:
+Version `3.0.0` was published on August 26, 2026 and remains a frozen compatibility
+baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.0.0`;
