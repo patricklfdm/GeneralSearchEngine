@@ -638,11 +638,12 @@ public final class V3ProductionSoak {
         boolean corpusUnchanged = loadedCorpusDigest.equals(postCorpusDigest);
         boolean zeroMutations = config.writerCount() <= 1
                 && !config.indexCycles();
+        boolean performanceStable = all(rateStable) && all(latencyStable);
         boolean ready = sampleCoverage && windowCoverage && positiveCoverage
                 && finitePositive && monotonic && noErrors && documentsUnchanged
                 && snapshotUnchanged && corpusUnchanged && zeroMutations
                 && queryBalance && latencyEvidence
-                && all(rateStable) && all(latencyStable);
+                && (!config.productionStabilization() || performanceStable);
         return new ReadinessDecision(
                 ready,
                 sampleCoverage,

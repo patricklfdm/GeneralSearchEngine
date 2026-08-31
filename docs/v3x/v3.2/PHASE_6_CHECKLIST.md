@@ -48,8 +48,10 @@ pending.
   dynamic-index build.
 - [x] Confirm no offset, evidence, highlight, or sidecar payload is retained in a text
   snapshot.
-- [x] Require a failing regression and minimal fix for any discovered release blocker;
-  no blocker is currently known.
+- [x] The final-candidate PR exposed shared-runner noise in the shortened stabilization
+  E2E gate; the minimal regression-tested fix separates explicit `reduced-test`
+  pipeline readiness from formal cross-window performance readiness without changing
+  any production mode.
 
 ## Compatibility, consumers, and example
 

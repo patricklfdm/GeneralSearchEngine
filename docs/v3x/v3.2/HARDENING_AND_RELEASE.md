@@ -202,6 +202,12 @@ Shell syntax and synthetic cloud lifecycle gates exercised by `CI / Required` re
 mandatory. Protected publication additionally builds with GPG enabled and verifies all
 signatures. Local unsigned validation does not replace protected-workflow evidence.
 
+The explicit `reduced-test` stabilization mode is CI pipeline evidence, not machine
+stability evidence. It must enforce structural and safety readiness before exercising
+measurement and measurement-only JFR, while treating short-window throughput and
+latency stability flags as diagnostic. Production `screening`, `confirmation`, and
+`profile` modes continue to require every frozen cross-window stability threshold.
+
 ## Completion boundary
 
 Phase 6 is complete only after real post-publication evidence is recorded and merged.

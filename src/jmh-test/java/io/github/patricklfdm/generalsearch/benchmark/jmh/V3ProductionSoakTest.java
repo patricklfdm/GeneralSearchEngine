@@ -178,6 +178,42 @@ class V3ProductionSoakTest {
     }
 
     @Test
+    void reducedReadinessDoesNotTreatSharedRunnerNoiseAsEvidenceFailure() {
+        var decision = V3ProductionSoak.evaluateReadiness(
+                reducedConfig(),
+                noisySamples(10, 2),
+                41L,
+                41L,
+                "same",
+                "same",
+                100,
+                0L,
+                true);
+
+        assertEquals(false, decision.rateStable()[0]);
+        assertEquals(false, decision.latencyStable()[0]);
+        assertEquals(true, decision.ready());
+    }
+
+    @Test
+    void productionReadinessStillRequiresPerformanceStability() {
+        var decision = V3ProductionSoak.evaluateReadiness(
+                productionConfig("screening", "600"),
+                noisySamples(300, 60),
+                41L,
+                41L,
+                "same",
+                "same",
+                100,
+                0L,
+                true);
+
+        assertEquals(false, decision.rateStable()[0]);
+        assertEquals(false, decision.latencyStable()[0]);
+        assertEquals(false, decision.ready());
+    }
+
+    @Test
     void changedIdentityCannotStartMeasurement() {
         var decision = V3ProductionSoak.evaluateReadiness(
                 reducedConfig(),
@@ -274,6 +310,44 @@ class V3ProductionSoakTest {
                     second * 400L,
                     Arrays.stream(latency).sum(),
                     new V3ProductionSoak.QueryCounterSnapshot(operations, latency),
+                    0L,
+                    41L,
+                    100,
+                    second,
+                    second));
+        }
+        return samples;
+    }
+
+    private static List<V3ProductionSoak.StabilizationSample> noisySamples(
+            int seconds,
+            int windowSeconds
+    ) {
+        List<V3ProductionSoak.StabilizationSample> samples = new ArrayList<>();
+        long[] operations = new long[4];
+        long[] latency = new long[4];
+        for (int second = 0; second <= seconds; second++) {
+            if (second > 0) {
+                int window = Math.min(second / windowSeconds, 4);
+                long rate = window == 3 ? 200L : window == 4 ? 50L : 100L;
+                long meanLatency = window == 3 ? 2_000L
+                        : window == 4 ? 500L : 1_000L;
+                for (int query = 0; query < 4; query++) {
+                    operations[query] += rate;
+                    latency[query] += rate * (meanLatency + query * 100L);
+                }
+            }
+            samples.add(new V3ProductionSoak.StabilizationSample(
+                    Instant.EPOCH.plusSeconds(second),
+                    second,
+                    1_000_000L,
+                    2_000_000L,
+                    4_000_000L,
+                    Arrays.stream(operations).sum(),
+                    Arrays.stream(latency).sum(),
+                    new V3ProductionSoak.QueryCounterSnapshot(
+                            operations.clone(),
+                            latency.clone()),
                     0L,
                     41L,
                     100,

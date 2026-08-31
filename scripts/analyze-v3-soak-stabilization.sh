@@ -35,6 +35,7 @@ done
 computed=$(mktemp "${TMPDIR:-/tmp}/gse-stabilization.XXXXXX")
 trap 'rm -f -- "$computed"' EXIT
 awk -F, -v duration="$seconds" -v width="$window_seconds" \
+    -v purpose="$purpose" \
     -v sample_seconds="$sample_seconds" -v documents="$documents" -v readers="$readers" '
 BEGIN {
   expected_header="timestamp,elapsed_s,used_heap_bytes,committed_heap_bytes,max_heap_bytes,read_ops,read_latency_ns,text_ops,text_latency_ns,bool_ops,bool_latency_ns,phrase_ops,phrase_latency_ns,fuzzy_ops,fuzzy_latency_ns,errors,snapshot_version,document_count,gc_count,gc_time_ms"
@@ -96,7 +97,7 @@ END {
   latency_evidence=1
   for (metric=1; metric<5; metric++) if (last_lat[5,metric] <= 0) latency_evidence=0
   ready=sample_coverage && window_coverage && positive_coverage && finite_positive && monotonic && no_errors && documents_unchanged && snapshot_unchanged && query_balance && latency_evidence
-  for (metric=0; metric<5; metric++) ready=ready && rate_stable[metric] && latency_stable[metric]
+  if (purpose != "reduced-test") for (metric=0; metric<5; metric++) ready=ready && rate_stable[metric] && latency_stable[metric]
   print "sample_coverage=" bool(sample_coverage); print "window_coverage=" bool(window_coverage); print "positive_coverage=" bool(positive_coverage)
   print "finite_positive=" bool(finite_positive); print "monotonic=" bool(monotonic); print "no_errors=" bool(no_errors)
   print "documents_unchanged=" bool(documents_unchanged); print "snapshot_unchanged=" bool(snapshot_unchanged)

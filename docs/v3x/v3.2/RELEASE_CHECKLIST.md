@@ -88,9 +88,9 @@ Snapshot hashes are evidence only and are not the final published artifact ident
 | Independent consumers and example | PASS — V1/V2/V3 consumers and travel execution |
 | Strict release artifacts | PASS — strict core/processor Javadocs, sources, main JARs, and service-entry isolation |
 | Reproducible six-JAR build | PASS — two clean final-version builds byte-identical |
-| JMH and production soak | PASS — expanded smoke cells, 9 instrumentation tests, and reduced stabilization E2E |
+| JMH and production soak | PASS — expanded smoke cells, formal readiness regression coverage, and reduced stabilization E2E |
 | Cloud Benchmark local gates | PASS — Python 3.11, 61 unit tests, shell, synthetic, fake-gcloud, and lifecycle suites |
-| Diff hygiene | PASS — release coordinates and documentation only; no production-source change |
+| Diff hygiene | PASS — release metadata plus a benchmark-only reduced-test CI blocker fix; no production source or formal readiness change |
 
 ## Final reproducible artifact hashes
 
