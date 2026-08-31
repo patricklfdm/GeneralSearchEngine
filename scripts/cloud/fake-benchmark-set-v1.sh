@@ -13,13 +13,20 @@ for argument in "$@"; do
     printf 'GSE_CONCURRENCY_THREAD_GROUPS=%s\n' \
       "${GSE_CONCURRENCY_THREAD_GROUPS:-unset}"
     printf 'GSE_PERF_JVM_OPTIONS=%s\n' "${GSE_PERF_JVM_OPTIONS:-unset}"
+    printf 'GSE_BENCHMARK_PRESET_ID=%s\n' "${GSE_BENCHMARK_PRESET_ID:-unset}"
+    printf 'GSE_CLOUD_MAX_RUN_DURATION=%s\n' "${GSE_CLOUD_MAX_RUN_DURATION:-unset}"
+    printf 'GSE_SOAK_SECONDS=%s\n' "${GSE_SOAK_SECONDS:-unset}"
+    printf 'GSE_V34_SUITE_PROFILE=%s\n' "${GSE_V34_SUITE_PROFILE:-unset}"
+    printf 'GSE_V34_BURST_PRODUCERS=%s\n' "${GSE_V34_BURST_PRODUCERS:-unset}"
+    printf 'GSE_V34_LONG_RUN_WINDOW_SECONDS=%s\n' \
+      "${GSE_V34_LONG_RUN_WINDOW_SECONDS:-unset}"
     exit 0
   fi
 done
 
 mode=${!#}
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|final-v34|all) ;;
   *) echo "Fake set V1 received unsupported mode: $mode" >&2; exit 2 ;;
 esac
 ordinal=0

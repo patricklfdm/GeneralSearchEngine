@@ -18,7 +18,7 @@ usage() {
     'Run the existing V3 production benchmark suite on one ephemeral GCP Compute Engine VM.' \
     '' \
     'Modes:' \
-    '  quick  full  concurrency  soak  investigation  stabilized-investigation  ranked-v31  all' \
+    '  quick  full  concurrency  soak  investigation  stabilized-investigation  ranked-v31  final-v34  all' \
     '' \
     'Options:' \
     '  --dry-run  Validate and print the plan without creating, deleting, SSHing, or copying.' \
@@ -79,9 +79,9 @@ for argument in "$@"; do
 done
 
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|final-v34|all) ;;
   *)
-    echo "A mode is required: quick, full, concurrency, soak, investigation, stabilized-investigation, ranked-v31, or all" >&2
+    echo "A mode is required: quick, full, concurrency, soak, investigation, stabilized-investigation, ranked-v31, final-v34, or all" >&2
     usage >&2
     exit "$EXIT_CONFIG"
     ;;
@@ -174,6 +174,50 @@ if [ -n "$benchmark_preset_id" ]; then
   [[ "$benchmark_preset_id" =~ ^[a-z0-9]+([.-][a-z0-9]+)*$ ]] \
     || fail "$EXIT_CONFIG" \
       "GSE_BENCHMARK_PRESET_ID must be a lowercase dotted or hyphenated identifier"
+fi
+if [ "$mode" = final-v34 ]; then
+  [ "$benchmark_preset_id" = v3.4-final-in-memory-v1 ] \
+    || fail "$EXIT_CONFIG" \
+      'final-v34 requires GSE_BENCHMARK_PRESET_ID=v3.4-final-in-memory-v1'
+  [ "${GSE_PERF_JVM_OPTIONS:-}" = '-Xms16g -Xmx16g -XX:+UseG1GC' ] \
+    || fail "$EXIT_CONFIG" \
+      'GSE_PERF_JVM_OPTIONS conflicts with the frozen final-v34 preset (expected -Xms16g -Xmx16g -XX:+UseG1GC)'
+  for pair in \
+    "GSE_V34_SUITE_PROFILE:${GSE_V34_SUITE_PROFILE:-}:production" \
+    "GSE_V34_COLD_DOCUMENTS:${GSE_V34_COLD_DOCUMENTS:-}:100000" \
+    "GSE_V34_COLD_TOKENS:${GSE_V34_COLD_TOKENS:-}:16" \
+    "GSE_V34_COLD_BATCH_SIZE:${GSE_V34_COLD_BATCH_SIZE:-}:1000" \
+    "GSE_V34_COLD_REPEATS:${GSE_V34_COLD_REPEATS:-}:5" \
+    "GSE_V34_COLD_SEED:${GSE_V34_COLD_SEED:-}:34" \
+    "GSE_V34_EXTREME_DOCUMENTS:${GSE_V34_EXTREME_DOCUMENTS:-}:1000" \
+    "GSE_V34_EXTREME_TOKENS:${GSE_V34_EXTREME_TOKENS:-}:64" \
+    "GSE_V34_EXTREME_SEED:${GSE_V34_EXTREME_SEED:-}:34" \
+    "GSE_V34_BURST_PRODUCERS:${GSE_V34_BURST_PRODUCERS:-}:1,4,16" \
+    "GSE_V34_BURST_BATCH_SIZES:${GSE_V34_BURST_BATCH_SIZES:-}:1,100,1000" \
+    "GSE_V34_BURST_BATCHES_PER_PRODUCER:${GSE_V34_BURST_BATCHES_PER_PRODUCER:-}:4" \
+    "GSE_V34_BURST_DOCUMENTS:${GSE_V34_BURST_DOCUMENTS:-}:64000" \
+    "GSE_V34_BURST_READERS:${GSE_V34_BURST_READERS:-}:4" \
+    "GSE_V34_BURST_QUEUE_CAPACITY:${GSE_V34_BURST_QUEUE_CAPACITY:-}:32" \
+    "GSE_V34_LONG_RUN_DOCUMENTS:${GSE_V34_LONG_RUN_DOCUMENTS:-}:10000" \
+    "GSE_V34_LONG_RUN_READERS:${GSE_V34_LONG_RUN_READERS:-}:6" \
+    "GSE_V34_LONG_RUN_WARMUP_SECONDS:${GSE_V34_LONG_RUN_WARMUP_SECONDS:-}:30" \
+    "GSE_V34_LONG_RUN_WINDOW_SECONDS:${GSE_V34_LONG_RUN_WINDOW_SECONDS:-}:60" \
+    "GSE_V34_LONG_RUN_SAMPLE_MILLIS:${GSE_V34_LONG_RUN_SAMPLE_MILLIS:-}:1000" \
+    "GSE_V34_LONG_RUN_STEADY_MILLIS:${GSE_V34_LONG_RUN_STEADY_MILLIS:-}:25" \
+    "GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:${GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:-}:60" \
+    "GSE_V34_LONG_RUN_BURST_PRODUCERS:${GSE_V34_LONG_RUN_BURST_PRODUCERS:-}:4" \
+    "GSE_V34_LONG_RUN_BURST_BATCH_SIZE:${GSE_V34_LONG_RUN_BURST_BATCH_SIZE:-}:100" \
+    "GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:${GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:-}:120" \
+    "GSE_V34_LONG_RUN_QUEUE_CAPACITY:${GSE_V34_LONG_RUN_QUEUE_CAPACITY:-}:1000"; do
+    IFS=: read -r name supplied expected <<< "$pair"
+    [ "$supplied" = "$expected" ] \
+      || fail "$EXIT_CONFIG" \
+        "$name conflicts with the frozen final-v34 preset (expected $expected)"
+  done
+  case "${GSE_SOAK_SECONDS:-1800}" in
+    1800|7200) ;;
+    *) fail "$EXIT_CONFIG" 'GSE_SOAK_SECONDS must be 1800 or 7200 for final-v34' ;;
+  esac
 fi
 if [ -n "$orchestration_pointer_file" ]; then
   require_single_line GSE_CLOUD_ORCHESTRATION_POINTER_FILE "$orchestration_pointer_file"
@@ -329,11 +373,11 @@ network=${GSE_GCP_NETWORK:-}
 subnet=${GSE_GCP_SUBNET:-}
 use_iap=${GSE_CLOUD_USE_IAP:-false}
 external_ip=${GSE_CLOUD_EXTERNAL_IP:-true}
-if [ "$mode" = ranked-v31 ]; then
-  default_jvm_options='-Xms32g -Xmx64g'
-else
-  default_jvm_options='-Xms8g -Xmx16g'
-fi
+case "$mode" in
+  ranked-v31) default_jvm_options='-Xms32g -Xmx64g' ;;
+  final-v34) default_jvm_options='-Xms16g -Xmx16g -XX:+UseG1GC' ;;
+  *) default_jvm_options='-Xms8g -Xmx16g' ;;
+esac
 jvm_options=${GSE_PERF_JVM_OPTIONS:-$default_jvm_options}
 
 case "$provisioning" in spot|standard) ;; *) fail "$EXIT_CONFIG" "GSE_CLOUD_PROVISIONING must be spot or standard" ;; esac
@@ -394,6 +438,7 @@ else
     full) duration_seconds=43200 ;;
     concurrency) duration_seconds=28800 ;;
     ranked-v31) duration_seconds=3600 ;;
+    final-v34) duration_seconds=10800 ;;
     soak|investigation) duration_seconds=$((soak_seconds + 7200)) ;;
     stabilized-investigation) duration_seconds=$((stabilization_seconds + soak_seconds + 7200)) ;;
     all) duration_seconds=86400 ;;
@@ -402,6 +447,9 @@ else
     || fail "$EXIT_CONFIG" "Requested soak plus recovery grace exceeds the 7-day v1 cap"
 fi
 max_run_duration="${duration_seconds}s"
+if [ "$mode" = final-v34 ] && [ "$duration_seconds" -ne 10800 ]; then
+  fail "$EXIT_CONFIG" 'final-v34 requires GSE_CLOUD_MAX_RUN_DURATION=10800s'
+fi
 required_soak_duration=$((soak_seconds + 7200))
 if [ "$mode" = stabilized-investigation ]; then
   required_soak_duration=$((stabilization_seconds + soak_seconds + 7200))
@@ -557,7 +605,19 @@ else
   fi
 fi
 for variable in GSE_SOAK_SECONDS GSE_SOAK_READERS GSE_SOAK_DOCUMENTS \
-  GSE_JMH_FORKS GSE_JMH_WARMUPS GSE_JMH_ITERATIONS GSE_JMH_DURATION; do
+  GSE_JMH_FORKS GSE_JMH_WARMUPS GSE_JMH_ITERATIONS GSE_JMH_DURATION \
+  GSE_V34_SUITE_PROFILE GSE_V34_COLD_DOCUMENTS GSE_V34_COLD_TOKENS \
+  GSE_V34_COLD_BATCH_SIZE GSE_V34_COLD_REPEATS GSE_V34_COLD_SEED \
+  GSE_V34_EXTREME_DOCUMENTS GSE_V34_EXTREME_TOKENS GSE_V34_EXTREME_SEED \
+  GSE_V34_BURST_PRODUCERS GSE_V34_BURST_BATCH_SIZES \
+  GSE_V34_BURST_BATCHES_PER_PRODUCER GSE_V34_BURST_DOCUMENTS \
+  GSE_V34_BURST_READERS GSE_V34_BURST_QUEUE_CAPACITY \
+  GSE_V34_LONG_RUN_DOCUMENTS GSE_V34_LONG_RUN_READERS \
+  GSE_V34_LONG_RUN_WARMUP_SECONDS GSE_V34_LONG_RUN_WINDOW_SECONDS \
+  GSE_V34_LONG_RUN_SAMPLE_MILLIS GSE_V34_LONG_RUN_STEADY_MILLIS \
+  GSE_V34_LONG_RUN_BURST_EVERY_SECONDS GSE_V34_LONG_RUN_BURST_PRODUCERS \
+  GSE_V34_LONG_RUN_BURST_BATCH_SIZE GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS \
+  GSE_V34_LONG_RUN_QUEUE_CAPACITY; do
   if [ -n "${!variable:-}" ]; then
     remote_environment+=("$variable=${!variable}")
   fi

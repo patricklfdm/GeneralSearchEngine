@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import csv
 import hashlib
 from itertools import product
 import json
@@ -39,7 +40,41 @@ BENCHMARK_CONFIG_FINGERPRINT_SCHEMA_VERSION = 1
 ENVIRONMENT_FINGERPRINT_SCHEMA_VERSION = 2
 MEMORY_FINGERPRINT_UNIT_BYTES = 1024 * 1024
 SUPPORTED_RAW_SCHEMAS = {0, 1}
-CANONICAL_MODES = {"full", "concurrency", "soak", "ranked-v31", "all"}
+CANONICAL_MODES = {"full", "concurrency", "soak", "ranked-v31", "final-v34", "all"}
+FINAL_V34_SUITE = "v3.4-final-in-memory-suite-v1"
+FINAL_V34_PRESET = "v3.4-final-in-memory-v1"
+FINAL_V34_BASELINE = "v3.4.0-in-memory-cloud"
+FINAL_V34_CONFIG: dict[str, str] = {
+    "status": "CONFIGURED",
+    "schema": FINAL_V34_SUITE,
+    "profile": "production",
+    "cold_documents": "100000",
+    "cold_tokens": "16",
+    "cold_batch_size": "1000",
+    "cold_repeats": "5",
+    "cold_seed": "34",
+    "extreme_documents": "1000",
+    "extreme_tokens": "64",
+    "extreme_seed": "34",
+    "burst_producers": "1,4,16",
+    "burst_batch_sizes": "1,100,1000",
+    "burst_batches_per_producer": "4",
+    "burst_documents": "64000",
+    "burst_readers": "4",
+    "burst_queue_capacity": "32",
+    "long_run_documents": "10000",
+    "long_run_readers": "6",
+    "long_run_warmup_seconds": "30",
+    "long_run_window_seconds": "60",
+    "long_run_sample_millis": "1000",
+    "long_run_top_k": "10",
+    "long_run_steady_millis": "25",
+    "long_run_burst_every_seconds": "60",
+    "long_run_burst_producers": "4",
+    "long_run_burst_batch_size": "100",
+    "long_run_lifecycle_every_seconds": "120",
+    "long_run_queue_capacity": "1000",
+}
 CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
     "v3-production-full-v1": {
         "mode": "full",
@@ -82,6 +117,15 @@ CANONICAL_PRESETS: dict[str, dict[str, Any]] = {
             "v31-concurrent-latency-16-1",
             "v31-concurrent-throughput-16-1",
         },
+    },
+    FINAL_V34_PRESET: {
+        "mode": "final-v34",
+        "threadGroups": "",
+        "jvmOptions": "-Xms16g -Xmx16g -XX:+UseG1GC",
+        "jmh": False,
+        "soak": False,
+        "suite": FINAL_V34_SUITE,
+        "finalV34": FINAL_V34_CONFIG,
     },
 }
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
@@ -989,6 +1033,280 @@ def extract_soak(
     return metrics, fingerprint_config
 
 
+def structured_log_fields(path: Path, prefix: str) -> list[dict[str, str]]:
+    try:
+        lines = path.read_text(encoding="utf-8").splitlines()
+    except (OSError, UnicodeError) as error:
+        raise fail_invalid(f"Cannot read final-v34 log {path}: {error}") from error
+    parsed: list[dict[str, str]] = []
+    for line in lines:
+        if not line.startswith(prefix):
+            continue
+        values: dict[str, str] = {}
+        for token in line.split():
+            if "=" not in token:
+                raise fail_invalid(f"Invalid final-v34 structured log token in {path.name}")
+            key, value = token.split("=", 1)
+            if not key or not value or key in values:
+                raise fail_invalid(f"Duplicate or empty final-v34 log field in {path.name}")
+            values[key] = value
+        parsed.append(values)
+    return parsed
+
+
+def extract_final_v34(
+    raw_dir: Path,
+    suite_schema: int,
+    metadata: dict[str, str],
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+    suite_dir = raw_dir / "v34-final"
+    mode = metadata.get("mode")
+    if not suite_dir.is_dir():
+        if mode == "final-v34":
+            raise fail_invalid("final-v34 evidence is missing its suite directory")
+        return [], None
+    if mode != "final-v34":
+        raise fail_invalid("Only final-v34 mode may contain final-v34 suite evidence")
+    required = {
+        "suite-config.properties",
+        "suite-summary.properties",
+        "cold.log",
+        "extreme.log",
+        "burst.log",
+        "long-run.log",
+        "long-run",
+    }
+    if {path.name for path in suite_dir.iterdir()} != required:
+        raise fail_invalid("final-v34 suite file set differs from the frozen schema")
+
+    config_path = suite_dir / "suite-config.properties"
+    config, _ = read_properties(config_path)
+    expected_config = {**FINAL_V34_CONFIG, "long_run_seconds": config.get("long_run_seconds", "")}
+    if set(config) != set(expected_config) or any(
+        config.get(key) != value for key, value in expected_config.items()
+    ):
+        raise fail_invalid("final-v34 suite configuration differs from the frozen preset")
+    if config["long_run_seconds"] not in {"1800", "7200"}:
+        raise fail_invalid("final-v34 long-run duration must be 1800 or 7200 seconds")
+    summary, _ = read_properties(suite_dir / "suite-summary.properties")
+    if summary != {
+        "status": "PASS",
+        "profile": "production",
+        "long_run_seconds": config["long_run_seconds"],
+    }:
+        raise fail_invalid("final-v34 suite summary is not a matching PASS")
+
+    metrics: list[dict[str, Any]] = []
+
+    def add_metric(
+        workload: str,
+        benchmark: str,
+        params: dict[str, str],
+        name: str,
+        value: int | float | str,
+        unit: str,
+        statistic: str,
+        direction: str,
+        source_file: str,
+        *,
+        percentile: float | None = None,
+    ) -> None:
+        metrics.append(make_metric(
+            suite_schema=suite_schema,
+            workload=workload,
+            benchmark=benchmark,
+            mode="sample",
+            params=params,
+            threads=1,
+            group=None,
+            role=workload,
+            name=name,
+            statistic=statistic,
+            source_file=source_file,
+            source_field=name,
+            source_value=value,
+            source_unit=unit,
+            direction=direction,
+            percentile=percentile,
+        ))
+
+    cold_runs = structured_log_fields(suite_dir / "cold.log", "coldRun=")
+    cold_summaries = structured_log_fields(suite_dir / "cold.log", "coldSummary=")
+    if len(cold_runs) != 5 or len(cold_summaries) != 1:
+        raise fail_invalid("final-v34 cold evidence must contain five runs and one summary")
+    if any(run.get("coldRun") != str(index) or run.get("status") != "SUCCESS"
+           for index, run in enumerate(cold_runs, 1)):
+        raise fail_invalid("final-v34 cold run sequence or status differs")
+    cold = cold_summaries[0]
+    if cold.get("coldSummary") != "SUCCESS" or cold.get("repeats") != "5" \
+            or cold.get("documents") != config["cold_documents"] \
+            or re.fullmatch(r"[0-9a-f]{64}", cold.get("corpusDigest", "")) is None:
+        raise fail_invalid("final-v34 cold summary identity differs")
+    for name, statistic, unit, direction in (
+        ("readyMedianNanos", "median", "ns/op", "lower"),
+        ("totalMedianNanos", "median", "ns/op", "lower"),
+        ("processReadyMedianNanos", "median", "ns/op", "lower"),
+        ("processTotalMedianNanos", "median", "ns/op", "lower"),
+        ("readyCv", "coefficient_of_variation", "ratio", "lower"),
+        ("totalCv", "coefficient_of_variation", "ratio", "lower"),
+    ):
+        add_metric("v34-cold", "V34ColdBuildProcessRunner", {}, name,
+                   parse_property_scalar(require_property(cold, name, suite_dir / "cold.log"), name),
+                   unit, statistic, direction, "v34-final/cold.log")
+    add_metric("v34-cold", "V34ColdBuildProcessRunner", {}, "checksum",
+               cold.get("checksum", ""), "identity", "consensus", "categorical",
+               "v34-final/cold.log")
+
+    expected_axes = {
+        "long-text", "high-frequency", "large-vocabulary", "sparse-vocabulary",
+        "zipf-heavy", "multiple-fields", "unicode-heavy", "repeated-terms",
+        "position-heavy",
+    }
+    axes = structured_log_fields(suite_dir / "extreme.log", "extremeAxis=")
+    extreme_summaries = structured_log_fields(suite_dir / "extreme.log", "extremeSummary=")
+    if {axis.get("extremeAxis") for axis in axes} != expected_axes \
+            or len(axes) != len(expected_axes) or len(extreme_summaries) != 1:
+        raise fail_invalid("final-v34 extreme-corpus axis set differs")
+    if any(axis.get("status") != "SUCCESS"
+           or axis.get("documents") != config["extreme_documents"]
+           or axis.get("tokens") != config["extreme_tokens"]
+           or re.fullmatch(r"[0-9a-f]{64}", axis.get("corpusDigest", "")) is None
+           for axis in axes):
+        raise fail_invalid("final-v34 extreme-corpus result is incomplete")
+    for axis in axes:
+        params = {"axis": axis["extremeAxis"]}
+        add_metric("v34-extreme", "V34ExtremeCorpusProbe", params, "matches",
+                   positive_integer(axis.get("matches", ""), "extreme matches"),
+                   "count", "count", "diagnostic", "v34-final/extreme.log")
+        add_metric("v34-extreme", "V34ExtremeCorpusProbe", params, "combinedChecksum",
+                   axis.get("combinedChecksum", ""), "identity", "consensus",
+                   "categorical", "v34-final/extreme.log")
+    extreme_summary = extreme_summaries[0]
+    if extreme_summary.get("extremeSummary") != "SUCCESS" \
+            or extreme_summary.get("axes") != str(len(expected_axes)):
+        raise fail_invalid("final-v34 extreme summary differs")
+
+    cells = structured_log_fields(suite_dir / "burst.log", "burstCell=")
+    burst_summaries = structured_log_fields(suite_dir / "burst.log", "burstMatrix=")
+    expected_cells = {(str(p), str(b)) for p in (1, 4, 16) for b in (1, 100, 1000)}
+    if {(cell.get("producers"), cell.get("batchSize")) for cell in cells} != expected_cells \
+            or len(cells) != 9 or len(burst_summaries) != 1:
+        raise fail_invalid("final-v34 burst matrix differs")
+    for cell in cells:
+        if cell.get("burstCell") != "SUCCESS" \
+                or cell.get("unexpectedFailures") != "0" \
+                or cell.get("unresolvedFutures") != "0" \
+                or cell.get("expectedFailures") != "3" \
+                or cell.get("documents") != config["burst_documents"] \
+                or cell.get("queueCapacity") != config["burst_queue_capacity"]:
+            raise fail_invalid("final-v34 burst cell failed its frozen oracle")
+        params = {"producers": cell["producers"], "batchSize": cell["batchSize"]}
+        for name, statistic, unit, direction, percentile in (
+            ("successfulMutations", "count", "count", "higher", None),
+            ("queueRejections", "count", "count", "diagnostic", None),
+            ("queueMaximum", "maximum", "count", "lower", None),
+            ("drainNanos", "duration", "ns/op", "lower", None),
+            ("completionP99Nanos", "sample_percentile_99", "ns/op", "lower", 99.0),
+            ("readerP99Nanos", "sample_percentile_99", "ns/op", "lower", 99.0),
+        ):
+            add_metric("v34-burst", "V34BurstRecoveryProbe", params, name,
+                       nonnegative_integer(cell.get(name, ""), f"burst {name}"),
+                       unit, statistic, direction, "v34-final/burst.log",
+                       percentile=percentile)
+        add_metric("v34-burst", "V34BurstRecoveryProbe", params, "checksum",
+                   cell.get("checksum", ""), "identity", "consensus", "categorical",
+                   "v34-final/burst.log")
+    burst_summary = burst_summaries[0]
+    if burst_summary.get("burstMatrix") != "SUCCESS" or burst_summary.get("cells") != "9":
+        raise fail_invalid("final-v34 burst summary differs")
+
+    long_dir = suite_dir / "long-run"
+    long_names = ("config.properties", "samples.csv", "windows.csv", "summary.properties")
+    verify_exact_checksum_file(long_dir, "manifest.sha256", long_names)
+    if (long_dir / "failure.txt").exists():
+        raise fail_invalid("final-v34 long-run retained a failure")
+    long_config, _ = read_properties(long_dir / "config.properties")
+    expected_long = {
+        "schema": "v34-final-long-run-v1",
+        "run_kind": "final-v34-cloud",
+        "source_commit": metadata.get("git_commit", ""),
+        "tree_state": "clean",
+        "documents": config["long_run_documents"],
+        "readers": config["long_run_readers"],
+        "seconds": config["long_run_seconds"],
+        "warmup_seconds": config["long_run_warmup_seconds"],
+        "window_seconds": config["long_run_window_seconds"],
+        "sample_millis": config["long_run_sample_millis"],
+        "top_k": config["long_run_top_k"],
+        "steady_millis": config["long_run_steady_millis"],
+        "burst_every_seconds": config["long_run_burst_every_seconds"],
+        "burst_producers": config["long_run_burst_producers"],
+        "burst_batch_size": config["long_run_burst_batch_size"],
+        "lifecycle_every_seconds": config["long_run_lifecycle_every_seconds"],
+        "queue_capacity": config["long_run_queue_capacity"],
+    }
+    if any(long_config.get(key) != value for key, value in expected_long.items()):
+        raise fail_invalid("final-v34 long-run configuration differs from the suite")
+    long_summary, _ = read_properties(long_dir / "summary.properties")
+    if long_summary.get("status") != "SUCCESS" \
+            or long_summary.get("unexpected_failures") != "0" \
+            or long_summary.get("unresolved_futures") != "0" \
+            or long_summary.get("expected_failures") != "1" \
+            or long_summary.get("review_bands_are_release_gates") != "false" \
+            or re.fullmatch(r"[0-9a-f]{64}", long_summary.get("corpus_digest", "")) is None:
+        raise fail_invalid("final-v34 long-run summary failed")
+    long_params = {"seconds": config["long_run_seconds"]}
+    for name, statistic, unit, direction in (
+        ("read_operations", "count", "count", "higher"),
+        ("write_batches", "count", "count", "higher"),
+        ("write_mutations", "count", "count", "higher"),
+        ("bursts", "count", "count", "diagnostic"),
+        ("lifecycle_cycles", "count", "count", "diagnostic"),
+        ("queue_maximum", "maximum", "count", "lower"),
+        ("gc_count", "count", "count", "diagnostic"),
+        ("gc_time_millis", "duration", "ms", "diagnostic"),
+        ("review_read_window_median", "median", "count", "higher"),
+        ("review_read_p99_median_ns", "sample_percentile_99", "ns/op", "lower"),
+    ):
+        add_metric("v34-long-run", "V34LongRunCalibration", long_params, name,
+                   nonnegative_integer(long_summary.get(name, ""), f"long-run {name}"),
+                   unit, statistic, direction, "v34-final/long-run/summary.properties",
+                   percentile=99.0 if name == "review_read_p99_median_ns" else None)
+    add_metric("v34-long-run", "V34LongRunCalibration", long_params, "checksum",
+               long_summary.get("checksum", ""), "identity", "consensus", "categorical",
+               "v34-final/long-run/summary.properties")
+
+    try:
+        with (long_dir / "windows.csv").open("r", encoding="utf-8", newline="") as handle:
+            windows = list(csv.DictReader(handle))
+    except (OSError, UnicodeError, csv.Error) as error:
+        raise fail_invalid(f"Cannot parse final-v34 windows: {error}") from error
+    expected_windows = int(config["long_run_seconds"]) // int(config["long_run_window_seconds"])
+    if len(windows) != expected_windows:
+        raise fail_invalid("final-v34 long-run window count differs")
+    for index, window in enumerate(windows):
+        if window.get("window") != str(index):
+            raise fail_invalid("final-v34 windows are not ordered")
+        params = {**long_params, "window": str(index)}
+        for name, statistic, unit, direction, percentile in (
+            ("read_ops", "count", "count", "higher", None),
+            ("write_batches", "count", "count", "higher", None),
+            ("read_p99_ns", "sample_percentile_99", "ns/op", "lower", 99.0),
+            ("queue_max", "maximum", "count", "lower", None),
+        ):
+            add_metric("v34-long-window", "V34LongRunCalibration", params, name,
+                       nonnegative_integer(window.get(name, ""), f"window {name}"),
+                       unit, statistic, direction, "v34-final/long-run/windows.csv",
+                       percentile=percentile)
+
+    fingerprint_config = {
+        key: parse_property_scalar(value, f"{config_path.name}:{key}")
+        for key, value in sorted(config.items())
+        if key != "status"
+    }
+    return metrics, fingerprint_config
+
+
 def reject_duplicate_metrics(metrics: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
     by_id: dict[str, dict[str, Any]] = {}
     for metric in metrics:
@@ -1010,6 +1328,7 @@ def validate_benchmark_preset(
     metadata: dict[str, str],
     jmh_configs: list[dict[str, Any]],
     soak_config: dict[str, Any] | None,
+    final_v34_config: dict[str, Any] | None,
 ) -> None:
     if preset_id is None:
         return
@@ -1018,6 +1337,28 @@ def validate_benchmark_preset(
         raise fail_unsupported(f"Unsupported benchmark preset: {preset_id}")
     if mode != preset["mode"]:
         raise fail_invalid(f"Benchmark preset {preset_id} contradicts mode {mode}")
+    if preset_id == FINAL_V34_PRESET:
+        if metadata.get("benchmark_suite") != FINAL_V34_SUITE:
+            raise fail_invalid(
+                f"Benchmark preset {preset_id} requires benchmark_suite={FINAL_V34_SUITE}"
+            )
+        if metadata.get("jvm_options") != preset["jvmOptions"]:
+            raise fail_invalid(
+                f"Benchmark preset {preset_id} requires jvm_options={preset['jvmOptions']}"
+            )
+        if jmh_configs or soak_config is not None:
+            raise fail_invalid(f"Benchmark preset {preset_id} forbids legacy JMH/soak evidence")
+        if final_v34_config is None:
+            raise fail_invalid(f"Benchmark preset {preset_id} requires final-v34 evidence")
+        expected = {
+            key: parse_property_scalar(value, f"final-v34 preset:{key}")
+            for key, value in FINAL_V34_CONFIG.items()
+            if key != "status"
+        }
+        observed = {key: value for key, value in final_v34_config.items() if key != "long_run_seconds"}
+        if observed != expected or final_v34_config.get("long_run_seconds") not in {1800, 7200}:
+            raise fail_invalid(f"Benchmark preset {preset_id} differs from the frozen suite")
+        return
     expected_metadata = {
         "concurrency_documents": preset.get("documents", "100000"),
         "concurrency_thread_groups": preset["threadGroups"],
@@ -1353,6 +1694,7 @@ def derive_manifest(
         if metadata.get("benchmark_suite") not in {
             "v3-production",
             "v3.1-ranked-suite-v1",
+            FINAL_V34_SUITE,
         }:
             raise fail_invalid("Raw benchmark_suite is unsupported")
         require_property(metadata, "source_repository", metadata_path)
@@ -1374,6 +1716,7 @@ def derive_manifest(
         "investigation",
         "stabilized-investigation",
         "ranked-v31",
+        "final-v34",
         "all",
     }:
         raise fail_unsupported(f"Unsupported benchmark mode: {mode}")
@@ -1390,9 +1733,16 @@ def derive_manifest(
     )
     jmh_metrics, jmh_configs = extract_jmh(raw_dir, raw_schema, suite_schema, metadata)
     soak_metrics, soak_config = extract_soak(raw_dir, suite_schema)
+    final_v34_metrics, final_v34_config = extract_final_v34(
+        raw_dir, suite_schema, metadata
+    )
     preset_id = metadata.get("benchmark_preset_id") or None
-    validate_benchmark_preset(preset_id, mode, metadata, jmh_configs, soak_config)
-    metrics = reject_duplicate_metrics([*jmh_metrics, *soak_metrics])
+    validate_benchmark_preset(
+        preset_id, mode, metadata, jmh_configs, soak_config, final_v34_config
+    )
+    metrics = reject_duplicate_metrics(
+        [*jmh_metrics, *soak_metrics, *final_v34_metrics]
+    )
     if not metrics:
         raise fail_unsupported("Raw run contains no supported benchmark metrics")
     observed_thread_groups = {
@@ -1419,6 +1769,10 @@ def derive_manifest(
     logical_workloads = {config["workload"] for config in jmh_configs}
     if soak_config is not None:
         logical_workloads.add("soak")
+    if final_v34_config is not None:
+        logical_workloads.update(
+            {"v34-cold", "v34-extreme", "v34-burst", "v34-long-run"}
+        )
     benchmark_suite = metadata.get("benchmark_suite", "v3-production")
     benchmark_config_payload = {
         "jmhEntries": sorted(jmh_configs, key=lambda value: canonical_json_bytes(value)),
@@ -1430,6 +1784,8 @@ def derive_manifest(
         "suiteSchemaVersion": suite_schema,
         "workloads": sorted(logical_workloads),
     }
+    if final_v34_config is not None:
+        benchmark_config_payload["finalV34"] = final_v34_config
     if preset_id is not None:
         benchmark_config_payload["presetId"] = preset_id
     benchmark_config_fingerprint = fingerprint(
@@ -1466,13 +1822,16 @@ def derive_manifest(
     }
     metrics_bytes = canonical_json_bytes(metrics_document)
     metrics_digest = sha256_bytes(metrics_bytes)
+    configuration_summary = {
+        "jmhEntryCount": len(jmh_configs),
+        "soakConfigured": soak_config is not None,
+        "workloads": benchmark_config_payload["workloads"],
+    }
+    if final_v34_config is not None:
+        configuration_summary["finalV34Configured"] = True
     manifest = {
         "benchmark": {
-            "configurationSummary": {
-                "jmhEntryCount": len(jmh_configs),
-                "soakConfigured": soak_config is not None,
-                "workloads": benchmark_config_payload["workloads"],
-            },
+            "configurationSummary": configuration_summary,
             "mode": mode,
             "presetId": preset_id,
         },
@@ -1627,6 +1986,7 @@ def validate_set_plan_inputs(
         "investigation",
         "stabilized-investigation",
         "ranked-v31",
+        "final-v34",
         "all",
     }:
         raise fail_config(f"Unsupported V1 benchmark mode: {mode}")
@@ -1638,6 +1998,8 @@ def validate_set_plan_inputs(
         expected = (
             "v3.1-ranked-v1"
             if mode == "ranked-v31"
+            else FINAL_V34_PRESET
+            if mode == "final-v34"
             else f"v3-production-{mode}-v1"
         )
         if mode not in CANONICAL_MODES:
@@ -1646,6 +2008,8 @@ def validate_set_plan_inputs(
             raise fail_config(f"Canonical mode {mode} requires preset {expected}")
         if controls.get("provisioning", "").lower() != "standard":
             raise fail_config("Canonical sets require Standard provisioning")
+        if mode == "final-v34" and repeats not in {3, 5}:
+            raise fail_config("final-v34 canonical sets require three or five repeats")
         for key in (
             "project",
             "zone",
@@ -1672,6 +2036,13 @@ def validate_set_plan_inputs(
             raise fail_config(f"Unknown set preset: {preset_id}")
         if CANONICAL_PRESETS[preset_id]["mode"] != mode:
             raise fail_config(f"Set mode {mode} is incompatible with preset {preset_id}")
+    if mode == "final-v34":
+        if preset_id != FINAL_V34_PRESET:
+            raise fail_config(f"final-v34 sets require preset {FINAL_V34_PRESET}")
+        if repeats > 5:
+            raise fail_config("final-v34 sets are capped at five slots")
+        if controls.get("maxRunDuration") != "10800s":
+            raise fail_config("final-v34 sets require a three-hour slot cap")
     return {
         "controls": controls,
         "evidenceProfile": profile,
@@ -4190,6 +4561,17 @@ def register_cloud_baseline(
         raise fail_registry(f"Baseline set is invalid: {error}") from error
     if view["status"] != "VALID_CANONICAL_SET" or view["profile"] != "canonical":
         raise fail_registry("Only VALID_CANONICAL_SET evidence can be registered")
+    is_final_v34 = view["mode"] == "final-v34"
+    if name == FINAL_V34_BASELINE or is_final_v34:
+        if name != FINAL_V34_BASELINE:
+            raise fail_registry(
+                f"final-v34 evidence may only register as {FINAL_V34_BASELINE}"
+            )
+        if view["presetId"] != FINAL_V34_PRESET or view["suite"] != {
+            "name": FINAL_V34_SUITE,
+            "schemaVersion": 1,
+        }:
+            raise fail_registry("V3.4 baseline identity differs from the frozen family")
     if release_label is not None and (
         not release_label or len(release_label) > 100 or "\n" in release_label or "\r" in release_label
     ):

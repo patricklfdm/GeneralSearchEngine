@@ -143,7 +143,7 @@ def validate_source(repository: Path, source_commit: str, trusted_ref: str) -> N
 def make_plan(options: argparse.Namespace) -> dict[str, Any]:
     allowed = {
         "evidence_profile": {"experiment", "canonical"},
-        "mode": {"quick", "full", "concurrency", "soak", "ranked-v31", "all"},
+        "mode": {"quick", "full", "concurrency", "soak", "ranked-v31", "final-v34", "all"},
         "repeats": {"1", "3", "5"},
         "provisioning": {"spot", "standard"},
         "machine_type": {"c3d-standard-30", "c3d-standard-60"},
@@ -167,11 +167,25 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
             raise WorkflowError("Canonical workflow requires Standard provisioning")
         if values["retention"] != "gcs":
             raise WorkflowError("Canonical workflow requires GCS retention")
-    if values["soak_duration"] == "2h" and not (
+    if mode == "final-v34":
+        if profile == "experiment" and repeats != 1:
+            raise WorkflowError("final-v34 experiments require exactly one repeat")
+        if profile == "canonical" and values["soak_duration"] != "30m":
+            raise WorkflowError("final-v34 canonical members require the fixed 30m window")
+        if values["soak_duration"] == "2h" and not (
+            profile == "experiment"
+            and repeats == 1
+            and values["provisioning"] == "standard"
+            and values["retention"] == "gcs"
+        ):
+            raise WorkflowError(
+                "final-v34 two-hour evidence requires a one-repeat Standard/GCS experiment"
+            )
+    elif values["soak_duration"] == "2h" and not (
         profile == "experiment" and repeats == 1 and mode in {"soak", "all"}
     ):
         raise WorkflowError("Two-hour soak is limited to a one-repeat soak/all experiment")
-    if mode not in {"soak", "all"} and values["soak_duration"] != "30m":
+    if mode not in {"soak", "final-v34", "all"} and values["soak_duration"] != "30m":
         raise WorkflowError("Non-soak modes require the default 30m soak duration")
 
     requested = options.source_commit or options.dispatch_sha
@@ -184,6 +198,7 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
         "concurrency": 21600,
         "soak": soak_seconds + 7200,
         "ranked-v31": 3600,
+        "final-v34": 10800,
         "all": max(21600, soak_seconds + 7200),
     }[mode]
     run_id = single_line(str(options.run_id), "run_id")
@@ -202,7 +217,9 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
     derived = {
         "maxVmRuntimeSeconds": max_runtime,
         "presetId": (
-            "v3.1-ranked-v1"
+            "v3.4-final-in-memory-v1"
+            if mode == "final-v34"
+            else "v3.1-ranked-v1"
             if profile == "canonical" and mode == "ranked-v31"
             else f"v3-production-{mode}-v1" if profile == "canonical" else None
         ),
@@ -210,6 +227,16 @@ def make_plan(options: argparse.Namespace) -> dict[str, Any]:
     }
     if mode == "ranked-v31":
         derived["jvmOptions"] = "-Xms32g -Xmx64g"
+    elif mode == "final-v34":
+        vcpus = 30 if values["machine_type"] == "c3d-standard-30" else 60
+        derived.update(
+            {
+                "jvmOptions": "-Xms16g -Xmx16g -XX:+UseG1GC",
+                "maxSlotCount": 5,
+                "worstCaseVmHours": repeats * 3,
+                "worstCaseVcpuHours": repeats * 3 * vcpus,
+            }
+        )
     return {
         "artifact": {"name": f"cloud-performance-{run_id}-{run_attempt}-{profile}", "retentionDays": 14},
         "derived": derived,
@@ -652,8 +679,7 @@ def render_summary(plan: dict[str, Any], result: dict[str, Any] | None) -> str:
 
 def render_plan_summary(plan: dict[str, Any]) -> str:
     request = plan["request"]
-    return "\n".join(
-        [
+    lines = [
             "# Cloud Benchmark V2 preflight",
             "",
             f"Validated protected source commit `{markdown(plan['source']['commit'])}`.",
@@ -678,7 +704,19 @@ def render_plan_summary(plan: dict[str, Any]) -> str:
             "> Preflight requested no OIDC token and performed no cloud mutation.",
             "",
         ]
-    )
+    if request["mode"] == "final-v34":
+        derived = plan["derived"]
+        lines.extend(
+            [
+                "## final-v34 bound",
+                "",
+                f"Preset `{markdown(derived['presetId'])}`; maximum `{derived['maxSlotCount']}` slots; "
+                f"this plan `{derived['worstCaseVmHours']}` VM-hours / "
+                f"`{derived['worstCaseVcpuHours']}` vCPU-hours.",
+                "",
+            ]
+        )
+    return "\n".join(lines)
 
 
 def assert_fresh(results_root: Path) -> None:
@@ -780,6 +818,7 @@ def main(arguments: list[str] | None = None) -> int:
                         "jvmOptions", "-Xms8g -Xmx16g"
                     ),
                     "max_vm_runtime_seconds": str(value["derived"]["maxVmRuntimeSeconds"]),
+                    "preset_id": value["derived"].get("presetId") or "",
                     "soak_seconds": str(value["derived"]["soakSeconds"]),
                     "source_commit": value["source"]["commit"],
                 },

@@ -103,10 +103,15 @@ Phase 2 is accepted through PR #69 at protected-master commit
 `07b885790acbc8455db7bbc9a284173a05a19f56`; its benchmark-only diagnostics accept
 five-run 100k/1M cold construction and all nine extreme-corpus axes. The required heap
 cells fail closed on this host because 4g/8g observe active swap and 16g exceeds
-physical memory, so the eligible heap exit gate remains open. Phase 3 is locally
-complete pending protected review: the full producer/batch burst matrix and bounded
+physical memory, so the eligible heap exit gate remains open. Phase 3 is accepted
+through PR #70 at protected-master commit
+`34760b326fda6da31a0463d7b4765d6c6da5921c`: the full producer/batch burst matrix and bounded
 30-minute calibration pass completion, queue drainage, window, mixed-reader,
 dynamic-index, final-oracle, and artifact-integrity gates without production changes.
+Phase 4 is locally complete pending protected review. It implements the isolated
+`final-v34` suite/preset, freezes exact workload and resource bounds, and passes local,
+fake-gcloud, synthetic aggregation, failure/recovery, and integrity gates without a
+paid run or production change.
 
 The new cloud identities are mode `final-v34`, suite
 `v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and eventual

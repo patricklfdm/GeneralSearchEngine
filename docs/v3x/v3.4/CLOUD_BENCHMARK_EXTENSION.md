@@ -38,9 +38,10 @@ after evidence exists requires a new versioned identifier. Existing
 | `experiment` | `final-v34` | 1 | Spot or Standard | Actions or GCS | `30m` calibration or `2h` investigation |
 | `canonical` | `final-v34` | 3 or 5 | Standard | GCS | fixed `30m` window |
 
-Canonical planning selects `v3.4-final-in-memory-v1` automatically and rejects a
-different or missing effective preset. Experiment planning may omit the preset; when
-it supplies the V3.4 preset, every preset-owned control remains immutable.
+Canonical planning selects `v3.4-final-in-memory-v1` automatically. The protected
+workflow also resolves that preset for experiments, and every `final-v34` set rejects
+a different or missing effective preset. This keeps the two-hour experiment on the
+same frozen workload while duration remains a distinct fingerprint field.
 
 The required release-grade two-hour run is specifically a one-repeat Standard
 experiment with GCS retention and the V3.4 preset. Duration remains an explicit plan
@@ -65,7 +66,8 @@ The V3.4 preset owns a bounded combination of:
 The canonical preset uses one fixed heap and collector. The broader heap matrix remains
 diagnostic evidence and is not hidden inside canonical members.
 
-Phase 4 must publish the exact corpus sizes, seeds, operation counts, reader/writer
+The exact Phase 4 values are published in
+[`PHASE_4_BASELINE.md`](PHASE_4_BASELINE.md). Phase 4 must publish the exact corpus sizes, seeds, operation counts, reader/writer
 groups, burst schedule, index lifecycle, JMH/process settings, JVM options, timeouts,
 and expected metric schema before the first paid canonical run. Calibration may reduce
 an unsafe proposed cell, but doing so changes the not-yet-published contract rather

@@ -22,6 +22,7 @@ on:
           - concurrency
           - soak
           - ranked-v31
+          - final-v34
           - all
       repeats:
         description: Independent ephemeral VM slots
@@ -49,7 +50,7 @@ on:
           - c3d-standard-30
           - c3d-standard-60
       soak_duration:
-        description: Soak duration preset (soak/all only)
+        description: Soak/final duration preset
         required: true
         type: choice
         default: 30m
@@ -235,12 +236,16 @@ jobs:
           GSE_PERF_JVM_OPTIONS: ${{ steps.plan.outputs.jvm_options }}
           GSE_SOAK_SECONDS: ${{ steps.plan.outputs.soak_seconds }}
           GSE_CLOUD_MAX_RUN_DURATION: ${{ steps.plan.outputs.max_vm_runtime_seconds }}s
+          INPUT_PRESET_ID: ${{ steps.plan.outputs.preset_id }}
         run: |
           state_directory="$RUNNER_TEMP/gse-cloud-workflow"
           set_arguments=(
             --evidence-profile "$INPUT_EVIDENCE_PROFILE"
             --repeats "$INPUT_REPEATS"
           )
+          if [ -n "$INPUT_PRESET_ID" ]; then
+            set_arguments+=(--preset "$INPUT_PRESET_ID")
+          fi
           set +e
           ./run-cloud-benchmark-set.sh --dry-run \
             "${set_arguments[@]}" "$INPUT_MODE" 2>&1 | tee "$state_directory/set-dry-run.log"

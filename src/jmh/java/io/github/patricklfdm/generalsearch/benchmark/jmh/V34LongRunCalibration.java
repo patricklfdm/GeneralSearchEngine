@@ -43,12 +43,13 @@ import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
 
 /**
- * Bounded local calibration for the V3.4 long-run sampler and mixed workload. The
- * default measurement is 30 minutes; this class intentionally rejects the two-hour
- * release duration, which belongs to the final cloud phase.
+ * Bounded calibration for the V3.4 long-run sampler and mixed workload. Local runs
+ * remain capped at 30 minutes. The separately identified final-v34 cloud lane may
+ * select the frozen 30-minute or two-hour duration.
  */
 public final class V34LongRunCalibration {
     private static final int MAX_SECONDS = 1_800;
+    private static final int MAX_FINAL_CLOUD_SECONDS = 7_200;
     private static final int MAX_DOCUMENTS = 1_000_000;
     private static final int RESERVOIR_SIZE = 8_192;
 
@@ -873,7 +874,10 @@ public final class V34LongRunCalibration {
 
     private static void writeConfig(Config config) throws Exception {
         Properties values = new Properties();
-        values.setProperty("schema", "v34-local-long-run-v1");
+        values.setProperty("schema", config.runKind().equals("final-v34-cloud")
+                ? "v34-final-long-run-v1"
+                : "v34-local-long-run-v1");
+        values.setProperty("run_kind", config.runKind());
         values.setProperty("source_commit", config.sourceCommit());
         values.setProperty("tree_state", config.treeState());
         values.setProperty("version", "3.4.0-SNAPSHOT");
@@ -1394,12 +1398,20 @@ public final class V34LongRunCalibration {
             int lifecycleEverySeconds,
             int queueCapacity,
             String sourceCommit,
-            String treeState
+            String treeState,
+            String runKind
     ) {
         Config {
+            if (!runKind.equals("local-calibration")
+                    && !runKind.equals("final-v34-cloud")) {
+                throw new IllegalArgumentException("unsupported long-run kind");
+            }
+            int maximumSeconds = runKind.equals("final-v34-cloud")
+                    ? MAX_FINAL_CLOUD_SECONDS
+                    : MAX_SECONDS;
             if (documentCount < 100 || documentCount > MAX_DOCUMENTS
                     || readerCount <= 0 || readerCount > 64
-                    || seconds < 2 || seconds > MAX_SECONDS
+                    || seconds < 2 || seconds > maximumSeconds
                     || warmupSeconds < 0 || warmupSeconds > 300
                     || windowSeconds <= 0 || seconds % windowSeconds != 0
                     || sampleMillis <= 0
@@ -1418,6 +1430,11 @@ public final class V34LongRunCalibration {
                 throw new IllegalArgumentException(
                         "long-run arguments are outside their bounded ranges");
             }
+            if (runKind.equals("final-v34-cloud")
+                    && seconds != 1_800 && seconds != 7_200) {
+                throw new IllegalArgumentException(
+                        "final-v34 cloud duration must be 1800 or 7200 seconds");
+            }
             if (sourceCommit.isBlank() || treeState.isBlank()
                     || sourceCommit.contains(" ") || treeState.contains(" ")) {
                 throw new IllegalArgumentException(
@@ -1432,7 +1449,7 @@ public final class V34LongRunCalibration {
                     "--top-k", "--steady-millis", "--burst-every-seconds",
                     "--burst-producers", "--burst-batch-size",
                     "--lifecycle-every-seconds", "--queue-capacity",
-                    "--source-commit", "--tree-state");
+                    "--source-commit", "--tree-state", "--run-kind");
             Map<String, String> values = new HashMap<>();
             for (String argument : arguments) {
                 int separator = argument.indexOf('=');
@@ -1466,7 +1483,8 @@ public final class V34LongRunCalibration {
                     integer(values, "--lifecycle-every-seconds", 120),
                     integer(values, "--queue-capacity", 1_000),
                     values.getOrDefault("--source-commit", "local-uncommitted"),
-                    values.getOrDefault("--tree-state", "working-tree"));
+                    values.getOrDefault("--tree-state", "working-tree"),
+                    values.getOrDefault("--run-kind", "local-calibration"));
         }
 
         private static int integer(
