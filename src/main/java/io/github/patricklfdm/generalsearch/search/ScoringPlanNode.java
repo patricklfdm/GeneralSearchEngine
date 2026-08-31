@@ -287,6 +287,14 @@ final class PhrasePlan<T> implements ScoringPlanNode<T> {
         return anchorSlot;
     }
 
+    String fieldName() {
+        return fieldName;
+    }
+
+    List<PhraseSlot> diagnosticSlots() {
+        return diagnosticSlots;
+    }
+
     int requestedSlop() {
         return requestedSlop;
     }
@@ -589,6 +597,10 @@ final class FuzzyPlan<T> implements ScoringPlanNode<T> {
 
     List<FuzzyScoringExpansion> expansions() {
         return expansions;
+    }
+
+    String fieldName() {
+        return fieldName;
     }
 
     private static void validateExpansions(

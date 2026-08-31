@@ -2,29 +2,27 @@ package io.github.patricklfdm.generalsearch.search;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzedToken;
 import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzer;
 import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 
-/** Invocation-local TEXT range selection and fragment construction. */
-final class TextHighlightAssembler {
-    private TextHighlightAssembler() {
+/** Invocation-local query evidence normalization and fragment construction. */
+final class HighlightAssembler {
+    private HighlightAssembler() {
     }
 
     static <T> HighlightedSearchResult<T> assemble(
-            List<SearchHit<T>> hits,
+            List<ExecutedSearchHit<T>> hits,
             List<TextField<T>> fields,
-            TextPlan<T> textPlan,
+            ScoringPlanNode<T> root,
             int contextCharacters,
             int maxFragmentsPerField
     ) {
-        Set<String> matchedTerms = new HashSet<>(textPlan.diagnosticTerms());
         List<HighlightedSearchHit<T>> highlighted = new ArrayList<>(hits.size());
-        for (SearchHit<T> hit : hits) {
+        for (ExecutedSearchHit<T> executed : hits) {
+            SearchHit<T> hit = executed.hit();
             List<FieldHighlight> fieldHighlights = new ArrayList<>();
             for (TextField<T> field : fields) {
                 String source = field.field().valueOf(hit.document());
@@ -38,10 +36,14 @@ final class TextHighlightAssembler {
                                 source,
                                 analyzer.analyzeWithOffsets(source)
                         );
-                if (!field.name().equals(textPlan.fieldName())) {
-                    continue;
-                }
-                List<HighlightSpan> spans = selectSpans(tokens, matchedTerms);
+                List<HighlightSpan> spans = normalizeSpans(
+                        HighlightEvidenceCollector.collect(
+                                root,
+                                executed.documentId(),
+                                field.name(),
+                                tokens
+                        )
+                );
                 List<HighlightFragment> fragments = fragments(
                         source,
                         spans,
@@ -67,22 +69,6 @@ final class TextHighlightAssembler {
         throw new UnsupportedOperationException(
                 "text field '" + field.name()
                         + "' does not use an OffsetAnalyzer");
-    }
-
-    private static List<HighlightSpan> selectSpans(
-            List<OffsetAnalyzedToken> tokens,
-            Set<String> matchedTerms
-    ) {
-        List<HighlightSpan> raw = new ArrayList<>();
-        for (OffsetAnalyzedToken token : tokens) {
-            if (matchedTerms.contains(token.term())) {
-                raw.add(new HighlightSpan(
-                        token.startOffset(),
-                        token.endOffset()
-                ));
-            }
-        }
-        return normalizeSpans(raw);
     }
 
     static List<HighlightSpan> normalizeSpans(List<HighlightSpan> rawSpans) {

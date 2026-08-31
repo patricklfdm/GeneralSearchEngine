@@ -18,12 +18,12 @@ are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
-V3.2 Phases 0–2 are accepted on protected `master`. Phase 3 implements the frozen
-immutable highlighted request/result family, integrated one-snapshot execution, and
-TEXT evidence over exact original-source offsets. Canonical hit identity, score bits,
-order, filters, and top-K remain unchanged. PHRASE, FUZZY, BOOL, and BOOST evidence are
-deferred explicitly to Phase 4; no stored offset payload or cloud-family change is
-introduced.
+V3.2 Phases 0–3 are accepted on protected `master`. Phase 4 implements deterministic
+PHRASE witnesses, the scoring-selected FUZZY expansion, and recursive BOOL/BOOST
+evidence over the existing immutable highlighted result family. Canonical hit identity,
+score bits, order, filters, and top-K remain unchanged. Lifecycle, concurrency,
+retained-memory, and profile-guided hardening remain explicitly deferred to Phase 5;
+no stored offset payload or cloud-family change is introduced.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured

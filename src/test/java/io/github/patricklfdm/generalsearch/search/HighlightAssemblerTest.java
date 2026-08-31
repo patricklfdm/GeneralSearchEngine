@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Random;
 import org.junit.jupiter.api.Test;
 
-class TextHighlightAssemblerTest {
+class HighlightAssemblerTest {
     @Test
     void normalizesDuplicatesContainmentAndOverlapButKeepsAdjacency() {
-        List<HighlightSpan> actual = TextHighlightAssembler.normalizeSpans(List.of(
+        List<HighlightSpan> actual = HighlightAssembler.normalizeSpans(List.of(
                 span(8, 10),
                 span(2, 4),
                 span(2, 4),
@@ -24,7 +24,7 @@ class TextHighlightAssemblerTest {
 
     @Test
     void fragmentWindowsMergeOnlyOnOverlapAndExpandSurrogateBoundaries() {
-        List<HighlightFragment> adjacent = TextHighlightAssembler.fragments(
+        List<HighlightFragment> adjacent = HighlightAssembler.fragments(
                 "0123456789",
                 List.of(span(2, 4), span(4, 6)),
                 0,
@@ -32,7 +32,7 @@ class TextHighlightAssemblerTest {
         );
         assertEquals(2, adjacent.size());
 
-        List<HighlightFragment> overlapping = TextHighlightAssembler.fragments(
+        List<HighlightFragment> overlapping = HighlightAssembler.fragments(
                 "0123456789",
                 List.of(span(2, 4), span(6, 8)),
                 2,
@@ -41,7 +41,7 @@ class TextHighlightAssemblerTest {
         assertEquals(1, overlapping.size());
         assertEquals("0123456789", overlapping.getFirst().text());
 
-        List<HighlightFragment> surrogate = TextHighlightAssembler.fragments(
+        List<HighlightFragment> surrogate = HighlightAssembler.fragments(
                 "a😀b",
                 List.of(span(3, 4)),
                 1,
@@ -70,9 +70,9 @@ class TextHighlightAssemblerTest {
             int cap = 1 + random.nextInt(6);
             List<V32TestReference.Fragment> expected =
                     V32TestReference.fragments(source, raw, context, cap);
-            List<HighlightFragment> actual = TextHighlightAssembler.fragments(
+            List<HighlightFragment> actual = HighlightAssembler.fragments(
                     source,
-                    TextHighlightAssembler.normalizeSpans(raw.stream()
+                    HighlightAssembler.normalizeSpans(raw.stream()
                             .map(value -> span(value.start(), value.end()))
                             .toList()),
                     context,

@@ -36,7 +36,8 @@ public final class SearchExecutionAccess {
     }
 
     /**
-     * Executes one Phase 3 TEXT highlighted request through a single prepared plan.
+     * Executes one highlighted request and its recursive evidence through a single
+     * prepared plan.
      *
      * @hidden
      */
@@ -55,17 +56,12 @@ public final class SearchExecutionAccess {
                 request.searchRequest()
         );
         SearchPlan<T> plan = new SearchPlanner<T>(filterPlanner).plan(input);
-        if (!(plan.root() instanceof TextPlan<?> untypedText)) {
-            throw new UnsupportedOperationException(
-                    "V3.2 Phase 3 highlighted search supports TEXT queries only");
-        }
-        @SuppressWarnings("unchecked")
-        TextPlan<T> textPlan = (TextPlan<T>) untypedText;
-        List<SearchHit<T>> hits = new SearchExecutor<T>().execute(plan);
-        return TextHighlightAssembler.assemble(
+        List<ExecutedSearchHit<T>> hits = new SearchExecutor<T>()
+                .executeWithDocumentIds(plan);
+        return HighlightAssembler.assemble(
                 hits,
                 fields,
-                textPlan,
+                plan.root(),
                 request.contextCharacters(),
                 request.maxFragmentsPerField()
         );
