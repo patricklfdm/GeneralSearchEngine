@@ -71,8 +71,8 @@ handoff evidence.
 
 V4 durability implementation may begin only after all of these are true:
 
-- [ ] V3.4 Phase 0 contracts are accepted on protected `master`.
-- [ ] Exact published `3.3.0` is frozen as the seventh compatibility and behavioral
+- [x] V3.4 Phase 0 contracts are accepted on protected `master`.
+- [x] Exact published `3.3.0` is frozen as the seventh compatibility and behavioral
   input baseline.
 - [ ] Cold construction, extreme-corpus, heap, and producer-burst local evidence pass.
 - [ ] The required two-hour run passes correctness, liveness, queue, and evidence
