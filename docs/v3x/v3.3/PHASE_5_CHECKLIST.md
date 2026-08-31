@@ -1,10 +1,11 @@
 # V3.3 Phase 5 release checklist
 
-Status: initial final-candidate preparation merged through protected PR #64 as
-`fd15a8df9600bd98ec0b1926810637f0ee40ade5`. The `2026-08-31` calendar correction,
-strict release rerun, and regenerated reproducible hashes are locally complete on
-`release/v3.3.0-date-correction` and ready for follow-up protected PR review.
-Publication and post-publication evidence are ordered later states.
+Status: complete. Initial final-candidate preparation merged through protected PR #64
+as `fd15a8df9600bd98ec0b1926810637f0ee40ade5`; the `2026-08-31` calendar correction,
+strict release rerun, and regenerated hashes merged through protected PR #65 as
+`b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Signed tag `v3.3.0`, Maven Central
+publication, clean remote verification, the production deployment, and the GitHub
+Release are complete at that exact protected-master commit.
 
 ## Accepted entry boundary
 
@@ -21,10 +22,10 @@ Publication and post-publication evidence are ordered later states.
 - [x] Core, processor, reactor, travel example, and all three compatibility consumer
   coordinates convert atomically from `3.3.0-SNAPSHOT` to `3.3.0`.
 - [x] `project.build.outputTimestamp` is frozen at `2026-08-31T00:00:00Z`.
-- [x] The changelog receives the dated `3.3.0 — 2026-08-31` candidate heading without
-  claiming publication.
-- [x] Published `3.2.0` remains the documented stable dependency until remote
-  publication verification completes.
+- [x] The changelog receives the dated `3.3.0 — 2026-08-31` heading and records
+  publication only after remote verification completes.
+- [x] Published `3.2.0` remains the documented stable dependency during candidate
+  validation; post-publication documentation promotes verified `3.3.0`.
 - [x] All six published compatibility baselines and their pinned V3 hashes remain
   immutable.
 
@@ -37,8 +38,9 @@ Publication and post-publication evidence are ordered later states.
   exact totals and continuation presence.
 - [x] The 3.2-to-3.3 migration guide explains opt-in construction, exact request
   identity, stale restart, disabled/exact totals, opacity, and unsupported features.
-- [x] Root and V3.x documentation distinguish published `3.2.0` from the unpublished
-  final `3.3.0` candidate.
+- [x] Candidate documentation distinguishes published `3.2.0` from unpublished
+  `3.3.0`; post-publication documentation promotes verified `3.3.0` and retains
+  `3.2.0` as the immediate prior baseline.
 - [x] Architecture, pagination, API, validation, performance, Phase 4 evidence, timeout
   decision, migration, and release records agree.
 
@@ -74,18 +76,20 @@ Publication and post-publication evidence are ordered later states.
 
 ## Protected release and publication
 
-- [ ] Merge the date-corrected final-candidate PR and wait for exact-commit
+- [x] Merge the date-corrected final-candidate PR and wait for exact-commit
   protected-master CI.
-- [ ] Create and locally verify signed annotated tag `v3.3.0` on that exact merge.
-- [ ] Push the tag only after central immutability preflight and local verification.
-- [ ] Approve the protected `production-release` deployment only after validation.
-- [ ] Publish core and processor POM/main/sources/Javadoc artifacts and signatures.
-- [ ] Verify the release from a clean remote repository and execute the published V3
+- [x] Create and locally verify signed annotated tag `v3.3.0` on that exact merge.
+- [x] Push the tag only after central immutability preflight and local verification.
+- [x] Approve the protected `production-release` deployment only after validation.
+- [x] Publish core and processor POM/main/sources/Javadoc artifacts and signatures.
+- [x] Verify the release from a clean remote repository and execute the published V3
   consumer without a reactor install.
-- [ ] Confirm the GitHub Release, deployment, Maven Central artifacts, tag, and
+- [x] Confirm the GitHub Release, deployment, Maven Central artifacts, tag, and
   protected-master commit all resolve to the same SHA.
-- [ ] Record post-publication evidence in a separate protected PR before declaring
+- [x] Record post-publication evidence in this separate documentation branch; its
+  protected PR is the final repository step before declaring
   V3.3 complete or opening V3.4/V4 implementation.
 
-The release branch is locally ready for commit review. No tag or publication checkbox
-may be completed from anticipated state.
+Every checked publication item above is backed by observed remote state. This
+post-publication evidence change contains documentation only; its protected merge
+closes Phase 5 in repository history.

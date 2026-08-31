@@ -80,6 +80,7 @@ remains the phase history and decision source of truth.
 - [V3.3 migration guide](v3x/v3.3/MIGRATION_GUIDE.md)
 - [V3.3 Phase 5 checklist](v3x/v3.3/PHASE_5_CHECKLIST.md)
 - [V3.3 release checklist](v3x/v3.3/RELEASE_CHECKLIST.md)
+- [V3.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
 
 ## v3.0 — earlier stable and frozen release
 

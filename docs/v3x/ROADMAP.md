@@ -2,7 +2,7 @@
 
 ## Status
 
-Current stable release: `3.2.0`
+Current stable release: `3.3.0`
 
 V3.1 Phases 0–8 are complete. The signed `v3.1.0` tag points to protected master,
 core and processor artifacts are published to Maven Central, clean remote verification
@@ -21,17 +21,18 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
 compatibility baseline for later candidates.
 
-V3.3 Phases 0–4 are accepted on protected `master`. Phase 1 established the
+V3.3 Phases 0–5 are complete on protected `master`. Phase 1 established the
 `3.3.0-SNAPSHOT` six-baseline and pre-change foundation; Phase 2 added the frozen page
 API and disabled/exact first-page execution; Phase 3 added the private constant-sized
 cursor and deterministic strict current-snapshot continuation. Phase 4 completed
 publication, concurrency, retention, scale, and decision hardening without a
 production-source change and was accepted as merge commit
-`9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 final
-`3.3.0` candidate conversion merged through PR #64 as
-`fd15a8df9600bd98ec0b1926810637f0ee40ade5`. The final calendar-date correction and
-regenerated reproducible hashes are locally complete on an independent follow-up
-branch; publication is not yet claimed.
+`9b1b880ddc947b5b4747e0251d0bd42708f94bfc`. Phase 5 final `3.3.0` conversion and
+release gates completed through PR #64 and the calendar-correction PR #65. Signed tag
+`v3.3.0`, Maven Central publication, clean remote verification, the protected
+production deployment, and the GitHub Release all resolve to protected-master commit
+`b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Published `3.3.0` is now an immutable
+compatibility baseline for later candidates.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
@@ -45,7 +46,7 @@ atomic publication.
 - The supported ranked-query model remains a final façade built through
   `SearchQueries`; planner, plan, posting, position, dictionary, candidate bitmap,
   snapshot, and internal document-ID types remain unsupported internals.
-- Existing V1, V2, V3.0, V3.1, and V3.2 behavior changes only for a documented
+- Existing V1, V2, V3.0, V3.1, V3.2, and V3.3 behavior changes only for a documented
   correctness fix.
   New functionality is opt-in and existing factory defaults remain unchanged.
 - Physical optimization must preserve match truth, score arithmetic, ordering,
@@ -133,7 +134,7 @@ popularity, or personalization subsystem. The complete frozen contract map is un
 | 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | accepted on protected `master`; ordinary ranked and highlighted behavior remains unchanged |
 | 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | accepted on protected `master`; exhaustive page walks equal canonical full order |
 | 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | accepted on protected `master`; no production change, snapshot pinning, or speculative cancellation API |
-| 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | local final-candidate gates pass; protected PR, tag, publication, and evidence remain ordered |
+| 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release and post-publication verification gates pass |
 
 Prepared queries are implemented only after measured logical-normalization evidence
 and an accepted amendment. Highlighted pagination, lower-bound totals, snapshot

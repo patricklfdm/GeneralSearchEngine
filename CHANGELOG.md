@@ -25,9 +25,11 @@ Semantic Versioning once the first stable artifact is published.
   non-publishing work leaves them usable. Cursors do not pin snapshots or register
   state in the engine.
 
-This dated heading identifies the final release candidate but does not claim
-publication. Published `3.2.0` remains the current stable release until the signed
-V3.3 release workflow and clean remote verification complete.
+Version `3.3.0` was published from signed tag `v3.3.0` on protected-master commit
+`b399ee999e65ca363e68503720dedd4ddd2b3c2e`. Maven Central verification, the
+production deployment, and the
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0)
+are complete.
 
 ## 3.2.0 — 2026-08-30
 
