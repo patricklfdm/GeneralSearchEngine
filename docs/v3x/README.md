@@ -32,6 +32,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   production offset or highlighting code. [Phase 2](v3.2/PHASE_2_CHECKLIST.md)
   implements the offset API family, exact built-in Unicode source mapping, sequence
   validation, and ordinary-path regression controls without introducing highlighting.
+  [Phase 3](v3.2/PHASE_3_CHECKLIST.md) adds the immutable highlighted request/result
+  family and integrated one-snapshot TEXT highlighting while deferring all other
+  ranked query evidence to Phase 4.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -79,6 +82,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 1 pre-change baseline](v3.2/PHASE_1_BASELINE.md)
 - [Phase 2 checklist](v3.2/PHASE_2_CHECKLIST.md)
 - [Phase 2 offset-analysis baseline](v3.2/PHASE_2_BASELINE.md)
+- [Phase 3 checklist](v3.2/PHASE_3_CHECKLIST.md)
+- [Phase 3 TEXT-highlighting baseline](v3.2/PHASE_3_BASELINE.md)
 
 ## Stable boundaries
 

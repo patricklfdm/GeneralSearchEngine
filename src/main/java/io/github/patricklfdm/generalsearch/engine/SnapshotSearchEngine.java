@@ -20,6 +20,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzer;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentAlreadyExistsException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundException;
 import io.github.patricklfdm.generalsearch.engine.exception.BulkMutationException;
@@ -44,6 +45,8 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.search.SearchExecutionAccess;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchResult;
 import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
@@ -207,6 +210,47 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         Objects.requireNonNull(request, "request");
         SearchSnapshot<T> snapshot = current.get().snapshot();
         return SearchExecutionAccess.search(snapshot, request, candidatePlanner);
+    }
+
+    @Override
+    public HighlightedSearchResult<T> search(
+            HighlightedSearchRequest<T> request
+    ) {
+        Objects.requireNonNull(request, "request");
+        SearchSnapshot<T> snapshot;
+        synchronized (lifecycleMonitor) {
+            if (!accepting) {
+                throw new EngineRejectedExecutionException(
+                        EngineRejectedExecutionException.Reason.CLOSED);
+            }
+            snapshot = current.get().snapshot();
+        }
+
+        List<TextField<T>> canonicalFields = new ArrayList<>(
+                request.fields().size()
+        );
+        for (TextField<T> requested : request.fields()) {
+            TextField<T> canonical = schema.requireTextField(requested.name());
+            if (canonical != requested) {
+                throw new IllegalArgumentException(
+                        "highlighted search requires the canonical text field: "
+                                + requested.name());
+            }
+            canonicalFields.add(canonical);
+        }
+        for (TextField<T> field : canonicalFields) {
+            if (!(field.analyzer() instanceof OffsetAnalyzer)) {
+                throw new UnsupportedOperationException(
+                        "text field '" + field.name()
+                                + "' does not use an OffsetAnalyzer");
+            }
+        }
+        return SearchExecutionAccess.searchHighlighted(
+                snapshot,
+                request,
+                canonicalFields,
+                candidatePlanner
+        );
     }
 
     @Override

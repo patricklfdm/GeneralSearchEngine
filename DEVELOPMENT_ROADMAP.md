@@ -18,12 +18,12 @@ are mandatory compatibility baselines for subsequent V3.x development.
 
 ## v3.2 development contract
 
-V3.2 Phases 0 and 1 are accepted on protected `master`. Phase 1 established the atomic
-`3.2.0-SNAPSHOT` identity, five published compatibility baselines, independent offset
-and highlight semantic oracles, frozen public-API fixtures, and exact pre-change
-diagnostics. Phase 2 now implements the additive offset API, exact built-in Unicode
-source mapping, and sequence validation while preserving direct ordinary analysis. It
-adds no highlighting API, stored offset payload, or cloud-family change.
+V3.2 Phases 0–2 are accepted on protected `master`. Phase 3 implements the frozen
+immutable highlighted request/result family, integrated one-snapshot execution, and
+TEXT evidence over exact original-source offsets. Canonical hit identity, score bits,
+order, filters, and top-K remain unchanged. PHRASE, FUZZY, BOOL, and BOOST evidence are
+deferred explicitly to Phase 4; no stored offset payload or cloud-family change is
+introduced.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured

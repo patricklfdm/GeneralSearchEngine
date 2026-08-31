@@ -44,6 +44,17 @@ class V32Phase1FixtureTest {
                         offset("after-gap", 3, 7, 12)
                 )
         );
+        assertEquals(
+                List.of(
+                        offset("a1", 1, 0, 2),
+                        offset("2b", 1, 1, 3)
+                ),
+                V32TestReference.offsetFixture(
+                        "A½B",
+                        offset("a1", 1, 0, 2),
+                        offset("2b", 1, 1, 3)
+                )
+        );
         assertThrows(IllegalArgumentException.class, () ->
                 V32TestReference.offsetFixture(
                         "a\uD83D\uDE00b",

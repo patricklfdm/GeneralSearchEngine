@@ -11,6 +11,7 @@ import io.github.patricklfdm.generalsearch.schema.annotation.IndexType;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchId;
 import io.github.patricklfdm.generalsearch.schema.annotation.SearchIndex;
 import io.github.patricklfdm.generalsearch.search.SearchQueries;
+import io.github.patricklfdm.generalsearch.search.HighlightedSearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 
@@ -71,6 +72,21 @@ public final class TravelSearchDemo {
                     .limit(3)
                     .build();
             printHits("V3 ranked TEXT + filter", engine.search(rankedRequest));
+            var highlighted = engine.search(HighlightedSearchRequest
+                    .<TravelPlace>builder(rankedRequest)
+                    .field(description)
+                    .contextCharacters(20)
+                    .maxFragmentsPerField(3)
+                    .build());
+            highlighted.hits().forEach(hit -> hit.highlights().forEach(fieldHighlight ->
+                    fieldHighlight.fragments().forEach(fragment -> System.out.printf(
+                            "  highlight %s [%d,%d): %s spans=%d%n",
+                            fieldHighlight.fieldName(),
+                            fragment.startOffset(),
+                            fragment.endOffset(),
+                            fragment.text(),
+                            fragment.spans().size()
+                    ))));
 
             SearchRequest<TravelPlace> discoveryRequest = SearchRequest.of(
                     SearchQueries.<TravelPlace>bool()
