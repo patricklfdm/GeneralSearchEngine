@@ -23,9 +23,9 @@ and bulk publication, dynamic text-index replay/drop/create, close admission, mi
 highlighted/ordinary/Explain reader concurrency, storage boundaries, and local scale
 evidence. Profiling justified no production optimization: canonical hits and ordinary
 paths remain unchanged, offset cost stays bounded to explicit top-K requested-source
-analysis, and no stored payload or cloud-family change was introduced. Phase 6 now
-hardens the `3.2.0-SNAPSHOT` release candidate across public API, consumers, Javadocs,
-artifacts, reproducibility, documentation, and protected release preparation.
+analysis, and no stored payload or cloud-family change was introduced. Phase 6
+snapshot hardening is accepted on protected `master`; final `3.2.0` local release
+validation is complete and the candidate awaits its release-preparation PR.
 
 The required V3.2 foundation is an additive `OffsetAnalyzer` capability that preserves
 the published `Analyzer` SAM and `AnalyzedToken` shape, followed by opt-in structured

@@ -38,8 +38,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   BOOL/BOOST composition while preserving the canonical hit list exactly. [Phase 5](v3.2/PHASE_5_CHECKLIST.md)
   completes lifecycle, mutation, dynamic-index, mixed-concurrency, storage-boundary,
   and local scaling hardening without a production-code change. [Phase 6](v3.2/PHASE_6_CHECKLIST.md)
-  freezes the release boundary and hardens compatibility, consumers, documentation,
-  Javadocs, artifacts, and reproducibility before final version conversion.
+  freezes the release boundary; snapshot and final-candidate compatibility, consumers,
+  documentation, Javadocs, artifacts, reproducibility, performance smoke, and cloud
+  local gates are accepted before the release-preparation PR.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 

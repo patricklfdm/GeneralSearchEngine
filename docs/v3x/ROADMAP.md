@@ -15,8 +15,10 @@ dynamic-index publication, close admission, mixed highlighted/ordinary/Explain r
 concurrency, retained storage boundaries, and top-K/field/source/corpus scale evidence.
 Profiling justified no production optimization: ordinary search and canonical hits
 remain unchanged, and no stored offset payload or cloud-family change was introduced.
-Phase 6 is the active `3.2.0-SNAPSHOT` release-hardening state; final conversion,
-signed tag, publication, and post-publication evidence remain ordered later states.
+Phase 6 snapshot hardening is accepted on protected `master`; final `3.2.0` local
+validation is complete on the independent release branch and awaits the
+release-preparation PR. Signed tag, publication, and post-publication evidence remain
+ordered later states.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
