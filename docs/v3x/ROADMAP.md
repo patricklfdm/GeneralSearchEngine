@@ -123,8 +123,8 @@ popularity, or personalization subsystem. The complete frozen contract map is un
 |---|---|---|
 | 0 | freeze strict cursor, exact-total, API, compatibility, validation, evidence, and decision contracts | documentation only; no version or production change |
 | 1 | switch atomically to `3.3.0-SNAPSHOT`; add six-baseline fixtures, independent oracles, and exact-V3.2 baselines | no page/cursor production implementation |
-| 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | implemented locally; ordinary ranked and highlighted behavior remains unchanged |
-| 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | exhaustive page walks equal canonical full order |
+| 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | accepted on protected `master`; ordinary ranked and highlighted behavior remains unchanged |
+| 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | implemented locally; exhaustive page walks equal canonical full order |
 | 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | no snapshot pinning or speculative cancellation API |
 | 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release gates and the timeout decision pass |
 

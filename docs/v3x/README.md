@@ -52,7 +52,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   [Phase 2](v3.3/PHASE_2_CHECKLIST.md) adds the frozen page values, default engine
   capability, built-in first-page parity, and disabled/exact total execution; its
   [reviewed local baseline](v3.3/PHASE_2_BASELINE.md) records the ordinary-path
-  controls and allocation boundary.
+  controls and allocation boundary. [Phase 3](v3.3/PHASE_3_CHECKLIST.md) adds the
+  private built-in cursor, strict validation, and deterministic continuation; its
+  [reviewed local baseline](v3.3/PHASE_3_BASELINE.md) records first-page regression,
+  cursor depth, exact-count, and allocation evidence.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -124,6 +127,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 1 pre-change baseline](v3.3/PHASE_1_BASELINE.md)
 - [Phase 2 checklist](v3.3/PHASE_2_CHECKLIST.md)
 - [Phase 2 reviewed local baseline](v3.3/PHASE_2_BASELINE.md)
+- [Phase 3 checklist](v3.3/PHASE_3_CHECKLIST.md)
+- [Phase 3 reviewed local baseline](v3.3/PHASE_3_BASELINE.md)
 
 ## Stable boundaries
 

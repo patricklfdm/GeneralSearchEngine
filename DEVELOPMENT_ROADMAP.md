@@ -50,8 +50,9 @@ to `3.3.0-SNAPSHOT` and established six-baseline compatibility, public
 descriptor/source fixtures, independent semantic oracles, and exact-V3.2 pre-change
 evidence without production page or cursor code. Phase 2 adds the complete frozen page
 value family, the additive default engine capability, built-in first-page parity, and
-default-disabled/explicitly-exact total hits. Built-in cursor creation and continuation
-remain Phase 3 work; Phase 2 rejects every supplied cursor as unsupported.
+default-disabled/explicitly-exact total hits. Phase 3 adds the private constant-sized
+built-in cursor, frozen owner/request/snapshot validation, first-page cursor emission,
+and deterministic search-after continuation without changing the public descriptors.
 
 The required implementation scope remains strict current-snapshot search-after. The
 page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter

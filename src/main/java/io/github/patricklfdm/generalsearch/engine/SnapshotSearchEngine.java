@@ -26,7 +26,6 @@ import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundExce
 import io.github.patricklfdm.generalsearch.engine.exception.BulkMutationException;
 import io.github.patricklfdm.generalsearch.engine.exception.EngineRejectedExecutionException;
 import io.github.patricklfdm.generalsearch.engine.exception.IndexLifecycleException;
-import io.github.patricklfdm.generalsearch.engine.exception.SearchCursorException;
 import io.github.patricklfdm.generalsearch.engine.metrics.IndexBuildFailure;
 import io.github.patricklfdm.generalsearch.engine.metrics.IndexBuildMetrics;
 import io.github.patricklfdm.generalsearch.engine.metrics.SearchEngineMetrics;
@@ -70,6 +69,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final ExecutorService indexBuildExecutor;
     private final Thread writerThread;
     private final Object lifecycleMonitor = new Object();
+    private final Object searchCursorOwnerToken = new Object();
 
     // Accessed only by the writer thread.
     private final Map<Long, PendingIndexBuild<T>> pendingIndexBuilds = new HashMap<>();
@@ -226,14 +226,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             }
             snapshot = current.get().snapshot();
         }
-        if (request.after().isPresent()) {
-            throw new SearchCursorException(
-                    SearchCursorException.Reason.UNSUPPORTED_CURSOR);
-        }
         return SearchExecutionAccess.searchPage(
                 snapshot,
                 request,
-                candidatePlanner
+                candidatePlanner,
+                searchCursorOwnerToken
         );
     }
 

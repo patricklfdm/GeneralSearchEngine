@@ -67,6 +67,14 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 java -jar target/benchmarks.jar \
+  'V33SearchAfterBenchmark.continuationExact' \
+  -p documentCount=1000 \
+  -p pageSize=10 \
+  -p pageDepth=10 \
+  -p corpusShape=dense-ties \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \
