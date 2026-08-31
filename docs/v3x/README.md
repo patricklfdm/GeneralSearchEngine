@@ -73,13 +73,16 @@ asynchronous-single-writer, and atomic-publication architecture.
   `331284bd70b0234b97bb43cf693dd10af8e9b7e1`; it establishes `3.4.0-SNAPSHOT`, the pinned
   published-3.3 seventh baseline, zero-addition public fixture, exact-V3.3 reference,
   and [local pre-change evidence](v3.4/PHASE_1_BASELINE.md) without production or
-  cloud implementation. [Phase 2](v3.4/PHASE_2_CHECKLIST.md) implements bounded cold
+  cloud implementation. [Phase 2](v3.4/PHASE_2_CHECKLIST.md) is accepted through PR
+  #69 at `07b885790acbc8455db7bbc9a284173a05a19f56` and implements bounded cold
   construction, extreme-corpus, and heap diagnostics; its
   [local evidence](v3.4/PHASE_2_BASELINE.md) accepts 100k/1M cold and nine-axis
   correctness results while explicitly retaining the ineligible local heap matrix as
-  an open V3.4 exit gate. Later phases cover multi-producer bursts, one required
-  two-hour run, the independent
-  `final-v34` cloud family, and final V4 handoff gates.
+  an open V3.4 exit gate. [Phase 3](v3.4/PHASE_3_CHECKLIST.md) adds bounded
+  multi-producer burst/recovery and local long-run calibration; its
+  [local evidence](v3.4/PHASE_3_BASELINE.md) records the complete nine-cell matrix and
+  successful 30-minute windowed calibration. Later phases cover one required two-hour
+  run, the independent `final-v34` cloud family, and final V4 handoff gates.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -173,6 +176,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 1 local pre-change baseline](v3.4/PHASE_1_BASELINE.md)
 - [Phase 2 checklist](v3.4/PHASE_2_CHECKLIST.md)
 - [Phase 2 local diagnostics](v3.4/PHASE_2_BASELINE.md)
+- [Phase 3 checklist](v3.4/PHASE_3_CHECKLIST.md)
+- [Phase 3 burst and long-run calibration](v3.4/PHASE_3_BASELINE.md)
 
 ## Stable boundaries
 

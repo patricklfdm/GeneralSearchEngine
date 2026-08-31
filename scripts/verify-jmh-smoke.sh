@@ -149,3 +149,4 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 scripts/verify-v34-local-diagnostics.sh --skip-build
+scripts/verify-v34-phase3-diagnostics.sh --skip-build
