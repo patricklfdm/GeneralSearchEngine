@@ -75,6 +75,25 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 java -jar target/benchmarks.jar \
+  'V33PaginationHardeningBenchmark.continuationExact' \
+  -p documentCount=1000 \
+  -p pageSize=10 \
+  -p pageDepth=10 \
+  -p queryKind=dense-bool \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
+  'V33PaginationConcurrencyBenchmark.mixed' \
+  -p documentCount=1000 \
+  -p pageSize=10 \
+  -tg 1,1,1,1,1,1 -bm thrpt -tu s \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -cp target/benchmarks.jar \
+  io.github.patricklfdm.generalsearch.benchmark.jmh.V33CursorRetentionProbe \
+  1000
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \

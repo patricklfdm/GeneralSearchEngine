@@ -1,7 +1,7 @@
 # V3.3 Phase 3 checklist
 
-Status: locally complete on `feat/v3.3-phase3-search-after`; full local gate results
-are recorded below before commit review.
+Status: complete and accepted on protected `master` through PR #62 as merge commit
+`521e65e`.
 
 Phase 3 completes the frozen strict current-snapshot search-after semantics without
 adding or changing a public descriptor. Phase 4 remains responsible for the broad

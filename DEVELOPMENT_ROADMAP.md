@@ -45,14 +45,15 @@ performance, migration, hardening, and release contracts are mapped in
 
 ## v3.3 development contract
 
-V3.3 Phases 0 and 1 are accepted on protected `master`. Phase 1 converted atomically
-to `3.3.0-SNAPSHOT` and established six-baseline compatibility, public
-descriptor/source fixtures, independent semantic oracles, and exact-V3.2 pre-change
-evidence without production page or cursor code. Phase 2 adds the complete frozen page
-value family, the additive default engine capability, built-in first-page parity, and
-default-disabled/explicitly-exact total hits. Phase 3 adds the private constant-sized
-built-in cursor, frozen owner/request/snapshot validation, first-page cursor emission,
-and deterministic search-after continuation without changing the public descriptors.
+V3.3 Phases 0–3 are accepted on protected `master`. Phase 1 converted atomically to
+`3.3.0-SNAPSHOT` and established six-baseline compatibility, public descriptor/source
+fixtures, independent semantic oracles, and exact-V3.2 pre-change evidence. Phase 2
+added the complete frozen page value family, additive default engine capability,
+built-in first-page parity, and default-disabled/explicitly-exact total hits. Phase 3
+added the private constant-sized built-in cursor, frozen owner/request/snapshot
+validation, first-page cursor emission, and deterministic search-after continuation
+without changing the public descriptors. Phase 4 locally completes publication,
+concurrency, retention, and scale hardening without changing production code.
 
 The required implementation scope remains strict current-snapshot search-after. The
 page façade wraps the existing immutable `SearchRequest`; it cannot change query/filter
@@ -65,10 +66,12 @@ expose the internal document ID. Any successful document or dynamic-index public
 makes an earlier cursor stale. Exact total hits count the complete query/filter match
 set before cursor and limit during the existing candidate evaluation.
 
-Timeout/cancellation must receive an explicit evidence-backed implement-or-defer
-decision before V3.3 release. Prepared queries, highlighted pagination, lower-bound
-counts, snapshot pinning, deep offsets, facets, and aggregations remain deferred unless
-a separate contract amendment is accepted. The executable Phase 0 map is under
+Phase 4 evidence explicitly defers timeout/cancellation and prepared queries: no
+consumer SLA or complete safe cross-operation control contract justifies a public
+surface, and arbitrary application callbacks cannot be cooperatively preempted. No
+speculative cache or production optimization is added. Highlighted pagination,
+lower-bound counts, snapshot pinning, deep offsets, facets, and aggregations remain
+deferred unless a separate contract amendment is accepted. The executable map is under
 [`docs/v3x/v3.3/`](docs/v3x/v3.3/ARCHITECTURE.md).
 
 ## v3.2.0 current stable release

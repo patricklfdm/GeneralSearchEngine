@@ -21,10 +21,12 @@ production deployment, and the GitHub Release all resolve to protected-master co
 `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Published `3.2.0` is now an immutable
 compatibility baseline for later candidates.
 
-V3.3 Phase 0 is accepted on protected `master`. Phase 1 converts atomically to
-`3.3.0-SNAPSHOT` and establishes six-baseline compatibility, public descriptor/source
-fixtures, independent pagination/count/snapshot/retention oracles, and exact-V3.2
-pre-change evidence. It adds no production page, cursor, or total-hit implementation.
+V3.3 Phases 0–3 are accepted on protected `master`. Phase 1 established the
+`3.3.0-SNAPSHOT` six-baseline and pre-change foundation; Phase 2 added the frozen page
+API and disabled/exact first-page execution; Phase 3 added the private constant-sized
+cursor and deterministic strict current-snapshot continuation. Phase 4 locally
+completes publication, concurrency, retention, scale, and decision hardening without a
+production-source change.
 
 V3.x completes the in-memory search-engine shape before V4 introduces durability.
 The authoritative architecture remains immutable snapshots with structural sharing,
@@ -124,8 +126,8 @@ popularity, or personalization subsystem. The complete frozen contract map is un
 | 0 | freeze strict cursor, exact-total, API, compatibility, validation, evidence, and decision contracts | documentation only; no version or production change |
 | 1 | switch atomically to `3.3.0-SNAPSHOT`; add six-baseline fixtures, independent oracles, and exact-V3.2 baselines | no page/cursor production implementation |
 | 2 | add frozen page API values/default engine capability, first-page parity, and disabled/exact total execution | accepted on protected `master`; ordinary ranked and highlighted behavior remains unchanged |
-| 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | implemented locally; exhaustive page walks equal canonical full order |
-| 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | no snapshot pinning or speculative cancellation API |
+| 3 | add opaque built-in cursor ownership, request/snapshot validation, and deterministic continuation | accepted on protected `master`; exhaustive page walks equal canonical full order |
+| 4 | mutation, dynamic-index, lifecycle, concurrency, retention, scale, and timeout/cancellation decision closure | locally complete; no production change, snapshot pinning, or speculative cancellation API |
 | 5 | consumers, Japicmp, Javadocs, artifacts, reproducibility, documentation, and release | all release gates and the timeout decision pass |
 
 Prepared queries are implemented only after measured logical-normalization evidence
@@ -146,11 +148,12 @@ total mode; `EXACT` counts the complete full-query/filter match set before curso
 limit during the existing evaluation. No lower-bound relation exists without a future
 accepted early-termination strategy.
 
-Timeout and cancellation receive an evidence-backed implement-or-defer decision only
-after page profiling. Any accepted design is cooperative and cannot promise preemption
-inside arbitrary user `Analyzer`, extractor, or `Query.matches` code. A prepared object
-remains deferred and may never cache a physical snapshot-bound plan. The complete
-Phase 0 contract map is under [`v3.3/`](v3.3/ARCHITECTURE.md).
+Phase 4 profiling explicitly defers timeout/cancellation: no complete safe control
+surface or consumer latency budget justifies implementation, and arbitrary user
+`Analyzer`, extractor, or `Query.matches` code cannot be preempted. Prepared queries
+also remain deferred because logical normalization is not a demonstrated hotspot and a
+future prepared object may never cache a physical snapshot-bound plan. The complete
+contract and evidence map is under [`v3.3/`](v3.3/ARCHITECTURE.md).
 
 ## Final in-memory hardening
 
