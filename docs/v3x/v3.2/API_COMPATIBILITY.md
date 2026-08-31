@@ -31,7 +31,9 @@ The concrete override and hidden bridge are implementation consequences, not sep
 application extension points. The bridge remains unsupported alongside the existing
 search and Explain bridge methods. Japicmp reports no removed class, method, field,
 constructor, interface, or generic contract and recommends an additive minor version.
-The same candidate passes comparisons with all five published baselines.
+The snapshot candidate and final `3.2.0` candidate both pass fresh-isolated
+comparisons with all five published baselines. The protected release commit must retain
+that result before tagging.
 
 ## Frozen supported additions
 

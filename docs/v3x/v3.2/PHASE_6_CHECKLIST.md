@@ -1,19 +1,23 @@
 # V3.2 Phase 6 hardening and release checklist
 
-Status: local snapshot hardening is complete on an independent branch; protected
-PR/master acceptance remains pending. Final conversion, signed tag, publication, and
-post-publication evidence remain pending.
+Status: snapshot hardening is accepted on protected `master`; final `3.2.0` local
+validation is complete on the independent release branch and awaits the
+release-preparation PR. Signed tag, publication, and post-publication evidence remain
+pending.
 
 ## Entry and frozen boundary
 
 - [x] Phase 5 merged to protected `master` as `fbbce30` through PR #55.
 - [x] `feat/v3.2-phase6-release-hardening` starts from that exact accepted merge.
-- [x] Active identity remains `3.2.0-SNAPSHOT`; published compatibility identities
-  remain immutable.
+- [x] The snapshot-hardening identity remained `3.2.0-SNAPSHOT`; published
+  compatibility identities remain immutable.
 - [x] The ordered evidence states and blocker-fix boundary are frozen in
   [the hardening and release contract](HARDENING_AND_RELEASE.md).
 - [x] Phase 6 introduces no search feature, public API, stored offset payload, HTML,
   analyzer composition, cloud family, broad refactor, or speculative optimization.
+- [x] Snapshot-hardening PR #56 merged to protected `master` as
+  `fdd6882c7e052e85883277bbcca5e96d2cbf8ceb`; the release branch starts from that
+  exact accepted merge after required CI confirmation.
 
 ## Public API freeze
 
@@ -79,8 +83,8 @@ post-publication evidence remain pending.
 - [x] Architecture, offset, highlighting, API, validation, performance, hardening, and
   release documents agree with the implementation.
 - [x] Documentation maps link every V3.2 Phase 6 document.
-- [x] Both roadmaps and the changelog describe actual snapshot state without claiming
-  publication.
+- [x] Both roadmaps and the changelog describe the actual candidate state without
+  claiming publication.
 - [x] Historical V3.0 and V3.1 release records remain unchanged.
 
 ## CI, artifacts, and reproducibility
@@ -113,19 +117,22 @@ post-publication evidence remain pending.
 - [x] JMH package, expanded forked smoke, and production-soak instrumentation pass.
 - [x] Python 3.11 Cloud Benchmark 61-test unit suite, shell syntax, fake-gcloud,
   synthetic analysis, and lifecycle gates pass.
-- [ ] Protected PR/master `CI / Required` passes for the accepted snapshot state.
+- [x] Protected snapshot PR/master acceptance is complete before final conversion.
 
 ## Final version conversion — `3.2.0`
 
-- [ ] Start only after the snapshot-hardening PR and exact protected-master CI pass.
-- [ ] Create an independent `release/v3.2.0` branch from the accepted merge commit.
-- [ ] Convert core, processor, reactor, example, and all current consumer coordinates
+- [x] Start only after the snapshot-hardening PR and exact protected-master CI pass.
+- [x] Create an independent `release/v3.2.0` branch from accepted merge commit
+  `fdd6882c7e052e85883277bbcca5e96d2cbf8ceb`.
+- [x] Convert core, processor, reactor, example, and all current consumer coordinates
   atomically to `3.2.0`.
-- [ ] Preserve every published compatibility and cloud baseline identity.
-- [ ] Freeze `project.build.outputTimestamp` and the dated `3.2.0` changelog heading.
-- [ ] Remove release-facing snapshot references while preserving historical evidence.
-- [ ] Repeat every snapshot validation family against `3.2.0`.
-- [ ] Record final artifact hashes and local pre-tag evidence.
+- [x] Preserve every published compatibility and cloud baseline identity.
+- [x] Freeze `project.build.outputTimestamp` at `2026-08-30T00:00:00Z` and the
+  changelog heading at `3.2.0 — 2026-08-30`.
+- [x] Remove release-facing snapshot references while preserving historical evidence.
+- [x] Repeat every snapshot validation family against `3.2.0`.
+- [x] Record final artifact hashes and local pre-tag evidence in the
+  [release checklist](RELEASE_CHECKLIST.md).
 - [ ] Merge the approved release-preparation PR and wait for exact-commit master CI.
 
 ## Signed tag and publication — `PENDING`
@@ -151,6 +158,6 @@ post-publication evidence remain pending.
 - [ ] Treat Maven Central coordinates and signed tag as immutable.
 - [ ] Mark Phase 6 and V3.2 complete only after the evidence commit merges.
 
-Phase 6 snapshot hardening is ready only after every local snapshot gate passes. The
-phase itself remains incomplete until publication and post-publication evidence are
-real and accepted.
+The final candidate is locally ready for the release-preparation PR. Phase 6 itself
+remains incomplete until publication and post-publication evidence are real and
+accepted.

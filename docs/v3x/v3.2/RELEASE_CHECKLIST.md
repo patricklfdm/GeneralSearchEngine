@@ -8,9 +8,11 @@ evidence, final-candidate evidence, publication, and post-publication proof.
 | Field | Value |
 |---|---|
 | Target version | `3.2.0` |
-| Active candidate | `3.2.0-SNAPSHOT` |
+| Active candidate | final `3.2.0`, unpublished |
 | Phase 6 entry commit | `fbbce30` |
 | Snapshot-hardening branch | `feat/v3.2-phase6-release-hardening` |
+| Accepted snapshot merge | `fdd6882c7e052e85883277bbcca5e96d2cbf8ceb` |
+| Final-candidate branch | `release/v3.2.0` |
 | Final protected-master commit | `PENDING` |
 | Signed tag | `PENDING` |
 | Maven Central | `PENDING` |
@@ -47,7 +49,7 @@ verification item below is real.
 | JMH package/smoke | PASS — expanded V3.2 surfaces and production-soak instrumentation |
 | Cloud Benchmark local gates | PASS — Python 3.11.15, 61 unit tests, shell/synthetic/fake-gcloud lifecycle |
 | Diff hygiene | PASS |
-| Protected PR/master CI | `PENDING` |
+| Protected snapshot PR/master CI | PASS before final branch creation |
 
 ## Snapshot reproducible artifact hashes
 
@@ -66,13 +68,42 @@ Snapshot hashes are evidence only and are not the final published artifact ident
 
 ## Final `3.2.0` candidate
 
-- [ ] Start from the accepted snapshot-hardening merge on protected `master`.
-- [ ] Convert all seven active project/consumer coordinates together.
-- [ ] Freeze the output timestamp and dated changelog.
-- [ ] Preserve published baselines and historical release records.
-- [ ] Repeat every snapshot validation family.
-- [ ] Record the six final reproducible JAR hashes.
+- [x] Start from accepted snapshot-hardening merge
+  `fdd6882c7e052e85883277bbcca5e96d2cbf8ceb` on protected `master`.
+- [x] Convert all seven active project/consumer coordinates together.
+- [x] Freeze output timestamp `2026-08-30T00:00:00Z` and dated changelog
+  `3.2.0 — 2026-08-30`.
+- [x] Preserve published baselines and historical release records.
+- [x] Repeat every snapshot validation family.
+- [x] Record the six final reproducible JAR hashes.
 - [ ] Merge through protected PR and record exact master commit and CI run.
+
+## Final candidate evidence
+
+| Gate | Evidence |
+|---|---|
+| Version alignment | PASS — `3.2.0` across seven active coordinates |
+| Core and reactor verification | PASS — 343 core, 5 processor; example compiled |
+| API and artifact compatibility | PASS — frozen fixture plus fresh-isolated Japicmp against all five published baselines |
+| Independent consumers and example | PASS — V1/V2/V3 consumers and travel execution |
+| Strict release artifacts | PASS — strict core/processor Javadocs, sources, main JARs, and service-entry isolation |
+| Reproducible six-JAR build | PASS — two clean final-version builds byte-identical |
+| JMH and production soak | PASS — expanded smoke cells, 9 instrumentation tests, and reduced stabilization E2E |
+| Cloud Benchmark local gates | PASS — Python 3.11, 61 unit tests, shell, synthetic, fake-gcloud, and lifecycle suites |
+| Diff hygiene | PASS — release coordinates and documentation only; no production-source change |
+
+## Final reproducible artifact hashes
+
+Two clean builds of the final candidate produced byte-identical artifacts:
+
+| Artifact | SHA-256 |
+|---|---|
+| `general-search-engine-3.2.0.jar` | `8cf029b43bdd57ce93c06d71e007f1404c2d1c02c4d4dc6779461dabcd051c1c` |
+| `general-search-engine-3.2.0-sources.jar` | `08b8e92132d4369f3dc1aea1a362632e0286d5d37b0a757da7b59e8baa247605` |
+| `general-search-engine-3.2.0-javadoc.jar` | `0ccd6623a7b67ed687d533ed6c06c64c33667537c7dc4d63c98cfa017cacee7b` |
+| `general-search-engine-processor-3.2.0.jar` | `ab24c4c8222c3f9576ff8eeaf445a42f8b9254a0315cf6046565caf6342820bf` |
+| `general-search-engine-processor-3.2.0-sources.jar` | `09b9c4ff6729c11de510407009206dd88d88fe08d6084b014bf715b7b9858df9` |
+| `general-search-engine-processor-3.2.0-javadoc.jar` | `92a33231cec7b4e42d0b1a16dc6a03bac2549dfcdb0e1d87775dad16e3ef13cc` |
 
 ## Signed tag verification
 
