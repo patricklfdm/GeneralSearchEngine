@@ -33,8 +33,9 @@ asynchronous-single-writer, and atomic-publication architecture.
   implements the offset API family, exact built-in Unicode source mapping, sequence
   validation, and ordinary-path regression controls without introducing highlighting.
   [Phase 3](v3.2/PHASE_3_CHECKLIST.md) adds the immutable highlighted request/result
-  family and integrated one-snapshot TEXT highlighting while deferring all other
-  ranked query evidence to Phase 4.
+  family and integrated one-snapshot TEXT highlighting. [Phase 4](v3.2/PHASE_4_CHECKLIST.md)
+  adds deterministic PHRASE witnesses, scoring-selected FUZZY evidence, and recursive
+  BOOL/BOOST composition while preserving the canonical hit list exactly.
 - V3.3 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -84,6 +85,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 2 offset-analysis baseline](v3.2/PHASE_2_BASELINE.md)
 - [Phase 3 checklist](v3.2/PHASE_3_CHECKLIST.md)
 - [Phase 3 TEXT-highlighting baseline](v3.2/PHASE_3_BASELINE.md)
+- [Phase 4 checklist](v3.2/PHASE_4_CHECKLIST.md)
+- [Phase 4 query-evidence highlighting baseline](v3.2/PHASE_4_BASELINE.md)
 
 ## Stable boundaries
 

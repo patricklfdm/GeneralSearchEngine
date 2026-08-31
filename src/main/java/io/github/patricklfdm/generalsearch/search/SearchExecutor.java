@@ -11,6 +11,24 @@ import io.github.patricklfdm.generalsearch.ranking.SearchHit;
 /** Executes one immutable search plan without consulting another snapshot. */
 final class SearchExecutor<T> {
     List<SearchHit<T>> execute(SearchPlan<T> plan) {
+        return rankedCandidates(plan).stream()
+                .map(candidate -> new SearchHit<>(
+                        candidate.document(),
+                        candidate.score()
+                ))
+                .toList();
+    }
+
+    List<ExecutedSearchHit<T>> executeWithDocumentIds(SearchPlan<T> plan) {
+        return rankedCandidates(plan).stream()
+                .map(candidate -> new ExecutedSearchHit<>(
+                        candidate.docId(),
+                        new SearchHit<>(candidate.document(), candidate.score())
+                ))
+                .toList();
+    }
+
+    private List<RankedCandidate<T>> rankedCandidates(SearchPlan<T> plan) {
         Objects.requireNonNull(plan, "plan");
         if (plan.candidates().isEmpty()) {
             return List.of();
@@ -44,9 +62,7 @@ final class SearchExecutor<T> {
 
         List<RankedCandidate<T>> ranked = new ArrayList<>(top);
         ranked.sort(bestFirst());
-        return ranked.stream()
-                .map(candidate -> new SearchHit<>(candidate.document(), candidate.score()))
-                .toList();
+        return ranked;
     }
 
     private boolean isBetter(
@@ -73,5 +89,14 @@ final class SearchExecutor<T> {
     }
 
     private record RankedCandidate<T>(int docId, T document, double score) {
+    }
+}
+
+record ExecutedSearchHit<T>(int documentId, SearchHit<T> hit) {
+    ExecutedSearchHit {
+        if (documentId < 0) {
+            throw new IllegalArgumentException("documentId must not be negative");
+        }
+        Objects.requireNonNull(hit, "hit");
     }
 }

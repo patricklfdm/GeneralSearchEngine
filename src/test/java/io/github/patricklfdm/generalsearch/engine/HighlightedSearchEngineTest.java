@@ -170,7 +170,7 @@ class HighlightedSearchEngineTest {
     }
 
     @Test
-    void preservesWrappedRequestValidationAndRejectsDeferredQueryKinds() {
+    void preservesWrappedRequestValidationAndSupportsPhraseQueries() {
         SearchSchema<Article, Long> schema = SearchSchema.builder(Article.class, ID)
                 .textField(BODY_TEXT)
                 .build();
@@ -191,14 +191,13 @@ class HighlightedSearchEngineTest {
 
         try (SearchEngine<Long, Article> engine = engine(BODY_TEXT, List.of(BODY_TEXT))) {
             engine.add(new Article(1L, "alpha beta", "")).join();
-            assertThrows(UnsupportedOperationException.class, () -> engine.search(
-                    request(
-                            SearchQueries.phrase(BODY_TEXT, "alpha beta"),
-                            BODY_TEXT,
-                            0,
-                            1
-                    )
-            ));
+            HighlightFragment phrase = engine.search(request(
+                    SearchQueries.phrase(BODY_TEXT, "alpha beta"),
+                    BODY_TEXT,
+                    0,
+                    1
+            )).hits().getFirst().highlights().getFirst().fragments().getFirst();
+            assertFragment(phrase, 0, 10, "alpha beta", 0, 10);
         }
     }
 

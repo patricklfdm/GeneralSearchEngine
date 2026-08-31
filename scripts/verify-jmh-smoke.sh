@@ -27,6 +27,14 @@ java -jar target/benchmarks.jar \
   -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 java -jar target/benchmarks.jar \
+  'V32QueryEvidenceHighlightBenchmark.highlightedSearch' \
+  -p documentCount=1000 \
+  -p topK=10 \
+  -p sourceTokenCount=16 \
+  -p queryKind=bool-boost \
+  -f 1 -wi 0 -i 1 -r 100ms -foe true
+
+java -jar target/benchmarks.jar \
   'PositionalTextIndexBenchmark.publishPositionSensitiveMutationBatch' \
   -p analysisMode=default-adapter \
   -p documentCount=10000 \
