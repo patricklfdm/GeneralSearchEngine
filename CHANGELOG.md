@@ -26,9 +26,10 @@ Semantic Versioning once the first stable artifact is published.
 - Explicit highlighting re-analyzes only requested fields of returned top-K documents;
   no offset, evidence, highlight, or sidecar payload is stored in text snapshots.
 
-This dated heading identifies the final release candidate but does not claim
-publication. Published `3.1.0` remains the current stable release until the signed
-V3.2 release workflow and remote verification complete.
+Version `3.2.0` was published from signed tag `v3.2.0` on protected-master commit
+`c96a15e41719cac8d7c1ee8f3c064338ef20ac61`. Maven Central verification and the
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0)
+are complete.
 
 ## 3.1.0 — 2026-08-30
 

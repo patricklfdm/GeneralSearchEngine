@@ -8,18 +8,18 @@ evidence, final-candidate evidence, publication, and post-publication proof.
 | Field | Value |
 |---|---|
 | Target version | `3.2.0` |
-| Active candidate | final `3.2.0`, unpublished |
+| Published release | `3.2.0` |
 | Phase 6 entry commit | `fbbce30` |
 | Snapshot-hardening branch | `feat/v3.2-phase6-release-hardening` |
 | Accepted snapshot merge | `fdd6882c7e052e85883277bbcca5e96d2cbf8ceb` |
 | Final-candidate branch | `release/v3.2.0` |
-| Final protected-master commit | `PENDING` |
-| Signed tag | `PENDING` |
-| Maven Central | `PENDING` |
-| GitHub Release | `PENDING` |
+| Final protected-master commit | `c96a15e41719cac8d7c1ee8f3c064338ef20ac61` |
+| Signed tag | `v3.2.0` |
+| Maven Central | core and processor `3.2.0` published and remotely verified |
+| GitHub Release | [GeneralSearchEngine 3.2.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0) |
 
-Published `3.1.0` remains current stable until every publication and remote
-verification item below is real.
+Published `3.2.0` is the current stable release. Every publication and remote
+verification item below is complete and resolves to the exact protected-master commit.
 
 ## Frozen release contents
 
@@ -76,7 +76,10 @@ Snapshot hashes are evidence only and are not the final published artifact ident
 - [x] Preserve published baselines and historical release records.
 - [x] Repeat every snapshot validation family.
 - [x] Record the six final reproducible JAR hashes.
-- [ ] Merge through protected PR and record exact master commit and CI run.
+- [x] Merge through protected PR #57 as
+  `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`; exact-commit master
+  [CI run 33351541204](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33351541204)
+  passed.
 
 ## Final candidate evidence
 
@@ -107,39 +110,43 @@ Two clean builds of the final candidate produced byte-identical artifacts:
 
 ## Signed tag verification
 
-- [ ] Create annotated signed `v3.2.0` on the exact final protected-master commit.
-- [ ] `git cat-file -t v3.2.0` reports `tag`.
-- [ ] `git tag -v v3.2.0` verifies fingerprint
+- [x] Create annotated signed `v3.2.0` on the exact final protected-master commit.
+- [x] `git cat-file -t v3.2.0` reports `tag`.
+- [x] `git tag -v v3.2.0` verifies fingerprint
   `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
-- [ ] `scripts/verify-release-tag.sh v3.2.0` passes.
-- [ ] `git rev-parse v3.2.0^{commit}` equals the recorded master commit.
-- [ ] Push only after every local check passes.
+- [x] `scripts/verify-release-tag.sh v3.2.0` passes.
+- [x] `git rev-parse v3.2.0^{commit}` equals the recorded master commit.
+- [x] Push only after every local check passes.
 
 ## Protected publication
 
-- [ ] Release validation checks out the exact tag and passes all release gates.
-- [ ] Central immutability preflight confirms `3.2.0` does not already exist.
-- [ ] The repository owner approves `production-release` after validation.
-- [ ] The successful workflow/deployment IDs and exact commit are recorded.
-- [ ] Core and processor main/sources/Javadoc/POM artifacts and all eight signatures
+- [x] Release validation checks out the exact tag and passes all release gates.
+- [x] Central immutability preflight confirms `3.2.0` does not already exist.
+- [x] The repository owner approves `production-release` after validation.
+- [x] Successful release workflow `33352104553`, deployment `6174255401`, and exact
+  commit are recorded.
+- [x] Core and processor main/sources/Javadoc/POM artifacts and all eight signatures
   publish successfully.
-- [ ] `scripts/verify-published-release.sh 3.2.0` passes from a clean remote repository.
-- [ ] GitHub Release `GeneralSearchEngine 3.2.0` is created from the verified tag and
+- [x] `scripts/verify-published-release.sh 3.2.0` passes from a clean remote repository;
+  the published V3 consumer passes 8/8 tests without a reactor install.
+- [x] GitHub Release `GeneralSearchEngine 3.2.0` is created from the verified tag and
   marked latest.
 
 ## Post-publication evidence
 
 | Field | Value |
 |---|---|
-| Tag/master commit | `PENDING` |
+| Release date | `2026-08-30` |
+| Tag/master commit | signed `v3.2.0` -> `c96a15e41719cac8d7c1ee8f3c064338ef20ac61` |
 | Signing fingerprint | `91AAB7A2B0FB55C3BBB334534B6103148D643AB3` |
-| Release workflow | `PENDING` |
-| Production deployment | `PENDING` |
-| Central publication | `PENDING` |
-| Clean remote verification | `PENDING` |
-| GitHub Release URL/time | `PENDING` |
+| Release workflow | [run 33352104553](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33352104553), `success` |
+| Production deployment | `6174255401`, `success` at `2026-08-31T03:02:39Z` |
+| Central publication | [`general-search-engine:3.2.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.2.0) and [`general-search-engine-processor:3.2.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.2.0), all eight artifacts and signatures |
+| Clean remote verification | PASS; published V3 consumer 8/8 |
+| GitHub Release URL/time | ID `379481463`, [GeneralSearchEngine 3.2.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0), `2026-08-31T03:02:35Z` |
 
-After publication, a documentation-only protected PR replaces every applicable
-`PENDING` value with observed evidence, identifies `3.2.0` as current stable, and adds
-the immutable published artifact as a future compatibility baseline. Until then, this
-record makes no release claim.
+The tag-triggered release workflow and approved deployment completed successfully on
+the exact protected-master commit. Remote verification resolved all eight POM/main/
+sources/Javadoc artifacts, detached signatures, and SHA-1 files from Maven Central;
+the main JARs retained the expected processor-service boundary. Published `3.2.0` and
+signed `v3.2.0` are immutable. Later fixes use `3.2.1` or a later version.

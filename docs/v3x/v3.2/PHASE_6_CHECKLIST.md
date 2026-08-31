@@ -1,9 +1,9 @@
 # V3.2 Phase 6 hardening and release checklist
 
-Status: snapshot hardening is accepted on protected `master`; final `3.2.0` local
-validation is complete on the independent release branch and awaits the
-release-preparation PR. Signed tag, publication, and post-publication evidence remain
-pending.
+Status: complete. Snapshot hardening, final `3.2.0` validation, protected-master
+acceptance, signed tag, publication, remote verification, and post-publication
+evidence all resolve to release commit
+`c96a15e41719cac8d7c1ee8f3c064338ef20ac61`.
 
 ## Entry and frozen boundary
 
@@ -78,8 +78,8 @@ pending.
 
 ## Documentation
 
-- [x] Root README keeps published `3.1.0` as stable and identifies V3.2 only as an
-  unreleased development snapshot.
+- [x] Prepublication documentation kept published `3.1.0` stable and identified V3.2
+  as unreleased; post-publication documentation now promotes verified `3.2.0`.
 - [x] The 3.1-to-3.2 migration guide covers opt-in highlighting, exact offsets, legacy
   analyzer behavior, markup ownership, compatibility, and operational cost.
 - [x] Architecture, offset, highlighting, API, validation, performance, hardening, and
@@ -135,31 +135,34 @@ pending.
 - [x] Repeat every snapshot validation family against `3.2.0`.
 - [x] Record final artifact hashes and local pre-tag evidence in the
   [release checklist](RELEASE_CHECKLIST.md).
-- [ ] Merge the approved release-preparation PR and wait for exact-commit master CI.
+- [x] Release-preparation PR #57 merged as
+  `c96a15e41719cac8d7c1ee8f3c064338ef20ac61`; exact-commit master
+  [CI run 33351541204](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33351541204)
+  passed.
 
-## Signed tag and publication — `PENDING`
+## Signed tag and publication — complete
 
-- [ ] Create annotated signed `v3.2.0` on the exact approved protected-master commit.
-- [ ] Verify tag type, signature fingerprint, version/changelog alignment, commit
+- [x] Create annotated signed `v3.2.0` on the exact approved protected-master commit.
+- [x] Verify tag type, signature fingerprint, version/changelog alignment, commit
   identity, and `origin/master` reachability locally.
-- [ ] Push only the verified tag and let the protected Release workflow run.
-- [ ] Release validation and Central immutability preflight pass.
-- [ ] Approve `production-release` after validation.
-- [ ] Core and processor publish successfully with all required signed artifacts.
-- [ ] Clean remote verification and the published V3 consumer pass without a local
+- [x] Push only the verified tag and let the protected Release workflow run.
+- [x] Release validation and Central immutability preflight pass.
+- [x] Approve `production-release` after validation.
+- [x] Core and processor publish successfully with all required signed artifacts.
+- [x] Clean remote verification and the published V3 consumer pass without a local
   reactor install.
-- [ ] GitHub Release is created from the exact tag and marked latest.
+- [x] GitHub Release is created from the exact tag and marked latest.
 
-## Post-publication record — `PENDING`
+## Post-publication record — complete
 
-- [ ] Record exact tag/master commit, fingerprint, workflow/deployment, Central,
+- [x] Record exact tag/master commit, fingerprint, workflow/deployment, Central,
   remote verification, and GitHub Release evidence.
-- [ ] Update root and V3.x documentation to identify `3.2.0` as current stable.
-- [ ] Add published `3.2.0` as a mandatory future compatibility baseline without
+- [x] Update root and V3.x documentation to identify `3.2.0` as current stable.
+- [x] Add published `3.2.0` as a mandatory future compatibility baseline without
   removing any earlier baseline.
-- [ ] Treat Maven Central coordinates and signed tag as immutable.
-- [ ] Mark Phase 6 and V3.2 complete only after the evidence commit merges.
+- [x] Treat Maven Central coordinates and signed tag as immutable.
+- [x] This post-publication evidence change is the final Phase 6 deliverable; its
+  protected-master merge completes Phase 6 and V3.2.
 
-The final candidate is locally ready for the release-preparation PR. Phase 6 itself
-remains incomplete until publication and post-publication evidence are real and
-accepted.
+Publication and all remote evidence are real and accepted. The documentation-only
+protected merge of this record closes Phase 6 and the V3.2 development cycle.

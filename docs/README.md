@@ -61,8 +61,9 @@ remains the phase history and decision source of truth.
 - [V3.2 Phase 6 hardening and release contract](v3x/v3.2/HARDENING_AND_RELEASE.md)
 - [V3.2 Phase 6 checklist](v3x/v3.2/PHASE_6_CHECKLIST.md)
 - [V3.2 release checklist](v3x/v3.2/RELEASE_CHECKLIST.md)
+- [V3.2 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.2.0)
 
-## v3.0 — previous stable and frozen release
+## v3.0 — earlier stable and frozen release
 
 - [Development overview and contract map](v3/README.md)
 - [API compatibility](v3/API_COMPATIBILITY.md)
