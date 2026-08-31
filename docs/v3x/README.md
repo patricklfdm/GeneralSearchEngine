@@ -55,7 +55,11 @@ asynchronous-single-writer, and atomic-publication architecture.
   controls and allocation boundary. [Phase 3](v3.3/PHASE_3_CHECKLIST.md) adds the
   private built-in cursor, strict validation, and deterministic continuation; its
   [reviewed local baseline](v3.3/PHASE_3_BASELINE.md) records first-page regression,
-  cursor depth, exact-count, and allocation evidence.
+  cursor depth, exact-count, and allocation evidence. [Phase 4](v3.3/PHASE_4_CHECKLIST.md)
+  locally completes publication, dynamic-index, controlled-concurrency, writer-progress,
+  retained-heap, and expensive-query hardening without changing production code. Its
+  [reviewed local baseline](v3.3/PHASE_4_BASELINE.md) explicitly defers
+  timeout/cancellation and prepared queries.
 - V3.4 and later versions receive their own Phase 0 contracts before implementation;
   roadmap descriptions alone are not executable semantics.
 
@@ -129,6 +133,8 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 2 reviewed local baseline](v3.3/PHASE_2_BASELINE.md)
 - [Phase 3 checklist](v3.3/PHASE_3_CHECKLIST.md)
 - [Phase 3 reviewed local baseline](v3.3/PHASE_3_BASELINE.md)
+- [Phase 4 checklist](v3.3/PHASE_4_CHECKLIST.md)
+- [Phase 4 hardening and decision baseline](v3.3/PHASE_4_BASELINE.md)
 
 ## Stable boundaries
 

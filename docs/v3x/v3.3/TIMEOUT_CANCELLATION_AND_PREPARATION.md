@@ -94,3 +94,24 @@ type needs its own lifecycle, ownership, compatibility, and memory-retention con
 This decision contract does not authorize asynchronous search, reactive streams,
 parallel candidate scoring, interrupt-driven cancellation, query scheduling, admission
 queues for readers, global plan caching, or mutation cancellation.
+
+## Phase 4 decision: defer
+
+Phase 4 completed the required review and explicitly defers timeout/cancellation and
+prepared queries for V3.3. This is the accepted closure of the decision obligation; it
+does not reserve a public descriptor or production implementation.
+
+The reviewed phrase, fuzzy, dense BOOL/BOOST, expensive-filter, exact-total, mixed
+concurrency, and depth-1,000 evidence is recorded in
+[the Phase 4 baseline](PHASE_4_BASELINE.md). Engine-owned loops provide possible
+cooperative checkpoints, but arbitrary application analyzers, extractors, and filter
+callbacks remain non-preemptible. No consumer latency budget, complete cross-operation
+semantics, or acceptable disabled-control overhead has been established.
+
+Prepared queries remain deferred because the reviewed costs are dominated by
+candidate evaluation, scoring, and callbacks rather than demonstrated repeated
+logical-normalization pressure. No global cache, thread-local cache, or
+snapshot/index-bound prepared plan is accepted.
+
+A later version may reopen either decision only through a new contract amendment with
+the complete semantic decisions and evidence required above.
