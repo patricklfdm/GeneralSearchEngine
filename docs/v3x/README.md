@@ -82,11 +82,13 @@ asynchronous-single-writer, and atomic-publication architecture.
   #70 at `34760b326fda6da31a0463d7b4765d6c6da5921c` and adds bounded
   multi-producer burst/recovery and local long-run calibration; its
   [local evidence](v3.4/PHASE_3_BASELINE.md) records the complete nine-cell matrix and
-  successful 30-minute windowed calibration. [Phase 4](v3.4/PHASE_4_CHECKLIST.md)
+  successful 30-minute windowed calibration. [Phase 4](v3.4/PHASE_4_CHECKLIST.md) is
+  accepted through PR #71 at `0433de39a318a1885322ee22377e3b8a76738c62`; it
   implements the isolated `final-v34` cloud family and completes its
   [local/fake/synthetic evidence](v3.4/PHASE_4_BASELINE.md) without paid execution.
-  Later phases cover final conversion, one required two-hour run, the canonical set,
-  registration, release, and final V4 handoff gates.
+  [Phase 5](v3.4/PHASE_5_CHECKLIST.md) converts the candidate to final `3.4.0` before
+  the still-open eligible heap, required two-hour, canonical-set, review, and
+  registration gates. Phase 6 covers release and final V4 handoff proof.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -184,6 +186,7 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 3 burst and long-run calibration](v3.4/PHASE_3_BASELINE.md)
 - [Phase 4 checklist](v3.4/PHASE_4_CHECKLIST.md)
 - [Phase 4 final-v34 local evidence](v3.4/PHASE_4_BASELINE.md)
+- [Phase 5 final-candidate and cloud-evidence checklist](v3.4/PHASE_5_CHECKLIST.md)
 
 ## Stable boundaries
 

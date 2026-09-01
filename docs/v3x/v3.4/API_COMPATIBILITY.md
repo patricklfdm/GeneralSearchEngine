@@ -66,7 +66,8 @@ thread-count, or performance promises for applications.
 Phase 0 leaves all active core, processor, reactor, example, and compatibility
 coordinates at published `3.3.0`. Phase 1 converts all seven active coordinates
 atomically to `3.4.0-SNAPSHOT` only after the Phase 0 protected merge and exact-commit
-CI pass. Final conversion to `3.4.0` occurs only after Phases 1–4 are accepted.
+CI pass. After Phases 1–4 were accepted, `release/v3.4.0` converted all seven active
+coordinates atomically to final `3.4.0`; publication remains a later Phase 6 gate.
 
 Historical baseline coordinates, hashes, fixtures, release records, and cloud family
 identities never change during conversion.
@@ -99,4 +100,3 @@ it cannot be smuggled in as a hardening fix.
 After remote publication, the Maven Central `3.4.0` core SHA-256 becomes the eighth
 mandatory future baseline only when it matches the recorded reproducible final JAR.
 Until that evidence exists, no document may invent or reserve a 3.4 hash.
-

@@ -74,7 +74,8 @@ V4 durability implementation may begin only after all of these are true:
 - [x] V3.4 Phase 0 contracts are accepted on protected `master`.
 - [x] Exact published `3.3.0` is frozen as the seventh compatibility and behavioral
   input baseline.
-- [ ] Cold construction, extreme-corpus, heap, and producer-burst local evidence pass.
+- [x] Cold construction, extreme-corpus, and producer-burst local evidence pass.
+- [ ] The eligible `4g`/`8g`/`16g` heap matrix passes on a suitable no-swap host.
 - [ ] The required two-hour run passes correctness, liveness, queue, and evidence
   integrity gates.
 - [ ] A three-or-more-member `final-v34` Standard canonical set is reviewed and

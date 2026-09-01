@@ -1,9 +1,9 @@
 # V3.4 Phase 4 checklist
 
-Status: locally complete on `feat/v3.4-phase4-final-v34`, pending protected review.
-Phase 4 implements and fake-tests the isolated `final-v34` evidence lane. It starts no
-paid job, changes no production source or public API, registers no baseline, and does
-not convert the version or begin V4.
+Status: accepted through PR #71 as protected-master commit
+`0433de39a318a1885322ee22377e3b8a76738c62`. Phase 4 implements and fake-tests the
+isolated `final-v34` evidence lane. It starts no paid job, changes no production source
+or public API, registers no baseline, and does not convert the version or begin V4.
 
 ## Entry boundary
 
@@ -67,9 +67,13 @@ not convert the version or begin V4.
 
 ## Phase 5 entry
 
-- [ ] Merge Phase 4 through protected review and require exact-merge master CI success.
-- [ ] Convert all active coordinates atomically to final `3.4.0` on a separate release
-  branch and repeat final compatibility/artifact/reproducibility gates.
+- [x] Merge Phase 4 through protected PR #71 as
+  `0433de39a318a1885322ee22377e3b8a76738c62`; exact-merge protected-master CI
+  succeeded in [run 33470856585](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33470856585).
+- [x] Create `release/v3.4.0` from that exact merge and convert all active coordinates
+  atomically to final `3.4.0` on the separate release branch.
+- [x] Repeat final compatibility, artifact, and reproducibility gates before the Phase
+  5 candidate commit.
 - [ ] Run the one-repeat two-hour Standard/GCS experiment from the exact final source.
 - [ ] Run and review a three- or five-member Standard/GCS canonical `final-v34` set.
 - [ ] Register `v3.4.0-in-memory-cloud` only after durable upload and protected review.
