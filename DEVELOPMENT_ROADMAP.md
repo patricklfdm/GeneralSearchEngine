@@ -1,5 +1,34 @@
 # GeneralSearchEngine development roadmap
 
+## v4.0 active development contract
+
+V4.0 opens the opt-in durable single-node line from the published `3.4.0` in-memory
+reference. It preserves immutable snapshots, lock-free readers, one authoritative
+writer, atomic publication, and all frozen retrieval semantics while adding explicit
+key/document codecs, local storage ownership, contiguous durable sequences, a framed
+checksummed WAL, atomic checkpoints, deterministic recovery, bounded retention, and
+real crash evidence.
+
+Phase 0 is a documentation-only contract freeze. It resolves the successful-Future
+order, group commit, incomplete-Future semantics, canonical slot/`nextDocId` recovery,
+built-in durable index classification, storage/schema/codec identity, exact tail versus
+corruption behavior, authoritative-checkpoint policy, terminal runtime I/O behavior,
+platform assumptions, disk bounds, additive API shape, and the independent
+`v4.0-durable-single-node-v1` evidence family. Phase 0 also freezes the local
+parent/child crash protocol, stable barriers, artifact schema, persistent-disk cloud
+failure drill, budget, retention, and cleanup rules as first-class architecture. No
+`4.0.0-SNAPSHOT`, executable harness, or production persistence implementation belongs
+in Phase 0.
+
+After protected acceptance, Phase 1 establishes `4.0.0-SNAPSHOT`, the published-3.4
+compatibility baseline, independent history/recovery oracles, crash/corruption harness
+scaffolding, executable artifact validation, a fake cloud lane, and pre-change evidence.
+Production WAL begins only in Phase 2 and must add named crash barriers alongside each
+storage transition. Recovery, checkpoints, lifecycle/crash hardening,
+performance/cloud evidence, release candidate, and publication then proceed in ordered
+phases 3–8. The authoritative map is under
+[`docs/v4/`](docs/v4/README.md).
+
 ## v3.x completed development line
 
 V3.x is the completed post-3.0 in-memory development line. It matured ranked semantics,
