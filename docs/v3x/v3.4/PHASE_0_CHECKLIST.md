@@ -123,7 +123,7 @@ Phase 1 foundation, not later hardening, cloud, paid execution, or registration 
   oracle-correct state.
 - [x] The required two-hour run passes all correctness, liveness, queue, drift-review,
   evidence-integrity, retention, and cleanup gates.
-- [ ] A final 3-or-more-member Standard canonical set is accepted and registered as
+- [x] A final 3-or-more-member Standard canonical set is accepted and registered as
   `v3.4.0-in-memory-cloud`.
 - [ ] Seven-baseline compatibility, consumers, Javadocs, artifacts, reproducibility,
   documentation, signed release, Central, deployment, GitHub Release, and remote

@@ -1,9 +1,11 @@
 # V3.4 Phase 5 final-candidate and cloud-evidence checklist
 
-Status: final-coordinate preparation, eligible heap evidence, the required two-hour
-experiment, and the three-member canonical set are complete. Their retained
-[Phase 5 evidence](PHASE_5_BASELINE.md) is pending protected review before baseline
-registration. This phase does not publish, tag, or begin V4 prematurely.
+Status: the final `3.4.0` source, eligible heap matrix, required two-hour experiment,
+and the three-member canonical set are complete. Their retained
+[Phase 5 evidence](PHASE_5_BASELINE.md) is accepted through protected PR #73 at
+`fea1547accf896c3a8111ac9cfbb4080a25c5ed5`, with exact-master CI passing in run
+`33529997974`. The reviewed set is registered on this branch; protected registry
+review remains required. This phase does not publish, tag, or begin V4 prematurely.
 
 ## Accepted entry boundary
 
@@ -115,15 +117,17 @@ never added to, the frozen `final-v34` canonical member file set.
   Standard `c3d-standard-30`, GCS retention, and the fixed 30-minute window.
 - [x] Retain every member, median/variation, exact environment and source identity,
   aggregation report, durable upload receipt, and cleanup proof.
-- [ ] Review the canonical set through a protected evidence PR before registration.
-- [ ] Register only `v3.4.0-in-memory-cloud`; never append these results to
+- [x] Review the canonical set through protected evidence PR #73 before registration;
+  merge commit `fea1547accf896c3a8111ac9cfbb4080a25c5ed5` passed exact-master CI in
+  run `33529997974`.
+- [x] Register only `v3.4.0-in-memory-cloud`; never append these results to
   `v3.0.0-cloud` or `v3.1.0-ranked-cloud`.
 
 ## Phase 6 entry
 
-- [ ] Close the eligible heap, required two-hour, canonical, durable-retention,
+- [x] Close the eligible heap, required two-hour, canonical, durable-retention,
   cleanup, review, and registration gates above.
-- [ ] Preserve the accepted exact final source; any production change invalidates the
+- [x] Preserve the accepted exact final source; any production change invalidates the
   affected evidence and returns to contract review.
 - [ ] Prepare final consumers, compatibility, artifacts, release documentation, and
   signed `v3.4.0` publication on a separate Phase 6 release step.

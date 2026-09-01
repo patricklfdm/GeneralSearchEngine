@@ -76,6 +76,6 @@ or public API, registers no baseline, and does not convert the version or begin 
   5 candidate commit.
 - [x] Run the one-repeat two-hour Standard/GCS experiment from the exact final source.
 - [x] Run and locally review a three-member Standard/GCS canonical `final-v34` set.
-- [ ] Register `v3.4.0-in-memory-cloud` only after durable upload and protected review.
+- [x] Register `v3.4.0-in-memory-cloud` only after durable upload and protected review.
 - [x] Keep the eligible 4/8/16 GiB heap matrix and all V4 handoff gates explicit; the
   final-source matrix passes separately from canonical evidence.
