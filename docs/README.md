@@ -97,6 +97,7 @@ remains the phase history and decision source of truth.
 - [V3.4 Phase 4 checklist](v3x/v3.4/PHASE_4_CHECKLIST.md)
 - [V3.4 Phase 4 final-v34 local evidence](v3x/v3.4/PHASE_4_BASELINE.md)
 - [V3.4 Phase 5 final-candidate and cloud-evidence checklist](v3x/v3.4/PHASE_5_CHECKLIST.md)
+- [V3.4 Phase 5 final-source evidence](v3x/v3.4/PHASE_5_BASELINE.md)
 
 ## v3.0 — earlier stable and frozen release
 

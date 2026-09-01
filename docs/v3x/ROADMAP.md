@@ -49,9 +49,11 @@ matrix and 30-minute calibration pass writer-progress, completion, queue-drainag
 mixed-reader, lifecycle, final-oracle, and artifact-integrity gates. Phase 4 is accepted
 through PR #71 at `0433de39a318a1885322ee22377e3b8a76738c62`: the isolated final
 cloud family, exact workload, bounded plan, evidence analysis, and fake/synthetic
-lifecycle gates pass without paid execution. Phase 5 converts all active coordinates
-to final `3.4.0`; eligible heap, one controlled two-hour run, the canonical set,
-protected evidence review, and durable registration remain required before Phase 6.
+lifecycle gates pass without paid execution. Final coordinates are accepted through
+PR #72 at `52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 final-source evidence
+accepts the eligible heap matrix, controlled two-hour experiment, and three-member
+canonical set; protected evidence review and durable registration remain required
+before Phase 6.
 Production source remains unchanged by default; a reproducible release blocker needs
 an accepted amendment.
 

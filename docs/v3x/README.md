@@ -86,9 +86,10 @@ asynchronous-single-writer, and atomic-publication architecture.
   accepted through PR #71 at `0433de39a318a1885322ee22377e3b8a76738c62`; it
   implements the isolated `final-v34` cloud family and completes its
   [local/fake/synthetic evidence](v3.4/PHASE_4_BASELINE.md) without paid execution.
-  [Phase 5](v3.4/PHASE_5_CHECKLIST.md) converts the candidate to final `3.4.0` before
-  the still-open eligible heap, required two-hour, canonical-set, review, and
-  registration gates. Phase 6 covers release and final V4 handoff proof.
+  [Phase 5](v3.4/PHASE_5_CHECKLIST.md) converts the candidate to final `3.4.0`; its
+  [final-source evidence](v3.4/PHASE_5_BASELINE.md) accepts the eligible heap matrix,
+  required two-hour experiment, and three-member canonical set. Protected evidence
+  review and registration remain open before Phase 6 release and final V4 handoff.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -187,6 +188,7 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 4 checklist](v3.4/PHASE_4_CHECKLIST.md)
 - [Phase 4 final-v34 local evidence](v3.4/PHASE_4_BASELINE.md)
 - [Phase 5 final-candidate and cloud-evidence checklist](v3.4/PHASE_5_CHECKLIST.md)
+- [Phase 5 final-source evidence](v3.4/PHASE_5_BASELINE.md)
 
 ## Stable boundaries
 

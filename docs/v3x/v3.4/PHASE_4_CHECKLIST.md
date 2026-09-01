@@ -74,7 +74,8 @@ or public API, registers no baseline, and does not convert the version or begin 
   atomically to final `3.4.0` on the separate release branch.
 - [x] Repeat final compatibility, artifact, and reproducibility gates before the Phase
   5 candidate commit.
-- [ ] Run the one-repeat two-hour Standard/GCS experiment from the exact final source.
-- [ ] Run and review a three- or five-member Standard/GCS canonical `final-v34` set.
+- [x] Run the one-repeat two-hour Standard/GCS experiment from the exact final source.
+- [x] Run and locally review a three-member Standard/GCS canonical `final-v34` set.
 - [ ] Register `v3.4.0-in-memory-cloud` only after durable upload and protected review.
-- [ ] Keep the eligible 4/8/16 GiB heap matrix and all V4 handoff gates explicit.
+- [x] Keep the eligible 4/8/16 GiB heap matrix and all V4 handoff gates explicit; the
+  final-source matrix passes separately from canonical evidence.

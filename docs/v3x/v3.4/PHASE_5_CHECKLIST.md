@@ -1,10 +1,9 @@
 # V3.4 Phase 5 final-candidate and cloud-evidence checklist
 
-Status: final-coordinate preparation and local candidate validation are complete on
-`release/v3.4.0`, based on the accepted Phase 4 protected-master merge. This phase
-converts the exact candidate before any paid evidence is started. It does not publish,
-tag, or claim the required heap, two-hour, canonical, or registered evidence
-prematurely.
+Status: final-coordinate preparation, eligible heap evidence, the required two-hour
+experiment, and the three-member canonical set are complete. Their retained
+[Phase 5 evidence](PHASE_5_BASELINE.md) is pending protected review before baseline
+registration. This phase does not publish, tag, or begin V4 prematurely.
 
 ## Accepted entry boundary
 
@@ -16,6 +15,9 @@ prematurely.
 - [x] `release/v3.4.0` starts from that exact protected-master commit.
 - [x] Phase 4 changed no production source or supported public API and ran no paid
   cloud job.
+- [x] Final coordinates merged through protected PR #72 as
+  `52be441f70e7f23195b8b4a0024444d315ee8eaa`; exact-merge protected-master CI
+  succeeded in [run 33472758082](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33472758082).
 
 ## Final version conversion
 
@@ -65,11 +67,11 @@ resume, replacement, and reduced final-suite gates also pass without GCP access.
 
 ## Eligible heap evidence
 
-- [ ] Run the required `4g`, `8g`, and `16g` G1 cells on one suitable final-source
+- [x] Run the required `4g`, `8g`, and `16g` G1 cells on one suitable final-source
   host with sufficient physical memory and no active swap.
-- [ ] Preserve identical corpus/workload identity, all individual cells, manifests,
+- [x] Preserve identical corpus/workload identity, all individual cells, manifests,
   checksums, GC/heap/allocation fields, and explicit eligibility decisions.
-- [ ] Do not treat the earlier swap-active local calibration or the fixed 16 GiB
+- [x] Do not treat the earlier swap-active local calibration or the fixed 16 GiB
   canonical JVM as a substitute for the complete heap matrix.
 
 This matrix remains a separate diagnostic and does not create a new Cloud Benchmark
@@ -98,20 +100,20 @@ never added to, the frozen `final-v34` canonical member file set.
 
 ## Required two-hour experiment
 
-- [ ] Merge the final-coordinate candidate through protected review and require
+- [x] Merge the final-coordinate candidate through protected review and require
   exact-merge master CI success before paid execution.
-- [ ] Dry-run and review exactly one `final-v34` experiment using Standard
+- [x] Dry-run and review exactly one `final-v34` experiment using Standard
   `c3d-standard-30`, GCS retention, the `v3.4-final-in-memory-v1` preset, and `2h`.
-- [ ] Run from the exact protected final-source commit and retain the immutable plan,
+- [x] Run from the exact protected final-source commit and retain the immutable plan,
   raw/normalized evidence, durable upload receipt, and cleanup proof.
-- [ ] Review all correctness, liveness, queue-drainage, window, drift, identity, and
+- [x] Review all correctness, liveness, queue-drainage, window, drift, identity, and
   integrity fields; partial or interrupted evidence remains ineligible.
 
 ## Final canonical set and registration
 
-- [ ] Dry-run and review a three- or five-member `final-v34` canonical set using
+- [x] Dry-run and review a three- or five-member `final-v34` canonical set using
   Standard `c3d-standard-30`, GCS retention, and the fixed 30-minute window.
-- [ ] Retain every member, median/variation, exact environment and source identity,
+- [x] Retain every member, median/variation, exact environment and source identity,
   aggregation report, durable upload receipt, and cleanup proof.
 - [ ] Review the canonical set through a protected evidence PR before registration.
 - [ ] Register only `v3.4.0-in-memory-cloud`; never append these results to

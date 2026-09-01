@@ -121,7 +121,7 @@ Phase 1 foundation, not later hardening, cloud, paid execution, or registration 
   resource-exhaustion cells.
 - [x] Multi-producer bursts preserve single-writer semantics and recover to a drained,
   oracle-correct state.
-- [ ] The required two-hour run passes all correctness, liveness, queue, drift-review,
+- [x] The required two-hour run passes all correctness, liveness, queue, drift-review,
   evidence-integrity, retention, and cleanup gates.
 - [ ] A final 3-or-more-member Standard canonical set is accepted and registered as
   `v3.4.0-in-memory-cloud`.
