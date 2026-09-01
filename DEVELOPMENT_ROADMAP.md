@@ -1,11 +1,11 @@
 # GeneralSearchEngine development roadmap
 
-## v3.x active development line
+## v3.x completed development line
 
-V3.x is the active post-3.0 development line. It matures ranked semantics, text-search
-experience, application-facing retrieval APIs, and final in-memory engineering without
-changing the immutable-snapshot or single-writer publication boundary. Its version
-scope and versioned contract maps are maintained under
+V3.x is the completed post-3.0 in-memory development line. It matured ranked semantics,
+text-search experience, application-facing retrieval APIs, and final in-memory
+engineering without changing the immutable-snapshot or single-writer publication
+boundary. Its version scope and versioned contract maps are maintained under
 [`docs/v3x/`](docs/v3x/README.md).
 
 V3.1 Phases 0–8 are complete. Ordered phrase slop, `minimumShouldMatch`, profile-guided
@@ -14,7 +14,7 @@ concurrency evidence passed their contracts. The frozen regression comparison an
 distinct ranked feature family are reviewed, and `v3.1.0-ranked-cloud` is registered
 immutably. Signed `v3.1.0`, Maven Central publication, clean remote verification, and
 the GitHub Release are accepted. Published 1.0.0, 2.0.0, 2.1.0, 3.0.0, 3.1.0,
-3.2.0, and 3.3.0 APIs are mandatory compatibility baselines for subsequent V3.x
+3.2.0, 3.3.0, and 3.4.0 APIs are mandatory compatibility baselines for later
 development.
 
 ## v3.2 development contract
@@ -120,10 +120,11 @@ PR #73 at protected-master commit
 two-hour experiment, and three-member canonical set all resolve to that exact source.
 The reviewed set is registered as `v3.4.0-in-memory-cloud` through PR #74 at
 protected-master commit `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master
-CI run `33532660854` passed. Phase 6 local release validation now passes on
-`release/v3.4.0-publication`, including zero-addition compatibility, consumers,
-strict artifacts, reproducibility, JMH/soak, and local cloud-runner gates. Protected
-candidate review, signed publication, and post-publication proof remain open.
+CI run `33532660854` passed. Phase 6 merged through protected PR #75 as
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`; exact-master CI run `33535775072`
+passed. Signed `v3.4.0`, Maven Central publication, clean remote verification,
+production deployment `6206483105`, GitHub Release `380695065`, and the final
+post-publication record complete the V3.x line at that exact release identity.
 
 The new cloud identities are mode `final-v34`, suite
 `v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and registration
@@ -143,9 +144,22 @@ amendment before a narrow compatibility-preserving fix. The architecture,
 compatibility, validation, performance, cloud, handoff, and Phase 0 contracts are under
 [`docs/v3x/v3.4/`](docs/v3x/v3.4/ARCHITECTURE.md).
 
-## v3.3.0 current stable release
+## v3.4.0 current stable release
 
-Version `3.3.0` was published on August 31, 2026 as the current stable release:
+Version `3.4.0` was published on September 1, 2026 as the current stable release:
+
+- `io.github.patricklfdm:general-search-engine:3.4.0`;
+- `io.github.patricklfdm:general-search-engine-processor:3.4.0`;
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0).
+
+V3.4 adds no supported application API. It closes the V3.x in-memory line with
+reviewed cold-build, extreme-corpus, bounded-heap, burst/recovery, two-hour, canonical
+cloud, compatibility, artifact, and publication evidence.
+
+## v3.3.0 previous stable release
+
+Version `3.3.0` was published on August 31, 2026 and remains the immediate prior
+stable release and compatibility baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.3.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.3.0`;
@@ -155,10 +169,10 @@ V3.3 adds strict current-snapshot search-after pagination and opt-in exact total
 without changing ordinary ranked search, highlighting, Explain, or publication
 semantics.
 
-## v3.2.0 previous stable release
+## v3.2.0 earlier stable release
 
-Version `3.2.0` was published on August 30, 2026 and remains the immediate prior
-stable release and compatibility baseline:
+Version `3.2.0` was published on August 30, 2026 and remains a frozen compatibility
+baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.2.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.2.0`;

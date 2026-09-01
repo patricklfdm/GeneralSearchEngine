@@ -9,18 +9,19 @@ signed tagging, publication, and post-publication proof.
 | Field | Value |
 |---|---|
 | Target version | `3.4.0` |
-| Release state | unpublished final candidate; local validation complete |
+| Release state | published and remotely verified |
 | Frozen workload source | `52be441f70e7f23195b8b4a0024444d315ee8eaa` (PR #72) |
 | Accepted evidence merge | `fea1547accf896c3a8111ac9cfbb4080a25c5ed5` (PR #73) |
 | Registered cloud baseline | `v3.4.0-in-memory-cloud` |
 | Phase 6 entry | `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd` (PR #74) |
 | Publication branch | `release/v3.4.0-publication` |
-| Final protected-master commit | pending protected candidate merge |
-| Signed tag | pending `v3.4.0` |
-| Maven Central / deployment / GitHub Release | pending independent observation |
+| Final protected-master commit | `7077446a3be3ac5eefff78366aa61d6a48e55ee1` (PR #75) |
+| Signed tag | verified `v3.4.0` at the exact final commit |
+| Maven Central | core and processor `3.4.0` published and remotely verified |
+| GitHub Release | ID `380695065`, published `2026-09-01T17:25:37Z` |
 
-Published `3.3.0` remains current stable. No unchecked remote item below may be marked
-complete from local output or expectation.
+Publication and remote-verification items below were completed only after independent
+observation. Published `3.4.0` is now immutable; later fixes require a new version.
 
 ## Frozen release contents
 
@@ -66,48 +67,73 @@ produced byte-identical artifacts:
 | `general-search-engine-processor-3.4.0-sources.jar` | `5730da015b2846f344c29d2f60a58d2ffe151acff35df38e6d6739c03a82a25c` |
 | `general-search-engine-processor-3.4.0-javadoc.jar` | `4ff95b229f895ef7253ae59cc0eed2beaecba7b8a90ad7edc08b098494bce052` |
 
+These are the two-build local release-validation hashes. Post-publication download
+records the immutable Central archives separately:
+
+| Published Maven Central artifact | SHA-256 |
+|---|---|
+| `general-search-engine-3.4.0.jar` | `e4dee61efacbff8d042b1ffda50f8b4ec1117b90689b55e621464f0c3a1c525f` |
+| `general-search-engine-3.4.0-sources.jar` | `f4a83cded80a850558ea3c6f3193b14720a840740f5ed4889df7d3c81779fb52` |
+| `general-search-engine-3.4.0-javadoc.jar` | `5592bf7ad052195c0578a64a0578ef4d49e4b84b80ca365d8aec249808da421a` |
+| `general-search-engine-processor-3.4.0.jar` | `03e825a53249735da41cbc8260d40ed3d9aecc8d50611090caa36ec93e91d0c4` |
+| `general-search-engine-processor-3.4.0-sources.jar` | `5730da015b2846f344c29d2f60a58d2ffe151acff35df38e6d6739c03a82a25c` |
+| `general-search-engine-processor-3.4.0-javadoc.jar` | `532b07c1e262b4a4e819a10d633f808254b8aea774c36da24e7ccef56bfe4a41` |
+
+Both main JARs and the processor sources JAR match the local record byte for byte. The
+core sources difference is limited to empty directory entries; the Javadoc differences
+are limited to JDK-distribution legal files. No Java source, class, manifest, service,
+or API content differs. The release gate guarantees two clean builds within the frozen
+build environment; it does not claim byte identity for Javadoc bundles produced by a
+different JDK distribution. All Central archives independently pass detached-signature,
+checksum, manifest, and service-boundary verification.
+
 ## Protected candidate acceptance
 
-- [ ] Merge the publication candidate through protected review.
-- [ ] Record the exact final master commit and successful exact-master CI run.
-- [ ] Verify local and remote absence of `v3.4.0` before signing.
-- [ ] Run Central immutability preflight on the exact accepted commit.
+- [x] Merge the publication candidate through protected PR #75 as
+  `7077446a3be3ac5eefff78366aa61d6a48e55ee1`.
+- [x] Record exact-master CI run `33535775072` as `success` before tagging.
+- [x] Verify local and remote absence of `v3.4.0` before signing.
+- [x] Run Central immutability preflight on the exact accepted commit.
 
 ## Signed tag verification
 
-- [ ] Create annotated signed `v3.4.0` on the exact final protected-master commit.
-- [ ] `git cat-file -t v3.4.0` reports `tag`.
-- [ ] `git tag -v v3.4.0` verifies fingerprint
+- [x] Create annotated signed `v3.4.0` on the exact final protected-master commit.
+- [x] `git cat-file -t v3.4.0` reports `tag`.
+- [x] `git tag -v v3.4.0` verifies fingerprint
   `91AAB7A2B0FB55C3BBB334534B6103148D643AB3`.
-- [ ] `scripts/verify-release-tag.sh v3.4.0` passes.
-- [ ] `git rev-parse v3.4.0^{commit}` equals the recorded protected-master commit.
-- [ ] Push only the verified tag.
+- [x] `scripts/verify-release-tag.sh v3.4.0` passes.
+- [x] `git rev-parse v3.4.0^{commit}` equals the recorded protected-master commit.
+- [x] Push only the verified tag.
 
 ## Protected publication
 
-- [ ] Tag-triggered release validation checks out the exact tag and passes every gate.
-- [ ] The repository owner approves `production-release` only after validation.
-- [ ] Core and processor POM/main/sources/Javadoc artifacts and all signatures publish.
-- [ ] `scripts/verify-published-release.sh 3.4.0` passes from a clean remote repository.
-- [ ] The published V3 consumer passes without a reactor install.
-- [ ] The production deployment reports success for the exact tag commit.
-- [ ] GitHub Release `GeneralSearchEngine 3.4.0` is created from the verified tag,
+- [x] Tag-triggered release validation checks out the exact tag and passes every gate.
+- [x] The repository owner approves `production-release` only after validation.
+- [x] Core and processor POM/main/sources/Javadoc artifacts and all signatures publish.
+- [x] `scripts/verify-published-release.sh 3.4.0` passes from a clean remote repository.
+- [x] The published V3 consumer passes all nine tests without a reactor install.
+- [x] The production deployment reports success for the exact tag commit.
+- [x] GitHub Release `GeneralSearchEngine 3.4.0` is created from the verified tag,
   marked latest, and is neither draft nor prerelease.
 
 ## Post-publication evidence
 
 | Evidence | Observed result |
 |---|---|
-| Release date | pending verified publication on `2026-09-01` |
-| Tag and protected-master SHA | pending |
-| Signing fingerprint | pending independent tag verification |
-| Release workflow | pending |
-| Production deployment | pending |
-| Maven Central core and processor | pending |
-| Clean remote artifact verification | pending |
-| Published V3 consumer | pending |
-| GitHub Release | pending |
+| Release date | `2026-09-01` |
+| Tag and protected-master SHA | signed `v3.4.0` -> `7077446a3be3ac5eefff78366aa61d6a48e55ee1` |
+| Signing fingerprint | `91AAB7A2B0FB55C3BBB334534B6103148D643AB3` |
+| Release workflow | [run 33536435020](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33536435020), tag push, `success`, `2026-09-01T17:12:49Z` to `2026-09-01T17:25:41Z` |
+| Production deployment | ID `6206483105`, ref `v3.4.0`, same SHA, verified `success`, updated `2026-09-01T17:25:41Z` |
+| Maven Central core | [`io.github.patricklfdm:general-search-engine:3.4.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.4.0), main JAR SHA-256 `e4dee61efacbff8d042b1ffda50f8b4ec1117b90689b55e621464f0c3a1c525f` |
+| Maven Central processor | [`io.github.patricklfdm:general-search-engine-processor:3.4.0`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.4.0), main JAR SHA-256 `03e825a53249735da41cbc8260d40ed3d9aecc8d50611090caa36ec93e91d0c4` |
+| Clean remote artifact verification | PASS — eight remote artifacts, detached signatures, SHA-1 files, manifests, and service boundary verified |
+| Published V3 consumer | PASS — supported-public-API consumer, 9/9 tests, no reactor install |
+| GitHub Release | ID `380695065`, [`GeneralSearchEngine 3.4.0`](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0), published `2026-09-01T17:25:37Z`, not draft or prerelease |
 
-Only a later documentation-only post-publication change may fill these fields and
-promote `3.4.0` to current stable. That protected merge closes Phase 6 and the V3.x
-development line; V4 implementation remains blocked until then.
+The tag, protected-master commit, workflow, deployment, Central artifacts, GitHub
+Release, and registered `v3.4.0-in-memory-cloud` baseline resolve to reviewed release
+identities. The published core hash exactly matches the recorded reproducible main JAR
+and is frozen as the eighth future compatibility baseline. Published `3.4.0` and
+signed `v3.4.0` are immutable; later fixes use `3.4.1` or a later version. The
+protected merge of this documentation-only record closes Phase 6 and the V3.x line.

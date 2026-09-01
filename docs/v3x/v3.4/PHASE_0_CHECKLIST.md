@@ -125,10 +125,10 @@ Phase 1 foundation, not later hardening, cloud, paid execution, or registration 
   evidence-integrity, retention, and cleanup gates.
 - [x] A final 3-or-more-member Standard canonical set is accepted and registered as
   `v3.4.0-in-memory-cloud`.
-- [ ] Seven-baseline compatibility, consumers, Javadocs, artifacts, reproducibility,
+- [x] Seven-baseline compatibility, consumers, Javadocs, artifacts, reproducibility,
   documentation, signed release, Central, deployment, GitHub Release, and remote
   verification pass.
-- [ ] Post-publication evidence freezes the `3.4.0` artifact hash and closes the V3.x
+- [x] Post-publication evidence freezes the `3.4.0` artifact hash and closes the V3.x
   line before V4 implementation begins.
 
 No unchecked implementation-entry item authorizes later-phase work. Any scope, public

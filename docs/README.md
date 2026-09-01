@@ -7,7 +7,7 @@ development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
-## v3.x — current stable and active development line
+## v3.x — current stable and completed in-memory line
 
 - [Development overview and contract map](v3x/README.md)
 - [Roadmap](v3x/ROADMAP.md)
@@ -101,6 +101,7 @@ remains the phase history and decision source of truth.
 - [V3.4 migration guide](v3x/v3.4/MIGRATION_GUIDE.md)
 - [V3.4 Phase 6 publication checklist](v3x/v3.4/PHASE_6_CHECKLIST.md)
 - [V3.4 release checklist](v3x/v3.4/RELEASE_CHECKLIST.md)
+- [V3.4 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0)
 
 ## v3.0 — earlier stable and frozen release
 
