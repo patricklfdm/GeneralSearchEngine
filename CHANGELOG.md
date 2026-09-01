@@ -3,26 +3,28 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## 3.4.0 — 2026-08-31
+## 3.4.0 — 2026-09-01
 
 ### Added
 
 - Benchmark-only cold-construction, nine-axis extreme-corpus, bounded-heap,
   multi-producer burst/recovery, and windowed long-run diagnostic surfaces.
 - An isolated `final-v34` evidence lane with a frozen in-memory workload, exact
-  evidence schema, bounded cloud plan, immutable aggregation rules, and the future
+  evidence schema, bounded cloud plan, immutable aggregation rules, and the independent
   `v3.4.0-in-memory-cloud` registration identity.
 
 ### Changed
 
-- Freeze the final V3.x in-memory candidate without adding or removing any supported
+- Freeze the final V3.x in-memory line without adding or removing any supported
   public API, query behavior, ranking semantics, writer model, or snapshot behavior.
 - Preserve all published V1, V2, V3.0, V3.1, V3.2, and V3.3 compatibility baselines
   while converting all active coordinates to final `3.4.0`.
 
-Version `3.4.0` is currently an unpublished final candidate. The required final-source
-heap, two-hour, canonical cloud, protected-master, signed-tag, Maven Central,
-deployment, GitHub Release, and post-publication gates remain open.
+The final-source heap, two-hour, and canonical cloud evidence is accepted, and
+`v3.4.0-in-memory-cloud` is registered. Release completion requires protected Phase 6
+acceptance, a signed tag, Maven Central artifacts, production deployment, GitHub
+Release, clean remote verification, and post-publication record to resolve to one
+reviewed identity.
 
 ## 3.3.0 — 2026-08-31
 

@@ -53,9 +53,12 @@ lifecycle gates pass without paid execution. Final coordinates are accepted thro
 PR #72 at `52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 final-source evidence is
 accepted through PR #73 at `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`: the
 eligible heap matrix, controlled two-hour experiment, and three-member canonical set
-all pass. The reviewed set is registered on the current branch as
-`v3.4.0-in-memory-cloud`; protected registry review and exact-merge CI remain required
-before Phase 6.
+all pass. The reviewed set is registered as `v3.4.0-in-memory-cloud` through PR #74
+at `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
+passed. Phase 6 local compatibility, consumer, artifact, reproducibility, JMH/soak,
+cloud-runner, migration, and release-documentation gates now pass on
+`release/v3.4.0-publication`. Protected candidate acceptance, signed publication, and
+post-publication proof remain open.
 Production source remains unchanged by default; a reproducible release blocker needs
 an accepted amendment.
 

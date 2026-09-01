@@ -8,6 +8,9 @@ mutations and atomically publishes new snapshots.
 Version 3.3.0 is the current stable release. Its signed `v3.3.0` tag, both Maven
 artifacts, production deployment, and GitHub Release completed on August 31, 2026.
 Version 3.2.0 remains the immediate prior stable release and compatibility baseline.
+Version 3.4.0 is an unpublished zero-API-addition final in-memory hardening candidate;
+its final cloud evidence and independent baseline are accepted, while signed
+publication and post-publication verification remain open.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [V3.x contract map](docs/v3x/README.md). Version `3.3.0` is available from Maven Central.
@@ -45,6 +48,11 @@ and
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
 [`v3.3.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0).
+
+The upcoming 3.4 release requires no supported source migration. See the
+[3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md) for its zero-addition
+API boundary, preserved behavior, benchmark-only hardening scope, and publication
+status.
 
 ### What is new in V3.1
 

@@ -118,9 +118,12 @@ paid run or production change. Final coordinates are accepted through PR #72 at
 PR #73 at protected-master commit
 `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`: the eligible heap matrix, required
 two-hour experiment, and three-member canonical set all resolve to that exact source.
-The reviewed set is now registered on this branch as `v3.4.0-in-memory-cloud`; its
-append-only registry change still requires protected review and exact-merge CI before
-Phase 6 release work begins.
+The reviewed set is registered as `v3.4.0-in-memory-cloud` through PR #74 at
+protected-master commit `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master
+CI run `33532660854` passed. Phase 6 local release validation now passes on
+`release/v3.4.0-publication`, including zero-addition compatibility, consumers,
+strict artifacts, reproducibility, JMH/soak, and local cloud-runner gates. Protected
+candidate review, signed publication, and post-publication proof remain open.
 
 The new cloud identities are mode `final-v34`, suite
 `v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and registration
