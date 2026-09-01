@@ -880,7 +880,7 @@ public final class V34LongRunCalibration {
         values.setProperty("run_kind", config.runKind());
         values.setProperty("source_commit", config.sourceCommit());
         values.setProperty("tree_state", config.treeState());
-        values.setProperty("version", "3.4.0-SNAPSHOT");
+        values.setProperty("version", "3.4.0");
         values.setProperty("documents", Integer.toString(config.documentCount()));
         values.setProperty("readers", Integer.toString(config.readerCount()));
         values.setProperty("seconds", Integer.toString(config.seconds()));
