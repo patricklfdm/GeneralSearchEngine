@@ -50,9 +50,11 @@ mixed-reader, lifecycle, final-oracle, and artifact-integrity gates. Phase 4 is 
 through PR #71 at `0433de39a318a1885322ee22377e3b8a76738c62`: the isolated final
 cloud family, exact workload, bounded plan, evidence analysis, and fake/synthetic
 lifecycle gates pass without paid execution. Final coordinates are accepted through
-PR #72 at `52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 final-source evidence
-accepts the eligible heap matrix, controlled two-hour experiment, and three-member
-canonical set; protected evidence review and durable registration remain required
+PR #72 at `52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 final-source evidence is
+accepted through PR #73 at `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`: the
+eligible heap matrix, controlled two-hour experiment, and three-member canonical set
+all pass. The reviewed set is registered on the current branch as
+`v3.4.0-in-memory-cloud`; protected registry review and exact-merge CI remain required
 before Phase 6.
 Production source remains unchanged by default; a reproducible release blocker needs
 an accepted amendment.

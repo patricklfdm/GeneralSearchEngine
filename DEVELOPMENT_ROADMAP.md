@@ -114,14 +114,17 @@ Phase 4 is accepted through PR #71 at protected-master commit
 suite/preset, freezes exact workload and resource bounds, and passes local,
 fake-gcloud, synthetic aggregation, failure/recovery, and integrity gates without a
 paid run or production change. Final coordinates are accepted through PR #72 at
-`52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 accepts the eligible heap
-matrix, required two-hour experiment, and three-member canonical set from that exact
-source; protected evidence review and registration remain open before Phase 6 release
-work.
+`52be441f70e7f23195b8b4a0024444d315ee8eaa`. Phase 5 evidence is accepted through
+PR #73 at protected-master commit
+`fea1547accf896c3a8111ac9cfbb4080a25c5ed5`: the eligible heap matrix, required
+two-hour experiment, and three-member canonical set all resolve to that exact source.
+The reviewed set is now registered on this branch as `v3.4.0-in-memory-cloud`; its
+append-only registry change still requires protected review and exact-merge CI before
+Phase 6 release work begins.
 
 The new cloud identities are mode `final-v34`, suite
-`v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and eventual
-registration `v3.4.0-in-memory-cloud`. Existing `v3.0.0-cloud`,
+`v3.4-final-in-memory-suite-v1`, preset `v3.4-final-in-memory-v1`, and registration
+`v3.4.0-in-memory-cloud`. Existing `v3.0.0-cloud`,
 `v3.1.0-ranked-cloud`, and their presets remain immutable. Canonical V3.4 evidence
 requires at least three Standard `c3d-standard-30` members with exact source,
 environment, preset, GCS retention, and cleanup evidence.

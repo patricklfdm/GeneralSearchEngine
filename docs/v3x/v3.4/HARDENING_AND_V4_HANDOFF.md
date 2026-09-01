@@ -78,10 +78,10 @@ V4 durability implementation may begin only after all of these are true:
 - [x] The eligible `4g`/`8g`/`16g` heap matrix passes on a suitable no-swap host.
 - [x] The required two-hour run passes correctness, liveness, queue, and evidence
   integrity gates.
-- [ ] A three-or-more-member `final-v34` Standard canonical set is reviewed and
+- [x] A three-or-more-member `final-v34` Standard canonical set is reviewed and
   registered as `v3.4.0-in-memory-cloud`.
-- [ ] Any admitted production fix has its own amendment, regression proof, and
-  regenerated affected evidence.
+- [x] No production fix was admitted after the final source identity; therefore no
+  amendment or regenerated evidence is required.
 - [x] Final V1/V2/V3 consumers, seven-baseline Japicmp, strict Javadocs, six release
   JARs, service boundaries, and reproducibility pass.
 - [ ] Signed `v3.4.0`, Maven Central publication, clean remote verification,

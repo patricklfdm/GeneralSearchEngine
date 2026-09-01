@@ -1,9 +1,12 @@
 # V3.4 Phase 5 final-source evidence
 
-Status: locally reviewed on `docs/v3.4-phase5-cloud-evidence`, pending protected
-evidence review and baseline registration. Every retained result uses final source
-commit `52be441f70e7f23195b8b4a0024444d315ee8eaa`, the protected-master merge of
-PR #72. Exact-merge CI passed in
+Status: accepted through protected evidence PR #73 at master commit
+`fea1547accf896c3a8111ac9cfbb4080a25c5ed5`; exact-merge CI passed in
+[run 33529997974](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33529997974).
+The reviewed canonical set is registered on the current branch as
+`v3.4.0-in-memory-cloud`, pending protected registry review. Every retained result uses
+final source commit `52be441f70e7f23195b8b4a0024444d315ee8eaa`, the protected-master merge of PR #72;
+its exact-merge CI passed in
 [run 33472758082](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33472758082).
 No production source changed after this identity was frozen.
 
@@ -100,10 +103,35 @@ relative ranges, but their absolute values remain small and all frozen correctne
 completion, rejection, drainage, and liveness oracles pass. V3.4 freezes no universal
 numeric threshold, and the retained windows show no unexplained sustained drift.
 
+## Baseline registration
+
+The append-only registry now records the reviewed set under the independent identity
+`v3.4.0-in-memory-cloud`. Existing `v3.0.0-cloud` and
+`v3.1.0-ranked-cloud` entries remain exactly unchanged from their protected-master
+values.
+
+| Registry field | Value |
+|---|---|
+| Release label | `v3.4.0 final in-memory reviewed cloud baseline` |
+| Source commit | `52be441f70e7f23195b8b4a0024444d315ee8eaa` |
+| Evidence profile | `canonical` |
+| Set ID | `gse-set-v1-10aefc2272347b087adccc8dbc91fc87368a92560037a8e1d9751210e2c533e6` |
+| Configuration fingerprint | `sha256:222ca397e3473a5afcc03bb64b152a1d9abb4523ddcd61339bcec6c1bc7409c5` |
+| Environment fingerprint | `sha256:f201758392398c491e1a63daa42fa27b56221ebbb64c7fbf22db5fb4c35559d0` |
+| Manifest generation | `1788255068286343` |
+| Set-manifest SHA-256 | `sha256:55a19b274c3b7225d630d977bb396357dc5b80f560068a747b19ac7138dfcc70` |
+| Upload receipt | `gse-upload-receipt-v1-b6d7c89163b2a5cfba4c2d51205c084bb0b402b5d333e9aa9556940cbb33db2d` |
+| Upload-receipt SHA-256 | `sha256:3f54a3977931daa7b38893d7069c6dd1ca79d21e17e7caaee0712dd850dfa4f8` |
+
+Registry schema validation and explicit append-only comparison both pass locally with
+Python 3.11. The registration becomes the protected project record only after this
+branch merges and its exact-master CI succeeds.
+
 ## Decision
 
 - The eligible heap matrix and required two-hour experiment are accepted.
-- The three-member set is an eligible `v3.4.0-in-memory-cloud` registration candidate.
-- Protected evidence review remains required before immutable registration.
+- The three-member set is accepted through protected evidence review and registered
+  on this branch as `v3.4.0-in-memory-cloud`.
+- Protected review of the append-only registry change remains required before Phase 6.
 - No result justifies a production change, public API change, SLA, or V4 implementation.
-- Phase 6 remains blocked until protected review and exact baseline registration close.
+- Phase 6 remains blocked until the registration commit merges and exact-master CI passes.
