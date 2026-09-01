@@ -75,14 +75,14 @@ V4 durability implementation may begin only after all of these are true:
 - [x] Exact published `3.3.0` is frozen as the seventh compatibility and behavioral
   input baseline.
 - [x] Cold construction, extreme-corpus, and producer-burst local evidence pass.
-- [ ] The eligible `4g`/`8g`/`16g` heap matrix passes on a suitable no-swap host.
-- [ ] The required two-hour run passes correctness, liveness, queue, and evidence
+- [x] The eligible `4g`/`8g`/`16g` heap matrix passes on a suitable no-swap host.
+- [x] The required two-hour run passes correctness, liveness, queue, and evidence
   integrity gates.
 - [ ] A three-or-more-member `final-v34` Standard canonical set is reviewed and
   registered as `v3.4.0-in-memory-cloud`.
 - [ ] Any admitted production fix has its own amendment, regression proof, and
   regenerated affected evidence.
-- [ ] Final V1/V2/V3 consumers, seven-baseline Japicmp, strict Javadocs, six release
+- [x] Final V1/V2/V3 consumers, seven-baseline Japicmp, strict Javadocs, six release
   JARs, service boundaries, and reproducibility pass.
 - [ ] Signed `v3.4.0`, Maven Central publication, clean remote verification,
   production deployment, GitHub Release, and post-publication documentation complete.
