@@ -21,10 +21,12 @@ Semantic Versioning once the first stable artifact is published.
   while converting all active coordinates to final `3.4.0`.
 
 The final-source heap, two-hour, and canonical cloud evidence is accepted, and
-`v3.4.0-in-memory-cloud` is registered. Release completion requires protected Phase 6
-acceptance, a signed tag, Maven Central artifacts, production deployment, GitHub
-Release, clean remote verification, and post-publication record to resolve to one
-reviewed identity.
+`v3.4.0-in-memory-cloud` is registered. Version `3.4.0` was published from signed tag
+`v3.4.0` on protected-master commit
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`. Maven Central verification, the
+production deployment, and the
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0)
+are complete, closing the V3.x in-memory line.
 
 ## 3.3.0 — 2026-08-31
 

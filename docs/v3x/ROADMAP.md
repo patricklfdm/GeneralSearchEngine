@@ -2,7 +2,7 @@
 
 ## Status
 
-Current stable release: `3.3.0`
+Current stable release: `3.4.0`
 
 V3.1 Phases 0–8 are complete. The signed `v3.1.0` tag points to protected master,
 core and processor artifacts are published to Maven Central, clean remote verification
@@ -55,10 +55,12 @@ accepted through PR #73 at `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`: the
 eligible heap matrix, controlled two-hour experiment, and three-member canonical set
 all pass. The reviewed set is registered as `v3.4.0-in-memory-cloud` through PR #74
 at `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
-passed. Phase 6 local compatibility, consumer, artifact, reproducibility, JMH/soak,
-cloud-runner, migration, and release-documentation gates now pass on
-`release/v3.4.0-publication`. Protected candidate acceptance, signed publication, and
-post-publication proof remain open.
+passed. Phase 6 merged through protected PR #75 as
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`; exact-master CI run `33535775072`
+passed. Signed `v3.4.0`, Maven Central publication, clean remote verification,
+production deployment, GitHub Release, and post-publication proof all resolve to that
+exact commit. Published `3.4.0` and `v3.4.0-in-memory-cloud` are the immutable final
+V3.x artifact and comparison anchors.
 Production source remains unchanged by default; a reproducible release blocker needs
 an accepted amendment.
 
@@ -74,8 +76,8 @@ atomic publication.
 - The supported ranked-query model remains a final façade built through
   `SearchQueries`; planner, plan, posting, position, dictionary, candidate bitmap,
   snapshot, and internal document-ID types remain unsupported internals.
-- Existing V1, V2, V3.0, V3.1, V3.2, and V3.3 behavior changes only for a documented
-  correctness fix.
+- Existing V1, V2, V3.0, V3.1, V3.2, V3.3, and V3.4 behavior changes only for a
+  documented correctness fix.
   New functionality is opt-in and existing factory defaults remain unchanged.
 - Physical optimization must preserve match truth, score arithmetic, ordering,
   failure precedence, Explain equivalence, snapshot isolation, and lifecycle behavior.
@@ -212,8 +214,10 @@ families. The complete contract map is under [`v3.4/`](v3.4/ARCHITECTURE.md).
 
 ## V4 entry gate
 
-V4 begins only after ranked BOOL and phrase semantics are stable, fuzzy execution has
+The V4 entry evidence gate is satisfied: ranked BOOL and phrase semantics are stable,
+fuzzy execution has
 no known architecture-level query hotspot, the analyzer/highlighting scope has been
 decided, pagination behavior is explicit, 1M capacity and concurrency have evidence,
 V3.4 cold/burst/heap/extreme/two-hour gates pass, signed `3.4.0` is remotely verified,
-and `v3.4.0-in-memory-cloud` is registered as the final comparison anchor.
+and `v3.4.0-in-memory-cloud` is registered as the final comparison anchor. V4 work
+still begins with its own reviewed Phase 0 contract.

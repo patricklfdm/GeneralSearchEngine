@@ -1,9 +1,9 @@
 # GeneralSearchEngine V3.x development line
 
-V3.x contains the current stable `3.3.0` release and remains the active development
-line before V4 changes the process-lifetime durability boundary. It matures the
-in-memory engine without changing its immutable-snapshot, lock-free-reader,
-asynchronous-single-writer, and atomic-publication architecture.
+V3.x contains the current stable `3.4.0` release and is the completed in-memory line
+before V4 changes the process-lifetime durability boundary. It matured the engine
+without changing its immutable-snapshot, lock-free-reader, asynchronous-single-writer,
+and atomic-publication architecture.
 
 ## Authority and history
 
@@ -92,10 +92,13 @@ asynchronous-single-writer, and atomic-publication architecture.
   required two-hour experiment, and three-member canonical set. The reviewed set is
   registered as `v3.4.0-in-memory-cloud` through PR #74 at
   `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
-  passed. [Phase 6](v3.4/PHASE_6_CHECKLIST.md) now records passing local final-release
-  validation and the [3.3-to-3.4 migration guide](v3.4/MIGRATION_GUIDE.md), while
-  protected candidate acceptance, signed publication, post-publication proof, and the
-  final V4 handoff remain open.
+  passed. [Phase 6](v3.4/PHASE_6_CHECKLIST.md) records passing local final-release
+  validation and the [3.3-to-3.4 migration guide](v3.4/MIGRATION_GUIDE.md). It merged
+  through protected PR #75 as
+  `7077446a3be3ac5eefff78366aa61d6a48e55ee1`; signed `v3.4.0`, Maven Central
+  publication, clean remote verification, production deployment, the
+  [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0),
+  and final post-publication proof complete the V3.x line and V4 handoff.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -198,6 +201,7 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [3.3-to-3.4 migration guide](v3.4/MIGRATION_GUIDE.md)
 - [Phase 6 publication checklist](v3.4/PHASE_6_CHECKLIST.md)
 - [V3.4 release checklist](v3.4/RELEASE_CHECKLIST.md)
+- [V3.4 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0)
 
 ## Stable boundaries
 

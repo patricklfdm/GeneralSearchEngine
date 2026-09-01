@@ -33,8 +33,8 @@ passed. Phase 5 is complete. This phase does not publish, tag, or begin V4 prema
   `2026-09-01` publication calendar.
 - [x] The Phase 5 changelog receives a dated candidate entry without claiming
   publication; Phase 6 applies the matching calendar correction before signing.
-- [x] Published `3.3.0` remains the current stable dependency until remote publication
-  of `3.4.0` is independently verified.
+- [x] Published `3.3.0` remained the current stable dependency until remote publication
+  of `3.4.0` was independently verified.
 - [x] No production implementation, supported descriptor, existing cloud preset, or
   published baseline changes during conversion.
 
@@ -131,7 +131,7 @@ never added to, the frozen `final-v34` canonical member file set.
   cleanup, review, and registration gates above.
 - [x] Preserve the accepted exact final source; any production change invalidates the
   affected evidence and returns to contract review.
-- [ ] Prepare final consumers, compatibility, artifacts, release documentation, and
+- [x] Prepare final consumers, compatibility, artifacts, release documentation, and
   signed `v3.4.0` publication on a separate Phase 6 release step.
-- [ ] Begin no V4 durability implementation until signed publication, remote
+- [x] Begin no V4 durability implementation until signed publication, remote
   verification, deployment, GitHub Release, and post-publication evidence complete.

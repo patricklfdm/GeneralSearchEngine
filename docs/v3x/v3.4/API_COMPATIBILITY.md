@@ -3,8 +3,9 @@
 ## Published baselines
 
 V3.4 must remain compatible with published `1.0.0`, `2.0.0`, `2.1.0`, `3.0.0`,
-`3.1.0`, `3.2.0`, and `3.3.0`. Normal and fresh-isolated Japicmp runs compare the
-candidate core JAR with all seven artifacts. Pinned V3 identities fail closed:
+`3.1.0`, `3.2.0`, and `3.3.0`. Normal and fresh-isolated Japicmp runs compared the
+candidate core JAR with all seven artifacts. Published `3.4.0` is now the eighth
+mandatory future baseline. Pinned V3 identities fail closed:
 
 ```text
 3.0.0 core SHA-256
@@ -18,6 +19,9 @@ d77309b58ceca6b6515177a1edbed20f88d59ec5e3ec9330173e282d53d6c86c
 
 3.3.0 core SHA-256
 18fb6439be074b39e5f22e2b01fba327ee919a4997e6429551481ef7fb8754f4
+
+3.4.0 core SHA-256
+e4dee61efacbff8d042b1ffda50f8b4ec1117b90689b55e621464f0c3a1c525f
 ```
 
 No baseline may resolve from an unverified local same-coordinate install. Published
@@ -67,7 +71,9 @@ Phase 0 leaves all active core, processor, reactor, example, and compatibility
 coordinates at published `3.3.0`. Phase 1 converts all seven active coordinates
 atomically to `3.4.0-SNAPSHOT` only after the Phase 0 protected merge and exact-commit
 CI pass. After Phases 1–4 were accepted, `release/v3.4.0` converted all seven active
-coordinates atomically to final `3.4.0`; publication remains a later Phase 6 gate.
+coordinates atomically to final `3.4.0`. Protected Phase 6 publication and remote
+verification are complete at signed tag `v3.4.0` on commit
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`.
 
 Historical baseline coordinates, hashes, fixtures, release records, and cloud family
 identities never change during conversion.
@@ -97,6 +103,8 @@ it cannot be smuggled in as a hardening fix.
 
 ## Post-publication baseline
 
-After remote publication, the Maven Central `3.4.0` core SHA-256 becomes the eighth
-mandatory future baseline only when it matches the recorded reproducible final JAR.
-Until that evidence exists, no document may invent or reserve a 3.4 hash.
+The Maven Central `3.4.0` core SHA-256 is
+`e4dee61efacbff8d042b1ffda50f8b4ec1117b90689b55e621464f0c3a1c525f`. It exactly
+matches the recorded reproducible final main JAR and is frozen as the eighth mandatory
+future baseline. Future compatibility runs must resolve it from Maven Central in a
+fresh isolated repository and fail closed on any hash mismatch.

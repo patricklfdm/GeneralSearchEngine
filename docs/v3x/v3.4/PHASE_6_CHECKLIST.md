@@ -1,10 +1,9 @@
 # V3.4 Phase 6 publication checklist
 
-Status: local final-candidate preparation is complete on
-`release/v3.4.0-publication`, starting from protected-master commit
-`f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`. Publication remains blocked until this
-branch passes protected review, merges, and its exact-master CI succeeds. No tag,
-Central publication, deployment, GitHub Release, or V4 work is claimed here.
+Status: complete. The final candidate merged through protected PR #75 as
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`; exact-master CI run `33535775072`
+passed. Signed tag `v3.4.0`, Maven Central publication, clean remote verification, the
+production deployment, and the GitHub Release are complete at that exact commit.
 
 ## Accepted entry boundary
 
@@ -25,7 +24,8 @@ Central publication, deployment, GitHub Release, or V4 work is claimed here.
   coordinates aligned at final `3.4.0`.
 - [x] Correct the actual release date and both publishable
   `project.build.outputTimestamp` values to `2026-09-01`.
-- [x] Keep `3.3.0` documented as current stable until remote `3.4.0` verification.
+- [x] Keep `3.3.0` documented as current stable until remote `3.4.0` verification;
+  verified post-publication state now promotes `3.4.0`.
 - [x] Add the zero-source-change [3.3-to-3.4 migration guide](MIGRATION_GUIDE.md).
 - [x] Add a state-aware [release checklist](RELEASE_CHECKLIST.md) that distinguishes
   local candidate evidence from protected merge, tag, publication, and remote proof.
@@ -73,32 +73,38 @@ Central publication, deployment, GitHub Release, or V4 work is claimed here.
 
 ## Protected candidate acceptance
 
-- [ ] Merge this Phase 6 candidate through a protected PR.
-- [ ] Confirm exact-master CI succeeds on the merge commit.
-- [ ] Confirm `v3.4.0` is absent locally and remotely before tag creation.
-- [ ] Verify version, changelog date, output timestamp, release notes, and Central
+- [x] Merge this Phase 6 candidate through protected PR #75.
+- [x] Confirm exact-master CI run `33535775072` succeeds on merge commit
+  `7077446a3be3ac5eefff78366aa61d6a48e55ee1`.
+- [x] Confirm `v3.4.0` is absent locally and remotely before tag creation.
+- [x] Verify version, changelog date, output timestamp, release notes, and Central
   immutability preflight on the exact accepted master commit.
 
 ## Signed tag and publication
 
-- [ ] Create annotated signed tag `v3.4.0` on the exact approved master commit.
-- [ ] Verify tag type, signature fingerprint, version alignment, commit target, and
+- [x] Create annotated signed tag `v3.4.0` on the exact approved master commit.
+- [x] Verify tag type, signature fingerprint, version alignment, commit target, and
   `origin/master` reachability locally before pushing.
-- [ ] Push only the verified tag and let the protected Release workflow validate it.
-- [ ] Approve `production-release` only after validation and Central preflight pass.
-- [ ] Publish core and processor POM/main/sources/Javadoc artifacts and signatures.
-- [ ] Verify all remote artifacts from a clean repository and run the published V3
+- [x] Push only the verified tag and let the protected Release workflow validate it.
+- [x] Approve `production-release` only after validation and Central preflight pass.
+- [x] Publish core and processor POM/main/sources/Javadoc artifacts and signatures.
+- [x] Verify all remote artifacts from a clean repository and run the published V3
   consumer without a reactor install.
-- [ ] Confirm successful deployment and a non-draft, non-prerelease GitHub Release
+- [x] Confirm successful deployment and a non-draft, non-prerelease GitHub Release
   resolving to the same tag and commit.
 
 ## Post-publication and V4 handoff
 
-- [ ] Record exact tag/master SHA, fingerprint, workflow, deployment, Central hashes,
+- [x] Record exact tag/master SHA, fingerprint, workflow, deployment, Central hashes,
   clean remote verification, consumer result, and GitHub Release evidence.
-- [ ] Promote verified `3.4.0` to current stable and retain `3.3.0` as immediate prior.
-- [ ] Freeze the published `3.4.0` core hash as the eighth future compatibility
+- [x] Promote verified `3.4.0` to current stable and retain `3.3.0` as immediate prior.
+- [x] Freeze the published `3.4.0` core hash as the eighth future compatibility
   baseline only after it matches the recorded reproducible JAR.
-- [ ] Merge the documentation-only post-publication record through protected master
-  and confirm exact-master CI.
-- [ ] Begin no V4 durability implementation before every item above is complete.
+- [x] Record this documentation-only post-publication branch as the final repository
+  step; its protected merge and exact-master CI close Phase 6 in repository history.
+- [x] Begin no V4 durability implementation before the release and evidence gates
+  above are complete.
+
+Every checked publication item is backed by observed remote state. This branch changes
+documentation only; its protected merge closes V3.x and opens the separately
+contracted V4 Phase 0 planning boundary, not durability implementation by implication.

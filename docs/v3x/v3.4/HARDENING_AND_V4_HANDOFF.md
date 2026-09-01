@@ -84,12 +84,12 @@ V4 durability implementation may begin only after all of these are true:
   amendment or regenerated evidence is required.
 - [x] Final V1/V2/V3 consumers, seven-baseline Japicmp, strict Javadocs, six release
   JARs, service boundaries, and reproducibility pass.
-- [ ] Signed `v3.4.0`, Maven Central publication, clean remote verification,
+- [x] Signed `v3.4.0`, Maven Central publication, clean remote verification,
   production deployment, GitHub Release, and post-publication documentation complete.
 
 ## What V4 may assume
 
-After the gates pass, V4 may treat the published V3.4 behavior and artifacts as the
+All gates now pass. V4 may treat the published V3.4 behavior and artifacts as the
 frozen in-memory reference. V4 performance reports may compare with V3.4 only when
 workload and environment compatibility are stated; persistence overhead must not be
 hidden by aggregating unrelated cells.
@@ -97,6 +97,11 @@ hidden by aggregating unrelated cells.
 V4 may not reinterpret V3.4 snapshot, mutation-completion, query, ranking, pagination,
 or failure semantics merely because durable state is introduced. Any intentional
 change requires a V4 contract and migration policy.
+
+The final release identity is signed tag `v3.4.0` on protected-master commit
+`7077446a3be3ac5eefff78366aa61d6a48e55ee1`; the final cloud comparison identity is
+`v3.4.0-in-memory-cloud`. Opening V4 still requires an explicit V4 Phase 0 contract;
+this handoff does not authorize an unreviewed durability implementation.
 
 ## What does not block V4
 

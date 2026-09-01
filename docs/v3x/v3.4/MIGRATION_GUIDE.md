@@ -7,7 +7,8 @@ behavior. V3.4 adds benchmark and evidence infrastructure, not an application fe
 
 ## Dependency
 
-After `3.4.0` is published, upgrade the runtime and optional processor together:
+Version `3.4.0` is published and remotely verified on Maven Central. Upgrade the
+runtime and optional processor together:
 
 ```xml
 <dependency>
@@ -17,9 +18,10 @@ After `3.4.0` is published, upgrade the runtime and optional processor together:
 </dependency>
 ```
 
-Java 21 and Maven 3.9 or newer remain required. Until remote publication is verified,
-`3.3.0` remains the current Maven Central release; do not resolve a local same-version
-`3.4.0` install as proof of publication.
+Java 21 and Maven 3.9 or newer remain required. `3.4.0` is the current stable release;
+`3.3.0` remains the immediate prior compatibility baseline. A clean remote repository
+verified all published POM/main/sources/Javadoc artifacts, signatures, checksums,
+manifests, service boundaries, and the nine-test V3 consumer.
 
 ## No API migration
 
@@ -75,14 +77,13 @@ processor artifacts, alter an index snapshot, or aggregate with the historical
 V3.4 does not add WAL, checkpoints, disk segments, persisted reopen, crash recovery,
 replication, sharding, vectors, facets, aggregations, grouping, portable cursors,
 snapshot pinning, highlighted pagination, lower-bound totals, timeout/cancellation,
-prepared queries, or new relevance/analyzer operators. V4 durability starts only
-after signed publication and post-publication evidence close V3.x.
+prepared queries, or new relevance/analyzer operators. V4 durability begins under its
+own contract after this signed publication and post-publication record close V3.x.
 
 ## Upgrade checklist
 
-1. Keep using `3.3.0` until `3.4.0` is remotely verified on Maven Central.
-2. Upgrade runtime and processor coordinates together.
-3. Compile and run the existing application suite without source changes.
-4. Confirm no application imports benchmark, probe, or cloud-runner packages.
-5. Preserve existing pagination restart policy and highlighting presentation rules.
-6. Treat performance evidence as environment-specific rather than a universal SLA.
+1. Upgrade runtime and processor from `3.3.0` to remotely verified `3.4.0` together.
+2. Compile and run the existing application suite without source changes.
+3. Confirm no application imports benchmark, probe, or cloud-runner packages.
+4. Preserve existing pagination restart policy and highlighting presentation rules.
+5. Treat performance evidence as environment-specific rather than a universal SLA.

@@ -5,15 +5,13 @@ reference document type. The engine uses immutable search snapshots and persiste
 block-based bitmaps so readers can search without locking while a single writer batches
 mutations and atomically publishes new snapshots.
 
-Version 3.3.0 is the current stable release. Its signed `v3.3.0` tag, both Maven
-artifacts, production deployment, and GitHub Release completed on August 31, 2026.
-Version 3.2.0 remains the immediate prior stable release and compatibility baseline.
-Version 3.4.0 is an unpublished zero-API-addition final in-memory hardening candidate;
-its final cloud evidence and independent baseline are accepted, while signed
-publication and post-publication verification remain open.
+Version 3.4.0 is the current stable release. Its signed `v3.4.0` tag, both Maven
+artifacts, production deployment, GitHub Release, clean remote verification, and final
+`v3.4.0-in-memory-cloud` evidence baseline completed on September 1, 2026. Version
+3.3.0 remains the immediate prior stable release and compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V3.x contract map](docs/v3x/README.md). Version `3.3.0` is available from Maven Central.
+[V3.x contract map](docs/v3x/README.md). Version `3.4.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Requirements
@@ -23,7 +21,7 @@ The complete document map is available in [`docs/README.md`](docs/README.md).
 
 ## Install
 
-### Stable 3.3.0
+### Stable 3.4.0
 
 The runtime dependency is:
 
@@ -31,28 +29,27 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>3.3.0</version>
+    <version>3.4.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:3.3.0`. Existing 3.2 users can
-upgrade through the [3.2-to-3.3 migration guide](docs/v3x/v3.3/MIGRATION_GUIDE.md);
-the published V1, V2, V3.0, V3.1, and V3.2 contracts remain recorded in their
-historical documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:3.4.0`. Existing 3.3 users can
+upgrade without supported source changes through the
+[3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md); all earlier published
+contracts remain recorded in their historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.3.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.4.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.3.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.4.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v3.3.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.3.0).
+[`v3.4.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0).
 
-The upcoming 3.4 release requires no supported source migration. See the
+V3.4 requires no supported source migration. See the
 [3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md) for its zero-addition
-API boundary, preserved behavior, benchmark-only hardening scope, and publication
-status.
+API boundary, preserved behavior, benchmark-only hardening scope, and final V4 handoff.
 
 ### What is new in V3.1
 
@@ -137,6 +134,16 @@ current immutable snapshot. Any successful publication before the next page make
 stale. It is not serializable, portable, mutation-stable, or a snapshot pin. Disabled
 totals remain the default. See the [3.2-to-3.3 migration guide](docs/v3x/v3.3/MIGRATION_GUIDE.md)
 and [pagination contract](docs/v3x/v3.3/PAGINATION_AND_TOTAL_HITS.md).
+
+### What is new in V3.4
+
+V3.4 is a zero-addition final in-memory hardening release. Applications gain no new
+supported API and retain the complete V3.3 query, ranking, highlighting, pagination,
+mutation, lifecycle, and snapshot behavior. The release adds maintainer-only cold
+construction, extreme-corpus, bounded-heap, producer-burst, long-run, and isolated
+canonical cloud evidence. See the
+[3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md) and
+[final hardening record](docs/v3x/v3.4/HARDENING_AND_V4_HANDOFF.md).
 
 ## Quick start: annotated search
 
@@ -301,6 +308,7 @@ The script skips tests because release verification runs them separately, then c
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md), the
+[V3.4 release record](docs/v3x/v3.4/RELEASE_CHECKLIST.md),
 [V3.3 release record](docs/v3x/v3.3/RELEASE_CHECKLIST.md),
 [V3.2 release record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
 [v3.1 release record](docs/v3x/v3.1/RELEASE_CHECKLIST.md) for current and historical
@@ -312,7 +320,7 @@ The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
 The published project identity and Apache License 2.0 metadata remain finalized for
-v3.3.0.
+v3.4.0.
 
 ## v1.0.0 scope
 
