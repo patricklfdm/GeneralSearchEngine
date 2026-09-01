@@ -3,9 +3,10 @@
 Status: accepted through protected evidence PR #73 at master commit
 `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`; exact-merge CI passed in
 [run 33529997974](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33529997974).
-The reviewed canonical set is registered on the current branch as
-`v3.4.0-in-memory-cloud`, pending protected registry review. Every retained result uses
-final source commit `52be441f70e7f23195b8b4a0024444d315ee8eaa`, the protected-master merge of PR #72;
+The reviewed canonical set is registered as `v3.4.0-in-memory-cloud` through protected
+PR #74 at `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
+passed. Every retained result uses final source commit
+`52be441f70e7f23195b8b4a0024444d315ee8eaa`, the protected-master merge of PR #72;
 its exact-merge CI passed in
 [run 33472758082](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33472758082).
 No production source changed after this identity was frozen.
@@ -123,15 +124,14 @@ values.
 | Upload receipt | `gse-upload-receipt-v1-b6d7c89163b2a5cfba4c2d51205c084bb0b402b5d333e9aa9556940cbb33db2d` |
 | Upload-receipt SHA-256 | `sha256:3f54a3977931daa7b38893d7069c6dd1ca79d21e17e7caaee0712dd850dfa4f8` |
 
-Registry schema validation and explicit append-only comparison both pass locally with
-Python 3.11. The registration becomes the protected project record only after this
-branch merges and its exact-master CI succeeds.
+Registry schema validation and explicit append-only comparison both passed with Python
+3.11 before protected registration merge. The registered identity is now immutable.
 
 ## Decision
 
 - The eligible heap matrix and required two-hour experiment are accepted.
 - The three-member set is accepted through protected evidence review and registered
   on this branch as `v3.4.0-in-memory-cloud`.
-- Protected review of the append-only registry change remains required before Phase 6.
+- The append-only registry change is accepted on protected master, so Phase 6 may begin.
 - No result justifies a production change, public API change, SLA, or V4 implementation.
-- Phase 6 remains blocked until the registration commit merges and exact-master CI passes.
+- Phase 6 release work must preserve the exact workload source and registered identity.

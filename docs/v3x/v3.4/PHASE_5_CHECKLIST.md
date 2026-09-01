@@ -4,8 +4,9 @@ Status: the final `3.4.0` source, eligible heap matrix, required two-hour experi
 and the three-member canonical set are complete. Their retained
 [Phase 5 evidence](PHASE_5_BASELINE.md) is accepted through protected PR #73 at
 `fea1547accf896c3a8111ac9cfbb4080a25c5ed5`, with exact-master CI passing in run
-`33529997974`. The reviewed set is registered on this branch; protected registry
-review remains required. This phase does not publish, tag, or begin V4 prematurely.
+`33529997974`. The reviewed set was registered through protected PR #74 at
+`f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
+passed. Phase 5 is complete. This phase does not publish, tag, or begin V4 prematurely.
 
 ## Accepted entry boundary
 
@@ -27,10 +28,11 @@ review remains required. This phase does not publish, tag, or begin V4 premature
   coordinates convert atomically from `3.4.0-SNAPSHOT` to final `3.4.0`.
 - [x] Benchmark evidence metadata reports final `3.4.0` rather than the development
   coordinate.
-- [x] `project.build.outputTimestamp` remains frozen at
-  `2026-08-31T00:00:00Z` in both publishable projects.
-- [x] The changelog receives the dated `3.4.0 — 2026-08-31` candidate entry without
-  claiming publication.
+- [x] The Phase 5 candidate initially freezes `project.build.outputTimestamp` at
+  `2026-08-31T00:00:00Z`; Phase 6 corrects only this release date to the actual
+  `2026-09-01` publication calendar.
+- [x] The Phase 5 changelog receives a dated candidate entry without claiming
+  publication; Phase 6 applies the matching calendar correction before signing.
 - [x] Published `3.3.0` remains the current stable dependency until remote publication
   of `3.4.0` is independently verified.
 - [x] No production implementation, supported descriptor, existing cloud preset, or

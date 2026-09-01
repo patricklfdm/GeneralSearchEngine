@@ -90,8 +90,12 @@ asynchronous-single-writer, and atomic-publication architecture.
   [final-source evidence](v3.4/PHASE_5_BASELINE.md) is accepted through PR #73 at
   `fea1547accf896c3a8111ac9cfbb4080a25c5ed5` and records the eligible heap matrix,
   required two-hour experiment, and three-member canonical set. The reviewed set is
-  registered on the current branch as `v3.4.0-in-memory-cloud`; protected registry
-  review and exact-merge CI remain open before Phase 6 release and final V4 handoff.
+  registered as `v3.4.0-in-memory-cloud` through PR #74 at
+  `f5b573e4a9ed389ff3ec7c9e7edc783a638d82cd`; exact-master CI run `33532660854`
+  passed. [Phase 6](v3.4/PHASE_6_CHECKLIST.md) now records passing local final-release
+  validation and the [3.3-to-3.4 migration guide](v3.4/MIGRATION_GUIDE.md), while
+  protected candidate acceptance, signed publication, post-publication proof, and the
+  final V4 handoff remain open.
 - Later versions receive their own Phase 0 contracts before implementation; roadmap
   descriptions alone are not executable semantics.
 
@@ -191,6 +195,9 @@ asynchronous-single-writer, and atomic-publication architecture.
 - [Phase 4 final-v34 local evidence](v3.4/PHASE_4_BASELINE.md)
 - [Phase 5 final-candidate and cloud-evidence checklist](v3.4/PHASE_5_CHECKLIST.md)
 - [Phase 5 final-source evidence](v3.4/PHASE_5_BASELINE.md)
+- [3.3-to-3.4 migration guide](v3.4/MIGRATION_GUIDE.md)
+- [Phase 6 publication checklist](v3.4/PHASE_6_CHECKLIST.md)
+- [V3.4 release checklist](v3.4/RELEASE_CHECKLIST.md)
 
 ## Stable boundaries
 
