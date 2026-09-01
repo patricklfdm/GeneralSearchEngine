@@ -16,7 +16,7 @@ Profiles:
   experiment  1..10 independent V1 runs; not baseline eligible
 
 Canonical modes:
-  full  concurrency  soak  ranked-v31  all
+  full  concurrency  soak  ranked-v31  final-v34  all
 
 Dry run performs only read-only repository/GCP validation and creates no workspace or VM.
 Every command that can create a VM requires --confirm-paid-run.
@@ -92,6 +92,8 @@ else
   if [ "$profile" = canonical ]; then
     if [ "$mode" = ranked-v31 ]; then
       expected_preset=v3.1-ranked-v1
+    elif [ "$mode" = final-v34 ]; then
+      expected_preset=v3.4-final-in-memory-v1
     else
       expected_preset="v3-production-${mode}-v1"
     fi
@@ -212,6 +214,60 @@ configure_preset() {
       run_environment+=(GSE_JMH_FORKS=2 GSE_JMH_WARMUPS=3 GSE_JMH_ITERATIONS=5 GSE_JMH_DURATION=1s
         GSE_CONCURRENCY_DOCUMENTS=1000000 'GSE_CONCURRENCY_THREAD_GROUPS=16,1')
       ;;
+    v3.4-final-in-memory-v1)
+      require_expected_override GSE_CLOUD_MAX_RUN_DURATION 10800s
+      require_expected_override GSE_PERF_JVM_OPTIONS '-Xms16g -Xmx16g -XX:+UseG1GC'
+      require_expected_override GSE_V34_SUITE_PROFILE production
+      require_expected_override GSE_V34_COLD_DOCUMENTS 100000
+      require_expected_override GSE_V34_COLD_TOKENS 16
+      require_expected_override GSE_V34_COLD_BATCH_SIZE 1000
+      require_expected_override GSE_V34_COLD_REPEATS 5
+      require_expected_override GSE_V34_COLD_SEED 34
+      require_expected_override GSE_V34_EXTREME_DOCUMENTS 1000
+      require_expected_override GSE_V34_EXTREME_TOKENS 64
+      require_expected_override GSE_V34_EXTREME_SEED 34
+      require_expected_override GSE_V34_BURST_PRODUCERS '1,4,16'
+      require_expected_override GSE_V34_BURST_BATCH_SIZES '1,100,1000'
+      require_expected_override GSE_V34_BURST_BATCHES_PER_PRODUCER 4
+      require_expected_override GSE_V34_BURST_DOCUMENTS 64000
+      require_expected_override GSE_V34_BURST_READERS 4
+      require_expected_override GSE_V34_BURST_QUEUE_CAPACITY 32
+      require_expected_override GSE_V34_LONG_RUN_DOCUMENTS 10000
+      require_expected_override GSE_V34_LONG_RUN_READERS 6
+      require_expected_override GSE_V34_LONG_RUN_WARMUP_SECONDS 30
+      require_expected_override GSE_V34_LONG_RUN_WINDOW_SECONDS 60
+      require_expected_override GSE_V34_LONG_RUN_SAMPLE_MILLIS 1000
+      require_expected_override GSE_V34_LONG_RUN_STEADY_MILLIS 25
+      require_expected_override GSE_V34_LONG_RUN_BURST_EVERY_SECONDS 60
+      require_expected_override GSE_V34_LONG_RUN_BURST_PRODUCERS 4
+      require_expected_override GSE_V34_LONG_RUN_BURST_BATCH_SIZE 100
+      require_expected_override GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS 120
+      require_expected_override GSE_V34_LONG_RUN_QUEUE_CAPACITY 1000
+      case "${GSE_SOAK_SECONDS:-1800}" in 1800|7200) ;;
+        *) fail "$EXIT_CONFIG" 'GSE_SOAK_SECONDS must be 1800 or 7200 for final-v34' ;;
+      esac
+      [ "$max_run_duration" = 10800s ] \
+        || fail "$EXIT_CONFIG" \
+          "GSE_CLOUD_MAX_RUN_DURATION conflicts with preset $preset_id (expected: 10800s)"
+      [ "$jvm_options" = '-Xms16g -Xmx16g -XX:+UseG1GC' ] \
+        || fail "$EXIT_CONFIG" \
+          "GSE_PERF_JVM_OPTIONS conflicts with preset $preset_id (expected: -Xms16g -Xmx16g -XX:+UseG1GC)"
+      run_environment+=(
+        GSE_V34_SUITE_PROFILE=production GSE_V34_COLD_DOCUMENTS=100000
+        GSE_V34_COLD_TOKENS=16 GSE_V34_COLD_BATCH_SIZE=1000 GSE_V34_COLD_REPEATS=5
+        GSE_V34_COLD_SEED=34 GSE_V34_EXTREME_DOCUMENTS=1000
+        GSE_V34_EXTREME_TOKENS=64 GSE_V34_EXTREME_SEED=34
+        GSE_V34_BURST_PRODUCERS=1,4,16 GSE_V34_BURST_BATCH_SIZES=1,100,1000
+        GSE_V34_BURST_BATCHES_PER_PRODUCER=4 GSE_V34_BURST_DOCUMENTS=64000
+        GSE_V34_BURST_READERS=4 GSE_V34_BURST_QUEUE_CAPACITY=32
+        GSE_V34_LONG_RUN_DOCUMENTS=10000 GSE_V34_LONG_RUN_READERS=6
+        GSE_V34_LONG_RUN_WARMUP_SECONDS=30 GSE_V34_LONG_RUN_WINDOW_SECONDS=60
+        GSE_V34_LONG_RUN_SAMPLE_MILLIS=1000 GSE_V34_LONG_RUN_STEADY_MILLIS=25
+        GSE_V34_LONG_RUN_BURST_EVERY_SECONDS=60 GSE_V34_LONG_RUN_BURST_PRODUCERS=4
+        GSE_V34_LONG_RUN_BURST_BATCH_SIZE=100 GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS=120
+        GSE_V34_LONG_RUN_QUEUE_CAPACITY=1000
+        "GSE_SOAK_SECONDS=${GSE_SOAK_SECONDS:-1800}")
+      ;;
   esac
 }
 
@@ -272,11 +328,11 @@ if [ "$form" = new ]; then
   IFS=$'\t' read -r resolved_image resolved_image_id resolved_image_self_link resolved_image_created_at <<< "$image_description"
   [ -n "$resolved_image" ] && [ -n "$resolved_image_id" ] && [ -n "$resolved_image_self_link" ] \
     && [ -n "$resolved_image_created_at" ] || fail "$EXIT_CONFIG" 'Image resolution returned incomplete identity'
-  if [ "$mode" = ranked-v31 ]; then
-    default_jvm_options='-Xms32g -Xmx64g'
-  else
-    default_jvm_options='-Xms8g -Xmx16g'
-  fi
+  case "$mode" in
+    ranked-v31) default_jvm_options='-Xms32g -Xmx64g' ;;
+    final-v34) default_jvm_options='-Xms16g -Xmx16g -XX:+UseG1GC' ;;
+    *) default_jvm_options='-Xms8g -Xmx16g' ;;
+  esac
   jvm_options=${GSE_PERF_JVM_OPTIONS:-$default_jvm_options}
   boot_disk_size=${GSE_CLOUD_BOOT_DISK_SIZE:-100GB}
   boot_disk_type=${GSE_CLOUD_BOOT_DISK_TYPE:-pd-balanced}
@@ -293,6 +349,7 @@ if [ "$form" = new ]; then
       full) max_run_duration=43200s ;;
       concurrency) max_run_duration=28800s ;;
       ranked-v31) max_run_duration=3600s ;;
+      final-v34) max_run_duration=10800s ;;
       soak|investigation) max_run_duration=$((${GSE_SOAK_SECONDS:-1800} + 7200))s ;;
       stabilized-investigation)
         case "${GSE_SOAK_STABILIZATION_PURPOSE:-}" in
@@ -326,6 +383,19 @@ if [ "$form" = new ]; then
     "Exact image:         $resolved_image ($resolved_image_id)" \
     "Worst-case VMs:      $repeats" \
     "Execution:           sequential; cleanup after every V1 attempt"
+  if [ "$mode" = final-v34 ]; then
+    case "$machine_type" in
+      c3d-standard-30) final_vcpu_count=30 ;;
+      c3d-standard-60) final_vcpu_count=60 ;;
+      *) final_vcpu_count=unknown ;;
+    esac
+    printf '%s\n' \
+      "Final-v34 slot cap:  3 VM-hours per slot" \
+      "Worst-case VM-hours: $((repeats * 3))"
+    if [ "$final_vcpu_count" != unknown ]; then
+      printf '%s\n' "Worst-case vCPU-hours: $((repeats * 3 * final_vcpu_count))"
+    fi
+  fi
   if [ "$dry_run" = true ]; then
     echo 'Set dry run complete: no workspace or cloud resource was created.'
     exit 0

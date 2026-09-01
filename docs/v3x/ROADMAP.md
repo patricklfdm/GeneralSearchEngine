@@ -43,10 +43,14 @@ production or cloud change. Phase 2 is accepted through PR #69 at
 `07b885790acbc8455db7bbc9a284173a05a19f56`: its cold 100k/1M and nine-axis
 extreme-corpus evidence passes, while the required heap matrix is correctly rejected
 as ineligible on the current swap-active 15.53 GiB host and remains an open final gate.
-Phase 3 is locally complete pending protected review. Its full producer/batch burst
+Phase 3 is accepted through PR #70 at
+`34760b326fda6da31a0463d7b4765d6c6da5921c`. Its full producer/batch burst
 matrix and 30-minute calibration pass writer-progress, completion, queue-drainage,
-mixed-reader, lifecycle, final-oracle, and artifact-integrity gates. Later required
-evidence covers one controlled two-hour run and an independent final cloud family.
+mixed-reader, lifecycle, final-oracle, and artifact-integrity gates. Phase 4 is locally
+complete pending protected review: the isolated final cloud family, exact workload,
+bounded plan, evidence analysis, and fake/synthetic lifecycle gates pass without paid
+execution. Later required evidence covers final conversion, one controlled two-hour
+run, the canonical set, durable registration, and release.
 Production source remains unchanged by default; a reproducible release blocker needs
 an accepted amendment.
 

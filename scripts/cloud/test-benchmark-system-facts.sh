@@ -61,6 +61,12 @@ ranked_facts=$(GSE_CLOUD_SOURCE_REPOSITORY=$fixture_repository \
 facts=$ranked_facts
 [ "$(property benchmark_suite)" = v3.1-ranked-suite-v1 ]
 
+final_v34_facts=$(GSE_CLOUD_SOURCE_REPOSITORY=$fixture_repository \
+  GSE_BENCHMARK_SUITE=v3.4-final-in-memory-suite-v1 \
+  scripts/cloud/collect-benchmark-system-facts.sh)
+facts=$final_v34_facts
+[ "$(property benchmark_suite)" = v3.4-final-in-memory-suite-v1 ]
+
 set +e
 GSE_CLOUD_SOURCE_REPOSITORY=$fixture_repository \
   GSE_BENCHMARK_SUITE=unreviewed-suite \

@@ -150,3 +150,4 @@ java -jar target/benchmarks.jar \
 
 scripts/verify-v34-local-diagnostics.sh --skip-build
 scripts/verify-v34-phase3-diagnostics.sh --skip-build
+scripts/verify-v34-phase4-final-suite.sh --skip-build

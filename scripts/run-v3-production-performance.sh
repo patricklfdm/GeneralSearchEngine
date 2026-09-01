@@ -6,9 +6,9 @@ cd "$repo_root"
 
 mode=${1:-quick}
 case "$mode" in
-  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all) ;;
+  quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|final-v34|all) ;;
   *)
-    echo "usage: $0 [quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|all]" >&2
+    echo "usage: $0 [quick|full|concurrency|soak|investigation|stabilized-investigation|ranked-v31|final-v34|all]" >&2
     exit 2
     ;;
 esac
@@ -224,6 +224,8 @@ write_metadata_if_set() {
 
 if [ "$mode" = ranked-v31 ]; then
   benchmark_suite=v3.1-ranked-suite-v1
+elif [ "$mode" = final-v34 ]; then
+  benchmark_suite=v3.4-final-in-memory-suite-v1
 else
   benchmark_suite=v3-production
 fi
@@ -247,6 +249,35 @@ system_facts=$(GSE_BENCHMARK_SUITE="$benchmark_suite" \
   echo "concurrency_documents=$concurrency_documents"
   printf 'concurrency_thread_groups=%s\n' "${thread_groups[*]}"
   echo "v31_document_counts=100000,1000000"
+  if [ "$mode" = final-v34 ]; then
+    echo "v34_suite_profile=${GSE_V34_SUITE_PROFILE:-production}"
+    echo "v34_cold_documents=${GSE_V34_COLD_DOCUMENTS:-100000}"
+    echo "v34_cold_tokens=${GSE_V34_COLD_TOKENS:-16}"
+    echo "v34_cold_batch_size=${GSE_V34_COLD_BATCH_SIZE:-1000}"
+    echo "v34_cold_repeats=${GSE_V34_COLD_REPEATS:-5}"
+    echo "v34_cold_seed=${GSE_V34_COLD_SEED:-34}"
+    echo "v34_extreme_documents=${GSE_V34_EXTREME_DOCUMENTS:-1000}"
+    echo "v34_extreme_tokens=${GSE_V34_EXTREME_TOKENS:-64}"
+    echo "v34_extreme_seed=${GSE_V34_EXTREME_SEED:-34}"
+    echo "v34_burst_producers=${GSE_V34_BURST_PRODUCERS:-1,4,16}"
+    echo "v34_burst_batch_sizes=${GSE_V34_BURST_BATCH_SIZES:-1,100,1000}"
+    echo "v34_burst_batches_per_producer=${GSE_V34_BURST_BATCHES_PER_PRODUCER:-4}"
+    echo "v34_burst_documents=${GSE_V34_BURST_DOCUMENTS:-64000}"
+    echo "v34_burst_readers=${GSE_V34_BURST_READERS:-4}"
+    echo "v34_burst_queue_capacity=${GSE_V34_BURST_QUEUE_CAPACITY:-32}"
+    echo "v34_long_run_seconds=${GSE_SOAK_SECONDS:-1800}"
+    echo "v34_long_run_documents=${GSE_V34_LONG_RUN_DOCUMENTS:-10000}"
+    echo "v34_long_run_readers=${GSE_V34_LONG_RUN_READERS:-6}"
+    echo "v34_long_run_warmup_seconds=${GSE_V34_LONG_RUN_WARMUP_SECONDS:-30}"
+    echo "v34_long_run_window_seconds=${GSE_V34_LONG_RUN_WINDOW_SECONDS:-60}"
+    echo "v34_long_run_sample_millis=${GSE_V34_LONG_RUN_SAMPLE_MILLIS:-1000}"
+    echo "v34_long_run_steady_millis=${GSE_V34_LONG_RUN_STEADY_MILLIS:-25}"
+    echo "v34_long_run_burst_every_seconds=${GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:-60}"
+    echo "v34_long_run_burst_producers=${GSE_V34_LONG_RUN_BURST_PRODUCERS:-4}"
+    echo "v34_long_run_burst_batch_size=${GSE_V34_LONG_RUN_BURST_BATCH_SIZE:-100}"
+    echo "v34_long_run_lifecycle_every_seconds=${GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:-120}"
+    echo "v34_long_run_queue_capacity=${GSE_V34_LONG_RUN_QUEUE_CAPACITY:-1000}"
+  fi
   echo "soak_index_cycles=$soak_index_cycles"
   echo "soak_investigation_cell=${investigation_cell:-none}"
   echo "soak_update_mode=$soak_update_mode"
@@ -297,7 +328,20 @@ system_facts=$(GSE_BENCHMARK_SUITE="$benchmark_suite" \
 } > "$run_dir/environment.txt" 2>&1
 
 echo "Building the JMH uber-JAR..."
-./mvnw clean -Pjmh -DskipTests package 2>&1 | tee "$run_dir/build.log"
+if [ "${GSE_PERF_SKIP_BUILD:-false}" = true ]; then
+  if [ "$mode" != final-v34 ] \
+      || [ "${GSE_V34_SUITE_PROFILE:-production}" != reduced-test ]; then
+    echo 'GSE_PERF_SKIP_BUILD=true is restricted to local final-v34 reduced-test verification' >&2
+    exit 2
+  fi
+  [ -f target/benchmarks.jar ] || {
+    echo 'GSE_PERF_SKIP_BUILD=true requires target/benchmarks.jar' >&2
+    exit 2
+  }
+  echo 'Build skipped for local reduced-test verification.' | tee "$run_dir/build.log"
+else
+  ./mvnw clean -Pjmh -DskipTests package 2>&1 | tee "$run_dir/build.log"
+fi
 
 read -r -a jvm_args <<< "$jvm_options"
 
@@ -410,6 +454,165 @@ run_ranked_v31() {
   done
 }
 
+run_final_v34() {
+  suite_profile=${GSE_V34_SUITE_PROFILE:-production}
+  case "$suite_profile" in
+    production|reduced-test) ;;
+    *) echo "GSE_V34_SUITE_PROFILE must be production or reduced-test" >&2; return 2 ;;
+  esac
+
+  if [ "$suite_profile" = production ]; then
+    cold_documents=100000; cold_tokens=16; cold_batch_size=1000; cold_repeats=5
+    cold_seed=34; cold_timeout=600
+    extreme_documents=1000; extreme_tokens=64; extreme_seed=34
+    burst_producers=1,4,16; burst_batch_sizes=1,100,1000
+    burst_batches=4; burst_documents=64000; burst_readers=4
+    burst_queue=32; burst_timeout=180
+    long_seconds=${GSE_SOAK_SECONDS:-1800}; long_documents=10000; long_readers=6
+    long_warmup=30; long_window=60; long_sample=1000; long_steady=25
+    long_burst_every=60; long_burst_producers=4; long_burst_batch=100
+    long_lifecycle=120; long_queue=1000
+  else
+    cold_documents=${GSE_V34_COLD_DOCUMENTS:-1000}
+    cold_tokens=${GSE_V34_COLD_TOKENS:-8}
+    cold_batch_size=${GSE_V34_COLD_BATCH_SIZE:-250}
+    cold_repeats=${GSE_V34_COLD_REPEATS:-2}
+    cold_seed=${GSE_V34_COLD_SEED:-34}; cold_timeout=60
+    extreme_documents=${GSE_V34_EXTREME_DOCUMENTS:-100}
+    extreme_tokens=${GSE_V34_EXTREME_TOKENS:-16}
+    extreme_seed=${GSE_V34_EXTREME_SEED:-34}
+    burst_producers=${GSE_V34_BURST_PRODUCERS:-1,4}
+    burst_batch_sizes=${GSE_V34_BURST_BATCH_SIZES:-1,10}
+    burst_batches=${GSE_V34_BURST_BATCHES_PER_PRODUCER:-2}
+    burst_documents=${GSE_V34_BURST_DOCUMENTS:-1000}
+    burst_readers=${GSE_V34_BURST_READERS:-2}
+    burst_queue=${GSE_V34_BURST_QUEUE_CAPACITY:-8}; burst_timeout=60
+    long_seconds=${GSE_SOAK_SECONDS:-6}
+    long_documents=${GSE_V34_LONG_RUN_DOCUMENTS:-1000}
+    long_readers=${GSE_V34_LONG_RUN_READERS:-6}
+    long_warmup=${GSE_V34_LONG_RUN_WARMUP_SECONDS:-1}
+    long_window=${GSE_V34_LONG_RUN_WINDOW_SECONDS:-2}
+    long_sample=${GSE_V34_LONG_RUN_SAMPLE_MILLIS:-250}
+    long_steady=${GSE_V34_LONG_RUN_STEADY_MILLIS:-20}
+    long_burst_every=${GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:-2}
+    long_burst_producers=${GSE_V34_LONG_RUN_BURST_PRODUCERS:-4}
+    long_burst_batch=${GSE_V34_LONG_RUN_BURST_BATCH_SIZE:-10}
+    long_lifecycle=${GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:-2}
+    long_queue=${GSE_V34_LONG_RUN_QUEUE_CAPACITY:-64}
+  fi
+
+  if [ "$suite_profile" = production ]; then
+    for pair in \
+      "GSE_V34_COLD_DOCUMENTS:${GSE_V34_COLD_DOCUMENTS:-100000}:100000" \
+      "GSE_V34_COLD_TOKENS:${GSE_V34_COLD_TOKENS:-16}:16" \
+      "GSE_V34_COLD_BATCH_SIZE:${GSE_V34_COLD_BATCH_SIZE:-1000}:1000" \
+      "GSE_V34_COLD_REPEATS:${GSE_V34_COLD_REPEATS:-5}:5" \
+      "GSE_V34_COLD_SEED:${GSE_V34_COLD_SEED:-34}:34" \
+      "GSE_V34_EXTREME_DOCUMENTS:${GSE_V34_EXTREME_DOCUMENTS:-1000}:1000" \
+      "GSE_V34_EXTREME_TOKENS:${GSE_V34_EXTREME_TOKENS:-64}:64" \
+      "GSE_V34_EXTREME_SEED:${GSE_V34_EXTREME_SEED:-34}:34" \
+      "GSE_V34_BURST_PRODUCERS:${GSE_V34_BURST_PRODUCERS:-1,4,16}:1,4,16" \
+      "GSE_V34_BURST_BATCH_SIZES:${GSE_V34_BURST_BATCH_SIZES:-1,100,1000}:1,100,1000" \
+      "GSE_V34_BURST_BATCHES_PER_PRODUCER:${GSE_V34_BURST_BATCHES_PER_PRODUCER:-4}:4" \
+      "GSE_V34_BURST_DOCUMENTS:${GSE_V34_BURST_DOCUMENTS:-64000}:64000" \
+      "GSE_V34_BURST_READERS:${GSE_V34_BURST_READERS:-4}:4" \
+      "GSE_V34_BURST_QUEUE_CAPACITY:${GSE_V34_BURST_QUEUE_CAPACITY:-32}:32" \
+      "GSE_V34_LONG_RUN_DOCUMENTS:${GSE_V34_LONG_RUN_DOCUMENTS:-10000}:10000" \
+      "GSE_V34_LONG_RUN_READERS:${GSE_V34_LONG_RUN_READERS:-6}:6" \
+      "GSE_V34_LONG_RUN_WARMUP_SECONDS:${GSE_V34_LONG_RUN_WARMUP_SECONDS:-30}:30" \
+      "GSE_V34_LONG_RUN_WINDOW_SECONDS:${GSE_V34_LONG_RUN_WINDOW_SECONDS:-60}:60" \
+      "GSE_V34_LONG_RUN_SAMPLE_MILLIS:${GSE_V34_LONG_RUN_SAMPLE_MILLIS:-1000}:1000" \
+      "GSE_V34_LONG_RUN_STEADY_MILLIS:${GSE_V34_LONG_RUN_STEADY_MILLIS:-25}:25" \
+      "GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:${GSE_V34_LONG_RUN_BURST_EVERY_SECONDS:-60}:60" \
+      "GSE_V34_LONG_RUN_BURST_PRODUCERS:${GSE_V34_LONG_RUN_BURST_PRODUCERS:-4}:4" \
+      "GSE_V34_LONG_RUN_BURST_BATCH_SIZE:${GSE_V34_LONG_RUN_BURST_BATCH_SIZE:-100}:100" \
+      "GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:${GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS:-120}:120" \
+      "GSE_V34_LONG_RUN_QUEUE_CAPACITY:${GSE_V34_LONG_RUN_QUEUE_CAPACITY:-1000}:1000"; do
+      IFS=: read -r name supplied expected <<< "$pair"
+      [ "$supplied" = "$expected" ] || {
+        echo "$name conflicts with v3.4-final-in-memory-v1 (expected $expected)" >&2
+        return 2
+      }
+    done
+    case "$long_seconds" in 1800|7200) ;; *)
+      echo "GSE_SOAK_SECONDS must be 1800 or 7200 for final-v34" >&2; return 2 ;;
+    esac
+  fi
+
+  suite_dir="$run_dir/v34-final"
+  mkdir -p "$suite_dir/long-run"
+  cat > "$suite_dir/suite-config.properties" <<EOF
+status=CONFIGURED
+schema=v3.4-final-in-memory-suite-v1
+profile=$suite_profile
+cold_documents=$cold_documents
+cold_tokens=$cold_tokens
+cold_batch_size=$cold_batch_size
+cold_repeats=$cold_repeats
+cold_seed=$cold_seed
+extreme_documents=$extreme_documents
+extreme_tokens=$extreme_tokens
+extreme_seed=$extreme_seed
+burst_producers=$burst_producers
+burst_batch_sizes=$burst_batch_sizes
+burst_batches_per_producer=$burst_batches
+burst_documents=$burst_documents
+burst_readers=$burst_readers
+burst_queue_capacity=$burst_queue
+long_run_seconds=$long_seconds
+long_run_documents=$long_documents
+long_run_readers=$long_readers
+long_run_warmup_seconds=$long_warmup
+long_run_window_seconds=$long_window
+long_run_sample_millis=$long_sample
+long_run_top_k=10
+long_run_steady_millis=$long_steady
+long_run_burst_every_seconds=$long_burst_every
+long_run_burst_producers=$long_burst_producers
+long_run_burst_batch_size=$long_burst_batch
+long_run_lifecycle_every_seconds=$long_lifecycle
+long_run_queue_capacity=$long_queue
+EOF
+
+  JAVA_TOOL_OPTIONS="$jvm_options" java -cp target/benchmarks.jar \
+    io.github.patricklfdm.generalsearch.benchmark.jmh.V34ColdBuildProcessRunner \
+    --documents="$cold_documents" --tokens="$cold_tokens" \
+    --batch-size="$cold_batch_size" --repeats="$cold_repeats" \
+    --seed="$cold_seed" --timeout-seconds="$cold_timeout" \
+    2>&1 | tee "$suite_dir/cold.log"
+
+  java "${jvm_args[@]}" -cp target/benchmarks.jar \
+    io.github.patricklfdm.generalsearch.benchmark.jmh.V34ExtremeCorpusProbe \
+    --documents="$extreme_documents" --tokens="$extreme_tokens" \
+    --seed="$extreme_seed" --axis=all 2>&1 | tee "$suite_dir/extreme.log"
+
+  java "${jvm_args[@]}" -cp target/benchmarks.jar \
+    io.github.patricklfdm.generalsearch.benchmark.jmh.V34BurstRecoveryProbe \
+    --producers="$burst_producers" --batch-sizes="$burst_batch_sizes" \
+    --batches-per-producer="$burst_batches" --documents="$burst_documents" \
+    --readers="$burst_readers" --queue-capacity="$burst_queue" \
+    --timeout-seconds="$burst_timeout" 2>&1 | tee "$suite_dir/burst.log"
+
+  long_kind=local-calibration
+  if [ "$suite_profile" = production ]; then long_kind=final-v34-cloud; fi
+  java "${jvm_args[@]}" -cp target/benchmarks.jar \
+    io.github.patricklfdm.generalsearch.benchmark.jmh.V34LongRunCalibration \
+    --output="$suite_dir/long-run" --documents="$long_documents" \
+    --readers="$long_readers" --seconds="$long_seconds" \
+    --warmup-seconds="$long_warmup" --window-seconds="$long_window" \
+    --sample-millis="$long_sample" --top-k=10 --steady-millis="$long_steady" \
+    --burst-every-seconds="$long_burst_every" \
+    --burst-producers="$long_burst_producers" \
+    --burst-batch-size="$long_burst_batch" \
+    --lifecycle-every-seconds="$long_lifecycle" \
+    --queue-capacity="$long_queue" --source-commit="$(git rev-parse HEAD)" \
+    --tree-state="$(if [ -z "$(git status --short)" ]; then echo clean; else echo dirty; fi)" \
+    --run-kind="$long_kind" 2>&1 | tee "$suite_dir/long-run.log"
+
+  printf 'status=PASS\nprofile=%s\nlong_run_seconds=%s\n' \
+    "$suite_profile" "$long_seconds" > "$suite_dir/suite-summary.properties"
+}
+
 run_soak() {
   if [ "$mode" = stabilized-investigation ]; then
     soak_seconds=$expected_seconds
@@ -511,6 +714,7 @@ case "$mode" in
   investigation) run_soak ;;
   stabilized-investigation) run_soak ;;
   ranked-v31) run_ranked_v31 ;;
+  final-v34) run_final_v34 ;;
   all)
     run_benchmarks
     run_soak

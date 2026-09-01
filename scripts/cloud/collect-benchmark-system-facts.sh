@@ -118,9 +118,9 @@ fi
 
 benchmark_suite=${GSE_BENCHMARK_SUITE:-v3-production}
 case "$benchmark_suite" in
-  v3-production|v3.1-ranked-suite-v1) ;;
+  v3-production|v3.1-ranked-suite-v1|v3.4-final-in-memory-suite-v1) ;;
   *)
-    echo 'GSE_BENCHMARK_SUITE must be v3-production or v3.1-ranked-suite-v1' >&2
+    echo 'GSE_BENCHMARK_SUITE must be v3-production, v3.1-ranked-suite-v1, or v3.4-final-in-memory-suite-v1' >&2
     exit 2
     ;;
 esac

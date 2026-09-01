@@ -108,6 +108,27 @@ class CloudWorkflowV2Test(unittest.TestCase):
             self.assertEqual(3600, ranked["derived"]["maxVmRuntimeSeconds"])
             self.assertEqual("-Xms32g -Xmx64g", ranked["derived"]["jvmOptions"])
 
+            for repeats in ("3", "5"):
+                final = self.plan(
+                    evidence_profile="canonical",
+                    mode="final-v34",
+                    repeats=repeats,
+                    provisioning="standard",
+                    retention="gcs",
+                )
+                self.assertEqual("v3.4-final-in-memory-v1", final["derived"]["presetId"])
+                self.assertEqual(10800, final["derived"]["maxVmRuntimeSeconds"])
+                self.assertEqual(5, final["derived"]["maxSlotCount"])
+                self.assertEqual(int(repeats) * 3, final["derived"]["worstCaseVmHours"])
+                self.assertEqual(
+                    int(repeats) * 90,
+                    final["derived"]["worstCaseVcpuHours"],
+                )
+                self.assertEqual(
+                    "-Xms16g -Xmx16g -XX:+UseG1GC",
+                    final["derived"]["jvmOptions"],
+                )
+
     def test_invalid_matrix_is_rejected(self) -> None:
         invalid = (
             {"evidence_profile": "canonical", "mode": "quick", "repeats": "3", "provisioning": "standard", "retention": "gcs"},
@@ -116,6 +137,14 @@ class CloudWorkflowV2Test(unittest.TestCase):
             {"evidence_profile": "canonical", "mode": "full", "repeats": "3", "provisioning": "standard", "retention": "actions"},
             {"mode": "quick", "soak_duration": "2h"},
             {"mode": "ranked-v31", "soak_duration": "2h"},
+            {"mode": "final-v34", "repeats": "3"},
+            {"mode": "final-v34", "soak_duration": "2h"},
+            {"mode": "final-v34", "soak_duration": "2h", "provisioning": "standard"},
+            {"mode": "final-v34", "soak_duration": "2h", "retention": "gcs"},
+            {"mode": "final-v34", "soak_duration": "6h"},
+            {"mode": "final-v34", "soak_duration": "12h"},
+            {"mode": "final-v34", "soak_duration": "24h"},
+            {"evidence_profile": "canonical", "mode": "final-v34", "repeats": "3", "provisioning": "standard", "retention": "gcs", "soak_duration": "2h"},
             {"mode": "soak", "repeats": "3", "soak_duration": "2h"},
             {"mode": "invalid"},
             {"machine_type": "n2-standard-30"},
@@ -131,6 +160,21 @@ class CloudWorkflowV2Test(unittest.TestCase):
             for mode in ("soak", "all"):
                 plan = self.plan(mode=mode, soak_duration="2h")
                 self.assertEqual(7200, plan["derived"]["soakSeconds"])
+
+    def test_final_v34_experiment_windows_are_bounded(self) -> None:
+        with mock.patch.object(workflow, "validate_source"):
+            thirty_minutes = self.plan(mode="final-v34")
+            two_hours = self.plan(
+                mode="final-v34",
+                soak_duration="2h",
+                provisioning="standard",
+                retention="gcs",
+            )
+        for plan, seconds in ((thirty_minutes, 1800), (two_hours, 7200)):
+            self.assertEqual(seconds, plan["derived"]["soakSeconds"])
+            self.assertEqual(10800, plan["derived"]["maxVmRuntimeSeconds"])
+            self.assertEqual("v3.4-final-in-memory-v1", plan["derived"]["presetId"])
+            self.assertEqual(3, plan["derived"]["worstCaseVmHours"])
 
     def test_existing_mode_plan_shape_remains_unchanged(self) -> None:
         with mock.patch.object(workflow, "validate_source"):

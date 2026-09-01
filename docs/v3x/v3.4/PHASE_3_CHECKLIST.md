@@ -1,9 +1,10 @@
 # V3.4 Phase 3 checklist
 
-Status: locally complete on `feat/v3.4-phase3-burst-calibration` and pending protected
-review. Phase 3 adds benchmark-only bounded burst/recovery and local long-run
-calibration surfaces. It changes no production source, public API, cloud workflow,
-preset, paid resource, baseline registry, release coordinate, or published artifact.
+Status: accepted through PR #70 as protected-master commit
+`34760b326fda6da31a0463d7b4765d6c6da5921c`. Phase 3 adds benchmark-only bounded
+burst/recovery and local long-run calibration surfaces. It changes no production
+source, public API, cloud workflow, preset, paid resource, baseline registry, release
+coordinate, or published artifact.
 
 ## Entry boundary
 
@@ -75,12 +76,15 @@ preset, paid resource, baseline registry, release coordinate, or published artif
 
 ## Phase 4 entry
 
-- [ ] Merge Phase 3 through protected review.
-- [ ] Require exact-merge protected-master CI success.
-- [ ] Create an independent Phase 4 branch from that exact merge.
-- [ ] Implement only the separately frozen `final-v34` mode/suite/preset and its local
+- [x] Merge Phase 3 through protected review as PR #70 at
+  `34760b326fda6da31a0463d7b4765d6c6da5921c`.
+- [x] Exact-merge protected-master CI succeeded in
+  [run 33436691459](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/33436691459)
+  for `34760b326fda6da31a0463d7b4765d6c6da5921c`.
+- [x] Create an independent Phase 4 branch from that exact merge.
+- [x] Implement only the separately frozen `final-v34` mode/suite/preset and its local
   fake/synthetic lifecycle gates.
-- [ ] Do not start a paid job, final conversion, two-hour run, canonical set,
+- [x] Do not start a paid job, final conversion, two-hour run, canonical set,
   registration, release, or V4 implementation in Phase 4.
 
 The eligible heap matrix and required final-source two-hour run remain open V3.4/V4

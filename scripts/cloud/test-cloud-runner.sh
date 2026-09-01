@@ -130,6 +130,55 @@ assert_contains "$output_file" 'GSE_CONCURRENCY_THREAD_GROUPS=16\,1'
 assert_contains "$output_file" 'GSE_PERF_JVM_OPTIONS=-Xms32g\ -Xmx64g'
 assert_not_contains "$fake_state/commands.log" 'compute instances create'
 
+final_v34_environment=(
+  GSE_BENCHMARK_PRESET_ID=v3.4-final-in-memory-v1
+  'GSE_PERF_JVM_OPTIONS=-Xms16g -Xmx16g -XX:+UseG1GC'
+  GSE_CLOUD_MAX_RUN_DURATION=10800s GSE_SOAK_SECONDS=1800
+  GSE_V34_SUITE_PROFILE=production GSE_V34_COLD_DOCUMENTS=100000
+  GSE_V34_COLD_TOKENS=16 GSE_V34_COLD_BATCH_SIZE=1000 GSE_V34_COLD_REPEATS=5
+  GSE_V34_COLD_SEED=34 GSE_V34_EXTREME_DOCUMENTS=1000
+  GSE_V34_EXTREME_TOKENS=64 GSE_V34_EXTREME_SEED=34
+  GSE_V34_BURST_PRODUCERS=1,4,16 GSE_V34_BURST_BATCH_SIZES=1,100,1000
+  GSE_V34_BURST_BATCHES_PER_PRODUCER=4 GSE_V34_BURST_DOCUMENTS=64000
+  GSE_V34_BURST_READERS=4 GSE_V34_BURST_QUEUE_CAPACITY=32
+  GSE_V34_LONG_RUN_DOCUMENTS=10000 GSE_V34_LONG_RUN_READERS=6
+  GSE_V34_LONG_RUN_WARMUP_SECONDS=30 GSE_V34_LONG_RUN_WINDOW_SECONDS=60
+  GSE_V34_LONG_RUN_SAMPLE_MILLIS=1000 GSE_V34_LONG_RUN_STEADY_MILLIS=25
+  GSE_V34_LONG_RUN_BURST_EVERY_SECONDS=60 GSE_V34_LONG_RUN_BURST_PRODUCERS=4
+  GSE_V34_LONG_RUN_BURST_BATCH_SIZE=100 GSE_V34_LONG_RUN_LIFECYCLE_EVERY_SECONDS=120
+  GSE_V34_LONG_RUN_QUEUE_CAPACITY=1000
+)
+reset_fake
+set +e
+env "${common_environment[@]}" "${final_v34_environment[@]}" \
+  FAKE_GCLOUD_SCENARIO=final-v34-dry \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run final-v34 \
+  > "$output_file" 2>&1
+final_v34_exit=$?
+set -e
+[ "$final_v34_exit" -eq 0 ] \
+  || fail "V3.4 final dry run returned $final_v34_exit"
+assert_contains "$output_file" 'Mode:         final-v34'
+assert_contains "$output_file" '--max-run-duration=10800s'
+assert_contains "$output_file" 'GSE_BENCHMARK_PRESET_ID=v3.4-final-in-memory-v1'
+assert_contains "$output_file" 'GSE_V34_SUITE_PROFILE=production'
+assert_contains "$output_file" 'GSE_V34_BURST_PRODUCERS=1\,4\,16'
+assert_not_contains "$fake_state/commands.log" 'compute instances create'
+
+reset_fake
+set +e
+env "${common_environment[@]}" "${final_v34_environment[@]}" \
+  GSE_SOAK_SECONDS=21600 FAKE_GCLOUD_SCENARIO=final-v34-six-hour-rejected \
+  "$test_repo/run-cloud-benchmark.sh" --dry-run final-v34 \
+  > "$output_file" 2>&1
+final_six_hour_exit=$?
+set -e
+[ "$final_six_hour_exit" -eq 2 ] \
+  || fail "V3.4 six-hour request returned $final_six_hour_exit"
+assert_contains "$output_file" 'GSE_SOAK_SECONDS must be 1800 or 7200 for final-v34'
+test ! -s "$fake_state/commands.log" \
+  || fail 'Rejected V3.4 duration called gcloud before failing'
+
 reset_fake
 set +e
 env "${common_environment[@]}" FAKE_GCLOUD_SCENARIO=ranked-v31-preset-dry \

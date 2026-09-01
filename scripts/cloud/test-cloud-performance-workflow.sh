@@ -18,6 +18,7 @@ assert_contains "$workflow" 'cancel-in-progress: false'
 assert_contains "$workflow" 'environment: cloud-benchmark'
 assert_contains "$workflow" 'timeout-minutes: 360'
 assert_contains "$workflow" '          - ranked-v31'
+assert_contains "$workflow" '          - final-v34'
 
 preflight=$(sed -n '/^  preflight:/,/^  benchmark:/p' "$workflow")
 benchmark=$(sed -n '/^  benchmark:/,$p' "$workflow")
@@ -45,6 +46,8 @@ auth_line=$(grep -n 'Authenticate to Google Cloud with short-lived WIF' "$workfl
 assert_contains "$workflow" '--trusted-ref origin/master'
 assert_contains "$workflow" './run-cloud-benchmark-set.sh --dry-run'
 assert_contains "$workflow" '--confirm-paid-run'
+assert_contains "$workflow" 'INPUT_PRESET_ID: ${{ steps.plan.outputs.preset_id }}'
+assert_contains "$workflow" 'set_arguments+=(--preset "$INPUT_PRESET_ID")'
 assert_contains "$workflow" './upload-cloud-benchmark.sh --confirm-upload'
 assert_contains "$workflow" 'retention-days: 14'
 assert_contains "$workflow" 'if-no-files-found: error'

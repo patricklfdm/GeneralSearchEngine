@@ -158,6 +158,8 @@ class Fixture:
             self._write_soak()
         elif mode == "ranked-v31":
             self._write_v31_ranked()
+        elif mode == "final-v34":
+            self._write_final_v34()
         self.orchestration = self._orchestration()
         self.orchestration_path = self.orchestration_dir / f"{instance}.properties"
         self._write_properties(self.orchestration_path, self.orchestration)
@@ -226,6 +228,15 @@ class Fixture:
                 values["benchmark_preset_id"] = "v3.1-ranked-v1"
                 values["jvm_options"] = "-Xms32g -Xmx64g"
                 values["v31_document_counts"] = "100000,1000000"
+            elif self.mode == "final-v34":
+                values.update(
+                    {
+                        "benchmark_suite": v2.FINAL_V34_SUITE,
+                        "benchmark_preset_id": v2.FINAL_V34_PRESET,
+                        "jvm_options": "-Xms16g -Xmx16g -XX:+UseG1GC",
+                        "concurrency_thread_groups": "",
+                    }
+                )
         return values
 
     def _orchestration(self) -> dict[str, str]:
@@ -244,7 +255,11 @@ class Fixture:
             "boot_disk_type": "pd-balanced",
             "boot_disk_size": "100GB",
             "max_run_duration": (
-                "3600s" if self.mode == "ranked-v31" else "43200s"
+                "3600s"
+                if self.mode == "ranked-v31"
+                else "10800s"
+                if self.mode == "final-v34"
+                else "43200s"
             ),
             "network": "default",
             "subnet": "",
@@ -441,6 +456,117 @@ class Fixture:
         write("v31-concurrent-latency-16-1", [latency])
         write("v31-concurrent-throughput-16-1", [throughput])
 
+    def _write_final_v34(self) -> None:
+        suite = self.raw / "v34-final"
+        long_run = suite / "long-run"
+        long_run.mkdir(parents=True)
+        config = {**v2.FINAL_V34_CONFIG, "long_run_seconds": "1800"}
+        self._write_properties(suite / "suite-config.properties", config)
+        self._write_properties(
+            suite / "suite-summary.properties",
+            {"status": "PASS", "profile": "production", "long_run_seconds": "1800"},
+        )
+        digest = "a" * 64
+        cold_lines = [
+            f"coldRun={index} status=SUCCESS" for index in range(1, 6)
+        ]
+        cold_lines.append(
+            "coldSummary=SUCCESS repeats=5 documents=100000 "
+            f"corpusDigest={digest} readyMedianNanos=100 totalMedianNanos=200 "
+            "processReadyMedianNanos=300 processTotalMedianNanos=400 "
+            "readyCv=1 totalCv=2 checksum=11"
+        )
+        (suite / "cold.log").write_text("\n".join(cold_lines) + "\n", encoding="utf-8")
+        axes = (
+            "long-text", "high-frequency", "large-vocabulary", "sparse-vocabulary",
+            "zipf-heavy", "multiple-fields", "unicode-heavy", "repeated-terms",
+            "position-heavy",
+        )
+        extreme_lines = [
+            f"extremeAxis={axis} status=SUCCESS documents=1000 tokens=64 "
+            f"corpusDigest={digest} matches=1 combinedChecksum=22"
+            for axis in axes
+        ]
+        extreme_lines.append("extremeSummary=SUCCESS axes=9")
+        (suite / "extreme.log").write_text(
+            "\n".join(extreme_lines) + "\n", encoding="utf-8"
+        )
+        burst_lines = []
+        for producers, batch_size in product((1, 4, 16), (1, 100, 1000)):
+            burst_lines.append(
+                "burstCell=SUCCESS "
+                f"producers={producers} batchSize={batch_size} "
+                "unexpectedFailures=0 unresolvedFutures=0 expectedFailures=3 "
+                "documents=64000 queueCapacity=32 successfulMutations=4 "
+                "queueRejections=0 queueMaximum=1 drainNanos=100 "
+                "completionP99Nanos=200 readerP99Nanos=300 checksum=33"
+            )
+        burst_lines.append("burstMatrix=SUCCESS cells=9")
+        (suite / "burst.log").write_text(
+            "\n".join(burst_lines) + "\n", encoding="utf-8"
+        )
+        (suite / "long-run.log").write_text("status=SUCCESS\n", encoding="utf-8")
+        self._write_properties(
+            long_run / "config.properties",
+            {
+                "schema": "v34-final-long-run-v1",
+                "run_kind": "final-v34-cloud",
+                "source_commit": COMMIT,
+                "tree_state": "clean",
+                "documents": "10000",
+                "readers": "6",
+                "seconds": "1800",
+                "warmup_seconds": "30",
+                "window_seconds": "60",
+                "sample_millis": "1000",
+                "top_k": "10",
+                "steady_millis": "25",
+                "burst_every_seconds": "60",
+                "burst_producers": "4",
+                "burst_batch_size": "100",
+                "lifecycle_every_seconds": "120",
+                "queue_capacity": "1000",
+            },
+        )
+        (long_run / "samples.csv").write_text(
+            "elapsed_seconds,read_ops\n0,1\n", encoding="utf-8"
+        )
+        windows = ["window,read_ops,write_batches,read_p99_ns,queue_max"]
+        windows.extend(f"{index},100,2,300,1" for index in range(30))
+        (long_run / "windows.csv").write_text(
+            "\n".join(windows) + "\n", encoding="utf-8"
+        )
+        self._write_properties(
+            long_run / "summary.properties",
+            {
+                "status": "SUCCESS",
+                "unexpected_failures": "0",
+                "unresolved_futures": "0",
+                "expected_failures": "1",
+                "review_bands_are_release_gates": "false",
+                "corpus_digest": digest,
+                "read_operations": "3000",
+                "write_batches": "60",
+                "write_mutations": "6000",
+                "bursts": "30",
+                "lifecycle_cycles": "15",
+                "queue_maximum": "1",
+                "gc_count": "2",
+                "gc_time_millis": "4",
+                "review_read_window_median": "100",
+                "review_read_p99_median_ns": "300",
+                "checksum": "44",
+            },
+        )
+        names = ("config.properties", "samples.csv", "windows.csv", "summary.properties")
+        (long_run / "manifest.sha256").write_text(
+            "".join(
+                f"{hashlib.sha256((long_run / name).read_bytes()).hexdigest()}  {name}\n"
+                for name in names
+            ),
+            encoding="utf-8",
+        )
+
     @staticmethod
     def _write_properties(path: Path, values: dict[str, str], *, metadata=False) -> None:
         content = "".join(f"{key}={value}\n" for key, value in values.items())
@@ -495,6 +621,13 @@ class BenchmarkV2Test(unittest.TestCase):
             "resolvedImageSelfLink": "https://compute.example/images/5563818848645508791",
             "useIap": "false",
             "zone": "us-west4-a",
+        }
+
+    def final_v34_set_controls(self):
+        return {
+            **self.canonical_set_controls(),
+            "jvmOptions": "-Xms16g -Xmx16g -XX:+UseG1GC",
+            "maxRunDuration": "10800s",
         }
 
     def complete_fixture_attempt(self, workspace, slot, fixture):
@@ -565,6 +698,30 @@ class BenchmarkV2Test(unittest.TestCase):
                 self.canonical_set_controls(),
             )
             self.assertEqual("v3.1-ranked-v1", ranked["presetId"])
+        for repeats in (3, 5):
+            final = v2.validate_set_plan_inputs(
+                "canonical",
+                repeats,
+                "final-v34",
+                v2.FINAL_V34_PRESET,
+                repository,
+                COMMIT,
+                self.final_v34_set_controls(),
+            )
+            self.assertEqual(v2.FINAL_V34_PRESET, final["presetId"])
+        for repeats in (1, 2, 6):
+            self.assert_error(
+                v2.EXIT_CONFIG,
+                lambda repeats=repeats: v2.validate_set_plan_inputs(
+                    "canonical",
+                    repeats,
+                    "final-v34",
+                    v2.FINAL_V34_PRESET,
+                    repository,
+                    COMMIT,
+                    self.final_v34_set_controls(),
+                ),
+            )
         for repeats in (1, 2, 11):
             self.assert_error(
                 v2.EXIT_CONFIG,
@@ -640,6 +797,28 @@ class BenchmarkV2Test(unittest.TestCase):
                 repository,
                 COMMIT,
                 {"provisioning": "spot"},
+            ),
+        )
+        final = v2.validate_set_plan_inputs(
+            "experiment",
+            1,
+            "final-v34",
+            v2.FINAL_V34_PRESET,
+            repository,
+            COMMIT,
+            self.final_v34_set_controls(),
+        )
+        self.assertEqual(v2.FINAL_V34_PRESET, final["presetId"])
+        self.assert_error(
+            v2.EXIT_CONFIG,
+            lambda: v2.validate_set_plan_inputs(
+                "experiment",
+                1,
+                "final-v34",
+                None,
+                repository,
+                COMMIT,
+                self.final_v34_set_controls(),
             ),
         )
         self.assert_error(
@@ -815,6 +994,84 @@ class BenchmarkV2Test(unittest.TestCase):
             ),
         )
 
+    def test_final_v34_canonical_evidence_and_frozen_configuration(self):
+        fixture = Fixture(
+            self.root / "final-v34",
+            run_id="20260831T000000Z-0123456789ab-final-v34",
+            mode="final-v34",
+        )
+        _, manifest, metrics = v2.derive_manifest(
+            fixture.raw,
+            evidence_profile="canonical",
+        )
+        self.assertEqual("VALID_CANONICAL_MEMBER", manifest["status"])
+        self.assertEqual(v2.FINAL_V34_PRESET, manifest["benchmark"]["presetId"])
+        self.assertEqual(v2.FINAL_V34_SUITE, manifest["suite"]["name"])
+        workloads = {item["workload"] for item in metrics["metrics"]}
+        self.assertEqual(
+            {"v34-cold", "v34-extreme", "v34-burst", "v34-long-run", "v34-long-window"},
+            workloads,
+        )
+
+        changed = Fixture(
+            self.root / "changed-final-v34",
+            run_id="20260831T000001Z-0123456789ab-final-v34",
+            mode="final-v34",
+        )
+        config_path = changed.raw / "v34-final" / "suite-config.properties"
+        config = dict(v2.read_properties(config_path)[0])
+        config["cold_documents"] = "99999"
+        changed._write_properties(config_path, config)
+        changed.refresh_checksums()
+        self.assert_error(
+            v2.EXIT_INVALID_EVIDENCE,
+            lambda: v2.derive_manifest(changed.raw, evidence_profile="canonical"),
+        )
+
+    def test_final_v34_set_has_one_accepted_baseline_name(self):
+        fixtures = [
+            Fixture(
+                self.root,
+                run_id=f"20260831T0000{slot:02d}Z-0123456789ab-final-v34",
+                mode="final-v34",
+                instance=f"gse-final-v34-{slot}",
+            )
+            for slot in range(1, 4)
+        ]
+        workspace = fixtures[0].results / "sets" / "in-progress" / "final-v34-set"
+        v2.initialize_set_workspace(
+            workspace,
+            "canonical",
+            3,
+            "final-v34",
+            v2.FINAL_V34_PRESET,
+            "https://github.com/patricklfdm/GeneralSearchEngine.git",
+            COMMIT,
+            self.final_v34_set_controls(),
+        )
+        for slot, fixture in enumerate(fixtures, 1):
+            self.complete_fixture_attempt(workspace, slot, fixture)
+        destination, manifest = v2.finalize_benchmark_set(workspace)
+        self.assertEqual("VALID_CANONICAL_SET", manifest["status"])
+        with self.assertRaisesRegex(
+            v2.BenchmarkV2Error,
+            "final-v34 evidence may only register as v3.4.0-in-memory-cloud",
+        ):
+            v2.register_cloud_baseline(
+                "v3.4.0-cloud",
+                destination,
+                fixtures[0].results,
+                self.root / "registry.json",
+            )
+        with self.assertRaisesRegex(v2.BenchmarkV2Error, "No verified local upload receipt"):
+            v2.register_cloud_baseline(
+                v2.FINAL_V34_BASELINE,
+                destination,
+                fixtures[0].results,
+                self.root / "registry.json",
+            )
+
+    def test_ranked_v31_malformed_queue_maximum_is_rejected(self):
         malformed = Fixture(
             self.root / "malformed-queue-maximum",
             run_id="20260828T000000Z-0123456789ab-ranked-v31",
