@@ -25,6 +25,12 @@ remains the phase history and decision source of truth.
 - [Phase 0 checklist](v4/PHASE_0_CHECKLIST.md)
 - [Phase 1 foundation baseline](v4/PHASE_1_BASELINE.md)
 - [Phase 1 checklist](v4/PHASE_1_CHECKLIST.md)
+- [Phase 2 storage and WAL format](v4/PHASE_2_STORAGE_FORMAT.md)
+- [Phase 2 storage and WAL baseline](v4/PHASE_2_BASELINE.md)
+- [Phase 2 checklist](v4/PHASE_2_CHECKLIST.md)
+- [Phase 3 WAL-only recovery](v4/PHASE_3_RECOVERY.md)
+- [Phase 3 local baseline](v4/PHASE_3_BASELINE.md)
+- [Phase 3 checklist](v4/PHASE_3_CHECKLIST.md)
 
 ## v3.x — current stable and completed in-memory line
 

@@ -143,7 +143,7 @@ public final class SearchEngineBuilder<K, T> {
     ) {
         SearchSchema<T, K> schema = buildSchema();
         DurableCommitCoordinator<K, T> durability =
-                DurableCommitCoordinator.createFresh(
+                DurableCommitCoordinator.open(
                         Objects.requireNonNull(storageConfig, "storageConfig"),
                         config,
                         schema,

@@ -151,7 +151,7 @@ class V40DurableEnginePhase2Test {
     }
 
     @Test
-    void directoryOwnershipAndPhase2ReopenBoundaryFailClosed(
+    void directoryOwnershipRemainsExclusiveAcrossReopen(
             @TempDir Path directory
     ) {
         DurableStorageConfig<Integer, Document> storage = config(
@@ -163,10 +163,12 @@ class V40DurableEnginePhase2Test {
         assertEquals(DurabilityException.Reason.STORAGE_IN_USE, locked.reason());
         first.close();
 
-        DurabilityException reopen = assertThrows(
-                DurabilityException.class,
-                () -> builder().buildDurable(storage));
-        assertEquals(DurabilityException.Reason.INCOMPATIBLE_STORAGE, reopen.reason());
+        try (DurableSearchEngine<Integer, Document> reopened =
+                     builder().buildDurable(storage)) {
+            assertEquals(0, reopened.currentSequence());
+            assertEquals(RecoverySource.WAL_ONLY,
+                    reopened.durabilityMetrics().recoverySource());
+        }
     }
 
     @Test

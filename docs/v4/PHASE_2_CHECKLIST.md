@@ -1,6 +1,6 @@
 # V4.0 Phase 2 checklist
 
-**Status:** implementation complete; full validation and protected merge pending
+**Status:** accepted on protected master
 
 ## Entry and API
 
@@ -58,9 +58,9 @@
   pass; the obsolete V3.4 zero-addition rule is removed while binary/source
   incompatibility checks remain mandatory.
 - [x] Strict Javadocs, six release JARs and two-build byte reproducibility pass.
-- [ ] Required PR and exact-master CI pass.
-- [ ] Protected merge and exact-master Phase 2 evidence are recorded.
+- [x] Required PR #79 passed and merged at protected-master commit
+  `7056a5ad00d1f38757f984c51ad21d83ee922443`.
+- [x] Exact-master Phase 2 CI run `33583721019` completed successfully.
 
-Phase 3 may implement authoritative open/replay only after all open acceptance items
-close. It must reuse these exact bytes, inspectors and crash artifacts rather than
-changing writer format to simplify recovery.
+Phase 3 reuses these exact bytes, inspectors and crash artifacts without changing the
+writer format or reopening the accepted Phase 2 storage boundary.

@@ -36,12 +36,20 @@ compatibility baseline at exact `3.4.0`, the independent history oracle, separat
 abrupt-crash scaffold, checksummed evidence validator, storage inspector, and fake
 persistent-disk cloud lane.
 
-Phase 2 is active from that accepted boundary. It adds only opt-in production durable
+Phase 2 merged through protected PR #79 at
+`7056a5ad00d1f38757f984c51ad21d83ee922443`. It added only opt-in production durable
 mode: deterministic codecs, exclusive fresh-store ownership, immutable storage
 metadata, a forced generation header, bounded CRC32C logical-unit frames, contiguous
 sequences, group force-before-publication, terminal ambiguous-I/O handling, and stable
-production crash barriers exercised by the local harness. Phase 3 retains sole
-authority for reopen/replay/tail truncation and Phase 4 retains checkpoint execution.
+production crash barriers exercised by the local harness. Its exact-master CI run ID
+`33583721019` passed on that merge commit.
+
+Phase 3 is active from that merged storage boundary. It implements authoritative
+WAL-only reopen, strict startup validation, permitted incomplete-tail truncation,
+two-pass bounded replay, canonical slot and `nextDocId` restoration, derived-index
+rebuild, stable recovery crash barriers, recovered-versus-uninterrupted differential
+tests, and the Phase 3 local/fake-cloud failure-drill lane. Phase 4 retains sole
+authority for checkpoint execution, WAL generation rollover, and cleanup.
 
 ## v3.x completed development line
 

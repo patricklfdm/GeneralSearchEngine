@@ -95,6 +95,22 @@ harness. Phases 3–5 add recovery, checkpoint, lifecycle, corruption, capacity,
 repeated-crash cases incrementally. Phase 6 aggregates final-source evidence; it does
 not invent a replacement harness.
 
+Phase 3 adds three stable production recovery barriers without redefining the ten
+accepted writer barriers:
+
+- `v4-recovery-after-tail-truncate-v1` — permitted newest incomplete tail was
+  truncated and the new boundary was forced;
+- `v4-recovery-after-replay-v1` — all accepted WAL units were replayed into private
+  canonical state, before index rebuild and engine exposure; and
+- `v4-recovery-before-ready-publication-v1` — replay and derived-index rebuild
+  completed, immediately before normal writer admission and engine exposure.
+
+The local matrix uses internal hard halt for all three and external kill after replay.
+It then launches a distinct recovery process, verifies the durable prefix, performs a
+new post-recovery write, and reopens again. The fake-cloud `phase3-recovery` failure
+drill carries the same recovery identity and sequence evidence without provisioning
+paid resources.
+
 ## Cloud durable lane architecture
 
 The cloud lane is independent from all V3 families:

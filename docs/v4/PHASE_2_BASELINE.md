@@ -56,4 +56,6 @@ The full reactor passes 401 core and 5 processor tests with zero failures. Publi
 Javadocs, six release artifacts and two-build byte reproducibility pass. V4's frozen
 additive API requires retiring the V3.4-only `breakBuildOnModifications` zero-addition
 rule for the 3.3 comparison; binary and source incompatibility gates remain enabled for
-every published baseline. Protected PR and exact-master evidence remain pending.
+every published baseline. Protected PR #79 merged at
+`7056a5ad00d1f38757f984c51ad21d83ee922443`; exact-master CI run `33583721019`
+completed successfully.

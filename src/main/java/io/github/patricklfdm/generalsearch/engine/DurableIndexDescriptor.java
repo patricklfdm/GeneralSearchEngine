@@ -9,6 +9,8 @@ import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexDefinitio
 import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexDefinition;
 import io.github.patricklfdm.generalsearch.index.range.RangeIndexDefinition;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
+import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 
 record DurableIndexDescriptor(byte kind, String fieldName, String analyzerId) {
     static final byte EQUALITY = 1;
@@ -55,5 +57,28 @@ record DurableIndexDescriptor(byte kind, String fieldName, String analyzerId) {
         throw new DurabilityException(
                 DurabilityException.Reason.INCOMPATIBLE_STORAGE,
                 "durable mode supports only built-in indexes and the simple analyzer");
+    }
+
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    <K, T> IndexDefinition<T> toDefinition(SearchSchema<T, K> schema) {
+        Objects.requireNonNull(schema, "schema");
+        Field<T, ?> field = schema.requireField(fieldName);
+        return switch (kind) {
+            case EQUALITY -> IndexDefinition.equality((Field) field);
+            case RANGE -> IndexDefinition.range((Field) field);
+            case PREFIX -> IndexDefinition.prefix(
+                    schema.requireField(fieldName, String.class));
+            case TEXT -> {
+                var textField = schema.requireTextField(fieldName);
+                if (textField.analyzer() != SimpleAnalyzer.INSTANCE
+                        || !analyzerId.equals(SIMPLE_ANALYZER)) {
+                    throw new IllegalArgumentException(
+                            "durable text analyzer identity does not match schema");
+                }
+                yield IndexDefinition.text(textField);
+            }
+            default -> throw new IllegalArgumentException(
+                    "unknown durable index kind");
+        };
     }
 }
