@@ -1,0 +1,132 @@
+package fixture;
+
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.concurrent.CompletableFuture;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+
+// Compilable declaration-only Phase 1 fixture. It ships no production durability API.
+interface DurableCodec<K, T> {
+    String codecId();
+    int codecVersion();
+    byte[] encodeKey(K key);
+    K decodeKey(byte[] bytes);
+    byte[] encodeDocument(T document);
+    T decodeDocument(byte[] bytes);
+}
+
+interface DurableSearchEngine<K, T> extends SearchEngine<K, T> {
+    long currentSequence();
+    CompletableFuture<Void> checkpoint();
+    DurabilityMetrics durabilityMetrics();
+}
+
+// Records the method that Phase 2 adds to the existing SearchEngineBuilder.
+interface DurableBuilderContract<K, T> {
+    DurableSearchEngine<K, T> buildDurable(DurableStorageConfig<K, T> config);
+}
+
+final class DurableStorageConfig<K, T> {
+    static <K, T> Builder<K, T> builder(Path directory, DurableCodec<K, T> codec) {
+        throw new UnsupportedOperationException();
+    }
+
+    Path directory() { throw new UnsupportedOperationException(); }
+    String storageIdentity() { throw new UnsupportedOperationException(); }
+    String schemaIdentity() { throw new UnsupportedOperationException(); }
+    DurableCodec<K, T> codec() { throw new UnsupportedOperationException(); }
+    int maxEncodedKeyBytes() { throw new UnsupportedOperationException(); }
+    int maxEncodedDocumentBytes() { throw new UnsupportedOperationException(); }
+    int maxBulkElements() { throw new UnsupportedOperationException(); }
+    int maxDocuments() { throw new UnsupportedOperationException(); }
+    long checkpointWalBytes() { throw new UnsupportedOperationException(); }
+    long maxRetainedBytes() { throw new UnsupportedOperationException(); }
+
+    static final class Builder<K, T> {
+        Builder<K, T> storageIdentity(String value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> schemaIdentity(String value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> maxEncodedKeyBytes(int value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> maxEncodedDocumentBytes(int value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> maxBulkElements(int value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> maxDocuments(int value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> checkpointWalBytes(long value) {
+            throw new UnsupportedOperationException();
+        }
+        Builder<K, T> maxRetainedBytes(long value) {
+            throw new UnsupportedOperationException();
+        }
+        DurableStorageConfig<K, T> build() {
+            throw new UnsupportedOperationException();
+        }
+    }
+}
+
+enum DurabilityStatus {
+    OPEN,
+    CAPACITY_BLOCKED,
+    FAILED,
+    CLOSED
+}
+
+enum RecoverySource {
+    FRESH,
+    WAL_ONLY,
+    CHECKPOINT_ONLY,
+    CHECKPOINT_AND_WAL
+}
+
+final class DurabilityMetrics {
+    DurabilityStatus status() { throw new UnsupportedOperationException(); }
+    long currentSequence() { throw new UnsupportedOperationException(); }
+    long checkpointSequence() { throw new UnsupportedOperationException(); }
+    long walGeneration() { throw new UnsupportedOperationException(); }
+    long walRecords() { throw new UnsupportedOperationException(); }
+    long walBytes() { throw new UnsupportedOperationException(); }
+    long retainedBytes() { throw new UnsupportedOperationException(); }
+    RecoverySource recoverySource() { throw new UnsupportedOperationException(); }
+    long replayedRecords() { throw new UnsupportedOperationException(); }
+    Duration recoveryDuration() { throw new UnsupportedOperationException(); }
+    Duration indexRebuildDuration() { throw new UnsupportedOperationException(); }
+    Optional<DurabilityException.Reason> lastCheckpointFailure() {
+        throw new UnsupportedOperationException();
+    }
+}
+
+final class DurabilityException extends RuntimeException {
+    enum Reason {
+        STORAGE_IN_USE,
+        STORAGE_ACCESS,
+        UNSUPPORTED_FILESYSTEM,
+        INCOMPATIBLE_STORAGE,
+        CORRUPT_CHECKPOINT,
+        CORRUPT_WAL,
+        CODEC_FAILURE,
+        REPLAY_FAILURE,
+        INDEX_REBUILD_FAILURE,
+        IO_FAILURE,
+        CAPACITY_EXCEEDED,
+        SEQUENCE_EXHAUSTED,
+        CLOSED
+    }
+
+    DurabilityException(Reason reason) {
+        super(reason.name());
+    }
+
+    Reason reason() { throw new UnsupportedOperationException(); }
+    OptionalLong sequence() { throw new UnsupportedOperationException(); }
+}

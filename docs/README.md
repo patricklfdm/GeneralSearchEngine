@@ -23,6 +23,8 @@ remains the phase history and decision source of truth.
 - [Crash harness and cloud durable lane](v4/CRASH_HARNESS_AND_CLOUD_LANE.md)
 - [Performance and evidence](v4/PERFORMANCE_AND_EVIDENCE.md)
 - [Phase 0 checklist](v4/PHASE_0_CHECKLIST.md)
+- [Phase 1 foundation baseline](v4/PHASE_1_BASELINE.md)
+- [Phase 1 checklist](v4/PHASE_1_CHECKLIST.md)
 
 ## v3.x — current stable and completed in-memory line
 

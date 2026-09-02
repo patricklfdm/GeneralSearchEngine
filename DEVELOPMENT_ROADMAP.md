@@ -29,6 +29,13 @@ performance/cloud evidence, release candidate, and publication then proceed in o
 phases 3–8. The authoritative map is under
 [`docs/v4/`](docs/v4/README.md).
 
+Phase 0 merged through protected PR #77 as `d5a3253`. Phase 1 now uses
+`4.0.0-SNAPSHOT` across all active coordinates, pins published `3.4.0` as the eighth
+Japicmp baseline, and establishes the independent history oracle, separate-JVM abrupt
+crash scaffold, checksummed evidence validator, storage inspector, and fake persistent-
+disk cloud lane. These are test-only and script-only foundations; production storage
+ownership and WAL remain Phase 2 work after full Phase 1 acceptance.
+
 ## v3.x completed development line
 
 V3.x is the completed post-3.0 in-memory development line. It matured ranked semantics,
