@@ -115,13 +115,19 @@ assertion.repository == 'patricklfdm/GeneralSearchEngine'
 assertion.repository_id == '1341513206'
 assertion.repository_owner_id == '147357093'
 assertion.ref == 'refs/heads/master'
-assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master'
+(assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master' ||
+ assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/v4-durable-performance.yml@refs/heads/master' ||
+ assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/v4-durable-failure-drill.yml@refs/heads/master')
 assertion.environment == 'cloud-benchmark'
 ```
 
 Keep `google.subject = assertion.sub`, but do not add a redundant complete `sub`
 comparison to the provider condition. The immutable IDs plus the independently bounded
 repository, ref, workflow, and Environment are the authorization boundary.
+
+The custom benchmark role also grants `compute.disks.use` and
+`compute.disks.delete` for the V4 non-auto-deleted data-disk lifecycle. Do not replace
+these two narrow permissions with a predefined Compute administrator role.
 
 Grant `roles/iam.workloadIdentityUser` on the dedicated service account only to the
 provider's repository principal set. In the dedicated benchmark project, grant only

@@ -23,7 +23,7 @@ case "$profile" in experiment|canonical) ;; *) echo "invalid performance profile
 
 sudo apt-get update
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  openjdk-21-jdk-headless git ca-certificates python3
+  openjdk-21-jdk-headless git ca-certificates python3 unzip
 
 deadline=$((SECONDS + 60))
 while [[ ! -b "$device" && $SECONDS -lt $deadline ]]; do sleep 1; done

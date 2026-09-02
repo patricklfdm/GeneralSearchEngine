@@ -2,7 +2,11 @@ from __future__ import annotations
 
 import unittest
 
-from scripts.v4.durable_cloud_workflow import validate_inputs
+from scripts.v4.durable_cloud_workflow import (
+    render_plan_summary,
+    validate_inputs,
+    validate_plan_document,
+)
 from scripts.v4.evidence import EvidenceError
 
 
@@ -42,6 +46,38 @@ class DurableCloudWorkflowTest(unittest.TestCase):
             validate_inputs(
                 "experiment", 1, 120, "actions", "c3d-standard-60", "standard"
             )
+
+    def test_plan_summary_is_validated_readable_markdown(self) -> None:
+        document = {
+            "schemaVersion": "gse-v40-durable-cloud-plan-v1",
+            "suite": "v4.0-durable-single-node-suite-v1",
+            "preset": "v4.0-durable-single-node-v1",
+            "sourceCommit": "a" * 40,
+            "trustedRef": "origin/master",
+            "runId": "12345",
+            "request": validate_inputs(
+                "experiment", 1, 120, "actions",
+                "c3d-standard-30", "standard"
+            ),
+            "slots": [1],
+            "resources": {
+                "diskType": "pd-balanced",
+                "diskSizeGiB": 200,
+                "filesystem": "ext4",
+                "mountOptions": "defaults",
+                "maximumRuntimeSeconds": 3720,
+            },
+        }
+        self.assertIs(document, validate_plan_document(document))
+        summary = render_plan_summary(document)
+        self.assertIn("# V4 durable cloud preflight", summary)
+        self.assertIn("| Source commit | `" + "a" * 40 + "` |", summary)
+        self.assertIn("| Persistent data disk | `pd-balanced / 200 GiB` |", summary)
+        self.assertIn("created no VM or disk", summary)
+
+        document["resources"]["diskSizeGiB"] = 201
+        with self.assertRaisesRegex(EvidenceError, "resources differ"):
+            render_plan_summary(document)
 
 
 if __name__ == "__main__":

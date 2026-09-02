@@ -41,6 +41,9 @@ grep -q 'GSE_BENCHMARK_GCS_BUCKET' "$workflow"
 grep -q 'run_durable_cloud_member.sh --confirm-paid-run' "$workflow"
 grep -q 'runStatus=%s' scripts/v4/run_durable_cloud_member.sh
 grep -q 'always() && needs.preflight.outputs.retention' "$workflow"
+grep -q 'durable_cloud_workflow plan-summary' "$workflow"
+grep -q 'runStatus=NOT_STARTED' "$workflow"
+grep -q 'python3 unzip' scripts/v4/remote_durable_member.sh
 
 mkdir -p "$work_dir/fake-bin"
 printf '#!/usr/bin/env bash\nexit 1\n' > "$work_dir/fake-bin/gcloud"
@@ -70,6 +73,8 @@ grep -q 'run_durable_failure_drill.sh --confirm-paid-run' \
   .github/workflows/v4-durable-failure-drill.yml
 grep -q 'runStatus=%s' scripts/v4/run_durable_failure_drill.sh
 grep -q 'if:.*always()' .github/workflows/v4-durable-failure-drill.yml
+grep -q 'runStatus=NOT_STARTED' .github/workflows/v4-durable-failure-drill.yml
+grep -q 'python3 unzip' scripts/v4/remote_durable_failure.sh
 
 set +e
 env \
