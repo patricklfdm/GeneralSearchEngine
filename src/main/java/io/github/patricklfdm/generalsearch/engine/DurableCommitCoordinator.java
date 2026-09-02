@@ -46,12 +46,19 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private final Duration recoveryDuration;
     private final Duration indexRebuildDuration;
     private final long truncatedTailBytes;
+    private final long storageOpenNanos;
+    private final long checkpointLoadNanos;
+    private final long replayAndRebuildNanos;
     private volatile long checkpointSequence;
     private Optional<DurabilityException.Reason> lastCheckpointFailure =
             Optional.empty();
     private CompletableFuture<Void> activeCheckpoint;
     private long allocatedSequence;
     private long publishedSequence;
+    private long forceGroups;
+    private long forcedUnits;
+    private int maximumForceGroupSize;
+    private long walAppendForceNanos;
     private boolean terminal;
     private boolean closed;
 
@@ -60,7 +67,10 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
             SearchSchema<T, K> schema,
             DurableStorageOwner.OpenResult opened,
             DurableRecovery.Result<K, T> recoveredState,
-            Duration totalRecoveryDuration
+            Duration totalRecoveryDuration,
+            long storageOpenNanos,
+            long checkpointLoadNanos,
+            long replayAndRebuildNanos
     ) {
         this.config = config;
         this.codec = config.codec();
@@ -85,6 +95,9 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 ? Duration.ZERO
                 : recoveredState.indexRebuildDuration();
         truncatedTailBytes = opened.truncatedBytes();
+        this.storageOpenNanos = storageOpenNanos;
+        this.checkpointLoadNanos = checkpointLoadNanos;
+        this.replayAndRebuildNanos = replayAndRebuildNanos;
         allocatedSequence = recoveredState.sequence();
         publishedSequence = recoveredState.sequence();
         checkpointExecutor = Executors.newSingleThreadExecutor(task -> {
@@ -152,12 +165,15 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
             throw codecFailure("codec identity changed after configuration", null);
         }
         long recoveryStarted = System.nanoTime();
+        long storageOpenStarted = System.nanoTime();
         DurableStorageOwner.OpenResult opened = DurableStorageOwner.open(
                 config,
                 codecId,
                 codecVersion,
                 indexes);
+        long storageOpenNanos = elapsedSince(storageOpenStarted);
         try {
+            long checkpointLoadStarted = System.nanoTime();
             DurableCheckpoint.Loaded<K, T> checkpoint = opened.manifest() == null
                     ? null
                     : DurableCheckpoint.read(
@@ -167,6 +183,8 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                             schema,
                             opened.owner().historyId(),
                             opened.manifest());
+            long checkpointLoadNanos = elapsedSince(checkpointLoadStarted);
+            long replayStarted = System.nanoTime();
             DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(
                     config,
                     schema,
@@ -174,6 +192,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                     checkpoint,
                     opened.wals(),
                     !opened.fresh());
+            long replayAndRebuildNanos = elapsedSince(replayStarted);
             opened.owner().finishRecovery();
             return new DurableCommitCoordinator<>(
                     config,
@@ -181,7 +200,10 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                     opened,
                     recovered,
                     Duration.ofNanos(Math.max(
-                            0L, System.nanoTime() - recoveryStarted)));
+                            0L, System.nanoTime() - recoveryStarted)),
+                    storageOpenNanos,
+                    checkpointLoadNanos,
+                    replayAndRebuildNanos);
         } catch (IOException ioFailure) {
             DurabilityException failure = new DurabilityException(
                     DurabilityException.Reason.STORAGE_ACCESS,
@@ -333,7 +355,15 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         }
         DurableCrashHooks.reach("v4-wal-after-sequence-v1");
         try {
+            long appendStarted = System.nanoTime();
             DurableWal.AppendResult append = storage.wal().appendAndForce(sequenced);
+            long appendNanos = elapsedSince(appendStarted);
+            forceGroups = saturatedAdd(forceGroups, 1L);
+            forcedUnits = saturatedAdd(forcedUnits, copied.size());
+            maximumForceGroupSize = Math.max(
+                    maximumForceGroupSize, copied.size());
+            walAppendForceNanos = saturatedAdd(
+                    walAppendForceNanos, appendNanos);
             publishMetrics(
                     DurabilityStatus.OPEN,
                     publishedSequence,
@@ -402,6 +432,28 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
 
     DurabilityMetrics metrics() {
         return metrics.get();
+    }
+
+    synchronized DurablePerformanceSnapshot performanceSnapshot() {
+        return new DurablePerformanceSnapshot(
+                forceGroups,
+                forcedUnits,
+                maximumForceGroupSize,
+                walAppendForceNanos,
+                storageOpenNanos,
+                checkpointLoadNanos,
+                replayAndRebuildNanos);
+    }
+
+    private static long elapsedSince(long started) {
+        return Math.max(0L, System.nanoTime() - started);
+    }
+
+    private static long saturatedAdd(long left, long right) {
+        if (right > Long.MAX_VALUE - left) {
+            return Long.MAX_VALUE;
+        }
+        return left + right;
     }
 
     synchronized boolean checkpointRequired() {

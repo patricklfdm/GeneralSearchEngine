@@ -26,9 +26,15 @@ def fake_run(arguments: argparse.Namespace) -> int:
     slots = PROFILES[arguments.profile]
     phase = getattr(arguments, "phase", "phase1-scaffold")
     production_recovery = phase in {
-        "phase3-recovery", "phase4-checkpoint", "phase5-hardening"}
-    checkpoint_recovery = phase in {"phase4-checkpoint", "phase5-hardening"}
-    lifecycle_hardening = phase == "phase5-hardening"
+        "phase3-recovery",
+        "phase4-checkpoint",
+        "phase5-hardening",
+        "phase6-performance",
+    }
+    checkpoint_recovery = phase in {
+        "phase4-checkpoint", "phase5-hardening", "phase6-performance"}
+    lifecycle_hardening = phase in {"phase5-hardening", "phase6-performance"}
+    performance_evidence = phase == "phase6-performance"
     lifecycle = [
         "plan-validated",
         "budget-accepted",
@@ -118,8 +124,11 @@ def fake_run(arguments: argparse.Namespace) -> int:
                 "replayedRecords": 0 if checkpoint_recovery else 1,
                 "checkpointSequence": 1 if checkpoint_recovery else 0,
                 "repeatedCrashCycles": 8 if lifecycle_hardening else 1,
+                "performanceCells": 10 if performance_evidence else 0,
             } if production_recovery else {},
-            "result": ("SIMULATED_PHASE5_REPEATED_RECOVERY"
+            "result": ("SIMULATED_PHASE6_DURABLE_PERFORMANCE"
+                       if performance_evidence else
+                       "SIMULATED_PHASE5_REPEATED_RECOVERY"
                        if lifecycle_hardening else
                        "SIMULATED_PHASE4_CHECKPOINT_RECOVERY"
                        if checkpoint_recovery else "SIMULATED_PHASE3_RECOVERY")
@@ -143,6 +152,8 @@ def fake_run(arguments: argparse.Namespace) -> int:
             "persistentDiskSurvivedWriter": True,
             "bootDiskUsedAsEvidence": False,
             "gcsUpload": "SIMULATED",
+            "durablePerformance": "SIMULATED_PASS"
+            if performance_evidence else "NOT_APPLICABLE",
             "cleanup": "PASS",
             "leftovers": [],
         },
@@ -166,6 +177,7 @@ def main() -> int:
             "phase3-recovery",
             "phase4-checkpoint",
             "phase5-hardening",
+            "phase6-performance",
         ),
         default="phase1-scaffold",
     )

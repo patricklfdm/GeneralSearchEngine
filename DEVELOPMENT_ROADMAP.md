@@ -59,13 +59,21 @@ single-authority recovery, conservative cleanup, checkpoint-plus-WAL replay,
 independent byte inspection, eleven production crash barriers and the fake-cloud
 checkpoint failure drill.
 
-Phase 5 is active from that accepted checkpoint boundary. Without changing public API
-or format `1.0`, it covers the full durable mutation/index lifecycle, concurrent
+Phase 5 merged through protected PR #82 at
+`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`; exact-master CI run `33597658600`
+passed. Without changing public API or format `1.0`, it covers the full durable mutation/index lifecycle, concurrent
 producers and readers, close/checkpoint/WAL races, deterministic rename/force/delete
 failures, bounded short writes and retained footprint, repeated same-history hard
 crashes, per-cycle independent inspection/reopen, and the fake-cloud hardening drill.
 The complete local matrix, reactor, published compatibility, independent consumers,
-release artifacts, reproducibility and JMH smoke pass; protected acceptance remains.
+release artifacts, reproducibility and JMH smoke pass.
+
+Phase 6 is active on `feat/v4.0-phase6-performance-hardening`. It separates
+current-source in-memory and force-backed durable JMH cells, actual force grouping,
+checkpoint/recovery/disk/long-run operational evidence, and the independent V4 cloud
+set. The paid lane uses Standard compute plus a separately retained persistent disk;
+the failure drill deletes the writer VM and recovers that disk on a replacement VM.
+No public API, storage-format or durability-semantic change is authorized.
 
 ## v3.x completed development line
 

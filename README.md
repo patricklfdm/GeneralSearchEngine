@@ -14,9 +14,11 @@ The completed work and compatibility constraints are recorded in the
 [V3.x contract map](docs/v3x/README.md). Version `3.4.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.0 durable single-node development is now in its documentation-only Phase 0
-contract freeze. The proposed mode is explicit and opt-in; the stable `3.4.0` API and
-default in-memory behavior remain unchanged. See the [V4 contract map](docs/v4/README.md).
+V4.0 durable single-node development is now in Phase 6 performance and operational
+hardening. The mode is explicit and opt-in; the stable `3.4.0` API and default
+in-memory behavior remain unchanged. WAL, deterministic recovery, checkpoints,
+lifecycle hardening and repeated-crash gates are implemented, while paid durable cloud
+evidence remains pre-release work. See the [V4 contract map](docs/v4/README.md).
 
 ## Requirements
 

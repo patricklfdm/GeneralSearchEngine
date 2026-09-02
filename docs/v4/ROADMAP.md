@@ -82,13 +82,20 @@ Phase 5 local validation is complete. It adds no API or format change. Determini
 I/O faults, concurrent producer/reader and close races, bounded short-write checkpoint
 loops, eight same-history hard crashes with per-cycle independent recovery, and the
 fake-cloud hardening drill pass together with the reactor, published compatibility,
-release artifacts, reproducibility and JMH gates. Protected acceptance remains.
+release artifacts, reproducibility and JMH gates. Phase 5 is accepted through protected
+PR #82 at `c9a8b472`; exact-master CI run `33597658600` passed.
 
 ### Phase 6 — performance and operational hardening
 
 Measure in-memory compatibility, durable mutation latency/throughput, force grouping,
 checkpoint cost, replay/rebuild/open time, disk amplification, large corpora, and the
 independent durable cloud family. Optimize only from reviewed evidence.
+
+Phase 6 is active from protected Phase 5 merge
+`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`. Local implementation now separates JMH
+completion latency from operational force/checkpoint/recovery/disk/long-run evidence
+and supplies independent paid performance plus replacement-VM failure workflows.
+Local full validation passed; protected Phase 6 merge and paid evidence remain gates.
 
 ### Phase 7 — release candidate
 

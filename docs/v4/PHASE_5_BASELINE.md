@@ -33,5 +33,6 @@ performance baseline.
 
 Clean reactor (421 core and 5 processor tests), published compatibility, all three
 independent consumers, strict Javadocs, six release JARs, reproducibility and the
-complete JMH smoke pass. Required PR checks, protected merge and exact-master CI remain
-the final acceptance gates.
+complete JMH smoke pass. Protected PR #82 merged as
+`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`; exact-master CI run `33597658600`
+completed successfully on 2026-09-01T23:09:44-07:00.

@@ -88,3 +88,8 @@ Each implementation phase records exact commit, Java/Maven/runtime environment,
 commands, seeds, fixture hashes, passed/failed/excluded cases, and remaining gates.
 No flaky rerun is silently substituted for evidence; infrastructure failure and product
 failure remain distinct.
+
+Phase 6 adds two evidence-specific gates without changing the semantic matrix. The
+operational validator requires complete latency, force-group, checkpoint, recovery,
+amplification and long-run fields. The cloud set validator also requires every member's
+post-run VM/disk cleanup receipt before a three-member canonical set can be eligible.
