@@ -519,7 +519,7 @@ final class DurableCheckpoint {
     private static void writeFully(FileChannel channel, ByteBuffer bytes)
             throws IOException {
         while (bytes.hasRemaining()) {
-            if (channel.write(bytes) <= 0) {
+            if (DurableIoFaults.write(channel, bytes) <= 0) {
                 throw new IOException("checkpoint write made no progress");
             }
         }

@@ -16,10 +16,11 @@ contiguous sequences, group force and writer crash barriers; its exact-master CI
 `33589193180` passed. It supplies authoritative
 WAL-only reopen, deterministic replay and index rebuild, strict tail/corruption
 classification, recovery barriers, differential oracles and fake-cloud failure-drill
-evidence. Phase 4 now implements asynchronous explicit/automatic checkpoints,
-multi-generation WAL recovery, one authoritative manifest, conservative cleanup,
-independent byte inspection and checkpoint crash evidence; protected acceptance is
-pending.
+evidence. Phase 4 is accepted through PR #81 at
+`32e9c84c944ebd4f5c0b9f2d69efd690d25058cc`; exact-master CI run `33594843119`
+passed. Phase 5 is active and implements lifecycle/concurrency races, deterministic
+I/O failure semantics, retained-footprint loops, same-history repeated hard crashes,
+independent prefix inspection and a fake-cloud hardening drill.
 
 ## Contract map
 
@@ -47,6 +48,9 @@ pending.
 - [Phase 4 checkpoint format](PHASE_4_CHECKPOINT_FORMAT.md)
 - [Phase 4 local baseline](PHASE_4_BASELINE.md)
 - [Phase 4 checklist](PHASE_4_CHECKLIST.md)
+- [Phase 5 lifecycle and crash hardening](PHASE_5_HARDENING.md)
+- [Phase 5 local hardening baseline](PHASE_5_BASELINE.md)
+- [Phase 5 checklist](PHASE_5_CHECKLIST.md)
 
 ## Authority
 

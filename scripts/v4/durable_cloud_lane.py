@@ -25,8 +25,10 @@ def fake_run(arguments: argparse.Namespace) -> int:
         raise EvidenceError("fake-cloud output already exists")
     slots = PROFILES[arguments.profile]
     phase = getattr(arguments, "phase", "phase1-scaffold")
-    production_recovery = phase in {"phase3-recovery", "phase4-checkpoint"}
-    checkpoint_recovery = phase == "phase4-checkpoint"
+    production_recovery = phase in {
+        "phase3-recovery", "phase4-checkpoint", "phase5-hardening"}
+    checkpoint_recovery = phase in {"phase4-checkpoint", "phase5-hardening"}
+    lifecycle_hardening = phase == "phase5-hardening"
     lifecycle = [
         "plan-validated",
         "budget-accepted",
@@ -77,6 +79,8 @@ def fake_run(arguments: argparse.Namespace) -> int:
             "caseId": f"{phase}-fake-cloud-{arguments.profile}",
             "seed": 0,
             "barrierId": (
+                "v4-checkpoint-after-wal-cleanup-v1"
+                if lifecycle_hardening else
                 "v4-checkpoint-after-directory-force-v1"
                 if checkpoint_recovery else "v4-wal-after-force-v1"
             ) if production_recovery else "phase1-fake-writer-barrier-v1",
@@ -113,8 +117,11 @@ def fake_run(arguments: argparse.Namespace) -> int:
                 "recoveredSequence": 1,
                 "replayedRecords": 0 if checkpoint_recovery else 1,
                 "checkpointSequence": 1 if checkpoint_recovery else 0,
+                "repeatedCrashCycles": 8 if lifecycle_hardening else 1,
             } if production_recovery else {},
-            "result": ("SIMULATED_PHASE4_CHECKPOINT_RECOVERY"
+            "result": ("SIMULATED_PHASE5_REPEATED_RECOVERY"
+                       if lifecycle_hardening else
+                       "SIMULATED_PHASE4_CHECKPOINT_RECOVERY"
                        if checkpoint_recovery else "SIMULATED_PHASE3_RECOVERY")
             if production_recovery else "SIMULATED",
         },
@@ -154,7 +161,12 @@ def main() -> int:
     parser.add_argument("--profile", choices=sorted(PROFILES), required=True)
     parser.add_argument(
         "--phase",
-        choices=("phase1-scaffold", "phase3-recovery", "phase4-checkpoint"),
+        choices=(
+            "phase1-scaffold",
+            "phase3-recovery",
+            "phase4-checkpoint",
+            "phase5-hardening",
+        ),
         default="phase1-scaffold",
     )
     arguments = parser.parse_args()

@@ -34,6 +34,9 @@ remains the phase history and decision source of truth.
 - [Phase 4 checkpoint format](v4/PHASE_4_CHECKPOINT_FORMAT.md)
 - [Phase 4 local baseline](v4/PHASE_4_BASELINE.md)
 - [Phase 4 checklist](v4/PHASE_4_CHECKLIST.md)
+- [Phase 5 lifecycle and crash hardening](v4/PHASE_5_HARDENING.md)
+- [Phase 5 local hardening baseline](v4/PHASE_5_BASELINE.md)
+- [Phase 5 checklist](v4/PHASE_5_CHECKLIST.md)
 
 ## v3.x — current stable and completed in-memory line
 

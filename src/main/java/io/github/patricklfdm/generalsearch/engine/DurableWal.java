@@ -171,10 +171,7 @@ final class DurableWal implements AutoCloseable {
                 writeFrame(units.get(index), index == 0);
             }
             DurableCrashHooks.reach("v4-wal-complete-before-force-v1");
-            if ("before-force".equals(System.getProperty(
-                    "gse.v4.ioFailurePoint"))) {
-                throw new IOException("injected WAL force failure");
-            }
+            DurableIoFaults.fail("before-force");
             channel.force(false);
             DurableCrashHooks.reach("v4-wal-after-force-v1");
             records = Math.addExact(records, units.size());
@@ -557,7 +554,7 @@ final class DurableWal implements AutoCloseable {
     private static void writeFully(FileChannel destination, ByteBuffer bytes)
             throws IOException {
         while (bytes.hasRemaining()) {
-            int written = destination.write(bytes);
+            int written = DurableIoFaults.write(destination, bytes);
             if (written <= 0) {
                 throw new IOException("WAL write made no progress");
             }

@@ -13,7 +13,11 @@ from scripts.v4.storage_inspector import (
     crc32c,
     inspect_phase4_directory,
 )
-from scripts.v4.test_phase2_storage_inspector import metadata_bytes, text
+from scripts.v4.test_phase2_storage_inspector import (
+    complete_frame,
+    metadata_bytes,
+    text,
+)
 
 HISTORY_MOST = 0x0102030405060708
 HISTORY_LEAST = 0x1112131415161718
@@ -70,6 +74,19 @@ class Phase4CheckpointFixtureTest(unittest.TestCase):
             with self.assertRaisesRegex(EvidenceError, "manifest checksum"):
                 inspect_phase4_directory(directory)
 
+    def test_pre_manifest_wal_retained_after_cleanup_failure_is_valid(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            write_store(directory)
+            (directory / "gse-wal-00000000000000000001.log").write_bytes(
+                wal_header_for(1, 1) + complete_frame())
+            inspection = inspect_phase4_directory(directory)
+            self.assertEqual(1, inspection["durableSequence"])
+            self.assertEqual([1, 2], [wal["generation"]
+                                     for wal in inspection["wals"]])
+            self.assertEqual([1, 2], [wal["firstSequence"]
+                                     for wal in inspection["wals"]])
+
 
 def checked(content: bytes) -> bytes:
     return content + struct.pack(">I", crc32c(content))
@@ -101,6 +118,10 @@ def manifest_bytes(checkpoint: bytes) -> bytes:
 
 
 def wal_header() -> bytes:
+    return wal_header_for(2, 2)
+
+
+def wal_header_for(generation: int, first_sequence: int) -> bytes:
     content = struct.pack(
         ">QhhQQQQ",
         WAL_MAGIC,
@@ -108,8 +129,8 @@ def wal_header() -> bytes:
         0,
         HISTORY_MOST,
         HISTORY_LEAST,
-        2,
-        2,
+        generation,
+        first_sequence,
     )
     return checked(content)
 

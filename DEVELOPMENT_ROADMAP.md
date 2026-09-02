@@ -51,12 +51,21 @@ two-pass bounded replay, canonical slot and `nextDocId` restoration, derived-ind
 rebuild, stable recovery crash barriers, recovered-versus-uninterrupted differential
 tests, and the Phase 3 local/fake-cloud failure-drill lane.
 
-Phase 4 is active from that merged recovery boundary. It implements the versioned
-checkpoint and manifest formats, writer-coordinated WAL generation cuts, asynchronous
-explicit and automatic checkpoints, single-authority recovery, conservative cleanup,
-checkpoint-plus-WAL replay, independent byte inspection, eleven production crash
-barriers and the fake-cloud checkpoint failure drill. Lifecycle/concurrency loops,
-disk-full and cleanup-failure stress remain ordered Phase 5 scope.
+Phase 4 is accepted through protected PR #81 at
+`32e9c84c944ebd4f5c0b9f2d69efd690d25058cc`; exact-master CI run `33594843119`
+passed. It implements versioned checkpoint and manifest formats, writer-coordinated
+WAL generation cuts, asynchronous explicit and automatic checkpoints,
+single-authority recovery, conservative cleanup, checkpoint-plus-WAL replay,
+independent byte inspection, eleven production crash barriers and the fake-cloud
+checkpoint failure drill.
+
+Phase 5 is active from that accepted checkpoint boundary. Without changing public API
+or format `1.0`, it covers the full durable mutation/index lifecycle, concurrent
+producers and readers, close/checkpoint/WAL races, deterministic rename/force/delete
+failures, bounded short writes and retained footprint, repeated same-history hard
+crashes, per-cycle independent inspection/reopen, and the fake-cloud hardening drill.
+The complete local matrix, reactor, published compatibility, independent consumers,
+release artifacts, reproducibility and JMH smoke pass; protected acceptance remains.
 
 ## v3.x completed development line
 

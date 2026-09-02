@@ -52,6 +52,9 @@ jobs:
       - name: Exercise the V4 checkpoint crash matrix
         run: scripts/verify-v40-phase4-checkpoints.sh --skip-build
 
+      - name: Exercise the V4 lifecycle and repeated-crash hardening matrix
+        run: scripts/verify-v40-phase5-hardening.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -151,6 +154,7 @@ jobs:
           bash -n scripts/verify-v40-phase2-foundation.sh
           bash -n scripts/verify-v40-phase3-recovery.sh
           bash -n scripts/verify-v40-phase4-checkpoints.sh
+          bash -n scripts/verify-v40-phase5-hardening.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence
@@ -177,8 +181,8 @@ jobs:
 
       - name: Validate V4 durable evidence and fake cloud control plane
         run: |
-          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_cloud_lane.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py scripts/v4/test_phase3_recovery_fixtures.py
-          python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector scripts.v4.test_phase3_recovery_fixtures
+          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_repeat.py scripts/v4/durable_cloud_lane.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py scripts/v4/test_phase3_recovery_fixtures.py scripts/v4/test_phase4_checkpoint_fixtures.py
+          python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector scripts.v4.test_phase3_recovery_fixtures scripts.v4.test_phase4_checkpoint_fixtures
 
   required:
     name: Required
