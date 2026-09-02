@@ -1,6 +1,6 @@
 # V4.0 Phase 1 checklist
 
-**Status:** implementation complete; full validation and protected merge pending
+**Status:** accepted on protected `master`
 
 ## Entry and version
 
@@ -59,9 +59,11 @@
   consumers pass.
 - [x] Local release packaging integrity and two-build byte reproducibility pass for all
   six JARs.
-- [ ] All required PR and exact-master CI jobs pass.
-- [ ] This phase merges through protected review and exact-master CI succeeds.
+- [x] All required PR and exact-master CI jobs pass.
+- [x] This phase is accepted at protected-master commit
+  `8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master CI run
+  `33578036261` passed.
 
-Phase 2 production storage ownership and WAL work is not authorized until every open
-acceptance item is resolved. Phase 2 must add stable crash barriers with each storage
-transition rather than postponing harness integration.
+Phase 2 production storage ownership and WAL work is authorized from this exact
+accepted boundary. It must add stable crash barriers with each storage transition
+rather than postponing harness integration.

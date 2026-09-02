@@ -8,10 +8,11 @@ publication model.
 ## Current status
 
 V4.0 Phase 0 is accepted on protected `master` through PR #77 at `d5a3253`. Phase 1
-now establishes `4.0.0-SNAPSHOT`, the exact published-3.4 compatibility baseline,
-compilable declaration and semantic fixtures, an independent history oracle, and the
-first-class local crash/evidence/fake-cloud foundation. Production persistence and WAL
-remain unauthorized until Phase 1 passes protected acceptance.
+is accepted at `8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master CI run
+`33578036261` passed. Phase 2 now implements the opt-in public durable surface,
+exclusive fresh-directory ownership, immutable storage identity, bounded framed WAL,
+contiguous sequences, group force and the production crash-barrier matrix. Recovery
+and authoritative reopen remain Phase 3 work; checkpoint execution remains Phase 4.
 
 ## Contract map
 
@@ -30,6 +31,9 @@ remain unauthorized until Phase 1 passes protected acceptance.
 - [Phase 0 checklist](PHASE_0_CHECKLIST.md)
 - [Phase 1 foundation baseline](PHASE_1_BASELINE.md)
 - [Phase 1 checklist](PHASE_1_CHECKLIST.md)
+- [Phase 2 storage and WAL format](PHASE_2_STORAGE_FORMAT.md)
+- [Phase 2 storage and WAL baseline](PHASE_2_BASELINE.md)
+- [Phase 2 checklist](PHASE_2_CHECKLIST.md)
 
 ## Authority
 

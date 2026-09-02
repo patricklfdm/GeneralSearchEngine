@@ -43,6 +43,9 @@ jobs:
       - name: Exercise the V4 crash-harness and fake-cloud foundation
         run: scripts/verify-v40-phase1-foundation.sh --skip-build
 
+      - name: Exercise the V4 production WAL crash-barrier matrix
+        run: scripts/verify-v40-phase2-foundation.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -139,6 +142,7 @@ jobs:
           bash -n scripts/test-v3-soak-stabilized-comparison.sh
           bash -n scripts/test-v3-soak-stabilization-e2e.sh
           bash -n scripts/verify-v40-phase1-foundation.sh
+          bash -n scripts/verify-v40-phase2-foundation.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence
@@ -165,8 +169,8 @@ jobs:
 
       - name: Validate V4 durable evidence and fake cloud control plane
         run: |
-          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_cloud_lane.py scripts/v4/test_phase1_infrastructure.py
-          python -m unittest scripts.v4.test_phase1_infrastructure
+          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_cloud_lane.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py
+          python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector
 
   required:
     name: Required

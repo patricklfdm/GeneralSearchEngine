@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
+import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
@@ -121,15 +123,52 @@ public final class SearchEngineBuilder<K, T> {
 
     /** Builds and starts a new engine instance owned by the caller. */
     public SearchEngine<K, T> build() {
-        SearchSchema<T, K> schema = baseSchema != null && !schemaExtended
-                ? baseSchema
-                : schemaBuilder.build();
+        SearchSchema<T, K> schema = buildSchema();
         return new SnapshotSearchEngine<>(
                 config,
                 plannerConfig,
                 schema,
                 List.copyOf(indexDefinitions)
         );
+    }
+
+    /**
+     * Builds a new opt-in durable engine over one exclusively owned local directory.
+     *
+     * @param storageConfig persisted identities, codec, directory and safety bounds
+     * @return a started durable engine owned by the caller
+     */
+    public DurableSearchEngine<K, T> buildDurable(
+            DurableStorageConfig<K, T> storageConfig
+    ) {
+        SearchSchema<T, K> schema = buildSchema();
+        DurableCommitCoordinator<K, T> durability =
+                DurableCommitCoordinator.createFresh(
+                        Objects.requireNonNull(storageConfig, "storageConfig"),
+                        config,
+                        schema,
+                        List.copyOf(indexDefinitions));
+        try {
+            return new DurableSnapshotSearchEngine<>(
+                    config,
+                    plannerConfig,
+                    schema,
+                    List.copyOf(indexDefinitions),
+                    durability);
+        } catch (RuntimeException | Error failure) {
+            try {
+                durability.close();
+            } catch (RuntimeException closeFailure) {
+                failure.addSuppressed(closeFailure);
+            }
+            throw failure;
+        }
+    }
+
+    private SearchSchema<T, K> buildSchema() {
+        return baseSchema != null && !schemaExtended
+                ? baseSchema
+                : schemaBuilder.build();
     }
 
     private void registerIndexField(Field<T, ?> field) {
