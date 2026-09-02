@@ -13,7 +13,8 @@ elif [[ $# -ne 0 ]]; then
 fi
 
 if [[ "$skip_build" == false ]]; then
-    ./mvnw -q clean -Dtest=V40DurablePerformancePhase6Test test
+    ./mvnw -q clean -Pjmh \
+        -Dtest=V40DurablePerformancePhase6Test,V40DurableOperationalProbeTest test
     ./mvnw -q -Pjmh -DskipTests package
 fi
 

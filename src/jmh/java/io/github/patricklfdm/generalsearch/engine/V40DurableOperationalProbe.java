@@ -71,6 +71,7 @@ public final class V40DurableOperationalProbe {
         result.put("singleOperations", Integer.toString(profile.singleOperations()));
         result.put("bulkOperations", Integer.toString(profile.bulkOperations()));
         result.put("bulkSize", Integer.toString(profile.bulkSize()));
+        result.put("loadBatchSize", Integer.toString(profile.loadBatchSize()));
         result.put("producers", Integer.toString(profile.producers()));
         result.put("producerOperations", Integer.toString(profile.producerOperations()));
         result.put("longRunSeconds", Long.toString(longRunSeconds));
@@ -108,8 +109,8 @@ public final class V40DurableOperationalProbe {
                 .buildDurable(config(durableDirectory, profile));
         try {
             List<Document> initial = documents(profile.documents(), 0);
-            inMemory.addAll(initial).join();
-            durable.addAll(initial).join();
+            addInBatches(inMemory, initial, profile.loadBatchSize());
+            addInBatches(durable, initial, profile.loadBatchSize());
 
             List<Long> inMemorySingle = new ArrayList<>();
             List<Long> durableSingle = new ArrayList<>();
@@ -220,7 +221,10 @@ public final class V40DurableOperationalProbe {
     ) throws Exception {
         try (DurableSearchEngine<Integer, Document> engine = builder()
                 .buildDurable(config(directory, profile))) {
-            engine.addAll(documents(profile.documents(), 0)).join();
+            addInBatches(
+                    engine,
+                    documents(profile.documents(), 0),
+                    profile.loadBatchSize());
             DurablePerformanceSnapshot before = performanceSnapshot(engine);
             CountDownLatch start = new CountDownLatch(1);
             ExecutorService producers = Executors.newFixedThreadPool(
@@ -314,11 +318,7 @@ public final class V40DurableOperationalProbe {
         try (DurableSearchEngine<Integer, Document> writer = builder()
                 .buildDurable(config)) {
             List<Document> corpus = documents(profile.recoveryDocuments(), 0);
-            for (int start = 0; start < corpus.size(); start += profile.loadBatchSize()) {
-                writer.addAll(corpus.subList(
-                        start,
-                        Math.min(start + profile.loadBatchSize(), corpus.size()))).join();
-            }
+            addInBatches(writer, corpus, profile.loadBatchSize());
             if (checkpoint) {
                 writer.checkpoint().join();
             }
@@ -367,7 +367,10 @@ public final class V40DurableOperationalProbe {
     ) throws Exception {
         try (DurableSearchEngine<Integer, Document> engine = builder()
                 .buildDurable(config(directory, profile))) {
-            engine.addAll(documents(profile.longRunDocuments(), 0)).join();
+            addInBatches(
+                    engine,
+                    documents(profile.longRunDocuments(), 0),
+                    profile.loadBatchSize());
             AtomicBoolean stop = new AtomicBoolean();
             AtomicLong reads = new AtomicLong();
             AtomicLong writes = new AtomicLong();
@@ -492,6 +495,24 @@ public final class V40DurableOperationalProbe {
             documents.add(new Document(id, body(id, revision)));
         }
         return documents;
+    }
+
+    static <K, T> void addInBatches(
+            SearchEngine<K, T> engine,
+            List<T> documents,
+            int batchSize
+    ) {
+        if (batchSize <= 0
+                || batchSize > SnapshotEngineConfig.DEFAULT.maxBatchSize()) {
+            throw new IllegalArgumentException(
+                    "load batch size must be between 1 and "
+                            + SnapshotEngineConfig.DEFAULT.maxBatchSize());
+        }
+        for (int start = 0; start < documents.size(); start += batchSize) {
+            engine.addAll(documents.subList(
+                    start,
+                    Math.min(start + batchSize, documents.size()))).join();
+        }
     }
 
     private static List<Document> updateBatch(
@@ -671,6 +692,14 @@ public final class V40DurableOperationalProbe {
             long checkpointWalBytes,
             long maxRetainedBytes
     ) {
+        Profile {
+            if (loadBatchSize <= 0
+                    || loadBatchSize > SnapshotEngineConfig.DEFAULT.maxBatchSize()) {
+                throw new IllegalArgumentException(
+                        "loadBatchSize exceeds the engine atomic bulk limit");
+            }
+        }
+
         static Profile named(String name) {
             return switch (name) {
                 case "smoke" -> new Profile(

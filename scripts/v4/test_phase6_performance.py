@@ -29,6 +29,16 @@ class Phase6PerformanceTest(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "force-group"):
             validate_properties(properties, "smoke")
 
+    def test_load_batch_size_is_required_and_positive(self) -> None:
+        properties = self.properties()
+        properties.pop("loadBatchSize")
+        with self.assertRaisesRegex(EvidenceError, "loadBatchSize"):
+            validate_properties(properties, "smoke")
+
+        properties["loadBatchSize"] = "0"
+        with self.assertRaisesRegex(EvidenceError, "loadBatchSize"):
+            validate_properties(properties, "smoke")
+
     def test_phase6_fake_cloud_keeps_independent_durable_identity(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             output = Path(temporary) / "phase6-cloud"
@@ -64,6 +74,7 @@ class Phase6PerformanceTest(unittest.TestCase):
             "singleOperations": "40",
             "bulkOperations": "10",
             "bulkSize": "20",
+            "loadBatchSize": "500",
             "producers": "4",
             "producerOperations": "20",
             "longRunSeconds": "1",
