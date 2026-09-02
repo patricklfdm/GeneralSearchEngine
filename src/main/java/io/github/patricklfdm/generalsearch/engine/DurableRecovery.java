@@ -33,27 +33,34 @@ final class DurableRecovery {
             DurableStorageConfig<K, T> config,
             SearchSchema<T, K> schema,
             List<DurableIndexDescriptor> startupIndexes,
-            DurableWal wal,
+            DurableCheckpoint.Loaded<K, T> checkpoint,
+            List<DurableWal> wals,
             boolean recoveryBarriers
     ) {
         long recoveryStarted = System.nanoTime();
         ReplayState<K, T> state = new ReplayState<>(
                 config,
                 schema,
-                startupIndexes);
-        wal.forEachFrame(frame -> {
-            try {
-                state.apply(frame);
-            } catch (DurabilityException failure) {
-                throw failure;
-            } catch (RuntimeException failure) {
-                throw new DurabilityException(
-                        DurabilityException.Reason.REPLAY_FAILURE,
-                        frame.sequence(),
-                        "durable WAL replay failed",
-                        failure);
-            }
-        });
+                startupIndexes,
+                checkpoint);
+        for (DurableWal wal : List.copyOf(wals)) {
+            wal.forEachFrame(frame -> {
+                if (frame.sequence() <= state.lastSequence) {
+                    return;
+                }
+                try {
+                    state.apply(frame);
+                } catch (DurabilityException failure) {
+                    throw failure;
+                } catch (RuntimeException failure) {
+                    throw new DurabilityException(
+                            DurabilityException.Reason.REPLAY_FAILURE,
+                            frame.sequence(),
+                            "durable WAL replay failed",
+                            failure);
+                }
+            });
+        }
         if (recoveryBarriers) {
             DurableCrashHooks.reach("v4-recovery-after-replay-v1");
         }
@@ -89,7 +96,8 @@ final class DurableRecovery {
                 state.documentIds,
                 state.nextDocId,
                 state.lastSequence,
-                wal.records(),
+                state.replayedRecords,
+                state.indexes,
                 elapsed(recoveryStarted),
                 indexRebuildDuration);
     }
@@ -104,12 +112,14 @@ final class DurableRecovery {
             int nextDocId,
             long sequence,
             long replayedRecords,
+            List<DurableIndexDescriptor> indexes,
             Duration recoveryDuration,
             Duration indexRebuildDuration
     ) {
         Result {
             Objects.requireNonNull(snapshot, "snapshot");
             documentIds = Map.copyOf(documentIds);
+            indexes = List.copyOf(indexes);
             if (nextDocId < 0 || sequence < 0 || replayedRecords < 0) {
                 throw new IllegalArgumentException("negative recovered state value");
             }
@@ -128,19 +138,37 @@ final class DurableRecovery {
         private int nextDocId;
         private int liveDocuments;
         private long lastSequence;
+        private long replayedRecords;
 
         private ReplayState(
                 DurableStorageConfig<K, T> config,
                 SearchSchema<T, K> schema,
-                List<DurableIndexDescriptor> startupIndexes
+                List<DurableIndexDescriptor> startupIndexes,
+                DurableCheckpoint.Loaded<K, T> checkpoint
         ) {
             this.config = config;
             this.codec = config.codec();
             this.schema = schema;
-            this.indexes = new ArrayList<>(startupIndexes);
+            if (checkpoint == null) {
+                this.indexes = new ArrayList<>(startupIndexes);
+            } else {
+                this.indexes = new ArrayList<>(checkpoint.indexes());
+                documentIds.putAll(checkpoint.documentIds());
+                slots.addAll(checkpoint.slots());
+                nextDocId = checkpoint.nextDocId();
+                liveDocuments = checkpoint.documentIds().size();
+                lastSequence = checkpoint.sequence();
+            }
         }
 
         private void apply(DurableWal.Frame frame) {
+            if (lastSequence == Long.MAX_VALUE
+                    || frame.sequence() != lastSequence + 1) {
+                throw replayFailure(
+                        frame.sequence(),
+                        "WAL replay does not continue checkpoint sequence",
+                        null);
+            }
             PayloadReader reader = new PayloadReader(
                     frame.sequence(), frame.payload());
             switch (frame.type()) {
@@ -157,6 +185,7 @@ final class DurableRecovery {
             }
             reader.requireExhausted();
             lastSequence = frame.sequence();
+            replayedRecords++;
         }
 
         private void applyBulk(PayloadReader reader, long sequence) {

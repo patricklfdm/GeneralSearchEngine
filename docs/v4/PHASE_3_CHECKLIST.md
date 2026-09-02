@@ -1,7 +1,7 @@
 # V4.0 Phase 3 checklist
 
-**Status:** implementation and local recovery matrix complete; final validation and
-protected merge pending
+**Status:** accepted through protected PR #80 at `2664638`; exact-master CI run
+`33589193180` passed
 
 ## Entry and scope
 
@@ -57,8 +57,9 @@ protected merge pending
 - [x] Full reactor passes (409 core and 5 processor tests, zero failures).
 - [x] Published 1.0.0 through 3.4.0 compatibility and three consumers pass.
 - [x] Strict Javadocs, six release JARs, JMH smoke and two-build reproducibility pass.
-- [ ] Required PR and exact-master Phase 3 CI pass.
-- [ ] Protected merge and exact-master Phase 3 evidence are recorded.
+- [x] Required PR #80 and protected merge pass.
+- [x] Exact-master Phase 3 CI run `33589193180` passed at
+  `266463851aff5b742f26338bc3b3c1867f247ea1`.
 
 Phase 4 may add checkpoint authority only after the open acceptance items close. It
 must preserve WAL-only bootstrap and all accepted recovery fixtures.

@@ -54,6 +54,14 @@ public final class V40CrashHarnessProcess {
             crashDuringPhase3Recovery(workspace, barrier);
             return;
         }
+        if (mode.equals("phase4-checkpoint-crash")) {
+            crashDuringPhase4Checkpoint(workspace);
+            return;
+        }
+        if (mode.equals("phase4-recover")) {
+            verifyPhase4Recovery(workspace, barrier);
+            return;
+        }
         throw new IllegalArgumentException("unknown mode: " + mode);
     }
 
@@ -227,6 +235,64 @@ public final class V40CrashHarnessProcess {
                 "id", String.class, Phase2Document::id);
         return SearchEngine.builder(Phase2Document.class, id)
                 .buildDurable(storage);
+    }
+
+    private static void crashDuringPhase4Checkpoint(Path workspace) {
+        installShutdownMarker(workspace.resolve("graceful-close.marker"));
+        String configuredBarrier = System.getProperty("gse.v4.crashBarrier");
+        String configuredAction = System.getProperty("gse.v4.crashAction", "halt");
+        System.clearProperty("gse.v4.crashBarrier");
+        DurableSearchEngine<String, Phase2Document> engine = openEngine(workspace);
+        engine.add(new Phase2Document(
+                "doc-1", "phase4 checkpoint payload")).join();
+        System.setProperty("gse.v4.crashBarrier", configuredBarrier);
+        System.setProperty("gse.v4.crashAction", configuredAction);
+        engine.checkpoint().join();
+        throw new IllegalStateException(
+                "configured checkpoint crash barrier was not reached");
+    }
+
+    private static void verifyPhase4Recovery(Path workspace, String barrier) {
+        if (Files.exists(workspace.resolve("graceful-close.marker"))) {
+            throw new IllegalStateException("graceful shutdown path ran");
+        }
+        long checkpointSequence;
+        long replayedRecords;
+        String recoverySource;
+        try (DurableSearchEngine<String, Phase2Document> recovered =
+                     openEngine(workspace)) {
+            if (recovered.currentSequence() != 1
+                    || recovered.get("doc-1") == null) {
+                throw new IllegalStateException(
+                        "Phase 4 recovered checkpoint prefix mismatch");
+            }
+            checkpointSequence = recovered.durabilityMetrics()
+                    .checkpointSequence();
+            replayedRecords = recovered.durabilityMetrics().replayedRecords();
+            recoverySource = recovered.durabilityMetrics().recoverySource().name();
+            recovered.add(new Phase2Document(
+                    "doc-2", "continued after Phase 4 crash")).join();
+            if (recovered.currentSequence() != 2) {
+                throw new IllegalStateException(
+                        "Phase 4 continued sequence mismatch");
+            }
+        }
+        try (DurableSearchEngine<String, Phase2Document> reopened =
+                     openEngine(workspace)) {
+            if (reopened.currentSequence() != 2
+                    || reopened.get("doc-1") == null
+                    || reopened.get("doc-2") == null) {
+                throw new IllegalStateException(
+                        "Phase 4 repeated reopen mismatch");
+            }
+        }
+        System.out.println("GSE_RECOVERY_RESULT={\"schemaVersion\":1,"
+                + "\"status\":\"PASS\",\"productionStorage\":true,"
+                + "\"barrierId\":\"" + barrier + "\","
+                + "\"recoveredSequence\":1,\"continuedSequence\":2,"
+                + "\"checkpointSequence\":" + checkpointSequence + ","
+                + "\"replayedRecords\":" + replayedRecords + ","
+                + "\"recoverySource\":\"" + recoverySource + "\"}");
     }
 
     private static long expectedSequence(String barrier) {

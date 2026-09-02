@@ -23,6 +23,7 @@ from scripts.v4.storage_inspector import (
     inspect_phase1_directory,
     inspect_phase2_directory,
     inspect_phase3_directory,
+    inspect_phase4_directory,
 )
 
 PROCESS_CLASS = (
@@ -61,8 +62,10 @@ def run_case(arguments: argparse.Namespace) -> int:
             if arguments.termination == "internal-halt" else "child-wait"
         java_options: list[str] = []
     else:
-        mode = "phase3-open-crash" \
-            if scenario == "phase3-open-recovery" else "phase2-write"
+        mode = {
+            "phase3-open-recovery": "phase3-open-crash",
+            "phase4-checkpoint": "phase4-checkpoint-crash",
+        }.get(scenario, "phase2-write")
         action = "halt" \
             if arguments.termination == "internal-halt" else "wait"
         java_options = [
@@ -110,13 +113,16 @@ def run_case(arguments: argparse.Namespace) -> int:
         inspection = inspect_phase1_directory(child_workspace, arguments.barrier)
     elif scenario == "phase2-wal":
         inspection = inspect_phase2_directory(child_workspace)
-    else:
+    elif scenario in {"phase3-recovery", "phase3-open-recovery"}:
         inspection = inspect_phase3_directory(child_workspace)
+    else:
+        inspection = inspect_phase4_directory(child_workspace)
     recovery_mode = {
         "phase1-scaffold": "recover",
         "phase2-wal": "phase2-verify",
         "phase3-recovery": "phase3-recover",
         "phase3-open-recovery": "phase3-recover",
+        "phase4-checkpoint": "phase4-recover",
     }[scenario]
     recovery = subprocess.run(
         [
@@ -146,8 +152,11 @@ def run_case(arguments: argparse.Namespace) -> int:
         if scenario == "phase2-wal" else 0
     if scenario in {"phase3-recovery", "phase3-open-recovery"}:
         expected_sequence = expected_wal_sequence(arguments.barrier)
-    inspected_sequence = inspection.get("wal", {}).get(
-        "lastCompleteSequence", 0)
+    elif scenario == "phase4-checkpoint":
+        expected_sequence = 1
+    inspected_sequence = inspection.get("durableSequence") \
+        if scenario == "phase4-checkpoint" else inspection.get("wal", {}).get(
+            "lastCompleteSequence", 0)
     if inspected_sequence != expected_sequence:
         raise EvidenceError(
             f"durable-prefix mismatch: expected {expected_sequence}, "
@@ -169,6 +178,18 @@ def run_case(arguments: argparse.Namespace) -> int:
         if expected_truncation != (isinstance(truncated_bytes, int)
                                   and truncated_bytes > 0):
             raise EvidenceError("production tail-truncation diagnostic mismatch")
+    if scenario == "phase4-checkpoint":
+        if recovered.get("recoveredSequence") != 1 \
+                or recovered.get("continuedSequence") != 2:
+            raise EvidenceError("Phase 4 checkpoint recovery sequence mismatch")
+        manifest_expected = arguments.barrier in {
+            "v4-checkpoint-after-manifest-rename-v1",
+            "v4-checkpoint-after-directory-force-v1",
+            "v4-checkpoint-before-wal-cleanup-v1",
+            "v4-checkpoint-after-wal-cleanup-v1",
+        }
+        if (inspection.get("manifest") is not None) != manifest_expected:
+            raise EvidenceError("Phase 4 manifest authority mismatch")
     finished = time.time_ns()
     device_id = os.stat(child_workspace).st_dev
     shutil.rmtree(child_workspace)
@@ -180,6 +201,7 @@ def run_case(arguments: argparse.Namespace) -> int:
             "phase2-wal": "local-phase2-wal-crash",
             "phase3-recovery": "local-phase3-recovery-crash",
             "phase3-open-recovery": "local-phase3-recovery-crash",
+            "phase4-checkpoint": "local-phase4-checkpoint-crash",
         }[scenario],
         "status": "PASS",
         "sourceCommit": arguments.source_sha,
@@ -265,6 +287,7 @@ def run_case(arguments: argparse.Namespace) -> int:
                 "phase2-wal": "PHASE2_INSPECTED_DURABLE_PREFIX",
                 "phase3-recovery": "PHASE3_RECOVERED_DURABLE_PREFIX",
                 "phase3-open-recovery": "PHASE3_RECOVERY_RESTART_PREFIX",
+                "phase4-checkpoint": "PHASE4_CHECKPOINT_RECOVERED_PREFIX",
             }[scenario],
             "oracleMatched": True,
             "productionStorage": scenario != "phase1-scaffold",
@@ -293,9 +316,12 @@ def record_failed_case(arguments: argparse.Namespace, failure: BaseException) ->
         cleanup_failure = str(problem)
     evidence = {
         "kind": "local-crash-scaffold" if phase1 else (
-            "local-phase3-recovery-crash"
-            if scenario in {"phase3-recovery", "phase3-open-recovery"}
-            else "local-phase2-wal-crash"
+            "local-phase4-checkpoint-crash"
+            if scenario == "phase4-checkpoint" else (
+                "local-phase3-recovery-crash"
+                if scenario in {"phase3-recovery", "phase3-open-recovery"}
+                else "local-phase2-wal-crash"
+            )
         ),
         "status": "FAIL",
         "sourceCommit": arguments.source_sha,
@@ -396,6 +422,7 @@ def parser() -> argparse.ArgumentParser:
             "phase2-wal",
             "phase3-recovery",
             "phase3-open-recovery",
+            "phase4-checkpoint",
         ),
         default="phase1-scaffold",
     )

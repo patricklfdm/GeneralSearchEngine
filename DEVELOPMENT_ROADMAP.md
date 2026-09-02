@@ -44,12 +44,19 @@ sequences, group force-before-publication, terminal ambiguous-I/O handling, and 
 production crash barriers exercised by the local harness. Its exact-master CI run ID
 `33583721019` passed on that merge commit.
 
-Phase 3 is active from that merged storage boundary. It implements authoritative
+Phase 3 merged through protected PR #80 at `2664638`; exact-master CI run
+`33589193180` passed. It implements authoritative
 WAL-only reopen, strict startup validation, permitted incomplete-tail truncation,
 two-pass bounded replay, canonical slot and `nextDocId` restoration, derived-index
 rebuild, stable recovery crash barriers, recovered-versus-uninterrupted differential
-tests, and the Phase 3 local/fake-cloud failure-drill lane. Phase 4 retains sole
-authority for checkpoint execution, WAL generation rollover, and cleanup.
+tests, and the Phase 3 local/fake-cloud failure-drill lane.
+
+Phase 4 is active from that merged recovery boundary. It implements the versioned
+checkpoint and manifest formats, writer-coordinated WAL generation cuts, asynchronous
+explicit and automatic checkpoints, single-authority recovery, conservative cleanup,
+checkpoint-plus-WAL replay, independent byte inspection, eleven production crash
+barriers and the fake-cloud checkpoint failure drill. Lifecycle/concurrency loops,
+disk-full and cleanup-failure stress remain ordered Phase 5 scope.
 
 ## v3.x completed development line
 

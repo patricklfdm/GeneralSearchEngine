@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import struct
 from pathlib import Path
 
@@ -22,6 +23,13 @@ FRAME_MAGIC = 0x47534546
 WAL_HEADER_BYTES = 48
 FRAME_HEADER_BYTES = 28
 FRAME_TRAILER_BYTES = 4
+CHECKPOINT_MAGIC = 0x47534543484B3130
+MANIFEST_MAGIC = 0x4753454D414E3130
+WAL_NAME = re.compile(r"gse-wal-([0-9]{20})\.log")
+CHECKPOINT_NAME = re.compile(
+    r"gse-checkpoint-([0-9]{20})-([a-f0-9]{32})\.chk")
+CHECKPOINT_STAGING_NAME = re.compile(
+    r"gse-checkpoint-([0-9]{20})-([a-f0-9]{32})\.chk\.staging")
 MAX_FRAME_BYTES = 256 * 1024 * 1024
 HARD_LIMITS = (
     64 * 1024 * 1024,
@@ -126,6 +134,85 @@ def inspect_phase3_directory(workspace: Path) -> dict[str, object]:
     return result
 
 
+def inspect_phase4_directory(workspace: Path) -> dict[str, object]:
+    if not workspace.is_dir() or workspace.is_symlink():
+        raise EvidenceError("engine directory must be a regular directory")
+    entries = sorted(workspace.iterdir(), key=lambda entry: entry.name)
+    names = {entry.name for entry in entries}
+    allowed_fixed = {
+        "gse.lock",
+        "gse-metadata",
+        "gse-metadata.staging",
+        "gse-checkpoint-manifest",
+        "gse-checkpoint-manifest.staging",
+    }
+    for entry in entries:
+        if not entry.is_file() or entry.is_symlink():
+            raise EvidenceError(f"non-regular Phase 4 storage member: {entry.name}")
+        if (entry.name not in allowed_fixed
+                and WAL_NAME.fullmatch(entry.name) is None
+                and CHECKPOINT_NAME.fullmatch(entry.name) is None
+                and CHECKPOINT_STAGING_NAME.fullmatch(entry.name) is None):
+            raise EvidenceError(f"unknown Phase 4 storage member: {entry.name}")
+    if "gse-metadata" not in names:
+        raise EvidenceError("Phase 4 metadata is missing")
+    wal_entries = [entry for entry in entries if WAL_NAME.fullmatch(entry.name)]
+    if not wal_entries:
+        raise EvidenceError("Phase 4 WAL generation is missing")
+
+    metadata = inspect_metadata(workspace / "gse-metadata")
+    manifest = inspect_manifest(
+        workspace / "gse-checkpoint-manifest", metadata,
+    ) if "gse-checkpoint-manifest" in names else None
+    checkpoint = None
+    if manifest is not None:
+        checkpoint_path = workspace / str(manifest["checkpointFile"])
+        if not checkpoint_path.is_file():
+            raise EvidenceError("authoritative checkpoint is missing")
+        checkpoint = inspect_checkpoint(checkpoint_path, metadata, manifest)
+
+    wals: list[dict[str, object]] = []
+    previous_generation: int | None = None
+    expected_first: int | None = None
+    for entry in wal_entries:
+        match = WAL_NAME.fullmatch(entry.name)
+        assert match is not None
+        generation = int(match.group(1))
+        if previous_generation is not None and generation != previous_generation + 1:
+            raise EvidenceError("WAL generations are not contiguous")
+        first = 1 if expected_first is None else expected_first
+        if previous_generation is None and generation != 1:
+            if manifest is None or generation > int(manifest["walGeneration"]):
+                raise EvidenceError("leading WAL generation is not authoritative")
+            first = int(manifest["walFirstSequence"])
+        inspected = inspect_wal(entry, metadata, generation, first)
+        wals.append(inspected)
+        previous_generation = generation
+        expected_first = int(inspected["lastCompleteSequence"]) + 1
+
+    if manifest is not None:
+        boundary = next((wal for wal in wals
+                         if wal["generation"] == manifest["walGeneration"]), None)
+        if boundary is None or boundary["firstSequence"] != \
+                manifest["walFirstSequence"]:
+            raise EvidenceError("manifest WAL boundary is missing or inconsistent")
+    durable_sequence = max(
+        [int(wal["lastCompleteSequence"]) for wal in wals]
+        + ([int(manifest["checkpointSequence"])] if manifest else [0])
+    )
+    return {
+        "schemaVersion": "gse-v4-storage-inspection-v1",
+        "classification": "PHASE4_CHECKPOINT_HISTORY",
+        "files": [entry.name for entry in entries],
+        "metadata": metadata,
+        "manifest": manifest,
+        "checkpoint": checkpoint,
+        "wals": wals,
+        "durableSequence": durable_sequence,
+        "stagingFiles": sorted(name for name in names if name.endswith(".staging")),
+    }
+
+
 def inspect_metadata(path: Path) -> dict[str, object]:
     data = path.read_bytes()
     if len(data) < 4 or crc32c(data[:-4]) != struct.unpack(">I", data[-4:])[0]:
@@ -184,7 +271,116 @@ def inspect_metadata(path: Path) -> dict[str, object]:
     }
 
 
-def inspect_wal(path: Path, metadata: dict[str, object]) -> dict[str, object]:
+def inspect_manifest(
+        path: Path,
+        metadata: dict[str, object],
+) -> dict[str, object]:
+    data = path.read_bytes()
+    if len(data) < 72 or len(data) > 16 * 1024 \
+            or crc32c(data[:-4]) != struct.unpack(">I", data[-4:])[0]:
+        raise EvidenceError("checkpoint manifest checksum or size is invalid")
+    cursor = Cursor(data[:-4])
+    magic, major, minor, history_most, history_least = cursor.unpack(">QhhQQ")
+    checkpoint_sequence, checkpoint_bytes, checkpoint_checksum = \
+        cursor.unpack(">qqI")
+    checkpoint_file = cursor.string()
+    wal_generation, wal_first = cursor.unpack(">qq")
+    if (magic, major, minor) != (MANIFEST_MAGIC, 1, 0) \
+            or f"{history_most:016x}" != metadata["historyMost"] \
+            or f"{history_least:016x}" != metadata["historyLeast"] \
+            or checkpoint_sequence < 0 \
+            or checkpoint_bytes < 56 \
+            or CHECKPOINT_NAME.fullmatch(checkpoint_file) is None \
+            or wal_generation <= 1 \
+            or wal_first != checkpoint_sequence + 1 \
+            or cursor.offset != len(cursor.data):
+        raise EvidenceError("checkpoint manifest identity is invalid")
+    return {
+        "checkpointSequence": checkpoint_sequence,
+        "checkpointFile": checkpoint_file,
+        "checkpointBytes": checkpoint_bytes,
+        "checkpointChecksum": checkpoint_checksum,
+        "walGeneration": wal_generation,
+        "walFirstSequence": wal_first,
+        "bytes": len(data),
+    }
+
+
+def inspect_checkpoint(
+        path: Path,
+        metadata: dict[str, object],
+        manifest: dict[str, object],
+) -> dict[str, object]:
+    data = path.read_bytes()
+    if len(data) != manifest["checkpointBytes"] or len(data) < 56:
+        raise EvidenceError("checkpoint size does not match manifest")
+    stored_checksum = struct.unpack(">I", data[-4:])[0]
+    if crc32c(data[:-4]) != stored_checksum \
+            or stored_checksum != manifest["checkpointChecksum"]:
+        raise EvidenceError("checkpoint checksum mismatch")
+    cursor = Cursor(data[:-4])
+    magic, major, minor, history_most, history_least = cursor.unpack(">QhhQQ")
+    sequence, next_doc_id, live_documents, index_count = cursor.unpack(">qiii")
+    if (magic, major, minor) != (CHECKPOINT_MAGIC, 1, 0) \
+            or f"{history_most:016x}" != metadata["historyMost"] \
+            or f"{history_least:016x}" != metadata["historyLeast"] \
+            or sequence != manifest["checkpointSequence"] \
+            or next_doc_id < 0 \
+            or live_documents < 0 \
+            or live_documents > min(next_doc_id, metadata["maxDocuments"]) \
+            or index_count < 0 or index_count > 100_000:
+        raise EvidenceError("checkpoint header is invalid")
+    indexes: list[dict[str, object]] = []
+    seen_indexes: set[tuple[int, str, str]] = set()
+    for _ in range(index_count):
+        (kind,) = cursor.unpack(">b")
+        field = cursor.string()
+        analyzer = cursor.string(allow_empty=True)
+        descriptor = (kind, field, analyzer)
+        if kind not in {1, 2, 3, 4} \
+                or (kind == 4) != (analyzer == "gse-simple-v1") \
+                or descriptor in seen_indexes:
+            raise EvidenceError("checkpoint index descriptor is invalid")
+        seen_indexes.add(descriptor)
+        indexes.append({"kind": kind, "field": field, "analyzer": analyzer})
+    (slot_count,) = cursor.unpack(">i")
+    if slot_count != next_doc_id:
+        raise EvidenceError("checkpoint slot count is not canonical")
+    decoded_live = 0
+    for _ in range(slot_count):
+        (state,) = cursor.unpack(">B")
+        if state == 0:
+            continue
+        if state != 1:
+            raise EvidenceError("checkpoint slot state is invalid")
+        (key_length,) = cursor.unpack(">i")
+        if key_length < 0 or key_length > metadata["maxEncodedKeyBytes"]:
+            raise EvidenceError("checkpoint key length is invalid")
+        cursor.read(key_length)
+        (document_length,) = cursor.unpack(">i")
+        if document_length < 0 \
+                or document_length > metadata["maxEncodedDocumentBytes"]:
+            raise EvidenceError("checkpoint document length is invalid")
+        cursor.read(document_length)
+        decoded_live += 1
+    if decoded_live != live_documents or cursor.offset != len(cursor.data):
+        raise EvidenceError("checkpoint document structure is invalid")
+    return {
+        "sequence": sequence,
+        "nextDocId": next_doc_id,
+        "liveDocuments": live_documents,
+        "indexes": indexes,
+        "checksum": stored_checksum,
+        "bytes": len(data),
+    }
+
+
+def inspect_wal(
+        path: Path,
+        metadata: dict[str, object],
+        expected_generation: int = 1,
+        expected_first: int = 1,
+) -> dict[str, object]:
     data = path.read_bytes()
     if len(data) < WAL_HEADER_BYTES:
         raise EvidenceError("WAL generation header is truncated")
@@ -192,7 +388,8 @@ def inspect_wal(path: Path, metadata: dict[str, object]) -> dict[str, object]:
     unpacked = struct.unpack(">QhhQQQQI", header)
     magic, major, minor, history_most, history_least, generation, first, checksum = \
         unpacked
-    if (magic, major, minor, generation, first) != (WAL_MAGIC, 1, 0, 1, 1):
+    if (magic, major, minor, generation, first) != (
+            WAL_MAGIC, 1, 0, expected_generation, expected_first):
         raise EvidenceError("WAL generation identity is invalid")
     if crc32c(header[:-4]) != checksum:
         raise EvidenceError("WAL generation checksum mismatch")
@@ -202,7 +399,7 @@ def inspect_wal(path: Path, metadata: dict[str, object]) -> dict[str, object]:
 
     frames: list[dict[str, object]] = []
     offset = WAL_HEADER_BYTES
-    expected_sequence = 1
+    expected_sequence = first
     tail = "NONE"
     while offset < len(data):
         remaining = len(data) - offset
@@ -326,7 +523,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
     parser.add_argument(
-        "--phase", choices=("phase1", "phase2", "phase3"), default="phase1")
+        "--phase",
+        choices=("phase1", "phase2", "phase3", "phase4"),
+        default="phase1")
     parser.add_argument("--barrier")
     arguments = parser.parse_args()
     if arguments.phase == "phase1" and not arguments.barrier:
@@ -335,8 +534,10 @@ def main() -> int:
         result = inspect_phase1_directory(arguments.directory, arguments.barrier)
     elif arguments.phase == "phase2":
         result = inspect_phase2_directory(arguments.directory)
-    else:
+    elif arguments.phase == "phase3":
         result = inspect_phase3_directory(arguments.directory)
+    else:
+        result = inspect_phase4_directory(arguments.directory)
     print(json.dumps(
         result,
         sort_keys=True,

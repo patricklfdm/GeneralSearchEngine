@@ -368,6 +368,27 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         return current.get().documentIds().get(id);
     }
 
+    final CompletableFuture<Void> checkpointDurably() {
+        if (durability == null) {
+            return CompletableFuture.failedFuture(new UnsupportedOperationException(
+                    "checkpoint requires a durable engine"));
+        }
+        CompletableFuture<Void> completion = new CompletableFuture<>();
+        CheckpointTask<K, T> task = new CheckpointTask<>(completion);
+        synchronized (lifecycleMonitor) {
+            if (!accepting) {
+                completion.completeExceptionally(new DurabilityException(
+                        DurabilityException.Reason.CLOSED,
+                        "durable engine is closed"));
+            } else if (!queue.offer(task)) {
+                completion.completeExceptionally(
+                        new EngineRejectedExecutionException(
+                                EngineRejectedExecutionException.Reason.QUEUE_FULL));
+            }
+        }
+        return completion;
+    }
+
     private long processSnapshotVersion(long internalVersion) {
         return Math.subtractExact(internalVersion, snapshotVersionBase);
     }
@@ -577,6 +598,7 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         }
         beforeDurableFutureCompletion(durableGroup);
         successful.forEach(task -> task.completion().complete(null));
+        maybeAutomaticCheckpoint();
     }
 
     private IndexChange<T> apply(BatchState state, SearchMutation<K, T> mutation) {
@@ -698,6 +720,7 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             publishWriterMetrics();
             beforeDurableFutureCompletion(durableGroup);
             task.completion().complete(null);
+            maybeAutomaticCheckpoint();
         } catch (RuntimeException failure) {
             failedMutations += task.mutations().size();
             publishWriterMetrics();
@@ -716,6 +739,8 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 processDropIndex(asDropIndexTask(task));
             } else if (task instanceof InstallIndexTask<?, ?>) {
                 processInstallIndex(asInstallIndexTask(task));
+            } else if (task instanceof CheckpointTask<?, ?>) {
+                processCheckpoint(asCheckpointTask(task));
             } else {
                 task.completion().completeExceptionally(
                         new IllegalArgumentException("unknown writer task: " + task));
@@ -726,6 +751,18 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 throw failure;
             }
         }
+    }
+
+    private void processCheckpoint(CheckpointTask<K, T> task) {
+        CompletableFuture<Void> execution = durability.checkpoint(
+                captureDurableCheckpoint());
+        execution.whenComplete((ignored, failure) -> {
+            if (failure == null) {
+                task.completion().complete(null);
+            } else {
+                task.completion().completeExceptionally(unwrap(failure));
+            }
+        });
     }
 
     private void processCreateIndex(CreateIndexTask<K, T> task) {
@@ -933,6 +970,7 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             publishWriterMetrics();
             beforeDurableFutureCompletion(durableGroup);
             pending.completion().complete(null);
+            maybeAutomaticCheckpoint();
         } catch (RuntimeException failure) {
             pendingIndexBuilds.remove(task.buildId());
             recordIndexBuildFailure(pending, failure);
@@ -993,6 +1031,37 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         publishWriterMetrics();
         beforeDurableFutureCompletion(durableGroup);
         task.completion().complete(null);
+        maybeAutomaticCheckpoint();
+    }
+
+    private DurableCheckpoint.Capture<K, T> captureDurableCheckpoint() {
+        PublishedState<K, T> state = current.get();
+        List<DurableIndexDescriptor> indexes = state.snapshot().indexes().indexes()
+                .stream()
+                .map(DurableIndexDescriptor::from)
+                .toList();
+        return new DurableCheckpoint.Capture<>(
+                state.snapshot(),
+                state.documentIds(),
+                state.nextDocId(),
+                durability.currentSequence(),
+                indexes);
+    }
+
+    private void maybeAutomaticCheckpoint() {
+        if (durability != null && durability.checkpointRequired()) {
+            durability.checkpoint(captureDurableCheckpoint());
+        }
+    }
+
+    private static Throwable unwrap(Throwable failure) {
+        Throwable candidate = failure;
+        while ((candidate instanceof java.util.concurrent.CompletionException
+                || candidate instanceof java.util.concurrent.ExecutionException)
+                && candidate.getCause() != null) {
+            candidate = candidate.getCause();
+        }
+        return candidate;
     }
 
     private void recordIndexBuildFailure(
@@ -1137,6 +1206,11 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     @SuppressWarnings("unchecked")
     private InstallIndexTask<K, T> asInstallIndexTask(WriterTask<K, T> task) {
         return (InstallIndexTask<K, T>) task;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CheckpointTask<K, T> asCheckpointTask(WriterTask<K, T> task) {
+        return (CheckpointTask<K, T>) task;
     }
 
     private final class BatchState {
@@ -1285,6 +1359,14 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 throw new IllegalArgumentException(
                         "exactly one of index or failure must be present");
             }
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record CheckpointTask<K, T>(
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private CheckpointTask {
             Objects.requireNonNull(completion, "completion");
         }
     }
