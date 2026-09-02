@@ -647,9 +647,6 @@
                                         <accessModifier>public</accessModifier>
                                         <onlyModified>true</onlyModified>
                                         <includeSynthetic>false</includeSynthetic>
-                                        <breakBuildOnModifications>
-                                            true
-                                        </breakBuildOnModifications>
                                         <breakBuildOnBinaryIncompatibleModifications>
                                             true
                                         </breakBuildOnBinaryIncompatibleModifications>

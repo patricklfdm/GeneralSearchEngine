@@ -29,12 +29,19 @@ performance/cloud evidence, release candidate, and publication then proceed in o
 phases 3–8. The authoritative map is under
 [`docs/v4/`](docs/v4/README.md).
 
-Phase 0 merged through protected PR #77 as `d5a3253`. Phase 1 now uses
-`4.0.0-SNAPSHOT` across all active coordinates, pins published `3.4.0` as the eighth
-Japicmp baseline, and establishes the independent history oracle, separate-JVM abrupt
-crash scaffold, checksummed evidence validator, storage inspector, and fake persistent-
-disk cloud lane. These are test-only and script-only foundations; production storage
-ownership and WAL remain Phase 2 work after full Phase 1 acceptance.
+Phase 0 merged through protected PR #77 as `d5a3253`. Phase 1 is accepted at
+protected-master commit `8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master
+CI run `33578036261` passed. It establishes `4.0.0-SNAPSHOT`, the eighth published
+compatibility baseline at exact `3.4.0`, the independent history oracle, separate-JVM
+abrupt-crash scaffold, checksummed evidence validator, storage inspector, and fake
+persistent-disk cloud lane.
+
+Phase 2 is active from that accepted boundary. It adds only opt-in production durable
+mode: deterministic codecs, exclusive fresh-store ownership, immutable storage
+metadata, a forced generation header, bounded CRC32C logical-unit frames, contiguous
+sequences, group force-before-publication, terminal ambiguous-I/O handling, and stable
+production crash barriers exercised by the local harness. Phase 3 retains sole
+authority for reopen/replay/tail truncation and Phase 4 retains checkpoint execution.
 
 ## v3.x completed development line
 

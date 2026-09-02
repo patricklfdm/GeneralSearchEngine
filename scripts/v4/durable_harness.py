@@ -19,7 +19,10 @@ from scripts.v4.evidence import (
     validate_source_commit,
     write_bundle,
 )
-from scripts.v4.storage_inspector import inspect_phase1_directory
+from scripts.v4.storage_inspector import (
+    inspect_phase1_directory,
+    inspect_phase2_directory,
+)
 
 PROCESS_CLASS = (
     "io.github.patricklfdm.generalsearch.durability.harness."
@@ -44,6 +47,7 @@ def wait_for_line(process: subprocess.Popen[str], timeout: float) -> str:
 
 
 def run_case(arguments: argparse.Namespace) -> int:
+    scenario = getattr(arguments, "scenario", "phase1-scaffold")
     workspace = arguments.workspace.resolve()
     if workspace.exists():
         raise EvidenceError("workspace already exists")
@@ -51,9 +55,21 @@ def run_case(arguments: argparse.Namespace) -> int:
     arguments.workspace_owned = True
     child_workspace = workspace / "engine-directory"
     child_workspace.mkdir()
-    mode = "child-halt" if arguments.termination == "internal-halt" else "child-wait"
+    if scenario == "phase1-scaffold":
+        mode = "child-halt" \
+            if arguments.termination == "internal-halt" else "child-wait"
+        java_options: list[str] = []
+    else:
+        mode = "phase2-write"
+        action = "halt" \
+            if arguments.termination == "internal-halt" else "wait"
+        java_options = [
+            f"-Dgse.v4.crashBarrier={arguments.barrier}",
+            f"-Dgse.v4.crashAction={action}",
+        ]
     command = [
         arguments.java,
+        *java_options,
         "-cp",
         arguments.classpath,
         PROCESS_CLASS,
@@ -88,14 +104,18 @@ def run_case(arguments: argparse.Namespace) -> int:
         raise EvidenceError(
             f"unexpected abrupt child exit: {child.returncode}, expected {expected_exit}"
         )
-    inspection = inspect_phase1_directory(child_workspace, arguments.barrier)
+    inspection = inspect_phase1_directory(child_workspace, arguments.barrier) \
+        if scenario == "phase1-scaffold" \
+        else inspect_phase2_directory(child_workspace)
+    recovery_mode = "recover" \
+        if scenario == "phase1-scaffold" else "phase2-verify"
     recovery = subprocess.run(
         [
             arguments.java,
             "-cp",
             arguments.classpath,
             PROCESS_CLASS,
-            "recover",
+            recovery_mode,
             str(child_workspace),
             arguments.barrier,
         ],
@@ -109,15 +129,26 @@ def run_case(arguments: argparse.Namespace) -> int:
     if recovery.returncode != 0 or not recovery_line.startswith(recovery_prefix):
         raise EvidenceError("separate recovery JVM failed")
     recovered = json.loads(recovery_line[len(recovery_prefix):])
-    if recovered.get("status") != "PASS":
+    expected_recovery = "PASS" \
+        if scenario == "phase1-scaffold" else "DEFERRED_PHASE3"
+    if recovered.get("status") != expected_recovery:
         raise EvidenceError("recovery verifier did not pass")
+    expected_sequence = expected_phase2_sequence(arguments.barrier) \
+        if scenario == "phase2-wal" else 0
+    inspected_sequence = inspection.get("wal", {}).get(
+        "lastCompleteSequence", 0)
+    if inspected_sequence != expected_sequence:
+        raise EvidenceError(
+            f"durable-prefix mismatch: expected {expected_sequence}, "
+            f"inspected {inspected_sequence}")
     finished = time.time_ns()
     device_id = os.stat(child_workspace).st_dev
     shutil.rmtree(child_workspace)
     if child_workspace.exists():
         raise EvidenceError("engine workspace cleanup failed")
     evidence = {
-        "kind": "local-crash-scaffold",
+        "kind": "local-crash-scaffold" if scenario == "phase1-scaffold"
+        else "local-phase2-wal-crash",
         "status": "PASS",
         "sourceCommit": arguments.source_sha,
         "environment": {
@@ -131,19 +162,32 @@ def run_case(arguments: argparse.Namespace) -> int:
             "filesystemDeviceId": device_id,
         },
         "configuration": {
-            "codecIdentity": "PHASE1_NONE",
-            "schemaIdentity": "PHASE1_SCAFFOLD_V1",
-            "storageIdentity": "PHASE1_NO_PRODUCTION_STORAGE",
+            "codecIdentity": "PHASE1_NONE"
+            if scenario == "phase1-scaffold"
+            else "phase2-crash-codec-v1",
+            "schemaIdentity": "PHASE1_SCAFFOLD_V1"
+            if scenario == "phase1-scaffold"
+            else "phase2-crash-schema-v1",
+            "storageIdentity": "PHASE1_NO_PRODUCTION_STORAGE"
+            if scenario == "phase1-scaffold"
+            else "phase2-crash-store-v1",
             "timeoutSeconds": arguments.timeout,
         },
         "case": {
-            "caseId": f"phase1-{arguments.termination}",
+            "caseId": f"{scenario}-{arguments.termination}",
             "seed": 0,
             "barrierId": arguments.barrier,
             "acknowledgement": acknowledged,
         },
-        "submittedHistory": [],
-        "futureOutcomes": [],
+        "submittedHistory": [] if scenario == "phase1-scaffold" else [{
+            "unit": "ADD",
+            "key": "doc-1",
+            "elementCount": 1,
+        }],
+        "futureOutcomes": [] if scenario == "phase1-scaffold" else [{
+            "unit": 1,
+            "outcome": "INCOMPLETE_AT_CRASH",
+        }],
         "process": {
             "childPid": acknowledged["pid"],
             "startedEpochNanos": started,
@@ -180,9 +224,12 @@ def run_case(arguments: argparse.Namespace) -> int:
             "engine-workspace-deleted",
         ],
         "result": {
-            "oracle": "PHASE1_NO_PRODUCTION_HISTORY",
+            "oracle": "PHASE1_NO_PRODUCTION_HISTORY"
+            if scenario == "phase1-scaffold"
+            else "PHASE2_INSPECTED_DURABLE_PREFIX",
             "oracleMatched": True,
-            "productionStorage": False,
+            "productionStorage": scenario == "phase2-wal",
+            "expectedDurableSequence": expected_sequence,
         },
     }
     write_bundle(workspace / "evidence", evidence)
@@ -193,6 +240,8 @@ def run_case(arguments: argparse.Namespace) -> int:
 
 
 def record_failed_case(arguments: argparse.Namespace, failure: BaseException) -> Path:
+    scenario = getattr(arguments, "scenario", "phase1-scaffold")
+    phase1 = scenario == "phase1-scaffold"
     workspace = arguments.workspace.resolve()
     child_workspace = workspace / "engine-directory"
     cleanup_status = "PASS"
@@ -204,7 +253,8 @@ def record_failed_case(arguments: argparse.Namespace, failure: BaseException) ->
         cleanup_status = "FAIL"
         cleanup_failure = str(problem)
     evidence = {
-        "kind": "local-crash-scaffold",
+        "kind": "local-crash-scaffold" if phase1
+        else "local-phase2-wal-crash",
         "status": "FAIL",
         "sourceCommit": arguments.source_sha,
         "environment": {
@@ -218,13 +268,16 @@ def record_failed_case(arguments: argparse.Namespace, failure: BaseException) ->
             "filesystemDeviceId": "UNAVAILABLE_AFTER_FAILURE",
         },
         "configuration": {
-            "codecIdentity": "PHASE1_NONE",
-            "schemaIdentity": "PHASE1_SCAFFOLD_V1",
-            "storageIdentity": "PHASE1_NO_PRODUCTION_STORAGE",
+            "codecIdentity": "PHASE1_NONE" if phase1
+            else "phase2-crash-codec-v1",
+            "schemaIdentity": "PHASE1_SCAFFOLD_V1" if phase1
+            else "phase2-crash-schema-v1",
+            "storageIdentity": "PHASE1_NO_PRODUCTION_STORAGE" if phase1
+            else "phase2-crash-store-v1",
             "timeoutSeconds": arguments.timeout,
         },
         "case": {
-            "caseId": f"phase1-{arguments.termination}",
+            "caseId": f"{scenario}-{arguments.termination}",
             "seed": 0,
             "barrierId": arguments.barrier,
             "acknowledgement": "NOT_REACHED_OR_NOT_RETAINED",
@@ -294,6 +347,11 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--workspace", type=Path, required=True)
     run.add_argument("--source-sha", required=True)
     run.add_argument("--source-state", choices=("clean", "dirty"), required=True)
+    run.add_argument(
+        "--scenario",
+        choices=("phase1-scaffold", "phase2-wal"),
+        default="phase1-scaffold",
+    )
     run.add_argument("--barrier", default="phase1-scaffold-v1")
     run.add_argument(
         "--termination",
@@ -314,6 +372,28 @@ def validate_command(directory: Path) -> int:
     validate_bundle(directory)
     print("v40EvidenceValidation=PASS")
     return 0
+
+
+def expected_phase2_sequence(barrier: str) -> int:
+    zero_sequence = {
+        "v4-wal-before-sequence-v1",
+        "v4-wal-after-sequence-v1",
+        "v4-wal-partial-header-v1",
+        "v4-wal-partial-payload-v1",
+        "v4-wal-partial-trailer-v1",
+    }
+    one_sequence = {
+        "v4-wal-complete-before-force-v1",
+        "v4-wal-after-force-v1",
+        "v4-wal-before-publication-v1",
+        "v4-wal-after-publication-v1",
+        "v4-wal-before-future-completion-v1",
+    }
+    if barrier in zero_sequence:
+        return 0
+    if barrier in one_sequence:
+        return 1
+    raise EvidenceError(f"unsupported Phase 2 barrier: {barrier}")
 
 
 def main() -> int:

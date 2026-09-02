@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzer;
+import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentAlreadyExistsException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundException;
 import io.github.patricklfdm.generalsearch.engine.exception.BulkMutationException;
@@ -55,7 +56,7 @@ import io.github.patricklfdm.generalsearch.search.SearchPageResult;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
-public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
+public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final SearchSchema<T, K> schema;
     private final AtomicReference<PublishedState<K, T>> current;
     private final AtomicReference<WriterMetrics> writerMetrics =
@@ -68,6 +69,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final RankedSearcher<T> rankedSearcher;
     private final ExecutorService indexBuildExecutor;
     private final Thread writerThread;
+    private final DurableCommitCoordinator<K, T> durability;
     private final Object lifecycleMonitor = new Object();
     private final Object searchCursorOwnerToken = new Object();
 
@@ -99,7 +101,7 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             SearchSchema<T, K> schema,
             Collection<? extends IndexDefinition<T>> indexDefinitions
     ) {
-        this(config, PlannerConfig.DEFAULT, schema, indexDefinitions);
+        this(config, PlannerConfig.DEFAULT, schema, indexDefinitions, null);
     }
 
     /** Compatibility constructor with additive planner configuration. */
@@ -109,9 +111,20 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             SearchSchema<T, K> schema,
             Collection<? extends IndexDefinition<T>> indexDefinitions
     ) {
+        this(config, plannerConfig, schema, indexDefinitions, null);
+    }
+
+    SnapshotSearchEngine(
+            SnapshotEngineConfig config,
+            PlannerConfig plannerConfig,
+            SearchSchema<T, K> schema,
+            Collection<? extends IndexDefinition<T>> indexDefinitions,
+            DurableCommitCoordinator<K, T> durability
+    ) {
         this.config = Objects.requireNonNull(config, "config");
         Objects.requireNonNull(plannerConfig, "plannerConfig");
         this.schema = Objects.requireNonNull(schema, "schema");
+        this.durability = durability;
         validateIndexDefinitions(indexDefinitions);
         SearchSnapshot<T> emptySnapshot = new SearchSnapshot<>(indexDefinitions);
         this.current = new AtomicReference<>(
@@ -481,12 +494,20 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private void processBatch(List<MutationTask<K, T>> batch) {
         BatchState state = new BatchState(current.get());
         List<MutationTask<K, T>> successful = new ArrayList<>(batch.size());
+        List<DurableCommitCoordinator.PreparedUnit> durableUnits =
+                new ArrayList<>(batch.size());
         List<FailedMutation<K, T>> failed = new ArrayList<>(batch.size());
         List<IndexChange<T>> changes = new ArrayList<>(batch.size());
         for (MutationTask<K, T> task : batch) {
             try {
-                IndexChange<T> change = apply(state, task.mutation());
+                K id = mutationId(task.mutation());
+                DurableCommitCoordinator.PreparedMutation durableMutation =
+                        prepareDurableMutation(task.mutation(), id);
+                IndexChange<T> change = apply(state, task.mutation(), id);
                 successful.add(task);
+                if (durableMutation != null) {
+                    durableUnits.add(durability.single(durableMutation));
+                }
                 if (change != null) {
                     changes.add(change);
                 }
@@ -501,18 +522,42 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     .completeExceptionally(item.failure()));
             return;
         }
+        if (durability != null) {
+            failed.forEach(item -> item.task().completion()
+                    .completeExceptionally(item.failure()));
+        }
 
         PublishedState<K, T> published = state.build();
+        DurableCommitCoordinator.CommitGroup durableGroup;
+        try {
+            durableGroup = commitDurable(
+                    durableUnits,
+                    published.snapshot().activeDocuments().cardinality());
+        } catch (DurabilityException failure) {
+            if (failure.reason() != DurabilityException.Reason.CAPACITY_EXCEEDED) {
+                throw failure;
+            }
+            failedMutations += successful.size();
+            publishWriterMetrics();
+            successful.forEach(task -> task.completion()
+                    .completeExceptionally(failure));
+            return;
+        }
         if (!pendingIndexBuilds.isEmpty()) {
             long version = published.snapshot().version();
             changes.forEach(change ->
                     mutationJournal.add(new VersionedChange<>(version, change)));
         }
+        beforeDurablePublication(durableGroup);
         current.set(published);
+        durablePublished(durableGroup);
         successfulMutations += successful.size();
         publishWriterMetrics();
-        failed.forEach(item -> item.task().completion()
-                .completeExceptionally(item.failure()));
+        if (durability == null) {
+            failed.forEach(item -> item.task().completion()
+                    .completeExceptionally(item.failure()));
+        }
+        beforeDurableFutureCompletion(durableGroup);
         successful.forEach(task -> task.completion().complete(null));
     }
 
@@ -539,9 +584,55 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         };
     }
 
+    private DurableCommitCoordinator.PreparedMutation prepareDurableMutation(
+            SearchMutation<K, T> mutation,
+            K id
+    ) {
+        if (durability == null) {
+            return null;
+        }
+        DurableCommitCoordinator.MutationKind kind = switch (mutation.type()) {
+            case ADD -> DurableCommitCoordinator.MutationKind.ADD;
+            case UPDATE -> DurableCommitCoordinator.MutationKind.UPDATE;
+            case REMOVE -> DurableCommitCoordinator.MutationKind.REMOVE;
+        };
+        return durability.prepareMutation(kind, id, mutation.document());
+    }
+
+    private DurableCommitCoordinator.CommitGroup commitDurable(
+            List<DurableCommitCoordinator.PreparedUnit> units,
+            int liveDocuments
+    ) {
+        return durability == null ? null : durability.commit(units, liveDocuments);
+    }
+
+    private void beforeDurablePublication(
+            DurableCommitCoordinator.CommitGroup group
+    ) {
+        if (group != null) {
+            durability.beforePublication();
+        }
+    }
+
+    private void durablePublished(DurableCommitCoordinator.CommitGroup group) {
+        if (group != null) {
+            durability.published(group);
+        }
+    }
+
+    private void beforeDurableFutureCompletion(
+            DurableCommitCoordinator.CommitGroup group
+    ) {
+        if (group != null) {
+            durability.beforeFutureCompletion();
+        }
+    }
+
     private void processBulk(BulkMutationTask<K, T> task) {
         try {
             List<K> ids = new ArrayList<>(task.mutations().size());
+            List<DurableCommitCoordinator.PreparedMutation> durableMutations =
+                    new ArrayList<>(task.mutations().size());
             HashSet<K> distinctIds = new HashSet<>();
             for (SearchMutation<K, T> mutation : task.mutations()) {
                 K id = mutationId(mutation);
@@ -552,6 +643,11 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                             config.maxBatchSize());
                 }
                 ids.add(id);
+                DurableCommitCoordinator.PreparedMutation prepared =
+                        prepareDurableMutation(mutation, id);
+                if (prepared != null) {
+                    durableMutations.add(prepared);
+                }
             }
 
             BatchState state = new BatchState(current.get());
@@ -567,19 +663,30 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             }
 
             PublishedState<K, T> published = state.build();
+            DurableCommitCoordinator.CommitGroup durableGroup = durability == null
+                    ? null
+                    : durability.commit(
+                            List.of(durability.bulk(durableMutations)),
+                            published.snapshot().activeDocuments().cardinality());
             if (!pendingIndexBuilds.isEmpty()) {
                 long version = published.snapshot().version();
                 changes.forEach(change ->
                         mutationJournal.add(new VersionedChange<>(version, change)));
             }
+            beforeDurablePublication(durableGroup);
             current.set(published);
+            durablePublished(durableGroup);
             successfulMutations += task.mutations().size();
             publishWriterMetrics();
+            beforeDurableFutureCompletion(durableGroup);
             task.completion().complete(null);
         } catch (RuntimeException failure) {
             failedMutations += task.mutations().size();
             publishWriterMetrics();
             task.completion().completeExceptionally(failure);
+            if (durability != null && durability.isTerminalFailure(failure)) {
+                throw failure;
+            }
         }
     }
 
@@ -597,6 +704,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             }
         } catch (RuntimeException failure) {
             task.completion().completeExceptionally(failure);
+            if (durability != null && durability.isTerminalFailure(failure)) {
+                throw failure;
+            }
         }
     }
 
@@ -638,6 +748,10 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     IndexLifecycleException.Reason.BUILD_IN_PROGRESS);
         }
 
+        DurableCommitCoordinator.PreparedUnit durableUnit = durability == null
+                ? null
+                : durability.createIndex(definition);
+
         if (nextIndexBuildId < 0) {
             throw new IllegalStateException("index build id space is exhausted");
         }
@@ -649,7 +763,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 requestedField,
                 emptyIndex.getClass(),
                 System.nanoTime(),
-                task.completion()
+                task.completion(),
+                durableUnit
         );
         pendingIndexBuilds.put(buildId, pending);
         try {
@@ -779,17 +894,26 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             PublishedState<K, T> state = current.get();
             IndexRegistry<T> indexes = state.snapshot().indexes().withIndex(caughtUp);
             SearchSnapshot<T> snapshot = state.snapshot().withIndexes(indexes);
+            DurableCommitCoordinator.CommitGroup durableGroup =
+                    pending.durableUnit() == null
+                            ? null
+                            : durability.commit(
+                                    List.of(pending.durableUnit()),
+                                    snapshot.activeDocuments().cardinality());
+            beforeDurablePublication(durableGroup);
             current.set(new PublishedState<>(
                     snapshot,
                     state.documentIds(),
                     state.nextDocId()
             ));
+            durablePublished(durableGroup);
             pendingIndexBuilds.remove(task.buildId());
             indexBuildsSucceeded++;
             lastSuccessfulIndexBuildDuration = Optional.of(
                     elapsed(pending.startedNanos(), System.nanoTime()));
             pruneMutationJournal();
             publishWriterMetrics();
+            beforeDurableFutureCompletion(durableGroup);
             pending.completion().complete(null);
         } catch (RuntimeException failure) {
             pendingIndexBuilds.remove(task.buildId());
@@ -797,6 +921,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             pruneMutationJournal();
             publishWriterMetrics();
             pending.completion().completeExceptionally(failure);
+            if (durability != null && durability.isTerminalFailure(failure)) {
+                throw failure;
+            }
         }
     }
 
@@ -816,6 +943,14 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
 
     private void processDropIndex(DropIndexTask<K, T> task) {
         Field<T, ?> field = schema.requireField(task.fieldName());
+        PublishedState<K, T> state = current.get();
+        IndexRegistry<T> indexes = state.snapshot().indexes().withoutIndexes(field);
+        DurableCommitCoordinator.CommitGroup durableGroup = durability == null
+                ? null
+                : durability.commit(
+                        List.of(durability.dropIndex(task.fieldName())),
+                        state.snapshot().activeDocuments().cardinality());
+        beforeDurablePublication(durableGroup);
         Iterator<PendingIndexBuild<T>> pending = pendingIndexBuilds.values().iterator();
         while (pending.hasNext()) {
             PendingIndexBuild<T> build = pending.next();
@@ -827,8 +962,6 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             }
         }
 
-        PublishedState<K, T> state = current.get();
-        IndexRegistry<T> indexes = state.snapshot().indexes().withoutIndexes(field);
         if (indexes != state.snapshot().indexes()) {
             SearchSnapshot<T> snapshot = state.snapshot().withIndexes(indexes);
             current.set(new PublishedState<>(
@@ -837,8 +970,10 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     state.nextDocId()
             ));
         }
+        durablePublished(durableGroup);
         pruneMutationJournal();
         publishWriterMetrics();
+        beforeDurableFutureCompletion(durableGroup);
         task.completion().complete(null);
     }
 
@@ -922,6 +1057,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         synchronized (lifecycleMonitor) {
             accepting = false;
         }
+        if (durability != null) {
+            durability.terminalFailure(failure);
+        }
         failPending(failure);
         indexBuildExecutor.shutdownNow();
     }
@@ -950,6 +1088,9 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             }
         }
         indexBuildExecutor.shutdownNow();
+        if (durability != null) {
+            durability.close();
+        }
         if (interrupted) {
             Thread.currentThread().interrupt();
         }
@@ -1164,7 +1305,8 @@ public final class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             Field<T, ?> field,
             Class<?> indexType,
             long startedNanos,
-            CompletableFuture<Void> completion
+            CompletableFuture<Void> completion,
+            DurableCommitCoordinator.PreparedUnit durableUnit
     ) {}
 
     private record ActiveIndexBuild(

@@ -3,7 +3,6 @@ package io.github.patricklfdm.generalsearch.compatibility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -12,12 +11,19 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.lang.reflect.Modifier;
+import java.util.concurrent.CompletableFuture;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
+import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurabilityException;
+import io.github.patricklfdm.generalsearch.durability.DurabilityMetrics;
+import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Freezes the declaration fixture without admitting production durability in Phase 1. */
+/** Freezes the declaration fixture and its Phase 2 production admission boundary. */
 class V40PublicApiFoundationTest {
     private static final String FIXTURE =
             "/compatibility/V40DurablePublicApi.java.fixture";
@@ -68,7 +74,7 @@ class V40PublicApiFoundationTest {
     }
 
     @Test
-    void phase1DoesNotPublishDurabilityTypesPrematurely() {
+    void phase2PublishesEveryFrozenDurabilityType() throws ClassNotFoundException {
         for (String simpleName : List.of(
                 "DurableCodec",
                 "DurableSearchEngine",
@@ -76,9 +82,37 @@ class V40PublicApiFoundationTest {
                 "DurabilityMetrics",
                 "DurabilityException"
         )) {
-            assertThrows(ClassNotFoundException.class, () -> Class.forName(
+            assertNotNull(Class.forName(
                     "io.github.patricklfdm.generalsearch.durability." + simpleName));
         }
+    }
+
+    @Test
+    void productionSurfaceMatchesTheFrozenPhase0Descriptors() throws Exception {
+        assertTrue(Modifier.isPublic(DurableSearchEngine.class.getModifiers()));
+        assertTrue(Modifier.isPublic(DurableStorageConfig.class.getModifiers()));
+        assertTrue(Modifier.isFinal(DurableStorageConfig.class.getModifiers()));
+        assertTrue(Modifier.isPublic(DurabilityMetrics.class.getModifiers()));
+        assertTrue(Modifier.isFinal(DurabilityMetrics.class.getModifiers()));
+        assertEquals(long.class,
+                DurableSearchEngine.class.getMethod("currentSequence").getReturnType());
+        assertEquals(CompletableFuture.class,
+                DurableSearchEngine.class.getMethod("checkpoint").getReturnType());
+        assertEquals(DurabilityMetrics.class,
+                DurableSearchEngine.class.getMethod("durabilityMetrics").getReturnType());
+        assertEquals(DurableSearchEngine.class,
+                SearchEngineBuilder.class
+                        .getMethod("buildDurable", DurableStorageConfig.class)
+                        .getReturnType());
+        assertEquals(List.of(
+                        "STORAGE_IN_USE", "STORAGE_ACCESS", "UNSUPPORTED_FILESYSTEM",
+                        "INCOMPATIBLE_STORAGE", "CORRUPT_CHECKPOINT", "CORRUPT_WAL",
+                        "CODEC_FAILURE", "REPLAY_FAILURE", "INDEX_REBUILD_FAILURE",
+                        "IO_FAILURE", "CAPACITY_EXCEEDED", "SEQUENCE_EXHAUSTED",
+                        "CLOSED"),
+                java.util.Arrays.stream(DurabilityException.Reason.values())
+                        .map(Enum::name)
+                        .toList());
     }
 
     private static String readFixture() throws IOException {

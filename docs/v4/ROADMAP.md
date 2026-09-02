@@ -26,10 +26,11 @@ independent history and recovery models, process-crash/corruption harness scaffo
 storage inspection utilities, the executable artifact validator, fake cloud durable
 lane, and pre-change in-memory evidence. No production WAL.
 
-Phase 1 is in progress from Phase 0 protected merge `d5a3253`. The snapshot version,
-published-3.4 compatibility gate, independent history oracle, separate-JVM crash
-scaffold, evidence validator, storage inspector, and fake durable cloud lane are
-implemented; full validation and protected acceptance remain open.
+Phase 1 is accepted at protected-master commit
+`8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master CI run `33578036261`
+passed. The snapshot version, published-3.4 compatibility gate, independent history
+oracle, separate-JVM crash scaffold, evidence validator, storage inspector, and fake
+durable cloud lane are the accepted entry boundary for production storage work.
 
 ### Phase 2 — storage ownership and WAL
 
@@ -37,6 +38,13 @@ Implement exclusive directory ownership, storage metadata, deterministic codecs,
 contiguous committed sequences, bounded framed WAL records, checksums, atomic single
 and bulk units, group force, exact Future ordering, terminal writer failure, and
 format inspection tests.
+
+Phase 2 is in implementation from the accepted Phase 1 boundary. The additive durable
+API, fresh-store ownership, immutable metadata and generation header, framed logical
+units, force-before-publication coordinator, independent byte inspectors, and all ten
+production WAL crash barriers are implemented locally. Full reactor/release validation
+and protected acceptance remain open. Authoritative reopen/replay is intentionally not
+claimed before Phase 3.
 
 ### Phase 3 — recovery
 
