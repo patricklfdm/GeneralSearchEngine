@@ -1,6 +1,6 @@
 # V4.0 Phase 5 checklist
 
-**Status:** implementation and full local validation complete; protected merge pending
+**Status:** accepted on protected `master`; exact-master CI passed
 
 ## Entry and compatibility
 
@@ -48,7 +48,9 @@
 - [x] Clean reactor tests pass (421 core and 5 processor tests, zero failures).
 - [x] Published compatibility and independent consumers pass.
 - [x] Strict Javadocs, six release JARs, reproducibility and JMH smoke pass.
-- [ ] Required PR, protected merge and exact-master Phase 5 CI pass.
+- [x] Required PR #82 merged through protected `master` at
+  `c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`.
+- [x] Exact-master Phase 5 CI run `33597658600` completed successfully.
 
 Phase 6 may measure and optimize only from reviewed evidence. It must not weaken the
 force, authority, corruption, terminal-failure or cleanup semantics closed here.

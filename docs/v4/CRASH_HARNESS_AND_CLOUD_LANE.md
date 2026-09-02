@@ -120,6 +120,13 @@ inspected, recovered in a separate JVM, and reopened a second time before the ne
 cycle. The `phase5-hardening` fake-cloud drill carries the same repeated-recovery and
 cleanup identity without provisioning paid resources.
 
+Phase 6 retains the same barrier meanings and adds no crash point. The paid
+preserved-disk drill uses `v4-wal-before-future-completion-v1`, then deletes the writer
+VM and attaches the non-auto-deleted data disk to a replacement recovery VM. That VM
+runs independent byte inspection before production recovery and a second reopen. The
+performance workflow uses the same independent disk lifecycle without pretending its
+normal completion is a failure drill.
+
 ## Cloud durable lane architecture
 
 The cloud lane is independent from all V3 families:

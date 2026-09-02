@@ -62,3 +62,13 @@ retention, checksum, failure, and cleanup gates pass. The user initiates cloud r
 No speculative cache, persisted index, multi-writer path, unsafe force relaxation, or
 semantic change is justified by a benchmark. Optimization follows a reproduced
 bottleneck and must pass the full durability and V3.4 equivalence matrix.
+
+## Phase 6 executable realization
+
+Phase 6 implements this contract through `V40DurableMutationBenchmark`, the standalone
+`V40DurableOperationalProbe`, `scripts/v4/durable_performance.py`, and the independent
+cloud set validator. Package-private counters report actual successful force groups and
+recovery stages without expanding supported API. The manual performance and
+preserved-disk failure workflows are separate from `cloud-performance.yml` and all V3
+registries. See [the Phase 6 contract](PHASE_6_PERFORMANCE.md) for the frozen profiles,
+resource lifecycle and evidence order.

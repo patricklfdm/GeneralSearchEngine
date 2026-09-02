@@ -1,0 +1,66 @@
+# V4.0 Phase 6 local pre-cloud baseline
+
+## Source boundary
+
+Phase 6 starts from protected Phase 5 PR #82 merge
+`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`; exact-master CI run `33597658600`
+passed. The working branch is `feat/v4.0-phase6-performance-hardening`.
+
+## Diagnostic smoke
+
+The first dirty-source local smoke used 1,000 documents, 40 single updates, ten
+20-element bulk updates, four producers, 80 concurrent logical units and a one-second
+mixed long run. It is diagnostic evidence, not canonical or baseline-eligible.
+
+- in-memory and durable final checksums both equal `4104998396018527713`;
+- durable single completion p50/p95/p99 was approximately
+  `10.13/11.60/16.67 ms`;
+- in-memory single completion p50/p95/p99 was approximately
+  `5.69/6.06/8.43 ms`;
+- durable 20-element bulk completion p50/p95/p99 was approximately
+  `4.52/8.50/8.50 ms`;
+- 80 concurrent units completed in 20 successful forces: average group size `4.0`,
+  maximum group size `4`;
+- explicit checkpoint completed in approximately `61.9 ms`, with retained
+  amplification `1.178x` and observed temporary amplification `2.658x` over encoded
+  keys/documents;
+- WAL-only, checkpoint-only and checkpoint-plus-WAL total open completed in
+  approximately `9.11/5.82/3.12 ms`; and
+- the mixed cell made 99 durable writes, more than seven million reads and five
+  checkpoints while remaining `OPEN` and bounded.
+
+These numbers are sensitive to the developer filesystem, cache state, scheduler and
+dirty source. They demonstrate completeness and expose the expected force cost; they
+must not be compared with registered cloud evidence or used as a performance promise.
+
+## Current decision
+
+No production optimization is justified. Actual force grouping is working, durable
+overhead is visible rather than hidden, all three recovery paths are small at the smoke
+scale, and retained bytes contract after checkpoint. The next evidence order is:
+
+1. complete all local/CI gates;
+2. merge the Phase 6 infrastructure through protected `master`;
+3. run one paid experiment on that exact merge;
+4. run the preserved-disk replacement-VM drill;
+5. run the three-member canonical set on one exact final source; and
+6. register `v4.0.0-durable-cloud` only after set validation and review.
+
+## Local acceptance gates
+
+The completed local implementation passed on 2026-09-02:
+
+- `./mvnw clean test` and `./mvnw -f reactor/pom.xml clean test`;
+- `./mvnw clean -Papi-compat test`, a fresh-repository
+  `./mvnw clean -Partifact-compat verify`, and all independent consumers;
+- unsigned release packaging, artifact-content inspection and reproducible-build
+  comparison;
+- Shell, Python and workflow-YAML parsing plus all fourteen Phase 6 Python contract
+  tests; and
+- the complete `scripts/verify-jmh-smoke.sh` chain, including all earlier V4 crash
+  matrices, four durable/in-memory mutation cells, operational evidence validation,
+  fake canonical assembly, split preserved-disk writer/recovery and paid-run dry-run.
+
+The smoke timings above remain diagnostic because the source was uncommitted and the
+host is not the frozen cloud machine. Passing local gates establishes correctness and
+evidence plumbing only; it does not make the run baseline-eligible.

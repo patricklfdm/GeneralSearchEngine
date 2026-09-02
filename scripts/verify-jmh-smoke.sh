@@ -153,3 +153,4 @@ scripts/verify-v34-phase3-diagnostics.sh --skip-build
 scripts/verify-v34-phase4-final-suite.sh --skip-build
 scripts/verify-v40-phase4-checkpoints.sh --skip-build
 scripts/verify-v40-phase5-hardening.sh --skip-build
+scripts/verify-v40-phase6-performance.sh --skip-build

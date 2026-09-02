@@ -55,6 +55,9 @@ jobs:
       - name: Exercise the V4 lifecycle and repeated-crash hardening matrix
         run: scripts/verify-v40-phase5-hardening.sh --skip-build
 
+      - name: Exercise the V4 durable performance and operational evidence matrix
+        run: scripts/verify-v40-phase6-performance.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -155,6 +158,12 @@ jobs:
           bash -n scripts/verify-v40-phase3-recovery.sh
           bash -n scripts/verify-v40-phase4-checkpoints.sh
           bash -n scripts/verify-v40-phase5-hardening.sh
+          bash -n scripts/verify-v40-phase6-performance.sh
+          bash -n scripts/v4/remote_durable_member.sh
+          bash -n scripts/v4/run_durable_cloud_member.sh
+          bash -n scripts/v4/test_durable_cloud_runner.sh
+          bash -n scripts/v4/remote_durable_failure.sh
+          bash -n scripts/v4/run_durable_failure_drill.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence
@@ -172,6 +181,7 @@ jobs:
           scripts/cloud/test-cloud-runner.sh
           scripts/cloud/test-benchmark-set-runner.sh
           scripts/cloud/test-benchmark-upload-runner.sh
+          scripts/v4/test_durable_cloud_runner.sh
 
       - name: Validate Cloud Benchmark V2 evidence derivation
         run: |
@@ -181,8 +191,8 @@ jobs:
 
       - name: Validate V4 durable evidence and fake cloud control plane
         run: |
-          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_repeat.py scripts/v4/durable_cloud_lane.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py scripts/v4/test_phase3_recovery_fixtures.py scripts/v4/test_phase4_checkpoint_fixtures.py
-          python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector scripts.v4.test_phase3_recovery_fixtures scripts.v4.test_phase4_checkpoint_fixtures
+          python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_repeat.py scripts/v4/durable_cloud_lane.py scripts/v4/durable_performance.py scripts/v4/durable_cloud_workflow.py scripts/v4/durable_cloud_set.py scripts/v4/durable_remote_failure.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py scripts/v4/test_phase3_recovery_fixtures.py scripts/v4/test_phase4_checkpoint_fixtures.py scripts/v4/test_phase6_performance.py scripts/v4/test_durable_cloud_workflow.py scripts/v4/test_durable_cloud_set.py
+          python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector scripts.v4.test_phase3_recovery_fixtures scripts.v4.test_phase4_checkpoint_fixtures scripts.v4.test_phase6_performance scripts.v4.test_durable_cloud_workflow scripts.v4.test_durable_cloud_set
 
   required:
     name: Required

@@ -1,0 +1,121 @@
+name: V4 durable preserved-disk failure drill
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Exact protected-master commit; blank uses dispatch SHA
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v4-durable-failure-drill-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Validate exact failure-drill source
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      source_commit: ${{ steps.plan.outputs.source_commit }}
+    steps:
+      - name: Check out protected workflow source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Freeze preserved-disk failure plan
+        id: plan
+        env:
+          INPUT_SOURCE: ${{ inputs.source_commit }}
+        run: |
+          state_directory="$RUNNER_TEMP/gse-v40-failure-plan"
+          mkdir -p "$state_directory"
+          python3 -m scripts.v4.durable_cloud_workflow plan \
+            --profile failure-drill \
+            --repeats 1 \
+            --duration-seconds 120 \
+            --retention gcs \
+            --machine-type c3d-standard-30 \
+            --provisioning standard \
+            --source-commit "$INPUT_SOURCE" \
+            --dispatch-sha "$GITHUB_SHA" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --trusted-ref origin/master \
+            --run-id "$GITHUB_RUN_ID" \
+            --output "$state_directory/workflow-plan.json" \
+            --github-output "$GITHUB_OUTPUT"
+
+  drill:
+    name: Replace writer VM and recover preserved disk
+    needs: preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: cloud-benchmark
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GSE_V4_GCP_PROJECT: ${{ vars.GSE_GCP_PROJECT }}
+      GSE_V4_GCP_ZONE: ${{ vars.GSE_GCP_ZONE }}
+      GSE_V4_CLOUD_IMAGE: ${{ vars.GSE_CLOUD_IMAGE }}
+      GSE_V4_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
+      GSE_V4_SOURCE_SHA: ${{ needs.preflight.outputs.source_commit }}
+      GSE_V4_RUN_ID: ${{ github.run_id }}
+      GSE_V4_OUTPUT: benchmark-results/v4-durable/${{ github.run_id }}-${{ github.run_attempt }}/failure-drill
+    steps:
+      - name: Check out exact validated source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.preflight.outputs.source_commit }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Authenticate with short-lived Google Cloud credentials
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
+          service_account: ${{ vars.GSE_CLOUD_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install exact Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Validate dry-run then execute paid failure drill
+        run: |
+          scripts/v4/run_durable_failure_drill.sh --dry-run
+          scripts/v4/run_durable_failure_drill.sh --confirm-paid-run
+
+      - name: Retain failure evidence and cleanup receipt in GCS
+        if: ${{ always() }}
+        run: |
+          test -n "$GSE_V4_GCS_BUCKET"
+          gcloud storage cp --recursive \
+            "$GSE_V4_OUTPUT" \
+            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/failure-drill/"
+
+      - name: Upload bounded GitHub evidence mirror
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v4-durable-${{ github.run_id }}-${{ github.run_attempt }}-failure-drill
+          path: ${{ env.GSE_V4_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 14

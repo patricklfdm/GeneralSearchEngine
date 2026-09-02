@@ -1,0 +1,249 @@
+name: V4 durable performance
+
+on:
+  workflow_dispatch:
+    inputs:
+      evidence_profile:
+        description: Independent V4 durable evidence profile
+        required: true
+        type: choice
+        default: experiment
+        options:
+          - experiment
+          - canonical
+      repeats:
+        description: Independent Standard VM and persistent-disk members
+        required: true
+        type: choice
+        default: '1'
+        options:
+          - '1'
+          - '3'
+      long_run_duration:
+        description: Controlled durable mixed-workload duration
+        required: true
+        type: choice
+        default: 2m
+        options:
+          - 2m
+          - 30m
+          - 2h
+      retention:
+        description: Canonical runs require durable GCS retention
+        required: true
+        type: choice
+        default: actions
+        options:
+          - actions
+          - gcs
+      source_commit:
+        description: Exact protected-master commit; blank uses dispatch SHA
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v4-durable-performance-${{ github.repository }}
+  cancel-in-progress: false
+
+jobs:
+  preflight:
+    name: Validate exact V4 durable plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      source_commit: ${{ steps.plan.outputs.source_commit }}
+      slots: ${{ steps.plan.outputs.slots }}
+      duration_seconds: ${{ steps.plan.outputs.duration_seconds }}
+      maximum_runtime_seconds: ${{ steps.plan.outputs.maximum_runtime_seconds }}
+      profile: ${{ steps.plan.outputs.profile }}
+      retention: ${{ steps.plan.outputs.retention }}
+    steps:
+      - name: Check out protected workflow source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Freeze source, cost and member matrix
+        id: plan
+        env:
+          INPUT_DURATION: ${{ inputs.long_run_duration }}
+          INPUT_PROFILE: ${{ inputs.evidence_profile }}
+          INPUT_REPEATS: ${{ inputs.repeats }}
+          INPUT_RETENTION: ${{ inputs.retention }}
+          INPUT_SOURCE: ${{ inputs.source_commit }}
+        run: |
+          case "$INPUT_DURATION" in
+            2m) duration_seconds=120 ;;
+            30m) duration_seconds=1800 ;;
+            2h) duration_seconds=7200 ;;
+            *) echo "invalid duration" >&2; exit 2 ;;
+          esac
+          state_directory="$RUNNER_TEMP/gse-v40-durable-plan"
+          mkdir -p "$state_directory"
+          python3 -m scripts.v4.durable_cloud_workflow plan \
+            --profile "$INPUT_PROFILE" \
+            --repeats "$INPUT_REPEATS" \
+            --duration-seconds "$duration_seconds" \
+            --retention "$INPUT_RETENTION" \
+            --machine-type c3d-standard-30 \
+            --provisioning standard \
+            --source-commit "$INPUT_SOURCE" \
+            --dispatch-sha "$GITHUB_SHA" \
+            --repository-root "$GITHUB_WORKSPACE" \
+            --trusted-ref origin/master \
+            --run-id "$GITHUB_RUN_ID" \
+            --output "$state_directory/workflow-plan.json" \
+            --github-output "$GITHUB_OUTPUT"
+          cp "$state_directory/workflow-plan.json" "$GITHUB_STEP_SUMMARY"
+
+  benchmark:
+    name: Durable member ${{ matrix.slot }}
+    needs: preflight
+    strategy:
+      fail-fast: false
+      matrix:
+        slot: ${{ fromJSON(needs.preflight.outputs.slots) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    environment: cloud-benchmark
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      GSE_V4_GCP_PROJECT: ${{ vars.GSE_GCP_PROJECT }}
+      GSE_V4_GCP_ZONE: ${{ vars.GSE_GCP_ZONE }}
+      GSE_V4_CLOUD_IMAGE: ${{ vars.GSE_CLOUD_IMAGE }}
+      GSE_V4_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
+      GSE_V4_SOURCE_SHA: ${{ needs.preflight.outputs.source_commit }}
+      GSE_V4_RUN_ID: ${{ github.run_id }}
+      GSE_V4_SLOT: ${{ matrix.slot }}
+      GSE_V4_PROFILE: ${{ needs.preflight.outputs.profile }}
+      GSE_V4_DURATION_SECONDS: ${{ needs.preflight.outputs.duration_seconds }}
+      GSE_V4_OUTPUT: benchmark-results/v4-durable/${{ github.run_id }}-${{ github.run_attempt }}/${{ matrix.slot }}
+    steps:
+      - name: Check out exact validated source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.preflight.outputs.source_commit }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Authenticate with short-lived Google Cloud credentials
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
+          service_account: ${{ vars.GSE_CLOUD_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install exact Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Validate dry-run then execute paid member
+        run: |
+          scripts/v4/run_durable_cloud_member.sh --dry-run
+          scripts/v4/run_durable_cloud_member.sh --confirm-paid-run
+
+      - name: Mirror canonical evidence to GCS
+        if: ${{ always() && needs.preflight.outputs.retention == 'gcs' }}
+        run: |
+          test -n "$GSE_V4_GCS_BUCKET"
+          gcloud storage cp --recursive \
+            "$GSE_V4_OUTPUT" \
+            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/${GSE_V4_SLOT}/"
+
+      - name: Upload bounded GitHub evidence mirror
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v4-durable-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.slot }}-${{ needs.preflight.outputs.profile }}
+          path: ${{ env.GSE_V4_OUTPUT }}
+          if-no-files-found: error
+          retention-days: 14
+
+  aggregate:
+    name: Validate durable evidence set
+    needs:
+      - preflight
+      - benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: cloud-benchmark
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Check out exact validated source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          ref: ${{ needs.preflight.outputs.source_commit }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Download every validated member mirror
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: v4-durable-${{ github.run_id }}-${{ github.run_attempt }}-*-${{ needs.preflight.outputs.profile }}
+          path: ${{ runner.temp }}/v4-durable-members
+
+      - name: Assemble and validate the independent set
+        run: |
+          python3 -m scripts.v4.durable_cloud_set assemble \
+            --members-root "$RUNNER_TEMP/v4-durable-members" \
+            --profile "${{ needs.preflight.outputs.profile }}" \
+            --expected-members "${{ inputs.repeats }}" \
+            --output "$RUNNER_TEMP/v4-durable-set"
+          python3 -m scripts.v4.durable_cloud_set validate \
+            "$RUNNER_TEMP/v4-durable-set"
+
+      - name: Authenticate set upload with short-lived credentials
+        if: ${{ needs.preflight.outputs.retention == 'gcs' }}
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
+          service_account: ${{ vars.GSE_CLOUD_SERVICE_ACCOUNT }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install exact Google Cloud CLI for set upload
+        if: ${{ needs.preflight.outputs.retention == 'gcs' }}
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Retain canonical set identity in GCS
+        if: ${{ needs.preflight.outputs.retention == 'gcs' }}
+        env:
+          GSE_V4_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
+        run: |
+          test -n "$GSE_V4_GCS_BUCKET"
+          gcloud storage cp --recursive \
+            "$RUNNER_TEMP/v4-durable-set" \
+            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/set/"
+
+      - name: Upload validated set mirror
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v4-durable-${{ github.run_id }}-${{ github.run_attempt }}-${{ needs.preflight.outputs.profile }}-set
+          path: ${{ runner.temp }}/v4-durable-set
+          if-no-files-found: error
+          retention-days: 14

@@ -37,4 +37,8 @@ final class DurableSnapshotSearchEngine<K, T> extends SnapshotSearchEngine<K, T>
     public DurabilityMetrics durabilityMetrics() {
         return durability.metrics();
     }
+
+    DurablePerformanceSnapshot performanceSnapshot() {
+        return durability.performanceSnapshot();
+    }
 }

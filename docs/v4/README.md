@@ -18,9 +18,11 @@ WAL-only reopen, deterministic replay and index rebuild, strict tail/corruption
 classification, recovery barriers, differential oracles and fake-cloud failure-drill
 evidence. Phase 4 is accepted through PR #81 at
 `32e9c84c944ebd4f5c0b9f2d69efd690d25058cc`; exact-master CI run `33594843119`
-passed. Phase 5 is active and implements lifecycle/concurrency races, deterministic
-I/O failure semantics, retained-footprint loops, same-history repeated hard crashes,
-independent prefix inspection and a fake-cloud hardening drill.
+passed. Phase 5 merged through protected PR #82 at
+`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`; exact-master CI run `33597658600`
+passed. Phase 6 is active and implements separate in-memory/durable latency,
+force-group, checkpoint, recovery, disk-amplification, long-run and independent cloud
+evidence without changing public API or format `1.0`.
 
 ## Contract map
 
@@ -51,6 +53,10 @@ independent prefix inspection and a fake-cloud hardening drill.
 - [Phase 5 lifecycle and crash hardening](PHASE_5_HARDENING.md)
 - [Phase 5 local hardening baseline](PHASE_5_BASELINE.md)
 - [Phase 5 checklist](PHASE_5_CHECKLIST.md)
+- [Phase 6 performance and operational hardening](PHASE_6_PERFORMANCE.md)
+- [Phase 6 local pre-cloud baseline](PHASE_6_BASELINE.md)
+- [Phase 6 checklist](PHASE_6_CHECKLIST.md)
+- [Durable cloud baseline registry](cloud-benchmark-baselines.json)
 
 ## Authority
 
