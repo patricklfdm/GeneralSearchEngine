@@ -107,6 +107,22 @@ receipt recorded `runStatus=FAIL` with writer VM, recovery VM and persistent dis
 deletion all `PASS`, so it is not failure-drill acceptance evidence and left no paid
 resource behind.
 
+After the cross-VM ownership and GCS URI correction merged, preserved-disk drill
+`33615302401` passed on exact protected-master source
+`14d46923c2892d0f394b4957b60b3aa2e624f0d8`. Independent local validation accepted
+the checksummed failure evidence; its receipt recorded `runStatus=PASS` and deletion
+of the writer VM, replacement recovery VM and persistent disk all `PASS`.
+
+The first three-member canonical attempt, run `33619762566` on the same source, exposed
+a scheduling rather than workload failure. The matrix launched its members in
+parallel, while each `c3d-standard-30` requires 30 of the project's 32 global vCPUs and
+each active member can hold a 100-GiB boot disk plus a 200-GiB evidence disk against a
+500-GiB regional SSD quota. Member 1 passed; member 2 was rejected by the global CPU
+quota and member 3 by the regional SSD quota. All three receipts recorded
+`cleanup=PASS`; no set was assembled and no member may be reused across source commits.
+The workflow now fixes `max-parallel: 1`, retaining fresh VM/disk isolation while
+bounding simultaneous allocation to one member.
+
 The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
 data-disk permissions, and both remote bootstraps install `unzip`. Independent
 post-run describes returned not-found for the VM and disk names from runs
