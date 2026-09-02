@@ -111,6 +111,15 @@ new post-recovery write, and reopens again. The fake-cloud `phase3-recovery` fai
 drill carries the same recovery identity and sequence evidence without provisioning
 paid resources.
 
+Phase 5 adds `scripts/v4/durable_repeat.py` without redefining an accepted barrier.
+Eight hard-halt cycles reuse one storage history and alternate
+`v4-wal-before-future-completion-v1`,
+`v4-checkpoint-after-directory-force-v1`, and
+`v4-checkpoint-after-wal-cleanup-v1`. Every halt is acknowledged, independently
+inspected, recovered in a separate JVM, and reopened a second time before the next
+cycle. The `phase5-hardening` fake-cloud drill carries the same repeated-recovery and
+cleanup identity without provisioning paid resources.
+
 ## Cloud durable lane architecture
 
 The cloud lane is independent from all V3 families:

@@ -62,6 +62,14 @@ public final class V40CrashHarnessProcess {
             verifyPhase4Recovery(workspace, barrier);
             return;
         }
+        if (mode.equals("phase5-cycle-crash")) {
+            crashDuringPhase5Cycle(workspace, barrier);
+            return;
+        }
+        if (mode.equals("phase5-cycle-verify")) {
+            verifyPhase5Cycle(workspace, barrier);
+            return;
+        }
         throw new IllegalArgumentException("unknown mode: " + mode);
     }
 
@@ -292,6 +300,74 @@ public final class V40CrashHarnessProcess {
                 + "\"recoveredSequence\":1,\"continuedSequence\":2,"
                 + "\"checkpointSequence\":" + checkpointSequence + ","
                 + "\"replayedRecords\":" + replayedRecords + ","
+                + "\"recoverySource\":\"" + recoverySource + "\"}");
+    }
+
+    private static void crashDuringPhase5Cycle(Path workspace, String barrier) {
+        installShutdownMarker(workspace.resolve("graceful-close.marker"));
+        String configuredBarrier = System.getProperty("gse.v4.crashBarrier");
+        String configuredAction = System.getProperty("gse.v4.crashAction", "halt");
+        boolean checkpointCrash = barrier.startsWith("v4-checkpoint-");
+        if (checkpointCrash) {
+            System.clearProperty("gse.v4.crashBarrier");
+        }
+        DurableSearchEngine<String, Phase2Document> engine = openEngine(workspace);
+        long nextSequence = Math.addExact(engine.currentSequence(), 1L);
+        engine.add(new Phase2Document(
+                "doc-" + nextSequence,
+                "phase5 repeated crash payload " + nextSequence)).join();
+        if (!checkpointCrash) {
+            throw new IllegalStateException(
+                    "configured Phase 5 WAL barrier was not reached");
+        }
+        System.setProperty("gse.v4.crashBarrier", configuredBarrier);
+        System.setProperty("gse.v4.crashAction", configuredAction);
+        engine.checkpoint().join();
+        throw new IllegalStateException(
+                "configured Phase 5 checkpoint barrier was not reached");
+    }
+
+    private static void verifyPhase5Cycle(Path workspace, String barrier) {
+        if (Files.exists(workspace.resolve("graceful-close.marker"))) {
+            throw new IllegalStateException("graceful shutdown path ran");
+        }
+        long sequence;
+        long checkpointSequence;
+        long retainedBytes;
+        String recoverySource;
+        try (DurableSearchEngine<String, Phase2Document> recovered =
+                     openEngine(workspace)) {
+            sequence = recovered.currentSequence();
+            if (sequence <= 0) {
+                throw new IllegalStateException("Phase 5 cycle recovered no history");
+            }
+            for (long expected = 1; expected <= sequence; expected++) {
+                Phase2Document document = recovered.get("doc-" + expected);
+                if (document == null || !document.body().endsWith(
+                        Long.toString(expected))) {
+                    throw new IllegalStateException(
+                            "Phase 5 repeated-crash document mismatch");
+                }
+            }
+            checkpointSequence = recovered.durabilityMetrics()
+                    .checkpointSequence();
+            retainedBytes = recovered.durabilityMetrics().retainedBytes();
+            recoverySource = recovered.durabilityMetrics().recoverySource().name();
+        }
+        try (DurableSearchEngine<String, Phase2Document> reopened =
+                     openEngine(workspace)) {
+            if (reopened.currentSequence() != sequence
+                    || reopened.get("doc-" + sequence) == null) {
+                throw new IllegalStateException(
+                        "Phase 5 second reopen mismatch");
+            }
+        }
+        System.out.println("GSE_RECOVERY_RESULT={\"schemaVersion\":1,"
+                + "\"status\":\"PASS\",\"productionStorage\":true,"
+                + "\"barrierId\":\"" + barrier + "\","
+                + "\"recoveredSequence\":" + sequence + ","
+                + "\"checkpointSequence\":" + checkpointSequence + ","
+                + "\"retainedBytes\":" + retainedBytes + ","
                 + "\"recoverySource\":\"" + recoverySource + "\"}");
     }
 

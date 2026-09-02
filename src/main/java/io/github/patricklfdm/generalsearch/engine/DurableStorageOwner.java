@@ -437,6 +437,7 @@ final class DurableStorageOwner implements AutoCloseable {
                         DurabilityException.Reason.CORRUPT_CHECKPOINT,
                         "checkpoint staging validation does not match capture");
             }
+            DurableIoFaults.fail("checkpoint-before-data-rename");
             moveAtomic(stagingData, finalData, false);
             forceDirectory(directory);
             DurableCrashHooks.reach(
@@ -461,6 +462,7 @@ final class DurableStorageOwner implements AutoCloseable {
             writeManifestStaging(stagingManifest, manifestBytes);
             DurableCrashHooks.reach(
                     "v4-checkpoint-after-manifest-force-v1");
+            DurableIoFaults.fail("checkpoint-before-manifest-rename");
             moveAtomic(
                     stagingManifest,
                     directory.resolve(DurableCheckpoint.MANIFEST_FILE),
@@ -468,6 +470,7 @@ final class DurableStorageOwner implements AutoCloseable {
             manifestReplaced = true;
             DurableCrashHooks.reach(
                     "v4-checkpoint-after-manifest-rename-v1");
+            DurableIoFaults.fail("checkpoint-before-directory-force");
             forceDirectory(directory);
             DurableCrashHooks.reach(
                     "v4-checkpoint-after-directory-force-v1");
@@ -503,6 +506,7 @@ final class DurableStorageOwner implements AutoCloseable {
                 DurableCrashHooks.reach("v4-checkpoint-partial-manifest-v1");
             }
             writeFully(channel, ByteBuffer.wrap(encoded));
+            DurableIoFaults.fail("checkpoint-before-manifest-force");
             channel.force(true);
         }
     }
@@ -521,6 +525,7 @@ final class DurableStorageOwner implements AutoCloseable {
                 if (walMatcher.matches()) {
                     long generation = Long.parseLong(walMatcher.group(1));
                     if (generation < authoritative.walGeneration()) {
+                        DurableIoFaults.fail("checkpoint-before-cleanup-delete");
                         Files.deleteIfExists(candidate);
                     }
                     continue;
@@ -530,9 +535,11 @@ final class DurableStorageOwner implements AutoCloseable {
                         || DurableCheckpoint.CHECKPOINT_STAGING_FILE
                                 .matcher(name).matches()
                         || name.equals(DurableCheckpoint.MANIFEST_STAGING_FILE)) {
+                    DurableIoFaults.fail("checkpoint-before-cleanup-delete");
                     Files.deleteIfExists(candidate);
                 }
             }
+            DurableIoFaults.fail("checkpoint-before-cleanup-directory-force");
             forceDirectory(directory);
             return null;
         } catch (IOException | RuntimeException failure) {
@@ -570,7 +577,10 @@ final class DurableStorageOwner implements AutoCloseable {
     private static void writeFully(FileChannel channel, ByteBuffer bytes)
             throws IOException {
         while (bytes.hasRemaining()) {
-            channel.write(bytes);
+            int written = DurableIoFaults.write(channel, bytes);
+            if (written <= 0) {
+                throw new IOException("manifest write made no progress");
+            }
         }
     }
 
@@ -881,7 +891,7 @@ final class DurableStorageOwner implements AutoCloseable {
                 StandardOpenOption.WRITE)) {
             ByteBuffer buffer = ByteBuffer.wrap(metadata);
             while (buffer.hasRemaining()) {
-                int written = channel.write(buffer);
+                int written = DurableIoFaults.write(channel, buffer);
                 if (written <= 0) {
                     throw new IOException("metadata write made no progress");
                 }

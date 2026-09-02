@@ -1,7 +1,6 @@
 # V4.0 Phase 4 checklist
 
-**Status:** implementation and checkpoint crash matrix complete; final validation and
-protected merge pending
+**Status:** accepted on protected `master`; exact-master CI passed
 
 ## Entry and scope
 
@@ -56,7 +55,9 @@ protected merge pending
 - [x] Clean reactor passes (414 core and 5 processor tests, zero failures).
 - [x] Published 1.0.0–3.4.0 compatibility and all three consumers pass.
 - [x] Strict Javadocs, six release JARs, JMH smoke and reproducibility pass.
-- [ ] Required PR, protected merge and exact-master Phase 4 CI pass.
+- [x] Required PR #81 merged at
+  `32e9c84c944ebd4f5c0b9f2d69efd690d25058cc`; exact-master CI run
+  `33594843119` passed.
 
 Phase 5 owns broader lifecycle races, concurrent-producer stress, repeated crash loops,
 disk-full/cleanup failure injection and sustained retained-footprint hardening. Phase 4

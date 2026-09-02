@@ -65,17 +65,24 @@ Implement versioned checkpoints, non-authoritative staging, integrity validation
 durable manifest publication, explicit and threshold-triggered checkpoints, WAL
 generation rollover, conservative cleanup, and checkpoint-plus-WAL recovery.
 
-Phase 4 is in final local validation. Checkpoint/manifest format `1.0`, writer-cut plus
-asynchronous serialization, explicit coalescing, automatic threshold requests,
-multi-generation recovery, fail-closed authority, post-publication cleanup, eleven
-crash barriers, an independent Python inspector and fake-cloud failure-drill lane are
-implemented. Broader lifecycle and sustained disk-bound stress remain Phase 5 work.
+Phase 4 is accepted through protected PR #81 at
+`32e9c84c944ebd4f5c0b9f2d69efd690d25058cc`; exact-master CI run `33594843119`
+passed. Checkpoint/manifest format `1.0`, writer-cut plus asynchronous serialization,
+explicit coalescing, automatic threshold requests, multi-generation recovery,
+fail-closed authority, conservative cleanup, eleven crash barriers, independent byte
+inspection and the fake-cloud checkpoint failure drill form the Phase 5 boundary.
 
 ### Phase 5 — lifecycle and crash hardening
 
 Cover every mutation and supported dynamic-index transition, close/admission races,
 concurrent producers, repeated process crashes, checkpoint/WAL races, disk capacity,
 retained-footprint bounds, and long-running recovery loops.
+
+Phase 5 local validation is complete. It adds no API or format change. Deterministic
+I/O faults, concurrent producer/reader and close races, bounded short-write checkpoint
+loops, eight same-history hard crashes with per-cycle independent recovery, and the
+fake-cloud hardening drill pass together with the reactor, published compatibility,
+release artifacts, reproducibility and JMH gates. Protected acceptance remains.
 
 ### Phase 6 — performance and operational hardening
 

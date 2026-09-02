@@ -180,11 +180,19 @@ def inspect_phase4_directory(workspace: Path) -> dict[str, object]:
         generation = int(match.group(1))
         if previous_generation is not None and generation != previous_generation + 1:
             raise EvidenceError("WAL generations are not contiguous")
-        first = 1 if expected_first is None else expected_first
-        if previous_generation is None and generation != 1:
-            if manifest is None or generation > int(manifest["walGeneration"]):
+        header = entry.read_bytes()[:WAL_HEADER_BYTES]
+        if len(header) != WAL_HEADER_BYTES:
+            raise EvidenceError("WAL generation header is truncated")
+        first = int(struct.unpack(">QhhQQQQI", header)[6])
+        if previous_generation is None:
+            if generation == 1 and first != 1:
+                raise EvidenceError("initial WAL sequence is not one")
+            if generation != 1 \
+                    and (manifest is None
+                         or generation > int(manifest["walGeneration"])):
                 raise EvidenceError("leading WAL generation is not authoritative")
-            first = int(manifest["walFirstSequence"])
+        elif first != expected_first:
+            raise EvidenceError("WAL generation sequences are not contiguous")
         inspected = inspect_wal(entry, metadata, generation, first)
         wals.append(inspected)
         previous_generation = generation
