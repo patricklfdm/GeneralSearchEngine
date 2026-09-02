@@ -7,9 +7,11 @@ publication model.
 
 ## Current status
 
-V4.0 Phase 0 is a documentation-only contract freeze. Production persistence,
-`4.0.0-SNAPSHOT`, compatibility fixtures, crash harnesses, and storage probes are not
-authorized until the Phase 0 documents are accepted on protected `master`.
+V4.0 Phase 0 is accepted on protected `master` through PR #77 at `d5a3253`. Phase 1
+now establishes `4.0.0-SNAPSHOT`, the exact published-3.4 compatibility baseline,
+compilable declaration and semantic fixtures, an independent history oracle, and the
+first-class local crash/evidence/fake-cloud foundation. Production persistence and WAL
+remain unauthorized until Phase 1 passes protected acceptance.
 
 ## Contract map
 
@@ -26,6 +28,8 @@ authorized until the Phase 0 documents are accepted on protected `master`.
 - [Crash harness and cloud durable lane](CRASH_HARNESS_AND_CLOUD_LANE.md)
 - [Performance and evidence](PERFORMANCE_AND_EVIDENCE.md)
 - [Phase 0 checklist](PHASE_0_CHECKLIST.md)
+- [Phase 1 foundation baseline](PHASE_1_BASELINE.md)
+- [Phase 1 checklist](PHASE_1_CHECKLIST.md)
 
 ## Authority
 
