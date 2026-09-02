@@ -49,6 +49,9 @@ jobs:
       - name: Exercise the V4 production recovery crash matrix
         run: scripts/verify-v40-phase3-recovery.sh --skip-build
 
+      - name: Exercise the V4 checkpoint crash matrix
+        run: scripts/verify-v40-phase4-checkpoints.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -147,6 +150,7 @@ jobs:
           bash -n scripts/verify-v40-phase1-foundation.sh
           bash -n scripts/verify-v40-phase2-foundation.sh
           bash -n scripts/verify-v40-phase3-recovery.sh
+          bash -n scripts/verify-v40-phase4-checkpoints.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence

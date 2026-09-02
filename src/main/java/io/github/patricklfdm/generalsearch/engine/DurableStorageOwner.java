@@ -19,11 +19,15 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
@@ -33,6 +37,8 @@ final class DurableStorageOwner implements AutoCloseable {
     static final String METADATA_FILE = "gse-metadata";
     static final String METADATA_STAGING_FILE = "gse-metadata.staging";
     static final String WAL_FILE = "gse-wal-00000000000000000001.log";
+    private static final Pattern WAL_NAME = Pattern.compile(
+            "gse-wal-([0-9]{20})\\.log");
 
     private static final long METADATA_MAGIC = 0x4753454d45544131L; // GSEMETA1
     private static final short FORMAT_MAJOR = 1;
@@ -42,28 +48,34 @@ final class DurableStorageOwner implements AutoCloseable {
     private static final int MAX_STARTUP_INDEXES = 100_000;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
             "nfs", "cifs", "smb", "fuse", "tmpfs", "ramfs", "9p");
-    private static final Set<String> INITIALIZED_NAMES = Set.of(
-            METADATA_FILE, WAL_FILE);
-
     private final Path directory;
     private final FileChannel lockChannel;
     private final FileLock lock;
-    private final DurableWal wal;
+    private final UUID historyId;
     private final long metadataBytes;
+    private volatile DurableWal wal;
+    private List<DurableWal> replayWals;
+    private volatile DurableCheckpoint.Manifest manifest;
     private boolean closed;
 
     private DurableStorageOwner(
             Path directory,
             FileChannel lockChannel,
             FileLock lock,
+            UUID historyId,
             DurableWal wal,
-            long metadataBytes
+            long metadataBytes,
+            List<DurableWal> replayWals,
+            DurableCheckpoint.Manifest manifest
     ) {
         this.directory = directory;
         this.lockChannel = lockChannel;
         this.lock = lock;
+        this.historyId = Objects.requireNonNull(historyId, "historyId");
         this.wal = wal;
         this.metadataBytes = metadataBytes;
+        this.replayWals = List.copyOf(replayWals);
+        this.manifest = manifest;
     }
 
     static <K, T> OpenResult open(
@@ -106,6 +118,7 @@ final class DurableStorageOwner implements AutoCloseable {
 
             boolean success = false;
             DurableWal wal = null;
+            List<DurableWal> openedWals = new ArrayList<>();
             Throwable primary = null;
             try {
                 Set<String> members = directoryMembers(directory);
@@ -126,16 +139,24 @@ final class DurableStorageOwner implements AutoCloseable {
                                 null);
                     }
                     writeMetadata(directory, metadata);
-                    wal = DurableWal.create(directory.resolve(WAL_FILE), historyId);
+                    wal = DurableWal.create(
+                            directory.resolve(WAL_FILE),
+                            historyId,
+                            DurableWal.INITIAL_GENERATION,
+                            1L);
                     forceDirectory(directory);
                     DurableStorageOwner owner = new DurableStorageOwner(
                             directory,
                             lockChannel,
                             lock,
+                            historyId,
                             wal,
-                            metadata.length);
+                            metadata.length,
+                            List.of(wal),
+                            null);
                     success = true;
-                    return new OpenResult(owner, 0, true, 0);
+                    return new OpenResult(
+                            owner, List.of(wal), null, true, 0);
                 }
 
                 validateInitializedMembers(directory, members);
@@ -148,42 +169,115 @@ final class DurableStorageOwner implements AutoCloseable {
                         codecVersion,
                         startupIndexes);
                 long metadataSize = Files.size(metadataPath);
-                long walSize = Files.size(directory.resolve(WAL_FILE));
-                if (Math.addExact(metadataSize, walSize)
-                        > config.maxRetainedBytes()) {
+                long retainedSize = retainedBytes(directory);
+                if (retainedSize > config.maxRetainedBytes()) {
                     throw failure(
                             DurabilityException.Reason.CAPACITY_EXCEEDED,
                             "initialized durable storage exceeds retained-byte limit",
                             null);
                 }
-                DurableWal.OpenResult openedWal = DurableWal.open(
-                        directory.resolve(WAL_FILE), metadata.historyId());
-                wal = openedWal.wal();
-                long retainedBytes = Math.addExact(
-                        metadataSize, wal.position());
-                if (retainedBytes > config.maxRetainedBytes()) {
-                    throw failure(
-                            DurabilityException.Reason.CAPACITY_EXCEEDED,
-                            "initialized durable storage exceeds retained-byte limit",
-                            null);
+                DurableCheckpoint.Manifest checkpointManifest =
+                        members.contains(DurableCheckpoint.MANIFEST_FILE)
+                                ? DurableCheckpoint.readManifest(
+                                        directory.resolve(
+                                                DurableCheckpoint.MANIFEST_FILE),
+                                        metadata.historyId())
+                                : null;
+                if (checkpointManifest != null
+                        && !members.contains(
+                                checkpointManifest.checkpointFile())) {
+                    throw new DurabilityException(
+                            DurabilityException.Reason.CORRUPT_CHECKPOINT,
+                            "authoritative checkpoint data file is missing");
                 }
+
+                List<WalMember> walMembers = walMembers(directory, members);
+                openedWals = new ArrayList<>(walMembers.size());
+                long truncatedBytes = 0;
+                long previousGeneration = 0;
+                long expectedNextSequence = 0;
+                boolean manifestGenerationFound = checkpointManifest == null;
+                for (int index = 0; index < walMembers.size(); index++) {
+                    WalMember member = walMembers.get(index);
+                    DurableWal.Header header = DurableWal.inspectHeader(
+                            member.path(), metadata.historyId());
+                    if (header.generation() != member.generation()
+                            || (previousGeneration != 0
+                            && member.generation() != previousGeneration + 1)
+                            || (previousGeneration == 0
+                            && member.generation() == DurableWal.INITIAL_GENERATION
+                            && header.firstSequence() != 1L)
+                            || (expectedNextSequence != 0
+                            && header.firstSequence() != expectedNextSequence)) {
+                        throw new DurabilityException(
+                                DurabilityException.Reason.CORRUPT_WAL,
+                                "retained WAL generations are not contiguous");
+                    }
+                    if (checkpointManifest != null
+                            && member.generation()
+                            == checkpointManifest.walGeneration()) {
+                        manifestGenerationFound = true;
+                        if (header.firstSequence()
+                                != checkpointManifest.walFirstSequence()) {
+                            throw new DurabilityException(
+                                    DurabilityException.Reason.CORRUPT_WAL,
+                                    "manifest WAL boundary does not match generation");
+                        }
+                    }
+                    DurableWal.OpenResult opened = DurableWal.open(
+                            member.path(),
+                            metadata.historyId(),
+                            member.generation(),
+                            header.firstSequence(),
+                            index == walMembers.size() - 1);
+                    openedWals.add(opened.wal());
+                    truncatedBytes = Math.addExact(
+                            truncatedBytes, opened.truncatedBytes());
+                    previousGeneration = member.generation();
+                    expectedNextSequence = Math.addExact(
+                            opened.wal().lastSequence(), 1L);
+                }
+                if (!manifestGenerationFound
+                        || (checkpointManifest != null
+                        && walMembers.getFirst().generation()
+                        > checkpointManifest.walGeneration())) {
+                    throw new DurabilityException(
+                            DurabilityException.Reason.CORRUPT_WAL,
+                            "authoritative post-checkpoint WAL generation is missing");
+                }
+                wal = openedWals.getLast();
                 DurableStorageOwner owner = new DurableStorageOwner(
                         directory,
                         lockChannel,
                         lock,
+                        metadata.historyId(),
                         wal,
-                        metadataSize);
+                        metadataSize,
+                        openedWals,
+                        checkpointManifest);
                 success = true;
                 return new OpenResult(
                         owner,
-                        openedWal.records(),
+                        openedWals,
+                        checkpointManifest,
                         false,
-                        openedWal.truncatedBytes());
+                        truncatedBytes);
             } catch (RuntimeException | IOException | Error failure) {
                 primary = failure;
                 throw failure;
             } finally {
                 if (!success) {
+                    for (DurableWal openedWal : openedWals) {
+                        if (openedWal != wal) {
+                            try {
+                                openedWal.close();
+                            } catch (IOException closeFailure) {
+                                if (primary != null) {
+                                    primary.addSuppressed(closeFailure);
+                                }
+                            }
+                        }
+                    }
                     closeAfterFailedInitialization(wal, lock, lockChannel, primary);
                 }
             }
@@ -202,16 +296,282 @@ final class DurableStorageOwner implements AutoCloseable {
         }
     }
 
-    DurableWal wal() {
+    synchronized DurableWal wal() {
         return wal;
     }
 
     long retainedBytes() {
-        return metadataBytes + wal.position();
+        try {
+            return retainedBytes(directory);
+        } catch (IOException | ArithmeticException failure) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    "durable retained-byte lookup failed",
+                    failure);
+        }
     }
 
     Path directory() {
         return directory;
+    }
+
+    UUID historyId() {
+        return historyId;
+    }
+
+    DurableCheckpoint.Manifest manifest() {
+        return manifest;
+    }
+
+    synchronized void finishRecovery() {
+        for (DurableWal replay : replayWals) {
+            if (replay != wal) {
+                try {
+                    replay.close();
+                } catch (IOException failure) {
+                    throw new DurabilityException(
+                            DurabilityException.Reason.STORAGE_ACCESS,
+                            "retained WAL close after recovery failed",
+                            failure);
+                }
+            }
+        }
+        replayWals = List.of(wal);
+    }
+
+    synchronized GenerationCut cutGeneration(
+            long nextFirstSequence,
+            long maxRetainedBytes
+    ) {
+        if (closed) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.CLOSED,
+                    "durable storage is closed");
+        }
+        if (nextFirstSequence <= 0) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.SEQUENCE_EXHAUSTED,
+                    "checkpoint cannot open a post-cut WAL sequence");
+        }
+        if (maxRetainedBytes <= 0
+                || retainedBytes() > maxRetainedBytes
+                        - DurableWal.GENERATION_HEADER_BYTES) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.CAPACITY_EXCEEDED,
+                    "checkpoint WAL generation exceeds retained-byte limit");
+        }
+        DurableWal previous = wal;
+        DurableWal next = null;
+        try {
+            previous.force();
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-old-wal-force-v1");
+            long nextGeneration = Math.incrementExact(previous.generation());
+            Path nextPath = directory.resolve(walFile(nextGeneration));
+            next = DurableWal.create(
+                    nextPath, historyId, nextGeneration, nextFirstSequence);
+            forceDirectory(directory);
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-new-wal-header-force-v1");
+            wal = next;
+            replayWals = List.of(next);
+            previous.close();
+            return new GenerationCut(nextGeneration, nextFirstSequence);
+        } catch (IOException | ArithmeticException failure) {
+            if (next != null && next != wal) {
+                try {
+                    next.close();
+                } catch (IOException closeFailure) {
+                    failure.addSuppressed(closeFailure);
+                }
+            }
+            throw new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    "WAL generation cut failed",
+                    failure);
+        }
+    }
+
+    <K, T> CheckpointPublication publishCheckpoint(
+            DurableCheckpoint.Capture<K, T> capture,
+            DurableStorageConfig<K, T> config,
+            io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K> schema,
+            GenerationCut cut
+    ) {
+        String checkpointFile = DurableCheckpoint.newCheckpointFile(
+                capture.sequence());
+        Path finalData = directory.resolve(checkpointFile);
+        Path stagingData = directory.resolve(checkpointFile + ".staging");
+        Path stagingManifest = directory.resolve(
+                DurableCheckpoint.MANIFEST_STAGING_FILE);
+        boolean manifestReplaced = false;
+        try {
+            deleteStaging(stagingManifest);
+            int manifestReserve = DurableCheckpoint.encodeManifest(
+                    new DurableCheckpoint.Manifest(
+                            capture.sequence(),
+                            checkpointFile,
+                            56,
+                            0,
+                            cut.generation(),
+                            cut.firstSequence()),
+                    historyId).length;
+            long available = Math.subtractExact(
+                    Math.subtractExact(
+                            config.maxRetainedBytes(), retainedBytes()),
+                    manifestReserve);
+            DurableCheckpoint.Written written = DurableCheckpoint.write(
+                    stagingData,
+                    capture,
+                    config,
+                    schema,
+                    historyId,
+                    available);
+            DurableCheckpoint.Loaded<K, T> validated = DurableCheckpoint.read(
+                    stagingData, config, schema, historyId, null);
+            if (validated.sequence() != capture.sequence()
+                    || validated.nextDocId() != capture.nextDocId()
+                    || !validated.documentIds().equals(capture.documentIds())
+                    || !validated.indexes().equals(capture.indexes())) {
+                throw new DurabilityException(
+                        DurabilityException.Reason.CORRUPT_CHECKPOINT,
+                        "checkpoint staging validation does not match capture");
+            }
+            moveAtomic(stagingData, finalData, false);
+            forceDirectory(directory);
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-data-publication-v1");
+
+            DurableCheckpoint.Manifest nextManifest =
+                    new DurableCheckpoint.Manifest(
+                            capture.sequence(),
+                            checkpointFile,
+                            written.bytes(),
+                            written.checksum(),
+                            cut.generation(),
+                            cut.firstSequence());
+            byte[] manifestBytes = DurableCheckpoint.encodeManifest(
+                    nextManifest, historyId);
+            if (Math.addExact(retainedBytes(), manifestBytes.length)
+                    > config.maxRetainedBytes()) {
+                throw new DurabilityException(
+                        DurabilityException.Reason.CAPACITY_EXCEEDED,
+                        "checkpoint manifest exceeds retained-byte limit");
+            }
+            writeManifestStaging(stagingManifest, manifestBytes);
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-manifest-force-v1");
+            moveAtomic(
+                    stagingManifest,
+                    directory.resolve(DurableCheckpoint.MANIFEST_FILE),
+                    true);
+            manifestReplaced = true;
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-manifest-rename-v1");
+            forceDirectory(directory);
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-directory-force-v1");
+            manifest = nextManifest;
+
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-before-wal-cleanup-v1");
+            DurabilityException.Reason cleanupFailure = cleanupAfterPublication(
+                    nextManifest);
+            DurableCrashHooks.reach(
+                    "v4-checkpoint-after-wal-cleanup-v1");
+            return new CheckpointPublication(nextManifest, cleanupFailure);
+        } catch (DurabilityException failure) {
+            throw new CheckpointFailure(failure, manifestReplaced);
+        } catch (IOException | ArithmeticException failure) {
+            throw new CheckpointFailure(
+                    new DurabilityException(
+                            DurabilityException.Reason.IO_FAILURE,
+                            "checkpoint publication failed",
+                            failure),
+                    manifestReplaced);
+        }
+    }
+
+    private void writeManifestStaging(Path path, byte[] encoded) throws IOException {
+        try (FileChannel channel = FileChannel.open(
+                path,
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.WRITE)) {
+            if (DurableCrashHooks.active("v4-checkpoint-partial-manifest-v1")) {
+                writeFully(channel, ByteBuffer.wrap(
+                        encoded, 0, Math.max(1, encoded.length / 2)));
+                DurableCrashHooks.reach("v4-checkpoint-partial-manifest-v1");
+            }
+            writeFully(channel, ByteBuffer.wrap(encoded));
+            channel.force(true);
+        }
+    }
+
+    private DurabilityException.Reason cleanupAfterPublication(
+            DurableCheckpoint.Manifest authoritative
+    ) {
+        try {
+            List<Path> candidates;
+            try (var entries = Files.list(directory)) {
+                candidates = entries.sorted().toList();
+            }
+            for (Path candidate : candidates) {
+                String name = candidate.getFileName().toString();
+                Matcher walMatcher = WAL_NAME.matcher(name);
+                if (walMatcher.matches()) {
+                    long generation = Long.parseLong(walMatcher.group(1));
+                    if (generation < authoritative.walGeneration()) {
+                        Files.deleteIfExists(candidate);
+                    }
+                    continue;
+                }
+                if ((DurableCheckpoint.CHECKPOINT_FILE.matcher(name).matches()
+                        && !name.equals(authoritative.checkpointFile()))
+                        || DurableCheckpoint.CHECKPOINT_STAGING_FILE
+                                .matcher(name).matches()
+                        || name.equals(DurableCheckpoint.MANIFEST_STAGING_FILE)) {
+                    Files.deleteIfExists(candidate);
+                }
+            }
+            forceDirectory(directory);
+            return null;
+        } catch (IOException | RuntimeException failure) {
+            return DurabilityException.Reason.IO_FAILURE;
+        }
+    }
+
+    private static void deleteStaging(Path path) throws IOException {
+        Files.deleteIfExists(path);
+    }
+
+    private static void moveAtomic(
+            Path source,
+            Path destination,
+            boolean replace
+    ) throws IOException {
+        try {
+            if (replace) {
+                Files.move(
+                        source,
+                        destination,
+                        StandardCopyOption.ATOMIC_MOVE,
+                        StandardCopyOption.REPLACE_EXISTING);
+            } else {
+                Files.move(source, destination, StandardCopyOption.ATOMIC_MOVE);
+            }
+        } catch (AtomicMoveNotSupportedException failure) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.UNSUPPORTED_FILESYSTEM,
+                    "durable storage requires same-filesystem atomic rename",
+                    failure);
+        }
+    }
+
+    private static void writeFully(FileChannel channel, ByteBuffer bytes)
+            throws IOException {
+        while (bytes.hasRemaining()) {
+            channel.write(bytes);
+        }
     }
 
     private static FileLock acquire(FileChannel channel) throws IOException {
@@ -245,13 +605,20 @@ final class DurableStorageOwner implements AutoCloseable {
             Path directory,
             Set<String> members
     ) {
-        if (!members.equals(INITIALIZED_NAMES)) {
+        if (!members.contains(METADATA_FILE)
+                || members.stream().noneMatch(name -> WAL_NAME.matcher(name).matches())) {
             throw failure(
                     DurabilityException.Reason.INCOMPATIBLE_STORAGE,
-                    "initialized durable directory has missing or unknown members",
+                    "initialized durable directory has missing authoritative members",
                     null);
         }
-        for (String name : INITIALIZED_NAMES) {
+        for (String name : members) {
+            if (!isEngineOwnedName(name)) {
+                throw failure(
+                        DurabilityException.Reason.INCOMPATIBLE_STORAGE,
+                        "initialized durable directory has an unknown member",
+                        null);
+            }
             Path path = directory.resolve(name);
             if (Files.isSymbolicLink(path) || !Files.isRegularFile(path)) {
                 throw failure(
@@ -260,6 +627,68 @@ final class DurableStorageOwner implements AutoCloseable {
                         null);
             }
         }
+    }
+
+    static String walFile(long generation) {
+        if (generation <= 0) {
+            throw new IllegalArgumentException("WAL generation must be positive");
+        }
+        return "gse-wal-%020d.log".formatted(generation);
+    }
+
+    private static List<WalMember> walMembers(
+            Path directory,
+            Set<String> members
+    ) {
+        List<WalMember> wals = new ArrayList<>();
+        for (String name : members) {
+            Matcher matcher = WAL_NAME.matcher(name);
+            if (!matcher.matches()) {
+                continue;
+            }
+            try {
+                long generation = Long.parseLong(matcher.group(1));
+                if (generation <= 0) {
+                    throw new NumberFormatException("non-positive generation");
+                }
+                wals.add(new WalMember(generation, directory.resolve(name)));
+            } catch (NumberFormatException failure) {
+                throw new DurabilityException(
+                        DurabilityException.Reason.CORRUPT_WAL,
+                        "WAL filename generation is invalid",
+                        failure);
+            }
+        }
+        wals.sort(Comparator.comparingLong(WalMember::generation));
+        if (wals.isEmpty()) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.CORRUPT_WAL,
+                    "initialized durable storage has no WAL generation");
+        }
+        return List.copyOf(wals);
+    }
+
+    private static boolean isEngineOwnedName(String name) {
+        return name.equals(METADATA_FILE)
+                || name.equals(METADATA_STAGING_FILE)
+                || name.equals(DurableCheckpoint.MANIFEST_FILE)
+                || name.equals(DurableCheckpoint.MANIFEST_STAGING_FILE)
+                || WAL_NAME.matcher(name).matches()
+                || DurableCheckpoint.CHECKPOINT_FILE.matcher(name).matches()
+                || DurableCheckpoint.CHECKPOINT_STAGING_FILE.matcher(name).matches();
+    }
+
+    private static long retainedBytes(Path directory) throws IOException {
+        long retained = 0;
+        try (var entries = Files.list(directory)) {
+            for (Path path : entries.toList()) {
+                String name = path.getFileName().toString();
+                if (isEngineOwnedName(name) && Files.isRegularFile(path)) {
+                    retained = Math.addExact(retained, Files.size(path));
+                }
+            }
+        }
+        return retained;
     }
 
     private static void validateFileSystem(Path directory) throws IOException {
@@ -528,16 +957,22 @@ final class DurableStorageOwner implements AutoCloseable {
     }
 
     @Override
-    public void close() {
+    public synchronized void close() {
         if (closed) {
             return;
         }
         closed = true;
         IOException primary = null;
-        try {
-            wal.close();
-        } catch (IOException failure) {
-            primary = failure;
+        for (DurableWal replay : replayWals) {
+            try {
+                replay.close();
+            } catch (IOException failure) {
+                if (primary == null) {
+                    primary = failure;
+                } else {
+                    primary.addSuppressed(failure);
+                }
+            }
         }
         try {
             lock.release();
@@ -565,18 +1000,70 @@ final class DurableStorageOwner implements AutoCloseable {
         }
     }
 
+    record GenerationCut(long generation, long firstSequence) {
+        GenerationCut {
+            if (generation <= 0 || firstSequence <= 0) {
+                throw new IllegalArgumentException(
+                        "checkpoint WAL boundary must be positive");
+            }
+        }
+    }
+
+    record CheckpointPublication(
+            DurableCheckpoint.Manifest manifest,
+            DurabilityException.Reason cleanupFailure
+    ) {
+        CheckpointPublication {
+            Objects.requireNonNull(manifest, "manifest");
+        }
+    }
+
+    static final class CheckpointFailure extends RuntimeException {
+        private final DurabilityException failure;
+        private final boolean manifestReplaced;
+
+        CheckpointFailure(
+                DurabilityException failure,
+                boolean manifestReplaced
+        ) {
+            super(Objects.requireNonNull(failure, "failure"));
+            this.failure = failure;
+            this.manifestReplaced = manifestReplaced;
+        }
+
+        DurabilityException failure() {
+            return failure;
+        }
+
+        boolean manifestReplaced() {
+            return manifestReplaced;
+        }
+    }
+
     record OpenResult(
             DurableStorageOwner owner,
-            long records,
+            List<DurableWal> wals,
+            DurableCheckpoint.Manifest manifest,
             boolean fresh,
             long truncatedBytes
     ) {
         OpenResult {
             Objects.requireNonNull(owner, "owner");
-            if ((fresh && (records != 0 || truncatedBytes != 0))
-                    || records < 0 || truncatedBytes < 0) {
+            wals = List.copyOf(wals);
+            if (wals.isEmpty()
+                    || (fresh && (manifest != null || truncatedBytes != 0))
+                    || truncatedBytes < 0) {
                 throw new IllegalArgumentException("invalid durable open result");
             }
+        }
+    }
+
+    private record WalMember(long generation, Path path) {
+        WalMember {
+            if (generation <= 0) {
+                throw new IllegalArgumentException("invalid WAL member generation");
+            }
+            Objects.requireNonNull(path, "path");
         }
     }
 

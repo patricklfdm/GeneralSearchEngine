@@ -52,17 +52,24 @@ Implement startup validation, WAL-only bootstrap, deterministic replay, canonica
 slot and `nextDocId` restoration, derived-index rebuild, incomplete-tail handling,
 fail-closed corruption, and uninterrupted-versus-recovered differential tests.
 
-Phase 3 is in implementation. Authoritative WAL-only reopen, bounded two-pass scanning,
+Phase 3 merged through protected PR #80 at `2664638`; exact-master CI run
+`33589193180` passed. Authoritative WAL-only reopen,
+bounded two-pass scanning,
 tail truncation and force, canonical replay, derived-index reconstruction, three stable
 recovery barriers, independent corruption fixtures, uninterrupted-versus-recovered
-semantic comparison, and the local/fake-cloud failure-drill matrix are implemented.
-Checkpoint discovery and execution, generation rollover and cleanup remain absent.
+semantic comparison, and the local/fake-cloud failure-drill matrix are accepted.
 
 ### Phase 4 — checkpoints and bounded history
 
 Implement versioned checkpoints, non-authoritative staging, integrity validation,
 durable manifest publication, explicit and threshold-triggered checkpoints, WAL
 generation rollover, conservative cleanup, and checkpoint-plus-WAL recovery.
+
+Phase 4 is in final local validation. Checkpoint/manifest format `1.0`, writer-cut plus
+asynchronous serialization, explicit coalescing, automatic threshold requests,
+multi-generation recovery, fail-closed authority, post-publication cleanup, eleven
+crash barriers, an independent Python inspector and fake-cloud failure-drill lane are
+implemented. Broader lifecycle and sustained disk-bound stress remain Phase 5 work.
 
 ### Phase 5 — lifecycle and crash hardening
 

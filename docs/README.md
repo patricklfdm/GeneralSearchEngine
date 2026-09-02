@@ -31,6 +31,9 @@ remains the phase history and decision source of truth.
 - [Phase 3 WAL-only recovery](v4/PHASE_3_RECOVERY.md)
 - [Phase 3 local baseline](v4/PHASE_3_BASELINE.md)
 - [Phase 3 checklist](v4/PHASE_3_CHECKLIST.md)
+- [Phase 4 checkpoint format](v4/PHASE_4_CHECKPOINT_FORMAT.md)
+- [Phase 4 local baseline](v4/PHASE_4_BASELINE.md)
+- [Phase 4 checklist](v4/PHASE_4_CHECKLIST.md)
 
 ## v3.x — current stable and completed in-memory line
 

@@ -12,10 +12,14 @@ is accepted at `8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master CI run
 `33578036261` passed. Phase 2 merged through protected PR #79 at `7056a5a` and supplies
 the opt-in durable surface, storage ownership, immutable identity, framed WAL,
 contiguous sequences, group force and writer crash barriers; its exact-master CI run
-`33583721019` passed. Phase 3 now implements authoritative
+`33583721019` passed. Phase 3 merged through PR #80 at `2664638`; exact-master CI run
+`33589193180` passed. It supplies authoritative
 WAL-only reopen, deterministic replay and index rebuild, strict tail/corruption
 classification, recovery barriers, differential oracles and fake-cloud failure-drill
-evidence. Checkpoint execution remains exclusively Phase 4 work.
+evidence. Phase 4 now implements asynchronous explicit/automatic checkpoints,
+multi-generation WAL recovery, one authoritative manifest, conservative cleanup,
+independent byte inspection and checkpoint crash evidence; protected acceptance is
+pending.
 
 ## Contract map
 
@@ -40,6 +44,9 @@ evidence. Checkpoint execution remains exclusively Phase 4 work.
 - [Phase 3 WAL-only recovery](PHASE_3_RECOVERY.md)
 - [Phase 3 local baseline](PHASE_3_BASELINE.md)
 - [Phase 3 checklist](PHASE_3_CHECKLIST.md)
+- [Phase 4 checkpoint format](PHASE_4_CHECKPOINT_FORMAT.md)
+- [Phase 4 local baseline](PHASE_4_BASELINE.md)
+- [Phase 4 checklist](PHASE_4_CHECKLIST.md)
 
 ## Authority
 

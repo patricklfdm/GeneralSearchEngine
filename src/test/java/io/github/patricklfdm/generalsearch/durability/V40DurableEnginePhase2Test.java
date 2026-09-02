@@ -87,9 +87,10 @@ class V40DurableEnginePhase2Test {
         assertTrue(engine.durabilityMetrics().retainedBytes()
                 > engine.durabilityMetrics().walBytes());
 
-        CompletionException checkpoint = assertThrows(
-                CompletionException.class, () -> engine.checkpoint().join());
-        assertInstanceOf(UnsupportedOperationException.class, checkpoint.getCause());
+        engine.checkpoint().join();
+        assertEquals(8, engine.durabilityMetrics().checkpointSequence());
+        assertEquals(2, engine.durabilityMetrics().walGeneration());
+        assertEquals(0, engine.durabilityMetrics().walRecords());
         engine.close();
         assertEquals(DurabilityStatus.CLOSED, engine.durabilityMetrics().status());
     }

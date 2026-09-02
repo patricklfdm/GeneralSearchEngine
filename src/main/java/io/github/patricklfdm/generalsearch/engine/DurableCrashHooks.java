@@ -19,7 +19,18 @@ final class DurableCrashHooks {
             "v4-wal-before-future-completion-v1",
             "v4-recovery-after-tail-truncate-v1",
             "v4-recovery-after-replay-v1",
-            "v4-recovery-before-ready-publication-v1"
+            "v4-recovery-before-ready-publication-v1",
+            "v4-checkpoint-after-old-wal-force-v1",
+            "v4-checkpoint-after-new-wal-header-force-v1",
+            "v4-checkpoint-partial-data-v1",
+            "v4-checkpoint-after-data-force-v1",
+            "v4-checkpoint-after-data-publication-v1",
+            "v4-checkpoint-partial-manifest-v1",
+            "v4-checkpoint-after-manifest-force-v1",
+            "v4-checkpoint-after-manifest-rename-v1",
+            "v4-checkpoint-after-directory-force-v1",
+            "v4-checkpoint-before-wal-cleanup-v1",
+            "v4-checkpoint-after-wal-cleanup-v1"
     );
 
     private DurableCrashHooks() {

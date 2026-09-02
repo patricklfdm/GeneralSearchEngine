@@ -5,10 +5,15 @@ import java.util.Objects;
 import io.github.patricklfdm.generalsearch.analysis.SimpleAnalyzer;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexDefinition;
+import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexDefinition;
+import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.range.RangeIndexDefinition;
+import io.github.patricklfdm.generalsearch.index.range.RangeIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 
@@ -57,6 +62,28 @@ record DurableIndexDescriptor(byte kind, String fieldName, String analyzerId) {
         throw new DurabilityException(
                 DurabilityException.Reason.INCOMPATIBLE_STORAGE,
                 "durable mode supports only built-in indexes and the simple analyzer");
+    }
+
+    static <T> DurableIndexDescriptor from(IndexSnapshot<T> snapshot) {
+        Objects.requireNonNull(snapshot, "snapshot");
+        String fieldName = Objects.requireNonNull(
+                snapshot.field(), "index field").name();
+        if (snapshot instanceof EqualityIndexSnapshot<?, ?>) {
+            return new DurableIndexDescriptor(EQUALITY, fieldName, "");
+        }
+        if (snapshot instanceof RangeIndexSnapshot<?, ?>) {
+            return new DurableIndexDescriptor(RANGE, fieldName, "");
+        }
+        if (snapshot instanceof PrefixIndexSnapshot<?>) {
+            return new DurableIndexDescriptor(PREFIX, fieldName, "");
+        }
+        if (snapshot instanceof TextIndexSnapshot<?> text
+                && text.textField().analyzer() == SimpleAnalyzer.INSTANCE) {
+            return new DurableIndexDescriptor(TEXT, fieldName, SIMPLE_ANALYZER);
+        }
+        throw new DurabilityException(
+                DurabilityException.Reason.INCOMPATIBLE_STORAGE,
+                "checkpoint supports only built-in indexes and the simple analyzer");
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

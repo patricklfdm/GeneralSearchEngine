@@ -30,7 +30,7 @@ final class DurableSnapshotSearchEngine<K, T> extends SnapshotSearchEngine<K, T>
 
     @Override
     public CompletableFuture<Void> checkpoint() {
-        return durability.checkpoint();
+        return checkpointDurably();
     }
 
     @Override

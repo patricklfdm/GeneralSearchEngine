@@ -11,8 +11,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
@@ -35,12 +39,17 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private final SearchSchema<T, K> schema;
     private final DurableStorageOwner storage;
     private final AtomicReference<DurabilityMetrics> metrics;
+    private final ExecutorService checkpointExecutor;
     private final DurableRecovery.Result<K, T> recoveredState;
     private final RecoverySource recoverySource;
     private final long replayedRecords;
     private final Duration recoveryDuration;
     private final Duration indexRebuildDuration;
     private final long truncatedTailBytes;
+    private volatile long checkpointSequence;
+    private Optional<DurabilityException.Reason> lastCheckpointFailure =
+            Optional.empty();
+    private CompletableFuture<Void> activeCheckpoint;
     private long allocatedSequence;
     private long publishedSequence;
     private boolean terminal;
@@ -58,9 +67,16 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         this.schema = schema;
         this.storage = opened.owner();
         this.recoveredState = recoveredState;
+        checkpointSequence = opened.manifest() == null
+                ? 0L
+                : opened.manifest().checkpointSequence();
         recoverySource = opened.fresh()
                 ? RecoverySource.FRESH
-                : RecoverySource.WAL_ONLY;
+                : opened.manifest() == null
+                        ? RecoverySource.WAL_ONLY
+                        : recoveredState.replayedRecords() == 0
+                                ? RecoverySource.CHECKPOINT_ONLY
+                                : RecoverySource.CHECKPOINT_AND_WAL;
         replayedRecords = opened.fresh() ? 0 : recoveredState.replayedRecords();
         recoveryDuration = opened.fresh()
                 ? Duration.ZERO
@@ -71,19 +87,35 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         truncatedTailBytes = opened.truncatedBytes();
         allocatedSequence = recoveredState.sequence();
         publishedSequence = recoveredState.sequence();
+        checkpointExecutor = Executors.newSingleThreadExecutor(task -> {
+            Thread thread = new Thread(task, "gse-durable-checkpoint");
+            thread.setDaemon(true);
+            return thread;
+        });
         metrics = new AtomicReference<>(new DurabilityMetrics(
                 DurabilityStatus.OPEN,
                 publishedSequence,
-                0,
-                DurableWal.GENERATION,
-                recoveredState.replayedRecords(),
+                checkpointSequence,
+                storage.wal().generation(),
+                storage.wal().records(),
                 storage.wal().position(),
                 storage.retainedBytes(),
                 recoverySource,
                 replayedRecords,
                 recoveryDuration,
                 indexRebuildDuration,
-                Optional.empty()));
+                lastCheckpointFailure));
+    }
+
+    private static DurabilityException.Reason reasonOf(Throwable failure) {
+        Throwable candidate = failure;
+        while (candidate instanceof CompletionException
+                && candidate.getCause() != null) {
+            candidate = candidate.getCause();
+        }
+        return candidate instanceof DurabilityException durability
+                ? durability.reason()
+                : DurabilityException.Reason.IO_FAILURE;
     }
 
     static <K, T> DurableCommitCoordinator<K, T> open(
@@ -126,12 +158,23 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 codecVersion,
                 indexes);
         try {
+            DurableCheckpoint.Loaded<K, T> checkpoint = opened.manifest() == null
+                    ? null
+                    : DurableCheckpoint.read(
+                            opened.owner().directory().resolve(
+                                    opened.manifest().checkpointFile()),
+                            config,
+                            schema,
+                            opened.owner().historyId(),
+                            opened.manifest());
             DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(
                     config,
                     schema,
                     indexes,
-                    opened.owner().wal(),
+                    checkpoint,
+                    opened.wals(),
                     !opened.fresh());
+            opened.owner().finishRecovery();
             return new DurableCommitCoordinator<>(
                     config,
                     schema,
@@ -139,6 +182,17 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                     recovered,
                     Duration.ofNanos(Math.max(
                             0L, System.nanoTime() - recoveryStarted)));
+        } catch (IOException ioFailure) {
+            DurabilityException failure = new DurabilityException(
+                    DurabilityException.Reason.STORAGE_ACCESS,
+                    "checkpoint recovery read failed",
+                    ioFailure);
+            try {
+                opened.owner().close();
+            } catch (RuntimeException closeFailure) {
+                failure.addSuppressed(closeFailure);
+            }
+            throw failure;
         } catch (RuntimeException | Error failure) {
             try {
                 opened.owner().close();
@@ -251,7 +305,9 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                             + DurableWal.FRAME_TRAILER_BYTES);
         }
         long retained = storage.retainedBytes();
-        if (additionalBytes > config.maxRetainedBytes() - retained) {
+        if (additionalBytes > config.maxRetainedBytes()
+                - retained
+                - DurableWal.GENERATION_HEADER_BYTES) {
             capacityFailure("commit group exceeds the configured retained-byte limit");
         }
 
@@ -348,14 +404,100 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         return metrics.get();
     }
 
-    synchronized CompletableFuture<Void> checkpoint() {
+    synchronized boolean checkpointRequired() {
+        return !closed
+                && !terminal
+                && (activeCheckpoint == null || activeCheckpoint.isDone())
+                && storage.wal().dataBytes() >= config.checkpointWalBytes();
+    }
+
+    synchronized CompletableFuture<Void> checkpoint(
+            DurableCheckpoint.Capture<K, T> capture
+    ) {
         if (closed) {
             return CompletableFuture.failedFuture(new DurabilityException(
                     DurabilityException.Reason.CLOSED,
                     "durable engine is closed"));
         }
-        return CompletableFuture.failedFuture(new UnsupportedOperationException(
-                "production checkpoints begin in V4 Phase 4"));
+        if (activeCheckpoint != null && !activeCheckpoint.isDone()) {
+            return activeCheckpoint;
+        }
+        if (terminal) {
+            return CompletableFuture.failedFuture(new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    "durable writer is in terminal failed state"));
+        }
+        Objects.requireNonNull(capture, "capture");
+        if (capture.sequence() != publishedSequence
+                || capture.sequence() != allocatedSequence) {
+            return CompletableFuture.failedFuture(new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    "checkpoint capture is not at the published durable boundary"));
+        }
+
+        CompletableFuture<Void> result = new CompletableFuture<>();
+        DurableStorageOwner.GenerationCut cut;
+        try {
+            cut = storage.cutGeneration(
+                    Math.incrementExact(capture.sequence()),
+                    config.maxRetainedBytes());
+            publishMetrics(DurabilityStatus.OPEN);
+            activeCheckpoint = result;
+            checkpointExecutor.execute(
+                    () -> publishCheckpoint(capture, cut, result));
+        } catch (RuntimeException failure) {
+            terminal = !(failure instanceof DurabilityException durability
+                    && durability.reason()
+                    == DurabilityException.Reason.CAPACITY_EXCEEDED);
+            lastCheckpointFailure = Optional.of(reasonOf(failure));
+            publishMetrics(terminal
+                    ? DurabilityStatus.FAILED
+                    : DurabilityStatus.CAPACITY_BLOCKED);
+            result.completeExceptionally(failure);
+        }
+        return result;
+    }
+
+    private void publishCheckpoint(
+            DurableCheckpoint.Capture<K, T> capture,
+            DurableStorageOwner.GenerationCut cut,
+            CompletableFuture<Void> result
+    ) {
+        try {
+            DurableStorageOwner.CheckpointPublication publication =
+                    storage.publishCheckpoint(capture, config, schema, cut);
+            synchronized (this) {
+                checkpointSequence = publication.manifest().checkpointSequence();
+                lastCheckpointFailure = Optional.ofNullable(
+                        publication.cleanupFailure());
+                activeCheckpoint = null;
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.OPEN);
+            }
+            result.complete(null);
+        } catch (DurableStorageOwner.CheckpointFailure wrapper) {
+            DurabilityException failure = wrapper.failure();
+            synchronized (this) {
+                lastCheckpointFailure = Optional.of(failure.reason());
+                if (wrapper.manifestReplaced()) {
+                    terminal = true;
+                }
+                activeCheckpoint = null;
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.OPEN);
+            }
+            result.completeExceptionally(failure);
+        } catch (RuntimeException failure) {
+            synchronized (this) {
+                terminal = true;
+                lastCheckpointFailure = Optional.of(reasonOf(failure));
+                activeCheckpoint = null;
+                publishMetrics(DurabilityStatus.FAILED);
+            }
+            result.completeExceptionally(failure);
+        }
     }
 
     private byte[] canonicalKey(K key) {
@@ -484,13 +626,12 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     }
 
     private void publishMetrics(DurabilityStatus status) {
-        DurabilityMetrics previous = metrics.get();
         publishMetrics(
                 status,
                 publishedSequence,
-                previous.walRecords(),
-                previous.walBytes(),
-                previous.retainedBytes());
+                storage.wal().records(),
+                storage.wal().position(),
+                storage.retainedBytes());
     }
 
     private void publishMetrics(
@@ -503,8 +644,8 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         metrics.set(new DurabilityMetrics(
                 status,
                 sequence,
-                0,
-                DurableWal.GENERATION,
+                checkpointSequence,
+                storage.wal().generation(),
                 walRecords,
                 walBytes,
                 retainedBytes,
@@ -512,7 +653,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 replayedRecords,
                 recoveryDuration,
                 indexRebuildDuration,
-                Optional.empty()));
+                lastCheckpointFailure));
     }
 
     private static DurabilityException codecFailure(
@@ -527,18 +668,54 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     }
 
     @Override
-    public synchronized void close() {
-        if (closed) {
-            return;
+    public void close() {
+        CompletableFuture<Void> pending;
+        synchronized (this) {
+            if (closed) {
+                return;
+            }
+            closed = true;
+            pending = activeCheckpoint;
+            checkpointExecutor.shutdown();
         }
-        closed = true;
+        if (pending != null) {
+            try {
+                pending.join();
+            } catch (CompletionException ignored) {
+                // The accepted checkpoint Future already carries its primary failure.
+            }
+        }
+        boolean interrupted = false;
+        while (!checkpointExecutor.isTerminated()) {
+            try {
+                checkpointExecutor.awaitTermination(1, TimeUnit.DAYS);
+            } catch (InterruptedException failure) {
+                interrupted = true;
+            }
+        }
         try {
+            synchronized (this) {
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.CLOSED);
+            }
             storage.close();
-            publishMetrics(DurabilityStatus.CLOSED);
         } catch (DurabilityException failure) {
-            terminal = true;
-            publishMetrics(DurabilityStatus.FAILED);
+            synchronized (this) {
+                terminal = true;
+                DurabilityMetrics previous = metrics.get();
+                publishMetrics(
+                        DurabilityStatus.FAILED,
+                        publishedSequence,
+                        previous.walRecords(),
+                        previous.walBytes(),
+                        previous.retainedBytes());
+            }
             throw failure;
+        } finally {
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
