@@ -68,12 +68,15 @@ crashes, per-cycle independent inspection/reopen, and the fake-cloud hardening d
 The complete local matrix, reactor, published compatibility, independent consumers,
 release artifacts, reproducibility and JMH smoke pass.
 
-Phase 6 is active on `feat/v4.0-phase6-performance-hardening`. It separates
-current-source in-memory and force-backed durable JMH cells, actual force grouping,
+Phase 6 implementation and paid evidence are complete. It separates current-source
+in-memory and force-backed durable JMH cells, actual force grouping,
 checkpoint/recovery/disk/long-run operational evidence, and the independent V4 cloud
-set. The paid lane uses Standard compute plus a separately retained persistent disk;
-the failure drill deletes the writer VM and recovers that disk on a replacement VM.
-No public API, storage-format or durability-semantic change is authorized.
+set. The paid experiment and preserved-disk replacement-VM drill passed; serial
+canonical run `33663850586` produced the reviewed three-member set on source
+`e8fac153996e10af6fd880078106a49c531e7cdc`. The set is registered append-only as
+`v4.0.0-durable-cloud`; its protected evidence merge and exact-master CI form the
+Phase 7 boundary. No public API, storage-format or durability-semantic change was
+introduced.
 
 ## v3.x completed development line
 

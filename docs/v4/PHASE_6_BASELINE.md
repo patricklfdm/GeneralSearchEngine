@@ -33,7 +33,7 @@ These numbers are sensitive to the developer filesystem, cache state, scheduler 
 dirty source. They demonstrate completeness and expose the expected force cost; they
 must not be compared with registered cloud evidence or used as a performance promise.
 
-## Current decision
+## Pre-cloud decision
 
 No production optimization is justified. Actual force grouping is working, durable
 overhead is visible rather than hidden, all three recovery paths are small at the smoke
@@ -122,6 +122,14 @@ quota and member 3 by the regional SSD quota. All three receipts recorded
 `cleanup=PASS`; no set was assembled and no member may be reused across source commits.
 The workflow now fixes `max-parallel: 1`, retaining fresh VM/disk isolation while
 bounding simultaneous allocation to one member.
+
+The serial canonical run `33663850586` then completed all three members on exact
+protected-master source `e8fac153996e10af6fd880078106a49c531e7cdc`. Member and set
+validation, GCS retention, cleanup receipts and independent resource-absence checks all
+passed. Review found no identity mismatch or anomalous member; the eligible set digest
+is `4a33e6193fa3c02b609b7a177b16bf16792d197c1eca45437d225154022d0998`
+and is registered as `v4.0.0-durable-cloud`. Detailed metric ranges and interpretation
+are recorded in [the canonical review](PHASE_6_CANONICAL_REVIEW.md).
 
 The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
 data-disk permissions, and both remote bootstraps install `unzip`. Independent

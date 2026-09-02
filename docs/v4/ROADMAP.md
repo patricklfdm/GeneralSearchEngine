@@ -91,11 +91,12 @@ Measure in-memory compatibility, durable mutation latency/throughput, force grou
 checkpoint cost, replay/rebuild/open time, disk amplification, large corpora, and the
 independent durable cloud family. Optimize only from reviewed evidence.
 
-Phase 6 is active from protected Phase 5 merge
-`c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`. Local implementation now separates JMH
-completion latency from operational force/checkpoint/recovery/disk/long-run evidence
-and supplies independent paid performance plus replacement-VM failure workflows.
-Local full validation passed; protected Phase 6 merge and paid evidence remain gates.
+Phase 6 implementation and paid evidence are complete. Local validation, the paid
+experiment, preserved-disk replacement-VM drill and serial three-member canonical run
+all passed. The reviewed set from exact source
+`e8fac153996e10af6fd880078106a49c531e7cdc` is registered append-only as
+`v4.0.0-durable-cloud`; the protected evidence merge and exact-master CI form the
+Phase 7 boundary.
 
 ### Phase 7 — release candidate
 

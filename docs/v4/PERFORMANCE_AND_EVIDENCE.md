@@ -35,7 +35,7 @@ a distinct suite/preset/baseline family:
 
 - suite: `v4.0-durable-single-node-suite-v1`;
 - preset: `v4.0-durable-single-node-v1`;
-- eventual registration: `v4.0.0-durable-cloud`.
+- reviewed registration: `v4.0.0-durable-cloud`.
 
 The V4 family must never overwrite or relabel V3.4 results. Canonical members use one
 final source, Standard provisioning, fixed machine/image/runtime/filesystem/device,

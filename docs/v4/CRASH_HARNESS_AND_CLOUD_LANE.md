@@ -133,7 +133,7 @@ The cloud lane is independent from all V3 families:
 
 - suite: `v4.0-durable-single-node-suite-v1`;
 - preset: `v4.0-durable-single-node-v1`;
-- eventual baseline: `v4.0.0-durable-cloud`.
+- reviewed baseline: `v4.0.0-durable-cloud`.
 
 It has a local/fake control path from Phase 1 and manual paid execution only after
 local gates. Cloud orchestration separates compute lifetime from durable-device
