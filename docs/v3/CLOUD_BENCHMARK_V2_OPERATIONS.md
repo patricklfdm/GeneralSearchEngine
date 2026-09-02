@@ -51,7 +51,9 @@ assertion.repository == 'patricklfdm/GeneralSearchEngine' &&
 assertion.repository_id == '1341513206' &&
 assertion.repository_owner_id == '147357093' &&
 assertion.ref == 'refs/heads/master' &&
-assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master' &&
+(assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/cloud-performance.yml@refs/heads/master' ||
+ assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/v4-durable-performance.yml@refs/heads/master' ||
+ assertion.workflow_ref == 'patricklfdm/GeneralSearchEngine/.github/workflows/v4-durable-failure-drill.yml@refs/heads/master') &&
 assertion.environment == 'cloud-benchmark'
 ```
 
@@ -74,7 +76,9 @@ The project-level custom role is
 
 ```text
 compute.disks.create
+compute.disks.delete
 compute.disks.get
+compute.disks.use
 compute.images.get
 compute.images.useReadOnly
 compute.instances.create
@@ -101,7 +105,9 @@ resourcemanager.projects.get
 serviceusage.services.use
 ```
 
-`compute.instances.setLabels` is required even during instance creation because the V1
+`compute.disks.use` and `compute.disks.delete` are required only by the V4 separately
+retained data-disk and replacement-VM lifecycle. `compute.instances.setLabels` is
+required even during instance creation because the V1
 runner attaches bounded purpose, mode, commit, and creation-date labels. Project common
 instance metadata access is required by the reviewed external-IP SSH path. Do not
 replace the custom role with Editor, Owner, Compute Admin, Instance Admin, or Service

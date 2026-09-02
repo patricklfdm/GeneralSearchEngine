@@ -55,7 +55,7 @@ The completed local implementation passed on 2026-09-02:
   `./mvnw clean -Partifact-compat verify`, and all independent consumers;
 - unsigned release packaging, artifact-content inspection and reproducible-build
   comparison;
-- Shell, Python and workflow-YAML parsing plus all fourteen Phase 6 Python contract
+- Shell, Python and workflow-YAML parsing plus all fifteen Phase 6 Python contract
   tests; and
 - the complete `scripts/verify-jmh-smoke.sh` chain, including all earlier V4 crash
   matrices, four durable/in-memory mutation cells, operational evidence validation,
@@ -64,3 +64,22 @@ The completed local implementation passed on 2026-09-02:
 The smoke timings above remain diagnostic because the source was uncommitted and the
 host is not the frozen cloud machine. Passing local gates establishes correctness and
 evidence plumbing only; it does not make the run baseline-eligible.
+
+## Paid-lane staged rollout findings
+
+Three exact-master experiment attempts failed closed before producing performance
+evidence:
+
+- run `33605510928` was rejected by the WIF provider because its original condition
+  allowed only `cloud-performance.yml`; no VM or disk was created;
+- run `33605963272` created its data disk, then VM creation was rejected because the
+  custom role lacked `compute.disks.use`; `compute.disks.use` and
+  `compute.disks.delete` were added without granting a broad Compute role; and
+- run `33606438261` reached the cold VM and exposed a missing `unzip` prerequisite:
+  Maven Wrapper fell back to a tarball while retaining the pinned ZIP checksum.
+
+The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
+data-disk permissions, and both remote bootstraps install `unzip`. Independent
+post-run describes returned not-found for the VM and disk names from runs
+`33605963272` and `33606438261`. These are infrastructure findings with verified
+cleanup, not experiment members or baseline candidates.

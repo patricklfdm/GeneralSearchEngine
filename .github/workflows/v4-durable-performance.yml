@@ -103,7 +103,9 @@ jobs:
             --run-id "$GITHUB_RUN_ID" \
             --output "$state_directory/workflow-plan.json" \
             --github-output "$GITHUB_OUTPUT"
-          cp "$state_directory/workflow-plan.json" "$GITHUB_STEP_SUMMARY"
+          python3 -m scripts.v4.durable_cloud_workflow plan-summary \
+            --plan "$state_directory/workflow-plan.json" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
 
   benchmark:
     name: Durable member ${{ matrix.slot }}
@@ -141,7 +143,15 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Initialize bounded failure receipt
+        run: |
+          mkdir -p "$GSE_V4_OUTPUT"
+          printf 'sourceCommit=%s\nprofile=%s\nslot=%s\nrunStatus=NOT_STARTED\ncleanup=NOT_APPLICABLE\n' \
+            "$GSE_V4_SOURCE_SHA" "$GSE_V4_PROFILE" "$GSE_V4_SLOT" \
+            > "$GSE_V4_OUTPUT/cloud-member.properties"
+
       - name: Authenticate with short-lived Google Cloud credentials
+        id: auth
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: ${{ vars.GSE_CLOUD_WIF_PROVIDER }}
@@ -150,6 +160,7 @@ jobs:
           export_environment_variables: true
 
       - name: Install exact Google Cloud CLI
+        id: gcloud
         uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
         with:
           version: '582.0.0'
@@ -160,7 +171,7 @@ jobs:
           scripts/v4/run_durable_cloud_member.sh --confirm-paid-run
 
       - name: Mirror canonical evidence to GCS
-        if: ${{ always() && needs.preflight.outputs.retention == 'gcs' }}
+        if: ${{ always() && needs.preflight.outputs.retention == 'gcs' && steps.auth.outcome == 'success' && steps.gcloud.outcome == 'success' }}
         run: |
           test -n "$GSE_V4_GCS_BUCKET"
           gcloud storage cp --recursive \

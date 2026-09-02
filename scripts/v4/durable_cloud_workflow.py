@@ -77,6 +77,89 @@ def write_github_output(path: Path, values: dict[str, str]) -> None:
             stream.write(f"{key}={value}\n")
 
 
+def markdown(value: Any) -> str:
+    return (str(value)
+            .replace("\\", "\\\\")
+            .replace("|", "\\|")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\r", " ")
+            .replace("\n", " "))
+
+
+def validate_plan_document(document: Any) -> dict[str, Any]:
+    if not isinstance(document, dict) \
+            or document.get("schemaVersion") != "gse-v40-durable-cloud-plan-v1" \
+            or document.get("suite") != SUITE \
+            or document.get("preset") != PRESET:
+        raise EvidenceError("unsupported V4 durable cloud plan")
+    request = document.get("request")
+    resources = document.get("resources")
+    slots = document.get("slots")
+    if not isinstance(request, dict) or not isinstance(resources, dict) \
+            or not isinstance(slots, list):
+        raise EvidenceError("V4 durable cloud plan is incomplete")
+    validated = validate_inputs(
+        request.get("profile", ""),
+        request.get("repeats", -1),
+        request.get("durationSeconds", -1),
+        request.get("retention", ""),
+        request.get("machineType", ""),
+        request.get("provisioning", ""),
+    )
+    if request != validated or slots != list(range(1, validated["repeats"] + 1)):
+        raise EvidenceError("V4 durable cloud plan request differs")
+    validate_source_commit(document.get("sourceCommit", ""))
+    if resources != {
+        "diskType": "pd-balanced",
+        "diskSizeGiB": 200,
+        "filesystem": "ext4",
+        "mountOptions": "defaults",
+        "maximumRuntimeSeconds": validated["durationSeconds"] + 3600,
+    }:
+        raise EvidenceError("V4 durable cloud plan resources differ")
+    if not re.fullmatch(r"[0-9]+", str(document.get("runId", ""))):
+        raise EvidenceError("V4 durable cloud plan run ID is invalid")
+    return document
+
+
+def render_plan_summary(document: dict[str, Any]) -> str:
+    plan = validate_plan_document(document)
+    request = plan["request"]
+    resources = plan["resources"]
+    rows = [
+        ("Run", plan["runId"]),
+        ("Source commit", plan["sourceCommit"]),
+        ("Evidence profile", request["profile"]),
+        ("Independent members", request["repeats"]),
+        ("Provisioning / machine",
+         f"{request['provisioning']} / {request['machineType']}"),
+        ("Long-run duration", f"{request['durationSeconds']} seconds"),
+        ("Persistent data disk",
+         f"{resources['diskType']} / {resources['diskSizeGiB']} GiB"),
+        ("Filesystem / mount",
+         f"{resources['filesystem']} / {resources['mountOptions']}"),
+        ("Retention", request["retention"]),
+        ("Maximum member runtime",
+         f"{resources['maximumRuntimeSeconds']} seconds"),
+        ("Suite / preset", f"{plan['suite']} / {plan['preset']}"),
+    ]
+    lines = [
+        "# V4 durable cloud preflight",
+        "",
+        "| Field | Validated value |",
+        "|---|---|",
+    ]
+    lines.extend(
+        f"| {markdown(label)} | `{markdown(value)}` |" for label, value in rows)
+    lines.extend([
+        "",
+        "> Preflight requested no OIDC token, created no VM or disk, and performed no paid cloud mutation.",
+        "",
+    ])
+    return "\n".join(lines)
+
+
 def plan(arguments: argparse.Namespace) -> int:
     request = validate_inputs(
         arguments.profile,
@@ -134,6 +217,18 @@ def plan(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def plan_summary(arguments: argparse.Namespace) -> int:
+    try:
+        document = json.loads(arguments.plan.read_text("utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as failure:
+        raise EvidenceError("cannot read V4 durable cloud plan") from failure
+    content = render_plan_summary(document)
+    with arguments.github_step_summary.open("a", encoding="utf-8") as stream:
+        stream.write(content)
+    print("v40CloudPlanSummary=PASS")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -151,8 +246,13 @@ def main() -> int:
     command.add_argument("--run-id", required=True)
     command.add_argument("--output", type=Path, required=True)
     command.add_argument("--github-output", type=Path)
+    summary = subparsers.add_parser("plan-summary")
+    summary.add_argument("--plan", type=Path, required=True)
+    summary.add_argument("--github-step-summary", type=Path, required=True)
     arguments = parser.parse_args()
-    return plan(arguments)
+    if arguments.command == "plan":
+        return plan(arguments)
+    return plan_summary(arguments)
 
 
 if __name__ == "__main__":

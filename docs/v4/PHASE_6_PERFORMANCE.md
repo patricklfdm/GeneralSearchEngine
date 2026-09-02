@@ -77,6 +77,13 @@ run cleanup and retain a bounded GitHub artifact; GCS profiles also attempt dura
 partial-evidence retention. CI exercises only their dry-run, fake-cloud and local split
 writer/recovery paths; it never provisions paid resources.
 
+The shared WIF provider keeps repository, immutable owner/repository IDs, protected
+`master`, `cloud-benchmark` Environment and an exact three-workflow allowlist. Its
+custom role adds only `compute.disks.use` and `compute.disks.delete` for the V4 retained
+disk lifecycle. Remote cold-start prerequisites explicitly include `unzip`, so the
+Maven Wrapper downloads and validates the pinned ZIP rather than falling back to a
+tarball under the ZIP checksum.
+
 ## Optimization decision
 
 The first local smoke shows the expected forced-storage cost and confirms group force

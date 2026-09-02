@@ -20,7 +20,7 @@ case "$mode" in writer|recover) ;; *) echo "invalid failure mode" >&2; exit 2 ;;
 
 sudo apt-get update
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  openjdk-21-jdk-headless git ca-certificates python3
+  openjdk-21-jdk-headless git ca-certificates python3 unzip
 deadline=$((SECONDS + 60))
 while [[ ! -b "$device" && $SECONDS -lt $deadline ]]; do sleep 1; done
 [[ -b "$device" ]] || { echo "durable device did not appear" >&2; exit 20; }
