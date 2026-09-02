@@ -112,6 +112,9 @@ jobs:
     needs: preflight
     strategy:
       fail-fast: false
+      # Members remain independently provisioned, but the project quota permits
+      # only one c3d-standard-30 plus its boot and evidence disks at a time.
+      max-parallel: 1
       matrix:
         slot: ${{ fromJSON(needs.preflight.outputs.slots) }}
     runs-on: ubuntu-latest

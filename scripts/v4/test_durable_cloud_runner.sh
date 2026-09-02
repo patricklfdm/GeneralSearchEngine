@@ -37,6 +37,7 @@ workflow=.github/workflows/v4-durable-performance.yml
 grep -q 'workflow_dispatch:' "$workflow"
 grep -q 'provisioning-model=STANDARD' scripts/v4/run_durable_cloud_member.sh
 grep -q 'auto-delete=no' scripts/v4/run_durable_cloud_member.sh
+grep -q 'max-parallel: 1' "$workflow"
 grep -q 'GSE_BENCHMARK_GCS_BUCKET' "$workflow"
 grep -q 'run_durable_cloud_member.sh --confirm-paid-run' "$workflow"
 grep -q 'runStatus=%s' scripts/v4/run_durable_cloud_member.sh

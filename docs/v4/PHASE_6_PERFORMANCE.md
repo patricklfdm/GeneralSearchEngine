@@ -66,7 +66,10 @@ protected `master`:
 - `V4 durable performance` creates one independent Standard VM and one independent
   200-GiB `pd-balanced` data disk per member. The production probe runs on the data
   disk. Experiment is one member; canonical is three comparable members. Canonical
-  evidence and the assembled set require GCS retention.
+  evidence and the assembled set require GCS retention. Canonical members execute
+  serially with `max-parallel: 1`; independence means a fresh VM and disk per member,
+  not overlapping allocation. This bounds the project at one 30-vCPU VM, one 100-GiB
+  boot disk and one 200-GiB evidence disk at a time.
 - `V4 durable preserved-disk failure drill` hard-halts a writer JVM at
   `v4-wal-before-future-completion-v1`, deletes the writer VM without deleting the
   data disk, attaches that same disk to a replacement VM, independently inspects the

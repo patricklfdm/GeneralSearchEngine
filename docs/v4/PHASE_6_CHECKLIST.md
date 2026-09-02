@@ -34,6 +34,7 @@ and paid evidence pending
 - [x] Require exact protected-master source, Standard `c3d-standard-30`, pinned image,
   ext4 persistent data disk, fixed identities and bounded runtime.
 - [x] Make experiment one member and canonical exactly three comparable members.
+- [x] Schedule canonical members serially while preserving fresh VM/disk isolation.
 - [x] Require GCS retention for canonical and failure-drill evidence.
 - [x] Aggregate and checksum member identities before canonical eligibility.
 - [x] Provide append-only registration for `v4.0.0-durable-cloud` only.
@@ -52,8 +53,8 @@ and paid evidence pending
 
 - [x] Full clean reactor, compatibility, release artifact and JMH gates pass.
 - [ ] Protected Phase 6 implementation PR and exact-master CI pass.
-- [ ] One paid experiment on the exact accepted source passes and is reviewed.
-- [ ] One paid preserved-disk failure drill passes with cleanup receipt.
+- [x] One paid experiment on the exact accepted source passes and is reviewed.
+- [x] One paid preserved-disk failure drill passes with cleanup receipt.
 - [ ] Three comparable canonical members pass on one exact final source.
 - [ ] Register the reviewed set as `v4.0.0-durable-cloud`.
 
