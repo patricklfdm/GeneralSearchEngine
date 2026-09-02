@@ -54,9 +54,12 @@ its exact-master CI form the Phase 7 entry boundary
 - [x] Full clean reactor, compatibility, release artifact and JMH gates pass.
 - [x] Protected Phase 6 implementation PR #83 and exact-master CI run `33604967584`
   pass.
+- [x] Fix the retained-byte/checkpoint-cleanup race through protected PR #89 and
+  exact-master CI run `33678948765`.
 - [x] One paid experiment on the exact accepted source passes and is reviewed.
 - [x] One paid preserved-disk failure drill passes with cleanup receipt.
-- [x] Three comparable canonical members pass on one exact final source.
+- [x] Three comparable canonical members pass on post-fix exact source
+  `fe2060b9a872e66ff0067be6e8b7c900f0099708` in run `33682157985`.
 - [x] Register the reviewed set as `v4.0.0-durable-cloud`.
 
 Phase 7 may prepare the release candidate only after required Phase 6 evidence is

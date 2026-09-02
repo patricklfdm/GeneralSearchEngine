@@ -2,7 +2,7 @@
 
 ## Decision
 
-Protected workflow run `33663850586`, attempt 1, produced the accepted three-member
+Protected workflow run `33682157985`, attempt 1, produced the accepted three-member
 canonical set for the independent V4 durable single-node lane. All three serially
 scheduled members completed on their first attempt, passed member and set validation,
 retained their evidence in GCS, and reported successful VM and persistent-disk cleanup.
@@ -17,29 +17,29 @@ is not an SLA or a portable hardware claim.
 
 | Field | Reviewed value |
 |---|---|
-| Workflow run / attempt | `33663850586 / 1` |
-| Source commit | `e8fac153996e10af6fd880078106a49c531e7cdc` |
+| Workflow run / attempt | `33682157985 / 1` |
+| Source commit | `fe2060b9a872e66ff0067be6e8b7c900f0099708` |
 | Request | `canonical / 3 / standard / c3d-standard-30 / 30m / gcs` |
 | Suite / preset | `v4.0-durable-single-node-suite-v1 / v4.0-durable-single-node-v1` |
 | Image / zone | `ubuntu-2404-noble-amd64-v20260826 / us-west4-a` |
 | Data disk / filesystem | `pd-balanced 200 GiB / ext4 defaults` |
 | Codec / schema / storage | `v40-performance-codec-v1 / v40-performance-schema-v1 / v40-performance-store-v1` |
 | Set status | `PASS / canonicalEligible=true / members=3` |
-| Set SHA-256 | `4a33e6193fa3c02b609b7a177b16bf16792d197c1eca45437d225154022d0998` |
-| GCS layout | `v4-durable/33663850586-1/{1,2,3,set}/` |
+| Set SHA-256 | `5e71ae200f94f5713278db7312057c4454fb73e18d159f78e71c31a92c44abbf` |
+| GCS layout | `v4-durable/33682157985-1/{1,2,3,set}/` |
 | Registry name | `v4.0.0-durable-cloud` |
 
-The downloaded Actions mirrors, all member checksum inventories, the assembled set,
-the GCS directory layout and the six VM/disk absence checks passed independent local
-review.
+The downloaded Actions mirrors, every member checksum inventory, the assembled set
+and all three cleanup receipts passed independent local review. Successful aggregate
+completion also confirms the required GCS member and set retention steps.
 
 ## Independent-member controls
 
 | Slot | Evidence SHA-256 | Run | Cleanup |
 |---:|---|---|---|
-| 1 | `767f7d7893d1cfd97b6a83ddef8b65bf8296f3ffc7101b725606b55604f22dc6` | PASS | PASS |
-| 2 | `f8ed858add76794f25dc8883622a0b28bd2a4ec5f2326e50764795ec5aab46f4` | PASS | PASS |
-| 3 | `348f2cc71f3c723bbdf87fee581f345e9c2df158693242c76c481c4eb890a86d` | PASS | PASS |
+| 1 | `6800296483d24f48a417e1e3c0acf8d0b7702da5aef2b22fc219415d9244f0b5` | PASS | PASS |
+| 2 | `461b4362679dd74798352e53bcc81df641bf6775e3d8cddcaaaa5707f0ea075b` | PASS | PASS |
+| 3 | `e435d47f06252f9a4c9b9a610c3456edb4e4a8f258d6b473d58043365a631113` | PASS | PASS |
 
 Every member used the same source, machine, pinned image, zone, filesystem, duration
 and codec/schema/storage identities. Serial scheduling changed only allocation overlap:
@@ -52,18 +52,18 @@ the median. Latencies are milliseconds.
 
 | Metric | Median | Member range | Relative range |
 |---|---:|---:|---:|
-| Durable single p50 | 9.691 ms | 9.402-9.786 ms | 3.97% |
-| Durable single p95 | 24.879 ms | 23.322-26.004 ms | 10.78% |
-| Durable single p99 | 27.388 ms | 24.653-28.091 ms | 12.56% |
-| Durable 100-element bulk p50 | 4.763 ms | 4.650-4.867 ms | 4.56% |
-| Durable 100-element bulk p95 | 20.361 ms | 19.506-21.772 ms | 11.13% |
-| Explicit checkpoint | 881.619 ms | 874.579-895.409 ms | 2.36% |
-| WAL-only open | 179.834 ms | 177.803-181.292 ms | 1.94% |
-| Checkpoint-only open | 159.683 ms | 158.392-159.941 ms | 0.97% |
-| Checkpoint-plus-WAL open | 173.834 ms | 173.762-176.352 ms | 1.49% |
-| 30-minute reads | 46.143 billion | 45.371-47.325 billion | 4.23% |
-| 30-minute durable writes | 1,064,848 | 1,050,440-1,070,348 | 1.87% |
-| Maximum retained bytes | 4,946,589 | 4,905,361-4,988,214 | 1.67% |
+| Durable single p50 | 9.743 ms | 9.425-9.948 ms | 5.36% |
+| Durable single p95 | 23.711 ms | 23.353-24.420 ms | 4.50% |
+| Durable single p99 | 25.840 ms | 24.867-29.153 ms | 16.59% |
+| Durable 100-element bulk p50 | 4.984 ms | 4.718-4.997 ms | 5.60% |
+| Durable 100-element bulk p95 | 19.014 ms | 18.491-19.289 ms | 4.19% |
+| Explicit checkpoint | 878.679 ms | 876.533-895.448 ms | 2.15% |
+| WAL-only open | 169.047 ms | 165.617-169.483 ms | 2.29% |
+| Checkpoint-only open | 164.078 ms | 160.618-166.697 ms | 3.71% |
+| Checkpoint-plus-WAL open | 173.353 ms | 166.822-174.454 ms | 4.40% |
+| 30-minute reads | 45.644 billion | 45.235-46.820 billion | 3.47% |
+| 30-minute durable writes | 1,064,048 | 1,056,408-1,079,424 | 2.16% |
+| Maximum retained bytes | 4,985,560 | 4,913,803-5,019,863 | 2.13% |
 
 All members produced the same in-memory and durable logical checksum
 `-8452554388534467023`. Each group-commit cell forced 3,200 logical units in 200

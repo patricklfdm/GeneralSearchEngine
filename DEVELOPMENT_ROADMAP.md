@@ -71,9 +71,9 @@ release artifacts, reproducibility and JMH smoke pass.
 Phase 6 implementation and paid evidence are complete. It separates current-source
 in-memory and force-backed durable JMH cells, actual force grouping,
 checkpoint/recovery/disk/long-run operational evidence, and the independent V4 cloud
-set. The paid experiment and preserved-disk replacement-VM drill passed; serial
-canonical run `33663850586` produced the reviewed three-member set on source
-`e8fac153996e10af6fd880078106a49c531e7cdc`. The set is registered append-only as
+set. The paid experiment and preserved-disk replacement-VM drill passed; post-fix
+serial canonical run `33682157985` produced the reviewed three-member set on source
+`fe2060b9a872e66ff0067be6e8b7c900f0099708`. The set is registered append-only as
 `v4.0.0-durable-cloud`; its protected evidence merge and exact-master CI form the
 Phase 7 boundary. No public API, storage-format or durability-semantic change was
 introduced.

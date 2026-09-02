@@ -123,11 +123,25 @@ quota and member 3 by the regional SSD quota. All three receipts recorded
 The workflow now fixes `max-parallel: 1`, retaining fresh VM/disk isolation while
 bounding simultaneous allocation to one member.
 
-The serial canonical run `33663850586` then completed all three members on exact
-protected-master source `e8fac153996e10af6fd880078106a49c531e7cdc`. Member and set
-validation, GCS retention, cleanup receipts and independent resource-absence checks all
-passed. Review found no identity mismatch or anomalous member; the eligible set digest
-is `4a33e6193fa3c02b609b7a177b16bf16792d197c1eca45437d225154022d0998`
+The first serial canonical run, `33663850586`, completed all three members on exact
+protected-master source `e8fac153996e10af6fd880078106a49c531e7cdc`. Its member and
+set evidence passed, but subsequent CI verification reproduced a long-run race twice:
+checkpoint cleanup could delete an obsolete checkpoint after retained-byte accounting
+enumerated it but before the size lookup. The missing stale file was incorrectly
+promoted to a terminal storage failure. The set was therefore superseded before its
+proposed registration merged and is not the accepted baseline.
+
+Protected fix PR #89 made one file-attribute read supply both type and size, treats only
+an entry removed after enumeration as a zero-byte contribution, and preserves
+fail-closed handling for every other I/O or arithmetic failure. The deterministic
+regression, all 424 Maven tests and the complete Phase 6 local evidence gate passed;
+exact-master CI run `33678948765` accepted merge
+`fe2060b9a872e66ff0067be6e8b7c900f0099708`.
+
+Post-fix serial canonical run `33682157985` completed all three fresh members on that
+exact source. Member and set validation, GCS retention and cleanup receipts all passed.
+Review found no identity mismatch or anomalous member; the eligible set digest is
+`5e71ae200f94f5713278db7312057c4454fb73e18d159f78e71c31a92c44abbf`
 and is registered as `v4.0.0-durable-cloud`. Detailed metric ranges and interpretation
 are recorded in [the canonical review](PHASE_6_CANONICAL_REVIEW.md).
 

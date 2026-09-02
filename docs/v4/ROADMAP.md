@@ -94,7 +94,7 @@ independent durable cloud family. Optimize only from reviewed evidence.
 Phase 6 implementation and paid evidence are complete. Local validation, the paid
 experiment, preserved-disk replacement-VM drill and serial three-member canonical run
 all passed. The reviewed set from exact source
-`e8fac153996e10af6fd880078106a49c531e7cdc` is registered append-only as
+`fe2060b9a872e66ff0067be6e8b7c900f0099708` is registered append-only as
 `v4.0.0-durable-cloud`; the protected evidence merge and exact-master CI form the
 Phase 7 boundary.
 
