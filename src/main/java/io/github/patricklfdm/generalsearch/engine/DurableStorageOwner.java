@@ -15,9 +15,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -689,13 +691,27 @@ final class DurableStorageOwner implements AutoCloseable {
     }
 
     private static long retainedBytes(Path directory) throws IOException {
-        long retained = 0;
         try (var entries = Files.list(directory)) {
-            for (Path path : entries.toList()) {
-                String name = path.getFileName().toString();
-                if (isEngineOwnedName(name) && Files.isRegularFile(path)) {
-                    retained = Math.addExact(retained, Files.size(path));
+            return retainedBytesFromSnapshot(entries.toList());
+        }
+    }
+
+    static long retainedBytesFromSnapshot(List<Path> entries) throws IOException {
+        long retained = 0;
+        for (Path path : entries) {
+            String name = path.getFileName().toString();
+            if (!isEngineOwnedName(name)) {
+                continue;
+            }
+            try {
+                BasicFileAttributes attributes = Files.readAttributes(
+                        path, BasicFileAttributes.class);
+                if (attributes.isRegularFile()) {
+                    retained = Math.addExact(retained, attributes.size());
                 }
+            } catch (NoSuchFileException ignored) {
+                // Checkpoint cleanup may remove a stale directory entry after
+                // the snapshot was taken. Its retained contribution is zero.
             }
         }
         return retained;

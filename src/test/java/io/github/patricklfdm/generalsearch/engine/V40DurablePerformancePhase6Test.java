@@ -9,6 +9,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,24 @@ class V40DurablePerformancePhase6Test {
             Field.of("id", Integer.class, Document::id);
     private static final Field<Document, String> BODY =
             Field.of("body", String.class, Document::body);
+
+    @Test
+    void retainedByteSnapshotToleratesConcurrentCheckpointCleanup(
+            @TempDir Path directory
+    ) throws IOException {
+        Path metadata = directory.resolve(DurableStorageOwner.METADATA_FILE);
+        Path checkpoint = directory.resolve(
+                "gse-checkpoint-00000000000000000131-"
+                        + "c1015dd8fb2d4039964fbd606e49c359.chk");
+        Files.write(metadata, new byte[17]);
+        Files.write(checkpoint, new byte[31]);
+        List<Path> snapshot = List.of(metadata, checkpoint);
+
+        Files.delete(checkpoint);
+
+        assertEquals(17L,
+                DurableStorageOwner.retainedBytesFromSnapshot(snapshot));
+    }
 
     @Test
     void internalCountersReportActualSuccessfulForceGroups(@TempDir Path directory) {
