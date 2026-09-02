@@ -45,7 +45,15 @@ java -jar target/benchmarks.jar \
     -f 1 -wi 0 -i 1 -r 100ms -foe true
 
 work_dir=$(mktemp -d "${TMPDIR:-/tmp}/gse-v40-phase6.XXXXXX")
-trap 'rm -rf "$work_dir"' EXIT
+cleanup_work_dir() {
+    local status=$?
+    if [[ $status -eq 0 ]]; then
+        rm -rf "$work_dir"
+    else
+        echo "Phase 6 failure workspace retained: $work_dir" >&2
+    fi
+}
+trap cleanup_work_dir EXIT
 source_sha=$(git rev-parse HEAD)
 source_state=clean
 if [[ -n "$(git status --porcelain)" ]]; then

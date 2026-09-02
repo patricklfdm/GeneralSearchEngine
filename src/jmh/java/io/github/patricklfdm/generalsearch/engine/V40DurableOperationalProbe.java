@@ -10,6 +10,7 @@ import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -582,7 +583,12 @@ public final class V40DurableOperationalProbe {
         long total = 0L;
         try (var members = Files.walk(directory)) {
             for (Path member : members.filter(Files::isRegularFile).toList()) {
-                total = Math.addExact(total, Files.size(member));
+                try {
+                    total = Math.addExact(total, Files.size(member));
+                } catch (NoSuchFileException disappearedDuringSample) {
+                    // Checkpoint staging files are atomically renamed. A sampled
+                    // directory member may legitimately disappear before size().
+                }
             }
         }
         return total;

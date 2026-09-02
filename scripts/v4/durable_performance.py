@@ -330,6 +330,12 @@ def run_probe(arguments: argparse.Namespace) -> int:
     write_bundle(workspace / "evidence", document)
     validate_bundle(workspace / "evidence")
     if status != "PASS":
+        if completed.stdout:
+            print("v40PerformanceProbeStdout:\n" + tail(completed.stdout),
+                  file=sys.stderr)
+        if completed.stderr:
+            print("v40PerformanceProbeStderr:\n" + tail(completed.stderr),
+                  file=sys.stderr)
         raise EvidenceError(
             f"performance probe failed; evidence retained at {workspace / 'evidence'}: "
             f"{primary_failure or cleanup_failure}"

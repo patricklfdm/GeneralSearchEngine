@@ -56,7 +56,7 @@ jobs:
         run: scripts/verify-v40-phase5-hardening.sh --skip-build
 
       - name: Exercise the V4 durable performance and operational evidence matrix
-        run: scripts/verify-v40-phase6-performance.sh --skip-build
+        run: scripts/verify-v40-phase6-performance.sh
 
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
