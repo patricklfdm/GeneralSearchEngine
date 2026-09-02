@@ -65,6 +65,13 @@ The smoke timings above remain diagnostic because the source was uncommitted and
 host is not the frozen cloud machine. Passing local gates establishes correctness and
 evidence plumbing only; it does not make the run baseline-eligible.
 
+After the production preload correction, the complete Phase 6 gate passed again with
+seventeen Python contract tests and the JMH-only bounded-batch regression test. A
+separate local production-shape diagnostic used all 100,000 documents and
+`loadBatchSize=1000`, exercised every operational cell with the requested long-run
+duration reduced to one second, and produced a valid `PASS` bundle. Its dirty source,
+local host and reduced requested duration make it correctness evidence only.
+
 ## Paid-lane staged rollout findings
 
 Three exact-master experiment attempts failed closed before producing performance
@@ -77,6 +84,13 @@ evidence:
   `compute.disks.delete` were added without granting a broad Compute role; and
 - run `33606438261` reached the cold VM and exposed a missing `unzip` prerequisite:
   Maven Wrapper fell back to a tarball while retaining the pinned ZIP checksum.
+
+The next exact-master experiment reached the production probe and failed closed before
+measurement because its 100,000-document corpus was submitted as one atomic mutation,
+above the in-memory engine's 1,000-item limit. The corrected probe keeps that product
+limit unchanged, preloads every operational corpus through one bounded-batch helper,
+records `loadBatchSize`, and exercises a corpus larger than the limit in the JMH-only
+test gate. This attempt is not an experiment member or baseline candidate.
 
 The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
 data-disk permissions, and both remote bootstraps install `unzip`. Independent

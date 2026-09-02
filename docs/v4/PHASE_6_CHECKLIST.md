@@ -22,6 +22,8 @@ and paid evidence pending
 - [x] Measure WAL-only, checkpoint-only and checkpoint-plus-WAL open stages.
 - [x] Record document/index rebuild, WAL unit and byte identities.
 - [x] Run a bounded mixed reader/writer/checkpoint long-run cell.
+- [x] Preload every operational corpus in audited batches within the engine atomic
+  mutation bound.
 - [x] Require identical in-memory/durable logical checksums.
 - [x] Reject incomplete or internally contradictory performance evidence.
 

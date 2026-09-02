@@ -89,6 +89,7 @@ def validate_properties(
         "singleOperations",
         "bulkOperations",
         "bulkSize",
+        "loadBatchSize",
         "producers",
         "producerOperations",
         "longRunSeconds",

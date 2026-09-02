@@ -40,7 +40,9 @@ run records:
 The smoke profile is a correctness and plumbing gate only. The production profile
 freezes 100,000 documents, 1,000 single mutations, 100 bulks of 100 elements, sixteen
 group-commit producers, all three recovery sources and a caller-selected 30-minute or
-two-hour long run.
+two-hour long run. Corpus preloading is deliberately excluded from measured mutation
+latency and is split into deterministic batches no larger than the engine's 1,000-item
+atomic mutation bound. The evidence records that load-batch identity explicitly.
 
 ## Evidence validation
 
