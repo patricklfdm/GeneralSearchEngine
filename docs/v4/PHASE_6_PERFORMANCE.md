@@ -84,7 +84,10 @@ The shared WIF provider keeps repository, immutable owner/repository IDs, protec
 custom role adds only `compute.disks.use` and `compute.disks.delete` for the V4 retained
 disk lifecycle. Remote cold-start prerequisites explicitly include `unzip`, so the
 Maven Wrapper downloads and validates the pinned ZIP rather than falling back to a
-tarball under the ZIP checksum.
+tarball under the ZIP checksum. The GCS variable follows the existing repository
+contract and is one complete `gs://bucket` URI. A replacement VM normalizes ownership
+only on the dedicated failure-drill workspace before the byte inspector runs, because
+its ephemeral SSH account may not reuse the writer VM's numeric UID.
 
 ## Optimization decision
 

@@ -75,6 +75,17 @@ grep -q 'runStatus=%s' scripts/v4/run_durable_failure_drill.sh
 grep -q 'if:.*always()' .github/workflows/v4-durable-failure-drill.yml
 grep -q 'runStatus=NOT_STARTED' .github/workflows/v4-durable-failure-drill.yml
 grep -q 'python3 unzip' scripts/v4/remote_durable_failure.sh
+grep -q 'sudo chown -R' scripts/v4/remote_durable_failure.sh
+grep -q 'stdoutTail=' scripts/v4/durable_remote_failure.py
+for workflow in \
+  .github/workflows/v4-durable-performance.yml \
+  .github/workflows/v4-durable-failure-drill.yml; do
+  grep -q 'must be one exact gs://bucket URI' "$workflow"
+  if grep -Fq '"gs://$GSE_V4_GCS_BUCKET/' "$workflow"; then
+    echo "workflow duplicates the GCS URI scheme: $workflow" >&2
+    exit 1
+  fi
+done
 
 set +e
 env \

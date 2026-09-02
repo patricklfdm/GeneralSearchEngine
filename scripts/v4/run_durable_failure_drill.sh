@@ -126,8 +126,23 @@ run_half() {
     "$machine_type" "$GSE_V4_CLOUD_IMAGE" "$GSE_V4_GCP_ZONE" \
     "$GSE_V4_SOURCE_SHA" "$mode" "$mount_point" \
     /dev/disk/by-id/google-gse-v4-data "$workspace" 60)
-  gcloud compute ssh "$vm" --project="$GSE_V4_GCP_PROJECT" \
-    --zone="$GSE_V4_GCP_ZONE" --command="$command" --quiet
+  local log="$output/$mode-remote.log"
+  local status=0
+  if gcloud compute ssh "$vm" --project="$GSE_V4_GCP_PROJECT" \
+      --zone="$GSE_V4_GCP_ZONE" --command="$command" --quiet \
+      >"$log" 2>&1; then
+    status=0
+  else
+    status=$?
+  fi
+  if [[ $(wc -c <"$log") -gt 65536 ]]; then
+    tail -c 65536 "$log" >"$log.tail"
+    mv "$log.tail" "$log"
+  fi
+  if [[ $status -ne 0 ]]; then
+    cat "$log" >&2
+  fi
+  return "$status"
 }
 
 gcloud compute disks create "$disk" --project="$GSE_V4_GCP_PROJECT" \

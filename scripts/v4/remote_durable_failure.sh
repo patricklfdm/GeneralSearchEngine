@@ -30,7 +30,15 @@ if ! sudo blkid -s TYPE -o value "$device" | grep -qx ext4; then
 fi
 sudo install -d -m 0755 "$mount_point"
 sudo mount -o defaults "$device" "$mount_point"
-sudo chown "$(id -u):$(id -g)" "$mount_point"
+if [[ "$mode" = recover ]]; then
+  [[ -d "$workspace" ]] || { echo "recovery workspace is missing" >&2; exit 20; }
+  # The SSH account can receive a different numeric UID on the replacement VM.
+  # Normalize only the dedicated drill workspace; file contents remain untouched
+  # and are independently inspected before the recovery JVM opens the engine.
+  sudo chown -R "$(id -u):$(id -g)" "$workspace"
+else
+  sudo chown "$(id -u):$(id -g)" "$mount_point"
+fi
 
 repo="$HOME/GeneralSearchEngine"
 git init "$repo"
