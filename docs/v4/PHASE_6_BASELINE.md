@@ -92,6 +92,21 @@ limit unchanged, preloads every operational corpus through one bounded-batch hel
 records `loadBatchSize`, and exercises a corpus larger than the limit in the JMH-only
 test gate. This attempt is not an experiment member or baseline candidate.
 
+The corrected experiment then passed on exact protected-master source
+`a74b2d27498232b0440ea1856c1cee54a80a1c08` as run `33611955012`; its member and
+single-member experiment set both passed independent local validation, and its cleanup
+receipt reported the writer VM and persistent disk absent. The first preserved-disk
+drill on that source, run `33612817180`, failed closed when the replacement VM could
+inspect the writer's bytes but its recovery verifier could not reopen them. The
+replacement VM can receive a different numeric UID, so the remote recovery bootstrap
+now normalizes ownership only on the dedicated drill workspace before the independent
+content inspector and recovery JVM run. The same attempt also exposed that the existing
+Environment variable is already a complete `gs://bucket` URI; the V4 workflows no
+longer prepend a second scheme and now validate that exact contract. Its retained
+receipt recorded `runStatus=FAIL` with writer VM, recovery VM and persistent disk
+deletion all `PASS`, so it is not failure-drill acceptance evidence and left no paid
+resource behind.
+
 The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
 data-disk permissions, and both remote bootstraps install `unzip`. Independent
 post-run describes returned not-found for the VM and disk names from runs

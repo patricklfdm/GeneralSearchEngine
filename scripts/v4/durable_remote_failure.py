@@ -121,7 +121,12 @@ def recover(arguments: argparse.Namespace) -> int:
         timeout=arguments.timeout,
     )
     if verifier.returncode != 0:
-        raise EvidenceError("replacement-VM recovery verifier failed")
+        raise EvidenceError(
+            "replacement-VM recovery verifier failed "
+            f"with exit {verifier.returncode}; "
+            f"stdoutTail={verifier.stdout[-4096:]!r}; "
+            f"stderrTail={verifier.stderr[-4096:]!r}"
+        )
     recovered = parse_recovery(verifier.stdout)
     if recovered.get("status") != "PASS" \
             or recovered.get("recoveredSequence") != 1:

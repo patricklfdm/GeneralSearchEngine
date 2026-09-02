@@ -173,10 +173,13 @@ jobs:
       - name: Mirror canonical evidence to GCS
         if: ${{ always() && needs.preflight.outputs.retention == 'gcs' && steps.auth.outcome == 'success' && steps.gcloud.outcome == 'success' }}
         run: |
-          test -n "$GSE_V4_GCS_BUCKET"
+          [[ "$GSE_V4_GCS_BUCKET" =~ ^gs://[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]] || {
+            echo "GSE_V4_GCS_BUCKET must be one exact gs://bucket URI" >&2
+            exit 2
+          }
           gcloud storage cp --recursive \
             "$GSE_V4_OUTPUT" \
-            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/${GSE_V4_SLOT}/"
+            "${GSE_V4_GCS_BUCKET}/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/${GSE_V4_SLOT}/"
 
       - name: Upload bounded GitHub evidence mirror
         if: ${{ always() }}
@@ -246,10 +249,13 @@ jobs:
         env:
           GSE_V4_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
         run: |
-          test -n "$GSE_V4_GCS_BUCKET"
+          [[ "$GSE_V4_GCS_BUCKET" =~ ^gs://[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]] || {
+            echo "GSE_V4_GCS_BUCKET must be one exact gs://bucket URI" >&2
+            exit 2
+          }
           gcloud storage cp --recursive \
             "$RUNNER_TEMP/v4-durable-set" \
-            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/set/"
+            "${GSE_V4_GCS_BUCKET}/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/set/"
 
       - name: Upload validated set mirror
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

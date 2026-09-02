@@ -115,10 +115,13 @@ jobs:
       - name: Retain failure evidence and cleanup receipt in GCS
         if: ${{ always() && steps.auth.outcome == 'success' && steps.gcloud.outcome == 'success' }}
         run: |
-          test -n "$GSE_V4_GCS_BUCKET"
+          [[ "$GSE_V4_GCS_BUCKET" =~ ^gs://[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]] || {
+            echo "GSE_V4_GCS_BUCKET must be one exact gs://bucket URI" >&2
+            exit 2
+          }
           gcloud storage cp --recursive \
             "$GSE_V4_OUTPUT" \
-            "gs://$GSE_V4_GCS_BUCKET/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/failure-drill/"
+            "${GSE_V4_GCS_BUCKET}/v4-durable/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}/failure-drill/"
 
       - name: Upload bounded GitHub evidence mirror
         if: ${{ always() }}
