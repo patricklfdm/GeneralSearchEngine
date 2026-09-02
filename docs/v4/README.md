@@ -9,10 +9,13 @@ publication model.
 
 V4.0 Phase 0 is accepted on protected `master` through PR #77 at `d5a3253`. Phase 1
 is accepted at `8758106d30223cc1ad6c2faf66a2f0d1131d507c`; exact-master CI run
-`33578036261` passed. Phase 2 now implements the opt-in public durable surface,
-exclusive fresh-directory ownership, immutable storage identity, bounded framed WAL,
-contiguous sequences, group force and the production crash-barrier matrix. Recovery
-and authoritative reopen remain Phase 3 work; checkpoint execution remains Phase 4.
+`33578036261` passed. Phase 2 merged through protected PR #79 at `7056a5a` and supplies
+the opt-in durable surface, storage ownership, immutable identity, framed WAL,
+contiguous sequences, group force and writer crash barriers; its exact-master CI run
+`33583721019` passed. Phase 3 now implements authoritative
+WAL-only reopen, deterministic replay and index rebuild, strict tail/corruption
+classification, recovery barriers, differential oracles and fake-cloud failure-drill
+evidence. Checkpoint execution remains exclusively Phase 4 work.
 
 ## Contract map
 
@@ -34,6 +37,9 @@ and authoritative reopen remain Phase 3 work; checkpoint execution remains Phase
 - [Phase 2 storage and WAL format](PHASE_2_STORAGE_FORMAT.md)
 - [Phase 2 storage and WAL baseline](PHASE_2_BASELINE.md)
 - [Phase 2 checklist](PHASE_2_CHECKLIST.md)
+- [Phase 3 WAL-only recovery](PHASE_3_RECOVERY.md)
+- [Phase 3 local baseline](PHASE_3_BASELINE.md)
+- [Phase 3 checklist](PHASE_3_CHECKLIST.md)
 
 ## Authority
 

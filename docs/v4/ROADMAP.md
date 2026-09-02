@@ -39,18 +39,24 @@ contiguous committed sequences, bounded framed WAL records, checksums, atomic si
 and bulk units, group force, exact Future ordering, terminal writer failure, and
 format inspection tests.
 
-Phase 2 is in implementation from the accepted Phase 1 boundary. The additive durable
-API, fresh-store ownership, immutable metadata and generation header, framed logical
-units, force-before-publication coordinator, independent byte inspectors, and all ten
-production WAL crash barriers are implemented locally. Full reactor/release validation
-and protected acceptance remain open. Authoritative reopen/replay is intentionally not
-claimed before Phase 3.
+Phase 2 merged through protected PR #79 at
+`7056a5ad00d1f38757f984c51ad21d83ee922443`. The additive durable API, fresh-store
+ownership, immutable metadata and generation header, framed logical units,
+force-before-publication coordinator, independent byte inspectors, and all ten
+production WAL crash barriers form the Phase 3 storage boundary. The exact-master CI
+run `33583721019` passed on that protected merge.
 
 ### Phase 3 — recovery
 
 Implement startup validation, WAL-only bootstrap, deterministic replay, canonical
 slot and `nextDocId` restoration, derived-index rebuild, incomplete-tail handling,
 fail-closed corruption, and uninterrupted-versus-recovered differential tests.
+
+Phase 3 is in implementation. Authoritative WAL-only reopen, bounded two-pass scanning,
+tail truncation and force, canonical replay, derived-index reconstruction, three stable
+recovery barriers, independent corruption fixtures, uninterrupted-versus-recovered
+semantic comparison, and the local/fake-cloud failure-drill matrix are implemented.
+Checkpoint discovery and execution, generation rollover and cleanup remain absent.
 
 ### Phase 4 — checkpoints and bounded history
 

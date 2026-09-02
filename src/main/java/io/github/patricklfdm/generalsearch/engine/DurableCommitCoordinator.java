@@ -35,6 +35,12 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private final SearchSchema<T, K> schema;
     private final DurableStorageOwner storage;
     private final AtomicReference<DurabilityMetrics> metrics;
+    private final DurableRecovery.Result<K, T> recoveredState;
+    private final RecoverySource recoverySource;
+    private final long replayedRecords;
+    private final Duration recoveryDuration;
+    private final Duration indexRebuildDuration;
+    private final long truncatedTailBytes;
     private long allocatedSequence;
     private long publishedSequence;
     private boolean terminal;
@@ -43,28 +49,44 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private DurableCommitCoordinator(
             DurableStorageConfig<K, T> config,
             SearchSchema<T, K> schema,
-            DurableStorageOwner storage
+            DurableStorageOwner.OpenResult opened,
+            DurableRecovery.Result<K, T> recoveredState,
+            Duration totalRecoveryDuration
     ) {
         this.config = config;
         this.codec = config.codec();
         this.schema = schema;
-        this.storage = storage;
+        this.storage = opened.owner();
+        this.recoveredState = recoveredState;
+        recoverySource = opened.fresh()
+                ? RecoverySource.FRESH
+                : RecoverySource.WAL_ONLY;
+        replayedRecords = opened.fresh() ? 0 : recoveredState.replayedRecords();
+        recoveryDuration = opened.fresh()
+                ? Duration.ZERO
+                : totalRecoveryDuration;
+        indexRebuildDuration = opened.fresh()
+                ? Duration.ZERO
+                : recoveredState.indexRebuildDuration();
+        truncatedTailBytes = opened.truncatedBytes();
+        allocatedSequence = recoveredState.sequence();
+        publishedSequence = recoveredState.sequence();
         metrics = new AtomicReference<>(new DurabilityMetrics(
                 DurabilityStatus.OPEN,
-                0,
+                publishedSequence,
                 0,
                 DurableWal.GENERATION,
-                0,
+                recoveredState.replayedRecords(),
                 storage.wal().position(),
                 storage.retainedBytes(),
-                RecoverySource.FRESH,
-                0,
-                Duration.ZERO,
-                Duration.ZERO,
+                recoverySource,
+                replayedRecords,
+                recoveryDuration,
+                indexRebuildDuration,
                 Optional.empty()));
     }
 
-    static <K, T> DurableCommitCoordinator<K, T> createFresh(
+    static <K, T> DurableCommitCoordinator<K, T> open(
             DurableStorageConfig<K, T> config,
             SnapshotEngineConfig engineConfig,
             SearchSchema<T, K> schema,
@@ -80,6 +102,11 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         List<DurableIndexDescriptor> indexes = startupDefinitions.stream()
                 .map(DurableIndexDescriptor::from)
                 .toList();
+        if (new java.util.HashSet<>(indexes).size() != indexes.size()) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.INCOMPATIBLE_STORAGE,
+                    "durable startup index configuration contains a duplicate");
+        }
         String codecId;
         int codecVersion;
         try {
@@ -92,16 +119,29 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 || codecVersion < 0) {
             throw codecFailure("codec identity changed after configuration", null);
         }
-        DurableStorageOwner owner = DurableStorageOwner.createFresh(
+        long recoveryStarted = System.nanoTime();
+        DurableStorageOwner.OpenResult opened = DurableStorageOwner.open(
                 config,
                 codecId,
                 codecVersion,
                 indexes);
         try {
-            return new DurableCommitCoordinator<>(config, schema, owner);
+            DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(
+                    config,
+                    schema,
+                    indexes,
+                    opened.owner().wal(),
+                    !opened.fresh());
+            return new DurableCommitCoordinator<>(
+                    config,
+                    schema,
+                    opened,
+                    recovered,
+                    Duration.ofNanos(Math.max(
+                            0L, System.nanoTime() - recoveryStarted)));
         } catch (RuntimeException | Error failure) {
             try {
-                owner.close();
+                opened.owner().close();
             } catch (RuntimeException closeFailure) {
                 failure.addSuppressed(closeFailure);
             }
@@ -289,6 +329,21 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         return metrics.get().currentSequence();
     }
 
+    DurableRecovery.Result<K, T> recoveredState() {
+        return recoveredState;
+    }
+
+    long truncatedTailBytes() {
+        return truncatedTailBytes;
+    }
+
+    void beforeReadyPublication() {
+        if (recoverySource != RecoverySource.FRESH) {
+            DurableCrashHooks.reach(
+                    "v4-recovery-before-ready-publication-v1");
+        }
+    }
+
     DurabilityMetrics metrics() {
         return metrics.get();
     }
@@ -453,10 +508,10 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 walRecords,
                 walBytes,
                 retainedBytes,
-                RecoverySource.FRESH,
-                0,
-                Duration.ZERO,
-                Duration.ZERO,
+                recoverySource,
+                replayedRecords,
+                recoveryDuration,
+                indexRebuildDuration,
                 Optional.empty()));
     }
 

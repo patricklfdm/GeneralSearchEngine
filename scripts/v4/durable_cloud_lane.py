@@ -24,6 +24,8 @@ def fake_run(arguments: argparse.Namespace) -> int:
     if arguments.output.exists():
         raise EvidenceError("fake-cloud output already exists")
     slots = PROFILES[arguments.profile]
+    phase = getattr(arguments, "phase", "phase1-scaffold")
+    production_recovery = phase == "phase3-recovery"
     lifecycle = [
         "plan-validated",
         "budget-accepted",
@@ -63,18 +65,29 @@ def fake_run(arguments: argparse.Namespace) -> int:
             "mountOptions": "defaults",
             "diskSizeGiB": 100,
             "maximumCostUsd": 0,
-            "codecIdentity": "PHASE1_NONE",
-            "schemaIdentity": "PHASE1_SCAFFOLD_V1",
-            "storageIdentity": "PHASE1_FAKE_PERSISTENT_DISK",
+            "codecIdentity": "phase2-crash-codec-v1"
+            if production_recovery else "PHASE1_NONE",
+            "schemaIdentity": "phase2-crash-schema-v1"
+            if production_recovery else "PHASE1_SCAFFOLD_V1",
+            "storageIdentity": "phase2-crash-store-v1"
+            if production_recovery else "PHASE1_FAKE_PERSISTENT_DISK",
         },
         "case": {
-            "caseId": f"phase1-fake-cloud-{arguments.profile}",
+            "caseId": f"{phase}-fake-cloud-{arguments.profile}",
             "seed": 0,
-            "barrierId": "phase1-fake-writer-barrier-v1",
+            "barrierId": "v4-wal-after-force-v1"
+            if production_recovery else "phase1-fake-writer-barrier-v1",
             "acknowledgement": "SIMULATED",
         },
-        "submittedHistory": [],
-        "futureOutcomes": [],
+        "submittedHistory": [{
+            "unit": "ADD",
+            "key": "doc-1",
+            "elementCount": 1,
+        }] if production_recovery else [],
+        "futureOutcomes": [{
+            "unit": 1,
+            "outcome": "INCOMPLETE_AT_CRASH",
+        }] if production_recovery else [],
         "process": {
             "writerVm": "SIMULATED",
             "recoveryVm": "SIMULATED",
@@ -85,13 +98,18 @@ def fake_run(arguments: argparse.Namespace) -> int:
         "inspection": {
             "persistentDiskSurvivedWriter": True,
             "bootDiskUsedAsEvidence": False,
-            "storageBytes": "PHASE1_NONE",
+            "storageBytes": "PHASE3_VALID_WAL_PREFIX"
+            if production_recovery else "PHASE1_NONE",
         },
         "recovery": {
             "verifier": "fake-control-plane",
             "status": "PASS",
-            "metrics": {},
-            "result": "SIMULATED",
+            "metrics": {
+                "recoveredSequence": 1,
+                "replayedRecords": 1,
+            } if production_recovery else {},
+            "result": "SIMULATED_PHASE3_RECOVERY"
+            if production_recovery else "SIMULATED",
         },
         "logs": {
             "stdoutTail": "",
@@ -101,6 +119,8 @@ def fake_run(arguments: argparse.Namespace) -> int:
         "cleanup": {
             "status": "PASS",
             "leftovers": [],
+            "phase": phase,
+            "productionRecovery": production_recovery,
             "verified": True,
         },
         "lifecycle": lifecycle,
@@ -125,6 +145,11 @@ def main() -> int:
     parser.add_argument("--source-sha", required=True)
     parser.add_argument("--source-state", choices=("clean", "dirty"), required=True)
     parser.add_argument("--profile", choices=sorted(PROFILES), required=True)
+    parser.add_argument(
+        "--phase",
+        choices=("phase1-scaffold", "phase3-recovery"),
+        default="phase1-scaffold",
+    )
     arguments = parser.parse_args()
     validate_source_commit(arguments.source_sha)
     return fake_run(arguments)

@@ -70,6 +70,7 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     private final ExecutorService indexBuildExecutor;
     private final Thread writerThread;
     private final DurableCommitCoordinator<K, T> durability;
+    private final long snapshotVersionBase;
     private final Object lifecycleMonitor = new Object();
     private final Object searchCursorOwnerToken = new Object();
 
@@ -126,9 +127,19 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         this.schema = Objects.requireNonNull(schema, "schema");
         this.durability = durability;
         validateIndexDefinitions(indexDefinitions);
-        SearchSnapshot<T> emptySnapshot = new SearchSnapshot<>(indexDefinitions);
-        this.current = new AtomicReference<>(
-                new PublishedState<>(emptySnapshot, Map.of(), 0));
+        DurableRecovery.Result<K, T> recovered = durability == null
+                ? null
+                : durability.recoveredState();
+        SearchSnapshot<T> initialSnapshot = recovered == null
+                ? new SearchSnapshot<>(indexDefinitions)
+                : recovered.snapshot();
+        this.current = new AtomicReference<>(recovered == null
+                ? new PublishedState<>(initialSnapshot, Map.of(), 0)
+                : new PublishedState<>(
+                        initialSnapshot,
+                        recovered.documentIds(),
+                        recovered.nextDocId()));
+        snapshotVersionBase = recovered == null ? 0 : initialSnapshot.version();
         this.queue = new LinkedBlockingQueue<>(config.queueCapacity());
         this.candidatePlanner = new CandidatePlanner<>(plannerConfig);
         this.searcher = new SnapshotSearcher<>(candidatePlanner);
@@ -145,6 +156,9 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 this::writerLoop,
                 "snapshot-search-writer-" + schema.documentType().getSimpleName()
         );
+        if (durability != null) {
+            durability.beforeReadyPublication();
+        }
         this.writerThread.start();
     }
 
@@ -323,11 +337,11 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                         build.buildId(),
                         build.fieldName(),
                         build.indexType(),
-                        build.baseSnapshotVersion(),
+                        processSnapshotVersion(build.baseSnapshotVersion()),
                         elapsed(build.startedNanos(), observedAt)))
                 .toList();
         return new SearchEngineMetrics(
-                state.snapshot().version(),
+                processSnapshotVersion(state.snapshot().version()),
                 state.snapshot().activeDocuments().cardinality(),
                 state.snapshot().indexes().indexes().size(),
                 queue.size(),
@@ -352,6 +366,10 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
 
     Integer internalDocIdForTesting(K id) {
         return current.get().documentIds().get(id);
+    }
+
+    private long processSnapshotVersion(long internalVersion) {
+        return Math.subtractExact(internalVersion, snapshotVersionBase);
     }
 
     private CompletableFuture<Void> submit(WriterTask<K, T> task) {
@@ -1136,7 +1154,7 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             if (documentIds.containsKey(id)) {
                 throw new DocumentAlreadyExistsException(id);
             }
-            if (nextDocId < 0) {
+            if (nextDocId < 0 || nextDocId == Integer.MAX_VALUE) {
                 throw new IllegalStateException("internal document id space is exhausted");
             }
             int docId = nextDocId++;

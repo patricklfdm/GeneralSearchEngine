@@ -22,6 +22,7 @@ from scripts.v4.evidence import (
 from scripts.v4.storage_inspector import (
     inspect_phase1_directory,
     inspect_phase2_directory,
+    inspect_phase3_directory,
 )
 
 PROCESS_CLASS = (
@@ -60,7 +61,8 @@ def run_case(arguments: argparse.Namespace) -> int:
             if arguments.termination == "internal-halt" else "child-wait"
         java_options: list[str] = []
     else:
-        mode = "phase2-write"
+        mode = "phase3-open-crash" \
+            if scenario == "phase3-open-recovery" else "phase2-write"
         action = "halt" \
             if arguments.termination == "internal-halt" else "wait"
         java_options = [
@@ -104,11 +106,18 @@ def run_case(arguments: argparse.Namespace) -> int:
         raise EvidenceError(
             f"unexpected abrupt child exit: {child.returncode}, expected {expected_exit}"
         )
-    inspection = inspect_phase1_directory(child_workspace, arguments.barrier) \
-        if scenario == "phase1-scaffold" \
-        else inspect_phase2_directory(child_workspace)
-    recovery_mode = "recover" \
-        if scenario == "phase1-scaffold" else "phase2-verify"
+    if scenario == "phase1-scaffold":
+        inspection = inspect_phase1_directory(child_workspace, arguments.barrier)
+    elif scenario == "phase2-wal":
+        inspection = inspect_phase2_directory(child_workspace)
+    else:
+        inspection = inspect_phase3_directory(child_workspace)
+    recovery_mode = {
+        "phase1-scaffold": "recover",
+        "phase2-wal": "phase2-verify",
+        "phase3-recovery": "phase3-recover",
+        "phase3-open-recovery": "phase3-recover",
+    }[scenario]
     recovery = subprocess.run(
         [
             arguments.java,
@@ -129,26 +138,49 @@ def run_case(arguments: argparse.Namespace) -> int:
     if recovery.returncode != 0 or not recovery_line.startswith(recovery_prefix):
         raise EvidenceError("separate recovery JVM failed")
     recovered = json.loads(recovery_line[len(recovery_prefix):])
-    expected_recovery = "PASS" \
-        if scenario == "phase1-scaffold" else "DEFERRED_PHASE3"
+    expected_recovery = "DEFERRED_PHASE3" \
+        if scenario == "phase2-wal" else "PASS"
     if recovered.get("status") != expected_recovery:
         raise EvidenceError("recovery verifier did not pass")
-    expected_sequence = expected_phase2_sequence(arguments.barrier) \
+    expected_sequence = expected_wal_sequence(arguments.barrier) \
         if scenario == "phase2-wal" else 0
+    if scenario in {"phase3-recovery", "phase3-open-recovery"}:
+        expected_sequence = expected_wal_sequence(arguments.barrier)
     inspected_sequence = inspection.get("wal", {}).get(
         "lastCompleteSequence", 0)
     if inspected_sequence != expected_sequence:
         raise EvidenceError(
             f"durable-prefix mismatch: expected {expected_sequence}, "
             f"inspected {inspected_sequence}")
+    if scenario in {"phase3-recovery", "phase3-open-recovery"}:
+        if recovered.get("recoveredSequence") != expected_sequence:
+            raise EvidenceError("production recovery sequence mismatch")
+        if recovered.get("continuedSequence") != expected_sequence + 1:
+            raise EvidenceError("post-recovery continued sequence mismatch")
+        if recovered.get("replayedRecords") != expected_sequence:
+            raise EvidenceError("production replay metric mismatch")
+        expected_truncation = scenario == "phase3-recovery" and \
+            arguments.barrier in {
+            "v4-wal-partial-header-v1",
+            "v4-wal-partial-payload-v1",
+            "v4-wal-partial-trailer-v1",
+        }
+        truncated_bytes = recovered.get("tailTruncatedBytes")
+        if expected_truncation != (isinstance(truncated_bytes, int)
+                                  and truncated_bytes > 0):
+            raise EvidenceError("production tail-truncation diagnostic mismatch")
     finished = time.time_ns()
     device_id = os.stat(child_workspace).st_dev
     shutil.rmtree(child_workspace)
     if child_workspace.exists():
         raise EvidenceError("engine workspace cleanup failed")
     evidence = {
-        "kind": "local-crash-scaffold" if scenario == "phase1-scaffold"
-        else "local-phase2-wal-crash",
+        "kind": {
+            "phase1-scaffold": "local-crash-scaffold",
+            "phase2-wal": "local-phase2-wal-crash",
+            "phase3-recovery": "local-phase3-recovery-crash",
+            "phase3-open-recovery": "local-phase3-recovery-crash",
+        }[scenario],
         "status": "PASS",
         "sourceCommit": arguments.source_sha,
         "environment": {
@@ -200,7 +232,11 @@ def run_case(arguments: argparse.Namespace) -> int:
         "recovery": {
             "verifier": "separate-jvm",
             "status": recovered["status"],
-            "metrics": {},
+            "metrics": {
+                "recoveredSequence": recovered.get("recoveredSequence", 0),
+                "replayedRecords": recovered.get("replayedRecords", 0),
+                "tailTruncatedBytes": recovered.get("tailTruncatedBytes", 0),
+            },
             "result": recovered,
         },
         "logs": {
@@ -224,11 +260,14 @@ def run_case(arguments: argparse.Namespace) -> int:
             "engine-workspace-deleted",
         ],
         "result": {
-            "oracle": "PHASE1_NO_PRODUCTION_HISTORY"
-            if scenario == "phase1-scaffold"
-            else "PHASE2_INSPECTED_DURABLE_PREFIX",
+            "oracle": {
+                "phase1-scaffold": "PHASE1_NO_PRODUCTION_HISTORY",
+                "phase2-wal": "PHASE2_INSPECTED_DURABLE_PREFIX",
+                "phase3-recovery": "PHASE3_RECOVERED_DURABLE_PREFIX",
+                "phase3-open-recovery": "PHASE3_RECOVERY_RESTART_PREFIX",
+            }[scenario],
             "oracleMatched": True,
-            "productionStorage": scenario == "phase2-wal",
+            "productionStorage": scenario != "phase1-scaffold",
             "expectedDurableSequence": expected_sequence,
         },
     }
@@ -253,8 +292,11 @@ def record_failed_case(arguments: argparse.Namespace, failure: BaseException) ->
         cleanup_status = "FAIL"
         cleanup_failure = str(problem)
     evidence = {
-        "kind": "local-crash-scaffold" if phase1
-        else "local-phase2-wal-crash",
+        "kind": "local-crash-scaffold" if phase1 else (
+            "local-phase3-recovery-crash"
+            if scenario in {"phase3-recovery", "phase3-open-recovery"}
+            else "local-phase2-wal-crash"
+        ),
         "status": "FAIL",
         "sourceCommit": arguments.source_sha,
         "environment": {
@@ -349,7 +391,12 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--source-state", choices=("clean", "dirty"), required=True)
     run.add_argument(
         "--scenario",
-        choices=("phase1-scaffold", "phase2-wal"),
+        choices=(
+            "phase1-scaffold",
+            "phase2-wal",
+            "phase3-recovery",
+            "phase3-open-recovery",
+        ),
         default="phase1-scaffold",
     )
     run.add_argument("--barrier", default="phase1-scaffold-v1")
@@ -374,7 +421,7 @@ def validate_command(directory: Path) -> int:
     return 0
 
 
-def expected_phase2_sequence(barrier: str) -> int:
+def expected_wal_sequence(barrier: str) -> int:
     zero_sequence = {
         "v4-wal-before-sequence-v1",
         "v4-wal-after-sequence-v1",
@@ -388,12 +435,15 @@ def expected_phase2_sequence(barrier: str) -> int:
         "v4-wal-before-publication-v1",
         "v4-wal-after-publication-v1",
         "v4-wal-before-future-completion-v1",
+        "v4-recovery-after-tail-truncate-v1",
+        "v4-recovery-after-replay-v1",
+        "v4-recovery-before-ready-publication-v1",
     }
     if barrier in zero_sequence:
         return 0
     if barrier in one_sequence:
         return 1
-    raise EvidenceError(f"unsupported Phase 2 barrier: {barrier}")
+    raise EvidenceError(f"unsupported WAL barrier: {barrier}")
 
 
 def main() -> int:

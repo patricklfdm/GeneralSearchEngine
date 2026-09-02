@@ -6,8 +6,10 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.zip.CRC32C;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 
@@ -28,10 +30,13 @@ final class DurableWal implements AutoCloseable {
     private static final short FORMAT_MINOR = 0;
 
     private final FileChannel channel;
+    private final UUID historyId;
     private long records;
 
-    private DurableWal(FileChannel channel) {
+    private DurableWal(FileChannel channel, UUID historyId, long records) {
         this.channel = channel;
+        this.historyId = java.util.Objects.requireNonNull(historyId, "historyId");
+        this.records = records;
     }
 
     static DurableWal create(Path path, UUID historyId) throws IOException {
@@ -46,7 +51,49 @@ final class DurableWal implements AutoCloseable {
             writeFully(channel, header);
             channel.force(true);
             success = true;
-            return new DurableWal(channel);
+            return new DurableWal(channel, historyId, 0);
+        } finally {
+            if (!success) {
+                channel.close();
+            }
+        }
+    }
+
+    static OpenResult open(Path path, UUID expectedHistoryId) throws IOException {
+        FileChannel channel = FileChannel.open(
+                path,
+                StandardOpenOption.READ,
+                StandardOpenOption.WRITE);
+        boolean success = false;
+        try {
+            long physicalBytes = channel.size();
+            if (physicalBytes < GENERATION_HEADER_BYTES) {
+                throw corrupt("WAL generation header is truncated", null);
+            }
+            ByteBuffer generation = readFully(
+                    channel, 0, GENERATION_HEADER_BYTES);
+            validateGenerationHeader(generation.array(), expectedHistoryId);
+
+            Scan scan = scan(channel, physicalBytes, true, null);
+
+            long truncatedBytes = 0;
+            if (scan.incompleteTail()) {
+                truncatedBytes = physicalBytes - scan.boundary();
+                channel.truncate(scan.boundary());
+                channel.force(true);
+                DurableCrashHooks.reach(
+                        "v4-recovery-after-tail-truncate-v1");
+            }
+            channel.position(scan.boundary());
+            DurableWal wal = new DurableWal(
+                    channel, expectedHistoryId, scan.records());
+            success = true;
+            return new OpenResult(
+                    wal,
+                    scan.records(),
+                    truncatedBytes);
+        } catch (ArithmeticException failure) {
+            throw corrupt("WAL byte offset overflow", failure);
         } finally {
             if (!success) {
                 channel.close();
@@ -92,6 +139,33 @@ final class DurableWal implements AutoCloseable {
             throw new DurabilityException(
                     DurabilityException.Reason.IO_FAILURE,
                     "WAL position lookup failed",
+                    failure);
+        }
+    }
+
+    long records() {
+        return records;
+    }
+
+    void forEachFrame(Consumer<Frame> consumer) {
+        try {
+            ByteBuffer generation = readFully(
+                    channel, 0, GENERATION_HEADER_BYTES);
+            validateGenerationHeader(generation.array(), historyId);
+            Scan replay = scan(
+                    channel,
+                    channel.position(),
+                    false,
+                    java.util.Objects.requireNonNull(consumer, "consumer"));
+            if (replay.records() != records) {
+                throw corrupt("WAL record count changed during recovery", null);
+            }
+        } catch (DurabilityException failure) {
+            throw failure;
+        } catch (IOException failure) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.STORAGE_ACCESS,
+                    "WAL replay read failed",
                     failure);
         }
     }
@@ -164,6 +238,218 @@ final class DurableWal implements AutoCloseable {
         return header;
     }
 
+    private static void validateGenerationHeader(
+            byte[] encoded,
+            UUID expectedHistoryId
+    ) {
+        CRC32C checksum = new CRC32C();
+        checksum.update(encoded, 0, GENERATION_HEADER_BYTES - Integer.BYTES);
+        ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
+        long magic = header.getLong();
+        short major = header.getShort();
+        short minor = header.getShort();
+        UUID historyId = new UUID(header.getLong(), header.getLong());
+        long generation = header.getLong();
+        long firstSequence = header.getLong();
+        int storedChecksum = header.getInt();
+        if ((int) checksum.getValue() != storedChecksum) {
+            throw corrupt("WAL generation header checksum mismatch", null);
+        }
+        if (magic != WAL_MAGIC || major != FORMAT_MAJOR || minor != FORMAT_MINOR) {
+            throw corrupt("WAL generation format identity is invalid", null);
+        }
+        if (!historyId.equals(expectedHistoryId)) {
+            throw corrupt("WAL generation belongs to another history", null);
+        }
+        if (generation != GENERATION || firstSequence != 1L) {
+            throw corrupt("WAL generation identity is invalid", null);
+        }
+    }
+
+    private static Scan scan(
+            FileChannel channel,
+            long physicalBytes,
+            boolean allowIncompleteTail,
+            Consumer<Frame> consumer
+    ) throws IOException {
+        long boundary = GENERATION_HEADER_BYTES;
+        long expectedSequence = 1;
+        long records = 0;
+        while (boundary < physicalBytes) {
+            long remaining = physicalBytes - boundary;
+            if (remaining < FRAME_HEADER_BYTES) {
+                byte[] prefix = readFully(
+                        channel, boundary, Math.toIntExact(remaining)).array();
+                validateIncompleteHeaderPrefix(prefix, expectedSequence);
+                if (!allowIncompleteTail) {
+                    throw corrupt("WAL became truncated during recovery", null);
+                }
+                return new Scan(boundary, records, true);
+            }
+
+            byte[] headerBytes = readFully(
+                    channel, boundary, FRAME_HEADER_BYTES).array();
+            FrameHeader header = decodeFrameHeader(headerBytes, expectedSequence);
+            if (remaining < header.frameLength()) {
+                if (!allowIncompleteTail) {
+                    throw corrupt("WAL became truncated during recovery", null);
+                }
+                return new Scan(boundary, records, true);
+            }
+
+            byte[] payload = readFully(
+                    channel,
+                    boundary + FRAME_HEADER_BYTES,
+                    header.payloadLength()).array();
+            int storedChecksum = readFully(
+                    channel,
+                    boundary + FRAME_HEADER_BYTES + header.payloadLength(),
+                    FRAME_TRAILER_BYTES).getInt();
+            CRC32C checksum = new CRC32C();
+            checksum.update(headerBytes, 0, headerBytes.length);
+            checksum.update(payload, 0, payload.length);
+            if ((int) checksum.getValue() != storedChecksum) {
+                throw corrupt(
+                        "WAL frame checksum mismatch at sequence "
+                                + expectedSequence,
+                        null);
+            }
+            if (consumer != null) {
+                consumer.accept(new Frame(
+                        expectedSequence,
+                        header.type(),
+                        payload));
+            }
+            records = Math.incrementExact(records);
+            boundary = Math.addExact(boundary, header.frameLength());
+            if (expectedSequence == Long.MAX_VALUE) {
+                if (boundary != physicalBytes) {
+                    throw corrupt("WAL sequence space contains an overflow", null);
+                }
+            } else {
+                expectedSequence++;
+            }
+        }
+        return new Scan(boundary, records, false);
+    }
+
+    private static FrameHeader decodeFrameHeader(
+            byte[] encoded,
+            long expectedSequence
+    ) {
+        ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
+        int magic = header.getInt();
+        short major = header.getShort();
+        short minor = header.getShort();
+        int frameLength = header.getInt();
+        long sequence = header.getLong();
+        byte type = header.get();
+        byte flags = header.get();
+        short reserved = header.getShort();
+        int payloadLength = header.getInt();
+        if (magic != FRAME_MAGIC || major != FORMAT_MAJOR || minor != FORMAT_MINOR) {
+            throw corrupt("WAL frame format identity is invalid", null);
+        }
+        if (frameLength < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES
+                || frameLength > MAX_FRAME_BYTES
+                || payloadLength < 0
+                || frameLength != FRAME_HEADER_BYTES
+                        + (long) payloadLength
+                        + FRAME_TRAILER_BYTES) {
+            throw corrupt("WAL frame length relation is invalid", null);
+        }
+        if (sequence != expectedSequence) {
+            throw corrupt(
+                    "WAL sequence is not contiguous: expected "
+                            + expectedSequence + " but was " + sequence,
+                    null);
+        }
+        if (type < SINGLE || type > INDEX_DROP || flags != 0 || reserved != 0) {
+            throw corrupt("WAL frame type, flags, or reserved bytes are invalid", null);
+        }
+        return new FrameHeader(frameLength, type, payloadLength);
+    }
+
+    private static void validateIncompleteHeaderPrefix(
+            byte[] prefix,
+            long expectedSequence
+    ) {
+        ByteBuffer stable = ByteBuffer.allocate(FRAME_HEADER_BYTES)
+                .order(ByteOrder.BIG_ENDIAN);
+        stable.putInt(FRAME_MAGIC);
+        stable.putShort(FORMAT_MAJOR);
+        stable.putShort(FORMAT_MINOR);
+        byte[] stableBytes = stable.array();
+        int stablePrefix = Math.min(prefix.length, 8);
+        if (!Arrays.equals(
+                Arrays.copyOf(prefix, stablePrefix),
+                Arrays.copyOf(stableBytes, stablePrefix))) {
+            throw corrupt("incomplete WAL header has an invalid format prefix", null);
+        }
+        if (prefix.length >= 12) {
+            int frameLength = ByteBuffer.wrap(prefix, 8, 4)
+                    .order(ByteOrder.BIG_ENDIAN)
+                    .getInt();
+            if (frameLength < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES
+                    || frameLength > MAX_FRAME_BYTES) {
+                throw corrupt("incomplete WAL header has an invalid frame length", null);
+            }
+        }
+        byte[] sequenceBytes = ByteBuffer.allocate(Long.BYTES)
+                .order(ByteOrder.BIG_ENDIAN)
+                .putLong(expectedSequence)
+                .array();
+        int availableSequenceBytes = Math.min(
+                Long.BYTES, Math.max(0, prefix.length - 12));
+        for (int index = 0; index < availableSequenceBytes; index++) {
+            if (prefix[12 + index] != sequenceBytes[index]) {
+                throw corrupt("incomplete WAL header has an invalid sequence", null);
+            }
+        }
+        if (prefix.length >= 21) {
+            byte type = prefix[20];
+            if (type < SINGLE || type > INDEX_DROP) {
+                throw corrupt("incomplete WAL header has an invalid type", null);
+            }
+        }
+        if (prefix.length >= 22 && prefix[21] != 0) {
+            throw corrupt("incomplete WAL header has non-zero flags", null);
+        }
+        if ((prefix.length >= 23 && prefix[22] != 0)
+                || (prefix.length >= 24 && prefix[23] != 0)) {
+            throw corrupt("incomplete WAL header has non-zero reserved bytes", null);
+        }
+    }
+
+    private static ByteBuffer readFully(
+            FileChannel source,
+            long position,
+            int length
+    ) throws IOException {
+        ByteBuffer bytes = ByteBuffer.allocate(length).order(ByteOrder.BIG_ENDIAN);
+        long cursor = position;
+        while (bytes.hasRemaining()) {
+            int read = source.read(bytes, cursor);
+            if (read < 0) {
+                throw corrupt("WAL changed while it was being read", null);
+            }
+            if (read == 0) {
+                throw new IOException("WAL read made no progress");
+            }
+            cursor += read;
+        }
+        bytes.flip();
+        return bytes;
+    }
+
+    private static DurabilityException corrupt(String message, Throwable cause) {
+        return cause == null
+                ? new DurabilityException(
+                        DurabilityException.Reason.CORRUPT_WAL, message)
+                : new DurabilityException(
+                        DurabilityException.Reason.CORRUPT_WAL, message, cause);
+    }
+
     private static void writeFully(FileChannel destination, ByteBuffer bytes)
             throws IOException {
         while (bytes.hasRemaining()) {
@@ -180,5 +466,33 @@ final class DurableWal implements AutoCloseable {
     }
 
     record AppendResult(long appendedBytes, long walBytes, long records) {
+    }
+
+    record Frame(long sequence, byte type, byte[] payload) {
+        Frame {
+            if (sequence <= 0 || type < SINGLE || type > INDEX_DROP) {
+                throw new IllegalArgumentException("invalid WAL frame");
+            }
+            java.util.Objects.requireNonNull(payload, "payload");
+        }
+    }
+
+    record OpenResult(
+            DurableWal wal,
+            long records,
+            long truncatedBytes
+    ) {
+        OpenResult {
+            if (records < 0 || truncatedBytes < 0) {
+                throw new IllegalArgumentException(
+                        "WAL open counts must not be negative");
+            }
+        }
+    }
+
+    private record FrameHeader(int frameLength, byte type, int payloadLength) {
+    }
+
+    private record Scan(long boundary, long records, boolean incompleteTail) {
     }
 }

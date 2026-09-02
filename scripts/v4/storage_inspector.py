@@ -120,6 +120,12 @@ def inspect_phase2_directory(workspace: Path) -> dict[str, object]:
     }
 
 
+def inspect_phase3_directory(workspace: Path) -> dict[str, object]:
+    result = inspect_phase2_directory(workspace)
+    result["classification"] = "PHASE3_WAL_ONLY_RECOVERY_INPUT"
+    return result
+
+
 def inspect_metadata(path: Path) -> dict[str, object]:
     data = path.read_bytes()
     if len(data) < 4 or crc32c(data[:-4]) != struct.unpack(">I", data[-4:])[0]:
@@ -143,7 +149,7 @@ def inspect_metadata(path: Path) -> dict[str, object]:
             or limits[5] <= limits[4]):
         raise EvidenceError("metadata codec or limits are invalid")
     (index_count,) = cursor.unpack(">i")
-    if index_count < 0 or index_count > 1_000_000:
+    if index_count < 0 or index_count > 100_000:
         raise EvidenceError("metadata index count is invalid")
     indexes: list[dict[str, object]] = []
     for _ in range(index_count):
@@ -319,14 +325,18 @@ def inspect_mutation(cursor: Cursor, metadata: dict[str, object]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("directory", type=Path)
-    parser.add_argument("--phase", choices=("phase1", "phase2"), default="phase1")
+    parser.add_argument(
+        "--phase", choices=("phase1", "phase2", "phase3"), default="phase1")
     parser.add_argument("--barrier")
     arguments = parser.parse_args()
     if arguments.phase == "phase1" and not arguments.barrier:
         raise EvidenceError("Phase 1 inspection requires --barrier")
-    result = inspect_phase1_directory(arguments.directory, arguments.barrier) \
-        if arguments.phase == "phase1" else inspect_phase2_directory(
-            arguments.directory)
+    if arguments.phase == "phase1":
+        result = inspect_phase1_directory(arguments.directory, arguments.barrier)
+    elif arguments.phase == "phase2":
+        result = inspect_phase2_directory(arguments.directory)
+    else:
+        result = inspect_phase3_directory(arguments.directory)
     print(json.dumps(
         result,
         sort_keys=True,

@@ -6,7 +6,7 @@ import java.util.concurrent.locks.LockSupport;
 final class DurableCrashHooks {
     static final String BARRIER_PROPERTY = "gse.v4.crashBarrier";
     static final String ACTION_PROPERTY = "gse.v4.crashAction";
-    static final Set<String> PHASE_2_BARRIERS = Set.of(
+    static final Set<String> BARRIERS = Set.of(
             "v4-wal-before-sequence-v1",
             "v4-wal-after-sequence-v1",
             "v4-wal-partial-header-v1",
@@ -16,7 +16,10 @@ final class DurableCrashHooks {
             "v4-wal-after-force-v1",
             "v4-wal-before-publication-v1",
             "v4-wal-after-publication-v1",
-            "v4-wal-before-future-completion-v1"
+            "v4-wal-before-future-completion-v1",
+            "v4-recovery-after-tail-truncate-v1",
+            "v4-recovery-after-replay-v1",
+            "v4-recovery-before-ready-publication-v1"
     );
 
     private DurableCrashHooks() {
@@ -30,7 +33,7 @@ final class DurableCrashHooks {
         if (!active(barrierId)) {
             return;
         }
-        if (!PHASE_2_BARRIERS.contains(barrierId)) {
+        if (!BARRIERS.contains(barrierId)) {
             throw new IllegalArgumentException("unsupported V4 crash barrier");
         }
         long pid = ProcessHandle.current().pid();
