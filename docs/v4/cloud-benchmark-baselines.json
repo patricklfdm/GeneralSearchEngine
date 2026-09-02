@@ -1,1 +1,1 @@
-{"baselines":[],"schemaVersion":"gse-v4-durable-baseline-registry-v1"}
+{"baselines":[{"memberCount":3,"name":"v4.0.0-durable-cloud","preset":"v4.0-durable-single-node-v1","setDigest":"5e71ae200f94f5713278db7312057c4454fb73e18d159f78e71c31a92c44abbf","sourceCommit":"fe2060b9a872e66ff0067be6e8b7c900f0099708","suite":"v4.0-durable-single-node-suite-v1"}],"schemaVersion":"gse-v4-durable-baseline-registry-v1"}

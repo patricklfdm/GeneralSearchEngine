@@ -12,7 +12,7 @@ The evidence family remains:
 
 - suite `v4.0-durable-single-node-suite-v1`;
 - preset `v4.0-durable-single-node-v1`; and
-- eventual baseline `v4.0.0-durable-cloud`.
+- registered baseline `v4.0.0-durable-cloud`.
 
 Published `v3.4.0-in-memory-cloud` remains immutable comparison input. V4 evidence is
 stored in a separate registry and never overwrites, relabels or joins a V3 set.

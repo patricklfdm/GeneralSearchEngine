@@ -33,7 +33,7 @@ These numbers are sensitive to the developer filesystem, cache state, scheduler 
 dirty source. They demonstrate completeness and expose the expected force cost; they
 must not be compared with registered cloud evidence or used as a performance promise.
 
-## Current decision
+## Pre-cloud decision
 
 No production optimization is justified. Actual force grouping is working, durable
 overhead is visible rather than hidden, all three recovery paths are small at the smoke
@@ -122,6 +122,28 @@ quota and member 3 by the regional SSD quota. All three receipts recorded
 `cleanup=PASS`; no set was assembled and no member may be reused across source commits.
 The workflow now fixes `max-parallel: 1`, retaining fresh VM/disk isolation while
 bounding simultaneous allocation to one member.
+
+The first serial canonical run, `33663850586`, completed all three members on exact
+protected-master source `e8fac153996e10af6fd880078106a49c531e7cdc`. Its member and
+set evidence passed, but subsequent CI verification reproduced a long-run race twice:
+checkpoint cleanup could delete an obsolete checkpoint after retained-byte accounting
+enumerated it but before the size lookup. The missing stale file was incorrectly
+promoted to a terminal storage failure. The set was therefore superseded before its
+proposed registration merged and is not the accepted baseline.
+
+Protected fix PR #89 made one file-attribute read supply both type and size, treats only
+an entry removed after enumeration as a zero-byte contribution, and preserves
+fail-closed handling for every other I/O or arithmetic failure. The deterministic
+regression, all 424 Maven tests and the complete Phase 6 local evidence gate passed;
+exact-master CI run `33678948765` accepted merge
+`fe2060b9a872e66ff0067be6e8b7c900f0099708`.
+
+Post-fix serial canonical run `33682157985` completed all three fresh members on that
+exact source. Member and set validation, GCS retention and cleanup receipts all passed.
+Review found no identity mismatch or anomalous member; the eligible set digest is
+`5e71ae200f94f5713278db7312057c4454fb73e18d159f78e71c31a92c44abbf`
+and is registered as `v4.0.0-durable-cloud`. Detailed metric ranges and interpretation
+are recorded in [the canonical review](PHASE_6_CANONICAL_REVIEW.md).
 
 The WIF provider now has an exact three-workflow allowlist, the role has the two narrow
 data-disk permissions, and both remote bootstraps install `unzip`. Independent
