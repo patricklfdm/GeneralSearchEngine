@@ -65,15 +65,22 @@ checkpoint/second-open timing, retained bytes, heap, disk bytes and restored-rea
 throughput. Logs are bounded and document payloads, credentials and OIDC material are
 excluded.
 
-The source probe fails closed before emitting `PASS` unless the baseline is positive
-and the observed peak is at least that baseline. Evidence assembly independently
-rechecks the same invariant.
+The source probe samples only its owned source-store and backup directories; it never
+walks the filesystem mount root or unrelated siblings such as ext4 `lost+found`. It
+fails closed before emitting `PASS` unless the baseline is positive and the observed
+peak is at least that baseline. Expected atomic disappearance of checkpoint staging
+paths is ignored, while every other checked or unchecked background I/O failure is
+propagated. Evidence assembly independently rechecks the numeric invariant.
 
 Every successful receipt independently records deletion of source VM, source disk,
 replacement VM, restore disk and temporary GCS transport. The aggregate set requires
 distinct backup content identities and new histories across members, identical frozen
 configuration, one exact protected-master source, ordered slots, passing checksums and
 complete cleanup. Only a three-member canonical set is registration eligible.
+
+For a failed member, a resource that was never created is `NOT_APPLICABLE`; this counts
+as complete cleanup together with `PASS`. Any owned resource with `FAIL` keeps the
+aggregate cleanup status failed.
 
 ## Paid-run boundary
 

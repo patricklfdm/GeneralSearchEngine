@@ -9,10 +9,13 @@ import java.io.UncheckedIOException;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -93,7 +96,7 @@ public final class V41OperationalEvidenceProbe {
             result.put("source.preBackupMutationNanos", elapsed(mutationStarted));
             String expectedCutChecksum = checksum(engine, profile.documents());
             long expectedCutSequence = engine.currentSequence();
-            long bytesBeforeBackup = directoryBytes(store.getParent());
+            long bytesBeforeBackup = trackedBytes(store, backup);
             if (bytesBeforeBackup <= 0L) {
                 throw new IllegalStateException("source bytes were not observable");
             }
@@ -120,7 +123,7 @@ public final class V41OperationalEvidenceProbe {
                     monitorFailure.compareAndSet(null, failure);
                 }
             }, "v41-backup-source-reader");
-            Thread bytes = byteMonitor(store.getParent(), backupPeakBytes,
+            Thread bytes = byteMonitor(store, backup, backupPeakBytes,
                     monitorFailure, backupFuture);
             reader.start();
             bytes.start();
@@ -345,7 +348,8 @@ public final class V41OperationalEvidenceProbe {
     }
 
     private static Thread byteMonitor(
-            Path root,
+            Path store,
+            Path backup,
             AtomicLong maximum,
             AtomicReference<Throwable> failure,
             CompletableFuture<?> completion
@@ -353,17 +357,21 @@ public final class V41OperationalEvidenceProbe {
         return new Thread(() -> {
             try {
                 do {
-                    maximum.accumulateAndGet(directoryBytes(root), Math::max);
+                    maximum.accumulateAndGet(trackedBytes(store, backup), Math::max);
                     Thread.sleep(1L);
                 } while (!completion.isDone());
-                maximum.accumulateAndGet(directoryBytes(root), Math::max);
+                maximum.accumulateAndGet(trackedBytes(store, backup), Math::max);
             } catch (InterruptedException interrupted) {
                 Thread.currentThread().interrupt();
                 failure.compareAndSet(null, interrupted);
-            } catch (IOException caught) {
+            } catch (IOException | UncheckedIOException caught) {
                 failure.compareAndSet(null, caught);
             }
         }, "v41-backup-byte-monitor");
+    }
+
+    private static long trackedBytes(Path store, Path backup) throws IOException {
+        return Math.addExact(directoryBytes(store), directoryBytes(backup));
     }
 
     private static Map<String, String> base(
@@ -532,17 +540,38 @@ public final class V41OperationalEvidenceProbe {
         if (directory == null || !Files.exists(directory)) {
             return 0L;
         }
-        long total = 0L;
-        try (var paths = Files.walk(directory)) {
-            for (Path path : paths.filter(Files::isRegularFile).toList()) {
-                try {
-                    total = Math.addExact(total, Files.size(path));
-                } catch (NoSuchFileException disappeared) {
-                    // Sibling staging and atomic publication may remove sampled paths.
+        long[] total = {0L};
+        Files.walkFileTree(directory, new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(
+                    Path file,
+                    BasicFileAttributes attributes
+            ) {
+                if (attributes.isRegularFile()) {
+                    total[0] = Math.addExact(total[0], attributes.size());
                 }
+                return FileVisitResult.CONTINUE;
             }
-        }
-        return total;
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException failure)
+                    throws IOException {
+                if (failure instanceof NoSuchFileException) {
+                    // Checkpoint staging and atomic publication may remove paths.
+                    return FileVisitResult.CONTINUE;
+                }
+                throw failure;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path directory, IOException failure)
+                    throws IOException {
+                return failure == null
+                        ? FileVisitResult.CONTINUE
+                        : visitFileFailed(directory, failure);
+            }
+        });
+        return total[0];
     }
 
     private static Path absent(String value, String name) {

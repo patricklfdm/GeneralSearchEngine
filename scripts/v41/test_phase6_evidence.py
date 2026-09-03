@@ -184,6 +184,91 @@ exit 99
             self.assertIn("cleanup=FAIL", receipt)
             self.assertFalse((output / "gcs-transport-permission-probe.txt").exists())
 
+    def test_early_remote_failure_treats_uncreated_resources_as_clean(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            fake_gcloud = fake_bin / "gcloud"
+            fake_gcloud.write_text("""#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\\n' "$*" >> "$FAKE_GCLOUD_LOG"
+state_name() { printf '%s/%s-%s' "$FAKE_GCLOUD_STATE" "$1" "$2"; }
+if [[ "$1 $2 $3" == "compute instances describe" ]]; then
+  test -f "$(state_name instance "$4")"
+elif [[ "$1 $2 $3" == "compute instances create" ]]; then
+  touch "$(state_name instance "$4")"
+elif [[ "$1 $2 $3" == "compute instances delete" ]]; then
+  rm -f "$(state_name instance "$4")"
+elif [[ "$1 $2 $3" == "compute disks describe" ]]; then
+  test -f "$(state_name disk "$4")"
+elif [[ "$1 $2 $3" == "compute disks create" ]]; then
+  touch "$(state_name disk "$4")"
+elif [[ "$1 $2 $3" == "compute disks delete" ]]; then
+  rm -f "$(state_name disk "$4")"
+elif [[ "$1 $2 $3" == "storage objects describe" ]]; then
+  exit 1
+elif [[ "$1 $2" == "storage cp" ]]; then
+  if [[ "$3" == gs://* ]]; then
+    cp "$FAKE_GCS_OBJECT" "$4"
+  else
+    cp "$3" "$FAKE_GCS_OBJECT"
+  fi
+elif [[ "$1 $2" == "storage rm" ]]; then
+  rm -f "$FAKE_GCS_OBJECT"
+elif [[ "$1 $2" == "storage ls" ]]; then
+  exit 1
+elif [[ "$1 $2" == "compute scp" ]]; then
+  exit 0
+elif [[ "$1 $2" == "compute ssh" ]]; then
+  for argument in "$@"; do
+    [[ "$argument" == "--command=true" ]] && exit 0
+  done
+  exit 1
+else
+  echo "unexpected fake gcloud command: $*" >&2
+  exit 99
+fi
+""", encoding="utf-8")
+            fake_gcloud.chmod(0o755)
+            state = root / "state"
+            state.mkdir()
+            log = root / "gcloud.log"
+            output = root / "output"
+            environment = dict(os.environ)
+            environment.update({
+                "PATH": f"{fake_bin}:{environment['PATH']}",
+                "FAKE_GCLOUD_LOG": str(log),
+                "FAKE_GCLOUD_STATE": str(state),
+                "FAKE_GCS_OBJECT": str(root / "object"),
+                "GSE_V41_GCP_PROJECT": "gse-benchmark",
+                "GSE_V41_GCP_ZONE": "us-west4-a",
+                "GSE_V41_CLOUD_IMAGE": "ubuntu-test-image",
+                "GSE_V41_GCS_BUCKET": "gs://gse-test-bucket",
+                "GSE_V41_SOURCE_SHA": "d" * 40,
+                "GSE_V41_RUN_ID": "123456789",
+                "GSE_V41_RUN_ATTEMPT": "1",
+                "GSE_V41_SLOT": "1",
+                "GSE_V41_PROFILE": "experiment",
+                "GSE_V41_DURATION_SECONDS": "1800",
+                "GSE_V41_OUTPUT": str(output),
+            })
+            runner = (Path(__file__).resolve().parents[2] / "scripts" / "v41" /
+                      "run_operational_cloud_member.sh")
+            completed = subprocess.run(
+                [str(runner), "--confirm-paid-run"], env=environment,
+                check=False, capture_output=True, text=True)
+            self.assertEqual(20, completed.returncode, completed.stderr)
+            receipt = (output / "cloud-member.properties").read_text("ascii")
+            self.assertIn("runStatus=FAIL", receipt)
+            self.assertIn("sourceVmDeleted=PASS", receipt)
+            self.assertIn("sourceDiskDeleted=PASS", receipt)
+            self.assertIn("replacementVmDeleted=NOT_APPLICABLE", receipt)
+            self.assertIn("restoreDiskDeleted=NOT_APPLICABLE", receipt)
+            self.assertIn("stagingObjectDeleted=NOT_APPLICABLE", receipt)
+            self.assertIn("cleanup=PASS", receipt)
+            self.assertEqual([], list(state.iterdir()))
+
     def test_paid_runner_preflights_transport_and_uses_instance_ssh_metadata(
             self) -> None:
         runner = (Path(__file__).resolve().parents[2] / "scripts" / "v41" /
