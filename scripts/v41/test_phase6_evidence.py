@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import tempfile
 import unittest
 from argparse import Namespace
@@ -26,6 +28,81 @@ from scripts.v41.operational_cloud_workflow import (
 
 
 class Phase6EvidenceTest(unittest.TestCase):
+    def test_delete_permission_failure_precedes_compute_creation(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            fake_bin = root / "bin"
+            fake_bin.mkdir()
+            fake_gcloud = fake_bin / "gcloud"
+            fake_gcloud.write_text("""#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\\n' "$*" >> "$FAKE_GCLOUD_LOG"
+if [[ "$1 $2 $3" == "compute instances describe" \
+    || "$1 $2 $3" == "compute disks describe" \
+    || "$1 $2 $3" == "storage objects describe" ]]; then
+  exit 1
+fi
+if [[ "$1 $2" == "storage cp" ]]; then
+  if [[ "$3" == gs://* ]]; then
+    cp "$FAKE_GCS_OBJECT" "$4"
+  else
+    cp "$3" "$FAKE_GCS_OBJECT"
+  fi
+  exit 0
+fi
+if [[ "$1 $2" == "storage rm" ]]; then
+  exit 1
+fi
+echo "unexpected fake gcloud command: $*" >&2
+exit 99
+""", encoding="utf-8")
+            fake_gcloud.chmod(0o755)
+            log = root / "gcloud.log"
+            output = root / "output"
+            environment = dict(os.environ)
+            environment.update({
+                "PATH": f"{fake_bin}:{environment['PATH']}",
+                "FAKE_GCLOUD_LOG": str(log),
+                "FAKE_GCS_OBJECT": str(root / "object"),
+                "GSE_V41_GCP_PROJECT": "gse-benchmark",
+                "GSE_V41_GCP_ZONE": "us-west4-a",
+                "GSE_V41_CLOUD_IMAGE": "ubuntu-test-image",
+                "GSE_V41_GCS_BUCKET": "gs://gse-test-bucket",
+                "GSE_V41_SOURCE_SHA": "c" * 40,
+                "GSE_V41_RUN_ID": "123456789",
+                "GSE_V41_RUN_ATTEMPT": "1",
+                "GSE_V41_SLOT": "1",
+                "GSE_V41_PROFILE": "experiment",
+                "GSE_V41_DURATION_SECONDS": "1800",
+                "GSE_V41_OUTPUT": str(output),
+            })
+            runner = (Path(__file__).resolve().parents[2] / "scripts" / "v41" /
+                      "run_operational_cloud_member.sh")
+            completed = subprocess.run(
+                [str(runner), "--confirm-paid-run"], env=environment,
+                check=False, capture_output=True, text=True)
+            self.assertEqual(2, completed.returncode, completed.stderr)
+            calls = log.read_text("utf-8")
+            self.assertNotIn("compute disks create", calls)
+            self.assertNotIn("compute instances create", calls)
+            receipt = (output / "cloud-member.properties").read_text("ascii")
+            self.assertIn("runStatus=FAIL", receipt)
+            self.assertIn("stagingObjectDeleted=FAIL", receipt)
+            self.assertIn("cleanup=FAIL", receipt)
+            self.assertFalse((output / "gcs-transport-permission-probe.txt").exists())
+
+    def test_paid_runner_preflights_transport_and_uses_instance_ssh_metadata(
+            self) -> None:
+        runner = (Path(__file__).resolve().parents[2] / "scripts" / "v41" /
+                  "run_operational_cloud_member.sh").read_text("utf-8")
+        probe = runner.index("probe_gcs_transport_permissions ||")
+        first_disk = runner.index('if create_disk "$source_disk"')
+        self.assertLess(probe, first_disk)
+        self.assertIn("v41GcsTransportPermissionProbe=PASS", runner)
+        self.assertIn(
+            "--metadata=block-project-ssh-keys=TRUE,enable-oslogin=FALSE",
+            runner)
+
     def test_frozen_profiles_and_retention(self) -> None:
         self.assertEqual(1, validate_inputs(
             "experiment", 1, 1800, "actions", "c3d-standard-30",

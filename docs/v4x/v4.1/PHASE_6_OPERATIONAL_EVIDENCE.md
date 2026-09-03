@@ -24,6 +24,14 @@ the transport into a fresh workspace, independently parses it, and only then cre
 the replacement VM and restore disk. Source and restore data disks never coexist, so
 the frozen 500-GiB regional quota remains safe.
 
+Before the first paid Compute resource, the member writes, reads, compares and deletes
+a payload-free permission probe under its exact unique transport prefix. This proves
+that the environment-bound service account has the `storage.objects.create`,
+`storage.objects.get` and `storage.objects.delete` authority required by the complete
+lifecycle. Delete authority is granted only for the
+`v4.1-operational-safety/` object prefix. Both VMs block project-wide SSH keys and use
+instance metadata, so the workflow never needs to modify project SSH metadata.
+
 ## Frozen matrix
 
 | Control | Value |
@@ -67,6 +75,7 @@ complete cleanup. Only a three-member canonical set is registration eligible.
 The manual workflow is `.github/workflows/v41-operational-evidence.yml`. Before it may
 run, its exact protected-master commit must pass CI, local smoke and fake-cloud gates
 must pass, the OIDC provider must explicitly allow this workflow from
-`refs/heads/master`, quota must accommodate one `c3d-standard-30`, and the operator
-must explicitly confirm the paid run. Experiment runs validate plumbing first;
-canonical execution and append-only registration follow only after review.
+`refs/heads/master`, the prefix-limited transport delete role and permission probe
+must pass, quota must accommodate one `c3d-standard-30`, and the operator must
+explicitly confirm the paid run. Experiment runs validate plumbing first; canonical
+execution and append-only registration follow only after review.

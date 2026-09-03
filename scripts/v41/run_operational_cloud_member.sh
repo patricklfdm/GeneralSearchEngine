@@ -173,6 +173,8 @@ sanitize_output() {
     "$output/transport-download" "$output/v41-source-output.tar.gz" \
     "$output/v41-restore-output.tar.gz" "$output/bundle.tar.gz" \
     "$output/bundle.tar.gz.sha256"
+  rm -f "$output/gcs-transport-permission-probe.txt" \
+    "$output/gcs-transport-permission-readback.txt"
   bound_log "$output/source-remote.log"
   bound_log "$output/restore-remote.log"
 }
@@ -216,7 +218,33 @@ create_vm() {
     --disk="name=$disk,device-name=gse-v41-data,mode=rw,boot=no,auto-delete=no" \
     --no-service-account --no-scopes --max-run-duration=5400s \
     --instance-termination-action=DELETE \
+    --metadata=block-project-ssh-keys=TRUE,enable-oslogin=FALSE \
     --labels="purpose=gse-v41-operational,slot=$GSE_V41_SLOT" --quiet
+}
+
+probe_gcs_transport_permissions() {
+  local probe="$output/gcs-transport-permission-probe.txt"
+  local readback="$output/gcs-transport-permission-readback.txt"
+  local probe_uri="$staging_uri/permission-probe.txt"
+  printf 'gse-v41-operational-transport-probe\nsourceCommit=%s\nrunId=%s\nrunAttempt=%s\nslot=%s\n' \
+    "$GSE_V41_SOURCE_SHA" "$GSE_V41_RUN_ID" "$GSE_V41_RUN_ATTEMPT" \
+    "$GSE_V41_SLOT" > "$probe"
+  gcloud storage cp "$probe" "$probe_uri" >/dev/null \
+    || { echo "ERROR: GCS transport create permission probe failed" >&2; return 1; }
+  staging_owned=true
+  gcloud storage cp "$probe_uri" "$readback" >/dev/null \
+    || { echo "ERROR: GCS transport read permission probe failed" >&2; return 1; }
+  cmp -s "$probe" "$readback" \
+    || { echo "ERROR: GCS transport readback differs" >&2; return 1; }
+  gcloud storage rm "$probe_uri" >/dev/null \
+    || { echo "ERROR: GCS transport delete permission probe failed" >&2; return 1; }
+  if gcloud storage objects describe "$probe_uri" >/dev/null 2>&1; then
+    echo "ERROR: GCS transport permission probe remained after delete" >&2
+    return 1
+  fi
+  staging_owned=false
+  rm -f "$probe" "$readback"
+  echo "v41GcsTransportPermissionProbe=PASS"
 }
 
 # A retry never adopts or deletes resources from an earlier attempt.
@@ -234,10 +262,16 @@ for resource in "$source_disk" "$restore_disk"; do
     exit "$EXIT_PROVISION"
   fi
 done
-if gcloud storage ls "$staging_uri" >/dev/null 2>&1; then
-  echo "ERROR: refusing pre-existing GCS staging prefix" >&2
-  exit "$EXIT_PROVISION"
-fi
+for object in permission-probe.txt bundle.tar.gz bundle.tar.gz.sha256 source.properties; do
+  if gcloud storage objects describe "$staging_uri/$object" >/dev/null 2>&1; then
+    echo "ERROR: refusing pre-existing GCS staging object $object" >&2
+    exit "$EXIT_PROVISION"
+  fi
+done
+
+# Prove create/read/delete authority at this exact unique prefix before the first
+# paid Compute resource is created. The probe contains no corpus or credential.
+probe_gcs_transport_permissions || exit "$EXIT_CONFIG"
 
 if create_disk "$source_disk"; then
   source_disk_owned=true
