@@ -146,9 +146,11 @@ cleanup() {
 
 write_receipt() {
   local cleanup_status=FAIL
-  if [[ "$source_vm_deleted" = PASS && "$source_disk_deleted" = PASS \
-      && "$replacement_vm_deleted" = PASS && "$restore_disk_deleted" = PASS \
-      && "$staging_object_deleted" = PASS ]]; then
+  if cleanup_value_complete "$source_vm_deleted" \
+      && cleanup_value_complete "$source_disk_deleted" \
+      && cleanup_value_complete "$replacement_vm_deleted" \
+      && cleanup_value_complete "$restore_disk_deleted" \
+      && cleanup_value_complete "$staging_object_deleted"; then
     cleanup_status=PASS
   fi
   printf 'sourceCommit=%s\nprofile=%s\nslot=%s\nrunStatus=%s\nsourceVmDeleted=%s\nsourceDiskDeleted=%s\nreplacementVmDeleted=%s\nrestoreDiskDeleted=%s\nstagingObjectDeleted=%s\ncleanup=%s\n' \
@@ -156,6 +158,10 @@ write_receipt() {
     "$source_vm_deleted" "$source_disk_deleted" "$replacement_vm_deleted" \
     "$restore_disk_deleted" "$staging_object_deleted" "$cleanup_status" \
     > "$output/cloud-member.properties"
+}
+
+cleanup_value_complete() {
+  [[ "$1" = PASS || "$1" = NOT_APPLICABLE ]]
 }
 
 bound_log() {

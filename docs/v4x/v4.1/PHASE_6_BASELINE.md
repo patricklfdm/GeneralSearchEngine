@@ -92,3 +92,25 @@ monitor raise it. The source stage fails closed before reporting `PASS`, and evi
 validation independently requires both values to be positive and the peak to be at
 least the synchronous baseline. A new exact-master experiment is required after this
 correction merges and passes CI.
+
+### Mount-root traversal failure
+
+Workflow run `33750556738` attempted the experiment profile at protected-master source
+`b777e54e0ce37ed169dd1b19c74fec6c588e2625`. Transport permission probing passed and
+the source disk and VM were created, but the source stage failed before backup when
+the synchronous sampler walked the ext4 mount root and encountered the root-owned
+`lost+found` directory. The remote stage returned exit code `20`.
+
+The failure receipt records the source VM and source disk as deleted; replacement
+resources and staging transport were never created. The old receipt aggregation
+reported `cleanup=FAIL` only because it did not treat `NOT_APPLICABLE` as complete.
+The artifact contains the receipt and one bounded remote log, with no backup or corpus
+payload. This run is not eligible evidence and makes no operational claim.
+
+Sampling is now restricted to the owned source-store and backup directories. Expected
+atomic disappearance of checkpoint staging paths is ignored, while other checked or
+unchecked background I/O failures are propagated. The local gate includes an
+inaccessible `lost+found` sibling that must remain outside the sampling boundary.
+Cleanup aggregation accepts `PASS` or `NOT_APPLICABLE`, while every actual `FAIL`
+remains fail-closed. Another exact-master experiment is required after this correction
+merges and passes CI.

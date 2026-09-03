@@ -33,10 +33,38 @@ bash -n scripts/v41/remote_operational_stage.sh
 bash -n scripts/v41/run_operational_cloud_member.sh
 
 work_dir=$(mktemp -d "${TMPDIR:-/tmp}/gse-v41-phase6.XXXXXX")
-trap 'rm -rf "$work_dir"' EXIT
+restricted_sibling="$work_dir/filesystem-boundary/lost+found"
+trap 'chmod 0700 "$restricted_sibling" 2>/dev/null || true; rm -rf "$work_dir"' EXIT
 source_sha=$(git rev-parse HEAD)
 source_state=clean
 if [[ -n "$(git status --porcelain)" ]]; then source_state=dirty; fi
+
+# Match the cloud ext4 topology: the mount root contains a root-only lost+found
+# sibling that the benchmark user must never traverse while sampling owned bytes.
+filesystem_root="$work_dir/filesystem-boundary"
+mkdir -p "$restricted_sibling"
+chmod 000 "$restricted_sibling"
+for iteration in {1..5}; do
+  source_output="$filesystem_root/source-output-$iteration"
+  mkdir -p "$source_output"
+  java -cp target/benchmarks.jar \
+    io.github.patricklfdm.generalsearch.engine.V41OperationalEvidenceProbe \
+    source smoke "$filesystem_root/source-store-$iteration" \
+    "$source_output/backup" "$source_output/source.properties" 1
+  bytes_before=$(awk -F= \
+    '$1 == "source.bytesBeforeBackup" { print $2 }' \
+    "$source_output/source.properties")
+  peak_observed=$(awk -F= \
+    '$1 == "backup.peakObservedBytes" { print $2 }' \
+    "$source_output/source.properties")
+  [[ "$bytes_before" =~ ^[1-9][0-9]*$ ]]
+  [[ "$peak_observed" =~ ^[1-9][0-9]*$ ]]
+  (( peak_observed >= bytes_before ))
+  "$python_command" -m scripts.v41.backup_format inspect \
+    "$source_output/backup"
+done
+chmod 0700 "$restricted_sibling"
+echo "v41OperationalFilesystemBoundary=PASS iterations=5"
 
 "$python_command" -m scripts.v41.operational_evidence run-local \
   --workspace "$work_dir/local" \

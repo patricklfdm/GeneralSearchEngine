@@ -19,6 +19,8 @@
   restore, full oracle, continued mutation, checkpoint and second reopen.
 - [x] Source-impact, duration, byte, heap, retained-storage and restore metrics are
   recorded without payloads.
+- [x] Byte sampling is confined to owned source/backup paths and is tested with an
+  inaccessible ext4-style `lost+found` sibling.
 - [x] Existing experiment/canonical/failure-drill fake-cloud profiles still pass.
 - [x] Exact plan validation freezes workload, profiles, machine, disks, duration,
   runtime, budget, serialization and retention.
@@ -62,3 +64,11 @@ object and aggregate cleanup all record `PASS`. Evidence assembly rejected a zer
 `backup.peakObservedBytes` sample. No further paid execution is authorized until the
 synchronous peak-sampling correction merges, its exact protected-master CI passes and
 the operator explicitly confirms a replacement run.
+
+Replacement experiment run `33750556738` does not satisfy an evidence gate. Its source
+stage failed with exit code `20` after mount-root sampling reached root-owned ext4
+`lost+found`. The source VM and disk were deleted; replacement resources and staging
+transport were never created. The corrected receipt truth table treats those
+`NOT_APPLICABLE` resources as complete cleanup but still rejects every `FAIL`. No
+further paid execution is authorized until the owned-path sampling correction merges,
+its exact protected-master CI passes and the operator explicitly confirms another run.
