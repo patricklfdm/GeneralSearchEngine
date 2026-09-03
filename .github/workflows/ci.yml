@@ -61,6 +61,9 @@ jobs:
       - name: Exercise the V4.1 operational-safety foundation
         run: scripts/verify-v41-phase1-foundation.sh --skip-build
 
+      - name: Exercise V4.1 codec-free structural verification
+        run: scripts/verify-v41-phase2-structural.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -167,6 +170,7 @@ jobs:
           bash -n scripts/verify-v40-phase6-performance.sh
           bash -n scripts/verify-v40-phase7-release.sh
           bash -n scripts/verify-v41-phase1-foundation.sh
+          bash -n scripts/verify-v41-phase2-structural.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh

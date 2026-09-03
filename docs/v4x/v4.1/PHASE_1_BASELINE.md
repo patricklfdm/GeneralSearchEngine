@@ -110,5 +110,6 @@ scripts/verify-version-alignment.sh 4.1.0-SNAPSHOT
 Focused Java tests and the bounded Python, fixture, internal-halt, external-kill and
 three-profile fake-cloud suite pass locally. The full reactor (430 core and 5 processor
 tests), published compatibility through exact `4.0.0`, all four consumers, six release
-JAR integrity checks and two-build byte reproducibility also pass locally. Protected PR
-and exact-master CI remain the open Phase 1 acceptance gates.
+JAR integrity checks and two-build byte reproducibility also pass locally. Protected
+PR #94 merged as `e183face9cd2649f266cc54167f5419b86144e4e`; exact-master CI run
+`33717370973` passed and closed Phase 1.

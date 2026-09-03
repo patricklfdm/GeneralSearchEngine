@@ -68,16 +68,23 @@ class V41PublicApiFoundationTest {
     }
 
     @Test
-    void phase1ShipsNoProductionOperationalTypes() {
+    void phase2ShipsOnlyTheStructuralOperationalTypes() throws Exception {
+        for (String simpleName : List.of(
+                "DurableStorageOperations",
+                "DurableVerificationStatus",
+                "DurableVerificationFinding",
+                "DurableVerificationReport",
+                "DurableOperationException"
+        )) {
+            assertNotNull(Class.forName(
+                    "io.github.patricklfdm.generalsearch.durability." + simpleName));
+        }
         for (String simpleName : List.of(
                 "DurableBackupRequest",
                 "DurableBackupResult",
-                "DurableStorageOperations",
-                "DurableVerificationReport",
                 "DurableVerificationConfig",
                 "DurableCleanupPlan",
-                "DurableRestoreResult",
-                "DurableOperationException"
+                "DurableRestoreResult"
         )) {
             assertThrows(ClassNotFoundException.class, () -> Class.forName(
                     "io.github.patricklfdm.generalsearch.durability." + simpleName));

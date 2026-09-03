@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               ACTIVE PHASE 1 FOUNDATION
+  V4.1  Operational Safety               ACTIVE PHASE 2 VERIFICATION
   ↓
 V4.2  Storage Evolution
   ↓
@@ -208,7 +208,7 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phase 0 is accepted. Phase 1 may establish only the version, compatibility,
-fixture, independent-model, local crash and fake-cloud foundation described by its
-contract. Production codec-free verification begins in Phase 2 only after Phase 1
-passes protected acceptance.
+V4.1 Phase 1 is accepted at protected-master commit `e183face`; exact-master CI run
+`33717370973` passed. Phase 2 owns only codec-free read-only structural verification,
+stable reports and the classification matrix. Backup writing, semantic verification,
+restore and cleanup remain blocked by their later owning phases.
