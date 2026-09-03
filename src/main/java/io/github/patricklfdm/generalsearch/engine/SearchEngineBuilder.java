@@ -1,12 +1,16 @@
 package io.github.patricklfdm.generalsearch.engine;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableRestoreResult;
+import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationReport;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.text.TextIndexDefinition;
 import io.github.patricklfdm.generalsearch.query.PlannerConfig;
@@ -163,6 +167,46 @@ public final class SearchEngineBuilder<K, T> {
             }
             throw failure;
         }
+    }
+
+    /**
+     * Synchronously performs a read-only typed semantic pass over one structurally
+     * valid V4.1 backup. Successful status proves bounded canonical decode and
+     * reconstruction of the builder's durable index configuration.
+     *
+     * @param backupDirectory immutable completed backup bundle
+     * @param expectedConfig expected identities, codec and decode bounds
+     * @return immutable semantic report
+     */
+    public DurableSemanticVerificationReport verifyDurableBackup(
+            Path backupDirectory,
+            DurableVerificationConfig<K, T> expectedConfig
+    ) {
+        SearchSchema<T, K> schema = buildSchema();
+        return DurableSemanticOperations.inspect(
+                Objects.requireNonNull(backupDirectory, "backupDirectory"),
+                Objects.requireNonNull(expectedConfig, "expectedConfig"),
+                schema, List.copyOf(indexDefinitions)).report();
+    }
+
+    /**
+     * Synchronously restores a valid V4.1 backup into an absent local target as a
+     * new ordinary V4 durable history. Successful return proves durable publication,
+     * codec-free structural validation and typed state reconstruction.
+     *
+     * @param backupDirectory immutable completed backup bundle
+     * @param targetConfig exact persisted target identities and safety bounds
+     * @return completed restore authority and external provenance
+     */
+    public DurableRestoreResult restoreDurableBackup(
+            Path backupDirectory,
+            DurableStorageConfig<K, T> targetConfig
+    ) {
+        SearchSchema<T, K> schema = buildSchema();
+        return DurableRestoreWriter.restore(
+                Objects.requireNonNull(backupDirectory, "backupDirectory"),
+                Objects.requireNonNull(targetConfig, "targetConfig"),
+                schema, List.copyOf(indexDefinitions));
     }
 
     private SearchSchema<T, K> buildSchema() {
