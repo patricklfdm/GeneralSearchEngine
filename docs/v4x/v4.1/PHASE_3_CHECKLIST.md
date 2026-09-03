@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 3 checklist
 
-- **Status:** Implementation complete; protected acceptance pending
+- **Status:** Accepted
 - **Scope:** Exact-sequence live backup and immutable bundle publication
 
 ## Entry and boundary
@@ -45,7 +45,8 @@
 - [x] `scripts/verify-v41-phase3-backup.sh` passes locally.
 - [x] Full reactor, exact published compatibility, consumers, release artifacts and
   reproducibility pass locally.
-- [ ] Phase 3 PR CI passes and merges to protected `master`.
-- [ ] Exact-master CI passes and its commit/run are recorded.
+- [x] Phase 3 PR #96 passed CI and merged to protected `master` as `f5516df`.
+- [x] Exact-master CI run `33723841861` passed on that merge commit.
 
-Phase 4 semantic verification and restore remain blocked until Phase 3 acceptance.
+Phase 4 semantic verification and restore are now admitted. Phase 5 cleanup remains
+out of scope until Phase 4 acceptance.

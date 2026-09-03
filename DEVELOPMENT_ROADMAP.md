@@ -14,7 +14,10 @@ passed. Phase 1 merged through protected PR #94 as
 `e183face9cd2649f266cc54167f5419b86144e4e`; exact-master CI run `33717370973`
 passed. Phase 2 merged through protected PR #95 as
 `a17ad20d3cd03128abf6c4f7fbeb0b752b523b02`; exact-master CI run `33720179867`
-passed. Phase 3 is the active live-backup phase. Every active coordinate remains
+passed. Phase 3 merged through protected PR #96 as
+`f5516dfc05ff0e878a72f60d56792c30d480d2c3`; exact-master CI run `33723841861`
+passed. Phase 4 is the active typed semantic-verification and new-history restore
+phase. Every active coordinate remains
 `4.1.0-SNAPSHOT`. The accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
@@ -64,6 +67,14 @@ absent-target publication. Independent parsers validate production output and ev
 new authority transition has a real abrupt-halt case with pre-reopen classification.
 Typed semantic verification, restore, public cleanup and paid cloud execution remain
 unauthorized.
+
+Phase 4 adds the frozen typed builder operations. Semantic verification requires a
+structurally valid bundle, exact identities/bounds/startup indexes, bounded canonical
+decode and deterministic derived-index reconstruction. Restore preserves logical
+sequence and state while publishing a distinct history as an unchanged V4 format
+`1.0` directory through absent-target staging. Its production authority transitions
+are covered by separate-JVM abrupt halt and independent pre-reopen inspection. Public
+cleanup and paid cloud execution remain unauthorized.
 
 ## v4.0 completed development contract
 

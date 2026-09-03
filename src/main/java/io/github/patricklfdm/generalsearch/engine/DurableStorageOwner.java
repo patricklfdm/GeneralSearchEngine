@@ -766,7 +766,7 @@ final class DurableStorageOwner implements AutoCloseable {
         }
     }
 
-    private static <K, T> byte[] encodeMetadata(
+    static <K, T> byte[] encodeMetadata(
             DurableStorageConfig<K, T> config,
             String codecId,
             int codecVersion,
@@ -808,7 +808,7 @@ final class DurableStorageOwner implements AutoCloseable {
                 .array();
     }
 
-    private static Metadata readMetadata(Path path) throws IOException {
+    static Metadata readMetadata(Path path) throws IOException {
         long size = Files.size(path);
         if (size < 64 || size > MAX_METADATA_BYTES) {
             throw incompatible("durable metadata has an invalid size", null);
@@ -892,7 +892,7 @@ final class DurableStorageOwner implements AutoCloseable {
         }
     }
 
-    private static <K, T> void validateMetadata(
+    static <K, T> void validateMetadata(
             Metadata metadata,
             DurableStorageConfig<K, T> config,
             String codecId,
@@ -933,7 +933,7 @@ final class DurableStorageOwner implements AutoCloseable {
         output.write(encoded);
     }
 
-    private static void writeMetadata(Path directory, byte[] metadata)
+    static void writeMetadata(Path directory, byte[] metadata)
             throws IOException {
         Path staging = directory.resolve(METADATA_STAGING_FILE);
         Path authoritative = directory.resolve(METADATA_FILE);
@@ -961,7 +961,7 @@ final class DurableStorageOwner implements AutoCloseable {
         forceDirectory(directory);
     }
 
-    private static void forceDirectory(Path directory) throws IOException {
+    static void forceDirectory(Path directory) throws IOException {
         try (FileChannel channel = FileChannel.open(directory, StandardOpenOption.READ)) {
             channel.force(true);
         }
@@ -1129,7 +1129,7 @@ final class DurableStorageOwner implements AutoCloseable {
         }
     }
 
-    private record Metadata(
+    record Metadata(
             long magic,
             short major,
             short minor,

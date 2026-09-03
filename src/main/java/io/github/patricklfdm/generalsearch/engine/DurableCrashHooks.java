@@ -46,7 +46,17 @@ final class DurableCrashHooks {
             "v41-backup-before-final-rename-v1",
             "v41-backup-after-final-rename-v1",
             "v41-backup-after-parent-force-v1",
-            "v41-backup-before-future-completion-v1"
+            "v41-backup-before-future-completion-v1",
+            "v41-restore-after-marker-force-v1",
+            "v41-restore-after-metadata-force-v1",
+            "v41-restore-after-checkpoint-rename-v1",
+            "v41-restore-after-wal-force-v1",
+            "v41-restore-after-manifest-force-v1",
+            "v41-restore-after-manifest-rename-v1",
+            "v41-restore-before-final-rename-v1",
+            "v41-restore-after-final-rename-v1",
+            "v41-restore-after-parent-force-v1",
+            "v41-restore-before-return-v1"
     );
 
     private DurableCrashHooks() {

@@ -3,7 +3,6 @@ package io.github.patricklfdm.generalsearch.compatibility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -19,7 +18,7 @@ import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-/** Freezes V4.1 descriptors while keeping production operations out of Phase 1. */
+/** Freezes V4.1 descriptors and tracks the currently admitted production phase. */
 class V41PublicApiFoundationTest {
     private static final String FIXTURE =
             "/compatibility/V41OperationalPublicApi.java.fixture";
@@ -68,7 +67,7 @@ class V41PublicApiFoundationTest {
     }
 
     @Test
-    void phase3ShipsStructuralAndBackupTypesOnly() throws Exception {
+    void phase4ShipsTypedRestoreButNotCleanupTypes() throws Exception {
         for (String simpleName : List.of(
                 "DurableStorageOperations",
                 "DurableVerificationStatus",
@@ -77,28 +76,27 @@ class V41PublicApiFoundationTest {
                 "DurableOperationException",
                 "DurableBackupRequest",
                 "DurableBackupFormat",
-                "DurableBackupResult"
+                "DurableBackupResult",
+                "DurableVerificationConfig",
+                "DurableSemanticVerificationStatus",
+                "DurableSemanticVerificationReport",
+                "DurableRestoreResult"
         )) {
             assertNotNull(Class.forName(
                     "io.github.patricklfdm.generalsearch.durability." + simpleName));
         }
-        for (String simpleName : List.of(
-                "DurableVerificationConfig",
-                "DurableCleanupPlan",
-                "DurableRestoreResult"
-        )) {
-            assertThrows(ClassNotFoundException.class, () -> Class.forName(
-                    "io.github.patricklfdm.generalsearch.durability." + simpleName));
-        }
+        assertFalse(classExists(
+                "io.github.patricklfdm.generalsearch.durability.DurableCleanupPlan"));
     }
 
     @Test
-    void phase3AddsBackupButNotLaterBuilderOperations() {
+    void phase4AddsTypedBuilderOperations() {
         assertTrue(List.of(DurableSearchEngine.class.getMethods()).stream()
                 .anyMatch(method -> method.getName().equals("backup")));
         assertTrue(List.of(SearchEngineBuilder.class.getMethods()).stream()
-                .noneMatch(method -> method.getName().equals("verifyDurableBackup")
-                        || method.getName().equals("restoreDurableBackup")));
+                .anyMatch(method -> method.getName().equals("verifyDurableBackup")));
+        assertTrue(List.of(SearchEngineBuilder.class.getMethods()).stream()
+                .anyMatch(method -> method.getName().equals("restoreDurableBackup")));
     }
 
     private static String readFixture() throws IOException {
@@ -106,6 +104,15 @@ class V41PublicApiFoundationTest {
                 .getResourceAsStream(FIXTURE)) {
             assertNotNull(input, FIXTURE);
             return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+    }
+
+    private static boolean classExists(String name) {
+        try {
+            Class.forName(name);
+            return true;
+        } catch (ClassNotFoundException expected) {
+            return false;
         }
     }
 }

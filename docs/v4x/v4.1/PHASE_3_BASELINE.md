@@ -42,5 +42,6 @@ scripts/verify-release-artifacts.sh
 scripts/verify-reproducible-build.sh
 ```
 
-All local gates above pass. Protected PR and exact-master CI evidence remain pending;
-no paid cloud execution belongs to Phase 3.
+All local gates above passed. Protected PR #96 merged the implementation as
+`f5516dfc05ff0e878a72f60d56792c30d480d2c3`; exact-master CI run `33723841861`
+passed on that commit. No paid cloud execution belonged to Phase 3.
