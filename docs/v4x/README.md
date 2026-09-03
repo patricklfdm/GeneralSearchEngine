@@ -7,11 +7,11 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phases 1–5 are accepted. Phase 6 implementation and corrections merged through
-protected PRs #99–#102. Exact-source experiment run `33754116526` and canonical run
-`33758217508` passed source-loss, replacement-host, oracle, checksum and cleanup
-review. The append-only `v4.1.0-operational-cloud` registration is under protected
-review while all coordinates remain `4.1.0-SNAPSHOT`.
+V4.1 Phases 1–6 are accepted. The operational registration merged through protected
+PR #103 as `049b232`; exact-master CI run `33809198755` passed. Phase 7 is the active
+final-candidate, consumer, compatibility, Javadoc, artifact and reproducibility phase.
+All active coordinates are final `4.1.0`, while `4.0.0` remains the published stable
+release until Phase 8 succeeds.
 
 The accepted Phase 0 contract freezes a checkpoint-only full-backup protocol, a distinct
 `gse-backup (1,0)` bundle, new-history restore into an absent target, codec-free
@@ -44,6 +44,10 @@ and local-crash plus durable-cloud evidence as first-class architecture.
 - [V4.1 Phase 6 canonical review](v4.1/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.1 Phase 6 checklist](v4.1/PHASE_6_CHECKLIST.md)
 - [V4.1 operational cloud baseline registry](v4.1/cloud-benchmark-baselines.json)
+- [V4.1 API and storage compatibility](v4.1/API_COMPATIBILITY.md)
+- [V4.0-to-V4.1 migration guide](v4.1/MIGRATION_GUIDE.md)
+- [V4.1 Phase 7 release-candidate checklist](v4.1/PHASE_7_CHECKLIST.md)
+- [V4.1 release checklist](v4.1/RELEASE_CHECKLIST.md)
 - [Published V4.0 contract and evidence](../v4/README.md)
 
 ## Authority order

@@ -18,6 +18,12 @@ in the [V4.x development map](docs/v4x/README.md). Version `4.0.0` is available 
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
+Version `4.1.0` is a final release candidate, not yet a published dependency. It adds
+explicit backup, structural and semantic verification, new-history restore and
+plan-bound cleanup while retaining the V4.0 live format and every inherited retrieval
+contract. Its accepted source-loss/replacement-host evidence is registered as
+`v4.1.0-operational-cloud`; signing and publication remain Phase 8 work.
+
 V4.0 durability is explicit and opt-in; the published `3.4.0` API and default
 in-memory behavior remain unchanged. WAL, deterministic
 recovery, checkpoints, lifecycle hardening, repeated-crash gates, paid durable cloud
@@ -53,6 +59,35 @@ replication or physical-disk-loss protection. See the
 [3.4-to-4.0 migration guide](docs/v4/MIGRATION_GUIDE.md),
 [durability semantics](docs/v4/DURABILITY_AND_COMPLETION.md), and
 [storage compatibility contract](docs/v4/STORAGE_FORMAT_COMPATIBILITY.md).
+
+## What is new in the V4.1 candidate
+
+V4.1 makes an existing durable store operationally safer without changing its live
+format. A running engine can create one checkpoint-consistent immutable backup:
+
+```java
+DurableBackupResult backup = engine.backup(new DurableBackupRequest(
+        Path.of("backups/search"), 16L << 30)).join();
+```
+
+Operators can verify bytes without an application codec, add typed semantic
+verification when the schema and codec are available, restore into an absent target
+as a new history, and clean only explicitly proven non-authoritative remnants through
+a reviewed plan:
+
+```java
+DurableVerificationReport structural =
+        DurableStorageOperations.verifyBackup(backup.targetDirectory());
+
+DurableCleanupPlan plan = DurableStorageOperations.planCleanup(
+        new DurableCleanupRequest(closedStore, DurableCleanupScope.LIVE_STORE));
+DurableCleanupResult cleaned = DurableStorageOperations.applyCleanup(plan);
+```
+
+V4.1 does not provide incremental backup, in-place restore, silent repair, online
+migration or replication. See the
+[4.0-to-4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md) and
+[API/storage compatibility contract](docs/v4x/v4.1/API_COMPATIBILITY.md).
 
 ## Requirements
 

@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <gse.version>4.1.0-SNAPSHOT</gse.version>
+        <gse.version>4.1.0</gse.version>
         <junit.version>5.11.4</junit.version>
     </properties>
 

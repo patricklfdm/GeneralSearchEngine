@@ -3,6 +3,34 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 4.1.0 — 2026-09-03
+
+### Added
+
+- Codec-free offline structural verification for V4 live stores and immutable V4.1
+  backup bundles, with bounded reports, stable classifications and independent byte
+  inspection.
+- Explicit checkpoint-only live backup at one writer-ordered durable sequence, an
+  immutable three-member `gse-backup (1,0)` bundle and canonical SHA-256 content
+  identity.
+- Typed semantic backup verification and restore into an absent target as a distinct
+  V4 history while preserving the backed-up logical sequence and source provenance.
+- Offline dry-run-first cleanup bound to an exact authority, complete inventory and
+  deterministic plan digest, with stale-plan and unknown-member refusal.
+- Separate-JVM interruption matrices plus registered
+  `v4.1.0-operational-cloud` source-loss and replacement-host evidence.
+
+### Changed
+
+- Preserve published V4.0 mutation completion, recovery, corruption, checkpoint,
+  single-writer and live format `gse-durable (1,0)` semantics.
+- Preserve all V3.4 retrieval, ranking, ordering, pagination, highlighting and
+  in-memory lifecycle behavior unless an explicit V4.1 operational API is invoked.
+
+This entry describes the final `4.1.0` release candidate. It does not claim that a
+signed tag, Maven Central artifacts, production deployment or GitHub Release exists;
+those remain Phase 8 publication gates.
+
 ## 4.0.0 — 2026-09-02
 
 ### Added

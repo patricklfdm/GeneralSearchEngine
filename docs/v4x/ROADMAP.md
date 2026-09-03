@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               PHASE 6 REGISTRATION REVIEW
+  V4.1  Operational Safety               ACTIVE PHASE 7 FINAL CANDIDATE
   ↓
 V4.2  Storage Evolution
   ↓
@@ -208,11 +208,10 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phases 0–5 are accepted. Phase 6 implementation and corrections merged through
-protected PRs #99–#102, ending at
-`88205cf28f1aa80f8ea7ccf1bada723b3205215c`. Exact-source experiment run
-`33754116526` and three-member canonical run `33758217508` passed independent
-validation and cleanup review. The append-only `v4.1.0-operational-cloud`
-registration is under protected review. Phase 7 must not begin until that merge and
-its exact-master CI pass. Production operation semantics and live/backup storage
+V4.1 Phases 0–6 are accepted. The append-only `v4.1.0-operational-cloud`
+registration and review merged through protected PR #103 as
+`049b232b12e9819a243c9d7925a39bc7ec0fec53`; exact-master CI run `33809198755`
+passed. Phase 7 owns only final coordinates, consumers, compatibility, documentation,
+Javadocs, artifacts and reproducibility. Phase 8 exclusively owns signed publication
+and post-publication proof. Production operation semantics and live/backup storage
 formats remain frozen.

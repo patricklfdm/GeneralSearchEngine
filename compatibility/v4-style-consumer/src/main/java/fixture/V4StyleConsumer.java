@@ -12,7 +12,9 @@ import java.nio.file.Path;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 import io.github.patricklfdm.generalsearch.schema.Field;
 
 /** A framework-independent consumer of only the published V4 durable API. */
@@ -30,9 +32,25 @@ public final class V4StyleConsumer {
     }
 
     public static DurableSearchEngine<Integer, DurableDocument> open(Path directory) {
-        return SearchEngine.builder(DurableDocument.class, ID)
-                .field(BODY)
+        return builder()
                 .buildDurable(config(directory, SCHEMA_IDENTITY));
+    }
+
+    public static SearchEngineBuilder<Integer, DurableDocument> builder() {
+        return SearchEngine.builder(DurableDocument.class, ID).field(BODY);
+    }
+
+    public static DurableVerificationConfig<Integer, DurableDocument>
+            verificationConfig() {
+        DocumentCodec codec = new DocumentCodec();
+        return new DurableVerificationConfig<>(
+                STORAGE_IDENTITY,
+                SCHEMA_IDENTITY,
+                codec,
+                codec.codecVersion(),
+                64,
+                4096,
+                10_000);
     }
 
     public static DurableStorageConfig<Integer, DurableDocument> config(

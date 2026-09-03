@@ -67,6 +67,14 @@ jobs:
       - name: Compile independent consumers
         run: scripts/verify-consumer-projects.sh
 
+      - name: Verify the V4.1 final candidate boundary
+        run: |
+          if [[ "$RELEASE_TAG" == "v4.1.0" ]]; then
+            scripts/verify-v41-phase7-release.sh --skip-consumers
+          else
+            echo "V4.1 Phase 7 gate: SKIP for $RELEASE_TAG"
+          fi
+
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 
