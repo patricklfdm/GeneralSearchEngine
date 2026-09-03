@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 6 checklist
 
-- **Status:** Local implementation and free pre-cloud gates complete; paid evidence pending
+- **Status:** Canonical evidence accepted; append-only registration pending protected merge
 - **Scope:** Profiling, large corpus, true source loss, replacement host and canonical evidence
 
 ## Entry and boundary
@@ -39,10 +39,12 @@
 - [x] A payload-free create/read/delete probe runs before the first paid Compute
   resource, and project-wide SSH keys are blocked on both VMs.
 - [x] OIDC provider condition explicitly allows the merged workflow identity.
-- [ ] Exact-source experiment member passes and cleanup is reviewed.
-- [ ] Three independent canonical members pass with durable GCS evidence.
-- [ ] Canonical set is downloaded and independently validated.
-- [ ] Baseline `v4.1.0-operational-cloud` is registered exactly once.
+- [x] Exact-source experiment run `33754116526` passes and cleanup is reviewed.
+- [x] Canonical run `33758217508` has three independent passing members with durable
+  GCS evidence.
+- [x] Canonical set is downloaded, checksummed and independently validated.
+- [x] Baseline `v4.1.0-operational-cloud` is registered exactly once in the candidate
+  append-only registry.
 
 ## Gates and acceptance
 
@@ -50,7 +52,7 @@
 - [x] Full reactor passes with 471 core and 5 processor tests.
 - [x] Artifact compatibility and all three consumer fixtures pass.
 - [x] Release-profile verification, six-JAR integrity and reproducibility pass.
-- [ ] Phase 6 PR CI passes and merges to protected `master`.
+- [x] Phase 6 implementation and its corrections merge through protected PRs #99–#102.
 - [ ] Exact-master CI passes and its commit/run are recorded.
 - [ ] Reviewed canonical evidence and registry commit merge before Phase 7.
 
@@ -61,14 +63,13 @@ through protected PR #100 as `22c4c956ff91b454ee26e1519cabd9965bee8fe9`.
 Replacement experiment run `33744312340` also does not satisfy an evidence gate. Its
 receipt records `runStatus=FAIL`, while source VM/disk, replacement VM/disk, staging
 object and aggregate cleanup all record `PASS`. Evidence assembly rejected a zero
-`backup.peakObservedBytes` sample. No further paid execution is authorized until the
-synchronous peak-sampling correction merges, its exact protected-master CI passes and
-the operator explicitly confirms a replacement run.
+`backup.peakObservedBytes` sample. The synchronous peak-sampling correction later
+merged through protected PR #101; accepted runs do not reuse this attempt.
 
 Replacement experiment run `33750556738` does not satisfy an evidence gate. Its source
 stage failed with exit code `20` after mount-root sampling reached root-owned ext4
 `lost+found`. The source VM and disk were deleted; replacement resources and staging
 transport were never created. The corrected receipt truth table treats those
 `NOT_APPLICABLE` resources as complete cleanup but still rejects every `FAIL`. No
-further paid execution is authorized until the owned-path sampling correction merges,
-its exact protected-master CI passes and the operator explicitly confirms another run.
+member from this attempt is reused. The owned-path sampling correction merged through
+protected PR #102, and both accepted runs use that exact protected-master source.

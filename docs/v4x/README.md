@@ -7,13 +7,13 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phases 1–5 are accepted. Phase 5 merged through protected PR #98 at `5f1c750`;
-exact-master CI run `33730252965` passed. Phase 6 is the active scale, profiling,
-source-loss/replacement-host and canonical-evidence phase while all coordinates remain
-`4.1.0-SNAPSHOT`. Paid work requires all free pre-cloud gates and explicit manual
-confirmation.
+V4.1 Phases 1–5 are accepted. Phase 6 implementation and corrections merged through
+protected PRs #99–#102. Exact-source experiment run `33754116526` and canonical run
+`33758217508` passed source-loss, replacement-host, oracle, checksum and cleanup
+review. The append-only `v4.1.0-operational-cloud` registration is under protected
+review while all coordinates remain `4.1.0-SNAPSHOT`.
 
-The Phase 0 candidate freezes a checkpoint-only full-backup protocol, a distinct
+The accepted Phase 0 contract freezes a checkpoint-only full-backup protocol, a distinct
 `gse-backup (1,0)` bundle, new-history restore into an absent target, codec-free
 structural verification, typed semantic verification, offline plan-bound cleanup,
 and local-crash plus durable-cloud evidence as first-class architecture.
@@ -40,7 +40,8 @@ and local-crash plus durable-cloud evidence as first-class architecture.
 - [V4.1 Phase 5 local baseline](v4.1/PHASE_5_BASELINE.md)
 - [V4.1 Phase 5 checklist](v4.1/PHASE_5_CHECKLIST.md)
 - [V4.1 Phase 6 source-loss and replacement-host evidence](v4.1/PHASE_6_OPERATIONAL_EVIDENCE.md)
-- [V4.1 Phase 6 local pre-cloud baseline](v4.1/PHASE_6_BASELINE.md)
+- [V4.1 Phase 6 operational evidence baseline](v4.1/PHASE_6_BASELINE.md)
+- [V4.1 Phase 6 canonical review](v4.1/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.1 Phase 6 checklist](v4.1/PHASE_6_CHECKLIST.md)
 - [V4.1 operational cloud baseline registry](v4.1/cloud-benchmark-baselines.json)
 - [Published V4.0 contract and evidence](../v4/README.md)

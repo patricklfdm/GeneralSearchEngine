@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               ACTIVE PHASE 5 SAFE CLEANUP
+  V4.1  Operational Safety               PHASE 6 REGISTRATION REVIEW
   ↓
 V4.2  Storage Evolution
   ↓
@@ -208,8 +208,11 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phases 0–5 are accepted. Phase 5 merged through protected PR #98 at
-`5f1c750bd360716506a732e301ed52493650837e`; exact-master CI run `33730252965`
-passed. Phase 6 owns benchmark-only profiling, large-corpus operational evidence,
-true source-loss/replacement-host cloud proof and append-only canonical registration.
-Production operation semantics and live/backup storage formats remain frozen.
+V4.1 Phases 0–5 are accepted. Phase 6 implementation and corrections merged through
+protected PRs #99–#102, ending at
+`88205cf28f1aa80f8ea7ccf1bada723b3205215c`. Exact-source experiment run
+`33754116526` and three-member canonical run `33758217508` passed independent
+validation and cleanup review. The append-only `v4.1.0-operational-cloud`
+registration is under protected review. Phase 7 must not begin until that merge and
+its exact-master CI pass. Production operation semantics and live/backup storage
+formats remain frozen.
