@@ -52,6 +52,13 @@
 - [ ] Exact-master CI passes and its commit/run are recorded.
 - [ ] Reviewed canonical evidence and registry commit merge before Phase 7.
 
-Rejected experiment run `33737706926` does not satisfy an evidence gate. No further
-paid execution is authorized until its preflight/SSH correction merges, the new exact
-protected-master CI passes and the operator explicitly confirms a replacement run.
+Rejected experiment run `33737706926` does not satisfy an evidence gate because final
+transport deletion lacked authority. Its preflight/SSH correction subsequently merged
+through protected PR #100 as `22c4c956ff91b454ee26e1519cabd9965bee8fe9`.
+
+Replacement experiment run `33744312340` also does not satisfy an evidence gate. Its
+receipt records `runStatus=FAIL`, while source VM/disk, replacement VM/disk, staging
+object and aggregate cleanup all record `PASS`. Evidence assembly rejected a zero
+`backup.peakObservedBytes` sample. No further paid execution is authorized until the
+synchronous peak-sampling correction merges, its exact protected-master CI passes and
+the operator explicitly confirms a replacement run.

@@ -58,11 +58,16 @@ checkpoint or store authority.
 
 ## Evidence and cleanup
 
-The final member bundle records source impact, backup duration/bytes/observed peak,
-independent structural identity, semantic document count, restore/first-open/
+The final member bundle records source impact, a synchronous pre-backup byte baseline,
+backup duration/bytes/observed peak, independent structural identity, semantic
+document count, restore/first-open/
 checkpoint/second-open timing, retained bytes, heap, disk bytes and restored-read
 throughput. Logs are bounded and document payloads, credentials and OIDC material are
 excluded.
+
+The source probe fails closed before emitting `PASS` unless the baseline is positive
+and the observed peak is at least that baseline. Evidence assembly independently
+rechecks the same invariant.
 
 Every successful receipt independently records deletion of source VM, source disk,
 replacement VM, restore disk and temporary GCS transport. The aggregate set requires

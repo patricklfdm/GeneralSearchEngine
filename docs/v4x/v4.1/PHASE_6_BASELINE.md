@@ -52,11 +52,13 @@ ebe12fae31fbe20a73aa1ab69368f7fed15f8a26c7da60e13d081caede64dcb3  general-search
 2b353c06890b6f6d29ee3ca0e288cb16de2a9aa916a684cf0f3f5693021249da  general-search-engine-processor-4.1.0-SNAPSHOT.jar
 ```
 
-Paid experiment/canonical evidence and registry population remain pending until this
-exact source is merged, protected-master CI passes, the OIDC workflow identity is
-allowed and the operator explicitly authorizes the run.
+Passing paid experiment/canonical evidence and registry population remain pending.
+Every replacement run requires its correction on protected `master`, exact-master CI,
+OIDC/IAM readiness and explicit operator authorization.
 
-## Rejected experiment attempt
+## Rejected experiment attempts
+
+### Missing transport deletion authority
 
 Workflow run `33737706926` attempted the experiment profile at protected-master source
 `fde792c856e2e276b85a5d4a9e14821fed2a85a6`. Source backup, temporary transport and
@@ -68,5 +70,25 @@ delete-only role restricted to the `v4.1-operational-safety/` object prefix.
 
 The runner now proves create/read/delete access with a payload-free object before
 creating any VM or disk. It also blocks project-wide SSH keys on every VM and confines
-ephemeral workflow keys to instance metadata. A new exact-master experiment is
-required after this correction merges and passes CI.
+ephemeral workflow keys to instance metadata. This correction merged through protected
+PR #100 as `22c4c956ff91b454ee26e1519cabd9965bee8fe9`.
+
+### Zero asynchronous peak sample
+
+Workflow run `33744312340` attempted the experiment profile at protected-master source
+`22c4c956ff91b454ee26e1519cabd9965bee8fe9`. The transport permission preflight passed,
+the source and replacement-host topology ran, and cleanup removed the source VM/disk,
+replacement VM/disk and staging object. Its receipt records `runStatus=FAIL` with all
+five deletion checks and aggregate `cleanup=PASS`.
+
+Evidence assembly nevertheless rejected the run because `backup.peakObservedBytes`
+was zero. The downloaded artifact contains only the cleanup receipt and two bounded
+16-KiB remote logs; it contains no backup or corpus payload. This run is not eligible
+evidence and makes no performance, backup or recovery claim.
+
+The probe now takes a positive synchronous `source.bytesBeforeBackup` measurement
+before starting backup, seeds the observed peak with that value and lets the concurrent
+monitor raise it. The source stage fails closed before reporting `PASS`, and evidence
+validation independently requires both values to be positive and the peak to be at
+least the synchronous baseline. A new exact-master experiment is required after this
+correction merges and passes CI.
