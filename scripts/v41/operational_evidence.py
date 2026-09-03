@@ -101,7 +101,8 @@ def validate_properties(
         "backup.semanticDocuments", "source.loadNanos",
         "source.preBackupMutationNanos", "source.afterCutMutationNanos",
         "source.impactReads", "source.impactWrites", "source.impactReadNanos",
-        "source.retainedBytes", "source.heapUsedBytes", "source.totalNanos",
+        "source.bytesBeforeBackup", "source.retainedBytes",
+        "source.heapUsedBytes", "source.totalNanos",
     ):
         integer(source, key, positive=True)
     if source.get("backup.status") != "PASS" \
@@ -110,6 +111,9 @@ def validate_properties(
         raise EvidenceError("source backup verification did not pass")
     if integer(source, "backup.semanticDocuments") != expected["documents"]:
         raise EvidenceError("source semantic document count differs")
+    if integer(source, "backup.peakObservedBytes") \
+            < integer(source, "source.bytesBeforeBackup"):
+        raise EvidenceError("backup peak bytes precede the synchronous baseline")
     backup_sequence = integer(source, "backup.sequence", positive=True)
     if integer(source, "source.afterCutSequence") != backup_sequence + 1:
         raise EvidenceError("post-cut mutation sequence is not exact")
@@ -162,6 +166,7 @@ def validate_properties(
         "impactReads": integer(source, "source.impactReads"),
         "impactWrites": integer(source, "source.impactWrites"),
         "impactReadNanos": integer(source, "source.impactReadNanos"),
+        "bytesBeforeBackup": integer(source, "source.bytesBeforeBackup"),
         "retainedBytes": integer(source, "source.retainedBytes"),
         "heapUsedBytes": integer(source, "source.heapUsedBytes"),
         "totalNanos": integer(source, "source.totalNanos"),

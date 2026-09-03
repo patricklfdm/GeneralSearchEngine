@@ -93,6 +93,12 @@ public final class V41OperationalEvidenceProbe {
             result.put("source.preBackupMutationNanos", elapsed(mutationStarted));
             String expectedCutChecksum = checksum(engine, profile.documents());
             long expectedCutSequence = engine.currentSequence();
+            long bytesBeforeBackup = directoryBytes(store.getParent());
+            if (bytesBeforeBackup <= 0L) {
+                throw new IllegalStateException("source bytes were not observable");
+            }
+            backupPeakBytes.set(bytesBeforeBackup);
+            result.put("source.bytesBeforeBackup", Long.toString(bytesBeforeBackup));
 
             CompletableFuture<DurableBackupResult> backupFuture;
             long backupStarted = System.nanoTime();
@@ -135,6 +141,11 @@ public final class V41OperationalEvidenceProbe {
             if (monitorFailure.get() != null) {
                 throw new IllegalStateException("backup monitor failed", monitorFailure.get());
             }
+            long peakObservedBytes = backupPeakBytes.get();
+            if (peakObservedBytes < bytesBeforeBackup) {
+                throw new IllegalStateException(
+                        "backup peak bytes precede the synchronous baseline");
+            }
             if (completed.sequence() != expectedCutSequence) {
                 throw new IllegalStateException("backup cut sequence drifted");
             }
@@ -154,7 +165,7 @@ public final class V41OperationalEvidenceProbe {
             result.put("backup.contentIdentity", completed.contentIdentity());
             result.put("backup.sourceHistory", completed.sourceHistory().toString());
             result.put("backup.totalBytes", Long.toString(completed.totalBytes()));
-            result.put("backup.peakObservedBytes", Long.toString(backupPeakBytes.get()));
+            result.put("backup.peakObservedBytes", Long.toString(peakObservedBytes));
             result.put("backup.structuralStatus", structural.status().name());
             result.put("backup.semanticStatus", semantic.status().name());
             result.put("backup.semanticDocuments", Long.toString(semantic.documentCount()));

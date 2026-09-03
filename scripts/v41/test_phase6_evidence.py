@@ -25,9 +25,102 @@ from scripts.v41.operational_cloud_workflow import (
     validate_inputs,
     validate_plan,
 )
+from scripts.v41.operational_evidence import validate_properties
+
+
+def valid_operational_properties() -> tuple[dict[str, str], dict[str, str]]:
+    common = {
+        "schemaVersion": "gse-v41-operational-properties-v1",
+        "status": "PASS",
+        "profile": "smoke",
+        "documents": "1000",
+        "tokensPerDocument": "16",
+        "preBackupMutations": "100",
+        "continuedMutations": "20",
+        "measurementSeconds": "1",
+        "codecId": "v41-operational-codec-v1",
+        "codecVersion": "1",
+        "storageIdentity": "v41-operational-store-v1",
+        "schemaIdentity": "v41-operational-schema-v1",
+        "processCpuNanosAtStart": "0",
+        "processCpuNanosAtEnd": "1",
+    }
+    source = {
+        **common,
+        "stage": "source",
+        "backup.elapsedNanos": "1",
+        "backup.totalBytes": "10",
+        "backup.peakObservedBytes": "20",
+        "backup.semanticDocuments": "1000",
+        "backup.status": "PASS",
+        "backup.structuralStatus": "VALID",
+        "backup.semanticStatus": "SEMANTICALLY_VALID",
+        "backup.sequence": "5",
+        "backup.contentIdentity": "gse-backup-v1-" + "a" * 64,
+        "backup.sourceHistory": "source-history",
+        "source.loadNanos": "1",
+        "source.preBackupMutationNanos": "1",
+        "source.afterCutMutationNanos": "1",
+        "source.impactReads": "1",
+        "source.impactWrites": "1",
+        "source.impactReadNanos": "1",
+        "source.bytesBeforeBackup": "10",
+        "source.retainedBytes": "1",
+        "source.heapUsedBytes": "1",
+        "source.totalNanos": "1",
+        "source.afterCutSequence": "6",
+        "oracle.cutChecksum": "b" * 64,
+    }
+    restore = {
+        **common,
+        "stage": "restore",
+        "verification.elapsedNanos": "1",
+        "verification.semanticDocuments": "1000",
+        "verification.structuralStatus": "VALID",
+        "verification.semanticStatus": "SEMANTICALLY_VALID",
+        "restore.elapsedNanos": "1",
+        "restore.authoritativeBytes": "1",
+        "restore.firstOpenNanos": "1",
+        "restore.continuedMutationNanos": "1",
+        "restore.checkpointNanos": "1",
+        "restore.retainedBytes": "1",
+        "restore.heapUsedBytes": "1",
+        "restore.secondOpenNanos": "1",
+        "restore.finalDirectoryBytes": "1",
+        "restore.sequence": "5",
+        "restore.finalSequence": "6",
+        "restore.sourceHistory": "source-history",
+        "restore.newHistory": "restore-history",
+        "measurement.reads": "1",
+        "measurement.durationNanos": "1000000000",
+        "measurement.readsPerSecondMicros": "1",
+        "oracle.restoredChecksum": "b" * 64,
+        "oracle.continuedChecksum": "c" * 64,
+    }
+    return source, restore
 
 
 class Phase6EvidenceTest(unittest.TestCase):
+    def test_synchronous_byte_baseline_is_required_and_bounds_peak(self) -> None:
+        source, restore = valid_operational_properties()
+        source_metrics, _ = validate_properties(source, restore, "smoke", 1)
+        self.assertEqual(10, source_metrics["bytesBeforeBackup"])
+
+        invalid_sources = []
+        missing = dict(source)
+        del missing["source.bytesBeforeBackup"]
+        invalid_sources.append(missing)
+        zero = dict(source)
+        zero["source.bytesBeforeBackup"] = "0"
+        invalid_sources.append(zero)
+        peak_below_baseline = dict(source)
+        peak_below_baseline["backup.peakObservedBytes"] = "9"
+        invalid_sources.append(peak_below_baseline)
+        for invalid in invalid_sources:
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(EvidenceError):
+                    validate_properties(invalid, restore, "smoke", 1)
+
     def test_delete_permission_failure_precedes_compute_creation(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
