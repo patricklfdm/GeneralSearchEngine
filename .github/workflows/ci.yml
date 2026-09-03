@@ -97,8 +97,8 @@ jobs:
       - name: Compile independent consumers
         run: scripts/verify-consumer-projects.sh
 
-      - name: Verify the V4.0 release-candidate boundary
-        run: scripts/verify-v40-phase7-release.sh --skip-consumers
+      - name: Verify the published V4.0 storage fixture boundary
+        run: python -m unittest scripts.v4.test_phase7_release_fixtures
 
   release-artifacts:
     name: Release artifacts
