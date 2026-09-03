@@ -2,9 +2,10 @@
 
 ## Published baseline
 
-Published `3.4.0` is the immediate V4.0 API and behavior baseline. V1, V2, V2.1,
-V3.0, V3.1, V3.2, V3.3, and V3.4 compatibility consumers and Japicmp gates remain
-required. The existing in-memory path receives no mandatory parameter or behavior.
+Published `3.4.0` is the immediate V4.0 API and behavior baseline. Published `4.0.0`
+now freezes the additive durable surface described below. V1, V2, V2.1, V3.0, V3.1,
+V3.2, V3.3, and V3.4 compatibility consumers and Japicmp gates remain required. The
+existing in-memory path receives no mandatory parameter or behavior.
 
 Phase 7 adds an independently compiled V4 consumer that exercises fresh creation,
 checkpoint-plus-WAL reopen, stable identity mismatch, unsupported custom startup

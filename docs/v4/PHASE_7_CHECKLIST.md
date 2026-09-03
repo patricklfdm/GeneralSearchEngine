@@ -1,7 +1,9 @@
 # V4.0 Phase 7 release-candidate checklist
 
-**Status:** local release-candidate validation complete on `release/v4.0.0`;
-protected acceptance is pending and no tag or publication is authorized by this phase
+**Status:** complete through protected PR #90 at `0f2ea5e`; the documentation-only
+evidence-workspace boundary merged through PR #91 as final release commit
+`73479da344f24f69e15904660d46783459d80dcf`, and exact-master CI run `33705710878`
+passed before the verified Phase 8 publication
 
 ## Accepted entry boundary
 
@@ -74,13 +76,18 @@ protected acceptance is pending and no tag or publication is authorized by this 
 
 ## Protected acceptance and Phase 8 handoff
 
-- [ ] Merge this candidate through protected review without a direct master push.
-- [ ] Record the exact protected-master merge commit and its successful CI run.
-- [ ] Confirm local and remote absence of `v4.0.0` before signing.
-- [ ] Run Central immutability preflight for both artifacts.
-- [ ] Begin Phase 8 only from the exact accepted protected-master commit.
+- [x] Merge the candidate through protected PR #90 as `0f2ea5e` without a direct
+  master push.
+- [x] Merge the evidence-workspace boundary through PR #91 as final protected-master
+  commit `73479da344f24f69e15904660d46783459d80dcf` and record successful exact-master
+  CI run `33705710878`.
+- [x] Confirm local and remote absence of `v4.0.0` before signing.
+- [x] Run Central immutability preflight for both artifacts and observe HTTP `404`.
+- [x] Begin Phase 8 only from the exact accepted protected-master commit.
 
 Any production Java or format-fixture change after the accepted canonical source must
 be classified explicitly. A correctness fix invalidates affected validation and may
 require new durable evidence; documentation and release-infrastructure changes cannot
-silently alter format `1.0` or the registered performance baseline.
+silently alter format `1.0` or the registered performance baseline. Phase 8 completed
+successfully from this handoff; the immutable remote facts are recorded in the
+[release checklist](RELEASE_CHECKLIST.md).

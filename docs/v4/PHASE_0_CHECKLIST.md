@@ -1,8 +1,11 @@
 # V4.0 Phase 0 checklist
 
-**Status:** contract content complete; protected-merge acceptance pending
+**Status:** accepted through protected PR #77 at
+`d5a32538f5eea5f419fe77d024171b4fbaabea20`; exact-master CI run `33563515761`
+passed
 
-**Production implementation:** not authorized
+**Production implementation:** authorized only through the subsequently accepted
+Phase 1–7 contracts
 
 **Reference:** published GeneralSearchEngine `3.4.0`
 
@@ -73,11 +76,11 @@
 - [x] Published `3.4.0` remains the immediate API/consumer/performance baseline.
 - [x] Phase 0 changes documentation only; version bump and harnesses begin in Phase 1,
   production WAL begins in Phase 2.
-- [ ] This contract set is merged through protected review and exact-master CI passes.
+- [x] This contract set merged through protected PR #77 and exact-master CI passed in
+  run `33563515761`.
 
 ## Exit gate
 
-Phase 0 exits only after the final unchecked item passes. Until then, the documents
-are implementation-ready proposals but do not authorize code. After acceptance,
-Phase 1 may establish `4.0.0-SNAPSHOT`, compatibility fixtures, crash/corruption
-harnesses, independent oracles, and pre-change evidence.
+Phase 0 exited at the accepted boundary above. Phase 1 subsequently established
+`4.0.0-SNAPSHOT`, compatibility fixtures, crash/corruption harnesses, independent
+oracles, and pre-change evidence before production WAL began in Phase 2.

@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## v4.0 active development contract
+## v4.0 completed development contract
 
 V4.0 opens the opt-in durable single-node line from the published `3.4.0` in-memory
 reference. It preserves immutable snapshots, lock-free readers, one authoritative
@@ -79,12 +79,34 @@ protected PR #88 as `adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`; exact-master
 CI run `33694586398` passed. This is the accepted Phase 7 entry boundary. No public
 API, storage-format or durability-semantic change was introduced.
 
-Phase 7 converts all eight active coordinates to final `4.0.0`, freezes the release
-calendar, adds an independently compiled durable consumer and checksummed format
-`1.0` fixtures, extends remote publication verification to that consumer, and closes
+Phase 7 converted all eight active coordinates to final `4.0.0`, froze the release
+calendar, added an independently compiled durable consumer and checksummed format
+`1.0` fixtures, extended remote publication verification to that consumer, and closed
 migration, API, storage, artifact, reproducibility and release-operation documents.
-It prepares but does not publish the release; signed tagging and remote proof remain
-Phase 8.
+The candidate merged through protected PR #90 as `0f2ea5e`; the evidence-workspace
+boundary merged through PR #91 as final protected-master commit
+`73479da344f24f69e15904660d46783459d80dcf`. Exact-master CI run `33705710878`
+passed before tagging.
+
+Phase 8 is complete. Signed tag `v4.0.0`, release workflow run `33706352253`, Maven
+Central core and processor artifacts, clean remote V3/V4 consumer and format-fixture
+verification, production deployment `6235596306`, and GitHub Release `381684854` all
+resolve to the final protected commit. The append-only `v4.0.0-durable-cloud`
+registration remains bound to canonical run `33682157985` and source
+`fe2060b9a872e66ff0067be6e8b7c900f0099708`.
+
+## v4.0.0 current stable release
+
+Version `4.0.0` was published on September 2, 2026 Pacific time as the current stable
+release:
+
+- `io.github.patricklfdm:general-search-engine:4.0.0`;
+- `io.github.patricklfdm:general-search-engine-processor:4.0.0`; and
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.0.0).
+
+The default path remains in memory. Opt-in durable mode adds format `1.0` WAL,
+checkpoints, bounded retention and deterministic recovery under one local writer; it
+does not add replication, multiple writers, or physical-disk-loss protection.
 
 ## v3.x completed development line
 
@@ -230,9 +252,10 @@ amendment before a narrow compatibility-preserving fix. The architecture,
 compatibility, validation, performance, cloud, handoff, and Phase 0 contracts are under
 [`docs/v3x/v3.4/`](docs/v3x/v3.4/ARCHITECTURE.md).
 
-## v3.4.0 current stable release
+## v3.4.0 previous stable release
 
-Version `3.4.0` was published on September 1, 2026 as the current stable release:
+Version `3.4.0` was published on September 1, 2026 and remains the immediate prior
+stable release and frozen in-memory compatibility baseline:
 
 - `io.github.patricklfdm:general-search-engine:3.4.0`;
 - `io.github.patricklfdm:general-search-engine-processor:3.4.0`;

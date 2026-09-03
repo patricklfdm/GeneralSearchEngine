@@ -105,16 +105,25 @@ Convert to final `4.0.0`; close migration and storage documentation, public API,
 published-3.4 compatibility, independent consumers, strict Javadocs, artifacts,
 reproducibility, release automation, and protected-master gates.
 
-Phase 7 is active on `release/v4.0.0`. The candidate adds no production behavior or
-format change: it converts the eight active coordinates, freezes format `1.0`
-fixtures, adds the independent V4 durable consumer, and makes both local and remote
-release validation exercise that boundary. Publication remains Phase 8.
+Phase 7 is complete. The candidate added no production behavior or format change: it
+converted the eight active coordinates, froze format `1.0` fixtures, added the
+independent V4 durable consumer, and made both local and remote release validation
+exercise that boundary. It merged through protected PR #90 as `0f2ea5e`; the
+evidence-workspace boundary merged through PR #91 as final protected-master commit
+`73479da344f24f69e15904660d46783459d80dcf`. Exact-master CI run `33705710878`
+passed before tagging.
 
 ### Phase 8 — publication
 
 Publish signed `v4.0.0`, Maven Central artifacts, and GitHub Release. Run a clean
 external durable consumer, verify deployment and storage fixtures, record the final
 durable evidence identity, and close post-publication documentation.
+
+Phase 8 is complete. Signed `v4.0.0` points to the exact final protected commit.
+Release workflow run `33706352253` passed, core and processor `4.0.0` artifacts are
+published and remotely verified, clean V3/V4 consumers and immutable format fixtures
+pass against Central, deployment `6235596306` reports success, and GitHub Release
+`381684854` is published as neither draft nor prerelease.
 
 ## Phase dependency
 

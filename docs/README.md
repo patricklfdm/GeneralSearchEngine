@@ -7,7 +7,7 @@ development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
-## v4.0 — active durable single-node development
+## v4.0 — current stable durable single-node line
 
 - [Development overview and contract map](v4/README.md)
 - [Roadmap](v4/ROADMAP.md)
@@ -45,7 +45,7 @@ remains the phase history and decision source of truth.
 - [V4.0.0 release checklist](v4/RELEASE_CHECKLIST.md)
 - [V4 durable cloud baseline registry](v4/cloud-benchmark-baselines.json)
 
-## v3.x — current stable and completed in-memory line
+## v3.x — completed in-memory line and compatibility baseline
 
 - [Development overview and contract map](v3x/README.md)
 - [Roadmap](v3x/ROADMAP.md)

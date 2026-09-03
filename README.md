@@ -1,25 +1,26 @@
 # GeneralSearchEngine
 
-GeneralSearchEngine is a generic Java 21 in-memory object search engine. Product is its
-reference document type. The engine uses immutable search snapshots and persistent,
-block-based bitmaps so readers can search without locking while a single writer batches
-mutations and atomically publishes new snapshots.
+GeneralSearchEngine is a generic Java 21 object search engine with an in-memory default
+and opt-in single-node local durability. Product is its reference document type. The
+engine uses immutable search snapshots and persistent, block-based bitmaps so readers
+can search without locking while a single writer batches mutations and atomically
+publishes new snapshots.
 
-Version 3.4.0 is the current stable release. Its signed `v3.4.0` tag, both Maven
-artifacts, production deployment, GitHub Release, clean remote verification, and final
-`v3.4.0-in-memory-cloud` evidence baseline completed on September 1, 2026. Version
-3.3.0 remains the immediate prior stable release and compatibility baseline.
+Version 4.0.0 is the current stable release. Its signed `v4.0.0` tag, both Maven
+artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
+verification, and `v4.0.0-durable-cloud` evidence baseline are complete. Publication
+completed on September 2, 2026 Pacific time (`2026-09-03T02:22:41Z`). Version 3.4.0
+remains the immediate prior stable release and frozen in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V3.x contract map](docs/v3x/README.md). Version `3.4.0` is available from Maven Central.
+[V4 contract map](docs/v4/README.md). Version `4.0.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.0 is now a final release candidate. The mode is explicit and opt-in; the stable
-`3.4.0` API and default in-memory behavior remain unchanged. WAL, deterministic
+V4.0 durability is explicit and opt-in; the published `3.4.0` API and default
+in-memory behavior remain unchanged. WAL, deterministic
 recovery, checkpoints, lifecycle hardening, repeated-crash gates, paid durable cloud
 evidence, independent consumer validation, and frozen format `1.0` fixtures are
-complete. `3.4.0` remains the current published dependency until signed Phase 8
-publication is independently verified. See the [V4 contract map](docs/v4/README.md).
+published and independently verified. See the [V4 contract map](docs/v4/README.md).
 
 ## What is new in V4.0
 
@@ -58,7 +59,7 @@ replication or physical-disk-loss protection. See the
 
 ## Install
 
-### Stable 3.4.0
+### Stable 4.0.0
 
 The runtime dependency is:
 
@@ -66,27 +67,28 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>3.4.0</version>
+    <version>4.0.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:3.4.0`. Existing 3.3 users can
-upgrade without supported source changes through the
-[3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md); all earlier published
-contracts remain recorded in their historical documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:4.0.0`. Existing 3.4 users can
+retain the in-memory path without supported source changes or opt into durability
+through the [3.4-to-4.0 migration guide](docs/v4/MIGRATION_GUIDE.md). All earlier
+published contracts remain recorded in their historical documentation and
+compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/3.4.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.0.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/3.4.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.0.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v3.4.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v3.4.0).
+[`v4.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.0.0).
 
-V3.4 requires no supported source migration. See the
-[3.3-to-3.4 migration guide](docs/v3x/v3.4/MIGRATION_GUIDE.md) for its zero-addition
-API boundary, preserved behavior, benchmark-only hardening scope, and final V4 handoff.
+V4.0 keeps ordinary search in memory unless `buildDurable(...)` is selected. See the
+[migration guide](docs/v4/MIGRATION_GUIDE.md) for codec, identity, import, reopen,
+backup, rollback, and operator responsibilities.
 
 ### What is new in V3.1
 
@@ -345,6 +347,7 @@ The script skips tests because release verification runs them separately, then c
 all six core/processor JARs and prints their SHA-256 checksums. Reproduction assumes the same JDK
 major version; `.gitattributes` fixes repository text files to LF across platforms.
 See [CHANGELOG.md](CHANGELOG.md), the
+[V4.0 release record](docs/v4/RELEASE_CHECKLIST.md),
 [V3.4 release record](docs/v3x/v3.4/RELEASE_CHECKLIST.md),
 [V3.3 release record](docs/v3x/v3.3/RELEASE_CHECKLIST.md),
 [V3.2 release record](docs/v3x/v3.2/RELEASE_CHECKLIST.md), and the
@@ -357,7 +360,7 @@ The [v3.0 release record](docs/v3/RELEASE_CHECKLIST.md),
 [v1 release checklist](docs/v1/RELEASE_CHECKLIST.md) remain historical evidence.
 External repository credentials and signing configuration remain environment-specific.
 The published project identity and Apache License 2.0 metadata remain finalized for
-v3.4.0.
+v4.0.0.
 
 ## v1.0.0 scope
 
