@@ -13,7 +13,9 @@ completed on September 2, 2026 Pacific time (`2026-09-03T02:22:41Z`). Version 3.
 remains the immediate prior stable release and frozen in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V4 contract map](docs/v4/README.md). Version `4.0.0` is available from Maven Central.
+[V4 contract map](docs/v4/README.md). Active post-4.0 planning is recorded separately
+in the [V4.x development map](docs/v4x/README.md). Version `4.0.0` is available from
+Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
 V4.0 durability is explicit and opt-in; the published `3.4.0` API and default

@@ -5,6 +5,11 @@ single-node line. Published `3.4.0` remains the frozen in-memory reference; V4.0
 changes the process-lifetime boundary without changing retrieval truth, scoring,
 canonical order, snapshots, or the one-writer publication model.
 
+This directory is the closed `4.0.0` contract and evidence record. Active post-4.0
+development is governed separately by the [V4.x roadmap](../v4x/ROADMAP.md) and
+[V4.1 Phase 0 contract](../v4x/v4.1/PHASE_0_CONTRACT.md); later minor work does not
+rewrite the published V4.0 record.
+
 ## Current status
 
 V4.0 Phase 0 is accepted on protected `master` through PR #77 at `d5a3253`. Phase 1
