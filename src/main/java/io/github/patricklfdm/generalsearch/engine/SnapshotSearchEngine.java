@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import io.github.patricklfdm.generalsearch.analysis.OffsetAnalyzer;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
+import io.github.patricklfdm.generalsearch.durability.DurableOperationException;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentAlreadyExistsException;
 import io.github.patricklfdm.generalsearch.engine.exception.DocumentNotFoundException;
@@ -389,6 +392,45 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
         return completion;
     }
 
+    final CompletableFuture<DurableBackupResult> backupDurably(
+            DurableBackupRequest request
+    ) {
+        Objects.requireNonNull(request, "request");
+        if (durability == null) {
+            return CompletableFuture.failedFuture(new UnsupportedOperationException(
+                    "backup requires a durable engine"));
+        }
+        CompletableFuture<DurableBackupResult> completion = new CompletableFuture<>();
+        try {
+            durability.validateBackupRequest(request);
+        } catch (RuntimeException failure) {
+            completion.completeExceptionally(failure);
+            return completion.copy();
+        }
+        synchronized (lifecycleMonitor) {
+            if (!accepting) {
+                completion.completeExceptionally(new DurableOperationException(
+                        DurableOperationException.Reason.CLOSED,
+                        java.util.OptionalLong.empty(), null));
+            } else {
+                try {
+                    durability.reserveBackup(completion);
+                    if (!queue.offer(new BackupTask<>(request, completion,
+                            new CompletableFuture<>()))) {
+                        completion.completeExceptionally(new DurableOperationException(
+                                DurableOperationException.Reason.IO_FAILURE,
+                                java.util.OptionalLong.empty(),
+                                new EngineRejectedExecutionException(
+                                        EngineRejectedExecutionException.Reason.QUEUE_FULL)));
+                    }
+                } catch (RuntimeException failure) {
+                    completion.completeExceptionally(failure);
+                }
+            }
+        }
+        return completion.copy();
+    }
+
     private long processSnapshotVersion(long internalVersion) {
         return Math.subtractExact(internalVersion, snapshotVersionBase);
     }
@@ -741,12 +783,17 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 processInstallIndex(asInstallIndexTask(task));
             } else if (task instanceof CheckpointTask<?, ?>) {
                 processCheckpoint(asCheckpointTask(task));
+            } else if (task instanceof BackupTask<?, ?>) {
+                processBackup(asBackupTask(task));
             } else {
                 task.completion().completeExceptionally(
                         new IllegalArgumentException("unknown writer task: " + task));
             }
         } catch (RuntimeException failure) {
             task.completion().completeExceptionally(failure);
+            if (task instanceof BackupTask<?, ?> backup) {
+                durability.rejectBackup(backup.result(), failure);
+            }
             if (durability != null && durability.isTerminalFailure(failure)) {
                 throw failure;
             }
@@ -763,6 +810,12 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                 task.completion().completeExceptionally(unwrap(failure));
             }
         });
+    }
+
+    private void processBackup(BackupTask<K, T> task) {
+        durability.startBackup(
+                captureDurableCheckpoint(), task.request(), task.result());
+        task.completion().complete(null);
     }
 
     private void processCreateIndex(CreateIndexTask<K, T> task) {
@@ -1130,6 +1183,9 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
                     failedMutations += bulk.mutations().size();
                 }
             }
+            if (task instanceof BackupTask<?, ?> backup) {
+                durability.rejectBackup(backup.result(), failure);
+            }
         }
         pendingIndexBuilds.values().forEach(pending -> {
             recordIndexBuildFailure(pending, failure);
@@ -1211,6 +1267,11 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
     @SuppressWarnings("unchecked")
     private CheckpointTask<K, T> asCheckpointTask(WriterTask<K, T> task) {
         return (CheckpointTask<K, T>) task;
+    }
+
+    @SuppressWarnings("unchecked")
+    private BackupTask<K, T> asBackupTask(WriterTask<K, T> task) {
+        return (BackupTask<K, T>) task;
     }
 
     private final class BatchState {
@@ -1367,6 +1428,18 @@ public class SnapshotSearchEngine<K, T> implements SearchEngine<K, T> {
             CompletableFuture<Void> completion
     ) implements WriterTask<K, T> {
         private CheckpointTask {
+            Objects.requireNonNull(completion, "completion");
+        }
+    }
+
+    private record BackupTask<K, T>(
+            DurableBackupRequest request,
+            CompletableFuture<DurableBackupResult> result,
+            CompletableFuture<Void> completion
+    ) implements WriterTask<K, T> {
+        private BackupTask {
+            Objects.requireNonNull(request, "request");
+            Objects.requireNonNull(result, "result");
             Objects.requireNonNull(completion, "completion");
         }
     }

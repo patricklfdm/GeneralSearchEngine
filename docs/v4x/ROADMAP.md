@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               ACTIVE PHASE 2 VERIFICATION
+  V4.1  Operational Safety               ACTIVE PHASE 3 LIVE BACKUP
   ↓
 V4.2  Storage Evolution
   ↓
@@ -208,7 +208,7 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phase 1 is accepted at protected-master commit `e183face`; exact-master CI run
-`33717370973` passed. Phase 2 owns only codec-free read-only structural verification,
-stable reports and the classification matrix. Backup writing, semantic verification,
-restore and cleanup remain blocked by their later owning phases.
+V4.1 Phase 2 is accepted at protected-master commit `a17ad20`; exact-master CI run
+`33720179867` passed. Phase 3 owns exact-sequence live backup, checkpoint pinning,
+immutable bundle publication and its interruption/lifecycle matrix. Semantic
+verification, restore and cleanup remain blocked by their later owning phases.

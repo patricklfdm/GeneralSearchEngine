@@ -57,5 +57,6 @@ scripts/verify-release-artifacts.sh
 scripts/verify-reproducible-build.sh
 ```
 
-Protected PR and exact-master CI remain the Phase 2 acceptance gates. Paid cloud work
-is not part of this phase.
+Protected PR #95 merged Phase 2 as
+`a17ad20d3cd03128abf6c4f7fbeb0b752b523b02`; exact-master CI run `33720179867`
+passed. Paid cloud work was not part of this phase.

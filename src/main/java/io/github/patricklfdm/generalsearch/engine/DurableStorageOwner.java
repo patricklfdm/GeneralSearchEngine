@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.FileStore;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -28,6 +29,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
@@ -58,6 +60,8 @@ final class DurableStorageOwner implements AutoCloseable {
     private volatile DurableWal wal;
     private List<DurableWal> replayWals;
     private volatile DurableCheckpoint.Manifest manifest;
+    private final Set<String> pinnedCheckpointFiles =
+            ConcurrentHashMap.newKeySet();
     private boolean closed;
 
     private DurableStorageOwner(
@@ -325,6 +329,37 @@ final class DurableStorageOwner implements AutoCloseable {
         return manifest;
     }
 
+    synchronized CheckpointPin pinCheckpoint(
+            DurableCheckpoint.Manifest expected
+    ) {
+        Objects.requireNonNull(expected, "expected");
+        if (closed || manifest == null || !manifest.equals(expected)) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    expected.checkpointSequence(),
+                    "backup checkpoint is no longer authoritative");
+        }
+        Path checkpoint = directory.resolve(expected.checkpointFile());
+        if (Files.isSymbolicLink(checkpoint)
+                || !Files.isRegularFile(checkpoint, LinkOption.NOFOLLOW_LINKS)) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.CORRUPT_CHECKPOINT,
+                    expected.checkpointSequence(),
+                    "backup checkpoint cannot be pinned");
+        }
+        if (!pinnedCheckpointFiles.add(expected.checkpointFile())) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.IO_FAILURE,
+                    expected.checkpointSequence(),
+                    "backup checkpoint is already pinned");
+        }
+        return new CheckpointPin(this, expected.checkpointFile());
+    }
+
+    private synchronized void releaseCheckpoint(String checkpointFile) {
+        pinnedCheckpointFiles.remove(checkpointFile);
+    }
+
     synchronized void finishRecovery() {
         for (DurableWal replay : replayWals) {
             if (replay != wal) {
@@ -533,7 +568,8 @@ final class DurableStorageOwner implements AutoCloseable {
                     continue;
                 }
                 if ((DurableCheckpoint.CHECKPOINT_FILE.matcher(name).matches()
-                        && !name.equals(authoritative.checkpointFile()))
+                        && !name.equals(authoritative.checkpointFile())
+                        && !pinnedCheckpointFiles.contains(name))
                         || DurableCheckpoint.CHECKPOINT_STAGING_FILE
                                 .matcher(name).matches()
                         || name.equals(DurableCheckpoint.MANIFEST_STAGING_FILE)) {
@@ -1114,6 +1150,28 @@ final class DurableStorageOwner implements AutoCloseable {
         Metadata {
             Objects.requireNonNull(historyId, "historyId");
             indexes = List.copyOf(indexes);
+        }
+    }
+
+    static final class CheckpointPin implements AutoCloseable {
+        private DurableStorageOwner owner;
+        private final String checkpointFile;
+
+        private CheckpointPin(
+                DurableStorageOwner owner,
+                String checkpointFile
+        ) {
+            this.owner = Objects.requireNonNull(owner, "owner");
+            this.checkpointFile = Objects.requireNonNull(
+                    checkpointFile, "checkpointFile");
+        }
+
+        @Override
+        public synchronized void close() {
+            if (owner != null) {
+                owner.releaseCheckpoint(checkpointFile);
+                owner = null;
+            }
         }
     }
 

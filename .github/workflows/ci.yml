@@ -64,6 +64,9 @@ jobs:
       - name: Exercise V4.1 codec-free structural verification
         run: scripts/verify-v41-phase2-structural.sh --skip-build
 
+      - name: Exercise V4.1 live backup and crash matrix
+        run: scripts/verify-v41-phase3-backup.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -171,6 +174,7 @@ jobs:
           bash -n scripts/verify-v40-phase7-release.sh
           bash -n scripts/verify-v41-phase1-foundation.sh
           bash -n scripts/verify-v41-phase2-structural.sh
+          bash -n scripts/verify-v41-phase3-backup.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -208,8 +212,8 @@ jobs:
 
       - name: Validate V4.1 fixtures, evidence, and fake cloud control plane
         run: |
-          python -m py_compile scripts/v41/backup_format.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/test_backup_format.py scripts/v41/test_phase1_infrastructure.py
-          python -m unittest scripts.v41.test_backup_format scripts.v41.test_phase1_infrastructure
+          python -m py_compile scripts/v41/backup_format.py scripts/v41/backup_crash_inspector.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/test_backup_format.py scripts/v41/test_backup_crash_inspector.py scripts/v41/test_phase1_infrastructure.py
+          python -m unittest scripts.v41.test_backup_format scripts.v41.test_backup_crash_inspector scripts.v41.test_phase1_infrastructure
 
   required:
     name: Required
