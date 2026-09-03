@@ -56,7 +56,13 @@ final class DurableCrashHooks {
             "v41-restore-before-final-rename-v1",
             "v41-restore-after-final-rename-v1",
             "v41-restore-after-parent-force-v1",
-            "v41-restore-before-return-v1"
+            "v41-restore-before-return-v1",
+            "v41-cleanup-before-delete-v1",
+            "v41-cleanup-after-delete-v1",
+            "v41-cleanup-before-directory-force-v1",
+            "v41-cleanup-after-directory-force-v1",
+            "v41-cleanup-before-post-verify-v1",
+            "v41-cleanup-after-post-verify-v1"
     );
 
     private DurableCrashHooks() {

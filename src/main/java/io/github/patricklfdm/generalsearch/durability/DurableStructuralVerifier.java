@@ -180,7 +180,7 @@ final class DurableStructuralVerifier {
         return findings.report(sequence, authoritativeBytes);
     }
 
-    private static DurableVerificationReport verifyLockedStore(Path directory) {
+    static DurableVerificationReport verifyLockedStore(Path directory) {
         Collector findings = new Collector(directory);
         Map<String, FileState> members = inventory(directory, findings);
         FileState lock = members.get(LOCK);

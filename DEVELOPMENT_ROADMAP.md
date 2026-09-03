@@ -16,8 +16,10 @@ passed. Phase 2 merged through protected PR #95 as
 `a17ad20d3cd03128abf6c4f7fbeb0b752b523b02`; exact-master CI run `33720179867`
 passed. Phase 3 merged through protected PR #96 as
 `f5516dfc05ff0e878a72f60d56792c30d480d2c3`; exact-master CI run `33723841861`
-passed. Phase 4 is the active typed semantic-verification and new-history restore
-phase. Every active coordinate remains
+passed. Phase 4 merged through protected PR #97 as
+`47a4a3d7e417b9034b6bc704c7b9a6213feefd32`; exact-master CI run `33726843823`
+passed. Phase 5 is the active offline plan-bound safe-cleanup phase. Every active
+coordinate remains
 `4.1.0-SNAPSHOT`. The accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
@@ -75,6 +77,16 @@ sequence and state while publishing a distinct history as an unchanged V4 format
 `1.0` directory through absent-target staging. Its production authority transitions
 are covered by separate-JVM abrupt halt and independent pre-reopen inspection. Public
 cleanup and paid cloud execution remain unauthorized.
+
+Phase 5 adds the frozen codec-free cleanup operations and values. Planning acquires
+offline exclusive ownership and binds exact real paths, structural authority,
+complete inventory, member SHA-256 fingerprints, ordered delete set and deterministic
+digest. Apply recomputes the plan before deletion, rejects every stale or ambiguous
+input without deletion, forces the containing directory and reverifies surviving
+authority. Cleanup never scans parents, truncates WAL, repairs corruption, or deletes
+complete stores/bundles. Every deletion/force/post-verification transition has
+separate-JVM abrupt-halt and independent pre-reopen evidence. Paid cloud execution
+remains unauthorized.
 
 ## v4.0 completed development contract
 

@@ -26,10 +26,13 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 4 semantic verification and restore](v4x/v4.1/PHASE_4_SEMANTIC_RESTORE.md)
 - [V4.1 Phase 4 local baseline](v4x/v4.1/PHASE_4_BASELINE.md)
 - [V4.1 Phase 4 checklist](v4x/v4.1/PHASE_4_CHECKLIST.md)
+- [V4.1 Phase 5 plan-bound safe cleanup](v4x/v4.1/PHASE_5_SAFE_CLEANUP.md)
+- [V4.1 Phase 5 local baseline](v4x/v4.1/PHASE_5_BASELINE.md)
+- [V4.1 Phase 5 checklist](v4x/v4.1/PHASE_5_CHECKLIST.md)
 
-V4.1 Phases 0–3 are accepted and Phase 4 is the active typed semantic-verification
-and new-history restore phase. Its local crash harness and fake durable-cloud control
-plane remain first-class architecture; cleanup and paid work remain unauthorized.
+V4.1 Phases 0–4 are accepted and Phase 5 is the active offline plan-bound cleanup
+phase. Its local crash harness and fake durable-cloud control plane remain first-class
+architecture; paid work remains unauthorized.
 
 ## v4.0 — current stable durable single-node release
 

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 4 checklist
 
-- **Status:** Implementation complete; protected acceptance pending
+- **Status:** Accepted on protected `master`
 - **Scope:** Typed semantic verification and logical new-history restore
 
 ## Entry and boundary
@@ -47,7 +47,7 @@
 - [x] `scripts/verify-v41-phase4-restore.sh` passes locally.
 - [x] Full reactor, published compatibility, consumers, release artifacts and
   reproducibility pass locally.
-- [ ] Phase 4 PR CI passes and merges to protected `master`.
-- [ ] Exact-master CI passes and its commit/run are recorded.
+- [x] Phase 4 PR #97 CI passed and merged as `47a4a3d`.
+- [x] Exact-master CI run `33726843823` passed for `47a4a3d`.
 
-Phase 5 plan-bound safe cleanup remains blocked until Phase 4 acceptance.
+Phase 5 plan-bound safe cleanup is admitted from this accepted baseline.

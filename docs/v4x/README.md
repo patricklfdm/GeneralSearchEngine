@@ -7,10 +7,10 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phases 1–3 are accepted. Phase 3 merged through protected PR #96 at `f5516df`;
-exact-master CI run `33723841861` passed. Phase 4 is the active typed semantic
-verification and new-history restore phase while all coordinates remain
-`4.1.0-SNAPSHOT`. Cleanup and paid cloud work remain unauthorized.
+V4.1 Phases 1–4 are accepted. Phase 4 merged through protected PR #97 at `47a4a3d`;
+exact-master CI run `33726843823` passed. Phase 5 is the active offline plan-bound
+safe-cleanup phase while all coordinates remain `4.1.0-SNAPSHOT`. Paid cloud work
+remains unauthorized.
 
 The Phase 0 candidate freezes a checkpoint-only full-backup protocol, a distinct
 `gse-backup (1,0)` bundle, new-history restore into an absent target, codec-free
@@ -35,6 +35,9 @@ and local-crash plus durable-cloud evidence as first-class architecture.
 - [V4.1 Phase 4 semantic verification and restore](v4.1/PHASE_4_SEMANTIC_RESTORE.md)
 - [V4.1 Phase 4 local baseline](v4.1/PHASE_4_BASELINE.md)
 - [V4.1 Phase 4 checklist](v4.1/PHASE_4_CHECKLIST.md)
+- [V4.1 Phase 5 plan-bound safe cleanup](v4.1/PHASE_5_SAFE_CLEANUP.md)
+- [V4.1 Phase 5 local baseline](v4.1/PHASE_5_BASELINE.md)
+- [V4.1 Phase 5 checklist](v4.1/PHASE_5_CHECKLIST.md)
 - [Published V4.0 contract and evidence](../v4/README.md)
 
 ## Authority order

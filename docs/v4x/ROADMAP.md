@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               ACTIVE PHASE 4 SEMANTIC RESTORE
+  V4.1  Operational Safety               ACTIVE PHASE 5 SAFE CLEANUP
   ↓
 V4.2  Storage Evolution
   ↓
