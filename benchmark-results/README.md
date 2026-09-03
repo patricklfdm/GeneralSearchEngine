@@ -12,8 +12,12 @@ that a clean build does not remove evidence that is still under review.
   `4g`/`8g`/`16g` heap diagnostic.
 - `v34-cloud-evidence/` is a local download workspace for lightweight GitHub Actions
   artifacts from the V3.4 two-hour experiment and canonical set.
+- `v4-durable/` is the local download and review workspace for V4 durable experiment,
+  canonical, replacement-VM failure-drill, quota-failure, cleanup, and checksum
+  evidence. Its own [README](v4-durable/README.md) and `.gitignore` define that
+  boundary.
 
-The two V3.4 download workspaces are ignored by Git. They may contain large raw or
+The V3.4 and V4 download workspaces are ignored by Git. They may contain large raw or
 derived metrics, temporary instance descriptions, orchestration logs, and values that
 are useful for local audit but unsuitable as permanent source files. Keep them intact
 until their checksums, identities, upload receipts, and cleanup proof have been
@@ -23,6 +27,8 @@ For GCS-retained runs, the immutable upload receipt is the durable raw-evidence
 binding. Git retains only curated review summaries and stable content identities; the
 V3.4 summary is
 [`docs/v3x/v3.4/PHASE_5_BASELINE.md`](../docs/v3x/v3.4/PHASE_5_BASELINE.md).
+The accepted V4 durable set is summarized in
+[`docs/v4/PHASE_6_CANONICAL_REVIEW.md`](../docs/v4/PHASE_6_CANONICAL_REVIEW.md).
 
 Do not use ignored local output as the only copy of required evidence. Do not force-add
 raw benchmark directories to Git.
