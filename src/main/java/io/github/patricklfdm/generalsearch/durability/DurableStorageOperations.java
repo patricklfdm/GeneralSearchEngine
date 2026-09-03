@@ -32,4 +32,30 @@ public final class DurableStorageOperations {
     public static DurableVerificationReport verifyBackup(Path directory) {
         return DurableStructuralVerifier.verifyBackup(directory);
     }
+
+    /**
+     * Builds a codec-free, read-only cleanup plan for one exact offline boundary.
+     * Planning acquires exclusive ownership, proves every candidate
+     * non-authoritative, and binds the complete observed inventory. The returned plan
+     * grants no permission after any filesystem or authority change.
+     *
+     * @param request exact live-store or operation-remnant request
+     * @return deterministic immutable dry-run plan, possibly empty
+     */
+    public static DurableCleanupPlan planCleanup(DurableCleanupRequest request) {
+        return DurableCleanupOperations.plan(request);
+    }
+
+    /**
+     * Applies one previously produced cleanup plan synchronously and codec-free.
+     * The operation reacquires exclusive ownership and rejects a stale plan before
+     * deleting anything. Success proves each planned deletion was forced and the
+     * surviving authority was reverified.
+     *
+     * @param plan exact dry-run plan to revalidate and apply
+     * @return immutable deletion and post-verification result
+     */
+    public static DurableCleanupResult applyCleanup(DurableCleanupPlan plan) {
+        return DurableCleanupOperations.apply(plan);
+    }
 }

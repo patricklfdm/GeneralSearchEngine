@@ -67,7 +67,7 @@ class V41PublicApiFoundationTest {
     }
 
     @Test
-    void phase4ShipsTypedRestoreButNotCleanupTypes() throws Exception {
+    void phase5ShipsEveryFrozenOperationalType() throws Exception {
         for (String simpleName : List.of(
                 "DurableStorageOperations",
                 "DurableVerificationStatus",
@@ -80,23 +80,34 @@ class V41PublicApiFoundationTest {
                 "DurableVerificationConfig",
                 "DurableSemanticVerificationStatus",
                 "DurableSemanticVerificationReport",
-                "DurableRestoreResult"
+                "DurableRestoreResult",
+                "DurableCleanupScope",
+                "DurableCleanupRequest",
+                "DurableCleanupEntry",
+                "DurableCleanupPlan",
+                "DurableCleanupResult"
         )) {
             assertNotNull(Class.forName(
                     "io.github.patricklfdm.generalsearch.durability." + simpleName));
         }
-        assertFalse(classExists(
-                "io.github.patricklfdm.generalsearch.durability.DurableCleanupPlan"));
     }
 
     @Test
-    void phase4AddsTypedBuilderOperations() {
+    void phase5AddsCleanupOperationsAfterTypedBuilderOperations() throws Exception {
         assertTrue(List.of(DurableSearchEngine.class.getMethods()).stream()
                 .anyMatch(method -> method.getName().equals("backup")));
         assertTrue(List.of(SearchEngineBuilder.class.getMethods()).stream()
                 .anyMatch(method -> method.getName().equals("verifyDurableBackup")));
         assertTrue(List.of(SearchEngineBuilder.class.getMethods()).stream()
                 .anyMatch(method -> method.getName().equals("restoreDurableBackup")));
+        assertTrue(List.of(Class.forName(
+                        "io.github.patricklfdm.generalsearch.durability."
+                                + "DurableStorageOperations").getMethods()).stream()
+                .anyMatch(method -> method.getName().equals("planCleanup")));
+        assertTrue(List.of(Class.forName(
+                        "io.github.patricklfdm.generalsearch.durability."
+                                + "DurableStorageOperations").getMethods()).stream()
+                .anyMatch(method -> method.getName().equals("applyCleanup")));
     }
 
     private static String readFixture() throws IOException {
@@ -107,12 +118,4 @@ class V41PublicApiFoundationTest {
         }
     }
 
-    private static boolean classExists(String name) {
-        try {
-            Class.forName(name);
-            return true;
-        } catch (ClassNotFoundException expected) {
-            return false;
-        }
-    }
 }
