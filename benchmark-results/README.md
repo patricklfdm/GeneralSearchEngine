@@ -16,6 +16,9 @@ that a clean build does not remove evidence that is still under review.
   canonical, replacement-VM failure-drill, quota-failure, cleanup, and checksum
   evidence. Its own [README](v4-durable/README.md) and `.gitignore` define that
   boundary.
+- `v41-operational/` is the local download and review workspace for V4.1 backup,
+  true source-loss, replacement-host, aggregate-set and cleanup evidence. Its own
+  [README](v41-operational/README.md) and `.gitignore` keep raw artifacts untracked.
 
 The V3.4 and V4 download workspaces are ignored by Git. They may contain large raw or
 derived metrics, temporary instance descriptions, orchestration logs, and values that
@@ -29,6 +32,8 @@ V3.4 summary is
 [`docs/v3x/v3.4/PHASE_5_BASELINE.md`](../docs/v3x/v3.4/PHASE_5_BASELINE.md).
 The accepted V4 durable set is summarized in
 [`docs/v4/PHASE_6_CANONICAL_REVIEW.md`](../docs/v4/PHASE_6_CANONICAL_REVIEW.md).
+V4.1 conclusions belong in
+[`docs/v4x/v4.1/PHASE_6_BASELINE.md`](../docs/v4x/v4.1/PHASE_6_BASELINE.md).
 
 Do not use ignored local output as the only copy of required evidence. Do not force-add
 raw benchmark directories to Git.

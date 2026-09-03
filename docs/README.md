@@ -29,10 +29,15 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 5 plan-bound safe cleanup](v4x/v4.1/PHASE_5_SAFE_CLEANUP.md)
 - [V4.1 Phase 5 local baseline](v4x/v4.1/PHASE_5_BASELINE.md)
 - [V4.1 Phase 5 checklist](v4x/v4.1/PHASE_5_CHECKLIST.md)
+- [V4.1 Phase 6 source-loss and replacement-host evidence](v4x/v4.1/PHASE_6_OPERATIONAL_EVIDENCE.md)
+- [V4.1 Phase 6 local pre-cloud baseline](v4x/v4.1/PHASE_6_BASELINE.md)
+- [V4.1 Phase 6 checklist](v4x/v4.1/PHASE_6_CHECKLIST.md)
+- [V4.1 operational cloud baseline registry](v4x/v4.1/cloud-benchmark-baselines.json)
 
-V4.1 Phases 0–4 are accepted and Phase 5 is the active offline plan-bound cleanup
-phase. Its local crash harness and fake durable-cloud control plane remain first-class
-architecture; paid work remains unauthorized.
+V4.1 Phases 0–5 are accepted and Phase 6 is the active operational-evidence phase.
+Its local crash harness, independent parser, fake cloud control plane and true
+source-loss/replacement-host topology remain first-class architecture. Paid work is
+authorized only after the Phase 6 pre-cloud gates and an explicit manual confirmation.
 
 ## v4.0 — current stable durable single-node release
 

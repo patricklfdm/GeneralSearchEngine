@@ -27,8 +27,8 @@ PLAN = {
     "mountOptions": "defaults",
     "maximumRunCostUsd": 25,
     "gcsLayout": (
-        "gs://${GSE_V41_GCS_BUCKET}/v4.1-operational-safety/"
-        "<source-sha>/<run-id>-<attempt>/<profile>/member-<slot>/"
+        "v4.1-operational-safety/<source-sha>/<run-id>-<attempt>/"
+        "<profile>/member-<slot>/"
     ),
 }
 

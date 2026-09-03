@@ -18,9 +18,11 @@ passed. Phase 3 merged through protected PR #96 as
 `f5516dfc05ff0e878a72f60d56792c30d480d2c3`; exact-master CI run `33723841861`
 passed. Phase 4 merged through protected PR #97 as
 `47a4a3d7e417b9034b6bc704c7b9a6213feefd32`; exact-master CI run `33726843823`
-passed. Phase 5 is the active offline plan-bound safe-cleanup phase. Every active
-coordinate remains
-`4.1.0-SNAPSHOT`. The accepted contract selects one exact
+passed. Phase 5 merged through protected PR #98 as
+`5f1c750bd360716506a732e301ed52493650837e`; exact-master CI run `33730252965`
+passed. Phase 6 is the active scale, profiling, source-loss, replacement-host and
+canonical-evidence phase. Every active coordinate remains `4.1.0-SNAPSHOT`. The
+accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
 `gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
@@ -87,6 +89,16 @@ authority. Cleanup never scans parents, truncates WAL, repairs corruption, or de
 complete stores/bundles. Every deletion/force/post-verification transition has
 separate-JVM abrupt-halt and independent pre-reopen evidence. Paid cloud execution
 remains unauthorized.
+
+Phase 6 adds benchmark-only operational instrumentation and a separately versioned
+manual cloud workflow; it does not change production behavior. One source VM and
+source persistent disk create the exact backup cut, then the immutable bundle crosses
+GCS transport and both source resources are proven unavailable. Only then may a new
+restore disk and replacement VM verify bytes independently, restore a new history,
+compare the complete oracle, continue mutation, checkpoint, close and reopen. Local
+smoke, no-GCP fake control plane, exact-source CI and explicit confirmation precede
+paid experiment/canonical execution. Canonical registration remains append-only as
+`v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
 ## v4.0 completed development contract
 

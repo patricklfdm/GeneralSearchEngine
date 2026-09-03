@@ -73,6 +73,9 @@ jobs:
       - name: Exercise V4.1 plan-bound safe cleanup matrix
         run: scripts/verify-v41-phase5-cleanup.sh
 
+      - name: Exercise V4.1 source-loss operational evidence
+        run: scripts/verify-v41-phase6-evidence.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -183,11 +186,14 @@ jobs:
           bash -n scripts/verify-v41-phase3-backup.sh
           bash -n scripts/verify-v41-phase4-restore.sh
           bash -n scripts/verify-v41-phase5-cleanup.sh
+          bash -n scripts/verify-v41-phase6-evidence.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
           bash -n scripts/v4/remote_durable_failure.sh
           bash -n scripts/v4/run_durable_failure_drill.sh
+          bash -n scripts/v41/remote_operational_stage.sh
+          bash -n scripts/v41/run_operational_cloud_member.sh
           bash -n scripts/cloud/*.sh
 
       - name: Analyze synthetic soak evidence
@@ -220,8 +226,8 @@ jobs:
 
       - name: Validate V4.1 fixtures, evidence, and fake cloud control plane
         run: |
-          python -m py_compile scripts/v41/backup_format.py scripts/v41/backup_crash_inspector.py scripts/v41/restore_crash_inspector.py scripts/v41/cleanup_crash_inspector.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/test_backup_format.py scripts/v41/test_backup_crash_inspector.py scripts/v41/test_restore_crash_inspector.py scripts/v41/test_cleanup_crash_inspector.py scripts/v41/test_phase1_infrastructure.py
-          python -m unittest scripts.v41.test_backup_format scripts.v41.test_backup_crash_inspector scripts.v41.test_restore_crash_inspector scripts.v41.test_cleanup_crash_inspector scripts.v41.test_phase1_infrastructure
+          python -m py_compile scripts/v41/backup_format.py scripts/v41/backup_crash_inspector.py scripts/v41/restore_crash_inspector.py scripts/v41/cleanup_crash_inspector.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/operational_evidence.py scripts/v41/operational_cloud_workflow.py scripts/v41/operational_cloud_set.py scripts/v41/test_backup_format.py scripts/v41/test_backup_crash_inspector.py scripts/v41/test_restore_crash_inspector.py scripts/v41/test_cleanup_crash_inspector.py scripts/v41/test_phase1_infrastructure.py scripts/v41/test_phase6_evidence.py
+          python -m unittest scripts.v41.test_backup_format scripts.v41.test_backup_crash_inspector scripts.v41.test_restore_crash_inspector scripts.v41.test_cleanup_crash_inspector scripts.v41.test_phase1_infrastructure scripts.v41.test_phase6_evidence
 
   required:
     name: Required
