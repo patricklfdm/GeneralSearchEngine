@@ -20,7 +20,7 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-V4.1  Operational Safety               ACTIVE CONTRACT FREEZE
+  V4.1  Operational Safety               ACTIVE PHASE 1 FOUNDATION
   ↓
 V4.2  Storage Evolution
   ↓
@@ -208,7 +208,7 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 implementation must not begin until its Phase 0 contract freezes the exact
-backup cut and pinned member set, bundle wire format and identity, public API boundary,
-new-history restore, structural versus semantic verification, safe cleanup, failure
-precedence, compatibility, and local/cloud evidence requirements.
+V4.1 Phase 0 is accepted. Phase 1 may establish only the version, compatibility,
+fixture, independent-model, local crash and fake-cloud foundation described by its
+contract. Production codec-free verification begins in Phase 2 only after Phase 1
+passes protected acceptance.

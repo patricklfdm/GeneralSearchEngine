@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 0 checklist
 
-- **Status:** Contract complete; protected acceptance pending
+- **Status:** Accepted on protected `master`
 - **Scope:** Documentation-only operational-safety freeze
 - **Authoritative contract:** [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md)
 
@@ -154,16 +154,15 @@ record protected-master acceptance until the final acceptance section is complet
 
 ## Protected acceptance
 
-- [ ] Contract and checklist reviewed on their Phase 0 branch.
-- [ ] Documentation links and whitespace checks pass.
-- [ ] Phase 0 pull request CI passes.
-- [ ] Phase 0 pull request merges to protected `master`.
-- [ ] Exact-master CI passes on the merge commit.
-- [ ] Protected merge commit and CI run are recorded before Phase 1 begins.
+- [x] Contract and checklist reviewed on their Phase 0 branch.
+- [x] Documentation links and whitespace checks pass.
+- [x] Phase 0 pull request CI passes.
+- [x] Phase 0 pull request #93 merges to protected `master`.
+- [x] Exact-master CI run `33714630130` passes on merge commit
+  `8d83f41f7fd3431b63ee550502ea97376d586108`.
+- [x] Protected merge commit and CI run are recorded before Phase 1 begins.
 
 ## Exit decision
 
-The candidate is semantically complete and ready for protected Phase 0 review. Phase 1
-remains blocked until every protected-acceptance item above is complete. Acceptance
-authorizes only the Phase 1 foundation described by the contract; it does not authorize
-production V4.1 operational code.
+Phase 0 is accepted. Phase 1 may establish the non-production foundation described by
+the contract; production V4.1 operational code remains unauthorized.
