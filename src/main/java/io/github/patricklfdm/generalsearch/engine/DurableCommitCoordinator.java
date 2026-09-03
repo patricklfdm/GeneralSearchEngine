@@ -19,6 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
+import io.github.patricklfdm.generalsearch.durability.DurableOperationException;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.durability.DurabilityMetrics;
@@ -36,10 +39,13 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
 
     private final DurableStorageConfig<K, T> config;
     private final DurableCodec<K, T> codec;
+    private final String codecIdentity;
+    private final int codecVersion;
     private final SearchSchema<T, K> schema;
     private final DurableStorageOwner storage;
     private final AtomicReference<DurabilityMetrics> metrics;
     private final ExecutorService checkpointExecutor;
+    private final ExecutorService backupExecutor;
     private final DurableRecovery.Result<K, T> recoveredState;
     private final RecoverySource recoverySource;
     private final long replayedRecords;
@@ -53,6 +59,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private Optional<DurabilityException.Reason> lastCheckpointFailure =
             Optional.empty();
     private CompletableFuture<Void> activeCheckpoint;
+    private CompletableFuture<DurableBackupResult> activeBackup;
     private long allocatedSequence;
     private long publishedSequence;
     private long forceGroups;
@@ -70,10 +77,14 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
             Duration totalRecoveryDuration,
             long storageOpenNanos,
             long checkpointLoadNanos,
-            long replayAndRebuildNanos
+            long replayAndRebuildNanos,
+            String codecIdentity,
+            int codecVersion
     ) {
         this.config = config;
         this.codec = config.codec();
+        this.codecIdentity = codecIdentity;
+        this.codecVersion = codecVersion;
         this.schema = schema;
         this.storage = opened.owner();
         this.recoveredState = recoveredState;
@@ -102,6 +113,11 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         publishedSequence = recoveredState.sequence();
         checkpointExecutor = Executors.newSingleThreadExecutor(task -> {
             Thread thread = new Thread(task, "gse-durable-checkpoint");
+            thread.setDaemon(true);
+            return thread;
+        });
+        backupExecutor = Executors.newSingleThreadExecutor(task -> {
+            Thread thread = new Thread(task, "gse-durable-backup");
             thread.setDaemon(true);
             return thread;
         });
@@ -203,7 +219,9 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                             0L, System.nanoTime() - recoveryStarted)),
                     storageOpenNanos,
                     checkpointLoadNanos,
-                    replayAndRebuildNanos);
+                    replayAndRebuildNanos,
+                    codecId,
+                    codecVersion);
         } catch (IOException ioFailure) {
             DurabilityException failure = new DurabilityException(
                     DurabilityException.Reason.STORAGE_ACCESS,
@@ -461,6 +479,246 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 && !terminal
                 && (activeCheckpoint == null || activeCheckpoint.isDone())
                 && storage.wal().dataBytes() >= config.checkpointWalBytes();
+    }
+
+    void validateBackupRequest(DurableBackupRequest request) {
+        DurableBackupWriter.validateTarget(storage.directory(), request);
+    }
+
+    synchronized void reserveBackup(
+            CompletableFuture<DurableBackupResult> result
+    ) {
+        Objects.requireNonNull(result, "result");
+        if (closed) {
+            throw operation(DurableOperationException.Reason.CLOSED, null, null);
+        }
+        if (activeBackup != null && !activeBackup.isDone()) {
+            throw operation(DurableOperationException.Reason.OPERATION_IN_PROGRESS,
+                    null, null);
+        }
+        if (terminal) {
+            throw operation(DurableOperationException.Reason.SOURCE_INVALID,
+                    publishedSequence, null);
+        }
+        activeBackup = result;
+        result.whenComplete((ignored, failure) -> clearBackup(result));
+    }
+
+    private synchronized void clearBackup(
+            CompletableFuture<DurableBackupResult> result
+    ) {
+        if (activeBackup == result) {
+            activeBackup = null;
+        }
+    }
+
+    void rejectBackup(
+            CompletableFuture<DurableBackupResult> result,
+            Throwable failure
+    ) {
+        result.completeExceptionally(backupFailure(
+                Objects.requireNonNull(failure, "failure"), currentSequence()));
+    }
+
+    void startBackup(
+            DurableCheckpoint.Capture<K, T> capture,
+            DurableBackupRequest request,
+            CompletableFuture<DurableBackupResult> result
+    ) {
+        Objects.requireNonNull(capture, "capture");
+        Objects.requireNonNull(request, "request");
+        Objects.requireNonNull(result, "result");
+        DurableStorageOwner.GenerationCut cut;
+        CompletableFuture<Void> sourceCheckpoint = new CompletableFuture<>();
+        synchronized (this) {
+            if (activeBackup != result || result.isDone()) {
+                return;
+            }
+            if (closed) {
+                result.completeExceptionally(operation(
+                        DurableOperationException.Reason.CLOSED,
+                        capture.sequence(), null));
+                return;
+            }
+            if (terminal) {
+                result.completeExceptionally(operation(
+                        DurableOperationException.Reason.SOURCE_INVALID,
+                        capture.sequence(), null));
+                return;
+            }
+            if (activeCheckpoint != null && !activeCheckpoint.isDone()) {
+                result.completeExceptionally(operation(
+                        DurableOperationException.Reason.OPERATION_IN_PROGRESS,
+                        capture.sequence(), null));
+                return;
+            }
+            if (capture.sequence() != publishedSequence
+                    || capture.sequence() != allocatedSequence) {
+                result.completeExceptionally(operation(
+                        DurableOperationException.Reason.SOURCE_INVALID,
+                        capture.sequence(), null));
+                return;
+            }
+            try {
+                DurableCrashHooks.reach("v41-backup-before-writer-cut-v1");
+                DurableCrashHooks.reach("v41-backup-after-b-selection-v1");
+                cut = storage.cutGeneration(
+                        backupWalFirstSequence(capture.sequence()),
+                        config.maxRetainedBytes());
+                DurableCrashHooks.reach("v41-backup-after-wal-cut-v1");
+                publishMetrics(DurabilityStatus.OPEN);
+                activeCheckpoint = sourceCheckpoint;
+                checkpointExecutor.execute(() -> publishBackupCheckpoint(
+                        capture, cut, request, result, sourceCheckpoint));
+            } catch (RuntimeException failure) {
+                terminal = !(failure instanceof DurabilityException durability
+                        && durability.reason()
+                        == DurabilityException.Reason.CAPACITY_EXCEEDED);
+                lastCheckpointFailure = Optional.of(reasonOf(failure));
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.CAPACITY_BLOCKED);
+                result.completeExceptionally(backupFailure(
+                        failure, capture.sequence()));
+            }
+        }
+    }
+
+    private void publishBackupCheckpoint(
+            DurableCheckpoint.Capture<K, T> capture,
+            DurableStorageOwner.GenerationCut cut,
+            DurableBackupRequest request,
+            CompletableFuture<DurableBackupResult> result,
+            CompletableFuture<Void> sourceCheckpoint
+    ) {
+        DurableStorageOwner.CheckpointPin pin = null;
+        try {
+            DurableStorageOwner.CheckpointPublication publication =
+                    storage.publishCheckpoint(capture, config, schema, cut);
+            DurableCrashHooks.reach(
+                    "v41-backup-after-source-checkpoint-authority-v1");
+            pin = storage.pinCheckpoint(publication.manifest());
+            DurableCrashHooks.reach("v41-backup-after-checkpoint-pin-v1");
+            synchronized (this) {
+                checkpointSequence = publication.manifest().checkpointSequence();
+                lastCheckpointFailure = Optional.ofNullable(
+                        publication.cleanupFailure());
+                activeCheckpoint = null;
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.OPEN);
+            }
+            sourceCheckpoint.complete(null);
+            DurableStorageOwner.CheckpointPin retainedPin = pin;
+            pin = null;
+            backupExecutor.execute(() -> writeBackup(
+                    publication.manifest(), retainedPin, request, result));
+        } catch (DurableStorageOwner.CheckpointFailure wrapper) {
+            DurabilityException failure = wrapper.failure();
+            synchronized (this) {
+                lastCheckpointFailure = Optional.of(failure.reason());
+                if (wrapper.manifestReplaced()) {
+                    terminal = true;
+                }
+                activeCheckpoint = null;
+                publishMetrics(terminal
+                        ? DurabilityStatus.FAILED
+                        : DurabilityStatus.OPEN);
+            }
+            sourceCheckpoint.completeExceptionally(failure);
+            result.completeExceptionally(backupFailure(
+                    failure, capture.sequence()));
+        } catch (RuntimeException failure) {
+            synchronized (this) {
+                terminal = true;
+                lastCheckpointFailure = Optional.of(reasonOf(failure));
+                activeCheckpoint = null;
+                publishMetrics(DurabilityStatus.FAILED);
+            }
+            sourceCheckpoint.completeExceptionally(failure);
+            result.completeExceptionally(backupFailure(
+                    failure, capture.sequence()));
+        } finally {
+            if (pin != null) {
+                pin.close();
+            }
+        }
+    }
+
+    private void writeBackup(
+            DurableCheckpoint.Manifest manifest,
+            DurableStorageOwner.CheckpointPin pin,
+            DurableBackupRequest request,
+            CompletableFuture<DurableBackupResult> result
+    ) {
+        DurableBackupResult completed = null;
+        Throwable failure = null;
+        try {
+            completed = DurableBackupWriter.write(
+                    storage.directory(), manifest.checkpointFile(),
+                    storage.historyId(), manifest.checkpointSequence(), config,
+                    codecIdentity, codecVersion, request);
+        } catch (Throwable thrown) {
+            failure = thrown;
+        } finally {
+            try {
+                pin.close();
+            } catch (Throwable closeFailure) {
+                if (failure == null) {
+                    failure = closeFailure;
+                } else {
+                    failure.addSuppressed(closeFailure);
+                }
+            }
+        }
+        if (failure == null) {
+            result.complete(completed);
+        } else {
+            result.completeExceptionally(failure instanceof DurableOperationException
+                    ? failure
+                    : operation(DurableOperationException.Reason.IO_FAILURE,
+                            manifest.checkpointSequence(), failure));
+        }
+    }
+
+    private static DurableOperationException backupFailure(
+            Throwable failure,
+            long sequence
+    ) {
+        if (failure instanceof DurableOperationException operation) {
+            return operation;
+        }
+        DurableOperationException.Reason reason =
+                failure instanceof DurabilityException durability
+                        && durability.reason()
+                        == DurabilityException.Reason.CAPACITY_EXCEEDED
+                ? DurableOperationException.Reason.CAPACITY_EXCEEDED
+                : DurableOperationException.Reason.SOURCE_INVALID;
+        return operation(reason, sequence, failure);
+    }
+
+    static long backupWalFirstSequence(long sequence) {
+        try {
+            return Math.incrementExact(sequence);
+        } catch (ArithmeticException failure) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.SEQUENCE_EXHAUSTED,
+                    sequence,
+                    "backup cannot cut a post-checkpoint WAL sequence",
+                    failure);
+        }
+    }
+
+    private static DurableOperationException operation(
+            DurableOperationException.Reason reason,
+            Long sequence,
+            Throwable cause
+    ) {
+        return new DurableOperationException(reason,
+                sequence == null
+                        ? java.util.OptionalLong.empty()
+                        : java.util.OptionalLong.of(sequence),
+                cause);
     }
 
     synchronized CompletableFuture<Void> checkpoint(
@@ -721,26 +979,38 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
 
     @Override
     public void close() {
-        CompletableFuture<Void> pending;
+        CompletableFuture<Void> pendingCheckpoint;
+        CompletableFuture<DurableBackupResult> pendingBackup;
         synchronized (this) {
             if (closed) {
                 return;
             }
             closed = true;
-            pending = activeCheckpoint;
+            pendingCheckpoint = activeCheckpoint;
+            pendingBackup = activeBackup;
             checkpointExecutor.shutdown();
         }
-        if (pending != null) {
+        if (pendingCheckpoint != null) {
             try {
-                pending.join();
+                pendingCheckpoint.join();
             } catch (CompletionException ignored) {
                 // The accepted checkpoint Future already carries its primary failure.
             }
         }
+        if (pendingBackup != null) {
+            try {
+                pendingBackup.join();
+            } catch (CompletionException ignored) {
+                // The accepted backup Future already carries its primary failure.
+            }
+        }
+        backupExecutor.shutdown();
         boolean interrupted = false;
-        while (!checkpointExecutor.isTerminated()) {
+        while (!checkpointExecutor.isTerminated()
+                || !backupExecutor.isTerminated()) {
             try {
                 checkpointExecutor.awaitTermination(1, TimeUnit.DAYS);
+                backupExecutor.awaitTermination(1, TimeUnit.DAYS);
             } catch (InterruptedException failure) {
                 interrupted = true;
             }

@@ -30,7 +30,23 @@ final class DurableCrashHooks {
             "v4-checkpoint-after-manifest-rename-v1",
             "v4-checkpoint-after-directory-force-v1",
             "v4-checkpoint-before-wal-cleanup-v1",
-            "v4-checkpoint-after-wal-cleanup-v1"
+            "v4-checkpoint-after-wal-cleanup-v1",
+            "v41-backup-before-writer-cut-v1",
+            "v41-backup-after-b-selection-v1",
+            "v41-backup-after-wal-cut-v1",
+            "v41-backup-after-source-checkpoint-authority-v1",
+            "v41-backup-after-checkpoint-pin-v1",
+            "v41-backup-after-marker-force-v1",
+            "v41-backup-during-metadata-copy-v1",
+            "v41-backup-after-metadata-force-v1",
+            "v41-backup-during-checkpoint-copy-v1",
+            "v41-backup-after-checkpoint-force-v1",
+            "v41-backup-after-manifest-force-v1",
+            "v41-backup-after-manifest-rename-v1",
+            "v41-backup-before-final-rename-v1",
+            "v41-backup-after-final-rename-v1",
+            "v41-backup-after-parent-force-v1",
+            "v41-backup-before-future-completion-v1"
     );
 
     private DurableCrashHooks() {
@@ -58,7 +74,8 @@ final class DurableCrashHooks {
         if (!action.equals("wait")) {
             throw new IllegalArgumentException("unsupported V4 crash action");
         }
-        while (true) {
+        while (active(barrierId)
+                && "wait".equals(System.getProperty(ACTION_PROPERTY))) {
             LockSupport.parkNanos(1_000_000_000L);
         }
     }

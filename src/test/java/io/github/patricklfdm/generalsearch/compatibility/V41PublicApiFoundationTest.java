@@ -68,20 +68,21 @@ class V41PublicApiFoundationTest {
     }
 
     @Test
-    void phase2ShipsOnlyTheStructuralOperationalTypes() throws Exception {
+    void phase3ShipsStructuralAndBackupTypesOnly() throws Exception {
         for (String simpleName : List.of(
                 "DurableStorageOperations",
                 "DurableVerificationStatus",
                 "DurableVerificationFinding",
                 "DurableVerificationReport",
-                "DurableOperationException"
+                "DurableOperationException",
+                "DurableBackupRequest",
+                "DurableBackupFormat",
+                "DurableBackupResult"
         )) {
             assertNotNull(Class.forName(
                     "io.github.patricklfdm.generalsearch.durability." + simpleName));
         }
         for (String simpleName : List.of(
-                "DurableBackupRequest",
-                "DurableBackupResult",
                 "DurableVerificationConfig",
                 "DurableCleanupPlan",
                 "DurableRestoreResult"
@@ -92,9 +93,9 @@ class V41PublicApiFoundationTest {
     }
 
     @Test
-    void phase1DoesNotPrematurelyAddOperationalMethods() {
+    void phase3AddsBackupButNotLaterBuilderOperations() {
         assertTrue(List.of(DurableSearchEngine.class.getMethods()).stream()
-                .noneMatch(method -> method.getName().equals("backup")));
+                .anyMatch(method -> method.getName().equals("backup")));
         assertTrue(List.of(SearchEngineBuilder.class.getMethods()).stream()
                 .noneMatch(method -> method.getName().equals("verifyDurableBackup")
                         || method.getName().equals("restoreDurableBackup")));

@@ -20,11 +20,13 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 2 structural verification](v4x/v4.1/PHASE_2_STRUCTURAL_VERIFICATION.md)
 - [V4.1 Phase 2 local baseline](v4x/v4.1/PHASE_2_BASELINE.md)
 - [V4.1 Phase 2 checklist](v4x/v4.1/PHASE_2_CHECKLIST.md)
+- [V4.1 Phase 3 live backup](v4x/v4.1/PHASE_3_LIVE_BACKUP.md)
+- [V4.1 Phase 3 local baseline](v4x/v4.1/PHASE_3_BASELINE.md)
+- [V4.1 Phase 3 checklist](v4x/v4.1/PHASE_3_CHECKLIST.md)
 
-V4.1 Phases 0–1 are accepted and Phase 2 is the active codec-free structural
-verification phase. Its local crash harness and fake durable-cloud control plane
-remain first-class architecture; mutating operations and paid work remain
-unauthorized.
+V4.1 Phases 0–2 are accepted and Phase 3 is the active exact-sequence live-backup
+phase. Its local crash harness and fake durable-cloud control plane remain first-class
+architecture; semantic restore, cleanup and paid work remain unauthorized.
 
 ## v4.0 — current stable durable single-node release
 

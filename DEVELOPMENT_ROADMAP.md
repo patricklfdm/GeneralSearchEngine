@@ -12,8 +12,10 @@ V4.1 Phase 0 is accepted through protected PR #93 at
 `8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
 passed. Phase 1 merged through protected PR #94 as
 `e183face9cd2649f266cc54167f5419b86144e4e`; exact-master CI run `33717370973`
-passed. Phase 2 is the active codec-free structural-verification phase. Every active
-coordinate remains `4.1.0-SNAPSHOT`. The accepted contract selects one exact
+passed. Phase 2 merged through protected PR #95 as
+`a17ad20d3cd03128abf6c4f7fbeb0b752b523b02`; exact-master CI run `33720179867`
+passed. Phase 3 is the active live-backup phase. Every active coordinate remains
+`4.1.0-SNAPSHOT`. The accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
 `gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
@@ -53,6 +55,15 @@ exception family. Its parsers are read-only, stream checkpoint/WAL content, acqu
 exclusive ownership for live stores, independently validate V4.0/V4.1 bytes, and
 never invoke recovery. Backup creation, typed semantic verification, restore, cleanup
 and paid cloud execution remain unauthorized.
+
+Phase 3 adds the default asynchronous `DurableSearchEngine.backup` capability and its
+frozen request/format/result values. The built-in engine takes a writer-ordered cut at
+exact sequence `B`, publishes and pins a source checkpoint, then streams an immutable
+three-member `gse-backup (1,0)` bundle through locked sibling staging and atomic
+absent-target publication. Independent parsers validate production output and every
+new authority transition has a real abrupt-halt case with pre-reopen classification.
+Typed semantic verification, restore, public cleanup and paid cloud execution remain
+unauthorized.
 
 ## v4.0 completed development contract
 

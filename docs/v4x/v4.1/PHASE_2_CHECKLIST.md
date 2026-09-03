@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 2 checklist
 
-- **Status:** Implementation complete; protected acceptance pending
+- **Status:** Accepted
 - **Scope:** Codec-free read-only structural verification and reporting
 
 ## Entry and boundary
@@ -53,7 +53,7 @@
 - [x] `scripts/verify-v41-phase2-structural.sh` passes locally.
 - [x] Full reactor, exact published compatibility, consumers, release artifacts and
   reproducibility pass locally.
-- [ ] Phase 2 PR CI passes and merges to protected `master`.
-- [ ] Exact-master CI passes and its commit/run are recorded.
+- [x] Phase 2 PR #95 passed CI and merged to protected `master` as `a17ad20`.
+- [x] Exact-master CI run `33720179867` passed on `a17ad20d3cd03128abf6c4f7fbeb0b752b523b02`.
 
-Phase 3 live backup remains blocked until every Phase 2 acceptance item passes.
+Phase 3 live backup is admitted from the exact accepted Phase 2 commit above.

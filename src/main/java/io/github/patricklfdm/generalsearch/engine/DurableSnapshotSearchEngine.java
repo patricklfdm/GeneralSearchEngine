@@ -2,6 +2,8 @@ package io.github.patricklfdm.generalsearch.engine;
 
 import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurabilityMetrics;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
@@ -31,6 +33,13 @@ final class DurableSnapshotSearchEngine<K, T> extends SnapshotSearchEngine<K, T>
     @Override
     public CompletableFuture<Void> checkpoint() {
         return checkpointDurably();
+    }
+
+    @Override
+    public CompletableFuture<DurableBackupResult> backup(
+            DurableBackupRequest request
+    ) {
+        return backupDurably(request);
     }
 
     @Override
