@@ -1,4 +1,4 @@
-# GeneralSearchEngine V4.1 Phase 6 local pre-cloud baseline
+# GeneralSearchEngine V4.1 Phase 6 operational evidence baseline
 
 ## Entry
 
@@ -52,9 +52,40 @@ ebe12fae31fbe20a73aa1ab69368f7fed15f8a26c7da60e13d081caede64dcb3  general-search
 2b353c06890b6f6d29ee3ca0e288cb16de2a9aa916a684cf0f3f5693021249da  general-search-engine-processor-4.1.0-SNAPSHOT.jar
 ```
 
-Passing paid experiment/canonical evidence and registry population remain pending.
-Every replacement run requires its correction on protected `master`, exact-master CI,
-OIDC/IAM readiness and explicit operator authorization.
+## Accepted cloud evidence
+
+The final corrections merged through protected PRs #99–#102. Both accepted runs use
+exact protected-master source
+`88205cf28f1aa80f8ea7ccf1bada723b3205215c`; no failed-attempt member was reused.
+
+| Evidence | Reviewed value |
+|---|---|
+| Experiment run | `33754116526 / attempt 1 / one member / actions` |
+| Canonical run | `33758217508 / attempt 1 / three serial members / gcs` |
+| Machine / zone | `c3d-standard-30 / us-west4-a` |
+| Corpus / mutations | `100000 documents / 10000 before backup / 1000 after restore` |
+| Measurement | `1800 seconds per member` |
+| Source / restore disks | distinct `pd-balanced` 200-GiB ext4 disks |
+| Suite / preset | `v4.1-operational-safety-suite-v1 / v4.1-operational-safety-v1` |
+| Canonical set SHA-256 | `bede37bfd7c37bd7da891461a5d91d8dc6bdc3a085d2b873c739cc723ca68f27` |
+| Registered baseline | `v4.1.0-operational-cloud` |
+
+The experiment member and all three canonical members passed independent byte and
+semantic validation, true source-loss proof, replacement-host proof, complete-oracle
+comparison, post-cut exclusion, continued mutation, checkpoint and second reopen.
+Every member checksum inventory passed. All source VMs/disks, replacement VMs/disks
+and staging objects have explicit `PASS` cleanup receipts.
+
+The canonical set is comparable and `canonicalEligible=true`. Its three members have
+distinct backup content identities and restored history identities. Each measurement
+ran for at least 1,800 seconds, with 42.419–46.789 billion reads. Backup elapsed time
+was 2.076–2.168 seconds and restore elapsed time was 4.277–4.302 seconds. These are
+diagnostic observations on the pinned cloud configuration, not an SLA, and they do
+not authorize a production optimization.
+
+Only the append-only metadata registry and this review are tracked. Downloaded
+Actions/GCS evidence and workload payloads remain outside Git. The registry change
+must still merge and pass exact-master CI before Phase 7 begins.
 
 ## Rejected experiment attempts
 
@@ -90,8 +121,9 @@ The probe now takes a positive synchronous `source.bytesBeforeBackup` measuremen
 before starting backup, seeds the observed peak with that value and lets the concurrent
 monitor raise it. The source stage fails closed before reporting `PASS`, and evidence
 validation independently requires both values to be positive and the peak to be at
-least the synchronous baseline. A new exact-master experiment is required after this
-correction merges and passes CI.
+least the synchronous baseline. Protected PR #101 merged this correction as
+`b777e54e0ce37ed169dd1b19c74fec6c588e2625`; later accepted runs supersede this
+failed attempt without reusing it.
 
 ### Mount-root traversal failure
 
@@ -112,5 +144,6 @@ atomic disappearance of checkpoint staging paths is ignored, while other checked
 unchecked background I/O failures are propagated. The local gate includes an
 inaccessible `lost+found` sibling that must remain outside the sampling boundary.
 Cleanup aggregation accepts `PASS` or `NOT_APPLICABLE`, while every actual `FAIL`
-remains fail-closed. Another exact-master experiment is required after this correction
-merges and passes CI.
+remains fail-closed. Protected PR #102 merged this correction as
+`88205cf28f1aa80f8ea7ccf1bada723b3205215c`; the accepted experiment and canonical
+runs use exactly that source.

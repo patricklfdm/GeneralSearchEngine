@@ -1,1 +1,1 @@
-{"baselines":[],"schemaVersion":"gse-v41-operational-baseline-registry-v1"}
+{"baselines":[{"memberCount":3,"name":"v4.1.0-operational-cloud","preset":"v4.1-operational-safety-v1","setDigest":"bede37bfd7c37bd7da891461a5d91d8dc6bdc3a085d2b873c739cc723ca68f27","sourceCommit":"88205cf28f1aa80f8ea7ccf1bada723b3205215c","suite":"v4.1-operational-safety-suite-v1"}],"schemaVersion":"gse-v41-operational-baseline-registry-v1"}
