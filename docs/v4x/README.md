@@ -7,11 +7,11 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phase 0 is accepted through protected PR #93 at `8d83f41`; exact-master CI run
-`33714630130` passed. Phase 1 is the active non-production foundation. It opens
-`4.1.0-SNAPSHOT` and establishes published-4.0 compatibility, exact API and byte
-fixtures, independent models, crash/evidence infrastructure and a no-GCP fake cloud
-lane. Production operational methods and paid cloud work remain unauthorized.
+V4.1 Phase 1 is accepted through protected PR #94 at `e183face`; exact-master CI run
+`33717370973` passed. Phase 2 is the active codec-free structural-verification phase.
+It adds read-only store/backup verification and immutable reports while retaining
+`4.1.0-SNAPSHOT`. Backup writing, typed semantic verification, restore, cleanup and
+paid cloud work remain unauthorized.
 
 The Phase 0 candidate freezes a checkpoint-only full-backup protocol, a distinct
 `gse-backup (1,0)` bundle, new-history restore into an absent target, codec-free
@@ -27,6 +27,9 @@ and local-crash plus durable-cloud evidence as first-class architecture.
 - [V4.1 Phase 1 public API fixture contract](v4.1/PHASE_1_API_FIXTURE.md)
 - [V4.1 Phase 1 foundation baseline](v4.1/PHASE_1_BASELINE.md)
 - [V4.1 Phase 1 checklist](v4.1/PHASE_1_CHECKLIST.md)
+- [V4.1 Phase 2 structural verification](v4.1/PHASE_2_STRUCTURAL_VERIFICATION.md)
+- [V4.1 Phase 2 local baseline](v4.1/PHASE_2_BASELINE.md)
+- [V4.1 Phase 2 checklist](v4.1/PHASE_2_CHECKLIST.md)
 - [Published V4.0 contract and evidence](../v4/README.md)
 
 ## Authority order

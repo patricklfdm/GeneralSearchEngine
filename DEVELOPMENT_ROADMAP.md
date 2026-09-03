@@ -10,8 +10,10 @@ remote live WAL, vector retrieval, and new ranking semantics remain V5 decisions
 
 V4.1 Phase 0 is accepted through protected PR #93 at
 `8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
-passed. Phase 1 is the active non-production foundation and opens every active
-coordinate as `4.1.0-SNAPSHOT`. The accepted contract selects one exact
+passed. Phase 1 merged through protected PR #94 as
+`e183face9cd2649f266cc54167f5419b86144e4e`; exact-master CI run `33717370973`
+passed. Phase 2 is the active codec-free structural-verification phase. Every active
+coordinate remains `4.1.0-SNAPSHOT`. The accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
 `gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
@@ -44,6 +46,13 @@ checksummed evidence schema, calibrated source-loss plan and no-GCP fake cloud l
 It adds no production verifier, backup, restore or cleanup. Paid runs and baseline
 registration remain later-phase work. The authoritative map is under
 [`docs/v4x/`](docs/v4x/README.md).
+
+Phase 2 adds only synchronous codec-free `verifyStore` and `verifyBackup`, immutable
+reports/findings, stable structural classifications and a distinct operational
+exception family. Its parsers are read-only, stream checkpoint/WAL content, acquire
+exclusive ownership for live stores, independently validate V4.0/V4.1 bytes, and
+never invoke recovery. Backup creation, typed semantic verification, restore, cleanup
+and paid cloud execution remain unauthorized.
 
 ## v4.0 completed development contract
 

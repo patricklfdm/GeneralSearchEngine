@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 1 checklist
 
-- **Status:** Implementation complete; protected acceptance pending
+- **Status:** Accepted
 - **Scope:** Non-production foundation and calibrated evidence plan
 
 ## Entry and coordinates
@@ -75,7 +75,9 @@
 - [x] Full reactor tests pass locally (430 core and 5 processor tests, zero failures).
 - [x] Published compatibility through exact `4.0.0` and all consumers pass locally.
 - [x] Six release JARs pass integrity and two-build byte reproducibility locally.
-- [ ] Phase 1 pull request CI passes and merges to protected `master`.
-- [ ] Exact-master CI passes and its commit/run are recorded.
+- [x] Phase 1 pull request #94 passes and merges to protected `master` as
+  `e183face9cd2649f266cc54167f5419b86144e4e`.
+- [x] Exact-master CI run `33717370973` passes on that commit.
 
-Production codec-free verification remains blocked until every acceptance item passes.
+Every Phase 1 gate is accepted. Production codec-free verification is admitted only
+within Phase 2.
