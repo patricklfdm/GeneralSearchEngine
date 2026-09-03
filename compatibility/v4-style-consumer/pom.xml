@@ -4,25 +4,28 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.patricklfdm.generalsearch.examples</groupId>
-    <artifactId>travel-search-example</artifactId>
-    <version>4.0.0</version>
-
-    <name>GeneralSearchEngine Travel Example</name>
-    <description>Processor-free runtime annotation example for GeneralSearchEngine.</description>
+    <groupId>io.github.patricklfdm.generalsearch.validation</groupId>
+    <artifactId>v4-style-consumer</artifactId>
+    <version>1.0.0</version>
 
     <properties>
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
-        <maven.deploy.skip>true</maven.deploy.skip>
+        <gse.version>4.0.0</gse.version>
+        <junit.version>5.11.4</junit.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>io.github.patricklfdm</groupId>
             <artifactId>general-search-engine</artifactId>
-            <version>${project.version}</version>
+            <version>${gse.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -31,7 +34,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
+                <version>3.15.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.6</version>
             </plugin>
         </plugins>
     </build>

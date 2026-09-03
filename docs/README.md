@@ -39,7 +39,10 @@ remains the phase history and decision source of truth.
 - [Phase 5 checklist](v4/PHASE_5_CHECKLIST.md)
 - [Phase 6 performance and operational hardening](v4/PHASE_6_PERFORMANCE.md)
 - [Phase 6 local pre-cloud baseline](v4/PHASE_6_BASELINE.md)
+- [Phase 6 durable canonical review](v4/PHASE_6_CANONICAL_REVIEW.md)
 - [Phase 6 checklist](v4/PHASE_6_CHECKLIST.md)
+- [Phase 7 release-candidate checklist](v4/PHASE_7_CHECKLIST.md)
+- [V4.0.0 release checklist](v4/RELEASE_CHECKLIST.md)
 - [V4 durable cloud baseline registry](v4/cloud-benchmark-baselines.json)
 
 ## v3.x — current stable and completed in-memory line

@@ -13,5 +13,6 @@
         <module>v1-style-consumer</module>
         <module>v2-style-consumer</module>
         <module>v3-style-consumer</module>
+        <module>v4-style-consumer</module>
     </modules>
 </project>

@@ -95,14 +95,20 @@ Phase 6 implementation and paid evidence are complete. Local validation, the pai
 experiment, preserved-disk replacement-VM drill and serial three-member canonical run
 all passed. The reviewed set from exact source
 `fe2060b9a872e66ff0067be6e8b7c900f0099708` is registered append-only as
-`v4.0.0-durable-cloud`; the protected evidence merge and exact-master CI form the
-Phase 7 boundary.
+`v4.0.0-durable-cloud`. The protected registration/evidence merge is PR #88 at
+`adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`; exact-master CI run
+`33694586398` passed and forms the Phase 7 boundary.
 
 ### Phase 7 — release candidate
 
 Convert to final `4.0.0`; close migration and storage documentation, public API,
 published-3.4 compatibility, independent consumers, strict Javadocs, artifacts,
 reproducibility, release automation, and protected-master gates.
+
+Phase 7 is active on `release/v4.0.0`. The candidate adds no production behavior or
+format change: it converts the eight active coordinates, freezes format `1.0`
+fixtures, adds the independent V4 durable consumer, and makes both local and remote
+release validation exercise that boundary. Publication remains Phase 8.
 
 ### Phase 8 — publication
 

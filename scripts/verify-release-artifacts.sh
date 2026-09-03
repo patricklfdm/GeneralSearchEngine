@@ -41,6 +41,7 @@ core_jar="$core_target/$core_base.jar"
 processor_jar="$processor_target/$processor_base.jar"
 service_entry=META-INF/services/javax.annotation.processing.Processor
 processor_class=io.github.patricklfdm.generalsearch.processor.SearchFieldsProcessor
+format_fixture=io/github/patricklfdm/generalsearch/durability/v4-format-1.0-fixtures.tsv
 
 artifacts=(
     "$core_jar"
@@ -90,6 +91,12 @@ service_implementation=$(
 )
 if [[ "$service_implementation" != "$processor_class" ]]; then
     echo "processor service entry resolves to '$service_implementation'; expected '$processor_class'" >&2
+    exit 1
+fi
+
+if [[ "$version" == 4.* ]] \
+        && ! jar tf "$core_jar" | grep -Fxq "$format_fixture"; then
+    echo "V4 core JAR is missing immutable format 1.0 fixtures" >&2
     exit 1
 fi
 

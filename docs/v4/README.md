@@ -22,8 +22,12 @@ passed. Phase 5 merged through protected PR #82 at
 `c9a8b4725f3c44bced40764d1a9b3e9a4eb37b51`; exact-master CI run `33597658600`
 passed. Phase 6 implementation and paid evidence are complete. The independently
 reviewed three-member durable set is registered as `v4.0.0-durable-cloud`; its
-protected evidence merge remains the Phase 7 boundary. Phase 6 changes neither public
-API nor format `1.0`.
+protected evidence merge is PR #88 at
+`adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`, with exact-master CI run
+`33694586398` passing. Phase 7 is active and prepares final `4.0.0`, the independent
+durable consumer, immutable format `1.0` fixtures, and release validation. Phase 6 and
+Phase 7 change neither production behavior nor format `1.0`; Phase 8 publication has
+not started.
 
 ## Contract map
 
@@ -58,6 +62,8 @@ API nor format `1.0`.
 - [Phase 6 local pre-cloud baseline](PHASE_6_BASELINE.md)
 - [Phase 6 durable canonical review](PHASE_6_CANONICAL_REVIEW.md)
 - [Phase 6 checklist](PHASE_6_CHECKLIST.md)
+- [Phase 7 checklist](PHASE_7_CHECKLIST.md)
+- [Release checklist](RELEASE_CHECKLIST.md)
 - [Durable cloud baseline registry](cloud-benchmark-baselines.json)
 
 ## Authority

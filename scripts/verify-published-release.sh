@@ -67,6 +67,7 @@ done
 
 service_entry=META-INF/services/javax.annotation.processing.Processor
 processor_class=io.github.patricklfdm.generalsearch.processor.SearchFieldsProcessor
+format_fixture=io/github/patricklfdm/generalsearch/durability/v4-format-1.0-fixtures.tsv
 core_jar="$download_dir/general-search-engine-$version.jar"
 processor_jar="$download_dir/general-search-engine-processor-$version.jar"
 
@@ -107,4 +108,19 @@ fi
     -f "$project_dir/compatibility/v3-style-consumer/pom.xml" \
     -Dgse.version="$version" clean test
 
-echo "Published release verification: PASS (8 artifacts, signatures, SHA-1 files, and clean V3 consumer)"
+major=${version%%.*}
+if [[ "$major" =~ ^[0-9]+$ ]] && (( major >= 4 )); then
+    if ! jar tf "$core_jar" | grep -Fxq "$format_fixture"; then
+        echo "published V4 core JAR is missing immutable format 1.0 fixtures" >&2
+        exit 1
+    fi
+    "$project_dir/mvnw" --batch-mode --no-transfer-progress \
+        -Dmaven.repo.local="$maven_repo" \
+        -f "$project_dir/compatibility/v4-style-consumer/pom.xml" \
+        -Dgse.version="$version" clean test
+    consumer_summary="clean V3 and V4 consumers"
+else
+    consumer_summary="clean V3 consumer"
+fi
+
+echo "Published release verification: PASS (8 artifacts, signatures, SHA-1 files, and $consumer_summary)"

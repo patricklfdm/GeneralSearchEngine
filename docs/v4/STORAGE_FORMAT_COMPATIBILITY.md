@@ -56,3 +56,12 @@ Release artifacts include immutable `(1,0)` fixtures for fresh, WAL-only,
 checkpoint-only, checkpoint-plus-WAL, incomplete-tail, and corruption cases. An
 independent inspection tool validates identity and framing without using recovery code
 as its own oracle.
+
+The frozen fixture inventory is
+[`v4-format-1.0-fixtures.tsv`](../../src/main/resources/io/github/patricklfdm/generalsearch/durability/v4-format-1.0-fixtures.tsv).
+Every member carries its own SHA-256 and Base64 payload. The independent V4 consumer
+loads that inventory from the core artifact, materializes its bytes, and opens them
+through only the public production API; the Python storage inspector separately parses
+the same members from source. Fresh is represented by an empty directory, and the
+corruption fixture is required to fail as `CORRUPT_WAL`. Changing any row or expected
+classification is a format-contract change, not routine test maintenance.
