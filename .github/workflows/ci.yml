@@ -115,6 +115,14 @@ jobs:
       - name: Verify the published V4.0 storage fixture boundary
         run: python -m unittest scripts.v4.test_phase7_release_fixtures
 
+      - name: Verify the V4.1 final candidate boundary
+        run: |
+          if rg -q '^    <version>4\.1\.0</version>$' pom.xml; then
+            scripts/verify-v41-phase7-release.sh --skip-consumers
+          else
+            echo "V4.1 Phase 7 gate: SKIP (project is no longer the 4.1.0 candidate)"
+          fi
+
   release-artifacts:
     name: Release artifacts
     runs-on: ubuntu-latest
@@ -187,6 +195,7 @@ jobs:
           bash -n scripts/verify-v41-phase4-restore.sh
           bash -n scripts/verify-v41-phase5-cleanup.sh
           bash -n scripts/verify-v41-phase6-evidence.sh
+          bash -n scripts/verify-v41-phase7-release.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -226,8 +235,8 @@ jobs:
 
       - name: Validate V4.1 fixtures, evidence, and fake cloud control plane
         run: |
-          python -m py_compile scripts/v41/backup_format.py scripts/v41/backup_crash_inspector.py scripts/v41/restore_crash_inspector.py scripts/v41/cleanup_crash_inspector.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/operational_evidence.py scripts/v41/operational_cloud_workflow.py scripts/v41/operational_cloud_set.py scripts/v41/test_backup_format.py scripts/v41/test_backup_crash_inspector.py scripts/v41/test_restore_crash_inspector.py scripts/v41/test_cleanup_crash_inspector.py scripts/v41/test_phase1_infrastructure.py scripts/v41/test_phase6_evidence.py
-          python -m unittest scripts.v41.test_backup_format scripts.v41.test_backup_crash_inspector scripts.v41.test_restore_crash_inspector scripts.v41.test_cleanup_crash_inspector scripts.v41.test_phase1_infrastructure scripts.v41.test_phase6_evidence
+          python -m py_compile scripts/v41/backup_format.py scripts/v41/backup_crash_inspector.py scripts/v41/restore_crash_inspector.py scripts/v41/cleanup_crash_inspector.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/operational_evidence.py scripts/v41/operational_cloud_workflow.py scripts/v41/operational_cloud_set.py scripts/v41/test_backup_format.py scripts/v41/test_backup_crash_inspector.py scripts/v41/test_restore_crash_inspector.py scripts/v41/test_cleanup_crash_inspector.py scripts/v41/test_phase1_infrastructure.py scripts/v41/test_phase6_evidence.py scripts/v41/test_phase7_release_fixtures.py
+          python -m unittest scripts.v41.test_backup_format scripts.v41.test_backup_crash_inspector scripts.v41.test_restore_crash_inspector scripts.v41.test_cleanup_crash_inspector scripts.v41.test_phase1_infrastructure scripts.v41.test_phase6_evidence scripts.v41.test_phase7_release_fixtures
 
   required:
     name: Required

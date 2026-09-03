@@ -73,6 +73,10 @@ preset, member count and set digest above. Future comparisons must materialize a
 validate this V4.1 set before use. They must not conflate this operational-safety
 evidence with the V4.0 durable performance family or any V3 in-memory baseline.
 
+Registration and this review merged through protected PR #103 at
+`049b232b12e9819a243c9d7925a39bc7ec0fec53`; exact-master CI run `33809198755`
+passed before Phase 7 began.
+
 The successful experiment run `33754116526` and the three rejected infrastructure or
 measurement attempts remain recorded in the
 [Phase 6 baseline](PHASE_6_BASELINE.md).

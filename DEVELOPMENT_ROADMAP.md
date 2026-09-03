@@ -22,10 +22,10 @@ passed. Phase 5 merged through protected PR #98 as
 `5f1c750bd360716506a732e301ed52493650837e`; exact-master CI run `33730252965`
 passed. Phase 6 implementation and corrections merged through protected PRs #99–#102,
 ending at `88205cf28f1aa80f8ea7ccf1bada723b3205215c`. Exact-source experiment run
-`33754116526` and canonical run `33758217508` passed; append-only baseline
-`v4.1.0-operational-cloud` is under protected registration review. Phase 7 remains
-blocked on that merge and exact-master CI. Every active coordinate remains
-`4.1.0-SNAPSHOT`. The
+`33754116526` and canonical run `33758217508` passed. The append-only
+`v4.1.0-operational-cloud` registration merged through protected PR #103 as
+`049b232b12e9819a243c9d7925a39bc7ec0fec53`; exact-master CI run `33809198755`
+passed. Phase 7 is active with all coordinates at final `4.1.0`. The
 accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned

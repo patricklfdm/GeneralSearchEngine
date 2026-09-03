@@ -30,14 +30,17 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 5 local baseline](v4x/v4.1/PHASE_5_BASELINE.md)
 - [V4.1 Phase 5 checklist](v4x/v4.1/PHASE_5_CHECKLIST.md)
 - [V4.1 Phase 6 source-loss and replacement-host evidence](v4x/v4.1/PHASE_6_OPERATIONAL_EVIDENCE.md)
-- [V4.1 Phase 6 local pre-cloud baseline](v4x/v4.1/PHASE_6_BASELINE.md)
+- [V4.1 Phase 6 operational evidence baseline](v4x/v4.1/PHASE_6_BASELINE.md)
+- [V4.1 Phase 6 canonical review](v4x/v4.1/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.1 Phase 6 checklist](v4x/v4.1/PHASE_6_CHECKLIST.md)
 - [V4.1 operational cloud baseline registry](v4x/v4.1/cloud-benchmark-baselines.json)
+- [V4.1 API and storage compatibility](v4x/v4.1/API_COMPATIBILITY.md)
+- [V4.0-to-V4.1 migration guide](v4x/v4.1/MIGRATION_GUIDE.md)
+- [V4.1 Phase 7 release-candidate checklist](v4x/v4.1/PHASE_7_CHECKLIST.md)
+- [V4.1 release checklist](v4x/v4.1/RELEASE_CHECKLIST.md)
 
-V4.1 Phases 0–5 are accepted and Phase 6 is the active operational-evidence phase.
-Its local crash harness, independent parser, fake cloud control plane and true
-source-loss/replacement-host topology remain first-class architecture. Paid work is
-authorized only after the Phase 6 pre-cloud gates and an explicit manual confirmation.
+V4.1 Phases 0–6 are accepted. Phase 7 is the active final-candidate phase at final
+`4.1.0` coordinates; publication remains exclusively owned by Phase 8.
 
 ## v4.0 — current stable durable single-node release
 

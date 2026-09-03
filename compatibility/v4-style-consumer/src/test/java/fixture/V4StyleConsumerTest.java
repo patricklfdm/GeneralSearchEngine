@@ -2,8 +2,10 @@ package fixture;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,8 +20,15 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupScope;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationStatus;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationStatus;
 import io.github.patricklfdm.generalsearch.durability.RecoverySource;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
@@ -54,6 +63,61 @@ class V4StyleConsumerTest {
                     RecoverySource.CHECKPOINT_AND_WAL,
                     reopened.durabilityMetrics().recoverySource());
         }
+    }
+
+    @Test
+    void executesOperationalSafetyRoundTripThroughPublishedApiOnly() {
+        Path source = temporary.resolve("operational-source");
+        Path backup = temporary.resolve("operational-backup");
+        Path restored = temporary.resolve("operational-restored");
+
+        var backupResult = runBackup(source, backup);
+        assertEquals(1L, backupResult.sequence());
+        assertEquals(3, backupResult.memberCount());
+        assertEquals(DurableVerificationStatus.VALID,
+                DurableStorageOperations.verifyBackup(backup).status());
+
+        var semantic = V4StyleConsumer.builder().verifyDurableBackup(
+                backup, V4StyleConsumer.verificationConfig());
+        assertEquals(DurableSemanticVerificationStatus.SEMANTICALLY_VALID,
+                semantic.status());
+        assertEquals(2L, semantic.documentCount());
+
+        var restoreResult = V4StyleConsumer.builder().restoreDurableBackup(
+                backup,
+                V4StyleConsumer.config(
+                        restored, V4StyleConsumer.SCHEMA_IDENTITY));
+        assertEquals(backupResult.sourceHistory(), restoreResult.sourceHistory());
+        assertEquals(backupResult.contentIdentity(),
+                restoreResult.sourceContentIdentity());
+        assertNotEquals(restoreResult.sourceHistory(), restoreResult.newHistory());
+        assertEquals(1L, restoreResult.restoredSequence());
+
+        try (DurableSearchEngine<Integer, DurableDocument> reopened =
+                     V4StyleConsumer.open(restored)) {
+            assertEquals(new DurableDocument(1, "alpha"), reopened.get(1));
+            assertEquals(new DurableDocument(2, "beta"), reopened.get(2));
+            reopened.update(new DurableDocument(2, "beta-restored")).join();
+            reopened.checkpoint().join();
+            assertEquals(2L, reopened.currentSequence());
+        }
+
+        try (DurableSearchEngine<Integer, DurableDocument> reopenedAgain =
+                     V4StyleConsumer.open(restored)) {
+            assertEquals(2L, reopenedAgain.currentSequence());
+            assertEquals(
+                    new DurableDocument(2, "beta-restored"),
+                    reopenedAgain.get(2));
+        }
+
+        assertEquals(DurableVerificationStatus.VALID,
+                DurableStorageOperations.verifyStore(restored).status());
+        var cleanup = DurableStorageOperations.planCleanup(
+                new DurableCleanupRequest(
+                        restored, DurableCleanupScope.LIVE_STORE));
+        assertTrue(cleanup.deleteSet().isEmpty());
+        assertTrue(DurableStorageOperations.applyCleanup(cleanup)
+                .deletedMembers().isEmpty());
     }
 
     @Test
@@ -148,6 +212,17 @@ class V4StyleConsumerTest {
                 assertEquals(document, engine.get(document.id()));
             }
             assertNull(engine.get(999));
+        }
+    }
+
+    private static DurableBackupResult runBackup(Path source, Path backup) {
+        try (DurableSearchEngine<Integer, DurableDocument> engine =
+                     V4StyleConsumer.open(source)) {
+            engine.addAll(List.of(
+                    new DurableDocument(1, "alpha"),
+                    new DurableDocument(2, "beta"))).join();
+            return engine.backup(new DurableBackupRequest(
+                    backup, 64L * 1024 * 1024)).join();
         }
     }
 

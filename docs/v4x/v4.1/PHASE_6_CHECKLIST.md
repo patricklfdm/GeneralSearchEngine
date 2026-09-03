@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 6 checklist
 
-- **Status:** Canonical evidence accepted; append-only registration pending protected merge
+- **Status:** Accepted through protected PR #103 at `049b232`; exact-master CI `33809198755` passed
 - **Scope:** Profiling, large corpus, true source loss, replacement host and canonical evidence
 
 ## Entry and boundary
@@ -53,8 +53,8 @@
 - [x] Artifact compatibility and all three consumer fixtures pass.
 - [x] Release-profile verification, six-JAR integrity and reproducibility pass.
 - [x] Phase 6 implementation and its corrections merge through protected PRs #99–#102.
-- [ ] Exact-master CI passes and its commit/run are recorded.
-- [ ] Reviewed canonical evidence and registry commit merge before Phase 7.
+- [x] Exact-master CI run `33809198755` passes on merge commit `049b232`.
+- [x] Reviewed canonical evidence and registry commit merge before Phase 7.
 
 Rejected experiment run `33737706926` does not satisfy an evidence gate because final
 transport deletion lacked authority. Its preflight/SSH correction subsequently merged

@@ -84,8 +84,9 @@ diagnostic observations on the pinned cloud configuration, not an SLA, and they 
 not authorize a production optimization.
 
 Only the append-only metadata registry and this review are tracked. Downloaded
-Actions/GCS evidence and workload payloads remain outside Git. The registry change
-must still merge and pass exact-master CI before Phase 7 begins.
+Actions/GCS evidence and workload payloads remain outside Git. The registry and
+review merged through protected PR #103 as `049b232`; exact-master CI run
+`33809198755` passed and established the Phase 7 entry boundary.
 
 ## Rejected experiment attempts
 
