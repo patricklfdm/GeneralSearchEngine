@@ -8,8 +8,11 @@ V4.3 fast reopen through reconstructible persisted derived state, and V4.4 final
 single-node durable hardening. Replication, consensus, sharding, multi-writer storage,
 remote live WAL, vector retrieval, and new ranking semantics remain V5 decisions.
 
-V4.1 Phase 0 is the active documentation-only boundary. Its complete contract
-candidate selects one exact checkpoint-only full-backup model: a writer-ordered cut at
+V4.1 Phase 0 is accepted through protected PR #93 at
+`8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
+passed. Phase 1 is the active non-production foundation and opens every active
+coordinate as `4.1.0-SNAPSHOT`. The accepted contract selects one exact
+checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
 `gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
 never copied into a V4.1 bundle.
@@ -35,10 +38,12 @@ cost envelope before production backup/restore code or paid execution. The disti
 eventual identities are suite `v4.1-operational-safety-suite-v1`, preset
 `v4.1-operational-safety-v1`, and baseline `v4.1.0-operational-cloud`.
 
-No `4.1.0-SNAPSHOT`, production implementation, executable V4.1 harness, cloud
-workflow change, paid run, or baseline registration is authorized until the Phase 0
-documents merge through protected review and exact-master CI passes. The authoritative
-map is under [`docs/v4x/`](docs/v4x/README.md).
+Phase 1 pins exact published `4.0.0`, freezes operation descriptors and immutable
+backup-format bytes, and establishes independent models, a separate-JVM crash harness,
+checksummed evidence schema, calibrated source-loss plan and no-GCP fake cloud lane.
+It adds no production verifier, backup, restore or cleanup. Paid runs and baseline
+registration remain later-phase work. The authoritative map is under
+[`docs/v4x/`](docs/v4x/README.md).
 
 ## v4.0 completed development contract
 

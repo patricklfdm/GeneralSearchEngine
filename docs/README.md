@@ -14,11 +14,13 @@ remains the phase history and decision source of truth.
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
+- [V4.1 Phase 1 public API fixture contract](v4x/v4.1/PHASE_1_API_FIXTURE.md)
+- [V4.1 Phase 1 foundation baseline](v4x/v4.1/PHASE_1_BASELINE.md)
+- [V4.1 Phase 1 checklist](v4x/v4.1/PHASE_1_CHECKLIST.md)
 
-V4.1 is in documentation-only Phase 0. Its contract treats the local crash harness
-and durable cloud lane as first-class architecture; no V4.1 production code, version
-conversion, executable infrastructure, or paid work is authorized before protected
-Phase 0 acceptance.
+V4.1 Phase 0 is accepted and Phase 1 is the active non-production foundation. Its
+local crash harness and fake durable-cloud control plane are first-class architecture;
+production operations and paid work remain unauthorized.
 
 ## v4.0 — current stable durable single-node release
 

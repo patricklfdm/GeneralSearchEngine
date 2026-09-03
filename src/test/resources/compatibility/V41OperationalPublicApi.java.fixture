@@ -1,0 +1,157 @@
+package fixture;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.OptionalLong;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import io.github.patricklfdm.generalsearch.durability.DurableCodec;
+import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+
+// Declaration-only V4.1 Phase 1 fixture. None of these operations is implemented.
+interface DurableSearchEngineV41Contract<K, T> extends DurableSearchEngine<K, T> {
+    default CompletableFuture<DurableBackupResult> backup(DurableBackupRequest request) {
+        throw new UnsupportedOperationException("V4.1 backup not implemented");
+    }
+}
+
+interface DurableBuilderV41Contract<K, T> {
+    DurableSemanticVerificationReport verifyDurableBackup(
+            Path backupDirectory,
+            DurableVerificationConfig<K, T> expectedConfig);
+
+    DurableRestoreResult restoreDurableBackup(
+            Path backupDirectory,
+            DurableStorageConfig<K, T> targetConfig);
+}
+
+record DurableBackupRequest(Path targetDirectory, long maxBundleBytes) { }
+
+record DurableBackupResult(
+        Path targetDirectory,
+        DurableBackupFormat format,
+        String contentIdentity,
+        UUID sourceHistory,
+        long sequence,
+        int memberCount,
+        long totalBytes) { }
+
+record DurableBackupFormat(String family, int major, int minor) {
+    static final DurableBackupFormat V1_0 =
+            new DurableBackupFormat("gse-backup", 1, 0);
+}
+
+final class DurableStorageOperations {
+    private DurableStorageOperations() { }
+
+    static DurableVerificationReport verifyStore(Path directory) {
+        throw new UnsupportedOperationException();
+    }
+
+    static DurableVerificationReport verifyBackup(Path directory) {
+        throw new UnsupportedOperationException();
+    }
+
+    static DurableCleanupPlan planCleanup(DurableCleanupRequest request) {
+        throw new UnsupportedOperationException();
+    }
+
+    static DurableCleanupResult applyCleanup(DurableCleanupPlan plan) {
+        throw new UnsupportedOperationException();
+    }
+}
+
+enum DurableVerificationStatus {
+    VALID,
+    VALID_WITH_SAFE_REMNANTS,
+    INCOMPATIBLE,
+    INCOMPLETE,
+    CORRUPT,
+    UNSUPPORTED
+}
+
+record DurableVerificationFinding(String code, String member, String detail) { }
+
+record DurableVerificationReport(
+        Path directory,
+        DurableVerificationStatus status,
+        List<DurableVerificationFinding> findings,
+        OptionalLong sequence,
+        long authoritativeBytes) { }
+
+record DurableVerificationConfig<K, T>(
+        String storageIdentity,
+        String schemaIdentity,
+        DurableCodec<K, T> codec,
+        int codecVersion,
+        int maxEncodedKeyBytes,
+        int maxEncodedDocumentBytes,
+        int maxDocuments) { }
+
+enum DurableSemanticVerificationStatus {
+    SEMANTICALLY_VALID,
+    IDENTITY_MISMATCH,
+    DECODE_FAILURE,
+    STATE_MISMATCH
+}
+
+record DurableSemanticVerificationReport(
+        DurableVerificationReport structuralReport,
+        DurableSemanticVerificationStatus status,
+        List<DurableVerificationFinding> findings,
+        long documentCount) { }
+
+enum DurableCleanupScope {
+    LIVE_STORE,
+    OPERATION_REMNANT
+}
+
+record DurableCleanupRequest(Path directory, DurableCleanupScope scope) { }
+
+record DurableCleanupEntry(Path member, String reason, long size, String fingerprint) { }
+
+record DurableCleanupPlan(
+        Path directory,
+        DurableCleanupScope scope,
+        String authorityIdentity,
+        List<DurableCleanupEntry> deleteSet,
+        String planDigest) { }
+
+record DurableCleanupResult(
+        Path directory,
+        String planDigest,
+        List<Path> deletedMembers,
+        long deletedBytes) { }
+
+record DurableRestoreResult(
+        Path targetDirectory,
+        UUID newHistory,
+        UUID sourceHistory,
+        String sourceContentIdentity,
+        long restoredSequence,
+        long authoritativeBytes) { }
+
+final class DurableOperationException extends RuntimeException {
+    enum Reason {
+        STORAGE_IN_USE,
+        SOURCE_INVALID,
+        BACKUP_INVALID,
+        IDENTITY_MISMATCH,
+        TARGET_EXISTS,
+        TARGET_INVALID,
+        OPERATION_IN_PROGRESS,
+        UNSUPPORTED_FORMAT,
+        UNSUPPORTED_FILESYSTEM,
+        CAPACITY_EXCEEDED,
+        IO_FAILURE,
+        CLOSED
+    }
+
+    DurableOperationException(Reason reason, OptionalLong sequence, Throwable cause) {
+        super(reason.name(), cause);
+    }
+
+    Reason reason() { throw new UnsupportedOperationException(); }
+    OptionalLong sequence() { throw new UnsupportedOperationException(); }
+}

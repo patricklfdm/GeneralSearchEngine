@@ -58,6 +58,9 @@ jobs:
       - name: Exercise the V4 durable performance and operational evidence matrix
         run: scripts/verify-v40-phase6-performance.sh
 
+      - name: Exercise the V4.1 operational-safety foundation
+        run: scripts/verify-v41-phase1-foundation.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -163,6 +166,7 @@ jobs:
           bash -n scripts/verify-v40-phase5-hardening.sh
           bash -n scripts/verify-v40-phase6-performance.sh
           bash -n scripts/verify-v40-phase7-release.sh
+          bash -n scripts/verify-v41-phase1-foundation.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -197,6 +201,11 @@ jobs:
         run: |
           python -m py_compile scripts/v4/evidence.py scripts/v4/storage_inspector.py scripts/v4/durable_harness.py scripts/v4/durable_repeat.py scripts/v4/durable_cloud_lane.py scripts/v4/durable_performance.py scripts/v4/durable_cloud_workflow.py scripts/v4/durable_cloud_set.py scripts/v4/durable_remote_failure.py scripts/v4/test_phase1_infrastructure.py scripts/v4/test_phase2_storage_inspector.py scripts/v4/test_phase3_recovery_fixtures.py scripts/v4/test_phase4_checkpoint_fixtures.py scripts/v4/test_phase6_performance.py scripts/v4/test_phase7_release_fixtures.py scripts/v4/test_durable_cloud_workflow.py scripts/v4/test_durable_cloud_set.py
           python -m unittest scripts.v4.test_phase1_infrastructure scripts.v4.test_phase2_storage_inspector scripts.v4.test_phase3_recovery_fixtures scripts.v4.test_phase4_checkpoint_fixtures scripts.v4.test_phase6_performance scripts.v4.test_phase7_release_fixtures scripts.v4.test_durable_cloud_workflow scripts.v4.test_durable_cloud_set
+
+      - name: Validate V4.1 fixtures, evidence, and fake cloud control plane
+        run: |
+          python -m py_compile scripts/v41/backup_format.py scripts/v41/evidence.py scripts/v41/operational_harness.py scripts/v41/fake_cloud_lane.py scripts/v41/test_backup_format.py scripts/v41/test_phase1_infrastructure.py
+          python -m unittest scripts.v41.test_backup_format scripts.v41.test_phase1_infrastructure
 
   required:
     name: Required
