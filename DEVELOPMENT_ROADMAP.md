@@ -1,5 +1,45 @@
 # GeneralSearchEngine development roadmap
 
+## v4.x active development contract
+
+Published `4.0.0` is the immutable correct-durability foundation. The remaining V4.x
+line now proceeds through V4.1 operational safety, V4.2 explicit storage evolution,
+V4.3 fast reopen through reconstructible persisted derived state, and V4.4 final
+single-node durable hardening. Replication, consensus, sharding, multi-writer storage,
+remote live WAL, vector retrieval, and new ranking semantics remain V5 decisions.
+
+V4.1 Phase 0 is the active documentation-only boundary. Its complete contract
+candidate selects one exact checkpoint-only full-backup model: a writer-ordered cut at
+durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
+`gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
+never copied into a V4.1 bundle.
+
+Restore is typed and offline. It decodes the source-history checkpoint and re-encodes
+an ordinary `gse-durable (1,0)` target under a new history identity while preserving
+logical sequence `B`. Backup/source provenance remains in the immutable bundle and
+restore result rather than adding fields or sidecars to the live directory. This keeps
+the target readable by published V4.0 with matching identities and reserves live
+format evolution for V4.2.
+
+The contract separates codec-free structural verification from codec-aware semantic
+verification, requires an absent restore target, freezes atomic sibling-staging and
+directory-force rules, and limits cleanup to offline dry-run-first plans bound to an
+exact authority and inventory. Unknown, ambiguous, corrupt authoritative, pinned, or
+required members are never deleted.
+
+Local separate-process crash testing, independent byte inspection, fake-cloud
+planning, resource cleanup, and the replacement-host durable lane are first-class from
+the beginning of the implementation program. Phase 1 must establish their artifact
+schemas, models, fixtures, stable crash commands, fake control plane, and calibrated
+cost envelope before production backup/restore code or paid execution. The distinct
+eventual identities are suite `v4.1-operational-safety-suite-v1`, preset
+`v4.1-operational-safety-v1`, and baseline `v4.1.0-operational-cloud`.
+
+No `4.1.0-SNAPSHOT`, production implementation, executable V4.1 harness, cloud
+workflow change, paid run, or baseline registration is authorized until the Phase 0
+documents merge through protected review and exact-master CI passes. The authoritative
+map is under [`docs/v4x/`](docs/v4x/README.md).
+
 ## v4.0 completed development contract
 
 V4.0 opens the opt-in durable single-node line from the published `3.4.0` in-memory

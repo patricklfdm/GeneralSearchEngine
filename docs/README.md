@@ -2,12 +2,25 @@
 
 - [CI/CD and release operations](CI_CD.md)
 
-This directory preserves the published v1, v2, and v3 records together with completed
+This directory preserves the published v1 through v4 records together with completed
 development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
-## v4.0 — current stable durable single-node line
+## v4.x — active durable single-node development line
+
+- [Development overview and authority map](v4x/README.md)
+- [Revised V4.x roadmap](v4x/ROADMAP.md)
+- [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
+- [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
+- [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
+
+V4.1 is in documentation-only Phase 0. Its contract treats the local crash harness
+and durable cloud lane as first-class architecture; no V4.1 production code, version
+conversion, executable infrastructure, or paid work is authorized before protected
+Phase 0 acceptance.
+
+## v4.0 — current stable durable single-node release
 
 - [Development overview and contract map](v4/README.md)
 - [Roadmap](v4/ROADMAP.md)
