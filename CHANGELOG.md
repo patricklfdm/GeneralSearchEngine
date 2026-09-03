@@ -3,6 +3,37 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 4.0.0 — 2026-09-02
+
+### Added
+
+- Opt-in single-node durability through `DurableSearchEngine`, explicit deterministic
+  key/document codecs, exclusive local-directory ownership, stable storage/schema/
+  codec identities, and bounded storage configuration.
+- CRC32C-framed write-ahead logging with contiguous logical-unit sequences,
+  force-before-publication completion, atomic single/bulk/index transitions, and
+  deterministic fail-closed recovery.
+- Versioned format `1.0` checkpoints and manifests, WAL generation rollover,
+  conservative cleanup, bounded retained storage, and checkpoint-plus-WAL recovery.
+- Separate-JVM crash barriers, independent byte inspection, corruption and repeated-
+  crash matrices, durable JMH/operational probes, preserved-disk replacement-VM
+  recovery, and registered `v4.0.0-durable-cloud` evidence.
+- An independent V4 durable consumer and immutable format `1.0` fixtures for fresh,
+  WAL-only, checkpoint-only, checkpoint-plus-WAL, incomplete-tail, and corruption.
+
+### Changed
+
+- Existing `build()` and `fromAnnotatedClass(...)` paths remain in-memory and retain
+  the complete published 3.4 retrieval, ranking, ordering, mutation, snapshot,
+  highlighting, pagination, Explain, and lifecycle contracts.
+- Durable reopen reconstructs documents and built-in indexes from authoritative local
+  storage; object identity, process-local metrics, snapshots, and cursors do not
+  survive restart.
+
+This entry describes the final `4.0.0` release candidate. It does not claim that the
+signed tag, Maven Central artifacts, production deployment, or GitHub Release exist;
+those remain Phase 8 publication gates.
+
 ## 3.4.0 — 2026-09-01
 
 ### Added

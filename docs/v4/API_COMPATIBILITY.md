@@ -6,9 +6,16 @@ Published `3.4.0` is the immediate V4.0 API and behavior baseline. V1, V2, V2.1,
 V3.0, V3.1, V3.2, V3.3, and V3.4 compatibility consumers and Japicmp gates remain
 required. The existing in-memory path receives no mandatory parameter or behavior.
 
+Phase 7 adds an independently compiled V4 consumer that exercises fresh creation,
+checkpoint-plus-WAL reopen, stable identity mismatch, unsupported custom startup
+indexes, and every frozen format `1.0` fixture through published API only. Release
+workflow verification runs that consumer again against remotely downloaded V4
+artifacts rather than relying on the reactor copy.
+
 ## Additive durable surface
 
-Phase 1 fixtures must compile the following Phase 0-frozen family. New durability
+The public descriptor and independent fixtures compile the following Phase 0-frozen
+family. New durability
 types live in `io.github.patricklfdm.generalsearch.durability`; the one builder method
 lives on the existing `engine.SearchEngineBuilder`:
 

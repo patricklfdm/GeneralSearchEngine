@@ -74,9 +74,17 @@ checkpoint/recovery/disk/long-run operational evidence, and the independent V4 c
 set. The paid experiment and preserved-disk replacement-VM drill passed; post-fix
 serial canonical run `33682157985` produced the reviewed three-member set on source
 `fe2060b9a872e66ff0067be6e8b7c900f0099708`. The set is registered append-only as
-`v4.0.0-durable-cloud`; its protected evidence merge and exact-master CI form the
-Phase 7 boundary. No public API, storage-format or durability-semantic change was
-introduced.
+`v4.0.0-durable-cloud`. Registration and the complete Phase 6 record merged through
+protected PR #88 as `adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`; exact-master
+CI run `33694586398` passed. This is the accepted Phase 7 entry boundary. No public
+API, storage-format or durability-semantic change was introduced.
+
+Phase 7 converts all eight active coordinates to final `4.0.0`, freezes the release
+calendar, adds an independently compiled durable consumer and checksummed format
+`1.0` fixtures, extends remote publication verification to that consumer, and closes
+migration, API, storage, artifact, reproducibility and release-operation documents.
+It prepares but does not publish the release; signed tagging and remote proof remain
+Phase 8.
 
 ## v3.x completed development line
 

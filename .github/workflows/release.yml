@@ -165,7 +165,7 @@ jobs:
             -Dcentral.autoPublish=true \
             -Dcentral.waitUntil=published
 
-      - name: Verify remote artifacts and a clean published V3 consumer
+      - name: Verify remote artifacts and clean published consumers
         run: |
           version=${RELEASE_TAG#v}
           scripts/verify-published-release.sh "$version"

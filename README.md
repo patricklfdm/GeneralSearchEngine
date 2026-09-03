@@ -14,11 +14,42 @@ The completed work and compatibility constraints are recorded in the
 [V3.x contract map](docs/v3x/README.md). Version `3.4.0` is available from Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.0 durable single-node development is now in Phase 6 performance and operational
-hardening. The mode is explicit and opt-in; the stable `3.4.0` API and default
-in-memory behavior remain unchanged. WAL, deterministic recovery, checkpoints,
-lifecycle hardening and repeated-crash gates are implemented, while paid durable cloud
-evidence remains pre-release work. See the [V4 contract map](docs/v4/README.md).
+V4.0 is now a final release candidate. The mode is explicit and opt-in; the stable
+`3.4.0` API and default in-memory behavior remain unchanged. WAL, deterministic
+recovery, checkpoints, lifecycle hardening, repeated-crash gates, paid durable cloud
+evidence, independent consumer validation, and frozen format `1.0` fixtures are
+complete. `3.4.0` remains the current published dependency until signed Phase 8
+publication is independently verified. See the [V4 contract map](docs/v4/README.md).
+
+## What is new in V4.0
+
+V4.0 adds an explicit durable builder while keeping `build()` purely in-memory:
+
+```java
+DurableCodec<Integer, Document> codec = new DocumentCodec();
+DurableStorageConfig<Integer, Document> storage = DurableStorageConfig
+        .builder(Path.of("data/search"), codec)
+        .storageIdentity("travel-search-v1")
+        .schemaIdentity("travel-schema-v1")
+        .build();
+
+try (DurableSearchEngine<Integer, Document> engine = SearchEngine
+        .builder(Document.class, ID)
+        .field(BODY)
+        .buildDurable(storage)) {
+    engine.add(new Document(1, "museum beside the river")).join();
+    engine.checkpoint().join();
+}
+```
+
+A completed mutation Future is forced and published. After a crash, an incomplete
+Future is indeterminate and callers must reconcile by business key. Durable mode owns
+one supported local directory exclusively, accepts deterministic versioned codecs and
+built-in index configurations, and rebuilds derived indexes during reopen. It is not
+replication or physical-disk-loss protection. See the
+[3.4-to-4.0 migration guide](docs/v4/MIGRATION_GUIDE.md),
+[durability semantics](docs/v4/DURABILITY_AND_COMPLETION.md), and
+[storage compatibility contract](docs/v4/STORAGE_FORMAT_COMPATIBILITY.md).
 
 ## Requirements
 

@@ -1,7 +1,8 @@
 # V4.0 Phase 6 checklist
 
-**Status:** all Phase 6 acceptance work is complete; the protected evidence merge and
-its exact-master CI form the Phase 7 entry boundary
+**Status:** complete through protected PR #88 at
+`adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`; exact-master CI run
+`33694586398` passed and forms the Phase 7 entry boundary
 
 ## Entry and invariants
 
