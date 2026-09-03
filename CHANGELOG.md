@@ -30,9 +30,12 @@ Semantic Versioning once the first stable artifact is published.
   storage; object identity, process-local metrics, snapshots, and cursors do not
   survive restart.
 
-This entry describes the final `4.0.0` release candidate. It does not claim that the
-signed tag, Maven Central artifacts, production deployment, or GitHub Release exist;
-those remain Phase 8 publication gates.
+Version `4.0.0` was published from signed tag `v4.0.0` on protected-master commit
+`73479da344f24f69e15904660d46783459d80dcf`. Release workflow run `33706352253`,
+Maven Central publication, clean remote V3/V4 consumer and format-fixture verification,
+production deployment `6235596306`, and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.0.0)
+all completed successfully.
 
 ## 3.4.0 — 2026-09-01
 

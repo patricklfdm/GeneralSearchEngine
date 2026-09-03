@@ -1,9 +1,9 @@
 # GeneralSearchEngine V4 documentation
 
-V4 begins the opt-in durable single-node line. Published `3.4.0` remains the
-frozen in-memory reference; V4.0 changes the process-lifetime boundary without
-changing retrieval truth, scoring, canonical order, snapshots, or the one-writer
-publication model.
+Published `4.0.0` is the current stable release and begins the opt-in durable
+single-node line. Published `3.4.0` remains the frozen in-memory reference; V4.0
+changes the process-lifetime boundary without changing retrieval truth, scoring,
+canonical order, snapshots, or the one-writer publication model.
 
 ## Current status
 
@@ -24,10 +24,14 @@ passed. Phase 6 implementation and paid evidence are complete. The independently
 reviewed three-member durable set is registered as `v4.0.0-durable-cloud`; its
 protected evidence merge is PR #88 at
 `adbe96d9bf73bf03d3082f2ceb58a66ca75dd325`, with exact-master CI run
-`33694586398` passing. Phase 7 is active and prepares final `4.0.0`, the independent
-durable consumer, immutable format `1.0` fixtures, and release validation. Phase 6 and
-Phase 7 change neither production behavior nor format `1.0`; Phase 8 publication has
-not started.
+`33694586398` passing. Phase 7's final candidate merged through protected PR #90 as
+`0f2ea5e`; the local evidence-workspace boundary merged through PR #91 as final
+protected-master commit `73479da344f24f69e15904660d46783459d80dcf`, and exact-master
+CI run `33705710878` passed. Signed `v4.0.0`, release workflow run `33706352253`,
+Maven Central publication, clean remote V3/V4 consumer and format-fixture verification,
+production deployment `6235596306`, and GitHub Release `381684854` complete Phase 8
+at that exact commit. Phase 6 and Phase 7 changed neither production behavior nor
+format `1.0`.
 
 ## Contract map
 
@@ -65,6 +69,7 @@ not started.
 - [Phase 7 checklist](PHASE_7_CHECKLIST.md)
 - [Release checklist](RELEASE_CHECKLIST.md)
 - [Durable cloud baseline registry](cloud-benchmark-baselines.json)
+- [V4.0.0 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.0.0)
 
 ## Authority
 
