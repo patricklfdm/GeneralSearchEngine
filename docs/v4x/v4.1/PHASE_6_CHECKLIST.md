@@ -34,7 +34,9 @@
 - [x] Source and restore disks never coexist; matrix members run serially.
 - [x] VM expiry, exact output roots, bounded logs and five-resource cleanup receipts
   are enforced.
-- [ ] OIDC provider condition explicitly allows the merged workflow identity.
+- [x] A payload-free create/read/delete probe runs before the first paid Compute
+  resource, and project-wide SSH keys are blocked on both VMs.
+- [x] OIDC provider condition explicitly allows the merged workflow identity.
 - [ ] Exact-source experiment member passes and cleanup is reviewed.
 - [ ] Three independent canonical members pass with durable GCS evidence.
 - [ ] Canonical set is downloaded and independently validated.
@@ -50,5 +52,6 @@
 - [ ] Exact-master CI passes and its commit/run are recorded.
 - [ ] Reviewed canonical evidence and registry commit merge before Phase 7.
 
-No paid execution is authorized until every free pre-cloud gate passes, the exact
-source commit is on protected `master`, and the operator explicitly confirms it.
+Rejected experiment run `33737706926` does not satisfy an evidence gate. No further
+paid execution is authorized until its preflight/SSH correction merges, the new exact
+protected-master CI passes and the operator explicitly confirms a replacement run.

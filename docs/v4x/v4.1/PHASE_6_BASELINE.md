@@ -55,3 +55,18 @@ ebe12fae31fbe20a73aa1ab69368f7fed15f8a26c7da60e13d081caede64dcb3  general-search
 Paid experiment/canonical evidence and registry population remain pending until this
 exact source is merged, protected-master CI passes, the OIDC workflow identity is
 allowed and the operator explicitly authorizes the run.
+
+## Rejected experiment attempt
+
+Workflow run `33737706926` attempted the experiment profile at protected-master source
+`fde792c856e2e276b85a5d4a9e14821fed2a85a6`. Source backup, temporary transport and
+replacement-host execution progressed, but final transport cleanup failed closed with
+exit code `40`: the environment service account lacked `storage.objects.delete`.
+This run is not acceptable operational evidence and makes no performance or recovery
+claim. The operator removed the exact failed-run transport remnants and added a custom
+delete-only role restricted to the `v4.1-operational-safety/` object prefix.
+
+The runner now proves create/read/delete access with a payload-free object before
+creating any VM or disk. It also blocks project-wide SSH keys on every VM and confines
+ephemeral workflow keys to instance metadata. A new exact-master experiment is
+required after this correction merges and passes CI.
