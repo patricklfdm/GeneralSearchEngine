@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 5 checklist
 
-- **Status:** Implementation complete; protected acceptance pending
+- **Status:** Accepted on protected `master`
 - **Scope:** Offline plan-bound cleanup and operational integration
 
 ## Entry and boundary
@@ -40,7 +40,8 @@
 - [x] `scripts/verify-v41-phase5-cleanup.sh` passes locally.
 - [x] Full reactor, published compatibility, consumers, release artifacts and
   reproducibility pass locally.
-- [ ] Phase 5 PR CI passes and merges to protected `master`.
-- [ ] Exact-master CI passes and its commit/run are recorded.
+- [x] Phase 5 PR CI passes and merges through protected PR #98 as `5f1c750`.
+- [x] Exact-master CI run `33730252965` passes on
+  `5f1c750bd360716506a732e301ed52493650837e`.
 
-Paid durable-cloud calibration remains reserved for the later evidence phase.
+Phase 5 is accepted. Paid durable-cloud calibration remains owned by Phase 6.

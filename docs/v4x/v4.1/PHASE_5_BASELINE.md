@@ -53,5 +53,6 @@ ebe12fae31fbe20a73aa1ab69368f7fed15f8a26c7da60e13d081caede64dcb3  general-search
 2b353c06890b6f6d29ee3ca0e288cb16de2a9aa916a684cf0f3f5693021249da  general-search-engine-processor-4.1.0-SNAPSHOT.jar
 ```
 
-Protected PR and exact-master CI remain pending. No paid cloud execution belongs to
-Phase 5.
+Protected PR #98 merged as `5f1c750bd360716506a732e301ed52493650837e`.
+Exact-master CI run `33730252965` passed. Phase 5 is accepted; no paid cloud execution
+was performed in this phase.

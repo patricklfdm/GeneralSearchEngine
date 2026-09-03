@@ -208,7 +208,8 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phase 2 is accepted at protected-master commit `a17ad20`; exact-master CI run
-`33720179867` passed. Phase 3 owns exact-sequence live backup, checkpoint pinning,
-immutable bundle publication and its interruption/lifecycle matrix. Semantic
-verification, restore and cleanup remain blocked by their later owning phases.
+V4.1 Phases 0–5 are accepted. Phase 5 merged through protected PR #98 at
+`5f1c750bd360716506a732e301ed52493650837e`; exact-master CI run `33730252965`
+passed. Phase 6 owns benchmark-only profiling, large-corpus operational evidence,
+true source-loss/replacement-host cloud proof and append-only canonical registration.
+Production operation semantics and live/backup storage formats remain frozen.
