@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 5 lifecycle hardening
+## v4.2 active Phase 6 performance and evidence
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -139,10 +139,12 @@ passed. Phase 4 added declared codec/schema/key transforms, meaningful same-form
 migration, complete plan binding, collision refusal, and exact target-index rebuild;
 it merged through protected PR #110 as
 `043b95b735dbc7dc1f319e2bd64fccba3063597a`, with exact-master CI run `33846632898`.
-Phase 5 now owns lifecycle authority, exhaustive interruption, exact plan-bound
-migration-remnant cleanup, target continuation, and published-4.1 rollback proof.
-Workflow/IAM mutation and paid execution remain Phase 6 work. Authority is under
-[`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_5_LIFECYCLE_HARDENING.md).
+Phase 5 merged through protected PR #111 as
+`5687a05aa2f495f58d8acc904ab1e663361cf6e3`; exact-master CI run `33880571096`
+passed. Phase 6 owns bounded scale instrumentation, replacement-host target proof,
+published-4.1 source rollback, the manual cloud lane, paid evidence and append-only
+registration. Authority is under
+[`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_6_PERFORMANCE_AND_EVIDENCE.md).
 
 ## v4.1.0 current stable release
 
