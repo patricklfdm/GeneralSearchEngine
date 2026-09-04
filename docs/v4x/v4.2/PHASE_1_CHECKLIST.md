@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 1 checklist
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #107
 - **Scope:** Non-production storage-evolution foundation and calibrated evidence plan
 
 ## Entry and coordinates
@@ -84,9 +84,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 1 pull request passes required checks.
-- [ ] Phase 1 merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded.
+- [x] Phase 1 pull request passes required checks.
+- [x] Phase 1 merges to protected `master` as
+  `8e9aec0b07921fe2b43169cf930c628561db40f9`.
+- [x] Exact protected-master CI run `33834603280` passes.
 
-Production format readers/writers and migration remain prohibited until their owning
-phases. Phase 2 may begin only after every local and protected acceptance item passes.
+Production `1.1` writers and migration remain prohibited until their owning phases.
+Phase 2 may add the exact dual-minor codec-free readers and format inspection surface.

@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.2 Phase 0 storage-evolution contract
 
 - **Phase:** 0 — Storage-evolution contract freeze
-- **Status:** Accepted through protected PR #106 at `8391ea67`; Phase 1 active
+- **Status:** Accepted through protected PR #106; Phase 2 correction pending review
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Production V4.2 implementation:** Authorized only by the owning later phase
 
@@ -299,8 +299,26 @@ never extended in place.
 
 A `(1,0)` bundle never becomes `(1,1)` because V4.2 reads it. V4.2 restore preserves
 the bundle's source format in its new-history target. Format conversion is available
-only through migration. Published V4.1 is required only to classify intact `(1,1)`
-bundles as incompatible under its existing higher-minor policy.
+only through migration. Published V4.1 is required to fail closed and never open an
+exact `(1,1)` bundle; the precise incompatible classification is owned by V4.2.
+
+### Phase 2 published-reader feasibility correction
+
+The immutable published `4.1.0` structural parser validates several `1.0`
+layout-dependent fields before applying its higher-minor policy. A synthetic member
+that changes only its minor while retaining the `1.0` layout reaches that policy and
+is `INCOMPATIBLE`. A real `1.1` member necessarily inserts the frozen profile bytes
+and bindings, so the published parser encounters those bytes as an invalid `1.0`
+field and returns `CORRUPT` first.
+
+Requiring published V4.1 to report `INCOMPATIBLE` for the real extended layout is
+therefore impossible without either changing an already published artifact or
+removing the full profile/binding delta. Phase 2 keeps the stronger `1.1` integrity
+model and narrows the backward-reader promise to fail-closed rejection. An isolated
+probe against the SHA-256-pinned `4.1.0` artifact freezes exact live and backup
+fixtures as `CORRUPT`; V4.2 itself retains and precisely reports their `(1,1)`
+declarations. This correction does not weaken rollback: rollback reopens the untouched
+`(1,0)` source, never the migrated `(1,1)` target.
 
 Phase 2 freezes exact `1.1` bundle bytes and extends independent structural parsing.
 Phase 3 extends backup and restore only after live `(1,1)` publication is supported.

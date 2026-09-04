@@ -30,6 +30,7 @@ public final class DurableStorageConfig<K, T> {
             "[a-z0-9][a-z0-9._-]{0,127}");
 
     private final Path directory;
+    private final DurableStorageFormat format;
     private final String storageIdentity;
     private final String schemaIdentity;
     private final DurableCodec<K, T> codec;
@@ -42,6 +43,7 @@ public final class DurableStorageConfig<K, T> {
 
     private DurableStorageConfig(Builder<K, T> builder) {
         directory = builder.directory;
+        format = Objects.requireNonNull(builder.format, "format");
         storageIdentity = requireIdentity(
                 builder.storageIdentity, "storageIdentity");
         schemaIdentity = requireIdentity(builder.schemaIdentity, "schemaIdentity");
@@ -100,6 +102,11 @@ public final class DurableStorageConfig<K, T> {
         return directory;
     }
 
+    /** Returns the exact expected live format; the default remains {@code (1,0)}. */
+    public DurableStorageFormat format() {
+        return format;
+    }
+
     public String storageIdentity() {
         return storageIdentity;
     }
@@ -140,6 +147,7 @@ public final class DurableStorageConfig<K, T> {
     public static final class Builder<K, T> {
         private final Path directory;
         private final DurableCodec<K, T> codec;
+        private DurableStorageFormat format = DurableStorageFormat.V1_0;
         private String storageIdentity;
         private String schemaIdentity;
         private int maxEncodedKeyBytes = DEFAULT_MAX_ENCODED_KEY_BYTES;
@@ -152,6 +160,16 @@ public final class DurableStorageConfig<K, T> {
         private Builder(Path directory, DurableCodec<K, T> codec) {
             this.directory = Objects.requireNonNull(directory, "directory");
             this.codec = Objects.requireNonNull(codec, "codec");
+        }
+
+        /**
+         * Selects the exact expected live format without requesting an upgrade.
+         * V4.2 Phase 2 exposes the value but admits {@code (1,1)} opening only in
+         * the separately reviewed Phase 3 implementation.
+         */
+        public Builder<K, T> format(DurableStorageFormat value) {
+            format = Objects.requireNonNull(value, "format");
+            return this;
         }
 
         public Builder<K, T> storageIdentity(String value) {

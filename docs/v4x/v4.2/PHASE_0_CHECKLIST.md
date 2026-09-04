@@ -57,8 +57,9 @@ record protected-master acceptance until the final acceptance section is complet
   `gse-backup-content-v2` and `gse-backup-v2-*` identities without extending the
   published `v1` algorithm.
 - [x] Restore preserves source format rather than migrating it.
-- [x] V4.2 verifies/restores both supported backup minors; published V4.1 treats
-  intact backup `1.1` as incompatible.
+- [x] V4.2 verifies/restores both supported backup minors; published V4.1 rejects
+  exact backup `1.1` fail-closed. Phase 2 records why its immutable `1.0` parser may
+  classify the extended layout as corrupt before reaching the higher-minor gate.
 - [x] Direct backup-to-new-format migration is excluded.
 
 ## Public surface
