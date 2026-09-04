@@ -1,13 +1,14 @@
 # GeneralSearchEngine V4 documentation
 
-Published `4.0.0` is the current stable release and begins the opt-in durable
-single-node line. Published `3.4.0` remains the frozen in-memory reference; V4.0
-changes the process-lifetime boundary without changing retrieval truth, scoring,
-canonical order, snapshots, or the one-writer publication model.
+Published `4.0.0` begins the opt-in durable single-node line and remains its immutable
+correct-durability foundation. Published `3.4.0` remains the frozen in-memory
+reference; V4.0 changes the process-lifetime boundary without changing retrieval
+truth, scoring, canonical order, snapshots, or the one-writer publication model.
 
 This directory is the closed `4.0.0` contract and evidence record. Active post-4.0
-development is governed separately by the [V4.x roadmap](../v4x/ROADMAP.md) and
-[V4.1 Phase 0 contract](../v4x/v4.1/PHASE_0_CONTRACT.md); later minor work does not
+development is governed separately by the [V4.x authority map](../v4x/README.md),
+[roadmap](../v4x/ROADMAP.md), and current
+[V4.2 Phase 0 contract](../v4x/v4.2/PHASE_0_CONTRACT.md); later minor work does not
 rewrite the published V4.0 record.
 
 ## Current status

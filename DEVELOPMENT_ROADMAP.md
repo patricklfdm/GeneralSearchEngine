@@ -109,6 +109,26 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
+## v4.2 active Phase 0 storage-evolution contract
+
+V4.2 begins with a documentation-only contract candidate based on published `4.1.0`.
+It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
+`(1,1)` only through explicit configuration or reviewed offline migration. The
+candidate freezes a canonical format-profile binding, exact dual-minor live/backup
+readability, a typed dry-run/apply split, deterministic one-to-one codec/schema/key
+transforms, new-history targets at the source sequence, source byte preservation,
+operator-owned cutover, and published-4.1 rollback proof.
+
+Phase 1 must establish declaration-only public fixtures, independent `1.0` to `1.1`
+models and bytes, a separate-process crash harness, source-before/source-after
+identity evidence, and a quota-safe fake-cloud lane before production format or
+migration implementation. The distinct eventual identities are artifact schema
+`gse-v42-migration-evidence-v1`, suite `v4.2-storage-evolution-suite-v1`, preset
+`v4.2-storage-evolution-v1`, and append-only baseline
+`v4.2.0-migration-cloud`. No `4.2.0-SNAPSHOT`, production code, executable harness,
+workflow, IAM mutation, or paid run is authorized by Phase 0. The candidate authority
+is under [`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_0_CONTRACT.md).
+
 ## v4.1.0 current stable release
 
 Version `4.1.0` was published on September 3, 2026 Pacific time as the current stable
@@ -122,7 +142,8 @@ V4.1 preserves live format `gse-durable (1,0)` and every inherited retrieval con
 while adding explicit immutable backup, codec-free and typed verification,
 new-history restore, and offline plan-bound cleanup. It does not add replication,
 incremental backup, in-place restore, online migration, silent repair, or a third
-artifact. The next V4.x step is a separately frozen V4.2 storage-evolution contract.
+artifact. The V4.2 storage-evolution contract candidate is recorded above and remains
+implementation-inactive until protected acceptance.
 
 ## v4.0 completed development contract
 
