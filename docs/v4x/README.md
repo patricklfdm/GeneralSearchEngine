@@ -12,7 +12,7 @@ PR #103 as `049b232`; the final candidate merged through protected PR #104 as
 `9db6efc`, and exact-master CI run `33815734269` passed. Signed tag `v4.1.0`, Maven
 Central publication, release workflow `33820284974`, production deployment
 `6255241071`, clean remote V3/V4 consumers, and GitHub Release `382405193` all resolve
-to that exact commit. V4.1 is the current stable release; V4.2 Phase 4 is active.
+to that exact commit. V4.1 is the current stable release; V4.2 Phase 5 is active.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -23,7 +23,10 @@ added codec-free dual-minor inspection; it merged through protected PR #108 as
 `85fc9a4`, and exact-master CI run `33839044114` passed. Phase 3 activated explicit
 V1.1 operation, same-format backup/restore, and the format-only V1.0-to-V1.1 edge; it
 merged through protected PR #109 as `43bf2bd`, and exact-master CI run `33842969788`
-passed. Phase 4 owns typed codec/schema/key transformation and target-index rebuild.
+passed. Phase 4 merged through protected PR #110 as
+`043b95b735dbc7dc1f319e2bd64fccba3063597a`; exact-master CI run `33846632898`
+passed. Phase 5 owns lifecycle authority, interruption, safe-remnant cleanup and
+published-4.1 rollback hardening.
 
 The accepted V4.1 Phase 0 contract freezes a checkpoint-only full-backup protocol, a
 distinct `gse-backup (1,0)` bundle, new-history restore into an absent target,
@@ -48,6 +51,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.2 Phase 4 typed transform migration](v4.2/PHASE_4_TRANSFORM_MIGRATION.md)
 - [V4.2 Phase 4 local baseline](v4.2/PHASE_4_BASELINE.md)
 - [V4.2 Phase 4 checklist](v4.2/PHASE_4_CHECKLIST.md)
+- [V4.2 Phase 5 lifecycle hardening](v4.2/PHASE_5_LIFECYCLE_HARDENING.md)
+- [V4.2 Phase 5 local baseline](v4.2/PHASE_5_BASELINE.md)
+- [V4.2 Phase 5 checklist](v4.2/PHASE_5_CHECKLIST.md)
 - [V4.1 development charter](v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4.1/PHASE_0_CHECKLIST.md)

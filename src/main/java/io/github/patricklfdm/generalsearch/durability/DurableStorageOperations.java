@@ -65,6 +65,10 @@ public final class DurableStorageOperations {
      * non-authoritative, and binds the complete observed inventory. The returned plan
      * grants no permission after any filesystem or authority change.
      *
+     * V4.2 migration remnants require the exact structured marker and unchanged
+     * source-member bindings produced by the migration attempt. A published target
+     * is authority and is never included in the delete set.
+     *
      * @param request exact live-store or operation-remnant request
      * @return deterministic immutable dry-run plan, possibly empty
      */

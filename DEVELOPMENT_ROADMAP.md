@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 4 typed transform migration
+## v4.2 active Phase 5 lifecycle hardening
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -135,11 +135,14 @@ PR #108 as `85fc9a4`; exact-master CI run `33839044114` passed. Phase 3 activate
 explicit fresh/reopen/write `1.1`, exact-format backup/restore, and the format-only
 `1.0` to `1.1` plan/apply edge. It merged through protected PR #109 as
 `43bf2bda3f51ac28aa4aaa1be8bbd96d63bd6daf`; exact-master CI run `33842969788`
-passed. Phase 4 now owns declared codec/schema/key transforms, meaningful same-format
-migration, complete plan binding, collision refusal, and exact target-index rebuild.
-Lifecycle/rollback hardening remains Phase 5 work; workflow/IAM mutation and paid
-execution remain Phase 6 work. Authority is under
-[`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_4_TRANSFORM_MIGRATION.md).
+passed. Phase 4 added declared codec/schema/key transforms, meaningful same-format
+migration, complete plan binding, collision refusal, and exact target-index rebuild;
+it merged through protected PR #110 as
+`043b95b735dbc7dc1f319e2bd64fccba3063597a`, with exact-master CI run `33846632898`.
+Phase 5 now owns lifecycle authority, exhaustive interruption, exact plan-bound
+migration-remnant cleanup, target continuation, and published-4.1 rollback proof.
+Workflow/IAM mutation and paid execution remain Phase 6 work. Authority is under
+[`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_5_LIFECYCLE_HARDENING.md).
 
 ## v4.1.0 current stable release
 

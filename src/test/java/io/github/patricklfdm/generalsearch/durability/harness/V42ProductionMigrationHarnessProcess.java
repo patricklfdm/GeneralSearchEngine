@@ -1,10 +1,17 @@
 package io.github.patricklfdm.generalsearch.durability.harness;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupPlan;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupScope;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationRecord;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
@@ -21,6 +28,20 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 
 /** Separate-process producer, migrator and verifier for Phase 3 authority barriers. */
 public final class V42ProductionMigrationHarnessProcess {
+    private static final Pattern MIGRATION_REMNANT = Pattern.compile(
+            "\\.gse-v42-migration-[0-9a-f]{32}\\.staging(?:\\.operation)?");
+    private static final Set<String> PUBLISHED_BARRIERS = Set.of(
+            "v42-migration-after-final-rename-v1",
+            "v42-migration-before-parent-force-v1",
+            "v42-migration-after-parent-force-v1",
+            "v42-migration-before-final-verification-v1",
+            "v42-migration-after-final-verification-v1",
+            "v42-migration-before-final-source-compare-v1",
+            "v42-migration-after-final-source-compare-v1",
+            "v42-migration-before-marker-delete-v1",
+            "v42-migration-after-marker-delete-v1",
+            "v42-migration-after-marker-parent-force-v1",
+            "v42-migration-before-return-v1");
     private static final Field<Document, Integer> ID =
             Field.of("id", Integer.class, Document::id);
 
@@ -40,6 +61,7 @@ public final class V42ProductionMigrationHarnessProcess {
             case "produce-v11" -> produceV11(source, target);
             case "apply-halt" -> apply(source, target, barrier);
             case "verify" -> verify(source, target, barrier);
+            case "cleanup" -> cleanup(source, target, barrier);
             default -> throw new IllegalArgumentException("unknown mode: " + mode);
         }
     }
@@ -96,7 +118,7 @@ public final class V42ProductionMigrationHarnessProcess {
                         .equals(DurableStorageFormat.V1_0)) {
             throw new IllegalStateException("source authority is invalid");
         }
-        boolean published = barrier.equals("v42-migration-after-parent-force-v1");
+        boolean published = PUBLISHED_BARRIERS.contains(barrier);
         if (published) {
             if (DurableStorageOperations.verifyStore(target).status()
                     != DurableVerificationStatus.VALID
@@ -117,6 +139,41 @@ public final class V42ProductionMigrationHarnessProcess {
         }
         System.out.println("GSE_V42_VERIFY_RESULT={\"status\":\"PASS\","
                 + "\"sourceValid\":true,\"targetPublished\":" + published + "}");
+    }
+
+    private static void cleanup(Path source, Path target, String barrier)
+            throws IOException {
+        List<Path> remnants;
+        try (var paths = Files.list(target.getParent())) {
+            remnants = paths.filter(path -> MIGRATION_REMNANT.matcher(
+                            path.getFileName().toString()).matches())
+                    .sorted().toList();
+        }
+        if (!remnants.isEmpty()) {
+            Path named = remnants.stream().filter(Files::isDirectory)
+                    .findFirst().orElse(remnants.getFirst());
+            DurableCleanupPlan plan = DurableStorageOperations.planCleanup(
+                    new DurableCleanupRequest(
+                            named, DurableCleanupScope.OPERATION_REMNANT));
+            if (plan.deleteSet().stream().anyMatch(entry ->
+                    entry.member().equals(source)
+                            || entry.member().equals(target))) {
+                throw new IllegalStateException("unsafe migration cleanup plan");
+            }
+            DurableStorageOperations.applyCleanup(plan);
+        }
+        try (var paths = Files.list(target.getParent())) {
+            if (paths.anyMatch(path -> MIGRATION_REMNANT.matcher(
+                    path.getFileName().toString()).matches())) {
+                throw new IllegalStateException("migration remnant survived cleanup");
+            }
+        }
+        if (PUBLISHED_BARRIERS.contains(barrier)
+                && DurableStorageOperations.verifyStore(target).status()
+                        != DurableVerificationStatus.VALID) {
+            throw new IllegalStateException("cleanup changed target authority");
+        }
+        System.out.println("GSE_V42_CLEANUP_RESULT=PASS");
     }
 
     private static DurableMigrationRequest<Integer, Document, Integer, Document>

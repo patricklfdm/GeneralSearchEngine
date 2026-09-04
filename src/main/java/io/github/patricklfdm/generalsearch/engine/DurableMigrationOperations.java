@@ -1,5 +1,7 @@
 package io.github.patricklfdm.generalsearch.engine;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -29,6 +31,7 @@ import java.util.Objects;
 import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
+import java.util.zip.CRC32C;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationException;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationIndexChange;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan;
@@ -52,6 +55,10 @@ import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
 /** Internal V4.2 typed migration planner and publisher. */
 final class DurableMigrationOperations {
+    private static final long OPERATION_MAGIC = 0x4753454f50313030L;
+    private static final int OPERATION_FORMAT_MAJOR = 1;
+    private static final int OPERATION_FORMAT_MINOR = 1;
+    private static final int MIGRATION_OPERATION = 3;
     private static final byte[] SOURCE_DOMAIN =
             "gse-migration-source-v1\0".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] DESCRIPTOR_DOMAIN =
@@ -478,25 +485,31 @@ final class DurableMigrationOperations {
     ) {
         Path target = plan.targetDirectory();
         Path parent = target.getParent();
-        String compact = UUID.randomUUID().toString().replace("-", "");
+        UUID operationId = UUID.randomUUID();
+        String compact = operationId.toString().replace("-", "");
         Path staging = parent.resolve(".gse-v42-migration-" + compact + ".staging");
-        Path marker = parent.resolve(".gse-v42-migration-" + compact + ".operation");
+        Path marker = staging.resolveSibling(staging.getFileName() + ".operation");
         boolean published = false;
         boolean markerCreated = false;
         boolean stagingCreated = false;
         Throwable primary = null;
+        DurableVerificationReport completed;
         try {
             if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
                 throw failure(DurableMigrationException.Reason.TARGET_EXISTS,
                         DurableMigrationStage.PREPARE_TARGET,
                         OptionalLong.of(plan.sourceSequence()), null);
             }
+            DurableCrashHooks.reach("v42-migration-before-marker-publication-v1");
             try (FileChannel channel = FileChannel.open(marker,
                     StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE);
                  FileLock ignored = acquireMarker(channel, plan.sourceSequence())) {
                 markerCreated = true;
-                writeFully(channel, ByteBuffer.wrap(plan.planDigest()
-                        .getBytes(StandardCharsets.US_ASCII)));
+                writeFully(channel, ByteBuffer.wrap(encodeOperationMarker(
+                        operationId,
+                        staging.getFileName().toString(),
+                        target.getFileName().toString(),
+                        plan.sourceDirectory(), plan)));
                 channel.force(true);
                 DurableStorageOwner.forceDirectory(parent);
                 DurableCrashHooks.reach("v42-migration-after-marker-force-v1");
@@ -504,6 +517,7 @@ final class DurableMigrationOperations {
                 Files.createDirectory(staging);
                 stagingCreated = true;
                 DurableStorageOwner.forceDirectory(parent);
+                DurableCrashHooks.reach("v42-migration-after-staging-force-v1");
                 createLock(staging.resolve(DurableStorageOwner.LOCK_FILE));
                 writeTarget(staging, observation, schema, targetDefinitions,
                         request.targetConfig(), plan);
@@ -518,34 +532,49 @@ final class DurableMigrationOperations {
                 Files.move(staging, target, StandardCopyOption.ATOMIC_MOVE);
                 published = true;
                 DurableCrashHooks.reach("v42-migration-after-final-rename-v1");
+                DurableCrashHooks.reach("v42-migration-before-parent-force-v1");
                 DurableStorageOwner.forceDirectory(parent);
                 DurableCrashHooks.reach("v42-migration-after-parent-force-v1");
+                DurableCrashHooks.reach(
+                        "v42-migration-before-final-verification-v1");
+                completed = requireTarget(
+                        target, plan.sourceSequence());
+                validateTarget(target, schema, targetDefinitions,
+                        request.targetConfig(), plan, observation.projection());
+                try (DurableCommitCoordinator<K, T> targetOwner =
+                             DurableCommitCoordinator.open(request.targetConfig(),
+                                     engineConfig, schema, targetDefinitions)) {
+                    // Normal production open/close is part of completion.
+                }
+                DurableCrashHooks.reach(
+                        "v42-migration-after-final-verification-v1");
+                DurableCrashHooks.reach(
+                        "v42-migration-before-final-source-compare-v1");
+                if (!sourceMembers(plan.sourceDirectory(), observation.metadata(),
+                        observation.owner().wal().generation())
+                        .equals(plan.sourceMembers())) {
+                    throw failure(DurableMigrationException.Reason.PLAN_STALE,
+                            DurableMigrationStage.VERIFY_SOURCE_PRESERVED,
+                            OptionalLong.of(plan.sourceSequence()), null);
+                }
+                DurableCrashHooks.reach(
+                        "v42-migration-after-final-source-compare-v1");
             }
-            DurableVerificationReport completed = requireTarget(
-                    target, plan.sourceSequence());
-            validateTarget(target, schema, targetDefinitions,
-                    request.targetConfig(), plan, observation.projection());
-            try (DurableCommitCoordinator<K, T> ignored =
-                         DurableCommitCoordinator.open(request.targetConfig(),
-                                 engineConfig, schema, targetDefinitions)) {
-                // A normal production open/close is part of successful completion.
-            }
-            if (!sourceMembers(plan.sourceDirectory(), observation.metadata(),
-                    observation.owner().wal().generation())
-                    .equals(plan.sourceMembers())) {
-                throw failure(DurableMigrationException.Reason.PLAN_STALE,
-                        DurableMigrationStage.VERIFY_SOURCE_PRESERVED,
-                        OptionalLong.of(plan.sourceSequence()), null);
-            }
+            DurableCrashHooks.reach("v42-migration-before-marker-delete-v1");
             Files.delete(marker);
             markerCreated = false;
+            DurableCrashHooks.reach("v42-migration-after-marker-delete-v1");
             DurableStorageOwner.forceDirectory(parent);
-            return new DurableMigrationResult(
+            DurableCrashHooks.reach(
+                    "v42-migration-after-marker-parent-force-v1");
+            DurableMigrationResult result = new DurableMigrationResult(
                     plan.sourceDirectory(), target, plan.sourceFormat(),
                     plan.targetFormat(), plan.sourceHistory(), plan.targetHistory(),
                     plan.sourceSequence(), plan.nextDocId(), plan.documentCount(),
                     plan.sourceAuthorityIdentity(), plan.projectionDigest(),
                     plan.planDigest(), completed.authoritativeBytes());
+            DurableCrashHooks.reach("v42-migration-before-return-v1");
+            return result;
         } catch (DurableMigrationException problem) {
             primary = problem;
             if (published && problem.reason()
@@ -595,6 +624,7 @@ final class DurableMigrationOperations {
         int codecVersion = config.codec().codecVersion();
         byte[] metadata = DurableStorageOwner.encodeMetadata(
                 config, codecId, codecVersion, indexes, plan.targetHistory());
+        DurableCrashHooks.reach("v42-migration-before-metadata-write-v1");
         DurableStorageOwner.writeMetadata(staging, metadata);
         DurableCrashHooks.reach("v42-migration-after-metadata-force-v1");
 
@@ -614,6 +644,7 @@ final class DurableMigrationOperations {
         String checkpointFile = DurableCheckpoint.newCheckpointFile(
                 plan.sourceSequence());
         Path checkpointStaging = staging.resolve(checkpointFile + ".staging");
+        DurableCrashHooks.reach("v42-migration-before-checkpoint-write-v1");
         DurableCheckpoint.Written written = DurableCheckpoint.write(
                 checkpointStaging, capture, config, schema,
                 DurableFormatContext.V1_1, plan.targetHistory(),
@@ -624,6 +655,7 @@ final class DurableMigrationOperations {
 
         long firstSequence = Math.addExact(plan.sourceSequence(), 1L);
         String walName = DurableStorageOwner.walFile(WAL_GENERATION);
+        DurableCrashHooks.reach("v42-migration-before-wal-write-v1");
         try (DurableWal ignored = DurableWal.create(staging.resolve(walName),
                 DurableFormatContext.V1_1, plan.targetHistory(), WAL_GENERATION,
                 firstSequence)) {
@@ -636,6 +668,7 @@ final class DurableMigrationOperations {
                 written.checksum(), WAL_GENERATION, firstSequence);
         Path manifestStaging = staging.resolve(
                 DurableCheckpoint.MANIFEST_STAGING_FILE);
+        DurableCrashHooks.reach("v42-migration-before-manifest-write-v1");
         try (FileChannel channel = FileChannel.open(manifestStaging,
                 StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
             writeFully(channel, ByteBuffer.wrap(DurableCheckpoint.encodeManifest(
@@ -647,6 +680,7 @@ final class DurableMigrationOperations {
                 StandardCopyOption.ATOMIC_MOVE);
         DurableStorageOwner.forceDirectory(staging);
         DurableCrashHooks.reach("v42-migration-after-manifest-rename-v1");
+        DurableCrashHooks.reach("v42-migration-before-staging-verification-v1");
         DurableVerificationReport report = requireTarget(
                 staging, plan.sourceSequence());
         if (report.authoritativeBytes() != plan.targetAuthoritativeBytes()) {
@@ -656,6 +690,49 @@ final class DurableMigrationOperations {
         }
         validateTarget(staging, schema, definitions, config, plan,
                 observation.projection());
+        DurableCrashHooks.reach("v42-migration-after-staging-verification-v1");
+    }
+
+    private static byte[] encodeOperationMarker(
+            UUID operationId,
+            String stagingName,
+            String targetName,
+            Path source,
+            DurableMigrationPlan plan
+    ) throws IOException {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        CRC32C checksum = new CRC32C();
+        try (DataOutputStream output = new DataOutputStream(bytes)) {
+            output.writeLong(OPERATION_MAGIC);
+            output.writeShort(OPERATION_FORMAT_MAJOR);
+            output.writeShort(OPERATION_FORMAT_MINOR);
+            output.writeByte(MIGRATION_OPERATION);
+            output.writeLong(operationId.getMostSignificantBits());
+            output.writeLong(operationId.getLeastSignificantBits());
+            writeString(output, stagingName);
+            writeString(output, targetName);
+            writeString(output, source.toString());
+            writeString(output, plan.planDigest());
+            writeString(output, plan.sourceAuthorityIdentity());
+            writeString(output, plan.projectionDigest());
+            output.writeInt(plan.sourceMembers().size());
+            for (DurableMigrationSourceMember member : plan.sourceMembers()) {
+                writeString(output, member.name());
+                output.writeLong(member.size());
+                writeString(output, member.sha256());
+            }
+            output.flush();
+            checksum.update(bytes.toByteArray());
+            output.writeInt((int) checksum.getValue());
+        }
+        return bytes.toByteArray();
+    }
+
+    private static void writeString(DataOutputStream output, String value)
+            throws IOException {
+        byte[] encoded = value.getBytes(StandardCharsets.UTF_8);
+        output.writeInt(encoded.length);
+        output.write(encoded);
     }
 
     private static <K, T> void validateTarget(

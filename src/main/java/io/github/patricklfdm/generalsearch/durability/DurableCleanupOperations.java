@@ -40,6 +40,10 @@ final class DurableCleanupOperations {
             "\\.gse-v41-backup-([0-9a-f]{32})\\.staging");
     private static final Pattern RESTORE_STAGING = Pattern.compile(
             "\\.gse-v41-restore-([0-9a-f]{32})\\.staging");
+    private static final Pattern MIGRATION_STAGING = Pattern.compile(
+            "\\.gse-v42-migration-([0-9a-f]{32})\\.staging");
+    private static final Pattern MIGRATION_IDENTITY = Pattern.compile(
+            "gse-migration-[a-z0-9-]+-v1-[0-9a-f]{64}");
     private static final Pattern CHECKPOINT = Pattern.compile(
             "gse-checkpoint-[0-9]{20}-[0-9a-f]{32}\\.chk(?:\\.staging)?");
     private static final Pattern WAL = Pattern.compile(
@@ -152,7 +156,7 @@ final class DurableCleanupOperations {
             DurableCleanupPlan plan = buildPlan(directory, request.scope(),
                     authority, deleteSet);
             return new Prepared(plan, channel, lock, directory, null, null,
-                    null);
+                    null, null, null, null);
         } catch (Throwable failure) {
             close(lock, channel, failure);
             throw failure;
@@ -180,6 +184,8 @@ final class DurableCleanupOperations {
         FileChannel channel = FileChannel.open(markerPath,
                 StandardOpenOption.READ, StandardOpenOption.WRITE);
         FileLock lock = null;
+        FileChannel sourceChannel = null;
+        FileLock sourceLock = null;
         try {
             lock = acquire(markerPath, channel);
             OperationMarker marker = parseMarker(markerPath);
@@ -207,6 +213,21 @@ final class DurableCleanupOperations {
                 throw failure(DurableOperationException.Reason.SOURCE_INVALID, null);
             }
 
+            Path sourceAuthority = null;
+            Map<String, MemberState> sourceInventory = Map.of();
+            if (marker.kind() == 3) {
+                sourceAuthority = validateMigrationSourcePath(marker, boundStaging,
+                        finalTarget);
+                Path sourceLockPath = sourceAuthority.resolve("gse.lock");
+                requireRegular(sourceLockPath);
+                sourceChannel = FileChannel.open(sourceLockPath,
+                        StandardOpenOption.READ, StandardOpenOption.WRITE);
+                sourceLock = acquire(sourceLockPath, sourceChannel);
+                requireValidAuthority(
+                        DurableStructuralVerifier.verifyLockedStore(sourceAuthority));
+                sourceInventory = migrationSourceInventory(
+                        sourceAuthority, marker.sourceMembers());
+            }
             Map<String, MemberState> stagingInventory = Map.of();
             List<DurableCleanupEntry> deleteSet = new ArrayList<>();
             if (stagingExists) {
@@ -232,6 +253,8 @@ final class DurableCleanupOperations {
                             : "abandoned-operation-marker"));
             Map<String, MemberState> authorityInventory = new LinkedHashMap<>();
             authorityInventory.put("marker", markerState);
+            sourceInventory.forEach((name, state) ->
+                    authorityInventory.put("source/" + name, state));
             stagingInventory.forEach((name, state) ->
                     authorityInventory.put("staging/" + name, state));
             DurableVerificationReport finalReport = targetExists
@@ -245,8 +268,10 @@ final class DurableCleanupOperations {
                     request.scope(), authority, deleteSet);
             return new Prepared(plan, channel, lock, parent,
                     stagingExists ? boundStaging : null,
-                    targetExists ? finalTarget : null, marker);
+                    targetExists ? finalTarget : null, marker, sourceAuthority,
+                    sourceChannel, sourceLock);
         } catch (Throwable failure) {
+            close(sourceLock, sourceChannel, failure);
             close(lock, channel, failure);
             throw failure;
         }
@@ -312,6 +337,19 @@ final class DurableCleanupOperations {
             update(digest, marker.operationId().toString());
             update(digest, marker.stagingName());
             update(digest, marker.targetName());
+            update(digest, marker.sourcePath() == null
+                    ? "absent" : marker.sourcePath().toString());
+            update(digest, marker.planDigest() == null
+                    ? "absent" : marker.planDigest());
+            update(digest, marker.sourceAuthorityIdentity() == null
+                    ? "absent" : marker.sourceAuthorityIdentity());
+            update(digest, marker.projectionDigest() == null
+                    ? "absent" : marker.projectionDigest());
+            for (SourceMemberBinding member : marker.sourceMembers()) {
+                update(digest, member.name());
+                update(digest, member.size());
+                update(digest, member.sha256());
+            }
         }
         update(digest, finalTarget == null ? "absent" : finalTarget.toString());
         return HexFormat.of().formatHex(digest.digest());
@@ -430,14 +468,58 @@ final class DurableCleanupOperations {
             UUID operationId = new UUID(input.readLong(), input.readLong());
             String staging = readString(input, 255);
             String target = readString(input, 255);
+            Path source = null;
+            String planDigest = null;
+            String sourceAuthorityIdentity = null;
+            String projectionDigest = null;
+            List<SourceMemberBinding> sourceMembers = List.of();
+            if (major == 1 && minor == 1 && kind == 3) {
+                String encodedSource = readString(input, 1024);
+                source = Path.of(encodedSource);
+                planDigest = readString(input, 160);
+                sourceAuthorityIdentity = readString(input, 160);
+                projectionDigest = readString(input, 160);
+                int count = input.readInt();
+                if (count <= 0 || count > 64) {
+                    throw failure(DurableOperationException.Reason.SOURCE_INVALID,
+                            null);
+                }
+                ArrayList<SourceMemberBinding> members = new ArrayList<>(count);
+                String previous = null;
+                for (int index = 0; index < count; index++) {
+                    String name = readString(input, 255);
+                    long size = input.readLong();
+                    String sha256 = readString(input, 64);
+                    if (!validSimpleName(name) || size < 0
+                            || !SHA256.matcher(sha256).matches()
+                            || (previous != null && previous.compareTo(name) >= 0)) {
+                        throw failure(
+                                DurableOperationException.Reason.SOURCE_INVALID,
+                                null);
+                    }
+                    members.add(new SourceMemberBinding(name, size, sha256));
+                    previous = name;
+                }
+                sourceMembers = List.copyOf(members);
+            }
+            boolean legacy = major == 1 && minor == 0
+                    && kind >= 1 && kind <= 2;
+            boolean migration = major == 1 && minor == 1 && kind == 3
+                    && source != null && source.isAbsolute()
+                    && source.normalize().equals(source)
+                    && MIGRATION_IDENTITY.matcher(planDigest).matches()
+                    && MIGRATION_IDENTITY.matcher(sourceAuthorityIdentity).matches()
+                    && MIGRATION_IDENTITY.matcher(projectionDigest).matches();
             if (input.available() != 0 || magic != OPERATION_MAGIC
-                    || major != 1 || minor != 0 || kind < 1 || kind > 2
+                    || (!legacy && !migration)
                     || operationId.equals(ZERO_UUID)
                     || !validStaging(kind, operationId, staging)
                     || !validSimpleName(target)) {
                 throw failure(DurableOperationException.Reason.SOURCE_INVALID, null);
             }
-            return new OperationMarker(kind, operationId, staging, target);
+            return new OperationMarker(kind, operationId, staging, target,
+                    source, planDigest, sourceAuthorityIdentity,
+                    projectionDigest, sourceMembers);
         }
     }
 
@@ -464,7 +546,14 @@ final class DurableCleanupOperations {
             UUID operationId,
             String staging
     ) {
-        var matcher = (kind == 1 ? BACKUP_STAGING : RESTORE_STAGING)
+        Pattern pattern = switch (kind) {
+            case 1 -> BACKUP_STAGING;
+            case 2 -> RESTORE_STAGING;
+            case 3 -> MIGRATION_STAGING;
+            default -> throw failure(
+                    DurableOperationException.Reason.SOURCE_INVALID, null);
+        };
+        var matcher = pattern
                 .matcher(staging);
         return matcher.matches() && matcher.group(1).equals(
                 operationId.toString().replace("-", ""));
@@ -501,6 +590,42 @@ final class DurableCleanupOperations {
                 : DurableStructuralVerifier.verifyStore(target);
         requireValidAuthority(report);
         return report;
+    }
+
+    private static Path validateMigrationSourcePath(
+            OperationMarker marker,
+            Path staging,
+            Path target
+    ) throws IOException {
+        Path source = requireRealDirectory(marker.sourcePath());
+        if (source.equals(staging) || source.equals(target)
+                || staging.startsWith(source) || source.startsWith(staging)
+                || target.startsWith(source) || source.startsWith(target)) {
+            throw failure(DurableOperationException.Reason.SOURCE_INVALID, null);
+        }
+        return source;
+    }
+
+    private static Map<String, MemberState> migrationSourceInventory(
+            Path source,
+            List<SourceMemberBinding> bindings
+    ) throws IOException {
+        Map<String, MemberState> inventory = inventory(source);
+        Set<String> expected = new java.util.HashSet<>();
+        expected.add("gse.lock");
+        for (SourceMemberBinding binding : bindings) {
+            expected.add(binding.name());
+            MemberState state = inventory.get(binding.name());
+            if (state == null || state.size() != binding.size()
+                    || !state.fingerprint().equals(binding.sha256())) {
+                throw failure(DurableOperationException.Reason.SOURCE_INVALID,
+                        null);
+            }
+        }
+        if (!inventory.keySet().equals(expected)) {
+            throw failure(DurableOperationException.Reason.SOURCE_INVALID, null);
+        }
+        return inventory;
     }
 
     private static void requireValidAuthority(DurableVerificationReport report) {
@@ -567,13 +692,15 @@ final class DurableCleanupOperations {
         } catch (IOException failure) {
             closeFailure = failure;
         }
-        try {
-            channel.close();
-        } catch (IOException failure) {
-            if (closeFailure == null) {
-                closeFailure = failure;
-            } else {
-                closeFailure.addSuppressed(failure);
+        if (channel != null) {
+            try {
+                channel.close();
+            } catch (IOException failure) {
+                if (closeFailure == null) {
+                    closeFailure = failure;
+                } else {
+                    closeFailure.addSuppressed(failure);
+                }
             }
         }
         if (closeFailure != null) {
@@ -659,8 +786,16 @@ final class DurableCleanupOperations {
             int kind,
             UUID operationId,
             String stagingName,
-            String targetName
+            String targetName,
+            Path sourcePath,
+            String planDigest,
+            String sourceAuthorityIdentity,
+            String projectionDigest,
+            List<SourceMemberBinding> sourceMembers
     ) {
+    }
+
+    private record SourceMemberBinding(String name, long size, String sha256) {
     }
 
     private static final class Prepared implements AutoCloseable {
@@ -671,6 +806,9 @@ final class DurableCleanupOperations {
         private final Path stagingDirectory;
         private final Path finalTarget;
         private final OperationMarker marker;
+        private final Path sourceAuthority;
+        private final FileChannel sourceChannel;
+        private final FileLock sourceLock;
 
         private Prepared(
                 DurableCleanupPlan plan,
@@ -679,7 +817,10 @@ final class DurableCleanupOperations {
                 Path forceDirectory,
                 Path stagingDirectory,
                 Path finalTarget,
-                OperationMarker marker
+                OperationMarker marker,
+                Path sourceAuthority,
+                FileChannel sourceChannel,
+                FileLock sourceLock
         ) {
             this.plan = plan;
             this.channel = channel;
@@ -688,6 +829,9 @@ final class DurableCleanupOperations {
             this.stagingDirectory = stagingDirectory;
             this.finalTarget = finalTarget;
             this.marker = marker;
+            this.sourceAuthority = sourceAuthority;
+            this.sourceChannel = sourceChannel;
+            this.sourceLock = sourceLock;
         }
 
         private DurableCleanupPlan plan() {
@@ -714,11 +858,39 @@ final class DurableCleanupOperations {
             } else if (finalTarget != null) {
                 verifyFinalTarget(marker.kind(), finalTarget);
             }
+            if (sourceAuthority != null) {
+                requireValidAuthority(
+                        DurableStructuralVerifier.verifyLockedStore(sourceAuthority));
+                try {
+                    migrationSourceInventory(
+                            sourceAuthority, marker.sourceMembers());
+                } catch (IOException failure) {
+                    throw failure(DurableOperationException.Reason.IO_FAILURE,
+                            failure);
+                }
+            }
         }
 
         @Override
         public void close() throws IOException {
-            DurableCleanupOperations.close(lock, channel, null);
+            IOException primary = null;
+            try {
+                DurableCleanupOperations.close(sourceLock, sourceChannel, null);
+            } catch (IOException failure) {
+                primary = failure;
+            }
+            try {
+                DurableCleanupOperations.close(lock, channel, primary);
+            } catch (IOException failure) {
+                if (primary == null) {
+                    primary = failure;
+                } else {
+                    primary.addSuppressed(failure);
+                }
+            }
+            if (primary != null) {
+                throw primary;
+            }
         }
     }
 }

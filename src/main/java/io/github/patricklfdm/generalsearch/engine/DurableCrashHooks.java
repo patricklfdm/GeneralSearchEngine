@@ -63,14 +63,31 @@ final class DurableCrashHooks {
             "v41-cleanup-after-directory-force-v1",
             "v41-cleanup-before-post-verify-v1",
             "v41-cleanup-after-post-verify-v1",
+            "v42-migration-before-marker-publication-v1",
             "v42-migration-after-marker-force-v1",
+            "v42-migration-after-staging-force-v1",
+            "v42-migration-before-metadata-write-v1",
             "v42-migration-after-metadata-force-v1",
+            "v42-migration-before-checkpoint-write-v1",
             "v42-migration-after-checkpoint-rename-v1",
+            "v42-migration-before-wal-write-v1",
             "v42-migration-after-wal-force-v1",
+            "v42-migration-before-manifest-write-v1",
             "v42-migration-after-manifest-rename-v1",
+            "v42-migration-before-staging-verification-v1",
+            "v42-migration-after-staging-verification-v1",
             "v42-migration-before-final-rename-v1",
             "v42-migration-after-final-rename-v1",
-            "v42-migration-after-parent-force-v1"
+            "v42-migration-before-parent-force-v1",
+            "v42-migration-after-parent-force-v1",
+            "v42-migration-before-final-verification-v1",
+            "v42-migration-after-final-verification-v1",
+            "v42-migration-before-final-source-compare-v1",
+            "v42-migration-after-final-source-compare-v1",
+            "v42-migration-before-marker-delete-v1",
+            "v42-migration-after-marker-delete-v1",
+            "v42-migration-after-marker-parent-force-v1",
+            "v42-migration-before-return-v1"
     );
 
     private DurableCrashHooks() {

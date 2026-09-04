@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.2 Phase 4 local baseline
 
-- **Status:** Implementation candidate; protected acceptance pending
-- **Source:** `feat/v4.2-phase4-transform-migration` working tree
+- **Status:** Accepted on protected `master`
+- **Source:** `043b95b735dbc7dc1f319e2bd64fccba3063597a`
 - **Scope:** Versioned typed transforms and exact target-index rebuild
 
 ## Implemented surface
@@ -79,6 +79,5 @@ c926c4495cce7ed62708b3e8729a0d3766b923589240290465850535dc282a5f  general-search
 70762a44fb71c87ab48c2d902080faaeee80407420dc971cf08f679ee95eadc5  general-search-engine-processor-4.2.0-SNAPSHOT.jar
 ```
 
-Protected PR CI and exact protected-master evidence remain required before Phase 4
-is accepted. Phase 5 remains the owner of lifecycle, interruption, cleanup, rollback,
-and cross-version hardening.
+Protected PR #110 and exact-master CI run `33846632898` passed. Phase 5 remains the
+owner of lifecycle, interruption, cleanup, rollback, and cross-version hardening.
