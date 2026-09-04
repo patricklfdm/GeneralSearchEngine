@@ -27,7 +27,7 @@ portable hardware claim.
 | Peak quota boundary | `30 vCPU / 400 GiB regional SSD` |
 | Set status | `PASS / canonicalEligible=true / members=3` |
 | Set SHA-256 | `57abb5394a537faaf551b9182ae5a1669de4703689dfe91e6e08dcd4580f2d75` |
-| Registry name | `v4.2.0-migration-cloud` (registration pending) |
+| Registry name | `v4.2.0-migration-cloud` (candidate under protected review) |
 
 The downloaded member mirrors, checksum inventories, aggregate set, and cleanup
 receipts passed independent local validation. The complete set is durably present
@@ -84,7 +84,7 @@ Rejected runs `33898099293` and `33898434164` are recorded in the
 
 ## Registration boundary
 
-The next PR may append exactly one `v4.2.0-migration-cloud` entry binding the source,
-suite, preset, three-member set, and set digest above. Registration must remain
-separate from this review and must reject duplicate or non-canonical input. Phase 7
-may not start until that registration PR merges and exact-master CI passes.
+The separate registration candidate appends exactly one `v4.2.0-migration-cloud`
+entry binding the source, suite, preset, three-member set, and set digest above. It
+rejects duplicate or non-canonical input. Phase 7 may not start until that
+registration PR merges and exact-master CI passes.

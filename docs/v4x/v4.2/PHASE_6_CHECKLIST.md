@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 checklist
 
-- **Status:** Canonical evidence accepted; append-only baseline registration pending
+- **Status:** Canonical evidence accepted; append-only registration under protected review
 - **Scope:** Performance, replacement-host, rollback and canonical cloud evidence
 
 ## Entry
@@ -80,6 +80,8 @@
   canonical three-member set, and one append-only insertion.
 - [x] Canonical review is documented in
   [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md).
+- [x] Baseline `v4.2.0-migration-cloud` is registered exactly once in the candidate
+  append-only registry.
 - [ ] Baseline registration is committed through a separate protected PR.
 
 Phase 7 may begin only after protected implementation acceptance, paid canonical
