@@ -20,6 +20,13 @@ under the [V4 contract map](docs/v4/README.md). Version `4.1.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
+V4.2 is currently a documentation-only Phase 0 contract candidate. It proposes
+explicit opt-in format `gse-durable (1,1)` and source-preserving offline migration;
+it does not change the published `4.1.0` dependency, default `(1,0)` behavior, or any
+production API until the contract is accepted and implemented in later phases. See
+the [V4.2 development charter](docs/v4x/v4.2/DEVELOPMENT_CHARTER.md) and
+[Phase 0 contract](docs/v4x/v4.2/PHASE_0_CONTRACT.md).
+
 V4.0 durability is explicit and opt-in; the published `3.4.0` API and default
 in-memory behavior remain unchanged. WAL, deterministic
 recovery, checkpoints, lifecycle hardening, repeated-crash gates, paid durable cloud

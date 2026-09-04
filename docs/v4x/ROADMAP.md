@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.1 complete
+- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 0 active
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -22,7 +22,7 @@ V4.0  Correct Durability               COMPLETE
   ↓
 V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution                NEXT
+V4.2  Storage Evolution                ACTIVE PHASE 0 CONTRACT
   ↓
 V4.3  Fast Reopen
   ↓
@@ -114,6 +114,15 @@ changes.
 - explicit codec/schema transforms;
 - rollback-safe operator guidance;
 - immutable migration fixtures and an independent inspector.
+
+The Phase 0 candidate refines this direction into explicit-only format `(1,1)` with
+default and existing `(1,0)` stores left untouched; a canonical format-profile digest
+bound across authoritative members; exact `(1,0)` and `(1,1)` live/backup readability;
+typed offline dry-run/apply migration; one-to-one deterministic codec/schema/key
+transforms; new-history targets at the source sequence; source byte preservation;
+and operator-owned cutover/rollback. See the
+[V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md) and
+[Phase 0 contract](v4.2/PHASE_0_CONTRACT.md).
 
 Opening an old store must never silently rewrite it. The expected initial model is:
 
@@ -216,4 +225,6 @@ run `33815734269` passed. Signed tag `v4.1.0`, release workflow `33820284974`, M
 Central, deployment `6255241071`, clean remote consumers and GitHub Release
 `382405193` completed successfully. Production operation semantics and live/backup
 storage formats are now published and immutable. V4.2 begins only with a separately
-accepted storage-evolution contract.
+accepted storage-evolution contract. That Phase 0 candidate is active on its
+documentation-only branch. It authorizes no version, production code, executable
+harness, workflow, IAM, or paid-resource change before protected acceptance.
