@@ -214,13 +214,15 @@ public final class SearchEngineBuilder<K, T> {
 
     /**
      * Plans an offline, source-preserving durable migration without creating any
-     * target, staging, marker, cache or spill file. Phase 3 supports only the exact
-     * format-only {@code (1,0)} to {@code (1,1)} edge; codec, schema, key and index
-     * transforms remain unsupported. The transform is executed serially and its
-     * projection is bound into the returned immutable plan.
+     * target, staging, marker, cache or spill file. Supported V4.2 edges are an exact
+     * {@code (1,0)} to {@code (1,1)} migration and a declared non-no-op
+     * {@code (1,1)} to {@code (1,1)} migration. The versioned transform may change
+     * codec, schema, business-key and document bytes one-to-one; target indexes are
+     * rebuilt from the transformed documents. The transform is executed serially and
+     * its complete projection is bound into the returned immutable plan.
      *
      * @param sourceBuilder complete typed descriptor for the closed source
-     * @param request source, absent target, identity transform and hard bounds
+     * @param request source, absent target, versioned transform and hard bounds
      * @return immutable authority that apply must fully revalidate
      */
     public <SK, ST> DurableMigrationPlan planDurableMigration(

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 3 checklist
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #109
 - **Scope:** Production `1.1` and format-only `1.0` to `1.1` migration
 
 ## Entry
@@ -56,9 +56,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 3 pull request passes every required check.
-- [ ] Phase 3 merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded.
+- [x] Phase 3 pull request #109 passed every required check.
+- [x] Phase 3 merged to protected `master` as
+  `43bf2bda3f51ac28aa4aaa1be8bbd96d63bd6daf`.
+- [x] Exact-master CI run `33842969788` passed.
 
 Phase 4 may begin only after protected acceptance. It owns declared codec/schema/key
 transforms, collision diagnostics and target-index rebuild; Phase 3 does not authorize

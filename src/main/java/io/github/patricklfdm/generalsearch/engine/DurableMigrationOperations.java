@@ -37,6 +37,7 @@ import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationResult;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationSourceMember;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationStage;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationTransformDescriptor;
 import io.github.patricklfdm.generalsearch.durability.DurableOperationException;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
@@ -49,7 +50,7 @@ import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
-/** Internal Phase 3 format-only migration planner and publisher. */
+/** Internal V4.2 typed migration planner and publisher. */
 final class DurableMigrationOperations {
     private static final byte[] SOURCE_DOMAIN =
             "gse-migration-source-v1\0".getBytes(StandardCharsets.US_ASCII);
@@ -91,6 +92,7 @@ final class DurableMigrationOperations {
             DurableMigrationPlan plan
     ) {
         Objects.requireNonNull(plan, "plan");
+        validateSuppliedPlan(request, plan, targetDefinitions);
         try (Observation<SK, ST, TK, TT> observation = observe(
                 sourceSchema, sourceDefinitions, targetSchema,
                 targetDefinitions, request, plan.targetHistory())) {
@@ -124,7 +126,7 @@ final class DurableMigrationOperations {
         Objects.requireNonNull(request, "request");
         Path source = request.sourceDirectory();
         Target target = validatePaths(source, request.targetConfig().directory());
-        validateEdge(request);
+        validateTargetFormat(request);
 
         DurableVerificationReport structural;
         try {
@@ -160,8 +162,7 @@ final class DurableMigrationOperations {
         }
         List<DurableIndexDescriptor> sourceIndexes = descriptors(sourceDefinitions);
         List<DurableIndexDescriptor> targetIndexes = descriptors(targetDefinitions);
-        validateFormatOnlyIdentities(metadata, sourceIndexes, targetIndexes,
-                request);
+        validateMigrationEdge(metadata, sourceIndexes, targetIndexes, request);
         DurableStorageConfig<SK, ST> sourceStorage = sourceStorage(
                 source, metadata, request);
 
@@ -219,14 +220,28 @@ final class DurableMigrationOperations {
                     loaded, sourceStorage, sourceSchema, targetSchema,
                     request.targetConfig(), targetDefinitions, request,
                     targetHistory);
-            long targetBytes = targetAuthoritativeBytes(
-                    projection, targetSchema, targetIndexes,
-                    request.targetConfig(), targetHistory, loaded.sequence());
-            long peakBytes = Math.addExact(
-                    targetBytes, request.capacitySafetyReserveBytes());
+            long targetBytes;
+            long peakBytes;
+            long usableBytes;
+            try {
+                targetBytes = targetAuthoritativeBytes(
+                        projection, targetSchema, targetIndexes,
+                        request.targetConfig(), targetHistory, loaded.sequence());
+                peakBytes = Math.addExact(
+                        targetBytes, request.capacitySafetyReserveBytes());
+                usableBytes = Files.getFileStore(target.parent()).getUsableSpace();
+            } catch (ArithmeticException problem) {
+                throw failure(DurableMigrationException.Reason.CAPACITY_EXCEEDED,
+                        DurableMigrationStage.VALIDATE_CAPACITY,
+                        OptionalLong.of(loaded.sequence()), problem);
+            } catch (IOException problem) {
+                throw failure(DurableMigrationException.Reason.IO_FAILURE,
+                        DurableMigrationStage.VALIDATE_CAPACITY,
+                        OptionalLong.of(loaded.sequence()), problem);
+            }
             if (targetBytes > request.maxTargetAuthoritativeBytes()
                     || targetBytes > request.targetConfig().maxRetainedBytes()
-                    || peakBytes > Files.getFileStore(target.parent()).getUsableSpace()) {
+                    || peakBytes > usableBytes) {
                 throw failure(DurableMigrationException.Reason.CAPACITY_EXCEEDED,
                         DurableMigrationStage.VALIDATE_CAPACITY,
                         OptionalLong.of(loaded.sequence()), null);
@@ -235,20 +250,13 @@ final class DurableMigrationOperations {
                     metadata.format().publicFormat(), metadata.storageIdentity(),
                     metadata.schemaIdentity(), metadata.codecId(),
                     metadata.codecVersion(), metadata.maxKeyBytes(),
-                    metadata.maxDocumentBytes(), metadata.maxDocuments(), sourceIndexes);
-            String targetDescriptor = descriptorDigest(
-                    request.targetConfig().format(),
-                    request.targetConfig().storageIdentity(),
-                    request.targetConfig().schemaIdentity(),
-                    request.targetConfig().codec().codecId(),
-                    request.targetConfig().codec().codecVersion(),
-                    request.targetConfig().maxEncodedKeyBytes(),
-                    request.targetConfig().maxEncodedDocumentBytes(),
-                    request.targetConfig().maxDocuments(), targetIndexes);
-            List<String> retained = indexStrings(sourceIndexes).stream()
-                    .sorted().toList();
-            DurableMigrationIndexChange change =
-                    new DurableMigrationIndexChange(List.of(), List.of(), retained);
+                    metadata.maxDocumentBytes(), metadata.maxBulkElements(),
+                    metadata.maxDocuments(), metadata.checkpointWalBytes(),
+                    metadata.maxRetainedBytes(), sourceIndexes);
+            String targetDescriptor = targetDescriptorDigest(
+                    request.targetConfig(), targetIndexes);
+            DurableMigrationIndexChange change = indexChange(
+                    sourceIndexes, targetIndexes);
             String planDigest = planDigest(
                     source, target.target(), metadata, targetHistory,
                     loaded, members, sourceIdentity, sourceDescriptor,
@@ -279,22 +287,17 @@ final class DurableMigrationOperations {
         }
     }
 
-    private static void validateEdge(DurableMigrationRequest<?, ?, ?, ?> request) {
+    private static void validateTargetFormat(
+            DurableMigrationRequest<?, ?, ?, ?> request) {
         DurableStorageFormat target = request.targetConfig().format();
         if (!target.equals(DurableStorageFormat.V1_1)) {
             throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
                     DurableMigrationStage.VALIDATE_REQUEST,
                     OptionalLong.empty(), null);
         }
-        if (!request.transformDescriptor().identifier().equals("identity-format-v1")
-                || request.transformDescriptor().version() != 1) {
-            throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
-                    DurableMigrationStage.VALIDATE_REQUEST,
-                    OptionalLong.empty(), null);
-        }
     }
 
-    private static <SK, ST, TK, TT> void validateFormatOnlyIdentities(
+    private static <SK, ST, TK, TT> void validateMigrationEdge(
             DurableStorageOwner.Metadata metadata,
             List<DurableIndexDescriptor> sourceIndexes,
             List<DurableIndexDescriptor> targetIndexes,
@@ -315,14 +318,6 @@ final class DurableMigrationOperations {
                     DurableMigrationStage.VALIDATE_REQUEST,
                     OptionalLong.empty(), problem);
         }
-        if (!metadata.format().publicFormat().equals(DurableStorageFormat.V1_0)) {
-            DurableMigrationException.Reason reason = metadata.format()
-                    .publicFormat().equals(DurableStorageFormat.V1_1)
-                    ? DurableMigrationException.Reason.MIGRATION_NOT_REQUIRED
-                    : DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED;
-            throw failure(reason, DurableMigrationStage.VALIDATE_REQUEST,
-                    OptionalLong.empty(), null);
-        }
         if (!metadata.storageIdentity().equals(request.sourceConfig().storageIdentity())
                 || !metadata.schemaIdentity().equals(request.sourceConfig().schemaIdentity())
                 || !metadata.codecId().equals(sourceCodec)
@@ -333,16 +328,30 @@ final class DurableMigrationOperations {
                 || metadata.maxDocumentBytes()
                         != request.sourceConfig().maxEncodedDocumentBytes()
                 || metadata.maxDocuments() != request.sourceConfig().maxDocuments()
-                || !metadata.storageIdentity().equals(target.storageIdentity())
+                || !metadata.indexes().equals(sourceIndexes)) {
+            throw failure(DurableMigrationException.Reason.IDENTITY_MISMATCH,
+                    DurableMigrationStage.VERIFY_SOURCE,
+                    OptionalLong.empty(), null);
+        }
+        DurableStorageFormat source = metadata.format().publicFormat();
+        if (!source.equals(DurableStorageFormat.V1_0)
+                && !source.equals(DurableStorageFormat.V1_1)) {
+            throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
+                    DurableMigrationStage.VALIDATE_REQUEST,
+                    OptionalLong.empty(), null);
+        }
+        if (source.equals(DurableStorageFormat.V1_0)) {
+            return;
+        }
+        boolean identityChanged = !metadata.storageIdentity()
+                .equals(target.storageIdentity())
                 || !metadata.schemaIdentity().equals(target.schemaIdentity())
                 || !metadata.codecId().equals(targetCodec)
                 || metadata.codecVersion() != targetCodecVersion
-                || metadata.maxKeyBytes() != target.maxEncodedKeyBytes()
-                || metadata.maxDocumentBytes() != target.maxEncodedDocumentBytes()
-                || metadata.maxDocuments() != target.maxDocuments()
-                || !metadata.indexes().equals(sourceIndexes)
-                || !sourceIndexes.equals(targetIndexes)) {
-            throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
+                || !sourceIndexes.equals(targetIndexes)
+                || !isIdentityFormatTransform(request.transformDescriptor());
+        if (!identityChanged) {
+            throw failure(DurableMigrationException.Reason.MIGRATION_NOT_REQUIRED,
                     DurableMigrationStage.VALIDATE_REQUEST,
                     OptionalLong.empty(), null);
         }
@@ -365,12 +374,31 @@ final class DurableMigrationOperations {
         }
         ArrayList<TT> slots = new ArrayList<>(loaded.nextDocId());
         HashMap<TK, Integer> ids = new HashMap<>();
-        HashSet<String> encodedKeys = new HashSet<>();
+        HashSet<EncodedKey> encodedKeys = new HashSet<>();
         ArrayList<EncodedRecord> encoded = new ArrayList<>();
         MessageDigest digest = digest(PROJECTION_DOMAIN);
         update(digest, targetHistory);
         update(digest, loaded.sequence());
         update(digest, loaded.nextDocId());
+        update(digest, targetConfig.format().family());
+        update(digest, targetConfig.format().major());
+        update(digest, targetConfig.format().minor());
+        update(digest, DurableFormatContext.from(
+                targetConfig.format()).profileDigest());
+        update(digest, targetConfig.storageIdentity());
+        update(digest, targetConfig.schemaIdentity());
+        update(digest, targetConfig.codec().codecId());
+        update(digest, targetConfig.codec().codecVersion());
+        update(digest, targetConfig.maxEncodedKeyBytes());
+        update(digest, targetConfig.maxEncodedDocumentBytes());
+        update(digest, targetConfig.maxBulkElements());
+        update(digest, targetConfig.maxDocuments());
+        update(digest, targetConfig.checkpointWalBytes());
+        update(digest, targetConfig.maxRetainedBytes());
+        descriptors(targetDefinitions).forEach(index ->
+                update(digest, indexString(index)));
+        update(digest, request.transformDescriptor().identifier());
+        update(digest, request.transformDescriptor().version());
         for (int slot = 0; slot < loaded.nextDocId(); slot++) {
             ST sourceDocument = loaded.slots().get(slot);
             if (sourceDocument == null) {
@@ -398,19 +426,28 @@ final class DurableMigrationOperations {
             byte[] targetKeyBytes = canonicalKey(targetConfig, key);
             byte[] targetDocumentBytes = canonicalDocument(
                     targetConfig, targetSchema, key, document);
-            if (!Arrays.equals(sourceKeyBytes, targetKeyBytes)
-                    || !Arrays.equals(sourceDocumentBytes, targetDocumentBytes)) {
+            if (isIdentityFormatTransform(request.transformDescriptor())
+                    && (!Arrays.equals(sourceKeyBytes, targetKeyBytes)
+                    || !Arrays.equals(sourceDocumentBytes, targetDocumentBytes))) {
                 throw failure(
                         DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
                         DurableMigrationStage.PROJECT_TARGET,
                         OptionalLong.of(loaded.sequence()), null);
             }
-            String keyDigest = HexFormat.of().formatHex(
-                    digestBytes(targetKeyBytes));
-            if (ids.put(key, slot) != null || !encodedKeys.add(keyDigest)) {
+            try {
+                if (ids.put(key, slot) != null
+                        || !encodedKeys.add(new EncodedKey(targetKeyBytes))) {
+                    throw failure(
+                            DurableMigrationException.Reason.TRANSFORM_FAILURE,
+                            DurableMigrationStage.PROJECT_TARGET,
+                            OptionalLong.of(loaded.sequence()), null);
+                }
+            } catch (DurableMigrationException problem) {
+                throw problem;
+            } catch (RuntimeException problem) {
                 throw failure(DurableMigrationException.Reason.TRANSFORM_FAILURE,
                         DurableMigrationStage.PROJECT_TARGET,
-                        OptionalLong.of(loaded.sequence()), null);
+                        OptionalLong.of(loaded.sequence()), problem);
             }
             slots.add(document);
             encoded.add(new EncodedRecord(slot, targetKeyBytes, targetDocumentBytes));
@@ -424,6 +461,7 @@ final class DurableMigrationOperations {
                     DurableMigrationStage.PROJECT_TARGET,
                     OptionalLong.of(loaded.sequence()), null);
         }
+        validateIndexRebuild(slots, targetDefinitions, loaded.sequence());
         return new Projection<>(java.util.Collections.unmodifiableList(slots), Map.copyOf(ids),
                 List.copyOf(encoded),
                 "gse-migration-projection-v1-"
@@ -798,7 +836,8 @@ final class DurableMigrationOperations {
     private static String descriptorDigest(
             DurableStorageFormat format, String storage, String schema,
             String codec, int codecVersion, int maxKey, int maxDocument,
-            int maxDocuments, List<DurableIndexDescriptor> indexes) {
+            int maxBulk, int maxDocuments, long checkpointWalBytes,
+            long maxRetainedBytes, List<DurableIndexDescriptor> indexes) {
         MessageDigest digest = digest(DESCRIPTOR_DOMAIN);
         update(digest, format.family());
         update(digest, format.major());
@@ -809,10 +848,25 @@ final class DurableMigrationOperations {
         update(digest, codecVersion);
         update(digest, maxKey);
         update(digest, maxDocument);
+        update(digest, maxBulk);
         update(digest, maxDocuments);
+        update(digest, checkpointWalBytes);
+        update(digest, maxRetainedBytes);
+        update(digest, DurableFormatContext.from(format).profileDigest());
         indexStrings(indexes).forEach(value -> update(digest, value));
         return "gse-migration-descriptor-v1-"
                 + HexFormat.of().formatHex(digest.digest());
+    }
+
+    private static String targetDescriptorDigest(
+            DurableStorageConfig<?, ?> config,
+            List<DurableIndexDescriptor> indexes) {
+        return descriptorDigest(
+                config.format(), config.storageIdentity(), config.schemaIdentity(),
+                config.codec().codecId(), config.codec().codecVersion(),
+                config.maxEncodedKeyBytes(), config.maxEncodedDocumentBytes(),
+                config.maxBulkElements(), config.maxDocuments(),
+                config.checkpointWalBytes(), config.maxRetainedBytes(), indexes);
     }
 
     private static String planDigest(
@@ -824,16 +878,61 @@ final class DurableMigrationOperations {
             List<DurableIndexDescriptor> targetIndexes,
             DurableMigrationIndexChange change, long targetBytes,
             long peakBytes, String projection) {
+        return planDigest(source, target,
+                metadata.format().publicFormat(),
+                request.targetConfig().format(), metadata.historyId(),
+                targetHistory, loaded.sequence(), loaded.nextDocId(), members,
+                sourceIdentity, sourceDescriptor, targetDescriptor,
+                request.transformDescriptor(), loaded.documentIds().size(),
+                metadata.indexes().size(), targetIndexes.size(), change,
+                targetBytes, peakBytes, request.capacitySafetyReserveBytes(),
+                request.maxSourceAuthoritativeBytes(),
+                request.maxTargetAuthoritativeBytes(),
+                request.maxCollisionEntries(), request.maxFindings(),
+                request.maxDiagnosticBytes(), projection);
+    }
+
+    private static String planDigest(
+            Path source,
+            Path target,
+            DurableStorageFormat sourceFormat,
+            DurableStorageFormat targetFormat,
+            UUID sourceHistory,
+            UUID targetHistory,
+            long sourceSequence,
+            long nextDocId,
+            List<DurableMigrationSourceMember> members,
+            String sourceIdentity,
+            String sourceDescriptor,
+            String targetDescriptor,
+            DurableMigrationTransformDescriptor transformDescriptor,
+            int documentCount,
+            int sourceIndexCount,
+            int targetIndexCount,
+            DurableMigrationIndexChange change,
+            long targetBytes,
+            long peakBytes,
+            long capacityReserve,
+            long maxSourceBytes,
+            long maxTargetBytes,
+            int maxCollisionEntries,
+            int maxFindings,
+            int maxDiagnosticBytes,
+            String projection) {
         MessageDigest digest = digest(PLAN_DOMAIN);
         update(digest, 1);
         update(digest, source.toString());
         update(digest, target.toString());
-        update(digest, metadata.format().publicFormat().toString());
-        update(digest, request.targetConfig().format().toString());
-        update(digest, metadata.historyId());
+        update(digest, sourceFormat.family());
+        update(digest, sourceFormat.major());
+        update(digest, sourceFormat.minor());
+        update(digest, targetFormat.family());
+        update(digest, targetFormat.major());
+        update(digest, targetFormat.minor());
+        update(digest, sourceHistory);
         update(digest, targetHistory);
-        update(digest, loaded.sequence());
-        update(digest, loaded.nextDocId());
+        update(digest, sourceSequence);
+        update(digest, nextDocId);
         for (DurableMigrationSourceMember member : members) {
             update(digest, member.name());
             update(digest, member.size());
@@ -842,17 +941,22 @@ final class DurableMigrationOperations {
         update(digest, sourceIdentity);
         update(digest, sourceDescriptor);
         update(digest, targetDescriptor);
-        update(digest, request.transformDescriptor().identifier());
-        update(digest, request.transformDescriptor().version());
-        update(digest, loaded.documentIds().size());
-        update(digest, metadata.indexes().size());
-        update(digest, targetIndexes.size());
+        update(digest, transformDescriptor.identifier());
+        update(digest, transformDescriptor.version());
+        update(digest, documentCount);
+        update(digest, sourceIndexCount);
+        update(digest, targetIndexCount);
         change.added().forEach(value -> update(digest, "+" + value));
         change.removed().forEach(value -> update(digest, "-" + value));
         change.retained().forEach(value -> update(digest, "=" + value));
         update(digest, targetBytes);
         update(digest, peakBytes);
-        update(digest, request.capacitySafetyReserveBytes());
+        update(digest, capacityReserve);
+        update(digest, maxSourceBytes);
+        update(digest, maxTargetBytes);
+        update(digest, maxCollisionEntries);
+        update(digest, maxFindings);
+        update(digest, maxDiagnosticBytes);
         update(digest, projection);
         return "gse-migration-plan-v1-"
                 + HexFormat.of().formatHex(digest.digest());
@@ -892,8 +996,53 @@ final class DurableMigrationOperations {
     }
 
     private static List<String> indexStrings(List<DurableIndexDescriptor> indexes) {
-        return indexes.stream().map(index -> Byte.toUnsignedInt(index.kind())
-                + ":" + index.fieldName() + ":" + index.analyzerId()).toList();
+        return indexes.stream().map(DurableMigrationOperations::indexString).toList();
+    }
+
+    private static String indexString(DurableIndexDescriptor index) {
+        return Byte.toUnsignedInt(index.kind()) + ":" + index.fieldName()
+                + ":" + index.analyzerId();
+    }
+
+    private static DurableMigrationIndexChange indexChange(
+            List<DurableIndexDescriptor> source,
+            List<DurableIndexDescriptor> target) {
+        Set<String> sourceSet = Set.copyOf(indexStrings(source));
+        Set<String> targetSet = Set.copyOf(indexStrings(target));
+        List<String> added = targetSet.stream()
+                .filter(value -> !sourceSet.contains(value)).sorted().toList();
+        List<String> removed = sourceSet.stream()
+                .filter(value -> !targetSet.contains(value)).sorted().toList();
+        List<String> retained = sourceSet.stream()
+                .filter(targetSet::contains).sorted().toList();
+        return new DurableMigrationIndexChange(added, removed, retained);
+    }
+
+    private static boolean isIdentityFormatTransform(
+            DurableMigrationTransformDescriptor descriptor) {
+        return descriptor.identifier().equals("identity-format-v1")
+                && descriptor.version() == 1;
+    }
+
+    private static <T> void validateIndexRebuild(
+            List<T> slots,
+            List<IndexDefinition<T>> definitions,
+            long sequence) {
+        try {
+            SearchSnapshotBuilder<T> builder = new SearchSnapshotBuilder<>(
+                    new SearchSnapshot<>(definitions));
+            for (int slot = 0; slot < slots.size(); slot++) {
+                T document = slots.get(slot);
+                if (document != null) {
+                    builder.add(slot, document);
+                }
+            }
+            builder.build();
+        } catch (RuntimeException problem) {
+            throw failure(DurableMigrationException.Reason.TRANSFORM_FAILURE,
+                    DurableMigrationStage.PROJECT_TARGET,
+                    OptionalLong.of(sequence), problem);
+        }
     }
 
     private static <T> List<DurableIndexDescriptor> descriptors(
@@ -985,6 +1134,56 @@ final class DurableMigrationOperations {
                 && left.peakTargetBytes() == right.peakTargetBytes()
                 && left.capacitySafetyReserveBytes()
                         == right.capacitySafetyReserveBytes();
+    }
+
+    private static <K, T> void validateSuppliedPlan(
+            DurableMigrationRequest<?, ?, K, T> request,
+            DurableMigrationPlan plan,
+            List<IndexDefinition<T>> targetDefinitions) {
+        Objects.requireNonNull(request, "request");
+        Path requestedTarget = request.targetConfig().directory()
+                .toAbsolutePath().normalize();
+        String requestedTargetDescriptor;
+        try {
+            List<DurableIndexDescriptor> targetIndexes = descriptors(
+                    targetDefinitions);
+            requestedTargetDescriptor = targetDescriptorDigest(
+                    request.targetConfig(), targetIndexes);
+        } catch (DurableMigrationException problem) {
+            throw problem;
+        } catch (RuntimeException problem) {
+            throw failure(DurableMigrationException.Reason.PLAN_STALE,
+                    DurableMigrationStage.VALIDATE_REQUEST,
+                    OptionalLong.of(plan.sourceSequence()), problem);
+        }
+        String expected = planDigest(
+                plan.sourceDirectory(), plan.targetDirectory(),
+                plan.sourceFormat(), plan.targetFormat(), plan.sourceHistory(),
+                plan.targetHistory(), plan.sourceSequence(), plan.nextDocId(),
+                plan.sourceMembers(), plan.sourceAuthorityIdentity(),
+                plan.sourceDescriptorDigest(), plan.targetDescriptorDigest(),
+                plan.transformDescriptor(), plan.documentCount(),
+                plan.sourceIndexCount(), plan.targetIndexCount(),
+                plan.indexChange(), plan.targetAuthoritativeBytes(),
+                plan.peakTargetBytes(), plan.capacitySafetyReserveBytes(),
+                request.maxSourceAuthoritativeBytes(),
+                request.maxTargetAuthoritativeBytes(),
+                request.maxCollisionEntries(), request.maxFindings(),
+                request.maxDiagnosticBytes(), plan.projectionDigest());
+        if (!plan.sourceDirectory().equals(request.sourceDirectory())
+                || !plan.targetDirectory().equals(requestedTarget)
+                || !plan.targetFormat().equals(request.targetConfig().format())
+                || !plan.targetDescriptorDigest().equals(
+                        requestedTargetDescriptor)
+                || !plan.transformDescriptor().equals(
+                        request.transformDescriptor())
+                || plan.capacitySafetyReserveBytes()
+                        != request.capacitySafetyReserveBytes()
+                || !plan.planDigest().equals(expected)) {
+            throw failure(DurableMigrationException.Reason.PLAN_STALE,
+                    DurableMigrationStage.VALIDATE_REQUEST,
+                    OptionalLong.of(plan.sourceSequence()), null);
+        }
     }
 
     private static void validateFileSystem(Path directory) throws IOException {
@@ -1143,6 +1342,25 @@ final class DurableMigrationOperations {
         private EncodedRecord {
             key = key.clone();
             document = document.clone();
+        }
+    }
+
+    private static final class EncodedKey {
+        private final byte[] value;
+
+        private EncodedKey(byte[] value) {
+            this.value = value.clone();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof EncodedKey key
+                    && Arrays.equals(value, key.value);
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(value);
         }
     }
 

@@ -1,7 +1,8 @@
 # GeneralSearchEngine V4.2 Phase 3 local baseline
 
-- **Status:** Implementation candidate; protected acceptance pending
-- **Source:** `feat/v4.2-phase3-format-migration` working tree
+- **Status:** Accepted through protected PR #109
+- **Source:** protected `master` commit
+  `43bf2bda3f51ac28aa4aaa1be8bbd96d63bd6daf`
 - **Scope:** Production `1.1`, exact-format backup/restore, format-only migration
 
 ## Implemented surface
@@ -83,8 +84,9 @@ Both production crash cases exit by `Runtime.halt(86)` and are checked by a fres
 | `v42-migration-before-final-rename-v1` | absent | structurally valid and byte-identical |
 | `v42-migration-after-parent-force-v1` | valid `(1,1)` | structurally valid and byte-identical |
 
-## Remaining acceptance
+## Protected acceptance
 
-Protected PR CI and the exact protected-master evidence remain required before Phase
-3 is accepted. Phase 4 remains the sole owner of changed codec/schema/key transforms
-and target-index rebuild.
+PR #109 passed all required checks and merged as protected-master commit
+`43bf2bda3f51ac28aa4aaa1be8bbd96d63bd6daf`. Exact-master CI run `33842969788`
+passed. Phase 4 is therefore authorized as the sole owner of changed
+codec/schema/key transforms and target-index rebuild.

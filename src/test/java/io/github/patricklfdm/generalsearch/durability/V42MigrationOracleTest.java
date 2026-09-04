@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,53 @@ class V42MigrationOracleTest {
         assertTrue(result.projectionDigest()
                 .startsWith("gse-migration-projection-v1-"));
         assertTrue(result.planDigest().startsWith("gse-migration-plan-v1-"));
+    }
+
+    @Test
+    void declaredSchemaKeyCodecAndIndexChangesRemainOneToOne() {
+        V42MigrationOracle.SourceState source = source(V1_0);
+        V42MigrationOracle.TargetDescriptor catalog =
+                new V42MigrationOracle.TargetDescriptor(
+                        V1_1, "catalog-v2", "product-v2", "binary-catalog", 2,
+                        List.of("category:prefix", "name:text"));
+        V42MigrationOracle.TransformDescriptor descriptor =
+                new V42MigrationOracle.TransformDescriptor(
+                        "catalog-schema-key-v1", 1);
+        V42MigrationOracle.Transform transform = record -> {
+            String key = "sku-" + record.key();
+            return new V42MigrationOracle.TargetRecord(
+                    record.slot(), key,
+                    record.document().toUpperCase(Locale.ROOT), key);
+        };
+
+        V42MigrationOracle.Plan plan = oracle.plan(
+                source, catalog, TARGET, descriptor, transform);
+        V42MigrationOracle.Result result = oracle.apply(source, plan, transform);
+
+        assertEquals(List.of("sku-alpha", "sku-beta"), result.records().stream()
+                .map(V42MigrationOracle.TargetRecord::key).toList());
+        assertEquals(List.of("RED APPLE", "BLUE BERRY"), result.records().stream()
+                .map(V42MigrationOracle.TargetRecord::document).toList());
+        assertEquals(List.of(0L, 3L), result.records().stream()
+                .map(V42MigrationOracle.TargetRecord::slot).toList());
+        assertEquals(source, plan.source());
+    }
+
+    @Test
+    void sameFormatIndexChangeIsEligibleWithoutRecordByteChange() {
+        V42MigrationOracle.SourceState source = source(V1_1);
+        V42MigrationOracle.TargetDescriptor changedIndexes =
+                new V42MigrationOracle.TargetDescriptor(
+                        V1_1, "catalog", "product-v1", "utf8-json", 1,
+                        List.of("category:prefix", "name:text"));
+        V42MigrationOracle.Plan plan = oracle.plan(
+                source, changedIndexes, TARGET, descriptor(), this::identity);
+
+        assertEquals(source.records(), oracle.apply(source, plan, this::identity)
+                .records().stream()
+                .map(record -> new V42MigrationOracle.SourceRecord(
+                        record.slot(), record.key(), record.document()))
+                .toList());
     }
 
     @Test

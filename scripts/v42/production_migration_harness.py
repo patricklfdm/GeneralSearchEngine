@@ -21,10 +21,16 @@ from scripts.v42.evidence import (
     write_bundle,
 )
 
-PROCESS_CLASS = (
-    "io.github.patricklfdm.generalsearch.durability.harness."
-    "V42ProductionMigrationHarnessProcess"
-)
+PROCESS_CLASSES = {
+    "identity": (
+        "io.github.patricklfdm.generalsearch.durability.harness."
+        "V42ProductionMigrationHarnessProcess"
+    ),
+    "catalog": (
+        "io.github.patricklfdm.generalsearch.durability.harness."
+        "V42TransformMigrationHarnessProcess"
+    ),
+}
 BARRIERS = {
     "v42-migration-before-final-rename-v1": False,
     "v42-migration-after-parent-force-v1": True,
@@ -68,7 +74,8 @@ def run(arguments: argparse.Namespace) -> int:
     workspace.mkdir(parents=True)
     source = workspace / "source"
     target = workspace / "target"
-    command = [arguments.java, "-cp", arguments.classpath, PROCESS_CLASS]
+    command = [arguments.java, "-cp", arguments.classpath,
+               PROCESS_CLASSES[arguments.scenario]]
     prepared = subprocess.run(
         command + ["prepare", str(source), str(target), arguments.barrier],
         check=False, capture_output=True, text=True, timeout=arguments.timeout)
@@ -108,7 +115,9 @@ def run(arguments: argparse.Namespace) -> int:
     workspace.mkdir()
     evidence = {
         "schemaVersion": "placeholder",
-        "kind": "local-production-migration-crash",
+        "kind": ("local-production-migration-crash"
+                 if arguments.scenario == "identity"
+                 else "local-production-transform-migration-crash"),
         "status": "PASS",
         "sourceCommit": arguments.source_sha,
         "sourceState": "clean",
@@ -119,6 +128,7 @@ def run(arguments: argparse.Namespace) -> int:
                  "acknowledgement": acknowledgement},
         "configuration": {"productionFormat11": True,
                           "productionMigration": True,
+                          "transformScenario": arguments.scenario,
                           "paidExecution": False},
         "source": {"format": "gse-durable (1,0)",
                    "beforeSha256": before, "afterSha256": after,
@@ -126,6 +136,9 @@ def run(arguments: argparse.Namespace) -> int:
         "target": {"format": "gse-durable (1,1)",
                    "state": "VALID" if target_published else "ABSENT"},
         "migration": {"plan": "PRODUCTION_PASS",
+                      "transform": ("identity-format-v1"
+                                    if arguments.scenario == "identity"
+                                    else "catalog-schema-key-v1"),
                       "apply": "INTERRUPTED_AT_BARRIER"},
         "rollback": {"publishedVersion": "4.1.0",
                      "status": "SOURCE_BYTES_PRESERVED"},
@@ -144,7 +157,8 @@ def run(arguments: argparse.Namespace) -> int:
     }
     write_bundle(workspace / "evidence", evidence)
     validate_bundle(workspace / "evidence")
-    print(f"v42ProductionMigrationCrash=PASS barrier={arguments.barrier}")
+    print("v42ProductionMigrationCrash=PASS "
+          f"scenario={arguments.scenario} barrier={arguments.barrier}")
     return 0
 
 
@@ -155,6 +169,8 @@ def main() -> int:
     execute.add_argument("--workspace", type=Path, required=True)
     execute.add_argument("--source-sha", required=True)
     execute.add_argument("--barrier", choices=tuple(BARRIERS), required=True)
+    execute.add_argument("--scenario", choices=tuple(PROCESS_CLASSES),
+                         default="identity")
     execute.add_argument("--java", default="java")
     execute.add_argument(
         "--classpath", default="target/test-classes:target/classes")
