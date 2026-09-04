@@ -44,6 +44,21 @@ mount_device() {
   sudo chown "$(id -u):$(id -g)" "$mount_point"
 }
 
+archive_output() {
+  local archive_name=$1
+  local output_parent=$2
+  local output_name=$3
+  [[ "$output" = "$output_parent/$output_name" ]] || {
+    echo "unexpected output path for archive: $output" >&2
+    return 2
+  }
+  [[ -d "$output" && ! -L "$output" ]] || {
+    echo "archive output must be a non-symbolic directory: $output" >&2
+    return 2
+  }
+  tar -C "$output_parent" -czf "$HOME/$archive_name" "$output_name"
+}
+
 source_mount="$mount_root/source"
 target_mount="$mount_root/target"
 case "$stage" in
@@ -89,8 +104,8 @@ if [[ "$stage" = source-migrate ]]; then
     io.github.patricklfdm.generalsearch.engine.V42MigrationEvidenceProbe \
     migrate "$java_profile" "$source_mount/store" "$target_mount/store" \
     "$output/source.properties" "$output/migration.properties"
-  tar -C "$mount_root" -czf "$HOME/v42-source-migration-output.tar.gz" \
-    "${output#"$mount_root"/}"
+  archive_output v42-source-migration-output.tar.gz \
+    "$source_mount" source-migration-output
 elif [[ "$stage" = target ]]; then
   ./mvnw -q clean -Pjmh -DskipTests package
   java -cp target/benchmarks.jar \
@@ -98,8 +113,7 @@ elif [[ "$stage" = target ]]; then
     target "$java_profile" "$target_mount/store" \
     "$transport/migration.properties" "$output/target.properties" \
     "$duration_seconds"
-  tar -C "$mount_root" -czf "$HOME/v42-target-output.tar.gz" \
-    "${output#"$mount_root"/}"
+  archive_output v42-target-output.tar.gz "$target_mount" target-output
 else
   published_jar="$HOME/general-search-engine-4.1.0.jar"
   curl --fail --silent --show-error --location \
@@ -122,8 +136,7 @@ else
   printf 'schemaVersion=gse-v42-published-rollback-properties-v1\nstatus=PASS\nprofile=%s\npublishedVersion=4.1.0\nsourceDirectorySha256=%s\nsourceSequence=%s\nsourceOracleChecksum=%s\n' \
     "$java_profile" "$source_digest" "$source_sequence" "$source_oracle" \
     > "$output/rollback.properties"
-  tar -C "$mount_root" -czf "$HOME/v42-rollback-output.tar.gz" \
-    "${output#"$mount_root"/}"
+  archive_output v42-rollback-output.tar.gz "$source_mount" rollback-output
 fi
 
 sync "$mount_root"

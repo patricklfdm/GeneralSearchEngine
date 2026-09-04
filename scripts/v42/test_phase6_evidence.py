@@ -299,6 +299,42 @@ fi
         self.assertIn("36aa783cef653ead26d2500a847b70bb1f8222d224c8a83de55419de46814bcb",
                       remote)
         self.assertIn("PublishedV41MigrationCloudProbe", remote)
+        self.assertNotIn('tar -C "$mount_root"', remote)
+        for archive_call in (
+            'archive_output v42-target-output.tar.gz '
+            '"$target_mount" target-output',
+            'archive_output v42-rollback-output.tar.gz '
+            '"$source_mount" rollback-output',
+        ):
+            self.assertIn(archive_call, remote)
+        self.assertIn("archive_output v42-source-migration-output.tar.gz",
+                      remote)
+        self.assertIn('"$source_mount" source-migration-output', remote)
+
+    def test_remote_archives_extract_to_runner_expected_roots(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            for parent_name, output_name in (
+                ("source", "source-migration-output"),
+                ("target", "target-output"),
+                ("source", "rollback-output"),
+            ):
+                parent = root / parent_name
+                output = parent / output_name
+                output.mkdir(parents=True, exist_ok=True)
+                marker = output / "marker.properties"
+                marker.write_text("status=PASS\n", encoding="ascii")
+                archive = root / f"{output_name}.tar.gz"
+                subprocess.run(
+                    ["tar", "-C", str(parent), "-czf", str(archive),
+                     output_name],
+                    check=True, capture_output=True, text=True)
+                listing = subprocess.run(
+                    ["tar", "-tzf", str(archive)],
+                    check=True, capture_output=True, text=True).stdout.splitlines()
+                self.assertIn(f"{output_name}/marker.properties", listing)
+                self.assertNotIn(
+                    f"{parent_name}/{output_name}/marker.properties", listing)
 
     def test_canonical_set_and_registration_are_append_only(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
