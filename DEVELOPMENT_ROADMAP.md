@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 6 performance and evidence
+## v4.2 active Phase 6 registration
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -145,6 +145,15 @@ passed. Phase 6 owns bounded scale instrumentation, replacement-host target proo
 published-4.1 source rollback, the manual cloud lane, paid evidence and append-only
 registration. Authority is under
 [`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_6_PERFORMANCE_AND_EVIDENCE.md).
+
+Phase 6 implementation merged through protected PR #112 as `2dd82e4`; its archive
+layout correction merged through PR #113 as `a2d5ab9`, and the evidence workspace
+merged through PR #114 as `d0afbb5`. Exact-master CI runs `33894383594`,
+`33900296949`, and `33905418527` passed respectively. Experiment run `33900943921`
+passed on the corrected implementation; canonical run `33906942139` produced three
+serial passing members and an independently validated, GCS-retained set at
+`d0afbb5`. Canonical review is accepted; append-only registration as
+`v4.2.0-migration-cloud` remains the final Phase 6 gate.
 
 ## v4.1.0 current stable release
 

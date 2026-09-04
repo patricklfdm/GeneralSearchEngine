@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 checklist
 
-- **Status:** Local implementation candidate; protected and paid acceptance pending
+- **Status:** Canonical evidence accepted; append-only baseline registration pending
 - **Scope:** Performance, replacement-host, rollback and canonical cloud evidence
 
 ## Entry
@@ -9,6 +9,12 @@
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`.
 - [x] Exact-master CI run `33880571096` passed.
 - [x] Work is isolated on `feat/v4.2-phase6-performance-evidence`.
+- [x] Phase 6 implementation merged through protected PR #112 as `2dd82e4`;
+  exact-master CI run `33894383594` passed.
+- [x] Archive-layout correction merged through protected PR #113 as `a2d5ab9`;
+  exact-master CI run `33900296949` passed.
+- [x] Evidence-workspace housekeeping merged through protected PR #114 as `d0afbb5`;
+  exact-master CI run `33905418527` passed.
 
 ## Probe and evidence
 
@@ -49,30 +55,31 @@
 
 ## Protected implementation acceptance
 
-- [ ] Phase 6 implementation PR passes every required check.
-- [ ] Phase 6 implementation merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded.
-- [ ] WIF condition admits only the exact V4.2 workflow ref while retaining all
+- [x] Phase 6 implementation PR passes every required check.
+- [x] Phase 6 implementation merges to protected `master`.
+- [x] Exact protected-master commits and CI runs are recorded.
+- [x] WIF condition admits only the exact V4.2 workflow ref while retaining all
   repository, owner, branch and environment predicates.
 
 ## Paid evidence
 
-- [ ] Exact-master `experiment / 1 / actions` dry-run summary is reviewed.
-- [ ] Experiment member passes and its downloaded bundle validates independently.
-- [ ] Experiment cleanup receipt proves all three VMs, both disks and staging object
+- [x] Exact-master `experiment / 1 / actions` dry-run summary is reviewed.
+- [x] Experiment member passes and its downloaded bundle validates independently.
+- [x] Experiment cleanup receipt proves all three VMs, both disks and staging object
   are absent.
-- [ ] Exact-master `canonical / 3 / gcs` dry-run summary is reviewed.
-- [ ] Three serial canonical members pass at the frozen scale.
-- [ ] Downloaded member bundles and aggregate canonical set validate independently.
-- [ ] Canonical members are comparable and have distinct plan/target histories.
-- [ ] GCS retention and complete cleanup are independently verified.
+- [x] Exact-master `canonical / 3 / gcs` dry-run summary is reviewed.
+- [x] Three serial canonical members pass at the frozen scale.
+- [x] Downloaded member bundles and aggregate canonical set validate independently.
+- [x] Canonical members are comparable and have distinct plan/target histories.
+- [x] GCS retention and complete cleanup are independently verified.
 
 ## Registration
 
 - [x] Empty registry schema is tracked without claiming evidence.
 - [x] Registration accepts only exact name `v4.2.0-migration-cloud`, an eligible
   canonical three-member set, and one append-only insertion.
-- [ ] Canonical review is documented.
+- [x] Canonical review is documented in
+  [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md).
 - [ ] Baseline registration is committed through a separate protected PR.
 
 Phase 7 may begin only after protected implementation acceptance, paid canonical
