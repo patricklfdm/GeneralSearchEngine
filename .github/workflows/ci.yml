@@ -85,6 +85,9 @@ jobs:
       - name: Exercise V4.2 typed transform and target-index rebuild
         run: scripts/verify-v42-phase4-transform-migration.sh --skip-build
 
+      - name: Exercise V4.2 lifecycle, authority and cleanup hardening
+        run: scripts/verify-v42-phase5-lifecycle.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -208,6 +211,7 @@ jobs:
           bash -n scripts/verify-v42-phase2-format.sh
           bash -n scripts/verify-v42-phase3-format-migration.sh
           bash -n scripts/verify-v42-phase4-transform-migration.sh
+          bash -n scripts/verify-v42-phase5-lifecycle.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -252,7 +256,7 @@ jobs:
 
       - name: Validate V4.2 exact storage-format fixtures
         run: |
-          python -m py_compile scripts/v42/storage_format_v11.py scripts/v42/test_storage_format_v11.py
+          python -m py_compile scripts/v42/storage_format_v11.py scripts/v42/test_storage_format_v11.py scripts/v42/evidence.py scripts/v42/production_migration_harness.py
           python -m unittest scripts.v42.test_storage_format_v11
 
   required:

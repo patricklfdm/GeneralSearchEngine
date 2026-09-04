@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 4 checklist
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted on protected `master`
 - **Scope:** Versioned typed transforms and exact target-index rebuild
 
 ## Entry
@@ -69,10 +69,11 @@
 
 ## Protected acceptance
 
-- [ ] Phase 4 pull request passes every required check.
-- [ ] Phase 4 merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded.
+- [x] Phase 4 pull request #110 passed every required check.
+- [x] Phase 4 merged to protected `master` as
+  `043b95b735dbc7dc1f319e2bd64fccba3063597a`.
+- [x] Exact protected-master CI run `33846632898` passed.
 
-Phase 5 may begin only after protected acceptance. It owns broader lifecycle,
+Phase 5 began after protected acceptance. It owns broader lifecycle,
 interruption, cleanup, rollback, and cross-version hardening; Phase 4 does not
 authorize those behaviors.

@@ -4,6 +4,6 @@ package io.github.patricklfdm.generalsearch.durability;
 public enum DurableCleanupScope {
     /** One closed, structurally valid V4 live-store directory. */
     LIVE_STORE,
-    /** One explicitly named V4.1 staging directory or sibling operation marker. */
+    /** One explicitly named V4.1/V4.2 staging directory or operation marker. */
     OPERATION_REMNANT
 }

@@ -32,8 +32,31 @@ PROCESS_CLASSES = {
     ),
 }
 BARRIERS = {
-    "v42-migration-before-final-rename-v1": False,
-    "v42-migration-after-parent-force-v1": True,
+    "v42-migration-before-marker-publication-v1": (False, "ABSENT"),
+    "v42-migration-after-marker-force-v1": (False, "MARKER"),
+    "v42-migration-after-staging-force-v1": (False, "STAGING"),
+    "v42-migration-before-metadata-write-v1": (False, "STAGING"),
+    "v42-migration-after-metadata-force-v1": (False, "STAGING"),
+    "v42-migration-before-checkpoint-write-v1": (False, "STAGING"),
+    "v42-migration-after-checkpoint-rename-v1": (False, "STAGING"),
+    "v42-migration-before-wal-write-v1": (False, "STAGING"),
+    "v42-migration-after-wal-force-v1": (False, "STAGING"),
+    "v42-migration-before-manifest-write-v1": (False, "STAGING"),
+    "v42-migration-after-manifest-rename-v1": (False, "STAGING"),
+    "v42-migration-before-staging-verification-v1": (False, "STAGING"),
+    "v42-migration-after-staging-verification-v1": (False, "STAGING"),
+    "v42-migration-before-final-rename-v1": (False, "STAGING"),
+    "v42-migration-after-final-rename-v1": (True, "MARKER"),
+    "v42-migration-before-parent-force-v1": (True, "MARKER"),
+    "v42-migration-after-parent-force-v1": (True, "MARKER"),
+    "v42-migration-before-final-verification-v1": (True, "MARKER"),
+    "v42-migration-after-final-verification-v1": (True, "MARKER"),
+    "v42-migration-before-final-source-compare-v1": (True, "MARKER"),
+    "v42-migration-after-final-source-compare-v1": (True, "MARKER"),
+    "v42-migration-before-marker-delete-v1": (True, "MARKER"),
+    "v42-migration-after-marker-delete-v1": (True, "ABSENT"),
+    "v42-migration-after-marker-parent-force-v1": (True, "ABSENT"),
+    "v42-migration-before-return-v1": (True, "ABSENT"),
 }
 
 
@@ -108,9 +131,29 @@ def run(arguments: argparse.Namespace) -> int:
     after = tree_digest(source)
     if before != after:
         raise EvidenceError("migration crash changed source bytes")
-    target_published = BARRIERS[arguments.barrier]
+    target_published, expected_remnant = BARRIERS[arguments.barrier]
     if target.exists() != target_published:
         raise EvidenceError("target authority state disagrees with barrier")
+    remnants = sorted(path for path in workspace.iterdir()
+                       if path.name.startswith(".gse-v42-migration-"))
+    staging = [path for path in remnants if path.name.endswith(".staging")]
+    markers = [path for path in remnants
+               if path.name.endswith(".staging.operation")]
+    if expected_remnant == "ABSENT" and remnants:
+        raise EvidenceError("unexpected migration remnant")
+    if expected_remnant == "MARKER" and (staging or len(markers) != 1):
+        raise EvidenceError("expected one marker-only remnant")
+    if expected_remnant == "STAGING" \
+            and (len(staging) != 1 or len(markers) != 1):
+        raise EvidenceError("expected one bound staging remnant")
+    cleaned = subprocess.run(
+        command + ["cleanup", str(source), str(target), arguments.barrier],
+        check=False, capture_output=True, text=True, timeout=arguments.timeout)
+    if cleaned.returncode != 0 \
+            or "GSE_V42_CLEANUP_RESULT=PASS" not in cleaned.stdout:
+        raise EvidenceError("plan-bound migration cleanup failed")
+    if target.exists() != target_published or tree_digest(source) != before:
+        raise EvidenceError("cleanup changed an authority boundary")
     shutil.rmtree(workspace)
     workspace.mkdir()
     evidence = {
@@ -148,9 +191,11 @@ def run(arguments: argparse.Namespace) -> int:
                       "apply-barrier-acknowledged", "abrupt-death",
                       "separate-verifier-passed", "source-identity-matched",
                       "workspace-cleaned"],
-        "cleanup": {"status": "PASS", "leftovers": []},
+        "cleanup": {"status": "PASS", "remnantBefore": expected_remnant,
+                    "leftovers": []},
         "logs": {"stdoutTail": stdout[-4096:],
-                 "stderrTail": (stderr + verified.stderr)[-4096:],
+                 "stderrTail": (stderr + verified.stderr
+                                  + cleaned.stderr)[-4096:],
                  "limitBytesPerStream": 4096},
         "result": {"paidExecution": False, "productionMigration": True,
                    "targetPublished": target_published},
@@ -159,6 +204,81 @@ def run(arguments: argparse.Namespace) -> int:
     validate_bundle(workspace / "evidence")
     print("v42ProductionMigrationCrash=PASS "
           f"scenario={arguments.scenario} barrier={arguments.barrier}")
+    return 0
+
+
+def lifecycle(arguments: argparse.Namespace) -> int:
+    validate_source(arguments.source_sha)
+    workspace = arguments.workspace.resolve()
+    if workspace.exists():
+        raise EvidenceError("workspace already exists")
+    workspace.mkdir(parents=True)
+    source = workspace / "source"
+    target = workspace / "target"
+    command = [arguments.java, "-cp", arguments.classpath,
+               PROCESS_CLASSES["catalog"]]
+    prepared = subprocess.run(
+        command + ["prepare", str(source), str(target), "none"],
+        check=False, capture_output=True, text=True, timeout=arguments.timeout)
+    if prepared.returncode != 0 \
+            or "GSE_V42_PREPARE_RESULT=PASS" not in prepared.stdout:
+        raise EvidenceError("lifecycle source preparation failed")
+    before = tree_digest(source)
+    applied = subprocess.run(
+        command + ["apply-success", str(source), str(target), "none"],
+        check=False, capture_output=True, text=True, timeout=arguments.timeout)
+    if applied.returncode != 0 \
+            or "GSE_V42_APPLY_RESULT=PASS" not in applied.stdout:
+        raise EvidenceError("lifecycle migration failed")
+    migrated_digest = tree_digest(target)
+    exercised = subprocess.run(
+        command + ["exercise-target", str(source), str(target), "none"],
+        check=False, capture_output=True, text=True, timeout=arguments.timeout)
+    if exercised.returncode != 0 \
+            or "GSE_V42_TARGET_EXERCISE_RESULT=PASS" not in exercised.stdout:
+        raise EvidenceError("target continuation/reopen failed")
+    if tree_digest(source) != before or tree_digest(target) == migrated_digest:
+        raise EvidenceError("lifecycle authority identities are invalid")
+    shutil.rmtree(workspace)
+    workspace.mkdir()
+    evidence = {
+        "schemaVersion": "placeholder",
+        "kind": "local-production-migration-lifecycle",
+        "status": "PASS", "sourceCommit": arguments.source_sha,
+        "sourceState": "clean", "suite": SUITE, "preset": PRESET,
+        "profile": "failure-drill", "case": {"caseId": "cutover-window"},
+        "configuration": {"productionFormat11": True,
+                          "productionMigration": True,
+                          "transformScenario": "catalog",
+                          "paidExecution": False},
+        "source": {"format": "gse-durable (1,0)",
+                   "beforeSha256": before, "afterSha256": before,
+                   "bytesUnchanged": True},
+        "target": {"format": "gse-durable (1,1)", "state": "VALID",
+                   "continuedMutation": True, "checkpointReopen": True},
+        "migration": {"plan": "PRODUCTION_PASS",
+                      "transform": "catalog-schema-key-v1",
+                      "apply": "PASS"},
+        "rollback": {"publishedVersion": "4.1.0",
+                     "status": "SOURCE_BYTES_PRESERVED",
+                     "targetOnlyWritesNotMerged": True},
+        "process": {"termination": "normal", "exitCode": 0,
+                    "verifierJvm": "PASS"},
+        "lifecycle": ["source-stopped", "migration-completed",
+                      "target-verified", "target-mutated",
+                      "target-checkpointed", "target-reopened",
+                      "target-stopped", "source-identity-matched",
+                      "workspace-cleaned"],
+        "cleanup": {"status": "PASS", "leftovers": []},
+        "logs": {"stdoutTail": (applied.stdout + exercised.stdout)[-4096:],
+                 "stderrTail": (applied.stderr + exercised.stderr)[-4096:],
+                 "limitBytesPerStream": 4096},
+        "result": {"paidExecution": False, "productionMigration": True,
+                   "targetPublished": True},
+    }
+    write_bundle(workspace / "evidence", evidence)
+    validate_bundle(workspace / "evidence")
+    print("v42ProductionMigrationLifecycle=PASS")
     return 0
 
 
@@ -175,6 +295,13 @@ def main() -> int:
     execute.add_argument(
         "--classpath", default="target/test-classes:target/classes")
     execute.add_argument("--timeout", type=float, default=30.0)
+    lifecycle_parser = subparsers.add_parser("lifecycle")
+    lifecycle_parser.add_argument("--workspace", type=Path, required=True)
+    lifecycle_parser.add_argument("--source-sha", required=True)
+    lifecycle_parser.add_argument("--java", default="java")
+    lifecycle_parser.add_argument(
+        "--classpath", default="target/test-classes:target/classes")
+    lifecycle_parser.add_argument("--timeout", type=float, default=30.0)
     validate = subparsers.add_parser("validate")
     validate.add_argument("bundle", type=Path)
     arguments = parser.parse_args()
@@ -182,6 +309,8 @@ def main() -> int:
         value = validate_bundle(arguments.bundle)
         print(f"v42MigrationEvidenceValidation=PASS kind={value['kind']}")
         return 0
+    if arguments.command == "lifecycle":
+        return lifecycle(arguments)
     return run(arguments)
 
 

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 4 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 5 active
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -22,7 +22,7 @@ V4.0  Correct Durability               COMPLETE
   ↓
 V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution                ACTIVE PHASE 4 TYPED TRANSFORMS
+V4.2  Storage Evolution                ACTIVE PHASE 5 LIFECYCLE HARDENING
   ↓
 V4.3  Fast Reopen
   ↓
@@ -231,6 +231,7 @@ run `33830552115` passed. Phase 1 merged through protected PR #107 as
 passed. Phase 2 merged through protected PR #108 as `85fc9a4`; exact-master CI run
 `33839044114` passed. Phase 3 merged through protected PR #109 as
 `43bf2bda3f51ac28aa4aaa1be8bbd96d63bd6daf`; exact-master CI run `33842969788`
-passed. Phase 4 owns declared codec/schema/key transforms, meaningful `(1,1)` to
-`(1,1)` migration, complete plan binding, collision refusal, and target-index
-rebuild. Lifecycle and rollback hardening remain Phase 5 work.
+passed. Phase 4 merged through protected PR #110 as
+`043b95b735dbc7dc1f319e2bd64fccba3063597a`; exact-master CI run `33846632898`
+passed. Phase 5 owns lifecycle authority, exhaustive interruption, safe migration-
+remnant cleanup, operator rollback, and published-4.1 source reopen proof.
