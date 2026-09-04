@@ -88,6 +88,9 @@ jobs:
       - name: Exercise V4.2 lifecycle, authority and cleanup hardening
         run: scripts/verify-v42-phase5-lifecycle.sh --skip-build
 
+      - name: Exercise V4.2 performance and replacement-host evidence
+        run: scripts/verify-v42-phase6-evidence.sh
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -212,6 +215,9 @@ jobs:
           bash -n scripts/verify-v42-phase3-format-migration.sh
           bash -n scripts/verify-v42-phase4-transform-migration.sh
           bash -n scripts/verify-v42-phase5-lifecycle.sh
+          bash -n scripts/verify-v42-phase6-evidence.sh
+          bash -n scripts/v42/remote_storage_evolution_stage.sh
+          bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -256,8 +262,8 @@ jobs:
 
       - name: Validate V4.2 exact storage-format fixtures
         run: |
-          python -m py_compile scripts/v42/storage_format_v11.py scripts/v42/test_storage_format_v11.py scripts/v42/evidence.py scripts/v42/production_migration_harness.py
-          python -m unittest scripts.v42.test_storage_format_v11
+          python -m py_compile scripts/v42/storage_format_v11.py scripts/v42/test_storage_format_v11.py scripts/v42/evidence.py scripts/v42/production_migration_harness.py scripts/v42/fake_cloud_lane.py scripts/v42/migration_performance.py scripts/v42/migration_cloud_workflow.py scripts/v42/migration_cloud_set.py scripts/v42/test_phase6_evidence.py
+          python -m unittest scripts.v42.test_storage_format_v11 scripts.v42.test_phase6_evidence
 
   required:
     name: Required

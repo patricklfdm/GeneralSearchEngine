@@ -29,6 +29,10 @@ remains the phase history and decision source of truth.
 - [V4.2 Phase 5 lifecycle hardening](v4x/v4.2/PHASE_5_LIFECYCLE_HARDENING.md)
 - [V4.2 Phase 5 local baseline](v4x/v4.2/PHASE_5_BASELINE.md)
 - [V4.2 Phase 5 checklist](v4x/v4.2/PHASE_5_CHECKLIST.md)
+- [V4.2 Phase 6 performance and evidence](v4x/v4.2/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
+- [V4.2 Phase 6 local pre-cloud baseline](v4x/v4.2/PHASE_6_BASELINE.md)
+- [V4.2 Phase 6 checklist](v4x/v4.2/PHASE_6_CHECKLIST.md)
+- [V4.2 migration cloud baseline registry](v4x/v4.2/cloud-benchmark-baselines.json)
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
@@ -61,9 +65,9 @@ V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
 production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
 operational baseline all resolve to the accepted protected-master commit.
 
-V4.2 Phases 0–4 are accepted and Phase 5 is active. Phase 5 hardens migration
-authority, exhaustive interruption states, exact safe-remnant cleanup, operator
-cutover/rollback and published-4.1 source reopen proof.
+V4.2 Phases 0–5 are accepted and Phase 6 is active. Phase 6 adds bounded migration
+metrics, exact replacement-host target evidence, published-4.1 rollback proof, the
+manual quota-safe cloud lane and append-only canonical registration.
 
 ## v4.0 — prior stable durable single-node foundation
 

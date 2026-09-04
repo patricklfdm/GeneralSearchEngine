@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 5 lifecycle hardening
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted on protected `master`
 - **Scope:** Migration authority, interruption, safe-remnant cleanup, rollback and
   published-4.1 compatibility
 
@@ -94,5 +94,7 @@ published `4.1.0` core artifact.
 ## Deferred work
 
 Phase 5 performs no paid execution, workflow/IAM mutation, baseline registration or
-performance optimization. Scale, persistent-disk replacement-host exercise,
-canonical cloud evidence and registration remain Phase 6 responsibilities.
+performance optimization. Phase 5 merged through protected PR #111 as
+`5687a05aa2f495f58d8acc904ab1e663361cf6e3`;
+exact-master CI run `33880571096` passed. Scale, persistent-disk replacement-host
+exercise, canonical cloud evidence and registration remain Phase 6 responsibilities.

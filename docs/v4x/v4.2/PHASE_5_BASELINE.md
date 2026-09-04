@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.2 Phase 5 local baseline
 
-- **Status:** Implementation candidate; protected acceptance pending
-- **Source:** `feat/v4.2-phase5-lifecycle-hardening` working tree
+- **Status:** Accepted on protected `master`
+- **Source:** `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
 - **Scope:** Lifecycle, authority resolution, migration-remnant cleanup and rollback
 
 ## Focused gate
@@ -66,4 +66,5 @@ a76b1e79c80a4d73ead88995c558ae100b9398ed08aa0413bb05dd8a5320a470  general-search
 
 The final focused gate was rerun after cleanup-authority locking was strengthened;
 all 25 production crash barriers, successful lifecycle coverage and the inherited
-Phase 4/3/2 chain passed. This candidate is ready for protected PR acceptance.
+Phase 4/3/2 chain passed. Protected PR #111 merged as `5687a05aa2f495f58d8acc904ab1e663361cf6e3`;
+exact-master CI run `33880571096` passed. Phase 5 is accepted.
