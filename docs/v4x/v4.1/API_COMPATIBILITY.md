@@ -53,7 +53,7 @@ history merge is implied. Future live-format evolution remains owned by V4.2.
 
 ## Independent proof
 
-The release candidate requires all of the following:
+The published release is protected by all of the following:
 
 1. source and reflection fixtures for every inherited and V4.1 operation;
 2. fresh-isolated Japicmp comparisons through published `4.0.0`;

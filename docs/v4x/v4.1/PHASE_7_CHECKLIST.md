@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.1 Phase 7 release-candidate checklist
 
-**Status:** local final-candidate validation complete; protected PR acceptance pending
+**Status:** complete — protected candidate accepted and handed to Phase 8
 
 ## Accepted entry boundary
 
@@ -59,11 +59,12 @@
 
 ## Protected acceptance and Phase 8 handoff
 
-- [ ] Candidate PR merges to protected `master` without a direct push.
-- [ ] Exact-master CI passes and commit/run are recorded.
-- [ ] Local and remote `v4.1.0` tags are absent before signing.
-- [ ] Central immutability preflight returns HTTP `404` for both artifacts.
-- [ ] Phase 8 begins only from the exact accepted protected-master commit.
+- [x] Candidate PR #104 merged to protected `master` without a direct push as
+  `9db6efce275d25eb8da75d6532ea103982e591c6`.
+- [x] Exact-master CI run `33815734269` passed for that commit.
+- [x] Local and remote `v4.1.0` tags were absent before signing.
+- [x] Central immutability preflight returned HTTP `404` for both artifacts.
+- [x] Phase 8 began from the exact accepted protected-master commit.
 
 Any production Java, live/backup format or operational-semantic change after the
 canonical source must be classified explicitly. A correctness change invalidates

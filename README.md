@@ -6,23 +6,19 @@ engine uses immutable search snapshots and persistent, block-based bitmaps so re
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version 4.0.0 is the current stable release. Its signed `v4.0.0` tag, both Maven
+Version 4.1.0 is the current stable release. Its signed `v4.1.0` tag, both Maven
 artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
-verification, and `v4.0.0-durable-cloud` evidence baseline are complete. Publication
-completed on September 2, 2026 Pacific time (`2026-09-03T02:22:41Z`). Version 3.4.0
-remains the immediate prior stable release and frozen in-memory compatibility baseline.
+verification, and `v4.1.0-operational-cloud` evidence baseline are complete.
+Publication completed on September 3, 2026 Pacific time
+(`2026-09-04T00:25:52Z`). Version 4.0.0 remains the immediate prior stable release
+and immutable correct-durability/live-format compatibility baseline; version 3.4.0
+remains the frozen in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V4 contract map](docs/v4/README.md). Active post-4.0 planning is recorded separately
-in the [V4.x development map](docs/v4x/README.md). Version `4.0.0` is available from
+[V4.x development map](docs/v4x/README.md). The published V4.0 foundation remains
+under the [V4 contract map](docs/v4/README.md). Version `4.1.0` is available from
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
-
-Version `4.1.0` is a final release candidate, not yet a published dependency. It adds
-explicit backup, structural and semantic verification, new-history restore and
-plan-bound cleanup while retaining the V4.0 live format and every inherited retrieval
-contract. Its accepted source-loss/replacement-host evidence is registered as
-`v4.1.0-operational-cloud`; signing and publication remain Phase 8 work.
 
 V4.0 durability is explicit and opt-in; the published `3.4.0` API and default
 in-memory behavior remain unchanged. WAL, deterministic
@@ -60,7 +56,7 @@ replication or physical-disk-loss protection. See the
 [durability semantics](docs/v4/DURABILITY_AND_COMPLETION.md), and
 [storage compatibility contract](docs/v4/STORAGE_FORMAT_COMPATIBILITY.md).
 
-## What is new in the V4.1 candidate
+## What is new in V4.1
 
 V4.1 makes an existing durable store operationally safer without changing its live
 format. A running engine can create one checkpoint-consistent immutable backup:
@@ -96,7 +92,7 @@ migration or replication. See the
 
 ## Install
 
-### Stable 4.0.0
+### Stable 4.1.0
 
 The runtime dependency is:
 
@@ -104,28 +100,28 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.0.0</version>
+    <version>4.1.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:4.0.0`. Existing 3.4 users can
-retain the in-memory path without supported source changes or opt into durability
-through the [3.4-to-4.0 migration guide](docs/v4/MIGRATION_GUIDE.md). All earlier
-published contracts remain recorded in their historical documentation and
-compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:4.1.0`. Existing 4.0 users can
+upgrade without a live-format migration and opt into the new operational APIs through
+the [4.0-to-4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md). Existing 3.4 users
+can retain the in-memory path without supported source changes. All earlier published
+contracts remain recorded in their historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.0.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.1.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.0.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.1.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v4.0.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.0.0).
+[`v4.1.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0).
 
-V4.0 keeps ordinary search in memory unless `buildDurable(...)` is selected. See the
-[migration guide](docs/v4/MIGRATION_GUIDE.md) for codec, identity, import, reopen,
-backup, rollback, and operator responsibilities.
+V4.1 keeps ordinary search in memory unless `buildDurable(...)` is selected. See the
+[V4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md) for backup, verification,
+restore, cleanup, rollout, rollback, and operator responsibilities.
 
 ### What is new in V3.1
 

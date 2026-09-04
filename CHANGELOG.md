@@ -27,9 +27,12 @@ Semantic Versioning once the first stable artifact is published.
 - Preserve all V3.4 retrieval, ranking, ordering, pagination, highlighting and
   in-memory lifecycle behavior unless an explicit V4.1 operational API is invoked.
 
-This entry describes the final `4.1.0` release candidate. It does not claim that a
-signed tag, Maven Central artifacts, production deployment or GitHub Release exists;
-those remain Phase 8 publication gates.
+Version `4.1.0` was published from signed tag `v4.1.0` on protected-master commit
+`9db6efce275d25eb8da75d6532ea103982e591c6`. Release workflow run `33820284974`,
+Maven Central publication, clean remote V3/V4 consumer verification, production
+deployment `6255241071`, and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0)
+all completed successfully.
 
 ## 4.0.0 — 2026-09-02
 

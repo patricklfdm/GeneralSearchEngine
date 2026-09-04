@@ -39,10 +39,11 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 7 release-candidate checklist](v4x/v4.1/PHASE_7_CHECKLIST.md)
 - [V4.1 release checklist](v4x/v4.1/RELEASE_CHECKLIST.md)
 
-V4.1 Phases 0–6 are accepted. Phase 7 is the active final-candidate phase at final
-`4.1.0` coordinates; publication remains exclusively owned by Phase 8.
+V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
+production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
+operational baseline all resolve to the accepted protected-master commit.
 
-## v4.0 — current stable durable single-node release
+## v4.0 — prior stable durable single-node foundation
 
 - [Development overview and contract map](v4/README.md)
 - [Roadmap](v4/ROADMAP.md)
