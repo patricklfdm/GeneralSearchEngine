@@ -39,6 +39,14 @@ CHECKPOINT_NAME = (
 )
 WAL_NAME = "gse-wal-00000000000000000002.log"
 CAPABILITY = re.compile(r"[a-z0-9][a-z0-9-]{0,127}")
+CHECKPOINT_MEMBER = re.compile(
+    r"gse-checkpoint-[0-9]{20}-[a-f0-9]{32}\.chk"
+)
+WAL_MEMBER = re.compile(r"gse-wal-[0-9]{20}\.log")
+FRAME_MAGIC = 0x47534546  # GSEF
+FRAME_HEADER_BYTES = 28
+FRAME_TRAILER_BYTES = 4
+MAX_FRAME_BYTES = 256 * 1024 * 1024
 
 
 class StorageFormatError(ValueError):
@@ -350,7 +358,13 @@ def parse_checkpoint_manifest(
 
 
 def parse_wal(data: bytes, metadata: dict[str, object]) -> dict[str, object]:
-    cursor = uncheck(data, 80, "WAL")
+    if len(data) < 80:
+        raise StorageFormatError("WAL is shorter than its fixed header")
+    header = data[:80]
+    stored, = struct.unpack(">I", header[-4:])
+    if crc32c(header[:-4]) != stored:
+        raise StorageFormatError("WAL generation header CRC32C mismatch")
+    cursor = Cursor(header[:-4])
     magic, major, minor, most, least = cursor.unpack(">QhhQQ")
     binding = cursor.take(32)
     generation, first_sequence = cursor.unpack(">qq")
@@ -360,32 +374,68 @@ def parse_wal(data: bytes, metadata: dict[str, object]) -> dict[str, object]:
             or binding != metadata["profileDigest"] \
             or generation <= 0 or first_sequence <= 0:
         raise StorageFormatError("WAL generation authority is invalid")
-    return {"generation": generation, "firstSequence": first_sequence}
+    offset = 80
+    sequence = first_sequence
+    records = 0
+    while offset < len(data):
+        if len(data) - offset < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES:
+            raise StorageFormatError("WAL frame is truncated")
+        frame_header = data[offset:offset + FRAME_HEADER_BYTES]
+        frame_magic, frame_major, frame_minor, frame_length, frame_sequence, \
+            frame_type, flags, reserved, payload_length = struct.unpack(
+                ">IhhIqBBhI", frame_header)
+        if frame_magic != FRAME_MAGIC or frame_major != 1 or frame_minor != 1 \
+                or frame_length < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES \
+                or frame_length > MAX_FRAME_BYTES \
+                or payload_length != frame_length \
+                    - FRAME_HEADER_BYTES - FRAME_TRAILER_BYTES \
+                or frame_sequence != sequence or frame_type not in (1, 2, 3, 4) \
+                or flags != 0 or reserved != 0 \
+                or offset + frame_length > len(data):
+            raise StorageFormatError("WAL frame header is invalid")
+        frame = data[offset:offset + frame_length]
+        frame_stored, = struct.unpack(">I", frame[-4:])
+        if crc32c(frame[:-4]) != frame_stored:
+            raise StorageFormatError("WAL frame CRC32C mismatch")
+        offset += frame_length
+        sequence += 1
+        records += 1
+    return {"generation": generation, "firstSequence": first_sequence,
+            "records": records, "lastSequence": sequence - 1}
 
 
 def inspect_store(directory: Path) -> dict[str, object]:
     names = {path.name for path in directory.iterdir()}
+    checkpoints = sorted(name for name in names if CHECKPOINT_MEMBER.fullmatch(name))
+    wals = sorted(name for name in names if WAL_MEMBER.fullmatch(name))
+    if len(checkpoints) != 1 or len(wals) != 1:
+        raise StorageFormatError("live inventory lacks one checkpoint and WAL")
+    checkpoint_name = checkpoints[0]
+    wal_name = wals[0]
     expected = {"gse.lock", "gse-metadata", "gse-checkpoint-manifest",
-                CHECKPOINT_NAME, WAL_NAME}
+                checkpoint_name, wal_name}
     if names != expected or (directory / "gse.lock").read_bytes():
         raise StorageFormatError("live inventory is not the exact fixture inventory")
     metadata_bytes = (directory / "gse-metadata").read_bytes()
     metadata = parse_metadata(metadata_bytes)
-    checkpoint_bytes = (directory / CHECKPOINT_NAME).read_bytes()
+    checkpoint_bytes = (directory / checkpoint_name).read_bytes()
     checkpoint = parse_checkpoint(checkpoint_bytes, metadata)
     manifest = parse_checkpoint_manifest(
         (directory / "gse-checkpoint-manifest").read_bytes(), metadata)
-    wal = parse_wal((directory / WAL_NAME).read_bytes(), metadata)
-    if manifest["checkpointName"] != CHECKPOINT_NAME \
+    wal = parse_wal((directory / wal_name).read_bytes(), metadata)
+    if manifest["checkpointName"] != checkpoint_name \
             or manifest["checkpointBytes"] != len(checkpoint_bytes) \
             or manifest["checkpointChecksum"] != checkpoint["checksum"] \
             or manifest["sequence"] != checkpoint["sequence"] \
             or manifest["generation"] != wal["generation"] \
             or manifest["firstSequence"] != wal["firstSequence"]:
         raise StorageFormatError("live authority members disagree")
+    live_sequence = wal["lastSequence"] if wal["records"] \
+        else checkpoint["sequence"]
     return {"status": "VALID", "format": "gse-durable/1.1",
-            "sequence": checkpoint["sequence"],
-            "profileDigest": bytes(metadata["profileDigest"]).hex()}
+            "sequence": live_sequence,
+            "profileDigest": bytes(metadata["profileDigest"]).hex(),
+            "walRecords": wal["records"]}
 
 
 def parse_backup_manifest(data: bytes) -> dict[str, object]:

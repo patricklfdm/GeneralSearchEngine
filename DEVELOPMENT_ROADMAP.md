@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 2 format inspection
+## v4.2 active Phase 3 format-only migration
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -129,11 +129,14 @@ migration implementation. The distinct eventual identities are artifact schema
 `v4.2-storage-evolution-v1`, and append-only baseline
 `v4.2.0-migration-cloud`. Phase 1 merged through protected PR #107 as
 `8e9aec0b07921fe2b43169cf930c628561db40f9`; exact-master CI run `33834603280`
-passed. Phase 2 now owns exact physical `1.1` fixtures, dual-minor structural readers,
-public format values and codec-free inspection reports. Its explicit `V1_1` selector
-is rejected before filesystem mutation; production `1.1` writes, migration,
-workflow/IAM mutation and paid execution remain assigned to later phases. Authority
-is under [`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_2_FORMAT_AND_INSPECTION.md).
+passed. Phase 2 froze exact physical `1.1` fixtures, dual-minor structural readers,
+public format values and codec-free inspection reports. It merged through protected
+PR #108 as `85fc9a4`; exact-master CI run `33839044114` passed. Phase 3 now activates
+explicit fresh/reopen/write `1.1`, exact-format backup/restore, and the single
+format-only `1.0` to `1.1` plan/apply edge with new-history publication and source
+preservation. Codec/schema/key transforms, target-index rebuild, workflow/IAM
+mutation and paid execution remain assigned to later phases. Authority is under
+[`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_3_FORMAT_MIGRATION.md).
 
 ## v4.1.0 current stable release
 

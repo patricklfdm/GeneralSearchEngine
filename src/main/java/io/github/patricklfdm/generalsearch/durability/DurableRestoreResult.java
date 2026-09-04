@@ -16,7 +16,7 @@ public record DurableRestoreResult(
 ) {
     private static final UUID ZERO_HISTORY = new UUID(0L, 0L);
     private static final Pattern CONTENT_IDENTITY = Pattern.compile(
-            "gse-backup-v1-[0-9a-f]{64}");
+            "gse-backup-v[12]-[0-9a-f]{64}");
 
     /** Normalizes the target and validates the completed restore identity. */
     public DurableRestoreResult {

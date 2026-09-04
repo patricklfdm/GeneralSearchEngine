@@ -3,7 +3,6 @@ package io.github.patricklfdm.generalsearch.compatibility;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -71,7 +70,7 @@ class V42PublicApiFoundationTest {
     }
 
     @Test
-    void phase2ShipsInspectionSurfaceButNotMigrationSurface() throws Exception {
+    void phase3ShipsInspectionAndMigrationSurfaces() throws Exception {
         for (String simpleName : List.of(
                 "DurableStorageFormat",
                 "DurableStoreFormatReport",
@@ -91,8 +90,7 @@ class V42PublicApiFoundationTest {
                 "DurableMigrationStage",
                 "DurableMigrationException"
         )) {
-            assertThrows(ClassNotFoundException.class,
-                    () -> Class.forName(PACKAGE + simpleName), simpleName);
+            assertNotNull(Class.forName(PACKAGE + simpleName), simpleName);
         }
     }
 

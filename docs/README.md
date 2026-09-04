@@ -20,6 +20,9 @@ remains the phase history and decision source of truth.
 - [V4.2 Phase 2 format and inspection](v4x/v4.2/PHASE_2_FORMAT_AND_INSPECTION.md)
 - [V4.2 Phase 2 local baseline](v4x/v4.2/PHASE_2_BASELINE.md)
 - [V4.2 Phase 2 checklist](v4x/v4.2/PHASE_2_CHECKLIST.md)
+- [V4.2 Phase 3 format-only migration](v4x/v4.2/PHASE_3_FORMAT_MIGRATION.md)
+- [V4.2 Phase 3 local baseline](v4x/v4.2/PHASE_3_BASELINE.md)
+- [V4.2 Phase 3 checklist](v4x/v4.2/PHASE_3_CHECKLIST.md)
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
@@ -52,10 +55,10 @@ V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
 production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
 operational baseline all resolve to the accepted protected-master commit.
 
-V4.2 Phases 0–1 are accepted and Phase 2 is active. Phase 2 freezes exact physical
-`1.1` bytes and codec-free dual-minor format inspection. Production `1.1` creation,
-open/write, backup/restore continuation and migration remain assigned to Phase 3 or
-later.
+V4.2 Phases 0–2 are accepted and Phase 3 is active. Phase 3 activates explicit
+`1.1` creation/open/write, exact-minor backup/restore continuation, and the
+format-only `1.0` to `1.1` migration edge. Changed codec/schema/key transforms and
+target-index rebuild remain assigned to Phase 4.
 
 ## v4.0 — prior stable durable single-node foundation
 

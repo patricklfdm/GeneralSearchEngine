@@ -197,6 +197,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                                     opened.manifest().checkpointFile()),
                             config,
                             schema,
+                            opened.owner().format(),
                             opened.owner().historyId(),
                             opened.manifest());
             long checkpointLoadNanos = elapsedSince(checkpointLoadStarted);

@@ -2,7 +2,6 @@ package io.github.patricklfdm.generalsearch.durability;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -81,13 +80,14 @@ class V42FormatInspectionPhase2Test {
                         .format(DurableStorageFormat.V1_1)
                         .build();
         assertEquals(DurableStorageFormat.V1_1, selected.format());
-        DurabilityException failure = assertThrows(DurabilityException.class,
-                () -> SearchEngine.builder(Document.class, ID)
-                        .buildDurable(selected));
-        assertEquals(DurabilityException.Reason.INCOMPATIBLE_STORAGE,
-                failure.reason());
-        assertFalse(Files.exists(unopened),
-                "Phase 2 selector rejection must occur before filesystem mutation");
+        try (var ignored = SearchEngine.builder(Document.class, ID)
+                .buildDurable(selected)) {
+            // Phase 3 activates the selector frozen and rejected by Phase 2.
+        }
+        assertTrue(Files.isDirectory(unopened));
+        assertEquals(Optional.of(DurableStorageFormat.V1_1),
+                DurableStorageOperations.inspectStoreFormat(unopened)
+                        .declaredFormat());
     }
 
     @Test

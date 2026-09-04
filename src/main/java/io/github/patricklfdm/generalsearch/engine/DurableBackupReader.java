@@ -57,6 +57,10 @@ final class DurableBackupReader {
                 String sourceFamily = string(input, 128, false);
                 short sourceMajor = input.readShort();
                 short sourceMinor = input.readShort();
+                DurableFormatContext format = DurableFormatContext.from(
+                        sourceMajor, sourceMinor, sourceFamily);
+                byte[] profileDigest = format.hasProfile()
+                        ? input.readNBytes(32) : new byte[0];
                 UUID history = new UUID(input.readLong(), input.readLong());
                 long sequence = input.readLong();
                 String storageIdentity = string(input, 128, false);
@@ -76,16 +80,16 @@ final class DurableBackupReader {
                 input.readLong();
                 string(input, 256, true);
                 if (input.available() != 0 || magic != MAGIC || major != 1
-                        || minor != 0 || !family.equals("gse-backup")
-                        || !sourceFamily.equals("gse-durable")
-                        || sourceMajor != 1 || sourceMinor != 0
+                        || minor != format.minor() || !family.equals("gse-backup")
+                        || !format.matchesDigest(profileDigest)
                         || history.equals(new UUID(0L, 0L)) || sequence < 0
                         || codecVersion < 0 || contentDigest.length != 32) {
                     throw invalid(null);
                 }
-                return new Authority(history, sequence, storageIdentity,
+                return new Authority(format, history, sequence, storageIdentity,
                         schemaIdentity, codecIdentity, codecVersion,
-                        "gse-backup-v1-"
+                        (format.hasProfile()
+                                ? "gse-backup-v2-" : "gse-backup-v1-")
                                 + HexFormat.of().formatHex(contentDigest));
             }
         } catch (DurableOperationException failure) {
@@ -121,6 +125,7 @@ final class DurableBackupReader {
     }
 
     record Authority(
+            DurableFormatContext format,
             UUID history,
             long sequence,
             String storageIdentity,

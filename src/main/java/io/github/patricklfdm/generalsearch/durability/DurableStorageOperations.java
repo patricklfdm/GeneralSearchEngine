@@ -2,7 +2,7 @@ package io.github.patricklfdm.generalsearch.durability;
 
 import java.nio.file.Path;
 
-/** Codec-free offline operations over V4 durable stores and V4.1 backup bundles. */
+/** Codec-free offline operations over supported V4 durable stores and backup bundles. */
 public final class DurableStorageOperations {
     private DurableStorageOperations() {
     }
@@ -21,7 +21,7 @@ public final class DurableStorageOperations {
     }
 
     /**
-     * Structurally verifies an immutable V4.1 backup bundle without a user codec.
+     * Structurally verifies an immutable supported V4 backup bundle without a user codec.
      * The synchronous operation is read-only and supports concurrent bundle readers.
      * A {@link DurableVerificationStatus#VALID} result proves byte, inventory,
      * checksum, content-identity, history and sequence structure only.

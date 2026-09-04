@@ -62,7 +62,15 @@ final class DurableCrashHooks {
             "v41-cleanup-before-directory-force-v1",
             "v41-cleanup-after-directory-force-v1",
             "v41-cleanup-before-post-verify-v1",
-            "v41-cleanup-after-post-verify-v1"
+            "v41-cleanup-after-post-verify-v1",
+            "v42-migration-after-marker-force-v1",
+            "v42-migration-after-metadata-force-v1",
+            "v42-migration-after-checkpoint-rename-v1",
+            "v42-migration-after-wal-force-v1",
+            "v42-migration-after-manifest-rename-v1",
+            "v42-migration-before-final-rename-v1",
+            "v42-migration-after-final-rename-v1",
+            "v42-migration-after-parent-force-v1"
     );
 
     private DurableCrashHooks() {
