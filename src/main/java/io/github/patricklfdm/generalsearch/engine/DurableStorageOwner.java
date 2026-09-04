@@ -34,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 
 final class DurableStorageOwner implements AutoCloseable {
@@ -90,6 +91,12 @@ final class DurableStorageOwner implements AutoCloseable {
             int codecVersion,
             List<DurableIndexDescriptor> startupIndexes
     ) {
+        if (!config.format().equals(DurableStorageFormat.V1_0)) {
+            throw failure(
+                    DurabilityException.Reason.INCOMPATIBLE_STORAGE,
+                    "live format opening is not admitted by this implementation phase",
+                    null);
+        }
         Path configured = config.directory().toAbsolutePath().normalize();
         if (Files.isSymbolicLink(config.directory())
                 || Files.isSymbolicLink(configured)) {

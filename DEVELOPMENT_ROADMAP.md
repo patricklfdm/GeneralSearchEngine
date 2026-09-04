@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 1 storage-evolution foundation
+## v4.2 active Phase 2 format inspection
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -121,17 +121,19 @@ operator-owned cutover, and published-4.1 rollback proof.
 
 Phase 0 merged through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
-passed. Phase 1 establishes declaration-only public fixtures, independent `1.0` to `1.1`
+passed. Phase 1 established declaration-only public fixtures, independent `1.0` to `1.1`
 models and bytes, a separate-process crash harness, source-before/source-after
 identity evidence, and a quota-safe fake-cloud lane before production format or
 migration implementation. The distinct eventual identities are artifact schema
 `gse-v42-migration-evidence-v1`, suite `v4.2-storage-evolution-suite-v1`, preset
 `v4.2-storage-evolution-v1`, and append-only baseline
-`v4.2.0-migration-cloud`. Phase 1 opens all active coordinates as
-`4.2.0-SNAPSHOT`, pins the exact published `4.1.0` core, and adds only non-production
-fixtures, models, harness and fake-cloud tooling. Production `1.1` bytes, migration,
+`v4.2.0-migration-cloud`. Phase 1 merged through protected PR #107 as
+`8e9aec0b07921fe2b43169cf930c628561db40f9`; exact-master CI run `33834603280`
+passed. Phase 2 now owns exact physical `1.1` fixtures, dual-minor structural readers,
+public format values and codec-free inspection reports. Its explicit `V1_1` selector
+is rejected before filesystem mutation; production `1.1` writes, migration,
 workflow/IAM mutation and paid execution remain assigned to later phases. Authority
-is under [`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_0_CONTRACT.md).
+is under [`docs/v4x/v4.2/`](docs/v4x/v4.2/PHASE_2_FORMAT_AND_INSPECTION.md).
 
 ## v4.1.0 current stable release
 

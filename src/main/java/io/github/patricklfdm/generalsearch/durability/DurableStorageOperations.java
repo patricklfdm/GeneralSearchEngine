@@ -34,6 +34,32 @@ public final class DurableStorageOperations {
     }
 
     /**
+     * Inspects a closed live store synchronously without loading a user codec.
+     * The operation acquires exclusive ownership, is read-only, and retains an
+     * intact unsupported or incompatible format declaration when available. Its
+     * structural result does not claim semantic document validity.
+     *
+     * @param directory closed live-store directory
+     * @return immutable format declaration and structural report
+     */
+    public static DurableStoreFormatReport inspectStoreFormat(Path directory) {
+        return DurableStructuralVerifier.inspectStoreFormat(directory);
+    }
+
+    /**
+     * Inspects an immutable backup bundle synchronously without loading a user
+     * codec. Concurrent readers are supported; no byte is repaired or upgraded.
+     * Declared backup/source formats remain explicit when their common header is
+     * intact, while absence makes no semantic or default-format claim.
+     *
+     * @param directory completed backup-bundle directory
+     * @return immutable format declarations and structural report
+     */
+    public static DurableBackupFormatReport inspectBackupFormat(Path directory) {
+        return DurableStructuralVerifier.inspectBackupFormat(directory);
+    }
+
+    /**
      * Builds a codec-free, read-only cleanup plan for one exact offline boundary.
      * Planning acquires exclusive ownership, proves every candidate
      * non-authoritative, and binds the complete observed inventory. The returned plan

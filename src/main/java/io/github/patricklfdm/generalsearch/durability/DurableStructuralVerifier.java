@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
 
-/** Independent codec-free parser used by the public V4.1 structural operations. */
+/** Independent codec-free parser used by the public V4.1/V4.2 structural operations. */
 final class DurableStructuralVerifier {
     private static final String LOCK = "gse.lock";
     private static final String METADATA = "gse-metadata";
@@ -66,17 +66,32 @@ final class DurableStructuralVerifier {
     private static final long CHECKPOINT_MANIFEST_MAGIC = 0x4753454d414e3130L;
     private static final long BACKUP_MAGIC = 0x475345424b503130L;
     private static final short FORMAT_MAJOR = 1;
-    private static final short FORMAT_MINOR = 0;
+    private static final short FORMAT_MINOR_1_0 = 0;
+    private static final short FORMAT_MINOR_1_1 = 1;
     private static final int MAX_METADATA_BYTES = 64 * 1024 * 1024;
     private static final int MAX_CHECKPOINT_MANIFEST_BYTES = 16 * 1024;
     private static final int MAX_BACKUP_MANIFEST_BYTES = 16 * 1024 * 1024;
     private static final int MAX_INDEXES = 100_000;
-    private static final int WAL_HEADER_BYTES = 48;
+    private static final int WAL_HEADER_V1_0_BYTES = 48;
+    private static final int WAL_HEADER_V1_1_BYTES = 80;
     private static final int FRAME_HEADER_BYTES = 28;
     private static final int FRAME_TRAILER_BYTES = 4;
     private static final int MAX_FRAME_BYTES = 256 * 1024 * 1024;
-    private static final byte[] BACKUP_DOMAIN =
+    private static final byte[] BACKUP_V1_DOMAIN =
             "gse-backup-content-v1\0".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] BACKUP_V2_DOMAIN =
+            "gse-backup-content-v2\0".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] PROFILE_DOMAIN =
+            "gse-durable-format-profile-v1\0"
+                    .getBytes(StandardCharsets.US_ASCII);
+    private static final int MAX_PROFILE_BYTES = 4096;
+    private static final int MAX_CAPABILITIES = 64;
+    private static final List<String> REQUIRED_PROFILE_CAPABILITIES = List.of(
+            "canonical-documents-v1",
+            "checkpoint-authority-v1",
+            "crc32c-wal-v1",
+            "logical-index-config-v1",
+            "sha256-profile-binding-v1");
     private static final int STREAM_BUFFER_BYTES = 64 * 1024;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
             "nfs", "cifs", "smb", "fuse", "tmpfs", "ramfs", "9p");
@@ -98,6 +113,29 @@ final class DurableStructuralVerifier {
                 lock, StandardOpenOption.READ, StandardOpenOption.WRITE);
                 FileLock ignored = acquireLock(channel)) {
             return verifyLockedStore(directory);
+        } catch (DurableOperationException failure) {
+            throw failure;
+        } catch (IOException failure) {
+            throw operation(DurableOperationException.Reason.IO_FAILURE, failure);
+        }
+    }
+
+    static DurableStoreFormatReport inspectStoreFormat(Path input) {
+        Path directory = requireDirectory(input, true);
+        Path lock = directory.resolve(LOCK);
+        if (!Files.exists(lock, LinkOption.NOFOLLOW_LINKS)) {
+            Collector findings = new Collector(directory);
+            findings.add(DurableVerificationStatus.INCOMPLETE,
+                    "MISSING_LOCK", LOCK, "normal V4 ownership file is absent");
+            return DurableFormatHeaderInspector.store(
+                    directory, findings.report(OptionalLong.empty(), 0));
+        }
+        requireOrdinaryFile(lock, true);
+        try (FileChannel channel = FileChannel.open(
+                lock, StandardOpenOption.READ, StandardOpenOption.WRITE);
+                FileLock ignored = acquireLock(channel)) {
+            return DurableFormatHeaderInspector.store(
+                    directory, verifyLockedStore(directory));
         } catch (DurableOperationException failure) {
             throw failure;
         } catch (IOException failure) {
@@ -133,6 +171,11 @@ final class DurableStructuralVerifier {
                 ? parse(findings, BACKUP_METADATA,
                         () -> parseMetadata(directory.resolve(BACKUP_METADATA)))
                 : null;
+        if (metadata != null && !metadata.profileSupported()) {
+            findings.add(DurableVerificationStatus.INCOMPATIBLE,
+                    "INCOMPATIBLE_FORMAT_PROFILE", BACKUP_METADATA,
+                    "metadata declares an intact but unknown format profile");
+        }
         Checkpoint checkpoint = metadata == null
                 || !members.containsKey(BACKUP_CHECKPOINT) ? null : parse(
                 findings, BACKUP_CHECKPOINT,
@@ -180,6 +223,12 @@ final class DurableStructuralVerifier {
         return findings.report(sequence, authoritativeBytes);
     }
 
+    static DurableBackupFormatReport inspectBackupFormat(Path input) {
+        DurableVerificationReport structuralReport = verifyBackup(input);
+        return DurableFormatHeaderInspector.backup(
+                structuralReport.directory(), structuralReport);
+    }
+
     static DurableVerificationReport verifyLockedStore(Path directory) {
         Collector findings = new Collector(directory);
         Map<String, FileState> members = inventory(directory, findings);
@@ -208,6 +257,11 @@ final class DurableStructuralVerifier {
         if (metadata == null) {
             inspectWalEnvelopesWithoutMetadata(directory, members, findings);
             return findings.report(OptionalLong.empty(), 0);
+        }
+        if (!metadata.profileSupported()) {
+            findings.add(DurableVerificationStatus.INCOMPATIBLE,
+                    "INCOMPATIBLE_FORMAT_PROFILE", METADATA,
+                    "metadata declares an intact but unknown format profile");
         }
 
         CheckpointManifest manifest = null;
@@ -348,6 +402,12 @@ final class DurableStructuralVerifier {
             short minor = reader.shortValue(crc);
             UUID history = new UUID(reader.longValue(crc), reader.longValue(crc));
             String family = reader.string(128, false, crc);
+            if (magic != METADATA_MAGIC || !family.equals("gse-durable")
+                    || major != FORMAT_MAJOR) {
+                throw unsupported(path, "metadata declares an unsupported format");
+            }
+            requireSupportedMinor(minor, path, "metadata");
+            ProfileBinding profile = readMetadataProfile(reader, crc, minor, path);
             String storageIdentity = reader.string(128, false, crc);
             String schemaIdentity = reader.string(128, false, crc);
             String codecIdentity = reader.string(128, false, crc);
@@ -378,14 +438,6 @@ final class DurableStructuralVerifier {
                 indexes.add(descriptor);
             }
             reader.finishCrc(crc);
-            if (magic != METADATA_MAGIC || !family.equals("gse-durable")
-                    || major != FORMAT_MAJOR) {
-                throw unsupported(path, "metadata declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "metadata minor version is outside supported policy");
-            }
             if (history.equals(new UUID(0, 0))
                     || !validIdentity(storageIdentity)
                     || !validIdentity(schemaIdentity)
@@ -402,7 +454,9 @@ final class DurableStructuralVerifier {
                 throw corrupt("METADATA_IDENTITY_OR_BOUNDS", path,
                         "metadata identity or safety bounds are invalid");
             }
-            return new Metadata(history, storageIdentity, schemaIdentity,
+            return new Metadata(major, minor, history, profile.digest(),
+                    profile.supported(),
+                    storageIdentity, schemaIdentity,
                     codecIdentity, codecVersion, maxKey, maxDocument, maxBulk,
                     maxDocuments, checkpointWalBytes, maxRetainedBytes,
                     List.copyOf(indexes), reader.size(), reader.sha256());
@@ -421,7 +475,12 @@ final class DurableStructuralVerifier {
             long magic = reader.longValue(crc);
             short major = reader.shortValue(crc);
             short minor = reader.shortValue(crc);
+            validateBoundMemberFormat(
+                    magic, CHECKPOINT_MANIFEST_MAGIC, major, minor,
+                    metadata, path, "checkpoint manifest");
             UUID history = new UUID(reader.longValue(crc), reader.longValue(crc));
+            readProfileBinding(reader, crc, minor, metadata, path,
+                    "checkpoint manifest");
             long sequence = reader.longValue(crc);
             long checkpointBytes = reader.longValue(crc);
             int checkpointChecksum = reader.intValue(crc);
@@ -429,14 +488,6 @@ final class DurableStructuralVerifier {
             long walGeneration = reader.longValue(crc);
             long walFirst = reader.longValue(crc);
             reader.finishCrc(crc);
-            if (magic != CHECKPOINT_MANIFEST_MAGIC || major != FORMAT_MAJOR) {
-                throw unsupported(path,
-                        "checkpoint manifest declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "checkpoint manifest minor version is unsupported");
-            }
             if (!history.equals(metadata.history()) || sequence < 0
                     || checkpointBytes < 56
                     || !CHECKPOINT.matcher(checkpointFile).matches()
@@ -470,7 +521,11 @@ final class DurableStructuralVerifier {
             long magic = reader.longValue(crc);
             short major = reader.shortValue(crc);
             short minor = reader.shortValue(crc);
+            validateBoundMemberFormat(
+                    magic, CHECKPOINT_MAGIC, major, minor,
+                    metadata, path, "checkpoint");
             UUID history = new UUID(reader.longValue(crc), reader.longValue(crc));
+            readProfileBinding(reader, crc, minor, metadata, path, "checkpoint");
             long sequence = reader.longValue(crc);
             int nextDocId = reader.intValue(crc);
             int liveDocuments = reader.intValue(crc);
@@ -494,14 +549,6 @@ final class DurableStructuralVerifier {
                 indexes.add(descriptor);
             }
             int slots = reader.intValue(crc);
-            if (magic != CHECKPOINT_MAGIC || major != FORMAT_MAJOR) {
-                throw unsupported(path,
-                        "checkpoint declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "checkpoint minor version is outside supported policy");
-            }
             if (!history.equals(metadata.history()) || sequence < 0
                     || nextDocId < 0 || nextDocId > reader.contentBytes()
                     || liveDocuments < 0
@@ -555,32 +602,11 @@ final class DurableStructuralVerifier {
             boolean allowIncompleteTail
     ) throws IOException {
         try (Cursor reader = Cursor.open(path, false)) {
-            if (reader.size() < WAL_HEADER_BYTES) {
-                throw corrupt("WAL_HEADER_TRUNCATED", path,
-                        "WAL generation header is truncated");
-            }
-            byte[] header = reader.bytes(WAL_HEADER_BYTES, null);
-            ByteBuffer decoded = ByteBuffer.wrap(header).order(ByteOrder.BIG_ENDIAN);
-            long magic = decoded.getLong();
-            short major = decoded.getShort();
-            short minor = decoded.getShort();
-            UUID history = new UUID(decoded.getLong(), decoded.getLong());
-            long generation = decoded.getLong();
-            long first = decoded.getLong();
-            int storedHeaderCrc = decoded.getInt();
-            CRC32C headerCrc = new CRC32C();
-            headerCrc.update(header, 0, WAL_HEADER_BYTES - Integer.BYTES);
-            if ((int) headerCrc.getValue() != storedHeaderCrc) {
-                throw corrupt("WAL_HEADER_CHECKSUM", path,
-                        "WAL generation header checksum is invalid");
-            }
-            if (magic != WAL_MAGIC || major != FORMAT_MAJOR) {
-                throw unsupported(path, "WAL declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "WAL minor version is outside supported policy");
-            }
+            WalHeader header = readWalHeader(reader, path, metadata);
+            short minor = header.minor();
+            UUID history = header.history();
+            long generation = header.generation();
+            long first = header.firstSequence();
             if (!history.equals(metadata.history())
                     || generation != expectedGeneration || generation <= 0
                     || first <= 0 || (expectedFirst > 0 && first != expectedFirst)) {
@@ -595,13 +621,14 @@ final class DurableStructuralVerifier {
                 long remaining = reader.remaining();
                 if (remaining < FRAME_HEADER_BYTES) {
                     byte[] prefix = reader.bytes(Math.toIntExact(remaining), null);
-                    validateIncompleteHeader(prefix, expectedSequence, path);
+                    validateIncompleteHeader(
+                            prefix, expectedSequence, minor, path);
                     incomplete = true;
                     break;
                 }
                 byte[] frameHeader = reader.bytes(FRAME_HEADER_BYTES, null);
                 FrameHeader frame = parseFrameHeader(
-                        frameHeader, expectedSequence, path);
+                        frameHeader, expectedSequence, minor, path);
                 if (remaining < frame.frameBytes()) {
                     reader.skip(reader.remaining(), null);
                     incomplete = true;
@@ -636,6 +663,64 @@ final class DurableStructuralVerifier {
         }
     }
 
+    private static WalHeader readWalHeader(
+            Cursor reader,
+            Path path,
+            Metadata metadata
+    ) throws IOException {
+        if (reader.size() < WAL_HEADER_V1_0_BYTES) {
+            throw corrupt("WAL_HEADER_TRUNCATED", path,
+                    "WAL generation header is truncated");
+        }
+        byte[] prefix = reader.bytes(12, null);
+        ByteBuffer prefixReader = ByteBuffer.wrap(prefix).order(ByteOrder.BIG_ENDIAN);
+        long magic = prefixReader.getLong();
+        short major = prefixReader.getShort();
+        short minor = prefixReader.getShort();
+        if (magic != WAL_MAGIC || major != FORMAT_MAJOR) {
+            throw unsupported(path, "WAL declares an unsupported format");
+        }
+        requireSupportedMinor(minor, path, "WAL");
+        if (metadata != null && minor != metadata.minor()) {
+            throw corrupt("MIXED_MINOR_VERSION", path,
+                    "WAL minor differs from metadata authority");
+        }
+        int headerBytes = minor == FORMAT_MINOR_1_1
+                ? WAL_HEADER_V1_1_BYTES : WAL_HEADER_V1_0_BYTES;
+        if (reader.size() < headerBytes) {
+            throw corrupt("WAL_HEADER_TRUNCATED", path,
+                    "WAL generation header is truncated");
+        }
+        byte[] header = new byte[headerBytes];
+        System.arraycopy(prefix, 0, header, 0, prefix.length);
+        byte[] suffix = reader.bytes(headerBytes - prefix.length, null);
+        System.arraycopy(suffix, 0, header, prefix.length, suffix.length);
+        CRC32C headerCrc = new CRC32C();
+        headerCrc.update(header, 0, headerBytes - Integer.BYTES);
+        int storedHeaderCrc = ByteBuffer.wrap(
+                header, headerBytes - Integer.BYTES, Integer.BYTES)
+                .order(ByteOrder.BIG_ENDIAN).getInt();
+        if ((int) headerCrc.getValue() != storedHeaderCrc) {
+            throw corrupt("WAL_HEADER_CHECKSUM", path,
+                    "WAL generation header checksum is invalid");
+        }
+        ByteBuffer decoded = ByteBuffer.wrap(header).order(ByteOrder.BIG_ENDIAN);
+        decoded.position(12);
+        UUID history = new UUID(decoded.getLong(), decoded.getLong());
+        if (minor == FORMAT_MINOR_1_1) {
+            byte[] observed = new byte[32];
+            decoded.get(observed);
+            if (metadata != null
+                    && !Arrays.equals(observed, metadata.profileDigest())) {
+                throw corrupt("PROFILE_BINDING_MISMATCH", path,
+                        "WAL profile digest differs from format authority");
+            }
+        }
+        long generation = decoded.getLong();
+        long first = decoded.getLong();
+        return new WalHeader(minor, history, generation, first);
+    }
+
     private static void inspectWalEnvelopesWithoutMetadata(
             Path directory,
             Map<String, FileState> members,
@@ -664,33 +749,10 @@ final class DurableStructuralVerifier {
             boolean allowIncompleteTail
     ) throws IOException {
         try (Cursor reader = Cursor.open(path, false)) {
-            if (reader.size() < WAL_HEADER_BYTES) {
-                throw corrupt("WAL_HEADER_TRUNCATED", path,
-                        "WAL generation header is truncated");
-            }
-            byte[] header = reader.bytes(WAL_HEADER_BYTES, null);
-            ByteBuffer decoded = ByteBuffer.wrap(header).order(ByteOrder.BIG_ENDIAN);
-            long magic = decoded.getLong();
-            short major = decoded.getShort();
-            short minor = decoded.getShort();
-            decoded.getLong();
-            decoded.getLong();
-            long generation = decoded.getLong();
-            long first = decoded.getLong();
-            int storedHeaderCrc = decoded.getInt();
-            CRC32C headerCrc = new CRC32C();
-            headerCrc.update(header, 0, WAL_HEADER_BYTES - Integer.BYTES);
-            if ((int) headerCrc.getValue() != storedHeaderCrc) {
-                throw corrupt("WAL_HEADER_CHECKSUM", path,
-                        "WAL generation header checksum is invalid");
-            }
-            if (magic != WAL_MAGIC || major != FORMAT_MAJOR) {
-                throw unsupported(path, "WAL declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "WAL minor version is outside supported policy");
-            }
+            WalHeader header = readWalHeader(reader, path, null);
+            short minor = header.minor();
+            long generation = header.generation();
+            long first = header.firstSequence();
             if (generation != expectedGeneration || generation <= 0 || first <= 0
                     || (expectedFirst > 0 && first != expectedFirst)) {
                 throw corrupt("WAL_GENERATION_IDENTITY", path,
@@ -705,13 +767,13 @@ final class DurableStructuralVerifier {
                 if (remaining < FRAME_HEADER_BYTES) {
                     validateIncompleteHeader(
                             reader.bytes(Math.toIntExact(remaining), null),
-                            expectedSequence, path);
+                            expectedSequence, minor, path);
                     incomplete = true;
                     break;
                 }
                 byte[] frameHeader = reader.bytes(FRAME_HEADER_BYTES, null);
                 FrameHeader frame = parseFrameHeader(
-                        frameHeader, expectedSequence, path);
+                        frameHeader, expectedSequence, minor, path);
                 if (remaining < frame.frameBytes()) {
                     reader.skip(reader.remaining(), null);
                     incomplete = true;
@@ -758,6 +820,23 @@ final class DurableStructuralVerifier {
             String sourceFamily = reader.string(128, false, crc);
             short sourceMajor = reader.shortValue(crc);
             short sourceMinor = reader.shortValue(crc);
+            if (magic != BACKUP_MAGIC || !family.equals("gse-backup")
+                    || major != FORMAT_MAJOR) {
+                throw unsupported(path,
+                        "backup manifest declares an unsupported format");
+            }
+            requireSupportedMinor(minor, path, "backup manifest");
+            if (!sourceFamily.equals("gse-durable") || sourceMajor != FORMAT_MAJOR) {
+                throw unsupported(path,
+                        "backup source declares an unsupported live-store format");
+            }
+            requireSupportedMinor(sourceMinor, path, "backup source");
+            if (sourceMinor != minor) {
+                throw corrupt("BACKUP_SOURCE_FORMAT_MISMATCH", path,
+                        "backup and source minor versions must match");
+            }
+            byte[] profileDigest = minor == FORMAT_MINOR_1_1
+                    ? reader.bytes(32, crc) : new byte[0];
             UUID history = new UUID(reader.longValue(crc), reader.longValue(crc));
             long sequence = reader.longValue(crc);
             String storageIdentity = reader.string(128, false, crc);
@@ -785,23 +864,6 @@ final class DurableStructuralVerifier {
             long createdEpochMillis = reader.longValue(crc);
             String requestId = reader.string(256, true, crc);
             reader.finishCrc(crc);
-            if (magic != BACKUP_MAGIC || !family.equals("gse-backup")
-                    || major != FORMAT_MAJOR) {
-                throw unsupported(path,
-                        "backup manifest declares an unsupported format");
-            }
-            if (minor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "backup manifest minor version is outside supported policy");
-            }
-            if (!sourceFamily.equals("gse-durable") || sourceMajor != FORMAT_MAJOR) {
-                throw unsupported(path,
-                        "backup source declares an unsupported live-store format");
-            }
-            if (sourceMinor != FORMAT_MINOR) {
-                throw incompatible(path,
-                        "backup source minor version is outside supported policy");
-            }
             if (history.equals(new UUID(0, 0)) || sequence < 0
                     || !validIdentity(storageIdentity)
                     || !validIdentity(schemaIdentity)
@@ -815,7 +877,8 @@ final class DurableStructuralVerifier {
                         "backup manifest identity or canonical inventory is invalid");
             }
             return new BackupManifest(family, major, minor,
-                    sourceFamily, sourceMajor, sourceMinor, history, sequence,
+                    sourceFamily, sourceMajor, sourceMinor, profileDigest,
+                    history, sequence,
                     storageIdentity, schemaIdentity, codecIdentity, codecVersion,
                     List.copyOf(payloads), contentDigest, reader.size());
         }
@@ -885,6 +948,7 @@ final class DurableStructuralVerifier {
     private static FrameHeader parseFrameHeader(
             byte[] encoded,
             long expectedSequence,
+            short expectedMinor,
             Path path
     ) {
         ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
@@ -900,9 +964,9 @@ final class DurableStructuralVerifier {
         if (magic != FRAME_MAGIC || major != FORMAT_MAJOR) {
             throw unsupported(path, "WAL frame declares an unsupported format");
         }
-        if (minor != FORMAT_MINOR) {
-            throw incompatible(path,
-                    "WAL frame minor version is outside supported policy");
+        if (minor != expectedMinor) {
+            throw corrupt("MIXED_MINOR_VERSION", path,
+                    "WAL frame minor differs from its generation header");
         }
         if (frameBytes < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES
                 || frameBytes > MAX_FRAME_BYTES || payloadBytes < 0
@@ -916,14 +980,161 @@ final class DurableStructuralVerifier {
         return new FrameHeader(frameBytes, type, payloadBytes);
     }
 
+    private static void requireSupportedMinor(
+            short minor,
+            Path path,
+            String memberKind
+    ) {
+        if (minor != FORMAT_MINOR_1_0 && minor != FORMAT_MINOR_1_1) {
+            throw incompatible(path,
+                    memberKind + " minor version is outside supported policy");
+        }
+    }
+
+    private static void validateBoundMemberFormat(
+            long magic,
+            long expectedMagic,
+            short major,
+            short minor,
+            Metadata metadata,
+            Path path,
+            String memberKind
+    ) {
+        if (magic != expectedMagic || major != FORMAT_MAJOR) {
+            throw unsupported(path, memberKind + " declares an unsupported format");
+        }
+        requireSupportedMinor(minor, path, memberKind);
+        if (minor != metadata.minor()) {
+            throw corrupt("MIXED_MINOR_VERSION", path,
+                    memberKind + " minor differs from metadata authority");
+        }
+    }
+
+    private static ProfileBinding readMetadataProfile(
+            Cursor reader,
+            CRC32C crc,
+            short minor,
+            Path path
+    ) throws IOException {
+        if (minor == FORMAT_MINOR_1_0) {
+            return new ProfileBinding(new byte[0], true);
+        }
+        int profileBytes = reader.intValue(crc);
+        if (profileBytes < 12 || profileBytes > MAX_PROFILE_BYTES) {
+            throw corrupt("PROFILE_LENGTH", path,
+                    "format profile length is outside its bound");
+        }
+        byte[] encoded = reader.bytes(profileBytes, crc);
+        byte[] storedDigest = reader.bytes(32, crc);
+        MessageDigest digest = sha256();
+        digest.update(PROFILE_DOMAIN);
+        digest.update(encoded);
+        if (!Arrays.equals(storedDigest, digest.digest())) {
+            throw corrupt("PROFILE_DIGEST", path,
+                    "metadata format profile digest is invalid");
+        }
+        Profile profile = decodeProfile(encoded, path);
+        boolean supported = profile.required().equals(REQUIRED_PROFILE_CAPABILITIES)
+                && profile.optional().isEmpty();
+        return new ProfileBinding(storedDigest, supported);
+    }
+
+    private static Profile decodeProfile(byte[] encoded, Path path) {
+        try {
+            ByteBuffer reader = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
+            List<String> required = readCapabilities(reader, path, "required");
+            List<String> optional = readCapabilities(reader, path, "optional");
+            if (reader.hasRemaining()) {
+                throw corrupt("PROFILE_TRAILING_BYTES", path,
+                        "format profile contains trailing bytes");
+            }
+            return new Profile(required, optional);
+        } catch (StructuralFailure failure) {
+            throw failure;
+        } catch (RuntimeException failure) {
+            throw corrupt("PROFILE_STRUCTURE", path,
+                    "format profile structure is invalid");
+        }
+    }
+
+    private static List<String> readCapabilities(
+            ByteBuffer reader,
+            Path path,
+            String kind
+    ) {
+        int count = reader.getInt();
+        if (count < 0 || count > MAX_CAPABILITIES) {
+            throw corrupt("PROFILE_CAPABILITY_COUNT", path,
+                    kind + " capability count is outside its bound");
+        }
+        List<String> result = new ArrayList<>(count);
+        for (int index = 0; index < count; index++) {
+            int length = reader.getInt();
+            if (length <= 0 || length > 128 || length > reader.remaining()) {
+                throw corrupt("PROFILE_CAPABILITY_LENGTH", path,
+                        kind + " capability length is outside its bound");
+            }
+            byte[] bytes = new byte[length];
+            reader.get(bytes);
+            String value;
+            try {
+                value = StandardCharsets.UTF_8.newDecoder()
+                        .onMalformedInput(CodingErrorAction.REPORT)
+                        .onUnmappableCharacter(CodingErrorAction.REPORT)
+                        .decode(ByteBuffer.wrap(bytes)).toString();
+            } catch (CharacterCodingException failure) {
+                throw corrupt("PROFILE_CAPABILITY_ENCODING", path,
+                        kind + " capability is not strict UTF-8");
+            }
+            if (!value.matches("[a-z0-9][a-z0-9-]{0,127}")) {
+                throw corrupt("PROFILE_CAPABILITY_ID", path,
+                        kind + " capability identifier is invalid");
+            }
+            if (!result.isEmpty()
+                    && result.getLast().compareTo(value) >= 0) {
+                throw corrupt("PROFILE_CAPABILITY_ORDER", path,
+                        kind + " capabilities are not canonical and unique");
+            }
+            result.add(value);
+        }
+        return List.copyOf(result);
+    }
+
+    private static void readProfileBinding(
+            Cursor reader,
+            CRC32C crc,
+            short minor,
+            Metadata metadata,
+            Path path,
+            String memberKind
+    ) throws IOException {
+        if (minor == FORMAT_MINOR_1_1
+                && !Arrays.equals(reader.bytes(32, crc), metadata.profileDigest())) {
+            throw corrupt("PROFILE_BINDING_MISMATCH", path,
+                    memberKind + " profile digest differs from metadata authority");
+        }
+    }
+
+    static byte[] canonicalProfileDigest() {
+        MessageDigest digest = sha256();
+        digest.update(PROFILE_DOMAIN);
+        updateInt(digest, REQUIRED_PROFILE_CAPABILITIES.size());
+        for (String capability : REQUIRED_PROFILE_CAPABILITIES) {
+            updateString(digest, capability);
+        }
+        updateInt(digest, 0);
+        return digest.digest();
+    }
+
     private static void validateIncompleteHeader(
             byte[] prefix,
             long expectedSequence,
+            short expectedMinor,
             Path path
     ) {
         ByteBuffer stable = ByteBuffer.allocate(FRAME_HEADER_BYTES)
                 .order(ByteOrder.BIG_ENDIAN);
-        stable.putInt(FRAME_MAGIC).putShort(FORMAT_MAJOR).putShort(FORMAT_MINOR);
+        stable.putInt(FRAME_MAGIC).putShort(FORMAT_MAJOR).putShort(expectedMinor);
         int fixed = Math.min(prefix.length, 8);
         if (!Arrays.equals(Arrays.copyOf(prefix, fixed),
                 Arrays.copyOf(stable.array(), fixed))) {
@@ -995,6 +1206,10 @@ final class DurableStructuralVerifier {
             Metadata metadata
     ) {
         if (!manifest.history().equals(metadata.history())
+                || manifest.sourceMajor() != metadata.major()
+                || manifest.sourceMinor() != metadata.minor()
+                || !Arrays.equals(
+                        manifest.profileDigest(), metadata.profileDigest())
                 || !manifest.storageIdentity().equals(metadata.storageIdentity())
                 || !manifest.schemaIdentity().equals(metadata.schemaIdentity())
                 || !manifest.codecIdentity().equals(metadata.codecIdentity())
@@ -1025,13 +1240,17 @@ final class DurableStructuralVerifier {
 
     private static byte[] backupContentDigest(BackupManifest manifest) {
         MessageDigest digest = sha256();
-        digest.update(BACKUP_DOMAIN);
+        digest.update(manifest.minor() == FORMAT_MINOR_1_1
+                ? BACKUP_V2_DOMAIN : BACKUP_V1_DOMAIN);
         updateString(digest, manifest.family());
         updateShort(digest, manifest.major());
         updateShort(digest, manifest.minor());
         updateString(digest, manifest.sourceFamily());
         updateShort(digest, manifest.sourceMajor());
         updateShort(digest, manifest.sourceMinor());
+        if (manifest.minor() == FORMAT_MINOR_1_1) {
+            digest.update(manifest.profileDigest());
+        }
         updateLong(digest, manifest.history().getMostSignificantBits());
         updateLong(digest, manifest.history().getLeastSignificantBits());
         updateLong(digest, manifest.sequence());
@@ -1586,8 +1805,26 @@ final class DurableStructuralVerifier {
     private record IndexDescriptor(byte kind, String field, String analyzer) {
     }
 
+    private record Profile(List<String> required, List<String> optional) {
+    }
+
+    private record ProfileBinding(byte[] digest, boolean supported) {
+        private ProfileBinding {
+            digest = digest.clone();
+        }
+
+        @Override
+        public byte[] digest() {
+            return digest.clone();
+        }
+    }
+
     private record Metadata(
+            short major,
+            short minor,
             UUID history,
+            byte[] profileDigest,
+            boolean profileSupported,
             String storageIdentity,
             String schemaIdentity,
             String codecIdentity,
@@ -1602,6 +1839,20 @@ final class DurableStructuralVerifier {
             long size,
             byte[] sha256
     ) {
+        private Metadata {
+            profileDigest = profileDigest.clone();
+            sha256 = sha256.clone();
+        }
+
+        @Override
+        public byte[] profileDigest() {
+            return profileDigest.clone();
+        }
+
+        @Override
+        public byte[] sha256() {
+            return sha256.clone();
+        }
     }
 
     private record CheckpointManifest(
@@ -1640,6 +1891,14 @@ final class DurableStructuralVerifier {
     private record FrameHeader(int frameBytes, byte type, int payloadBytes) {
     }
 
+    private record WalHeader(
+            short minor,
+            UUID history,
+            long generation,
+            long firstSequence
+    ) {
+    }
+
     private record PayloadDescriptor(String name, long size, byte[] sha256) {
         private PayloadDescriptor {
             sha256 = sha256.clone();
@@ -1658,6 +1917,7 @@ final class DurableStructuralVerifier {
             String sourceFamily,
             short sourceMajor,
             short sourceMinor,
+            byte[] profileDigest,
             UUID history,
             long sequence,
             String storageIdentity,
@@ -1669,7 +1929,13 @@ final class DurableStructuralVerifier {
             long size
     ) {
         private BackupManifest {
+            profileDigest = profileDigest.clone();
             contentDigest = contentDigest.clone();
+        }
+
+        @Override
+        public byte[] profileDigest() {
+            return profileDigest.clone();
         }
 
         @Override

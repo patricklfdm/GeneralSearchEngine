@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 development charter
 
-- **Status:** Accepted governing charter; Phase 1 active
+- **Status:** Accepted governing charter; Phase 2 active
 - **Predecessor:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Storage Evolution
 
@@ -99,8 +99,10 @@ creates `(1,0)` so an application does not cross a rollback boundary merely by
 upgrading its dependency.
 
 Creating `(1,1)` requires an explicit format selection. Migrating `(1,0)` to `(1,1)`
-requires a reviewed plan and a separate absent target. Published V4.1 is expected to
-reject intact `(1,1)` storage as a higher incompatible minor rather than corruption.
+requires a reviewed plan and a separate absent target. Published V4.1 must reject and
+must never open `(1,1)` storage. Phase 2 established that its immutable parser may
+classify exact extended `1.1` bytes as corrupt before reaching its higher-minor gate;
+V4.2 owns the precise incompatible/profile classifications.
 
 The `1.1` functional change is a canonical format-profile descriptor. Metadata owns
 the complete descriptor; each authority-bearing checkpoint, manifest, and WAL header
@@ -128,8 +130,9 @@ V4.1 `v1` algorithm is never extended in place. Restoring a `(1,1)` bundle creat
 new `(1,1)` history. Restore never changes format; migration and restore remain
 distinct operations.
 
-Published V4.1 continues to read `(1,0)` bundles and classifies intact `(1,1)` bundles
-as incompatible. V4.2 verifies and restores both exact supported bundle minors.
+Published V4.1 continues to read `(1,0)` bundles and fails closed on `(1,1)` bundles
+as incompatible or corrupt according to how far its immutable `1.0` layout parser
+advances. V4.2 verifies and restores both exact supported bundle minors.
 
 ## Migration model
 

@@ -12,14 +12,15 @@ PR #103 as `049b232`; the final candidate merged through protected PR #104 as
 `9db6efc`, and exact-master CI run `33815734269` passed. Signed tag `v4.1.0`, Maven
 Central publication, release workflow `33820284974`, production deployment
 `6255241071`, clean remote V3/V4 consumers, and GitHub Release `382405193` all resolve
-to that exact commit. V4.1 is the current stable release; V4.2 Phase 1 is active.
+to that exact commit. V4.1 is the current stable release; V4.2 Phase 2 is active.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
-passed. Phase 1 opens `4.2.0-SNAPSHOT` and establishes declaration-only APIs,
+passed. Phase 1 opened `4.2.0-SNAPSHOT` and established declaration-only APIs,
 independent migration models, immutable logical fixtures, a separate-process crash
-scaffold and a quota-safe no-GCP evidence plan. Production `1.1` bytes and migration
-operations remain prohibited.
+scaffold and a quota-safe no-GCP evidence plan. Phase 2 freezes exact `1.1` bytes and
+adds codec-free dual-minor inspection while production `1.1` writing and migration
+remain prohibited.
 
 The accepted V4.1 Phase 0 contract freezes a checkpoint-only full-backup protocol, a
 distinct `gse-backup (1,0)` bundle, new-history restore into an absent target,
@@ -35,6 +36,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.2 Phase 1 public API fixture](v4.2/PHASE_1_API_FIXTURE.md)
 - [V4.2 Phase 1 foundation baseline](v4.2/PHASE_1_BASELINE.md)
 - [V4.2 Phase 1 checklist](v4.2/PHASE_1_CHECKLIST.md)
+- [V4.2 Phase 2 format and inspection](v4.2/PHASE_2_FORMAT_AND_INSPECTION.md)
+- [V4.2 Phase 2 local baseline](v4.2/PHASE_2_BASELINE.md)
+- [V4.2 Phase 2 checklist](v4.2/PHASE_2_CHECKLIST.md)
 - [V4.1 development charter](v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4.1/PHASE_0_CHECKLIST.md)

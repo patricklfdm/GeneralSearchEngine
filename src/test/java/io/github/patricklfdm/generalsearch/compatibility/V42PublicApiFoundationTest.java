@@ -71,11 +71,15 @@ class V42PublicApiFoundationTest {
     }
 
     @Test
-    void phase1DoesNotShipStorageEvolutionTypes() {
+    void phase2ShipsInspectionSurfaceButNotMigrationSurface() throws Exception {
         for (String simpleName : List.of(
                 "DurableStorageFormat",
                 "DurableStoreFormatReport",
-                "DurableBackupFormatReport",
+                "DurableBackupFormatReport"
+        )) {
+            assertNotNull(Class.forName(PACKAGE + simpleName), simpleName);
+        }
+        for (String simpleName : List.of(
                 "DurableMigrationTransform",
                 "DurableMigrationTransformDescriptor",
                 "DurableMigrationRecord",
