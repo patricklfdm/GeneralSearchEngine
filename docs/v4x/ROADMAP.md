@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Proposed post-V4.0 governing roadmap
-- **Reference baseline:** Published GeneralSearchEngine `4.0.0`
+- **Status:** Accepted V4.x governing roadmap; V4.1 complete
+- **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
 
@@ -20,9 +20,9 @@ WAL rotation or checkpoint thresholds.
 ```text
 V4.0  Correct Durability               COMPLETE
   ↓
-  V4.1  Operational Safety               ACTIVE PHASE 7 FINAL CANDIDATE
+V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution
+V4.2  Storage Evolution                NEXT
   ↓
 V4.3  Fast Reopen
   ↓
@@ -208,10 +208,12 @@ marked history under its own contract.
 
 ## Current authority
 
-V4.1 Phases 0–6 are accepted. The append-only `v4.1.0-operational-cloud`
+V4.1 Phases 0–8 are complete. The append-only `v4.1.0-operational-cloud`
 registration and review merged through protected PR #103 as
-`049b232b12e9819a243c9d7925a39bc7ec0fec53`; exact-master CI run `33809198755`
-passed. Phase 7 owns only final coordinates, consumers, compatibility, documentation,
-Javadocs, artifacts and reproducibility. Phase 8 exclusively owns signed publication
-and post-publication proof. Production operation semantics and live/backup storage
-formats remain frozen.
+`049b232b12e9819a243c9d7925a39bc7ec0fec53`. The Phase 7 candidate merged through
+protected PR #104 as `9db6efce275d25eb8da75d6532ea103982e591c6`; exact-master CI
+run `33815734269` passed. Signed tag `v4.1.0`, release workflow `33820284974`, Maven
+Central, deployment `6255241071`, clean remote consumers and GitHub Release
+`382405193` completed successfully. Production operation semantics and live/backup
+storage formats are now published and immutable. V4.2 begins only with a separately
+accepted storage-evolution contract.

@@ -25,8 +25,13 @@ ending at `88205cf28f1aa80f8ea7ccf1bada723b3205215c`. Exact-source experiment ru
 `33754116526` and canonical run `33758217508` passed. The append-only
 `v4.1.0-operational-cloud` registration merged through protected PR #103 as
 `049b232b12e9819a243c9d7925a39bc7ec0fec53`; exact-master CI run `33809198755`
-passed. Phase 7 is active with all coordinates at final `4.1.0`. The
-accepted contract selects one exact
+passed. Phase 7 converted all active coordinates to final `4.1.0`, closed consumers,
+compatibility, Javadocs, artifacts and reproducibility, and merged through protected
+PR #104 as `9db6efce275d25eb8da75d6532ea103982e591c6`; exact-master CI run
+`33815734269` passed. Phase 8 is complete. Signed tag `v4.1.0`, release workflow run
+`33820284974`, Maven Central publication, clean remote V3/V4 consumer verification,
+production deployment `6255241071`, and GitHub Release `382405193` all resolve to
+that exact commit. The accepted contract selects one exact
 checkpoint-only full-backup model: a writer-ordered cut at
 durable sequence `B`, a pinned immutable checkpoint, and a separately versioned
 `gse-backup (1,0)` bundle with canonical SHA-256 content identity. An active WAL is
@@ -103,6 +108,21 @@ compare the complete oracle, continue mutation, checkpoint, close and reopen. Lo
 smoke, no-GCP fake control plane, exact-source CI and explicit confirmation precede
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
+
+## v4.1.0 current stable release
+
+Version `4.1.0` was published on September 3, 2026 Pacific time as the current stable
+release:
+
+- `io.github.patricklfdm:general-search-engine:4.1.0`;
+- `io.github.patricklfdm:general-search-engine-processor:4.1.0`; and
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0).
+
+V4.1 preserves live format `gse-durable (1,0)` and every inherited retrieval contract
+while adding explicit immutable backup, codec-free and typed verification,
+new-history restore, and offline plan-bound cleanup. It does not add replication,
+incremental backup, in-place restore, online migration, silent repair, or a third
+artifact. The next V4.x step is a separately frozen V4.2 storage-evolution contract.
 
 ## v4.0 completed development contract
 
@@ -199,10 +219,10 @@ resolve to the final protected commit. The append-only `v4.0.0-durable-cloud`
 registration remains bound to canonical run `33682157985` and source
 `fe2060b9a872e66ff0067be6e8b7c900f0099708`.
 
-## v4.0.0 current stable release
+## v4.0.0 prior stable release
 
-Version `4.0.0` was published on September 2, 2026 Pacific time as the current stable
-release:
+Version `4.0.0` was published on September 2, 2026 Pacific time and remains the
+immutable correct-durability foundation:
 
 - `io.github.patricklfdm:general-search-engine:4.0.0`;
 - `io.github.patricklfdm:general-search-engine-processor:4.0.0`; and

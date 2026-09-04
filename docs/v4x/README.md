@@ -7,11 +7,12 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phases 1–6 are accepted. The operational registration merged through protected
-PR #103 as `049b232`; exact-master CI run `33809198755` passed. Phase 7 is the active
-final-candidate, consumer, compatibility, Javadoc, artifact and reproducibility phase.
-All active coordinates are final `4.1.0`, while `4.0.0` remains the published stable
-release until Phase 8 succeeds.
+V4.1 Phases 0–8 are complete. The operational registration merged through protected
+PR #103 as `049b232`; the final candidate merged through protected PR #104 as
+`9db6efc`, and exact-master CI run `33815734269` passed. Signed tag `v4.1.0`, Maven
+Central publication, release workflow `33820284974`, production deployment
+`6255241071`, clean remote V3/V4 consumers, and GitHub Release `382405193` all resolve
+to that exact commit. V4.1 is the current stable release; V4.2 contract work is next.
 
 The accepted Phase 0 contract freezes a checkpoint-only full-backup protocol, a distinct
 `gse-backup (1,0)` bundle, new-history restore into an absent target, codec-free
@@ -48,6 +49,7 @@ and local-crash plus durable-cloud evidence as first-class architecture.
 - [V4.0-to-V4.1 migration guide](v4.1/MIGRATION_GUIDE.md)
 - [V4.1 Phase 7 release-candidate checklist](v4.1/PHASE_7_CHECKLIST.md)
 - [V4.1 release checklist](v4.1/RELEASE_CHECKLIST.md)
+- [V4.1 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0)
 - [Published V4.0 contract and evidence](../v4/README.md)
 
 ## Authority order
