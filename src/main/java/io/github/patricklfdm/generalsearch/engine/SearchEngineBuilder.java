@@ -8,6 +8,9 @@ import java.util.Objects;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableRestoreResult;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationResult;
 import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationReport;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
@@ -171,7 +174,7 @@ public final class SearchEngineBuilder<K, T> {
 
     /**
      * Synchronously performs a read-only typed semantic pass over one structurally
-     * valid V4.1 backup. Successful status proves bounded canonical decode and
+     * valid supported V4 backup. Successful status proves bounded canonical decode and
      * reconstruction of the builder's durable index configuration.
      *
      * @param backupDirectory immutable completed backup bundle
@@ -190,8 +193,8 @@ public final class SearchEngineBuilder<K, T> {
     }
 
     /**
-     * Synchronously restores a valid V4.1 backup into an absent local target as a
-     * new ordinary V4 durable history. Successful return proves durable publication,
+     * Synchronously restores a valid supported V4 backup into an absent local target
+     * as a new same-format durable history. Successful return proves durable publication,
      * codec-free structural validation and typed state reconstruction.
      *
      * @param backupDirectory immutable completed backup bundle
@@ -207,6 +210,56 @@ public final class SearchEngineBuilder<K, T> {
                 Objects.requireNonNull(backupDirectory, "backupDirectory"),
                 Objects.requireNonNull(targetConfig, "targetConfig"),
                 schema, List.copyOf(indexDefinitions));
+    }
+
+    /**
+     * Plans an offline, source-preserving durable migration without creating any
+     * target, staging, marker, cache or spill file. Phase 3 supports only the exact
+     * format-only {@code (1,0)} to {@code (1,1)} edge; codec, schema, key and index
+     * transforms remain unsupported. The transform is executed serially and its
+     * projection is bound into the returned immutable plan.
+     *
+     * @param sourceBuilder complete typed descriptor for the closed source
+     * @param request source, absent target, identity transform and hard bounds
+     * @return immutable authority that apply must fully revalidate
+     */
+    public <SK, ST> DurableMigrationPlan planDurableMigration(
+            SearchEngineBuilder<SK, ST> sourceBuilder,
+            DurableMigrationRequest<SK, ST, K, T> request
+    ) {
+        Objects.requireNonNull(sourceBuilder, "sourceBuilder");
+        return DurableMigrationOperations.plan(
+                sourceBuilder.buildSchema(),
+                List.copyOf(sourceBuilder.indexDefinitions),
+                buildSchema(), List.copyOf(indexDefinitions),
+                Objects.requireNonNull(request, "request"));
+    }
+
+    /**
+     * Applies an exact offline migration plan into an absent target directory.
+     * Source authority is held exclusively and preserved byte-for-byte; the caller
+     * transform is rerun and must reproduce the planned projection. Successful
+     * return proves atomic target publication, parent force, structural and typed
+     * verification, normal target open/close, source recheck and marker cleanup. It
+     * does not perform application cutover or dispose of the source.
+     *
+     * @param sourceBuilder complete typed descriptor for the closed source
+     * @param request exact request used while planning
+     * @param plan immutable plan to revalidate before publication
+     * @return completed target and external source/projection provenance
+     */
+    public <SK, ST> DurableMigrationResult applyDurableMigration(
+            SearchEngineBuilder<SK, ST> sourceBuilder,
+            DurableMigrationRequest<SK, ST, K, T> request,
+            DurableMigrationPlan plan
+    ) {
+        Objects.requireNonNull(sourceBuilder, "sourceBuilder");
+        return DurableMigrationOperations.apply(
+                sourceBuilder.buildSchema(),
+                List.copyOf(sourceBuilder.indexDefinitions),
+                buildSchema(), List.copyOf(indexDefinitions), config,
+                Objects.requireNonNull(request, "request"),
+                Objects.requireNonNull(plan, "plan"));
     }
 
     private SearchSchema<T, K> buildSchema() {

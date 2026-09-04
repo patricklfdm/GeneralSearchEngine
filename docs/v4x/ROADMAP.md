@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 2 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 3 active
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -228,5 +228,7 @@ storage formats are now published and immutable. V4.2 Phase 0 was accepted throu
 protected PR #106 as `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI
 run `33830552115` passed. Phase 1 merged through protected PR #107 as
 `8e9aec0b07921fe2b43169cf930c628561db40f9`; exact-master CI run `33834603280`
-passed. Phase 2 owns exact `1.1` physical bytes, dual-minor structural readers and
-codec-free format reports. It does not enable `1.1` production writes or migration.
+passed. Phase 2 merged through protected PR #108 as `85fc9a4`; exact-master CI run
+`33839044114` passed. Phase 3 owns explicit `1.1` production operation, exact-format
+backup/restore and the format-only `1.0` to `1.1` plan/apply edge. Changed
+codec/schema/key transforms and target-index rebuild remain Phase 4 work.

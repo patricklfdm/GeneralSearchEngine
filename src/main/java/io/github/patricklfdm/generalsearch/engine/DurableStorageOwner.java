@@ -46,9 +46,6 @@ final class DurableStorageOwner implements AutoCloseable {
             "gse-wal-([0-9]{20})\\.log");
 
     private static final long METADATA_MAGIC = 0x4753454d45544131L; // GSEMETA1
-    private static final short FORMAT_MAJOR = 1;
-    private static final short FORMAT_MINOR = 0;
-    private static final String FORMAT_FAMILY = "gse-durable";
     private static final int MAX_METADATA_BYTES = 64 * 1024 * 1024;
     private static final int MAX_STARTUP_INDEXES = 100_000;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
@@ -57,6 +54,7 @@ final class DurableStorageOwner implements AutoCloseable {
     private final FileChannel lockChannel;
     private final FileLock lock;
     private final UUID historyId;
+    private final DurableFormatContext format;
     private final long metadataBytes;
     private volatile DurableWal wal;
     private List<DurableWal> replayWals;
@@ -70,6 +68,7 @@ final class DurableStorageOwner implements AutoCloseable {
             FileChannel lockChannel,
             FileLock lock,
             UUID historyId,
+            DurableFormatContext format,
             DurableWal wal,
             long metadataBytes,
             List<DurableWal> replayWals,
@@ -79,6 +78,7 @@ final class DurableStorageOwner implements AutoCloseable {
         this.lockChannel = lockChannel;
         this.lock = lock;
         this.historyId = Objects.requireNonNull(historyId, "historyId");
+        this.format = Objects.requireNonNull(format, "format");
         this.wal = wal;
         this.metadataBytes = metadataBytes;
         this.replayWals = List.copyOf(replayWals);
@@ -91,12 +91,8 @@ final class DurableStorageOwner implements AutoCloseable {
             int codecVersion,
             List<DurableIndexDescriptor> startupIndexes
     ) {
-        if (!config.format().equals(DurableStorageFormat.V1_0)) {
-            throw failure(
-                    DurabilityException.Reason.INCOMPATIBLE_STORAGE,
-                    "live format opening is not admitted by this implementation phase",
-                    null);
-        }
+        DurableFormatContext configuredFormat = DurableFormatContext.from(
+                config.format());
         Path configured = config.directory().toAbsolutePath().normalize();
         if (Files.isSymbolicLink(config.directory())
                 || Files.isSymbolicLink(configured)) {
@@ -144,7 +140,7 @@ final class DurableStorageOwner implements AutoCloseable {
                             startupIndexes,
                             historyId);
                     long initialBytes = metadata.length
-                            + (long) DurableWal.GENERATION_HEADER_BYTES;
+                            + configuredFormat.walHeaderBytes();
                     if (initialBytes > config.maxRetainedBytes()) {
                         throw failure(
                                 DurabilityException.Reason.CAPACITY_EXCEEDED,
@@ -154,6 +150,7 @@ final class DurableStorageOwner implements AutoCloseable {
                     writeMetadata(directory, metadata);
                     wal = DurableWal.create(
                             directory.resolve(WAL_FILE),
+                            configuredFormat,
                             historyId,
                             DurableWal.INITIAL_GENERATION,
                             1L);
@@ -163,6 +160,7 @@ final class DurableStorageOwner implements AutoCloseable {
                             lockChannel,
                             lock,
                             historyId,
+                            configuredFormat,
                             wal,
                             metadata.length,
                             List.of(wal),
@@ -181,6 +179,7 @@ final class DurableStorageOwner implements AutoCloseable {
                         codecId,
                         codecVersion,
                         startupIndexes);
+                DurableFormatContext format = metadata.format();
                 long metadataSize = Files.size(metadataPath);
                 long retainedSize = retainedBytes(directory);
                 if (retainedSize > config.maxRetainedBytes()) {
@@ -194,6 +193,7 @@ final class DurableStorageOwner implements AutoCloseable {
                                 ? DurableCheckpoint.readManifest(
                                         directory.resolve(
                                                 DurableCheckpoint.MANIFEST_FILE),
+                                        format,
                                         metadata.historyId())
                                 : null;
                 if (checkpointManifest != null
@@ -213,7 +213,7 @@ final class DurableStorageOwner implements AutoCloseable {
                 for (int index = 0; index < walMembers.size(); index++) {
                     WalMember member = walMembers.get(index);
                     DurableWal.Header header = DurableWal.inspectHeader(
-                            member.path(), metadata.historyId());
+                            member.path(), format, metadata.historyId());
                     if (header.generation() != member.generation()
                             || (previousGeneration != 0
                             && member.generation() != previousGeneration + 1)
@@ -239,6 +239,7 @@ final class DurableStorageOwner implements AutoCloseable {
                     }
                     DurableWal.OpenResult opened = DurableWal.open(
                             member.path(),
+                            format,
                             metadata.historyId(),
                             member.generation(),
                             header.firstSequence(),
@@ -264,6 +265,7 @@ final class DurableStorageOwner implements AutoCloseable {
                         lockChannel,
                         lock,
                         metadata.historyId(),
+                        format,
                         wal,
                         metadataSize,
                         openedWals,
@@ -330,6 +332,10 @@ final class DurableStorageOwner implements AutoCloseable {
 
     UUID historyId() {
         return historyId;
+    }
+
+    DurableFormatContext format() {
+        return format;
     }
 
     DurableCheckpoint.Manifest manifest() {
@@ -399,7 +405,7 @@ final class DurableStorageOwner implements AutoCloseable {
         }
         if (maxRetainedBytes <= 0
                 || retainedBytes() > maxRetainedBytes
-                        - DurableWal.GENERATION_HEADER_BYTES) {
+                        - format.walHeaderBytes()) {
             throw new DurabilityException(
                     DurabilityException.Reason.CAPACITY_EXCEEDED,
                     "checkpoint WAL generation exceeds retained-byte limit");
@@ -413,7 +419,8 @@ final class DurableStorageOwner implements AutoCloseable {
             long nextGeneration = Math.incrementExact(previous.generation());
             Path nextPath = directory.resolve(walFile(nextGeneration));
             next = DurableWal.create(
-                    nextPath, historyId, nextGeneration, nextFirstSequence);
+                    nextPath, format, historyId,
+                    nextGeneration, nextFirstSequence);
             forceDirectory(directory);
             DurableCrashHooks.reach(
                     "v4-checkpoint-after-new-wal-header-force-v1");
@@ -459,7 +466,7 @@ final class DurableStorageOwner implements AutoCloseable {
                             0,
                             cut.generation(),
                             cut.firstSequence()),
-                    historyId).length;
+                    format, historyId).length;
             long available = Math.subtractExact(
                     Math.subtractExact(
                             config.maxRetainedBytes(), retainedBytes()),
@@ -469,10 +476,11 @@ final class DurableStorageOwner implements AutoCloseable {
                     capture,
                     config,
                     schema,
+                    format,
                     historyId,
                     available);
             DurableCheckpoint.Loaded<K, T> validated = DurableCheckpoint.read(
-                    stagingData, config, schema, historyId, null);
+                    stagingData, config, schema, format, historyId, null);
             if (validated.sequence() != capture.sequence()
                     || validated.nextDocId() != capture.nextDocId()
                     || !validated.documentIds().equals(capture.documentIds())
@@ -496,7 +504,7 @@ final class DurableStorageOwner implements AutoCloseable {
                             cut.generation(),
                             cut.firstSequence());
             byte[] manifestBytes = DurableCheckpoint.encodeManifest(
-                    nextManifest, historyId);
+                    nextManifest, format, historyId);
             if (Math.addExact(retainedBytes(), manifestBytes.length)
                     > config.maxRetainedBytes()) {
                 throw new DurabilityException(
@@ -783,11 +791,18 @@ final class DurableStorageOwner implements AutoCloseable {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (DataOutputStream output = new DataOutputStream(bytes)) {
             output.writeLong(METADATA_MAGIC);
-            output.writeShort(FORMAT_MAJOR);
-            output.writeShort(FORMAT_MINOR);
+            DurableFormatContext format = DurableFormatContext.from(config.format());
+            output.writeShort(DurableFormatContext.MAJOR);
+            output.writeShort(format.minor());
             output.writeLong(historyId.getMostSignificantBits());
             output.writeLong(historyId.getLeastSignificantBits());
-            writeString(output, FORMAT_FAMILY);
+            writeString(output, DurableFormatContext.FAMILY);
+            if (format.hasProfile()) {
+                byte[] profile = format.profile();
+                output.writeInt(profile.length);
+                output.write(profile);
+                output.write(format.profileDigest());
+            }
             writeString(output, config.storageIdentity());
             writeString(output, config.schemaIdentity());
             writeString(output, codecId);
@@ -845,6 +860,21 @@ final class DurableStorageOwner implements AutoCloseable {
                     reader.readLong("history most"),
                     reader.readLong("history least"));
             String family = reader.readString(128, false, "format family");
+            DurableFormatContext format = DurableFormatContext.from(
+                    major, minor, family);
+            if (format.hasProfile()) {
+                int profileLength = reader.readInt("format profile length");
+                if (profileLength < 12 || profileLength > 4096) {
+                    throw incompatible("metadata format profile length is invalid", null);
+                }
+                byte[] profile = reader.readBytes(
+                        profileLength, "format profile");
+                byte[] profileDigest = reader.readBytes(
+                        32, "format profile digest");
+                if (!format.matchesProfile(profile, profileDigest)) {
+                    throw incompatible("metadata format profile is incompatible", null);
+                }
+            }
             String storageIdentity = reader.readString(
                     128, false, "storage identity");
             String schemaIdentity = reader.readString(
@@ -881,6 +911,7 @@ final class DurableStorageOwner implements AutoCloseable {
                     minor,
                     historyId,
                     family,
+                    format,
                     storageIdentity,
                     schemaIdentity,
                     codecId,
@@ -907,9 +938,7 @@ final class DurableStorageOwner implements AutoCloseable {
             List<DurableIndexDescriptor> startupIndexes
     ) {
         if (metadata.magic() != METADATA_MAGIC
-                || metadata.major() != FORMAT_MAJOR
-                || metadata.minor() != FORMAT_MINOR
-                || !metadata.family().equals(FORMAT_FAMILY)
+                || !metadata.format().publicFormat().equals(config.format())
                 || metadata.historyId().equals(new UUID(0L, 0L))) {
             throw incompatible("durable metadata format identity is incompatible", null);
         }
@@ -1142,6 +1171,7 @@ final class DurableStorageOwner implements AutoCloseable {
             short minor,
             UUID historyId,
             String family,
+            DurableFormatContext format,
             String storageIdentity,
             String schemaIdentity,
             String codecId,
@@ -1156,6 +1186,7 @@ final class DurableStorageOwner implements AutoCloseable {
     ) {
         Metadata {
             Objects.requireNonNull(historyId, "historyId");
+            Objects.requireNonNull(format, "format");
             indexes = List.copyOf(indexes);
         }
     }
@@ -1207,6 +1238,13 @@ final class DurableStorageOwner implements AutoCloseable {
         private long readLong(String name) {
             requireRemaining(Long.BYTES, name);
             return bytes.getLong();
+        }
+
+        private byte[] readBytes(int length, String name) {
+            requireRemaining(length, name);
+            byte[] value = new byte[length];
+            bytes.get(value);
+            return value;
         }
 
         private String readString(int maximum, boolean allowEmpty, String name) {

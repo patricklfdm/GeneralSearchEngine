@@ -46,8 +46,6 @@ final class DurableCheckpoint {
 
     private static final long CHECKPOINT_MAGIC = 0x47534543484b3130L; // GSECHK10
     private static final long MANIFEST_MAGIC = 0x4753454d414e3130L; // GSEMAN10
-    private static final short FORMAT_MAJOR = 1;
-    private static final short FORMAT_MINOR = 0;
     private static final int MAX_INDEXES = 100_000;
     private static final int MAX_MANIFEST_BYTES = 16 * 1024;
 
@@ -67,6 +65,7 @@ final class DurableCheckpoint {
             Capture<K, T> capture,
             DurableStorageConfig<K, T> config,
             SearchSchema<T, K> schema,
+            DurableFormatContext format,
             UUID historyId,
             long maximumBytes
     ) throws IOException {
@@ -88,10 +87,13 @@ final class DurableCheckpoint {
             DataOutputStream output = new DataOutputStream(
                     new CheckedOutputStream(bounded, checksum));
             output.writeLong(CHECKPOINT_MAGIC);
-            output.writeShort(FORMAT_MAJOR);
-            output.writeShort(FORMAT_MINOR);
+            output.writeShort(DurableFormatContext.MAJOR);
+            output.writeShort(format.minor());
             output.writeLong(historyId.getMostSignificantBits());
             output.writeLong(historyId.getLeastSignificantBits());
+            if (format.hasProfile()) {
+                output.write(format.profileDigest());
+            }
             output.writeLong(capture.sequence());
             output.writeInt(capture.nextDocId());
             int liveDocuments = capture.snapshot().activeDocuments().cardinality();
@@ -155,11 +157,13 @@ final class DurableCheckpoint {
             Path path,
             DurableStorageConfig<K, T> config,
             SearchSchema<T, K> schema,
+            DurableFormatContext format,
             UUID expectedHistoryId,
             Manifest expectedManifest
     ) throws IOException {
         long size = Files.size(path);
-        if (size < 56 || size > config.maxRetainedBytes()) {
+        if (size < format.checkpointFixedBytes()
+                || size > config.maxRetainedBytes()) {
             throw corrupt("checkpoint has an invalid size", null);
         }
         if (expectedManifest != null
@@ -178,13 +182,16 @@ final class DurableCheckpoint {
             short major = input.readShort();
             short minor = input.readShort();
             UUID historyId = new UUID(input.readLong(), input.readLong());
+            byte[] profileDigest = format.hasProfile()
+                    ? input.readNBytes(32) : new byte[0];
             long sequence = input.readLong();
             int nextDocId = input.readInt();
             int liveDocuments = input.readInt();
             int indexCount = input.readInt();
             if (magic != CHECKPOINT_MAGIC
-                    || major != FORMAT_MAJOR
-                    || minor != FORMAT_MINOR
+                    || major != DurableFormatContext.MAJOR
+                    || minor != format.minor()
+                    || !format.matchesDigest(profileDigest)
                     || !historyId.equals(expectedHistoryId)
                     || sequence < 0
                     || nextDocId < 0
@@ -272,15 +279,22 @@ final class DurableCheckpoint {
         }
     }
 
-    static byte[] encodeManifest(Manifest manifest, UUID historyId) {
+    static byte[] encodeManifest(
+            Manifest manifest,
+            DurableFormatContext format,
+            UUID historyId
+    ) {
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (DataOutputStream output = new DataOutputStream(bytes)) {
                 output.writeLong(MANIFEST_MAGIC);
-                output.writeShort(FORMAT_MAJOR);
-                output.writeShort(FORMAT_MINOR);
+                output.writeShort(DurableFormatContext.MAJOR);
+                output.writeShort(format.minor());
                 output.writeLong(historyId.getMostSignificantBits());
                 output.writeLong(historyId.getLeastSignificantBits());
+                if (format.hasProfile()) {
+                    output.write(format.profileDigest());
+                }
                 output.writeLong(manifest.checkpointSequence());
                 output.writeLong(manifest.checkpointBytes());
                 output.writeInt(manifest.checkpointChecksum());
@@ -301,9 +315,13 @@ final class DurableCheckpoint {
         }
     }
 
-    static Manifest readManifest(Path path, UUID expectedHistoryId) throws IOException {
+    static Manifest readManifest(
+            Path path,
+            DurableFormatContext format,
+            UUID expectedHistoryId
+    ) throws IOException {
         long size = Files.size(path);
-        if (size < 72 || size > MAX_MANIFEST_BYTES) {
+        if (size < format.manifestMinimumBytes() || size > MAX_MANIFEST_BYTES) {
             throw corrupt("checkpoint manifest has an invalid size", null);
         }
         byte[] encoded = Files.readAllBytes(path);
@@ -325,6 +343,8 @@ final class DurableCheckpoint {
             short major = input.readShort();
             short minor = input.readShort();
             UUID historyId = new UUID(input.readLong(), input.readLong());
+            byte[] profileDigest = format.hasProfile()
+                    ? input.readNBytes(32) : new byte[0];
             long checkpointSequence = input.readLong();
             long checkpointBytes = input.readLong();
             int checkpointChecksum = input.readInt();
@@ -334,8 +354,9 @@ final class DurableCheckpoint {
             long walFirstSequence = input.readLong();
             if (input.available() != 0
                     || magic != MANIFEST_MAGIC
-                    || major != FORMAT_MAJOR
-                    || minor != FORMAT_MINOR
+                    || major != DurableFormatContext.MAJOR
+                    || minor != format.minor()
+                    || !format.matchesDigest(profileDigest)
                     || !historyId.equals(expectedHistoryId)
                     || checkpointSequence < 0
                     || checkpointBytes < 56

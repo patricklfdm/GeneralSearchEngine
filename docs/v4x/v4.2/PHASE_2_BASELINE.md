@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 2 local baseline
 
-- **Status:** Local acceptance complete; protected acceptance pending
+- **Status:** Accepted
 - **Source:** `feat/v4.2-phase2-format-inspection` working tree
 - **Scope:** Exact format bytes, dual-minor structural inspection, compatibility
 
@@ -81,8 +81,8 @@ The completed local gate set is:
 CI now executes the Phase 2 gate after reactor tests and independently compiles and
 runs the Python exact-format fixtures in the no-GCP job.
 
-## Remaining acceptance
+## Protected acceptance
 
-Protected PR CI and exact-master evidence remain required before Phase 2 closes.
-Phase 3 remains the sole owner of production `1.1` create/open/write and format-only
-migration.
+Phase 2 merged through protected PR #108 as `85fc9a4`; exact-master CI run
+`33839044114` passed. Phase 3 is now the sole owner of production `1.1`
+create/open/write and format-only migration.

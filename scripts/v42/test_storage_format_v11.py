@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import struct
 from pathlib import Path
 
 from scripts.v42.storage_format_v11 import (
@@ -10,6 +11,10 @@ from scripts.v42.storage_format_v11 import (
     inspect_backup,
     inspect_store,
     load_hex_fixture,
+    parse_metadata,
+    parse_wal,
+    checked,
+    FRAME_MAGIC,
 )
 
 
@@ -62,6 +67,26 @@ class StorageFormatV11Test(unittest.TestCase):
             (backup / "unexpected").write_text("x", encoding="ascii")
             with self.assertRaises(StorageFormatError):
                 inspect_backup(backup)
+
+    def test_nonempty_production_wal_frames_are_independently_checked(self) -> None:
+        value = fixture()
+        metadata = parse_metadata(value.live["gse-metadata"])
+        empty = value.live[
+            "gse-wal-00000000000000000002.log"
+        ]
+        payload = b"phase3-production-frame"
+        frame_length = 28 + len(payload) + 4
+        frame = checked(struct.pack(
+            ">IhhIqBBhI", FRAME_MAGIC, 1, 1, frame_length,
+            8, 1, 0, 0, len(payload)
+        ) + payload)
+        result = parse_wal(empty + frame, metadata)
+        self.assertEqual(1, result["records"])
+        self.assertEqual(8, result["lastSequence"])
+        damaged = bytearray(empty + frame)
+        damaged[-1] ^= 1
+        with self.assertRaisesRegex(StorageFormatError, "CRC32C"):
+            parse_wal(bytes(damaged), metadata)
 
 
 if __name__ == "__main__":

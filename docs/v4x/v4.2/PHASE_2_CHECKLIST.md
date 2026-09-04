@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 2 checklist
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted
 - **Scope:** Exact `1.1` format bytes and codec-free dual-minor inspection
 
 ## Entry
@@ -68,9 +68,9 @@
 
 ## Protected acceptance
 
-- [ ] Phase 2 pull request passes all required checks.
-- [ ] Phase 2 merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded.
+- [x] Phase 2 pull request #108 passed all required checks.
+- [x] Phase 2 merged to protected `master` as `85fc9a4`.
+- [x] Exact-master CI run `33839044114` passed.
 
 Phase 3 may begin only after protected acceptance. It owns explicit fresh `1.1`
 creation/open/write, exact-format backup/restore continuation, and format-only

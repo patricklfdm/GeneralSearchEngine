@@ -26,10 +26,8 @@ final class DurableWal implements AutoCloseable {
 
     private static final long WAL_MAGIC = 0x47534557414c3130L; // GSEWAL10
     private static final int FRAME_MAGIC = 0x47534546; // GSEF
-    private static final short FORMAT_MAJOR = 1;
-    private static final short FORMAT_MINOR = 0;
-
     private final FileChannel channel;
+    private final DurableFormatContext format;
     private final UUID historyId;
     private final long generation;
     private final long firstSequence;
@@ -38,6 +36,7 @@ final class DurableWal implements AutoCloseable {
 
     private DurableWal(
             FileChannel channel,
+            DurableFormatContext format,
             UUID historyId,
             long generation,
             long firstSequence,
@@ -45,9 +44,10 @@ final class DurableWal implements AutoCloseable {
             long position
     ) {
         this.channel = channel;
+        this.format = java.util.Objects.requireNonNull(format, "format");
         this.historyId = java.util.Objects.requireNonNull(historyId, "historyId");
         if (generation <= 0 || firstSequence <= 0 || records < 0
-                || position < GENERATION_HEADER_BYTES) {
+                || position < format.walHeaderBytes()) {
             throw new IllegalArgumentException("invalid WAL generation identity");
         }
         this.generation = generation;
@@ -58,6 +58,7 @@ final class DurableWal implements AutoCloseable {
 
     static DurableWal create(
             Path path,
+            DurableFormatContext format,
             UUID historyId,
             long generation,
             long firstSequence
@@ -70,17 +71,18 @@ final class DurableWal implements AutoCloseable {
         boolean success = false;
         try {
             ByteBuffer header = generationHeader(
-                    historyId, generation, firstSequence);
+                    format, historyId, generation, firstSequence);
             writeFully(channel, header);
             channel.force(true);
             success = true;
             return new DurableWal(
                     channel,
+                    format,
                     historyId,
                     generation,
                     firstSequence,
                     0,
-                    GENERATION_HEADER_BYTES);
+                    format.walHeaderBytes());
         } finally {
             if (!success) {
                 channel.close();
@@ -90,6 +92,7 @@ final class DurableWal implements AutoCloseable {
 
     static OpenResult open(
             Path path,
+            DurableFormatContext format,
             UUID expectedHistoryId,
             long expectedGeneration,
             long expectedFirstSequence,
@@ -102,13 +105,13 @@ final class DurableWal implements AutoCloseable {
         boolean success = false;
         try {
             long physicalBytes = channel.size();
-            if (physicalBytes < GENERATION_HEADER_BYTES) {
+            if (physicalBytes < format.walHeaderBytes()) {
                 throw corrupt("WAL generation header is truncated", null);
             }
             ByteBuffer generation = readFully(
-                    channel, 0, GENERATION_HEADER_BYTES);
+                    channel, 0, format.walHeaderBytes());
             validateGenerationHeader(
-                    generation.array(),
+                    generation.array(), format,
                     expectedHistoryId,
                     expectedGeneration,
                     expectedFirstSequence);
@@ -116,6 +119,7 @@ final class DurableWal implements AutoCloseable {
             Scan scan = scan(
                     channel,
                     physicalBytes,
+                    format,
                     expectedFirstSequence,
                     allowIncompleteTail,
                     null);
@@ -131,6 +135,7 @@ final class DurableWal implements AutoCloseable {
             channel.position(scan.boundary());
             DurableWal wal = new DurableWal(
                     channel,
+                    format,
                     expectedHistoryId,
                     expectedGeneration,
                     expectedFirstSequence,
@@ -150,13 +155,18 @@ final class DurableWal implements AutoCloseable {
         }
     }
 
-    static Header inspectHeader(Path path, UUID expectedHistoryId) throws IOException {
+    static Header inspectHeader(
+            Path path,
+            DurableFormatContext format,
+            UUID expectedHistoryId
+    ) throws IOException {
         try (FileChannel channel = FileChannel.open(path, StandardOpenOption.READ)) {
-            if (channel.size() < GENERATION_HEADER_BYTES) {
+            if (channel.size() < format.walHeaderBytes()) {
                 throw corrupt("WAL generation header is truncated", null);
             }
             return decodeGenerationHeader(
-                    readFully(channel, 0, GENERATION_HEADER_BYTES).array(),
+                    readFully(channel, 0, format.walHeaderBytes()).array(),
+                    format,
                     expectedHistoryId);
         }
     }
@@ -213,7 +223,7 @@ final class DurableWal implements AutoCloseable {
     }
 
     long dataBytes() {
-        return Math.max(0L, position() - GENERATION_HEADER_BYTES);
+        return Math.max(0L, position() - format.walHeaderBytes());
     }
 
     void force() {
@@ -230,12 +240,14 @@ final class DurableWal implements AutoCloseable {
     void forEachFrame(Consumer<Frame> consumer) {
         try {
             ByteBuffer generation = readFully(
-                    channel, 0, GENERATION_HEADER_BYTES);
+                    channel, 0, format.walHeaderBytes());
             validateGenerationHeader(
-                    generation.array(), historyId, this.generation, firstSequence);
+                    generation.array(), format, historyId,
+                    this.generation, firstSequence);
             Scan replay = scan(
                     channel,
                     channel.position(),
+                    format,
                     firstSequence,
                     false,
                     java.util.Objects.requireNonNull(consumer, "consumer"));
@@ -268,8 +280,8 @@ final class DurableWal implements AutoCloseable {
         ByteBuffer header = ByteBuffer.allocate(FRAME_HEADER_BYTES)
                 .order(ByteOrder.BIG_ENDIAN);
         header.putInt(FRAME_MAGIC);
-        header.putShort(FORMAT_MAJOR);
-        header.putShort(FORMAT_MINOR);
+        header.putShort(DurableFormatContext.MAJOR);
+        header.putShort(format.minor());
         header.putInt(frameLength);
         header.putLong(unit.sequence());
         header.put(unit.unit().type());
@@ -304,21 +316,26 @@ final class DurableWal implements AutoCloseable {
     }
 
     private static ByteBuffer generationHeader(
+            DurableFormatContext format,
             UUID historyId,
             long generation,
             long firstSequence
     ) {
-        ByteBuffer header = ByteBuffer.allocate(GENERATION_HEADER_BYTES)
+        ByteBuffer header = ByteBuffer.allocate(format.walHeaderBytes())
                 .order(ByteOrder.BIG_ENDIAN);
         header.putLong(WAL_MAGIC);
-        header.putShort(FORMAT_MAJOR);
-        header.putShort(FORMAT_MINOR);
+        header.putShort(DurableFormatContext.MAJOR);
+        header.putShort(format.minor());
         header.putLong(historyId.getMostSignificantBits());
         header.putLong(historyId.getLeastSignificantBits());
+        if (format.hasProfile()) {
+            header.put(format.profileDigest());
+        }
         header.putLong(generation);
         header.putLong(firstSequence);
         CRC32C checksum = new CRC32C();
-        checksum.update(header.array(), 0, GENERATION_HEADER_BYTES - Integer.BYTES);
+        checksum.update(header.array(), 0,
+                format.walHeaderBytes() - Integer.BYTES);
         header.putInt((int) checksum.getValue());
         header.flip();
         return header;
@@ -326,11 +343,12 @@ final class DurableWal implements AutoCloseable {
 
     private static void validateGenerationHeader(
             byte[] encoded,
+            DurableFormatContext format,
             UUID expectedHistoryId,
             long expectedGeneration,
             long expectedFirstSequence
     ) {
-        Header decoded = decodeGenerationHeader(encoded, expectedHistoryId);
+        Header decoded = decodeGenerationHeader(encoded, format, expectedHistoryId);
         if (decoded.generation() != expectedGeneration
                 || decoded.firstSequence() != expectedFirstSequence) {
             throw corrupt("WAL generation identity is invalid", null);
@@ -339,22 +357,29 @@ final class DurableWal implements AutoCloseable {
 
     private static Header decodeGenerationHeader(
             byte[] encoded,
+            DurableFormatContext format,
             UUID expectedHistoryId
     ) {
         CRC32C checksum = new CRC32C();
-        checksum.update(encoded, 0, GENERATION_HEADER_BYTES - Integer.BYTES);
+        checksum.update(encoded, 0, format.walHeaderBytes() - Integer.BYTES);
         ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
         long magic = header.getLong();
         short major = header.getShort();
         short minor = header.getShort();
         UUID historyId = new UUID(header.getLong(), header.getLong());
+        byte[] profileDigest = format.hasProfile() ? new byte[32] : new byte[0];
+        if (format.hasProfile()) {
+            header.get(profileDigest);
+        }
         long generation = header.getLong();
         long firstSequence = header.getLong();
         int storedChecksum = header.getInt();
         if ((int) checksum.getValue() != storedChecksum) {
             throw corrupt("WAL generation header checksum mismatch", null);
         }
-        if (magic != WAL_MAGIC || major != FORMAT_MAJOR || minor != FORMAT_MINOR) {
+        if (magic != WAL_MAGIC || major != DurableFormatContext.MAJOR
+                || minor != format.minor()
+                || !format.matchesDigest(profileDigest)) {
             throw corrupt("WAL generation format identity is invalid", null);
         }
         if (!historyId.equals(expectedHistoryId)) {
@@ -369,11 +394,12 @@ final class DurableWal implements AutoCloseable {
     private static Scan scan(
             FileChannel channel,
             long physicalBytes,
+            DurableFormatContext format,
             long firstSequence,
             boolean allowIncompleteTail,
             Consumer<Frame> consumer
     ) throws IOException {
-        long boundary = GENERATION_HEADER_BYTES;
+        long boundary = format.walHeaderBytes();
         long expectedSequence = firstSequence;
         long records = 0;
         while (boundary < physicalBytes) {
@@ -381,7 +407,7 @@ final class DurableWal implements AutoCloseable {
             if (remaining < FRAME_HEADER_BYTES) {
                 byte[] prefix = readFully(
                         channel, boundary, Math.toIntExact(remaining)).array();
-                validateIncompleteHeaderPrefix(prefix, expectedSequence);
+                validateIncompleteHeaderPrefix(prefix, format, expectedSequence);
                 if (!allowIncompleteTail) {
                     throw corrupt("WAL became truncated during recovery", null);
                 }
@@ -390,7 +416,8 @@ final class DurableWal implements AutoCloseable {
 
             byte[] headerBytes = readFully(
                     channel, boundary, FRAME_HEADER_BYTES).array();
-            FrameHeader header = decodeFrameHeader(headerBytes, expectedSequence);
+            FrameHeader header = decodeFrameHeader(
+                    headerBytes, format, expectedSequence);
             if (remaining < header.frameLength()) {
                 if (!allowIncompleteTail) {
                     throw corrupt("WAL became truncated during recovery", null);
@@ -436,6 +463,7 @@ final class DurableWal implements AutoCloseable {
 
     private static FrameHeader decodeFrameHeader(
             byte[] encoded,
+            DurableFormatContext format,
             long expectedSequence
     ) {
         ByteBuffer header = ByteBuffer.wrap(encoded).order(ByteOrder.BIG_ENDIAN);
@@ -448,7 +476,8 @@ final class DurableWal implements AutoCloseable {
         byte flags = header.get();
         short reserved = header.getShort();
         int payloadLength = header.getInt();
-        if (magic != FRAME_MAGIC || major != FORMAT_MAJOR || minor != FORMAT_MINOR) {
+        if (magic != FRAME_MAGIC || major != DurableFormatContext.MAJOR
+                || minor != format.minor()) {
             throw corrupt("WAL frame format identity is invalid", null);
         }
         if (frameLength < FRAME_HEADER_BYTES + FRAME_TRAILER_BYTES
@@ -473,13 +502,14 @@ final class DurableWal implements AutoCloseable {
 
     private static void validateIncompleteHeaderPrefix(
             byte[] prefix,
+            DurableFormatContext format,
             long expectedSequence
     ) {
         ByteBuffer stable = ByteBuffer.allocate(FRAME_HEADER_BYTES)
                 .order(ByteOrder.BIG_ENDIAN);
         stable.putInt(FRAME_MAGIC);
-        stable.putShort(FORMAT_MAJOR);
-        stable.putShort(FORMAT_MINOR);
+        stable.putShort(DurableFormatContext.MAJOR);
+        stable.putShort(format.minor());
         byte[] stableBytes = stable.array();
         int stablePrefix = Math.min(prefix.length, 8);
         if (!Arrays.equals(

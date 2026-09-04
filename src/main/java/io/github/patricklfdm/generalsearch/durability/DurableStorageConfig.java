@@ -164,8 +164,8 @@ public final class DurableStorageConfig<K, T> {
 
         /**
          * Selects the exact expected live format without requesting an upgrade.
-         * V4.2 Phase 2 exposes the value but admits {@code (1,1)} opening only in
-         * the separately reviewed Phase 3 implementation.
+         * The default remains {@code (1,0)}; explicit {@code (1,1)} creates or
+         * opens only exact minor-1 authority and never rewrites a minor-0 store.
          */
         public Builder<K, T> format(DurableStorageFormat value) {
             format = Objects.requireNonNull(value, "format");

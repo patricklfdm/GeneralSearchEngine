@@ -35,7 +35,7 @@ import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 
-/** Internal publisher for a fresh ordinary {@code gse-durable (1,0)} history. */
+/** Internal publisher for a fresh same-format ordinary durable history. */
 final class DurableRestoreWriter {
     private static final long OPERATION_MAGIC = 0x4753454f50313030L; // GSEOP100
     private static final byte RESTORE_OPERATION = 2;
@@ -83,6 +83,11 @@ final class DurableRestoreWriter {
                     inspection.report().structuralReport().sequence(), null);
         }
         DurableStorageOwner.Metadata sourceMetadata = inspection.metadata();
+        DurableFormatContext format = sourceMetadata.format();
+        if (!targetConfig.format().equals(format.publicFormat())) {
+            throw operation(DurableOperationException.Reason.IDENTITY_MISMATCH,
+                    OptionalLong.of(inspection.authority().sequence()), null);
+        }
         List<DurableIndexDescriptor> startupIndexes = startupDefinitions.stream()
                 .map(DurableIndexDescriptor::from).toList();
         String codecIdentity = targetConfig.codec().codecId();
@@ -144,7 +149,8 @@ final class DurableRestoreWriter {
                     inspection.loaded().nextDocId(), sequence,
                     inspection.loaded().indexes());
             DurableCheckpoint.Written written = DurableCheckpoint.write(
-                    checkpointStaging, capture, targetConfig, schema, newHistory,
+                    checkpointStaging, capture, targetConfig, schema, format,
+                    newHistory,
                     targetConfig.maxRetainedBytes());
             moveAtomic(checkpointStaging, staging.resolve(checkpointFile));
             DurableCrashHooks.reach("v41-restore-after-checkpoint-rename-v1");
@@ -153,7 +159,7 @@ final class DurableRestoreWriter {
             String walFile = DurableStorageOwner.walFile(
                     RESTORED_WAL_GENERATION);
             try (DurableWal ignored = DurableWal.create(staging.resolve(walFile),
-                    newHistory, RESTORED_WAL_GENERATION, firstSequence)) {
+                    format, newHistory, RESTORED_WAL_GENERATION, firstSequence)) {
                 // create() forces the canonical empty generation header.
             }
             DurableCrashHooks.reach("v41-restore-after-wal-force-v1");
@@ -166,7 +172,8 @@ final class DurableRestoreWriter {
             try (FileChannel channel = FileChannel.open(manifestStaging,
                     StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
                 writeFully(channel, ByteBuffer.wrap(
-                        DurableCheckpoint.encodeManifest(manifest, newHistory)));
+                        DurableCheckpoint.encodeManifest(
+                                manifest, format, newHistory)));
                 DurableIoFaults.fail("v41-restore-before-manifest-force");
                 channel.force(true);
             }
@@ -261,7 +268,8 @@ final class DurableRestoreWriter {
                 config.codec().codecId(), config.codec().codecVersion(),
                 startupIndexes);
         DurableCheckpoint.Manifest rereadManifest = DurableCheckpoint.readManifest(
-                directory.resolve(DurableCheckpoint.MANIFEST_FILE), history);
+                directory.resolve(DurableCheckpoint.MANIFEST_FILE),
+                metadata.format(), history);
         if (!rereadManifest.equals(manifest)) {
             throw new DurabilityException(
                     DurabilityException.Reason.CORRUPT_CHECKPOINT,
@@ -269,7 +277,7 @@ final class DurableRestoreWriter {
         }
         DurableWal.Header wal = DurableWal.inspectHeader(
                 directory.resolve(DurableStorageOwner.walFile(
-                        RESTORED_WAL_GENERATION)), history);
+                        RESTORED_WAL_GENERATION)), metadata.format(), history);
         if (wal.generation() != RESTORED_WAL_GENERATION
                 || wal.firstSequence() != manifest.walFirstSequence()) {
             throw new DurabilityException(DurabilityException.Reason.CORRUPT_WAL,
@@ -277,7 +285,7 @@ final class DurableRestoreWriter {
         }
         DurableCheckpoint.Loaded<K, T> loaded = DurableCheckpoint.read(
                 directory.resolve(manifest.checkpointFile()), config, schema,
-                history, manifest);
+                metadata.format(), history, manifest);
         DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(config,
                 schema, startupIndexes, loaded, List.of(), false);
         if (loaded.sequence() != source.sequence()

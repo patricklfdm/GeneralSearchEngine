@@ -79,6 +79,9 @@ jobs:
       - name: Exercise V4.2 exact format and codec-free inspection
         run: scripts/verify-v42-phase2-format.sh --skip-build
 
+      - name: Exercise V4.2 production V1.1 and format-only migration
+        run: scripts/verify-v42-phase3-format-migration.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -200,6 +203,7 @@ jobs:
           bash -n scripts/verify-v41-phase6-evidence.sh
           bash -n scripts/verify-v41-phase7-release.sh
           bash -n scripts/verify-v42-phase2-format.sh
+          bash -n scripts/verify-v42-phase3-format-migration.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh

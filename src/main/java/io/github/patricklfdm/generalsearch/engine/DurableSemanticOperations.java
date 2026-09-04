@@ -85,6 +85,7 @@ final class DurableSemanticOperations {
         DurableStorageConfig<K, T> decodeConfig;
         try {
             decodeConfig = DurableStorageConfig.builder(directory, expected.codec())
+                    .format(metadata.format().publicFormat())
                     .storageIdentity(metadata.storageIdentity())
                     .schemaIdentity(metadata.schemaIdentity())
                     .maxEncodedKeyBytes(metadata.maxKeyBytes())
@@ -104,7 +105,8 @@ final class DurableSemanticOperations {
         try {
             loaded = DurableCheckpoint.read(
                     directory.resolve(DurableBackupReader.CHECKPOINT_FILE),
-                    decodeConfig, schema, authority.history(), null);
+                    decodeConfig, schema, metadata.format(),
+                    authority.history(), null);
             if (loaded.sequence() != authority.sequence()
                     || loaded.nextDocId() != loaded.slots().size()
                     || loaded.documentIds().size() > expected.maxDocuments()) {

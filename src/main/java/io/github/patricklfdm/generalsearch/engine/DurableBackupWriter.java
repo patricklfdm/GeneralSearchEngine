@@ -39,12 +39,12 @@ import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationReport;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationStatus;
 
-/** Internal writer for the immutable {@code gse-backup (1,0)} bundle. */
+/** Internal writer for immutable {@code gse-backup (1,0)} and {@code (1,1)} bundles. */
 final class DurableBackupWriter {
     private static final long BACKUP_MAGIC = 0x475345424b503130L; // GSEBKP10
     private static final long OPERATION_MAGIC = 0x4753454f50313030L; // GSEOP100
     private static final short FORMAT_MAJOR = 1;
-    private static final short FORMAT_MINOR = 0;
+    private static final short OPERATION_MINOR = 0;
     private static final byte BACKUP_OPERATION = 1;
     private static final String BACKUP_FAMILY = "gse-backup";
     private static final String SOURCE_FAMILY = "gse-durable";
@@ -52,8 +52,10 @@ final class DurableBackupWriter {
     private static final String CHECKPOINT = "gse-backup-checkpoint";
     private static final String MANIFEST = "gse-backup-manifest";
     private static final List<String> PAYLOAD_ORDER = List.of(CHECKPOINT, METADATA);
-    private static final byte[] CONTENT_DOMAIN =
+    private static final byte[] CONTENT_DOMAIN_V1 =
             "gse-backup-content-v1\0".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] CONTENT_DOMAIN_V2 =
+            "gse-backup-content-v2\0".getBytes(StandardCharsets.US_ASCII);
     private static final int COPY_BUFFER_BYTES = 64 * 1024;
     private static final int MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
@@ -108,6 +110,7 @@ final class DurableBackupWriter {
             DurableBackupRequest request
     ) {
         Target target = validateTarget(sourceDirectory, request);
+        DurableFormatContext format = DurableFormatContext.from(config.format());
         UUID operationId = UUID.randomUUID();
         String compactId = operationId.toString().replace("-", "");
         String stagingName = ".gse-v41-backup-" + compactId + ".staging";
@@ -187,11 +190,12 @@ final class DurableBackupWriter {
             long payloadBytes = payloads.stream().mapToLong(Payload::size)
                     .reduce(0L, Math::addExact);
             byte[] contentDigest = contentDigest(history, sequence, config,
-                    codecIdentity, codecVersion, payloads);
-            String contentIdentity = "gse-backup-v1-"
+                    codecIdentity, codecVersion, format, payloads);
+            String contentIdentity = (format.hasProfile()
+                    ? "gse-backup-v2-" : "gse-backup-v1-")
                     + HexFormat.of().formatHex(contentDigest);
             byte[] manifestBytes = encodeManifest(history, sequence, config,
-                    codecIdentity, codecVersion, payloads, contentDigest,
+                    codecIdentity, codecVersion, format, payloads, contentDigest,
                     System.currentTimeMillis(), compactId);
             long totalBytes = Math.addExact(payloadBytes, manifestBytes.length);
             if (manifestBytes.length > MAX_MANIFEST_BYTES
@@ -235,7 +239,10 @@ final class DurableBackupWriter {
             forceDirectory(target.parent());
             DurableCrashHooks.reach("v41-backup-before-future-completion-v1");
             return new DurableBackupResult(target.target(),
-                    DurableBackupFormat.V1_0, contentIdentity, history,
+                    format.hasProfile()
+                            ? DurableBackupFormat.V1_1
+                            : DurableBackupFormat.V1_0,
+                    contentIdentity, history,
                     sequence, 3, totalBytes);
         } catch (DurableOperationException exception) {
             primary = exception;
@@ -335,16 +342,20 @@ final class DurableBackupWriter {
             DurableStorageConfig<?, ?> config,
             String codecIdentity,
             int codecVersion,
+            DurableFormatContext format,
             List<Payload> payloads
     ) {
         MessageDigest digest = sha256();
-        digest.update(CONTENT_DOMAIN);
+        digest.update(format.hasProfile() ? CONTENT_DOMAIN_V2 : CONTENT_DOMAIN_V1);
         updateString(digest, BACKUP_FAMILY);
         updateShort(digest, FORMAT_MAJOR);
-        updateShort(digest, FORMAT_MINOR);
+        updateShort(digest, format.minor());
         updateString(digest, SOURCE_FAMILY);
         updateShort(digest, FORMAT_MAJOR);
-        updateShort(digest, FORMAT_MINOR);
+        updateShort(digest, format.minor());
+        if (format.hasProfile()) {
+            digest.update(format.profileDigest());
+        }
         updateLong(digest, history.getMostSignificantBits());
         updateLong(digest, history.getLeastSignificantBits());
         updateLong(digest, sequence);
@@ -367,6 +378,7 @@ final class DurableBackupWriter {
             DurableStorageConfig<?, ?> config,
             String codecIdentity,
             int codecVersion,
+            DurableFormatContext format,
             List<Payload> payloads,
             byte[] contentDigest,
             long createdEpochMillis,
@@ -377,11 +389,14 @@ final class DurableBackupWriter {
         try (DataOutputStream output = new DataOutputStream(bytes)) {
             output.writeLong(BACKUP_MAGIC);
             output.writeShort(FORMAT_MAJOR);
-            output.writeShort(FORMAT_MINOR);
+            output.writeShort(format.minor());
             writeString(output, BACKUP_FAMILY);
             writeString(output, SOURCE_FAMILY);
             output.writeShort(FORMAT_MAJOR);
-            output.writeShort(FORMAT_MINOR);
+            output.writeShort(format.minor());
+            if (format.hasProfile()) {
+                output.write(format.profileDigest());
+            }
             output.writeLong(history.getMostSignificantBits());
             output.writeLong(history.getLeastSignificantBits());
             output.writeLong(sequence);
@@ -415,7 +430,7 @@ final class DurableBackupWriter {
         try (DataOutputStream output = new DataOutputStream(bytes)) {
             output.writeLong(OPERATION_MAGIC);
             output.writeShort(FORMAT_MAJOR);
-            output.writeShort(FORMAT_MINOR);
+            output.writeShort(OPERATION_MINOR);
             output.writeByte(BACKUP_OPERATION);
             output.writeLong(operationId.getMostSignificantBits());
             output.writeLong(operationId.getLeastSignificantBits());
