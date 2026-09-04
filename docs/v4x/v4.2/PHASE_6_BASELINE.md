@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 evidence baseline
 
-- **Status:** Canonical evidence accepted; append-only registration pending
+- **Status:** Canonical evidence accepted; append-only registration under protected review
 - **Canonical source:** `d0afbb593ab5df468c0b7c4b2622ebc6daa69317`
 - **Reference:** Accepted Phase 5 commit
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
@@ -43,9 +43,9 @@ completed the full evidence chain described above.
   and target-history identities; and
 - duplicate registration and non-canonical registration fail closed.
 
-No Google Cloud resource was created and no IAM or registry state was changed by this
-local baseline. The tracked registry remains intentionally empty until the accepted
-canonical review is registered through its separate protected PR.
+No Google Cloud resource was created and no IAM state was changed by this local
+baseline. The tracked registry candidate now contains exactly the accepted canonical
+set and remains subject to its separate protected PR and exact-master CI.
 
 ## Protected implementation acceptance
 
@@ -76,7 +76,7 @@ permissions.
 | Source / target disks | two distinct `pd-balanced` 200-GiB ext4 disks |
 | Suite / preset | `v4.2-storage-evolution-suite-v1 / v4.2-storage-evolution-v1` |
 | Canonical set SHA-256 | `57abb5394a537faaf551b9182ae5a1669de4703689dfe91e6e08dcd4580f2d75` |
-| Eventual baseline | `v4.2.0-migration-cloud` |
+| Registration candidate | `v4.2.0-migration-cloud` |
 
 The experiment member, all three canonical members, and both aggregate sets passed
 independent checksum and semantic validation. Canonical evidence proves an untouched
@@ -114,8 +114,8 @@ not applicable; aggregate cleanup is `PASS`. Protected PR #113 flattened and
 stage-bound source, target, and rollback archive roots and added regression coverage.
 This run contributes no evidence member.
 
-## Pending registration
+## Registration review
 
-The accepted set may now be registered exactly once as `v4.2.0-migration-cloud` in a
-separate append-only protected PR. Phase 7 remains blocked until that registration
-merges and exact-master CI passes.
+The separate append-only candidate binds the accepted set exactly once as
+`v4.2.0-migration-cloud`. Phase 7 remains blocked until that registration merges and
+exact-master CI passes.

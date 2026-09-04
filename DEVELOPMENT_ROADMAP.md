@@ -152,8 +152,9 @@ merged through PR #114 as `d0afbb5`. Exact-master CI runs `33894383594`,
 `33900296949`, and `33905418527` passed respectively. Experiment run `33900943921`
 passed on the corrected implementation; canonical run `33906942139` produced three
 serial passing members and an independently validated, GCS-retained set at
-`d0afbb5`. Canonical review is accepted; append-only registration as
-`v4.2.0-migration-cloud` remains the final Phase 6 gate.
+`d0afbb5`. Canonical review merged through protected PR #115 as `b957965`; exact-master
+CI run `33929774635` passed. The append-only `v4.2.0-migration-cloud` registration is
+under protected review and remains the final Phase 6 gate.
 
 ## v4.1.0 current stable release
 

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 6 registration pending
+- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 6 registration under review
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -22,7 +22,7 @@ V4.0  Correct Durability               COMPLETE
   ↓
 V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution                ACTIVE PHASE 6 REGISTRATION
+V4.2  Storage Evolution                PHASE 6 REGISTRATION REVIEW
   ↓
 V4.3  Fast Reopen
   ↓
@@ -240,5 +240,7 @@ rollback evidence, the manual quota-safe cloud lane, canonical review and append
 registration. Implementation and corrections merged through protected PRs #112–#114;
 exact-master CI `33905418527` passed on `d0afbb5`. Experiment run `33900943921` and
 canonical run `33906942139` passed independent validation, complete cleanup and the
-frozen retention rules. The canonical set is accepted; append-only registration is
-the remaining Phase 6 gate.
+frozen retention rules. Canonical review merged through protected PR #115 as
+`b957965`; exact-master CI run `33929774635` passed. The canonical set is accepted;
+its append-only registration is under protected review and remains the final Phase 6
+gate.

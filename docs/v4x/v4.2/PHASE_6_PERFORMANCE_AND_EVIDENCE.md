@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 performance and evidence
 
-- **Status:** Canonical evidence accepted; append-only registration pending
+- **Status:** Canonical evidence accepted; append-only registration under protected review
 - **Predecessor:** Accepted Phase 5 commit
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
 - **Scope:** Scale, bounded resource evidence, replacement-host target verification,
@@ -17,8 +17,9 @@ cloud preset     v4.2-storage-evolution-v1
 baseline         v4.2.0-migration-cloud
 ```
 
-The registry begins empty. Registration is a separate reviewed action after an
-eligible canonical set exists; the workflow never registers automatically.
+The registry began empty. The reviewed candidate now binds the accepted eligible
+canonical set exactly once; it is not accepted until its separate protected PR merges
+and exact-master CI passes. The workflow never registers automatically.
 
 ## Frozen member topology
 

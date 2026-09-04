@@ -1,1 +1,1 @@
-{"baselines":[],"schemaVersion":"gse-v42-migration-baseline-registry-v1"}
+{"baselines":[{"memberCount":3,"name":"v4.2.0-migration-cloud","preset":"v4.2-storage-evolution-v1","setDigest":"57abb5394a537faaf551b9182ae5a1669de4703689dfe91e6e08dcd4580f2d75","sourceCommit":"d0afbb593ab5df468c0b7c4b2622ebc6daa69317","suite":"v4.2-storage-evolution-suite-v1"}],"schemaVersion":"gse-v42-migration-baseline-registry-v1"}

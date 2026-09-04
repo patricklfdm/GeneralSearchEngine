@@ -66,8 +66,9 @@ V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
 production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
 operational baseline all resolve to the accepted protected-master commit.
 
-V4.2 Phases 0–5 are accepted. Phase 6 implementation and canonical cloud evidence
-are accepted; append-only registration remains pending. The phase adds bounded
+V4.2 Phases 0–5 are accepted. Phase 6 implementation, canonical cloud evidence and
+canonical review are accepted; append-only registration is under protected review.
+The phase adds bounded
 migration metrics, exact replacement-host target evidence, published-4.1 rollback
 proof, the manual quota-safe cloud lane and canonical registration.
 
