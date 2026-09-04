@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 performance and evidence
 
-- **Status:** Local implementation candidate; paid evidence not yet authorized
+- **Status:** Canonical evidence accepted; append-only registration pending
 - **Predecessor:** Accepted Phase 5 commit
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
 - **Scope:** Scale, bounded resource evidence, replacement-host target verification,
