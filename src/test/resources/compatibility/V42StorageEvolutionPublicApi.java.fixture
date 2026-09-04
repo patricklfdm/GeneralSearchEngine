@@ -1,0 +1,178 @@
+package fixture;
+
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.UUID;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupFormat;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationReport;
+import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
+
+// Declaration-only V4.2 Phase 1 fixture. None of these operations is implemented.
+interface DurableStorageConfigBuilderV42Contract<K, T> {
+    DurableStorageConfig.Builder<K, T> format(DurableStorageFormat format);
+}
+
+interface SearchEngineBuilderV42Contract<TK, TT> {
+    <SK, ST> DurableMigrationPlan planDurableMigration(
+            SearchEngineBuilder<SK, ST> sourceBuilder,
+            DurableMigrationRequest<SK, ST, TK, TT> request);
+
+    <SK, ST> DurableMigrationResult applyDurableMigration(
+            SearchEngineBuilder<SK, ST> sourceBuilder,
+            DurableMigrationRequest<SK, ST, TK, TT> request,
+            DurableMigrationPlan plan);
+}
+
+final class DurableStorageOperationsV42Contract {
+    private DurableStorageOperationsV42Contract() { }
+
+    static DurableStoreFormatReport inspectStoreFormat(Path directory) {
+        throw new UnsupportedOperationException();
+    }
+
+    static DurableBackupFormatReport inspectBackupFormat(Path directory) {
+        throw new UnsupportedOperationException();
+    }
+}
+
+record DurableStorageFormat(String family, int major, int minor) {
+    static final DurableStorageFormat V1_0 =
+            new DurableStorageFormat("gse-durable", 1, 0);
+    static final DurableStorageFormat V1_1 =
+            new DurableStorageFormat("gse-durable", 1, 1);
+}
+
+record DurableStoreFormatReport(
+        DurableVerificationReport structuralReport,
+        Optional<DurableStorageFormat> declaredFormat,
+        Optional<String> profileDigest) { }
+
+record DurableBackupFormatReport(
+        DurableVerificationReport structuralReport,
+        Optional<DurableBackupFormat> declaredFormat,
+        Optional<DurableStorageFormat> sourceFormat,
+        Optional<String> profileDigest) { }
+
+@FunctionalInterface
+interface DurableMigrationTransform<SK, ST, TK, TT> {
+    DurableMigrationRecord<TK, TT> transform(SK sourceKey, ST sourceDocument);
+}
+
+record DurableMigrationTransformDescriptor(String identifier, int version) { }
+
+record DurableMigrationRecord<K, T>(K key, T document) { }
+
+record DurableMigrationRequest<SK, ST, TK, TT>(
+        Path sourceDirectory,
+        DurableVerificationConfig<SK, ST> sourceConfig,
+        DurableStorageConfig<TK, TT> targetConfig,
+        DurableMigrationTransformDescriptor transformDescriptor,
+        DurableMigrationTransform<SK, ST, TK, TT> transform,
+        long maxSourceAuthoritativeBytes,
+        long maxTargetAuthoritativeBytes,
+        long capacitySafetyReserveBytes,
+        int maxCollisionEntries,
+        int maxFindings,
+        int maxDiagnosticBytes) { }
+
+record DurableMigrationSourceMember(String name, long size, String sha256) { }
+
+record DurableMigrationIndexChange(
+        List<String> added,
+        List<String> removed,
+        List<String> retained) { }
+
+record DurableMigrationPlan(
+        int schemaVersion,
+        Path sourceDirectory,
+        Path targetDirectory,
+        DurableStorageFormat sourceFormat,
+        DurableStorageFormat targetFormat,
+        UUID sourceHistory,
+        UUID targetHistory,
+        long sourceSequence,
+        long nextDocId,
+        List<DurableMigrationSourceMember> sourceMembers,
+        String sourceAuthorityIdentity,
+        String sourceDescriptorDigest,
+        String targetDescriptorDigest,
+        DurableMigrationTransformDescriptor transformDescriptor,
+        int documentCount,
+        int sourceIndexCount,
+        int targetIndexCount,
+        DurableMigrationIndexChange indexChange,
+        long targetAuthoritativeBytes,
+        long peakTargetBytes,
+        long capacitySafetyReserveBytes,
+        String projectionDigest,
+        String planDigest) { }
+
+record DurableMigrationResult(
+        Path sourceDirectory,
+        Path targetDirectory,
+        DurableStorageFormat sourceFormat,
+        DurableStorageFormat targetFormat,
+        UUID sourceHistory,
+        UUID targetHistory,
+        long sequence,
+        long nextDocId,
+        int documentCount,
+        String sourceAuthorityIdentity,
+        String projectionDigest,
+        String planDigest,
+        long authoritativeBytes) { }
+
+enum DurableMigrationStage {
+    VALIDATE_REQUEST,
+    ACQUIRE_SOURCE,
+    VERIFY_SOURCE,
+    PROJECT_TARGET,
+    VALIDATE_CAPACITY,
+    PREPARE_TARGET,
+    WRITE_METADATA,
+    WRITE_CHECKPOINT,
+    WRITE_MANIFEST,
+    WRITE_WAL,
+    VERIFY_STAGING,
+    PUBLISH_TARGET,
+    FORCE_PARENT,
+    VERIFY_TARGET,
+    VERIFY_SOURCE_PRESERVED,
+    CLEANUP_MARKER,
+    COMPLETE
+}
+
+final class DurableMigrationException extends RuntimeException {
+    enum Reason {
+        STORAGE_IN_USE,
+        SOURCE_INVALID,
+        IDENTITY_MISMATCH,
+        MIGRATION_PATH_UNSUPPORTED,
+        MIGRATION_NOT_REQUIRED,
+        PLAN_STALE,
+        TRANSFORM_FAILURE,
+        TRANSFORM_NONDETERMINISTIC,
+        TARGET_EXISTS,
+        TARGET_INVALID,
+        UNSUPPORTED_FILESYSTEM,
+        CAPACITY_EXCEEDED,
+        IO_FAILURE,
+        PUBLICATION_INDETERMINATE
+    }
+
+    DurableMigrationException(
+            Reason reason,
+            DurableMigrationStage stage,
+            OptionalLong sourceSequence,
+            Throwable cause) {
+        super(reason.name(), cause);
+    }
+
+    Reason reason() { throw new UnsupportedOperationException(); }
+    DurableMigrationStage stage() { throw new UnsupportedOperationException(); }
+    OptionalLong sourceSequence() { throw new UnsupportedOperationException(); }
+}

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 0 checklist
 
-- **Status:** Contract candidate complete; protected acceptance pending
+- **Status:** Accepted through protected PR #106
 - **Scope:** Documentation-only storage-evolution freeze
 - **Authoritative contract:** [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md)
 
@@ -218,17 +218,17 @@ record protected-master acceptance until the final acceptance section is complet
 
 ## Protected acceptance
 
-- [ ] Contract and checklist reviewed on their Phase 0 branch.
-- [ ] Documentation links and whitespace checks pass.
-- [ ] The diff contains no POM version, production code, executable test/harness,
+- [x] Contract and checklist reviewed on their Phase 0 branch.
+- [x] Documentation links and whitespace checks pass.
+- [x] The diff contains no POM version, production code, executable test/harness,
   workflow, cloud-IAM, or paid-resource change.
-- [ ] Phase 0 pull request CI passes.
-- [ ] Phase 0 pull request merges to protected `master`.
-- [ ] Exact protected-master commit and CI run are recorded before Phase 1 begins.
+- [x] Phase 0 pull request CI passes.
+- [x] Phase 0 pull request #106 merges to protected `master` as
+  `8391ea67e451da476f8dc8f7c25c3f78e3656173`.
+- [x] Exact-master CI run `33830552115` passes before Phase 1 begins.
 
 ## Exit decision
 
-Phase 0 is not accepted until the protected-acceptance items are complete. After that
-boundary, Phase 1 may establish the non-production foundation described by this
-contract. Production V4.2 format and migration code remain unauthorized until their
-owning phases.
+Phase 0 is accepted. Phase 1 may establish the non-production foundation described by
+this contract. Production V4.2 format and migration code remain unauthorized until
+their owning phases.
