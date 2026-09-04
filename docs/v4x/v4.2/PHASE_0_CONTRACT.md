@@ -1,9 +1,9 @@
 # GeneralSearchEngine V4.2 Phase 0 storage-evolution contract
 
 - **Phase:** 0 — Storage-evolution contract freeze
-- **Status:** Complete contract candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #106 at `8391ea67`; Phase 1 active
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
-- **Production V4.2 implementation:** Not authorized before protected acceptance
+- **Production V4.2 implementation:** Authorized only by the owning later phase
 
 ## Authority and interpretation
 

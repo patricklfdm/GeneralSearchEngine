@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 0 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 1 active
 - **Reference baseline:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -22,7 +22,7 @@ V4.0  Correct Durability               COMPLETE
   ↓
 V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution                ACTIVE PHASE 0 CONTRACT
+V4.2  Storage Evolution                ACTIVE PHASE 1 FOUNDATION
   ↓
 V4.3  Fast Reopen
   ↓
@@ -224,7 +224,9 @@ protected PR #104 as `9db6efce275d25eb8da75d6532ea103982e591c6`; exact-master CI
 run `33815734269` passed. Signed tag `v4.1.0`, release workflow `33820284974`, Maven
 Central, deployment `6255241071`, clean remote consumers and GitHub Release
 `382405193` completed successfully. Production operation semantics and live/backup
-storage formats are now published and immutable. V4.2 begins only with a separately
-accepted storage-evolution contract. That Phase 0 candidate is active on its
-documentation-only branch. It authorizes no version, production code, executable
-harness, workflow, IAM, or paid-resource change before protected acceptance.
+storage formats are now published and immutable. V4.2 Phase 0 was accepted through
+protected PR #106 as `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI
+run `33830552115` passed. Phase 1 is active and may add only the snapshot version,
+compatibility gates, declaration fixtures, independent models, immutable logical
+bytes, local crash scaffold and fake-cloud plan. Production format and migration
+remain assigned to later phases.

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 development charter
 
-- **Status:** Proposed governing charter for protected Phase 0 acceptance
+- **Status:** Accepted governing charter; Phase 1 active
 - **Predecessor:** Published GeneralSearchEngine `4.1.0`
 - **Theme:** Storage Evolution
 

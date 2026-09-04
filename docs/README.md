@@ -14,6 +14,9 @@ remains the phase history and decision source of truth.
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
+- [V4.2 Phase 1 public API fixture](v4x/v4.2/PHASE_1_API_FIXTURE.md)
+- [V4.2 Phase 1 foundation baseline](v4x/v4.2/PHASE_1_BASELINE.md)
+- [V4.2 Phase 1 checklist](v4x/v4.2/PHASE_1_CHECKLIST.md)
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
@@ -46,9 +49,10 @@ V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
 production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
 operational baseline all resolve to the accepted protected-master commit.
 
-V4.2 Phase 0 is an active documentation-only storage-evolution contract candidate.
-Production format, migration, harness, workflow, version, and paid-resource changes
-remain unauthorized until protected acceptance.
+V4.2 Phase 0 is accepted and Phase 1 is active. Phase 1 establishes
+`4.2.0-SNAPSHOT`, compatibility/fixture gates, independent logical migration models,
+local crash scaffolding and a no-GCP evidence plan. Production `1.1` format or
+migration operations remain assigned to later phases.
 
 ## v4.0 — prior stable durable single-node foundation
 

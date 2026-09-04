@@ -12,14 +12,14 @@ PR #103 as `049b232`; the final candidate merged through protected PR #104 as
 `9db6efc`, and exact-master CI run `33815734269` passed. Signed tag `v4.1.0`, Maven
 Central publication, release workflow `33820284974`, production deployment
 `6255241071`, clean remote V3/V4 consumers, and GitHub Release `382405193` all resolve
-to that exact commit. V4.1 is the current stable release; V4.2 Phase 0 is active.
+to that exact commit. V4.1 is the current stable release; V4.2 Phase 1 is active.
 
-V4.2 Phase 0 is now the active documentation-only contract freeze. Its candidate
-selects explicit-only `gse-durable (1,1)`, exact dual-minor readability, typed
-dry-run/apply migration into a new history, source byte preservation, published-4.1
-rollback proof, and Phase 1-first local-crash/fake-cloud infrastructure. No V4.2
-version, production format, migration code, executable harness, workflow, or paid
-resource is authorized before protected Phase 0 acceptance.
+V4.2 Phase 0 was accepted through protected PR #106 as
+`8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
+passed. Phase 1 opens `4.2.0-SNAPSHOT` and establishes declaration-only APIs,
+independent migration models, immutable logical fixtures, a separate-process crash
+scaffold and a quota-safe no-GCP evidence plan. Production `1.1` bytes and migration
+operations remain prohibited.
 
 The accepted V4.1 Phase 0 contract freezes a checkpoint-only full-backup protocol, a
 distinct `gse-backup (1,0)` bundle, new-history restore into an absent target,
@@ -32,6 +32,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
+- [V4.2 Phase 1 public API fixture](v4.2/PHASE_1_API_FIXTURE.md)
+- [V4.2 Phase 1 foundation baseline](v4.2/PHASE_1_BASELINE.md)
+- [V4.2 Phase 1 checklist](v4.2/PHASE_1_CHECKLIST.md)
 - [V4.1 development charter](v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4.1/PHASE_0_CHECKLIST.md)
@@ -67,9 +70,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 The published V4.0 contracts continue to govern durability, completion, storage
 format `gse-durable (1,0)`, checkpoints, WAL recovery, and retrieval behavior. The
 published V4.1 contracts govern backup, restore, verification, cleanup, and evidence
-semantics. The V4.x roadmap governs release ordering and scope. The V4.2 charter and
-Phase 0 contract govern the candidate storage-evolution boundary only after protected
-acceptance; until then they authorize no implementation.
+semantics. The V4.x roadmap governs release ordering and scope. The accepted V4.2
+charter and Phase 0 contract govern storage evolution; each implementation phase may
+add only the work explicitly assigned to it.
 
 If documents conflict, the most specialized accepted contract controls, but it may
 not weaken an inherited published guarantee. Any conflict with V4.0 or V4.1 is a
