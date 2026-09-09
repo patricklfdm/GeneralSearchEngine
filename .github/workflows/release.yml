@@ -75,6 +75,14 @@ jobs:
             echo "V4.1 Phase 7 gate: SKIP for $RELEASE_TAG"
           fi
 
+      - name: Verify the V4.2 final candidate boundary
+        run: |
+          if [[ "$RELEASE_TAG" == "v4.2.0" ]]; then
+            scripts/verify-v42-phase7-release.sh --skip-consumers
+          else
+            echo "V4.2 Phase 7 gate: SKIP for $RELEASE_TAG"
+          fi
+
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 

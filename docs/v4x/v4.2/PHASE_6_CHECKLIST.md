@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 checklist
 
-- **Status:** Canonical evidence accepted; append-only registration under protected review
+- **Status:** Complete; canonical evidence and append-only registration accepted
 - **Scope:** Performance, replacement-host, rollback and canonical cloud evidence
 
 ## Entry
@@ -80,9 +80,11 @@
   canonical three-member set, and one append-only insertion.
 - [x] Canonical review is documented in
   [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md).
-- [x] Baseline `v4.2.0-migration-cloud` is registered exactly once in the candidate
-  append-only registry.
-- [ ] Baseline registration is committed through a separate protected PR.
+- [x] Baseline `v4.2.0-migration-cloud` is registered exactly once in the append-only
+  registry.
+- [x] Baseline registration merged through protected PR #116 as
+  `94d320f4213e229e206f6ae5202df66a1d9a5ae1`.
+- [x] Exact-master CI run `33930894450`, attempt 2, passed. Attempt 1 was rerun only
+  after a transient Maven Central HTTP 403 while resolving build tooling.
 
-Phase 7 may begin only after protected implementation acceptance, paid canonical
-review and immutable baseline registration are complete.
+Phase 7 began from the exact accepted registration commit above.

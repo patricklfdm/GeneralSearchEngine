@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 evidence baseline
 
-- **Status:** Canonical evidence accepted; append-only registration under protected review
+- **Status:** Complete; canonical evidence and append-only registration accepted
 - **Canonical source:** `d0afbb593ab5df468c0b7c4b2622ebc6daa69317`
 - **Reference:** Accepted Phase 5 commit
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
@@ -44,8 +44,7 @@ completed the full evidence chain described above.
 - duplicate registration and non-canonical registration fail closed.
 
 No Google Cloud resource was created and no IAM state was changed by this local
-baseline. The tracked registry candidate now contains exactly the accepted canonical
-set and remains subject to its separate protected PR and exact-master CI.
+baseline. The tracked registry contains exactly the accepted canonical set.
 
 ## Protected implementation acceptance
 
@@ -114,8 +113,10 @@ not applicable; aggregate cleanup is `PASS`. Protected PR #113 flattened and
 stage-bound source, target, and rollback archive roots and added regression coverage.
 This run contributes no evidence member.
 
-## Registration review
+## Registration acceptance
 
-The separate append-only candidate binds the accepted set exactly once as
-`v4.2.0-migration-cloud`. Phase 7 remains blocked until that registration merges and
-exact-master CI passes.
+The separate append-only registration binds the accepted set exactly once as
+`v4.2.0-migration-cloud`. It merged through protected PR #116 as
+`94d320f4213e229e206f6ae5202df66a1d9a5ae1`; exact-master CI run `33930894450`,
+attempt 2, passed. Attempt 1 encountered only a transient Maven Central HTTP 403 while
+resolving build tooling and was rerun at the same source commit.

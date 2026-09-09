@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 active Phase 6 registration
+## v4.2 locally validated Phase 7 final candidate
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -153,8 +153,13 @@ merged through PR #114 as `d0afbb5`. Exact-master CI runs `33894383594`,
 passed on the corrected implementation; canonical run `33906942139` produced three
 serial passing members and an independently validated, GCS-retained set at
 `d0afbb5`. Canonical review merged through protected PR #115 as `b957965`; exact-master
-CI run `33929774635` passed. The append-only `v4.2.0-migration-cloud` registration is
-under protected review and remains the final Phase 6 gate.
+CI run `33929774635` passed. The append-only `v4.2.0-migration-cloud` registration
+merged through protected PR #116 as
+`94d320f4213e229e206f6ae5202df66a1d9a5ae1`; exact-master CI run `33930894450`,
+attempt 2, passed. Phase 7 converted the repository to final `4.2.0` coordinates and
+its local independent-consumer, compatibility, inherited-phase, Javadoc, release-
+artifact and reproducibility gates all pass. Protected candidate acceptance is
+pending; tagging and publication remain Phase 8 only.
 
 ## v4.1.0 current stable release
 

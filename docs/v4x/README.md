@@ -12,9 +12,9 @@ PR #103 as `049b232`; the final candidate merged through protected PR #104 as
 `9db6efc`, and exact-master CI run `33815734269` passed. Signed tag `v4.1.0`, Maven
 Central publication, release workflow `33820284974`, production deployment
 `6255241071`, clean remote V3/V4 consumers, and GitHub Release `382405193` all resolve
-to that exact commit. V4.1 is the current stable release; V4.2 Phase 6 canonical
-evidence and review are accepted, and append-only registration is under protected
-review.
+to that exact commit. V4.1 is the current stable release. V4.2 Phase 6 evidence and
+registration are complete, and Phase 7 local final-candidate validation has passed;
+protected candidate acceptance is pending.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -33,8 +33,10 @@ passed. Phase 6 implementation and corrections merged through protected PRs
 #112–#114; exact-master CI `33905418527` passed on `d0afbb5`. Experiment run
 `33900943921` and canonical run `33906942139` passed independent validation and
 cleanup. Canonical review merged through protected PR #115 as `b957965`; exact-master
-CI run `33929774635` passed. The append-only registration candidate is under protected
-review.
+CI run `33929774635` passed. The append-only registration merged through protected PR
+#116 as `94d320f4213e229e206f6ae5202df66a1d9a5ae1`; exact-master CI run
+`33930894450`, attempt 2, passed. Phase 7 started from that commit on
+`release/v4.2.0`; its complete local validation matrix has passed.
 
 The accepted V4.1 Phase 0 contract freezes a checkpoint-only full-backup protocol, a
 distinct `gse-backup (1,0)` bundle, new-history restore into an absent target,
@@ -67,6 +69,10 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.2 Phase 6 canonical review](v4.2/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.2 Phase 6 checklist](v4.2/PHASE_6_CHECKLIST.md)
 - [V4.2 migration cloud baseline registry](v4.2/cloud-benchmark-baselines.json)
+- [V4.2 API and storage compatibility](v4.2/API_COMPATIBILITY.md)
+- [V4.1-to-V4.2 migration guide](v4.2/MIGRATION_GUIDE.md)
+- [V4.2 Phase 7 release-candidate checklist](v4.2/PHASE_7_CHECKLIST.md)
+- [V4.2 release checklist](v4.2/RELEASE_CHECKLIST.md)
 - [V4.1 development charter](v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4.1/PHASE_0_CHECKLIST.md)

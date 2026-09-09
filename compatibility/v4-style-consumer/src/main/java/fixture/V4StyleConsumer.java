@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
@@ -57,7 +58,16 @@ public final class V4StyleConsumer {
             Path directory,
             String schemaIdentity
     ) {
+        return config(directory, schemaIdentity, DurableStorageFormat.V1_0);
+    }
+
+    public static DurableStorageConfig<Integer, DurableDocument> config(
+            Path directory,
+            String schemaIdentity,
+            DurableStorageFormat format
+    ) {
         return DurableStorageConfig.builder(directory, new DocumentCodec())
+                .format(format)
                 .storageIdentity(STORAGE_IDENTITY)
                 .schemaIdentity(schemaIdentity)
                 .maxEncodedKeyBytes(64)

@@ -3,6 +3,30 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 4.2.0 — 2026-09-09
+
+### Added
+
+- Exact dual-minor `gse-durable (1,0)` and `(1,1)` inspection and readability, with
+  explicit format selection and canonical format-profile binding.
+- Typed, bounded offline migration planning and apply into an absent new-history
+  target, including deterministic codec/schema/key transforms and index rebuild.
+- Immutable physical `(1,1)` and logical migration fixtures, separate-process
+  interruption/lifecycle matrices, and published-4.1 rollback verification.
+- Registered `v4.2.0-migration-cloud` evidence for source preservation,
+  replacement-host target continuation/reopen and independent source rollback.
+
+### Changed
+
+- Keep the default and every existing V4.1 store at format `(1,0)`; upgrading or
+  opening never performs a silent migration or rewrite.
+- Preserve V4.1 backup/restore/verification/cleanup, V4.0 durability and V3.4
+  retrieval behavior unless an explicit V4.2 format or migration API is invoked.
+
+This entry describes the final `4.2.0` release candidate. It does not claim that a
+signed tag, Maven Central publication, production deployment or GitHub Release exists;
+those remain Phase 8 publication gates.
+
 ## 4.1.0 — 2026-09-03
 
 ### Added

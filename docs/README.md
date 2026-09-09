@@ -34,6 +34,10 @@ remains the phase history and decision source of truth.
 - [V4.2 Phase 6 canonical review](v4x/v4.2/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.2 Phase 6 checklist](v4x/v4.2/PHASE_6_CHECKLIST.md)
 - [V4.2 migration cloud baseline registry](v4x/v4.2/cloud-benchmark-baselines.json)
+- [V4.2 API and storage compatibility](v4x/v4.2/API_COMPATIBILITY.md)
+- [V4.1-to-V4.2 migration guide](v4x/v4.2/MIGRATION_GUIDE.md)
+- [V4.2 Phase 7 release-candidate checklist](v4x/v4.2/PHASE_7_CHECKLIST.md)
+- [V4.2 release checklist](v4x/v4.2/RELEASE_CHECKLIST.md)
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
@@ -66,9 +70,9 @@ V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
 production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
 operational baseline all resolve to the accepted protected-master commit.
 
-V4.2 Phases 0–5 are accepted. Phase 6 implementation, canonical cloud evidence and
-canonical review are accepted; append-only registration is under protected review.
-The phase adds bounded
+V4.2 Phases 0–6 are accepted. The append-only migration registration and its
+exact-master CI are complete. Phase 7 local final-candidate validation has passed;
+protected candidate acceptance is pending. Phase 6 adds bounded
 migration metrics, exact replacement-host target evidence, published-4.1 rollback
 proof, the manual quota-safe cloud lane and canonical registration.
 

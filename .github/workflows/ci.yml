@@ -138,6 +138,14 @@ jobs:
             echo "V4.1 Phase 7 gate: SKIP (project is no longer the 4.1.0 candidate)"
           fi
 
+      - name: Verify the V4.2 final candidate boundary
+        run: |
+          if rg -q '^    <version>4\.2\.0</version>$' pom.xml; then
+            scripts/verify-v42-phase7-release.sh --skip-consumers
+          else
+            echo "V4.2 Phase 7 gate: SKIP (project is not the 4.2.0 candidate)"
+          fi
+
   release-artifacts:
     name: Release artifacts
     runs-on: ubuntu-latest
@@ -216,6 +224,7 @@ jobs:
           bash -n scripts/verify-v42-phase4-transform-migration.sh
           bash -n scripts/verify-v42-phase5-lifecycle.sh
           bash -n scripts/verify-v42-phase6-evidence.sh
+          bash -n scripts/verify-v42-phase7-release.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v4/remote_durable_member.sh
