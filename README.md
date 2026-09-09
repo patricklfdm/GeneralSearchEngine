@@ -20,12 +20,17 @@ under the [V4 contract map](docs/v4/README.md). Version `4.1.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.2 Phase 0 is accepted and the repository now develops `4.2.0-SNAPSHOT`. Phase 1
-adds only compatibility gates, declaration fixtures, independent migration models,
-local crash scaffolding and a no-GCP evidence plan. It does not change the published
-`4.1.0` dependency, default `(1,0)` behavior, or production storage API. See
-the [V4.2 development charter](docs/v4x/v4.2/DEVELOPMENT_CHARTER.md) and
-[Phase 0 contract](docs/v4x/v4.2/PHASE_0_CONTRACT.md).
+V4.2 is a final release candidate at local version `4.2.0`; it is not yet published.
+The candidate adds explicit format `(1,1)`, codec-free dual-minor inspection and
+source-preserving offline migration while keeping `(1,0)` as the default. Phase 6
+cloud evidence and `v4.2.0-migration-cloud` registration are accepted. Phase 7 local
+validation of final coordinates, public compatibility, consumers, Javadocs, artifacts
+and reproducibility is complete; protected candidate acceptance is pending. Signing,
+tagging, Central publication, deployment and GitHub Release remain Phase 8 gates. See
+the
+[V4.2 API/storage compatibility contract](docs/v4x/v4.2/API_COMPATIBILITY.md),
+[migration guide](docs/v4x/v4.2/MIGRATION_GUIDE.md) and
+[release checklist](docs/v4x/v4.2/RELEASE_CHECKLIST.md).
 
 V4.0 durability is explicit and opt-in; the published `3.4.0` API and default
 in-memory behavior remain unchanged. WAL, deterministic
@@ -91,6 +96,30 @@ V4.1 does not provide incremental backup, in-place restore, silent repair, onlin
 migration or replication. See the
 [4.0-to-4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md) and
 [API/storage compatibility contract](docs/v4x/v4.1/API_COMPATIBILITY.md).
+
+## What is new in V4.2
+
+V4.2 makes storage evolution explicit. Existing and default durable stores remain
+format `(1,0)`; a fresh `(1,1)` store must be selected deliberately:
+
+```java
+DurableStorageConfig<Integer, Document> targetStorage = DurableStorageConfig
+        .builder(Path.of("data/search-v11"), codec)
+        .format(DurableStorageFormat.V1_1)
+        .storageIdentity("travel-search-v1")
+        .schemaIdentity("travel-schema-v1")
+        .build();
+```
+
+Offline migration has a read-only plan step followed by apply against the exact
+unchanged source and reviewed plan. It writes an absent target with a new history,
+verifies it before publication and leaves source bytes untouched for rollback. The
+application remains responsible for stopping writers, validating the target, cutting
+traffic over and reconciling any target-only writes if it rolls back.
+
+V4.2 does not provide silent upgrade, online or reverse migration, directory swap,
+history merge or replication. Until Phase 8 completes, use published `4.1.0` in
+production and treat the repository's `4.2.0` coordinate as an unpublished candidate.
 
 ## Requirements
 

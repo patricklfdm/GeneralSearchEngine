@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 6 performance and evidence
 
-- **Status:** Canonical evidence accepted; append-only registration under protected review
+- **Status:** Complete; canonical evidence and append-only registration accepted
 - **Predecessor:** Accepted Phase 5 commit
   `5687a05aa2f495f58d8acc904ab1e663361cf6e3`
 - **Scope:** Scale, bounded resource evidence, replacement-host target verification,

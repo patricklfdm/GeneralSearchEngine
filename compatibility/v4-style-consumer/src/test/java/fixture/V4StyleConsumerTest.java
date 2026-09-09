@@ -24,8 +24,12 @@ import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
 import io.github.patricklfdm.generalsearch.durability.DurableCleanupRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableCleanupScope;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationRecord;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableMigrationTransformDescriptor;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationStatus;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationStatus;
@@ -118,6 +122,83 @@ class V4StyleConsumerTest {
         assertTrue(cleanup.deleteSet().isEmpty());
         assertTrue(DurableStorageOperations.applyCleanup(cleanup)
                 .deletedMembers().isEmpty());
+    }
+
+    @Test
+    void migratesV10ToV11AndContinuesThroughPublishedApiOnly() throws IOException {
+        Path source = temporary.resolve("migration-source");
+        Path backup = temporary.resolve("migration-backup");
+        Path target = temporary.resolve("migration-target");
+        try (DurableSearchEngine<Integer, DurableDocument> engine =
+                     V4StyleConsumer.open(source)) {
+            engine.addAll(List.of(
+                    new DurableDocument(1, "alpha"),
+                    new DurableDocument(2, "beta"))).join();
+            engine.checkpoint().join();
+            engine.backup(new DurableBackupRequest(
+                    backup, 64L * 1024 * 1024)).join();
+        }
+
+        String sourceBefore = treeDigest(source);
+        assertEquals(DurableStorageFormat.V1_0,
+                DurableStorageOperations.inspectStoreFormat(source)
+                        .declaredFormat().orElseThrow());
+        assertEquals(DurableStorageFormat.V1_0,
+                DurableStorageOperations.inspectBackupFormat(backup)
+                        .sourceFormat().orElseThrow());
+
+        var request = new DurableMigrationRequest<>(
+                source,
+                V4StyleConsumer.verificationConfig(),
+                V4StyleConsumer.config(
+                        target,
+                        V4StyleConsumer.SCHEMA_IDENTITY,
+                        DurableStorageFormat.V1_1),
+                new DurableMigrationTransformDescriptor("identity-format-v1", 1),
+                (Integer key, DurableDocument document) ->
+                        new DurableMigrationRecord<>(key, document),
+                64L * 1024 * 1024,
+                64L * 1024 * 1024,
+                1024 * 1024,
+                1000,
+                1000,
+                64 * 1024);
+        var plan = V4StyleConsumer.builder().planDurableMigration(
+                V4StyleConsumer.builder(), request);
+        assertEquals(DurableStorageFormat.V1_0, plan.sourceFormat());
+        assertEquals(DurableStorageFormat.V1_1, plan.targetFormat());
+        assertFalse(Files.exists(target));
+
+        var result = V4StyleConsumer.builder().applyDurableMigration(
+                V4StyleConsumer.builder(), request, plan);
+        assertEquals(plan.planDigest(), result.planDigest());
+        assertEquals(plan.projectionDigest(), result.projectionDigest());
+        assertNotEquals(result.sourceHistory(), result.targetHistory());
+        assertEquals(sourceBefore, treeDigest(source));
+        assertEquals(DurableStorageFormat.V1_1,
+                DurableStorageOperations.inspectStoreFormat(target)
+                        .declaredFormat().orElseThrow());
+
+        try (DurableSearchEngine<Integer, DurableDocument> engine =
+                     V4StyleConsumer.builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     target,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_1))) {
+            assertEquals(new DurableDocument(1, "alpha"), engine.get(1));
+            assertEquals(new DurableDocument(2, "beta"), engine.get(2));
+            engine.add(new DurableDocument(3, "gamma")).join();
+            engine.checkpoint().join();
+        }
+        try (DurableSearchEngine<Integer, DurableDocument> engine =
+                     V4StyleConsumer.builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     target,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_1))) {
+            assertEquals(new DurableDocument(3, "gamma"), engine.get(3));
+        }
+        assertEquals(sourceBefore, treeDigest(source));
     }
 
     @Test
@@ -269,6 +350,22 @@ class V4StyleConsumerTest {
         try {
             return HexFormat.of().formatHex(
                     MessageDigest.getInstance("SHA-256").digest(bytes));
+        } catch (NoSuchAlgorithmException impossible) {
+            throw new AssertionError(impossible);
+        }
+    }
+
+    private static String treeDigest(Path directory) throws IOException {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            try (var members = Files.list(directory)) {
+                for (Path member : members.sorted().toList()) {
+                    digest.update(member.getFileName().toString()
+                            .getBytes(StandardCharsets.UTF_8));
+                    digest.update(Files.readAllBytes(member));
+                }
+            }
+            return HexFormat.of().formatHex(digest.digest());
         } catch (NoSuchAlgorithmException impossible) {
             throw new AssertionError(impossible);
         }
