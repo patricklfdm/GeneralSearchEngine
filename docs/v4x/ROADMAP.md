@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 Phase 7 local validation complete
-- **Reference baseline:** Published GeneralSearchEngine `4.1.0`
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete
+- **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
 
@@ -22,7 +22,7 @@ V4.0  Correct Durability               COMPLETE
   ↓
 V4.1  Operational Safety               COMPLETE
   ↓
-V4.2  Storage Evolution                PHASE 7 FINAL CANDIDATE
+V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen
   ↓
@@ -244,5 +244,10 @@ frozen retention rules. Canonical review merged through protected PR #115 as
 `b957965`; exact-master CI run `33929774635` passed. The append-only registration
 merged through protected PR #116 as
 `94d320f4213e229e206f6ae5202df66a1d9a5ae1`; exact-master CI run `33930894450`,
-attempt 2, passed. Phase 7 local final-candidate validation passed on
-`release/v4.2.0`; protected acceptance remains pending.
+attempt 2, passed. Phase 7 passed its local matrix and merged through protected PR
+#117 as `5742b01def2fa5b1dd84b57f00ba6026c661f634`; exact-master CI run
+`34388796604` passed. Signed tag `v4.2.0`, Maven Central publication, clean remote
+V3/V4 consumers, reconciled deployment `6361088014`, GitHub Release `385924091`, and
+the registered canonical evidence all resolve to that exact commit. The original
+release workflow retains its post-upload Central polling timeout; no immutable
+artifact was redeployed.

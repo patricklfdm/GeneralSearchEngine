@@ -237,10 +237,12 @@ validate the exact tag without secrets
 ```
 
 The release job sets `central.autoPublish=true` and
-`central.waitUntil=published`. The POM defaults remain `false` and `validated`, so the
-trusted local release flow continues to require manual publication in Central Portal.
-The reactor and travel example keep `maven.deploy.skip=true` and are never published.
-Normal Maven library JARs are not copied to GitHub Release assets.
+`central.waitUntil=published`, gives the Central plugin up to 3600 seconds to observe
+the terminal state, and reserves 90 minutes for the complete protected job. The POM
+defaults remain `false` and `validated`, so the trusted local release flow continues
+to require manual publication in Central Portal. The reactor and travel example keep
+`maven.deploy.skip=true` and are never published. Normal Maven library JARs are not
+copied to GitHub Release assets.
 
 Release workflow concurrency is scoped to the tag and never cancels a running release.
 The manual dispatch accepts an existing signed tag only as a recovery mechanism. Both
@@ -275,8 +277,15 @@ discard it before retrying an unchanged tag or prepare a corrected patch version
 ### Central succeeds but GitHub Release creation fails
 
 Do not rerun the Central deployment. The workflow deliberately rejects versions that
-already exist. Create the GitHub Release manually from the existing signed tag and the
-matching changelog section.
+already exist. Run `scripts/verify-published-release.sh` against the immutable version,
+create the GitHub Release manually from the existing signed tag and matching changelog
+section, and record the original workflow failure. If the only failure was a client-
+side publication-status polling timeout, a maintainer may append a reconciled
+`success` status to the already approved exact-tag GitHub deployment only after the
+Central artifacts, signatures, consumers, tag target and GitHub Release all pass
+independent verification. The original failed status and job URL must remain in the
+deployment history, and the reconciliation description must name the timeout; never
+rerun `deploy` for the immutable version.
 
 ### A defect is found after publication
 

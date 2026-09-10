@@ -38,6 +38,7 @@ remains the phase history and decision source of truth.
 - [V4.1-to-V4.2 migration guide](v4x/v4.2/MIGRATION_GUIDE.md)
 - [V4.2 Phase 7 release-candidate checklist](v4x/v4.2/PHASE_7_CHECKLIST.md)
 - [V4.2 release checklist](v4x/v4.2/RELEASE_CHECKLIST.md)
+- [V4.2 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.2.0)
 - [V4.1 development charter](v4x/v4.1/DEVELOPMENT_CHARTER.md)
 - [V4.1 Phase 0 operational-safety contract](v4x/v4.1/PHASE_0_CONTRACT.md)
 - [V4.1 Phase 0 checklist](v4x/v4.1/PHASE_0_CHECKLIST.md)
@@ -66,15 +67,12 @@ remains the phase history and decision source of truth.
 - [V4.1 Phase 7 release-candidate checklist](v4x/v4.1/PHASE_7_CHECKLIST.md)
 - [V4.1 release checklist](v4x/v4.1/RELEASE_CHECKLIST.md)
 
-V4.1 Phases 0–8 are complete. Signed tag `v4.1.0`, Maven Central publication,
-production deployment, clean remote V3/V4 consumers, GitHub Release and the registered
-operational baseline all resolve to the accepted protected-master commit.
-
-V4.2 Phases 0–6 are accepted. The append-only migration registration and its
-exact-master CI are complete. Phase 7 local final-candidate validation has passed;
-protected candidate acceptance is pending. Phase 6 adds bounded
-migration metrics, exact replacement-host target evidence, published-4.1 rollback
-proof, the manual quota-safe cloud lane and canonical registration.
+V4.1 Phases 0–8 remain complete. V4.2 Phases 0–8 are also complete: signed tag
+`v4.2.0`, Maven Central artifacts, reconciled production deployment, clean remote
+V3/V4 consumers, GitHub Release and the registered migration baseline all resolve to
+protected-master commit `5742b01def2fa5b1dd84b57f00ba6026c661f634`. The release
+workflow's post-upload Central polling timeout remains recorded separately from the
+independently verified publication result.
 
 ## v4.0 — prior stable durable single-node foundation
 

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.2 Phase 7 release-candidate checklist
 
-**Status:** local final-candidate validation complete; protected acceptance pending
+**Status:** complete — protected candidate accepted and handed to Phase 8
 
 ## Accepted entry boundary
 
@@ -10,7 +10,7 @@
 - [x] `v4.2.0-migration-cloud` was registered through protected PR #116 as
   `94d320f4213e229e206f6ae5202df66a1d9a5ae1`.
 - [x] Exact-master CI run `33930894450`, attempt 2, passed on that registration.
-- [x] Phase 7 starts from that exact commit on `release/v4.2.0`.
+- [x] Phase 7 started from that exact commit on `release/v4.2.0`.
 - [x] Ignored local cloud evidence remains excluded from candidate artifacts.
 
 ## Final-coordinate and documentation freeze
@@ -50,11 +50,12 @@
 
 ## Protected acceptance and Phase 8 handoff
 
-- [ ] Candidate PR merges to protected `master` without a direct push.
-- [ ] Exact-master CI passes and commit/run are recorded.
-- [ ] Local and remote `v4.2.0` tags are absent before signing.
-- [ ] Central immutability preflight returns HTTP `404` for both artifacts.
-- [ ] Phase 8 begins only from the exact accepted protected-master commit.
+- [x] Candidate PR #117 merged to protected `master` without a direct push as
+  `5742b01def2fa5b1dd84b57f00ba6026c661f634`.
+- [x] Exact-master CI run `34388796604` passed for that commit.
+- [x] Local and remote `v4.2.0` tags were absent before signing.
+- [x] Central immutability preflight returned HTTP `404` for both artifacts.
+- [x] Phase 8 began only from the exact accepted protected-master commit.
 
 Any production Java or storage-semantic change after canonical source
 `d0afbb593ab5df468c0b7c4b2622ebc6daa69317` requires explicit classification. A

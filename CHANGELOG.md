@@ -23,9 +23,14 @@ Semantic Versioning once the first stable artifact is published.
 - Preserve V4.1 backup/restore/verification/cleanup, V4.0 durability and V3.4
   retrieval behavior unless an explicit V4.2 format or migration API is invoked.
 
-This entry describes the final `4.2.0` release candidate. It does not claim that a
-signed tag, Maven Central publication, production deployment or GitHub Release exists;
-those remain Phase 8 publication gates.
+Version `4.2.0` was published from signed tag `v4.2.0` on protected-master commit
+`5742b01def2fa5b1dd84b57f00ba6026c661f634`. Release workflow run `34415073641`
+uploaded Central deployment `a2341028-71df-42a6-a900-ad544676b08d`, then exhausted
+the plugin's 1800-second publication-status polling window after Central accepted the
+bundle. Maven Central artifacts, signatures and clean V3/V4 consumers were verified
+independently; GitHub deployment `6361088014` preserves the timeout failure and a
+subsequent explicit verified-success reconciliation. GitHub Release `385924091` was
+created from the unchanged signed tag.
 
 ## 4.1.0 — 2026-09-03
 

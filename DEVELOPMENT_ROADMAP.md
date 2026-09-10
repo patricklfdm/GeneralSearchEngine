@@ -109,7 +109,7 @@ smoke, no-GCP fake control plane, exact-source CI and explicit confirmation prec
 paid experiment/canonical execution. Canonical registration remains append-only as
 `v4.1.0-operational-cloud` and cannot reuse the V4.0 evidence family.
 
-## v4.2 locally validated Phase 7 final candidate
+## v4.2 completed storage-evolution release
 
 V4.2 begins with a documentation-only contract based on published `4.1.0`.
 It keeps default and existing durable stores at exact `gse-durable (1,0)` and permits
@@ -157,25 +157,31 @@ CI run `33929774635` passed. The append-only `v4.2.0-migration-cloud` registrati
 merged through protected PR #116 as
 `94d320f4213e229e206f6ae5202df66a1d9a5ae1`; exact-master CI run `33930894450`,
 attempt 2, passed. Phase 7 converted the repository to final `4.2.0` coordinates and
-its local independent-consumer, compatibility, inherited-phase, Javadoc, release-
-artifact and reproducibility gates all pass. Protected candidate acceptance is
-pending; tagging and publication remain Phase 8 only.
+closed the independent-consumer, compatibility, inherited-phase, Javadoc, release-
+artifact and reproducibility gates. Its candidate merged through protected PR #117 as
+`5742b01def2fa5b1dd84b57f00ba6026c661f634`; exact-master CI run `34388796604`
+passed. Phase 8 is complete. Signed tag `v4.2.0`, Central deployment
+`a2341028-71df-42a6-a900-ad544676b08d`, independently verified Maven Central
+artifacts and V3/V4 consumers, reconciled production deployment `6361088014`, and
+GitHub Release `385924091` all resolve to that exact commit. Release workflow run
+`34415073641` preserves its client-side 1800-second Central polling timeout after a
+successful upload; the immutable version was not redeployed.
 
-## v4.1.0 current stable release
+## v4.2.0 current stable release
 
-Version `4.1.0` was published on September 3, 2026 Pacific time as the current stable
+Version `4.2.0` was published on September 9, 2026 Pacific time as the current stable
 release:
 
-- `io.github.patricklfdm:general-search-engine:4.1.0`;
-- `io.github.patricklfdm:general-search-engine-processor:4.1.0`; and
-- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0).
+- `io.github.patricklfdm:general-search-engine:4.2.0`;
+- `io.github.patricklfdm:general-search-engine-processor:4.2.0`; and
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.2.0).
 
-V4.1 preserves live format `gse-durable (1,0)` and every inherited retrieval contract
-while adding explicit immutable backup, codec-free and typed verification,
-new-history restore, and offline plan-bound cleanup. It does not add replication,
-incremental backup, in-place restore, online migration, silent repair, or a third
-artifact. The accepted V4.2 storage-evolution contract is recorded above; Phase 1 is
-active without changing published V4.1 production behavior.
+V4.2 preserves default live format `gse-durable (1,0)`, every V4.1 operational-safety
+guarantee and inherited retrieval behavior while adding explicit `(1,1)` operation,
+dual-minor inspection and source-preserving offline migration. It does not add silent
+upgrade, online or reverse migration, in-place cutover, history merge, replication,
+or a third artifact. Published `4.1.0` remains the immediate prior stable release and
+operational-safety compatibility baseline.
 
 ## v4.0 completed development contract
 
