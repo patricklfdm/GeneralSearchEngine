@@ -335,7 +335,7 @@ class V43DerivedFormatPhase2Test {
     }
 
     @Test
-    void phaseThreeLoadsStructuredFixtureAndLeavesTextForPhaseFour(
+    void phaseFourLoadsCompleteFourKindFixture(
             @TempDir Path workspace
     ) throws Exception {
         Path live = materializeLive(workspace.resolve("rebuild-only"));
@@ -364,9 +364,9 @@ class V43DerivedFormatPhase2Test {
                 .buildDurable(storage)) {
             assertEquals(7, engine.currentSequence());
             DurableReopenReport report = engine.lastReopenReport().orElseThrow();
-            assertEquals(DurableReopenOutcome.PARTIAL_FALLBACK, report.outcome());
-            assertEquals(3, report.loadedComponentCount());
-            assertEquals(1, report.rebuiltComponentCount());
+            assertEquals(DurableReopenOutcome.COMPLETE_WARM, report.outcome());
+            assertEquals(4, report.loadedComponentCount());
+            assertEquals(0, report.rebuiltComponentCount());
             assertFalse(report.refreshSucceeded());
         }
         assertEquals(before, directoryDigests(live));

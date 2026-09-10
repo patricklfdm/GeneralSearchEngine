@@ -1,7 +1,10 @@
 package io.github.patricklfdm.generalsearch.index.text;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
+import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
 
 /** Immutable term membership and per-document occurrence facts retained for scoring. */
@@ -20,6 +23,30 @@ public final class PostingList {
 
     public static PostingList empty() {
         return new PostingList(ImmutableBitmap.empty(), PersistentAvlMap.empty());
+    }
+
+    static PostingList fromPositions(Map<Integer, int[]> positionsByDocument) {
+        Objects.requireNonNull(positionsByDocument, "positionsByDocument");
+        ImmutableBitmapBuilder documents = new ImmutableBitmapBuilder(
+                ImmutableBitmap.empty());
+        PersistentAvlMap<Integer, IntPositions> positions =
+                PersistentAvlMap.empty();
+        for (var entry : new TreeMap<>(positionsByDocument).entrySet()) {
+            int docId = Objects.requireNonNull(entry.getKey(), "document ID");
+            if (docId < 0) {
+                throw new IllegalArgumentException(
+                        "document IDs must not be negative");
+            }
+            IntPositions value = IntPositions.copyOf(Objects.requireNonNull(
+                    entry.getValue(), "positions"));
+            if (value.size() == 0) {
+                throw new IllegalArgumentException(
+                        "persisted positions must not be empty");
+            }
+            documents.set(docId);
+            positions = positions.with(docId, value);
+        }
+        return new PostingList(documents.build(), positions);
     }
 
     public ImmutableBitmap documents() {

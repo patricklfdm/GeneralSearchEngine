@@ -3,8 +3,10 @@ package io.github.patricklfdm.generalsearch.index.text;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.index.CandidateEstimate;
@@ -80,6 +82,77 @@ public final class TextIndexSnapshot<T> implements EstimatingIndexSnapshot<T> {
                 documentLengths,
                 totalDocumentLength
         );
+    }
+
+    /**
+     * Internal persistence bridge for constructing a text index from a fully
+     * validated logical image. Application code should build indexes through the
+     * normal schema and engine APIs.
+     */
+    public static <T> TextIndexSnapshot<T> fromPersistence(
+            TextField<T> textField,
+            Map<String, ? extends Map<Integer, int[]>> positionsByTerm,
+            Map<Integer, Integer> lengthsByDocument,
+            long totalDocumentLength
+    ) {
+        Objects.requireNonNull(textField, "textField");
+        Objects.requireNonNull(positionsByTerm, "positionsByTerm");
+        Objects.requireNonNull(lengthsByDocument, "lengthsByDocument");
+        PersistentAvlMap<Integer, Integer> lengths = PersistentAvlMap.empty(
+                Integer::longValue);
+        long observedTotal = 0L;
+        for (var entry : new TreeMap<>(lengthsByDocument).entrySet()) {
+            int docId = Objects.requireNonNull(entry.getKey(), "document ID");
+            int length = Objects.requireNonNull(entry.getValue(), "document length");
+            if (docId < 0 || length <= 0) {
+                throw new IllegalArgumentException(
+                        "persisted document lengths must use non-negative IDs "
+                                + "and positive lengths");
+            }
+            observedTotal = Math.addExact(observedTotal, length);
+            lengths = lengths.with(docId, length);
+        }
+        if (observedTotal != totalDocumentLength) {
+            throw new IllegalArgumentException(
+                    "persisted total document length does not match entries");
+        }
+
+        PersistentAvlMap<String, PostingList> postings = PersistentAvlMap.empty(
+                PostingList::documentFrequency);
+        PersistentCodePointTrie fuzzyDictionary = PersistentCodePointTrie.empty();
+        for (var entry : new TreeMap<>(positionsByTerm).entrySet()) {
+            String term = Objects.requireNonNull(entry.getKey(), "term");
+            if (term.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "persisted terms must not be empty");
+            }
+            Map<Integer, int[]> encodedPosting = Objects.requireNonNull(
+                    entry.getValue(), "posting");
+            for (var document : encodedPosting.entrySet()) {
+                Integer length = lengthsByDocument.get(document.getKey());
+                int[] positions = Objects.requireNonNull(
+                        document.getValue(), "positions");
+                if (length == null || positions.length == 0) {
+                    throw new IllegalArgumentException(
+                            "persisted postings must bind indexed documents");
+                }
+                for (int position : positions) {
+                    if (position < 0 || position >= length) {
+                        throw new IllegalArgumentException(
+                                "persisted position exceeds document length");
+                    }
+                }
+            }
+            PostingList posting = PostingList.fromPositions(encodedPosting);
+            if (posting.documentFrequency() == 0) {
+                throw new IllegalArgumentException(
+                        "persisted postings must not be empty");
+            }
+            postings = postings.with(term, posting);
+            fuzzyDictionary = fuzzyDictionary.with(term);
+        }
+        return fromPostings(textField, postings, fuzzyDictionary, lengths,
+                totalDocumentLength);
     }
 
     public TextField<T> textField() {

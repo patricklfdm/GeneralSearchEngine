@@ -24,9 +24,12 @@ no-GCP serial evidence plan and exact published-4.2 calibration; it merged throu
 protected PR #120 as `148d253`. Phase 2 froze exact `(1,2)` canonical, backup,
 catalog and component bytes plus codec-free derived inspection; it merged through
 protected PR #121 as `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`, and exact-master
-CI run `34446500594` passed. Phase 3 now activates structured equality/range/prefix
+CI run `34446500594` passed. Phase 3 activated structured equality/range/prefix
 image publication, warm/selective/full fallback reopen and direct cold-target `(1,2)`
-migration edges. Text images remain Phase 4 work.
+migration edges. It merged through protected PR #122 as
+`98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
+passed. Phase 4 now completes exact SimpleAnalyzer image publication/materialization
+and the four-kind selective fallback matrix; paid evidence remains Phase 6-only.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -71,6 +74,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 Phase 3 structured images and migration](v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md)
 - [V4.3 Phase 3 local baseline](v4.3/PHASE_3_BASELINE.md)
 - [V4.3 Phase 3 checklist](v4.3/PHASE_3_CHECKLIST.md)
+- [V4.3 Phase 4 text images and selective fallback](v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md)
+- [V4.3 Phase 4 local baseline](v4.3/PHASE_4_BASELINE.md)
+- [V4.3 Phase 4 checklist](v4.3/PHASE_4_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
