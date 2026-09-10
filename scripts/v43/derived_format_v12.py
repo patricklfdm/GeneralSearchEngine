@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import re
 import struct
 from dataclasses import dataclass
@@ -163,16 +164,19 @@ def _component(
 
 
 def _backup_preimage(
-        payloads: dict[str, bytes], profile_sha: bytes
+        payloads: dict[str, bytes], profile_sha: bytes,
+        history: tuple[int, int] = (0x0011223344556677, 0x8899AABBCCDDEEFF),
+        sequence: int = 7, storage: str = "v43-fixture-store",
+        schema: str = "v43-fixture-schema", codec: str = "v43-fixture-codec",
+        codec_version: int = 1,
 ) -> bytes:
     return b"".join((
         BACKUP_DOMAIN,
         lp("gse-backup"), struct.pack(">hh", 1, 2),
         lp("gse-durable"), struct.pack(">hh", 1, 2), profile_sha,
-        struct.pack(">QQq", 0x0011223344556677,
-                    0x8899AABBCCDDEEFF, 7),
-        lp("v43-fixture-store"), lp("v43-fixture-schema"),
-        lp("v43-fixture-codec"), struct.pack(">iI", 1, len(payloads)),
+        struct.pack(">QQq", history[0], history[1], sequence),
+        lp(storage), lp(schema), lp(codec),
+        struct.pack(">iI", codec_version, len(payloads)),
         *(
             lp(name) + struct.pack(">Q", len(payloads[name]))
             + hashlib.sha256(payloads[name]).digest()
@@ -310,18 +314,41 @@ def parse_metadata(data: bytes) -> dict[str, object]:
             "descriptors": descriptors}
 
 
-def parse_checkpoint(data: bytes, metadata: dict[str, object]) -> dict[str, object]:
+def parse_checkpoint(
+        data: bytes, metadata: dict[str, object], expected_sequence: int | None = 7
+) -> dict[str, object]:
     cursor = uncheck(data, 88, "checkpoint")
     magic, major, minor, most, least = cursor.unpack(">QhhQQ")
     binding = cursor.take(32)
     sequence, next_doc, live, count = cursor.unpack(">qiii")
     descriptors = _read_descriptors(cursor, count)
     slots, = cursor.unpack(">i")
+    decoded = 0
+    for _ in range(slots):
+        state, = cursor.unpack(">B")
+        if state == 0:
+            continue
+        if state != 1:
+            raise DerivedFormatError("checkpoint slot state is invalid")
+        key_length, = cursor.unpack(">i")
+        if key_length < 0:
+            raise DerivedFormatError("checkpoint key length is invalid")
+        cursor.take(key_length)
+        document_length, = cursor.unpack(">i")
+        if document_length < 0:
+            raise DerivedFormatError("checkpoint document length is invalid")
+        cursor.take(document_length)
+        decoded += 1
     cursor.finish()
     if (magic, major, minor) != (CHECKPOINT_MAGIC, 1, 2) \
             or (most, least) != metadata["history"] \
-            or binding != metadata["profile"] or sequence != 7 \
-            or (next_doc, live, slots) != (0, 0, 0) \
+            or binding != metadata["profile"] \
+            or (expected_sequence is not None and sequence != expected_sequence) \
+            or (expected_sequence is not None
+                and (next_doc, live, slots) != (0, 0, 0)) \
+            or min(next_doc, live, slots) < 0 \
+            or (expected_sequence is None
+                and (next_doc != slots or decoded != live)) \
             or descriptors != metadata["descriptors"]:
         raise DerivedFormatError("checkpoint authority differs")
     return {"sequence": sequence, "nextDocId": next_doc,
@@ -436,7 +463,7 @@ def parse_catalog(
 
 def inspect_live(members: dict[str, bytes]) -> dict[str, object]:
     metadata = parse_metadata(members["gse-metadata"])
-    checkpoint = parse_checkpoint(members[CHECKPOINT_NAME], metadata)
+    checkpoint = parse_checkpoint(members[CHECKPOINT_NAME], metadata, 7)
     derived = {name: value for name, value in members.items()
                if COMPONENT_RE.fullmatch(name)}
     catalog = parse_catalog(members["gse-derived-manifest"], metadata,
@@ -452,7 +479,8 @@ def inspect_backup(members: dict[str, bytes]) -> dict[str, object]:
                        "gse-backup-manifest"}:
         raise DerivedFormatError("backup inventory differs")
     metadata = parse_metadata(members["gse-backup-metadata"])
-    checkpoint = parse_checkpoint(members["gse-backup-checkpoint"], metadata)
+    checkpoint = parse_checkpoint(
+        members["gse-backup-checkpoint"], metadata, None)
     cursor = uncheck(members["gse-backup-manifest"], 160, "backup manifest")
     magic, major, minor = cursor.unpack(">Qhh")
     family, source_family = cursor.string(128), cursor.string(128)
@@ -479,17 +507,38 @@ def inspect_backup(members: dict[str, bytes]) -> dict[str, object]:
     if (magic, major, minor, family, source_family, source_major, source_minor) \
             != (BACKUP_MAGIC, 1, 2, "gse-backup", "gse-durable", 1, 2) \
             or binding != metadata["profile"] \
-            or (most, least) != metadata["history"] or sequence != 7 \
+            or (most, least) != metadata["history"] \
             or (storage, schema, codec, codec_version) != (
                 metadata["storage"], metadata["schema"], metadata["codec"],
                 metadata["codecVersion"]) \
             or names != ["gse-backup-checkpoint", "gse-backup-metadata"] \
             or created < 0 or checkpoint["sequence"] != sequence \
             or identity != hashlib.sha256(
-                _backup_preimage(payloads, bytes(binding))).digest():
+                _backup_preimage(
+                    payloads, bytes(binding), (most, least), sequence,
+                    storage, schema, codec, codec_version)).digest():
         raise DerivedFormatError("backup authority differs")
     return {"status": "VALID", "format": "gse-backup/1.2",
+            "sequence": sequence,
             "contentIdentity": "gse-backup-v3-" + identity.hex()}
+
+
+def inspect_backup_directory(root: Path) -> dict[str, object]:
+    if not root.is_dir() or root.is_symlink():
+        raise DerivedFormatError("backup path must be a non-symbolic directory")
+    expected = {"gse-backup-checkpoint", "gse-backup-metadata",
+                "gse-backup-manifest"}
+    if {member.name for member in root.iterdir()} != expected:
+        raise DerivedFormatError("backup directory inventory differs")
+    members: dict[str, bytes] = {}
+    for name in sorted(expected):
+        member = root / name
+        if member.is_symlink() or not member.is_file():
+            raise DerivedFormatError("backup member is not a regular file")
+        if member.stat().st_size > 512 * 1024 * 1024:
+            raise DerivedFormatError("backup member exceeds its inspection bound")
+        members[name] = member.read_bytes()
+    return inspect_backup(members)
 
 
 def load_hex_fixture(root: Path) -> Fixture:
@@ -555,12 +604,14 @@ def main() -> None:
     write.add_argument("root", type=Path)
     inspect = sub.add_parser("inspect")
     inspect.add_argument("root", type=Path)
+    inspect_backup_parser = sub.add_parser("inspect-backup")
+    inspect_backup_parser.add_argument("root", type=Path)
     arguments = parser.parse_args()
     if arguments.command == "emit":
         emit()
     elif arguments.command == "write":
         write_fixture(arguments.root)
-    else:
+    elif arguments.command == "inspect":
         value = load_hex_fixture(arguments.root)
         live = inspect_live(value.live)
         backup = inspect_backup(value.backup)
@@ -569,6 +620,11 @@ def main() -> None:
                 or backup["contentIdentity"] != value.backup_identity:
             raise DerivedFormatError("frozen identities differ")
         print("v43DerivedFormatV12=PASS components=4 backupMembers=3")
+    else:
+        value = inspect_backup_directory(arguments.root)
+        print(json.dumps(value, sort_keys=True, separators=(",", ":")))
+        print(f"v43BackupInspection=PASS identity="
+              f"{value['contentIdentity']} sequence={value['sequence']}")
 
 
 if __name__ == "__main__":

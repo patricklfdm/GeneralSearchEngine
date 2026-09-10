@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 5 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 6 active
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -174,9 +174,12 @@ complete/partial/full reopen paths and component-local fallback across structure
 text siblings. Text postings, positions, field lengths and fuzzy vocabulary are
 materialized directly from validated bytes without analyzer execution. It merged
 through protected PR #123 as `2f229303168c93e81a571b1d5c931bff015eb1b5`;
-exact-master CI run `34460924869` passed. Phase 5 now hardens repeated lifecycle,
+exact-master CI run `34460924869` passed. Phase 5 hardened repeated lifecycle,
 plan-bound derived cleanup, backup/restore, crash/fault/capacity/concurrency and
-published-4.2 compatibility without paid execution.
+published-4.2 compatibility through protected PR #124 as
+`e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
+passed. Phase 6 now measures the frozen ten-cell fast-reopen matrix and establishes
+manual exact-source replacement-host evidence before any paid execution.
 
 ## V4.4 — Final Durable Hardening
 
@@ -287,4 +290,6 @@ publication, fallback and migration through protected PR #122 as
 `98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
 passed. Phase 4 completed the text-image and four-kind path through protected PR #123
 as `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run
-`34460924869` passed. Phase 5 is active.
+`34460924869` passed. Phase 5 merged through protected PR #124 as
+`e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
+passed. Phase 6 is active.
