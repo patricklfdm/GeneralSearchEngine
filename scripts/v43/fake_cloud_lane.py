@@ -38,6 +38,7 @@ PLAN = {
     "transientTargetDiskGiB": 200,
     "bootDiskGiB": 100,
     "peakDataDiskGiB": 400,
+    "peakRegionalSsdGiB": 400,
     "peakProvisionedDiskGiB": 500,
     "peakProjectVcpus": 30,
     "filesystem": "ext4",
