@@ -1,6 +1,7 @@
 package io.github.patricklfdm.generalsearch.durability;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 
@@ -41,4 +42,12 @@ public interface DurableSearchEngine<K, T> extends SearchEngine<K, T> {
 
     /** Returns an immutable durability-specific operational snapshot. */
     DurabilityMetrics durabilityMetrics();
+
+    /**
+     * Returns immutable diagnostics for the last completed durable reopen.
+     * Independent implementations may retain the compatible empty default.
+     */
+    default Optional<DurableReopenReport> lastReopenReport() {
+        return Optional.empty();
+    }
 }

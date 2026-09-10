@@ -44,6 +44,8 @@ final class DurableStorageOwner implements AutoCloseable {
     static final String WAL_FILE = "gse-wal-00000000000000000001.log";
     private static final Pattern WAL_NAME = Pattern.compile(
             "gse-wal-([0-9]{20})\\.log");
+    private static final Pattern DERIVED_COMPONENT_NAME = Pattern.compile(
+            "gse-derived-index-[0-9]{20}-[0-9]{5}-[a-f0-9]{32}\\.idx(?:\\.staging)?");
 
     private static final long METADATA_MAGIC = 0x4753454d45544131L; // GSEMETA1
     private static final int MAX_METADATA_BYTES = 64 * 1024 * 1024;
@@ -173,6 +175,14 @@ final class DurableStorageOwner implements AutoCloseable {
                 validateInitializedMembers(directory, members);
                 Path metadataPath = directory.resolve(METADATA_FILE);
                 Metadata metadata = readMetadata(metadataPath);
+                if (!metadata.format().publicFormat().equals(DurableStorageFormat.V1_2)
+                        && members.stream().anyMatch(
+                                DurableStorageOwner::isDerivedName)) {
+                    throw failure(
+                            DurabilityException.Reason.INCOMPATIBLE_STORAGE,
+                            "derived members require exact durable format (1,2)",
+                            null);
+                }
                 validateMetadata(
                         metadata,
                         config,
@@ -738,7 +748,14 @@ final class DurableStorageOwner implements AutoCloseable {
                 || name.equals(DurableCheckpoint.MANIFEST_STAGING_FILE)
                 || WAL_NAME.matcher(name).matches()
                 || DurableCheckpoint.CHECKPOINT_FILE.matcher(name).matches()
-                || DurableCheckpoint.CHECKPOINT_STAGING_FILE.matcher(name).matches();
+                || DurableCheckpoint.CHECKPOINT_STAGING_FILE.matcher(name).matches()
+                || isDerivedName(name);
+    }
+
+    private static boolean isDerivedName(String name) {
+        return name.equals("gse-derived-manifest")
+                || name.equals("gse-derived-manifest.staging")
+                || DERIVED_COMPONENT_NAME.matcher(name).matches();
     }
 
     private static long retainedBytes(Path directory) throws IOException {
@@ -813,6 +830,9 @@ final class DurableStorageOwner implements AutoCloseable {
             output.writeInt(config.maxDocuments());
             output.writeLong(config.checkpointWalBytes());
             output.writeLong(config.maxRetainedBytes());
+            if (format.minor() == DurableFormatContext.MINOR_1_2) {
+                output.writeLong(config.maxDerivedStateBytes());
+            }
             output.writeInt(indexes.size());
             for (DurableIndexDescriptor index : indexes) {
                 output.writeByte(index.kind());
@@ -887,6 +907,9 @@ final class DurableStorageOwner implements AutoCloseable {
             int maxDocuments = reader.readInt("maximum documents");
             long checkpointWalBytes = reader.readLong("checkpoint WAL bytes");
             long maxRetainedBytes = reader.readLong("maximum retained bytes");
+            long maxDerivedStateBytes = format.minor()
+                    == DurableFormatContext.MINOR_1_2
+                            ? reader.readLong("maximum derived-state bytes") : 0L;
             int indexCount = reader.readInt("startup index count");
             if (indexCount < 0 || indexCount > MAX_STARTUP_INDEXES) {
                 throw incompatible("metadata startup index count is invalid", null);
@@ -922,6 +945,7 @@ final class DurableStorageOwner implements AutoCloseable {
                     maxDocuments,
                     checkpointWalBytes,
                     maxRetainedBytes,
+                    maxDerivedStateBytes,
                     indexes);
         } catch (DurabilityException failure) {
             throw failure;
@@ -954,7 +978,10 @@ final class DurableStorageOwner implements AutoCloseable {
                 || metadata.maxBulkElements() != config.maxBulkElements()
                 || metadata.maxDocuments() != config.maxDocuments()
                 || metadata.checkpointWalBytes() != config.checkpointWalBytes()
-                || metadata.maxRetainedBytes() != config.maxRetainedBytes()) {
+                || metadata.maxRetainedBytes() != config.maxRetainedBytes()
+                || (metadata.format().minor() == DurableFormatContext.MINOR_1_2
+                        && metadata.maxDerivedStateBytes()
+                                != config.maxDerivedStateBytes())) {
             throw incompatible("durable storage safety bounds changed", null);
         }
         if (!metadata.indexes().equals(startupIndexes)) {
@@ -1182,6 +1209,7 @@ final class DurableStorageOwner implements AutoCloseable {
             int maxDocuments,
             long checkpointWalBytes,
             long maxRetainedBytes,
+            long maxDerivedStateBytes,
             List<DurableIndexDescriptor> indexes
     ) {
         Metadata {

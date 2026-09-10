@@ -222,8 +222,18 @@ no-GCP serial control plane and a measured published-4.2 rebuild control. It add
 production `(1,2)` bytes or image-assisted reopen. Paid workflow, IAM, cloud execution
 and registration remain Phase 6-only.
 
+Phase 1 merged through protected PR #120 as `148d253`. Phase 2 activates explicitly
+selected canonical and canonical-only backup `(1,2)` bytes, freezes the new profile,
+derived catalog and four component encodings, and adds bounded codec-free derived
+inspection backed by an independent Python parser and immutable physical fixtures.
+The default remains `(1,0)`; production reopen is still rebuild-only, migration and
+image publication/load remain later-phase work, and no paid cloud action is authorized.
+
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
+The Phase 2 format contract and local evidence are
+[`docs/v4x/v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md`](docs/v4x/v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md)
+and [`docs/v4x/v4.3/PHASE_2_BASELINE.md`](docs/v4x/v4.3/PHASE_2_BASELINE.md).
 
 ## v4.0 completed development contract
 

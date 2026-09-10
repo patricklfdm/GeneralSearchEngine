@@ -39,7 +39,7 @@ import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationReport;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationStatus;
 
-/** Internal writer for immutable {@code gse-backup (1,0)} and {@code (1,1)} bundles. */
+/** Internal writer for immutable {@code gse-backup (1,0)} through {@code (1,2)}. */
 final class DurableBackupWriter {
     private static final long BACKUP_MAGIC = 0x475345424b503130L; // GSEBKP10
     private static final long OPERATION_MAGIC = 0x4753454f50313030L; // GSEOP100
@@ -56,6 +56,8 @@ final class DurableBackupWriter {
             "gse-backup-content-v1\0".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] CONTENT_DOMAIN_V2 =
             "gse-backup-content-v2\0".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] CONTENT_DOMAIN_V3 =
+            "gse-backup-content-v3\0".getBytes(StandardCharsets.US_ASCII);
     private static final int COPY_BUFFER_BYTES = 64 * 1024;
     private static final int MAX_MANIFEST_BYTES = 16 * 1024 * 1024;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
@@ -191,8 +193,7 @@ final class DurableBackupWriter {
                     .reduce(0L, Math::addExact);
             byte[] contentDigest = contentDigest(history, sequence, config,
                     codecIdentity, codecVersion, format, payloads);
-            String contentIdentity = (format.hasProfile()
-                    ? "gse-backup-v2-" : "gse-backup-v1-")
+            String contentIdentity = backupIdentityPrefix(format)
                     + HexFormat.of().formatHex(contentDigest);
             byte[] manifestBytes = encodeManifest(history, sequence, config,
                     codecIdentity, codecVersion, format, payloads, contentDigest,
@@ -239,9 +240,7 @@ final class DurableBackupWriter {
             forceDirectory(target.parent());
             DurableCrashHooks.reach("v41-backup-before-future-completion-v1");
             return new DurableBackupResult(target.target(),
-                    format.hasProfile()
-                            ? DurableBackupFormat.V1_1
-                            : DurableBackupFormat.V1_0,
+                    backupFormat(format),
                     contentIdentity, history,
                     sequence, 3, totalBytes);
         } catch (DurableOperationException exception) {
@@ -346,7 +345,7 @@ final class DurableBackupWriter {
             List<Payload> payloads
     ) {
         MessageDigest digest = sha256();
-        digest.update(format.hasProfile() ? CONTENT_DOMAIN_V2 : CONTENT_DOMAIN_V1);
+        digest.update(contentDomain(format));
         updateString(digest, BACKUP_FAMILY);
         updateShort(digest, FORMAT_MAJOR);
         updateShort(digest, format.minor());
@@ -370,6 +369,33 @@ final class DurableBackupWriter {
             digest.update(payload.sha256());
         });
         return digest.digest();
+    }
+
+    private static DurableBackupFormat backupFormat(DurableFormatContext format) {
+        return switch (format.minor()) {
+            case DurableFormatContext.MINOR_1_0 -> DurableBackupFormat.V1_0;
+            case DurableFormatContext.MINOR_1_1 -> DurableBackupFormat.V1_1;
+            case DurableFormatContext.MINOR_1_2 -> DurableBackupFormat.V1_2;
+            default -> throw new AssertionError("unsupported durable format");
+        };
+    }
+
+    private static String backupIdentityPrefix(DurableFormatContext format) {
+        return switch (format.minor()) {
+            case DurableFormatContext.MINOR_1_0 -> "gse-backup-v1-";
+            case DurableFormatContext.MINOR_1_1 -> "gse-backup-v2-";
+            case DurableFormatContext.MINOR_1_2 -> "gse-backup-v3-";
+            default -> throw new AssertionError("unsupported durable format");
+        };
+    }
+
+    private static byte[] contentDomain(DurableFormatContext format) {
+        return switch (format.minor()) {
+            case DurableFormatContext.MINOR_1_0 -> CONTENT_DOMAIN_V1;
+            case DurableFormatContext.MINOR_1_1 -> CONTENT_DOMAIN_V2;
+            case DurableFormatContext.MINOR_1_2 -> CONTENT_DOMAIN_V3;
+            default -> throw new AssertionError("unsupported durable format");
+        };
     }
 
     private static byte[] encodeManifest(

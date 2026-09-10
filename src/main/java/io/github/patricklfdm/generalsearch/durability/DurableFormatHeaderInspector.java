@@ -73,7 +73,7 @@ final class DurableFormatHeaderInspector {
             }
             DurableStorageFormat format = new DurableStorageFormat(family, major, minor);
             Optional<String> digest = Optional.empty();
-            if (major == 1 && minor == 1) {
+            if (major == 1 && (minor == 1 || minor == 2)) {
                 int length = reader.getInt();
                 if (length < 12 || length > MAX_PROFILE_BYTES
                         || length > reader.remaining() - 32) {
@@ -118,7 +118,8 @@ final class DurableFormatHeaderInspector {
             DurableStorageFormat source =
                     new DurableStorageFormat(sourceFamily, sourceMajor, sourceMinor);
             Optional<String> digest = Optional.empty();
-            if (major == 1 && minor == 1 && sourceMajor == 1 && sourceMinor == 1
+            if (major == 1 && (minor == 1 || minor == 2)
+                    && sourceMajor == 1 && sourceMinor == minor
                     && reader.remaining() >= 32) {
                 byte[] observed = new byte[32];
                 reader.get(observed);

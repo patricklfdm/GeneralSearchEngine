@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
 
-/** Independent codec-free parser used by the public V4.1/V4.2 structural operations. */
+/** Independent codec-free parser used by the public V4.1–V4.3 structural operations. */
 final class DurableStructuralVerifier {
     private static final String LOCK = "gse.lock";
     private static final String METADATA = "gse-metadata";
@@ -68,6 +68,7 @@ final class DurableStructuralVerifier {
     private static final short FORMAT_MAJOR = 1;
     private static final short FORMAT_MINOR_1_0 = 0;
     private static final short FORMAT_MINOR_1_1 = 1;
+    private static final short FORMAT_MINOR_1_2 = 2;
     private static final int MAX_METADATA_BYTES = 64 * 1024 * 1024;
     private static final int MAX_CHECKPOINT_MANIFEST_BYTES = 16 * 1024;
     private static final int MAX_BACKUP_MANIFEST_BYTES = 16 * 1024 * 1024;
@@ -81,17 +82,28 @@ final class DurableStructuralVerifier {
             "gse-backup-content-v1\0".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] BACKUP_V2_DOMAIN =
             "gse-backup-content-v2\0".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] BACKUP_V3_DOMAIN =
+            "gse-backup-content-v3\0".getBytes(StandardCharsets.US_ASCII);
     private static final byte[] PROFILE_DOMAIN =
             "gse-durable-format-profile-v1\0"
                     .getBytes(StandardCharsets.US_ASCII);
     private static final int MAX_PROFILE_BYTES = 4096;
     private static final int MAX_CAPABILITIES = 64;
-    private static final List<String> REQUIRED_PROFILE_CAPABILITIES = List.of(
+    private static final List<String> REQUIRED_PROFILE_CAPABILITIES_V1_1 = List.of(
             "canonical-documents-v1",
             "checkpoint-authority-v1",
             "crc32c-wal-v1",
             "logical-index-config-v1",
             "sha256-profile-binding-v1");
+    private static final List<String> REQUIRED_PROFILE_CAPABILITIES_V1_2 = List.of(
+            "canonical-documents-v1",
+            "checkpoint-authority-v1",
+            "crc32c-wal-v1",
+            "logical-index-config-v1",
+            "reconstructible-derived-index-images-v1",
+            "sha256-profile-binding-v1");
+    private static final Pattern DERIVED_COMPONENT = Pattern.compile(
+            "gse-derived-index-[0-9]{20}-[0-9]{5}-[a-f0-9]{32}\\.idx(?:\\.staging)?");
     private static final int STREAM_BUFFER_BYTES = 64 * 1024;
     private static final Set<String> UNSUPPORTED_FILE_SYSTEM_MARKERS = Set.of(
             "nfs", "cifs", "smb", "fuse", "tmpfs", "ramfs", "9p");
@@ -241,7 +253,7 @@ final class DurableStructuralVerifier {
             if (!knownStoreMember(name)) {
                 findings.add(DurableVerificationStatus.CORRUPT,
                         "UNKNOWN_STORE_MEMBER", name,
-                        "member is not reserved by gse-durable (1,0)");
+                        "member is not reserved by a supported gse-durable format");
             }
         }
         if (!members.containsKey(METADATA)) {
@@ -262,6 +274,15 @@ final class DurableStructuralVerifier {
             findings.add(DurableVerificationStatus.INCOMPATIBLE,
                     "INCOMPATIBLE_FORMAT_PROFILE", METADATA,
                     "metadata declares an intact but unknown format profile");
+        }
+        if (metadata.minor() != FORMAT_MINOR_1_2) {
+            for (String name : members.keySet()) {
+                if (derivedMember(name)) {
+                    findings.add(DurableVerificationStatus.CORRUPT,
+                            "DERIVED_MEMBER_WITH_OLDER_FORMAT", name,
+                            "derived members require exact gse-durable (1,2)");
+                }
+            }
         }
 
         CheckpointManifest manifest = null;
@@ -418,6 +439,8 @@ final class DurableStructuralVerifier {
             int maxDocuments = reader.intValue(crc);
             long checkpointWalBytes = reader.longValue(crc);
             long maxRetainedBytes = reader.longValue(crc);
+            long maxDerivedStateBytes = minor == FORMAT_MINOR_1_2
+                    ? reader.longValue(crc) : 0L;
             int indexCount = reader.intValue(crc);
             if (indexCount < 0 || indexCount > MAX_INDEXES) {
                 throw corrupt("METADATA_INDEX_COUNT", path,
@@ -450,7 +473,12 @@ final class DurableStructuralVerifier {
                     || checkpointWalBytes <= 0
                     || checkpointWalBytes > 1024L * 1024 * 1024 * 1024
                     || maxRetainedBytes <= checkpointWalBytes
-                    || maxRetainedBytes > 16L * 1024 * 1024 * 1024 * 1024) {
+                    || maxRetainedBytes > 16L * 1024 * 1024 * 1024 * 1024
+                    || (minor == FORMAT_MINOR_1_2
+                            && (maxDerivedStateBytes <= 0
+                                    || maxDerivedStateBytes > maxRetainedBytes
+                                    || maxDerivedStateBytes
+                                            > 8L * 1024 * 1024 * 1024 * 1024))) {
                 throw corrupt("METADATA_IDENTITY_OR_BOUNDS", path,
                         "metadata identity or safety bounds are invalid");
             }
@@ -459,6 +487,7 @@ final class DurableStructuralVerifier {
                     storageIdentity, schemaIdentity,
                     codecIdentity, codecVersion, maxKey, maxDocument, maxBulk,
                     maxDocuments, checkpointWalBytes, maxRetainedBytes,
+                    maxDerivedStateBytes,
                     List.copyOf(indexes), reader.size(), reader.sha256());
         }
     }
@@ -685,7 +714,7 @@ final class DurableStructuralVerifier {
             throw corrupt("MIXED_MINOR_VERSION", path,
                     "WAL minor differs from metadata authority");
         }
-        int headerBytes = minor == FORMAT_MINOR_1_1
+        int headerBytes = minor != FORMAT_MINOR_1_0
                 ? WAL_HEADER_V1_1_BYTES : WAL_HEADER_V1_0_BYTES;
         if (reader.size() < headerBytes) {
             throw corrupt("WAL_HEADER_TRUNCATED", path,
@@ -707,7 +736,7 @@ final class DurableStructuralVerifier {
         ByteBuffer decoded = ByteBuffer.wrap(header).order(ByteOrder.BIG_ENDIAN);
         decoded.position(12);
         UUID history = new UUID(decoded.getLong(), decoded.getLong());
-        if (minor == FORMAT_MINOR_1_1) {
+        if (minor != FORMAT_MINOR_1_0) {
             byte[] observed = new byte[32];
             decoded.get(observed);
             if (metadata != null
@@ -835,7 +864,7 @@ final class DurableStructuralVerifier {
                 throw corrupt("BACKUP_SOURCE_FORMAT_MISMATCH", path,
                         "backup and source minor versions must match");
             }
-            byte[] profileDigest = minor == FORMAT_MINOR_1_1
+            byte[] profileDigest = minor != FORMAT_MINOR_1_0
                     ? reader.bytes(32, crc) : new byte[0];
             UUID history = new UUID(reader.longValue(crc), reader.longValue(crc));
             long sequence = reader.longValue(crc);
@@ -985,7 +1014,8 @@ final class DurableStructuralVerifier {
             Path path,
             String memberKind
     ) {
-        if (minor != FORMAT_MINOR_1_0 && minor != FORMAT_MINOR_1_1) {
+        if (minor != FORMAT_MINOR_1_0 && minor != FORMAT_MINOR_1_1
+                && minor != FORMAT_MINOR_1_2) {
             throw incompatible(path,
                     memberKind + " minor version is outside supported policy");
         }
@@ -1034,7 +1064,8 @@ final class DurableStructuralVerifier {
                     "metadata format profile digest is invalid");
         }
         Profile profile = decodeProfile(encoded, path);
-        boolean supported = profile.required().equals(REQUIRED_PROFILE_CAPABILITIES)
+        boolean supported = profile.required().equals(
+                requiredProfileCapabilities(minor))
                 && profile.optional().isEmpty();
         return new ProfileBinding(storedDigest, supported);
     }
@@ -1108,7 +1139,7 @@ final class DurableStructuralVerifier {
             Path path,
             String memberKind
     ) throws IOException {
-        if (minor == FORMAT_MINOR_1_1
+        if (minor != FORMAT_MINOR_1_0
                 && !Arrays.equals(reader.bytes(32, crc), metadata.profileDigest())) {
             throw corrupt("PROFILE_BINDING_MISMATCH", path,
                     memberKind + " profile digest differs from metadata authority");
@@ -1116,14 +1147,27 @@ final class DurableStructuralVerifier {
     }
 
     static byte[] canonicalProfileDigest() {
+        return canonicalProfileDigest(FORMAT_MINOR_1_1);
+    }
+
+    static byte[] canonicalProfileDigest(short minor) {
         MessageDigest digest = sha256();
         digest.update(PROFILE_DOMAIN);
-        updateInt(digest, REQUIRED_PROFILE_CAPABILITIES.size());
-        for (String capability : REQUIRED_PROFILE_CAPABILITIES) {
+        List<String> capabilities = requiredProfileCapabilities(minor);
+        updateInt(digest, capabilities.size());
+        for (String capability : capabilities) {
             updateString(digest, capability);
         }
         updateInt(digest, 0);
         return digest.digest();
+    }
+
+    private static List<String> requiredProfileCapabilities(short minor) {
+        return switch (minor) {
+            case FORMAT_MINOR_1_1 -> REQUIRED_PROFILE_CAPABILITIES_V1_1;
+            case FORMAT_MINOR_1_2 -> REQUIRED_PROFILE_CAPABILITIES_V1_2;
+            default -> List.of();
+        };
     }
 
     private static void validateIncompleteHeader(
@@ -1240,15 +1284,19 @@ final class DurableStructuralVerifier {
 
     private static byte[] backupContentDigest(BackupManifest manifest) {
         MessageDigest digest = sha256();
-        digest.update(manifest.minor() == FORMAT_MINOR_1_1
-                ? BACKUP_V2_DOMAIN : BACKUP_V1_DOMAIN);
+        digest.update(switch (manifest.minor()) {
+            case FORMAT_MINOR_1_0 -> BACKUP_V1_DOMAIN;
+            case FORMAT_MINOR_1_1 -> BACKUP_V2_DOMAIN;
+            case FORMAT_MINOR_1_2 -> BACKUP_V3_DOMAIN;
+            default -> throw new AssertionError("unsupported backup minor");
+        });
         updateString(digest, manifest.family());
         updateShort(digest, manifest.major());
         updateShort(digest, manifest.minor());
         updateString(digest, manifest.sourceFamily());
         updateShort(digest, manifest.sourceMajor());
         updateShort(digest, manifest.sourceMinor());
-        if (manifest.minor() == FORMAT_MINOR_1_1) {
+        if (manifest.minor() != FORMAT_MINOR_1_0) {
             digest.update(manifest.profileDigest());
         }
         updateLong(digest, manifest.history().getMostSignificantBits());
@@ -1284,11 +1332,11 @@ final class DurableStructuralVerifier {
                         && !attributes.isSymbolicLink();
                 FileState state = new FileState(path, attributes.size(), regular);
                 result.put(name, state);
-                if (!regular) {
+                if (!regular && !derivedMember(name)) {
                     findings.add(DurableVerificationStatus.CORRUPT,
                             "NON_REGULAR_MEMBER", name,
                             "directory member is not a non-symbolic regular file");
-                } else if (hardLinkCount(path) > 1) {
+                } else if (!derivedMember(name) && hardLinkCount(path) > 1) {
                     findings.add(DurableVerificationStatus.CORRUPT,
                             "ALIASED_MEMBER", name,
                             "directory member has more than one hard link");
@@ -1381,7 +1429,14 @@ final class DurableStructuralVerifier {
                 || name.equals(CHECKPOINT_MANIFEST_STAGING)
                 || WAL.matcher(name).matches()
                 || CHECKPOINT.matcher(name).matches()
-                || CHECKPOINT_STAGING.matcher(name).matches();
+                || CHECKPOINT_STAGING.matcher(name).matches()
+                || derivedMember(name);
+    }
+
+    private static boolean derivedMember(String name) {
+        return name.equals("gse-derived-manifest")
+                || name.equals("gse-derived-manifest.staging")
+                || DERIVED_COMPONENT.matcher(name).matches();
     }
 
     private static boolean safeStagingMember(String name) {
@@ -1835,6 +1890,7 @@ final class DurableStructuralVerifier {
             int maxDocuments,
             long checkpointWalBytes,
             long maxRetainedBytes,
+            long maxDerivedStateBytes,
             List<IndexDescriptor> indexes,
             long size,
             byte[] sha256

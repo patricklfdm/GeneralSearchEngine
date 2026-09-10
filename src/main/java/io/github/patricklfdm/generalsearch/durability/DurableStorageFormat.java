@@ -17,6 +17,10 @@ public record DurableStorageFormat(String family, int major, int minor) {
     public static final DurableStorageFormat V1_1 =
             new DurableStorageFormat("gse-durable", 1, 1);
 
+    /** Exact V4.3 profile for reconstructible persisted derived index state. */
+    public static final DurableStorageFormat V1_2 =
+            new DurableStorageFormat("gse-durable", 1, 2);
+
     /** Validates a bounded lowercase-hyphenated family and non-negative versions. */
     public DurableStorageFormat {
         Objects.requireNonNull(family, "family");

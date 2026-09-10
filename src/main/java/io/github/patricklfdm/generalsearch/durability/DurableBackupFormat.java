@@ -16,6 +16,10 @@ public record DurableBackupFormat(String family, int major, int minor) {
     public static final DurableBackupFormat V1_1 =
             new DurableBackupFormat("gse-backup", 1, 1);
 
+    /** Exact V4.3 canonical-only backup format for a {@code (1,2)} source. */
+    public static final DurableBackupFormat V1_2 =
+            new DurableBackupFormat("gse-backup", 1, 2);
+
     /** Validates the stable family and non-negative version components. */
     public DurableBackupFormat {
         Objects.requireNonNull(family, "family");

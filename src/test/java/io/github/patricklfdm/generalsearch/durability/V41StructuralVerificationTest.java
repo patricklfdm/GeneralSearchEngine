@@ -276,7 +276,7 @@ class V41StructuralVerificationTest {
         Path incompatible = Files.createDirectory(
                 temporary.resolve("incompatible"));
         materializeBackupFixture(incompatible);
-        rewriteManifestVersion(incompatible.resolve("gse-backup-manifest"), 1, 2);
+        rewriteManifestVersion(incompatible.resolve("gse-backup-manifest"), 1, 3);
         assertEquals(DurableVerificationStatus.INCOMPATIBLE,
                 DurableStorageOperations.verifyBackup(incompatible).status());
     }

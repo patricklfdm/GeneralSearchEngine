@@ -1,12 +1,13 @@
 # GeneralSearchEngine V4.3 Phase 1 public API fixture
 
-- **Status:** Frozen declaration proposal; production types are intentionally absent
+- **Status:** Frozen declaration baseline; realized by Phase 2
 - **Fixture:** `src/test/resources/compatibility/V43FastReopenPublicApi.java.fixture`
 - **Compatibility baseline:** Published `4.2.0`
 
-## Exact additions reserved for Phase 2
+## Exact additions realized in Phase 2
 
-The fixture freezes the following additive names before implementation:
+The fixture froze the following additive names before implementation, and Phase 2
+implemented them without changing the fixture bytes or public declaration shape:
 
 - `DurableStorageFormat.V1_2` and `DurableBackupFormat.V1_2`;
 - `DurableStorageConfig.DEFAULT_MAX_DERIVED_STATE_BYTES`, the internal hard maximum,
@@ -42,7 +43,10 @@ custom-index persistence, background API, or third artifact is introduced.
 
 ## Phase boundary
 
-The fixture is compiled as an independent source file while tests prove the proposed
-production report classes are absent. Phase 1 therefore freezes source shape without
-claiming `(1,2)` readability, derived-state inspection, warm reopen, fallback, refresh
-or migration behavior.
+In Phase 1 the fixture was compiled as an independent source file while tests proved
+the proposed production report classes were absent. Phase 2 preserves its exact
+SHA-256 and verifies the realized API separately; compiling the declaration-only
+fixture against the realized API would intentionally introduce duplicate fixture
+types. Phase 2 owns `(1,2)` readability plus codec-free derived-state inspection.
+Warm reopen, fallback and refresh remain unclaimed until Phases 3 and 4, and migration
+remains outside this Phase 2 boundary.

@@ -88,8 +88,15 @@ final class DurableBackupReader {
                 }
                 return new Authority(format, history, sequence, storageIdentity,
                         schemaIdentity, codecIdentity, codecVersion,
-                        (format.hasProfile()
-                                ? "gse-backup-v2-" : "gse-backup-v1-")
+                        switch (format.minor()) {
+                            case DurableFormatContext.MINOR_1_0 ->
+                                    "gse-backup-v1-";
+                            case DurableFormatContext.MINOR_1_1 ->
+                                    "gse-backup-v2-";
+                            case DurableFormatContext.MINOR_1_2 ->
+                                    "gse-backup-v3-";
+                            default -> throw invalid(null);
+                        }
                                 + HexFormat.of().formatHex(contentDigest));
             }
         } catch (DurableOperationException failure) {
