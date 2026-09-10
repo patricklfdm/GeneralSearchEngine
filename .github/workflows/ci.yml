@@ -91,6 +91,9 @@ jobs:
       - name: Exercise V4.2 performance and replacement-host evidence
         run: scripts/verify-v42-phase6-evidence.sh
 
+      - name: Exercise the V4.3 fast-reopen foundation
+        run: scripts/verify-v43-phase1-foundation.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -123,6 +126,9 @@ jobs:
         run: |
           compat_repo=$(mktemp -d "$RUNNER_TEMP/gse-compat-m2.XXXXXX")
           ./mvnw -Dmaven.repo.local="$compat_repo" clean -Partifact-compat verify
+
+      - name: Calibrate the published V4.2 cold-reopen control
+        run: scripts/verify-v43-published-v42-baseline.sh
 
       - name: Compile independent consumers
         run: scripts/verify-consumer-projects.sh
@@ -225,6 +231,8 @@ jobs:
           bash -n scripts/verify-v42-phase5-lifecycle.sh
           bash -n scripts/verify-v42-phase6-evidence.sh
           bash -n scripts/verify-v42-phase7-release.sh
+          bash -n scripts/verify-v43-phase1-foundation.sh
+          bash -n scripts/verify-v43-published-v42-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v4/remote_durable_member.sh
@@ -273,6 +281,11 @@ jobs:
         run: |
           python -m py_compile scripts/v42/storage_format_v11.py scripts/v42/test_storage_format_v11.py scripts/v42/evidence.py scripts/v42/production_migration_harness.py scripts/v42/fake_cloud_lane.py scripts/v42/migration_performance.py scripts/v42/migration_cloud_workflow.py scripts/v42/migration_cloud_set.py scripts/v42/test_phase6_evidence.py
           python -m unittest scripts.v42.test_storage_format_v11 scripts.v42.test_phase6_evidence
+
+      - name: Validate V4.3 fixtures, evidence, and fake cloud control plane
+        run: |
+          python -m py_compile scripts/v43/derived_fixture.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/test_derived_fixture.py scripts/v43/test_phase1_infrastructure.py
+          python -m unittest scripts.v43.test_derived_fixture scripts.v43.test_phase1_infrastructure
 
   required:
     name: Required

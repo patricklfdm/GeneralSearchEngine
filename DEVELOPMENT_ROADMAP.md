@@ -183,7 +183,7 @@ upgrade, online or reverse migration, in-place cutover, history merge, replicati
 or a third artifact. Published `4.1.0` remains the immediate prior stable release and
 operational-safety compatibility baseline.
 
-## v4.3 Phase 0 fast-reopen candidate
+## v4.3 active fast-reopen development
 
 V4.3 begins from published `4.2.0` with a documentation-only contract. The proposed
 boundary introduces explicit `gse-durable (1,2)` and matching canonical-only backup
@@ -213,10 +213,17 @@ plan before production image code. The distinct eventual evidence identities are
 `v4.3-fast-reopen-v1`, and append-only `v4.3.0-fast-reopen-cloud`. Paid work remains
 Phase 6-only after explicit confirmation.
 
-The authoritative candidate is under
-[`docs/v4x/v4.3/`](docs/v4x/v4.3/PHASE_0_CONTRACT.md). Until protected Phase 0
-acceptance, no version, production code, executable harness, workflow, IAM, registry,
-or paid-resource change is authorized.
+Phase 0 merged through protected PR #119 as
+`d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
+passed. Phase 1 opens all eight active coordinates as `4.3.0-SNAPSHOT`, pins the exact
+published-4.2 artifact, freezes declaration-only public types and numeric bounds, and
+adds independent four-index logical fixtures, a separate-JVM crash scaffold, a
+no-GCP serial control plane and a measured published-4.2 rebuild control. It adds no
+production `(1,2)` bytes or image-assisted reopen. Paid workflow, IAM, cloud execution
+and registration remain Phase 6-only.
+
+The authoritative Phase 1 baseline is
+[`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
 
 ## v4.0 completed development contract
 

@@ -1,0 +1,129 @@
+package fixture;
+
+import java.nio.file.Path;
+import java.time.Duration;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.UUID;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupFormat;
+import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+
+// Declaration-only V4.3 Phase 1 fixture. Production behavior remains absent.
+interface DurableStorageConfigBuilderV43Contract<K, T> {
+    long DEFAULT_MAX_DERIVED_STATE_BYTES = 2L * 1024 * 1024 * 1024;
+    long HARD_MAX_DERIVED_STATE_BYTES = 8L * 1024 * 1024 * 1024 * 1024;
+
+    DurableStorageConfig.Builder<K, T> maxDerivedStateBytes(long value);
+}
+
+interface DurableSearchEngineV43Contract<K, T> extends DurableSearchEngine<K, T> {
+    default Optional<DurableReopenReport> lastReopenReport() {
+        return Optional.empty();
+    }
+}
+
+final class DurableStorageOperationsV43Contract {
+    private DurableStorageOperationsV43Contract() { }
+
+    static DurableDerivedStateReport inspectDerivedState(Path directory) {
+        throw new UnsupportedOperationException();
+    }
+}
+
+record DurableStorageFormatV43(String family, int major, int minor) {
+    static final DurableStorageFormatV43 V1_2 =
+            new DurableStorageFormatV43("gse-durable", 1, 2);
+}
+
+record DurableBackupFormatV43(String family, int major, int minor) {
+    static final DurableBackupFormatV43 V1_2 =
+            new DurableBackupFormatV43("gse-backup", 1, 2);
+
+    DurableBackupFormat asPublicFormat() {
+        return new DurableBackupFormat(family, major, minor);
+    }
+}
+
+enum DurableDerivedStateStatus {
+    NOT_APPLICABLE,
+    ABSENT,
+    VALID,
+    PARTIAL,
+    STALE,
+    INCOMPATIBLE,
+    INCOMPLETE,
+    CORRUPT
+}
+
+enum DurableDerivedComponentStatus {
+    ADMISSIBLE,
+    MISSING,
+    STALE,
+    INCOMPATIBLE,
+    INCOMPLETE,
+    CORRUPT
+}
+
+record DurableDerivedFinding(String code, String member, String detail) { }
+
+record DurableDerivedComponentReport(
+        int ordinal,
+        String indexName,
+        String indexKind,
+        DurableDerivedComponentStatus status,
+        long bytes,
+        Optional<String> sha256,
+        List<DurableDerivedFinding> findings) { }
+
+record DurableDerivedStateReport(
+        Path directory,
+        DurableDerivedStateStatus status,
+        Optional<io.github.patricklfdm.generalsearch.durability.DurableStorageFormat>
+                declaredFormat,
+        Optional<UUID> history,
+        OptionalLong checkpointSequence,
+        Optional<String> catalogIdentity,
+        int expectedComponentCount,
+        int referencedComponentCount,
+        int admissibleComponentCount,
+        int rejectedComponentCount,
+        long referencedBytes,
+        long admissibleBytes,
+        long rejectedBytes,
+        long stagingBytes,
+        long unreferencedBytes,
+        List<DurableDerivedComponentReport> components,
+        List<DurableDerivedFinding> findings) { }
+
+enum DurableReopenOutcome {
+    NOT_APPLICABLE,
+    COMPLETE_WARM,
+    PARTIAL_FALLBACK,
+    FULL_FALLBACK
+}
+
+record DurableReopenRejection(int ordinal, String code) { }
+
+record DurableReopenReport(
+        long authoritativeCheckpointSequence,
+        long recoveredSequence,
+        int checkpointIndexCount,
+        int loadedComponentCount,
+        int rebuiltComponentCount,
+        int replayCreatedIndexCount,
+        DurableDerivedStateStatus derivedStatus,
+        DurableReopenOutcome outcome,
+        List<DurableReopenRejection> rejections,
+        Duration canonicalLoadDuration,
+        Duration derivedInspectionDuration,
+        Duration derivedLoadDuration,
+        Duration rebuildDuration,
+        Duration walReplayDuration,
+        Duration refreshDuration,
+        Duration totalOpenDuration,
+        long derivedBytesRead,
+        long derivedBytesWritten,
+        boolean refreshAttempted,
+        boolean refreshSucceeded) { }
