@@ -16,12 +16,12 @@ and `v4.2.0-migration-cloud` all resolve to that exact commit. Release workflow 
 `34415073641` uploaded successfully but retains its later 1800-second Central-status
 polling timeout as an explicit historical failure.
 
-V4.3 Phase 0 is now a documentation-only candidate. It proposes explicit format
-`(1,2)` for reconstructible persisted derived state, keeps canonical documents and
-logical index configuration authoritative, and requires deterministic full or
-component-selective rebuild for every absent, stale, incompatible, incomplete, or
-corrupt accelerator. No V4.3 implementation or version change is authorized before
-protected Phase 0 acceptance.
+V4.3 Phase 0 was accepted through protected PR #119 as
+`d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
+passed. Phase 1 opens `4.3.0-SNAPSHOT` and establishes declaration-only APIs,
+independent four-index models and fixtures, a separate-process crash scaffold, a
+no-GCP serial evidence plan and exact published-4.2 calibration. Production `(1,2)`
+and derived-state behavior remain absent.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -57,6 +57,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md)
+- [V4.3 Phase 1 public API fixture](v4.3/PHASE_1_API_FIXTURE.md)
+- [V4.3 Phase 1 foundation baseline](v4.3/PHASE_1_BASELINE.md)
+- [V4.3 Phase 1 checklist](v4.3/PHASE_1_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
@@ -133,7 +136,7 @@ is a Phase 0 blocker, not an implicit amendment.
 
 `docs/v4/` remains the closed historical record for published `4.0.0`;
 `docs/v4x/v4.1/` and `docs/v4x/v4.2/` retain the completed `4.1.0` and `4.2.0`
-records. V4.3 candidate contracts live under `docs/v4x/v4.3/`. Version-specific V4.x
+records. V4.3 development records live under `docs/v4x/v4.3/`. Version-specific V4.x
 work belongs below `docs/v4x/v4.N/`; future minor releases do not rewrite prior
 evidence. Raw benchmark output and downloaded cloud artifacts remain outside tracked
 documentation.

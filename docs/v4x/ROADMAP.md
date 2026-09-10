@@ -261,7 +261,9 @@ the registered canonical evidence all resolve to that exact commit. The original
 release workflow retains its post-upload Central polling timeout; no immutable
 artifact was redeployed.
 
-V4.3 now has a documentation-only Phase 0 candidate based on published `4.2.0`.
-Until its protected acceptance is complete, it authorizes no `4.3.0-SNAPSHOT`,
-format `(1,2)` bytes, production derived images, executable harness, workflow, IAM,
-registry mutation, or paid cloud work.
+V4.3 Phase 0 merged through protected PR #119 as
+`d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
+passed. Phase 1 opens `4.3.0-SNAPSHOT`, pins published 4.2, freezes declaration-only
+APIs and independent logical fixtures, and establishes local crash plus fake-cloud
+evidence before production `(1,2)` bytes. Paid workflow, IAM mutation, registry
+mutation and cloud execution remain prohibited until Phase 6.

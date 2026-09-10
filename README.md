@@ -21,11 +21,12 @@ under the [V4 contract map](docs/v4/README.md). Version `4.2.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.3 is currently in documentation-only Phase 0. Its proposed fast-reopen contract
-uses explicit format `(1,2)` and reconstructible per-index images while preserving
-canonical checkpoint/WAL authority and deterministic fallback. It makes no production
-or release claim until protected acceptance. See the
-[V4.3 Phase 0 contract](docs/v4x/v4.3/PHASE_0_CONTRACT.md).
+V4.3 Phase 0 is accepted and Phase 1 has opened `4.3.0-SNAPSHOT`. Its fast-reopen
+foundation freezes explicit format `(1,2)`, reconstructible per-index images,
+declaration-only APIs, independent models, local crash evidence and quota-safe future
+cloud evidence while preserving canonical checkpoint/WAL authority. No production
+`(1,2)` or image behavior exists yet. See the
+[V4.3 Phase 1 baseline](docs/v4x/v4.3/PHASE_1_BASELINE.md).
 
 V4.2 adds explicit format `(1,1)`, codec-free dual-minor inspection and source-
 preserving offline migration while keeping `(1,0)` as the default. Phase 6 cloud
