@@ -16,6 +16,13 @@ and `v4.2.0-migration-cloud` all resolve to that exact commit. Release workflow 
 `34415073641` uploaded successfully but retains its later 1800-second Central-status
 polling timeout as an explicit historical failure.
 
+V4.3 Phase 0 is now a documentation-only candidate. It proposes explicit format
+`(1,2)` for reconstructible persisted derived state, keeps canonical documents and
+logical index configuration authoritative, and requires deterministic full or
+component-selective rebuild for every absent, stale, incompatible, incomplete, or
+corrupt accelerator. No V4.3 implementation or version change is authorized before
+protected Phase 0 acceptance.
+
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
 passed. Phase 1 opened `4.2.0-SNAPSHOT` and established declaration-only APIs,
@@ -47,6 +54,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 ## Authority map
 
 - [V4.x roadmap](ROADMAP.md)
+- [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
+- [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
+- [V4.3 Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
@@ -112,16 +122,18 @@ format `gse-durable (1,0)`, checkpoints, WAL recovery, and retrieval behavior. T
 published V4.1 contracts govern backup, restore, verification, cleanup, and evidence
 semantics. The published V4.2 contracts govern explicit format `(1,1)`, dual-minor
 inspection and source-preserving migration. The V4.x roadmap governs later release
-ordering and scope.
+ordering and scope. V4.3 documents remain proposals until protected Phase 0 acceptance
+and cannot override a published guarantee.
 
 If documents conflict, the most specialized accepted contract controls, but it may
-not weaken an inherited published guarantee. Any conflict with V4.0 or V4.1 is a
-Phase 0 blocker, not an implicit amendment.
+not weaken an inherited published guarantee. Any conflict with V4.0, V4.1, or V4.2
+is a Phase 0 blocker, not an implicit amendment.
 
 ## Documentation policy
 
 `docs/v4/` remains the closed historical record for published `4.0.0`;
 `docs/v4x/v4.1/` and `docs/v4x/v4.2/` retain the completed `4.1.0` and `4.2.0`
-records. Version-specific V4.x work belongs below `docs/v4x/v4.N/`; future minor
-releases do not rewrite prior evidence. Raw benchmark output and downloaded cloud
-artifacts remain outside tracked documentation.
+records. V4.3 candidate contracts live under `docs/v4x/v4.3/`. Version-specific V4.x
+work belongs below `docs/v4x/v4.N/`; future minor releases do not rewrite prior
+evidence. Raw benchmark output and downloaded cloud artifacts remain outside tracked
+documentation.
