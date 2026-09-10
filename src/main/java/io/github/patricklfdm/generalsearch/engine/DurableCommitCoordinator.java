@@ -22,6 +22,9 @@ import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
 import io.github.patricklfdm.generalsearch.durability.DurableOperationException;
+import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
+import io.github.patricklfdm.generalsearch.durability.DurableReopenOutcome;
+import io.github.patricklfdm.generalsearch.durability.DurableReopenReport;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.durability.DurabilityMetrics;
@@ -29,6 +32,7 @@ import io.github.patricklfdm.generalsearch.durability.DurabilityStatus;
 import io.github.patricklfdm.generalsearch.durability.RecoverySource;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 
 final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private static final Pattern IDENTITY = Pattern.compile(
@@ -55,6 +59,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
     private final long storageOpenNanos;
     private final long checkpointLoadNanos;
     private final long replayAndRebuildNanos;
+    private final Optional<DurableReopenReport> reopenReport;
     private volatile long checkpointSequence;
     private Optional<DurabilityException.Reason> lastCheckpointFailure =
             Optional.empty();
@@ -79,7 +84,8 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
             long checkpointLoadNanos,
             long replayAndRebuildNanos,
             String codecIdentity,
-            int codecVersion
+            int codecVersion,
+            Optional<DurableReopenReport> reopenReport
     ) {
         this.config = config;
         this.codec = config.codec();
@@ -109,6 +115,7 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         this.storageOpenNanos = storageOpenNanos;
         this.checkpointLoadNanos = checkpointLoadNanos;
         this.replayAndRebuildNanos = replayAndRebuildNanos;
+        this.reopenReport = Objects.requireNonNull(reopenReport, "reopenReport");
         allocatedSequence = recoveredState.sequence();
         publishedSequence = recoveredState.sequence();
         checkpointExecutor = Executors.newSingleThreadExecutor(task -> {
@@ -147,11 +154,84 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                 : DurabilityException.Reason.IO_FAILURE;
     }
 
+    private static <K, T> DurableReopenReport reopenReport(
+            DurableStorageOwner.OpenResult opened,
+            DurableCheckpoint.Loaded<K, T> checkpoint,
+            List<DurableIndexDescriptor> startupIndexes,
+            DurableStructuredDerivedState.LoadResult<T> derived,
+            DurableStructuredDerivedState.RefreshResult refresh,
+            DurableRecovery.Result<K, T> recovered,
+            long checkpointLoadNanos,
+            long replayAndRebuildNanos,
+            long recoveryStarted
+    ) {
+        int checkpointIndexes = checkpoint == null
+                ? startupIndexes.size()
+                : checkpoint.indexes().size();
+        boolean applicable = opened.owner().format().minor()
+                == DurableFormatContext.MINOR_1_2;
+        DurableDerivedStateStatus status = derived == null
+                ? applicable
+                        ? DurableDerivedStateStatus.ABSENT
+                        : DurableDerivedStateStatus.NOT_APPLICABLE
+                : derived.status();
+        DurableReopenOutcome outcome = derived == null
+                ? applicable
+                        ? DurableReopenOutcome.FULL_FALLBACK
+                        : DurableReopenOutcome.NOT_APPLICABLE
+                : derived.outcome();
+        int loaded = derived == null ? 0 : derived.loadedComponents();
+        int rebuilt = derived == null
+                ? checkpointIndexes
+                : derived.rebuiltComponents();
+        Duration rebuild = derived == null
+                ? recovered.indexRebuildDuration()
+                : derived.rebuildDuration();
+        long walOnlyNanos = derived == null
+                ? Math.max(0L,
+                        replayAndRebuildNanos - rebuild.toNanos())
+                : replayAndRebuildNanos;
+        return new DurableReopenReport(
+                opened.manifest() == null
+                        ? 0L
+                        : opened.manifest().checkpointSequence(),
+                recovered.sequence(),
+                checkpointIndexes,
+                loaded,
+                rebuilt,
+                recovered.replayCreatedIndexes(),
+                status,
+                outcome,
+                derived == null ? List.of() : derived.rejections(),
+                Duration.ofNanos(checkpointLoadNanos),
+                derived == null ? Duration.ZERO : derived.inspectionDuration(),
+                derived == null ? Duration.ZERO : derived.loadDuration(),
+                rebuild,
+                Duration.ofNanos(walOnlyNanos),
+                refresh.duration(),
+                Duration.ofNanos(Math.max(0L,
+                        System.nanoTime() - recoveryStarted)),
+                derived == null ? 0L : derived.bytesRead(),
+                refresh.bytesWritten(),
+                refresh.attempted(),
+                refresh.succeeded());
+    }
+
     static <K, T> DurableCommitCoordinator<K, T> open(
             DurableStorageConfig<K, T> config,
             SnapshotEngineConfig engineConfig,
             SearchSchema<T, K> schema,
             Collection<? extends IndexDefinition<T>> startupDefinitions
+    ) {
+        return open(config, engineConfig, schema, startupDefinitions, true);
+    }
+
+    static <K, T> DurableCommitCoordinator<K, T> open(
+            DurableStorageConfig<K, T> config,
+            SnapshotEngineConfig engineConfig,
+            SearchSchema<T, K> schema,
+            Collection<? extends IndexDefinition<T>> startupDefinitions,
+            boolean allowDerivedState
     ) {
         Objects.requireNonNull(config, "storageConfig");
         Objects.requireNonNull(engineConfig, "engineConfig");
@@ -201,16 +281,43 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                             opened.owner().historyId(),
                             opened.manifest());
             long checkpointLoadNanos = elapsedSince(checkpointLoadStarted);
+            DurableStructuredDerivedState.LoadResult<T> derived = null;
+            DurableStructuredDerivedState.RefreshResult refresh =
+                    new DurableStructuredDerivedState.RefreshResult(
+                            false, false, Duration.ZERO, 0L);
+            SearchSnapshot<T> checkpointSnapshot = null;
+            if (allowDerivedState && checkpoint != null
+                    && opened.owner().format().minor()
+                            == DurableFormatContext.MINOR_1_2) {
+                derived = DurableStructuredDerivedState.load(
+                        opened.owner(), config, schema, opened.manifest(), checkpoint);
+                checkpointSnapshot = derived.checkpointSnapshot();
+                if (derived.outcome() != DurableReopenOutcome.COMPLETE_WARM) {
+                    refresh = DurableStructuredDerivedState.refresh(
+                            opened.owner(), config, schema, opened.manifest(),
+                            new DurableCheckpoint.Capture<>(
+                                    checkpointSnapshot, checkpoint.documentIds(),
+                                    checkpoint.nextDocId(), checkpoint.sequence(),
+                                    checkpoint.indexes()));
+                }
+            }
             long replayStarted = System.nanoTime();
             DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(
                     config,
                     schema,
                     indexes,
                     checkpoint,
+                    checkpointSnapshot,
                     opened.wals(),
                     !opened.fresh());
             long replayAndRebuildNanos = elapsedSince(replayStarted);
             opened.owner().finishRecovery();
+            Optional<DurableReopenReport> reopenReport = opened.fresh()
+                    ? Optional.empty()
+                    : Optional.of(reopenReport(
+                            opened, checkpoint, indexes, derived, refresh,
+                            recovered, checkpointLoadNanos,
+                            replayAndRebuildNanos, recoveryStarted));
             return new DurableCommitCoordinator<>(
                     config,
                     schema,
@@ -222,7 +329,8 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
                     checkpointLoadNanos,
                     replayAndRebuildNanos,
                     codecId,
-                    codecVersion);
+                    codecVersion,
+                    reopenReport);
         } catch (IOException ioFailure) {
             DurabilityException failure = new DurabilityException(
                     DurabilityException.Reason.STORAGE_ACCESS,
@@ -451,6 +559,10 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
 
     DurabilityMetrics metrics() {
         return metrics.get();
+    }
+
+    Optional<DurableReopenReport> lastReopenReport() {
+        return reopenReport;
     }
 
     synchronized DurablePerformanceSnapshot performanceSnapshot() {
@@ -777,6 +889,10 @@ final class DurableCommitCoordinator<K, T> implements AutoCloseable {
         try {
             DurableStorageOwner.CheckpointPublication publication =
                     storage.publishCheckpoint(capture, config, schema, cut);
+            if (storage.format().minor() == DurableFormatContext.MINOR_1_2) {
+                DurableStructuredDerivedState.refresh(
+                        storage, config, schema, publication.manifest(), capture);
+            }
             synchronized (this) {
                 checkpointSequence = publication.manifest().checkpointSequence();
                 lastCheckpointFailure = Optional.ofNullable(

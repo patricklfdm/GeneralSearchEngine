@@ -20,6 +20,9 @@ remains the phase history and decision source of truth.
 - [V4.3 Phase 2 derived format and inspection](v4x/v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md)
 - [V4.3 Phase 2 local baseline](v4x/v4.3/PHASE_2_BASELINE.md)
 - [V4.3 Phase 2 checklist](v4x/v4.3/PHASE_2_CHECKLIST.md)
+- [V4.3 Phase 3 structured images and migration](v4x/v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md)
+- [V4.3 Phase 3 local baseline](v4x/v4.3/PHASE_3_BASELINE.md)
+- [V4.3 Phase 3 checklist](v4x/v4.3/PHASE_3_CHECKLIST.md)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
@@ -87,8 +90,10 @@ V4.3 Phase 0 was accepted through protected PR #119 as
 `d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
 passed. Phase 1 merged through protected PR #120 as `148d253` and established the
 non-production API/model, crash-harness, fake-cloud and published-4.2 calibration
-foundation. Phase 2 freezes exact `(1,2)` canonical/backup/derived bytes and adds
-codec-free inspection while production reopen remains rebuild-only.
+foundation. Phase 2 froze exact `(1,2)` canonical/backup/derived bytes and codec-free
+inspection through protected PR #121 and exact-master CI `34446500594`. Phase 3 now
+implements structured equality/range/prefix warm reopen, fallback/refresh and direct
+cold-target `(1,2)` migration; text images remain deferred to Phase 4.
 
 ## v4.0 — prior stable durable single-node foundation
 

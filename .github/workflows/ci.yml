@@ -97,6 +97,9 @@ jobs:
       - name: Exercise V4.3 exact derived format and inspection
         run: scripts/verify-v43-phase2-derived-format.sh --skip-build
 
+      - name: Exercise V4.3 structured images and direct migration
+        run: scripts/verify-v43-phase3-structured-images.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -236,6 +239,7 @@ jobs:
           bash -n scripts/verify-v42-phase7-release.sh
           bash -n scripts/verify-v43-phase1-foundation.sh
           bash -n scripts/verify-v43-phase2-derived-format.sh
+          bash -n scripts/verify-v43-phase3-structured-images.sh
           bash -n scripts/verify-v43-published-v42-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
@@ -288,7 +292,7 @@ jobs:
 
       - name: Validate V4.3 fixtures, evidence, and fake cloud control plane
         run: |
-          python -m py_compile scripts/v43/derived_fixture.py scripts/v43/derived_format_v12.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/test_derived_fixture.py scripts/v43/test_derived_format_v12.py scripts/v43/test_phase1_infrastructure.py
+          python -m py_compile scripts/v43/derived_fixture.py scripts/v43/derived_format_v12.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/structured_image_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/test_derived_fixture.py scripts/v43/test_derived_format_v12.py scripts/v43/test_phase1_infrastructure.py
           python -m unittest scripts.v43.test_derived_fixture scripts.v43.test_derived_format_v12 scripts.v43.test_phase1_infrastructure
 
   required:

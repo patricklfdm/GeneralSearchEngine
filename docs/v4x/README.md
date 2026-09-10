@@ -21,9 +21,12 @@ V4.3 Phase 0 was accepted through protected PR #119 as
 passed. Phase 1 opened `4.3.0-SNAPSHOT` and established declaration-only APIs,
 independent four-index models and fixtures, a separate-process crash scaffold, a
 no-GCP serial evidence plan and exact published-4.2 calibration; it merged through
-protected PR #120 as `148d253`. Phase 2 now freezes exact `(1,2)` canonical, backup,
-catalog and component bytes plus codec-free derived inspection. Production image
-loading and publication remain absent.
+protected PR #120 as `148d253`. Phase 2 froze exact `(1,2)` canonical, backup,
+catalog and component bytes plus codec-free derived inspection; it merged through
+protected PR #121 as `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`, and exact-master
+CI run `34446500594` passed. Phase 3 now activates structured equality/range/prefix
+image publication, warm/selective/full fallback reopen and direct cold-target `(1,2)`
+migration edges. Text images remain Phase 4 work.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -65,6 +68,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 Phase 2 derived format and inspection](v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md)
 - [V4.3 Phase 2 local baseline](v4.3/PHASE_2_BASELINE.md)
 - [V4.3 Phase 2 checklist](v4.3/PHASE_2_CHECKLIST.md)
+- [V4.3 Phase 3 structured images and migration](v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md)
+- [V4.3 Phase 3 local baseline](v4.3/PHASE_3_BASELINE.md)
+- [V4.3 Phase 3 checklist](v4.3/PHASE_3_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)

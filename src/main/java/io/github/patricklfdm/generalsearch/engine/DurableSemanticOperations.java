@@ -113,7 +113,7 @@ final class DurableSemanticOperations {
                 return stateMismatch(structural);
             }
             recovered = DurableRecovery.replay(decodeConfig, schema,
-                    startupIndexes, loaded, List.of(), false);
+                    startupIndexes, loaded, null, List.of(), false);
             if (recovered.sequence() != authority.sequence()
                     || recovered.nextDocId() != loaded.nextDocId()
                     || !recovered.documentIds().equals(loaded.documentIds())

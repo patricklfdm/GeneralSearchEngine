@@ -229,11 +229,24 @@ inspection backed by an independent Python parser and immutable physical fixture
 The default remains `(1,0)`; production reopen is still rebuild-only, migration and
 image publication/load remain later-phase work, and no paid cloud action is authorized.
 
+Phase 2 merged through protected PR #121 as
+`e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`; exact-master CI run `34446500594`
+passed. Phase 3 now activates equality/range/prefix image publication and
+materialization, component-selective/full fallback, synchronous bounded best-effort
+refresh, WAL replay over the recovered checkpoint snapshot and direct
+`(1,0)`/`(1,1)`/meaningful `(1,2)` migration into a cold `(1,2)` target. Its real
+production separate-JVM crash matrix covers both internal halt and external kill.
+SimpleAnalyzer text images remain exclusively Phase 4 work; no paid cloud action is
+authorized.
+
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
 The Phase 2 format contract and local evidence are
 [`docs/v4x/v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md`](docs/v4x/v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md)
 and [`docs/v4x/v4.3/PHASE_2_BASELINE.md`](docs/v4x/v4.3/PHASE_2_BASELINE.md).
+The Phase 3 implementation contract and local evidence are
+[`docs/v4x/v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md`](docs/v4x/v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md)
+and [`docs/v4x/v4.3/PHASE_3_BASELINE.md`](docs/v4x/v4.3/PHASE_3_BASELINE.md).
 
 ## v4.0 completed development contract
 

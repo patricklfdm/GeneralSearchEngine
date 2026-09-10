@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 2 checklist
 
-- **Status:** Candidate for protected acceptance
+- **Status:** Merged through protected PR #121; exact-master CI passed
 - **Scope:** Exact `(1,2)` bytes and codec-free derived inspection
 
 ## Entry
@@ -65,9 +65,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 2 pull request passes required checks.
-- [ ] Phase 2 merges to protected `master`; exact commit is recorded.
-- [ ] Exact protected-master CI passes before Phase 3.
+- [x] Phase 2 pull request #121 passed required checks.
+- [x] Phase 2 merged to protected `master` as
+  `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`.
+- [x] Exact protected-master CI run `34446500594` passed before Phase 3.
 
 Phase 3 alone owns structured equality/range/prefix image publication/load/fallback
 and direct migration edges. Text images and complete selective behavior remain Phase 4.

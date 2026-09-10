@@ -38,7 +38,13 @@ public final class IndexRegistry<T> {
         return new IndexRegistry<>(indexes);
     }
 
-    static <T> IndexRegistry<T> fromSnapshots(List<IndexSnapshot<T>> indexes) {
+    /**
+     * Internal persistence bridge for constructing a registry from validated
+     * immutable built-in snapshots. Application code should use {@link #create}.
+     */
+    public static <T> IndexRegistry<T> fromSnapshots(
+            List<IndexSnapshot<T>> indexes
+    ) {
         return new IndexRegistry<>(indexes);
     }
 

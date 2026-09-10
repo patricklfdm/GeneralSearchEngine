@@ -34,7 +34,8 @@ public final class EqualityIndexSnapshot<T, V> implements EstimatingIndexSnapsho
         return new EqualityIndexSnapshot<>(field, ImmutableOverlayMap.empty(), 0);
     }
 
-    static <T, V> EqualityIndexSnapshot<T, V> fromValues(
+    /** Internal persistence bridge; values must already satisfy index invariants. */
+    public static <T, V> EqualityIndexSnapshot<T, V> fromValues(
             Field<T, V> field,
             ImmutableOverlayMap<V, ImmutableBitmap> values,
             int indexedDocumentCount
