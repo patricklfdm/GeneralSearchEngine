@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 0 candidate
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 3 active
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -167,6 +167,12 @@ remain unchanged. The exact boundary is frozen in the
 [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md),
 [Phase 0 contract](v4.3/PHASE_0_CONTRACT.md), and
 [Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md).
+
+Phases 0–2 are accepted. Phase 3 activates the equality, range and prefix portion of
+that model: checkpoint-bound structured images, complete/partial/full reopen paths,
+bounded best-effort refresh, WAL replay over recovered snapshots and direct
+source-preserving cold-target migration to `(1,2)`. Text images remain owned by
+Phase 4, and exhaustive lifecycle hardening remains owned by Phase 5.
 
 ## V4.4 — Final Durable Hardening
 

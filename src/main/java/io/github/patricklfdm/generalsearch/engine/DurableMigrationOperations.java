@@ -259,7 +259,8 @@ final class DurableMigrationOperations {
                     metadata.codecVersion(), metadata.maxKeyBytes(),
                     metadata.maxDocumentBytes(), metadata.maxBulkElements(),
                     metadata.maxDocuments(), metadata.checkpointWalBytes(),
-                    metadata.maxRetainedBytes(), sourceIndexes);
+                    metadata.maxRetainedBytes(), metadata.maxDerivedStateBytes(),
+                    sourceIndexes);
             String targetDescriptor = targetDescriptorDigest(
                     request.targetConfig(), targetIndexes);
             DurableMigrationIndexChange change = indexChange(
@@ -297,7 +298,8 @@ final class DurableMigrationOperations {
     private static void validateTargetFormat(
             DurableMigrationRequest<?, ?, ?, ?> request) {
         DurableStorageFormat target = request.targetConfig().format();
-        if (!target.equals(DurableStorageFormat.V1_1)) {
+        if (!target.equals(DurableStorageFormat.V1_1)
+                && !target.equals(DurableStorageFormat.V1_2)) {
             throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
                     DurableMigrationStage.VALIDATE_REQUEST,
                     OptionalLong.empty(), null);
@@ -342,7 +344,13 @@ final class DurableMigrationOperations {
         }
         DurableStorageFormat source = metadata.format().publicFormat();
         if (!source.equals(DurableStorageFormat.V1_0)
-                && !source.equals(DurableStorageFormat.V1_1)) {
+                && !source.equals(DurableStorageFormat.V1_1)
+                && !source.equals(DurableStorageFormat.V1_2)) {
+            throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
+                    DurableMigrationStage.VALIDATE_REQUEST,
+                    OptionalLong.empty(), null);
+        }
+        if (source.minor() > target.format().minor()) {
             throw failure(DurableMigrationException.Reason.MIGRATION_PATH_UNSUPPORTED,
                     DurableMigrationStage.VALIDATE_REQUEST,
                     OptionalLong.empty(), null);
@@ -350,7 +358,8 @@ final class DurableMigrationOperations {
         if (source.equals(DurableStorageFormat.V1_0)) {
             return;
         }
-        boolean identityChanged = !metadata.storageIdentity()
+        boolean identityChanged = !source.equals(target.format())
+                || !metadata.storageIdentity()
                 .equals(target.storageIdentity())
                 || !metadata.schemaIdentity().equals(target.schemaIdentity())
                 || !metadata.codecId().equals(targetCodec)
@@ -402,6 +411,9 @@ final class DurableMigrationOperations {
         update(digest, targetConfig.maxDocuments());
         update(digest, targetConfig.checkpointWalBytes());
         update(digest, targetConfig.maxRetainedBytes());
+        if (targetConfig.format().equals(DurableStorageFormat.V1_2)) {
+            update(digest, targetConfig.maxDerivedStateBytes());
+        }
         descriptors(targetDefinitions).forEach(index ->
                 update(digest, indexString(index)));
         update(digest, request.transformDescriptor().identifier());
@@ -543,7 +555,8 @@ final class DurableMigrationOperations {
                         request.targetConfig(), plan, observation.projection());
                 try (DurableCommitCoordinator<K, T> targetOwner =
                              DurableCommitCoordinator.open(request.targetConfig(),
-                                     engineConfig, schema, targetDefinitions)) {
+                                     engineConfig, schema, targetDefinitions,
+                                     false)) {
                     // Normal production open/close is part of completion.
                 }
                 DurableCrashHooks.reach(
@@ -645,9 +658,10 @@ final class DurableMigrationOperations {
                 plan.sourceSequence());
         Path checkpointStaging = staging.resolve(checkpointFile + ".staging");
         DurableCrashHooks.reach("v42-migration-before-checkpoint-write-v1");
+        DurableFormatContext targetFormat = DurableFormatContext.from(config.format());
         DurableCheckpoint.Written written = DurableCheckpoint.write(
                 checkpointStaging, capture, config, schema,
-                DurableFormatContext.V1_1, plan.targetHistory(),
+                targetFormat, plan.targetHistory(),
                 config.maxRetainedBytes());
         Files.move(checkpointStaging, staging.resolve(checkpointFile),
                 StandardCopyOption.ATOMIC_MOVE);
@@ -657,7 +671,7 @@ final class DurableMigrationOperations {
         String walName = DurableStorageOwner.walFile(WAL_GENERATION);
         DurableCrashHooks.reach("v42-migration-before-wal-write-v1");
         try (DurableWal ignored = DurableWal.create(staging.resolve(walName),
-                DurableFormatContext.V1_1, plan.targetHistory(), WAL_GENERATION,
+                targetFormat, plan.targetHistory(), WAL_GENERATION,
                 firstSequence)) {
             // Header creation is forced by DurableWal.create.
         }
@@ -672,7 +686,7 @@ final class DurableMigrationOperations {
         try (FileChannel channel = FileChannel.open(manifestStaging,
                 StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
             writeFully(channel, ByteBuffer.wrap(DurableCheckpoint.encodeManifest(
-                    manifest, DurableFormatContext.V1_1, plan.targetHistory())));
+                    manifest, targetFormat, plan.targetHistory())));
             channel.force(true);
         }
         Files.move(manifestStaging,
@@ -789,7 +803,8 @@ final class DurableMigrationOperations {
     private static <SK, ST, TK, TT> DurableStorageConfig<SK, ST> sourceStorage(
             Path source, DurableStorageOwner.Metadata metadata,
             DurableMigrationRequest<SK, ST, TK, TT> request) {
-        return DurableStorageConfig.builder(source, request.sourceConfig().codec())
+        DurableStorageConfig.Builder<SK, ST> builder = DurableStorageConfig
+                .builder(source, request.sourceConfig().codec())
                 .format(metadata.format().publicFormat())
                 .storageIdentity(metadata.storageIdentity())
                 .schemaIdentity(metadata.schemaIdentity())
@@ -798,8 +813,11 @@ final class DurableMigrationOperations {
                 .maxBulkElements(metadata.maxBulkElements())
                 .maxDocuments(metadata.maxDocuments())
                 .checkpointWalBytes(metadata.checkpointWalBytes())
-                .maxRetainedBytes(metadata.maxRetainedBytes())
-                .build();
+                .maxRetainedBytes(metadata.maxRetainedBytes());
+        if (metadata.format().minor() == DurableFormatContext.MINOR_1_2) {
+            builder.maxDerivedStateBytes(metadata.maxDerivedStateBytes());
+        }
+        return builder.build();
     }
 
     private static Target validatePaths(Path source, Path configuredTarget) {
@@ -864,6 +882,8 @@ final class DurableMigrationOperations {
             entries = stream.toList();
         }
         Set<String> actual = entries.stream()
+                .filter(path -> !ignoredDerivedMember(
+                        metadata, path.getFileName().toString()))
                 .map(path -> path.getFileName().toString())
                 .collect(java.util.stream.Collectors.toSet());
         if (!actual.equals(expected)) {
@@ -874,7 +894,8 @@ final class DurableMigrationOperations {
         ArrayList<DurableMigrationSourceMember> result = new ArrayList<>();
         for (Path entry : entries) {
             String name = entry.getFileName().toString();
-            if (name.equals(DurableStorageOwner.LOCK_FILE)) {
+            if (name.equals(DurableStorageOwner.LOCK_FILE)
+                    || ignoredDerivedMember(metadata, name)) {
                 continue;
             }
             if (Files.isSymbolicLink(entry)
@@ -888,6 +909,14 @@ final class DurableMigrationOperations {
         }
         result.sort(Comparator.comparing(DurableMigrationSourceMember::name));
         return List.copyOf(result);
+    }
+
+    private static boolean ignoredDerivedMember(
+            DurableStorageOwner.Metadata metadata,
+            String name
+    ) {
+        return metadata.format().minor() == DurableFormatContext.MINOR_1_2
+                && DurableStructuredDerivedState.recognizedName(name);
     }
 
     private static String sourceAuthorityIdentity(
@@ -914,7 +943,8 @@ final class DurableMigrationOperations {
             DurableStorageFormat format, String storage, String schema,
             String codec, int codecVersion, int maxKey, int maxDocument,
             int maxBulk, int maxDocuments, long checkpointWalBytes,
-            long maxRetainedBytes, List<DurableIndexDescriptor> indexes) {
+            long maxRetainedBytes, long maxDerivedStateBytes,
+            List<DurableIndexDescriptor> indexes) {
         MessageDigest digest = digest(DESCRIPTOR_DOMAIN);
         update(digest, format.family());
         update(digest, format.major());
@@ -929,6 +959,9 @@ final class DurableMigrationOperations {
         update(digest, maxDocuments);
         update(digest, checkpointWalBytes);
         update(digest, maxRetainedBytes);
+        if (format.equals(DurableStorageFormat.V1_2)) {
+            update(digest, maxDerivedStateBytes);
+        }
         update(digest, DurableFormatContext.from(format).profileDigest());
         indexStrings(indexes).forEach(value -> update(digest, value));
         return "gse-migration-descriptor-v1-"
@@ -943,7 +976,8 @@ final class DurableMigrationOperations {
                 config.codec().codecId(), config.codec().codecVersion(),
                 config.maxEncodedKeyBytes(), config.maxEncodedDocumentBytes(),
                 config.maxBulkElements(), config.maxDocuments(),
-                config.checkpointWalBytes(), config.maxRetainedBytes(), indexes);
+                config.checkpointWalBytes(), config.maxRetainedBytes(),
+                config.maxDerivedStateBytes(), indexes);
     }
 
     private static String planDigest(
@@ -1065,11 +1099,12 @@ final class DurableMigrationOperations {
         DurableCheckpoint.Manifest manifest = new DurableCheckpoint.Manifest(
                 sequence, filename, checkpoint, 0, WAL_GENERATION,
                 Math.addExact(sequence, 1L));
+        DurableFormatContext format = DurableFormatContext.from(config.format());
         long manifestBytes = DurableCheckpoint.encodeManifest(
-                manifest, DurableFormatContext.V1_1, history).length;
+                manifest, format, history).length;
         return Math.addExact(Math.addExact(metadata.length, checkpoint),
                 Math.addExact(manifestBytes,
-                        DurableFormatContext.V1_1.walHeaderBytes()));
+                        format.walHeaderBytes()));
     }
 
     private static List<String> indexStrings(List<DurableIndexDescriptor> indexes) {

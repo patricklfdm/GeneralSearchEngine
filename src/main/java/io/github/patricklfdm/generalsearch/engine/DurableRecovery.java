@@ -17,6 +17,7 @@ import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.durability.DurabilityException;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.index.IndexBuilder;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
@@ -34,6 +35,7 @@ final class DurableRecovery {
             SearchSchema<T, K> schema,
             List<DurableIndexDescriptor> startupIndexes,
             DurableCheckpoint.Loaded<K, T> checkpoint,
+            SearchSnapshot<T> checkpointSnapshot,
             List<DurableWal> wals,
             boolean recoveryBarriers
     ) {
@@ -42,7 +44,8 @@ final class DurableRecovery {
                 config,
                 schema,
                 startupIndexes,
-                checkpoint);
+                checkpoint,
+                checkpointSnapshot);
         for (DurableWal wal : List.copyOf(wals)) {
             wal.forEachFrame(frame -> {
                 if (frame.sequence() <= state.lastSequence) {
@@ -65,9 +68,13 @@ final class DurableRecovery {
             DurableCrashHooks.reach("v4-recovery-after-replay-v1");
         }
 
-        long rebuildStarted = System.nanoTime();
         SearchSnapshot<T> snapshot;
-        try {
+        Duration indexRebuildDuration;
+        if (state.snapshot != null) {
+            snapshot = state.snapshot;
+            indexRebuildDuration = Duration.ZERO;
+        } else try {
+            long rebuildStarted = System.nanoTime();
             List<IndexDefinition<T>> definitions = state.indexes.stream()
                     .map(descriptor -> descriptor.toDefinition(schema))
                     .toList();
@@ -84,19 +91,20 @@ final class DurableRecovery {
                 }
                 snapshot = builder.build();
             }
+            indexRebuildDuration = elapsed(rebuildStarted);
         } catch (RuntimeException failure) {
             throw new DurabilityException(
                     DurabilityException.Reason.INDEX_REBUILD_FAILURE,
                     "derived-index rebuild failed during durable open",
                     failure);
         }
-        Duration indexRebuildDuration = elapsed(rebuildStarted);
         return new Result<>(
                 snapshot,
                 state.documentIds,
                 state.nextDocId,
                 state.lastSequence,
                 state.replayedRecords,
+                state.replayCreatedIndexes,
                 state.indexes,
                 elapsed(recoveryStarted),
                 indexRebuildDuration);
@@ -112,6 +120,7 @@ final class DurableRecovery {
             int nextDocId,
             long sequence,
             long replayedRecords,
+            int replayCreatedIndexes,
             List<DurableIndexDescriptor> indexes,
             Duration recoveryDuration,
             Duration indexRebuildDuration
@@ -120,7 +129,8 @@ final class DurableRecovery {
             Objects.requireNonNull(snapshot, "snapshot");
             documentIds = Map.copyOf(documentIds);
             indexes = List.copyOf(indexes);
-            if (nextDocId < 0 || sequence < 0 || replayedRecords < 0) {
+            if (nextDocId < 0 || sequence < 0 || replayedRecords < 0
+                    || replayCreatedIndexes < 0) {
                 throw new IllegalArgumentException("negative recovered state value");
             }
             Objects.requireNonNull(recoveryDuration, "recoveryDuration");
@@ -135,16 +145,19 @@ final class DurableRecovery {
         private final Map<K, Integer> documentIds = new HashMap<>();
         private final List<T> slots = new ArrayList<>();
         private final List<DurableIndexDescriptor> indexes;
+        private SearchSnapshot<T> snapshot;
         private int nextDocId;
         private int liveDocuments;
         private long lastSequence;
         private long replayedRecords;
+        private int replayCreatedIndexes;
 
         private ReplayState(
                 DurableStorageConfig<K, T> config,
                 SearchSchema<T, K> schema,
                 List<DurableIndexDescriptor> startupIndexes,
-                DurableCheckpoint.Loaded<K, T> checkpoint
+                DurableCheckpoint.Loaded<K, T> checkpoint,
+                SearchSnapshot<T> checkpointSnapshot
         ) {
             this.config = config;
             this.codec = config.codec();
@@ -159,6 +172,7 @@ final class DurableRecovery {
                 liveDocuments = checkpoint.documentIds().size();
                 lastSequence = checkpoint.sequence();
             }
+            snapshot = checkpointSnapshot;
         }
 
         private void apply(DurableWal.Frame frame) {
@@ -295,6 +309,13 @@ final class DurableRecovery {
                     }
                     int docId = nextDocId++;
                     slots.add(mutation.document());
+                    if (snapshot != null) {
+                        try {
+                            snapshot = snapshot.add(docId, mutation.document());
+                        } catch (RuntimeException failure) {
+                            throw indexRebuildFailure(failure);
+                        }
+                    }
                     documentIds.put(mutation.key(), docId);
                     liveDocuments++;
                 }
@@ -305,11 +326,25 @@ final class DurableRecovery {
                                 sequence, "replayed update targets a missing key", null);
                     }
                     slots.set(docId, mutation.document());
+                    if (snapshot != null) {
+                        try {
+                            snapshot = snapshot.update(docId, mutation.document());
+                        } catch (RuntimeException failure) {
+                            throw indexRebuildFailure(failure);
+                        }
+                    }
                 }
                 case REMOVE -> {
                     Integer docId = documentIds.remove(mutation.key());
                     if (docId != null) {
                         slots.set(docId, null);
+                        if (snapshot != null) {
+                            try {
+                                snapshot = snapshot.remove(docId);
+                            } catch (RuntimeException failure) {
+                                throw indexRebuildFailure(failure);
+                            }
+                        }
                         liveDocuments--;
                     }
                 }
@@ -348,6 +383,23 @@ final class DurableRecovery {
                         sequence, "replayed index create already exists", null);
             }
             indexes.add(descriptor);
+            replayCreatedIndexes++;
+            if (snapshot != null) {
+                try {
+                    IndexDefinition<T> definition = descriptor.toDefinition(schema);
+                    IndexBuilder<T> builder = definition.createEmpty().toBuilder();
+                    for (int docId = 0; docId < slots.size(); docId++) {
+                        T document = slots.get(docId);
+                        if (document != null) {
+                            builder.add(docId, document);
+                        }
+                    }
+                    snapshot = snapshot.withIndexes(
+                            snapshot.indexes().withIndex(builder.build()));
+                } catch (RuntimeException failure) {
+                    throw indexRebuildFailure(failure);
+                }
+            }
         }
 
         private void applyDropIndex(String fieldName, long sequence) {
@@ -358,6 +410,22 @@ final class DurableRecovery {
                         sequence, "persisted index drop references unknown field", failure);
             }
             indexes.removeIf(index -> index.fieldName().equals(fieldName));
+            if (snapshot != null) {
+                try {
+                    snapshot = snapshot.withIndexes(
+                            snapshot.indexes().withoutIndexes(
+                                    schema.requireField(fieldName)));
+                } catch (RuntimeException failure) {
+                    throw indexRebuildFailure(failure);
+                }
+            }
+        }
+
+        private DurabilityException indexRebuildFailure(RuntimeException failure) {
+            return new DurabilityException(
+                    DurabilityException.Reason.INDEX_REBUILD_FAILURE,
+                    "derived-index rebuild failed during durable open",
+                    failure);
         }
 
     }

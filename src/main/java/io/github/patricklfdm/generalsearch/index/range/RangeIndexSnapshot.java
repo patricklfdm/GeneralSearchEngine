@@ -43,7 +43,8 @@ public final class RangeIndexSnapshot<T, V extends Comparable<? super V>>
         );
     }
 
-    static <T, V extends Comparable<? super V>> RangeIndexSnapshot<T, V> fromValues(
+    /** Internal persistence bridge; values must already satisfy index invariants. */
+    public static <T, V extends Comparable<? super V>> RangeIndexSnapshot<T, V> fromValues(
             Field<T, V> field,
             PersistentAvlMap<V, ImmutableBitmap> values,
             int indexedDocumentCount

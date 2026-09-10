@@ -287,7 +287,7 @@ final class DurableRestoreWriter {
                 directory.resolve(manifest.checkpointFile()), config, schema,
                 metadata.format(), history, manifest);
         DurableRecovery.Result<K, T> recovered = DurableRecovery.replay(config,
-                schema, startupIndexes, loaded, List.of(), false);
+                schema, startupIndexes, loaded, null, List.of(), false);
         if (loaded.sequence() != source.sequence()
                 || loaded.nextDocId() != source.nextDocId()
                 || !loaded.documentIds().equals(source.documentIds())

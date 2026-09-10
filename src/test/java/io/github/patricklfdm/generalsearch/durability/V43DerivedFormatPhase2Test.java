@@ -86,7 +86,7 @@ class V43DerivedFormatPhase2Test {
     }
 
     @Test
-    void exactV12CanonicalStoreRemainsRebuildOnlyAndDerivedAbsent(
+    void exactV12CanonicalStoreActivatesPhaseThreeEmptyCatalog(
             @TempDir Path workspace
     ) {
         Path store = workspace.resolve("store");
@@ -108,7 +108,7 @@ class V43DerivedFormatPhase2Test {
 
         DurableDerivedStateReport derived =
                 DurableStorageOperations.inspectDerivedState(store);
-        assertEquals(DurableDerivedStateStatus.ABSENT, derived.status());
+        assertEquals(DurableDerivedStateStatus.VALID, derived.status());
         assertEquals(Optional.of(DurableStorageFormat.V1_2),
                 derived.declaredFormat());
         assertTrue(derived.history().isPresent());
@@ -120,8 +120,10 @@ class V43DerivedFormatPhase2Test {
                 .builder(Document.class, ID)
                 .buildDurable(config(store, DurableStorageFormat.V1_2).build())) {
             assertEquals(new Document(1, "alpha"), reopened.get(1));
-            assertTrue(reopened.lastReopenReport().isEmpty(),
-                    "Phase 2 production open remains rebuild-only");
+            DurableReopenReport report = reopened.lastReopenReport().orElseThrow();
+            assertEquals(DurableReopenOutcome.COMPLETE_WARM, report.outcome());
+            assertEquals(0, report.loadedComponentCount());
+            assertEquals(0, report.rebuiltComponentCount());
         }
     }
 
@@ -333,7 +335,7 @@ class V43DerivedFormatPhase2Test {
     }
 
     @Test
-    void productionOpenIgnoresValidDerivedFixtureAndRebuildsCanonically(
+    void phaseThreeLoadsStructuredFixtureAndLeavesTextForPhaseFour(
             @TempDir Path workspace
     ) throws Exception {
         Path live = materializeLive(workspace.resolve("rebuild-only"));
@@ -361,8 +363,11 @@ class V43DerivedFormatPhase2Test {
                 .index(IndexDefinition.text(ANALYZED_BODY))
                 .buildDurable(storage)) {
             assertEquals(7, engine.currentSequence());
-            assertTrue(engine.lastReopenReport().isEmpty(),
-                    "Phase 2 must not admit derived components");
+            DurableReopenReport report = engine.lastReopenReport().orElseThrow();
+            assertEquals(DurableReopenOutcome.PARTIAL_FALLBACK, report.outcome());
+            assertEquals(3, report.loadedComponentCount());
+            assertEquals(1, report.rebuiltComponentCount());
+            assertFalse(report.refreshSucceeded());
         }
         assertEquals(before, directoryDigests(live));
     }

@@ -1,21 +1,41 @@
 package io.github.patricklfdm.generalsearch.durability.harness;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 import java.util.stream.Stream;
 import java.util.regex.Pattern;
+import io.github.patricklfdm.generalsearch.durability.DurableCodec;
+import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
+import io.github.patricklfdm.generalsearch.durability.DurableReopenReport;
+import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
+import io.github.patricklfdm.generalsearch.durability.DurableVerificationStatus;
+import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.query.Query;
+import io.github.patricklfdm.generalsearch.schema.Field;
 
 /** Separate-JVM scaffold for V4.3 barriers before production images exist. */
 public final class V43FastReopenHarnessProcess {
-    private static final Pattern ID = Pattern.compile("[a-z0-9][a-z0-9-]{0,127}");
+    private static final Pattern BARRIER_ID =
+            Pattern.compile("[a-z0-9][a-z0-9-]{0,127}");
 
     private V43FastReopenHarnessProcess() {
     }
 
     public static void main(String[] arguments) throws Exception {
-        if (arguments.length != 3 || !ID.matcher(arguments[2]).matches()) {
+        if (arguments.length != 3 || !BARRIER_ID.matcher(arguments[2]).matches()) {
             throw new IllegalArgumentException("expected mode, store and barrier ID");
         }
         String mode = arguments[0];
@@ -25,6 +45,9 @@ public final class V43FastReopenHarnessProcess {
             case "child-halt" -> child(store, barrier, true);
             case "child-wait" -> child(store, barrier, false);
             case "verify" -> verify(store, barrier);
+            case "phase3-crash" -> phase3Crash(store);
+            case "phase3-inspect" -> phase3Inspect(store, barrier);
+            case "phase3-verify" -> phase3Verify(store, barrier);
             default -> throw new IllegalArgumentException("unknown mode: " + mode);
         }
     }
@@ -80,5 +103,170 @@ public final class V43FastReopenHarnessProcess {
                 + "\"status\":\"PASS\",\"canonicalAuthority\":\"VALID\","
                 + "\"derivedState\":\"ABSENT\",\"productionDerivedState\":false,"
                 + "\"barrierId\":\"" + barrier + "\"}");
+    }
+
+    private static void phase3Crash(Path store) {
+        installShutdownMarker(store.resolve("graceful-close.marker"));
+        String barrier = System.getProperty("gse.v4.crashBarrier");
+        String action = System.getProperty("gse.v4.crashAction", "halt");
+        if (barrier == null) {
+            throw new IllegalArgumentException("missing production crash barrier");
+        }
+        System.clearProperty("gse.v4.crashBarrier");
+        DurableSearchEngine<Integer, Document> engine = openEngine(store);
+        engine.addAll(List.of(
+                new Document(1, "book", 10, "alpha"),
+                new Document(2, "music", 20, "alpine"),
+                new Document(3, "book", 30, "beta"))).join();
+        System.setProperty("gse.v4.crashBarrier", barrier);
+        System.setProperty("gse.v4.crashAction", action);
+        engine.checkpoint().join();
+        throw new IllegalStateException(
+                "configured V4.3 derived-state barrier was not reached");
+    }
+
+    private static void phase3Verify(Path store, String barrier) {
+        if (Files.exists(store.resolve("graceful-close.marker"))) {
+            throw new IllegalStateException("graceful shutdown path ran");
+        }
+        DurableReopenReport report;
+        try (DurableSearchEngine<Integer, Document> engine = openEngine(store)) {
+            report = engine.lastReopenReport().orElseThrow();
+            if (engine.currentSequence() != 1
+                    || engine.get(1) == null || engine.get(2) == null
+                    || engine.get(3) == null
+                    || !engine.search(Query.eq(CATEGORY, "book")).stream()
+                            .map(Document::id).toList().equals(List.of(1, 3))
+                    || !engine.search(Query.between(PRICE, 15, 30)).stream()
+                            .map(Document::id).toList().equals(List.of(2, 3))
+                    || !engine.search(Query.prefix(TITLE, "al")).stream()
+                            .map(Document::id).toList().equals(List.of(1, 2))) {
+                throw new IllegalStateException(
+                        "V4.3 replacement-JVM query result mismatch");
+            }
+        }
+        DurableDerivedStateStatus finalStatus =
+                DurableStorageOperations.inspectDerivedState(store).status();
+        if (finalStatus != DurableDerivedStateStatus.VALID) {
+            throw new IllegalStateException(
+                    "replacement JVM did not leave a valid derived generation");
+        }
+        System.out.println("GSE_V43_VERIFY_RESULT={\"schemaVersion\":1,"
+                + "\"status\":\"PASS\",\"canonicalAuthority\":\"VALID\","
+                + "\"derivedState\":\"" + finalStatus + "\","
+                + "\"reopenOutcome\":\"" + report.outcome() + "\","
+                + "\"refreshAttempted\":" + report.refreshAttempted() + ","
+                + "\"refreshSucceeded\":" + report.refreshSucceeded() + ","
+                + "\"barrierId\":\"" + barrier + "\"}");
+    }
+
+    private static void phase3Inspect(Path store, String barrier) {
+        var canonical = DurableStorageOperations.verifyStore(store);
+        var derived = DurableStorageOperations.inspectDerivedState(store);
+        if (canonical.status() != DurableVerificationStatus.VALID
+                || derived.status() == DurableDerivedStateStatus.NOT_APPLICABLE
+                || derived.status() == DurableDerivedStateStatus.INCOMPATIBLE) {
+            throw new IllegalStateException(
+                    "independent pre-open inspection rejected crash state");
+        }
+        System.out.println("GSE_V43_INSPECTION_RESULT={\"schemaVersion\":1,"
+                + "\"canonicalAuthority\":\"VALID\","
+                + "\"derivedState\":\"" + derived.status() + "\","
+                + "\"barrierId\":\"" + barrier + "\"}");
+    }
+
+    private static DurableSearchEngine<Integer, Document> openEngine(Path store) {
+        DurableStorageConfig<Integer, Document> storage =
+                DurableStorageConfig.builder(store, new DocumentCodec())
+                        .format(DurableStorageFormat.V1_2)
+                        .storageIdentity("v43-phase3-crash-store")
+                        .schemaIdentity("v43-phase3-crash-schema")
+                        .checkpointWalBytes(1024 * 1024)
+                        .maxRetainedBytes(64L * 1024 * 1024)
+                        .maxDerivedStateBytes(16L * 1024 * 1024)
+                        .build();
+        return SearchEngine.builder(Document.class, ID)
+                .field(CATEGORY).field(PRICE).field(TITLE)
+                .index(IndexDefinition.equality(CATEGORY))
+                .index(IndexDefinition.range(PRICE))
+                .index(IndexDefinition.prefix(TITLE))
+                .buildDurable(storage);
+    }
+
+    private static void installShutdownMarker(Path marker) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                Files.writeString(marker, "shutdown-hook-ran\n",
+                        StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW);
+            } catch (Exception ignored) {
+                // The verifier treats marker presence as a non-abrupt termination.
+            }
+        }, "v43-derived-shutdown-marker"));
+    }
+
+    private static final Field<Document, Integer> ID =
+            Field.of("id", Integer.class, Document::id);
+    private static final Field<Document, String> CATEGORY =
+            Field.of("category", String.class, Document::category);
+    private static final Field<Document, Integer> PRICE =
+            Field.of("price", Integer.class, Document::price);
+    private static final Field<Document, String> TITLE =
+            Field.of("title", String.class, Document::title);
+
+    private record Document(int id, String category, int price, String title) {
+    }
+
+    private static final class DocumentCodec
+            implements DurableCodec<Integer, Document> {
+        @Override
+        public String codecId() {
+            return "v43-phase3-crash-codec";
+        }
+
+        @Override
+        public int codecVersion() {
+            return 1;
+        }
+
+        @Override
+        public byte[] encodeKey(Integer key) {
+            return ByteBuffer.allocate(Integer.BYTES).putInt(key).array();
+        }
+
+        @Override
+        public Integer decodeKey(byte[] bytes) {
+            return ByteBuffer.wrap(bytes).getInt();
+        }
+
+        @Override
+        public byte[] encodeDocument(Document document) {
+            try {
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                try (DataOutputStream output = new DataOutputStream(bytes)) {
+                    output.writeInt(document.id());
+                    output.writeUTF(document.category());
+                    output.writeInt(document.price());
+                    output.writeUTF(document.title());
+                }
+                return bytes.toByteArray();
+            } catch (IOException impossible) {
+                throw new AssertionError(impossible);
+            }
+        }
+
+        @Override
+        public Document decodeDocument(byte[] bytes) {
+            try (DataInputStream input = new DataInputStream(
+                    new ByteArrayInputStream(bytes))) {
+                Document result = new Document(input.readInt(), input.readUTF(),
+                        input.readInt(), input.readUTF());
+                if (input.available() != 0) {
+                    throw new IllegalArgumentException("trailing document bytes");
+                }
+                return result;
+            } catch (IOException failure) {
+                throw new IllegalArgumentException("invalid document bytes", failure);
+            }
+        }
     }
 }

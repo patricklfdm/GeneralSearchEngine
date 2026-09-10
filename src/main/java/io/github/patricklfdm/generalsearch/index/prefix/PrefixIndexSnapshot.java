@@ -40,7 +40,8 @@ public final class PrefixIndexSnapshot<T> implements EstimatingIndexSnapshot<T> 
         );
     }
 
-    static <T> PrefixIndexSnapshot<T> fromValues(
+    /** Internal persistence bridge; values must already satisfy index invariants. */
+    public static <T> PrefixIndexSnapshot<T> fromValues(
             Field<T, String> field,
             PersistentAvlMap<String, ImmutableBitmap> values,
             int indexedDocumentCount

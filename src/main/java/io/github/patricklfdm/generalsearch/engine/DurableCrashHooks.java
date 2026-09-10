@@ -87,7 +87,26 @@ final class DurableCrashHooks {
             "v42-migration-before-marker-delete-v1",
             "v42-migration-after-marker-delete-v1",
             "v42-migration-after-marker-parent-force-v1",
-            "v42-migration-before-return-v1"
+            "v42-migration-before-return-v1",
+            "v43-derived-before-refresh-v1",
+            "v43-derived-before-component-write-v1",
+            "v43-derived-during-component-write-v1",
+            "v43-derived-after-component-force-v1",
+            "v43-derived-during-component-validation-v1",
+            "v43-derived-before-component-rename-v1",
+            "v43-derived-after-component-rename-v1",
+            "v43-derived-after-component-parent-force-v1",
+            "v43-derived-before-catalog-write-v1",
+            "v43-derived-during-catalog-write-v1",
+            "v43-derived-after-catalog-force-v1",
+            "v43-derived-before-catalog-publication-v1",
+            "v43-derived-after-catalog-publication-v1",
+            "v43-derived-after-catalog-parent-force-v1",
+            "v43-derived-during-published-reinspection-v1",
+            "v43-derived-after-complete-generation-v1",
+            "v43-derived-after-refresh-v1",
+            "v43-derived-before-fallback-rebuild-v1",
+            "v43-derived-after-fallback-rebuild-v1"
     );
 
     private DurableCrashHooks() {
