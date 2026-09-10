@@ -6,28 +6,26 @@ engine uses immutable search snapshots and persistent, block-based bitmaps so re
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version 4.1.0 is the current stable release. Its signed `v4.1.0` tag, both Maven
-artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
-verification, and `v4.1.0-operational-cloud` evidence baseline are complete.
-Publication completed on September 3, 2026 Pacific time
-(`2026-09-04T00:25:52Z`). Version 4.0.0 remains the immediate prior stable release
-and immutable correct-durability/live-format compatibility baseline; version 3.4.0
-remains the frozen in-memory compatibility baseline.
+Version 4.2.0 is the current stable release. Its signed `v4.2.0` tag, both Maven
+artifacts, reconciled production deployment, GitHub Release, clean remote V3/V4
+consumer verification, and `v4.2.0-migration-cloud` evidence baseline are complete.
+Publication completed on September 9, 2026 Pacific time
+(`2026-09-10T00:17:47Z`). Version 4.1.0 remains the immediate prior stable release
+and operational-safety compatibility baseline; version 4.0.0 remains the immutable
+correct-durability/live-format `1.0` baseline, and version 3.4.0 remains the frozen
+in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [V4.x development map](docs/v4x/README.md). The published V4.0 foundation remains
-under the [V4 contract map](docs/v4/README.md). Version `4.1.0` is available from
+under the [V4 contract map](docs/v4/README.md). Version `4.2.0` is available from
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.2 is a final release candidate at local version `4.2.0`; it is not yet published.
-The candidate adds explicit format `(1,1)`, codec-free dual-minor inspection and
-source-preserving offline migration while keeping `(1,0)` as the default. Phase 6
-cloud evidence and `v4.2.0-migration-cloud` registration are accepted. Phase 7 local
-validation of final coordinates, public compatibility, consumers, Javadocs, artifacts
-and reproducibility is complete; protected candidate acceptance is pending. Signing,
-tagging, Central publication, deployment and GitHub Release remain Phase 8 gates. See
-the
+V4.2 adds explicit format `(1,1)`, codec-free dual-minor inspection and source-
+preserving offline migration while keeping `(1,0)` as the default. Phase 6 cloud
+evidence, `v4.2.0-migration-cloud`, final coordinates, public compatibility,
+consumers, Javadocs, reproducibility and post-publication verification are complete.
+See the
 [V4.2 API/storage compatibility contract](docs/v4x/v4.2/API_COMPATIBILITY.md),
 [migration guide](docs/v4x/v4.2/MIGRATION_GUIDE.md) and
 [release checklist](docs/v4x/v4.2/RELEASE_CHECKLIST.md).
@@ -118,8 +116,8 @@ application remains responsible for stopping writers, validating the target, cut
 traffic over and reconciling any target-only writes if it rolls back.
 
 V4.2 does not provide silent upgrade, online or reverse migration, directory swap,
-history merge or replication. Until Phase 8 completes, use published `4.1.0` in
-production and treat the repository's `4.2.0` coordinate as an unpublished candidate.
+history merge or replication. Applications opt into format `(1,1)` or explicit
+migration deliberately; upgrading the dependency alone preserves default `(1,0)`.
 
 ## Requirements
 
@@ -128,7 +126,7 @@ production and treat the repository's `4.2.0` coordinate as an unpublished candi
 
 ## Install
 
-### Stable 4.1.0
+### Stable 4.2.0
 
 The runtime dependency is:
 
@@ -136,28 +134,30 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.1.0</version>
+    <version>4.2.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:4.1.0`. Existing 4.0 users can
-upgrade without a live-format migration and opt into the new operational APIs through
-the [4.0-to-4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md). Existing 3.4 users
-can retain the in-memory path without supported source changes. All earlier published
-contracts remain recorded in their historical documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:4.2.0`. Existing 4.1 users can
+upgrade without a live-format migration and opt into explicit format `(1,1)` through
+the [4.1-to-4.2 migration guide](docs/v4x/v4.2/MIGRATION_GUIDE.md). Existing 4.0 users
+retain format `(1,0)`, and existing 3.4 users can retain the in-memory path without
+supported source changes. All earlier published contracts remain recorded in their
+historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.1.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.2.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.1.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.2.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v4.1.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.1.0).
+[`v4.2.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.2.0).
 
-V4.1 keeps ordinary search in memory unless `buildDurable(...)` is selected. See the
-[V4.1 migration guide](docs/v4x/v4.1/MIGRATION_GUIDE.md) for backup, verification,
-restore, cleanup, rollout, rollback, and operator responsibilities.
+V4.2 keeps ordinary search in memory unless `buildDurable(...)` is selected and keeps
+durable storage at format `(1,0)` unless `(1,1)` is selected explicitly. See the
+[V4.2 migration guide](docs/v4x/v4.2/MIGRATION_GUIDE.md) for inspection, planning,
+apply, cutover, rollback, and operator responsibilities.
 
 ### What is new in V3.1
 

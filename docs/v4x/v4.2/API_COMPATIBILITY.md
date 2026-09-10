@@ -63,12 +63,14 @@ unsupported edges and ambiguous publication fail closed.
 
 ## Independent proof
 
-The final candidate requires source/reflection fixtures, fresh-isolated Japicmp
+The published release passed source/reflection fixtures, fresh-isolated Japicmp
 through published `4.1.0`, all four independent consumers, immutable physical and
 logical migration fixtures, strict Javadocs, six-JAR service-boundary inspection and
-two byte-identical release builds. The V4 consumer performs a public-only `(1,0)` to
-`(1,1)` migration, proves source preservation, opens and mutates the target, then
-checkpoints and reopens it.
+two byte-identical release builds. Post-publication verification checked eight remote
+POM/JAR artifacts, their signatures and SHA-1 files, immutable format fixtures and
+clean V3/V4 consumers. The V4 consumer performs a public-only `(1,0)` to `(1,1)`
+migration, proves source preservation, opens and mutates the target, then checkpoints
+and reopens it.
 
 V4.2 publishes the same two Maven artifacts as V4.1. Migration scripts, crash
 harnesses and cloud workflows are evidence infrastructure, not a third supported
