@@ -49,5 +49,6 @@ inherited V4.0 operational smoke gates passed. The V4.1 cleanup harness passed a
 `12` crash cases, and the V4.2 migration/lifecycle matrix also passed in full.
 
 No paid resource, IAM mutation, cloud workflow or baseline-registry action was
-performed. Protected PR and exact protected-master CI evidence remain the Phase 5
-acceptance boundary.
+performed. Protected PR #124 merged the phase as
+`e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
+passed. This is the accepted Phase 6 base.

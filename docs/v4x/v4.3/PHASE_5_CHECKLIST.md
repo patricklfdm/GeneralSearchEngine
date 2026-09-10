@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 5 checklist
 
-- **Status:** Candidate for protected acceptance
+- **Status:** Accepted on protected `master`
 - **Scope:** lifecycle and correctness hardening; no paid evidence
 
 ## Entry
@@ -67,9 +67,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 5 pull request passes required checks.
-- [ ] Phase 5 merges to protected `master`; exact commit is recorded.
-- [ ] Exact protected-master CI passes before Phase 6.
+- [x] Phase 5 pull request #124 passed required checks.
+- [x] Phase 5 merged to protected `master` as
+  `e241e1499861e0b44583a948d410ce0ac9c3c286`.
+- [x] Exact protected-master CI run `34529966882` passed before Phase 6.
 
 Phase 6 alone owns profiling, paid experiment/canonical evidence, review and
 append-only baseline registration.

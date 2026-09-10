@@ -245,10 +245,12 @@ action is authorized.
 
 Phase 4 merged through protected PR #123 as
 `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run `34460924869`
-passed. Phase 5 now hardens repeated checkpoint/reopen, plan-bound cleanup of derived
-staging and superseded generations, canonical-only backup/cold restore, crash/fault,
-capacity, concurrency and published-4.2 compatibility. Paid execution remains
-strictly Phase 6-only.
+passed. Phase 5 hardened repeated checkpoint/reopen, plan-bound derived cleanup,
+canonical-only backup/cold restore, crash/fault, capacity, concurrency and
+published-4.2 compatibility. It merged through protected PR #124 as
+`e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
+passed. Phase 6 now owns benchmark-only measurement, replacement-host cloud evidence,
+three-member threshold review and later append-only registration.
 
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
@@ -264,6 +266,9 @@ and [`docs/v4x/v4.3/PHASE_4_BASELINE.md`](docs/v4x/v4.3/PHASE_4_BASELINE.md).
 The Phase 5 lifecycle contract and local evidence are
 [`docs/v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md`](docs/v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md)
 and [`docs/v4x/v4.3/PHASE_5_BASELINE.md`](docs/v4x/v4.3/PHASE_5_BASELINE.md).
+The Phase 6 evidence contract and implementation baseline are
+[`docs/v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md`](docs/v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
+and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md).
 
 ## v4.0 completed development contract
 

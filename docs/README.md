@@ -29,6 +29,10 @@ remains the phase history and decision source of truth.
 - [V4.3 Phase 5 lifecycle hardening](v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md)
 - [V4.3 Phase 5 local baseline](v4x/v4.3/PHASE_5_BASELINE.md)
 - [V4.3 Phase 5 checklist](v4x/v4.3/PHASE_5_CHECKLIST.md)
+- [V4.3 Phase 6 performance and evidence](v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
+- [V4.3 Phase 6 implementation baseline](v4x/v4.3/PHASE_6_BASELINE.md)
+- [V4.3 Phase 6 checklist](v4x/v4.3/PHASE_6_CHECKLIST.md)
+- [V4.3 fast-reopen cloud baseline registry](v4x/v4.3/cloud-benchmark-baselines.json)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
@@ -104,8 +108,10 @@ cold-target `(1,2)` migration. It was accepted through protected PR #122 as
 passed. Phase 4 completed exact SimpleAnalyzer images and the four-kind selective
 fallback matrix through protected PR #123 as
 `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run `34460924869`
-passed. Phase 5 now owns lifecycle, plan-bound cleanup, backup/restore, crash,
-capacity, concurrency and compatibility hardening without paid execution.
+passed. Phase 5 completed lifecycle, plan-bound cleanup, backup/restore, crash,
+capacity, concurrency and compatibility hardening through protected PR #124 as
+`e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
+passed. Phase 6 is active for benchmark-only measurement and cloud evidence.
 
 ## v4.0 — prior stable durable single-node foundation
 
