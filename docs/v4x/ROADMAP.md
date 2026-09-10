@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 0 candidate
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -159,6 +159,15 @@ contracted deterministic rebuild path rather than reinterpret canonical state.
 
 Memory mapping is not implied; it requires separate platform profiling and evidence.
 
+The Phase 0 candidate selects explicit live format `(1,2)`, a non-authoritative
+catalog with independently validated per-index components, all four durable built-in
+index kinds, selective deterministic rebuild, canonical-only backup, cold-first
+restore/migration, and bounded refresh. Existing/default `(1,0)` and published `(1,1)`
+remain unchanged. The exact boundary is frozen in the
+[V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md),
+[Phase 0 contract](v4.3/PHASE_0_CONTRACT.md), and
+[Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md).
+
 ## V4.4 — Final Durable Hardening
 
 ### Goal
@@ -251,3 +260,8 @@ V3/V4 consumers, reconciled deployment `6361088014`, GitHub Release `385924091`,
 the registered canonical evidence all resolve to that exact commit. The original
 release workflow retains its post-upload Central polling timeout; no immutable
 artifact was redeployed.
+
+V4.3 now has a documentation-only Phase 0 candidate based on published `4.2.0`.
+Until its protected acceptance is complete, it authorizes no `4.3.0-SNAPSHOT`,
+format `(1,2)` bytes, production derived images, executable harness, workflow, IAM,
+registry mutation, or paid cloud work.

@@ -183,6 +183,41 @@ upgrade, online or reverse migration, in-place cutover, history merge, replicati
 or a third artifact. Published `4.1.0` remains the immediate prior stable release and
 operational-safety compatibility baseline.
 
+## v4.3 Phase 0 fast-reopen candidate
+
+V4.3 begins from published `4.2.0` with a documentation-only contract. The proposed
+boundary introduces explicit `gse-durable (1,2)` and matching canonical-only backup
+format `(1,2)`. Default and existing `(1,0)` plus published `(1,1)` behavior remain
+unchanged; selecting a newer format is never an upgrade request.
+
+Canonical documents, logical index descriptors, checkpoint authority, history,
+sequence, and WAL remain sufficient to recover the complete engine. A V4.3 derived
+catalog and independently bound per-index components are disposable acceleration.
+Catalog or component absence, staleness, incompatibility, interrupted publication, or
+corruption selects deterministic full or component-selective rebuild and does not turn
+valid canonical authority into corruption.
+
+The candidate covers equality, range, prefix and SimpleAnalyzer text images without
+serializing arbitrary Java objects. Equality/range groups recover values through
+representative canonical document slots; prefix/text use canonical strict UTF-8
+logical encodings. Backup never transports derived authority. Restored and migrated
+`(1,2)` targets are cold, prove canonical rebuild first, and only then may refresh.
+Direct `(1,0)`/`(1,1)` to `(1,2)` migrations remain explicit offline, source-
+preserving V4.2-style edges.
+
+Phase 1 must establish `4.3.0-SNAPSHOT`, published-4.2 isolation gates, declaration-
+only APIs, independent logical/byte models, immutable fixtures, separate-JVM crash
+harness, fake-cloud orchestration, published-4.2 cold baseline and a calibrated cost
+plan before production image code. The distinct eventual evidence identities are
+`gse-v43-fast-reopen-evidence-v1`, `v4.3-fast-reopen-suite-v1`,
+`v4.3-fast-reopen-v1`, and append-only `v4.3.0-fast-reopen-cloud`. Paid work remains
+Phase 6-only after explicit confirmation.
+
+The authoritative candidate is under
+[`docs/v4x/v4.3/`](docs/v4x/v4.3/PHASE_0_CONTRACT.md). Until protected Phase 0
+acceptance, no version, production code, executable harness, workflow, IAM, registry,
+or paid-resource change is authorized.
+
 ## v4.0 completed development contract
 
 V4.0 opens the opt-in durable single-node line from the published `3.4.0` in-memory

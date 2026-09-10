@@ -11,6 +11,9 @@ remains the phase history and decision source of truth.
 
 - [Development overview and authority map](v4x/README.md)
 - [Revised V4.x roadmap](v4x/ROADMAP.md)
+- [V4.3 development charter](v4x/v4.3/DEVELOPMENT_CHARTER.md)
+- [V4.3 Phase 0 fast-reopen contract](v4x/v4.3/PHASE_0_CONTRACT.md)
+- [V4.3 Phase 0 checklist](v4x/v4.3/PHASE_0_CHECKLIST.md)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
@@ -73,6 +76,10 @@ V3/V4 consumers, GitHub Release and the registered migration baseline all resolv
 protected-master commit `5742b01def2fa5b1dd84b57f00ba6026c661f634`. The release
 workflow's post-upload Central polling timeout remains recorded separately from the
 independently verified publication result.
+
+V4.3 has begun as a documentation-only Phase 0 candidate. It defines an explicit
+`(1,2)` fast-reopen boundary in which every persisted index image remains disposable
+and canonical state remains sufficient for deterministic recovery.
 
 ## v4.0 — prior stable durable single-node foundation
 
