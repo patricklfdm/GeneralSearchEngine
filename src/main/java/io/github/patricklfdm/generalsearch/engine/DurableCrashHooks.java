@@ -96,6 +96,8 @@ final class DurableCrashHooks {
             "v43-derived-before-component-rename-v1",
             "v43-derived-after-component-rename-v1",
             "v43-derived-after-component-parent-force-v1",
+            "v43-text-before-component-rename-v1",
+            "v43-text-after-component-parent-force-v1",
             "v43-derived-before-catalog-write-v1",
             "v43-derived-during-catalog-write-v1",
             "v43-derived-after-catalog-force-v1",

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 3 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 4 active
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -168,11 +168,12 @@ remain unchanged. The exact boundary is frozen in the
 [Phase 0 contract](v4.3/PHASE_0_CONTRACT.md), and
 [Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md).
 
-Phases 0–2 are accepted. Phase 3 activates the equality, range and prefix portion of
-that model: checkpoint-bound structured images, complete/partial/full reopen paths,
-bounded best-effort refresh, WAL replay over recovered snapshots and direct
-source-preserving cold-target migration to `(1,2)`. Text images remain owned by
-Phase 4, and exhaustive lifecycle hardening remains owned by Phase 5.
+Phases 0–3 are accepted. Phase 4 completes the frozen model with exact
+SimpleAnalyzer text images, checkpoint-bound four-kind generations,
+complete/partial/full reopen paths and component-local fallback across structured and
+text siblings. Text postings, positions, field lengths and fuzzy vocabulary are
+materialized directly from validated bytes without analyzer execution. Exhaustive
+lifecycle hardening remains owned by Phase 5.
 
 ## V4.4 — Final Durable Hardening
 
@@ -278,4 +279,7 @@ Phase 1 merged through protected PR #120 as `148d253`. Phase 2 freezes exact
 `gse-durable (1,2)`, canonical-only backup `(1,2)`, the derived catalog and all four
 component encodings. Codec-free inspection and immutable independent physical
 fixtures are active, but production reopen still rebuilds every index and neither
-loads nor publishes derived state. Phase 3 owns the first structured image path.
+loads nor publishes derived state. Phase 3 activated structured image load,
+publication, fallback and migration through protected PR #122 as
+`98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
+passed. Phase 4 owns the complete text-image and four-kind path.

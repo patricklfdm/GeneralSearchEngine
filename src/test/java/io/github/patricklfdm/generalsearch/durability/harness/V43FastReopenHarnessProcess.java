@@ -13,6 +13,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.stream.Stream;
 import java.util.regex.Pattern;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
 import io.github.patricklfdm.generalsearch.durability.DurableReopenReport;
@@ -25,6 +26,7 @@ import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /** Separate-JVM scaffold for V4.3 barriers before production images exist. */
 public final class V43FastReopenHarnessProcess {
@@ -48,6 +50,9 @@ public final class V43FastReopenHarnessProcess {
             case "phase3-crash" -> phase3Crash(store);
             case "phase3-inspect" -> phase3Inspect(store, barrier);
             case "phase3-verify" -> phase3Verify(store, barrier);
+            case "phase4-crash" -> phase4Crash(store);
+            case "phase4-inspect" -> phase3Inspect(store, barrier);
+            case "phase4-verify" -> phase4Verify(store, barrier);
             default -> throw new IllegalArgumentException("unknown mode: " + mode);
         }
     }
@@ -193,6 +198,91 @@ public final class V43FastReopenHarnessProcess {
                 .buildDurable(storage);
     }
 
+    private static void phase4Crash(Path store) {
+        installShutdownMarker(store.resolve("graceful-close.marker"));
+        String barrier = System.getProperty("gse.v4.crashBarrier");
+        String action = System.getProperty("gse.v4.crashAction", "halt");
+        if (barrier == null) {
+            throw new IllegalArgumentException("missing production crash barrier");
+        }
+        System.clearProperty("gse.v4.crashBarrier");
+        DurableSearchEngine<Integer, Phase4Document> engine = openPhase4Engine(store);
+        engine.addAll(List.of(
+                new Phase4Document(1, "book", 10, "alpha",
+                        "java search search"),
+                new Phase4Document(2, "music", 20, "alpine",
+                        "java memory model"),
+                new Phase4Document(3, "book", 30, "beta",
+                        "search engine design"))).join();
+        System.setProperty("gse.v4.crashBarrier", barrier);
+        System.setProperty("gse.v4.crashAction", action);
+        engine.checkpoint().join();
+        throw new IllegalStateException(
+                "configured V4.3 text-image barrier was not reached");
+    }
+
+    private static void phase4Verify(Path store, String barrier) {
+        if (Files.exists(store.resolve("graceful-close.marker"))) {
+            throw new IllegalStateException("graceful shutdown path ran");
+        }
+        DurableReopenReport report;
+        try (DurableSearchEngine<Integer, Phase4Document> engine =
+                     openPhase4Engine(store)) {
+            report = engine.lastReopenReport().orElseThrow();
+            if (engine.currentSequence() != 1
+                    || !engine.search(Query.eq(PHASE4_CATEGORY, "book")).stream()
+                            .map(Phase4Document::id).toList().equals(List.of(1, 3))
+                    || !engine.search(Query.between(PHASE4_PRICE, 15, 30)).stream()
+                            .map(Phase4Document::id).toList().equals(List.of(2, 3))
+                    || !engine.search(Query.prefix(PHASE4_TITLE, "al")).stream()
+                            .map(Phase4Document::id).toList().equals(List.of(1, 2))
+                    || !engine.search(Query.term(PHASE4_TEXT, "java")).stream()
+                            .map(Phase4Document::id).toList().equals(List.of(1, 2))
+                    || !engine.search(Query.allTerms(
+                            PHASE4_TEXT, "java search")).stream()
+                            .map(Phase4Document::id).toList().equals(List.of(1))) {
+                throw new IllegalStateException(
+                        "V4.3 Phase 4 replacement-JVM query result mismatch");
+            }
+        }
+        DurableDerivedStateStatus finalStatus =
+                DurableStorageOperations.inspectDerivedState(store).status();
+        if (finalStatus != DurableDerivedStateStatus.VALID) {
+            throw new IllegalStateException(
+                    "replacement JVM did not leave a valid mixed generation");
+        }
+        System.out.println("GSE_V43_VERIFY_RESULT={\"schemaVersion\":1,"
+                + "\"status\":\"PASS\",\"canonicalAuthority\":\"VALID\","
+                + "\"derivedState\":\"" + finalStatus + "\","
+                + "\"reopenOutcome\":\"" + report.outcome() + "\","
+                + "\"refreshAttempted\":" + report.refreshAttempted() + ","
+                + "\"refreshSucceeded\":" + report.refreshSucceeded() + ","
+                + "\"barrierId\":\"" + barrier + "\"}");
+    }
+
+    private static DurableSearchEngine<Integer, Phase4Document> openPhase4Engine(
+            Path store
+    ) {
+        DurableStorageConfig<Integer, Phase4Document> storage =
+                DurableStorageConfig.builder(store, new Phase4DocumentCodec())
+                        .format(DurableStorageFormat.V1_2)
+                        .storageIdentity("v43-phase4-crash-store")
+                        .schemaIdentity("v43-phase4-crash-schema")
+                        .checkpointWalBytes(1024 * 1024)
+                        .maxRetainedBytes(64L * 1024 * 1024)
+                        .maxDerivedStateBytes(16L * 1024 * 1024)
+                        .build();
+        return SearchEngine.builder(Phase4Document.class, PHASE4_ID)
+                .field(PHASE4_CATEGORY).field(PHASE4_PRICE)
+                .field(PHASE4_TITLE).field(PHASE4_BODY)
+                .textField(PHASE4_TEXT)
+                .index(IndexDefinition.equality(PHASE4_CATEGORY))
+                .index(IndexDefinition.range(PHASE4_PRICE))
+                .index(IndexDefinition.prefix(PHASE4_TITLE))
+                .index(IndexDefinition.text(PHASE4_TEXT))
+                .buildDurable(storage);
+    }
+
     private static void installShutdownMarker(Path marker) {
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -213,7 +303,29 @@ public final class V43FastReopenHarnessProcess {
     private static final Field<Document, String> TITLE =
             Field.of("title", String.class, Document::title);
 
+    private static final Field<Phase4Document, Integer> PHASE4_ID =
+            Field.of("id", Integer.class, Phase4Document::id);
+    private static final Field<Phase4Document, String> PHASE4_CATEGORY =
+            Field.of("category", String.class, Phase4Document::category);
+    private static final Field<Phase4Document, Integer> PHASE4_PRICE =
+            Field.of("price", Integer.class, Phase4Document::price);
+    private static final Field<Phase4Document, String> PHASE4_TITLE =
+            Field.of("title", String.class, Phase4Document::title);
+    private static final Field<Phase4Document, String> PHASE4_BODY =
+            Field.of("body", String.class, Phase4Document::body);
+    private static final TextField<Phase4Document> PHASE4_TEXT =
+            TextField.of(PHASE4_BODY, Analyzer.simple());
+
     private record Document(int id, String category, int price, String title) {
+    }
+
+    private record Phase4Document(
+            int id,
+            String category,
+            int price,
+            String title,
+            String body
+    ) {
     }
 
     private static final class DocumentCodec
@@ -266,6 +378,63 @@ public final class V43FastReopenHarnessProcess {
                 return result;
             } catch (IOException failure) {
                 throw new IllegalArgumentException("invalid document bytes", failure);
+            }
+        }
+    }
+
+    private static final class Phase4DocumentCodec
+            implements DurableCodec<Integer, Phase4Document> {
+        @Override
+        public String codecId() {
+            return "v43-phase4-crash-codec";
+        }
+
+        @Override
+        public int codecVersion() {
+            return 1;
+        }
+
+        @Override
+        public byte[] encodeKey(Integer key) {
+            return ByteBuffer.allocate(Integer.BYTES).putInt(key).array();
+        }
+
+        @Override
+        public Integer decodeKey(byte[] bytes) {
+            return ByteBuffer.wrap(bytes).getInt();
+        }
+
+        @Override
+        public byte[] encodeDocument(Phase4Document document) {
+            try {
+                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                try (DataOutputStream output = new DataOutputStream(bytes)) {
+                    output.writeInt(document.id());
+                    output.writeUTF(document.category());
+                    output.writeInt(document.price());
+                    output.writeUTF(document.title());
+                    output.writeUTF(document.body());
+                }
+                return bytes.toByteArray();
+            } catch (IOException impossible) {
+                throw new AssertionError(impossible);
+            }
+        }
+
+        @Override
+        public Phase4Document decodeDocument(byte[] bytes) {
+            try (DataInputStream input = new DataInputStream(
+                    new ByteArrayInputStream(bytes))) {
+                Phase4Document result = new Phase4Document(
+                        input.readInt(), input.readUTF(), input.readInt(),
+                        input.readUTF(), input.readUTF());
+                if (input.available() != 0) {
+                    throw new IllegalArgumentException("trailing document bytes");
+                }
+                return result;
+            } catch (IOException failure) {
+                throw new IllegalArgumentException(
+                        "invalid Phase 4 document bytes", failure);
             }
         }
     }

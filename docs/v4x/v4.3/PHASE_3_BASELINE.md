@@ -4,6 +4,8 @@
 - **Base:** `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`
 - **Version:** `4.3.0-SNAPSHOT`
 - **Cloud/IAM/registry changes:** none
+- **Protected acceptance:** PR #122, master
+  `98527a2475d69673513addb15e5693bc197ddf2c`, CI `34454404406`
 
 ## Implemented evidence
 

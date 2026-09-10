@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Separate-JVM crash harness for V4.3 production structured images."""
+"""Separate-JVM crash harness for V4.3 production derived images."""
 
 from __future__ import annotations
 
@@ -20,9 +20,15 @@ PROCESS_CLASS = (
     "io.github.patricklfdm.generalsearch.durability.harness."
     "V43FastReopenHarnessProcess"
 )
-BARRIERS = (
+PHASE3_BARRIERS = (
     "v43-derived-before-component-rename-v1",
     "v43-derived-after-component-parent-force-v1",
+    "v43-derived-before-catalog-publication-v1",
+    "v43-derived-after-catalog-parent-force-v1",
+)
+PHASE4_BARRIERS = (
+    "v43-text-before-component-rename-v1",
+    "v43-text-after-component-parent-force-v1",
     "v43-derived-before-catalog-publication-v1",
     "v43-derived-after-catalog-parent-force-v1",
 )
@@ -57,8 +63,10 @@ def _canonical_hashes(store: Path) -> dict[str, str]:
 
 def run_case(arguments: argparse.Namespace) -> int:
     validate_source(arguments.source_sha)
-    if arguments.barrier not in BARRIERS:
-        raise EvidenceError("unsupported Phase 3 barrier")
+    barriers = PHASE3_BARRIERS if arguments.phase == "phase3" \
+        else PHASE4_BARRIERS
+    if arguments.barrier not in barriers:
+        raise EvidenceError(f"unsupported {arguments.phase} barrier")
     workspace = arguments.workspace.resolve()
     if workspace.exists():
         raise EvidenceError("workspace already exists")
@@ -70,7 +78,7 @@ def run_case(arguments: argparse.Namespace) -> int:
         f"-Dgse.v4.crashBarrier={arguments.barrier}",
         f"-Dgse.v4.crashAction={action}",
         "-cp", arguments.classpath, PROCESS_CLASS,
-        "phase3-crash", str(store), arguments.barrier,
+        f"{arguments.phase}-crash", str(store), arguments.barrier,
     ]
     child = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -96,7 +104,7 @@ def run_case(arguments: argparse.Namespace) -> int:
     before = _canonical_hashes(store)
     inspector = subprocess.run(
         [arguments.java, "-cp", arguments.classpath, PROCESS_CLASS,
-         "phase3-inspect", str(store), arguments.barrier],
+         f"{arguments.phase}-inspect", str(store), arguments.barrier],
         check=False, capture_output=True, text=True, timeout=arguments.timeout,
     )
     inspect_prefix = "GSE_V43_INSPECTION_RESULT="
@@ -108,7 +116,7 @@ def run_case(arguments: argparse.Namespace) -> int:
         raise EvidenceError("pre-open canonical authority differs")
     verifier = subprocess.run(
         [arguments.java, "-cp", arguments.classpath, PROCESS_CLASS,
-         "phase3-verify", str(store), arguments.barrier],
+         f"{arguments.phase}-verify", str(store), arguments.barrier],
         check=False, capture_output=True, text=True, timeout=arguments.timeout,
     )
     verify_prefix = "GSE_V43_VERIFY_RESULT="
@@ -124,7 +132,8 @@ def run_case(arguments: argparse.Namespace) -> int:
     evidence = base_document(
         arguments.source_sha, arguments.source_state, "local-scaffold")
     evidence.update({
-        "kind": "local-structured-image-crash",
+        "kind": "local-structured-image-crash" if arguments.phase == "phase3"
+                else "local-text-image-crash",
         "case": {
             "caseId": f"{arguments.barrier}:{arguments.termination}",
             "barrierId": arguments.barrier,
@@ -170,7 +179,8 @@ def run_case(arguments: argparse.Namespace) -> int:
     })
     write_bundle(workspace / "evidence", evidence)
     validate_bundle(workspace / "evidence")
-    print("v43StructuredImageHarness=PASS "
+    print("v43DerivedImageHarness=PASS "
+          f"phase={arguments.phase} "
           f"barrier={arguments.barrier} termination={arguments.termination}")
     return 0
 
@@ -182,7 +192,9 @@ def main() -> int:
     run.add_argument("--workspace", type=Path, required=True)
     run.add_argument("--source-sha", required=True)
     run.add_argument("--source-state", choices=("clean", "dirty"), required=True)
-    run.add_argument("--barrier", choices=BARRIERS, required=True)
+    run.add_argument("--phase", choices=("phase3", "phase4"), default="phase3")
+    run.add_argument("--barrier", choices=PHASE3_BARRIERS + PHASE4_BARRIERS,
+                     required=True)
     run.add_argument("--termination", choices=("internal-halt", "external-kill"),
                      required=True)
     run.add_argument("--java", default="java")

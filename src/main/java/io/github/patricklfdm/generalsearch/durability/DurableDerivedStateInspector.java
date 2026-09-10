@@ -558,15 +558,18 @@ final class DurableDerivedStateInspector {
                     reader.intValue(crc, digest), "field-length count");
             int previousDoc = -1;
             long summedLength = 0;
+            Map<Integer, Integer> lengthsByDocument = new HashMap<>();
             for (int index = 0; index < fieldLengths; index++) {
                 int doc = reader.intValue(crc, digest);
                 int length = reader.intValue(crc, digest);
-                if (doc <= previousDoc || doc < 0 || doc >= nextDocId || length < 0) {
+                if (doc <= previousDoc || doc < 0 || doc >= nextDocId
+                        || length <= 0) {
                     throw componentCorrupt("TEXT_FIELD_LENGTH_ORDER",
                             "text field lengths are invalid or non-canonical");
                 }
                 previousDoc = doc;
                 summedLength = Math.addExact(summedLength, length);
+                lengthsByDocument.put(doc, length);
             }
             if (fieldLengths != documentCount || summedLength != totalFieldLength) {
                 throw componentCorrupt("TEXT_FIELD_LENGTH_TOTAL",
@@ -587,7 +590,7 @@ final class DurableDerivedStateInspector {
                         "document frequency");
                 int postings = count(reader.intValue(crc, digest),
                         "posting count");
-                if (frequency != postings) {
+                if (frequency == 0 || frequency != postings) {
                     throw componentCorrupt("TEXT_DOCUMENT_FREQUENCY",
                             "document frequency differs from posting count");
                 }
@@ -601,10 +604,16 @@ final class DurableDerivedStateInspector {
                     previousDoc = doc;
                     int positions = count(reader.intValue(crc, digest),
                             "position count");
+                    Integer fieldLength = lengthsByDocument.get(doc);
+                    if (positions == 0 || fieldLength == null) {
+                        throw componentCorrupt("TEXT_POSITION_COUNT",
+                                "posting positions are absent or unbound");
+                    }
                     int previousPosition = -1;
                     for (int position = 0; position < positions; position++) {
                         int value = reader.intValue(crc, digest);
-                        if (value <= previousPosition || value < 0) {
+                        if (value <= previousPosition || value < 0
+                                || value >= fieldLength) {
                             throw componentCorrupt("TEXT_POSITION_ORDER",
                                     "posting positions are not canonical");
                         }

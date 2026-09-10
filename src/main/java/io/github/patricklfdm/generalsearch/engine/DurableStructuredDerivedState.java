@@ -33,6 +33,8 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.CRC32C;
+import io.github.patricklfdm.generalsearch.analysis.AnalyzedToken;
+import io.github.patricklfdm.generalsearch.analysis.SimpleAnalyzer;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmap;
 import io.github.patricklfdm.generalsearch.bitmap.ImmutableBitmapBuilder;
 import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
@@ -46,14 +48,16 @@ import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexSnapshot;
 import io.github.patricklfdm.generalsearch.index.range.RangeIndexSnapshot;
+import io.github.patricklfdm.generalsearch.index.text.TextIndexSnapshot;
 import io.github.patricklfdm.generalsearch.internal.index.ImmutableOverlayMap;
 import io.github.patricklfdm.generalsearch.internal.index.PersistentAvlMap;
 import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.SearchSchema;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshot;
 import io.github.patricklfdm.generalsearch.storage.SearchSnapshotBuilder;
 
-/** Production V4.3 structured-image codec, deliberately separate from inspection. */
+/** Production V4.3 derived-image codec, deliberately separate from inspection. */
 final class DurableStructuredDerivedState {
     static final String CATALOG_FILE = "gse-derived-manifest";
     static final String CATALOG_STAGING_FILE = CATALOG_FILE + ".staging";
@@ -132,15 +136,10 @@ final class DurableStructuredDerivedState {
                 byte[] encoded = readBounded(component, MAX_COMPONENT_BYTES);
                 bytesRead = Math.addExact(bytesRead, encoded.length);
                 requireWholeMember(entry, encoded);
-                IndexSnapshot<T> parsed = parseStructuredComponent(
+                IndexSnapshot<T> parsed = parseComponent(
                         encoded, authority, entry, checkpoint, schema);
                 snapshots.add(parsed);
-                if (descriptor.kind() == DurableIndexDescriptor.TEXT) {
-                    rejections.add(new DurableReopenRejection(
-                            entry.ordinal(), "TEXT_IMAGE_PHASE4_PENDING"));
-                } else {
-                    loaded++;
-                }
+                loaded++;
             } catch (DerivedFailure failure) {
                 snapshots.add(null);
                 componentFailure = true;
@@ -172,9 +171,7 @@ final class DurableStructuredDerivedState {
         DurableCrashHooks.reach("v43-derived-before-refresh-v1");
         if (!storage.format().publicFormat().equals(
                 io.github.patricklfdm.generalsearch.durability
-                        .DurableStorageFormat.V1_2)
-                || capture.indexes().stream().anyMatch(
-                        index -> index.kind() == DurableIndexDescriptor.TEXT)) {
+                        .DurableStorageFormat.V1_2)) {
             DurableCrashHooks.reach("v43-derived-after-refresh-v1");
             return new RefreshResult(true, false, elapsed(started), 0L);
         }
@@ -220,7 +217,7 @@ final class DurableStructuredDerivedState {
                 writeForced(stagingPath, component.bytes(),
                         "v43-derived-during-component-write-v1");
                 DurableCrashHooks.reach("v43-derived-after-component-force-v1");
-                parseStructuredComponent(component.bytes(), authority,
+                parseComponent(component.bytes(), authority,
                         new CatalogEntry(component.ordinal(),
                                 component.descriptor().kind(),
                                 component.descriptor().fieldName(),
@@ -230,12 +227,20 @@ final class DurableStructuredDerivedState {
                         captureAsLoaded(capture), schema);
                 DurableCrashHooks.reach(
                         "v43-derived-during-component-validation-v1");
+                if (component.descriptor().kind() == DurableIndexDescriptor.TEXT) {
+                    DurableCrashHooks.reach(
+                            "v43-text-before-component-rename-v1");
+                }
                 DurableCrashHooks.reach("v43-derived-before-component-rename-v1");
                 moveAtomic(stagingPath, finalPath, false);
                 DurableCrashHooks.reach("v43-derived-after-component-rename-v1");
                 DurableStorageOwner.forceDirectory(storage.directory());
                 DurableCrashHooks.reach(
                         "v43-derived-after-component-parent-force-v1");
+                if (component.descriptor().kind() == DurableIndexDescriptor.TEXT) {
+                    DurableCrashHooks.reach(
+                            "v43-text-after-component-parent-force-v1");
+                }
             }
 
             Path catalogStaging = storage.directory().resolve(CATALOG_STAGING_FILE);
@@ -259,7 +264,7 @@ final class DurableStructuredDerivedState {
                         storage.directory().resolve(entry.filename()),
                         MAX_COMPONENT_BYTES);
                 requireWholeMember(entry, component);
-                parseStructuredComponent(component, authority, entry,
+                parseComponent(component, authority, entry,
                         captureAsLoaded(capture), schema);
             }
             DurableCrashHooks.reach("v43-derived-during-published-reinspection-v1");
@@ -495,7 +500,7 @@ final class DurableStructuredDerivedState {
         }
     }
 
-    private static <K, T> IndexSnapshot<T> parseStructuredComponent(
+    private static <K, T> IndexSnapshot<T> parseComponent(
             byte[] encoded,
             Authority authority,
             CatalogEntry expected,
@@ -559,10 +564,9 @@ final class DurableStructuredDerivedState {
                         cursor, schema.requireField(field), checkpoint);
                 case DurableIndexDescriptor.PREFIX -> readPrefix(
                         cursor, schema.requireField(field, String.class), checkpoint);
-                case DurableIndexDescriptor.TEXT -> {
-                    readText(cursor, checkpoint, liveDocuments);
-                    yield null;
-                }
+                case DurableIndexDescriptor.TEXT -> readText(
+                        cursor, schema.requireTextField(field), checkpoint,
+                        liveDocuments, analyzer);
                 default -> throw incompatible("COMPONENT_KIND");
             };
             cursor.requireExhausted();
@@ -662,11 +666,17 @@ final class DurableStructuredDerivedState {
         return PrefixIndexSnapshot.fromValues(field, values, indexed);
     }
 
-    private static <K, T> void readText(
+    private static <K, T> IndexSnapshot<T> readText(
             Cursor cursor,
+            TextField<T> textField,
             DurableCheckpoint.Loaded<K, T> checkpoint,
-            int liveDocuments
+            int liveDocuments,
+            String analyzer
     ) {
+        if (textField.analyzer() != SimpleAnalyzer.INSTANCE
+                || !DurableIndexDescriptor.SIMPLE_ANALYZER.equals(analyzer)) {
+            throw stale("TEXT_ANALYZER_BINDING");
+        }
         int documentCount = cursor.intValue();
         long totalFieldLength = cursor.longValue();
         if (documentCount < 0 || documentCount > liveDocuments
@@ -676,21 +686,24 @@ final class DurableStructuredDerivedState {
         int lengths = cursor.count(MAX_COUNT);
         int previousDoc = -1;
         long summedLength = 0L;
+        Map<Integer, Integer> fieldLengths = new TreeMap<>();
         for (int index = 0; index < lengths; index++) {
             int docId = cursor.intValue();
             int length = cursor.intValue();
             if (docId <= previousDoc || docId < 0
                     || docId >= checkpoint.nextDocId()
-                    || checkpoint.slots().get(docId) == null || length < 0) {
+                    || checkpoint.slots().get(docId) == null || length <= 0) {
                 throw corrupt("TEXT_FIELD_LENGTH_ORDER");
             }
             previousDoc = docId;
             summedLength = Math.addExact(summedLength, length);
+            fieldLengths.put(docId, length);
         }
         if (lengths != documentCount || summedLength != totalFieldLength) {
             throw corrupt("TEXT_FIELD_LENGTH_TOTAL");
         }
         int terms = cursor.count(MAX_COUNT);
+        Map<String, Map<Integer, int[]>> postingsByTerm = new TreeMap<>();
         byte[] previousTerm = null;
         for (int term = 0; term < terms; term++) {
             byte[] encoded = cursor.stringBytes(MAX_STRING_BYTES, false);
@@ -699,12 +712,13 @@ final class DurableStructuredDerivedState {
                 throw corrupt("TEXT_TERM_ORDER");
             }
             previousTerm = encoded;
-            decodeUtf8(encoded);
+            String decoded = decodeUtf8(encoded);
             int frequency = cursor.count(MAX_COUNT);
             int postings = cursor.count(MAX_COUNT);
-            if (frequency != postings) {
+            if (frequency == 0 || frequency != postings) {
                 throw corrupt("TEXT_DOCUMENT_FREQUENCY");
             }
+            Map<Integer, int[]> postingsByDocument = new TreeMap<>();
             previousDoc = -1;
             for (int posting = 0; posting < postings; posting++) {
                 int docId = cursor.intValue();
@@ -715,16 +729,26 @@ final class DurableStructuredDerivedState {
                 }
                 previousDoc = docId;
                 int positions = cursor.count(MAX_COUNT);
+                if (positions == 0 || !fieldLengths.containsKey(docId)) {
+                    throw corrupt("TEXT_POSITION_COUNT");
+                }
                 int previousPosition = -1;
+                int[] values = new int[positions];
                 for (int position = 0; position < positions; position++) {
                     int value = cursor.intValue();
-                    if (value <= previousPosition || value < 0) {
+                    if (value <= previousPosition || value < 0
+                            || value >= fieldLengths.get(docId)) {
                         throw corrupt("TEXT_POSITION_ORDER");
                     }
                     previousPosition = value;
+                    values[position] = value;
                 }
+                postingsByDocument.put(docId, values);
             }
+            postingsByTerm.put(decoded, postingsByDocument);
         }
+        return TextIndexSnapshot.fromPersistence(textField, postingsByTerm,
+                fieldLengths, totalFieldLength);
     }
 
     private static <K, T> byte[] encodeComponent(
@@ -745,7 +769,10 @@ final class DurableStructuredDerivedState {
                 case DurableIndexDescriptor.PREFIX -> writePrefix(
                         output, schema.requireField(
                                 descriptor.fieldName(), String.class), snapshot);
-                default -> throw new IOException("text images belong to Phase 4");
+                case DurableIndexDescriptor.TEXT -> writeText(
+                        output, schema.requireTextField(descriptor.fieldName()),
+                        snapshot);
+                default -> throw new IOException("unsupported derived index kind");
             }
         }
         return finishMember(bytes.toByteArray(), COMPONENT_DOMAIN);
@@ -833,6 +860,67 @@ final class DurableStructuredDerivedState {
         for (PrefixGroup group : grouped.values()) {
             writeString(output, group.value());
             writeBitmap(output, group.bitmap());
+        }
+    }
+
+    private static <T> void writeText(
+            DataOutputStream output,
+            TextField<T> textField,
+            SearchSnapshot<T> snapshot
+    ) throws IOException {
+        if (textField.analyzer() != SimpleAnalyzer.INSTANCE) {
+            throw new IOException("durable text images require SimpleAnalyzer");
+        }
+        TreeMap<Integer, Integer> fieldLengths = new TreeMap<>();
+        TreeMap<byte[], TextTerm> terms = new TreeMap<>(Arrays::compareUnsigned);
+        long[] totalFieldLength = {0L};
+        forEachDocument(snapshot, (docId, document) -> {
+            List<AnalyzedToken> tokens = textField.analyzer()
+                    .analyzeWithPositions(textField.field().valueOf(document));
+            if (tokens == null) {
+                throw new IllegalArgumentException(
+                        "SimpleAnalyzer returned a null token list");
+            }
+            int logicalPosition = -1;
+            for (int index = 0; index < tokens.size(); index++) {
+                AnalyzedToken token = Objects.requireNonNull(tokens.get(index),
+                        "analyzed token");
+                int increment = token.positionIncrement();
+                if ((index == 0 && increment < 1) || increment < 0) {
+                    throw new IllegalArgumentException(
+                            "SimpleAnalyzer returned an invalid position increment");
+                }
+                logicalPosition = Math.addExact(logicalPosition, increment);
+                byte[] encoded = strictUtf8(token.term());
+                terms.computeIfAbsent(encoded,
+                        ignored -> new TextTerm(token.term()))
+                        .add(docId, logicalPosition);
+            }
+            if (!tokens.isEmpty()) {
+                fieldLengths.put(docId, tokens.size());
+                totalFieldLength[0] = Math.addExact(
+                        totalFieldLength[0], tokens.size());
+            }
+        });
+        output.writeInt(fieldLengths.size());
+        output.writeLong(totalFieldLength[0]);
+        output.writeInt(fieldLengths.size());
+        for (var entry : fieldLengths.entrySet()) {
+            output.writeInt(entry.getKey());
+            output.writeInt(entry.getValue());
+        }
+        output.writeInt(terms.size());
+        for (TextTerm term : terms.values()) {
+            writeString(output, term.value());
+            output.writeInt(term.postings().size());
+            output.writeInt(term.postings().size());
+            for (var entry : term.postings().entrySet()) {
+                output.writeInt(entry.getKey());
+                output.writeInt(entry.getValue().size());
+                for (int position : entry.getValue()) {
+                    output.writeInt(position);
+                }
+            }
         }
     }
 
@@ -1337,6 +1425,33 @@ final class DurableStructuredDerivedState {
 
         private String value() {
             return value;
+        }
+    }
+
+    private static final class TextTerm {
+        private final String value;
+        private final TreeMap<Integer, List<Integer>> postings = new TreeMap<>();
+
+        private TextTerm(String value) {
+            this.value = value;
+        }
+
+        private void add(int docId, int position) {
+            List<Integer> positions = postings.computeIfAbsent(
+                    docId, ignored -> new ArrayList<>());
+            if (!positions.isEmpty() && position <= positions.getLast()) {
+                throw new IllegalArgumentException(
+                        "text positions must be strictly increasing");
+            }
+            positions.add(position);
+        }
+
+        private String value() {
+            return value;
+        }
+
+        private TreeMap<Integer, List<Integer>> postings() {
+            return postings;
         }
     }
 

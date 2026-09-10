@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 3 checklist
 
-- **Status:** Candidate for protected acceptance
+- **Status:** Accepted through protected PR #122; exact-master CI passed
 - **Scope:** Structured image-assisted reopen and direct `(1,2)` migration
 
 ## Entry
@@ -71,9 +71,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 3 pull request passes required checks.
-- [ ] Phase 3 merges to protected `master`; exact commit is recorded.
-- [ ] Exact protected-master CI passes before Phase 4.
+- [x] Phase 3 pull request #122 passed required checks.
+- [x] Phase 3 merged to protected `master` as
+  `98527a2475d69673513addb15e5693bc197ddf2c`.
+- [x] Exact protected-master CI run `34454404406` passed before Phase 4.
 
 Phase 4 alone owns SimpleAnalyzer text images and the complete four-index selective
 fallback matrix. Phase 5 owns exhaustive lifecycle hardening.

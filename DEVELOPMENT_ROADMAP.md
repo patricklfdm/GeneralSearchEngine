@@ -231,13 +231,17 @@ image publication/load remain later-phase work, and no paid cloud action is auth
 
 Phase 2 merged through protected PR #121 as
 `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`; exact-master CI run `34446500594`
-passed. Phase 3 now activates equality/range/prefix image publication and
+passed. Phase 3 activated equality/range/prefix image publication and
 materialization, component-selective/full fallback, synchronous bounded best-effort
 refresh, WAL replay over the recovered checkpoint snapshot and direct
 `(1,0)`/`(1,1)`/meaningful `(1,2)` migration into a cold `(1,2)` target. Its real
 production separate-JVM crash matrix covers both internal halt and external kill.
-SimpleAnalyzer text images remain exclusively Phase 4 work; no paid cloud action is
-authorized.
+It merged through protected PR #122 as
+`98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
+passed. Phase 4 now completes exact SimpleAnalyzer images, four-kind warm reopen and
+component-selective fallback while preserving canonical-only authority. Its local
+crash evidence covers text-component and mixed-catalog publication; no paid cloud
+action is authorized.
 
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
@@ -247,6 +251,9 @@ and [`docs/v4x/v4.3/PHASE_2_BASELINE.md`](docs/v4x/v4.3/PHASE_2_BASELINE.md).
 The Phase 3 implementation contract and local evidence are
 [`docs/v4x/v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md`](docs/v4x/v4.3/PHASE_3_STRUCTURED_IMAGES_AND_MIGRATION.md)
 and [`docs/v4x/v4.3/PHASE_3_BASELINE.md`](docs/v4x/v4.3/PHASE_3_BASELINE.md).
+The Phase 4 implementation contract and local evidence are
+[`docs/v4x/v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md`](docs/v4x/v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md)
+and [`docs/v4x/v4.3/PHASE_4_BASELINE.md`](docs/v4x/v4.3/PHASE_4_BASELINE.md).
 
 ## v4.0 completed development contract
 

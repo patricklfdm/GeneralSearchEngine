@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.3 Phase 3 structured images and migration
 
 - **Phase:** 3 — Structured image-assisted reopen and direct migration
-- **Status:** Candidate for protected acceptance
+- **Status:** Accepted through protected PR #122; exact-master CI passed
 - **Entry:** Phase 2 protected-master commit `e7d8be3580a8e007a1afcef099dcf2b7e61fdbba`
 - **Scope:** Equality, range and prefix images for explicit `(1,2)` stores
 
@@ -116,3 +116,9 @@ publication and the complete four-index selective matrix. Phase 5 owns the exhau
 crash/fault/capacity/concurrency, backup/restore/migration/cleanup and cross-version
 hardening matrix. Phase 6 alone may run paid evidence or mutate the append-only cloud
 registry.
+
+## Protected acceptance
+
+Phase 3 merged through protected PR #122 as
+`98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
+passed before Phase 4 began.
