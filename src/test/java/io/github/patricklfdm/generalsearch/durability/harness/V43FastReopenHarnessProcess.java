@@ -15,7 +15,10 @@ import java.util.stream.Stream;
 import java.util.regex.Pattern;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableCleanupScope;
 import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
+import io.github.patricklfdm.generalsearch.durability.DurableReopenOutcome;
 import io.github.patricklfdm.generalsearch.durability.DurableReopenReport;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
@@ -53,6 +56,9 @@ public final class V43FastReopenHarnessProcess {
             case "phase4-crash" -> phase4Crash(store);
             case "phase4-inspect" -> phase3Inspect(store, barrier);
             case "phase4-verify" -> phase4Verify(store, barrier);
+            case "phase5-cleanup-crash" -> phase5CleanupCrash(store);
+            case "phase5-cleanup-inspect" -> phase3Inspect(store, barrier);
+            case "phase5-cleanup-verify" -> phase5CleanupVerify(store, barrier);
             default -> throw new IllegalArgumentException("unknown mode: " + mode);
         }
     }
@@ -281,6 +287,107 @@ public final class V43FastReopenHarnessProcess {
                 .index(IndexDefinition.prefix(PHASE4_TITLE))
                 .index(IndexDefinition.text(PHASE4_TEXT))
                 .buildDurable(storage);
+    }
+
+    private static void phase5CleanupCrash(Path store) throws IOException {
+        installShutdownMarker(store.resolve("graceful-close.marker"));
+        String barrier = System.getProperty("gse.v4.crashBarrier");
+        String action = System.getProperty("gse.v4.crashAction", "halt");
+        if (barrier == null) {
+            throw new IllegalArgumentException("missing production cleanup barrier");
+        }
+        System.clearProperty("gse.v4.crashBarrier");
+        try (DurableSearchEngine<Integer, Phase4Document> engine =
+                     openPhase4Engine(store)) {
+            engine.addAll(List.of(
+                    new Phase4Document(1, "book", 10, "alpha",
+                            "java search search"),
+                    new Phase4Document(2, "music", 20, "alpine",
+                            "java memory model"),
+                    new Phase4Document(3, "book", 30, "beta",
+                            "search engine design"))).join();
+            engine.checkpoint().join();
+            engine.add(new Phase4Document(4, "book", 40, "delta",
+                    "continued search lifecycle")).join();
+            engine.checkpoint().join();
+        }
+        Files.writeString(store.resolve("gse-derived-manifest.staging"),
+                "abandoned catalog staging", StandardCharsets.UTF_8);
+        var plan = DurableStorageOperations.planCleanup(
+                new DurableCleanupRequest(store, DurableCleanupScope.LIVE_STORE));
+        if (plan.deleteSet().size() < 5) {
+            throw new IllegalStateException(
+                    "superseded derived cleanup fixture is incomplete");
+        }
+        System.setProperty("gse.v4.crashBarrier", barrier);
+        System.setProperty("gse.v4.crashAction", action);
+        DurableStorageOperations.applyCleanup(plan);
+        throw new IllegalStateException(
+                "configured V4.3 cleanup barrier was not reached");
+    }
+
+    private static void phase5CleanupVerify(Path store, String barrier) {
+        if (Files.exists(store.resolve("graceful-close.marker"))) {
+            throw new IllegalStateException("graceful shutdown path ran");
+        }
+        var request = new DurableCleanupRequest(
+                store, DurableCleanupScope.LIVE_STORE);
+        var recoveryPlan = DurableStorageOperations.planCleanup(request);
+        DurableStorageOperations.applyCleanup(recoveryPlan);
+        var cleaned = DurableStorageOperations.inspectDerivedState(store);
+        if (cleaned.status() != DurableDerivedStateStatus.VALID
+                || cleaned.stagingBytes() != 0
+                || cleaned.unreferencedBytes() != 0) {
+            throw new IllegalStateException(
+                    "replacement cleanup did not converge to one valid generation");
+        }
+
+        DurableReopenReport first;
+        try (DurableSearchEngine<Integer, Phase4Document> engine =
+                     openPhase4Engine(store)) {
+            first = engine.lastReopenReport().orElseThrow();
+            if (!engine.search(Query.term(PHASE4_TEXT, "search")).stream()
+                    .map(Phase4Document::id).toList()
+                    .equals(List.of(1, 3, 4))) {
+                throw new IllegalStateException(
+                        "cleanup replacement-JVM query result mismatch");
+            }
+            engine.add(new Phase4Document(5, "music", 50, "epsilon",
+                    "post cleanup mutation")).join();
+            engine.checkpoint().join();
+        }
+        DurableStorageOperations.applyCleanup(
+                DurableStorageOperations.planCleanup(request));
+        DurableReopenReport second;
+        long continuedSequence;
+        try (DurableSearchEngine<Integer, Phase4Document> reopened =
+                     openPhase4Engine(store)) {
+            second = reopened.lastReopenReport().orElseThrow();
+            continuedSequence = reopened.currentSequence();
+            if (reopened.get(5) == null
+                    || !reopened.search(Query.term(PHASE4_TEXT, "mutation"))
+                            .stream().map(Phase4Document::id).toList()
+                            .equals(List.of(5))) {
+                throw new IllegalStateException(
+                        "post-cleanup continuation did not survive second reopen");
+            }
+        }
+        var finalState = DurableStorageOperations.inspectDerivedState(store);
+        if (first.outcome() != DurableReopenOutcome.COMPLETE_WARM
+                || second.outcome() != DurableReopenOutcome.COMPLETE_WARM
+                || finalState.status() != DurableDerivedStateStatus.VALID
+                || finalState.unreferencedBytes() != 0) {
+            throw new IllegalStateException(
+                    "cleanup lifecycle did not remain completely warm");
+        }
+        System.out.println("GSE_V43_VERIFY_RESULT={\"schemaVersion\":1,"
+                + "\"status\":\"PASS\",\"canonicalAuthority\":\"VALID\","
+                + "\"derivedState\":\"VALID\","
+                + "\"reopenOutcome\":\"" + second.outcome() + "\","
+                + "\"refreshAttempted\":" + second.refreshAttempted() + ","
+                + "\"refreshSucceeded\":" + second.refreshSucceeded() + ","
+                + "\"continuedSequence\":" + continuedSequence + ","
+                + "\"barrierId\":\"" + barrier + "\"}");
     }
 
     private static void installShutdownMarker(Path marker) {

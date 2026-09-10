@@ -103,6 +103,9 @@ jobs:
       - name: Exercise V4.3 text images and complete selective fallback
         run: scripts/verify-v43-phase4-text-images.sh --skip-build
 
+      - name: Exercise V4.3 lifecycle and derived cleanup hardening
+        run: scripts/verify-v43-phase5-lifecycle.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -244,6 +247,7 @@ jobs:
           bash -n scripts/verify-v43-phase2-derived-format.sh
           bash -n scripts/verify-v43-phase3-structured-images.sh
           bash -n scripts/verify-v43-phase4-text-images.sh
+          bash -n scripts/verify-v43-phase5-lifecycle.sh
           bash -n scripts/verify-v43-published-v42-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

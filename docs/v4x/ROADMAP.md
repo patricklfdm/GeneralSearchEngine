@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 4 active
+- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 5 active
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -168,12 +168,15 @@ remain unchanged. The exact boundary is frozen in the
 [Phase 0 contract](v4.3/PHASE_0_CONTRACT.md), and
 [Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md).
 
-Phases 0–3 are accepted. Phase 4 completes the frozen model with exact
+Phases 0–4 are accepted. Phase 4 completed the frozen model with exact
 SimpleAnalyzer text images, checkpoint-bound four-kind generations,
 complete/partial/full reopen paths and component-local fallback across structured and
 text siblings. Text postings, positions, field lengths and fuzzy vocabulary are
-materialized directly from validated bytes without analyzer execution. Exhaustive
-lifecycle hardening remains owned by Phase 5.
+materialized directly from validated bytes without analyzer execution. It merged
+through protected PR #123 as `2f229303168c93e81a571b1d5c931bff015eb1b5`;
+exact-master CI run `34460924869` passed. Phase 5 now hardens repeated lifecycle,
+plan-bound derived cleanup, backup/restore, crash/fault/capacity/concurrency and
+published-4.2 compatibility without paid execution.
 
 ## V4.4 — Final Durable Hardening
 
@@ -282,4 +285,6 @@ fixtures are active, but production reopen still rebuilds every index and neithe
 loads nor publishes derived state. Phase 3 activated structured image load,
 publication, fallback and migration through protected PR #122 as
 `98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
-passed. Phase 4 owns the complete text-image and four-kind path.
+passed. Phase 4 completed the text-image and four-kind path through protected PR #123
+as `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run
+`34460924869` passed. Phase 5 is active.

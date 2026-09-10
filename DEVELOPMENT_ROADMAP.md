@@ -243,6 +243,13 @@ component-selective fallback while preserving canonical-only authority. Its loca
 crash evidence covers text-component and mixed-catalog publication; no paid cloud
 action is authorized.
 
+Phase 4 merged through protected PR #123 as
+`2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run `34460924869`
+passed. Phase 5 now hardens repeated checkpoint/reopen, plan-bound cleanup of derived
+staging and superseded generations, canonical-only backup/cold restore, crash/fault,
+capacity, concurrency and published-4.2 compatibility. Paid execution remains
+strictly Phase 6-only.
+
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
 The Phase 2 format contract and local evidence are
@@ -254,6 +261,9 @@ and [`docs/v4x/v4.3/PHASE_3_BASELINE.md`](docs/v4x/v4.3/PHASE_3_BASELINE.md).
 The Phase 4 implementation contract and local evidence are
 [`docs/v4x/v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md`](docs/v4x/v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md)
 and [`docs/v4x/v4.3/PHASE_4_BASELINE.md`](docs/v4x/v4.3/PHASE_4_BASELINE.md).
+The Phase 5 lifecycle contract and local evidence are
+[`docs/v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md`](docs/v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md)
+and [`docs/v4x/v4.3/PHASE_5_BASELINE.md`](docs/v4x/v4.3/PHASE_5_BASELINE.md).
 
 ## v4.0 completed development contract
 

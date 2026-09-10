@@ -57,9 +57,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 4 pull request passes required checks.
-- [ ] Phase 4 merges to protected `master`; exact commit is recorded.
-- [ ] Exact protected-master CI passes before Phase 5.
+- [x] Phase 4 pull request #123 passed required checks.
+- [x] Phase 4 merged to protected `master` as
+  `2f229303168c93e81a571b1d5c931bff015eb1b5`.
+- [x] Exact protected-master CI run `34460924869` passed before Phase 5.
 
 Phase 5 owns exhaustive lifecycle hardening. Phase 6 alone owns paid evidence and
 append-only baseline registration.

@@ -9,6 +9,7 @@ import io.github.patricklfdm.generalsearch.durability.DurableOperationException;
 import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationReport;
 import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationStatus;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
+import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageOperations;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationFinding;
@@ -84,7 +85,8 @@ final class DurableSemanticOperations {
 
         DurableStorageConfig<K, T> decodeConfig;
         try {
-            decodeConfig = DurableStorageConfig.builder(directory, expected.codec())
+            DurableStorageConfig.Builder<K, T> decodeBuilder =
+                    DurableStorageConfig.builder(directory, expected.codec())
                     .format(metadata.format().publicFormat())
                     .storageIdentity(metadata.storageIdentity())
                     .schemaIdentity(metadata.schemaIdentity())
@@ -93,8 +95,13 @@ final class DurableSemanticOperations {
                     .maxBulkElements(metadata.maxBulkElements())
                     .maxDocuments(metadata.maxDocuments())
                     .checkpointWalBytes(metadata.checkpointWalBytes())
-                    .maxRetainedBytes(metadata.maxRetainedBytes())
-                    .build();
+                    .maxRetainedBytes(metadata.maxRetainedBytes());
+            if (metadata.format().publicFormat()
+                    .equals(DurableStorageFormat.V1_2)) {
+                decodeBuilder.maxDerivedStateBytes(
+                        metadata.maxDerivedStateBytes());
+            }
+            decodeConfig = decodeBuilder.build();
         } catch (RuntimeException failure) {
             return mismatch(structural, "SEMANTIC_CONFIG_MISMATCH",
                     "persisted safety bounds cannot form the expected typed config");

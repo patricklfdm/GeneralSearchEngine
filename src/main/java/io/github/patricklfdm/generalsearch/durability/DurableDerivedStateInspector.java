@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
@@ -63,6 +64,74 @@ final class DurableDerivedStateInspector {
             "gse-derived-index-[0-9]{20}-[0-9]{5}-[a-f0-9]{32}\\.idx\\.staging");
 
     private DurableDerivedStateInspector() {
+    }
+
+    /**
+     * Returns the exact V4.3 derived members that an already locked live-store
+     * cleanup operation may remove. A missing or rejected catalog never grants
+     * authority over a final component generation.
+     */
+    static DerivedCleanupAuthority cleanupAuthorityLocked(
+            Path directory,
+            DurableVerificationReport canonical
+    ) {
+        DurableStoreFormatReport declaration = DurableFormatHeaderInspector.store(
+                directory, canonical);
+        if (declaration.declaredFormat().isEmpty()
+                || !declaration.declaredFormat().get()
+                        .equals(DurableStorageFormat.V1_2)) {
+            return DerivedCleanupAuthority.notApplicable();
+        }
+        if (canonical.status() != DurableVerificationStatus.VALID
+                && canonical.status()
+                        != DurableVerificationStatus.VALID_WITH_SAFE_REMNANTS) {
+            throw operation(DurableOperationException.Reason.SOURCE_INVALID, null);
+        }
+
+        Inventory inventory = inventory(directory);
+        if (!inventory.findings().isEmpty()) {
+            throw operation(
+                    DurableOperationException.Reason.UNSUPPORTED_FILESYSTEM, null);
+        }
+        Map<String, String> candidates = new java.util.TreeMap<>();
+        for (String name : inventory.members().keySet()) {
+            if (name.equals(MANIFEST_STAGING)
+                    || COMPONENT_STAGING.matcher(name).matches()) {
+                candidates.put(name, "derived-staging-remnant");
+            }
+        }
+
+        CanonicalAuthority authority;
+        try {
+            authority = canonicalAuthority(directory);
+        } catch (IOException | RuntimeException failure) {
+            throw operation(DurableOperationException.Reason.IO_FAILURE, failure);
+        }
+        if (!inventory.members().containsKey(MANIFEST)
+                || !authority.checkpointPresent()) {
+            return new DerivedCleanupAuthority(true, Optional.empty(),
+                    Map.copyOf(candidates));
+        }
+        try {
+            Catalog catalog = parseCatalog(directory.resolve(MANIFEST), authority);
+            Set<String> referenced = new HashSet<>();
+            for (CatalogEntry entry : catalog.entries()) {
+                referenced.add(entry.filename());
+            }
+            for (String name : inventory.members().keySet()) {
+                if (COMPONENT.matcher(name).matches()
+                        && !referenced.contains(name)) {
+                    candidates.put(name, "superseded-derived-component");
+                }
+            }
+            return new DerivedCleanupAuthority(true,
+                    Optional.of(catalog.identity()), Map.copyOf(candidates));
+        } catch (ParseFailure rejectedCatalog) {
+            return new DerivedCleanupAuthority(true, Optional.empty(),
+                    Map.copyOf(candidates));
+        } catch (IOException failure) {
+            throw operation(DurableOperationException.Reason.IO_FAILURE, failure);
+        }
     }
 
     static DurableDerivedStateReport inspect(Path input) {
@@ -1306,5 +1375,21 @@ final class DurableDerivedStateInspector {
             FileTime modified,
             Object fileKey
     ) {
+    }
+
+    record DerivedCleanupAuthority(
+            boolean applicable,
+            Optional<String> catalogIdentity,
+            Map<String, String> candidates
+    ) {
+        DerivedCleanupAuthority {
+            catalogIdentity = Objects.requireNonNull(
+                    catalogIdentity, "catalogIdentity");
+            candidates = Map.copyOf(candidates);
+        }
+
+        static DerivedCleanupAuthority notApplicable() {
+            return new DerivedCleanupAuthority(false, Optional.empty(), Map.of());
+        }
     }
 }

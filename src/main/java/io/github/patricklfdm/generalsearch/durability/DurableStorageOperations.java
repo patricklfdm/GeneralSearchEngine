@@ -78,8 +78,11 @@ public final class DurableStorageOperations {
      * grants no permission after any filesystem or authority change.
      *
      * V4.2 migration remnants require the exact structured marker and unchanged
-     * source-member bindings produced by the migration attempt. A published target
-     * is authority and is never included in the delete set.
+     * source-member bindings produced by the migration attempt. Exact V4.3 stores
+     * additionally permit derived staging remnants and final components omitted by
+     * the current valid catalog. A published target, current catalog, referenced
+     * component, canonical member, unknown member, or ambiguous alias is never
+     * included in the delete set.
      *
      * @param request exact live-store or operation-remnant request
      * @return deterministic immutable dry-run plan, possibly empty
