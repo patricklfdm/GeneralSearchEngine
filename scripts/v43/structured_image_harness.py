@@ -32,6 +32,11 @@ PHASE4_BARRIERS = (
     "v43-derived-before-catalog-publication-v1",
     "v43-derived-after-catalog-parent-force-v1",
 )
+PHASE5_BARRIERS = (
+    "v43-derived-before-superseded-cleanup-v1",
+    "v43-derived-during-superseded-cleanup-v1",
+    "v43-derived-after-superseded-cleanup-v1",
+)
 
 
 def _line(process: subprocess.Popen[str], timeout: float) -> str:
@@ -63,8 +68,11 @@ def _canonical_hashes(store: Path) -> dict[str, str]:
 
 def run_case(arguments: argparse.Namespace) -> int:
     validate_source(arguments.source_sha)
-    barriers = PHASE3_BARRIERS if arguments.phase == "phase3" \
-        else PHASE4_BARRIERS
+    barriers = {
+        "phase3": PHASE3_BARRIERS,
+        "phase4": PHASE4_BARRIERS,
+        "phase5-cleanup": PHASE5_BARRIERS,
+    }[arguments.phase]
     if arguments.barrier not in barriers:
         raise EvidenceError(f"unsupported {arguments.phase} barrier")
     workspace = arguments.workspace.resolve()
@@ -73,12 +81,14 @@ def run_case(arguments: argparse.Namespace) -> int:
     workspace.mkdir(parents=True)
     store = workspace / "store"
     action = "halt" if arguments.termination == "internal-halt" else "wait"
+    process_mode = f"{arguments.phase}-crash" \
+        if arguments.phase != "phase5-cleanup" else "phase5-cleanup-crash"
     command = [
         arguments.java,
         f"-Dgse.v4.crashBarrier={arguments.barrier}",
         f"-Dgse.v4.crashAction={action}",
         "-cp", arguments.classpath, PROCESS_CLASS,
-        f"{arguments.phase}-crash", str(store), arguments.barrier,
+        process_mode, str(store), arguments.barrier,
     ]
     child = subprocess.Popen(
         command, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -102,9 +112,11 @@ def run_case(arguments: argparse.Namespace) -> int:
     if child.returncode != expected:
         raise EvidenceError(f"unexpected abrupt exit: {child.returncode}")
     before = _canonical_hashes(store)
+    inspect_mode = f"{arguments.phase}-inspect" \
+        if arguments.phase != "phase5-cleanup" else "phase5-cleanup-inspect"
     inspector = subprocess.run(
         [arguments.java, "-cp", arguments.classpath, PROCESS_CLASS,
-         f"{arguments.phase}-inspect", str(store), arguments.barrier],
+         inspect_mode, str(store), arguments.barrier],
         check=False, capture_output=True, text=True, timeout=arguments.timeout,
     )
     inspect_prefix = "GSE_V43_INSPECTION_RESULT="
@@ -114,9 +126,11 @@ def run_case(arguments: argparse.Namespace) -> int:
     inspected = json.loads(inspector.stdout[len(inspect_prefix):])
     if inspected.get("canonicalAuthority") != "VALID":
         raise EvidenceError("pre-open canonical authority differs")
+    verify_mode = f"{arguments.phase}-verify" \
+        if arguments.phase != "phase5-cleanup" else "phase5-cleanup-verify"
     verifier = subprocess.run(
         [arguments.java, "-cp", arguments.classpath, PROCESS_CLASS,
-         f"{arguments.phase}-verify", str(store), arguments.barrier],
+         verify_mode, str(store), arguments.barrier],
         check=False, capture_output=True, text=True, timeout=arguments.timeout,
     )
     verify_prefix = "GSE_V43_VERIFY_RESULT="
@@ -125,15 +139,20 @@ def run_case(arguments: argparse.Namespace) -> int:
             "replacement verifier JVM failed: " + verifier.stderr[-1024:])
     verified = json.loads(verifier.stdout[len(verify_prefix):])
     after = _canonical_hashes(store)
-    if before != after or verified.get("canonicalAuthority") != "VALID" \
+    canonical_unchanged = before == after
+    if (arguments.phase != "phase5-cleanup" and not canonical_unchanged) \
+            or verified.get("canonicalAuthority") != "VALID" \
             or verified.get("derivedState") != "VALID":
         raise EvidenceError("canonical authority or refreshed image differs")
     shutil.rmtree(store)
     evidence = base_document(
         arguments.source_sha, arguments.source_state, "local-scaffold")
     evidence.update({
-        "kind": "local-structured-image-crash" if arguments.phase == "phase3"
-                else "local-text-image-crash",
+        "kind": {
+            "phase3": "local-structured-image-crash",
+            "phase4": "local-text-image-crash",
+            "phase5-cleanup": "local-derived-cleanup-crash",
+        }[arguments.phase],
         "case": {
             "caseId": f"{arguments.barrier}:{arguments.termination}",
             "barrierId": arguments.barrier,
@@ -145,7 +164,7 @@ def run_case(arguments: argparse.Namespace) -> int:
             "paidExecution": False,
         },
         "canonical": {
-            "authority": "VALID", "bytesUnchanged": True,
+            "authority": "VALID", "bytesUnchanged": canonical_unchanged,
             "memberSha256": after,
         },
         "derived": {
@@ -165,7 +184,9 @@ def run_case(arguments: argparse.Namespace) -> int:
             "production-store-created", "canonical-checkpoint-published",
             "derived-barrier-acknowledged", "abrupt-death",
             "independent-pre-open-inspection-passed",
-            "replacement-jvm-recovered", "canonical-bytes-matched",
+            "replacement-jvm-recovered",
+            "canonical-continuation-verified" if arguments.phase
+            == "phase5-cleanup" else "canonical-bytes-matched",
             "valid-derived-generation-observed", "workspace-cleaned",
         ],
         "logs": {
@@ -192,8 +213,10 @@ def main() -> int:
     run.add_argument("--workspace", type=Path, required=True)
     run.add_argument("--source-sha", required=True)
     run.add_argument("--source-state", choices=("clean", "dirty"), required=True)
-    run.add_argument("--phase", choices=("phase3", "phase4"), default="phase3")
-    run.add_argument("--barrier", choices=PHASE3_BARRIERS + PHASE4_BARRIERS,
+    run.add_argument("--phase", choices=("phase3", "phase4", "phase5-cleanup"),
+                     default="phase3")
+    run.add_argument("--barrier",
+                     choices=PHASE3_BARRIERS + PHASE4_BARRIERS + PHASE5_BARRIERS,
                      required=True)
     run.add_argument("--termination", choices=("internal-halt", "external-kill"),
                      required=True)

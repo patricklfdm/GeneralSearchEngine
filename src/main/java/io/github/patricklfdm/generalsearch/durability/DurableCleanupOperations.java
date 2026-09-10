@@ -85,6 +85,12 @@ final class DurableCleanupOperations {
             }
             List<Path> deleted = new ArrayList<>();
             long deletedBytes = 0L;
+            boolean derivedCleanup = requestedPlan.deleteSet().stream()
+                    .anyMatch(DurableCleanupOperations::derivedCleanupEntry);
+            if (derivedCleanup) {
+                DurableCleanupCrashHooks.reach(
+                        "v43-derived-before-superseded-cleanup-v1");
+            }
             for (DurableCleanupEntry entry : requestedPlan.deleteSet()) {
                 verifyCurrentEntry(entry, prepared.stagingDirectory());
                 DurableCleanupCrashHooks.reach(
@@ -94,6 +100,14 @@ final class DurableCleanupOperations {
                 deletedBytes = Math.addExact(deletedBytes, entry.size());
                 DurableCleanupCrashHooks.reach(
                         "v41-cleanup-after-delete-v1");
+                if (derivedCleanupEntry(entry)) {
+                    DurableCleanupCrashHooks.reach(
+                            "v43-derived-during-superseded-cleanup-v1");
+                }
+            }
+            if (derivedCleanup) {
+                DurableCleanupCrashHooks.reach(
+                        "v43-derived-after-superseded-cleanup-v1");
             }
             DurableCleanupCrashHooks.reach(
                     "v41-cleanup-before-directory-force-v1");
@@ -112,6 +126,11 @@ final class DurableCleanupOperations {
         } catch (ArithmeticException | IOException failure) {
             throw failure(DurableOperationException.Reason.IO_FAILURE, failure);
         }
+    }
+
+    private static boolean derivedCleanupEntry(DurableCleanupEntry entry) {
+        return entry.reason().equals("derived-staging-remnant")
+                || entry.reason().equals("superseded-derived-component");
     }
 
     private static Prepared prepare(DurableCleanupRequest request)
@@ -146,6 +165,15 @@ final class DurableCleanupOperations {
                             null);
                 }
             }
+            DurableDerivedStateInspector.DerivedCleanupAuthority derived =
+                    DurableDerivedStateInspector.cleanupAuthorityLocked(
+                            directory, report);
+            derived.candidates().forEach((name, reason) -> {
+                if (safeMembers.putIfAbsent(name, reason) != null) {
+                    throw failure(DurableOperationException.Reason.SOURCE_INVALID,
+                            null);
+                }
+            });
             List<DurableCleanupEntry> deleteSet = safeMembers.entrySet().stream()
                     .sorted(Map.Entry.comparingByKey())
                     .map(entry -> cleanupEntry(inventory.get(entry.getKey()),
@@ -153,6 +181,7 @@ final class DurableCleanupOperations {
                     .toList();
             String authority = authorityIdentity(request.scope(), directory,
                     inventory, report, null, null);
+            authority = bindDerivedAuthority(authority, derived);
             DurableCleanupPlan plan = buildPlan(directory, request.scope(),
                     authority, deleteSet);
             return new Prepared(plan, channel, lock, directory, null, null,
@@ -161,6 +190,27 @@ final class DurableCleanupOperations {
             close(lock, channel, failure);
             throw failure;
         }
+    }
+
+    private static String bindDerivedAuthority(
+            String canonicalAuthority,
+            DurableDerivedStateInspector.DerivedCleanupAuthority derived
+    ) {
+        if (!derived.applicable()) {
+            return canonicalAuthority;
+        }
+        MessageDigest digest = sha256();
+        update(digest, "gse-v43-derived-cleanup-authority-v1");
+        update(digest, canonicalAuthority);
+        update(digest, derived.catalogIdentity().orElse("absent"));
+        update(digest, derived.candidates().size());
+        derived.candidates().entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .forEach(entry -> {
+                    update(digest, entry.getKey());
+                    update(digest, entry.getValue());
+                });
+        return HexFormat.of().formatHex(digest.digest());
     }
 
     private static Prepared prepareOperationRemnant(DurableCleanupRequest request)

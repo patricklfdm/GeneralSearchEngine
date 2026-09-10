@@ -26,6 +26,9 @@ remains the phase history and decision source of truth.
 - [V4.3 Phase 4 text images and selective fallback](v4x/v4.3/PHASE_4_TEXT_IMAGES_AND_SELECTIVE_FALLBACK.md)
 - [V4.3 Phase 4 local baseline](v4x/v4.3/PHASE_4_BASELINE.md)
 - [V4.3 Phase 4 checklist](v4x/v4.3/PHASE_4_CHECKLIST.md)
+- [V4.3 Phase 5 lifecycle hardening](v4x/v4.3/PHASE_5_LIFECYCLE_HARDENING.md)
+- [V4.3 Phase 5 local baseline](v4x/v4.3/PHASE_5_BASELINE.md)
+- [V4.3 Phase 5 checklist](v4x/v4.3/PHASE_5_CHECKLIST.md)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
@@ -98,8 +101,11 @@ inspection through protected PR #121 and exact-master CI `34446500594`. Phase 3
 implements structured equality/range/prefix warm reopen, fallback/refresh and direct
 cold-target `(1,2)` migration. It was accepted through protected PR #122 as
 `98527a2475d69673513addb15e5693bc197ddf2c`; exact-master CI run `34454404406`
-passed. Phase 4 now completes exact SimpleAnalyzer images and the four-kind selective
-fallback matrix.
+passed. Phase 4 completed exact SimpleAnalyzer images and the four-kind selective
+fallback matrix through protected PR #123 as
+`2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run `34460924869`
+passed. Phase 5 now owns lifecycle, plan-bound cleanup, backup/restore, crash,
+capacity, concurrency and compatibility hardening without paid execution.
 
 ## v4.0 — prior stable durable single-node foundation
 

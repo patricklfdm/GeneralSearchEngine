@@ -13,7 +13,10 @@ final class DurableCleanupCrashHooks {
             "v41-cleanup-before-directory-force-v1",
             "v41-cleanup-after-directory-force-v1",
             "v41-cleanup-before-post-verify-v1",
-            "v41-cleanup-after-post-verify-v1"
+            "v41-cleanup-after-post-verify-v1",
+            "v43-derived-before-superseded-cleanup-v1",
+            "v43-derived-during-superseded-cleanup-v1",
+            "v43-derived-after-superseded-cleanup-v1"
     );
 
     private DurableCleanupCrashHooks() {

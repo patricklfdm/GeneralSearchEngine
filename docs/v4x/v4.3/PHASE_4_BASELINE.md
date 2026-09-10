@@ -41,3 +41,9 @@ reactor and syntax-checks its entry point in the no-GCP lane.
 
 No workflow dispatch, IAM policy, VM/disk, GCS object or baseline registry was
 changed by Phase 4.
+
+## Protected acceptance
+
+Phase 4 merged through protected PR #123 as
+`2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run `34460924869`
+passed.
