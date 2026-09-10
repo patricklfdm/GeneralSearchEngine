@@ -16,28 +16,43 @@ final class DurableFormatContext {
     static final short MAJOR = 1;
     static final short MINOR_1_0 = 0;
     static final short MINOR_1_1 = 1;
+    static final short MINOR_1_2 = 2;
     static final String FAMILY = "gse-durable";
     static final DurableFormatContext V1_0 = new DurableFormatContext(
             DurableStorageFormat.V1_0, new byte[0], new byte[0]);
     static final DurableFormatContext V1_1;
+    static final DurableFormatContext V1_2;
 
     private static final byte[] PROFILE_DOMAIN =
             "gse-durable-format-profile-v1\0"
                     .getBytes(StandardCharsets.US_ASCII);
-    private static final List<String> REQUIRED_CAPABILITIES = List.of(
+    private static final List<String> REQUIRED_CAPABILITIES_V1_1 = List.of(
             "canonical-documents-v1",
             "checkpoint-authority-v1",
             "crc32c-wal-v1",
             "logical-index-config-v1",
             "sha256-profile-binding-v1");
+    private static final List<String> REQUIRED_CAPABILITIES_V1_2 = List.of(
+            "canonical-documents-v1",
+            "checkpoint-authority-v1",
+            "crc32c-wal-v1",
+            "logical-index-config-v1",
+            "reconstructible-derived-index-images-v1",
+            "sha256-profile-binding-v1");
 
     static {
-        byte[] profile = encodeProfile();
+        byte[] profile = encodeProfile(REQUIRED_CAPABILITIES_V1_1);
         MessageDigest digest = sha256();
         digest.update(PROFILE_DOMAIN);
         digest.update(profile);
         V1_1 = new DurableFormatContext(
                 DurableStorageFormat.V1_1, profile, digest.digest());
+        profile = encodeProfile(REQUIRED_CAPABILITIES_V1_2);
+        digest = sha256();
+        digest.update(PROFILE_DOMAIN);
+        digest.update(profile);
+        V1_2 = new DurableFormatContext(
+                DurableStorageFormat.V1_2, profile, digest.digest());
     }
 
     private final DurableStorageFormat publicFormat;
@@ -61,6 +76,9 @@ final class DurableFormatContext {
         if (DurableStorageFormat.V1_1.equals(format)) {
             return V1_1;
         }
+        if (DurableStorageFormat.V1_2.equals(format)) {
+            return V1_2;
+        }
         throw new DurabilityException(
                 DurabilityException.Reason.INCOMPATIBLE_STORAGE,
                 "configured durable format is not supported");
@@ -75,6 +93,7 @@ final class DurableFormatContext {
         return switch (minor) {
             case MINOR_1_0 -> V1_0;
             case MINOR_1_1 -> V1_1;
+            case MINOR_1_2 -> V1_2;
             default -> throw new DurabilityException(
                     DurabilityException.Reason.INCOMPATIBLE_STORAGE,
                     "durable metadata minor is incompatible");
@@ -90,7 +109,7 @@ final class DurableFormatContext {
     }
 
     boolean hasProfile() {
-        return minor() == MINOR_1_1;
+        return minor() != MINOR_1_0;
     }
 
     byte[] profile() {
@@ -122,12 +141,12 @@ final class DurableFormatContext {
         return hasProfile() ? 104 : 72;
     }
 
-    private static byte[] encodeProfile() {
+    private static byte[] encodeProfile(List<String> requiredCapabilities) {
         try {
             ByteArrayOutputStream bytes = new ByteArrayOutputStream();
             try (DataOutputStream output = new DataOutputStream(bytes)) {
-                output.writeInt(REQUIRED_CAPABILITIES.size());
-                for (String capability : REQUIRED_CAPABILITIES) {
+                output.writeInt(requiredCapabilities.size());
+                for (String capability : requiredCapabilities) {
                     writeString(output, capability);
                 }
                 output.writeInt(0);

@@ -267,3 +267,9 @@ passed. Phase 1 opens `4.3.0-SNAPSHOT`, pins published 4.2, freezes declaration-
 APIs and independent logical fixtures, and establishes local crash plus fake-cloud
 evidence before production `(1,2)` bytes. Paid workflow, IAM mutation, registry
 mutation and cloud execution remain prohibited until Phase 6.
+
+Phase 1 merged through protected PR #120 as `148d253`. Phase 2 freezes exact
+`gse-durable (1,2)`, canonical-only backup `(1,2)`, the derived catalog and all four
+component encodings. Codec-free inspection and immutable independent physical
+fixtures are active, but production reopen still rebuilds every index and neither
+loads nor publishes derived state. Phase 3 owns the first structured image path.

@@ -60,6 +60,18 @@ public final class DurableStorageOperations {
     }
 
     /**
+     * Inspects optional derived state in a closed live store without loading a codec.
+     * Canonical authority is verified independently and no byte is repaired, deleted,
+     * refreshed or admitted into a search snapshot.
+     *
+     * @param directory closed live-store directory
+     * @return immutable derived-state inventory and classification
+     */
+    public static DurableDerivedStateReport inspectDerivedState(Path directory) {
+        return DurableDerivedStateInspector.inspect(directory);
+    }
+
+    /**
      * Builds a codec-free, read-only cleanup plan for one exact offline boundary.
      * Planning acquires exclusive ownership, proves every candidate
      * non-authoritative, and binds the complete observed inventory. The returned plan

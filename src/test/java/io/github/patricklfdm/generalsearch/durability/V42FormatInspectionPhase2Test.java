@@ -130,12 +130,12 @@ class V42FormatInspectionPhase2Test {
     ) throws Exception {
         Path higherMinor = Files.createDirectory(temporary.resolve("minor"));
         materializeLive(higherMinor);
-        rewriteVersion(higherMinor.resolve("gse-metadata"), 1, 2);
+        rewriteVersion(higherMinor.resolve("gse-metadata"), 1, 3);
         DurableStoreFormatReport minorReport =
                 DurableStorageOperations.inspectStoreFormat(higherMinor);
         assertEquals(DurableVerificationStatus.INCOMPATIBLE,
                 minorReport.structuralReport().status());
-        assertEquals(Optional.of(new DurableStorageFormat("gse-durable", 1, 2)),
+        assertEquals(Optional.of(new DurableStorageFormat("gse-durable", 1, 3)),
                 minorReport.declaredFormat());
         assertTrue(minorReport.profileDigest().isEmpty());
 

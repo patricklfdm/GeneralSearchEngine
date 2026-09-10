@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 1 checklist
 
-- **Status:** Candidate for protected acceptance
+- **Status:** Merged through protected PR #120; exact-master CI record pending
 - **Scope:** Non-production fast-reopen foundation and calibrated evidence plan
 
 ## Entry and coordinates
@@ -80,8 +80,8 @@
 
 ## Protected acceptance
 
-- [ ] Phase 1 pull request passes required checks.
-- [ ] Phase 1 merges to protected `master`; exact commit is recorded.
+- [x] Phase 1 pull request #120 passed required checks.
+- [x] Phase 1 merged to protected `master` as `148d253`.
 - [ ] Exact protected-master CI passes before Phase 2.
 
 Production `(1,2)` bytes and codec-free derived inspection remain prohibited until

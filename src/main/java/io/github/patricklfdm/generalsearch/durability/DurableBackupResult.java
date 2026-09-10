@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @param contentIdentity canonical content identity
  * @param sourceHistory source live-store history
  * @param sequence exact durable sequence represented by the bundle
- * @param memberCount authoritative member count, exactly three for V1.0/V1.1
+ * @param memberCount authoritative member count, exactly three for V1.0–V1.2
  * @param totalBytes total authoritative bundle bytes
  */
 public record DurableBackupResult(
@@ -26,7 +26,7 @@ public record DurableBackupResult(
         long totalBytes
 ) {
     private static final Pattern CONTENT_IDENTITY = Pattern.compile(
-            "gse-backup-v[12]-[0-9a-f]{64}");
+            "gse-backup-v[123]-[0-9a-f]{64}");
 
     /** Normalizes and validates the successful publication proof. */
     public DurableBackupResult {
@@ -38,7 +38,9 @@ public record DurableBackupResult(
         String expectedPrefix = format.equals(DurableBackupFormat.V1_0)
                 ? "gse-backup-v1-"
                 : format.equals(DurableBackupFormat.V1_1)
-                        ? "gse-backup-v2-" : "";
+                        ? "gse-backup-v2-"
+                        : format.equals(DurableBackupFormat.V1_2)
+                                ? "gse-backup-v3-" : "";
         if (!contentIdentity.startsWith(expectedPrefix)
                 || expectedPrefix.isEmpty()
                 || !CONTENT_IDENTITY.matcher(contentIdentity).matches()) {

@@ -18,6 +18,9 @@ public final class DurableStorageConfig<K, T> {
     public static final long DEFAULT_CHECKPOINT_WAL_BYTES = 256L * 1024 * 1024;
     /** Default retained engine-owned byte limit: eight GiB. */
     public static final long DEFAULT_MAX_RETAINED_BYTES = 8L * 1024 * 1024 * 1024;
+    /** Default maximum retained non-authoritative derived-state bytes: two GiB. */
+    public static final long DEFAULT_MAX_DERIVED_STATE_BYTES =
+            2L * 1024 * 1024 * 1024;
 
     static final int HARD_MAX_ENCODED_KEY_BYTES = 64 * 1024 * 1024;
     static final int HARD_MAX_ENCODED_DOCUMENT_BYTES = 256 * 1024 * 1024;
@@ -25,6 +28,8 @@ public final class DurableStorageConfig<K, T> {
     static final int HARD_MAX_DOCUMENTS = 100_000_000;
     static final long HARD_MAX_CHECKPOINT_WAL_BYTES = 1024L * 1024 * 1024 * 1024;
     static final long HARD_MAX_RETAINED_BYTES = 16L * 1024 * 1024 * 1024 * 1024;
+    static final long HARD_MAX_DERIVED_STATE_BYTES =
+            8L * 1024 * 1024 * 1024 * 1024;
 
     private static final Pattern IDENTITY = Pattern.compile(
             "[a-z0-9][a-z0-9._-]{0,127}");
@@ -40,6 +45,7 @@ public final class DurableStorageConfig<K, T> {
     private final int maxDocuments;
     private final long checkpointWalBytes;
     private final long maxRetainedBytes;
+    private final long maxDerivedStateBytes;
 
     private DurableStorageConfig(Builder<K, T> builder) {
         directory = builder.directory;
@@ -87,6 +93,20 @@ public final class DurableStorageConfig<K, T> {
         if (maxRetainedBytes <= checkpointWalBytes) {
             throw new IllegalArgumentException(
                     "maxRetainedBytes must exceed checkpointWalBytes");
+        }
+        maxDerivedStateBytes = positiveBounded(
+                builder.maxDerivedStateBytes,
+                HARD_MAX_DERIVED_STATE_BYTES,
+                "maxDerivedStateBytes");
+        if (!format.equals(DurableStorageFormat.V1_2)
+                && builder.derivedStateBytesConfigured) {
+            throw new IllegalArgumentException(
+                    "maxDerivedStateBytes requires exact durable format (1,2)");
+        }
+        if (format.equals(DurableStorageFormat.V1_2)
+                && maxDerivedStateBytes > maxRetainedBytes) {
+            throw new IllegalArgumentException(
+                    "maxDerivedStateBytes must not exceed maxRetainedBytes");
         }
     }
 
@@ -143,6 +163,11 @@ public final class DurableStorageConfig<K, T> {
         return maxRetainedBytes;
     }
 
+    /** Returns the bounded allowance for reconstructible derived-state members. */
+    public long maxDerivedStateBytes() {
+        return maxDerivedStateBytes;
+    }
+
     /** Mutable builder with frozen safe defaults and explicit persisted identities. */
     public static final class Builder<K, T> {
         private final Path directory;
@@ -156,6 +181,8 @@ public final class DurableStorageConfig<K, T> {
         private int maxDocuments = DEFAULT_MAX_DOCUMENTS;
         private long checkpointWalBytes = DEFAULT_CHECKPOINT_WAL_BYTES;
         private long maxRetainedBytes = DEFAULT_MAX_RETAINED_BYTES;
+        private long maxDerivedStateBytes = DEFAULT_MAX_DERIVED_STATE_BYTES;
+        private boolean derivedStateBytesConfigured;
 
         private Builder(Path directory, DurableCodec<K, T> codec) {
             this.directory = Objects.requireNonNull(directory, "directory");
@@ -209,6 +236,16 @@ public final class DurableStorageConfig<K, T> {
 
         public Builder<K, T> maxRetainedBytes(long value) {
             maxRetainedBytes = value;
+            return this;
+        }
+
+        /**
+         * Selects the derived-state allowance for exact format {@code (1,2)}.
+         * Explicit use with an older format is rejected during {@link #build()}.
+         */
+        public Builder<K, T> maxDerivedStateBytes(long value) {
+            maxDerivedStateBytes = value;
+            derivedStateBytesConfigured = true;
             return this;
         }
 

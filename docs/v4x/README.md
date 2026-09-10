@@ -18,10 +18,12 @@ polling timeout as an explicit historical failure.
 
 V4.3 Phase 0 was accepted through protected PR #119 as
 `d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
-passed. Phase 1 opens `4.3.0-SNAPSHOT` and establishes declaration-only APIs,
+passed. Phase 1 opened `4.3.0-SNAPSHOT` and established declaration-only APIs,
 independent four-index models and fixtures, a separate-process crash scaffold, a
-no-GCP serial evidence plan and exact published-4.2 calibration. Production `(1,2)`
-and derived-state behavior remain absent.
+no-GCP serial evidence plan and exact published-4.2 calibration; it merged through
+protected PR #120 as `148d253`. Phase 2 now freezes exact `(1,2)` canonical, backup,
+catalog and component bytes plus codec-free derived inspection. Production image
+loading and publication remain absent.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -60,6 +62,9 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 Phase 1 public API fixture](v4.3/PHASE_1_API_FIXTURE.md)
 - [V4.3 Phase 1 foundation baseline](v4.3/PHASE_1_BASELINE.md)
 - [V4.3 Phase 1 checklist](v4.3/PHASE_1_CHECKLIST.md)
+- [V4.3 Phase 2 derived format and inspection](v4.3/PHASE_2_DERIVED_FORMAT_AND_INSPECTION.md)
+- [V4.3 Phase 2 local baseline](v4.3/PHASE_2_BASELINE.md)
+- [V4.3 Phase 2 checklist](v4.3/PHASE_2_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
