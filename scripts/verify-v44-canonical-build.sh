@@ -98,7 +98,7 @@ build_capture() {
         --volume "$maven_archive:/toolchain/$maven_archive_name:ro" \
         --workdir /workspace \
         "$image_reference" \
-        bash -ceu 'umask 0022; settings=$(java -XshowSettings:properties -version 2>&1); test "$(sed -n "s/^ *java.version = //p" <<<"$settings")" = "21.0.12"; test "$(sed -n "s/^ *java.runtime.version = //p" <<<"$settings")" = "21.0.12+8-LTS"; echo "$GSE_MAVEN_SHA256  $GSE_MAVEN_ARCHIVE" | sha256sum --check --status; mkdir -p /tmp/gse-maven; cd /tmp/gse-maven; jar xf "$GSE_MAVEN_ARCHIVE"; cd /workspace; "$GSE_MAVEN_HOME/bin/mvn" -q -f reactor/pom.xml -Prelease -DskipTests clean package'
+        bash -ceu 'umask 0022; settings=$(java -XshowSettings:properties -version 2>&1); test "$(sed -n "s/^ *java.version = //p" <<<"$settings")" = "21.0.12"; test "$(sed -n "s/^ *java.runtime.version = //p" <<<"$settings")" = "21.0.12+8-LTS"; echo "$GSE_MAVEN_SHA256  $GSE_MAVEN_ARCHIVE" | sha256sum --check --status; mkdir -p /tmp/gse-maven; cd /tmp/gse-maven; jar xf "$GSE_MAVEN_ARCHIVE"; cd /workspace; bash "$GSE_MAVEN_HOME/bin/mvn" -q -f reactor/pom.xml -Prelease -DskipTests clean package'
     find "$workspace/target" "$workspace/general-search-engine-processor/target" \
         -maxdepth 1 -type f \
         \( -name 'general-search-engine-*.jar' \

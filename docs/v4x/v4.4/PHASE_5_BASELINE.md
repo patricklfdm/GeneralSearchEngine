@@ -21,7 +21,9 @@ candidate-build evidence, not yet the Phase 7 hash record or Phase 8 Central pro
 The Maven ZIP is downloaded once, checked against the frozen Wrapper SHA-256, mounted
 read-only, checked again inside each container and extracted with the JDK `jar` tool.
 This avoids dependence on a host Maven cache or an `unzip` package absent from the
-minimal image; no mutable package installation is permitted in the canonical lane.
+minimal image. The extracted launcher is invoked explicitly through `bash` because
+JDK extraction does not restore its executable bit; no mutable package installation
+is permitted in the canonical lane.
 
 The [cloud readiness contract](PHASE_5_CLOUD_READINESS.md) adds a manual-only,
 trusted-master-only, serial replacement-host workflow plus strict member/set
