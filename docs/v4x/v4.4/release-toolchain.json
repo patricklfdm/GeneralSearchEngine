@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "gse-v44-release-toolchain-v1",
+  "status": "CANONICAL_IDENTITY_FROZEN",
+  "architecture": "linux/amd64",
+  "container": {
+    "image": "docker.io/library/eclipse-temurin:21.0.12_8-jdk-jammy",
+    "indexDigest": "sha256:8878012b286ef00032346bfbdd55b10e9f5bf923430e3a85c7c3d6e6db6f4605",
+    "platformDigest": "sha256:4cfc63a7118da9267c17e2c988e1599d83d5d64a3832a760f0e77c7e8f6b29f7",
+    "baseImage": "ubuntu:22.04",
+    "baseDigest": "sha256:281c5745f657873d78e5531fc5ba8575f46ab7769b94550ac99543f122679986"
+  },
+  "java": {
+    "distribution": "Eclipse Temurin",
+    "feature": 21,
+    "fullVersion": "21.0.12+8"
+  },
+  "mavenWrapper": {
+    "version": "3.9.11",
+    "distributionUrl": "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.9.11/apache-maven-3.9.11-bin.zip",
+    "distributionSha256Sum": "0d7125e8c91097b36edb990ea5934e6c68b4440eef4ea96510a0f6815e7eeadb",
+    "wrapperVersion": "3.3.4"
+  },
+  "plugins": {
+    "centralPublishing": "0.11.0",
+    "compiler": "3.15.0",
+    "deploy": "3.1.4",
+    "gpg": "3.2.8",
+    "jar": "3.5.1",
+    "javadoc": "3.12.0",
+    "source": "3.4.0"
+  },
+  "environment": {
+    "locale": "C.UTF-8",
+    "timezone": "UTC",
+    "umask": "0022",
+    "outputTimestamp": "release-commit-date-at-00:00:00Z",
+    "sourceDateEpoch": "derived-from-outputTimestamp",
+    "cleanWorkspace": true
+  },
+  "artifacts": [
+    "general-search-engine.pom",
+    "general-search-engine.jar",
+    "general-search-engine-sources.jar",
+    "general-search-engine-javadoc.jar",
+    "general-search-engine-processor.pom",
+    "general-search-engine-processor.jar",
+    "general-search-engine-processor-sources.jar",
+    "general-search-engine-processor-javadoc.jar"
+  ],
+  "canonicalJarCount": 6,
+  "canonicalPomCount": 2,
+  "noncanonicalBuilds": "diagnostic-semantic-content-only"
+}

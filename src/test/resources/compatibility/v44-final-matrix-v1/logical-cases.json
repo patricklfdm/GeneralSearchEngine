@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "gse-v44-final-matrix-v1",
+  "status": "PHASE2_PENDING",
+  "formats": ["1.0", "1.1", "1.2"],
+  "classifications": [
+    "CONTRACT_VIOLATION",
+    "MEASURED_REGRESSION",
+    "INFRASTRUCTURE_DEFECT",
+    "EXPECTED_BOUNDARY",
+    "NON_REPRODUCIBLE",
+    "DEFERRED_ARCHITECTURE"
+  ],
+  "families": [
+    "mutation-search",
+    "live-authority",
+    "backup-restore",
+    "migration",
+    "derived-reopen",
+    "corruption",
+    "publication-interruption",
+    "lifecycle-ownership",
+    "scale-resource",
+    "replacement-host"
+  ],
+  "cases": [
+    {"id":"mutation-single-bulk-reader","family":"mutation-search","oracle":"logical-model","fault":"none","expected":"PASS","continuationRequired":true},
+    {"id":"mutation-cancelled-before-publication","family":"mutation-search","oracle":"pre-interruption-checksum","fault":"external-kill","expected":"PASS","continuationRequired":true},
+    {"id":"live-10-checkpoint-wal","family":"live-authority","oracle":"codec-free-parser","fault":"none","expected":"PASS","continuationRequired":true},
+    {"id":"live-12-wal-generation-swap","family":"live-authority","oracle":"fixture-bytes","fault":"swapped-generation","expected":"FAIL_CLOSED","continuationRequired":false},
+    {"id":"backup-exact-cut-source-loss","family":"backup-restore","oracle":"pre-interruption-checksum","fault":"source-host-deleted","expected":"PASS","continuationRequired":true},
+    {"id":"backup-completion-truncated","family":"backup-restore","oracle":"codec-free-parser","fault":"truncated-completion","expected":"FAIL_CLOSED","continuationRequired":false},
+    {"id":"migration-10-to-12","family":"migration","oracle":"published-4.3","fault":"none","expected":"PASS","continuationRequired":true},
+    {"id":"migration-stale-plan","family":"migration","oracle":"external-inventory","fault":"source-changed","expected":"REJECT_BEFORE_MUTATION","continuationRequired":false},
+    {"id":"derived-complete-warm","family":"derived-reopen","oracle":"published-4.3","fault":"none","expected":"PASS","continuationRequired":true},
+    {"id":"derived-text-corrupt","family":"derived-reopen","oracle":"fixture-bytes","fault":"component-checksum","expected":"FALLBACK","continuationRequired":true},
+    {"id":"canonical-checkpoint-corrupt","family":"corruption","oracle":"codec-free-parser","fault":"checkpoint-checksum","expected":"FAIL_CLOSED","continuationRequired":false},
+    {"id":"canonical-hardlink","family":"corruption","oracle":"external-inventory","fault":"hard-linked-member","expected":"FAIL_CLOSED","continuationRequired":false},
+    {"id":"manifest-force-interrupt","family":"publication-interruption","oracle":"pre-interruption-checksum","fault":"runtime-halt","expected":"PASS","continuationRequired":true},
+    {"id":"target-publish-io-failure","family":"publication-interruption","oracle":"external-inventory","fault":"injected-io","expected":"REJECT_BEFORE_MUTATION","continuationRequired":false},
+    {"id":"failed-open-releases-owner","family":"lifecycle-ownership","oracle":"external-inventory","fault":"startup-failure","expected":"PASS","continuationRequired":true},
+    {"id":"cleanup-ambiguous-member","family":"lifecycle-ownership","oracle":"codec-free-parser","fault":"unknown-member","expected":"REJECT_BEFORE_MUTATION","continuationRequired":false},
+    {"id":"retained-byte-bound","family":"scale-resource","oracle":"external-inventory","fault":"enospc","expected":"PASS","continuationRequired":true},
+    {"id":"paired-published-43","family":"scale-resource","oracle":"published-4.3","fault":"none","expected":"PASS","continuationRequired":true},
+    {"id":"replacement-recover-continue","family":"replacement-host","oracle":"pre-interruption-checksum","fault":"source-host-deleted","expected":"PASS","continuationRequired":true},
+    {"id":"replacement-permission-denied","family":"replacement-host","oracle":"external-inventory","fault":"permission-denied","expected":"FAIL_CLOSED","continuationRequired":false}
+  ]
+}
