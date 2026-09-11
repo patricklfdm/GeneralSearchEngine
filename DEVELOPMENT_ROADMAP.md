@@ -357,9 +357,8 @@ probe completes 20,000-document concurrency, checkpoint/backup, three-reopen,
 continued-mutation, heap/GC/CPU and peak/final storage observation. The inherited
 four-case migration-interruption gate also passes. The result is
 `PASS_NO_MEASURED_REGRESSION`; no production optimization or paid execution is
-admitted. The [Phase 4 baseline](docs/v4x/v4.4/PHASE_4_BASELINE.md) and
-[checklist](docs/v4x/v4.4/PHASE_4_CHECKLIST.md) retain protected-entry acceptance as
-pending until their stacked predecessors merge and exact-master CI passes.
+admitted. Phases 2–4 merged through protected PRs #135–#137 with successful
+exact-master CI.
 
 Phase 5 adds the manual-only exact-master V4.4 replacement-host workflow, strict
 member/set evidence schemas, no-GCP fake/dry-run gates, prefix-scoped IAM readiness
@@ -371,7 +370,11 @@ there is still no production change, paid run, IAM mutation or registration. The
 [cloud readiness](docs/v4x/v4.4/PHASE_5_CLOUD_READINESS.md),
 [checklist](docs/v4x/v4.4/PHASE_5_CHECKLIST.md), and
 [V5 handoff draft](docs/v4x/v4.4/V5_HANDOFF.md) define the Phase 6 entry without
-claiming its protected or cloud acceptance.
+claiming cloud acceptance. Phase 5 merged through protected PR #138 as
+`e47e60472939cb8331d4d96302acf3d818622266`; exact-master CI `34649742450` passed.
+Its checksummed canonical artifact is bound to that exact source and proves two clean
+workspaces produced byte-identical six-JAR/two-POM inventories. Phase 6 is the next
+user-initiated paid-cloud boundary.
 
 ## v4.0 completed development contract
 

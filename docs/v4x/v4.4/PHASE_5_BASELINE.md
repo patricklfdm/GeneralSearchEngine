@@ -1,8 +1,11 @@
 # GeneralSearchEngine V4.4 Phase 5 stabilization baseline
 
-- **Status:** Local implementation complete; protected entry confirmed, Phase 5 acceptance pending
+- **Status:** Accepted through protected PR #138
 - **Phase 4 protected merge:** `263883b832413d0c9f1c5f20b2f8fbec444a2f98`
 - **Phase 4 exact-master CI:** `34646352576` (`success`)
+- **Phase 5 protected merge:** `e47e60472939cb8331d4d96302acf3d818622266`
+- **Phase 5 exact-master CI:** `34649742450` (`success`)
+- **Exact-master canonical artifact:** `v44-canonical-reproducibility-e47e60472939cb8331d4d96302acf3d818622266`
 - **Product/API/format/authority change:** None
 - **Paid cloud execution / IAM mutation / registration:** None
 
@@ -52,6 +55,11 @@ The aggregate gate builds through Maven `package` (with tests enabled) because i
 closed-surface API check consumes the resulting main JAR; a clean `test` lifecycle is
 not sufficient to create that input.
 
-Phase 6 entry additionally requires protected acceptance of every predecessor,
-exact-master CI, canonical-build evidence from that exact source, and user-reviewed
-WIF/IAM/budget checks.
+Phase 5 entered protected `master` through PR #138 as
+`e47e60472939cb8331d4d96302acf3d818622266`. Exact-master CI run `34649742450`
+passed. Its canonical artifact ID `10283910457` contains a checksummed receipt bound
+to that exact merge commit and records `EXACT_UNSIGNED_BYTE_IDENTITY` for two clean
+workspaces, six JARs and two POMs.
+
+All repository-controlled Phase 6 entry gates are now accepted. Paid execution still
+requires user-reviewed WIF/IAM/budget checks and explicit user initiation.

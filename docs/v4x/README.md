@@ -58,8 +58,12 @@ exact-master CI `34583543174`. Phase 1 opened `4.4.0-SNAPSHOT` and established t
 published-4.3 closed API, independent matrix, seven-path local process harness,
 fake-cloud resource model, paired calibration and canonical release-toolchain
 identity without production or paid-cloud work. It merged through protected PR #134
-as `a984086`; exact-master CI run `34587924661` passed. Phase 2 now executes and
-classifies the frozen complete local matrix without production or paid-cloud work.
+as `a984086`; exact-master CI run `34587924661` passed. Phase 2 completed and
+classified the frozen complete local matrix without production or paid-cloud work.
+Phases 2–4 subsequently merged through protected PRs #135–#137 with successful
+exact-master CI and no admitted production change. Phase 5 merged through protected
+PR #138 as `e47e604`; exact-master CI `34649742450` and its exact-source canonical
+two-workspace receipt passed. Phase 6 remains the first paid-cloud boundary.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`

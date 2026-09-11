@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 5 checklist
 
-- **Status:** Local implementation complete; protected entry confirmed, Phase 5 acceptance pending
+- **Status:** Accepted through protected PR #138
 - **Baseline:** [PHASE_5_BASELINE.md](PHASE_5_BASELINE.md)
 
 ## Entry and scope
@@ -52,6 +52,7 @@
 
 ## Protected acceptance
 
-- [ ] Phase 5 PR passes required checks after accepted predecessors.
-- [ ] Phase 5 merges through protected `master`.
-- [ ] Exact-master CI passes before any Phase 6 paid execution.
+- [x] Phase 5 PR #138 passed required checks after accepted predecessors.
+- [x] Phase 5 merged through protected `master` as `e47e604`.
+- [x] Exact-master CI `34649742450` passed and its canonical receipt is bound to
+  `e47e60472939cb8331d4d96302acf3d818622266`.
