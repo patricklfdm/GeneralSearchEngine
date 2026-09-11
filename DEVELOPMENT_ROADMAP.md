@@ -167,10 +167,10 @@ GitHub Release `385924091` all resolve to that exact commit. Release workflow ru
 `34415073641` preserves its client-side 1800-second Central polling timeout after a
 successful upload; the immutable version was not redeployed.
 
-## v4.2.0 current stable release
+## v4.2.0 prior stable release
 
-Version `4.2.0` was published on September 9, 2026 Pacific time as the current stable
-release:
+Version `4.2.0` was published on September 9, 2026 Pacific time and remains the
+immediate prior stable release:
 
 - `io.github.patricklfdm:general-search-engine:4.2.0`;
 - `io.github.patricklfdm:general-search-engine-processor:4.2.0`; and
@@ -183,7 +183,7 @@ upgrade, online or reverse migration, in-place cutover, history merge, replicati
 or a third artifact. Published `4.1.0` remains the immediate prior stable release and
 operational-safety compatibility baseline.
 
-## v4.3 active Phase 7 final candidate
+## v4.3 completed fast-reopen release
 
 V4.3 begins from published `4.2.0` with a documentation-only contract. The proposed
 boundary introduces explicit `gse-durable (1,2)` and matching canonical-only backup
@@ -262,8 +262,29 @@ passed. The append-only `v4.3.0-fast-reopen-cloud` registration merged through
 protected PR #129 as `cc603a6c946169b48390960091b6157c54e9ca0b`; exact-master CI
 run `34568701485` passed. Phase 7 started from that exact commit, converted the
 repository atomically to final `4.3.0` coordinates and passed its local compatibility,
-consumer, fixture, artifact and reproducibility gates. Protected acceptance remains
-pending; Phase 8 remains the sole authority for signing and publication.
+consumer, fixture, artifact and reproducibility gates. The candidate merged through
+protected PR #130 as `b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`; exact-master CI
+run `34572477812` passed. Phase 8 is complete. Signed tag `v4.3.0`, release workflow
+run `34573738901`, Central deployment
+`2526d3b2-7ec9-4ad6-ad97-31621ee2de99`, independently verified Maven Central
+artifacts and clean V3/V4 consumers, production deployment `6388475724`, and GitHub
+Release `386867175` all resolve to that exact commit.
+
+## v4.3.0 current stable release
+
+Version `4.3.0` was published on September 11, 2026 Pacific time as the current
+stable release:
+
+- `io.github.patricklfdm:general-search-engine:4.3.0`;
+- `io.github.patricklfdm:general-search-engine-processor:4.3.0`; and
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0).
+
+V4.3 preserves every published V4.2 format-evolution and inherited durability/
+retrieval guarantee while adding explicit `(1,2)` and optional reconstructible
+checkpoint-bound images. It does not add derived authority, silent upgrade,
+memory-mapping guarantees, online or reverse migration, remote live storage,
+replication, or a third artifact. Published `4.2.0` remains the immediate prior
+stable release and storage-evolution compatibility baseline.
 
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 7 release-candidate checklist
 
-**Status:** local candidate validation complete; protected acceptance pending; Phase 8 not authorized
+**Status:** complete — protected candidate accepted and handed to Phase 8
 
 ## Accepted entry boundary
 
@@ -49,11 +49,12 @@
 
 ## Protected acceptance and Phase 8 handoff
 
-- [ ] Candidate PR passes required checks and merges to protected `master`.
-- [ ] Exact-master CI passes for that merge commit.
-- [ ] Local and remote `v4.3.0` tags are absent before signing.
-- [ ] Central immutability preflight returns HTTP `404` for both artifacts.
-- [ ] Phase 8 begins only from the exact accepted protected-master commit.
+- [x] Candidate PR #130 passed required checks and merged to protected `master` as
+  `b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`.
+- [x] Exact-master CI run `34572477812` passed for that merge commit.
+- [x] Local and remote `v4.3.0` tags were absent before signing.
+- [x] Central immutability preflight returned HTTP `404` for both artifacts.
+- [x] Phase 8 began only from the exact accepted protected-master commit.
 
 Any production or storage-semantic change after canonical source `1d59ba9` requires
 explicit classification. A correctness change invalidates affected evidence; release

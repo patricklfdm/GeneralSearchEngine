@@ -43,7 +43,7 @@ failure cannot fail an otherwise valid canonical checkpoint or mutation.
 
 ## Compatibility proof
 
-The release candidate freezes every API, logical-model and physical `(1,2)` fixture
+The published release freezes every API, logical-model and physical `(1,2)` fixture
 hash; independently parses live, backup, catalog and component bytes; and expands the
 V4 consumer to perform public-only `(1,1)` to `(1,2)` migration, cold fallback,
 complete warm reopen, all four built-in query paths, continued mutation, checkpoint
