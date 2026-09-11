@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "gse-v44-phase2-execution-v1",
+  "status": "LOCAL_MATRIX_EXECUTABLE",
+  "productionChange": false,
+  "paidExecution": false,
+  "gates": [
+    {"id":"v44-targeted-junit","command":"./mvnw -q -Dtest=V44FinalDurableMatrixPhase2Test test"},
+    {"id":"v40-recovery-crash","command":"scripts/verify-v40-phase3-recovery.sh --skip-build"},
+    {"id":"v40-checkpoint-crash","command":"scripts/verify-v40-phase4-checkpoints.sh --skip-build"},
+    {"id":"v40-lifecycle","command":"scripts/verify-v40-phase5-hardening.sh --skip-build"},
+    {"id":"v41-backup-crash","command":"scripts/verify-v41-phase3-backup.sh --skip-build"},
+    {"id":"v41-restore-crash","command":"scripts/verify-v41-phase4-restore.sh --skip-build"},
+    {"id":"v41-cleanup-crash","command":"scripts/verify-v41-phase5-cleanup.sh"},
+    {"id":"v42-format-migration","command":"scripts/verify-v42-phase3-format-migration.sh --skip-build"},
+    {"id":"v42-transform-migration","command":"scripts/verify-v42-phase4-transform-migration.sh --skip-build"},
+    {"id":"v43-derived-reopen","command":"scripts/verify-v43-phase4-text-images.sh --skip-build"},
+    {"id":"v43-derived-lifecycle","command":"scripts/verify-v43-phase5-lifecycle.sh --skip-build"},
+    {"id":"v44-paired-published43","command":"scripts/verify-v44-paired-baseline.sh"},
+    {"id":"v44-local-replacement","command":"python -m scripts.v44.local_matrix replacement --workspace $GSE_V44_PHASE2_WORK/replacement"}
+  ],
+  "cases": [
+    {"id":"mutation-single-bulk-reader","gateIds":["v44-targeted-junit","v40-lifecycle"]},
+    {"id":"mutation-cancelled-before-publication","gateIds":["v40-recovery-crash"]},
+    {"id":"live-10-checkpoint-wal","gateIds":["v44-targeted-junit","v40-checkpoint-crash"]},
+    {"id":"live-12-wal-generation-swap","gateIds":["v44-targeted-junit"]},
+    {"id":"backup-exact-cut-source-loss","gateIds":["v41-backup-crash","v41-restore-crash","v44-local-replacement"]},
+    {"id":"backup-completion-truncated","gateIds":["v41-backup-crash"]},
+    {"id":"migration-10-to-12","gateIds":["v42-format-migration","v42-transform-migration","v43-derived-reopen"]},
+    {"id":"migration-stale-plan","gateIds":["v42-format-migration","v42-transform-migration"]},
+    {"id":"derived-complete-warm","gateIds":["v43-derived-reopen","v43-derived-lifecycle"]},
+    {"id":"derived-text-corrupt","gateIds":["v43-derived-reopen"]},
+    {"id":"canonical-checkpoint-corrupt","gateIds":["v40-checkpoint-crash"]},
+    {"id":"canonical-hardlink","gateIds":["v44-targeted-junit"]},
+    {"id":"manifest-force-interrupt","gateIds":["v40-checkpoint-crash"]},
+    {"id":"target-publish-io-failure","gateIds":["v41-backup-crash","v41-restore-crash","v42-transform-migration"]},
+    {"id":"failed-open-releases-owner","gateIds":["v44-targeted-junit","v40-lifecycle"]},
+    {"id":"cleanup-ambiguous-member","gateIds":["v41-cleanup-crash","v43-derived-lifecycle"]},
+    {"id":"retained-byte-bound","gateIds":["v40-lifecycle"]},
+    {"id":"paired-published-43","gateIds":["v44-paired-published43"]},
+    {"id":"replacement-recover-continue","gateIds":["v44-local-replacement"]},
+    {"id":"replacement-permission-denied","gateIds":["v44-targeted-junit","v44-local-replacement"]}
+  ]
+}

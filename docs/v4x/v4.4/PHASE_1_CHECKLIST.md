@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 1 checklist
 
-- **Status:** Local implementation complete; protected acceptance pending
+- **Status:** Accepted through protected PR #134
 - **Scope:** Non-production final-hardening evidence foundation
 
 ## Entry and coordinates
@@ -101,9 +101,10 @@
 
 ## Protected acceptance
 
-- [ ] Phase 1 PR passes required checks.
-- [ ] Phase 1 merges through protected `master`.
-- [ ] Exact-master CI passes before Phase 2.
+- [x] Phase 1 PR passes required checks.
+- [x] Phase 1 merged through protected PR #134 as
+  `a98408648ec6cdcc7308fc38faf52ecf4034258c`.
+- [x] Exact-master CI run `34587924661` passed before Phase 2.
 
 Phase 2 remains analysis-only: it may execute and classify the frozen local matrix,
 but it may not implement a product correction.

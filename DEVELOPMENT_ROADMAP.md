@@ -342,12 +342,14 @@ the [development charter](docs/v4x/v4.4/DEVELOPMENT_CHARTER.md) and
 [Phase 0 checklist](docs/v4x/v4.4/PHASE_0_CHECKLIST.md). Phase 0 merged through
 protected PR #132 as `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI
 run `34581708843` passed. Final acceptance merged through PR #133 as `c59b828`;
-exact-master CI `34583543174` passed. Phase 1 opens `4.4.0-SNAPSHOT` and establishes
+exact-master CI `34583543174` passed. Phase 1 opened `4.4.0-SNAPSHOT` and established
 the published-4.3 closed API inventory, independent final matrix, seven-path local
 process harness, paired calibration, fake-cloud resource plan and digest-pinned
 canonical release toolchain. Its [baseline](docs/v4x/v4.4/PHASE_1_BASELINE.md) and
 [checklist](docs/v4x/v4.4/PHASE_1_CHECKLIST.md) contain no production or paid-cloud
-work.
+work. Phase 1 merged through protected PR #134 as `a984086`; exact-master CI run
+`34587924661` passed. Phase 2 executes the frozen complete local matrix, records exact
+gate receipts and classifies findings without authorizing product corrections.
 
 ## v4.0 completed development contract
 
