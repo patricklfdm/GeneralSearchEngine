@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phase 1 implementation in review
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 2 local matrix in review
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -222,12 +222,14 @@ toolchain and Central-reconciliation requirement. The
 [Phase 0 checklist](v4.4/PHASE_0_CHECKLIST.md) records protected acceptance through
 PR #132 as `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI run
 `34581708843` passed. Acceptance closed through PR #133 as `c59b828`; exact-master
-CI `34583543174` passed. Phase 1 opens `4.4.0-SNAPSHOT`, pins the exact published
-4.3 artifact and closed API inventory, freezes independent logical cases and bounded
-workloads, and establishes seven local process-fault paths, no-GCP serial replacement-
+CI `34583543174` passed. Phase 1 opened `4.4.0-SNAPSHOT`, pinned the exact published
+4.3 artifact and closed API inventory, froze independent logical cases and bounded
+workloads, and established seven local process-fault paths, no-GCP serial replacement-
 host modeling, paired calibration and a digest-pinned canonical release toolchain.
 The [Phase 1 baseline](v4.4/PHASE_1_BASELINE.md) and
-[checklist](v4.4/PHASE_1_CHECKLIST.md) record this non-production foundation.
+[checklist](v4.4/PHASE_1_CHECKLIST.md) record this non-production foundation. Phase 1
+merged through protected PR #134 as `a984086`; exact-master CI `34587924661` passed.
+Phase 2 owns the complete local matrix execution and finding classification only.
 
 ## Deferred beyond V4.x
 

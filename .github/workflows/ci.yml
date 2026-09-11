@@ -112,6 +112,9 @@ jobs:
       - name: Exercise the V4.4 final-hardening foundation
         run: scripts/verify-v44-phase1-foundation.sh
 
+      - name: Exercise the V4.4 complete local final-durable matrix
+        run: scripts/verify-v44-phase2-matrix.sh --skip-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -271,6 +274,7 @@ jobs:
           bash -n scripts/verify-v43-phase7-release.sh
           bash -n scripts/verify-v43-published-v42-baseline.sh
           bash -n scripts/verify-v44-phase1-foundation.sh
+          bash -n scripts/verify-v44-phase2-matrix.sh
           bash -n scripts/verify-v44-published-v43-baseline.sh
           bash -n scripts/verify-v44-paired-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
@@ -331,8 +335,8 @@ jobs:
 
       - name: Validate V4.4 fixtures, evidence, toolchain, and fake cloud
         run: |
-          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/test_phase1_infrastructure.py
-          python -m unittest scripts.v44.test_phase1_infrastructure
+          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py
+          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix
 
   required:
     name: Required
