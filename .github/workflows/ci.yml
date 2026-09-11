@@ -176,7 +176,7 @@ jobs:
 
       - name: Verify the V4.1 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.1\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.1\.0</version>$' pom.xml; then
             scripts/verify-v41-phase7-release.sh --skip-consumers
           else
             echo "V4.1 Phase 7 gate: SKIP (project is no longer the 4.1.0 candidate)"
@@ -184,7 +184,7 @@ jobs:
 
       - name: Verify the V4.2 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.2\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.2\.0</version>$' pom.xml; then
             scripts/verify-v42-phase7-release.sh --skip-consumers
           else
             echo "V4.2 Phase 7 gate: SKIP (project is not the 4.2.0 candidate)"
@@ -192,7 +192,7 @@ jobs:
 
       - name: Verify the V4.3 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.3\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.3\.0</version>$' pom.xml; then
             scripts/verify-v43-phase7-release.sh --skip-consumers
           else
             echo "V4.3 Phase 7 gate: SKIP (project is not the 4.3.0 candidate)"

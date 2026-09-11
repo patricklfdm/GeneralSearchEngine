@@ -67,12 +67,12 @@ for profile in experiment canonical failure-drill; do
 done
 scripts/v44/test_final_durable_cloud_runner.sh
 
-rg -q 'workflow_dispatch:' .github/workflows/v44-final-durable-evidence.yml
-! rg -q '^  (push|schedule):' .github/workflows/v44-final-durable-evidence.yml
-rg -q 'max-parallel: 1' .github/workflows/v44-final-durable-evidence.yml
-rg -q 'environment: cloud-benchmark' .github/workflows/v44-final-durable-evidence.yml
-rg -q 'v4\.4-final-durable/' .github/workflows/v44-final-durable-evidence.yml
-rg -q 'Status:.*Phase 5 draft' docs/v4x/v4.4/V5_HANDOFF.md
+grep -Eq 'workflow_dispatch:' .github/workflows/v44-final-durable-evidence.yml
+! grep -Eq '^  (push|schedule):' .github/workflows/v44-final-durable-evidence.yml
+grep -Eq 'max-parallel: 1' .github/workflows/v44-final-durable-evidence.yml
+grep -Eq 'environment: cloud-benchmark' .github/workflows/v44-final-durable-evidence.yml
+grep -Eq 'v4\.4-final-durable/' .github/workflows/v44-final-durable-evidence.yml
+grep -Eq 'Status:.*Phase 5 draft' docs/v4x/v4.4/V5_HANDOFF.md
 
 if [[ "$skip_consumers" == false ]]; then
     scripts/verify-consumer-projects.sh
