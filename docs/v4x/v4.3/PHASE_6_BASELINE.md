@@ -64,3 +64,17 @@ The correction makes `unzip` an explicit remote bootstrap dependency and adds a
 regression test proving that installation precedes the first `./mvnw` invocation.
 Phase 1 and Phase 6 gates pass with the correction. A new exact-source experiment is
 required after the correction merges and its protected-master CI succeeds.
+
+The next exact-source experiment attempt, run `34548506759` at
+`1151b7c1a5441ca5d0e1182208b2a9fd19f6d4f2`, proved that the wrapper correction and
+published `4.2.0` production control passed. It then failed before the current-source
+probe because the remote script passed nonexistent `primary/current` and
+`target/current` children instead of the already-mounted roots required by the probe.
+It is also not performance evidence. Its receipt records `runStatus=FAIL`, source VM
+deletion `PASS`, replacement VM `NOT_APPLICABLE`, both disk deletions `PASS`, staging
+deletion `PASS` and aggregate `cleanup=PASS`.
+
+The mount-layout correction passes the two mounted roots directly, copies the backup
+from its actual root-relative location, and locks the source, replacement, backup and
+archive paths in regression tests. Phase 1 and Phase 6 gates pass after this correction;
+a further experiment still requires merge and exact protected-master CI first.

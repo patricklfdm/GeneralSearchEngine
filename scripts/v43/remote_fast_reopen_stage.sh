@@ -63,16 +63,16 @@ if [[ "$stage" = source ]]; then
     "$primary_mount/published-store" "$output/published.properties"
   java -cp target/benchmarks.jar \
     io.github.patricklfdm.generalsearch.engine.V43FastReopenEvidenceProbe \
-    source "$java_profile" "$primary_mount/current" "$target_mount/current" \
+    source "$java_profile" "$primary_mount" "$target_mount" \
     "$output/source.properties"
-  cp -a "$primary_mount/current/canonical-backup" "$output/backup"
+  cp -a "$primary_mount/canonical-backup" "$output/backup"
   python3 -m scripts.v43.derived_format_v12 inspect-backup "$output/backup"
   tar -C "$primary_mount" -czf "$HOME/v43-source-output.tar.gz" \
     "$(basename "$output")"
 else
   java -cp target/benchmarks.jar \
     io.github.patricklfdm.generalsearch.engine.V43FastReopenEvidenceProbe \
-    replacement "$java_profile" "$primary_mount/current" "$target_mount/current" \
+    replacement "$java_profile" "$primary_mount" "$target_mount" \
     "$transport/source.properties" "$output/replacement.properties" "$duration"
   tar -C "$primary_mount" -czf "$HOME/v43-replacement-output.tar.gz" \
     "$(basename "$output")"
