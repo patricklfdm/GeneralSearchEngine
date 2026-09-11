@@ -183,7 +183,7 @@ upgrade, online or reverse migration, in-place cutover, history merge, replicati
 or a third artifact. Published `4.1.0` remains the immediate prior stable release and
 operational-safety compatibility baseline.
 
-## v4.3 active fast-reopen development
+## v4.3 active Phase 6 registration
 
 V4.3 begins from published `4.2.0` with a documentation-only contract. The proposed
 boundary introduces explicit `gse-durable (1,2)` and matching canonical-only backup
@@ -252,6 +252,14 @@ published-4.2 compatibility. It merged through protected PR #124 as
 passed. Phase 6 now owns benchmark-only measurement, replacement-host cloud evidence,
 three-member threshold review and later append-only registration.
 
+Phase 6 implementation and corrections merged through protected PRs #125–#127;
+exact-master CI run `34550893252` passed on
+`1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`. Experiment run `34551484690` and
+canonical run `34557940276` passed independent member/set validation, complete
+cleanup, GCS retention and the frozen warm-reopen thresholds. Canonical evidence is
+accepted; append-only registration as `v4.3.0-fast-reopen-cloud` remains the final
+Phase 6 gate.
+
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).
 The Phase 2 format contract and local evidence are
@@ -268,7 +276,9 @@ The Phase 5 lifecycle contract and local evidence are
 and [`docs/v4x/v4.3/PHASE_5_BASELINE.md`](docs/v4x/v4.3/PHASE_5_BASELINE.md).
 The Phase 6 evidence contract and implementation baseline are
 [`docs/v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md`](docs/v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
-and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md).
+and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md). The
+accepted canonical evidence identities and measurements are recorded in
+[`docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md`](docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md).
 
 ## v4.0 completed development contract
 

@@ -34,8 +34,11 @@ the four-kind selective fallback matrix. It merged through protected PR #123 as
 passed. Phase 5 hardened repeated lifecycle, plan-bound derived cleanup,
 backup/restore, crash, capacity, concurrency and cross-version behavior through
 protected PR #124 as `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI
-run `34529966882` passed. Phase 6 now implements the benchmark-only ten-cell matrix,
-manual replacement-host workflow and strict evidence thresholds.
+run `34529966882` passed. Phase 6 implementation and corrections merged through
+protected PRs #125–#127; exact-master CI `34550893252` passed on `1d59ba9`.
+Experiment run `34551484690` and canonical run `34557940276` passed independent
+validation and cleanup. Canonical evidence is accepted; append-only registration
+remains pending.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -87,7 +90,8 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 Phase 5 local baseline](v4.3/PHASE_5_BASELINE.md)
 - [V4.3 Phase 5 checklist](v4.3/PHASE_5_CHECKLIST.md)
 - [V4.3 Phase 6 performance and evidence](v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
-- [V4.3 Phase 6 implementation baseline](v4.3/PHASE_6_BASELINE.md)
+- [V4.3 Phase 6 evidence baseline](v4.3/PHASE_6_BASELINE.md)
+- [V4.3 Phase 6 canonical review](v4.3/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.3 Phase 6 checklist](v4.3/PHASE_6_CHECKLIST.md)
 - [V4.3 fast-reopen cloud baseline registry](v4.3/cloud-benchmark-baselines.json)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)

@@ -4,7 +4,9 @@
 - **Base:** `e241e1499861e0b44583a948d410ce0ac9c3c286`
 - **Version:** `4.3.0-SNAPSHOT`
 - **Production behavior:** unchanged
-- **Paid execution:** not yet authorized or performed
+- **Status:** Canonical evidence accepted; append-only registration pending
+- **Canonical source:** `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`
+- **Paid execution:** accepted experiment and canonical runs complete
 
 ## Implementation boundary
 
@@ -30,9 +32,9 @@ set. Canonical threshold enforcement exists in both member and set validation.
 scripts/verify-v43-phase6-evidence.sh
 ```
 
-Cloud experiment/canonical run IDs, three-member review and the append-only registry
-entry remain intentionally blank until the implementation PR is accepted on
-protected `master` and its exact CI succeeds.
+Cloud experiment/canonical run IDs and the three-member review are now recorded
+below. The append-only registry remains intentionally empty until this canonical
+review merges through its own protected PR and exact-master CI succeeds.
 
 ## Local acceptance result
 
@@ -76,5 +78,58 @@ deletion `PASS` and aggregate `cleanup=PASS`.
 
 The mount-layout correction passes the two mounted roots directly, copies the backup
 from its actual root-relative location, and locks the source, replacement, backup and
-archive paths in regression tests. Phase 1 and Phase 6 gates pass after this correction;
-a further experiment still requires merge and exact protected-master CI first.
+archive paths in regression tests. Phase 1 and Phase 6 gates passed after this
+correction, which then merged and supplied the exact source for the accepted runs.
+
+## Protected implementation acceptance
+
+Phase 6 implementation merged through protected PR #125 as
+`6686ba1870a7eec7c49c293f587e66caba61d1f3`; exact-master CI run `34538794639`
+passed. The clean-host Maven-wrapper prerequisite correction merged through protected
+PR #126 as `1151b7c1a5441ca5d0e1182208b2a9fd19f6d4f2`. The mount-layout correction
+merged through protected PR #127 as
+`1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`; exact-master CI run `34550893252`
+passed.
+
+The WIF condition retains the exact repository, repository ID, owner ID, protected
+master ref and `cloud-benchmark` environment predicates while adding only
+`.github/workflows/v43-fast-reopen-evidence.yml@refs/heads/master`. A custom role
+containing only `storage.objects.delete` is condition-bound to the exact
+`v4.3-fast-reopen/` bucket prefix; create and read retain their existing permissions.
+
+## Accepted cloud evidence
+
+| Evidence | Reviewed value |
+|---|---|
+| Experiment | `34551484690 / attempt 1 / one member / actions` |
+| Canonical | `34557940276 / attempt 1 / three serial members / gcs` |
+| Exact source | `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6` |
+| Machine / zone | `c3d-standard-30 / us-west4-a` |
+| Workload | `100000 documents / 16 tokens / 4 indexes / 10000 mutations` |
+| Measurement | `1800 seconds per member` |
+| Primary / target disks | two distinct `pd-balanced` 200-GiB ext4 disks |
+| Suite / preset | `v4.3-fast-reopen-suite-v1 / v4.3-fast-reopen-v1` |
+| Canonical ratios | `median 0.256803 / maximum 0.260551` |
+| Canonical set SHA-256 | `b91f780d8f630d626f8aec3bc090073a5c4bbd9273819bc437d07c10ff7200c4` |
+| Eventual baseline | `v4.3.0-fast-reopen-cloud` |
+
+The experiment member, all three canonical members and both aggregate sets passed
+independent checksum and semantic validation. Every canonical member completed all
+ten cells, matched the published-4.2 logical control, proved warm and selective/full
+fallback paths, reopened restored and migrated targets, and continued on a
+replacement VM. Both VMs, both disks and staging objects report complete cleanup for
+every accepted member.
+
+The canonical members are comparable and `canonicalEligible=true`. Their evidence
+digests and backup identities are distinct; all member ratios satisfy the `0.65`
+bound and the set median satisfies `0.50`. GCS retains all three member mirrors and
+the aggregate set under the exact source/run/profile prefix. Detailed identities and
+bounded observations are recorded in
+[`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md). These measurements are
+diagnostic evidence on the pinned configuration, not an SLA.
+
+## Pending registration
+
+The accepted set may now be registered exactly once as
+`v4.3.0-fast-reopen-cloud` in a separate append-only protected PR. Phase 7 remains
+blocked until that registration merges and exact-master CI passes.

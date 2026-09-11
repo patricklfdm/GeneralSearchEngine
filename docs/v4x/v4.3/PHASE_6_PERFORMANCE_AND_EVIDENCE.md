@@ -1,5 +1,8 @@
 # GeneralSearchEngine V4.3 Phase 6 performance and evidence contract
 
+- **Status:** Canonical evidence accepted; append-only registration pending
+- **Canonical source:** `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`
+
 Phase 6 measures the accepted `(1,2)` implementation. It may add benchmark-only
 instrumentation and a manual cloud workflow; it may not change production reopen,
 fallback, checkpoint, backup, restore, migration, cleanup, or retrieval behavior.

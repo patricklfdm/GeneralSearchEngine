@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x governing roadmap; V4.2 complete, V4.3 Phase 6 active
+- **Status:** Accepted V4.x roadmap; V4.2 complete, V4.3 Phase 6 registration pending
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -24,7 +24,7 @@ V4.1  Operational Safety               COMPLETE
   ↓
 V4.2  Storage Evolution                COMPLETE
   ↓
-V4.3  Fast Reopen
+V4.3  Fast Reopen                      ACTIVE PHASE 6 REGISTRATION
   ↓
 V4.4  Final Durable Hardening
   ↓
@@ -178,8 +178,11 @@ exact-master CI run `34460924869` passed. Phase 5 hardened repeated lifecycle,
 plan-bound derived cleanup, backup/restore, crash/fault/capacity/concurrency and
 published-4.2 compatibility through protected PR #124 as
 `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
-passed. Phase 6 now measures the frozen ten-cell fast-reopen matrix and establishes
-manual exact-source replacement-host evidence before any paid execution.
+passed. Phase 6 implementation and corrections merged through protected PRs
+#125–#127; exact-master CI `34550893252` passed on `1d59ba9`. Experiment run
+`34551484690` and three-member canonical run `34557940276` passed independent
+validation, complete cleanup and the frozen thresholds. Canonical evidence is
+accepted; append-only registration is the remaining Phase 6 gate.
 
 ## V4.4 — Final Durable Hardening
 
@@ -292,4 +295,8 @@ passed. Phase 4 completed the text-image and four-kind path through protected PR
 as `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run
 `34460924869` passed. Phase 5 merged through protected PR #124 as
 `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
-passed. Phase 6 is active.
+passed. Phase 6 implementation and corrections merged through protected PRs
+#125–#127; exact-master CI run `34550893252` passed on `1d59ba9`. Experiment run
+`34551484690` and canonical run `34557940276` passed independent validation,
+complete cleanup and frozen threshold enforcement. Canonical evidence is accepted;
+append-only registration remains pending.
