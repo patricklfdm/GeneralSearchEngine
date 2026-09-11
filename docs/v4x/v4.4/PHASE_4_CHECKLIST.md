@@ -7,7 +7,9 @@
 
 - [x] Phase 3 records `ZERO_PRODUCTION_CHANGE_REQUIRED` locally.
 - [x] No contract violation or measured regression is admitted.
-- [ ] Phase 2 and Phase 3 merge through protected `master` with exact-master CI.
+- [x] Phase 2 merged through protected `master`; exact-master CI `34591678426`
+  passed on `96b43c9`.
+- [ ] Phase 3 merges through protected `master` with exact-master CI.
 
 ## Bounded hardening
 
