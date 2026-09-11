@@ -38,7 +38,7 @@ import io.github.patricklfdm.generalsearch.schema.Field;
 import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /** Benchmark-only bounded V4.4 dense scale, concurrency and resource probe. */
-public final class V44FinalDurableLocalProbe {
+final class V44FinalDurableLocalProbe {
     private static final int DOCUMENTS = 20_000;
     private static final int MUTATIONS = 2_000;
     private static final int READERS = 4;

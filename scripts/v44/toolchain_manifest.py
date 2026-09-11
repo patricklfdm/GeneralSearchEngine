@@ -58,6 +58,11 @@ def validate(path: Path) -> dict[str, object]:
             ("wrapperVersion", "wrapperVersion")):
         if wrapper.get(manifest_key) != wrapper_properties.get(repo_key):
             raise ToolchainError(f"Maven Wrapper {manifest_key} differs")
+    if wrapper.get("canonicalAcquisition") \
+            != "host-download-read-only-mount" \
+            or wrapper.get("canonicalExtraction") != "jdk-jar" \
+            or wrapper.get("canonicalInvocation") != "direct-maven-binary":
+        raise ToolchainError("canonical Maven bootstrap differs")
     core = _pom_properties(ROOT / "pom.xml")
     processor = _pom_properties(ROOT / "general-search-engine-processor/pom.xml")
     mappings = {
