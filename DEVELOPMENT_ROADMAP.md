@@ -361,6 +361,18 @@ admitted. The [Phase 4 baseline](docs/v4x/v4.4/PHASE_4_BASELINE.md) and
 [checklist](docs/v4x/v4.4/PHASE_4_CHECKLIST.md) retain protected-entry acceptance as
 pending until their stacked predecessors merge and exact-master CI passes.
 
+Phase 5 adds the manual-only exact-master V4.4 replacement-host workflow, strict
+member/set evidence schemas, no-GCP fake/dry-run gates, prefix-scoped IAM readiness
+instructions, and a V5 handoff draft. The frozen Temurin OCI identity now builds the
+two POMs and six unsigned JARs in two clean independent workspaces and rejects any
+byte mismatch. Compatibility, artifacts and existing V4 regressions remain required;
+there is still no production change, paid run, IAM mutation or registration. The
+[Phase 5 baseline](docs/v4x/v4.4/PHASE_5_BASELINE.md),
+[cloud readiness](docs/v4x/v4.4/PHASE_5_CLOUD_READINESS.md),
+[checklist](docs/v4x/v4.4/PHASE_5_CHECKLIST.md), and
+[V5 handoff draft](docs/v4x/v4.4/V5_HANDOFF.md) define the Phase 6 entry without
+claiming its protected or cloud acceptance.
+
 ## v4.0 completed development contract
 
 V4.0 opens the opt-in durable single-node line from the published `3.4.0` in-memory

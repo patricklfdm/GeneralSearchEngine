@@ -121,6 +121,12 @@ jobs:
       - name: Exercise the V4.4 bounded local hardening probe
         run: scripts/verify-v44-phase4-hardening.sh --skip-build
 
+      - name: Restore the closed-surface non-JMH artifact
+        run: ./mvnw -q clean -DskipTests package
+
+      - name: Exercise V4.4 stabilization and no-GCP readiness
+        run: scripts/verify-v44-phase5-stabilization.sh --skip-build --skip-consumers --skip-canonical-build
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -170,7 +176,7 @@ jobs:
 
       - name: Verify the V4.1 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.1\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.1\.0</version>$' pom.xml; then
             scripts/verify-v41-phase7-release.sh --skip-consumers
           else
             echo "V4.1 Phase 7 gate: SKIP (project is no longer the 4.1.0 candidate)"
@@ -178,7 +184,7 @@ jobs:
 
       - name: Verify the V4.2 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.2\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.2\.0</version>$' pom.xml; then
             scripts/verify-v42-phase7-release.sh --skip-consumers
           else
             echo "V4.2 Phase 7 gate: SKIP (project is not the 4.2.0 candidate)"
@@ -186,7 +192,7 @@ jobs:
 
       - name: Verify the V4.3 final candidate boundary
         run: |
-          if rg -q '^    <version>4\.3\.0</version>$' pom.xml; then
+          if grep -Eq '^    <version>4\.3\.0</version>$' pom.xml; then
             scripts/verify-v43-phase7-release.sh --skip-consumers
           else
             echo "V4.3 Phase 7 gate: SKIP (project is not the 4.3.0 candidate)"
@@ -195,7 +201,7 @@ jobs:
   release-artifacts:
     name: Release artifacts
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -219,6 +225,18 @@ jobs:
 
       - name: Verify reproducible artifacts
         run: scripts/verify-reproducible-build.sh
+
+      - name: Verify the V4.4 digest-pinned canonical build twice
+        run: scripts/verify-v44-canonical-build.sh
+
+      - name: Upload V4.4 canonical reproducibility receipt
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v44-canonical-reproducibility-${{ github.sha }}
+          path: target/v44-canonical-reproducibility
+          if-no-files-found: warn
+          retention-days: 14
 
   cloud-runner-tests:
     name: Cloud runner (no GCP)
@@ -283,12 +301,17 @@ jobs:
           bash -n scripts/verify-v44-phase2-matrix.sh
           bash -n scripts/verify-v44-phase3-admission.sh
           bash -n scripts/verify-v44-phase4-hardening.sh
+          bash -n scripts/verify-v44-phase5-stabilization.sh
+          bash -n scripts/verify-v44-canonical-build.sh
           bash -n scripts/verify-v44-published-v43-baseline.sh
           bash -n scripts/verify-v44-paired-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v43/remote_fast_reopen_stage.sh
           bash -n scripts/v43/run_fast_reopen_cloud_member.sh
+          bash -n scripts/v44/remote_final_durable_stage.sh
+          bash -n scripts/v44/run_final_durable_cloud_member.sh
+          bash -n scripts/v44/test_final_durable_cloud_runner.sh
           bash -n scripts/v4/remote_durable_member.sh
           bash -n scripts/v4/run_durable_cloud_member.sh
           bash -n scripts/v4/test_durable_cloud_runner.sh
@@ -343,8 +366,8 @@ jobs:
 
       - name: Validate V4.4 fixtures, evidence, toolchain, and fake cloud
         run: |
-          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py
-          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening
+          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py
+          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness
 
   required:
     name: Required
