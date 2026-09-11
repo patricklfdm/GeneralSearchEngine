@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 6 checklist
 
-- **Status:** Canonical evidence accepted; append-only baseline registration pending
+- **Status:** Canonical evidence accepted; append-only registration under protected review
 - **Scope:** benchmark-only instrumentation, exact-source cloud lane and evidence
 
 ## Entry
@@ -49,8 +49,10 @@
 - [x] Operator extends WIF and GCS prefix permissions for the reviewed workflow.
 - [x] One exact-source experiment run passes independent validation and cleanup.
 - [x] Three exact-source canonical members and their aggregate set pass.
-- [ ] Canonical evidence review is merged separately.
-- [ ] `v4.3.0-fast-reopen-cloud` is registered in a separate append-only PR.
+- [x] Canonical evidence review merged separately through protected PR #128;
+  exact-master CI run `34567122915` passed.
+- [x] `v4.3.0-fast-reopen-cloud` is present exactly once in the candidate
+  append-only registry.
 
 ## Paid evidence
 
@@ -75,7 +77,10 @@
   canonical three-member set, and one append-only insertion.
 - [x] Canonical review is documented in
   [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md).
-- [ ] Canonical review merges through its own protected PR and exact-master CI.
+- [x] Canonical review merged through protected PR #128 as `ae25c80`; exact-master
+  CI run `34567122915` passed.
+- [x] Baseline `v4.3.0-fast-reopen-cloud` is registered exactly once in the
+  candidate append-only registry.
 - [ ] Baseline registration is committed through a later separate protected PR.
 
 Phase 7 may begin only after canonical-review acceptance and immutable baseline

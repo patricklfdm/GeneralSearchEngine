@@ -1,1 +1,1 @@
-{"schemaVersion":"gse-v43-fast-reopen-baseline-registry-v1","baselines":[]}
+{"baselines":[{"medianRatioMicros":256803,"memberCount":3,"name":"v4.3.0-fast-reopen-cloud","preset":"v4.3-fast-reopen-v1","setDigest":"b91f780d8f630d626f8aec3bc090073a5c4bbd9273819bc437d07c10ff7200c4","sourceCommit":"1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6","suite":"v4.3-fast-reopen-suite-v1"}],"schemaVersion":"gse-v43-fast-reopen-baseline-registry-v1"}

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.2 complete, V4.3 Phase 6 registration pending
+- **Status:** Accepted V4.x roadmap; V4.3 Phase 6 registration under review
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -24,7 +24,7 @@ V4.1  Operational Safety               COMPLETE
   ↓
 V4.2  Storage Evolution                COMPLETE
   ↓
-V4.3  Fast Reopen                      ACTIVE PHASE 6 REGISTRATION
+V4.3  Fast Reopen                      PHASE 6 REGISTRATION REVIEW
   ↓
 V4.4  Final Durable Hardening
   ↓
@@ -181,8 +181,10 @@ published-4.2 compatibility through protected PR #124 as
 passed. Phase 6 implementation and corrections merged through protected PRs
 #125–#127; exact-master CI `34550893252` passed on `1d59ba9`. Experiment run
 `34551484690` and three-member canonical run `34557940276` passed independent
-validation, complete cleanup and the frozen thresholds. Canonical evidence is
-accepted; append-only registration is the remaining Phase 6 gate.
+validation, complete cleanup and the frozen thresholds. Canonical review merged
+through protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed.
+The append-only registration is under protected review and remains the final Phase 6
+gate.
 
 ## V4.4 — Final Durable Hardening
 
@@ -298,5 +300,6 @@ as `2f229303168c93e81a571b1d5c931bff015eb1b5`; exact-master CI run
 passed. Phase 6 implementation and corrections merged through protected PRs
 #125–#127; exact-master CI run `34550893252` passed on `1d59ba9`. Experiment run
 `34551484690` and canonical run `34557940276` passed independent validation,
-complete cleanup and frozen threshold enforcement. Canonical evidence is accepted;
-append-only registration remains pending.
+complete cleanup and frozen threshold enforcement. Canonical review merged through
+protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed. The
+append-only registration is under protected review.
