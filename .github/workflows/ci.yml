@@ -109,6 +109,9 @@ jobs:
       - name: Exercise V4.3 fast-reopen performance and evidence lane
         run: scripts/verify-v43-phase6-evidence.sh
 
+      - name: Exercise the V4.4 final-hardening foundation
+        run: scripts/verify-v44-phase1-foundation.sh
+
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
 
@@ -144,6 +147,11 @@ jobs:
 
       - name: Calibrate the published V4.2 cold-reopen control
         run: scripts/verify-v43-published-v42-baseline.sh
+
+      - name: Verify the closed V4.4 API and paired published-4.3 control
+        run: |
+          scripts/verify-v44-published-v43-baseline.sh --skip-resolve
+          scripts/verify-v44-paired-baseline.sh
 
       - name: Compile independent consumers
         run: scripts/verify-consumer-projects.sh
@@ -262,6 +270,9 @@ jobs:
           bash -n scripts/verify-v43-phase6-evidence.sh
           bash -n scripts/verify-v43-phase7-release.sh
           bash -n scripts/verify-v43-published-v42-baseline.sh
+          bash -n scripts/verify-v44-phase1-foundation.sh
+          bash -n scripts/verify-v44-published-v43-baseline.sh
+          bash -n scripts/verify-v44-paired-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v43/remote_fast_reopen_stage.sh
@@ -317,6 +328,11 @@ jobs:
         run: |
           python -m py_compile scripts/v43/derived_fixture.py scripts/v43/derived_format_v12.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/structured_image_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/fast_reopen_performance.py scripts/v43/fast_reopen_cloud_workflow.py scripts/v43/fast_reopen_cloud_set.py scripts/v43/test_derived_fixture.py scripts/v43/test_derived_format_v12.py scripts/v43/test_phase1_infrastructure.py scripts/v43/test_phase6_evidence.py scripts/v43/test_phase7_release_fixtures.py
           python -m unittest scripts.v43.test_derived_fixture scripts.v43.test_derived_format_v12 scripts.v43.test_phase1_infrastructure scripts.v43.test_phase6_evidence scripts.v43.test_phase7_release_fixtures
+
+      - name: Validate V4.4 fixtures, evidence, toolchain, and fake cloud
+        run: |
+          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/test_phase1_infrastructure.py
+          python -m unittest scripts.v44.test_phase1_infrastructure
 
   required:
     name: Required

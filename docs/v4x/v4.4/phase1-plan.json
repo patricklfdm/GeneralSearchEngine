@@ -1,0 +1,101 @@
+{
+  "schemaVersion": "gse-v44-phase1-plan-v1",
+  "status": "FOUNDATION_ONLY",
+  "productVersion": "4.4.0-SNAPSHOT",
+  "publishedControl": {
+    "version": "4.3.0",
+    "commit": "b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d",
+    "coreJarSha256": "c5ecf5cf311c734481e95f14bdcfffb466fa132dde424a2b6b4a58fe41778583",
+    "isolatedRepositoryRequired": true
+  },
+  "identities": {
+    "evidenceSchema": "gse-v44-final-durable-evidence-v1",
+    "suite": "v4.4-final-durable-suite-v1",
+    "preset": "v4.4-final-durable-v1",
+    "baseline": "v4.4.0-final-durable-cloud",
+    "gcsPrefix": "v4.4-final-durable/"
+  },
+  "formats": ["1.0", "1.1", "1.2"],
+  "publicApiExpansion": false,
+  "productionChange": false,
+  "paidExecution": false,
+  "matrixFamilies": [
+    "mutation-search", "live-authority", "backup-restore", "migration",
+    "derived-reopen", "corruption", "publication-interruption",
+    "lifecycle-ownership", "scale-resource", "replacement-host"
+  ],
+  "denseWorkload": {
+    "seed": 440001,
+    "documents": 20000,
+    "tokensPerDocument": 16,
+    "keyBytes": 8,
+    "valueBytes": 256,
+    "indexes": ["equality", "range", "prefix", "simple-text"],
+    "mutations": 2000,
+    "readers": 4,
+    "writers": 1,
+    "checkpointEveryMutations": 500,
+    "backupEveryCheckpoints": 2,
+    "migrationCount": 4,
+    "maximumSeconds": 180,
+    "heapMiB": 1024,
+    "gc": "G1"
+  },
+  "persistentWorkload": {
+    "seed": 440002,
+    "documents": 100000,
+    "tokensPerDocument": 16,
+    "keyBytes": 8,
+    "valueBytes": 512,
+    "indexes": ["equality", "range", "prefix", "simple-text"],
+    "mutations": 10000,
+    "readers": 8,
+    "writers": 1,
+    "checkpointEveryMutations": 1000,
+    "backupEveryCheckpoints": 2,
+    "migrationCount": 6,
+    "measurementSeconds": 3600,
+    "progressIntervalSeconds": 30,
+    "heapMiB": 8192,
+    "gc": "G1",
+    "pageCacheTreatment": "warm-and-explicit-cold-control-reported-separately"
+  },
+  "pairedThresholds": {
+    "lowerMedianMaximumRatio": 1.20,
+    "lowerMemberMaximumRatio": 1.35,
+    "higherMedianMinimumRatio": 0.80,
+    "higherMemberMinimumRatio": 0.65,
+    "correctnessAndCleanup": "EXACT"
+  },
+  "cloud": {
+    "project": "gse-benchmark",
+    "zone": "us-west4-a",
+    "machineType": "c3d-standard-30",
+    "provisioning": "standard",
+    "imageProject": "ubuntu-os-cloud",
+    "image": "ubuntu-2404-noble-amd64-v20260906",
+    "bootDiskType": "pd-balanced",
+    "bootDiskGiB": 100,
+    "dataDiskType": "pd-balanced",
+    "dataDiskGiB": 200,
+    "targetDiskGiB": 200,
+    "peakProjectVcpus": 30,
+    "peakDataDiskGiB": 400,
+    "peakProvisionedDiskGiB": 500,
+    "filesystem": "ext4",
+    "mountOptions": "defaults",
+    "serialMembers": true,
+    "experimentMembers": 1,
+    "canonicalMembers": 3,
+    "maximumMemberRuntimeSeconds": 10800,
+    "maximumCompleteRunCostUsd": 40,
+    "retention": {
+      "experiment": "actions",
+      "canonical": "gcs",
+      "failure-drill": "actions"
+    },
+    "environment": "cloud-benchmark",
+    "workflowRef": "patricklfdm/GeneralSearchEngine/.github/workflows/v44-final-durable-evidence.yml@refs/heads/master",
+    "gcsLayout": "v4.4-final-durable/<source-sha>/<run-id>-<attempt>/<profile>/member-<slot>/"
+  }
+}

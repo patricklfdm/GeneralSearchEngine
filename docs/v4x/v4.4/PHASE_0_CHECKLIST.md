@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 0 checklist
 
-- **Status:** Accepted through protected PR #132
+- **Status:** Accepted through protected PRs #132–#133
 - **Scope:** Documentation-only final durable hardening freeze
 - **Authoritative contract:** [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md)
 
@@ -210,6 +210,8 @@ record protected-master acceptance until the final acceptance section is complet
 - [x] Phase 0 merged through protected PR #132 as
   `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`.
 - [x] Exact-master CI run `34581708843` passed before Phase 1.
+- [x] Supplemental acceptance record merged through protected PR #133 as `c59b828`;
+  exact-master CI run `34583543174` passed.
 
 ## Exit decision
 

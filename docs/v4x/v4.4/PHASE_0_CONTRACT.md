@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.4 Phase 0 final-hardening contract
 
 - **Phase:** 0 — Final durable hardening and V5-reference freeze
-- **Status:** Accepted through protected PR #132
+- **Status:** Accepted through protected PRs #132–#133
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Production V4.4 changes:** Authorized only after evidence admission in their
   owning later phase

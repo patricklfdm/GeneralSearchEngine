@@ -341,8 +341,13 @@ The accepted authority is
 the [development charter](docs/v4x/v4.4/DEVELOPMENT_CHARTER.md) and
 [Phase 0 checklist](docs/v4x/v4.4/PHASE_0_CHECKLIST.md). Phase 0 merged through
 protected PR #132 as `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI
-run `34581708843` passed. Phase 1 may establish only its frozen non-production
-foundation.
+run `34581708843` passed. Final acceptance merged through PR #133 as `c59b828`;
+exact-master CI `34583543174` passed. Phase 1 opens `4.4.0-SNAPSHOT` and establishes
+the published-4.3 closed API inventory, independent final matrix, seven-path local
+process harness, paired calibration, fake-cloud resource plan and digest-pinned
+canonical release toolchain. Its [baseline](docs/v4x/v4.4/PHASE_1_BASELINE.md) and
+[checklist](docs/v4x/v4.4/PHASE_1_CHECKLIST.md) contain no production or paid-cloud
+work.
 
 ## v4.0 completed development contract
 

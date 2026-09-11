@@ -53,8 +53,11 @@ passed. The charter keeps the published API and exact `(1,0)`/`(1,1)`/`(1,2)`
 formats closed by default, permits a zero-production-change release, and requires
 independent local crash/fault, fake-cloud, paired published-4.3, resource,
 replacement-host, and canonical release-toolchain evidence before any production
-correction or paid work. Phase 1 may establish only the accepted non-production
-foundation.
+correction or paid work. Phase 0 acceptance closed through PR #133 as `c59b828` and
+exact-master CI `34583543174`. Phase 1 now opens `4.4.0-SNAPSHOT` and establishes the
+published-4.3 closed API, independent matrix, seven-path local process harness,
+fake-cloud resource model, paired calibration and canonical release-toolchain
+identity without production or paid-cloud work.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -90,6 +93,10 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.4 development charter](v4.4/DEVELOPMENT_CHARTER.md)
 - [V4.4 Phase 0 final-hardening contract](v4.4/PHASE_0_CONTRACT.md)
 - [V4.4 Phase 0 checklist](v4.4/PHASE_0_CHECKLIST.md)
+- [V4.4 Phase 1 foundation baseline](v4.4/PHASE_1_BASELINE.md)
+- [V4.4 Phase 1 checklist](v4.4/PHASE_1_CHECKLIST.md)
+- [V4.4 Phase 1 machine-readable plan](v4.4/phase1-plan.json)
+- [V4.4 canonical release toolchain](v4.4/release-toolchain.json)
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md)
