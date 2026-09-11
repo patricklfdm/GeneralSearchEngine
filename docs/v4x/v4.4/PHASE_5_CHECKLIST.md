@@ -8,7 +8,9 @@
 - [x] Phase 4 local decision is `PASS_NO_MEASURED_REGRESSION`.
 - [x] No product, public API, format or authority change is introduced.
 - [x] No paid GCP resource, IAM mutation or baseline registration occurs.
-- [ ] Phases 2–4 merge through protected `master` and exact-master CI passes.
+- [x] Phase 2 merged through protected `master`; exact-master CI `34591678426`
+  passed on `96b43c9`.
+- [ ] Phases 3–4 merge through protected `master` and exact-master CI passes.
 
 ## Stabilization and compatibility
 
