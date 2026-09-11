@@ -4,7 +4,7 @@
 
 Published `4.0.0` is the immutable correct-durability foundation. The V4.x line has
 completed V4.1 operational safety, V4.2 explicit storage evolution, and V4.3 fast
-reopen through reconstructible persisted derived state. It now enters the proposed
+reopen through reconstructible persisted derived state. It now enters the accepted
 V4.4 final single-node durable hardening contract. Replication, consensus, sharding,
 multi-writer storage, remote live WAL, vector retrieval, and new ranking semantics
 remain V5 decisions.
@@ -307,14 +307,14 @@ and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md). Th
 accepted canonical evidence identities and measurements are recorded in
 [`docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md`](docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md).
 
-## v4.4 proposed final durable hardening contract
+## v4.4 accepted final durable hardening contract
 
 V4.4 is the final V4.x single-node durable hardening and V5-reference release. Its
-Phase 0 proposal is documentation-only and starts from published `4.3.0` plus the
-post-publication exact-master CI boundary
+accepted Phase 0 contract is documentation-only and starts from published `4.3.0`
+plus the post-publication exact-master CI boundary
 `78805e642da99eca46dfdf26c77b058c23e1ffff` / `34578997788`.
 
-The proposed contract closes public API and persisted formats by default: live and
+The accepted contract closes public API and persisted formats by default: live and
 backup `(1,0)`, `(1,1)`, and `(1,2)` retain their exact published meanings, default
 construction remains `(1,0)`, and no `(1,3)`, new authority, new artifact, implicit
 upgrade, repair, or V5 capability is authorized. A zero-production-change V4.4 is a
@@ -336,11 +336,13 @@ canonical builds, the pre-deploy unsigned artifacts, and the six published Centr
 JARs must reconcile exactly. Builds on other JDK distributions remain diagnostic
 unless ancillary entries are deliberately normalized and proven.
 
-The proposed authority is
+The accepted authority is
 [`docs/v4x/v4.4/PHASE_0_CONTRACT.md`](docs/v4x/v4.4/PHASE_0_CONTRACT.md), supported by
 the [development charter](docs/v4x/v4.4/DEVELOPMENT_CHARTER.md) and
-[Phase 0 checklist](docs/v4x/v4.4/PHASE_0_CHECKLIST.md). Phase 1 remains unauthorized
-until protected acceptance and exact-master CI.
+[Phase 0 checklist](docs/v4x/v4.4/PHASE_0_CHECKLIST.md). Phase 0 merged through
+protected PR #132 as `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI
+run `34581708843` passed. Phase 1 may establish only its frozen non-production
+foundation.
 
 ## v4.0 completed development contract
 

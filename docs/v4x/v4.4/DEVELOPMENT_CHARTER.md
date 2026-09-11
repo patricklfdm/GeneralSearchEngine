@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 development charter
 
-- **Status:** Proposed governing charter for protected Phase 0 acceptance
+- **Status:** Accepted through protected PR #132
 - **Predecessor:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Final durable hardening and an immutable V5 comparison reference
 
@@ -262,3 +262,9 @@ No production diff is itself an acceptable outcome. An unmeasured feature or bro
 rewrite is not. If the evidence cannot support a truthful final durable baseline,
 V4.4 remains unreleased and V5 does not inherit an asserted reference that was not
 proven.
+
+## Phase 0 acceptance
+
+This charter and its normative contract merged through protected PR #132 as
+`8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`. Exact-master CI run `34581708843`
+passed. Phase 1 may establish only the non-production foundation assigned to it.
