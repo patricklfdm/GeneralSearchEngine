@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phase 2 local matrix in review
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 4 local hardening complete
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening          PHASE 1 FOUNDATION
+V4.4  Final Durable Hardening          PHASE 4 LOCAL HARDENING
   ↓
 V5    Next Architecture Boundary
 ```
@@ -342,5 +342,11 @@ V4.4 Phase 0 is accepted through protected PR #132 as
 passed. It closes public API and formats by default, permits a zero-production-change
 release, requires independent finding admission, and places the crash/fault harness,
 fake cloud, paired published-4.3 controls, bounded resource plan, and canonical
-release toolchain in Phase 1. Phase 1 may now establish only that frozen
-non-production foundation.
+release toolchain in Phase 1. Phase 1 established that frozen non-production
+foundation. The Phase 2 candidate completed all thirteen local gates with only
+expected boundaries; Phase 3 therefore records a zero-production-change admission
+decision. Phase 4 adds a bounded dense separate-JVM concurrency/resource probe,
+reruns the inherited migration-interruption gate, and closes locally as
+`PASS_NO_MEASURED_REGRESSION` without product or paid-cloud work. Protected
+predecessor and exact-master acceptance remain required before the Phase 5 entry is
+accepted.
