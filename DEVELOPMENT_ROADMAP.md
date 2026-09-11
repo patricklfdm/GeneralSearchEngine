@@ -352,7 +352,14 @@ work. Phase 1 merged through protected PR #134 as `a984086`; exact-master CI run
 gate receipts and classifies findings without authorizing product corrections.
 The Phase 2 candidate found only frozen expected boundaries; Phase 3 therefore closes
 the admission decision with zero production, API, format or authority change and
-hands Phase 4 measurement-only scope forward.
+hands Phase 4 measurement-only scope forward. Phase 4's bounded separate-JVM dense
+probe completes 20,000-document concurrency, checkpoint/backup, three-reopen,
+continued-mutation, heap/GC/CPU and peak/final storage observation. The inherited
+four-case migration-interruption gate also passes. The result is
+`PASS_NO_MEASURED_REGRESSION`; no production optimization or paid execution is
+admitted. The [Phase 4 baseline](docs/v4x/v4.4/PHASE_4_BASELINE.md) and
+[checklist](docs/v4x/v4.4/PHASE_4_CHECKLIST.md) retain protected-entry acceptance as
+pending until their stacked predecessors merge and exact-master CI passes.
 
 ## v4.0 completed development contract
 

@@ -105,6 +105,8 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.4 Phase 3 zero-change decision](v4.4/PHASE_3_BASELINE.md)
 - [V4.4 Phase 3 checklist](v4.4/PHASE_3_CHECKLIST.md)
 - [V4.4 Phase 3 admission record](v4.4/phase3-admission.json)
+- [V4.4 Phase 4 local hardening baseline](v4.4/PHASE_4_BASELINE.md)
+- [V4.4 Phase 4 checklist](v4.4/PHASE_4_CHECKLIST.md)
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md)
