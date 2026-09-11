@@ -14,7 +14,7 @@ case "$stage" in source|replacement) ;; *) exit 2 ;; esac
 
 sudo apt-get update
 sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-  openjdk-21-jdk-headless git ca-certificates python3 curl
+  openjdk-21-jdk-headless git ca-certificates python3 unzip curl
 
 mount_device() {
   local device=$1 mount_point=$2 label=$3 deadline=$((SECONDS + 60))

@@ -49,3 +49,18 @@ Independent V1/V2/V3/V4 consumers compiled, and two clean release builds produce
 identical hashes for all six JARs. Inherited Phase 5 lifecycle/cleanup and Phase 4
 text/fallback crash gates passed in the final Phase 6 run. No OIDC token, cloud
 resource, GCS object or paid execution was requested by these local checks.
+
+## Rejected cloud bootstrap attempt
+
+The first exact-source experiment attempt, GitHub Actions run `34545524731` at
+`6686ba1870a7eec7c49c293f587e66caba61d1f3`, is not performance evidence. The source
+host checked out the exact commit and formatted both data disks, but the clean Ubuntu
+image lacked `unzip`; Maven Wrapper therefore rejected its checksum-pinned Maven ZIP
+before any Java probe ran. Its receipt records `runStatus=FAIL` together with
+`sourceVmDeleted=PASS`, both disk deletions `PASS`, staging-object deletion `PASS` and
+aggregate `cleanup=PASS`.
+
+The correction makes `unzip` an explicit remote bootstrap dependency and adds a
+regression test proving that installation precedes the first `./mvnw` invocation.
+Phase 1 and Phase 6 gates pass with the correction. A new exact-source experiment is
+required after the correction merges and its protected-master CI succeeds.
