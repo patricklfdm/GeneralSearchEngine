@@ -11,6 +11,9 @@ remains the phase history and decision source of truth.
 
 - [Development overview and authority map](v4x/README.md)
 - [Revised V4.x roadmap](v4x/ROADMAP.md)
+- [V4.4 development charter](v4x/v4.4/DEVELOPMENT_CHARTER.md)
+- [V4.4 Phase 0 final-hardening contract](v4x/v4.4/PHASE_0_CONTRACT.md)
+- [V4.4 Phase 0 checklist](v4x/v4.4/PHASE_0_CHECKLIST.md)
 - [V4.3 development charter](v4x/v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4x/v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4x/v4.3/PHASE_0_CHECKLIST.md)
