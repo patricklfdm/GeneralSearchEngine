@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.4 Phase 0 final-hardening contract
 
 - **Phase:** 0 — Final durable hardening and V5-reference freeze
-- **Status:** Candidate for protected acceptance
+- **Status:** Accepted through protected PR #132
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Production V4.4 changes:** Authorized only after evidence admission in their
   owning later phase
@@ -354,6 +354,7 @@ Phase 0 exits only when the checklist confirms:
 - phase ownership permits a zero-production-change release while prohibiting hidden
   feature or V5 work.
 
-After protected acceptance, Phase 1 may open `4.4.0-SNAPSHOT` and build only the
-foundation named above. It may not change production behavior or execute paid cloud
-work.
+Protected acceptance completed at
+`8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI run `34581708843`
+passed. Phase 1 may open `4.4.0-SNAPSHOT` and build only the foundation named above.
+It may not change production behavior or execute paid cloud work.

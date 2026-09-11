@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phase 0 contract freeze
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 0 complete
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening          PHASE 0 CONTRACT FREEZE
+V4.4  Final Durable Hardening          PHASE 0 COMPLETE
   ↓
 V5    Next Architecture Boundary
 ```
@@ -219,8 +219,9 @@ classification before a production change, establish local crash/fault and no-GC
 cloud infrastructure in Phase 1, freeze paired published-4.3 non-regression evidence,
 and turn the V4.3 cross-JDK ancillary archive observation into a canonical release-
 toolchain and Central-reconciliation requirement. The
-[Phase 0 checklist](v4.4/PHASE_0_CHECKLIST.md) remains a candidate until protected
-acceptance and exact-master CI complete.
+[Phase 0 checklist](v4.4/PHASE_0_CHECKLIST.md) records protected acceptance through
+PR #132 as `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI run
+`34581708843` passed.
 
 ## Deferred beyond V4.x
 
@@ -326,9 +327,10 @@ artifact reconciliation records same-toolchain reproducibility and the ancillary
 cross-JDK archive-entry boundary without changing runtime, source, API, or storage
 semantics.
 
-V4.4 Phase 0 is a documentation-only candidate on branch
-`docs/v4.4-phase0-contract`. It closes public API and formats by default, permits a
-zero-production-change release, requires independent finding admission, and places
-the crash/fault harness, fake cloud, paired published-4.3 controls, bounded resource
-plan, and canonical release toolchain in Phase 1. It has no authority to begin Phase
-1 until protected acceptance and exact-master CI are recorded.
+V4.4 Phase 0 is accepted through protected PR #132 as
+`8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`; exact-master CI run `34581708843`
+passed. It closes public API and formats by default, permits a zero-production-change
+release, requires independent finding admission, and places the crash/fault harness,
+fake cloud, paired published-4.3 controls, bounded resource plan, and canonical
+release toolchain in Phase 1. Phase 1 may now establish only that frozen
+non-production foundation.

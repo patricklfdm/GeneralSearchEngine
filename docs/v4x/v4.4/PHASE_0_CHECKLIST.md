@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 0 checklist
 
-- **Status:** Candidate for protected acceptance
+- **Status:** Accepted through protected PR #132
 - **Scope:** Documentation-only final durable hardening freeze
 - **Authoritative contract:** [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md)
 
@@ -206,12 +206,13 @@ record protected-master acceptance until the final acceptance section is complet
 - [x] Documentation links and whitespace checks pass.
 - [x] The diff contains no POM version, production code, executable test/harness,
   workflow, cloud-IAM, registry, or paid-resource change.
-- [ ] Phase 0 pull request CI passes.
-- [ ] Phase 0 merges through protected `master` and records PR/commit identity.
-- [ ] Exact-master CI passes before Phase 1.
+- [x] Phase 0 pull request required checks passed.
+- [x] Phase 0 merged through protected PR #132 as
+  `8fd5dafb544efe9df1e07dd6c2791b0d16d3a634`.
+- [x] Exact-master CI run `34581708843` passed before Phase 1.
 
 ## Exit decision
 
-Phase 0 is semantically complete and ready for protected review. Phase 1 is not
-authorized until the final three protected-acceptance items and exact-master CI are
-complete.
+Phase 0 is accepted. Phase 1 may establish only the frozen non-production foundation;
+production corrections and paid cloud work remain unauthorized until their owning
+phases.
