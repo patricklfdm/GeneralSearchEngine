@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 6 checklist
 
-- **Status:** Local implementation accepted; PR, exact CI and paid evidence pending
+- **Status:** Canonical evidence accepted; append-only baseline registration pending
 - **Scope:** benchmark-only instrumentation, exact-source cloud lane and evidence
 
 ## Entry
@@ -9,6 +9,11 @@
   `e241e1499861e0b44583a948d410ce0ac9c3c286`.
 - [x] Exact Phase 5 protected-master CI run `34529966882` passed.
 - [x] Work is isolated on `feat/v4.3-phase6-performance-evidence`.
+- [x] Phase 6 implementation merged through protected PR #125 as `6686ba1`;
+  exact-master CI run `34538794639` passed.
+- [x] Clean-host wrapper correction merged through protected PR #126 as `1151b7c`.
+- [x] Mount-layout correction merged through protected PR #127 as `1d59ba9`;
+  exact-master CI run `34550893252` passed.
 
 ## Local and schema implementation
 
@@ -39,13 +44,39 @@
 
 - [x] Complete local Phase 6 gate passes.
 - [x] Full reactor, compatibility, release artifacts and inherited gates pass.
-- [ ] Implementation PR passes required checks and merges to protected `master`.
-- [ ] Exact protected-master CI passes.
-- [ ] Operator extends WIF and GCS prefix permissions for the reviewed workflow.
-- [ ] One exact-source experiment run passes independent validation and cleanup.
-- [ ] Three exact-source canonical members and their aggregate set pass.
+- [x] Implementation PR passes required checks and merges to protected `master`.
+- [x] Exact protected-master CI passes.
+- [x] Operator extends WIF and GCS prefix permissions for the reviewed workflow.
+- [x] One exact-source experiment run passes independent validation and cleanup.
+- [x] Three exact-source canonical members and their aggregate set pass.
 - [ ] Canonical evidence review is merged separately.
 - [ ] `v4.3.0-fast-reopen-cloud` is registered in a separate append-only PR.
 
-No cloud run or registry entry may be represented as accepted before these ordered
-gates produce its exact evidence.
+## Paid evidence
+
+- [x] Experiment run `34551484690`, attempt 1, passed from exact source
+  `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6` with one member and Actions
+  retention.
+- [x] Canonical run `34557940276`, attempt 1, passed from the same exact source with
+  three serial members and GCS retention.
+- [x] Downloaded experiment and canonical member bundles and aggregate sets validate
+  independently.
+- [x] Every accepted receipt proves both VMs, both data disks and staging objects
+  deleted with aggregate `cleanup=PASS`.
+- [x] Canonical set is comparable, `canonicalEligible=true`, and binds set digest
+  `b91f780d8f630d626f8aec3bc090073a5c4bbd9273819bc437d07c10ff7200c4`.
+- [x] Member ratios `0.256803`, `0.243176`, and `0.260551` satisfy the per-member
+  `0.65` bound; median `0.256803` satisfies the set `0.50` bound.
+
+## Registration
+
+- [x] Empty registry schema remains tracked without claiming accepted evidence.
+- [x] Registration accepts only exact name `v4.3.0-fast-reopen-cloud`, an eligible
+  canonical three-member set, and one append-only insertion.
+- [x] Canonical review is documented in
+  [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md).
+- [ ] Canonical review merges through its own protected PR and exact-master CI.
+- [ ] Baseline registration is committed through a later separate protected PR.
+
+Phase 7 may begin only after canonical-review acceptance and immutable baseline
+registration are complete.

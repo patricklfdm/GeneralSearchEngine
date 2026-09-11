@@ -30,7 +30,8 @@ remains the phase history and decision source of truth.
 - [V4.3 Phase 5 local baseline](v4x/v4.3/PHASE_5_BASELINE.md)
 - [V4.3 Phase 5 checklist](v4x/v4.3/PHASE_5_CHECKLIST.md)
 - [V4.3 Phase 6 performance and evidence](v4x/v4.3/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
-- [V4.3 Phase 6 implementation baseline](v4x/v4.3/PHASE_6_BASELINE.md)
+- [V4.3 Phase 6 evidence baseline](v4x/v4.3/PHASE_6_BASELINE.md)
+- [V4.3 Phase 6 canonical review](v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.3 Phase 6 checklist](v4x/v4.3/PHASE_6_CHECKLIST.md)
 - [V4.3 fast-reopen cloud baseline registry](v4x/v4.3/cloud-benchmark-baselines.json)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
@@ -111,7 +112,10 @@ fallback matrix through protected PR #123 as
 passed. Phase 5 completed lifecycle, plan-bound cleanup, backup/restore, crash,
 capacity, concurrency and compatibility hardening through protected PR #124 as
 `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
-passed. Phase 6 is active for benchmark-only measurement and cloud evidence.
+passed. Phase 6 implementation and corrections merged through protected PRs
+#125–#127. Exact-master CI `34550893252`, experiment run `34551484690`, and
+three-member canonical run `34557940276` passed. Canonical evidence is accepted;
+append-only baseline registration remains pending.
 
 ## v4.0 — prior stable durable single-node foundation
 
