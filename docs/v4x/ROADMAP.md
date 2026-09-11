@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.3 complete and published
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 0 contract freeze
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening
+V4.4  Final Durable Hardening          PHASE 0 CONTRACT FREEZE
   ↓
 V5    Next Architecture Boundary
 ```
@@ -207,9 +207,20 @@ include:
 - an immutable baseline such as `v4.4.0-final-durable-cloud`.
 
 The final baseline remains distinct from `v3.4.0-in-memory-cloud`,
-`v4.0.0-durable-cloud`, and the V4.1 operational-safety family. If measurements reveal
-no justified V4.4 production change, the version may remain an evidence-and-release
+`v4.0.0-durable-cloud`, `v4.1.0-operational-cloud`,
+`v4.2.0-migration-cloud`, and `v4.3.0-fast-reopen-cloud`. If measurements reveal no
+justified V4.4 production change, the version may remain an evidence-and-release
 hardening line; roadmap presence alone does not require speculative code.
+
+The proposed [V4.4 development charter](v4.4/DEVELOPMENT_CHARTER.md) and
+[Phase 0 contract](v4.4/PHASE_0_CONTRACT.md) make this direction executable. They
+close public API and storage formats by default, require independent finding
+classification before a production change, establish local crash/fault and no-GCP
+cloud infrastructure in Phase 1, freeze paired published-4.3 non-regression evidence,
+and turn the V4.3 cross-JDK ancillary archive observation into a canonical release-
+toolchain and Central-reconciliation requirement. The
+[Phase 0 checklist](v4.4/PHASE_0_CHECKLIST.md) remains a candidate until protected
+acceptance and exact-master CI complete.
 
 ## Deferred beyond V4.x
 
@@ -314,3 +325,10 @@ deployment `6388475724`, GitHub Release `386867175`, and the registered
 artifact reconciliation records same-toolchain reproducibility and the ancillary
 cross-JDK archive-entry boundary without changing runtime, source, API, or storage
 semantics.
+
+V4.4 Phase 0 is a documentation-only candidate on branch
+`docs/v4.4-phase0-contract`. It closes public API and formats by default, permits a
+zero-production-change release, requires independent finding admission, and places
+the crash/fault harness, fake cloud, paired published-4.3 controls, bounded resource
+plan, and canonical release toolchain in Phase 1. It has no authority to begin Phase
+1 until protected acceptance and exact-master CI are recorded.

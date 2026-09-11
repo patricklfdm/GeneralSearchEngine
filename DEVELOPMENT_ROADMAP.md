@@ -2,11 +2,12 @@
 
 ## v4.x active development contract
 
-Published `4.0.0` is the immutable correct-durability foundation. The remaining V4.x
-line now proceeds through V4.1 operational safety, V4.2 explicit storage evolution,
-V4.3 fast reopen through reconstructible persisted derived state, and V4.4 final
-single-node durable hardening. Replication, consensus, sharding, multi-writer storage,
-remote live WAL, vector retrieval, and new ranking semantics remain V5 decisions.
+Published `4.0.0` is the immutable correct-durability foundation. The V4.x line has
+completed V4.1 operational safety, V4.2 explicit storage evolution, and V4.3 fast
+reopen through reconstructible persisted derived state. It now enters the proposed
+V4.4 final single-node durable hardening contract. Replication, consensus, sharding,
+multi-writer storage, remote live WAL, vector retrieval, and new ranking semantics
+remain V5 decisions.
 
 V4.1 Phase 0 is accepted through protected PR #93 at
 `8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
@@ -305,6 +306,41 @@ The Phase 6 evidence contract and implementation baseline are
 and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md). The
 accepted canonical evidence identities and measurements are recorded in
 [`docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md`](docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md).
+
+## v4.4 proposed final durable hardening contract
+
+V4.4 is the final V4.x single-node durable hardening and V5-reference release. Its
+Phase 0 proposal is documentation-only and starts from published `4.3.0` plus the
+post-publication exact-master CI boundary
+`78805e642da99eca46dfdf26c77b058c23e1ffff` / `34578997788`.
+
+The proposed contract closes public API and persisted formats by default: live and
+backup `(1,0)`, `(1,1)`, and `(1,2)` retain their exact published meanings, default
+construction remains `(1,0)`, and no `(1,3)`, new authority, new artifact, implicit
+upgrade, repair, or V5 capability is authorized. A zero-production-change V4.4 is a
+valid outcome. Production changes require a reproducible contract violation or
+accepted measured regression, independent evidence, explicit classification, and the
+smallest compatible correction in its owning phase.
+
+Phase 1 must open `4.4.0-SNAPSHOT`, pin published `4.3.0`, freeze the public API
+inventory, and establish independent models/fixtures, separate-process crash/fault
+harnesses, bounded soak/scale probes, fake-cloud replacement-host planning, paired
+published-4.3 calibration, and a canonical release-toolchain manifest before any
+production correction. Paid cloud work remains Phase 6-only and user-initiated. The
+eventual identities are evidence schema `gse-v44-final-durable-evidence-v1`, suite
+`v4.4-final-durable-suite-v1`, preset `v4.4-final-durable-v1`, and append-only
+baseline `v4.4.0-final-durable-cloud`.
+
+The canonical release path must close the V4.3 packaging lesson: two independent
+canonical builds, the pre-deploy unsigned artifacts, and the six published Central
+JARs must reconcile exactly. Builds on other JDK distributions remain diagnostic
+unless ancillary entries are deliberately normalized and proven.
+
+The proposed authority is
+[`docs/v4x/v4.4/PHASE_0_CONTRACT.md`](docs/v4x/v4.4/PHASE_0_CONTRACT.md), supported by
+the [development charter](docs/v4x/v4.4/DEVELOPMENT_CHARTER.md) and
+[Phase 0 checklist](docs/v4x/v4.4/PHASE_0_CHECKLIST.md). Phase 1 remains unauthorized
+until protected acceptance and exact-master CI.
 
 ## v4.0 completed development contract
 
