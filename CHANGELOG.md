@@ -3,6 +3,28 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 4.3.0 — 2026-09-11
+
+### Added
+
+- Explicit durable format `(1,2)` with reconstructible checkpoint-bound images for
+  built-in equality, range, prefix and text indexes.
+- Codec-free derived-state inspection and structured reopen diagnostics covering
+  complete warm load, component-local fallback, full fallback and bounded refresh.
+- Immutable logical/physical `(1,2)` fixtures, lifecycle/crash/fault/capacity gates,
+  and registered `v4.3.0-fast-reopen-cloud` replacement-host evidence.
+
+### Changed
+
+- Keep `(1,0)` as the default and preserve existing `(1,0)`/`(1,1)` stores; `(1,2)`
+  is available only through explicit fresh configuration or offline migration.
+- Keep canonical checkpoint, WAL, documents and logical index configuration
+  authoritative. Derived bytes remain optional and reconstructible.
+
+This entry describes the final `4.3.0` release candidate. It does not claim that a
+signed tag, Maven Central publication, production deployment or GitHub Release
+exists; those remain Phase 8 publication gates.
+
 ## 4.2.0 — 2026-09-09
 
 ### Added

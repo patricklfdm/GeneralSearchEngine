@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.3 Phase 6 registration under review
+- **Status:** Accepted V4.x roadmap; V4.3 Phase 7 final candidate assembly
 - **Reference baseline:** Published GeneralSearchEngine `4.2.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -24,7 +24,7 @@ V4.1  Operational Safety               COMPLETE
   ↓
 V4.2  Storage Evolution                COMPLETE
   ↓
-V4.3  Fast Reopen                      PHASE 6 REGISTRATION REVIEW
+V4.3  Fast Reopen                      PHASE 7 FINAL CANDIDATE
   ↓
 V4.4  Final Durable Hardening
   ↓
@@ -183,8 +183,9 @@ passed. Phase 6 implementation and corrections merged through protected PRs
 `34551484690` and three-member canonical run `34557940276` passed independent
 validation, complete cleanup and the frozen thresholds. Canonical review merged
 through protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed.
-The append-only registration is under protected review and remains the final Phase 6
-gate.
+The append-only registration merged through protected PR #129 as `cc603a6`;
+exact-master CI run `34568701485` passed. Phase 7 started from that exact accepted
+entry boundary.
 
 ## V4.4 — Final Durable Hardening
 
@@ -302,4 +303,6 @@ passed. Phase 6 implementation and corrections merged through protected PRs
 `34551484690` and canonical run `34557940276` passed independent validation,
 complete cleanup and frozen threshold enforcement. Canonical review merged through
 protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed. The
-append-only registration is under protected review.
+append-only registration merged through protected PR #129 as `cc603a6`; exact-master
+CI run `34568701485` passed. Phase 7 has locally validated the final `4.3.0`
+candidate; protected acceptance remains pending.

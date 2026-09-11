@@ -167,6 +167,14 @@ jobs:
             echo "V4.2 Phase 7 gate: SKIP (project is not the 4.2.0 candidate)"
           fi
 
+      - name: Verify the V4.3 final candidate boundary
+        run: |
+          if rg -q '^    <version>4\.3\.0</version>$' pom.xml; then
+            scripts/verify-v43-phase7-release.sh --skip-consumers
+          else
+            echo "V4.3 Phase 7 gate: SKIP (project is not the 4.3.0 candidate)"
+          fi
+
   release-artifacts:
     name: Release artifacts
     runs-on: ubuntu-latest
@@ -252,6 +260,7 @@ jobs:
           bash -n scripts/verify-v43-phase4-text-images.sh
           bash -n scripts/verify-v43-phase5-lifecycle.sh
           bash -n scripts/verify-v43-phase6-evidence.sh
+          bash -n scripts/verify-v43-phase7-release.sh
           bash -n scripts/verify-v43-published-v42-baseline.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
@@ -306,8 +315,8 @@ jobs:
 
       - name: Validate V4.3 fixtures, evidence, and fake cloud control plane
         run: |
-          python -m py_compile scripts/v43/derived_fixture.py scripts/v43/derived_format_v12.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/structured_image_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/fast_reopen_performance.py scripts/v43/fast_reopen_cloud_workflow.py scripts/v43/fast_reopen_cloud_set.py scripts/v43/test_derived_fixture.py scripts/v43/test_derived_format_v12.py scripts/v43/test_phase1_infrastructure.py scripts/v43/test_phase6_evidence.py
-          python -m unittest scripts.v43.test_derived_fixture scripts.v43.test_derived_format_v12 scripts.v43.test_phase1_infrastructure scripts.v43.test_phase6_evidence
+          python -m py_compile scripts/v43/derived_fixture.py scripts/v43/derived_format_v12.py scripts/v43/evidence.py scripts/v43/fast_reopen_harness.py scripts/v43/structured_image_harness.py scripts/v43/fake_cloud_lane.py scripts/v43/fast_reopen_performance.py scripts/v43/fast_reopen_cloud_workflow.py scripts/v43/fast_reopen_cloud_set.py scripts/v43/test_derived_fixture.py scripts/v43/test_derived_format_v12.py scripts/v43/test_phase1_infrastructure.py scripts/v43/test_phase6_evidence.py scripts/v43/test_phase7_release_fixtures.py
+          python -m unittest scripts.v43.test_derived_fixture scripts.v43.test_derived_format_v12 scripts.v43.test_phase1_infrastructure scripts.v43.test_phase6_evidence scripts.v43.test_phase7_release_fixtures
 
   required:
     name: Required

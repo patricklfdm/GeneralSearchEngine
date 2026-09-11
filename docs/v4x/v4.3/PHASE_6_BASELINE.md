@@ -4,7 +4,7 @@
 - **Base:** `e241e1499861e0b44583a948d410ce0ac9c3c286`
 - **Version:** `4.3.0-SNAPSHOT`
 - **Production behavior:** unchanged
-- **Status:** Canonical evidence accepted; append-only registration under protected review
+- **Status:** Complete — canonical evidence and append-only registration accepted
 - **Canonical source:** `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`
 - **Paid execution:** accepted experiment and canonical runs complete
 
@@ -34,8 +34,8 @@ scripts/verify-v43-phase6-evidence.sh
 
 Cloud experiment/canonical run IDs and the three-member review are recorded below.
 The canonical review merged through protected PR #128 as `ae25c80`, and exact-master
-CI run `34567122915` passed. The separate append-only registration is now under
-protected review.
+CI run `34567122915` passed. The separate append-only registration merged through
+protected PR #129 as `cc603a6`; exact-master CI run `34568701485` passed.
 
 ## Local acceptance result
 
@@ -129,9 +129,10 @@ bounded observations are recorded in
 [`PHASE_6_CANONICAL_REVIEW.md`](PHASE_6_CANONICAL_REVIEW.md). These measurements are
 diagnostic evidence on the pinned configuration, not an SLA.
 
-## Registration candidate
+## Accepted registration
 
-The separate candidate appends exactly one `v4.3.0-fast-reopen-cloud` entry binding
+The separate registration appends exactly one `v4.3.0-fast-reopen-cloud` entry binding
 the accepted source, suite, preset, three-member count, median ratio and set digest.
-The registrar rejects duplicate, renamed or non-canonical input. Phase 7 remains
-blocked until this registration PR merges and exact-master CI passes.
+The registrar rejects duplicate, renamed or non-canonical input. It merged through
+protected PR #129 as `cc603a6c946169b48390960091b6157c54e9ca0b`, and exact-master
+CI run `34568701485` passed. This is the accepted Phase 7 entry boundary.

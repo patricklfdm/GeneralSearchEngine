@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
@@ -16,7 +17,9 @@ import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
 import io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.schema.Field;
+import io.github.patricklfdm.generalsearch.schema.TextField;
 
 /** A framework-independent consumer of only the published V4 durable API. */
 public final class V4StyleConsumer {
@@ -28,6 +31,8 @@ public final class V4StyleConsumer {
             Field.of("id", Integer.class, DurableDocument::id);
     public static final Field<DurableDocument, String> BODY =
             Field.of("body", String.class, DurableDocument::body);
+    public static final TextField<DurableDocument> TEXT =
+            TextField.of(BODY, Analyzer.simple());
 
     private V4StyleConsumer() {
     }
@@ -39,6 +44,17 @@ public final class V4StyleConsumer {
 
     public static SearchEngineBuilder<Integer, DurableDocument> builder() {
         return SearchEngine.builder(DurableDocument.class, ID).field(BODY);
+    }
+
+    /** Builds the complete V4.3 reconstructible-index profile through public APIs. */
+    public static SearchEngineBuilder<Integer, DurableDocument> v43Builder() {
+        return SearchEngine.builder(DurableDocument.class, ID)
+                .field(BODY)
+                .textField(TEXT)
+                .index(IndexDefinition.equality(BODY))
+                .index(IndexDefinition.range(BODY))
+                .index(IndexDefinition.prefix(BODY))
+                .index(IndexDefinition.text(TEXT));
     }
 
     public static DurableVerificationConfig<Integer, DurableDocument>
@@ -66,7 +82,7 @@ public final class V4StyleConsumer {
             String schemaIdentity,
             DurableStorageFormat format
     ) {
-        return DurableStorageConfig.builder(directory, new DocumentCodec())
+        var builder = DurableStorageConfig.builder(directory, new DocumentCodec())
                 .format(format)
                 .storageIdentity(STORAGE_IDENTITY)
                 .schemaIdentity(schemaIdentity)
@@ -75,8 +91,11 @@ public final class V4StyleConsumer {
                 .maxBulkElements(1000)
                 .maxDocuments(10_000)
                 .checkpointWalBytes(1024 * 1024)
-                .maxRetainedBytes(64L * 1024 * 1024)
-                .build();
+                .maxRetainedBytes(64L * 1024 * 1024);
+        if (format.equals(DurableStorageFormat.V1_2)) {
+            builder.maxDerivedStateBytes(32L * 1024 * 1024);
+        }
+        return builder.build();
     }
 
     private static final class DocumentCodec

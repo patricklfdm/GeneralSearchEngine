@@ -183,7 +183,7 @@ upgrade, online or reverse migration, in-place cutover, history merge, replicati
 or a third artifact. Published `4.1.0` remains the immediate prior stable release and
 operational-safety compatibility baseline.
 
-## v4.3 active Phase 6 registration
+## v4.3 active Phase 7 final candidate
 
 V4.3 begins from published `4.2.0` with a documentation-only contract. The proposed
 boundary introduces explicit `gse-durable (1,2)` and matching canonical-only backup
@@ -249,8 +249,8 @@ passed. Phase 5 hardened repeated checkpoint/reopen, plan-bound derived cleanup,
 canonical-only backup/cold restore, crash/fault, capacity, concurrency and
 published-4.2 compatibility. It merged through protected PR #124 as
 `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
-passed. Phase 6 now owns benchmark-only measurement, replacement-host cloud evidence,
-three-member threshold review and later append-only registration.
+passed. Phase 6 owned benchmark-only measurement, replacement-host cloud evidence,
+three-member threshold review and append-only registration.
 
 Phase 6 implementation and corrections merged through protected PRs #125–#127;
 exact-master CI run `34550893252` passed on
@@ -258,8 +258,12 @@ exact-master CI run `34550893252` passed on
 canonical run `34557940276` passed independent member/set validation, complete
 cleanup, GCS retention and the frozen warm-reopen thresholds. Canonical review
 merged through protected PR #128 as `ae25c80`; exact-master CI run `34567122915`
-passed. The append-only `v4.3.0-fast-reopen-cloud` registration is under protected
-review and remains the final Phase 6 gate.
+passed. The append-only `v4.3.0-fast-reopen-cloud` registration merged through
+protected PR #129 as `cc603a6c946169b48390960091b6157c54e9ca0b`; exact-master CI
+run `34568701485` passed. Phase 7 started from that exact commit, converted the
+repository atomically to final `4.3.0` coordinates and passed its local compatibility,
+consumer, fixture, artifact and reproducibility gates. Protected acceptance remains
+pending; Phase 8 remains the sole authority for signing and publication.
 
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).

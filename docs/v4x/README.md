@@ -39,7 +39,10 @@ protected PRs #125–#127; exact-master CI `34550893252` passed on `1d59ba9`.
 Experiment run `34551484690` and canonical run `34557940276` passed independent
 validation and cleanup. Canonical review merged through protected PR #128 as
 `ae25c80`; exact-master CI run `34567122915` passed. The append-only registration is
-under protected review.
+accepted through protected PR #129 as `cc603a6`; exact-master CI run `34568701485`
+passed. Phase 7 has locally validated final `4.3.0` coordinates, compatibility,
+consumer, fixture, artifact and reproducibility gates from that exact commit;
+protected acceptance remains pending.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -95,6 +98,10 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3 Phase 6 canonical review](v4.3/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.3 Phase 6 checklist](v4.3/PHASE_6_CHECKLIST.md)
 - [V4.3 fast-reopen cloud baseline registry](v4.3/cloud-benchmark-baselines.json)
+- [V4.3 API and storage compatibility](v4.3/API_COMPATIBILITY.md)
+- [V4.2-to-V4.3 migration guide](v4.3/MIGRATION_GUIDE.md)
+- [V4.3 Phase 7 release-candidate checklist](v4.3/PHASE_7_CHECKLIST.md)
+- [V4.3 release checklist](v4.3/RELEASE_CHECKLIST.md)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
@@ -159,9 +166,9 @@ The published V4.0 contracts continue to govern durability, completion, storage
 format `gse-durable (1,0)`, checkpoints, WAL recovery, and retrieval behavior. The
 published V4.1 contracts govern backup, restore, verification, cleanup, and evidence
 semantics. The published V4.2 contracts govern explicit format `(1,1)`, dual-minor
-inspection and source-preserving migration. The V4.x roadmap governs later release
-ordering and scope. V4.3 documents remain proposals until protected Phase 0 acceptance
-and cannot override a published guarantee.
+inspection and source-preserving migration. Accepted V4.3 contracts govern explicit
+format `(1,2)` and reconstructible derived-state behavior; the final candidate is not
+a published release until Phase 8. The V4.x roadmap governs later scope.
 
 If documents conflict, the most specialized accepted contract controls, but it may
 not weaken an inherited published guarantee. Any conflict with V4.0, V4.1, or V4.2

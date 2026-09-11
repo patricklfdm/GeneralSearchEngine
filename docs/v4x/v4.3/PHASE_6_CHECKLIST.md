@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.3 Phase 6 checklist
 
-- **Status:** Canonical evidence accepted; append-only registration under protected review
+- **Status:** Complete — canonical evidence and append-only registration accepted
 - **Scope:** benchmark-only instrumentation, exact-source cloud lane and evidence
 
 ## Entry
@@ -81,7 +81,9 @@
   CI run `34567122915` passed.
 - [x] Baseline `v4.3.0-fast-reopen-cloud` is registered exactly once in the
   candidate append-only registry.
-- [ ] Baseline registration is committed through a later separate protected PR.
+- [x] Baseline registration merged separately through protected PR #129 as
+  `cc603a6c946169b48390960091b6157c54e9ca0b`; exact-master CI run `34568701485`
+  passed.
 
-Phase 7 may begin only after canonical-review acceptance and immutable baseline
-registration are complete.
+Phase 7 began from exact accepted registration commit `cc603a6` on
+`release/v4.3.0`.

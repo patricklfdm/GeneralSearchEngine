@@ -24,6 +24,10 @@ that a clean build does not remove evidence that is still under review.
   aggregate-set and cleanup evidence. Its own
   [README](v42-storage-evolution/README.md) and `.gitignore` keep raw artifacts
   untracked.
+- `v43-fast-reopen/` is the local download and review workspace for V4.3
+  experiment, canonical, failure-drill, replacement-host fast-reopen and
+  aggregate-set evidence. Its own [README](v43-fast-reopen/README.md) and
+  `.gitignore` keep raw artifacts untracked.
 
 The V3.4 and V4 download workspaces are ignored by Git. They may contain large raw or
 derived metrics, temporary instance descriptions, orchestration logs, and values that
@@ -41,6 +45,8 @@ V4.1 conclusions belong in
 [`docs/v4x/v4.1/PHASE_6_BASELINE.md`](../docs/v4x/v4.1/PHASE_6_BASELINE.md).
 V4.2 conclusions belong in
 [`docs/v4x/v4.2/PHASE_6_BASELINE.md`](../docs/v4x/v4.2/PHASE_6_BASELINE.md).
+V4.3 conclusions belong in
+[`docs/v4x/v4.3/PHASE_6_BASELINE.md`](../docs/v4x/v4.3/PHASE_6_BASELINE.md).
 
 Do not use ignored local output as the only copy of required evidence. Do not force-add
 raw benchmark directories to Git.

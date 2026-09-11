@@ -24,9 +24,11 @@ import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
 import io.github.patricklfdm.generalsearch.durability.DurableCleanupRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableCleanupScope;
+import io.github.patricklfdm.generalsearch.durability.DurableDerivedStateStatus;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationRecord;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationTransformDescriptor;
+import io.github.patricklfdm.generalsearch.durability.DurableReopenOutcome;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
 import io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationStatus;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageFormat;
@@ -37,6 +39,7 @@ import io.github.patricklfdm.generalsearch.durability.RecoverySource;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.IndexSnapshot;
+import io.github.patricklfdm.generalsearch.query.Query;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -197,6 +200,103 @@ class V4StyleConsumerTest {
                                      V4StyleConsumer.SCHEMA_IDENTITY,
                                      DurableStorageFormat.V1_1))) {
             assertEquals(new DurableDocument(3, "gamma"), engine.get(3));
+        }
+        assertEquals(sourceBefore, treeDigest(source));
+    }
+
+    @Test
+    void migratesV11ToV12ThenColdAndWarmReopensThroughPublishedApiOnly()
+            throws IOException {
+        Path source = temporary.resolve("fast-reopen-source");
+        Path target = temporary.resolve("fast-reopen-target");
+        try (DurableSearchEngine<Integer, DurableDocument> engine =
+                     V4StyleConsumer.v43Builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     source,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_1))) {
+            engine.addAll(List.of(
+                    new DurableDocument(1, "alpha search"),
+                    new DurableDocument(2, "beta memory"),
+                    new DurableDocument(3, "alpha engine"))).join();
+            engine.checkpoint().join();
+        }
+
+        String sourceBefore = treeDigest(source);
+        var request = new DurableMigrationRequest<>(
+                source,
+                V4StyleConsumer.verificationConfig(),
+                V4StyleConsumer.config(
+                        target,
+                        V4StyleConsumer.SCHEMA_IDENTITY,
+                        DurableStorageFormat.V1_2),
+                new DurableMigrationTransformDescriptor("identity-format-v12", 1),
+                (Integer key, DurableDocument document) ->
+                        new DurableMigrationRecord<>(key, document),
+                64L * 1024 * 1024,
+                64L * 1024 * 1024,
+                1024 * 1024,
+                1000,
+                1000,
+                64 * 1024);
+        var plan = V4StyleConsumer.v43Builder().planDurableMigration(
+                V4StyleConsumer.v43Builder(), request);
+        assertEquals(DurableStorageFormat.V1_1, plan.sourceFormat());
+        assertEquals(DurableStorageFormat.V1_2, plan.targetFormat());
+        assertFalse(Files.exists(target));
+
+        var result = V4StyleConsumer.v43Builder().applyDurableMigration(
+                V4StyleConsumer.v43Builder(), request, plan);
+        assertEquals(plan.planDigest(), result.planDigest());
+        assertEquals(sourceBefore, treeDigest(source));
+        assertEquals(DurableDerivedStateStatus.ABSENT,
+                DurableStorageOperations.inspectDerivedState(target).status());
+
+        try (DurableSearchEngine<Integer, DurableDocument> first =
+                     V4StyleConsumer.v43Builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     target,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_2))) {
+            var report = first.lastReopenReport().orElseThrow();
+            assertEquals(DurableReopenOutcome.FULL_FALLBACK, report.outcome());
+            assertEquals(4, report.rebuiltComponentCount());
+            assertTrue(report.refreshAttempted());
+            assertTrue(report.refreshSucceeded());
+            assertEquals(List.of(1, 3), ids(first.search(
+                    Query.prefix(V4StyleConsumer.BODY, "alpha"))));
+        }
+        assertEquals(DurableDerivedStateStatus.VALID,
+                DurableStorageOperations.inspectDerivedState(target).status());
+
+        try (DurableSearchEngine<Integer, DurableDocument> second =
+                     V4StyleConsumer.v43Builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     target,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_2))) {
+            var report = second.lastReopenReport().orElseThrow();
+            assertEquals(DurableReopenOutcome.COMPLETE_WARM, report.outcome());
+            assertEquals(4, report.loadedComponentCount());
+            assertEquals(0, report.rebuiltComponentCount());
+            assertEquals(List.of(1), ids(second.search(
+                    Query.allTerms(V4StyleConsumer.TEXT, "alpha search"))));
+            assertEquals(List.of(2), ids(second.search(
+                    Query.eq(V4StyleConsumer.BODY, "beta memory"))));
+            assertEquals(List.of(1, 3), ids(second.search(
+                    Query.between(V4StyleConsumer.BODY, "alpha", "alpha~"))));
+            second.add(new DurableDocument(4, "alpha search added")).join();
+            second.checkpoint().join();
+        }
+        try (DurableSearchEngine<Integer, DurableDocument> third =
+                     V4StyleConsumer.v43Builder().buildDurable(
+                             V4StyleConsumer.config(
+                                     target,
+                                     V4StyleConsumer.SCHEMA_IDENTITY,
+                                     DurableStorageFormat.V1_2))) {
+            assertEquals(DurableReopenOutcome.COMPLETE_WARM,
+                    third.lastReopenReport().orElseThrow().outcome());
+            assertEquals(new DurableDocument(4, "alpha search added"), third.get(4));
         }
         assertEquals(sourceBefore, treeDigest(source));
     }
@@ -369,6 +469,10 @@ class V4StyleConsumerTest {
         } catch (NoSuchAlgorithmException impossible) {
             throw new AssertionError(impossible);
         }
+    }
+
+    private static List<Integer> ids(List<DurableDocument> documents) {
+        return documents.stream().map(DurableDocument::id).toList();
     }
 
     private record FixtureMember(String fileName, String sha256, String base64) {
