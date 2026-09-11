@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 5 checklist
 
-- **Status:** Local implementation complete; protected entry and acceptance pending
+- **Status:** Local implementation complete; protected entry confirmed, Phase 5 acceptance pending
 - **Baseline:** [PHASE_5_BASELINE.md](PHASE_5_BASELINE.md)
 
 ## Entry and scope
@@ -10,7 +10,8 @@
 - [x] No paid GCP resource, IAM mutation or baseline registration occurs.
 - [x] Phases 2–3 merged through protected `master`; exact-master CI passed on
   `96b43c9` (`34591678426`) and `b04e1e3` (`34626677031`).
-- [ ] Phase 4 merges through protected `master` and exact-master CI passes.
+- [x] Phase 4 merged through protected PR #137 as `263883b`; exact-master CI
+  `34646352576` passed.
 
 ## Stabilization and compatibility
 

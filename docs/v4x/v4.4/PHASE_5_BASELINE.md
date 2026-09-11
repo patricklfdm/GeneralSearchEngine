@@ -1,6 +1,8 @@
 # GeneralSearchEngine V4.4 Phase 5 stabilization baseline
 
-- **Status:** Local implementation complete; protected predecessor acceptance pending
+- **Status:** Local implementation complete; protected entry confirmed, Phase 5 acceptance pending
+- **Phase 4 protected merge:** `263883b832413d0c9f1c5f20b2f8fbec444a2f98`
+- **Phase 4 exact-master CI:** `34646352576` (`success`)
 - **Product/API/format/authority change:** None
 - **Paid cloud execution / IAM mutation / registration:** None
 
@@ -34,6 +36,11 @@ authorizes the exact workflow/prefix conditions.
 The [V5 handoff](V5_HANDOFF.md) records inherited guarantees, supported formats,
 known limits and explicitly deferred architecture without claiming pending release or
 cloud identities.
+
+Phase 4 entered protected `master` through PR #137. Exact-master CI run
+`34646352576` passed on merge commit
+`263883b832413d0c9f1c5f20b2f8fbec444a2f98`, satisfying the final Phase 5 entry
+condition.
 
 Run the aggregate local gate with:
 
