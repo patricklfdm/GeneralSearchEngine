@@ -19,6 +19,7 @@ from scripts.v43.fast_reopen_performance import (
 SOURCE = "a" * 40
 ORACLE = "b" * 64
 FINAL = "c" * 64
+PROJECT = Path(__file__).resolve().parents[2]
 
 
 def properties() -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
@@ -97,6 +98,15 @@ def production_properties() -> tuple[dict[str, str], dict[str, str], dict[str, s
 
 
 class Phase6EvidenceTest(unittest.TestCase):
+    def test_remote_bootstrap_installs_wrapper_archive_prerequisite(self) -> None:
+        script = (PROJECT / "scripts/v43/remote_fast_reopen_stage.sh").read_text(
+            encoding="utf-8")
+        normalized = " ".join(script.split())
+        self.assertIn(
+            "openjdk-21-jdk-headless git ca-certificates python3 unzip curl",
+            normalized)
+        self.assertLess(normalized.index(" unzip "), normalized.index(" ./mvnw "))
+
     def test_plan_is_exact_and_summary_has_run_id(self) -> None:
         request = validate_inputs("canonical", 3, 1800, "gcs",
                                   "c3d-standard-30", "standard")
