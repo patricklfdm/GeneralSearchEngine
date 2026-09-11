@@ -21,12 +21,15 @@ under the [V4 contract map](docs/v4/README.md). Version `4.2.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.3 Phase 0 is accepted and Phase 1 has opened `4.3.0-SNAPSHOT`. Its fast-reopen
-foundation freezes explicit format `(1,2)`, reconstructible per-index images,
-declaration-only APIs, independent models, local crash evidence and quota-safe future
-cloud evidence while preserving canonical checkpoint/WAL authority. No production
-`(1,2)` or image behavior exists yet. See the
-[V4.3 Phase 1 baseline](docs/v4x/v4.3/PHASE_1_BASELINE.md).
+V4.3 is now a final `4.3.0` candidate; V4.2 remains the current published stable
+release until Phase 8 completes. The candidate implements explicit `(1,2)`, optional
+checkpoint-bound images for all four built-in index kinds, codec-free inspection,
+selective/full deterministic fallback, bounded refresh, lifecycle hardening and the
+registered `v4.3.0-fast-reopen-cloud` baseline while preserving canonical
+checkpoint/WAL authority. See the
+[V4.3 API/storage compatibility contract](docs/v4x/v4.3/API_COMPATIBILITY.md),
+[migration guide](docs/v4x/v4.3/MIGRATION_GUIDE.md) and
+[release checklist](docs/v4x/v4.3/RELEASE_CHECKLIST.md).
 
 V4.2 adds explicit format `(1,1)`, codec-free dual-minor inspection and source-
 preserving offline migration while keeping `(1,0)` as the default. Phase 6 cloud
@@ -125,6 +128,31 @@ traffic over and reconciling any target-only writes if it rolls back.
 V4.2 does not provide silent upgrade, online or reverse migration, directory swap,
 history merge or replication. Applications opt into format `(1,1)` or explicit
 migration deliberately; upgrading the dependency alone preserves default `(1,0)`.
+
+## What is new in V4.3
+
+V4.3 optionally persists reconstructible index images in explicit format `(1,2)`:
+
+```java
+DurableStorageConfig<Integer, Document> storage = DurableStorageConfig
+        .builder(Path.of("data/search-v12"), codec)
+        .format(DurableStorageFormat.V1_2)
+        .storageIdentity("travel-search-v1")
+        .schemaIdentity("travel-schema-v1")
+        .maxDerivedStateBytes(2L << 30)
+        .build();
+```
+
+After a checkpoint, a later open may load validated equality, range, prefix and text
+components. `lastReopenReport()` explains warm load and fallback decisions;
+`inspectDerivedState(...)` inspects closed storage without a codec. Missing or invalid
+derived bytes rebuild deterministically from canonical documents and never become
+authority. Backup remains canonical-only, so restored or migrated `(1,2)` targets are
+cold on their first open and may become warm after bounded refresh.
+
+V4.3 provides no silent format upgrade, memory-mapping guarantee, online/reverse
+migration, remote live storage or replication. V4.2 remains the installable stable
+release until the final candidate passes Phase 8 publication.
 
 ## Requirements
 

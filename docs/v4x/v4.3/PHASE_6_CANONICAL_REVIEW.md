@@ -30,7 +30,7 @@ an SLA or a portable hardware claim.
 | Set warm/forced ratio | `median=0.256803 / maximum=0.260551` |
 | Frozen thresholds | `median <= 0.50 / every member <= 0.65` |
 | Set SHA-256 | `b91f780d8f630d626f8aec3bc090073a5c4bbd9273819bc437d07c10ff7200c4` |
-| Registry name | `v4.3.0-fast-reopen-cloud` (candidate under protected review) |
+| Registry name | `v4.3.0-fast-reopen-cloud` (accepted through PR #129) |
 
 The downloaded member mirrors, checksum inventories, aggregate set, and cleanup
 receipts passed independent local validation. The complete set is durably present
