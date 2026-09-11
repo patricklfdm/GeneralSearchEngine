@@ -1,6 +1,8 @@
 # GeneralSearchEngine V4.4 Phase 4 local hardening baseline
 
-- **Status:** Local implementation complete; protected predecessor acceptance pending
+- **Status:** Local implementation complete; protected entry confirmed, Phase 4 acceptance pending
+- **Phase 3 protected merge:** `b04e1e3a84a641131ef209826c64b43132efe737`
+- **Phase 3 exact-master CI:** `34626677031` (`success`)
 - **Decision:** `PASS_NO_MEASURED_REGRESSION`
 - **Production/API/format/authority change:** None
 - **Paid cloud execution:** None
@@ -41,6 +43,10 @@ admission record remains empty, so Phase 4 makes no production optimization. The
 strict validator rejects configuration drift, early termination, missing progress,
 operation-cadence changes, invalid semantic digests, malformed reopen samples,
 heap-limit violations, inconsistent disk peaks, or a hidden optimization decision.
+
+Phase 3 entered protected `master` through PR #136. Exact-master CI run
+`34626677031` passed on merge commit
+`b04e1e3a84a641131ef209826c64b43132efe737`, satisfying the Phase 4 entry gate.
 
 Run the complete local gate with:
 

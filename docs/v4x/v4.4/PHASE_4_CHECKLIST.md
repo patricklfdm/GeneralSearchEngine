@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 4 checklist
 
-- **Status:** Local implementation complete; protected entry and acceptance pending
+- **Status:** Local implementation complete; protected entry confirmed, Phase 4 acceptance pending
 - **Baseline:** [PHASE_4_BASELINE.md](PHASE_4_BASELINE.md)
 
 ## Entry
@@ -9,7 +9,8 @@
 - [x] No contract violation or measured regression is admitted.
 - [x] Phase 2 merged through protected `master`; exact-master CI `34591678426`
   passed on `96b43c9`.
-- [ ] Phase 3 merges through protected `master` with exact-master CI.
+- [x] Phase 3 merged through protected PR #136 as `b04e1e3`; exact-master CI
+  `34626677031` passed.
 
 ## Bounded hardening
 
