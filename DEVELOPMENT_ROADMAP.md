@@ -350,6 +350,9 @@ canonical release toolchain. Its [baseline](docs/v4x/v4.4/PHASE_1_BASELINE.md) a
 work. Phase 1 merged through protected PR #134 as `a984086`; exact-master CI run
 `34587924661` passed. Phase 2 executes the frozen complete local matrix, records exact
 gate receipts and classifies findings without authorizing product corrections.
+The Phase 2 candidate found only frozen expected boundaries; Phase 3 therefore closes
+the admission decision with zero production, API, format or authority change and
+hands Phase 4 measurement-only scope forward.
 
 ## v4.0 completed development contract
 

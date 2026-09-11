@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "gse-v44-phase3-admission-v1",
+  "status": "ZERO_PRODUCTION_CHANGE_REQUIRED",
+  "phase2CandidateCommit": "a3b869d7322637255354d9f55257ab9939c11cef",
+  "phase2Result": "PASS_NO_ADMITTED_FINDINGS",
+  "acceptedContractViolations": [],
+  "acceptedMeasuredRegressions": [],
+  "expectedBoundaryCaseIds": [
+    "live-12-wal-generation-swap",
+    "backup-completion-truncated",
+    "migration-stale-plan",
+    "derived-text-corrupt",
+    "canonical-checkpoint-corrupt",
+    "canonical-hardlink",
+    "target-publish-io-failure",
+    "cleanup-ambiguous-member",
+    "replacement-permission-denied"
+  ],
+  "productionChange": false,
+  "publicApiChange": false,
+  "formatChange": false,
+  "authorityChange": false,
+  "paidExecution": false,
+  "nextPhase": "PHASE4_MEASUREMENT_ONLY"
+}
