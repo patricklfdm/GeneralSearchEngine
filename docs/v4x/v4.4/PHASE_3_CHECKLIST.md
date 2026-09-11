@@ -1,12 +1,13 @@
 # GeneralSearchEngine V4.4 Phase 3 checklist
 
-- **Status:** Local implementation complete; protected entry and acceptance pending
+- **Status:** Local implementation complete; protected entry confirmed, Phase 3 acceptance pending
 - **Baseline:** [PHASE_3_BASELINE.md](PHASE_3_BASELINE.md)
 
 ## Entry
 
 - [x] Phase 2 candidate `a3b869d` reports `PASS_NO_ADMITTED_FINDINGS`.
-- [ ] Phase 2 merges through protected `master` and exact-master CI passes.
+- [x] Phase 2 merged through protected `master` as `96b43c9`; exact-master CI
+  `34591678426` passed.
 
 ## Admission
 

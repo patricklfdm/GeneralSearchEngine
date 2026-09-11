@@ -1,7 +1,9 @@
 # GeneralSearchEngine V4.4 Phase 3 zero-change decision
 
-- **Status:** Local decision complete; Phase 2 protected acceptance pending
+- **Status:** Local decision complete; Phase 2 protected acceptance confirmed
 - **Phase 2 candidate:** `a3b869d7322637255354d9f55257ab9939c11cef`
+- **Phase 2 protected merge:** `96b43c9d763dc170a8e1039be3186037c9aeceb3`
+- **Phase 2 exact-master CI:** `34591678426` (`success`)
 - **Decision:** No production correction is admitted
 - **Production/API/format/authority changes:** None
 - **Paid cloud execution:** None
@@ -16,6 +18,10 @@ No accepted paired measurement established a `MEASURED_REGRESSION` in Phase 3 sc
 The Phase 0 admission rule therefore prohibits a production change. Phase 3 closes
 with the explicit zero-change decision `ZERO_PRODUCTION_CHANGE_REQUIRED`; it does not
 invent a correction merely to populate the release.
+
+Phase 2 entered protected `master` through PR #135. CI run `34591678426` passed on
+the exact merge commit `96b43c9d763dc170a8e1039be3186037c9aeceb3`, satisfying
+the Phase 3 protected-entry condition without changing the local decision payload.
 
 ## Machine-readable decision
 
