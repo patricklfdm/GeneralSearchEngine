@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.3 Phase 7 final candidate assembly
-- **Reference baseline:** Published GeneralSearchEngine `4.2.0`
+- **Status:** Accepted V4.x roadmap; V4.3 complete and published
+- **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
 
@@ -24,7 +24,7 @@ V4.1  Operational Safety               COMPLETE
   ↓
 V4.2  Storage Evolution                COMPLETE
   ↓
-V4.3  Fast Reopen                      PHASE 7 FINAL CANDIDATE
+V4.3  Fast Reopen                      COMPLETE
   ↓
 V4.4  Final Durable Hardening
   ↓
@@ -304,5 +304,13 @@ passed. Phase 6 implementation and corrections merged through protected PRs
 complete cleanup and frozen threshold enforcement. Canonical review merged through
 protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed. The
 append-only registration merged through protected PR #129 as `cc603a6`; exact-master
-CI run `34568701485` passed. Phase 7 has locally validated the final `4.3.0`
-candidate; protected acceptance remains pending.
+CI run `34568701485` passed. Phase 7 merged through protected PR #130 as
+`b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`; exact-master CI run `34572477812`
+passed. Phase 8 published signed tag `v4.3.0` from that exact commit. Release workflow
+`34573738901`, Maven Central deployment
+`2526d3b2-7ec9-4ad6-ad97-31621ee2de99`, clean V3/V4 consumers, production
+deployment `6388475724`, GitHub Release `386867175`, and the registered
+`v4.3.0-fast-reopen-cloud` baseline all completed successfully. The published
+artifact reconciliation records same-toolchain reproducibility and the ancillary
+cross-JDK archive-entry boundary without changing runtime, source, API, or storage
+semantics.

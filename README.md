@@ -6,23 +6,22 @@ engine uses immutable search snapshots and persistent, block-based bitmaps so re
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version 4.2.0 is the current stable release. Its signed `v4.2.0` tag, both Maven
-artifacts, reconciled production deployment, GitHub Release, clean remote V3/V4
-consumer verification, and `v4.2.0-migration-cloud` evidence baseline are complete.
-Publication completed on September 9, 2026 Pacific time
-(`2026-09-10T00:17:47Z`). Version 4.1.0 remains the immediate prior stable release
-and operational-safety compatibility baseline; version 4.0.0 remains the immutable
-correct-durability/live-format `1.0` baseline, and version 3.4.0 remains the frozen
-in-memory compatibility baseline.
+Version 4.3.0 is the current stable release. Its signed `v4.3.0` tag, both Maven
+artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
+verification, and `v4.3.0-fast-reopen-cloud` evidence baseline are complete.
+Publication completed on September 11, 2026 Pacific time
+(`2026-09-11T07:56:35Z`). Version 4.2.0 remains the immediate prior stable release
+and storage-evolution compatibility baseline; version 4.1.0 remains the operational-
+safety baseline, version 4.0.0 remains the immutable correct-durability/live-format
+`1.0` baseline, and version 3.4.0 remains the frozen in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [V4.x development map](docs/v4x/README.md). The published V4.0 foundation remains
-under the [V4 contract map](docs/v4/README.md). Version `4.2.0` is available from
+under the [V4 contract map](docs/v4/README.md). Version `4.3.0` is available from
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V4.3 is now a final `4.3.0` candidate; V4.2 remains the current published stable
-release until Phase 8 completes. The candidate implements explicit `(1,2)`, optional
+V4.3 is now the published stable release. It implements explicit `(1,2)`, optional
 checkpoint-bound images for all four built-in index kinds, codec-free inspection,
 selective/full deterministic fallback, bounded refresh, lifecycle hardening and the
 registered `v4.3.0-fast-reopen-cloud` baseline while preserving canonical
@@ -151,8 +150,7 @@ authority. Backup remains canonical-only, so restored or migrated `(1,2)` target
 cold on their first open and may become warm after bounded refresh.
 
 V4.3 provides no silent format upgrade, memory-mapping guarantee, online/reverse
-migration, remote live storage or replication. V4.2 remains the installable stable
-release until the final candidate passes Phase 8 publication.
+migration, remote live storage or replication.
 
 ## Requirements
 
@@ -161,7 +159,7 @@ release until the final candidate passes Phase 8 publication.
 
 ## Install
 
-### Stable 4.2.0
+### Stable 4.3.0
 
 The runtime dependency is:
 
@@ -169,25 +167,25 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.2.0</version>
+    <version>4.3.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:4.2.0`. Existing 4.1 users can
-upgrade without a live-format migration and opt into explicit format `(1,1)` through
-the [4.1-to-4.2 migration guide](docs/v4x/v4.2/MIGRATION_GUIDE.md). Existing 4.0 users
-retain format `(1,0)`, and existing 3.4 users can retain the in-memory path without
-supported source changes. All earlier published contracts remain recorded in their
-historical documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:4.3.0`. Existing 4.2 users can
+upgrade without a live-format migration and explicitly opt into `(1,2)` through the
+[4.2-to-4.3 migration guide](docs/v4x/v4.3/MIGRATION_GUIDE.md). Existing 4.1 and 4.0
+users retain their selected formats, and existing 3.4 users can retain the in-memory
+path without supported source changes. All earlier published contracts remain
+recorded in their historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.2.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.3.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.2.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.3.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v4.2.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.2.0).
+[`v4.3.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0).
 
 V4.2 keeps ordinary search in memory unless `buildDurable(...)` is selected and keeps
 durable storage at format `(1,0)` unless `(1,1)` is selected explicitly. See the

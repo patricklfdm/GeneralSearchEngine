@@ -38,6 +38,7 @@ remains the phase history and decision source of truth.
 - [V4.2-to-V4.3 migration guide](v4x/v4.3/MIGRATION_GUIDE.md)
 - [V4.3 Phase 7 release-candidate checklist](v4x/v4.3/PHASE_7_CHECKLIST.md)
 - [V4.3 release checklist](v4x/v4.3/RELEASE_CHECKLIST.md)
+- [V4.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0)
 - [V4.2 development charter](v4x/v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4x/v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4x/v4.2/PHASE_0_CHECKLIST.md)
@@ -121,9 +122,11 @@ passed. Phase 6 implementation and corrections merged through protected PRs
 three-member canonical run `34557940276` passed. Canonical review merged through
 protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed. The
 append-only baseline registration merged through protected PR #129 as `cc603a6`;
-exact-master CI run `34568701485` passed. Phase 7 has locally validated the final
-`4.3.0` candidate from that exact entry boundary; protected acceptance remains
-pending and no Phase 8 claim is made.
+exact-master CI run `34568701485` passed. Phase 7 merged through protected PR #130 as
+`b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`; exact-master CI run `34572477812`
+passed. Signed tag `v4.3.0`, release workflow `34573738901`, Maven Central, clean
+remote V3/V4 consumers, production deployment `6388475724`, GitHub Release
+`386867175`, and the registered baseline all resolve to that exact commit.
 
 ## v4.0 — prior stable durable single-node foundation
 

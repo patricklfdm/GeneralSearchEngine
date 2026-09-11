@@ -21,9 +21,12 @@ Semantic Versioning once the first stable artifact is published.
 - Keep canonical checkpoint, WAL, documents and logical index configuration
   authoritative. Derived bytes remain optional and reconstructible.
 
-This entry describes the final `4.3.0` release candidate. It does not claim that a
-signed tag, Maven Central publication, production deployment or GitHub Release
-exists; those remain Phase 8 publication gates.
+Version `4.3.0` was published from signed tag `v4.3.0` on protected-master commit
+`b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`. Release workflow run `34573738901`,
+Central deployment `2526d3b2-7ec9-4ad6-ad97-31621ee2de99`, clean remote V3/V4
+consumer verification, production deployment `6388475724`, and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0)
+all completed successfully.
 
 ## 4.2.0 — 2026-09-09
 

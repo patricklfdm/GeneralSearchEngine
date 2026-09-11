@@ -7,14 +7,13 @@ retrieval semantics.
 
 ## Current status
 
-V4.1 Phases 0–8 remain complete. V4.2 Phases 0–8 are complete and `4.2.0` is the
-current stable release. Its candidate merged through protected PR #117 as
-`5742b01def2fa5b1dd84b57f00ba6026c661f634`; exact-master CI run `34388796604`
-passed. Signed tag `v4.2.0`, independently verified Maven Central artifacts and V3/V4
-consumers, reconciled production deployment `6361088014`, GitHub Release `385924091`,
-and `v4.2.0-migration-cloud` all resolve to that exact commit. Release workflow run
-`34415073641` uploaded successfully but retains its later 1800-second Central-status
-polling timeout as an explicit historical failure.
+V4.1 and V4.2 Phases 0–8 remain complete. V4.2's candidate merged through protected
+PR #117 as `5742b01def2fa5b1dd84b57f00ba6026c661f634`; exact-master CI run
+`34388796604` passed. Signed tag `v4.2.0`, independently verified Maven Central
+artifacts and V3/V4 consumers, reconciled production deployment `6361088014`, GitHub
+Release `385924091`, and `v4.2.0-migration-cloud` all resolve to that exact commit.
+Release workflow run `34415073641` uploaded successfully but retains its later
+1800-second Central-status polling timeout as an explicit historical failure.
 
 V4.3 Phase 0 was accepted through protected PR #119 as
 `d3b34010a26888dee18f3e01d2e8215e952f5ea7`; exact-master CI run `34435766321`
@@ -40,9 +39,13 @@ Experiment run `34551484690` and canonical run `34557940276` passed independent
 validation and cleanup. Canonical review merged through protected PR #128 as
 `ae25c80`; exact-master CI run `34567122915` passed. The append-only registration is
 accepted through protected PR #129 as `cc603a6`; exact-master CI run `34568701485`
-passed. Phase 7 has locally validated final `4.3.0` coordinates, compatibility,
-consumer, fixture, artifact and reproducibility gates from that exact commit;
-protected acceptance remains pending.
+passed. Phase 7 merged through protected PR #130 as
+`b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`; exact-master CI run `34572477812`
+passed. V4.3 Phases 0–8 are complete and `4.3.0` is the current stable release.
+Signed tag `v4.3.0`, release workflow `34573738901`, independently verified Maven
+Central artifacts and clean V3/V4 consumers, production deployment `6388475724`,
+GitHub Release `386867175`, and `v4.3.0-fast-reopen-cloud` all resolve to that exact
+commit.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -102,6 +105,7 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.2-to-V4.3 migration guide](v4.3/MIGRATION_GUIDE.md)
 - [V4.3 Phase 7 release-candidate checklist](v4.3/PHASE_7_CHECKLIST.md)
 - [V4.3 release checklist](v4.3/RELEASE_CHECKLIST.md)
+- [V4.3 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0)
 - [V4.2 development charter](v4.2/DEVELOPMENT_CHARTER.md)
 - [V4.2 Phase 0 storage-evolution contract](v4.2/PHASE_0_CONTRACT.md)
 - [V4.2 Phase 0 checklist](v4.2/PHASE_0_CHECKLIST.md)
@@ -166,9 +170,9 @@ The published V4.0 contracts continue to govern durability, completion, storage
 format `gse-durable (1,0)`, checkpoints, WAL recovery, and retrieval behavior. The
 published V4.1 contracts govern backup, restore, verification, cleanup, and evidence
 semantics. The published V4.2 contracts govern explicit format `(1,1)`, dual-minor
-inspection and source-preserving migration. Accepted V4.3 contracts govern explicit
-format `(1,2)` and reconstructible derived-state behavior; the final candidate is not
-a published release until Phase 8. The V4.x roadmap governs later scope.
+inspection and source-preserving migration. The published V4.3 contracts govern
+explicit format `(1,2)` and reconstructible derived-state behavior. The V4.x roadmap
+governs later scope.
 
 If documents conflict, the most specialized accepted contract controls, but it may
 not weaken an inherited published guarantee. Any conflict with V4.0, V4.1, or V4.2
@@ -177,8 +181,7 @@ is a Phase 0 blocker, not an implicit amendment.
 ## Documentation policy
 
 `docs/v4/` remains the closed historical record for published `4.0.0`;
-`docs/v4x/v4.1/` and `docs/v4x/v4.2/` retain the completed `4.1.0` and `4.2.0`
-records. V4.3 development records live under `docs/v4x/v4.3/`. Version-specific V4.x
-work belongs below `docs/v4x/v4.N/`; future minor releases do not rewrite prior
-evidence. Raw benchmark output and downloaded cloud artifacts remain outside tracked
-documentation.
+`docs/v4x/v4.1/`, `docs/v4x/v4.2/`, and `docs/v4x/v4.3/` retain the completed
+`4.1.0`, `4.2.0`, and `4.3.0` records. Version-specific V4.x work belongs below
+`docs/v4x/v4.N/`; future minor releases do not rewrite prior evidence. Raw benchmark
+output and downloaded cloud artifacts remain outside tracked documentation.
