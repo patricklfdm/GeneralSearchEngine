@@ -101,11 +101,25 @@ class Phase6EvidenceTest(unittest.TestCase):
     def test_remote_bootstrap_installs_wrapper_archive_prerequisite(self) -> None:
         script = (PROJECT / "scripts/v43/remote_fast_reopen_stage.sh").read_text(
             encoding="utf-8")
-        normalized = " ".join(script.split())
+        normalized = " ".join(script.replace("\\\n", " ").split())
         self.assertIn(
             "openjdk-21-jdk-headless git ca-certificates python3 unzip curl",
             normalized)
         self.assertLess(normalized.index(" unzip "), normalized.index(" ./mvnw "))
+        self.assertNotIn('"$primary_mount/current"', script)
+        self.assertNotIn('"$target_mount/current"', script)
+        self.assertEqual(2, normalized.count(
+            '"$java_profile" "$primary_mount" "$target_mount"'))
+        self.assertIn(
+            'cp -a "$primary_mount/canonical-backup" "$output/backup"',
+            normalized)
+        self.assertIn(
+            'tar -C "$primary_mount" -czf "$HOME/v43-source-output.tar.gz" '
+            '"$(basename "$output")"', normalized)
+        self.assertIn(
+            'tar -C "$primary_mount" -czf '
+            '"$HOME/v43-replacement-output.tar.gz" "$(basename "$output")"',
+            normalized)
 
     def test_plan_is_exact_and_summary_has_run_id(self) -> None:
         request = validate_inputs("canonical", 3, 1800, "gcs",
