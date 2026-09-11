@@ -256,9 +256,10 @@ Phase 6 implementation and corrections merged through protected PRs #125–#127;
 exact-master CI run `34550893252` passed on
 `1d59ba9c354f5ea5ca4ebc8d8b5b30519479aac6`. Experiment run `34551484690` and
 canonical run `34557940276` passed independent member/set validation, complete
-cleanup, GCS retention and the frozen warm-reopen thresholds. Canonical evidence is
-accepted; append-only registration as `v4.3.0-fast-reopen-cloud` remains the final
-Phase 6 gate.
+cleanup, GCS retention and the frozen warm-reopen thresholds. Canonical review
+merged through protected PR #128 as `ae25c80`; exact-master CI run `34567122915`
+passed. The append-only `v4.3.0-fast-reopen-cloud` registration is under protected
+review and remains the final Phase 6 gate.
 
 The authoritative Phase 1 baseline is
 [`docs/v4x/v4.3/PHASE_1_BASELINE.md`](docs/v4x/v4.3/PHASE_1_BASELINE.md).

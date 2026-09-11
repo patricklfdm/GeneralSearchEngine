@@ -37,8 +37,9 @@ protected PR #124 as `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI
 run `34529966882` passed. Phase 6 implementation and corrections merged through
 protected PRs #125–#127; exact-master CI `34550893252` passed on `1d59ba9`.
 Experiment run `34551484690` and canonical run `34557940276` passed independent
-validation and cleanup. Canonical evidence is accepted; append-only registration
-remains pending.
+validation and cleanup. Canonical review merged through protected PR #128 as
+`ae25c80`; exact-master CI run `34567122915` passed. The append-only registration is
+under protected review.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`

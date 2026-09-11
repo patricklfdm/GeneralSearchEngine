@@ -30,7 +30,7 @@ an SLA or a portable hardware claim.
 | Set warm/forced ratio | `median=0.256803 / maximum=0.260551` |
 | Frozen thresholds | `median <= 0.50 / every member <= 0.65` |
 | Set SHA-256 | `b91f780d8f630d626f8aec3bc090073a5c4bbd9273819bc437d07c10ff7200c4` |
-| Eventual registry name | `v4.3.0-fast-reopen-cloud` |
+| Registry name | `v4.3.0-fast-reopen-cloud` (candidate under protected review) |
 
 The downloaded member mirrors, checksum inventories, aggregate set, and cleanup
 receipts passed independent local validation. The complete set is durably present
@@ -81,8 +81,10 @@ Rejected runs `34545524731` and `34548506759` are recorded in the
 [Phase 6 baseline](PHASE_6_BASELINE.md). Neither contributes a member to the accepted
 experiment or canonical set.
 
-## Pending registration
+## Registration boundary
 
-The accepted set may now be registered exactly once as
-`v4.3.0-fast-reopen-cloud` in a separate append-only protected PR. Phase 7 remains
-blocked until that registration merges and exact-master CI passes.
+The canonical review merged through protected PR #128 as `ae25c80`; exact-master CI
+run `34567122915` passed. The separate registration candidate appends exactly one
+`v4.3.0-fast-reopen-cloud` entry binding the source, suite, preset, three-member set,
+median ratio and digest above. It rejects duplicate or non-canonical input. Phase 7
+may not start until that registration PR merges and exact-master CI passes.

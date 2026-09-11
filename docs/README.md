@@ -114,8 +114,9 @@ capacity, concurrency and compatibility hardening through protected PR #124 as
 `e241e1499861e0b44583a948d410ce0ac9c3c286`; exact-master CI run `34529966882`
 passed. Phase 6 implementation and corrections merged through protected PRs
 #125–#127. Exact-master CI `34550893252`, experiment run `34551484690`, and
-three-member canonical run `34557940276` passed. Canonical evidence is accepted;
-append-only baseline registration remains pending.
+three-member canonical run `34557940276` passed. Canonical review merged through
+protected PR #128 as `ae25c80`; exact-master CI run `34567122915` passed. The
+append-only baseline registration is under protected review.
 
 ## v4.0 — prior stable durable single-node foundation
 
