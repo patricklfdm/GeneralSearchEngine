@@ -4,7 +4,7 @@
 - **Base and canonical source:** `6301d855a92a3b2de8d9c338232a520fb9dd2b36`
 - **Version:** `4.4.0-SNAPSHOT`
 - **Production behavior:** unchanged
-- **Status:** Canonical evidence accepted for review; registration pending
+- **Status:** Canonical review accepted; registration candidate
 
 ## Entry and correction boundary
 
@@ -54,9 +54,13 @@ per-member `1.35` and set-median `1.20` bounds. Detailed identities are recorded
 
 ## Registration boundary
 
-This review intentionally does not register a baseline. After it merges and its
-exact-master CI succeeds, a separate PR may append exactly one
+The canonical review merged through protected PR #141 as
+`1bb85f12722f9bfa66ea7b2792513886fcc77b86`; exact-master CI run `34888837170`
+passed. This separate registration candidate appends exactly one
 `v4.4.0-final-durable-cloud` entry bound to the canonical source, suite, preset,
-three-member count, both median ratios and the set digest above. Raw evidence remains
-outside Git; the canonical mirror remains under the exact GCS source/run/profile
-prefix.
+three-member count, both median ratios and the set digest above.
+
+The registrar rejects duplicate, renamed, non-canonical, threshold-violating or
+malformed input. The tracked registry is validated in CI and raw evidence remains
+outside Git. Phase 6 is not complete until this registration PR merges and its
+exact-master CI succeeds.

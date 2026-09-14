@@ -366,8 +366,9 @@ jobs:
 
       - name: Validate V4.4 fixtures, evidence, toolchain, and fake cloud
         run: |
-          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py
-          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness
+          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py scripts/v44/test_phase6_registration.py
+          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness scripts.v44.test_phase6_registration
+          scripts/verify-v44-phase6-registration.sh
 
   required:
     name: Required
