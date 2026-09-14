@@ -22,6 +22,9 @@ concurrency:
 env:
   MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
   RELEASE_TAG: ${{ inputs.release_tag || github.ref_name }}
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  TZ: UTC
 
 jobs:
   validate:
@@ -46,7 +49,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8.0.LTS' || '21' }}
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
@@ -91,6 +94,14 @@ jobs:
             echo "V4.3 Phase 7 gate: SKIP for $RELEASE_TAG"
           fi
 
+      - name: Verify the V4.4 final candidate boundary
+        run: |
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            scripts/verify-v44-phase7-release.sh --skip-consumers
+          else
+            echo "V4.4 Phase 7 gate: SKIP for $RELEASE_TAG"
+          fi
+
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 
@@ -103,8 +114,26 @@ jobs:
       - name: Inspect release artifact contents
         run: scripts/verify-release-artifacts.sh
 
+      - name: Match the V4.4 release build to the frozen candidate bytes
+        run: |
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            python3 -m scripts.v44.candidate_artifacts validate-build
+          else
+            echo "V4.4 candidate byte match: SKIP for $RELEASE_TAG"
+          fi
+
       - name: Verify reproducible artifacts
         run: scripts/verify-reproducible-build.sh
+
+      - name: Reproduce the V4.4 candidate under its canonical toolchain
+        run: |
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            scripts/verify-v44-canonical-build.sh
+            python3 -m scripts.v44.candidate_artifacts validate-evidence \
+              target/v44-canonical-reproducibility
+          else
+            echo "V4.4 canonical byte receipt: SKIP for $RELEASE_TAG"
+          fi
 
   publication-preflight:
     name: Reject an existing Central version
@@ -159,7 +188,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8.0.LTS' || '21' }}
           server-id: central
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_PASSWORD
@@ -176,7 +205,27 @@ jobs:
         env:
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
-          ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.useagent=false verify
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            umask 0022
+            ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
+            python3 -m scripts.v44.candidate_artifacts validate-build
+            {
+              echo "## V4.4 unsigned candidate artifacts before signing"
+              echo
+              echo '```text'
+              sha256sum \
+                target/general-search-engine-4.4.0*.jar \
+                general-search-engine-processor/target/general-search-engine-processor-4.4.0*.jar \
+                | sort
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            ./mvnw -f reactor/pom.xml -Prelease -DskipTests \
+              -Dgpg.useagent=false verify
+            python3 -m scripts.v44.candidate_artifacts validate-build
+          else
+            ./mvnw -f reactor/pom.xml clean -Prelease \
+              -Dgpg.useagent=false verify
+          fi
           scripts/verify-release-artifacts.sh --require-signatures
 
       - name: Publish both artifacts to Maven Central
@@ -185,10 +234,16 @@ jobs:
           CENTRAL_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
         run: |
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            python3 -m scripts.v44.candidate_artifacts validate-build
+          fi
           ./mvnw -f reactor/pom.xml -Prelease -DskipTests -Dgpg.useagent=false deploy \
             -Dcentral.autoPublish=true \
             -Dcentral.waitUntil=published \
             -DwaitMaxTime=3600
+          if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
+            python3 -m scripts.v44.candidate_artifacts validate-build
+          fi
 
       - name: Verify remote artifacts and clean published consumers
         run: |

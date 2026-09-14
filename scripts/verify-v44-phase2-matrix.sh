@@ -42,7 +42,7 @@ pass_gate() {
 if [[ "$skip_build" == false ]]; then
     ./mvnw -q -DskipTests package
 fi
-test -f target/general-search-engine-4.4.0-SNAPSHOT.jar
+test -f target/general-search-engine-4.4.0.jar
 
 "$python_command" -m py_compile \
     scripts/v44/local_matrix.py \

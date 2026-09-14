@@ -30,7 +30,7 @@ published-4.3 bounds on the pinned topology; it is not an SLA.
 | Maximum write / reopen | `1.025553 / 1.027857` |
 | Frozen thresholds | `both medians <= 1.20 / every member ratio <= 1.35` |
 | Set SHA-256 | `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465` |
-| Registry name | `v4.4.0-final-durable-cloud` (separate registration candidate) |
+| Registry name | `v4.4.0-final-durable-cloud` (accepted through PR #142) |
 
 The complete set is retained under:
 
@@ -81,6 +81,7 @@ Both use the same exact source and passed member/set validation. The rejected dr
 
 This canonical review merged through protected PR #141 as
 `1bb85f12722f9bfa66ea7b2792513886fcc77b86`; exact-master CI run `34888837170`
-passed. The separate registration candidate validates this exact set, rejects
-non-canonical or duplicate input, and appends one immutable entry without changing
-the reviewed evidence.
+passed. The separate registration validated this exact set, rejected non-canonical
+or duplicate input, and appended one immutable entry without changing the reviewed
+evidence. It merged through protected PR #142 as `c9f77d2`; exact-master CI run
+`34892824621` passed.

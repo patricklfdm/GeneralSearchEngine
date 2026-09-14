@@ -3,6 +3,29 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 4.4.0 — 2026-09-14
+
+### Added
+
+- A frozen ten-family final-durable matrix spanning canonical authority, all three
+  published formats, crash/corruption, backup/restore/migration, derived state,
+  lifecycle, capacity, concurrency and replacement-host continuation.
+- A digest-pinned canonical Temurin/Maven release toolchain with two independent
+  clean-workspace byte-identity proof for both POMs and all six unsigned JARs.
+- Registered `v4.4.0-final-durable-cloud` evidence from experiment, failure-drill and
+  three serial canonical members under paired published-4.3 regression bounds.
+
+### Changed
+
+- Harden release, evidence, cleanup and compatibility validation without changing
+  production Java behavior, public API, canonical authority or persisted formats.
+- Close the V4.x single-node durable line as the intended V5 compatibility and
+  failure-classification reference.
+
+This entry describes the final `4.4.0` release candidate. It does not claim that the
+signed tag, Maven Central artifacts, production deployment or GitHub Release exist;
+those remain Phase 8 publication gates.
+
 ## 4.3.0 — 2026-09-11
 
 ### Added

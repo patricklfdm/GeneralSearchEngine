@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 6 checklist
 
-- **Status:** Canonical review accepted; registration candidate
+- **Status:** Complete — canonical evidence reviewed and baseline registered
 - **Scope:** paid exact-source evidence, independent review and append-only registration
 
 ## Entry and source
@@ -53,6 +53,8 @@
 - [x] A separate append-only registrar validates the accepted canonical set and
   rejects duplicate, renamed, non-canonical or malformed input.
 - [x] `v4.4.0-final-durable-cloud` is present exactly once in the candidate registry.
-- [ ] Registration PR merges and its exact-master CI passes.
+- [x] Registration merged through protected PR #142 as
+  `c9f77d2b203bab48360b55d80d67e09463984f8e`.
+- [x] Exact-master CI run `34892824621` passed on that registration.
 
-Phase 7 must begin only from the accepted registration commit.
+Phase 7 began from that exact accepted registration commit on `release/v4.4.0`.

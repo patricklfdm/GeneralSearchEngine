@@ -2,9 +2,9 @@
 
 - **Branch:** `docs/v4.4-phase6-canonical-review`
 - **Base and canonical source:** `6301d855a92a3b2de8d9c338232a520fb9dd2b36`
-- **Version:** `4.4.0-SNAPSHOT`
+- **Evidence version:** `4.4.0-SNAPSHOT`
 - **Production behavior:** unchanged
-- **Status:** Canonical review accepted; registration candidate
+- **Status:** Complete — canonical review and registration accepted
 
 ## Entry and correction boundary
 
@@ -56,11 +56,12 @@ per-member `1.35` and set-median `1.20` bounds. Detailed identities are recorded
 
 The canonical review merged through protected PR #141 as
 `1bb85f12722f9bfa66ea7b2792513886fcc77b86`; exact-master CI run `34888837170`
-passed. This separate registration candidate appends exactly one
+passed. The separate registration appends exactly one
 `v4.4.0-final-durable-cloud` entry bound to the canonical source, suite, preset,
 three-member count, both median ratios and the set digest above.
 
 The registrar rejects duplicate, renamed, non-canonical, threshold-violating or
 malformed input. The tracked registry is validated in CI and raw evidence remains
-outside Git. Phase 6 is not complete until this registration PR merges and its
-exact-master CI succeeds.
+outside Git. Registration merged through protected PR #142 as
+`c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run `34892824621`
+passed. Phase 6 is complete and that exact boundary opened Phase 7.

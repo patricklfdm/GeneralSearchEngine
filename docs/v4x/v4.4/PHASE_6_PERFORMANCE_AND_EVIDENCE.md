@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 6 performance and evidence contract
 
-- **Status:** Canonical review accepted; append-only registration candidate
+- **Status:** Complete — canonical review and append-only registration accepted
 - **Canonical source:** `6301d855a92a3b2de8d9c338232a520fb9dd2b36`
 - **Production behavior:** unchanged
 
@@ -62,5 +62,6 @@ proves both VMs, both data disks and staging objects absent.
 
 Canonical review merged through protected PR #141 as
 `1bb85f12722f9bfa66ea7b2792513886fcc77b86`; exact-master CI run `34888837170`
-passed. Registration remains a later reviewed append-only change and is implemented
-as a fail-closed candidate separate from the accepted evidence review.
+passed. The separately reviewed append-only registration merged through protected
+PR #142 as `c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run
+`34892824621` passed. The fail-closed registry remains separate from raw evidence.

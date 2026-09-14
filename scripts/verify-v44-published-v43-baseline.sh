@@ -39,9 +39,9 @@ fi
     "$published_jar" \
     src/test/resources/compatibility/v44-public-api-inventory-v1.json
 
-if [[ -f target/general-search-engine-4.4.0-SNAPSHOT.jar ]]; then
+if [[ -f target/general-search-engine-4.4.0.jar ]]; then
     "$python_command" -m scripts.v44.api_inventory compare \
-        target/general-search-engine-4.4.0-SNAPSHOT.jar \
+        target/general-search-engine-4.4.0.jar \
         src/test/resources/compatibility/v44-public-api-inventory-v1.json
 fi
 

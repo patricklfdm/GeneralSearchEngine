@@ -5,7 +5,7 @@ repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
 
 published_jar=target/compat-baselines/published-general-search-engine-4.3.0.jar
-current_jar=target/general-search-engine-4.4.0-SNAPSHOT.jar
+current_jar=target/general-search-engine-4.4.0.jar
 test -f "$published_jar"
 test -f "$current_jar"
 
