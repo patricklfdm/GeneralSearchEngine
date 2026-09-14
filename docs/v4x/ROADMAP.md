@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phase 6 canonical review candidate
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 6 registration candidate
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening          PHASE 6 EVIDENCE PASS / REGISTRATION NEXT
+V4.4  Final Durable Hardening          PHASE 6 REGISTRATION CANDIDATE
   ↓
 V5    Next Architecture Boundary
 ```
@@ -241,8 +241,9 @@ run `34812469059` passed. Experiment run `34813346549`, failure-drill run
 member/set validation and complete cleanup. The canonical set satisfies both paired
 thresholds and binds SHA-256
 `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
-Canonical review is the current boundary; append-only registration remains a
-separate reviewed change before Phase 7.
+Canonical review merged through protected PR #141 as `1bb85f1`; exact-master CI run
+`34888837170` passed. The append-only registration is now the separate reviewed
+candidate boundary before Phase 7.
 
 ## Deferred beyond V4.x
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Assemble and validate V4.4 final-durable evidence sets."""
+"""Assemble, validate, and append-only register V4.4 evidence sets."""
 
 from __future__ import annotations
 
@@ -14,6 +14,8 @@ from scripts.v44.cloud_evidence import validate_evidence
 from scripts.v44.evidence import EvidenceError, canonical_json, sha256, validate_source
 
 SCHEMA = "gse-v44-final-durable-evidence-set-v1"
+REGISTRY_SCHEMA = "gse-v44-final-durable-baseline-registry-v1"
+BASELINE = "v4.4.0-final-durable-cloud"
 SUITE = "v4.4-final-durable-suite-v1"
 PRESET = "v4.4-final-durable-v1"
 
@@ -199,6 +201,71 @@ def assemble(arguments: argparse.Namespace) -> int:
     return 0
 
 
+def read_registry(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {"schemaVersion": REGISTRY_SCHEMA, "baselines": []}
+    try:
+        document = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as failure:
+        raise EvidenceError("invalid V4.4 final-durable registry") from failure
+    if not isinstance(document, dict) \
+            or set(document) != {"schemaVersion", "baselines"} \
+            or document.get("schemaVersion") != REGISTRY_SCHEMA \
+            or not isinstance(document.get("baselines"), list):
+        raise EvidenceError("unsupported V4.4 final-durable registry")
+    entry_keys = {
+        "name", "suite", "preset", "sourceCommit", "setDigest",
+        "memberCount", "medianWriteRatioMicros", "medianReopenRatioMicros",
+    }
+    names: set[str] = set()
+    for entry in document["baselines"]:
+        if not isinstance(entry, dict) or set(entry) != entry_keys \
+                or entry.get("name") != BASELINE \
+                or entry.get("suite") != SUITE \
+                or entry.get("preset") != PRESET \
+                or entry.get("memberCount") != 3:
+            raise EvidenceError("unsupported V4.4 baseline entry")
+        validate_source(entry.get("sourceCommit"))
+        digest = entry.get("setDigest", "")
+        if not isinstance(digest, str) or len(digest) != 64 \
+                or any(character not in "0123456789abcdef" for character in digest):
+            raise EvidenceError("invalid V4.4 baseline set digest")
+        for key in ("medianWriteRatioMicros", "medianReopenRatioMicros"):
+            if type(entry.get(key)) is not int \
+                    or not 0 < entry[key] <= 1_200_000:
+                raise EvidenceError("invalid V4.4 baseline median ratio")
+        if entry["name"] in names:
+            raise EvidenceError("duplicate V4.4 baseline entry")
+        names.add(entry["name"])
+    return document
+
+
+def register(arguments: argparse.Namespace) -> int:
+    if arguments.name != BASELINE:
+        raise EvidenceError(f"baseline must be named {BASELINE}")
+    evidence = validate_set(arguments.set_bundle)
+    if evidence["profile"] != "canonical" \
+            or evidence["canonicalEligible"] is not True \
+            or evidence["memberCount"] != 3:
+        raise EvidenceError("only canonical three-member evidence can be registered")
+    registry = read_registry(arguments.registry)
+    if any(entry.get("name") == BASELINE for entry in registry["baselines"]):
+        raise EvidenceError("V4.4 final-durable baseline is already registered")
+    registry["baselines"].append({
+        "name": BASELINE, "suite": SUITE, "preset": PRESET,
+        "sourceCommit": evidence["sourceCommit"],
+        "setDigest": sha256(arguments.set_bundle / "evidence.json"),
+        "memberCount": 3,
+        "medianWriteRatioMicros": evidence["medianWriteRatioMicros"],
+        "medianReopenRatioMicros": evidence["medianReopenRatioMicros"],
+    })
+    arguments.registry.parent.mkdir(parents=True, exist_ok=True)
+    arguments.registry.write_bytes(canonical_json(registry))
+    print(f"v44CloudBaselineRegistration=PASS name={BASELINE} "
+          f"source={evidence['sourceCommit']}")
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     commands = parser.add_subparsers(dest="command", required=True)
@@ -209,11 +276,24 @@ def main() -> int:
     assembly.add_argument("--output", type=Path, required=True)
     validation = commands.add_parser("validate")
     validation.add_argument("bundle", type=Path)
+    registration = commands.add_parser("register")
+    registration.add_argument("--registry", type=Path, required=True)
+    registration.add_argument("--set-bundle", type=Path, required=True)
+    registration.add_argument("--name", required=True)
+    listing = commands.add_parser("registry-list")
+    listing.add_argument("registry", type=Path)
     arguments = parser.parse_args()
     if arguments.command == "assemble":
         return assemble(arguments)
-    value = validate_set(arguments.bundle)
-    print(f"v44CloudSetValidation=PASS profile={value['profile']}")
+    if arguments.command == "validate":
+        value = validate_set(arguments.bundle)
+        print(f"v44CloudSetValidation=PASS profile={value['profile']}")
+        return 0
+    if arguments.command == "register":
+        return register(arguments)
+    for baseline in read_registry(arguments.registry)["baselines"]:
+        print(f"{baseline['name']}\t{baseline['setDigest']}\t"
+              f"{baseline['sourceCommit']}")
     return 0
 
 

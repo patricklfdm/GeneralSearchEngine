@@ -33,6 +33,7 @@ remains the phase history and decision source of truth.
 - [V4.4 Phase 6 evidence baseline](v4x/v4.4/PHASE_6_BASELINE.md)
 - [V4.4 Phase 6 canonical review](v4x/v4.4/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.4 Phase 6 checklist](v4x/v4.4/PHASE_6_CHECKLIST.md)
+- [V4.4 final-durable cloud baseline registry](v4x/v4.4/cloud-benchmark-baselines.json)
 - [V4.4 to V5 handoff draft](v4x/v4.4/V5_HANDOFF.md)
 - [V4.3 development charter](v4x/v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4x/v4.3/PHASE_0_CONTRACT.md)

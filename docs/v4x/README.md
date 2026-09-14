@@ -68,8 +68,9 @@ as `59208f6`. The frozen-image correction merged through protected PR #140 as
 `6301d855a92a3b2de8d9c338232a520fb9dd2b36`; exact-master CI `34812469059`
 passed. Experiment `34813346549`, failure-drill `34818721022`, and three-member
 canonical run `34824651199` passed independent validation, cleanup and the frozen
-paired thresholds. Canonical review is ready; append-only registration remains the
-next separate boundary.
+paired thresholds. Canonical review merged through protected PR #141 as `1bb85f1`;
+exact-master CI `34888837170` passed. The append-only registration is now a separate
+candidate and Phase 7 remains blocked until it merges and passes exact-master CI.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -124,6 +125,7 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.4 Phase 6 evidence baseline](v4.4/PHASE_6_BASELINE.md)
 - [V4.4 Phase 6 canonical review](v4.4/PHASE_6_CANONICAL_REVIEW.md)
 - [V4.4 Phase 6 checklist](v4.4/PHASE_6_CHECKLIST.md)
+- [V4.4 final-durable cloud baseline registry](v4.4/cloud-benchmark-baselines.json)
 - [V4.4 to V5 handoff draft](v4.4/V5_HANDOFF.md)
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)

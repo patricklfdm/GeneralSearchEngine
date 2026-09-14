@@ -382,8 +382,9 @@ passed. Experiment `34813346549`, failure drill `34818721022`, and three-member
 canonical run `34824651199` passed independent checksum/semantic validation and
 complete cleanup. The canonical set satisfies both paired thresholds and binds
 SHA-256 `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
-Canonical review is ready; append-only `v4.4.0-final-durable-cloud` registration
-remains a separate reviewed change before Phase 7.
+Canonical review merged through protected PR #141 as `1bb85f1`; exact-master CI run
+`34888837170` passed. Append-only `v4.4.0-final-durable-cloud` registration is now a
+separate fail-closed candidate and remains the final Phase 6 gate before Phase 7.
 
 ## v4.0 completed development contract
 
