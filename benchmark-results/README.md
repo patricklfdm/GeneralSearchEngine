@@ -28,6 +28,10 @@ that a clean build does not remove evidence that is still under review.
   experiment, canonical, failure-drill, replacement-host fast-reopen and
   aggregate-set evidence. Its own [README](v43-fast-reopen/README.md) and
   `.gitignore` keep raw artifacts untracked.
+- `v44-final-durable/` is the local download and review workspace for the V4.4
+  experiment, failure-drill and final three-member durable evidence. Its own
+  [README](v44-final-durable/README.md) and `.gitignore` keep raw artifacts
+  untracked.
 
 The V3.4 and V4 download workspaces are ignored by Git. They may contain large raw or
 derived metrics, temporary instance descriptions, orchestration logs, and values that
@@ -47,6 +51,8 @@ V4.2 conclusions belong in
 [`docs/v4x/v4.2/PHASE_6_BASELINE.md`](../docs/v4x/v4.2/PHASE_6_BASELINE.md).
 V4.3 conclusions belong in
 [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](../docs/v4x/v4.3/PHASE_6_BASELINE.md).
+V4.4 conclusions belong in
+[`docs/v4x/v4.4/PHASE_6_BASELINE.md`](../docs/v4x/v4.4/PHASE_6_BASELINE.md).
 
 Do not use ignored local output as the only copy of required evidence. Do not force-add
 raw benchmark directories to Git.

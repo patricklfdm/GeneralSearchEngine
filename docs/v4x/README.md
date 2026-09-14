@@ -63,7 +63,13 @@ classified the frozen complete local matrix without production or paid-cloud wor
 Phases 2–4 subsequently merged through protected PRs #135–#137 with successful
 exact-master CI and no admitted production change. Phase 5 merged through protected
 PR #138 as `e47e604`; exact-master CI `34649742450` and its exact-source canonical
-two-workspace receipt passed. Phase 6 remains the first paid-cloud boundary.
+two-workspace receipt passed. Its acceptance record merged through protected PR #139
+as `59208f6`. The frozen-image correction merged through protected PR #140 as
+`6301d855a92a3b2de8d9c338232a520fb9dd2b36`; exact-master CI `34812469059`
+passed. Experiment `34813346549`, failure-drill `34818721022`, and three-member
+canonical run `34824651199` passed independent validation, cleanup and the frozen
+paired thresholds. Canonical review is ready; append-only registration remains the
+next separate boundary.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -114,6 +120,10 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.4 Phase 5 stabilization baseline](v4.4/PHASE_5_BASELINE.md)
 - [V4.4 Phase 5 cloud readiness](v4.4/PHASE_5_CLOUD_READINESS.md)
 - [V4.4 Phase 5 checklist](v4.4/PHASE_5_CHECKLIST.md)
+- [V4.4 Phase 6 performance and evidence](v4.4/PHASE_6_PERFORMANCE_AND_EVIDENCE.md)
+- [V4.4 Phase 6 evidence baseline](v4.4/PHASE_6_BASELINE.md)
+- [V4.4 Phase 6 canonical review](v4.4/PHASE_6_CANONICAL_REVIEW.md)
+- [V4.4 Phase 6 checklist](v4.4/PHASE_6_CHECKLIST.md)
 - [V4.4 to V5 handoff draft](v4.4/V5_HANDOFF.md)
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
