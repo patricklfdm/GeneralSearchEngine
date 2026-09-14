@@ -8,7 +8,7 @@ protected-master acceptance, signed tagging, publication and post-publication pr
 | Field | Value |
 |---|---|
 | Target version | `4.4.0` |
-| Release state | final candidate; local validation in progress |
+| Release state | published, independently verified and fully reconciled |
 | Phase 7 entry | `c9f77d2b203bab48360b55d80d67e09463984f8e` (PR #142) |
 | Entry exact-master CI | `34892824621` (`success`) |
 | Registered cloud baseline | `v4.4.0-final-durable-cloud` |
@@ -16,11 +16,11 @@ protected-master acceptance, signed tagging, publication and post-publication pr
 | Candidate branch | `release/v4.4.0` |
 | Canonical candidate-build source | `cdafeacef69ecdfbc37b095b99cdb7de50863df6` |
 | Canonical build receipt SHA-256 | `b6ce195d42288d0e2ab1a501183ac186dbb0bfd0671c5610c2b71bf8fe508b19` |
-| Candidate merge / exact-master CI | pending / pending |
-| Signed tag / release workflow | pending / pending |
-| Central deployment | pending |
-| GitHub deployment / Release | pending / pending |
-| Publication time | pending |
+| Candidate merge / exact-master CI | `1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda` (PR #143) / `34899198199` (`success`) |
+| Signed tag / release workflow | `v4.4.0` / `34900681485` (`success`) |
+| Central deployment | `8fc934f3-533f-4452-9b6e-7ffc01dfb6ad` |
+| GitHub deployment / Release | `6447226553` (`success`) / `388745840` |
+| Publication time | `2026-09-14T22:15:36Z` |
 
 ## Frozen candidate contents
 
@@ -52,8 +52,8 @@ sharding, consensus, remote live storage, retrieval change or third Maven artifa
 ## Canonical same-toolchain candidate artifact hashes
 
 The following table is filled only from two byte-identical clean builds under
-`release-toolchain.json`. These are unsigned candidate JAR hashes and must match the
-six unsigned pre-deploy and published Central JARs in Phase 8. The normative
+`release-toolchain.json`. These unsigned candidate JAR hashes match the six unsigned
+pre-deploy and published Central JARs verified in Phase 8. The normative
 machine-readable inventory is `candidate-artifacts.sha256`; the table below mirrors
 that file for review. `scripts.v44.candidate_artifacts` rejects missing, extra,
 duplicated, reordered, malformed or byte-different members.
@@ -73,25 +73,38 @@ Temurin `21.0.12+8`; the digest-pinned container remains authoritative.
 | `general-search-engine-processor-4.4.0-sources.jar` | `14df824c832569ecd6443cb903b82cf46b29ebda3bcf8f172c3af1ff8890b1b4` |
 | `general-search-engine-processor-4.4.0-javadoc.jar` | `933c9d695680d6abd226fdf9a7c9e26b0925dc11e54bfe1aec65270bccc3b9a6` |
 
+## Published artifact reconciliation
+
+All eight published POM/main/sources/Javadoc artifacts passed remote SHA-1 and
+detached-signature verification with signing key
+`91AAB7A2B0FB55C3BBB334534B6103148D643AB3`. Clean V3 and V4 consumers passed
+against Maven Central `4.4.0`. All six published JAR SHA-256 values match the
+canonical candidate inventory above exactly; no cross-toolchain ancillary-entry
+exception remains in the V4.4 release path.
+
 ## Protected acceptance
 
-- [ ] Candidate PR passes required checks.
-- [ ] Candidate merges to protected `master` without a direct push.
-- [ ] Exact-master CI passes on the candidate merge commit.
-- [ ] Local and remote absence of `v4.4.0` is confirmed before signing.
-- [ ] Central immutability preflight returns HTTP `404` for core and processor.
+- [x] Candidate PR #143 passed required checks.
+- [x] Candidate merged to protected `master` without a direct push as
+  `1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`.
+- [x] Exact-master CI run `34899198199` passed on that merge commit.
+- [x] Local and remote absence of `v4.4.0` was confirmed before signing.
+- [x] Central immutability preflight returned HTTP `404` for core and processor.
 
 ## Phase 8 publication
 
-- [ ] Create and locally verify signed annotated tag `v4.4.0` at the exact accepted
+- [x] Create and locally verify signed annotated tag `v4.4.0` at the exact accepted
   protected-master commit.
-- [ ] Push only that tag and approve the protected production deployment.
-- [ ] Verify release-workflow unsigned hashes match the six candidate hashes before
+- [x] Push only that tag and approve the protected production deployment.
+- [x] Verify release-workflow unsigned hashes match the six candidate hashes before
   signing and deployment.
-- [ ] Verify signed core/processor POM, main, sources and Javadoc artifacts remotely.
-- [ ] Verify all six Central JAR SHA-256 values equal the candidate hashes.
-- [ ] Verify clean remote V3/V4 consumers against published `4.4.0`.
-- [ ] Verify the GitHub Release and successful production deployment.
-- [ ] Replace candidate wording only after every publication fact exists.
+- [x] Verify signed core/processor POM, main, sources and Javadoc artifacts remotely.
+- [x] Verify all six Central JAR SHA-256 values equal the candidate hashes.
+- [x] Verify clean remote V3/V4 consumers against published `4.4.0`.
+- [x] Verify GitHub Release `388745840` and successful production deployment
+  `6447226553`.
+- [x] Replace candidate wording only after every publication fact exists; GitHub
+  Release `388745840` was reconciled after independent verification.
 
-No Phase 8 publication claim is made by this candidate record.
+Phase 8 is complete. The release-body reconciliation did not change the signed tag,
+immutable Central artifacts or frozen six-JAR byte inventory.

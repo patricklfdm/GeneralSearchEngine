@@ -1,8 +1,8 @@
-# V4.4 to V5 architecture handoff draft
+# V4.4 to V5 architecture handoff
 
-- **Status:** Phase 7 final-candidate handoff; publication identities remain pending
+- **Status:** Final — published V4.x compatibility and failure-classification reference
+- **Stable release:** GeneralSearchEngine `4.4.0`
 - **Stable predecessor:** GeneralSearchEngine `4.3.0`
-- **Candidate line:** `4.4.0`
 
 ## Guarantees V5 must inherit
 
@@ -28,12 +28,14 @@ artifact or distributed authority. Its local matrix covers all ten frozen author
 format, lifecycle, failure and resource families. Production change remains zero;
 Phase 6 accepted the frozen implementation without reopening admission.
 
-The V5 comparison reference must bind the eventual signed `v4.4.0` tag, exact
-protected-master commit, exact-master CI, `v4.4.0-final-durable-cloud` registration,
-six canonical unsigned/published JAR hashes, Central signatures/checksums and remote
-consumer results. Registration is accepted through `c9f77d2` / CI `34892824621`;
-candidate artifact hashes are owned by Phase 7. Tag, Central, deployment and remote
-publication identities remain pending until Phase 8 and are not claimed here.
+The V5 comparison reference binds signed tag `v4.4.0` to protected-master commit
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`, exact-master CI `34899198199`, the
+`v4.4.0-final-durable-cloud` registration, and the exact six-JAR inventory in
+`candidate-artifacts.sha256`. Release workflow `34900681485`, Central deployment
+`8fc934f3-533f-4452-9b6e-7ffc01dfb6ad`, production deployment `6447226553`, GitHub
+Release `388745840`, remote signatures/checksums and clean V3/V4 consumers all
+completed successfully. These identities close the V4.x handoff rather than merely
+describing a candidate.
 
 ## Known limits retained by V4.4
 

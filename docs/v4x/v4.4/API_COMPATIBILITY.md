@@ -35,10 +35,10 @@ boundaries remain fail-closed exactly as published.
 
 ## Compatibility proof
 
-The final candidate freezes the API inventory, V4.4 ten-family independent logical
+The published release freezes the API inventory, V4.4 ten-family independent logical
 matrix, V4.1/V4.2/V4.3 physical fixtures, all four independent consumer projects,
 fresh-isolated published Japicmp baselines and the immutable
-`v4.4.0-final-durable-cloud` registration. The candidate contains no production Java
+`v4.4.0-final-durable-cloud` registration. The release contains no production Java
 change relative to the accepted Phase 1 boundary.
 
 V4.4 adds no `(1,3)`, repair or salvage mode, reverse/online migration, memory-mapped

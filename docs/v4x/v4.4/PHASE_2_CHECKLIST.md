@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 2 checklist
 
-- **Status:** Local implementation complete; protected acceptance pending
+- **Status:** Complete — accepted through protected PR #135
 - **Authority:** [Phase 0 contract](PHASE_0_CONTRACT.md)
 - **Baseline:** [PHASE_2_BASELINE.md](PHASE_2_BASELINE.md)
 
@@ -41,6 +41,6 @@
 
 ## Protected acceptance
 
-- [ ] Phase 2 PR passes required checks.
-- [ ] Phase 2 merges through protected `master`.
-- [ ] Exact-master CI passes before Phase 3.
+- [x] Phase 2 PR #135 passed required checks.
+- [x] Phase 2 merged through protected `master` as `96b43c9`.
+- [x] Exact-master CI run `34591678426` passed before Phase 3.

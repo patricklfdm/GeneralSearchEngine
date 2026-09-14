@@ -1,6 +1,6 @@
-# GeneralSearchEngine V4.x development line
+# GeneralSearchEngine completed V4.x development line
 
-Published `4.0.0` is the immutable durability foundation. V4.x matures that
+Published `4.0.0` is the immutable durability foundation. V4.x matured that
 single-node durable engine through operational safety, explicit storage evolution,
 faster reopen, and final evidence without redefining V4.0 durability or V3.4
 retrieval semantics.
@@ -41,7 +41,7 @@ validation and cleanup. Canonical review merged through protected PR #128 as
 accepted through protected PR #129 as `cc603a6`; exact-master CI run `34568701485`
 passed. Phase 7 merged through protected PR #130 as
 `b6b4660ac6bf2cadc6b94be5f2db29e41ab0fe6d`; exact-master CI run `34572477812`
-passed. V4.3 Phases 0–8 are complete and `4.3.0` is the current stable release.
+passed. V4.3 Phases 0–8 are complete and `4.3.0` is the immediate prior stable release.
 Signed tag `v4.3.0`, release workflow `34573738901`, independently verified Maven
 Central artifacts and clean V3/V4 consumers, production deployment `6388475724`,
 GitHub Release `386867175`, and `v4.3.0-fast-reopen-cloud` all resolve to that exact
@@ -72,8 +72,14 @@ paired thresholds. Canonical review merged through protected PR #141 as `1bb85f1
 exact-master CI `34888837170` passed. The append-only registration merged through
 protected PR #142 as `c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI
 `34892824621` passed. Phase 7 started from that exact boundary on
-`release/v4.4.0`, converted active coordinates to final `4.4.0`, and owns local
-candidate validation plus protected acceptance. It does not tag or publish.
+`release/v4.4.0` and converted active coordinates to final `4.4.0`. The candidate
+merged through protected PR #143 as
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`; exact-master CI run `34899198199`
+passed. V4.4 Phases 0–8 are complete and `4.4.0` is the current stable release.
+Signed tag `v4.4.0`, release workflow `34900681485`, exact six-JAR Maven Central
+reconciliation, clean V3/V4 consumers, production deployment `6447226553`, GitHub
+Release `388745840`, and `v4.4.0-final-durable-cloud` all resolve to that exact
+commit.
 
 V4.2 Phase 0 was accepted through protected PR #106 as
 `8391ea67e451da476f8dc8f7c25c3f78e3656173`; exact-master CI run `33830552115`
@@ -133,7 +139,8 @@ cleanup, and local-crash plus durable-cloud evidence as first-class architecture
 - [V4.3-to-V4.4 migration guide](v4.4/MIGRATION_GUIDE.md)
 - [V4.4 Phase 7 release-candidate checklist](v4.4/PHASE_7_CHECKLIST.md)
 - [V4.4 release checklist](v4.4/RELEASE_CHECKLIST.md)
-- [V4.4 to V5 handoff draft](v4.4/V5_HANDOFF.md)
+- [V4.4 to V5 architecture handoff](v4.4/V5_HANDOFF.md)
+- [V4.4 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0)
 - [V4.3 development charter](v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4.3/PHASE_0_CHECKLIST.md)
@@ -227,9 +234,9 @@ format `gse-durable (1,0)`, checkpoints, WAL recovery, and retrieval behavior. T
 published V4.1 contracts govern backup, restore, verification, cleanup, and evidence
 semantics. The published V4.2 contracts govern explicit format `(1,1)`, dual-minor
 inspection and source-preserving migration. The published V4.3 contracts govern
-explicit format `(1,2)` and reconstructible derived-state behavior. The accepted V4.4
-contract governs final-hardening scope but does not amend published behavior without
-its explicit finding-admission process. The V4.x roadmap governs later scope.
+explicit format `(1,2)` and reconstructible derived-state behavior. The published
+V4.4 contract closes final hardening without amending public behavior or persisted
+formats. The V4.x roadmap governs the completed line and V5 handoff.
 
 If documents conflict, the most specialized accepted contract controls, but it may
 not weaken an inherited published guarantee. Any conflict with V4.0, V4.1, or V4.2
@@ -238,8 +245,7 @@ is a Phase 0 blocker, not an implicit amendment.
 ## Documentation policy
 
 `docs/v4/` remains the closed historical record for published `4.0.0`;
-`docs/v4x/v4.1/`, `docs/v4x/v4.2/`, and `docs/v4x/v4.3/` retain the completed
-`4.1.0`, `4.2.0`, and `4.3.0` records. Accepted V4.4 development records live under
-`docs/v4x/v4.4/`. Version-specific V4.x work belongs below `docs/v4x/v4.N/`; future
-minor releases do not rewrite prior evidence. Raw benchmark output and downloaded
+`docs/v4x/v4.1/`, `docs/v4x/v4.2/`, `docs/v4x/v4.3/`, and `docs/v4x/v4.4/` retain
+the completed `4.1.0` through `4.4.0` records. Future architecture work belongs to
+V5 and does not rewrite prior V4.x evidence. Raw benchmark output and downloaded
 cloud artifacts remain outside tracked documentation.
