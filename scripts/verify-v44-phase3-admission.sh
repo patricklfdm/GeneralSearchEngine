@@ -22,14 +22,14 @@ if [[ "$skip_build" == false ]]; then
     ./mvnw -q -DskipTests package
 fi
 
-scripts/verify-version-alignment.sh 4.4.0-SNAPSHOT
+scripts/verify-version-alignment.sh 4.4.0
 "$python_command" -m py_compile \
     scripts/v44/admission.py \
     scripts/v44/test_phase3_admission.py
 "$python_command" -m unittest scripts.v44.test_phase3_admission
 "$python_command" -m scripts.v44.admission --check-production-delta
 "$python_command" -m scripts.v44.api_inventory compare \
-    target/general-search-engine-4.4.0-SNAPSHOT.jar \
+    target/general-search-engine-4.4.0.jar \
     src/test/resources/compatibility/v44-public-api-inventory-v1.json
 ./mvnw -q -Dtest=V44FinalDurableMatrixPhase2Test test
 

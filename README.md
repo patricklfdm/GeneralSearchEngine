@@ -21,6 +21,15 @@ under the [V4 contract map](docs/v4/README.md). Version `4.3.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
+Version 4.4.0 is the final V4.x release candidate. It contains no production Java,
+public API or storage-format change. It closes the single-node durable line with the
+accepted ten-family local matrix, paired published-4.3 cloud evidence, immutable
+`v4.4.0-final-durable-cloud` registration, and a digest-pinned reproducible release
+toolchain. Until Phase 8 completes, `4.3.0` remains the installable stable release.
+See the [V4.4 API/storage compatibility contract](docs/v4x/v4.4/API_COMPATIBILITY.md),
+[4.3-to-4.4 migration guide](docs/v4x/v4.4/MIGRATION_GUIDE.md), and
+[release checklist](docs/v4x/v4.4/RELEASE_CHECKLIST.md).
+
 V4.3 is now the published stable release. It implements explicit `(1,2)`, optional
 checkpoint-bound images for all four built-in index kinds, codec-free inspection,
 selective/full deterministic fallback, bounded refresh, lifecycle hardening and the
@@ -151,6 +160,22 @@ cold on their first open and may become warm after bounded refresh.
 
 V4.3 provides no silent format upgrade, memory-mapping guarantee, online/reverse
 migration, remote live storage or replication.
+
+## What is new in V4.4
+
+V4.4 is a zero-production-change final-hardening release. It revalidates the complete
+published V4 surface under independent crash, corruption, lifecycle, migration,
+derived-state, resource and replacement-host evidence. The registered canonical
+cloud set compares the final source with published 4.3 on the same frozen topology;
+both write and reopen ratios pass the declared release gates.
+
+The release candidate also pins the exact Temurin 21.0.12+8 and Maven 3.9.11
+toolchain used to build both POMs and all six unsigned main/sources/Javadoc JARs.
+Two clean workspaces must produce byte-identical archives, and Phase 8 must reconcile
+those hashes with the pre-deploy and Maven Central artifacts.
+
+V4.4 introduces no new API, format, authority, repair mode, migration edge,
+retrieval behavior or artifact. Distributed architecture remains deferred to V5.
 
 ## Requirements
 

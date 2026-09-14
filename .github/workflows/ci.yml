@@ -30,7 +30,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+8'
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
@@ -198,10 +198,22 @@ jobs:
             echo "V4.3 Phase 7 gate: SKIP (project is not the 4.3.0 candidate)"
           fi
 
+      - name: Verify the V4.4 final candidate boundary
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase7-release.sh --skip-consumers
+          else
+            echo "V4.4 Phase 7 gate: SKIP (project is not the 4.4.0 candidate)"
+          fi
+
   release-artifacts:
     name: Release artifacts
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+      TZ: UTC
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -210,7 +222,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: '21'
+          java-version: '21.0.12+8'
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
@@ -223,11 +235,19 @@ jobs:
       - name: Inspect release artifact contents
         run: scripts/verify-release-artifacts.sh
 
+      - name: Match the V4.4 release build to the frozen candidate bytes
+        run: python3 -m scripts.v44.candidate_artifacts validate-build
+
       - name: Verify reproducible artifacts
         run: scripts/verify-reproducible-build.sh
 
       - name: Verify the V4.4 digest-pinned canonical build twice
         run: scripts/verify-v44-canonical-build.sh
+
+      - name: Match the V4.4 canonical receipt to the frozen candidate bytes
+        run: |
+          python3 -m scripts.v44.candidate_artifacts validate-evidence \
+            target/v44-canonical-reproducibility
 
       - name: Upload V4.4 canonical reproducibility receipt
         if: ${{ always() }}
@@ -302,6 +322,8 @@ jobs:
           bash -n scripts/verify-v44-phase3-admission.sh
           bash -n scripts/verify-v44-phase4-hardening.sh
           bash -n scripts/verify-v44-phase5-stabilization.sh
+          bash -n scripts/verify-v44-phase6-registration.sh
+          bash -n scripts/verify-v44-phase7-release.sh
           bash -n scripts/verify-v44-canonical-build.sh
           bash -n scripts/verify-v44-published-v43-baseline.sh
           bash -n scripts/verify-v44-paired-baseline.sh
@@ -366,8 +388,8 @@ jobs:
 
       - name: Validate V4.4 fixtures, evidence, toolchain, and fake cloud
         run: |
-          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py scripts/v44/test_phase6_registration.py
-          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness scripts.v44.test_phase6_registration
+          python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/candidate_artifacts.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py scripts/v44/test_phase6_registration.py scripts/v44/test_phase7_release_fixtures.py scripts/v44/test_candidate_artifacts.py
+          python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness scripts.v44.test_phase6_registration scripts.v44.test_phase7_release_fixtures scripts.v44.test_candidate_artifacts
           scripts/verify-v44-phase6-registration.sh
 
   required:

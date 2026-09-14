@@ -242,8 +242,11 @@ member/set validation and complete cleanup. The canonical set satisfies both pai
 thresholds and binds SHA-256
 `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
 Canonical review merged through protected PR #141 as `1bb85f1`; exact-master CI run
-`34888837170` passed. The append-only registration is now the separate reviewed
-candidate boundary before Phase 7.
+`34888837170` passed. The append-only registration merged through protected PR #142
+as `c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run `34892824621`
+passed. Phase 7 started from that exact boundary on `release/v4.4.0`, converts all
+active coordinates to final `4.4.0`, freezes compatibility and candidate artifacts,
+and prepares protected acceptance without tagging or publishing.
 
 ## Deferred beyond V4.x
 
@@ -365,5 +368,7 @@ compatibility and packaging, implements the
 manual serial cloud lane with strict no-GCP controls, verifies the canonical
 digest-pinned release build in two clean workspaces, and drafts the V5 handoff. It
 merged through protected PR #138 as `e47e604`; exact-master CI `34649742450` and its
-checksummed canonical artifact passed. Phase 5 does not mutate IAM, execute paid
-resources, or register a baseline. Phase 6 is the next user-initiated paid boundary.
+checksummed canonical artifact passed. Phase 6 accepted experiment `34813346549`,
+failure drill `34818721022`, and canonical run `34824651199`, then registered
+`v4.4.0-final-durable-cloud` through protected PR #142. Phase 7 is now the active
+final-candidate boundary.

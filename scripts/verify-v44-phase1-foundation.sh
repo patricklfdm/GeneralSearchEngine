@@ -16,7 +16,7 @@ if [[ "$skip_build" == false ]]; then
     ./mvnw -q -DskipTests package
 fi
 
-scripts/verify-version-alignment.sh 4.4.0-SNAPSHOT
+scripts/verify-version-alignment.sh 4.4.0
 
 python_command=python3
 if command -v python3.11 >/dev/null 2>&1; then
@@ -37,7 +37,7 @@ fi
 "$python_command" -m scripts.v44.toolchain_manifest \
     docs/v4x/v4.4/release-toolchain.json
 "$python_command" -m scripts.v44.api_inventory compare \
-    target/general-search-engine-4.4.0-SNAPSHOT.jar \
+    target/general-search-engine-4.4.0.jar \
     src/test/resources/compatibility/v44-public-api-inventory-v1.json
 
 work_dir=$(mktemp -d "${TMPDIR:-/tmp}/gse-v44-phase1.XXXXXX")

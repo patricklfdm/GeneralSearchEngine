@@ -28,9 +28,9 @@ if [[ "$skip_build" == false ]]; then
     # executing the complete test suite.
     ./mvnw -q clean package
 fi
-test -f target/general-search-engine-4.4.0-SNAPSHOT.jar
+test -f target/general-search-engine-4.4.0.jar
 
-scripts/verify-version-alignment.sh 4.4.0-SNAPSHOT
+scripts/verify-version-alignment.sh 4.4.0
 "$python_command" -m py_compile \
     scripts/v44/canonical_reproducibility.py \
     scripts/v44/cloud_workflow.py \
@@ -44,7 +44,7 @@ scripts/verify-version-alignment.sh 4.4.0-SNAPSHOT
 
 "$python_command" -m scripts.v44.admission --check-production-delta
 "$python_command" -m scripts.v44.api_inventory compare \
-    target/general-search-engine-4.4.0-SNAPSHOT.jar \
+    target/general-search-engine-4.4.0.jar \
     src/test/resources/compatibility/v44-public-api-inventory-v1.json
 
 if [[ ! -f target/compat-baselines/published-general-search-engine-4.3.0.jar ]]; then
@@ -72,7 +72,8 @@ grep -Eq 'workflow_dispatch:' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'max-parallel: 1' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'environment: cloud-benchmark' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'v4\.4-final-durable/' .github/workflows/v44-final-durable-evidence.yml
-grep -Eq 'Status:.*Phase 5 draft' docs/v4x/v4.4/V5_HANDOFF.md
+grep -Eq 'Status:.*(Phase 5 draft|Phase 7 final-candidate handoff)' \
+    docs/v4x/v4.4/V5_HANDOFF.md
 
 if [[ "$skip_consumers" == false ]]; then
     scripts/verify-consumer-projects.sh

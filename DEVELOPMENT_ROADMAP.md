@@ -336,6 +336,15 @@ canonical builds, the pre-deploy unsigned artifacts, and the six published Centr
 JARs must reconcile exactly. Builds on other JDK distributions remain diagnostic
 unless ancillary entries are deliberately normalized and proven.
 
+Phase 6 accepted experiment run `34813346549`, failure-drill run `34818721022` and
+three-member canonical run `34824651199`. The immutable
+`v4.4.0-final-durable-cloud` registration merged through protected PR #142 as
+`c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run `34892824621`
+passed. Phase 7 started from that exact commit on `release/v4.4.0`. It converts all
+active coordinates to final `4.4.0`, freezes compatibility and canonical artifact
+hashes, and prepares protected candidate acceptance. Tagging and publication remain
+Phase 8-only.
+
 The accepted authority is
 [`docs/v4x/v4.4/PHASE_0_CONTRACT.md`](docs/v4x/v4.4/PHASE_0_CONTRACT.md), supported by
 the [development charter](docs/v4x/v4.4/DEVELOPMENT_CHARTER.md) and

@@ -26,7 +26,7 @@ test -f target/benchmarks.jar || {
     exit 2
 }
 
-scripts/verify-version-alignment.sh 4.4.0-SNAPSHOT
+scripts/verify-version-alignment.sh 4.4.0
 "$python_command" -m py_compile \
     scripts/v44/local_hardening.py \
     scripts/v44/test_phase4_hardening.py

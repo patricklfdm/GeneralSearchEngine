@@ -16,7 +16,7 @@ from scripts.v44.toolchain_manifest import validate as validate_toolchain
 ROOT = Path(__file__).resolve().parents[2]
 SCHEMA = "gse-v44-canonical-reproducibility-v1"
 CHECKSUMS = "artifact-checksums.sha256"
-VERSION = "4.4.0-SNAPSHOT"
+VERSION = "4.4.0"
 JARS = {
     f"general-search-engine-{VERSION}.jar",
     f"general-search-engine-{VERSION}-sources.jar",

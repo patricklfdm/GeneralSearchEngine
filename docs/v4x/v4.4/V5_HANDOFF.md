@@ -1,8 +1,8 @@
 # V4.4 to V5 architecture handoff draft
 
-- **Status:** Phase 5 draft; publication identities remain pending
+- **Status:** Phase 7 final-candidate handoff; publication identities remain pending
 - **Stable predecessor:** GeneralSearchEngine `4.3.0`
-- **Candidate line:** `4.4.0-SNAPSHOT`
+- **Candidate line:** `4.4.0`
 
 ## Guarantees V5 must inherit
 
@@ -25,14 +25,15 @@
 V4.4 keeps the published Java API and persisted formats closed. It introduces no
 `(1,3)`, implicit upgrade, repair, salvage, new ranking/retrieval behavior, new Maven
 artifact or distributed authority. Its local matrix covers all ten frozen authority,
-format, lifecycle, failure and resource families. Production change remains zero
-unless later Phase 6 evidence contradicts the accepted admission record.
+format, lifecycle, failure and resource families. Production change remains zero;
+Phase 6 accepted the frozen implementation without reopening admission.
 
 The V5 comparison reference must bind the eventual signed `v4.4.0` tag, exact
 protected-master commit, exact-master CI, `v4.4.0-final-durable-cloud` registration,
 six canonical unsigned/published JAR hashes, Central signatures/checksums and remote
-consumer results. Those fields cannot be filled before Phases 6–8 and must not be
-represented by this draft.
+consumer results. Registration is accepted through `c9f77d2` / CI `34892824621`;
+candidate artifact hashes are owned by Phase 7. Tag, Central, deployment and remote
+publication identities remain pending until Phase 8 and are not claimed here.
 
 ## Known limits retained by V4.4
 
