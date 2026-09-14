@@ -93,7 +93,9 @@ jobs:
     env:
       GSE_V44_GCP_PROJECT: ${{ vars.GSE_GCP_PROJECT }}
       GSE_V44_GCP_ZONE: ${{ vars.GSE_GCP_ZONE }}
-      GSE_V44_CLOUD_IMAGE: ${{ vars.GSE_CLOUD_IMAGE }}
+      # V4.4 evidence is tied to the exact image frozen in phase1-plan.json.
+      # Do not inherit the mutable image shared by historical cloud lanes.
+      GSE_V44_CLOUD_IMAGE: ubuntu-2404-noble-amd64-v20260906
       GSE_V44_GCS_BUCKET: ${{ vars.GSE_BENCHMARK_GCS_BUCKET }}
       GSE_V44_SOURCE_SHA: ${{ needs.preflight.outputs.source_commit }}
       GSE_V44_RUN_ID: ${{ github.run_id }}

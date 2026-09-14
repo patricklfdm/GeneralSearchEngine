@@ -18,10 +18,12 @@ case "$GSE_V44_PROFILE" in experiment|canonical|failure-drill) ;; *) exit "$EXIT
 if [[ "$GSE_V44_PROFILE" = canonical ]]; then [[ "$GSE_V44_SLOT" =~ ^[123]$ ]] || exit "$EXIT_CONFIG"
 else [[ "$GSE_V44_SLOT" = 1 ]] || exit "$EXIT_CONFIG"; fi
 [[ "$GSE_V44_GCS_BUCKET" =~ ^gs://[a-z0-9][a-z0-9._-]{1,61}[a-z0-9]$ ]] || exit "$EXIT_CONFIG"
-[[ "$GSE_V44_GCP_PROJECT" == gse-benchmark \
-    && "$GSE_V44_GCP_ZONE" == us-west4-a \
-    && "$GSE_V44_CLOUD_IMAGE" == ubuntu-2404-noble-amd64-v20260906 ]] \
-    || exit "$EXIT_CONFIG"
+[[ "$GSE_V44_GCP_PROJECT" == gse-benchmark ]] \
+    || { echo "ERROR: GSE_V44_GCP_PROJECT must be gse-benchmark" >&2; exit "$EXIT_CONFIG"; }
+[[ "$GSE_V44_GCP_ZONE" == us-west4-a ]] \
+    || { echo "ERROR: GSE_V44_GCP_ZONE must be us-west4-a" >&2; exit "$EXIT_CONFIG"; }
+[[ "$GSE_V44_CLOUD_IMAGE" == ubuntu-2404-noble-amd64-v20260906 ]] \
+    || { echo "ERROR: GSE_V44_CLOUD_IMAGE must be ubuntu-2404-noble-amd64-v20260906" >&2; exit "$EXIT_CONFIG"; }
 machine=${GSE_V44_MACHINE_TYPE:-c3d-standard-30}; [[ "$machine" = c3d-standard-30 ]] || exit "$EXIT_CONFIG"
 prefix="gse-v44-${GSE_V44_RUN_ID}-${GSE_V44_RUN_ATTEMPT}-${GSE_V44_SLOT}"; prefix=${prefix:0:48}
 source_vm="$prefix-source"; replacement_vm="$prefix-replace"
