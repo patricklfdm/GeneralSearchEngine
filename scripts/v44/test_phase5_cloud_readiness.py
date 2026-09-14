@@ -96,6 +96,11 @@ class Phase5CloudReadinessTest(unittest.TestCase):
         self.assertIn("if: ${{ always() }}", workflow)
         self.assertIn("/v4.4-final-durable/", workflow)
         self.assertNotIn("/v4.3-fast-reopen/", workflow)
+        self.assertIn(
+            "GSE_V44_CLOUD_IMAGE: ubuntu-2404-noble-amd64-v20260906",
+            workflow)
+        self.assertNotIn(
+            "GSE_V44_CLOUD_IMAGE: ${{ vars.GSE_CLOUD_IMAGE }}", workflow)
 
     def test_exact_plan_and_readable_summary(self) -> None:
         request = validate_inputs("canonical", 3, 3_600, "gcs",
