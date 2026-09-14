@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phases 0–5 accepted
+- **Status:** Accepted V4.x roadmap; V4.4 Phase 6 canonical review candidate
 - **Reference baseline:** Published GeneralSearchEngine `4.3.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening          PHASE 5 ACCEPTED / PHASE 6 NEXT
+V4.4  Final Durable Hardening          PHASE 6 EVIDENCE PASS / REGISTRATION NEXT
   ↓
 V5    Next Architecture Boundary
 ```
@@ -231,7 +231,18 @@ The [Phase 1 baseline](v4.4/PHASE_1_BASELINE.md) and
 merged through protected PR #134 as `a984086`; exact-master CI `34587924661` passed.
 Phase 2 owns the complete local matrix execution and finding classification only.
 Its candidate found no admissible product defect. Phase 3 therefore records an
-explicit zero-production-change decision before Phase 4 measurement begins.
+explicit zero-production-change decision before Phase 4 measurement begins. Phases
+2–4 merged through protected PRs #135–#137 with successful exact-master CI. Phase 5
+stabilization merged through protected PR #138, and its acceptance record merged
+through PR #139 as `59208f6`. The V4.4 frozen-image correction merged through
+protected PR #140 as `6301d855a92a3b2de8d9c338232a520fb9dd2b36`; exact-master CI
+run `34812469059` passed. Experiment run `34813346549`, failure-drill run
+`34818721022`, and three-member canonical run `34824651199` passed independent
+member/set validation and complete cleanup. The canonical set satisfies both paired
+thresholds and binds SHA-256
+`f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
+Canonical review is the current boundary; append-only registration remains a
+separate reviewed change before Phase 7.
 
 ## Deferred beyond V4.x
 

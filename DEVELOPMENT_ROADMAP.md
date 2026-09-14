@@ -373,8 +373,17 @@ there is still no production change, paid run, IAM mutation or registration. The
 claiming cloud acceptance. Phase 5 merged through protected PR #138 as
 `e47e60472939cb8331d4d96302acf3d818622266`; exact-master CI `34649742450` passed.
 Its checksummed canonical artifact is bound to that exact source and proves two clean
-workspaces produced byte-identical six-JAR/two-POM inventories. Phase 6 is the next
-user-initiated paid-cloud boundary.
+workspaces produced byte-identical six-JAR/two-POM inventories. The acceptance record
+merged through protected PR #139 as `59208f6`. A shared-image configuration mismatch
+then rejected run `34811157471` during dry-run before resource creation. The V4.4
+workflow-specific frozen-image correction merged through protected PR #140 as
+`6301d855a92a3b2de8d9c338232a520fb9dd2b36`; exact-master CI run `34812469059`
+passed. Experiment `34813346549`, failure drill `34818721022`, and three-member
+canonical run `34824651199` passed independent checksum/semantic validation and
+complete cleanup. The canonical set satisfies both paired thresholds and binds
+SHA-256 `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
+Canonical review is ready; append-only `v4.4.0-final-durable-cloud` registration
+remains a separate reviewed change before Phase 7.
 
 ## v4.0 completed development contract
 
