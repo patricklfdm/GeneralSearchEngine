@@ -19,6 +19,8 @@ MATRIX = PROJECT / "src/test/resources/compatibility/v44-final-matrix-v1"
 TOOLCHAIN = PROJECT / "docs/v4x/v4.4/release-toolchain.json"
 REGISTRY = PROJECT / "docs/v4x/v4.4/cloud-benchmark-baselines.json"
 CANDIDATE_ARTIFACTS = PROJECT / "docs/v4x/v4.4/candidate-artifacts.sha256"
+CI_WORKFLOW = PROJECT / ".github/workflows/ci.yml"
+RELEASE_WORKFLOW = PROJECT / ".github/workflows/release.yml"
 
 
 class Phase7ReleaseFixtureTest(unittest.TestCase):
@@ -78,6 +80,12 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
         self.assertEqual(
             "f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465",
             entry["setDigest"])
+
+    def test_workflows_select_the_available_temurin_lts_catalog_version(self) -> None:
+        selector = "21.0.12+8.0.LTS"
+        self.assertEqual(2, CI_WORKFLOW.read_text(encoding="utf-8").count(selector))
+        self.assertEqual(2,
+                         RELEASE_WORKFLOW.read_text(encoding="utf-8").count(selector))
 
 
 if __name__ == "__main__":

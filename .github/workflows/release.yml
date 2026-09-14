@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8' || '21' }}
+          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8.0.LTS' || '21' }}
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
@@ -188,7 +188,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8' || '21' }}
+          java-version: ${{ env.RELEASE_TAG == 'v4.4.0' && '21.0.12+8.0.LTS' || '21' }}
           server-id: central
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_PASSWORD
