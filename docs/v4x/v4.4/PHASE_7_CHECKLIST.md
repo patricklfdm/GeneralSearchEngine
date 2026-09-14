@@ -43,15 +43,15 @@
 
 ## Candidate validation
 
-- [ ] `scripts/verify-v44-phase7-release.sh` passes with all four consumers in an
+- [x] `scripts/verify-v44-phase7-release.sh` passes with all four consumers in an
   isolated Maven repository.
-- [ ] Full reactor, travel example, JMH smoke and inherited V4/V4.x gates pass.
+- [x] Full reactor, travel example, JMH smoke and inherited V4/V4.x gates pass.
 - [x] Source/reflection fixtures and fresh-isolated Japicmp through `4.3.0` pass.
 - [x] Strict Javadocs and exactly six publishable JARs pass inspection.
-- [ ] Two clean builds under the digest-pinned canonical toolchain are byte-identical
+- [x] Two clean builds under the digest-pinned canonical toolchain are byte-identical
   and the six hashes are recorded in both `candidate-artifacts.sha256` and
   `RELEASE_CHECKLIST.md`.
-- [ ] `git diff --check`, inventory and ignored-evidence boundaries are clean.
+- [x] `git diff --check`, inventory and ignored-evidence boundaries are clean.
 
 ## Protected acceptance and Phase 8 handoff
 

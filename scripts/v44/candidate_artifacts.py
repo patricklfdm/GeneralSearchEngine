@@ -87,9 +87,9 @@ def file_hash(path: Path) -> str:
 def inventory(directory: Path) -> dict[str, str]:
     if not directory.is_dir() or directory.is_symlink():
         raise CandidateArtifactError("candidate artifact directory is invalid")
-    members = [path for path in directory.iterdir()
-               if path.is_file() and not path.is_symlink()]
-    if {path.name for path in members} != JARS or len(members) != len(JARS):
+    members = list(directory.iterdir())
+    if {path.name for path in members} != JARS or len(members) != len(JARS) \
+            or any(not path.is_file() or path.is_symlink() for path in members):
         raise CandidateArtifactError("candidate artifact directory inventory differs")
     return {path.name: file_hash(path) for path in members}
 

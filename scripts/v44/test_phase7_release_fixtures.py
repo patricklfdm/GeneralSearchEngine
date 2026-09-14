@@ -18,6 +18,7 @@ API_INVENTORY = PROJECT / (
 MATRIX = PROJECT / "src/test/resources/compatibility/v44-final-matrix-v1"
 TOOLCHAIN = PROJECT / "docs/v4x/v4.4/release-toolchain.json"
 REGISTRY = PROJECT / "docs/v4x/v4.4/cloud-benchmark-baselines.json"
+CANDIDATE_ARTIFACTS = PROJECT / "docs/v4x/v4.4/candidate-artifacts.sha256"
 
 
 class Phase7ReleaseFixtureTest(unittest.TestCase):
@@ -35,6 +36,8 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
                 "7452aad8d3c885aaa7ede678faad9a8b8ffae00a6782a2960b9d5aa6050ea93c",
             REGISTRY:
                 "5d7dd59e953bd91b7d5e7691a421b2aa6206c7e36c7dd7069065bbe221bd4c47",
+            CANDIDATE_ARTIFACTS:
+                "8420b47f91b80c54f19b125fcdf3f169a8f04355e06dbe64d122cfb60d720013",
         }
         for path, digest in expected.items():
             with self.subTest(path=path.name):
