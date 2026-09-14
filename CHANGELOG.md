@@ -22,9 +22,13 @@ Semantic Versioning once the first stable artifact is published.
 - Close the V4.x single-node durable line as the intended V5 compatibility and
   failure-classification reference.
 
-This entry describes the final `4.4.0` release candidate. It does not claim that the
-signed tag, Maven Central artifacts, production deployment or GitHub Release exist;
-those remain Phase 8 publication gates.
+Version `4.4.0` was published from signed tag `v4.4.0` on protected-master commit
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`. Release workflow run `34900681485`,
+Central deployment `8fc934f3-533f-4452-9b6e-7ffc01dfb6ad`, exact six-JAR byte
+reconciliation, clean remote V3/V4 consumer verification, production deployment
+`6447226553`, and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0)
+all completed successfully.
 
 ## 4.3.0 — 2026-09-11
 

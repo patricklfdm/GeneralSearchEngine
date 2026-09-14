@@ -1,7 +1,7 @@
 # GeneralSearchEngine V4.x roadmap
 
-- **Status:** Accepted V4.x roadmap; V4.4 Phase 6 registration candidate
-- **Reference baseline:** Published GeneralSearchEngine `4.3.0`
+- **Status:** Complete — V4.4 published and V4.x handed to V5
+- **Reference baseline:** Published GeneralSearchEngine `4.4.0`
 - **Theme:** Mature the durable single-node engine from correctness to operability,
   evolvability, fast reopen, and final hardening.
 
@@ -26,7 +26,7 @@ V4.2  Storage Evolution                COMPLETE
   ↓
 V4.3  Fast Reopen                      COMPLETE
   ↓
-V4.4  Final Durable Hardening          PHASE 6 REGISTRATION CANDIDATE
+V4.4  Final Durable Hardening          COMPLETE
   ↓
 V5    Next Architecture Boundary
 ```
@@ -244,9 +244,17 @@ thresholds and binds SHA-256
 Canonical review merged through protected PR #141 as `1bb85f1`; exact-master CI run
 `34888837170` passed. The append-only registration merged through protected PR #142
 as `c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run `34892824621`
-passed. Phase 7 started from that exact boundary on `release/v4.4.0`, converts all
-active coordinates to final `4.4.0`, freezes compatibility and candidate artifacts,
-and prepares protected acceptance without tagging or publishing.
+passed. Phase 7 started from that exact boundary on `release/v4.4.0`, converted all
+active coordinates to final `4.4.0`, and froze compatibility plus canonical artifact
+bytes. It merged through protected PR #143 as
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`; exact-master CI `34899198199`
+passed. Phase 8 published signed tag `v4.4.0` from that exact commit. Release workflow
+`34900681485`, Maven Central deployment
+`8fc934f3-533f-4452-9b6e-7ffc01dfb6ad`, exact six-JAR reconciliation, clean V3/V4
+consumers, production deployment `6447226553`, GitHub Release `388745840`, and the
+registered `v4.4.0-final-durable-cloud` baseline all completed successfully. V4.x is
+closed; the final handoff records V4.4 as the V5 compatibility and failure-
+classification reference.
 
 ## Deferred beyond V4.x
 
@@ -370,5 +378,9 @@ digest-pinned release build in two clean workspaces, and drafts the V5 handoff. 
 merged through protected PR #138 as `e47e604`; exact-master CI `34649742450` and its
 checksummed canonical artifact passed. Phase 6 accepted experiment `34813346549`,
 failure drill `34818721022`, and canonical run `34824651199`, then registered
-`v4.4.0-final-durable-cloud` through protected PR #142. Phase 7 is now the active
-final-candidate boundary.
+`v4.4.0-final-durable-cloud` through protected PR #142. Phase 7 merged through
+protected PR #143 as `1052a0b`; exact-master CI `34899198199` passed. Phase 8
+published and independently verified signed tag `v4.4.0`, release workflow
+`34900681485`, Central deployment `8fc934f3-533f-4452-9b6e-7ffc01dfb6ad`, exact
+six-JAR byte identity, clean V3/V4 consumers, production deployment `6447226553`,
+and GitHub Release `388745840`. The V4.x durable single-node line is complete.

@@ -72,8 +72,12 @@ grep -Eq 'workflow_dispatch:' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'max-parallel: 1' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'environment: cloud-benchmark' .github/workflows/v44-final-durable-evidence.yml
 grep -Eq 'v4\.4-final-durable/' .github/workflows/v44-final-durable-evidence.yml
-grep -Eq 'Status:.*(Phase 5 draft|Phase 7 final-candidate handoff)' \
-    docs/v4x/v4.4/V5_HANDOFF.md
+if ! grep -Eq \
+        'Status:.*(Phase 5 draft|Phase 7 final-candidate handoff|Final.*published V4\.x compatibility)' \
+        docs/v4x/v4.4/V5_HANDOFF.md; then
+    echo "V4.4 handoff status is not an accepted Phase 5, Phase 7, or published-final state" >&2
+    exit 1
+fi
 
 if [[ "$skip_consumers" == false ]]; then
     scripts/verify-consumer-projects.sh

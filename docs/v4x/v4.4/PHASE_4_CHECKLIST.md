@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 4 checklist
 
-- **Status:** Local implementation complete; protected entry confirmed, Phase 4 acceptance pending
+- **Status:** Complete — accepted through protected PR #137
 - **Baseline:** [PHASE_4_BASELINE.md](PHASE_4_BASELINE.md)
 
 ## Entry
@@ -42,6 +42,6 @@
 
 ## Protected acceptance
 
-- [ ] Phase 4 PR passes required checks after accepted predecessors.
-- [ ] Phase 4 merges through protected `master`.
-- [ ] Exact-master CI passes before Phase 5 acceptance.
+- [x] Phase 4 PR #137 passed required checks after accepted predecessors.
+- [x] Phase 4 merged through protected `master` as `263883b`.
+- [x] Exact-master CI run `34646352576` passed before Phase 5 acceptance.

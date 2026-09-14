@@ -1,6 +1,6 @@
 # GeneralSearchEngine V4.4 Phase 4 local hardening baseline
 
-- **Status:** Local implementation complete; protected entry confirmed, Phase 4 acceptance pending
+- **Status:** Complete — accepted through protected PR #137
 - **Phase 3 protected merge:** `b04e1e3a84a641131ef209826c64b43132efe737`
 - **Phase 3 exact-master CI:** `34626677031` (`success`)
 - **Decision:** `PASS_NO_MEASURED_REGRESSION`

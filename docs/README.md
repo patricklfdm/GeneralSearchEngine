@@ -7,7 +7,7 @@ development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
-## v4.x — active durable single-node development line
+## v4.x — completed durable single-node development line
 
 - [Development overview and authority map](v4x/README.md)
 - [Revised V4.x roadmap](v4x/ROADMAP.md)
@@ -38,7 +38,8 @@ remains the phase history and decision source of truth.
 - [V4.3-to-V4.4 migration guide](v4x/v4.4/MIGRATION_GUIDE.md)
 - [V4.4 Phase 7 release-candidate checklist](v4x/v4.4/PHASE_7_CHECKLIST.md)
 - [V4.4 release checklist](v4x/v4.4/RELEASE_CHECKLIST.md)
-- [V4.4 to V5 handoff draft](v4x/v4.4/V5_HANDOFF.md)
+- [V4.4 to V5 architecture handoff](v4x/v4.4/V5_HANDOFF.md)
+- [V4.4 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0)
 - [V4.3 development charter](v4x/v4.3/DEVELOPMENT_CHARTER.md)
 - [V4.3 Phase 0 fast-reopen contract](v4x/v4.3/PHASE_0_CONTRACT.md)
 - [V4.3 Phase 0 checklist](v4x/v4.3/PHASE_0_CHECKLIST.md)

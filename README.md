@@ -6,31 +6,32 @@ engine uses immutable search snapshots and persistent, block-based bitmaps so re
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version 4.3.0 is the current stable release. Its signed `v4.3.0` tag, both Maven
+Version 4.4.0 is the current stable release. Its signed `v4.4.0` tag, both Maven
 artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
-verification, and `v4.3.0-fast-reopen-cloud` evidence baseline are complete.
-Publication completed on September 11, 2026 Pacific time
-(`2026-09-11T07:56:35Z`). Version 4.2.0 remains the immediate prior stable release
-and storage-evolution compatibility baseline; version 4.1.0 remains the operational-
+verification, exact six-JAR canonical/Central byte reconciliation, and
+`v4.4.0-final-durable-cloud` evidence baseline are complete. Publication completed
+on September 14, 2026 Pacific time (`2026-09-14T22:15:36Z`). Version 4.3.0 remains
+the immediate prior stable release and fast-reopen compatibility baseline; version
+4.2.0 remains the storage-evolution baseline, version 4.1.0 remains the operational-
 safety baseline, version 4.0.0 remains the immutable correct-durability/live-format
 `1.0` baseline, and version 3.4.0 remains the frozen in-memory compatibility baseline.
 The completed work and compatibility constraints are recorded in the
 [development roadmap](DEVELOPMENT_ROADMAP.md) and
 [V4.x development map](docs/v4x/README.md). The published V4.0 foundation remains
-under the [V4 contract map](docs/v4/README.md). Version `4.3.0` is available from
+under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available from
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-Version 4.4.0 is the final V4.x release candidate. It contains no production Java,
+Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the
 accepted ten-family local matrix, paired published-4.3 cloud evidence, immutable
 `v4.4.0-final-durable-cloud` registration, and a digest-pinned reproducible release
-toolchain. Until Phase 8 completes, `4.3.0` remains the installable stable release.
+toolchain whose six JAR hashes match Maven Central exactly.
 See the [V4.4 API/storage compatibility contract](docs/v4x/v4.4/API_COMPATIBILITY.md),
 [4.3-to-4.4 migration guide](docs/v4x/v4.4/MIGRATION_GUIDE.md), and
 [release checklist](docs/v4x/v4.4/RELEASE_CHECKLIST.md).
 
-V4.3 is now the published stable release. It implements explicit `(1,2)`, optional
+V4.3 remains the published fast-reopen predecessor. It implements explicit `(1,2)`, optional
 checkpoint-bound images for all four built-in index kinds, codec-free inspection,
 selective/full deterministic fallback, bounded refresh, lifecycle hardening and the
 registered `v4.3.0-fast-reopen-cloud` baseline while preserving canonical
@@ -169,10 +170,10 @@ derived-state, resource and replacement-host evidence. The registered canonical
 cloud set compares the final source with published 4.3 on the same frozen topology;
 both write and reopen ratios pass the declared release gates.
 
-The release candidate also pins the exact Temurin 21.0.12+8 and Maven 3.9.11
-toolchain used to build both POMs and all six unsigned main/sources/Javadoc JARs.
-Two clean workspaces must produce byte-identical archives, and Phase 8 must reconcile
-those hashes with the pre-deploy and Maven Central artifacts.
+The release pins the exact Temurin 21.0.12+8 and Maven 3.9.11 toolchain used to build
+both POMs and all six unsigned main/sources/Javadoc JARs. Two clean workspaces
+produced byte-identical archives, and Phase 8 reconciled those hashes with both the
+pre-deploy and Maven Central artifacts.
 
 V4.4 introduces no new API, format, authority, repair mode, migration edge,
 retrieval behavior or artifact. Distributed architecture remains deferred to V5.
@@ -184,7 +185,7 @@ retrieval behavior or artifact. Distributed architecture remains deferred to V5.
 
 ## Install
 
-### Stable 4.3.0
+### Stable 4.4.0
 
 The runtime dependency is:
 
@@ -192,25 +193,25 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.3.0</version>
+    <version>4.4.0</version>
 </dependency>
 ```
 
 The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:4.3.0`. Existing 4.2 users can
-upgrade without a live-format migration and explicitly opt into `(1,2)` through the
-[4.2-to-4.3 migration guide](docs/v4x/v4.3/MIGRATION_GUIDE.md). Existing 4.1 and 4.0
-users retain their selected formats, and existing 3.4 users can retain the in-memory
-path without supported source changes. All earlier published contracts remain
-recorded in their historical documentation and compatibility gates.
+`io.github.patricklfdm:general-search-engine-processor:4.4.0`. Existing 4.3 users can
+upgrade without an API or storage migration through the
+[4.3-to-4.4 migration guide](docs/v4x/v4.4/MIGRATION_GUIDE.md). Existing V4 users
+retain their selected formats, and existing 3.4 users can retain the in-memory path
+without supported source changes. All earlier published contracts remain recorded in
+their historical documentation and compatibility gates.
 
 Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.3.0)
+[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.4.0)
 and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.3.0)
+[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.4.0)
 artifacts are available from Maven Central. Release notes and direct-download archives
 are available from the
-[`v4.3.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.3.0).
+[`v4.4.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0).
 
 V4.2 keeps ordinary search in memory unless `buildDurable(...)` is selected and keeps
 durable storage at format `(1,0)` unless `(1,1)` is selected explicitly. See the

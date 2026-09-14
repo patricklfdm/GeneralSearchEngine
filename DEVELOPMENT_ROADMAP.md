@@ -1,13 +1,13 @@
 # GeneralSearchEngine development roadmap
 
-## v4.x active development contract
+## v4.x completed development contract
 
 Published `4.0.0` is the immutable correct-durability foundation. The V4.x line has
-completed V4.1 operational safety, V4.2 explicit storage evolution, and V4.3 fast
-reopen through reconstructible persisted derived state. It now enters the accepted
-V4.4 final single-node durable hardening contract. Replication, consensus, sharding,
-multi-writer storage, remote live WAL, vector retrieval, and new ranking semantics
-remain V5 decisions.
+completed V4.1 operational safety, V4.2 explicit storage evolution, V4.3 fast reopen
+through reconstructible persisted derived state, and V4.4 final single-node durable
+hardening. Published `4.4.0` is the V5 comparison reference. Replication, consensus,
+sharding, multi-writer storage, remote live WAL, vector retrieval, and new ranking
+semantics remain V5 decisions.
 
 V4.1 Phase 0 is accepted through protected PR #93 at
 `8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
@@ -271,10 +271,10 @@ run `34573738901`, Central deployment
 artifacts and clean V3/V4 consumers, production deployment `6388475724`, and GitHub
 Release `386867175` all resolve to that exact commit.
 
-## v4.3.0 current stable release
+## v4.3.0 prior stable release
 
-Version `4.3.0` was published on September 11, 2026 Pacific time as the current
-stable release:
+Version `4.3.0` was published on September 11, 2026 Pacific time and remains the
+immediate prior stable release:
 
 - `io.github.patricklfdm:general-search-engine:4.3.0`;
 - `io.github.patricklfdm:general-search-engine-processor:4.3.0`; and
@@ -307,7 +307,7 @@ and [`docs/v4x/v4.3/PHASE_6_BASELINE.md`](docs/v4x/v4.3/PHASE_6_BASELINE.md). Th
 accepted canonical evidence identities and measurements are recorded in
 [`docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md`](docs/v4x/v4.3/PHASE_6_CANONICAL_REVIEW.md).
 
-## v4.4 accepted final durable hardening contract
+## v4.4 completed final durable hardening release
 
 V4.4 is the final V4.x single-node durable hardening and V5-reference release. Its
 accepted Phase 0 contract is documentation-only and starts from published `4.3.0`
@@ -340,10 +340,14 @@ Phase 6 accepted experiment run `34813346549`, failure-drill run `34818721022` a
 three-member canonical run `34824651199`. The immutable
 `v4.4.0-final-durable-cloud` registration merged through protected PR #142 as
 `c9f77d2b203bab48360b55d80d67e09463984f8e`; exact-master CI run `34892824621`
-passed. Phase 7 started from that exact commit on `release/v4.4.0`. It converts all
-active coordinates to final `4.4.0`, freezes compatibility and canonical artifact
-hashes, and prepares protected candidate acceptance. Tagging and publication remain
-Phase 8-only.
+passed. Phase 7 started from that exact commit on `release/v4.4.0`, converted all
+active coordinates to final `4.4.0`, and froze compatibility plus canonical artifact
+hashes. The candidate merged through protected PR #143 as
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`; exact-master CI run `34899198199`
+passed. Phase 8 is complete. Signed tag `v4.4.0`, release workflow `34900681485`,
+Central deployment `8fc934f3-533f-4452-9b6e-7ffc01dfb6ad`, exact published six-JAR
+byte reconciliation, clean V3/V4 consumers, production deployment `6447226553`, and
+GitHub Release `388745840` all resolve to that exact commit.
 
 The accepted authority is
 [`docs/v4x/v4.4/PHASE_0_CONTRACT.md`](docs/v4x/v4.4/PHASE_0_CONTRACT.md), supported by
@@ -392,8 +396,29 @@ canonical run `34824651199` passed independent checksum/semantic validation and
 complete cleanup. The canonical set satisfies both paired thresholds and binds
 SHA-256 `f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465`.
 Canonical review merged through protected PR #141 as `1bb85f1`; exact-master CI run
-`34888837170` passed. Append-only `v4.4.0-final-durable-cloud` registration is now a
-separate fail-closed candidate and remains the final Phase 6 gate before Phase 7.
+`34888837170` passed. Append-only `v4.4.0-final-durable-cloud` registration merged
+through protected PR #142 as `c9f77d2`; exact-master CI `34892824621` passed. Phase
+7 merged through protected PR #143 as
+`1052a0bc0d84cb0d4245b07f3ba1ff6dae651dda`; exact-master CI `34899198199`
+passed. Phase 8 published and independently reconciled the exact accepted commit as
+described above.
+
+## v4.4.0 current stable release
+
+Version `4.4.0` was published on September 14, 2026 Pacific time as the current
+stable release:
+
+- `io.github.patricklfdm:general-search-engine:4.4.0`;
+- `io.github.patricklfdm:general-search-engine-processor:4.4.0`; and
+- signed tag and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0).
+
+V4.4 preserves every published V4.3 API, retrieval, durability and persisted-format
+guarantee while closing the single-node durable line with zero production Java
+change, the ten-family final matrix, paired published-4.3 cloud evidence and exact
+canonical/Central artifact identity. It does not add `(1,3)`, repair, salvage,
+online/reverse migration, replication, sharding, consensus, remote live storage or a
+third artifact. Published `4.3.0` remains the immediate prior stable release and
+fast-reopen compatibility baseline; V5 owns any new architecture boundary.
 
 ## v4.0 completed development contract
 
