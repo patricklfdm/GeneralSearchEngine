@@ -1,0 +1,97 @@
+name: V5.0 Replication Foundation (No GCP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: Frozen evidence profile
+        required: true
+        default: experiment
+        type: choice
+        options:
+          - experiment
+          - failure-drill
+          - canonical
+      execution:
+        description: Phase 1 permits plan or fake only
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - fake
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v50-foundation-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  no-paid-foundation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: cloud-benchmark
+    steps:
+      - name: Reject every non-master dispatch
+        env:
+          TRUSTED_REF: ${{ github.ref }}
+        run: |
+          test "$TRUSTED_REF" = "refs/heads/master" || {
+            echo "V5.0 Phase 1 runs only from protected master" >&2
+            exit 2
+          }
+
+      - name: Check out exact protected source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Reject every paid or authenticated mode
+        env:
+          EXECUTION: ${{ inputs.execution }}
+        run: |
+          case "$EXECUTION" in
+            plan|fake) ;;
+            *) echo "Phase 1 supports no paid execution" >&2; exit 2 ;;
+          esac
+
+      - name: Write exact no-paid plan
+        env:
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          output="benchmark-results/v50-foundation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          mkdir -p "$output"
+          python -m scripts.v50.cloud_workflow plan \
+            --profile "$PROFILE" --source-sha "$GITHUB_SHA" \
+            --output "$output/workflow-plan.json"
+          python -m scripts.v50.cloud_workflow summary \
+            --profile "$PROFILE" --source-sha "$GITHUB_SHA" \
+            --output "$output/workflow-summary.md"
+          cat "$output/workflow-summary.md" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Exercise fake topology and cleanup
+        if: ${{ inputs.execution == 'fake' }}
+        env:
+          PROFILE: ${{ inputs.profile }}
+        run: |
+          output="benchmark-results/v50-foundation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          python -m scripts.v50.fake_cloud_lane \
+            --output "$output/evidence" --source-sha "$GITHUB_SHA" \
+            --profile "$PROFILE"
+          python -m scripts.v50.evidence validate "$output/evidence"
+
+      - name: Upload no-paid foundation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-foundation-${{ github.run_id }}-${{ github.run_attempt }}-${{ inputs.profile }}
+          path: benchmark-results/v50-foundation/${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error
+          retention-days: 14

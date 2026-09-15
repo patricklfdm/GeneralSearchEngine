@@ -6,7 +6,7 @@
 
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.4.0</version>
+    <version>5.0.0-SNAPSHOT</version>
 
     <name>GeneralSearchEngine</name>
     <description>
@@ -96,6 +96,9 @@
         <published.v4.3.sha256>
             c5ecf5cf311c734481e95f14bdcfffb466fa132dde424a2b6b4a58fe41778583
         </published.v4.3.sha256>
+        <published.v4.4.sha256>
+            0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5
+        </published.v4.4.sha256>
     </properties>
 
     <dependencies>
@@ -390,6 +393,19 @@
                                             </destFileName>
                                             <overWrite>true</overWrite>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>io.github.patricklfdm</groupId>
+                                            <artifactId>general-search-engine</artifactId>
+                                            <version>4.4.0</version>
+                                            <type>jar</type>
+                                            <outputDirectory>
+                                                ${project.build.directory}/compat-baselines
+                                            </outputDirectory>
+                                            <destFileName>
+                                                published-general-search-engine-4.4.0.jar
+                                            </destFileName>
+                                            <overWrite>true</overWrite>
+                                        </artifactItem>
                                     </artifactItems>
                                     <overWriteReleases>true</overWriteReleases>
                                     <overWriteIfNewer>true</overWriteIfNewer>
@@ -524,6 +540,19 @@
                                                     <equals
                                                             arg1="${resolved.v4.3.sha256}"
                                                             arg2="${published.v4.3.sha256}"/>
+                                                </not>
+                                            </condition>
+                                        </fail>
+                                        <checksum
+                                                file="${project.build.directory}/compat-baselines/published-general-search-engine-4.4.0.jar"
+                                                algorithm="SHA-256"
+                                                property="resolved.v4.4.sha256"/>
+                                        <fail message="Resolved 4.4.0 compatibility baseline is not the published Maven Central artifact; run this profile with an isolated Maven repository.">
+                                            <condition>
+                                                <not>
+                                                    <equals
+                                                            arg1="${resolved.v4.4.sha256}"
+                                                            arg2="${published.v4.4.sha256}"/>
                                                 </not>
                                             </condition>
                                         </fail>
@@ -915,6 +944,37 @@
                                         <file>
                                             <path>
                                                 ${project.build.directory}/compat-baselines/published-general-search-engine-4.3.0.jar
+                                            </path>
+                                        </file>
+                                    </oldVersion>
+                                    <newVersion>
+                                        <file>
+                                            <path>
+                                                ${project.build.directory}/${project.build.finalName}.jar
+                                            </path>
+                                        </file>
+                                    </newVersion>
+                                    <parameter>
+                                        <accessModifier>public</accessModifier>
+                                        <onlyModified>true</onlyModified>
+                                        <includeSynthetic>false</includeSynthetic>
+                                        <breakBuildOnModifications>true</breakBuildOnModifications>
+                                        <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+                                        <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+                                    </parameter>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>compare-published-v4-4-api</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>cmp</goal>
+                                </goals>
+                                <configuration>
+                                    <oldVersion>
+                                        <file>
+                                            <path>
+                                                ${project.build.directory}/compat-baselines/published-general-search-engine-4.4.0.jar
                                             </path>
                                         </file>
                                     </oldVersion>

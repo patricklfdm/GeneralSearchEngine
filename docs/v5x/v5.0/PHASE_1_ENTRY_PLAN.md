@@ -1,6 +1,6 @@
 # V5.0 Phase 1 entry plan
 
-- **Status:** Prepared, not authorized until Phase 0 protected-master acceptance
+- **Status:** Locally validated candidate; protected-master acceptance pending
 - **Expected branch:** `feat/v5.0-phase1-foundation`
 - **Expected coordinates after entry:** `5.0.0-SNAPSHOT`
 

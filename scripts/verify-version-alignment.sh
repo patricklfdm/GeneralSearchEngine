@@ -32,12 +32,14 @@ fi
 checks=(
     "pom.xml:project.version"
     "general-search-engine-processor/pom.xml:project.version"
+    "general-search-engine-replication/pom.xml:project.version"
     "reactor/pom.xml:project.version"
     "examples/travel-search/pom.xml:project.version"
     "compatibility/v1-style-consumer/pom.xml:gse.version"
     "compatibility/v2-style-consumer/pom.xml:gse.version"
     "compatibility/v3-style-consumer/pom.xml:gse.version"
     "compatibility/v4-style-consumer/pom.xml:gse.version"
+    "compatibility/v5-style-consumer/pom.xml:gse.version"
 )
 
 for check in "${checks[@]}"; do

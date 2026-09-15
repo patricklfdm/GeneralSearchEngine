@@ -1,6 +1,6 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Candidate Phase 0 plan
+- **Status:** Accepted Phase 0 plan; Phase 1 candidate locally validated
 - **Published control:** exact GeneralSearchEngine `4.4.0`
 - **Planned evidence schema:** `gse-v50-replication-evidence-v1`
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`

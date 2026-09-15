@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5 development charter
 
-- **Status:** Candidate governing charter; protected-master acceptance pending
+- **Status:** Accepted governing charter (protected PR #145)
 - **Reference release:** published GeneralSearchEngine `4.4.0`
 - **V5 boundary:** replicated single-shard search
 - **V5.0 goal:** correct replication under one configured leader

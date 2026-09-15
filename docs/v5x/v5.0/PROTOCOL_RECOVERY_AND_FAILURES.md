@@ -1,6 +1,6 @@
 # V5.0 protocol, recovery and failure contract
 
-- **Status:** Candidate Phase 0 contract
+- **Status:** Accepted Phase 0 contract
 - **Protocol family:** `gse-replication/1.0`
 - **Storage family:** `gse-replicated (1,0)`
 

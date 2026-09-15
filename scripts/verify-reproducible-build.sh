@@ -24,12 +24,18 @@ build_and_capture() {
     while IFS= read -r artifact; do
         artifacts+=("$artifact")
     done < <(
-        find target general-search-engine-processor/target -maxdepth 1 -type f \
+        find target general-search-engine-processor/target \
+            general-search-engine-replication/target -maxdepth 1 -type f \
             \( -name 'general-search-engine-*.jar' \
-            -o -name 'general-search-engine-processor-*.jar' \) | sort
+            -o -name 'general-search-engine-processor-*.jar' \
+            -o -name 'general-search-engine-replication-*.jar' \) | sort
     )
-    if [[ ${#artifacts[@]} -ne 6 ]]; then
-        echo "expected main, sources, and javadoc JARs for two artifacts; found ${#artifacts[@]}" >&2
+    expected_artifacts=6
+    if [[ "$(${maven_command[@]} -q -f pom.xml help:evaluate -Dexpression=project.version -DforceStdout | tail -n 1)" == 5.* ]]; then
+        expected_artifacts=9
+    fi
+    if [[ ${#artifacts[@]} -ne $expected_artifacts ]]; then
+        echo "expected $expected_artifacts release JARs; found ${#artifacts[@]}" >&2
         printf '  %s\n' "${artifacts[@]}" >&2
         return 1
     fi
@@ -52,4 +58,5 @@ done < <(
 echo "Reproducible release artifacts:"
 sha256sum \
     target/general-search-engine-*.jar \
-    general-search-engine-processor/target/general-search-engine-processor-*.jar
+    general-search-engine-processor/target/general-search-engine-processor-*.jar \
+    general-search-engine-replication/target/general-search-engine-replication-*.jar

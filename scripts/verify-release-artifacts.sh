@@ -37,6 +37,8 @@ core_base="general-search-engine-$version"
 processor_base="general-search-engine-processor-$version"
 core_target="$project_dir/target"
 processor_target="$project_dir/general-search-engine-processor/target"
+replication_base="general-search-engine-replication-$version"
+replication_target="$project_dir/general-search-engine-replication/target"
 core_jar="$core_target/$core_base.jar"
 processor_jar="$processor_target/$processor_base.jar"
 service_entry=META-INF/services/javax.annotation.processing.Processor
@@ -51,6 +53,14 @@ artifacts=(
     "$processor_target/$processor_base-sources.jar"
     "$processor_target/$processor_base-javadoc.jar"
 )
+
+if [[ "$version" == 5.* ]]; then
+    artifacts+=(
+        "$replication_target/$replication_base.jar"
+        "$replication_target/$replication_base-sources.jar"
+        "$replication_target/$replication_base-javadoc.jar"
+    )
+fi
 
 for artifact in "${artifacts[@]}"; do
     if [[ ! -s "$artifact" ]]; then
@@ -73,6 +83,14 @@ for artifact in "$core_jar" "$processor_jar"; do
         exit 1
     fi
 done
+
+if [[ "$version" == 5.* ]]; then
+    replication_version=$(manifest_version "$replication_target/$replication_base.jar")
+    if [[ "$replication_version" != "$version" ]]; then
+        echo "replication JAR has Implementation-Version '$replication_version'; expected '$version'" >&2
+        exit 1
+    fi
+fi
 
 if jar tf "$core_jar" | grep -Fxq "$service_entry"; then
     echo "core JAR must not contain $service_entry" >&2
@@ -111,6 +129,14 @@ if [[ "$require_signatures" == true ]]; then
         "$processor_target/$processor_base-javadoc.jar.asc:$processor_target/$processor_base-javadoc.jar"
         "$processor_target/$processor_base.pom.asc:$project_dir/general-search-engine-processor/pom.xml"
     )
+    if [[ "$version" == 5.* ]]; then
+        signatures+=(
+            "$replication_target/$replication_base.jar.asc:$replication_target/$replication_base.jar"
+            "$replication_target/$replication_base-sources.jar.asc:$replication_target/$replication_base-sources.jar"
+            "$replication_target/$replication_base-javadoc.jar.asc:$replication_target/$replication_base-javadoc.jar"
+            "$replication_target/$replication_base.pom.asc:$project_dir/general-search-engine-replication/pom.xml"
+        )
+    fi
     gpg_home=$(mktemp -d "${TMPDIR:-/tmp}/gse-artifact-signatures.XXXXXX")
     trap 'rm -rf -- "$gpg_home"' EXIT
     chmod 700 "$gpg_home"
@@ -128,8 +154,13 @@ if [[ "$require_signatures" == true ]]; then
     done
 fi
 
+jar_count=${#artifacts[@]}
+signature_count=0
+if [[ "$require_signatures" == true ]]; then
+    signature_count=${#signatures[@]}
+fi
 signature_summary=""
 if [[ "$require_signatures" == true ]]; then
-    signature_summary=" and 8 signatures"
+    signature_summary=" and ${signature_count} signatures"
 fi
-echo "Release artifact integrity: PASS (6 JARs$signature_summary, version $version)"
+echo "Release artifact integrity: PASS (${jar_count} JARs$signature_summary, version $version)"

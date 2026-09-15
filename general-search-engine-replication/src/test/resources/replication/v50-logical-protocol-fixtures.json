@@ -1,0 +1,40 @@
+{
+  "protocol": "gse-replication/1.0",
+  "schemaVersion": "gse-v50-logical-fixtures-v1",
+  "messages": [
+    {"type": "HANDSHAKE", "groupId": "11111111-1111-1111-1111-111111111111", "configurationId": "config-v1", "sender": "node-1", "recipient": "node-2"},
+    {"type": "ACTIVATION_PROMISE", "epoch": 7, "nodeId": "node-2"},
+    {"type": "APPEND", "epoch": 7, "index": 11, "predecessorDigest": "sha256:prev", "entryDigest": "sha256:entry"},
+    {"type": "DURABLE_ACK", "epoch": 7, "index": 11, "nodeId": "node-2", "receiptDigest": "sha256:receipt"},
+    {"type": "COMMIT_PROOF", "epoch": 7, "index": 11, "entryDigest": "sha256:entry", "receiptNodes": ["node-1", "node-2"]},
+    {"type": "COMMIT_PROOF_ACK", "epoch": 7, "index": 11, "nodeId": "node-2"},
+    {"type": "COMMIT_ADVANCE", "epoch": 7, "commitIndex": 11},
+    {"type": "CONFLICT", "epoch": 7, "index": 11, "knownDigest": "sha256:known"},
+    {"type": "AUTHORITY_STATUS_PROBE", "epoch": 7, "nodeId": "node-2"},
+    {"type": "SNAPSHOT_OFFER", "epoch": 7, "throughIndex": 11, "snapshotDigest": "sha256:snapshot"},
+    {"type": "SNAPSHOT_CHUNK", "epoch": 7, "chunkIndex": 0, "chunkBytes": 1024, "chunkDigest": "sha256:chunk"},
+    {"type": "SNAPSHOT_INSTALL", "epoch": 7, "throughIndex": 11, "snapshotDigest": "sha256:snapshot"}
+  ],
+  "barriers": [
+    "BEFORE_ENTRY_FORCE",
+    "AFTER_ENTRY_FORCE",
+    "AFTER_ENTRY_QUORUM_ACK",
+    "BEFORE_PROOF_FORCE",
+    "AFTER_PROOF_FORCE",
+    "AFTER_PROOF_QUORUM_ACK",
+    "BEFORE_APPLY",
+    "AFTER_APPLY",
+    "BEFORE_PUBLICATION",
+    "AFTER_PUBLICATION",
+    "BEFORE_RESPONSE",
+    "AFTER_RESPONSE"
+  ],
+  "rejections": [
+    "UNKNOWN_MAJOR",
+    "GROUP_MISMATCH",
+    "CONFIGURATION_MISMATCH",
+    "STALE_EPOCH",
+    "INTEGRITY_FAILURE",
+    "CAPACITY_EXCEEDED"
+  ]
+}

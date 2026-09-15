@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Candidate roadmap
+- **Status:** Phase 0 accepted; Phase 1 candidate locally validated
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -31,4 +31,8 @@ The hard gates are:
 - no baseline registration before independent member and set validation; and
 - no release claim before signed publication and post-publication reconciliation.
 
-The initial V5.0 Phase 0 record is under [`v5.0/`](v5.0/).
+Phase 0 merged through protected PR #145 as `105537c8`; exact-master CI run
+`34919817954` passed. The locally validated Phase 1 candidate opens the declaration-only
+replication artifact, independent history/transport/format models, three-JVM
+process/storage crash scaffold and no-GCP workflow. Protected-master acceptance is
+pending; its records are under [`v5.0/`](v5.0/).

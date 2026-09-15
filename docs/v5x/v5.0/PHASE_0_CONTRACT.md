@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.0 Phase 0 replication contract
 
-- **Status:** Candidate contract; protected-master acceptance pending
+- **Status:** Accepted contract (protected PR #145)
 - **Reference:** published GeneralSearchEngine `4.4.0`
 - **Target:** GeneralSearchEngine `5.0`
 - **Production implementation:** prohibited until Phase 0 acceptance

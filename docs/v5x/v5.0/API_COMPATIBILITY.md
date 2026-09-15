@@ -1,6 +1,6 @@
 # V5.0 API, artifact and compatibility policy
 
-- **Status:** Candidate Phase 0 policy
+- **Status:** Accepted Phase 0 policy
 - **Published predecessor:** `4.4.0`
 
 ## Compatibility direction
