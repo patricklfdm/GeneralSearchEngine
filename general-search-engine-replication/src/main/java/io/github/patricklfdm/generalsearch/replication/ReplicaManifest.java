@@ -11,7 +11,24 @@ import java.util.Objects;
 record ReplicaManifest(ReplicationGroupId groupId, String configurationId,
                        ReplicationNodeId leader, List<ReplicationMember> members,
                        String codecId, int codecVersion, String schemaId, int schemaVersion,
-                       String indexConfigurationDigest) {
+                       String indexConfigurationDigest, String genesisDigest,
+                       java.util.UUID applicationHistory, long baseSequence) {
+    ReplicaManifest(ReplicationGroupId groupId, String configurationId, ReplicationNodeId leader,
+                    List<ReplicationMember> members, String codecId, int codecVersion, String schemaId,
+                    int schemaVersion, String indexConfigurationDigest) {
+        this(groupId, configurationId, leader, members, codecId, codecVersion, schemaId,
+                schemaVersion, indexConfigurationDigest, null, NO_INCARNATION, 0);
+    }
+
+    int formatMinor() { return genesisDigest == null ? 0 : 1; }
+    String protocol() { return "gse-replication/1." + formatMinor(); }
+
+    static ReplicaManifest admitted(AdmissionFormat.Manifest manifest) {
+        var group = manifest.group();
+        return new ReplicaManifest(group.groupId(), group.configurationId(), group.leader(), group.members(),
+                group.codecId(), group.codecVersion(), group.schemaId(), group.schemaVersion(),
+                group.indexConfigurationDigest(), manifest.genesisDigest(), manifest.history(), manifest.base());
+    }
     ReplicaManifest {
         Objects.requireNonNull(groupId, "groupId");
         Objects.requireNonNull(leader, "leader");
@@ -35,6 +52,19 @@ record ReplicaManifest(ReplicationGroupId groupId, String configurationId,
             throw new IllegalArgumentException("configured leader is not a voter");
         }
         validHash(indexConfigurationDigest);
+        Objects.requireNonNull(applicationHistory, "applicationHistory");
+        if (genesisDigest != null) {
+            validHash(genesisDigest);
+            require(baseSequence >= 0 && baseSequence < Long.MAX_VALUE
+                    && applicationHistory.equals(AdmissionFormat.history(groupId.value())),
+                    ReplicationException.Reason.INTEGRITY_FAILURE, "invalid admitted genesis binding");
+        }
+    }
+
+    static ReplicaManifest from(ReplicationGroupConfig<?, ?> config, String indexDigest) {
+        return new ReplicaManifest(config.groupId(), config.configurationId(), config.configuredLeaderId(), config.members(),
+                config.materialization().codec().codecId(), config.materialization().codec().codecVersion(),
+                config.materialization().schemaIdentity(), 1, indexDigest);
     }
 
     boolean contains(ReplicationNodeId node) {
@@ -42,6 +72,7 @@ record ReplicaManifest(ReplicationGroupId groupId, String configurationId,
     }
 
     byte[] encode() {
+        if (formatMinor() == 1) return new AdmissionFormat.Manifest(this, genesisDigest, applicationHistory, baseSequence).encode();
         return frame(MANIFEST, body(output -> {
             text(output, "gse-replicated");
             output.writeShort(1);
@@ -73,6 +104,11 @@ record ReplicaManifest(ReplicationGroupId groupId, String configurationId,
     }
 
     static ReplicaManifest decode(byte[] bytes) throws IOException {
+        return decode(bytes, 0);
+    }
+
+    static ReplicaManifest decode(byte[] bytes, int minor) throws IOException {
+        if (minor == 1) return admitted(AdmissionFormat.Manifest.read(frame(MANIFEST, bytes, MAX_METADATA_BYTES, 1)));
         var input = input(bytes);
         require(text(input, 32).equals("gse-replicated") && input.readUnsignedShort() == 1
                         && input.readUnsignedShort() == 0 && text(input, 32).equals("gse-replication")

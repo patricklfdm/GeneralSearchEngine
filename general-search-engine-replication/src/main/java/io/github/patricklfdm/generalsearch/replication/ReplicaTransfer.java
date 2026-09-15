@@ -39,7 +39,7 @@ final class ReplicaTransfer {
         if (id.equals(this.id)) { require(this.length == length && this.digest.equals(digest), CONFLICTING_HISTORY, "conflicting transfer retry"); return; }
         byte[] offer = frame(KIND, body(out -> {
             hash(out, manifest.digest()); text(out, local.value()); uuid(out, id); out.writeLong(length); hash(out, digest);
-        }), MAX_METADATA_BYTES);
+        }), MAX_METADATA_BYTES, manifest.formatMinor());
         require(length + offer.length <= bounds.maxSnapshotStagingBytes(), CAPACITY_EXCEEDED, "transfer metadata exceeds staging bound");
         abort();
         require(ReplicaGeneration.directoryBytes(directory.getParent()) + length + offer.length + 4096

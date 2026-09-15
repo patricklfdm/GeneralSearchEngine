@@ -32,7 +32,7 @@ class V50OfflineAuthorityTest {
             var status = ReplicationStorageOperations.inspect(local.replicaDirectory());
             assertEquals(1, status.formatMinor()); assertTrue(status.structurallyValid());
             assertFalse(Files.exists(local.materialization().directory()));
-            assertThrows(UnsupportedOperationException.class, () -> ReplicatedSearchEngines.builder(builder(), local).build());
+            try (var handle = ReplicatedSearchEngines.builder(builder(), local).build()) { assertEquals(ReplicaState.STARTING, handle.replicationStatus().state()); }
         }
     }
 

@@ -16,4 +16,4 @@ mkdir -p target/v50-admission-foundation
 "$python_command" -m scripts.v50.admission_evidence \
   --output target/v50-admission-foundation/receipt.json
 scripts/verify-v50-phase0-contract.sh
-echo 'v50PublicAdmissionStepA=PASS publicRuntime=disabled offlineAuthorityGate=separate'
+echo 'v50PublicAdmissionStepA=PASS publicRuntime=not-exercised-by-foundation-gate offlineAuthorityGate=separate'

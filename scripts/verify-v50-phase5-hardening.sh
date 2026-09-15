@@ -21,4 +21,4 @@ mkdir -p target/v50-hardening
 work_parent=$(mktemp -d "$root/target/v50-hardening/run.XXXXXX")
 echo "v50Phase5Evidence=$work_parent/evidence"
 "$python_command" -m scripts.v50.hardening_harness "$work_parent/evidence" --control-jar "$control_jar"
-echo "v50Phase5Hardening=PASS publicRuntime=disabled paidCloud=disabled"
+echo "v50Phase5Hardening=PASS publicRuntime=separate-admission-gate paidCloud=disabled"

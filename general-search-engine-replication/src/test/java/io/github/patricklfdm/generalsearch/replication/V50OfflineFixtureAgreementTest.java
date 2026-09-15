@@ -71,6 +71,20 @@ class V50OfflineFixtureAgreementTest {
         for (var base : ((Map<String, Object>) catalog.get("bases")).values()) {
             var files = (Map<String, Object>) base;
             var manifest = AdmissionFormat.Manifest.read(bytes(files, "manifest.gsr"));
+            var runtime = ReplicaManifest.admitted(manifest);
+            assertArrayEquals(bytes(files, "manifest.gsr"), runtime.encode());
+            for (int cut = 0; cut < 4; cut++) {
+                byte[] raw = bytes(files, "snapshot-" + cut + ".gsr");
+                var snapshot = ReplicaSnapshot.decode(raw, runtime, AdmissionFormat.IMAGE);
+                assertArrayEquals(raw, snapshot.encode(AdmissionFormat.IMAGE));
+                assertTrue(snapshot.sequence() >= manifest.base());
+            }
+            for (var entry : files.entrySet()) if (entry.getKey().startsWith("wire-")) {
+                byte[] raw = HexFormat.of().parseHex((String) entry.getValue());
+                var decoded = ReplicaWire.decode(raw, 1 << 20);
+                assertArrayEquals(raw, ReplicaWire.encode(decoded, 1 << 20));
+                ReplicaWire.identity(decoded, runtime, new ReplicationNodeId(ReplicaWire.string(decoded, "recipient")));
+            }
             var genesis = AdmissionFormat.Genesis.read(bytes(files, "genesis.gsr"), manifest);
             var plan = AdmissionPlan.read(bytes(files, "plan.gsr"));
             assertEquals(genesis.base(), plan.manifest().base());

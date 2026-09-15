@@ -21,4 +21,4 @@ mkdir -p target/v50-offline-authority
 work_parent=$(mktemp -d "$root/target/v50-offline-authority/run.XXXXXX")
 echo "v50OfflineAuthorityEvidence=$work_parent/evidence"
 "$python_command" -m scripts.v50.offline_harness "$work_parent/evidence" --control-jar "$control_jar"
-echo 'v50PublicAdmissionStepB=PASS publicRuntime=disabled offlineMutation=enabled'
+echo 'v50PublicAdmissionStepB=PASS publicRuntime=not-exercised-by-offline-gate offlineMutation=enabled'

@@ -26,8 +26,7 @@ final class AdmissionNode {
     }
     private AdmissionNode() { }
 
-    static View read(Path directory, long maximum) throws IOException {
-        var inventory = AdmissionPaths.inventory(directory, maximum);
+    static View identity(Path directory) throws IOException {
         byte[] manifestBytes = AdmissionPaths.read(directory.resolve("manifest.gsr"), META); var manifest = Manifest.read(manifestBytes);
         byte[] genesisBytes = AdmissionPaths.read(directory.resolve("genesis.gsr"), IMAGE); var genesis = Genesis.read(genesisBytes, manifest);
         var identity = decode(AdmissionPaths.read(directory.resolve("node.gsr"), META), 2, META);
@@ -45,6 +44,16 @@ final class AdmissionNode {
         for (String file : List.of("node.gsr", "storage-ready.gsr")) AdmissionPaths.exact(directory.resolve(file), initial.get(file));
         require(Files.size(directory.resolve("replica.lock")) == 0, INTEGRITY_FAILURE, "nonempty replica lock");
         if (origin == 1) AdmissionPaths.exact(directory.resolve("rebuilding.gsr"), initial.get("rebuilding.gsr"));
+        return new View(plan, node, origin == 1, genesisBytes, List.of());
+    }
+
+    static View read(Path directory, long maximum) throws IOException {
+        var identity = identity(directory);
+        var plan = identity.plan(); var manifest = plan.manifest(); var node = identity.node();
+        byte[] genesisBytes = identity.genesis(); var genesis = Genesis.read(genesisBytes, manifest);
+        int origin = identity.replacement() ? 1 : 0;
+        var inventory = AdmissionPaths.inventory(directory, maximum);
+        var initial = payloads(manifest, genesisBytes, node, identity.replacement());
         Set<String> root = new java.util.HashSet<>(initial.keySet()); root.addAll(List.of("bootstrap-prepared.gsr", "bootstrap-seal.gsr",
                 "current.gsr", "generation-started.gsr", "recovery-floor.gsr", "generation-a", "generation-b"));
         for (var member : inventory) {

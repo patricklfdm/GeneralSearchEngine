@@ -10,13 +10,18 @@ import java.util.UUID;
 /** Deterministic opaque payload; application codecs and apply belong to Phase 3. */
 record ReplicaEntry(String manifestDigest, long epoch, UUID incarnation, long index,
                     String operation, long previousEpoch, long previousIndex,
-                    String previousDigest, byte[] payload) {
+                    String previousDigest, byte[] payload, int formatMinor) {
+    ReplicaEntry(String manifestDigest, long epoch, UUID incarnation, long index, String operation,
+                 long previousEpoch, long previousIndex, String previousDigest, byte[] payload) {
+        this(manifestDigest, epoch, incarnation, index, operation, previousEpoch, previousIndex, previousDigest, payload, 0);
+    }
     static final List<String> OPERATIONS = List.of("ADD", "UPDATE", "REMOVE", "ADD_ALL",
             "UPDATE_ALL", "REMOVE_ALL", "INDEX_CREATE", "INDEX_DROP", "NO_OP", "SNAPSHOT_MARKER");
 
     ReplicaEntry {
         validHash(manifestDigest);
         validHash(previousDigest);
+        require(formatMinor == 0 || formatMinor == 1, ReplicationException.Reason.PROTOCOL_MISMATCH, "invalid entry version");
         Objects.requireNonNull(incarnation, "incarnation");
         Objects.requireNonNull(payload, "payload");
         if (epoch < 2 || incarnation.equals(NO_INCARNATION) || index < 1 || previousEpoch < 1
@@ -52,10 +57,14 @@ record ReplicaEntry(String manifestDigest, long epoch, UUID incarnation, long in
             output.writeInt(payload.length);
             hash(output, sha256(payload));
             output.write(payload);
-        }), maximum);
+        }), maximum, formatMinor);
     }
 
     static ReplicaEntry decode(byte[] body) throws IOException {
+        return decode(body, 0);
+    }
+
+    static ReplicaEntry decode(byte[] body, int minor) throws IOException {
         var input = input(body);
         String manifest = hash(input);
         long epoch = input.readLong();
@@ -74,6 +83,6 @@ record ReplicaEntry(String manifestDigest, long epoch, UUID incarnation, long in
         require(sha256(payload).equals(payloadDigest), ReplicationException.Reason.INTEGRITY_FAILURE,
                 "entry payload checksum mismatch");
         return new ReplicaEntry(manifest, epoch, incarnation, index, OPERATIONS.get(type - 1),
-                previousEpoch, previousIndex, previousDigest, payload);
+                previousEpoch, previousIndex, previousDigest, payload, minor);
     }
 }

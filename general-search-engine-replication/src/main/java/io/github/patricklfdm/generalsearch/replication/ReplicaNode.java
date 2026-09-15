@@ -21,8 +21,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.durability.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Optional;
 
-/** Internal configured-leader coordinator; public bootstrap/lifecycle admission remains reserved. */
+/** Ordered coordinator shared by historical fixtures and sealed public runtime. */
 final class ReplicaNode<K, T> implements AutoCloseable {
     interface Events {
         Events NONE = (barrier, index) -> { };
@@ -49,6 +53,19 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     private Map<String, Object> installedReceipt;
 
     private volatile ReplicationStatus status;
+    private volatile ReplicationDiagnostics diagnostics;
+    private volatile DurabilityMetrics durability;
+    private final Map<ReplicationNodeId, ReplicationPeerStatus> observations = new java.util.LinkedHashMap<>();
+    private final java.util.Set<ReplicationNodeId> probing = ConcurrentHashMap.newKeySet();
+    private final Object probeMonitor = new Object();
+    private long nextProbe;
+    private boolean snapshotInstalling, capacityBlocked;
+    private Instant lastQuorumSuccess;
+    private ReplicationException.Reason lastFailure;
+    private DurabilityException.Reason lastCheckpointFailure;
+    private Duration recoveryDuration = Duration.ZERO, indexRebuildDuration = Duration.ZERO;
+    private long replayedRecords;
+    private RecoverySource recoverySource = RecoverySource.FRESH;
     private volatile boolean closed, readable;
     private final Object closeMonitor = new Object();
     private Thread closingThread;
@@ -66,9 +83,15 @@ final class ReplicaNode<K, T> implements AutoCloseable {
 
     ReplicaNode(Path directory, ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
                 ReplicaApplication<K, T> application, ReplicaStore.Faults faults, Events events, ReplicaTransport.Events networkEvents) {
+        this(directory, manifest, local, bounds, application, openStore(directory, manifest, local, bounds, application, faults), events, networkEvents);
+    }
+
+    ReplicaNode(Path directory, ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
+                ReplicaApplication<K, T> application, ReplicaStore ownedStore, Events events, ReplicaTransport.Events networkEvents) {
         this.manifest = manifest; this.local = local; this.bounds = bounds; this.application = application; this.events = events;
-        emptyApplication = initialSnapshot(application);
-        store = openStore(directory, manifest, local, bounds, application, faults);
+        store = ownedStore;
+        try { emptyApplication = manifest.formatMinor() == 1 ? store.genesisApplication() : initialSnapshot(application); }
+        catch (RuntimeException | Error error) { store.close(); application.close(); throw error; }
         incoming = new ReplicaTransfer(directory, manifest, local, bounds);
         admission = new Semaphore(bounds.maxPendingClientOperations());
         writer = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS,
@@ -76,10 +99,18 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 task -> Thread.ofPlatform().daemon().name("gse-replica-writer-" + local.value()).unstarted(() -> {
                     writerThread = Thread.currentThread(); task.run();
                 }), new ThreadPoolExecutor.AbortPolicy());
+        for (var member : manifest.members()) if (!member.nodeId().equals(local))
+            observations.put(member.nodeId(), new ReplicationPeerStatus(member.nodeId(), false, 0, 0, 0, Optional.empty()));
+        long recoveryStart = System.nanoTime();
         try {
-            if (store.commitIndex() > 0 || store.snapshotIndex() > 0) {
+            replayedRecords = store.commitIndex() - store.snapshotIndex();
+            recoverySource = replayedRecords > 0 ? RecoverySource.CHECKPOINT_AND_WAL
+                    : store.snapshotIndex() == 0 && store.emptyGenesis() ? RecoverySource.FRESH : RecoverySource.CHECKPOINT_ONLY;
+            if (manifest.formatMinor() == 1 || store.commitIndex() > 0 || store.snapshotIndex() > 0) {
                 try (var rebuilt = application.rebuild(store.image(emptyApplication))) { application.replaceWith(rebuilt); }
             }
+            indexRebuildDuration = Duration.ofNanos(System.nanoTime() - recoveryStart);
+            recoveryDuration = indexRebuildDuration;
             committed = store.commitIndex();
             refresh();
             transport = new ReplicaTransport(manifest, local, bounds, this::handle, networkEvents);
@@ -122,6 +153,8 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     private CompletableFuture<ReplicationStatus> recover(boolean replacement) {
         if (!local.equals(manifest.leader())) return CompletableFuture.failedFuture(new ReplicationException(NOT_CONFIGURED_LEADER, "only configured leader can activate"));
         return enqueue(() -> {
+            if (writeReady && !replacement) return status();
+            require(!replacement || !store.voter(), CONFLICTING_HISTORY, "leader reconstruction requires a non-voter replacement");
             require(!writeReady, CONFLICTING_HISTORY, "leader is already activated");
             require(store.voter() || replacement, CONFLICTING_HISTORY, "replacement leader requires explicit two-survivor reconstruction");
             state = ReplicaState.ACTIVATING; readable = false; refresh();
@@ -167,7 +200,8 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 require(ready >= 1, QUORUM_UNAVAILABLE, "no recovered READY follower");
                 event("AFTER_RECOVERY_READY_QUORUM", image.index());
                 commit("NO_OP", new byte[0]);
-                readable = true; writeReady = true; state = ReplicaState.READY; refresh();
+                readable = true; writeReady = true; state = ReplicaState.READY;
+                lastQuorumSuccess = Instant.now(); lastFailure = null; refresh();
                 return status;
             } catch (RuntimeException error) { stopWrites(error); throw error; }
         }, false, 0);
@@ -192,10 +226,128 @@ final class ReplicaNode<K, T> implements AutoCloseable {
         }, true, owned.length);
     }
 
+    CompletableFuture<Void> mutate(String operation, Function<ReplicaApplication<K, T>, byte[]> encoder) {
+        try { requireLeader(); require(!closed, CLOSED, "replica node closed");
+            require(writeReady, QUORUM_UNAVAILABLE, "leader has no write quorum"); }
+        catch (RuntimeException error) { return CompletableFuture.failedFuture(error); }
+        // Reserve a complete frame before invoking application code. Queued callers own no unbounded payload.
+        if (!admission.tryAcquire()) return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "pending operation limit reached"));
+        int reservation = bounds.maxFrameBytes();
+        if (pendingBytes.addAndGet(reservation) > (long) bounds.maxFrameBytes() * 4) {
+            pendingBytes.addAndGet(-reservation); admission.release();
+            return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "pending payload byte limit reached"));
+        }
+        return enqueue(() -> {
+            require(writeReady, QUORUM_UNAVAILABLE, "leader writes are suspended");
+            byte[] payload = encoder.apply(application);
+            require(payload.length <= bounds.maxFrameBytes() - 197, CAPACITY_EXCEEDED, "entry exceeds frame bound");
+            commit(operation, payload); refresh(); return null;
+        }, true, reservation);
+    }
+    private <R> CompletableFuture<R> maintenance(Supplier<R> operation) {
+        if (!admission.tryAcquire()) return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "pending operation limit reached"));
+        return enqueue(operation, true, 0);
+    }
+    CompletableFuture<Void> checkpointLocal() {
+        return maintenance(() -> {
+            try {
+                var image = checkpointImage();
+                store.checkpointLocal(image);
+                capacityBlocked = false; lastCheckpointFailure = null; refresh(); return null;
+            } catch (ReplicationException error) {
+                lastFailure = error.reason();
+                lastCheckpointFailure = switch (error.reason()) {
+                    case CAPACITY_EXCEEDED -> DurabilityException.Reason.CAPACITY_EXCEEDED;
+                    case INTEGRITY_FAILURE -> DurabilityException.Reason.CORRUPT_CHECKPOINT;
+                    case PROTOCOL_MISMATCH -> DurabilityException.Reason.INCOMPATIBLE_STORAGE;
+                    case STORAGE_FAILURE -> DurabilityException.Reason.IO_FAILURE;
+                    case CLOSED -> DurabilityException.Reason.CLOSED;
+                    default -> null;
+                };
+                capacityBlocked = error.reason() == CAPACITY_EXCEEDED;
+                if (store.failed()) { state = ReplicaState.FAILED; writeReady = false; readable = false; }
+                refresh(); throw error;
+            }
+        });
+    }
+    CompletableFuture<DurableBackupResult> backup(DurableBackupRequest request) {
+        try { read(engine -> null); } catch (RuntimeException error) { return CompletableFuture.failedFuture(error); }
+        return maintenance(() -> {
+            read(engine -> null); validateBackupTarget(request); event("BEFORE_PUBLIC_BACKUP", application.appliedIndex());
+            var result = application.backup(manifest.applicationHistory(), request);
+            event("AFTER_PUBLIC_BACKUP", application.appliedIndex()); return result;
+        });
+    }
+    private void validateBackupTarget(DurableBackupRequest request) {
+        var target = java.util.Objects.requireNonNull(request, "request").targetDirectory().toAbsolutePath().normalize();
+        // Preserve the core TARGET_EXISTS result for an occupied target. An absent child must not add unknown authority members.
+        if (java.nio.file.Files.exists(target, java.nio.file.LinkOption.NOFOLLOW_LINKS)) return;
+        try {
+            for (Path ancestor = target.getParent(); ancestor != null; ancestor = ancestor.getParent()) {
+                if (java.nio.file.Files.exists(ancestor, java.nio.file.LinkOption.NOFOLLOW_LINKS)
+                        && java.nio.file.Files.isSameFile(ancestor, store.directory()))
+                    throw new DurableOperationException(DurableOperationException.Reason.TARGET_INVALID,
+                            java.util.OptionalLong.of(application.sequence()), null);
+            }
+        } catch (IOException error) {
+            throw new DurableOperationException(DurableOperationException.Reason.IO_FAILURE,
+                    java.util.OptionalLong.of(application.sequence()), error);
+        }
+    }
+    long currentSequence() { return read(engine -> application.sequence()); }
+    boolean voter() { return store.voter(); }
+    void recoveryDuration(long nanos) { recoveryDuration = Duration.ofNanos(nanos); refresh(); }
+    DurabilityMetrics durabilityMetrics() { return durability; }
+    ReplicationDiagnostics diagnostics() {
+        var view = diagnostics;
+        scheduleProbes();
+        return new ReplicationDiagnostics(view.groupId(), view.configurationId(), view.manifestDigest(), view.incarnation(),
+                view.local(), view.recoveryFloor(), view.snapshotInstalling(), view.peers(), view.lastQuorumSuccess(), view.lastFailure());
+    }
+    private void scheduleProbes() {
+        synchronized (probeMonitor) {
+            long now = System.nanoTime();
+            if (closed || now < nextProbe) return;
+            nextProbe = now + TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
+            for (var member : manifest.members()) {
+                var peer = member.nodeId();
+                if (peer.equals(local) || !probing.add(peer)) continue;
+                if (!admission.tryAcquire()) { probing.remove(peer); continue; }
+                var released = new java.util.concurrent.atomic.AtomicBoolean();
+                Runnable release = () -> { if (released.compareAndSet(false, true)) { probing.remove(peer); admission.release(); } };
+                enqueue(() -> {
+                    transport.exchange(peer, request(peer, "AUTHORITY_STATUS_PROBE", payload(Map.of()), Math.max(1, activeEpoch), incarnation))
+                            .whenComplete((reply, error) -> enqueue(() -> {
+                                try {
+                                    if (error == null && string(reply, "type").equals("AUTHORITY_STATUS")) observe(peer, object(reply.get("payload")));
+                                    else unreachable(peer);
+                                    refresh(); return null;
+                                } finally { release.run(); }
+                            }, false, 0).whenComplete((ignored, failure) -> { if (failure != null) release.run(); }));
+                    return null;
+                }, false, 0).whenComplete((ignored, error) -> { if (error != null) release.run(); });
+            }
+        }
+    }
+    private void unreachable(ReplicationNodeId peer) {
+        var old = observations.get(peer);
+        observations.put(peer, new ReplicationPeerStatus(peer, false, old.durableIndex(), old.matchIndex(), old.appliedIndex(), old.observedAt()));
+    }
+    private void observe(ReplicationNodeId peer, Map<String, Object> p) {
+        fields(p, "promisedEpoch", "lastLogIndex", "commitIndex", "lastDigest", "commitDigest", "appliedIndex", "snapshotIndex", "recoveryFloor", "voter", "damagedTail");
+        long durable = number(p, "lastLogIndex"), committed = number(p, "commitIndex"), applied = number(p, "appliedIndex");
+        require(durable >= 0 && durable <= MAX_ENTRIES && committed >= 0 && committed <= durable && applied >= 0 && applied <= committed,
+                PROTOCOL_MISMATCH, "invalid peer status counters");
+        long match = 0;
+        if (durable <= store.lastLogIndex() && store.digestAt(durable).equals(string(p, "lastDigest"))) match = durable;
+        else if (committed <= store.lastLogIndex() && store.digestAt(committed).equals(string(p, "commitDigest"))) match = committed;
+        observations.put(peer, new ReplicationPeerStatus(peer, true, durable, match, applied, Optional.of(Instant.now())));
+    }
+
     private void commit(String operation, byte[] bytes) {
         require(store.lastLogIndex() == application.appliedIndex(), CONFLICTING_HISTORY, "an earlier entry is unresolved");
         var entry = new ReplicaEntry(manifest.digest(), activeEpoch, incarnation, store.lastLogIndex() + 1,
-                operation, store.lastEntryEpoch(), store.lastLogIndex(), store.lastEntryDigest(), bytes);
+                operation, store.lastEntryEpoch(), store.lastLogIndex(), store.lastEntryDigest(), bytes, manifest.formatMinor());
         byte[] encoded = entry.encode(bounds.maxFrameBytes());
         String digest = frameDigest(encoded);
         Map<String, Object> append = payload(Map.of("entry", Base64.getEncoder().encodeToString(encoded)));
@@ -217,7 +369,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             var receipts = new ArrayList<ReplicaProof.Receipt>(); receipts.add(own);
             for (var ack : acknowledgements) receipts.add(ReplicaProof.acknowledgement(ack.peer(), entry, digest));
             receipts.sort(java.util.Comparator.comparing(ReplicaProof.Receipt::voter));
-            var proof = new ReplicaProof(manifest.digest(), activeEpoch, incarnation, entry.index(), digest, entry.previousDigest(), receipts);
+            var proof = new ReplicaProof(manifest.digest(), activeEpoch, incarnation, entry.index(), digest, entry.previousDigest(), receipts, manifest.formatMinor());
             String proofDigest = store.storeProof(manifest.leader(), proof);
             event("AFTER_LOCAL_PROOF_FORCE", entry.index());
             quorum("COMMIT_PROOF", payload(Map.of("proof", Base64.getEncoder().encodeToString(proof.encode()))),
@@ -230,6 +382,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             event("AFTER_PROOF_QUORUM", entry.index());
             event("BEFORE_APPLICATION_PUBLICATION", entry.index());
             application.publish(entry.index());
+            lastQuorumSuccess = Instant.now(); capacityBlocked = false;
             refresh();
             event("AFTER_APPLICATION_PUBLICATION", entry.index());
             event("BEFORE_CLIENT_SUCCESS", entry.index());
@@ -275,7 +428,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
         try {
             if (type.equals("APPEND")) {
                 fields(p, "entry");
-                var entry = ReplicaEntry.decode(decodeRecord(binary(p, "entry", bounds.maxFrameBytes()), ENTRY, bounds.maxFrameBytes()));
+                var entry = decodeEntry(binary(p, "entry", bounds.maxFrameBytes()));
                 require(entry.manifestDigest().equals(manifest.digest()), PROTOCOL_MISMATCH, "entry manifest mismatch");
                 require(entry.epoch() == epoch && entry.incarnation().equals(requested), STALE_EPOCH, "entry envelope epoch mismatch");
                 if (entry.index() > store.lastLogIndex()) {
@@ -291,7 +444,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             }
             if (type.equals("COMMIT_PROOF")) {
                 fields(p, "proof");
-                var proof = ReplicaProof.decode(decodeRecord(binary(p, "proof", MAX_METADATA_BYTES), PROOF, MAX_METADATA_BYTES));
+                var proof = decodeProof(binary(p, "proof", MAX_METADATA_BYTES));
                 require(proof.epoch() == epoch && proof.incarnation().equals(requested), STALE_EPOCH, "proof envelope epoch mismatch");
                 String digest = store.storeProof(manifest.leader(), proof);
                 committed = store.commitIndex();
@@ -340,6 +493,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             if (type.equals("SNAPSHOT_OFFER")) {
                 fields(p, "transferId", "length", "digest");
                 incoming.begin(UUID.fromString(string(p, "transferId")), number(p, "length"), string(p, "digest"));
+                snapshotInstalling = true; refresh();
                 state = ReplicaState.CATCHING_UP; refresh(); event("AFTER_SNAPSHOT_OFFER_FORCE", store.commitIndex());
                 return response(request, type, payload(Map.of("transferId", string(p, "transferId"))));
             }
@@ -350,7 +504,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 return response(request, type, payload(Map.of("transferId", string(p, "transferId"), "offset", next)));
             }
             if (type.equals("SNAPSHOT_ABORT")) {
-                fields(p); incoming.abort(); return response(request, type, payload(Map.of()));
+                fields(p); incoming.abort(); snapshotInstalling = false; refresh(); return response(request, type, payload(Map.of()));
             }
             if (type.equals("SNAPSHOT_INSTALL")) {
                 fields(p, "transferId", "admit"); require(p.get("admit") instanceof Boolean, PROTOCOL_MISMATCH, "invalid snapshot admission flag"); UUID id = UUID.fromString(string(p, "transferId"));
@@ -361,7 +515,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                                 && image.anchors().getLast().epoch() == activeEpoch && image.anchors().getLast().incarnation().equals(incarnation),
                         CONFLICTING_HISTORY, "replacement follower needs current activated committed authority");
                 installLocal(image, admit);
-                installedTransfer = id; installedImageDigest = sha256(bytes);
+                installedTransfer = id; snapshotInstalling = false; refresh(); installedImageDigest = sha256(bytes);
                 installedReceipt = payload(Map.of("transferId", id.toString(), "imageDigest", installedImageDigest,
                         "index", image.index(), "digest", image.digestAt(image.index()), "snapshotIndex", store.snapshotIndex()));
                 incoming.abort(); event("BEFORE_SNAPSHOT_INSTALL_ACK", image.index());
@@ -390,12 +544,12 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 require(!encoded.isEmpty() && encoded.size() <= bounds.maxEntriesPerAppend() && proofBytes.size() <= encoded.size(), CAPACITY_EXCEEDED, "catch-up batch exceeds bound");
                 var old = store.image(emptyApplication); var tail = new ArrayList<>(old.entries()); var proofs = new ArrayList<>(old.proofs());
                 for (String value : encoded) {
-                    var entry = ReplicaEntry.decode(decodeRecord(binary(Map.of("entry", value), "entry", bounds.maxFrameBytes()), ENTRY, bounds.maxFrameBytes()));
+                    var entry = decodeEntry(binary(Map.of("entry", value), "entry", bounds.maxFrameBytes()));
                     if (entry.index() <= store.commitIndex()) require(store.digestAt(entry.index()).equals(frameDigest(entry.encode(bounds.maxFrameBytes()))), CONFLICTING_HISTORY, "conflicting catch-up retry");
                     else tail.add(entry);
                 }
                 for (String value : proofBytes) {
-                    var proof = ReplicaProof.decode(decodeRecord(binary(Map.of("proof", value), "proof", MAX_METADATA_BYTES), PROOF, MAX_METADATA_BYTES));
+                    var proof = decodeProof(binary(Map.of("proof", value), "proof", MAX_METADATA_BYTES));
                     if (proof.index() > store.commitIndex()) proofs.add(proof);
                     else ReplicaSnapshot.validateProof(manifest, proof, proof.index(), old.anchors().get(Math.toIntExact(proof.index() - 1)), old.digestAt(proof.index() - 1));
                 }
@@ -419,7 +573,10 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             calls.put(member.nodeId(), transport.exchange(member.nodeId(), request(member.nodeId(), type, payload, epoch, incarnation)));
         var replies = new ArrayList<Reply>();
         for (var call : calls.entrySet()) {
-            try { var response = await(call.getValue()); if (string(response, "type").equals(expected)) replies.add(new Reply(call.getKey(), response, null)); }
+            try { var response = await(call.getValue()); if (string(response, "type").equals(expected)) {
+                if (expected.equals("AUTHORITY_STATUS") || expected.equals("ACTIVATION_PROMISE")) observe(call.getKey(), object(response.get("payload")));
+                replies.add(new Reply(call.getKey(), response, null));
+            } }
             catch (ReplicationException ignored) { }
         }
         return replies;
@@ -432,7 +589,9 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             catch (IllegalArgumentException error) { throw failure(PROTOCOL_MISMATCH, "unknown peer rejection", error); }
         }
         require(string(reply, "type").equals(type.equals("AUTHORITY_STATUS_PROBE") ? "AUTHORITY_STATUS" : type.equals("ACTIVATE_EPOCH") ? "ACTIVATION_PROMISE" : type), PROTOCOL_MISMATCH, "unexpected recovery response");
-        return object(reply.get("payload"));
+        var result = object(reply.get("payload"));
+        if (result.containsKey("lastLogIndex")) observe(peer, result);
+        return result;
     }
     private Map<String, Object> await(CompletableFuture<Map<String, Object>> future) {
         try { return future.get(bounds.requestTimeoutMillis() + 100L, TimeUnit.MILLISECONDS); }
@@ -506,10 +665,12 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     }
 
     CompletableFuture<Long> catchUp(ReplicationNodeId peer) {
-        return enqueue(() -> {
+        try { requireLeader(); require(writeReady, QUORUM_UNAVAILABLE, "catch-up requires activated leader"); }
+        catch (RuntimeException error) { return CompletableFuture.failedFuture(error); }
+        return maintenance(() -> {
             try { return catchUpOrdered(peer); }
-            catch (ReplicationException error) { if (error.reason() == CONFLICTING_HISTORY) stopWrites(error); throw error; }
-        }, false, 0);
+            catch (ReplicationException error) { lastFailure = error.reason(); if (error.reason() == CONFLICTING_HISTORY || error.reason() == STALE_EPOCH) stopWrites(error); else refresh(); throw error; }
+        });
     }
     private long catchUpOrdered(ReplicationNodeId peer) {
             requireLeader(); require(writeReady && !peer.equals(local) && manifest.contains(peer), QUORUM_UNAVAILABLE, "catch-up requires an activated leader and remote voter");
@@ -547,7 +708,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     private ReplicaRecoveryImage checkpointImage() {
         require(store.lastLogIndex() == store.commitIndex() && application.appliedIndex() == store.commitIndex(), CONFLICTING_HISTORY, "checkpoint requires resolved committed state");
         var history = store.image(emptyApplication);
-        return new ReplicaRecoveryImage(new ReplicaSnapshot(manifest.digest(), history.anchors(), store.proofAt(store.commitIndex()), application.snapshot()), List.of(), List.of());
+        return new ReplicaRecoveryImage(new ReplicaSnapshot(manifest.digest(), history.anchors(), store.proofAt(store.commitIndex()), application.snapshot(), manifest.baseSequence(), manifest.formatMinor()), List.of(), List.of());
     }
     CompletableFuture<Long> checkpoint() {
         return enqueue(() -> {
@@ -624,7 +785,19 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 UUID.fromString(string(request, "traceId")), number(request, "eventSequence"));
     }
     private Map<String, Object> payload(Map<String, Object> values) {
-        var result = new java.util.TreeMap<>(values); result.put("manifestDigest", manifest.digest()); return result;
+        var result = new java.util.TreeMap<>(values);
+        if (manifest.formatMinor() == 0) result.put("manifestDigest", manifest.digest());
+        return result;
+    }
+    private void fields(Map<String, Object> payload, String... names) {
+        if (manifest.formatMinor() == 0) ReplicaWire.fields(payload, names);
+        else require(payload.keySet().equals(java.util.Set.of(names)), PROTOCOL_MISMATCH, "unexpected payload fields");
+    }
+    private ReplicaEntry decodeEntry(byte[] bytes) throws IOException {
+        return ReplicaEntry.decode(decodeRecord(bytes, ENTRY, bounds.maxFrameBytes(), manifest.formatMinor()), manifest.formatMinor());
+    }
+    private ReplicaProof decodeProof(byte[] bytes) throws IOException {
+        return ReplicaProof.decode(decodeRecord(bytes, PROOF, MAX_METADATA_BYTES, manifest.formatMinor()), manifest.formatMinor());
     }
     private void event(String barrier, long index) {
         try { events.at(barrier, index); }
@@ -633,7 +806,11 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     private void requireLeader() { require(local.equals(manifest.leader()), NOT_CONFIGURED_LEADER, "follower rejects application reads"); }
     private void stopWrites(Throwable error) {
         writeReady = false;
-        state = error instanceof ReplicationException replication && replication.reason() == QUORUM_UNAVAILABLE
+        if (error instanceof ReplicationException replication) {
+            lastFailure = replication.reason(); capacityBlocked = replication.reason() == CAPACITY_EXCEEDED;
+            if (replication.reason() == STALE_EPOCH || replication.reason() == CONFLICTING_HISTORY || replication.reason() == INTEGRITY_FAILURE) readable = false;
+        }
+        state = error instanceof ReplicationException replication && (replication.reason() == QUORUM_UNAVAILABLE || replication.reason() == CAPACITY_EXCEEDED)
                 ? ReplicaState.UNAVAILABLE : ReplicaState.FAILED;
         refresh();
     }
@@ -642,6 +819,14 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 state, writeReady, store.promisedEpoch(), activeEpoch, store.lastLogIndex(), committed,
                 application.appliedIndex(), application.sequence(), store.retainedLogBytes(),
                 bounds.maxPendingClientOperations() - admission.availablePermits());
+        diagnostics = new ReplicationDiagnostics(manifest.groupId(), manifest.configurationId(), Optional.of(manifest.digest()),
+                incarnation, status, store.recoveryFloor(), snapshotInstalling, List.copyOf(observations.values()),
+                Optional.ofNullable(lastQuorumSuccess), Optional.ofNullable(lastFailure));
+        durability = new DurabilityMetrics(state == ReplicaState.CLOSED ? DurabilityStatus.CLOSED : store.failed() ? DurabilityStatus.FAILED
+                : capacityBlocked ? DurabilityStatus.CAPACITY_BLOCKED : DurabilityStatus.OPEN,
+                application.sequence(), store.checkpointSequence(), store.journalGeneration(), store.journalRecords(),
+                store.journalBytes(), store.retainedLogBytes(), recoverySource,
+                replayedRecords, recoveryDuration, indexRebuildDuration, Optional.ofNullable(lastCheckpointFailure));
     }
     private abstract static class QueuedTask implements Runnable { abstract void reject(Throwable error); }
     private final class NodeTask<R> extends QueuedTask {
@@ -711,8 +896,9 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 catch (InterruptedException error) { Thread.currentThread().interrupt(); throw ReplicaFormat.failure(CLOSED, "node close interrupted", error); }
             }
             // A timeout/interruption leaves ownership intact and permits another close attempt.
-            application.close(); store.close();
+            application.close();
             pending.clear(); state = ReplicaState.CLOSED; refresh();
+            store.close();
             synchronized (closeMonitor) { resourcesClosed = true; }
         } finally {
             synchronized (closeMonitor) { closingThread = null; closeMonitor.notifyAll(); }

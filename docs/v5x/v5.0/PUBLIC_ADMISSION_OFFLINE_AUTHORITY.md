@@ -1,6 +1,6 @@
 # V5.0 public-admission Step B offline authority
 
-- **Status:** Implementation candidate; protected PR and exact-master acceptance pending
+- **Status:** Accepted through [PR #154](https://github.com/patricklfdm/GeneralSearchEngine/pull/154), master `915b79c4e197a262a3a8dbcc8d53b7b1a81f7c33`, [CI 35020203126](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35020203126)
 - **Branch:** `feat/v5.0-offline-authority`
 - **Starting master:** `855cfde29f3538121fa711e840f8701ded68c6a9`
 - **Predecessor:** [Step A, PR #153](https://github.com/patricklfdm/GeneralSearchEngine/pull/153), [exact-master CI 35006998165](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35006998165)
@@ -42,8 +42,8 @@ receipt and retained ancestry, and installs the approved identity with origin 1 
 `rebuilding.gsr`. It remains a non-voter and publishes no new group decision. Runtime
 catch-up, leader recovery from two surviving peers and subsequent voting are Step C.
 
-The public replicated builder and legacy bootstrap overloads still fail before
-side effects. There are no new public descriptors beyond Step A, no changes to its
+At the accepted Step B boundary, the public replicated builder and legacy bootstrap
+overloads still failed before side effects. [Step C](PUBLIC_ADMISSION_RUNTIME.md) enables the builder. There are no new public descriptors beyond Step A, no changes to its
 historical fixtures, and no Phase 6/cloud admission in this PR.
 
 ## Implementation and review map
@@ -124,6 +124,6 @@ Local evidence does not substitute for the protected PR or subsequent master CI.
 - [x] Step A protected merge and exact-master CI verified before implementation.
 - [x] Core transfer and typed offline implementation supplied against frozen bytes.
 - [x] Complete local regression and packaging gates recorded.
-- [ ] Protected Step B PR merged.
-- [ ] Step B exact-master CI passed with the offline and Phase 1–5 gates executed.
-- [ ] Step C public runtime begins after those two acceptance receipts.
+- [x] Protected Step B PR #154 merged.
+- [x] Step B exact-master CI `35020203126` passed with the offline and Phase 1–5 gates executed.
+- [x] [Step C public runtime](PUBLIC_ADMISSION_RUNTIME.md) began after those two acceptance receipts.

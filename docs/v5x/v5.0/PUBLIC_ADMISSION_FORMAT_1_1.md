@@ -1,6 +1,6 @@
 # Public admission: replicated storage and wire 1.1
 
-- **Status:** Step A bytes accepted in PR #153; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) implements offline writers; public runtime remains Step C
+- **Status:** Step A bytes accepted in PR #153; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) implements offline writers; [Step C](PUBLIC_ADMISSION_RUNTIME.md) implements the public runtime
 - **Authority:** [Accepted amendment](PUBLIC_ADMISSION_CONTRACT.md), [API](PUBLIC_ADMISSION_API.md)
 - **Frozen bytes:** [fixture catalog](../../../general-search-engine-replication/src/test/resources/replication/v50-admission-fixtures-v2.json), [SHA-256](../../../general-search-engine-replication/src/test/resources/replication/v50-admission-fixtures-v2.sha256)
 - **Independent readers:** [Python](../../../scripts/v50/admission_format.py), [Java test oracle](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionOracle.java)
@@ -11,7 +11,8 @@ Public startup requires exact `gse-replicated (1,1)` authority and a completion 
 Wire peers require exact `gse-replication/1.1`; there is no downgrade, implicit upgrade
 or mixed-minor group. The public PROTOCOL constant changes to 1.1; recompile unpublished
 V5 consumers that inlined 1.0. The Phase 1–5 internal runtime remains explicitly 1.0
-until Step C. It does not obtain a 1.1 identity by reading the new public constant.
+for historical tests. Step C selects 1.1 only from sealed authority. No runtime obtains
+a 1.1 identity merely by reading the public constant.
 All historical 1.0 fixtures, readers and gates remain under their original rules.
 
 This document fixes the bytes B/C must implement. It does not claim that decoding a

@@ -14,8 +14,7 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 final class ReplicaWire {
-    // Phase 1–5 historical runtime remains 1.0 until the Step C admission gate.
-    // Never advertise the new public constant with a legacy manifest/frame.
+    // Historical internal nodes keep 1.0; sealed public nodes use only 1.1.
     private static final String PROTOCOL = "gse-replication/1.0";
     static final List<String> TYPES = List.of("HANDSHAKE", "ACTIVATION_PROMISE", "APPEND", "DURABLE_ACK",
             "COMMIT_PROOF", "COMMIT_PROOF_ACK", "COMMIT_ADVANCE", "CONFLICT", "AUTHORITY_STATUS_PROBE",
@@ -27,7 +26,7 @@ final class ReplicaWire {
     static byte[] encode(Map<String, Object> message, int maximum) {
         validate(message);
         byte[] body = ReplicaJson.encode(message, maximum - HEADER_BYTES);
-        byte[] prefix = ByteBuffer.allocate(16).putInt(0x47535250).putShort((short) 1).putShort((short) 0)
+        byte[] prefix = ByteBuffer.allocate(16).putInt(0x47535250).putShort((short) 1).putShort((short) minor(message))
                 .putShort((short) (TYPES.indexOf(string(message, "type")) + 1)).putShort((short) 0).putInt(body.length).array();
         byte[] checked = new byte[16 + body.length];
         System.arraycopy(prefix, 0, checked, 0, 16);
@@ -39,8 +38,10 @@ final class ReplicaWire {
     static int bodyLength(byte[] header, int maximum) {
         require(header.length == HEADER_BYTES, INTEGRITY_FAILURE, "incomplete wire header");
         var input = ByteBuffer.wrap(header);
-        require(input.getInt() == 0x47535250 && input.getShort() == 1 && input.getShort() == 0,
+        require(input.getInt() == 0x47535250 && input.getShort() == 1,
                 PROTOCOL_MISMATCH, "unsupported wire family/version");
+        int minor = Short.toUnsignedInt(input.getShort());
+        require(minor <= 1, PROTOCOL_MISMATCH, "unsupported wire minor version");
         int type = Short.toUnsignedInt(input.getShort());
         require(type >= 1 && type <= TYPES.size() && input.getShort() == 0, PROTOCOL_MISMATCH, "unknown wire type/flags");
         int length = input.getInt();
@@ -59,6 +60,7 @@ final class ReplicaWire {
                 INTEGRITY_FAILURE, "wire checksum mismatch");
         var message = object(ReplicaJson.decode(Arrays.copyOfRange(frame, HEADER_BYTES, frame.length), maximum - HEADER_BYTES));
         validate(message);
+        require(ByteBuffer.wrap(frame).getShort(6) == minor(message), PROTOCOL_MISMATCH, "wire header/protocol mismatch");
         require(TYPES.indexOf(string(message, "type")) + 1 == Short.toUnsignedInt(ByteBuffer.wrap(frame).getShort(8)),
                 PROTOCOL_MISMATCH, "wire type mismatch");
         return message;
@@ -68,7 +70,8 @@ final class ReplicaWire {
                                        long epoch, UUID incarnation, String type, Map<String, Object> payload,
                                        UUID trace, long sequence) {
         var value = new TreeMap<String, Object>();
-        value.put("protocol", PROTOCOL);
+        value.put("protocol", manifest.protocol());
+        if (manifest.formatMinor() == 1) value.put("manifestDigest", manifest.digest());
         value.put("groupId", manifest.groupId().value().toString());
         value.put("configurationId", manifest.configurationId());
         value.put("sender", sender.value()); value.put("recipient", recipient.value());
@@ -79,16 +82,20 @@ final class ReplicaWire {
     }
 
     static void identity(Map<String, Object> message, ReplicaManifest manifest, ReplicationNodeId local) {
-        require(string(message, "groupId").equals(manifest.groupId().value().toString())
+        require(string(message, "protocol").equals(manifest.protocol()) && !string(message, "sender").equals(local.value())
+                        && string(message, "groupId").equals(manifest.groupId().value().toString())
                         && string(message, "configurationId").equals(manifest.configurationId())
                         && string(message, "recipient").equals(local.value())
                         && manifest.members().stream().anyMatch(member -> member.nodeId().value().equals(string(message, "sender")))
-                        && string(object(message.get("payload")), "manifestDigest").equals(manifest.digest()),
+                        && string(manifest.formatMinor() == 1 ? message : object(message.get("payload")), "manifestDigest").equals(manifest.digest()),
                 PROTOCOL_MISMATCH, "wire group/member/manifest mismatch");
     }
 
     private static void validate(Map<String, Object> value) {
-        require(value.keySet().equals(FIELDS) && string(value, "protocol").equals(PROTOCOL)
+        int minor = minor(value);
+        var expected = new java.util.HashSet<>(FIELDS);
+        if (minor == 1) expected.add("manifestDigest");
+        require(value.keySet().equals(expected)
                 && TYPES.contains(string(value, "type")), PROTOCOL_MISMATCH, "invalid wire envelope");
         for (String field : List.of("groupId", "incarnationId", "traceId")) {
             try { require(UUID.fromString(string(value, field)).toString().equals(string(value, field)), PROTOCOL_MISMATCH, "noncanonical UUID"); }
@@ -99,7 +106,17 @@ final class ReplicaWire {
         require(number(value, "epoch") >= 0 && number(value, "eventSequence") >= 0, PROTOCOL_MISMATCH, "negative wire counter");
         require(number(value, "epoch") > 0 || Set.of("HANDSHAKE", "REJECT").contains(string(value, "type")),
                 PROTOCOL_MISMATCH, "invalid zero epoch");
-        object(value.get("payload"));
+        var payload = object(value.get("payload"));
+        if (minor == 1) {
+            validHash(string(value, "manifestDigest"));
+            require(!payload.containsKey("manifestDigest"), PROTOCOL_MISMATCH, "duplicate payload identity");
+        }
+    }
+
+    private static int minor(Map<String, Object> message) {
+        String protocol = string(message, "protocol");
+        require(protocol.equals(PROTOCOL) || protocol.equals("gse-replication/1.1"), PROTOCOL_MISMATCH, "unsupported wire protocol");
+        return protocol.equals(PROTOCOL) ? 0 : 1;
     }
 
     static String string(Map<String, Object> value, String key) {

@@ -47,9 +47,14 @@ final class ReplicaFormat {
     }
 
     static byte[] frame(int kind, byte[] body, int maximum) {
+        return frame(kind, body, maximum, 0);
+    }
+
+    static byte[] frame(int kind, byte[] body, int maximum, int minor) {
+        require(minor == 0 || minor == 1, ReplicationException.Reason.PROTOCOL_MISMATCH, "unsupported storage version");
         require(body.length > 0 && (long) body.length + HEADER_BYTES <= maximum,
                 ReplicationException.Reason.CAPACITY_EXCEEDED, "replica frame exceeds bound");
-        byte[] prefix = ByteBuffer.allocate(16).putInt(MAGIC).putShort((short) 1).putShort((short) 0)
+        byte[] prefix = ByteBuffer.allocate(16).putInt(MAGIC).putShort((short) 1).putShort((short) minor)
                 .putShort((short) kind).putShort((short) 0).putInt(body.length).array();
         byte[] digest = digest(prefix, body);
         return ByteBuffer.allocate(HEADER_BYTES + body.length).put(prefix).put(digest).put(body).array();
@@ -60,10 +65,14 @@ final class ReplicaFormat {
     }
 
     static byte[] decodeRecord(byte[] encoded, int kind, int maximum) {
+        return decodeRecord(encoded, kind, maximum, 0);
+    }
+
+    static byte[] decodeRecord(byte[] encoded, int kind, int maximum, int minor) {
         require(encoded.length >= HEADER_BYTES && encoded.length <= maximum,
                 ReplicationException.Reason.CAPACITY_EXCEEDED, "record size exceeds bound");
         var header = ByteBuffer.wrap(encoded);
-        require(header.getInt() == MAGIC && header.getShort() == 1 && header.getShort() == 0,
+        require(header.getInt() == MAGIC && header.getShort() == 1 && header.getShort() == minor,
                 ReplicationException.Reason.PROTOCOL_MISMATCH, "unsupported storage family/version");
         require(Short.toUnsignedInt(header.getShort()) == kind && header.getShort() == 0,
                 ReplicationException.Reason.INTEGRITY_FAILURE, "wrong record kind/flags");
@@ -71,12 +80,16 @@ final class ReplicaFormat {
         require(length > 0 && length == encoded.length - HEADER_BYTES,
                 ReplicationException.Reason.INTEGRITY_FAILURE, "incomplete/trailing record bytes");
         byte[] body = java.util.Arrays.copyOfRange(encoded, HEADER_BYTES, encoded.length);
-        require(java.util.Arrays.equals(encoded, frame(kind, body, maximum)),
+        require(java.util.Arrays.equals(encoded, frame(kind, body, maximum, minor)),
                 ReplicationException.Reason.INTEGRITY_FAILURE, "record checksum mismatch");
         return body;
     }
 
     static Frame read(FileChannel channel, long offset, int kind, int maximum) throws IOException {
+        return read(channel, offset, kind, maximum, 0);
+    }
+
+    static Frame read(FileChannel channel, long offset, int kind, int maximum, int minor) throws IOException {
         long remaining = channel.size() - offset;
         if (remaining == 0) {
             return null;
@@ -87,7 +100,7 @@ final class ReplicaFormat {
         readFully(channel, header, offset);
         byte[] prefix = java.util.Arrays.copyOf(header.array(), 16);
         header.flip();
-        require(header.getInt() == MAGIC && header.getShort() == 1 && header.getShort() == 0,
+        require(header.getInt() == MAGIC && header.getShort() == 1 && header.getShort() == minor,
                 ReplicationException.Reason.PROTOCOL_MISMATCH, "unsupported replicated storage family/version");
         require(Short.toUnsignedInt(header.getShort()) == kind && header.getShort() == 0,
                 ReplicationException.Reason.INTEGRITY_FAILURE, "invalid replica record kind/flags");
