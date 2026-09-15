@@ -443,6 +443,18 @@ final class ReplicaStore implements AutoCloseable {
     }
 
     synchronized long lastLogIndex() { return entryOffsets.size(); }
+    synchronized ReplicaEntry entryAt(long index) {
+        try { return ReplicaEntry.decode(readEntry(index).body()); }
+        catch (IOException error) { throw poison(error); }
+        catch (IllegalArgumentException error) {
+            failed = true;
+            throw failure(INTEGRITY_FAILURE, "stored entry fields are invalid", error);
+        }
+    }
+    synchronized long retainedLogBytes() {
+        try { return retainedBytes(); }
+        catch (IOException error) { throw poison(error); }
+    }
     synchronized long commitIndex() { return commitIndex; }
     synchronized long promisedEpoch() { return promisedEpoch; }
     synchronized String lastEntryDigest() { return lastDigest; }

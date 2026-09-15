@@ -1,12 +1,19 @@
 # V5.0 Phase 2 replicated storage baseline
 
-- **Status:** Local validation complete; protected-master acceptance pending
+- **Status:** Accepted through protected PR #147
 - **Branch:** `feat/v5.0-phase2-replicated-storage`
 - **Coordinates:** `5.0.0-SNAPSHOT`
 - **Starting master:** `2e78bddd37fff6638c621da4e4f7f27c3f85a8aa`
 - **Phase 1 acceptance:** [PR #146](https://github.com/patricklfdm/GeneralSearchEngine/pull/146),
   [exact-master CI 34930568130](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34930568130)
 - **Published V4.4 control SHA-256:** `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`
+
+## Protected-master acceptance
+
+[PR #147](https://github.com/patricklfdm/GeneralSearchEngine/pull/147) merged at
+`1895598412b82da9de57655027d0ae76f75e327c`. [Exact-master CI
+34934537274](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34934537274)
+passed all Required dependencies, including the Phase 2 production-storage crash gate.
 
 ## Delivered behavior
 
@@ -77,7 +84,7 @@ simulate OS/device power loss, remote receipt authentication, quorum availabilit
 application/search-state equivalence. Internal initialization is not an accepted
 group-bootstrap workflow. Entries remain opaque; no V4 engine materialization exists.
 
-Protected Phase 2 review and exact-master CI are pending. Phase 3 can then implement
+Protected Phase 2 review and exact-master CI passed as recorded above. Phase 3 implements
 configured-leader quorum replication and ordered apply/publication using this local
 storage boundary. Snapshot installation and suffix recovery/repair remain Phase 4.
 No paid cloud resource, commit, push or PR was created during local implementation.

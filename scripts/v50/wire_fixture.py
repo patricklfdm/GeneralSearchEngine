@@ -116,4 +116,4 @@ def validate_fixture(path: Path) -> None:
 
 if __name__ == "__main__":
     validate_fixture(Path("general-search-engine-replication/src/test/resources/replication/v50-wire-fixtures.json"))
-    print("v50WireFixtures=PASS transport=java21-nio productionNetworking=disabled")
+    print("v50WireFixtures=PASS transport=java21-nio fixtureNetworking=disabled")

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 1 accepted; Phase 2 storage candidate locally validated
+- **Status:** Phase 2 accepted; Phase 3 leader-path candidate locally validated
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -29,11 +29,16 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 2 storage format](v5.0/PHASE_2_STORAGE_FORMAT.md)
 - [V5.0 Phase 2 baseline](v5.0/PHASE_2_BASELINE.md)
 - [V5.0 Phase 2 checklist](v5.0/PHASE_2_CHECKLIST.md)
+- [V5.0 Phase 3 entry plan](v5.0/PHASE_3_ENTRY_PLAN.md)
+- [V5.0 Phase 3 leader path](v5.0/PHASE_3_LEADER_PATH.md)
+- [V5.0 Phase 3 baseline](v5.0/PHASE_3_BASELINE.md)
+- [V5.0 Phase 3 checklist](v5.0/PHASE_3_CHECKLIST.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
 Phase 0 was accepted through protected PR #145 at `105537c8`; exact-master CI run
 `34919817954` passed. Phase 1 was accepted through protected PR #146 at `2e78bddd`;
-exact-master CI `34930568130` passed. The Phase 2 candidate implements outer storage,
-durable promise/entry/proof journals and codec-free inspection. Protected Phase 2
-acceptance is pending. Engine construction, group bootstrap and paid cloud remain
-disabled.
+exact-master CI `34930568130` passed. Phase 2 was accepted through protected PR #147 at `1895598`; exact-master CI
+`34934537274` passed. Phase 3 adds internal leader activation, quorum replication,
+committed application publication and real three-JVM TCP/crash evidence. Protected
+Phase 3 acceptance is pending. Public engine/bootstrap admission and paid cloud remain
+reserved for their later gates.

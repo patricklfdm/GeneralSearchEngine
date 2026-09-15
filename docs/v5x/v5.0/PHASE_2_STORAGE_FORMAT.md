@@ -1,7 +1,7 @@
 # V5.0 Phase 2 replicated storage format
 
 - **Family/version:** `gse-replicated (1,0)`
-- **Status:** Implementation candidate; protected-master acceptance pending
+- **Status:** Accepted through protected Phase 2 PR #147
 - **Implementation:** package-private `ReplicaStore`, `ReplicaFormat`, `ReplicaManifest`,
   `ReplicaEntry` and `ReplicaProof` in the optional replication artifact
 - **Golden bytes:** [independent fixture](../../../general-search-engine-replication/src/test/resources/replication/v50-storage-v1/README.md)

@@ -66,9 +66,9 @@ grep -Fq '"votersConcurrent": true' "$work_dir/workflow-plan.json"
 grep -Fq 'fake only; no GCP' "$work_dir/workflow-summary.md"
 
 if rg -q 'ServerSocket|SocketChannel|AsynchronousServerSocketChannel' \
-    general-search-engine-replication/src/main/java; then
-  echo "Phase 1 replication artifact must not expose production networking" >&2
+    src/main/java general-search-engine-processor/src/main/java; then
+  echo "Core and processor must remain independent of replication networking" >&2
   exit 1
 fi
 
-echo "v50Phase1Foundation=PASS productionRuntime=disabled paidCloud=disabled"
+echo "v50Phase1Foundation=PASS publicRuntime=disabled paidCloud=disabled"

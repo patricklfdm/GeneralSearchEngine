@@ -3,7 +3,7 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 
-/** Declaration-only V5.0 Phase 1 builder. */
+/** Reserved public builder; group bootstrap/recovery admission is not enabled yet. */
 public final class ReplicatedSearchEngineBuilder<K, T> {
     private final SearchEngineBuilder<K, T> applicationBuilder;
     private final ReplicationGroupConfig<K, T> configuration;
@@ -26,12 +26,12 @@ public final class ReplicatedSearchEngineBuilder<K, T> {
     }
 
     /**
-     * Does not open storage or networking in Phase 1.
+     * Does not open storage or networking before group bootstrap/recovery admission.
      *
      * @throws UnsupportedOperationException always, until a later gated phase
      */
     public ReplicatedSearchEngine<K, T> build() {
         throw new UnsupportedOperationException(
-                "V5.0 production replication is not enabled in Phase 1");
+                "Public replication construction requires the bootstrap/recovery gate");
     }
 }

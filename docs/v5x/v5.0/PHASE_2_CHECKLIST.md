@@ -1,6 +1,6 @@
 # V5.0 Phase 2 replicated storage checklist
 
-- **Status:** Local validation complete; protected-master acceptance pending
+- **Status:** Accepted through protected PR #147 and exact-master CI `34934537274`
 - **Production boundary:** Local storage and inspection only
 - **Group runtime / paid cloud:** disabled
 
@@ -47,8 +47,8 @@
 - [x] Full final reactor, Phase 1 and Phase 2 local gates pass.
 - [x] V1–V5 consumers, published artifact compatibility and nine-JAR release checks pass.
 - [x] Two clean release builds are byte-reproducible.
-- [ ] Protected Phase 2 PR accepts the candidate.
-- [ ] Exact-master CI passes before Phase 3 starts.
+- [x] Protected Phase 2 PR #147 accepts the candidate.
+- [x] Exact-master CI `34934537274` passes before Phase 3 starts.
 
 Public bootstrap, transport/coordinator, application apply/publication, snapshot
 installation, suffix repair, compaction and paid cloud are later-phase work.

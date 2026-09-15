@@ -59,6 +59,23 @@ final class ReplicaFormat {
         return HexFormat.of().formatHex(frame, 16, HEADER_BYTES);
     }
 
+    static byte[] decodeRecord(byte[] encoded, int kind, int maximum) {
+        require(encoded.length >= HEADER_BYTES && encoded.length <= maximum,
+                ReplicationException.Reason.CAPACITY_EXCEEDED, "record size exceeds bound");
+        var header = ByteBuffer.wrap(encoded);
+        require(header.getInt() == MAGIC && header.getShort() == 1 && header.getShort() == 0,
+                ReplicationException.Reason.PROTOCOL_MISMATCH, "unsupported storage family/version");
+        require(Short.toUnsignedInt(header.getShort()) == kind && header.getShort() == 0,
+                ReplicationException.Reason.INTEGRITY_FAILURE, "wrong record kind/flags");
+        int length = header.getInt();
+        require(length > 0 && length == encoded.length - HEADER_BYTES,
+                ReplicationException.Reason.INTEGRITY_FAILURE, "incomplete/trailing record bytes");
+        byte[] body = java.util.Arrays.copyOfRange(encoded, HEADER_BYTES, encoded.length);
+        require(java.util.Arrays.equals(encoded, frame(kind, body, maximum)),
+                ReplicationException.Reason.INTEGRITY_FAILURE, "record checksum mismatch");
+        return body;
+    }
+
     static Frame read(FileChannel channel, long offset, int kind, int maximum) throws IOException {
         long remaining = channel.size() - offset;
         if (remaining == 0) {
