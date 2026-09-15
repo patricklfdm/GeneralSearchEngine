@@ -23,12 +23,17 @@ import java.util.function.Function;
 
 /** Bounded single-exchange NIO connections. Socket writes never constitute durable ACKs. */
 final class ReplicaTransport implements AutoCloseable {
+    interface Events {
+        Events NONE = (barrier, request, response) -> { };
+        void at(String barrier, Map<String, Object> request, Map<String, Object> response) throws IOException;
+    }
     private final ReplicaManifest manifest;
     private final ReplicationNodeId local;
     private final ReplicationBounds bounds;
     private final Map<ReplicationNodeId, InetSocketAddress> addresses = new java.util.HashMap<>();
     private final Map<ReplicationNodeId, Semaphore> outbound = new java.util.HashMap<>();
     private final Map<ReplicationNodeId, java.util.concurrent.ThreadPoolExecutor> senders = new java.util.HashMap<>();
+    private final Map<ReplicationNodeId, Thread> senderThreads = new ConcurrentHashMap<>();
     private final java.util.concurrent.atomic.AtomicLong queuedBytes = new java.util.concurrent.atomic.AtomicLong();
     private final Semaphore inbound;
     private final Set<SocketChannel> channels = ConcurrentHashMap.newKeySet();
@@ -36,11 +41,18 @@ final class ReplicaTransport implements AutoCloseable {
     private final ServerSocketChannel server;
     private final Thread acceptor;
     private final Function<Map<String, Object>, Map<String, Object>> handler;
+    private final Events events;
     private volatile boolean closed;
 
     ReplicaTransport(ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
                      Function<Map<String, Object>, Map<String, Object>> handler) {
+        this(manifest, local, bounds, handler, Events.NONE);
+    }
+
+    ReplicaTransport(ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
+                     Function<Map<String, Object>, Map<String, Object>> handler, Events events) {
         this.manifest = manifest; this.local = local; this.bounds = bounds; this.handler = handler;
+        this.events = events;
         inbound = new Semaphore(Math.min(bounds.maxInFlightPerPeer() * 3, 8));
         ServerSocketChannel opening = null;
         try {
@@ -52,7 +64,10 @@ final class ReplicaTransport implements AutoCloseable {
                 outbound.put(member.nodeId(), new Semaphore(bounds.maxInFlightPerPeer()));
                 if (!member.nodeId().equals(local)) senders.put(member.nodeId(), new java.util.concurrent.ThreadPoolExecutor(
                         1, 1, 0, TimeUnit.MILLISECONDS, new java.util.concurrent.ArrayBlockingQueue<>(bounds.maxInFlightPerPeer()),
-                        task -> Thread.ofPlatform().daemon().name("gse-replica-send-" + local.value() + "-" + member.nodeId().value()).unstarted(task)));
+                        task -> {
+                            Thread thread = Thread.ofPlatform().daemon().name("gse-replica-send-" + local.value() + "-" + member.nodeId().value()).unstarted(task);
+                            senderThreads.put(member.nodeId(), thread); return thread;
+                        }));
             }
             require(addresses.containsKey(local), PROTOCOL_MISMATCH, "unknown local endpoint");
             require(new java.util.HashSet<>(addresses.values()).size() == 3, PROTOCOL_MISMATCH, "resolved voter endpoints overlap");
@@ -108,12 +123,14 @@ final class ReplicaTransport implements AutoCloseable {
                                 channel.register(selector, SelectionKey.OP_CONNECT);
                                 channel.connect(addresses.get(peer));
                                 while (!channel.finishConnect()) ready(selector, SelectionKey.OP_CONNECT, deadline);
+                                events.at("BEFORE_REQUEST_WRITE", expected, Map.of());
                                 transfer(channel, selector, ByteBuffer.wrap(bytes), true, deadline);
                                 Map<String, Object> response = read(channel, selector, deadline);
                                 ReplicaWire.identity(response, manifest, local);
                                 for (String field : java.util.List.of("epoch", "incarnationId", "traceId", "eventSequence"))
                                     require(expected.get(field).equals(response.get(field)), PROTOCOL_MISMATCH, "uncorrelated response: " + field);
                                 require(ReplicaWire.string(response, "sender").equals(peer.value()), PROTOCOL_MISMATCH, "wrong response voter");
+                                events.at("AFTER_RESPONSE_READ", expected, response);
                                 result.complete(response);
                                 return;
                             } finally { channels.remove(channel); }
@@ -128,7 +145,7 @@ final class ReplicaTransport implements AutoCloseable {
                     throw failure(QUORUM_UNAVAILABLE, "peer request failed or timed out", last);
                 } catch (Throwable error) {
                     if (error instanceof InterruptedException) Thread.currentThread().interrupt();
-                    result.completeExceptionally(error);
+                    result.completeExceptionally(closed ? failure(CLOSED, "transport closed", error) : error);
                 } finally { capacity.release(); queuedBytes.addAndGet(-bytes.length); }
             });
         } catch (RuntimeException error) { capacity.release(); queuedBytes.addAndGet(-bytes.length); result.completeExceptionally(error); }
@@ -154,7 +171,7 @@ final class ReplicaTransport implements AutoCloseable {
                 }
             }
         } catch (IOException | RuntimeException error) {
-            if (!closed) { closed = true; workers.shutdownNow(); closeChannels(); }
+            if (!closed) stop();
         }
     }
 
@@ -166,6 +183,7 @@ final class ReplicaTransport implements AutoCloseable {
             Map<String, Object> request = read(channel, selector, deadline);
             ReplicaWire.identity(request, manifest, local);
             Map<String, Object> response = handler.apply(request);
+            events.at("BEFORE_RESPONSE_WRITE", request, response);
             transfer(channel, selector, ByteBuffer.wrap(ReplicaWire.encode(response, bounds.maxFrameBytes())), true, deadline);
         } catch (IOException | RuntimeException ignored) {
             // Malformed/uncorrelated frames close the connection; no durable success is manufactured.
@@ -203,15 +221,21 @@ final class ReplicaTransport implements AutoCloseable {
         for (var channel : channels) try { channel.close(); } catch (IOException ignored) { }
         try { server.close(); } catch (IOException ignored) { }
     }
-    @Override public void close() {
+    private void stop() {
         closed = true;
         closeChannels();
         senders.values().forEach(java.util.concurrent.ThreadPoolExecutor::shutdown);
+        for (Thread sender : senderThreads.values()) if (sender != Thread.currentThread()) sender.interrupt();
         workers.shutdownNow();
+    }
+    @Override public void close() {
+        stop();
         try {
             acceptor.join(bounds.requestTimeoutMillis());
+            require(!acceptor.isAlive(), CLOSED, "acceptor did not terminate");
             require(workers.awaitTermination(bounds.requestTimeoutMillis(), TimeUnit.MILLISECONDS), CLOSED, "transport did not terminate");
-            for (var sender : senders.values()) require(sender.awaitTermination(bounds.requestTimeoutMillis() + 100L, TimeUnit.MILLISECONDS),
+            for (var sender : senders.entrySet()) if (senderThreads.get(sender.getKey()) != Thread.currentThread())
+                require(sender.getValue().awaitTermination(bounds.requestTimeoutMillis() + 100L, TimeUnit.MILLISECONDS),
                     CLOSED, "peer sender did not terminate");
         } catch (InterruptedException error) { Thread.currentThread().interrupt(); throw failure(CLOSED, "transport close interrupted", error); }
     }

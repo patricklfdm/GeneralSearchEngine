@@ -1,6 +1,6 @@
 # V5.0 Phase 4 recovery entry plan
 
-- **Status:** Locally validated candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #149 and exact-master CI 34950041552
 - **Branch:** `feat/v5.0-phase4-recovery`
 - **Starting master:** `911c9de0bd63149e5d48e7f4d5cb0ea7042a951e`
 - **Phase 3 acceptance:** [PR #148](https://github.com/patricklfdm/GeneralSearchEngine/pull/148),

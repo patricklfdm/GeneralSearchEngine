@@ -1,6 +1,6 @@
 # V5.0 Phase 4 recovery and snapshot installation
 
-- **Status:** Local implementation candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #149 and exact-master CI 34950041552
 - **Entry:** [Phase 4 plan](PHASE_4_ENTRY_PLAN.md)
 - **Authority:** [recovery contract](PROTOCOL_RECOVERY_AND_FAILURES.md)
 - **Foundation:** [Phase 2 storage](PHASE_2_STORAGE_FORMAT.md), [Phase 3 leader path](PHASE_3_LEADER_PATH.md)

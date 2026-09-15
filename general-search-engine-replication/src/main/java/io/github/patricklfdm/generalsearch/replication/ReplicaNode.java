@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
 
-/** Internal Phase 3 coordinator. Bootstrap/reconciliation admission is reserved for Phase 4. */
+/** Internal configured-leader coordinator; public bootstrap/lifecycle admission remains reserved. */
 final class ReplicaNode<K, T> implements AutoCloseable {
     interface Events {
         Events NONE = (barrier, index) -> { };
@@ -50,6 +50,9 @@ final class ReplicaNode<K, T> implements AutoCloseable {
 
     private volatile ReplicationStatus status;
     private volatile boolean closed, readable;
+    private final Object closeMonitor = new Object();
+    private Thread closingThread;
+    private boolean resourcesClosed;
     private volatile Thread writerThread;
     private long activeEpoch, committed;
     private UUID incarnation = NO_INCARNATION;
@@ -58,6 +61,11 @@ final class ReplicaNode<K, T> implements AutoCloseable {
 
     ReplicaNode(Path directory, ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
                 ReplicaApplication<K, T> application, ReplicaStore.Faults faults, Events events) {
+        this(directory, manifest, local, bounds, application, faults, events, ReplicaTransport.Events.NONE);
+    }
+
+    ReplicaNode(Path directory, ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds,
+                ReplicaApplication<K, T> application, ReplicaStore.Faults faults, Events events, ReplicaTransport.Events networkEvents) {
         this.manifest = manifest; this.local = local; this.bounds = bounds; this.application = application; this.events = events;
         emptyApplication = initialSnapshot(application);
         store = openStore(directory, manifest, local, bounds, application, faults);
@@ -74,7 +82,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
             }
             committed = store.commitIndex();
             refresh();
-            transport = new ReplicaTransport(manifest, local, bounds, this::handle);
+            transport = new ReplicaTransport(manifest, local, bounds, this::handle, networkEvents);
         } catch (RuntimeException | Error error) {
             writer.shutdownNow(); store.close(); application.close(); throw error;
         }
@@ -96,9 +104,9 @@ final class ReplicaNode<K, T> implements AutoCloseable {
 
     ReplicationStatus status() {
         var value = status;
-        return new ReplicationStatus(value.localNodeId(), value.role(), value.state(), value.writeQuorumAvailable(),
+        return new ReplicationStatus(value.localNodeId(), value.role(), closed && value.state() != ReplicaState.CLOSED ? ReplicaState.UNAVAILABLE : value.state(), !closed && value.writeQuorumAvailable(),
                 value.promisedEpoch(), value.activeEpoch(), value.lastLogIndex(), value.commitIndex(), value.appliedIndex(),
-                value.applicationSequence(), value.retainedLogBytes(), closed ? 0 : bounds.maxPendingClientOperations() - admission.availablePermits());
+                value.applicationSequence(), value.retainedLogBytes(), bounds.maxPendingClientOperations() - admission.availablePermits());
     }
     <R> R read(Function<SearchEngine<K, T>, R> reader) {
         requireLeader();
@@ -291,7 +299,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 refresh(); event("FOLLOWER_BEFORE_PROOF_ACK", proof.index());
                 return response(request, "COMMIT_PROOF_ACK", payload(Map.of("index", proof.index(), "proofDigest", digest)));
             }
-            throw new ReplicationException(PROTOCOL_MISMATCH, "message is not enabled in Phase 3");
+            throw new ReplicationException(PROTOCOL_MISMATCH, "unsupported follower message");
         } catch (IOException error) { throw failure(INTEGRITY_FAILURE, "malformed replicated record", error); }
         catch (ReplicationException error) {
             if (error.reason() == STORAGE_FAILURE) { state = ReplicaState.FAILED; refresh(); }
@@ -635,21 +643,39 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 application.appliedIndex(), application.sequence(), store.retainedLogBytes(),
                 bounds.maxPendingClientOperations() - admission.availablePermits());
     }
+    private abstract static class QueuedTask implements Runnable { abstract void reject(Throwable error); }
+    private final class NodeTask<R> extends QueuedTask {
+        final CompletableFuture<R> result = new CompletableFuture<>();
+        final Supplier<R> action;
+        final boolean admitted;
+        final int bytes;
+        final java.util.concurrent.atomic.AtomicBoolean cleaned = new java.util.concurrent.atomic.AtomicBoolean();
+        NodeTask(Supplier<R> action, boolean admitted, int bytes) {
+            this.action = action; this.admitted = admitted; this.bytes = bytes; pending.add(result);
+        }
+        void cleanup() {
+            if (cleaned.compareAndSet(false, true)) {
+                pending.remove(result);
+                if (admitted) { pendingBytes.addAndGet(-bytes); admission.release(); }
+            }
+        }
+        void reject(Throwable error) { cleanup(); result.completeExceptionally(error); }
+        @Override public void run() {
+            try {
+                require(!closed, CLOSED, "replica node closed");
+                R value = action.get();
+                // Complete outside admission ownership so callback close never strands this slot.
+                cleanup(); result.complete(value);
+            } catch (Throwable error) { reject(unwrap(error)); }
+        }
+    }
     private <R> CompletableFuture<R> enqueue(Supplier<R> action, boolean admitted, int bytes) {
-        var result = new CompletableFuture<R>(); pending.add(result);
-        Runnable cleanup = () -> {
-            pending.remove(result);
-            if (admitted) { pendingBytes.addAndGet(-bytes); admission.release(); }
-        };
-        try {
-            require(!closed, CLOSED, "replica node closed");
-            writer.execute(() -> {
-                try { require(!closed, CLOSED, "replica node closed"); result.complete(action.get()); }
-                catch (Throwable error) { result.completeExceptionally(unwrap(error)); }
-                finally { cleanup.run(); }
-            });
-        } catch (RuntimeException error) { cleanup.run(); result.completeExceptionally(error); }
-        return result;
+        var task = new NodeTask<>(action, admitted, bytes);
+        try { require(!closed, CLOSED, "replica node closed"); writer.execute(task); }
+        catch (java.util.concurrent.RejectedExecutionException error) {
+            task.reject(failure(closed ? CLOSED : CAPACITY_EXCEEDED, "replica writer queue is unavailable", error));
+        } catch (RuntimeException error) { task.reject(error); }
+        return task.result;
     }
     private static Throwable unwrap(Throwable error) {
         while ((error instanceof java.util.concurrent.ExecutionException || error instanceof java.util.concurrent.CompletionException)
@@ -657,18 +683,39 @@ final class ReplicaNode<K, T> implements AutoCloseable {
         return error;
     }
     @Override public void close() {
-        if (closed) return;
-        closed = true; writeReady = false; readable = false;
-        var failure = new ReplicationException(CLOSED, "replica node closed");
-        for (var future : pending) future.completeExceptionally(failure);
-        transport.close();
-        writer.shutdownNow();
-        if (Thread.currentThread() != writerThread) {
-            try { require(writer.awaitTermination(bounds.requestTimeoutMillis() + 100L, TimeUnit.MILLISECONDS), CLOSED, "writer did not terminate"); }
-            catch (InterruptedException error) { Thread.currentThread().interrupt(); throw ReplicaFormat.failure(CLOSED, "node close interrupted", error); }
+        synchronized (closeMonitor) {
+            if (resourcesClosed) return;
+            // A callback on the writer must not wait for a closer that is joining it.
+            if (closingThread == Thread.currentThread() || closingThread != null && Thread.currentThread() == writerThread) return;
+            long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis() + 100L);
+            while (closingThread != null) {
+                long remaining = deadline - System.nanoTime();
+                require(remaining > 0, CLOSED, "another node close is still in progress");
+                try { TimeUnit.NANOSECONDS.timedWait(closeMonitor, remaining); }
+                catch (InterruptedException error) { Thread.currentThread().interrupt(); throw failure(CLOSED, "node close interrupted", error); }
+                if (resourcesClosed) return;
+            }
+            closingThread = Thread.currentThread();
+            closed = true; writeReady = false; readable = false;
         }
-        pending.clear();
-        application.close(); store.close();
-        state = ReplicaState.CLOSED; refresh();
+        try {
+            var failure = new ReplicationException(CLOSED, "replica node closed");
+            writer.shutdown();
+            var abandoned = new ArrayList<Runnable>(); writer.getQueue().drainTo(abandoned);
+            for (var task : abandoned) ((QueuedTask) task).reject(failure);
+            store.quiesce(writerThread);
+            for (var future : pending) future.completeExceptionally(failure);
+            transport.close();
+            if (Thread.currentThread() != writerThread) {
+                try { require(writer.awaitTermination(bounds.requestTimeoutMillis() + 100L, TimeUnit.MILLISECONDS), CLOSED, "writer did not terminate"); }
+                catch (InterruptedException error) { Thread.currentThread().interrupt(); throw ReplicaFormat.failure(CLOSED, "node close interrupted", error); }
+            }
+            // A timeout/interruption leaves ownership intact and permits another close attempt.
+            application.close(); store.close();
+            pending.clear(); state = ReplicaState.CLOSED; refresh();
+            synchronized (closeMonitor) { resourcesClosed = true; }
+        } finally {
+            synchronized (closeMonitor) { closingThread = null; closeMonitor.notifyAll(); }
+        }
     }
 }

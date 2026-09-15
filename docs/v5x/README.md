@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 3 accepted; Phase 4 recovery candidate locally validated
+- **Status:** Phase 4 accepted; Phase 5 hardening candidate locally validated
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -37,13 +37,18 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 4 recovery and snapshots](v5.0/PHASE_4_RECOVERY.md)
 - [V5.0 Phase 4 baseline](v5.0/PHASE_4_BASELINE.md)
 - [V5.0 Phase 4 checklist](v5.0/PHASE_4_CHECKLIST.md)
+- [V5.0 Phase 5 entry plan](v5.0/PHASE_5_ENTRY_PLAN.md)
+- [V5.0 Phase 5 runtime hardening](v5.0/PHASE_5_HARDENING.md)
+- [V5.0 Phase 5 baseline](v5.0/PHASE_5_BASELINE.md)
+- [V5.0 Phase 5 checklist](v5.0/PHASE_5_CHECKLIST.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
 Phase 0 was accepted through protected PR #145 at `105537c8`; exact-master CI run
 `34919817954` passed. Phase 1 was accepted through protected PR #146 at `2e78bddd`;
 exact-master CI `34930568130` passed. Phase 2 was accepted through protected PR #147 at `1895598`; exact-master CI
 `34934537274` passed. Phase 3 was accepted through protected PR #148 at `911c9de`;
-exact-master CI `34940262703` passed. Phase 4 adds fenced proof reconciliation,
-catch-up, replacement-voter admission, immutable snapshots and safe compaction.
-Protected Phase 4 acceptance is pending. Public engine/bootstrap admission and paid
-cloud remain reserved for their later gates.
+exact-master CI `34940262703` passed. Phase 4 was accepted through protected PR #149
+at `a67e654`; exact-master CI `34950041552` passed. Phase 5 hardens network fault
+handling, bounded admission, shutdown and repeated recovery. Protected Phase 5
+acceptance is pending. Complete public bootstrap/lifecycle admission remains required
+before end-user runtime/cloud admission; paid cloud is not enabled by this candidate.

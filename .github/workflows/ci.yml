@@ -21,7 +21,7 @@ jobs:
   reactor-tests:
     name: Reactor tests
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -54,6 +54,18 @@ jobs:
 
       - name: Exercise V5.0 recovery, snapshot installation and safe compaction
         run: scripts/verify-v50-phase4-recovery.sh --skip-build
+
+      - name: Exercise V5.0 deterministic faults, pressure, close and repeated recovery
+        run: scripts/verify-v50-phase5-hardening.sh --skip-build
+
+      - name: Retain V5.0 hardening evidence including failed cases and wire attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-hardening-${{ github.sha }}
+          path: target/v50-hardening
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Retain V5.0 recovery evidence including failed cases and V4.4 comparison
         if: ${{ always() }}
@@ -426,6 +438,7 @@ jobs:
           bash -n scripts/verify-v50-phase2-storage.sh
           bash -n scripts/verify-v50-phase3-leader.sh
           bash -n scripts/verify-v50-phase4-recovery.sh
+          bash -n scripts/verify-v50-phase5-hardening.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
