@@ -3,14 +3,19 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.nio.file.Path;
 import java.util.Objects;
 
-/** Declaration-only offline replicated-storage operations. */
+/** Offline replicated-storage inspection and reserved group bootstrap operations. */
 public final class ReplicationStorageOperations {
     private ReplicationStorageOperations() {
     }
 
+    /**
+     * Inspects a closed replica directory without application codecs or mutation.
+     * An absent directory returns an absent status; invalid or owned storage throws
+     * a classified {@link ReplicationException}.
+     */
     public static ReplicationStorageStatus inspect(Path directory) {
         Objects.requireNonNull(directory, "directory");
-        throw unavailable();
+        return ReplicaStore.inspect(directory);
     }
 
     public static ReplicationBootstrapPlan planBootstrap(
@@ -34,6 +39,6 @@ public final class ReplicationStorageOperations {
 
     private static UnsupportedOperationException unavailable() {
         return new UnsupportedOperationException(
-                "V5.0 replicated storage is not enabled in Phase 1");
+                "V5.0 group bootstrap is not enabled in Phase 2");
     }
 }

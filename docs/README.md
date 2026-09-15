@@ -16,6 +16,10 @@ remains the phase history and decision source of truth.
 - [V5.0 Phase 0 checklist](v5x/v5.0/PHASE_0_CHECKLIST.md)
 - [V5.0 Phase 1 foundation baseline](v5x/v5.0/PHASE_1_BASELINE.md)
 - [V5.0 Phase 1 checklist](v5x/v5.0/PHASE_1_CHECKLIST.md)
+- [V5.0 Phase 2 entry plan](v5x/v5.0/PHASE_2_ENTRY_PLAN.md)
+- [V5.0 Phase 2 storage format](v5x/v5.0/PHASE_2_STORAGE_FORMAT.md)
+- [V5.0 Phase 2 baseline](v5x/v5.0/PHASE_2_BASELINE.md)
+- [V5.0 Phase 2 checklist](v5x/v5.0/PHASE_2_CHECKLIST.md)
 
 ## v4.x — completed durable single-node development line
 

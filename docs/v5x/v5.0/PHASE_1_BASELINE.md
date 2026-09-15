@@ -1,13 +1,21 @@
 # V5.0 Phase 1 foundation baseline
 
-- **Status:** Local validation complete; protected-master acceptance pending
+- **Status:** Accepted through protected PR #146
 - **Coordinates:** `5.0.0-SNAPSHOT`
 - **Starting master:** `105537c83921aaab8fc0d4cf911b043f1efac6e1`
 - **Phase 0 acceptance:** protected PR #145, exact-master CI `34919817954`
 - **Published control:** `general-search-engine:4.4.0`
 - **Control SHA-256:** `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`
 
-## Delivered boundary
+## Protected-master acceptance
+
+[PR #146](https://github.com/patricklfdm/GeneralSearchEngine/pull/146) merged at
+`2e78bddd37fff6638c621da4e4f7f27c3f85a8aa`. [Exact-master CI
+34930568130](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34930568130)
+passed Required, Reactor tests, Compatibility, Release artifacts and Cloud runner
+(no GCP). This accepted the Phase 1 boundary and authorized Phase 2 entry.
+
+## Delivered boundary (at Phase 1 acceptance)
 
 Phase 1 adds the optional `general-search-engine-replication` artifact as declarations
 only. Its immutable values freeze the exact three-voter group, configured leader,
@@ -100,9 +108,9 @@ artifact dependencies remain unchanged.
 - release packaging and nine-JAR artifact integrity: pass; and
 - V5 documentation links and diff whitespace: pass.
 
-These are local candidate checks. Protected Phase 1 PR acceptance and exact-master
-CI remain pending. The initial two-build reproducibility and published-artifact
-comparison above are historical checks; CI reruns them for the final PR source.
+These local candidate checks were followed by the protected-master acceptance above.
+The initial two-build reproducibility and published-artifact comparison above are
+historical checks; CI reruns them for the final PR source.
 The model still abstracts storage and payload application. Full crash recovery,
 V4.4 document/search-state equivalence and production force/publication barriers
 belong to the later implementation matrix and are not claimed by this foundation.

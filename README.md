@@ -22,13 +22,12 @@ under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V5 Phase 0 is accepted and the `5.0.0-SNAPSHOT` Phase 1 candidate is locally validated.
-V5.0 targets correct single-shard replication under one configured leader and requires
-quorum-persisted epoch fencing, durable commit proof, deterministic local crash/network
-harnesses and concurrent three-node evidence before release. The optional replication
-artifact remains declaration-only; protected-master acceptance is pending, and no V5
-production path or paid cloud run is enabled. See the
-[V5.x development map](docs/v5x/README.md).
+V5 Phase 1 is accepted through protected PR #146 and exact-master CI. The
+`5.0.0-SNAPSHOT` Phase 2 candidate adds replicated storage, durable epoch/entry/proof
+journals and codec-free inspection in the optional replication artifact. The public
+engine and group bootstrap remain disabled; Phase 2 protected-master acceptance is
+pending. See the [V5 development line](docs/v5x/README.md) and
+[Phase 2 storage format](docs/v5x/v5.0/PHASE_2_STORAGE_FORMAT.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the

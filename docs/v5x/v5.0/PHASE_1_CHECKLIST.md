@@ -1,6 +1,6 @@
 # V5.0 Phase 1 checklist
 
-- **Status:** Candidate implementation; protected-master acceptance pending
+- **Status:** Accepted through protected PR #146 and exact-master CI `34930568130`
 - **Production replication:** disabled
 - **Paid cloud:** disabled
 
@@ -73,8 +73,9 @@
 ## Exit
 
 - [x] Full local reactor, model, process, fake-cloud and consumer gates pass.
-- [ ] Protected Phase 1 PR accepts the foundation.
-- [ ] Exact-master CI passes before Phase 2 begins.
+- [x] Protected Phase 1 PR #146 accepts the foundation at `2e78bddd`.
+- [x] Exact-master CI `34930568130` passed before Phase 2 begins.
 
-Paid cloud work, baseline registration and any production replication path remain
-unauthorized by this checklist.
+This checklist records the accepted Phase 1 scope. Production storage work proceeds
+under the [Phase 2 entry plan](PHASE_2_ENTRY_PLAN.md); paid cloud and baseline
+registration remain outside both phases.

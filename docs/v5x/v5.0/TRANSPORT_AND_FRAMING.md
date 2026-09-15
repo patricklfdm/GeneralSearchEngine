@@ -1,6 +1,6 @@
 # V5.0 Phase 1 transport and frame decision
 
-- **Status:** Candidate decision for protected Phase 1 review
+- **Status:** Accepted through protected Phase 1 PR #146
 - **Protocol:** `gse-replication/1.0`
 - **Production networking:** disabled in Phase 1
 

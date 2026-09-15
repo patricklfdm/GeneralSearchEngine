@@ -1,6 +1,6 @@
 # V5.0 Phase 1 entry plan
 
-- **Status:** Locally validated candidate; protected-master acceptance pending
+- **Status:** Accepted through protected PR #146 and exact-master CI `34930568130`
 - **Expected branch:** `feat/v5.0-phase1-foundation`
 - **Expected coordinates after entry:** `5.0.0-SNAPSHOT`
 
