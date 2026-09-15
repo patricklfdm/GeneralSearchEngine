@@ -27,7 +27,11 @@ final class ReplicaTransfer {
     ReplicaTransfer(Path root, ReplicaManifest manifest, ReplicationNodeId local, ReplicationBounds bounds) {
         directory = root.resolve(DIRECTORY); this.manifest = manifest; this.local = local; this.bounds = bounds;
     }
-    static int chunkSize(ReplicationBounds bounds) { return Math.min(bounds.snapshotChunkBytes(), (bounds.maxFrameBytes() - 2048) / 4 * 3); }
+    static int chunkSize(ReplicationBounds bounds) {
+        int size = Math.min(bounds.snapshotChunkBytes(), (bounds.maxFrameBytes() - 2048) / 4 * 3);
+        require(size > 0, CAPACITY_EXCEEDED, "frame bound leaves no room for a snapshot chunk");
+        return size;
+    }
     void begin(UUID id, long length, String digest) throws IOException {
         validHash(digest);
         require(length > 0 && length <= ReplicaSnapshot.maximum(bounds)

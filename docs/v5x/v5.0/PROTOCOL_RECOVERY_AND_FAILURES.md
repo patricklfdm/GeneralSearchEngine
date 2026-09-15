@@ -34,7 +34,7 @@ redefined by that selection.
 The Phase 1 candidate records these decisions in
 [Transport and framing](TRANSPORT_AND_FRAMING.md): Java 21 NIO without an external
 transport dependency, a bounded checksummed binary envelope, and golden examples
-for every message family. Production networking remains disabled.
+for every message family. Production networking was not enabled in Phase 1.
 
 ## Time, cancellation and pressure
 

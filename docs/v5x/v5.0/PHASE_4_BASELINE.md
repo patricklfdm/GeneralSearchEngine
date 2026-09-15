@@ -1,12 +1,20 @@
 # V5.0 Phase 4 recovery baseline
 
-- **Status:** Locally validated candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #149
 - **Branch:** `feat/v5.0-phase4-recovery`
 - **Coordinates:** `5.0.0-SNAPSHOT`
 - **Starting master:** `911c9de0bd63149e5d48e7f4d5cb0ea7042a951e`
 - **Phase 3 acceptance:** [PR #148](https://github.com/patricklfdm/GeneralSearchEngine/pull/148),
   [exact-master CI 34940262703](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34940262703)
 - **Published V4.4 control SHA-256:** `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`
+
+## Protected-master acceptance
+
+[PR #149](https://github.com/patricklfdm/GeneralSearchEngine/pull/149) merged at
+`a67e654eff5e5aeb1571c1497f194c9c5de9c2b0`. [Exact-master CI
+34950041552](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34950041552)
+passed all Required dependencies and actually executed the Phase 1–4 gates, including
+the Phase 4 three-JVM recovery matrix and evidence upload.
 
 ## Delivered boundary
 

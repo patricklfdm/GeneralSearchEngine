@@ -1,6 +1,6 @@
 # V5.0 Phase 4 recovery checklist
 
-- **Status:** Local implementation candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #149 and exact-master CI 34950041552
 - **Public engine/bootstrap:** reserved for complete bootstrap/lifecycle admission
 - **Paid cloud:** disabled
 
@@ -43,8 +43,8 @@
 - [x] Final clean reactor, Python suite and Phase 1/2/3/4 gates pass.
 - [x] Consumers, published API comparison and nine-JAR artifact integrity pass.
 - [x] Two clean release builds match byte-for-byte.
-- [ ] Protected Phase 4 PR accepts the candidate.
-- [ ] Exact-master CI passes before the next phase begins.
+- [x] Protected Phase 4 PR accepts the candidate.
+- [x] Exact-master CI passes before the next phase begins.
 
 Local checks do not establish protected-master acceptance. The public admission,
 performance, paid-cloud and signed-release gates remain separate.

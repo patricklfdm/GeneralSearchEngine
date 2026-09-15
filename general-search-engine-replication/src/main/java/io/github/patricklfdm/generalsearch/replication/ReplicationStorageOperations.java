@@ -39,6 +39,6 @@ public final class ReplicationStorageOperations {
 
     private static UnsupportedOperationException unavailable() {
         return new UnsupportedOperationException(
-                "V5.0 group bootstrap is not enabled in Phase 2");
+                "V5.0 group bootstrap requires complete authority and lifecycle admission");
     }
 }

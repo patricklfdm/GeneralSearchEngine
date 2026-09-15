@@ -68,6 +68,10 @@ final class ReplicaLeaderTestSupport {
         final List<ReplicaApplication<Integer, Document>> applications = new ArrayList<>();
         final List<ReplicaNode<Integer, Document>> nodes = new ArrayList<>();
         Group(Path root, ReplicationBounds bounds, ReplicaNode.Events events) throws IOException {
+            this(root, bounds, events, ignored -> ReplicaTransport.Events.NONE);
+        }
+        Group(Path root, ReplicationBounds bounds, ReplicaNode.Events events,
+              java.util.function.IntFunction<ReplicaTransport.Events> network) throws IOException {
             this.root = root; this.bounds = bounds; manifest = manifest(ports());
             try {
                 for (int i = 0; i < 3; i++) {
@@ -76,7 +80,7 @@ final class ReplicaLeaderTestSupport {
                     ReplicaStore.initialize(path, manifest, id, bounds, ReplicaStore.Faults.NONE);
                     var app = application(root.resolve("app-" + i), bounds); applications.add(app);
                     nodes.add(new ReplicaNode<>(path, manifest, id, bounds, app, ReplicaStore.Faults.NONE,
-                            i == 0 ? events : ReplicaNode.Events.NONE));
+                            i == 0 ? events : ReplicaNode.Events.NONE, network.apply(i)));
                 }
             } catch (RuntimeException | Error error) { close(); throw error; }
         }

@@ -57,7 +57,7 @@ final class ReplicaStore implements AutoCloseable {
     private UUID incarnation = NO_INCARNATION;
     private String lastDigest;
     private UUID lastIncarnation = NO_INCARNATION;
-    private boolean closed, failed;
+    private boolean closed, failed, quiescing;
 
     private ReplicaStore(Path directory, ReplicaManifest manifest, ReplicationNodeId node,
                          ReplicationBounds bounds, Faults faults, FileChannel lockChannel, FileLock lock,
@@ -497,9 +497,15 @@ final class ReplicaStore implements AutoCloseable {
     }
 
     private void writable() {
-        require(!closed, CLOSED, "replica store is closed");
+        require(!closed && !quiescing, CLOSED, "replica store is closed or quiescing");
         require(!failed, STORAGE_FAILURE, "replica store failed and must be reopened");
         require(!readOnly, STORAGE_FAILURE, "replica inspection is read-only");
+    }
+
+    /** Finish a current forced record before interrupting its writer; reject every later write. */
+    synchronized void quiesce(Thread writer) {
+        quiescing = true;
+        if (writer != null && writer != Thread.currentThread()) writer.interrupt();
     }
 
     synchronized long lastLogIndex() { return baseIndex + entryOffsets.size(); }

@@ -22,12 +22,12 @@ under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V5 Phase 3 is accepted through protected PR #148 and exact-master CI. The
-`5.0.0-SNAPSHOT` Phase 4 candidate adds fenced recovery, follower catch-up, disk
-replacement, immutable snapshots and safe compaction. Public engine/bootstrap
-admission remains reserved for its complete bootstrap and lifecycle gate. Protected
-Phase 4 acceptance is pending. See the [V5 development line](docs/v5x/README.md) and
-[Phase 4 recovery design](docs/v5x/v5.0/PHASE_4_RECOVERY.md).
+V5 Phase 4 is accepted through protected PR #149 and exact-master CI. The
+`5.0.0-SNAPSHOT` Phase 5 candidate hardens shutdown, bounded admission and recovery
+under deterministic network faults and repeated process crashes. Public engine/bootstrap
+admission remains reserved for its complete authority and lifecycle gate. Protected
+Phase 5 acceptance is pending. See the [V5 development line](docs/v5x/README.md) and
+[Phase 5 hardening design](docs/v5x/v5.0/PHASE_5_HARDENING.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the
