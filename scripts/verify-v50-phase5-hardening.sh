@@ -16,7 +16,7 @@ if [[ ! -f "$control_jar" && -z "${GSE_V50_CONTROL_JAR:-}" ]]; then
     -Dartifact=io.github.patricklfdm:general-search-engine:4.4.0 \
     -DoutputDirectory="$root/target/v50-control"
 fi
-"$python_command" -m unittest scripts.v50.test_hardening_trace
+"$python_command" -m unittest scripts.v50.test_hardening_trace scripts.v50.test_hardening_harness
 mkdir -p target/v50-hardening
 work_parent=$(mktemp -d "$root/target/v50-hardening/run.XXXXXX")
 echo "v50Phase5Evidence=$work_parent/evidence"
