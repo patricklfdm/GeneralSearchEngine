@@ -1,6 +1,7 @@
 # V5.0 Phase 5 runtime hardening
 
-- **Status:** Implementation candidate; protected acceptance pending
+- **Status:** Accepted through [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
+- **Exact-master CI:** [34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066) at `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
 - **Entry:** [Phase 5 plan](PHASE_5_ENTRY_PLAN.md)
 - **Authority:** [protocol and failure contract](PROTOCOL_RECOVERY_AND_FAILURES.md)
 - **Foundation:** [leader path](PHASE_3_LEADER_PATH.md), [recovery](PHASE_4_RECOVERY.md)

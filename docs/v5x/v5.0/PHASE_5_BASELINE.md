@@ -1,9 +1,12 @@
 # V5.0 Phase 5 hardening baseline
 
-- **Status:** Locally validated candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #150 and exact-master CI
 - **Branch:** `feat/v5.0-phase5-hardening`
 - **Coordinates:** `5.0.0-SNAPSHOT`
 - **Starting master:** `a67e654eff5e5aeb1571c1497f194c9c5de9c2b0`
+- **Acceptance:** [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150),
+  merged as `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
+- **Exact-master CI:** [34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
 - **Phase 4 acceptance:** [PR #149](https://github.com/patricklfdm/GeneralSearchEngine/pull/149),
   [exact-master CI 34950041552](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34950041552)
 - **Published V4.4 control SHA-256:** `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`
@@ -97,9 +100,16 @@ runs are candidate evidence; protected PR and exact-master CI use their own sour
 
 ## Remaining admission
 
+Protected PR #150 merged on September 15, 2026. Its exact-master CI passed Required,
+Reactor tests, Compatibility, Release artifacts and Cloud runner (no GCP). The Phase
+1–5 verification steps, including the hardening process gate, executed successfully.
+This acceptance is separate from the local evidence paths recorded above.
+
 Public builder/bootstrap and complete checkpoint/backup/lifecycle integration remain
 reserved. The [entry plan](PHASE_5_ENTRY_PLAN.md) explains the missing manifest/source
-binding and any necessary explicit API-contract review. Complete this admission before
+binding. The [public-admission amendment](PUBLIC_ADMISSION_CONTRACT.md) and
+[implementation plan](PUBLIC_ADMISSION_ENTRY_PLAN.md) now propose its explicit API
+and genesis-format review. Complete this admission before
 the end-user runtime/cloud lane; Phase 5 does not imply Phase 6 paid-run readiness.
 
 Shutdown wait bounds do not force arbitrary synchronous user callbacks/codecs to

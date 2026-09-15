@@ -1,8 +1,11 @@
 # V5.0 Phase 5 hardening entry plan
 
-- **Status:** Locally validated candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #150 and exact-master CI
 - **Branch:** `feat/v5.0-phase5-hardening`
 - **Starting master:** `a67e654eff5e5aeb1571c1497f194c9c5de9c2b0`
+- **Acceptance:** [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150),
+  `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`,
+  [exact-master CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
 - **Phase 4 acceptance:** [PR #149](https://github.com/patricklfdm/GeneralSearchEngine/pull/149),
   [exact-master CI 34950041552](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34950041552)
 
@@ -30,8 +33,11 @@ The declared bootstrap input does not yet bind the full three-voter manifest, sc
 codec and genesis source authority required by the frozen contract. Completing that
 workflow and public checkpoint/backup/close integration needs a concrete admission
 plan and explicit API-contract review if signatures must change. This hardening
-candidate does not fabricate bootstrap receipts or enable partial public construction.
+implementation does not fabricate bootstrap receipts or enable partial public construction.
 
 Public-admission acceptance remains required before calling V5.0 complete or running
 its end-user production/cloud admission lane. Performance, paid cloud, elections,
 membership changes and release publication remain outside this phase.
+
+The next [public-admission entry plan](PUBLIC_ADMISSION_ENTRY_PLAN.md) proposes the
+complete contract, explicit API delta and genesis-version amendment before implementation.
