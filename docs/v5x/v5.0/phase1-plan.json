@@ -10,6 +10,18 @@
     "snapshot": "gse-replica-snapshot-v1"
   },
   "logicalProtocol": "gse-replication/1.0",
+  "productionTransport": "Java 21 java.base NIO TCP; no external Maven transport dependency",
+  "wireFixtureSchema": "gse-v50-wire-fixtures-v1",
+  "cloudAvailabilityRecord": "cloud-availability.json",
+  "cloudSelection": {
+    "project": "gse-benchmark",
+    "zone": "us-west4-a",
+    "machineType": "n2-standard-8",
+    "provisioning": "standard",
+    "imageProject": "ubuntu-os-cloud",
+    "image": "ubuntu-2404-noble-amd64-v20260906",
+    "imageId": "6257327608773510097"
+  },
   "phase": 1,
   "productionReplication": "disabled",
   "publishedControl": {

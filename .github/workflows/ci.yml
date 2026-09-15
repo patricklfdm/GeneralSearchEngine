@@ -46,6 +46,15 @@ jobs:
       - name: Exercise the V5.0 replication foundation
         run: scripts/verify-v50-phase1-foundation.sh --skip-build
 
+      - name: Retain V5.0 foundation evidence including failed process workspaces
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-foundation-${{ github.sha }}
+          path: target/v50-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Exercise the V4 crash-harness and fake-cloud foundation
         run: scripts/verify-v40-phase1-foundation.sh --skip-build
 
@@ -446,8 +455,9 @@ jobs:
 
       - name: Validate V5.0 models, traces, evidence, and fake cloud
         run: |
-          python -m py_compile scripts/v50/replicated_history_model.py scripts/v50/deterministic_transport.py scripts/v50/evidence.py scripts/v50/replica_fixture.py scripts/v50/fake_cloud_lane.py scripts/v50/cloud_workflow.py scripts/v50/test_replicated_history_model.py scripts/v50/test_deterministic_transport.py scripts/v50/test_replica_fixture.py scripts/v50/test_phase1_infrastructure.py
-          python -m unittest scripts.v50.test_replicated_history_model scripts.v50.test_deterministic_transport scripts.v50.test_replica_fixture scripts.v50.test_phase1_infrastructure
+          python -m compileall -q scripts/v50
+          python -m unittest discover -s scripts/v50 -t . -p 'test_*.py'
+          python -m scripts.v50.wire_fixture
 
   required:
     name: Required

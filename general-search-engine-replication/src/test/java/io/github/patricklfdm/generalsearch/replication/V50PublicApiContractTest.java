@@ -72,6 +72,36 @@ class V50PublicApiContractTest {
     }
 
     @Test
+    void everyResourceDimensionRejectsZeroAndValuesAboveItsAbsoluteMaximum() {
+        long[] maximums = {
+                ReplicationBounds.HARD_MAX_FRAME_BYTES,
+                ReplicationBounds.HARD_MAX_ENTRIES_PER_APPEND,
+                ReplicationBounds.HARD_MAX_IN_FLIGHT_PER_PEER,
+                ReplicationBounds.HARD_MAX_PENDING_CLIENT_OPERATIONS,
+                ReplicationBounds.HARD_MAX_RETRY_ATTEMPTS,
+                ReplicationBounds.HARD_MAX_REQUEST_TIMEOUT_MILLIS,
+                ReplicationBounds.HARD_MAX_RETRY_BACKOFF_MILLIS,
+                ReplicationBounds.HARD_MAX_SNAPSHOT_CHUNK_BYTES,
+                ReplicationBounds.HARD_MAX_RETAINED_LOG_BYTES,
+                ReplicationBounds.HARD_MAX_SNAPSHOT_STAGING_BYTES};
+        for (int dimension = 0; dimension < maximums.length; dimension++) {
+            for (long invalid : new long[]{0, -1, maximums[dimension] + 1}) {
+                long[] values = maximums.clone();
+                values[dimension] = invalid;
+                assertThrows(IllegalArgumentException.class, () -> bounds(values),
+                        "dimension=" + dimension + " invalid=" + invalid);
+            }
+        }
+        assertEquals(maximums[9], bounds(maximums).maxSnapshotStagingBytes());
+    }
+
+    private ReplicationBounds bounds(long[] values) {
+        return new ReplicationBounds((int) values[0], (int) values[1], (int) values[2],
+                (int) values[3], (int) values[4], (int) values[5], (int) values[6],
+                (int) values[7], values[8], values[9]);
+    }
+
+    @Test
     void freezesOfflineBootstrapShape() {
         ReplicationBootstrapPlan plan = new ReplicationBootstrapPlan(
                 new ReplicationGroupId(UUID.fromString(

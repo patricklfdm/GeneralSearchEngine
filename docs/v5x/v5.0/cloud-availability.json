@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "gse-v50-cloud-availability-v1",
+  "observedAt": "2026-09-15T04:29:45Z",
+  "method": "read-only gcloud compute describe",
+  "project": "gse-benchmark",
+  "zone": {"name": "us-west4-a", "status": "UP"},
+  "machine": {"name": "n2-standard-8", "guestCpus": 8, "memoryMb": 32768, "zone": "us-west4-a"},
+  "image": {
+    "project": "ubuntu-os-cloud",
+    "name": "ubuntu-2404-noble-amd64-v20260906",
+    "id": "6257327608773510097",
+    "status": "READY",
+    "architecture": "X86_64",
+    "deprecated": null
+  },
+  "provisioning": "standard",
+  "resourcesCreated": false,
+  "claims": ["machine type exists in selected zone", "image exists, is READY and has no deprecated marker"],
+  "notValidated": ["current quota headroom", "VM allocation capacity", "pricing", "WIF/IAM", "firewall", "GCS access", "guest JDK/filesystem/mount identity"]
+}

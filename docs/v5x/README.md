@@ -17,6 +17,8 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 architecture and authority](v5.0/ARCHITECTURE_AND_AUTHORITY.md)
 - [V5.0 API and compatibility](v5.0/API_COMPATIBILITY.md)
 - [V5.0 protocol, recovery and failure contract](v5.0/PROTOCOL_RECOVERY_AND_FAILURES.md)
+- [V5.0 Phase 1 transport and frame decision](v5.0/TRANSPORT_AND_FRAMING.md)
+- [V5.0 read-only cloud availability record](v5.0/cloud-availability.json)
 - [V5.0 testing and evidence plan](v5.0/TESTING_AND_EVIDENCE.md)
 - [V5.0 Phase 0 checklist](v5.0/PHASE_0_CHECKLIST.md)
 - [V5.0 Phase 1 entry plan](v5.0/PHASE_1_ENTRY_PLAN.md)

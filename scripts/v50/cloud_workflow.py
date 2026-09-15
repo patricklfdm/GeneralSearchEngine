@@ -30,6 +30,8 @@ def main() -> None:
             "| Topology | `3 concurrent fixed voters` |\n"
             f"| Serial topology repeats | `{document['topologyRepeats']}` |\n"
             "| Peak quota | `24 vCPU / 450 GiB provisioned disk` |\n"
+            f"| Catalog selection | `{document['selection']['machineType']} / {document['selection']['zone']}` |\n"
+            f"| Image | `{document['selection']['image']}` |\n"
             "| Execution | `fake only; no GCP authentication or resources` |\n",
             encoding="utf-8")
         print("v50CloudSummary=PASS")

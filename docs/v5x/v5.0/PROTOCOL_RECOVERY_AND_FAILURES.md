@@ -31,6 +31,11 @@ Exact binary framing and transport library are Phase 1 decisions. The logical fi
 state transitions and rejection behavior are already frozen here and may not be
 redefined by that selection.
 
+The Phase 1 candidate records these decisions in
+[Transport and framing](TRANSPORT_AND_FRAMING.md): Java 21 NIO without an external
+transport dependency, a bounded checksummed binary envelope, and golden examples
+for every message family. Production networking remains disabled.
+
 ## Time, cancellation and pressure
 
 Clocks, timeout and heartbeat do not prove authority, failure or commitment. They may
