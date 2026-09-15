@@ -1,5 +1,29 @@
 # GeneralSearchEngine development roadmap
 
+## v5.x candidate replicated single-shard development contract
+
+Published `4.4.0` is the exact V5 compatibility and failure-classification reference.
+The V5 candidate lifts authority from one local durable owner to one replicated
+single-shard group without changing frozen V4.4 search truth. V5.0 is deliberately a
+configured-leader replication-correctness foundation: exactly three fixed voters,
+quorum-persisted epoch fencing, quorum durable entry plus commit proof, leader-only
+public access, restart reconciliation, follower catch-up and verified snapshot
+transfer. Election, promotion, follower reads and membership changes remain later V5
+minor boundaries; sharding and distributed query remain outside V5.
+
+The Phase 0 candidate resolves the V4-to-V5 authority boundary, the ambiguity between
+durably appended and provably committed entries, the replicated-log/V4-materialization
+layering, offline bootstrap, API/artifact separation, protocol/security assumptions
+and concurrent three-node evidence under the known 32-vCPU/500-GiB cloud quota. It
+also requires the independent model, deterministic network trace, separate-process
+crash harness, fake-cloud workflow and durable cloud lane in Phase 1 before production
+replication begins.
+
+The candidate authority map is under [`docs/v5x/`](docs/v5x/README.md). Phase 0 is
+documentation-only and remains pending protected-master acceptance. Until that gate
+closes, active coordinates remain published `4.4.0`; `5.0.0-SNAPSHOT` and production
+replication are not authorized.
+
 ## v4.x completed development contract
 
 Published `4.0.0` is the immutable correct-durability foundation. The V4.x line has
