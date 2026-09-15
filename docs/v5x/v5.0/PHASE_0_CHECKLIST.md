@@ -1,6 +1,6 @@
 # V5.0 Phase 0 checklist
 
-- **Status:** Candidate complete; protected-master acceptance pending
+- **Status:** Accepted through protected master
 - **Production Java changes:** none authorized
 
 ## Predecessor and scope
@@ -87,7 +87,7 @@
 - [x] Critical decisions are represented under `docs/v5x/`, not only in root prompts.
 - [x] Documentation/reference checks pass on the candidate branch.
 - [x] Review confirms no unresolved P0 semantic blocker.
-- [ ] Protected-master PR accepts the Phase 0 contract.
-- [ ] Exact-master CI passes before Phase 1 begins.
+- [x] Protected PR #145 accepts the Phase 0 contract at `105537c83921aaab8fc0d4cf911b043f1efac6e1`.
+- [x] Exact-master CI run `34919817954` passes before Phase 1 begins.
 
-Phase 1 may open `5.0.0-SNAPSHOT` only after the final four acceptance items close.
+Phase 1 opened from that exact accepted boundary on `feat/v5.0-phase1-foundation`.

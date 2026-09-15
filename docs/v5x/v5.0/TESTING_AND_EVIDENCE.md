@@ -1,6 +1,6 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Candidate Phase 0 plan
+- **Status:** Accepted Phase 0 plan; Phase 1 candidate locally validated
 - **Published control:** exact GeneralSearchEngine `4.4.0`
 - **Planned evidence schema:** `gse-v50-replication-evidence-v1`
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`
@@ -86,6 +86,12 @@ headroom. Phase 1 must verify an available Standard machine SKU and image in the
 selected zone, then freeze exact SKU/image/JDK/filesystem/mount/disk identities before
 any paid run. `c3d-standard-30` is explicitly invalid for a three-node topology under
 the current CPU quota.
+
+The Phase 1 candidate's read-only [availability receipt](cloud-availability.json)
+records `n2-standard-8` in `us-west4-a` and the exact READY, non-deprecated Ubuntu
+image. This proves catalog availability at the recorded time. Actual VM allocation,
+current quota headroom, pricing, guest runtime and access preflights still precede
+any paid execution; a catalog query does not reserve capacity.
 
 ## Planned profiles
 

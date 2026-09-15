@@ -14,6 +14,8 @@ remains the phase history and decision source of truth.
 - [V5.x roadmap](v5x/ROADMAP.md)
 - [V5.0 Phase 0 replication contract](v5x/v5.0/PHASE_0_CONTRACT.md)
 - [V5.0 Phase 0 checklist](v5x/v5.0/PHASE_0_CHECKLIST.md)
+- [V5.0 Phase 1 foundation baseline](v5x/v5.0/PHASE_1_BASELINE.md)
+- [V5.0 Phase 1 checklist](v5x/v5.0/PHASE_1_CHECKLIST.md)
 
 ## v4.x — completed durable single-node development line
 

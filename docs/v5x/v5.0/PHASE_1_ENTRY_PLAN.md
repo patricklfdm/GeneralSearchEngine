@@ -1,6 +1,6 @@
 # V5.0 Phase 1 entry plan
 
-- **Status:** Prepared, not authorized until Phase 0 protected-master acceptance
+- **Status:** Locally validated candidate; protected-master acceptance pending
 - **Expected branch:** `feat/v5.0-phase1-foundation`
 - **Expected coordinates after entry:** `5.0.0-SNAPSHOT`
 
@@ -23,7 +23,8 @@ Phase 1 starts only from an exact protected-master commit for which:
 3. Add an implementation-independent replicated-history model covering epoch promise,
    append, commit proof, apply, uncommitted truncation and recovery floor.
 4. Freeze exact logical protocol fixtures and structured event/evidence schemas without
-   enabling a production network path.
+   enabling a production network path. Freeze the transport dependency, common binary
+   frame envelope and golden bytes under [the framing decision](TRANSPORT_AND_FRAMING.md).
 5. Add deterministic in-process delivery/fault scheduling with serialized replay.
 6. Add three separate-JVM workers and safe process/storage crash orchestration over
    temporary directories; retain complete artifacts on failure.
@@ -34,7 +35,9 @@ Phase 1 starts only from an exact protected-master commit for which:
    private firewall, GCS-prefix and quota preflight instructions; do not execute paid
    resources.
 10. Record exact published V4.4 control, Java/Maven/toolchain identity and a Phase 1
-    foundation baseline/checklist.
+    foundation baseline/checklist. Verify candidate machine and image catalog entries
+    read-only; retain the [availability receipt](cloud-availability.json). Refresh
+    capacity/quota/pricing and freeze the guest runtime before paid Phase 6 admission.
 
 ## Explicit non-goals
 

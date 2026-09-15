@@ -19,10 +19,13 @@ also requires the independent model, deterministic network trace, separate-proce
 crash harness, fake-cloud workflow and durable cloud lane in Phase 1 before production
 replication begins.
 
-The candidate authority map is under [`docs/v5x/`](docs/v5x/README.md). Phase 0 is
-documentation-only and remains pending protected-master acceptance. Until that gate
-closes, active coordinates remain published `4.4.0`; `5.0.0-SNAPSHOT` and production
-replication are not authorized.
+The authority map is under [`docs/v5x/`](docs/v5x/README.md). Phase 0 merged through
+protected PR #145 as `105537c83921aaab8fc0d4cf911b043f1efac6e1`; exact-master
+CI run `34919817954` passed. Phase 1 opens `5.0.0-SNAPSHOT`, the optional
+declaration-only replication artifact, independent history/transport models, a
+three-JVM process/storage crash scaffold and no-GCP workflow. The candidate is locally
+validated; protected-master acceptance remains pending. Production replication and
+paid cloud execution remain unauthorized.
 
 ## v4.x completed development contract
 

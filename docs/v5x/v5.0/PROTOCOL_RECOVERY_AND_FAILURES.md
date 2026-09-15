@@ -1,6 +1,6 @@
 # V5.0 protocol, recovery and failure contract
 
-- **Status:** Candidate Phase 0 contract
+- **Status:** Accepted Phase 0 contract
 - **Protocol family:** `gse-replication/1.0`
 - **Storage family:** `gse-replicated (1,0)`
 
@@ -30,6 +30,11 @@ non-Byzantine member model; they are not a public-key signature or hostile-peer 
 Exact binary framing and transport library are Phase 1 decisions. The logical fields,
 state transitions and rejection behavior are already frozen here and may not be
 redefined by that selection.
+
+The Phase 1 candidate records these decisions in
+[Transport and framing](TRANSPORT_AND_FRAMING.md): Java 21 NIO without an external
+transport dependency, a bounded checksummed binary envelope, and golden examples
+for every message family. Production networking remains disabled.
 
 ## Time, cancellation and pressure
 

@@ -43,6 +43,18 @@ jobs:
       - name: Test the reactor
         run: ./mvnw -f reactor/pom.xml clean test
 
+      - name: Exercise the V5.0 replication foundation
+        run: scripts/verify-v50-phase1-foundation.sh --skip-build
+
+      - name: Retain V5.0 foundation evidence including failed process workspaces
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-foundation-${{ github.sha }}
+          path: target/v50-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Exercise the V4 crash-harness and fake-cloud foundation
         run: scripts/verify-v40-phase1-foundation.sh --skip-build
 
@@ -113,22 +125,47 @@ jobs:
         run: scripts/verify-v43-phase6-evidence.sh
 
       - name: Exercise the V4.4 final-hardening foundation
-        run: scripts/verify-v44-phase1-foundation.sh
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase1-foundation.sh
+          else
+            echo "V4.4 Phase 1 gate: SKIP (closed published line)"
+          fi
 
       - name: Exercise the V4.4 complete local final-durable matrix
-        run: scripts/verify-v44-phase2-matrix.sh --skip-build
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase2-matrix.sh --skip-build
+          else
+            echo "V4.4 Phase 2 gate: SKIP (closed published line)"
+          fi
 
       - name: Exercise the V4.4 zero-production-change admission
-        run: scripts/verify-v44-phase3-admission.sh --skip-build
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase3-admission.sh --skip-build
+          else
+            echo "V4.4 Phase 3 gate: SKIP (closed published line)"
+          fi
 
       - name: Exercise the V4.4 bounded local hardening probe
-        run: scripts/verify-v44-phase4-hardening.sh --skip-build
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase4-hardening.sh --skip-build
+          else
+            echo "V4.4 Phase 4 gate: SKIP (closed published line)"
+          fi
 
       - name: Restore the closed-surface non-JMH artifact
         run: ./mvnw -q clean -DskipTests package
 
       - name: Exercise V4.4 stabilization and no-GCP readiness
-        run: scripts/verify-v44-phase5-stabilization.sh --skip-build --skip-consumers --skip-canonical-build
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-phase5-stabilization.sh --skip-build --skip-consumers --skip-canonical-build
+          else
+            echo "V4.4 Phase 5 gate: SKIP (closed published line)"
+          fi
 
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
@@ -168,8 +205,12 @@ jobs:
 
       - name: Verify the closed V4.4 API and paired published-4.3 control
         run: |
-          scripts/verify-v44-published-v43-baseline.sh --skip-resolve
-          scripts/verify-v44-paired-baseline.sh
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-published-v43-baseline.sh --skip-resolve
+            scripts/verify-v44-paired-baseline.sh
+          else
+            echo "V4.4 candidate control: SKIP (published 4.4 is checked by artifact-compat)"
+          fi
 
       - name: Compile independent consumers
         run: scripts/verify-consumer-projects.sh
@@ -239,21 +280,35 @@ jobs:
         run: scripts/verify-release-artifacts.sh
 
       - name: Match the V4.4 release build to the frozen candidate bytes
-        run: python3 -m scripts.v44.candidate_artifacts validate-build
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            python3 -m scripts.v44.candidate_artifacts validate-build
+          else
+            echo "V4.4 candidate bytes: SKIP (closed published line)"
+          fi
 
       - name: Verify reproducible artifacts
         run: scripts/verify-reproducible-build.sh
 
       - name: Verify the V4.4 digest-pinned canonical build twice
-        run: scripts/verify-v44-canonical-build.sh
+        run: |
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            scripts/verify-v44-canonical-build.sh
+          else
+            echo "V4.4 canonical build: SKIP (closed published line)"
+          fi
 
       - name: Match the V4.4 canonical receipt to the frozen candidate bytes
         run: |
-          python3 -m scripts.v44.candidate_artifacts validate-evidence \
-            target/v44-canonical-reproducibility
+          if grep -Eq '^    <version>4\.4\.0</version>$' pom.xml; then
+            python3 -m scripts.v44.candidate_artifacts validate-evidence \
+              target/v44-canonical-reproducibility
+          else
+            echo "V4.4 canonical receipt: SKIP (closed published line)"
+          fi
 
       - name: Upload V4.4 canonical reproducibility receipt
-        if: ${{ always() }}
+        if: ${{ always() && hashFiles('target/v44-canonical-reproducibility/**') != '' }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: v44-canonical-reproducibility-${{ github.sha }}
@@ -330,6 +385,9 @@ jobs:
           bash -n scripts/verify-v44-canonical-build.sh
           bash -n scripts/verify-v44-published-v43-baseline.sh
           bash -n scripts/verify-v44-paired-baseline.sh
+          bash -n scripts/verify-v50-phase0-contract.sh
+          bash -n scripts/verify-v50-phase1-foundation.sh
+          bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh
           bash -n scripts/v43/remote_fast_reopen_stage.sh
@@ -394,6 +452,12 @@ jobs:
           python -m py_compile scripts/v44/api_inventory.py scripts/v44/evidence.py scripts/v44/final_matrix.py scripts/v44/crash_harness.py scripts/v44/fake_cloud_lane.py scripts/v44/toolchain_manifest.py scripts/v44/local_matrix.py scripts/v44/admission.py scripts/v44/local_hardening.py scripts/v44/canonical_reproducibility.py scripts/v44/candidate_artifacts.py scripts/v44/cloud_workflow.py scripts/v44/cloud_evidence.py scripts/v44/cloud_set.py scripts/v44/test_phase1_infrastructure.py scripts/v44/test_phase2_matrix.py scripts/v44/test_phase3_admission.py scripts/v44/test_phase4_hardening.py scripts/v44/test_phase5_reproducibility.py scripts/v44/test_phase5_cloud_readiness.py scripts/v44/test_phase6_registration.py scripts/v44/test_phase7_release_fixtures.py scripts/v44/test_candidate_artifacts.py
           python -m unittest scripts.v44.test_phase1_infrastructure scripts.v44.test_phase2_matrix scripts.v44.test_phase3_admission scripts.v44.test_phase4_hardening scripts.v44.test_phase5_reproducibility scripts.v44.test_phase5_cloud_readiness scripts.v44.test_phase6_registration scripts.v44.test_phase7_release_fixtures scripts.v44.test_candidate_artifacts
           scripts/verify-v44-phase6-registration.sh
+
+      - name: Validate V5.0 models, traces, evidence, and fake cloud
+        run: |
+          python -m compileall -q scripts/v50
+          python -m unittest discover -s scripts/v50 -t . -p 'test_*.py'
+          python -m scripts.v50.wire_fixture
 
   required:
     name: Required

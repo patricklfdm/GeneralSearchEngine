@@ -1,6 +1,6 @@
 # V5.0 architecture and authority
 
-- **Status:** Candidate Phase 0 architecture
+- **Status:** Accepted Phase 0 architecture
 - **Authority:** subordinate to `PHASE_0_CONTRACT.md`
 
 ## Runtime shape

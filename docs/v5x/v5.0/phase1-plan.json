@@ -1,0 +1,62 @@
+{
+  "artifact": "io.github.patricklfdm:general-search-engine-replication:5.0.0-SNAPSHOT",
+  "cloudExecution": "disabled",
+  "cloudPlanSchema": "gse-v50-cloud-plan-v1",
+  "evidenceSchema": "gse-v50-replication-evidence-v1",
+  "fixtureSchemas": {
+    "commitProof": "gse-replica-commit-proof-v1",
+    "logical": "gse-v50-logical-fixtures-v1",
+    "manifest": "gse-replica-manifest-v1",
+    "snapshot": "gse-replica-snapshot-v1"
+  },
+  "logicalProtocol": "gse-replication/1.0",
+  "productionTransport": "Java 21 java.base NIO TCP; no external Maven transport dependency",
+  "wireFixtureSchema": "gse-v50-wire-fixtures-v1",
+  "cloudAvailabilityRecord": "cloud-availability.json",
+  "cloudSelection": {
+    "project": "gse-benchmark",
+    "zone": "us-west4-a",
+    "machineType": "n2-standard-8",
+    "provisioning": "standard",
+    "imageProject": "ubuntu-os-cloud",
+    "image": "ubuntu-2404-noble-amd64-v20260906",
+    "imageId": "6257327608773510097"
+  },
+  "phase": 1,
+  "productionReplication": "disabled",
+  "publishedControl": {
+    "artifact": "io.github.patricklfdm:general-search-engine:4.4.0",
+    "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+  },
+  "resourceBounds": {
+    "bootDiskGiBPerVoter": 50,
+    "dataDiskGiBPerVoter": 100,
+    "maximumCompleteRunCostUsd": 40,
+    "maximumTopologyRuntimeSeconds": 5400,
+    "peakProvisionedDiskGiB": 450,
+    "peakVcpus": 24,
+    "vcpusPerVoter": 8
+  },
+  "replicationBounds": {
+    "maxEntriesPerAppend": 1000,
+    "maxFrameBytes": 8388608,
+    "maxInFlightPerPeer": 256,
+    "maxPendingClientOperations": 10000,
+    "maxRetainedLogBytes": 8589934592,
+    "maxRetryAttempts": 12,
+    "maxSnapshotStagingBytes": 17179869184,
+    "requestTimeoutMillis": 5000,
+    "retryBackoffMillis": 250,
+    "snapshotChunkBytes": 4194304
+  },
+  "schemaVersion": "gse-v50-phase1-plan-v1",
+  "suite": "v5.0-replicated-single-shard-suite-v1",
+  "preset": "v5.0-replicated-single-shard-v1",
+  "topology": {
+    "canonicalTopologyRepeats": 3,
+    "configuredLeader": "node-1",
+    "repeatsAreSerial": true,
+    "votersConcurrent": true,
+    "votersPerTopology": 3
+  }
+}

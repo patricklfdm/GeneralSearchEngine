@@ -1,6 +1,6 @@
 # V5.0 API, artifact and compatibility policy
 
-- **Status:** Candidate Phase 0 policy
+- **Status:** Accepted Phase 0 policy
 - **Published predecessor:** `4.4.0`
 
 ## Compatibility direction
@@ -39,6 +39,13 @@ The declaration-only fixture must represent:
 - asynchronous mutation/checkpoint/backup/close outcomes.
 
 Production networking and storage are not enabled in Phase 1.
+
+The Phase 1 candidate freezes both the top-level type inventory and the full declared
+public/protected signature inventory: generic parents/interfaces, constructors,
+methods, fields and constant values, ordered record components, enum values and
+public nested types. Tests compare checked-in fixtures without regenerating them.
+Inherited core declarations remain covered by the published-artifact compatibility
+gate. Fixture regeneration is an explicit review step.
 
 ## Existing operation mapping
 

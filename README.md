@@ -22,11 +22,12 @@ under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V5 planning is open as a documentation-only candidate. V5.0 targets correct
-single-shard replication under one configured leader and requires quorum-persisted
-epoch fencing, durable commit proof, deterministic local crash/network harnesses and
-concurrent three-node evidence before release. No V5 production path or
-`5.0.0-SNAPSHOT` coordinate is accepted yet. See the
+V5 Phase 0 is accepted and the `5.0.0-SNAPSHOT` Phase 1 candidate is locally validated.
+V5.0 targets correct single-shard replication under one configured leader and requires
+quorum-persisted epoch fencing, durable commit proof, deterministic local crash/network
+harnesses and concurrent three-node evidence before release. The optional replication
+artifact remains declaration-only; protected-master acceptance is pending, and no V5
+production path or paid cloud run is enabled. See the
 [V5.x development map](docs/v5x/README.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
