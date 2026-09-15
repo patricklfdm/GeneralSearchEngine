@@ -1,19 +1,22 @@
 # V5.0 public-admission entry and acceptance plan
 
-- **Status:** Contract review candidate; runtime implementation pending
-- **Branch:** `docs/v5.0-public-admission-contract`
-- **Starting master:** `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
+- **Status:** Contract accepted; Step A declarations and byte fixtures under review
+- **Branch:** `feat/v5.0-public-admission-foundation`
+- **Starting master:** `716f06f6bb04dcbf86e775eb93b4f7f31799739a`
 - **Phase 5:** [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
 - **Exact-master CI:** [34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
-- **Normative candidate:** [Contract](PUBLIC_ADMISSION_CONTRACT.md), [API delta](PUBLIC_ADMISSION_API.md)
+- **Accepted amendment:** [Contract](PUBLIC_ADMISSION_CONTRACT.md), [API delta](PUBLIC_ADMISSION_API.md)
+- **Current implementation:** [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md), [1.1 byte specification](PUBLIC_ADMISSION_FORMAT_1_1.md)
 
 ## Current change
 
-This documentation PR records Phase 5 protected acceptance and makes the remaining
-public bootstrap/lifecycle work reviewable. It proposes specific additive APIs and
-an explicit replicated `1.1` genesis/protocol amendment. It changes no Java source,
-POM, fixture, runtime gate or cloud workflow. The current public builder/bootstrap
-methods still reject. Contract acceptance and runtime acceptance are separate events.
+The contract amendment merged through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151)
+at `72ea9a6b176a7371d708cea1d84ad8d603adef61`; [master CI 34960589647](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34960589647) passed.
+The temporary CI/pressure-harness fix merged through [PR #152](https://github.com/patricklfdm/GeneralSearchEngine/pull/152)
+at `716f06f6bb04dcbf86e775eb93b4f7f31799739a`; [master CI 34965248513](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34965248513) passed with all Phase 1–5 gates executed.
+Step A now adds the approved declarations, explicit v1-to-v2 inventory delta and
+independent 1.1 bytes. The public builder and all newly declared operations remain
+reserved. Local implementation evidence is recorded in its separate foundation report.
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.
@@ -85,7 +88,7 @@ The Required CI job must depend on this executed gate and always upload its evid
 
 ## Acceptance checklist
 
-### This documentation candidate
+### Accepted documentation amendment (PR #151)
 
 - [x] Phase 5 PR #150 and exact-master CI `34956076066` verified.
 - [x] Required, Reactor tests, Compatibility, Release artifacts and no-GCP jobs passed.
@@ -94,8 +97,8 @@ The Required CI job must depend on this executed gate and always upload its evid
 - [x] Publication/cleanup, lifecycle, backup, replacement and numeric bounds specified.
 - [x] Ordered implementation PRs and independent public-consumer evidence specified.
 - [x] Local documentation checks pass on the final diff: contract gate, 512 local links across 35 Markdown files, fence/whitespace checks and documentation-only scope.
-- [ ] Protected PR accepts this amendment.
-- [ ] Exact-master CI accepts the merged documentation.
+- [x] Protected PR #151 accepts this amendment.
+- [x] Exact-master CI `34960589647` accepts the merged documentation.
 
 ### Future public runtime acceptance
 
@@ -106,7 +109,7 @@ The Required CI job must depend on this executed gate and always upload its evid
 - [ ] Full Phase 1–5 regression, compatibility, artifact and reproducibility checks pass.
 - [ ] Protected master CI executes all required public-admission gates successfully.
 
-## Validation for this documentation PR
+## Historical validation for the documentation PR #151
 
 The existing `scripts/verify-v50-phase0-contract.sh` passes. Local link validation
 passes for 512 links across 35 Markdown files in the V5 map and root entry points;
@@ -114,4 +117,4 @@ code fences and new-document whitespace checks also pass. `git diff --check` pas
 The final scope is 16 Markdown files (13 updates and 3 new documents), with Java,
 POMs, fixtures and workflows unchanged. Runtime tests are required in A–C when their
 code changes; this documentation diff does not rerun process matrices or claim new
-runtime evidence. Acceptance receipts for this PR will be recorded in its successor.
+runtime evidence. Its protected acceptance receipts are recorded above; Step A validation is separate.

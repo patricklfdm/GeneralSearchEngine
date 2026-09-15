@@ -5,11 +5,14 @@
 
 ## Compatibility direction
 
-The [public-admission API amendment](PUBLIC_ADMISSION_API.md) is a review candidate
-for explicit additive declarations and the unpublished V5 protocol constant change.
-The [associated contract](PUBLIC_ADMISSION_CONTRACT.md) proposes separate replicated
-`1.1` bytes. Neither inventory nor format fixture is changed by that documentation PR;
-the accepted Phase 1 declarations remain the current implementation baseline.
+The [public-admission API amendment](PUBLIC_ADMISSION_API.md) was accepted in PR #151.
+[Step A](PUBLIC_ADMISSION_FOUNDATION.md) adds its declarations and explicit v2 inventories,
+retaining v1 fixtures and checking the exact reviewed delta. No old descriptor is
+removed; the sole changed constant is the unpublished V5 protocol value 1.0 to 1.1.
+Published core/processor baselines remain unchanged. The artifact-compat profile
+checks the exact approved delta over the entire public core JAR before japicmp;
+its binary/source incompatibility failures remain enabled. Separate [1.1 byte fixtures](PUBLIC_ADMISSION_FORMAT_1_1.md)
+freeze the future admission format while Phase 1–5 continue to exercise internal 1.0.
 
 V5 is a new major line, but replication is additive and opt-in. Existing
 `SearchEngine`, `DurableSearchEngine`, `general-search-engine` and

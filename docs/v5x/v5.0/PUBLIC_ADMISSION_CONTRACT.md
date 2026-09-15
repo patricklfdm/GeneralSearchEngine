@@ -1,10 +1,12 @@
 # V5.0 public bootstrap and lifecycle contract amendment
 
-- **Status:** Review candidate; declarations and runtime are not implemented
+- **Status:** Contract accepted through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151); Step A declarations/fixtures under review
 - **Base:** Phase 5 accepted at `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
 - **Scope:** Complete the public-admission gap before Phase 6
 - **API delta:** [Proposed declarations and compatibility](PUBLIC_ADMISSION_API.md)
-- **Delivery and evidence:** [Entry plan](PUBLIC_ADMISSION_ENTRY_PLAN.md)
+- **Delivery and evidence:** [Entry plan](PUBLIC_ADMISSION_ENTRY_PLAN.md), [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md)
+- **Byte specification:** [Exact replicated/wire 1.1](PUBLIC_ADMISSION_FORMAT_1_1.md)
+- **Contract master:** `72ea9a6b176a7371d708cea1d84ad8d603adef61`, [CI 34960589647](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34960589647)
 
 ## Decision and existing gaps
 

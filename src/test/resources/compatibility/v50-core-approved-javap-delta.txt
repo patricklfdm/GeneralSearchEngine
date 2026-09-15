@@ -1,0 +1,53 @@
+--- published-v4
++++ candidate-v5
+@@ -227,0 +228,19 @@
++}
++TYPE io.github.patricklfdm.generalsearch.durability.DurableApplicationState
++public final class io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T> extends java.lang.Record {
++descriptor: ()I
++descriptor: ()J
++descriptor: ()Ljava/lang/String;
++descriptor: ()Ljava/util/List;
++descriptor: ()Ljava/util/List;
++descriptor: ()Ljava/util/UUID;
++descriptor: (Ljava/lang/Object;)Z
++descriptor: (Ljava/util/UUID;JLjava/util/List;Ljava/util/List;)V
++public final boolean equals(java.lang.Object);
++public final int hashCode();
++public final java.lang.String toString();
++public io.github.patricklfdm.generalsearch.durability.DurableApplicationState(java.util.UUID, long, java.util.List<T>, java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>>);
++public java.util.List<T> documents();
++public java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> indexes();
++public java.util.UUID history();
++public long sequence();
+@@ -1294,0 +1314,2 @@
++descriptor: ()Lio/github/patricklfdm/generalsearch/engine/SearchEngineConfiguration;
++descriptor: (Lio/github/patricklfdm/generalsearch/durability/DurableApplicationState;Lio/github/patricklfdm/generalsearch/durability/DurableStorageConfig;Lio/github/patricklfdm/generalsearch/durability/DurableBackupRequest;)Lio/github/patricklfdm/generalsearch/durability/DurableBackupResult;
+@@ -1305,0 +1327 @@
++descriptor: (Ljava/nio/file/Path;Lio/github/patricklfdm/generalsearch/durability/DurableVerificationConfig;J)Lio/github/patricklfdm/generalsearch/durability/DurableApplicationState;
+@@ -1309,0 +1332,2 @@
++public io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T> readDurableBackup(java.nio.file.Path, io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig<K, T>, long);
++public io.github.patricklfdm.generalsearch.durability.DurableBackupResult writeDurableBackup(io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>, io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>, io.github.patricklfdm.generalsearch.durability.DurableBackupRequest);
+@@ -1319,0 +1344,22 @@
++public io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K, T> configuration();
++}
++TYPE io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration
++public final class io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K, T> extends java.lang.Record {
++descriptor: ()I
++descriptor: ()Lio/github/patricklfdm/generalsearch/engine/SearchEngineBuilder;
++descriptor: ()Lio/github/patricklfdm/generalsearch/engine/SnapshotEngineConfig;
++descriptor: ()Lio/github/patricklfdm/generalsearch/query/PlannerConfig;
++descriptor: ()Lio/github/patricklfdm/generalsearch/schema/SearchSchema;
++descriptor: ()Ljava/lang/String;
++descriptor: ()Ljava/util/List;
++descriptor: (Lio/github/patricklfdm/generalsearch/schema/SearchSchema;Ljava/util/List;Lio/github/patricklfdm/generalsearch/engine/SnapshotEngineConfig;Lio/github/patricklfdm/generalsearch/query/PlannerConfig;)V
++descriptor: (Ljava/lang/Object;)Z
++public final boolean equals(java.lang.Object);
++public final int hashCode();
++public final java.lang.String toString();
++public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> newBuilder();
++public io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration(io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K>, java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>>, io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig, io.github.patricklfdm.generalsearch.query.PlannerConfig);
++public io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig config();
++public io.github.patricklfdm.generalsearch.query.PlannerConfig plannerConfig();
++public io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K> schema();
++public java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> indexes();

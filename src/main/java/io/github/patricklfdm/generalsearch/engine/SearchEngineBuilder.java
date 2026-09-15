@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.analysis.Analyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableSearchEngine;
+import io.github.patricklfdm.generalsearch.durability.DurableApplicationState;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupResult;
 import io.github.patricklfdm.generalsearch.durability.DurableRestoreResult;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan;
 import io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest;
@@ -126,6 +129,43 @@ public final class SearchEngineBuilder<K, T> {
     public SearchEngineBuilder<K, T> plannerConfig(PlannerConfig plannerConfig) {
         this.plannerConfig = Objects.requireNonNull(plannerConfig, "plannerConfig");
         return this;
+    }
+
+    /** Reserved immutable configuration capture; enabled in public-admission Step B. */
+    public SearchEngineConfiguration<K, T> configuration() {
+        throw new UnsupportedOperationException("Configuration handoff requires public-admission Step B");
+    }
+
+    /**
+     * Reserved bounded, source-preserving backup import. Step B will preserve the
+     * exact history, sequence, canonical document order and active indexes.
+     * This declaration performs no codec, filesystem or engine work.
+     */
+    public DurableApplicationState<T> readDurableBackup(
+            Path backupDirectory, DurableVerificationConfig<K, T> expectedConfig,
+            long maxSourceBytes
+    ) {
+        Objects.requireNonNull(backupDirectory, "backupDirectory");
+        Objects.requireNonNull(expectedConfig, "expectedConfig");
+        if (maxSourceBytes <= 0 || maxSourceBytes > (1L << 40)) {
+            throw new IllegalArgumentException("maxSourceBytes must be between 1 and 1 TiB");
+        }
+        throw new UnsupportedOperationException("Application transfer requires public-admission Step B");
+    }
+
+    /**
+     * Reserved standalone V4 backup export, preserving the supplied history,
+     * sequence and active indexes. Step B will implement canonical transfer without
+     * opening a live WAL or modifying the storage configuration's directory.
+     */
+    public DurableBackupResult writeDurableBackup(
+            DurableApplicationState<T> state, DurableStorageConfig<K, T> storageConfig,
+            DurableBackupRequest request
+    ) {
+        Objects.requireNonNull(state, "state");
+        Objects.requireNonNull(storageConfig, "storageConfig");
+        Objects.requireNonNull(request, "request");
+        throw new UnsupportedOperationException("Application transfer requires public-admission Step B");
     }
 
     /** Builds and starts a new engine instance owned by the caller. */

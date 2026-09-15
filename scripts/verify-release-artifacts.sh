@@ -90,6 +90,15 @@ if [[ "$version" == 5.* ]]; then
         echo "replication JAR has Implementation-Version '$replication_version'; expected '$version'" >&2
         exit 1
     fi
+    # Independent byte oracles, frozen fixtures and crash controls are test assets,
+    # including in source/Javadoc artifacts; none is a supported production API.
+    for artifact in "${artifacts[@]}"; do
+        artifact_entries=$(jar tf "$artifact")
+        if grep -Eq '(^|/)(admission/|compatibility/|replication/v50-|V50[^/]*(Test|Worker|Control|Fixture)[^/]*$|ReplicaNetworkFaults[^/]*$)' <<< "$artifact_entries"; then
+            echo "test-only V5 evidence leaked into release artifact: $artifact" >&2
+            exit 1
+        fi
+    done
 fi
 
 if jar tf "$core_jar" | grep -Fxq "$service_entry"; then

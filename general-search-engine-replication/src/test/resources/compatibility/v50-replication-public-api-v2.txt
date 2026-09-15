@@ -1,0 +1,24 @@
+enum io.github.patricklfdm.generalsearch.replication.ReplicaRole
+enum io.github.patricklfdm.generalsearch.replication.ReplicaState
+interface io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngine
+class io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngineBuilder
+class io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngines
+record io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan
+enum io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource
+record io.github.patricklfdm.generalsearch.replication.ReplicationBounds
+record io.github.patricklfdm.generalsearch.replication.ReplicationEndpoint
+class io.github.patricklfdm.generalsearch.replication.ReplicationException
+record io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig
+record io.github.patricklfdm.generalsearch.replication.ReplicationGroupId
+record io.github.patricklfdm.generalsearch.replication.ReplicationMember
+record io.github.patricklfdm.generalsearch.replication.ReplicationNodeId
+record io.github.patricklfdm.generalsearch.replication.ReplicationStatus
+class io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations
+record io.github.patricklfdm.generalsearch.replication.ReplicationStorageStatus
+
+record io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest
+record io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult
+record io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan
+record io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan
+record io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus
+record io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics

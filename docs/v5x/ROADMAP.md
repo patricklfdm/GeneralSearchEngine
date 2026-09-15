@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 accepted; public-admission contract amendment under review
+- **Status:** Phase 5 and public-admission contract accepted; Step A under review
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -44,9 +44,10 @@ at `a67e654`; exact-master CI `34950041552` passed. Phase 5 was accepted through
 passed. Its [baseline](v5.0/PHASE_5_BASELINE.md) and
 [checklist](v5.0/PHASE_5_CHECKLIST.md) record the completed hardening boundary.
 
-Next is the [public-admission contract amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md),
+PR #151 accepted the [public-admission contract amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md),
 with an explicit [API delta](v5.0/PUBLIC_ADMISSION_API.md). The
 [entry plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md) splits implementation into reviewed
 declarations/byte fixtures, offline bootstrap/recovery operations and the complete
 public runtime. These are completion gates between Phase 5 and Phase 6; the amendment
 does not itself enable the public builder or establish paid-run readiness.
+[Step A declarations and independent 1.1 bytes](v5.0/PUBLIC_ADMISSION_FOUNDATION.md) are under review.

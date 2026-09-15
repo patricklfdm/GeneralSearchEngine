@@ -14,6 +14,9 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 final class ReplicaWire {
+    // Phase 1–5 historical runtime remains 1.0 until the Step C admission gate.
+    // Never advertise the new public constant with a legacy manifest/frame.
+    private static final String PROTOCOL = "gse-replication/1.0";
     static final List<String> TYPES = List.of("HANDSHAKE", "ACTIVATION_PROMISE", "APPEND", "DURABLE_ACK",
             "COMMIT_PROOF", "COMMIT_PROOF_ACK", "COMMIT_ADVANCE", "CONFLICT", "AUTHORITY_STATUS_PROBE",
             "SNAPSHOT_OFFER", "SNAPSHOT_CHUNK", "SNAPSHOT_INSTALL", "ACTIVATE_EPOCH", "AUTHORITY_STATUS", "SNAPSHOT_ABORT", "REJECT");
@@ -65,7 +68,7 @@ final class ReplicaWire {
                                        long epoch, UUID incarnation, String type, Map<String, Object> payload,
                                        UUID trace, long sequence) {
         var value = new TreeMap<String, Object>();
-        value.put("protocol", ReplicatedSearchEngines.PROTOCOL);
+        value.put("protocol", PROTOCOL);
         value.put("groupId", manifest.groupId().value().toString());
         value.put("configurationId", manifest.configurationId());
         value.put("sender", sender.value()); value.put("recipient", recipient.value());
@@ -85,7 +88,7 @@ final class ReplicaWire {
     }
 
     private static void validate(Map<String, Object> value) {
-        require(value.keySet().equals(FIELDS) && string(value, "protocol").equals(ReplicatedSearchEngines.PROTOCOL)
+        require(value.keySet().equals(FIELDS) && string(value, "protocol").equals(PROTOCOL)
                 && TYPES.contains(string(value, "type")), PROTOCOL_MISMATCH, "invalid wire envelope");
         for (String field : List.of("groupId", "incarnationId", "traceId")) {
             try { require(UUID.fromString(string(value, field)).toString().equals(string(value, field)), PROTOCOL_MISMATCH, "noncanonical UUID"); }

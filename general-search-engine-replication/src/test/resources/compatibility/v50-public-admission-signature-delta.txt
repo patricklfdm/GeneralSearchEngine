@@ -1,0 +1,132 @@
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest(io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource,java.nio.file.Path,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<K, T>>,java.nio.file.Path,long,long)
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult(java.nio.file.Path,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan,java.lang.String,java.lang.String,java.util.UUID,long,java.lang.String)
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan(java.nio.file.Path,java.lang.String,java.util.List<java.nio.file.Path>,java.lang.String,java.lang.String)
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics(io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.lang.String,java.util.Optional<java.lang.String>,java.util.UUID,io.github.patricklfdm.generalsearch.replication.ReplicationStatus,long,boolean,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus>,java.util.Optional<java.time.Instant>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationException$Reason>)
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,boolean,long,long,long,java.util.Optional<java.time.Instant>)
++ constructor public io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan(java.nio.file.Path,java.nio.file.Path,io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,java.nio.file.Path,java.lang.String,java.lang.String,java.lang.String)
++ field public static final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngines.PROTOCOL = gse-replication/1.1
++ method public boolean io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.snapshotInstalling()
++ method public boolean io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.reachable()
++ method public default io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngine.replicationDiagnostics()
++ method public default java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.ReplicationStatus> io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngine.reconstructConfiguredLeader()
++ method public default java.util.concurrent.CompletableFuture<java.lang.Long> io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngine.catchUp(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.equals(java.lang.Object)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.equals(java.lang.Object)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.equals(java.lang.Object)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.equals(java.lang.Object)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.equals(java.lang.Object)
++ method public final boolean io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.equals(java.lang.Object)
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.hashCode()
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.hashCode()
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.hashCode()
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.hashCode()
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.hashCode()
++ method public final int io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.hashCode()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.toString()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.toString()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.toString()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.toString()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.toString()
++ method public final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.toString()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.plan()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.source()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.groupId()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.nodeId()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.replacementNode()
++ method public io.github.patricklfdm.generalsearch.replication.ReplicationStatus io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.local()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.genesisDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.manifestDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.receiptDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.inventoryDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.operationDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.planDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.configurationId()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.manifestDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.planDigest()
++ method public java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.sourceInventoryDigest()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.operationDirectory()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.sourcePath()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.operationDirectory()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.operationDirectory()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.absentTarget()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.operationDirectory()
++ method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan.sourceReplicaDirectory()
++ method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<K, T>> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.replicas()
++ method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.peers()
++ method public java.util.List<java.nio.file.Path> io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan.deletePaths()
++ method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationException$Reason> io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.lastFailure()
++ method public java.util.Optional<java.lang.String> io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.manifestDigest()
++ method public java.util.Optional<java.time.Instant> io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.lastQuorumSuccess()
++ method public java.util.Optional<java.time.Instant> io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.observedAt()
++ method public java.util.UUID io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.applicationHistory()
++ method public java.util.UUID io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.incarnation()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.maxOperationBytes()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest.maxSourceBytes()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult.applicationSequence()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics.recoveryFloor()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.appliedIndex()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.durableIndex()
++ method public long io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus.matchIndex()
++ method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.planBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest<K, T>)
++ method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.applyBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan)
++ method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.resumeBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan)
++ method public static io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.readBootstrapResult(java.nio.file.Path)
++ method public static io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.planCleanup(java.nio.file.Path)
++ method public static io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.planReplacement(io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<?, ?>,java.nio.file.Path,java.nio.file.Path)
++ method public static void io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.applyCleanup(io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan)
++ method public static void io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.applyReplacement(io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<?, ?>,io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan)
++ method public static void io.github.patricklfdm.generalsearch.replication.ReplicationStorageOperations.resumeReplacement(io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<?, ?>,io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan)
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 0 io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource source
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 1 java.nio.file.Path sourcePath
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 2 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationGroupConfig<K, T>> replicas
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 3 java.nio.file.Path operationDirectory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 4 long maxSourceBytes
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest 5 long maxOperationBytes
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 0 java.nio.file.Path operationDirectory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 1 io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan plan
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 2 java.lang.String manifestDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 3 java.lang.String genesisDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 4 java.util.UUID applicationHistory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 5 long applicationSequence
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult 6 java.lang.String receiptDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan 0 java.nio.file.Path operationDirectory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan 1 java.lang.String operationDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan 2 java.util.List<java.nio.file.Path> deletePaths
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan 3 java.lang.String inventoryDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan 4 java.lang.String planDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 0 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 1 java.lang.String configurationId
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 2 java.util.Optional<java.lang.String> manifestDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 3 java.util.UUID incarnation
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 4 io.github.patricklfdm.generalsearch.replication.ReplicationStatus local
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 5 long recoveryFloor
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 6 boolean snapshotInstalling
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 7 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> peers
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 8 java.util.Optional<java.time.Instant> lastQuorumSuccess
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics 9 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationException$Reason> lastFailure
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 0 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId nodeId
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 1 boolean reachable
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 2 long durableIndex
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 3 long matchIndex
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 4 long appliedIndex
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus 5 java.util.Optional<java.time.Instant> observedAt
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 0 java.nio.file.Path operationDirectory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 1 java.nio.file.Path sourceReplicaDirectory
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 2 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId replacementNode
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 3 java.nio.file.Path absentTarget
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 4 java.lang.String manifestDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 5 java.lang.String sourceInventoryDigest
++ record-component io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan 6 java.lang.String planDigest
++ super io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest java.lang.Record
++ super io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult java.lang.Record
++ super io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan java.lang.Record
++ super io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics java.lang.Record
++ super io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus java.lang.Record
++ super io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan java.lang.Record
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapRequest<K,T>
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationDiagnostics
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus
++ type public final record io.github.patricklfdm.generalsearch.replication.ReplicationReplacementPlan
+- field public static final java.lang.String io.github.patricklfdm.generalsearch.replication.ReplicatedSearchEngines.PROTOCOL = gse-replication/1.0
