@@ -37,6 +37,9 @@ jobs:
       - name: Verify aligned development versions
         run: scripts/verify-version-alignment.sh
 
+      - name: Verify the V5.0 Phase 0 contract candidate
+        run: scripts/verify-v50-phase0-contract.sh
+
       - name: Test the reactor
         run: ./mvnw -f reactor/pom.xml clean test
 

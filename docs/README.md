@@ -7,6 +7,14 @@ development phases. The repository root [`README.md`](../README.md) remains the
 user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
 remains the phase history and decision source of truth.
 
+## v5.x — replicated single-shard development line
+
+- [Development overview and authority map](v5x/README.md)
+- [V5 development charter](v5x/DEVELOPMENT_CHARTER.md)
+- [V5.x roadmap](v5x/ROADMAP.md)
+- [V5.0 Phase 0 replication contract](v5x/v5.0/PHASE_0_CONTRACT.md)
+- [V5.0 Phase 0 checklist](v5x/v5.0/PHASE_0_CHECKLIST.md)
+
 ## v4.x — completed durable single-node development line
 
 - [Development overview and authority map](v4x/README.md)
