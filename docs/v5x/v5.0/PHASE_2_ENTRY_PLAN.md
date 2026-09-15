@@ -1,6 +1,6 @@
 # V5.0 Phase 2 replicated storage entry plan
 
-- **Status:** Locally validated candidate; protected-master acceptance pending
+- **Status:** Accepted through protected PR #147 and exact-master CI `34934537274`
 - **Branch:** `feat/v5.0-phase2-replicated-storage`
 - **Starting master:** `2e78bddd37fff6638c621da4e4f7f27c3f85a8aa`
 - **Phase 1 acceptance:** protected PR #146, exact-master CI `34930568130` (success)

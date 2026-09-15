@@ -194,7 +194,7 @@ def _inspect_locked(directory):
                     check(digest(payload) == payload_digest, "payload checksum mismatch")
                     entries.append({"manifestDigest": manifest_digest, "epoch": epoch, "incarnation": incarnation,
                                     "index": index, "digest": record[1], "previousDigest": prev_digest,
-                                    "operation": OPERATIONS[operation - 1]})
+                                    "operation": OPERATIONS[operation - 1], "payloadDigest": payload_digest})
                     previous_epoch, previous_digest = epoch, record[1]
                 else:
                     epoch, incarnation, index = reader.number("q"), reader.take(16), reader.number("q")
@@ -211,15 +211,16 @@ def _inspect_locked(directory):
                         receipt_nodes.append(voter)
                     check(receipt_nodes == sorted(set(receipt_nodes)), "duplicate/unsorted receipt voters")
                     committed = index
-                    proofs.append(index)
+                    proofs.append({"index": index, "digest": record[1].hex(), "receiptVoters": receipt_nodes})
                 reader.end()
     ready_body, _ = single(directory / "storage-ready.gsr", 7)
     check(ready_body == manifest_digest + node_digest + b"".join(headers), "incomplete initialization marker")
     return {"groupId": group, "configurationId": configuration, "nodeId": node,
             "manifestDigest": manifest_digest.hex(), "promisedEpoch": max(promises, default=1),
             "lastLogIndex": len(entries), "commitIndex": committed, "appliedIndex": 0,
-            "applicationSequence": 0, "entries": [{"index": e["index"], "epoch": e["epoch"],
-              "operation": e["operation"], "digest": e["digest"].hex()} for e in entries],
+            "applicationSequence": 0, "proofs": proofs, "entries": [{"index": e["index"], "epoch": e["epoch"],
+              "operation": e["operation"], "digest": e["digest"].hex(),
+              "payloadDigest": e["payloadDigest"].hex(), "incarnationId": str(uuid.UUID(bytes=e["incarnation"]))} for e in entries],
             "codecId": codec, "codecVersion": codec_version, "schemaId": schema,
             "schemaVersion": schema_version, "indexConfigurationDigest": index_digest.hex()}
 

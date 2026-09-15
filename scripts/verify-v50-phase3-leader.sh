@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -euo pipefail
-
 root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$root"
 if [[ $# -eq 0 ]]; then
@@ -11,9 +10,9 @@ elif [[ $# -ne 1 || "$1" != --skip-build ]]; then
 fi
 python_command=python3
 command -v python3.11 >/dev/null 2>&1 && python_command=python3.11
-"$python_command" -m unittest scripts.v50.test_storage_format
-mkdir -p target/v50-storage
-work_parent=$(mktemp -d "$root/target/v50-storage/run.XXXXXX")
-echo "v50Phase2Evidence=$work_parent/evidence"
-"$python_command" -m scripts.v50.storage_harness "$work_parent/evidence"
-echo "v50Phase2Storage=PASS publicRuntime=disabled paidCloud=disabled"
+"$python_command" -m unittest scripts.v50.test_leader_oracle
+mkdir -p target/v50-leader
+work_parent=$(mktemp -d "$root/target/v50-leader/run.XXXXXX")
+echo "v50Phase3Evidence=$work_parent/evidence"
+"$python_command" -m scripts.v50.leader_harness "$work_parent/evidence"
+echo "v50Phase3LeaderPath=PASS publicRuntime=disabled paidCloud=disabled"
