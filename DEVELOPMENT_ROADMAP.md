@@ -28,13 +28,14 @@ was accepted through PR #148 at `911c9de` (CI `34940262703`). Phase 4 recovery w
 accepted through PR #149 at `a67e654` (CI `34950041552`). Phase 5 hardening was
 accepted through [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
 at `4a8fd3d` ([CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066));
-see the [hardening baseline](docs/v5x/v5.0/PHASE_5_BASELINE.md). The next
-[public-admission amendment](docs/v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md) proposes complete
+see the [hardening baseline](docs/v5x/v5.0/PHASE_5_BASELINE.md). The accepted PR #151
+[public-admission amendment](docs/v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md) specifies complete
 bootstrap/lifecycle semantics, an explicit [API delta](docs/v5x/v5.0/PUBLIC_ADMISSION_API.md)
 and genesis-bound replicated `1.1` formats. Its
 [implementation plan](docs/v5x/v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md) requires declarations
 and independent fixtures, offline authority operations, then the complete public
-runtime gate before Phase 6. These remain proposed work; public construction is reserved.
+runtime gate before Phase 6. [Step A](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) now
+provides reserved declarations and independent byte fixtures; public construction is reserved.
 
 ## v4.x completed development contract
 

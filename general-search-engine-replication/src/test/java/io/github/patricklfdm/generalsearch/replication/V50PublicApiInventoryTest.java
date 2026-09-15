@@ -36,7 +36,7 @@ class V50PublicApiInventoryTest {
     @Test
     void completePublicDeclarationsMatchTheReviewedSignatureFixture() throws Exception {
         try (var resource = getClass().getResourceAsStream(
-                "/compatibility/v50-replication-public-signatures-v1.txt")) {
+                "/compatibility/v50-replication-public-signatures-v2.txt")) {
             if (resource == null) {
                 throw new IllegalStateException("public signature fixture is absent");
             }
@@ -44,6 +44,45 @@ class V50PublicApiInventoryTest {
             assertEquals(expected, signatures(),
                     "review every constructor, method, generic, record component, enum and constant change");
         }
+    }
+
+    @Test
+    void reviewedDeltaPreservesHistoricalDeclarationsAndOnlyChangesTheProtocolConstant() throws Exception {
+        Set<String> oldLines = fixtureLines("v50-replication-public-signatures-v1.txt");
+        Set<String> newLines = fixtureLines("v50-replication-public-signatures-v2.txt");
+        Set<String> removed = new TreeSet<>(oldLines); removed.removeAll(newLines);
+        assertEquals(Set.of("field public static final java.lang.String " + PACKAGE
+                + ".ReplicatedSearchEngines.PROTOCOL = gse-replication/1.0"), removed);
+        assertEquals(fixtureLines("v50-public-admission-signature-delta.txt"), delta(oldLines, newLines));
+        Set<String> oldCore = fixtureLines("v50-core-handoff-signatures-v1.txt");
+        Set<String> newCore = fixtureLines("v50-core-handoff-signatures-v2.txt");
+        assertTrue(newCore.containsAll(oldCore), "all pre-amendment builder declarations survive");
+        assertEquals(fixtureLines("v50-core-handoff-signature-delta.txt"), delta(oldCore, newCore));
+        assertEquals(String.join("\n", newCore) + "\n", coreSignatures(true));
+    }
+
+    private Set<String> fixtureLines(String name) throws Exception {
+        try (var input = getClass().getResourceAsStream("/compatibility/" + name)) {
+            if (input == null) throw new IllegalStateException("missing fixture " + name);
+            return new TreeSet<>(new String(input.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8).lines().toList());
+        }
+    }
+
+    private Set<String> delta(Set<String> oldLines, Set<String> newLines) {
+        Set<String> result = new TreeSet<>();
+        oldLines.stream().filter(line -> !newLines.contains(line)).forEach(line -> result.add("- " + line));
+        newLines.stream().filter(line -> !oldLines.contains(line)).forEach(line -> result.add("+ " + line));
+        return result;
+    }
+
+    private String coreSignatures(boolean additions) throws Exception {
+        Set<String> declarations = new TreeSet<>();
+        collectSignatures(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.class, declarations);
+        if (additions) {
+            collectSignatures(Class.forName("io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration"), declarations);
+            collectSignatures(Class.forName("io.github.patricklfdm.generalsearch.durability.DurableApplicationState"), declarations);
+        }
+        return String.join("\n", declarations) + "\n";
     }
 
     private String signatures() throws Exception {
@@ -109,12 +148,13 @@ class V50PublicApiInventoryTest {
 
     /** Explicit fixture generation for review; tests never rewrite expected declarations. */
     public static void main(String[] args) throws Exception {
-        System.out.print(new V50PublicApiInventoryTest().signatures());
+        var test = new V50PublicApiInventoryTest();
+        System.out.print(args.length == 0 ? test.signatures() : test.coreSignatures(args[0].equals("core-v2")));
     }
 
     private Map<String, String> loadInventory() throws Exception {
         var resource = getClass().getResourceAsStream(
-                "/compatibility/v50-replication-public-api-v1.txt");
+                "/compatibility/v50-replication-public-api-v2.txt");
         if (resource == null) {
             throw new IllegalStateException("public API inventory is absent");
         }

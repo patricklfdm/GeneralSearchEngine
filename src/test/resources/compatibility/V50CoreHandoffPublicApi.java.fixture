@@ -1,0 +1,19 @@
+package external;
+
+import java.nio.file.Path;
+import io.github.patricklfdm.generalsearch.durability.*;
+import io.github.patricklfdm.generalsearch.engine.*;
+
+/** Compiled against only the core artifact; no replication classpath is supplied. */
+public final class V50CoreHandoffPublicApi {
+    public static <K, T> SearchEngineBuilder<K, T> configuration(SearchEngineBuilder<K, T> builder) {
+        SearchEngineConfiguration<K, T> captured = builder.configuration();
+        return captured.newBuilder();
+    }
+    public static <K, T> DurableBackupResult transfer(SearchEngineBuilder<K, T> builder,
+            Path source, DurableVerificationConfig<K, T> expected, long maximum,
+            DurableStorageConfig<K, T> storage, DurableBackupRequest request) {
+        DurableApplicationState<T> state = builder.readDurableBackup(source, expected, maximum);
+        return builder.writeDurableBackup(state, storage, request);
+    }
+}

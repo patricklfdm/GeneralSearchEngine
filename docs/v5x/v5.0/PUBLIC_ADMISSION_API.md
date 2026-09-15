@@ -1,6 +1,6 @@
-# V5.0 proposed public-admission API delta
+# V5.0 public-admission API delta
 
-- **Status:** Explicit review candidate; none of these declarations are added here
+- **Status:** API amendment accepted in PR #151; Step A adds these reserved declarations
 - **Behavior:** [Public-admission contract](PUBLIC_ADMISSION_CONTRACT.md)
 - **Gates:** [Implementation and acceptance plan](PUBLIC_ADMISSION_ENTRY_PLAN.md)
 
@@ -13,7 +13,7 @@ their fail-before-side-effects `UnsupportedOperationException`; their documentat
 will direct callers to the typed overloads. The existing builder entry point becomes
 usable only after all public-admission gates pass.
 
-The one proposed constant-value change is
+The one accepted constant-value change is
 `ReplicatedSearchEngines.PROTOCOL: "gse-replication/1.0" -> "gse-replication/1.1"`.
 This is an explicit change to the unpublished V5 fixture, including Java constant
 inlining implications. Recompile V5 consumers; reject old protocol peers instead of
@@ -23,14 +23,17 @@ Core needs an additive, replication-independent configuration/backup handoff bec
 its existing builder and canonical backup implementation are private. No reflection,
 split-package access, mandatory replication dependency or new core live-writer mode
 is authorized. Existing core construction, durability and processor behavior remains
-the published V4.4 behavior. The proposed additions below are the complete API scope;
+the published V4.4 behavior. The additions below are the complete approved API scope;
 additional public declarations or changes need a visible amendment, not a regenerated
 fixture that conceals them.
 
 ## Core additions
 
-These are signature sketches; each type is a separate public source file in the
-named package. Record constructors validate nulls/bounds and defensively copy lists.
+These signatures are declared by [Step A](PUBLIC_ADMISSION_FOUNDATION.md); each type
+is a separate public source file. Record constructors validate nulls/bounds and
+defensively copy lists. Configuration capture/reconstruction, backup transfer and
+offline operations currently throw before side effects; Step B implements them.
+The engine builder and administrative interface defaults remain reserved until Step C.
 
 ```java
 // io.github.patricklfdm.generalsearch.engine

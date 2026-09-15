@@ -135,7 +135,7 @@ safety guarantee.
    post-publication reconciliation.
 
 After Phase 5 acceptance, the [public-admission amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md)
-is proposed completion work before Phase 6. It preserves this numbering while
+was accepted in PR #151 as completion work before Phase 6. It preserves this numbering while
 specifying the missing public bootstrap/lifecycle boundary, explicit API additions
 and a reviewed genesis-format extension. Its [entry plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md)
 separates contract review, implementation and public runtime acceptance.

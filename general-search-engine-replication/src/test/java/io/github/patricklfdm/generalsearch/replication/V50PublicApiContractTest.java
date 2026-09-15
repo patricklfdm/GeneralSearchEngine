@@ -27,7 +27,7 @@ class V50PublicApiContractTest {
     void freezesExactThreeVoterConfigurationAndDeclarationOnlyBuild() {
         ReplicationGroupConfig<Integer, Document> config = configuration();
         assertEquals(3, config.members().size());
-        assertEquals("gse-replication/1.0", ReplicatedSearchEngines.PROTOCOL);
+        assertEquals("gse-replication/1.1", ReplicatedSearchEngines.PROTOCOL);
         ReplicationBounds bounds = config.bounds();
         assertEquals(8 * 1024 * 1024, bounds.maxFrameBytes());
         assertEquals(1000, bounds.maxEntriesPerAppend());

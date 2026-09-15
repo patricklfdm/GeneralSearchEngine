@@ -419,6 +419,22 @@
                         <version>${maven.antrun.plugin.version}</version>
                         <executions>
                             <execution>
+                                <id>verify-v5-approved-core-api-delta</id>
+                                <phase>verify</phase>
+                                <goals><goal>run</goal></goals>
+                                <configuration>
+                                    <target>
+                                        <exec executable="python3" dir="${project.basedir}" failonerror="true">
+                                            <arg value="-m"/><arg value="scripts.v50.core_api_delta"/>
+                                            <arg value="${project.build.directory}/compat-baselines/published-general-search-engine-4.3.0.jar"/>
+                                            <arg value="${project.build.directory}/compat-baselines/published-general-search-engine-4.4.0.jar"/>
+                                            <arg value="${project.build.directory}/${project.build.finalName}.jar"/>
+                                            <arg value="${project.basedir}/src/test/resources/compatibility/v50-core-approved-javap-delta.txt"/>
+                                        </exec>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>verify-published-v3-api-baseline</id>
                                 <phase>process-resources</phase>
                                 <goals>
@@ -958,7 +974,8 @@
                                         <accessModifier>public</accessModifier>
                                         <onlyModified>true</onlyModified>
                                         <includeSynthetic>false</includeSynthetic>
-                                        <breakBuildOnModifications>true</breakBuildOnModifications>
+                                        <!-- Exact additions are checked by verify-v5-approved-core-api-delta. -->
+                                        <breakBuildOnModifications>false</breakBuildOnModifications>
                                         <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
                                         <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
                                     </parameter>
@@ -989,7 +1006,8 @@
                                         <accessModifier>public</accessModifier>
                                         <onlyModified>true</onlyModified>
                                         <includeSynthetic>false</includeSynthetic>
-                                        <breakBuildOnModifications>true</breakBuildOnModifications>
+                                        <!-- Exact additions are checked by verify-v5-approved-core-api-delta. -->
+                                        <breakBuildOnModifications>false</breakBuildOnModifications>
                                         <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
                                         <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
                                     </parameter>

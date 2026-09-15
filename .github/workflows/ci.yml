@@ -68,6 +68,21 @@ jobs:
       - name: Test the reactor
         run: ./mvnw -f reactor/pom.xml clean test
 
+      - name: Verify V5.0 public-admission declarations and independent 1.1 bytes
+        run: scripts/verify-v50-public-admission-foundation.sh --skip-build
+
+      - name: Retain V5.0 public-admission foundation evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-public-admission-foundation-${{ github.sha }}
+          path: |
+            target/v50-admission-foundation
+            target/surefire-reports
+            general-search-engine-replication/target/surefire-reports
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Exercise the V5.0 replication foundation
         run: scripts/verify-v50-phase1-foundation.sh --skip-build
 

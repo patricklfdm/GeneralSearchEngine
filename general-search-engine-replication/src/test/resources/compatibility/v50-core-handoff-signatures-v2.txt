@@ -1,0 +1,47 @@
+constructor public io.github.patricklfdm.generalsearch.durability.DurableApplicationState(java.util.UUID,long,java.util.List<T>,java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>>)
+constructor public io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration(io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K>,java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>>,io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig,io.github.patricklfdm.generalsearch.query.PlannerConfig)
+method public <SK,ST> io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.planDurableMigration(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<SK, ST>,io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest<SK, ST, K, T>)
+method public <SK,ST> io.github.patricklfdm.generalsearch.durability.DurableMigrationResult io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.applyDurableMigration(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<SK, ST>,io.github.patricklfdm.generalsearch.durability.DurableMigrationRequest<SK, ST, K, T>,io.github.patricklfdm.generalsearch.durability.DurableMigrationPlan)
+method public <V> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.field(io.github.patricklfdm.generalsearch.schema.Field<T, V>)
+method public final boolean io.github.patricklfdm.generalsearch.durability.DurableApplicationState.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.equals(java.lang.Object)
+method public final int io.github.patricklfdm.generalsearch.durability.DurableApplicationState.hashCode()
+method public final int io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.hashCode()
+method public final java.lang.String io.github.patricklfdm.generalsearch.durability.DurableApplicationState.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.toString()
+method public io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.readDurableBackup(java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig<K, T>,long)
+method public io.github.patricklfdm.generalsearch.durability.DurableBackupResult io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.writeDurableBackup(io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>,io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>,io.github.patricklfdm.generalsearch.durability.DurableBackupRequest)
+method public io.github.patricklfdm.generalsearch.durability.DurableRestoreResult io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.restoreDurableBackup(java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>)
+method public io.github.patricklfdm.generalsearch.durability.DurableSearchEngine<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.buildDurable(io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>)
+method public io.github.patricklfdm.generalsearch.durability.DurableSemanticVerificationReport io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.verifyDurableBackup(java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableVerificationConfig<K, T>)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngine<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.build()
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.config(io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.index(io.github.patricklfdm.generalsearch.index.IndexDefinition<T>)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.indexes(java.util.Collection<? extends io.github.patricklfdm.generalsearch.index.IndexDefinition<T>>)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.plannerConfig(io.github.patricklfdm.generalsearch.query.PlannerConfig)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.textField(io.github.patricklfdm.generalsearch.schema.TextField<T>)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.textIndex(java.lang.String,io.github.patricklfdm.generalsearch.analysis.Analyzer)
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.newBuilder()
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K, T> io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder.configuration()
+method public io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.config()
+method public io.github.patricklfdm.generalsearch.query.PlannerConfig io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.plannerConfig()
+method public io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K> io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.schema()
+method public java.util.List<T> io.github.patricklfdm.generalsearch.durability.DurableApplicationState.documents()
+method public java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> io.github.patricklfdm.generalsearch.durability.DurableApplicationState.indexes()
+method public java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration.indexes()
+method public java.util.UUID io.github.patricklfdm.generalsearch.durability.DurableApplicationState.history()
+method public long io.github.patricklfdm.generalsearch.durability.DurableApplicationState.sequence()
+record-component io.github.patricklfdm.generalsearch.durability.DurableApplicationState 0 java.util.UUID history
+record-component io.github.patricklfdm.generalsearch.durability.DurableApplicationState 1 long sequence
+record-component io.github.patricklfdm.generalsearch.durability.DurableApplicationState 2 java.util.List<T> documents
+record-component io.github.patricklfdm.generalsearch.durability.DurableApplicationState 3 java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> indexes
+record-component io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration 0 io.github.patricklfdm.generalsearch.schema.SearchSchema<T, K> schema
+record-component io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration 1 java.util.List<io.github.patricklfdm.generalsearch.index.IndexDefinition<T>> indexes
+record-component io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration 2 io.github.patricklfdm.generalsearch.engine.SnapshotEngineConfig config
+record-component io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration 3 io.github.patricklfdm.generalsearch.query.PlannerConfig plannerConfig
+super io.github.patricklfdm.generalsearch.durability.DurableApplicationState java.lang.Record
+super io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder java.lang.Object
+super io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration java.lang.Record
+type public final class io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K,T>
+type public final record io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>
+type public final record io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<K,T>

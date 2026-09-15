@@ -7,11 +7,11 @@
 
 ## Objective and scope
 
-The [public-admission amendment](PUBLIC_ADMISSION_CONTRACT.md) is under review after
-Phase 5 acceptance. It makes bootstrap publication, public lifecycle and the API delta
-concrete, and explicitly proposes genesis-bound replicated storage/protocol `1.1`.
-The `1.0` declarations below remain the accepted historical baseline until that
-amendment and its implementation gates are accepted; this link does not enable them.
+The [public-admission amendment](PUBLIC_ADMISSION_CONTRACT.md) was accepted in PR #151
+after Phase 5. It specifies bootstrap publication, public lifecycle, additive APIs
+and genesis-bound replicated storage/protocol `1.1`. [Step A](PUBLIC_ADMISSION_FOUNDATION.md)
+adds reserved declarations and independent bytes. The `1.0` contract below remains
+the historical Phase 1–5 baseline; public runtime admission still requires Steps B/C.
 
 V5.0 establishes correct replicated single-shard durability under one configured
 leader. It supports exactly one group containing exactly three fixed voters: the
