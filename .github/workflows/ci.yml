@@ -46,6 +46,18 @@ jobs:
       - name: Exercise the V5.0 replication foundation
         run: scripts/verify-v50-phase1-foundation.sh --skip-build
 
+      - name: Exercise V5.0 production storage and independent crash inspection
+        run: scripts/verify-v50-phase2-storage.sh --skip-build
+
+      - name: Retain V5.0 storage evidence including pre-reopen bytes and failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-storage-${{ github.sha }}
+          path: target/v50-storage
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.0 foundation evidence including failed process workspaces
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -387,6 +399,7 @@ jobs:
           bash -n scripts/verify-v44-paired-baseline.sh
           bash -n scripts/verify-v50-phase0-contract.sh
           bash -n scripts/verify-v50-phase1-foundation.sh
+          bash -n scripts/verify-v50-phase2-storage.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

@@ -144,6 +144,13 @@ class V50PublicApiInventoryTest {
                     .filter(name -> !name.contains("$"))
                     .filter(name -> !name.equals("package-info.class"))
                     .map(name -> PACKAGE + "." + name.substring(0, name.length() - 6))
+                    .filter(name -> {
+                        try {
+                            return Modifier.isPublic(Class.forName(name).getModifiers());
+                        } catch (ClassNotFoundException error) {
+                            throw new AssertionError(error);
+                        }
+                    })
                     .collect(Collectors.toCollection(TreeSet::new));
         }
     }
