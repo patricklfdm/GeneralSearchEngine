@@ -16,7 +16,7 @@ def run(output):
               'sourceSha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
               'workingTreeDiffSha256': hashlib.sha256(subprocess.check_output(['git', 'diff', '--binary', 'HEAD'], cwd=ROOT)).hexdigest(),
               'fixtureSha256': hashlib.sha256(FIXTURE.read_bytes()).hexdigest(),
-              'publicRuntime': 'disabled', 'offlineMutation': 'disabled', 'cases': [], 'java': []}
+              'publicRuntime': 'disabled', 'offlineAuthorityGate': 'separate', 'cases': [], 'java': []}
     source_files = subprocess.check_output(['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard'], cwd=ROOT).split(b'\0')
     source_inventory = []
     for name in sorted(set(source_files) - {b''}):

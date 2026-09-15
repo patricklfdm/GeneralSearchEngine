@@ -111,6 +111,26 @@ final class DurableBackupWriter {
             int codecVersion,
             DurableBackupRequest request
     ) {
+        return write(sourceDirectory, checkpointFile, history, sequence, config,
+                codecIdentity, codecVersion, request, null, null);
+    }
+
+    static <K, T> DurableBackupResult writeApplication(
+            UUID history, long sequence, DurableStorageConfig<K, T> config,
+            String codecIdentity, int codecVersion, DurableBackupRequest request,
+            byte[] metadata, byte[] checkpoint
+    ) {
+        Objects.requireNonNull(metadata, "metadata");
+        Objects.requireNonNull(checkpoint, "checkpoint");
+        return write(config.directory(), null, history, sequence, config,
+                codecIdentity, codecVersion, request, metadata, checkpoint);
+    }
+
+    private static <K, T> DurableBackupResult write(
+            Path sourceDirectory, String checkpointFile, UUID history, long sequence,
+            DurableStorageConfig<K, T> config, String codecIdentity, int codecVersion,
+            DurableBackupRequest request, byte[] metadata, byte[] checkpoint
+    ) {
         Target target = validateTarget(sourceDirectory, request);
         DurableFormatContext format = DurableFormatContext.from(config.format());
         UUID operationId = UUID.randomUUID();
@@ -125,9 +145,10 @@ final class DurableBackupWriter {
         boolean finalPublished = false;
         Throwable primary = null;
         try {
-            requireSourceMember(sourceDirectory.resolve(
-                    DurableStorageOwner.METADATA_FILE));
-            requireSourceMember(sourceDirectory.resolve(checkpointFile));
+            if (metadata == null) {
+                requireSourceMember(sourceDirectory.resolve(DurableStorageOwner.METADATA_FILE));
+                requireSourceMember(sourceDirectory.resolve(checkpointFile));
+            }
             if (Files.exists(staging, LinkOption.NOFOLLOW_LINKS)
                     || Files.exists(marker, LinkOption.NOFOLLOW_LINKS)) {
                 throw failure(DurableOperationException.Reason.OPERATION_IN_PROGRESS,
@@ -161,13 +182,13 @@ final class DurableBackupWriter {
             forceDirectory(target.parent());
             DurableCrashHooks.reach("v41-backup-after-marker-force-v1");
 
-            long estimatedPayloadBytes = Math.addExact(
-                    Files.size(sourceDirectory.resolve(DurableStorageOwner.METADATA_FILE)),
-                    Files.size(sourceDirectory.resolve(checkpointFile)));
+            long checkpointBytes = checkpoint == null
+                    ? Files.size(sourceDirectory.resolve(checkpointFile)) : checkpoint.length;
+            long estimatedPayloadBytes = Math.addExact(checkpointBytes, metadata == null
+                    ? Files.size(sourceDirectory.resolve(DurableStorageOwner.METADATA_FILE)) : metadata.length);
             if (estimatedPayloadBytes <= 0
                     || estimatedPayloadBytes > request.maxBundleBytes()
-                    || Files.size(sourceDirectory.resolve(checkpointFile))
-                            > config.maxRetainedBytes()) {
+                    || checkpointBytes > config.maxRetainedBytes()) {
                 throw failure(DurableOperationException.Reason.CAPACITY_EXCEEDED,
                         sequence, null);
             }
@@ -178,16 +199,21 @@ final class DurableBackupWriter {
             }
 
             List<Payload> payloads = new ArrayList<>(2);
-            payloads.add(copyPayload(
-                    sourceDirectory.resolve(DurableStorageOwner.METADATA_FILE),
-                    staging.resolve(METADATA), METADATA,
-                    "v41-backup-during-metadata-copy-v1",
-                    "v41-backup-after-metadata-force-v1"));
-            payloads.add(copyPayload(
-                    sourceDirectory.resolve(checkpointFile),
-                    staging.resolve(CHECKPOINT), CHECKPOINT,
-                    "v41-backup-during-checkpoint-copy-v1",
-                    "v41-backup-after-checkpoint-force-v1"));
+            if (metadata == null) {
+                payloads.add(copyPayload(
+                        sourceDirectory.resolve(DurableStorageOwner.METADATA_FILE),
+                        staging.resolve(METADATA), METADATA,
+                        "v41-backup-during-metadata-copy-v1",
+                        "v41-backup-after-metadata-force-v1"));
+                payloads.add(copyPayload(
+                        sourceDirectory.resolve(checkpointFile),
+                        staging.resolve(CHECKPOINT), CHECKPOINT,
+                        "v41-backup-during-checkpoint-copy-v1",
+                        "v41-backup-after-checkpoint-force-v1"));
+            } else {
+                payloads.add(writePayload(staging.resolve(METADATA), METADATA, metadata));
+                payloads.add(writePayload(staging.resolve(CHECKPOINT), CHECKPOINT, checkpoint));
+            }
             payloads.sort(Comparator.comparing(Payload::name));
             long payloadBytes = payloads.stream().mapToLong(Payload::size)
                     .reduce(0L, Math::addExact);
@@ -277,6 +303,16 @@ final class DurableBackupWriter {
                         primary);
             }
         }
+    }
+
+    private static Payload writePayload(Path path, String name, byte[] bytes) throws IOException {
+        try (FileChannel channel = FileChannel.open(path,
+                StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE)) {
+            writeFully(channel, ByteBuffer.wrap(bytes));
+            DurableIoFaults.fail("v41-backup-before-payload-force");
+            channel.force(true);
+        }
+        return new Payload(name, bytes.length, sha256().digest(bytes));
     }
 
     private static Payload copyPayload(

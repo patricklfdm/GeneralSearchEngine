@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission contract accepted; Step A under review
+- **Status:** Phase 5 and public-admission contract accepted; Step A accepted; Step B offline authority under review
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -45,6 +45,7 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 public-admission API delta](v5.0/PUBLIC_ADMISSION_API.md)
 - [V5.0 public-admission implementation and acceptance plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md)
 - [V5.0 public-admission Step A foundation](v5.0/PUBLIC_ADMISSION_FOUNDATION.md)
+- [V5.0 public-admission Step B offline authority](v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -58,5 +59,6 @@ at `a67e654`; exact-master CI `34950041552` passed. Phase 5 was accepted through
 [exact-master CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
 passed with the Phase 1–5 gates executed. Complete public bootstrap/lifecycle
 admission remains required before end-user runtime/cloud admission. Its contract
-amendment was accepted in PR #151. [Step A](v5.0/PUBLIC_ADMISSION_FOUNDATION.md) is the
-current review; the public runtime and paid cloud remain disabled.
+amendment was accepted in PR #151 and [Step A](v5.0/PUBLIC_ADMISSION_FOUNDATION.md) in PR #153.
+[Step B offline authority](v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) is the current review;
+the public runtime and paid cloud remain disabled.

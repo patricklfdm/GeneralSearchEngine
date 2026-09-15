@@ -6,12 +6,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /** Test-only independent JSON reader/canonical writer; no production codec imports. */
-final class AdmissionJson {
+public final class AdmissionJson {
     private final String text;
     private int offset;
     private AdmissionJson(String text) { this.text = text; }
 
-    static Object parse(String text) {
+    public static Object parse(String text) {
         var parser = new AdmissionJson(text);
         Object value = parser.value(0);
         parser.space();
@@ -40,7 +40,7 @@ final class AdmissionJson {
             }
             return result.append('"').toString();
         }
-        if (value instanceof Boolean || value instanceof Long) return value.toString();
+        if (value instanceof Boolean || value instanceof Long || value instanceof Integer) return value.toString();
         if (value instanceof List<?> list) return "[" + String.join(",", list.stream().map(AdmissionJson::canonical).toList()) + "]";
         if (value instanceof Map<?, ?> map) {
             var sorted = new TreeMap<String, Object>();

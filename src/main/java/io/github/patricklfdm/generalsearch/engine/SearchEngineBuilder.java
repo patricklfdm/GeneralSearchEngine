@@ -131,15 +131,15 @@ public final class SearchEngineBuilder<K, T> {
         return this;
     }
 
-    /** Reserved immutable configuration capture; enabled in public-admission Step B. */
+    /** Captures every builder option without creating an engine, thread or files. */
     public SearchEngineConfiguration<K, T> configuration() {
-        throw new UnsupportedOperationException("Configuration handoff requires public-admission Step B");
+        return new SearchEngineConfiguration<>(buildSchema(), indexDefinitions, config, plannerConfig);
     }
 
     /**
-     * Reserved bounded, source-preserving backup import. Step B will preserve the
+     * Bounded, source-preserving backup import. Preserves the
      * exact history, sequence, canonical document order and active indexes.
-     * This declaration performs no codec, filesystem or engine work.
+     * Performs no writes and opens no engine or live durable store.
      */
     public DurableApplicationState<T> readDurableBackup(
             Path backupDirectory, DurableVerificationConfig<K, T> expectedConfig,
@@ -150,12 +150,13 @@ public final class SearchEngineBuilder<K, T> {
         if (maxSourceBytes <= 0 || maxSourceBytes > (1L << 40)) {
             throw new IllegalArgumentException("maxSourceBytes must be between 1 and 1 TiB");
         }
-        throw new UnsupportedOperationException("Application transfer requires public-admission Step B");
+        return DurableApplicationTransfer.read(backupDirectory, expectedConfig,
+                maxSourceBytes, buildSchema(), List.copyOf(indexDefinitions));
     }
 
     /**
-     * Reserved standalone V4 backup export, preserving the supplied history,
-     * sequence and active indexes. Step B will implement canonical transfer without
+     * Standalone V4 backup export, preserving the supplied history,
+     * sequence and active indexes. Freezes canonical bytes before publication without
      * opening a live WAL or modifying the storage configuration's directory.
      */
     public DurableBackupResult writeDurableBackup(
@@ -165,7 +166,7 @@ public final class SearchEngineBuilder<K, T> {
         Objects.requireNonNull(state, "state");
         Objects.requireNonNull(storageConfig, "storageConfig");
         Objects.requireNonNull(request, "request");
-        throw new UnsupportedOperationException("Application transfer requires public-admission Step B");
+        return DurableApplicationTransfer.write(state, storageConfig, request, buildSchema());
     }
 
     /** Builds and starts a new engine instance owned by the caller. */

@@ -34,8 +34,9 @@ bootstrap/lifecycle semantics, an explicit [API delta](docs/v5x/v5.0/PUBLIC_ADMI
 and genesis-bound replicated `1.1` formats. Its
 [implementation plan](docs/v5x/v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md) requires declarations
 and independent fixtures, offline authority operations, then the complete public
-runtime gate before Phase 6. [Step A](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) now
-provides reserved declarations and independent byte fixtures; public construction is reserved.
+runtime gate before Phase 6. [Step A](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) was accepted
+in PR #153 with master CI `35006998165`. [Step B offline authority](docs/v5x/v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
+implements typed bootstrap, recovery, cleanup and replacement; public construction remains Step C.
 
 ## v4.x completed development contract
 

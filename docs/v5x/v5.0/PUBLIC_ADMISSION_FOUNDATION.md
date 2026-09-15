@@ -1,6 +1,6 @@
 # V5.0 public-admission Step A foundation
 
-- **Status:** Implementation candidate; protected PR/master acceptance pending
+- **Status:** Accepted through [PR #153](https://github.com/patricklfdm/GeneralSearchEngine/pull/153), master `855cfde29f3538121fa711e840f8701ded68c6a9`, [CI 35006998165](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35006998165)
 - **Branch:** `feat/v5.0-public-admission-foundation`
 - **Starting master:** `716f06f6bb04dcbf86e775eb93b4f7f31799739a`
 - **Contract:** [Accepted amendment](PUBLIC_ADMISSION_CONTRACT.md), [ordered A/B/C plan](PUBLIC_ADMISSION_ENTRY_PLAN.md)
@@ -29,11 +29,11 @@ API descriptors are retained. The POM changes only compatibility verification: t
 old V4.3/V4.4 zero-addition gate now permits exactly the approved core handoff delta.
 
 `configuration()`, `newBuilder()`, the core transfer methods and typed offline
-operations currently throw `UnsupportedOperationException` before codec execution,
+operations at the Step A boundary throw `UnsupportedOperationException` before codec execution,
 files, engine startup or threads. The three new interface defaults do the same,
 preserving third-party implementations. The existing replicated builder and legacy
 under-specified bootstrap overloads remain reserved. Step B implements configuration
-capture and offline authority; Step C admits the complete public engine.
+capture and offline authority in its [separate report](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md); Step C admits the complete public engine.
 
 ## Exact API review
 
@@ -146,7 +146,7 @@ Local raw phase evidence was archived before clean compatibility/release builds 
 five phase workspaces and Step A receipt/Java reports. Final focused Java reports and
 an updated Step A receipt are regenerated under `target/v50-admission-foundation`.
 Local evidence is explicitly marked as an uncommitted working tree. Protected PR and
-exact-master acceptance remain pending; no local result substitutes for those gates.
+exact-master acceptance were subsequently supplied by PR #153 and CI `35006998165`.
 
 ## Scope and next gate
 
@@ -161,6 +161,6 @@ No public bootstrap/runtime is enabled and no paid cloud work is started.
 - [x] Contract/CI-fix predecessor merges and exact-master receipts verified.
 - [x] Exact approved API declarations and visible v1→v2 inventory delta supplied.
 - [x] Complete 1.1 byte specification and independent frozen positive/negative cases supplied.
-- [ ] Protected Step A PR merged.
-- [ ] Step A exact-master CI executed successfully.
-- [ ] Step B offline-authority implementation started after those two receipts.
+- [x] Protected Step A PR #153 merged.
+- [x] Step A exact-master CI `35006998165` executed successfully.
+- [x] Step B offline-authority implementation started after those two receipts.

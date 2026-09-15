@@ -9,7 +9,7 @@ import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 /**
  * Immutable application configuration handoff. Lists are copied; schema fields and
  * application functions retain their existing identity and immutability obligations.
- * Builder reconstruction is reserved until public-admission Step B.
+ * Reconstruction creates an independent builder and preserves canonical fields.
  */
 public record SearchEngineConfiguration<K, T>(
         SearchSchema<T, K> schema,
@@ -24,8 +24,9 @@ public record SearchEngineConfiguration<K, T>(
         Objects.requireNonNull(plannerConfig, "plannerConfig");
     }
 
-    /** Reserved configuration reconstruction; creates no engine, thread or files. */
+    /** Reconstructs an independent builder; creates no engine, thread or files. */
     public SearchEngineBuilder<K, T> newBuilder() {
-        throw new UnsupportedOperationException("Configuration handoff requires public-admission Step B");
+        return new SearchEngineBuilder<K, T>(schema).indexes(indexes)
+                .config(config).plannerConfig(plannerConfig);
     }
 }
