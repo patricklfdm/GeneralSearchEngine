@@ -1,6 +1,6 @@
 # V5.0 Phase 3 configured-leader path
 
-- **Status:** Implementation candidate; protected-master acceptance pending
+- **Status:** Accepted through protected PR #148 and exact-master CI 34940262703
 - **Entry:** [Phase 3 plan](PHASE_3_ENTRY_PLAN.md)
 - **Authority:** unchanged [Phase 2 storage format](PHASE_2_STORAGE_FORMAT.md)
 - **Wire envelope:** unchanged [Phase 1 transport decision](TRANSPORT_AND_FRAMING.md)

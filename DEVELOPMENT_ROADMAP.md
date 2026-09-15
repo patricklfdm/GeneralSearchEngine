@@ -21,11 +21,14 @@ replication begins.
 
 The authority map is under [`docs/v5x/`](docs/v5x/README.md). Phase 0 merged through
 protected PR #145 as `105537c83921aaab8fc0d4cf911b043f1efac6e1`; exact-master
-CI run `34919817954` passed. Phase 1 opens `5.0.0-SNAPSHOT`, the optional
-declaration-only replication artifact, independent history/transport models, a
-three-JVM process/storage crash scaffold and no-GCP workflow. The candidate is locally
-validated; protected-master acceptance remains pending. Production replication and
-paid cloud execution remain unauthorized.
+CI run `34919817954` passed. Phase 1 opened `5.0.0-SNAPSHOT` through protected
+PR #146 at `2e78bddd` (exact-master CI `34930568130`). Phase 2 storage was accepted
+through PR #147 at `1895598` (CI `34934537274`). Phase 3 configured-leader replication
+was accepted through PR #148 at `911c9de` (CI `34940262703`). The Phase 4 candidate
+adds fenced restart reconciliation, follower catch-up and disk replacement, immutable
+snapshot installation, recovery floors and physical compaction. Its protected-master
+acceptance is pending; see the [recovery baseline](docs/v5x/v5.0/PHASE_4_BASELINE.md).
+Public bootstrap/lifecycle admission and paid cloud remain outstanding gates.
 
 ## v4.x completed development contract
 

@@ -22,12 +22,12 @@ BARRIERS = ("AFTER_LOCAL_ENTRY_FORCE", "AFTER_ENTRY_QUORUM", "AFTER_LOCAL_PROOF_
 
 
 class Worker:
-    def __init__(self, root, ordinal, ports, barrier="", generation=1):
+    def __init__(self, root, ordinal, ports, barrier="", generation=1, worker_class=None):
         self.root, self.ordinal = root, ordinal
         root.mkdir(parents=True, exist_ok=True)
         self.stderr = (root / f"stderr-{generation}.log").open("w")
         self.receipts = (root / f"control-{generation}.jsonl").open("w")
-        self.process = subprocess.Popen(["java", "-cp", CLASSPATH, WORKER, str(root), str(ordinal),
+        self.process = subprocess.Popen(["java", "-cp", CLASSPATH, worker_class or WORKER, str(root), str(ordinal),
                                          ",".join(map(str, ports)), barrier], stdin=subprocess.PIPE,
                                         stdout=subprocess.PIPE, stderr=self.stderr, text=True, bufsize=1)
         self.started = time.monotonic_ns()

@@ -113,17 +113,8 @@ def inspect(directory):
 
 
 def _inventory(directory):
-    check(not any(p.is_symlink() for p in (directory, *directory.parents)), "unsafe storage path")
-    check(directory.is_dir(), "storage directory absent")
-    members = []
-    for member in directory.iterdir():
-        check(len(members) < 7, "too many storage members")
-        members.append(member)
-    check(len(members) == 7 and {p.name for p in members} == FILES, "incomplete or unknown storage inventory")
-    check(all(p.is_file() and not p.is_symlink() and p.stat().st_nlink == 1 for p in members),
-          "unsafe storage member")
-    check((directory / "replica.lock").stat().st_size == 0, "invalid lock member")
-    check(sum(p.stat().st_size for p in members) <= 1024 ** 4, "retained-byte capacity exceeded")
+    from scripts.v50.recovery_format import inventory
+    inventory(directory)
 
 
 def _inspect_locked(directory):
@@ -157,11 +148,20 @@ def _inspect_locked(directory):
     check(node_reader.take(32) == manifest_digest, "local manifest mismatch")
     node = node_reader.identity(64)
     check(node in voters, "unknown local voter")
+    if node_reader.offset < len(node_reader.value):
+        check(node_reader.number("B") == 1 and (directory / "rebuilding.gsr").exists(), "replacement identity marker is missing or invalid")
     node_reader.end()
-    headers, promises, entries, proofs = [], {}, [], []
-    previous_epoch, previous_digest, committed = 1, manifest_digest, 0
+    from scripts.v50.recovery_format import select
+    selected, snapshot, floor, voter = select(directory, manifest_digest, node, voters)
+    headers, promises = [], {}
+    entries = list(snapshot["entries"]) if snapshot else []
+    proofs = list(snapshot["proofs"]) if snapshot else []
+    previous_epoch = entries[-1]["epoch"] if entries else 1
+    previous_incarnation = entries[-1]["incarnation"] if entries else bytes(16)
+    previous_digest = entries[-1]["digest"] if entries else manifest_digest
+    committed = len(entries)
     for filename, kind in (("promises.gsr", 4), ("entries.gsr", 5), ("proofs.gsr", 6)):
-        with (directory / filename).open("rb") as source:
+        with ((directory if kind == 4 else selected) / filename).open("rb") as source:
             header = read_frame(source, 3, MAX_METADATA)
             check(header is not None, "absent journal header")
             headers.append(header[1])
@@ -189,13 +189,15 @@ def _inspect_locked(directory):
                     check(len(entries) < MAX_ENTRIES and index == len(entries) + 1 and prev_index == index - 1,
                           "noncontiguous entry index")
                     check(1 <= operation <= len(OPERATIONS) and epoch >= previous_epoch
-                          and promises.get(epoch) == incarnation, "entry type/promise mismatch")
+                          and (epoch > previous_epoch or incarnation == previous_incarnation)
+                          and (promises.get(epoch) == incarnation or snapshot is not None and epoch not in promises and epoch < max(promises, default=1)), "entry type/promise mismatch")
                     check((prev_epoch, prev_digest) == (previous_epoch, previous_digest), "entry predecessor mismatch")
                     check(digest(payload) == payload_digest, "payload checksum mismatch")
                     entries.append({"manifestDigest": manifest_digest, "epoch": epoch, "incarnation": incarnation,
                                     "index": index, "digest": record[1], "previousDigest": prev_digest,
-                                    "operation": OPERATIONS[operation - 1], "payloadDigest": payload_digest})
+                                    "operation": OPERATIONS[operation - 1], "payloadDigest": payload_digest, "payload": payload})
                     previous_epoch, previous_digest = epoch, record[1]
+                    previous_incarnation = incarnation
                 else:
                     epoch, incarnation, index = reader.number("q"), reader.take(16), reader.number("q")
                     entry_digest, prev_digest, count = reader.take(32), reader.take(32), reader.number("i")
@@ -213,12 +215,19 @@ def _inspect_locked(directory):
                     committed = index
                     proofs.append({"index": index, "digest": record[1].hex(), "receiptVoters": receipt_nodes})
                 reader.end()
+    if snapshot and snapshot["entries"]:
+        check(snapshot["entries"][-1]["epoch"] <= max(promises, default=1), "snapshot newer than durable promise")
     ready_body, _ = single(directory / "storage-ready.gsr", 7)
     check(ready_body == manifest_digest + node_digest + b"".join(headers), "incomplete initialization marker")
     return {"groupId": group, "configurationId": configuration, "nodeId": node,
             "manifestDigest": manifest_digest.hex(), "promisedEpoch": max(promises, default=1),
             "lastLogIndex": len(entries), "commitIndex": committed, "appliedIndex": 0,
-            "applicationSequence": 0, "proofs": proofs, "entries": [{"index": e["index"], "epoch": e["epoch"],
+            "applicationSequence": 0,
+            "retainedApplicationEntries": [{"index": entry["index"], "operation": entry["operation"], "payloadHex": entry["payload"].hex()} for entry in entries if "payload" in entry],
+            "snapshotIndex": len(snapshot["entries"]) if snapshot else 0,
+            "snapshotApplicationSequence": snapshot["sequence"] if snapshot else 0,
+            "snapshotApplication": snapshot["application"] if snapshot else None,
+            "recoveryFloor": floor, "voter": voter, "selectedGeneration": selected.name if selected != directory else None, "proofs": proofs, "entries": [{"index": e["index"], "epoch": e["epoch"],
               "operation": e["operation"], "digest": e["digest"].hex(),
               "payloadDigest": e["payloadDigest"].hex(), "incarnationId": str(uuid.UUID(bytes=e["incarnation"]))} for e in entries],
             "codecId": codec, "codecVersion": codec_version, "schemaId": schema,
