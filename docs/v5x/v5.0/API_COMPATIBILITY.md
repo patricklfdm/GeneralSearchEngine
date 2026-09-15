@@ -5,6 +5,12 @@
 
 ## Compatibility direction
 
+The [public-admission API amendment](PUBLIC_ADMISSION_API.md) is a review candidate
+for explicit additive declarations and the unpublished V5 protocol constant change.
+The [associated contract](PUBLIC_ADMISSION_CONTRACT.md) proposes separate replicated
+`1.1` bytes. Neither inventory nor format fixture is changed by that documentation PR;
+the accepted Phase 1 declarations remain the current implementation baseline.
+
 V5 is a new major line, but replication is additive and opt-in. Existing
 `SearchEngine`, `DurableSearchEngine`, `general-search-engine` and
 `general-search-engine-processor` behavior remains the V4.4 oracle. V5.0 does not

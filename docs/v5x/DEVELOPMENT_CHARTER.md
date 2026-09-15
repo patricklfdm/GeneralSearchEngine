@@ -134,6 +134,12 @@ safety guarantee.
 9. **Phase 8 — publication:** signed tag, Maven Central, GitHub Release and
    post-publication reconciliation.
 
+After Phase 5 acceptance, the [public-admission amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md)
+is proposed completion work before Phase 6. It preserves this numbering while
+specifying the missing public bootstrap/lifecycle boundary, explicit API additions
+and a reviewed genesis-format extension. Its [entry plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md)
+separates contract review, implementation and public runtime acceptance.
+
 ## Exclusions
 
 V5.0 excludes automatic election, online promotion, public follower reads, dynamic

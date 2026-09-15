@@ -7,6 +7,12 @@
 
 ## Objective and scope
 
+The [public-admission amendment](PUBLIC_ADMISSION_CONTRACT.md) is under review after
+Phase 5 acceptance. It makes bootstrap publication, public lifecycle and the API delta
+concrete, and explicitly proposes genesis-bound replicated storage/protocol `1.1`.
+The `1.0` declarations below remain the accepted historical baseline until that
+amendment and its implementation gates are accepted; this link does not enable them.
+
 V5.0 establishes correct replicated single-shard durability under one configured
 leader. It supports exactly one group containing exactly three fixed voters: the
 configured leader identity and two follower identities. Quorum is always two voters.

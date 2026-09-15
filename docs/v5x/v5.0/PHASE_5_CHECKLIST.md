@@ -1,6 +1,6 @@
 # V5.0 Phase 5 hardening checklist
 
-- **Status:** Locally validated candidate; protected acceptance pending
+- **Status:** Accepted through protected PR #150 and exact-master CI
 - **Public runtime/bootstrap:** reserved for complete authority and lifecycle admission
 - **Paid cloud:** disabled
 
@@ -35,8 +35,9 @@
 - [x] Final clean reactor, V5 Python and Phase 1–5 gates pass.
 - [x] Consumers, published API comparison, nine-JAR integrity and fixture exclusion pass.
 - [x] Two clean release builds match byte-for-byte.
-- [ ] Protected Phase 5 PR accepts the candidate.
-- [ ] Exact-master CI accepts the merged source.
+- [x] [Protected PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150) accepted the candidate at `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`.
+- [x] [Exact-master CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066) accepted the merged source, including executed Phase 1–5 gates.
 
 Protected acceptance does not enable the reserved public bootstrap/lifecycle flows.
 Their admission precedes any end-user production/cloud claim or completed-V5 claim.
+The next review is the [public-admission contract](PUBLIC_ADMISSION_CONTRACT.md).

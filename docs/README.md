@@ -32,6 +32,9 @@ remains the phase history and decision source of truth.
 - [V5.0 Phase 5 runtime hardening](v5x/v5.0/PHASE_5_HARDENING.md)
 - [V5.0 Phase 5 baseline](v5x/v5.0/PHASE_5_BASELINE.md)
 - [V5.0 Phase 5 checklist](v5x/v5.0/PHASE_5_CHECKLIST.md)
+- [V5.0 public-admission contract amendment](v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md)
+- [V5.0 proposed public-admission API delta](v5x/v5.0/PUBLIC_ADMISSION_API.md)
+- [V5.0 public-admission implementation and acceptance plan](v5x/v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md)
 
 ## v4.x — completed durable single-node development line
 

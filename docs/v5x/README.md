@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 4 accepted; Phase 5 hardening candidate locally validated
+- **Status:** Phase 5 accepted; public-admission contract amendment under review
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -41,6 +41,9 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 5 runtime hardening](v5.0/PHASE_5_HARDENING.md)
 - [V5.0 Phase 5 baseline](v5.0/PHASE_5_BASELINE.md)
 - [V5.0 Phase 5 checklist](v5.0/PHASE_5_CHECKLIST.md)
+- [V5.0 public-admission contract amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md)
+- [V5.0 proposed public-admission API delta](v5.0/PUBLIC_ADMISSION_API.md)
+- [V5.0 public-admission implementation and acceptance plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
 Phase 0 was accepted through protected PR #145 at `105537c8`; exact-master CI run
@@ -48,7 +51,9 @@ Phase 0 was accepted through protected PR #145 at `105537c8`; exact-master CI ru
 exact-master CI `34930568130` passed. Phase 2 was accepted through protected PR #147 at `1895598`; exact-master CI
 `34934537274` passed. Phase 3 was accepted through protected PR #148 at `911c9de`;
 exact-master CI `34940262703` passed. Phase 4 was accepted through protected PR #149
-at `a67e654`; exact-master CI `34950041552` passed. Phase 5 hardens network fault
-handling, bounded admission, shutdown and repeated recovery. Protected Phase 5
-acceptance is pending. Complete public bootstrap/lifecycle admission remains required
-before end-user runtime/cloud admission; paid cloud is not enabled by this candidate.
+at `a67e654`; exact-master CI `34950041552` passed. Phase 5 was accepted through
+[PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150) at `4a8fd3d`;
+[exact-master CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
+passed with the Phase 1–5 gates executed. Complete public bootstrap/lifecycle
+admission remains required before end-user runtime/cloud admission. Its contract
+amendment is the current review; the public runtime and paid cloud remain disabled.

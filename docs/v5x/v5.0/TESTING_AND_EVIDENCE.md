@@ -1,6 +1,6 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Accepted Phase 0 plan and Phases 1–4; Phase 5 hardening candidate
+- **Status:** Accepted Phase 0 plan and Phases 1–5; public-admission amendment under review
 - **Published control:** exact GeneralSearchEngine `4.4.0`
 - **Planned evidence schema:** `gse-v50-replication-evidence-v1`
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`
@@ -8,6 +8,11 @@
 - **Eventual baseline:** `v5.0.0-replicated-cloud`
 
 ## Evidence layers
+
+The proposed [public-admission evidence matrix](PUBLIC_ADMISSION_ENTRY_PLAN.md)
+adds typed bootstrap, publication/resume/cleanup and real three-JVM public consumers
+before Phase 6. Its new tests and replicated `1.1` fixtures remain implementation
+requirements, not evidence already supplied by the accepted Phase 1–5 internal gates.
 
 V5.0 requires independent evidence at five layers before release:
 

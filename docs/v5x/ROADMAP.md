@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 4 accepted; Phase 5 hardening candidate locally validated
+- **Status:** Phase 5 accepted; public-admission contract amendment under review
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -25,6 +25,8 @@ The hard gates are:
   harness, separate-process crash harness, fake-cloud workflow and exact bounds;
 - no successful application Future without durable entry quorum, durable commit proof,
   ordered application and leader snapshot publication;
+- no Phase 6 end-user runtime/cloud lane before complete public bootstrap/lifecycle
+  admission and its real three-JVM public-consumer gate;
 - no paid cloud work before exact-source local, fake-cloud, IAM, quota, cleanup and
   cost preflights pass;
 - no canonical evidence from serial stand-ins: the three voters must run concurrently;
@@ -36,9 +38,15 @@ Phase 0 merged through protected PR #145 as `105537c8`; exact-master CI run
 exact-master CI `34930568130` passed. Phase 2 was accepted through protected PR #147 at `1895598`; exact-master CI
 `34934537274` passed. Phase 3 was accepted through protected PR #148 at `911c9de`;
 exact-master CI `34940262703` passed. Phase 4 was accepted through protected PR #149
-at `a67e654`; exact-master CI `34950041552` passed. Phase 5 implements hardening under
-its [entry plan](v5.0/PHASE_5_ENTRY_PLAN.md), [design](v5.0/PHASE_5_HARDENING.md),
-[baseline](v5.0/PHASE_5_BASELINE.md) and [checklist](v5.0/PHASE_5_CHECKLIST.md).
-Protected Phase 5 acceptance and exact-master CI precede subsequent work. Complete
-public bootstrap/lifecycle admission is still required before public runtime/cloud
-admission; Phase 5 does not by itself establish Phase 6 paid-run readiness.
+at `a67e654`; exact-master CI `34950041552` passed. Phase 5 was accepted through
+[PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150) at `4a8fd3d`;
+[exact-master CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
+passed. Its [baseline](v5.0/PHASE_5_BASELINE.md) and
+[checklist](v5.0/PHASE_5_CHECKLIST.md) record the completed hardening boundary.
+
+Next is the [public-admission contract amendment](v5.0/PUBLIC_ADMISSION_CONTRACT.md),
+with an explicit [API delta](v5.0/PUBLIC_ADMISSION_API.md). The
+[entry plan](v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md) splits implementation into reviewed
+declarations/byte fixtures, offline bootstrap/recovery operations and the complete
+public runtime. These are completion gates between Phase 5 and Phase 6; the amendment
+does not itself enable the public builder or establish paid-run readiness.

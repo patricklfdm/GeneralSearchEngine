@@ -25,11 +25,16 @@ CI run `34919817954` passed. Phase 1 opened `5.0.0-SNAPSHOT` through protected
 PR #146 at `2e78bddd` (exact-master CI `34930568130`). Phase 2 storage was accepted
 through PR #147 at `1895598` (CI `34934537274`). Phase 3 configured-leader replication
 was accepted through PR #148 at `911c9de` (CI `34940262703`). Phase 4 recovery was
-accepted through PR #149 at `a67e654` (CI `34950041552`). The Phase 5 candidate
-hardens shutdown, bounded admission, deterministic production network faults and
-repeated recovery. Its protected-master acceptance is pending; see the
-[hardening baseline](docs/v5x/v5.0/PHASE_5_BASELINE.md). Complete public bootstrap/
-lifecycle admission remains required before end-user runtime/cloud admission.
+accepted through PR #149 at `a67e654` (CI `34950041552`). Phase 5 hardening was
+accepted through [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
+at `4a8fd3d` ([CI 34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066));
+see the [hardening baseline](docs/v5x/v5.0/PHASE_5_BASELINE.md). The next
+[public-admission amendment](docs/v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md) proposes complete
+bootstrap/lifecycle semantics, an explicit [API delta](docs/v5x/v5.0/PUBLIC_ADMISSION_API.md)
+and genesis-bound replicated `1.1` formats. Its
+[implementation plan](docs/v5x/v5.0/PUBLIC_ADMISSION_ENTRY_PLAN.md) requires declarations
+and independent fixtures, offline authority operations, then the complete public
+runtime gate before Phase 6. These remain proposed work; public construction is reserved.
 
 ## v4.x completed development contract
 

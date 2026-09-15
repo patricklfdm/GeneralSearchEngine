@@ -22,12 +22,13 @@ under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V5 Phase 4 is accepted through protected PR #149 and exact-master CI. The
-`5.0.0-SNAPSHOT` Phase 5 candidate hardens shutdown, bounded admission and recovery
-under deterministic network faults and repeated process crashes. Public engine/bootstrap
-admission remains reserved for its complete authority and lifecycle gate. Protected
-Phase 5 acceptance is pending. See the [V5 development line](docs/v5x/README.md) and
-[Phase 5 hardening design](docs/v5x/v5.0/PHASE_5_HARDENING.md).
+V5 Phase 5 is accepted through [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
+and [exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066).
+The `5.0.0-SNAPSHOT` internal runtime includes shutdown, bounded admission and recovery
+hardening under deterministic network faults and repeated process crashes. Public
+engine/bootstrap admission remains reserved. The next
+[public-admission contract](docs/v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md) is under review;
+see the [V5 development line](docs/v5x/README.md) for its implementation gates.
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the
