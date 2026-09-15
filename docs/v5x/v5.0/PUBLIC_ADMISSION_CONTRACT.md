@@ -1,6 +1,6 @@
 # V5.0 public bootstrap and lifecycle contract amendment
 
-- **Status:** Contract accepted through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151); Step A declarations/fixtures under review
+- **Status:** Contract accepted through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151); Step A accepted; Step B offline authority under review
 - **Base:** Phase 5 accepted at `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
 - **Scope:** Complete the public-admission gap before Phase 6
 - **API delta:** [Proposed declarations and compatibility](PUBLIC_ADMISSION_API.md)

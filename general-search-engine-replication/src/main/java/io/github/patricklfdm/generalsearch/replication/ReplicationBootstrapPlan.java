@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-/** Immutable offline bootstrap intent; applying it is not enabled in Phase 1. */
+/** Immutable summary of an offline bootstrap plan; typed apply verifies its full binding. */
 public record ReplicationBootstrapPlan(
         ReplicationGroupId groupId,
         String configurationId,

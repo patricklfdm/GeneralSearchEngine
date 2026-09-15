@@ -1,7 +1,7 @@
 """Independent, read-only 1.1 admission byte oracle (stdlib; no product decoder).
 
 This checks frozen format projections, not filesystem force or typed V4 semantics.
-Production authority remains disabled until Steps B/C.
+Actual Step B output is checked separately by offline_format; runtime admission is Step C.
 """
 import base64
 import hashlib

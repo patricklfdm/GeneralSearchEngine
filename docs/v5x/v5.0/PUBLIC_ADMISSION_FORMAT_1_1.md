@@ -1,6 +1,6 @@
 # Public admission: replicated storage and wire 1.1
 
-- **Status:** Step A byte specification and independent fixture candidate; no 1.1 runtime writer enabled
+- **Status:** Step A bytes accepted in PR #153; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) implements offline writers; public runtime remains Step C
 - **Authority:** [Accepted amendment](PUBLIC_ADMISSION_CONTRACT.md), [API](PUBLIC_ADMISSION_API.md)
 - **Frozen bytes:** [fixture catalog](../../../general-search-engine-replication/src/test/resources/replication/v50-admission-fixtures-v2.json), [SHA-256](../../../general-search-engine-replication/src/test/resources/replication/v50-admission-fixtures-v2.sha256)
 - **Independent readers:** [Python](../../../scripts/v50/admission_format.py), [Java test oracle](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionOracle.java)

@@ -44,41 +44,26 @@ class V50AdmissionDeclarationsTest {
         assertEquals(1, state.documents().size()); assertEquals(1, state.indexes().size());
         assertThrows(UnsupportedOperationException.class, () -> config.indexes().clear());
         assertThrows(UnsupportedOperationException.class, () -> state.documents().clear());
-        assertThrows(UnsupportedOperationException.class, config::newBuilder);
+        assertSame(schema, config.newBuilder().configuration().schema());
         assertThrows(IllegalArgumentException.class, () -> new DurableApplicationState<>(new UUID(0, 0), 0, List.of(), List.of()));
         assertThrows(IllegalArgumentException.class, () -> new DurableApplicationState<>(HISTORY, -1, List.of(), List.of()));
         assertThrows(NullPointerException.class, () -> new SearchEngineConfiguration<>(schema, null, SnapshotEngineConfig.DEFAULT, PlannerConfig.DEFAULT));
     }
 
     @Test
-    void typedDeclarationsRemainReservedBeforeAnyCodecOrFilesystemWork() throws Exception {
+    void legacyBootstrapAndPublicRuntimeRemainReservedWithoutSideEffects() throws Exception {
         var calls = new AtomicInteger(); var codec = new Codec(calls);
         var configs = configurations(codec);
-        var request = new ReplicationBootstrapRequest<>(ReplicationBootstrapSource.EMPTY, null, configs,
-                directory.resolve("operation"), 1 << 20, 1 << 20);
         var builder = SearchEngine.builder(Doc.class, ID).index(IndexDefinition.equality(VALUE));
         var plan = new ReplicationBootstrapPlan(configs.getFirst().groupId(), "config-v1", ReplicationBootstrapSource.EMPTY,
                 null, configs.stream().map(ReplicationGroupConfig::replicaDirectory).toList(), HASH);
-        var cleanup = new ReplicationCleanupPlan(request.operationDirectory(), HASH, List.of(), HASH, HASH);
-        var replacement = new ReplicationReplacementPlan(request.operationDirectory(), directory.resolve("source"),
-                configs.getFirst().localNodeId(), directory.resolve("replacement"), HASH, HASH, HASH);
-        var verification = new DurableVerificationConfig<>("fixture-store", "fixture-schema", codec, 1, 1024, 1024, 10);
         calls.set(0);
-        assertThrows(UnsupportedOperationException.class, builder::configuration);
-        assertThrows(UnsupportedOperationException.class, () -> builder.readDurableBackup(directory.resolve("source"), verification, 1024));
-        assertThrows(UnsupportedOperationException.class, () -> builder.writeDurableBackup(new DurableApplicationState<>(HISTORY, 41, List.of(), List.of()),
-                configs.getFirst().materialization(), new DurableBackupRequest(directory.resolve("backup"), 1 << 20)));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.planBootstrap(builder, request));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.applyBootstrap(builder, request, plan));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.resumeBootstrap(builder, request, plan));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.readBootstrapResult(request.operationDirectory()));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.planCleanup(request.operationDirectory()));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.applyCleanup(cleanup));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.planReplacement(configs.getFirst(), directory.resolve("source"), request.operationDirectory()));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.applyReplacement(configs.getFirst(), replacement));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.resumeReplacement(configs.getFirst(), replacement));
+        assertSame(VALUE, builder.configuration().newBuilder().configuration().schema().requireField("value"));
+        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.planBootstrap(
+                configs.getFirst().groupId(), "config-v1", ReplicationBootstrapSource.EMPTY, null, plan.absentReplicaTargets()));
+        assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.applyBootstrap(plan));
         assertThrows(UnsupportedOperationException.class, () -> ReplicatedSearchEngines.builder(builder, configs.getFirst()).build());
-        assertEquals(0, calls.get(), "reserved calls must not invoke application code");
+        assertEquals(0, calls.get());
         try (var files = Files.list(directory)) { assertEquals(0, files.count()); }
     }
 

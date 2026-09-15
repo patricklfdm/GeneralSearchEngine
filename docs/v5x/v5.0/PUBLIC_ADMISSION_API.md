@@ -1,6 +1,6 @@
 # V5.0 public-admission API delta
 
-- **Status:** API amendment accepted in PR #151; Step A adds these reserved declarations
+- **Status:** API amendment accepted in PR #151; declarations accepted in PR #153; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) implements configuration/transfer and typed offline operations
 - **Behavior:** [Public-admission contract](PUBLIC_ADMISSION_CONTRACT.md)
 - **Gates:** [Implementation and acceptance plan](PUBLIC_ADMISSION_ENTRY_PLAN.md)
 
@@ -32,7 +32,8 @@ fixture that conceals them.
 These signatures are declared by [Step A](PUBLIC_ADMISSION_FOUNDATION.md); each type
 is a separate public source file. Record constructors validate nulls/bounds and
 defensively copy lists. Configuration capture/reconstruction, backup transfer and
-offline operations currently throw before side effects; Step B implements them.
+offline operations were reserved at the Step A boundary; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
+implements them.
 The engine builder and administrative interface defaults remain reserved until Step C.
 
 ```java

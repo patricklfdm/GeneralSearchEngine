@@ -46,7 +46,7 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -66,7 +66,7 @@ jobs:
         run: scripts/verify-v50-phase0-contract.sh
 
       - name: Test the reactor
-        run: ./mvnw -f reactor/pom.xml clean test
+        run: ./mvnw -f reactor/pom.xml clean package
 
       - name: Verify V5.0 public-admission declarations and independent 1.1 bytes
         run: scripts/verify-v50-public-admission-foundation.sh --skip-build
@@ -80,6 +80,18 @@ jobs:
             target/v50-admission-foundation
             target/surefire-reports
             general-search-engine-replication/target/surefire-reports
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.0 public offline authority and published V4.4 round trips
+        run: scripts/verify-v50-offline-authority.sh --skip-build
+
+      - name: Retain V5.0 offline authority evidence including killed processes and pre-reopen bytes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-offline-authority-${{ github.sha }}
+          path: target/v50-offline-authority
           if-no-files-found: warn
           retention-days: 14
 
@@ -485,6 +497,8 @@ jobs:
           bash -n scripts/verify-v50-phase3-leader.sh
           bash -n scripts/verify-v50-phase4-recovery.sh
           bash -n scripts/verify-v50-phase5-hardening.sh
+          bash -n scripts/verify-v50-public-admission-foundation.sh
+          bash -n scripts/verify-v50-offline-authority.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

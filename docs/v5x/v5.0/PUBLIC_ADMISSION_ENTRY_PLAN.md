@@ -1,12 +1,12 @@
 # V5.0 public-admission entry and acceptance plan
 
-- **Status:** Contract accepted; Step A declarations and byte fixtures under review
-- **Branch:** `feat/v5.0-public-admission-foundation`
-- **Starting master:** `716f06f6bb04dcbf86e775eb93b4f7f31799739a`
+- **Status:** Step A accepted; Step B offline authority under review
+- **Branch:** `feat/v5.0-offline-authority`
+- **Starting master:** `855cfde29f3538121fa711e840f8701ded68c6a9`
 - **Phase 5:** [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
 - **Exact-master CI:** [34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
 - **Accepted amendment:** [Contract](PUBLIC_ADMISSION_CONTRACT.md), [API delta](PUBLIC_ADMISSION_API.md)
-- **Current implementation:** [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md), [1.1 byte specification](PUBLIC_ADMISSION_FORMAT_1_1.md)
+- **Current implementation:** [Step B offline authority](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md); [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md), [1.1 byte specification](PUBLIC_ADMISSION_FORMAT_1_1.md)
 
 ## Current change
 
@@ -14,9 +14,11 @@ The contract amendment merged through [PR #151](https://github.com/patricklfdm/G
 at `72ea9a6b176a7371d708cea1d84ad8d603adef61`; [master CI 34960589647](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34960589647) passed.
 The temporary CI/pressure-harness fix merged through [PR #152](https://github.com/patricklfdm/GeneralSearchEngine/pull/152)
 at `716f06f6bb04dcbf86e775eb93b4f7f31799739a`; [master CI 34965248513](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34965248513) passed with all Phase 1–5 gates executed.
-Step A now adds the approved declarations, explicit v1-to-v2 inventory delta and
-independent 1.1 bytes. The public builder and all newly declared operations remain
-reserved. Local implementation evidence is recorded in its separate foundation report.
+Step A was accepted through [PR #153](https://github.com/patricklfdm/GeneralSearchEngine/pull/153)
+at `855cfde29f3538121fa711e840f8701ded68c6a9`; [master CI 35006998165](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35006998165) passed.
+Step B implements core configuration/transfer and the typed offline operations against
+those frozen 1.1 bytes. The public runtime builder remains reserved for Step C.
+Local evidence and pending protected acceptance are in the [Step B report](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md).
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.
@@ -102,7 +104,7 @@ The Required CI job must depend on this executed gate and always upload its evid
 
 ### Future public runtime acceptance
 
-- [ ] Step A declarations, reviewed inventory delta and independent `1.1` bytes accepted.
+- [x] Step A declarations, reviewed inventory delta and independent `1.1` bytes accepted (PR #153, master CI `35006998165`).
 - [ ] Step B source-preserving offline operations and crash/cleanup evidence accepted.
 - [ ] Step C complete public runtime and real three-JVM public-consumer gate accepted.
 - [ ] Public V4 backup/import round trip and published V4.4 semantic comparison pass.

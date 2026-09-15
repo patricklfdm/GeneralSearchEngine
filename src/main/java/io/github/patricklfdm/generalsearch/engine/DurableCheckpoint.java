@@ -86,57 +86,7 @@ final class DurableCheckpoint {
                     Channels.newOutputStream(channel), maximumBytes - Integer.BYTES);
             DataOutputStream output = new DataOutputStream(
                     new CheckedOutputStream(bounded, checksum));
-            output.writeLong(CHECKPOINT_MAGIC);
-            output.writeShort(DurableFormatContext.MAJOR);
-            output.writeShort(format.minor());
-            output.writeLong(historyId.getMostSignificantBits());
-            output.writeLong(historyId.getLeastSignificantBits());
-            if (format.hasProfile()) {
-                output.write(format.profileDigest());
-            }
-            output.writeLong(capture.sequence());
-            output.writeInt(capture.nextDocId());
-            int liveDocuments = capture.snapshot().activeDocuments().cardinality();
-            output.writeInt(liveDocuments);
-            output.writeInt(capture.indexes().size());
-            for (DurableIndexDescriptor index : capture.indexes()) {
-                output.writeByte(index.kind());
-                writeString(output, index.fieldName());
-                writeString(output, index.analyzerId());
-            }
-            output.writeInt(capture.nextDocId());
-            int writtenLive = 0;
-            for (int docId = 0; docId < capture.nextDocId(); docId++) {
-                T document = capture.snapshot().get(docId);
-                if (document == null) {
-                    output.writeByte(0);
-                    continue;
-                }
-                output.writeByte(1);
-                K key = Objects.requireNonNull(schema.idOf(document), "document key");
-                Integer mapped = capture.documentIds().get(key);
-                if (mapped == null || mapped != docId) {
-                    throw new DurabilityException(
-                            DurabilityException.Reason.REPLAY_FAILURE,
-                            capture.sequence(),
-                            "checkpoint capture has inconsistent canonical IDs");
-                }
-                byte[] keyBytes = canonicalKey(config, key);
-                byte[] documentBytes = canonicalDocument(config, schema, key, document);
-                writeBytes(output, keyBytes);
-                writeBytes(output, documentBytes);
-                writtenLive++;
-                if (writtenLive == 1) {
-                    DurableCrashHooks.reach("v4-checkpoint-partial-data-v1");
-                }
-            }
-            if (writtenLive != liveDocuments
-                    || capture.documentIds().size() != liveDocuments) {
-                throw new DurabilityException(
-                        DurabilityException.Reason.REPLAY_FAILURE,
-                        capture.sequence(),
-                        "checkpoint capture live-document count changed");
-            }
+            writeContent(output, capture, config, schema, format, historyId, true);
             output.flush();
             long contentBytes = channel.position();
             ByteBuffer trailer = ByteBuffer.allocate(Integer.BYTES)
@@ -150,6 +100,90 @@ final class DurableCheckpoint {
                     channel.position(), (int) checksum.getValue());
         } catch (BoundExceededException failure) {
             throw capacity("checkpoint exceeds retained-byte budget", failure);
+        }
+    }
+
+    /** Freezes the same canonical checkpoint bytes without creating a live store. */
+    static <K, T> byte[] encode(
+            Capture<K, T> capture, DurableStorageConfig<K, T> config,
+            SearchSchema<T, K> schema, DurableFormatContext format,
+            UUID historyId, long maximumBytes
+    ) {
+        long bound = Math.min(maximumBytes, Integer.MAX_VALUE - 8L);
+        if (bound <= Integer.BYTES) {
+            throw capacity("checkpoint has no retained-byte budget", null);
+        }
+        var bytes = new ByteArrayOutputStream();
+        var checksum = new CRC32C();
+        try {
+            var output = new DataOutputStream(new CheckedOutputStream(
+                    new BoundedOutputStream(bytes, bound - Integer.BYTES), checksum));
+            writeContent(output, capture, config, schema, format, historyId, false);
+            output.flush();
+            new DataOutputStream(bytes).writeInt((int) checksum.getValue());
+            return bytes.toByteArray();
+        } catch (BoundExceededException failure) {
+            throw capacity("checkpoint exceeds retained-byte budget", failure);
+        } catch (IOException impossible) {
+            throw new AssertionError(impossible);
+        }
+    }
+
+    private static <K, T> void writeContent(
+            DataOutputStream output, Capture<K, T> capture,
+            DurableStorageConfig<K, T> config, SearchSchema<T, K> schema,
+            DurableFormatContext format, UUID historyId, boolean crashBarriers
+    ) throws IOException {
+        output.writeLong(CHECKPOINT_MAGIC);
+        output.writeShort(DurableFormatContext.MAJOR);
+        output.writeShort(format.minor());
+        output.writeLong(historyId.getMostSignificantBits());
+        output.writeLong(historyId.getLeastSignificantBits());
+        if (format.hasProfile()) {
+            output.write(format.profileDigest());
+        }
+        output.writeLong(capture.sequence());
+        output.writeInt(capture.nextDocId());
+        int liveDocuments = capture.snapshot().activeDocuments().cardinality();
+        output.writeInt(liveDocuments);
+        output.writeInt(capture.indexes().size());
+        for (DurableIndexDescriptor index : capture.indexes()) {
+            output.writeByte(index.kind());
+            writeString(output, index.fieldName());
+            writeString(output, index.analyzerId());
+        }
+        output.writeInt(capture.nextDocId());
+        int writtenLive = 0;
+        for (int docId = 0; docId < capture.nextDocId(); docId++) {
+            T document = capture.snapshot().get(docId);
+            if (document == null) {
+                output.writeByte(0);
+                continue;
+            }
+            output.writeByte(1);
+            K key = Objects.requireNonNull(schema.idOf(document), "document key");
+            Integer mapped = capture.documentIds().get(key);
+            if (mapped == null || mapped != docId) {
+                throw new DurabilityException(
+                        DurabilityException.Reason.REPLAY_FAILURE,
+                        capture.sequence(),
+                        "checkpoint capture has inconsistent canonical IDs");
+            }
+            byte[] keyBytes = canonicalKey(config, key);
+            byte[] documentBytes = canonicalDocument(config, schema, key, document);
+            writeBytes(output, keyBytes);
+            writeBytes(output, documentBytes);
+            writtenLive++;
+            if (crashBarriers && writtenLive == 1) {
+                DurableCrashHooks.reach("v4-checkpoint-partial-data-v1");
+            }
+        }
+        if (writtenLive != liveDocuments
+                || capture.documentIds().size() != liveDocuments) {
+            throw new DurabilityException(
+                    DurabilityException.Reason.REPLAY_FAILURE,
+                    capture.sequence(),
+                    "checkpoint capture live-document count changed");
         }
     }
 
