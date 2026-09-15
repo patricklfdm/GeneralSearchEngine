@@ -1,6 +1,6 @@
 # V5.0 Phase 3 leader-path checklist
 
-- **Status:** Locally validated candidate; protected-master acceptance pending
+- **Status:** Accepted through protected PR #148 and exact-master CI 34940262703
 - **Public engine/bootstrap:** reserved pending recovery admission
 - **Paid cloud:** disabled
 
@@ -39,5 +39,5 @@
 - [x] Final reactor, V5 Python suite and Phase 1/2/3 gates pass.
 - [x] Consumers, published API comparison and nine-JAR artifact integrity pass.
 - [x] Two clean release builds match byte-for-byte.
-- [ ] Protected Phase 3 PR accepts the candidate.
-- [ ] Exact-master CI passes before Phase 4 begins.
+- [x] Protected Phase 3 PR accepts the candidate.
+- [x] Exact-master CI passes before Phase 4 begins.

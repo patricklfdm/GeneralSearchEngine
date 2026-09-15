@@ -34,6 +34,8 @@ record ReplicaEntry(String manifestDigest, long epoch, UUID incarnation, long in
         return payload.clone();
     }
 
+    int encodedLength() { return payload.length + 197; }
+
     byte[] encode(int maximum) {
         // Fixed envelope and entry fields occupy 197 bytes, including payload length/digest.
         require((long) payload.length + 197 <= maximum, ReplicationException.Reason.CAPACITY_EXCEEDED,

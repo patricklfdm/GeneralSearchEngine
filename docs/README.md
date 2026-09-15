@@ -24,6 +24,10 @@ remains the phase history and decision source of truth.
 - [V5.0 Phase 3 leader path](v5x/v5.0/PHASE_3_LEADER_PATH.md)
 - [V5.0 Phase 3 baseline](v5x/v5.0/PHASE_3_BASELINE.md)
 - [V5.0 Phase 3 checklist](v5x/v5.0/PHASE_3_CHECKLIST.md)
+- [V5.0 Phase 4 entry plan](v5x/v5.0/PHASE_4_ENTRY_PLAN.md)
+- [V5.0 Phase 4 recovery and snapshots](v5x/v5.0/PHASE_4_RECOVERY.md)
+- [V5.0 Phase 4 baseline](v5x/v5.0/PHASE_4_BASELINE.md)
+- [V5.0 Phase 4 checklist](v5x/v5.0/PHASE_4_CHECKLIST.md)
 
 ## v4.x — completed durable single-node development line
 

@@ -3,7 +3,7 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 
-/** Reserved public builder; group bootstrap/recovery admission is not enabled yet. */
+/** Reserved public builder; complete group bootstrap/lifecycle admission is not enabled yet. */
 public final class ReplicatedSearchEngineBuilder<K, T> {
     private final SearchEngineBuilder<K, T> applicationBuilder;
     private final ReplicationGroupConfig<K, T> configuration;
@@ -26,12 +26,12 @@ public final class ReplicatedSearchEngineBuilder<K, T> {
     }
 
     /**
-     * Does not open storage or networking before group bootstrap/recovery admission.
+     * Does not open storage or networking before complete group bootstrap/lifecycle admission.
      *
      * @throws UnsupportedOperationException always, until a later gated phase
      */
     public ReplicatedSearchEngine<K, T> build() {
         throw new UnsupportedOperationException(
-                "Public replication construction requires the bootstrap/recovery gate");
+                "Public replication construction requires the bootstrap/lifecycle gate");
     }
 }

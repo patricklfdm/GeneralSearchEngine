@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 2 accepted; Phase 3 leader-path candidate under validation
+- **Status:** Phase 3 accepted; Phase 4 recovery candidate locally validated
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -34,7 +34,10 @@ The hard gates are:
 Phase 0 merged through protected PR #145 as `105537c8`; exact-master CI run
 `34919817954` passed. Phase 1 merged through protected PR #146 as `2e78bddd`;
 exact-master CI `34930568130` passed. Phase 2 was accepted through protected PR #147 at `1895598`; exact-master CI
-`34934537274` passed. Phase 3 implements the configured-leader path under its
-[entry plan](v5.0/PHASE_3_ENTRY_PLAN.md), [design](v5.0/PHASE_3_LEADER_PATH.md),
-[baseline](v5.0/PHASE_3_BASELINE.md) and [checklist](v5.0/PHASE_3_CHECKLIST.md).
-Protected Phase 3 acceptance and exact-master CI precede Phase 4 recovery work.
+`34934537274` passed. Phase 3 was accepted through protected PR #148 at `911c9de`;
+exact-master CI `34940262703` passed. Phase 4 implements recovery under its
+[entry plan](v5.0/PHASE_4_ENTRY_PLAN.md), [design](v5.0/PHASE_4_RECOVERY.md),
+[baseline](v5.0/PHASE_4_BASELINE.md) and [checklist](v5.0/PHASE_4_CHECKLIST.md).
+Protected Phase 4 acceptance and exact-master CI precede the next phase. Public
+bootstrap/lifecycle admission remains an explicit outstanding gate before enabling
+public engine entry points.

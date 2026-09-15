@@ -1,12 +1,19 @@
 # V5.0 Phase 3 leader-path baseline
 
-- **Status:** Locally validated candidate; protected-master acceptance pending
+- **Status:** Accepted through protected PR #148
 - **Branch:** `feat/v5.0-phase3-leader-path`
 - **Coordinates:** `5.0.0-SNAPSHOT`
 - **Starting master:** `1895598412b82da9de57655027d0ae76f75e327c`
 - **Phase 2 acceptance:** [PR #147](https://github.com/patricklfdm/GeneralSearchEngine/pull/147),
   [exact-master CI 34934537274](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34934537274)
 - **V4.4 control checksum:** `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`
+
+## Protected-master acceptance
+
+[PR #148](https://github.com/patricklfdm/GeneralSearchEngine/pull/148) merged at
+`911c9de0bd63149e5d48e7f4d5cb0ea7042a951e`. [Exact-master CI
+34940262703](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34940262703)
+passed all Required dependencies, including the three-JVM Phase 3 gate.
 
 ## Delivered boundary
 
@@ -82,7 +89,7 @@ No Git mutation or PR creation is part of these validation commands.
 
 ## Acceptance and next phase
 
-Protected Phase 3 acceptance and exact-master CI are pending. Phase 4 must implement
+Protected Phase 3 acceptance and exact-master CI passed as recorded above. Phase 4 implements
 quorum reconciliation, incomplete-tail handling under proven authority, catch-up,
 replacement-voter admission, immutable snapshot installation and safe compaction.
 Public bootstrap/engine admission must be completed and reviewed against the frozen

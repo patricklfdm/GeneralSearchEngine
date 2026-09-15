@@ -1,6 +1,6 @@
 # V5.0 Phase 3 leader-path entry plan
 
-- **Status:** Implementation candidate
+- **Status:** Accepted through protected PR #148 and exact-master CI 34940262703
 - **Branch:** `feat/v5.0-phase3-leader-path`
 - **Starting master:** `1895598412b82da9de57655027d0ae76f75e327c`
 - **Phase 2 acceptance:** protected PR #147; exact-master CI `34934537274` passed

@@ -39,6 +39,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     private Operation<T, K> catchup, prepared;
     private volatile boolean closed;
     private final String indexDigest;
+    private final List<IndexDefinition<T>> initialIndexes;
+    private final java.util.TreeMap<String, String> registered = new java.util.TreeMap<>();
 
     private static final class Slot<K, T> {
         final SearchEngine<K, T> engine;
@@ -51,6 +53,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     ReplicaApplication(SearchSchema<T, K> schema, List<IndexDefinition<T>> indexes,
                        DurableStorageConfig<K, T> configuration, ReplicationBounds bounds) {
         this.schema = schema; this.configuration = configuration; this.codec = configuration.codec(); this.bounds = bounds;
+        this.initialIndexes = List.copyOf(indexes);
+        for (var index : indexes) registered.put(index.field().name(), descriptor(index));
         require(bounds.maxFrameBytes() >= 4096, CAPACITY_EXCEEDED, "leader runtime requires at least a 4096-byte frame bound");
         maximumPayload = (bounds.maxFrameBytes() - 2048) / 4 * 3 - 197;
         var descriptions = indexes.stream().map(ReplicaApplication::descriptor).sorted().toList();
@@ -72,6 +76,95 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     String indexDigest() { return indexDigest; }
     long appliedIndex() { return published.get().index(); }
     long sequence() { return published.get().sequence(); }
+
+    byte[] emptySnapshot() {
+        try (var empty = new ReplicaApplication<>(schema, initialIndexes, configuration, bounds)) { return empty.snapshot(); }
+    }
+
+    byte[] snapshot() {
+        require(prepared == null, CONFLICTING_HISTORY, "cannot snapshot an unresolved application operation");
+        int maximum = ReplicaSnapshot.maximum(bounds);
+        return read(engine -> body(out -> {
+            out.writeShort(1); out.writeInt(registered.size());
+            for (String descriptor : registered.values()) {
+                require((long) out.size() + 4 + descriptor.length() + HEADER_BYTES <= maximum, CAPACITY_EXCEEDED, "snapshot indexes exceed bound");
+                text(out, descriptor);
+            }
+            var documents = engine.search(document -> true);
+            out.writeInt(documents.size());
+            for (T document : documents) {
+                ReplicaSnapshot.blob(out, canonicalKey(schema.idOf(document)), maximum);
+                ReplicaSnapshot.blob(out, canonicalDocument(document), maximum);
+            }
+            require(out.size() <= maximum - HEADER_BYTES, CAPACITY_EXCEEDED, "application snapshot exceeds bound");
+        }));
+    }
+
+    /** Rebuilds privately; the caller publishes only after authority installation succeeds. */
+    ReplicaApplication<K, T> rebuild(ReplicaRecoveryImage image) {
+        var rebuilt = new ReplicaApplication<>(schema, initialIndexes, configuration, bounds);
+        try {
+            var snapshot = image.snapshot();
+            var in = input(snapshot.application());
+            require(in.readUnsignedShort() == 1, PROTOCOL_MISMATCH, "unsupported application snapshot version");
+            int count = in.readInt();
+            require(count >= 0 && count <= 10_000 && count <= in.available() / 4, CAPACITY_EXCEEDED, "snapshot index count exceeds bound");
+            var definitions = new ArrayList<IndexDefinition<T>>();
+            var fields = new java.util.HashSet<String>();
+            for (int i = 0; i < count; i++) {
+                String descriptor = text(in, 8192); var definition = definition(descriptor);
+                require(descriptor(definition).equals(descriptor) && fields.add(definition.field().name()),
+                        INTEGRITY_FAILURE, "noncanonical or duplicate snapshot index");
+                definitions.add(definition);
+            }
+            for (var index : initialIndexes) {
+                rebuilt.published.get().slot().engine.dropIndex(index.field().name()).join();
+                rebuilt.working.engine.dropIndex(index.field().name()).join();
+            }
+            rebuilt.registered.clear();
+            for (var definition : definitions) {
+                rebuilt.published.get().slot().engine.createIndex(definition).join();
+                rebuilt.working.engine.createIndex(definition).join();
+                rebuilt.registered.put(definition.field().name(), descriptor(definition));
+            }
+            count = in.readInt();
+            require(count >= 0 && count <= configuration.maxDocuments() && count <= in.available() / 8,
+                    CAPACITY_EXCEEDED, "snapshot document count exceeds bound");
+            var batch = new ArrayList<T>();
+            for (int i = 0; i < count; i++) {
+                byte[] key = ReplicaSnapshot.blob(in, configuration.maxEncodedKeyBytes());
+                byte[] bytes = ReplicaSnapshot.blob(in, configuration.maxEncodedDocumentBytes());
+                T document = codec.decodeDocument(bytes.clone());
+                require(Arrays.equals(key, canonicalKey(schema.idOf(document))) && Arrays.equals(bytes, canonicalDocument(document)),
+                        INTEGRITY_FAILURE, "snapshot codec/key mismatch");
+                batch.add(document);
+                if (batch.size() == configuration.maxBulkElements() || i == count - 1) {
+                    rebuilt.published.get().slot().engine.addAll(batch).join(); rebuilt.working.engine.addAll(batch).join(); batch.clear();
+                }
+            }
+            end(in);
+            rebuilt.published.set(new Published<>(rebuilt.published.get().slot(), snapshot.index(), snapshot.sequence()));
+            require(Arrays.equals(snapshot.application(), rebuilt.snapshot()), INTEGRITY_FAILURE, "noncanonical application snapshot");
+            for (var entry : image.entries()) { rebuilt.prepare(entry); rebuilt.publish(entry.index()); }
+            return rebuilt;
+        } catch (IOException | RuntimeException | Error error) {
+            rebuilt.close();
+            if (error instanceof IOException) throw failure(INTEGRITY_FAILURE, "invalid application snapshot", error);
+            if (error instanceof RuntimeException runtime) throw runtime;
+            throw (Error) error;
+        }
+    }
+
+    void replaceWith(ReplicaApplication<K, T> rebuilt) {
+        require(!closed && !rebuilt.closed, CLOSED, "application closed during recovery");
+        var old = published.getAndSet(rebuilt.published.get());
+        var oldWorking = working;
+        working = rebuilt.working; catchup = rebuilt.catchup; prepared = rebuilt.prepared;
+        registered.clear(); registered.putAll(rebuilt.registered);
+        rebuilt.closed = true; // ownership of both engines moved to this application
+        old.slot().readers.getAndUpdate(readers -> readers | Integer.MIN_VALUE);
+        old.slot().engine.close(); oldWorking.engine.close();
+    }
 
     <R> R read(Function<SearchEngine<K, T>, R> action) {
         while (true) {
@@ -165,6 +258,7 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
             apply(working.engine, catchup); catchup = null;
         }
         Operation<T, K> operation = decode(entry);
+        if (operation.type().equals("INDEX_CREATE")) require(registered.size() < 10_000, CAPACITY_EXCEEDED, "snapshot index count exceeds bound");
         if (operation.type().equals("ADD") || operation.type().equals("ADD_ALL"))
             require((long) working.engine.metrics().documentCount() + operation.documents().size() <= configuration.maxDocuments(),
                     CAPACITY_EXCEEDED, "application document count exceeds bound");
@@ -176,6 +270,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     void publish(long index) {
         require(!closed && prepared != null && index == appliedIndex() + 1, CONFLICTING_HISTORY, "application publication is not contiguous");
         var old = published.get();
+        if (prepared.type().equals("INDEX_CREATE")) registered.put(prepared.index().field().name(), descriptor(prepared.index()));
+        if (prepared.type().equals("INDEX_DROP")) registered.remove(prepared.field());
         boolean application = !prepared.type().equals("NO_OP");
         if (application) {
             working.readers.set(0);
