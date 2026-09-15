@@ -3,7 +3,7 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.util.Objects;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 
-/** Reserved public builder; complete group bootstrap/lifecycle admission is not enabled yet. */
+/** Captures immutable application configuration into a stopped replicated handle. */
 public final class ReplicatedSearchEngineBuilder<K, T> {
     private final SearchEngineBuilder<K, T> applicationBuilder;
     private final ReplicationGroupConfig<K, T> configuration;
@@ -26,12 +26,10 @@ public final class ReplicatedSearchEngineBuilder<K, T> {
     }
 
     /**
-     * Does not open storage or networking before complete group bootstrap/lifecycle admission.
-     *
-     * @throws UnsupportedOperationException always, until a later gated phase
+     * Captures the application configuration and validates pure arguments. Opens no storage,
+     * threads or sockets; {@link ReplicatedSearchEngine#start()} opens a sealed 1.1 authority.
      */
     public ReplicatedSearchEngine<K, T> build() {
-        throw new UnsupportedOperationException(
-                "Public replication construction requires the bootstrap/lifecycle gate");
+        return new PublicReplicaEngine<>(applicationBuilder.configuration(), configuration);
     }
 }

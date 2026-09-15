@@ -13,7 +13,7 @@ Published core/processor baselines remain unchanged. The artifact-compat profile
 checks the exact approved delta over the entire public core JAR before japicmp;
 its binary/source incompatibility failures remain enabled. Separate [1.1 byte fixtures](PUBLIC_ADMISSION_FORMAT_1_1.md)
 freeze the admission format implemented by [Step B offline operations](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md),
-which adds no public descriptors beyond Step A. Phase 1–5 continue to exercise internal 1.0.
+and [Step C public runtime](PUBLIC_ADMISSION_RUNTIME.md). Neither step adds public descriptors beyond Step A. Phase 1–5 continue to exercise internal 1.0.
 
 V5 is a new major line, but replication is additive and opt-in. Existing
 `SearchEngine`, `DurableSearchEngine`, `general-search-engine` and

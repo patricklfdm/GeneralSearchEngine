@@ -16,4 +16,4 @@ mkdir -p target/v50-storage
 work_parent=$(mktemp -d "$root/target/v50-storage/run.XXXXXX")
 echo "v50Phase2Evidence=$work_parent/evidence"
 "$python_command" -m scripts.v50.storage_harness "$work_parent/evidence"
-echo "v50Phase2Storage=PASS publicRuntime=disabled paidCloud=disabled"
+echo "v50Phase2Storage=PASS publicRuntime=separate-admission-gate paidCloud=disabled"

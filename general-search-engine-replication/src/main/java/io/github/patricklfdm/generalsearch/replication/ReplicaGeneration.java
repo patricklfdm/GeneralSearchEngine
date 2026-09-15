@@ -24,20 +24,20 @@ final class ReplicaGeneration {
     static final Set<String> MEMBERS = Set.of(SNAPSHOT, ReplicaStore.ENTRY_FILE, ReplicaStore.PROOF_FILE, SEAL);
     static final Set<String> OPTIONAL = Set.of(CURRENT, PENDING, FLOOR, "recovery-floor.pending.gsr", REBUILDING, STARTED, "generation-a", "generation-b", ReplicaTransfer.DIRECTORY);
     private static final int POINTER_KIND = 10, SEAL_KIND = 11, FLOOR_KIND = 12, REBUILD_KIND = 13;
-    record Selected(Path directory, ReplicaSnapshot snapshot, boolean admitted) { }
+    record Selected(Path directory, ReplicaSnapshot snapshot, boolean admitted, long generation) { }
     private ReplicaGeneration() { }
 
     static Selected selected(Path root, ReplicaManifest manifest, ReplicationNodeId node, ReplicationBounds bounds) throws IOException {
         boolean started = Files.exists(root.resolve(STARTED), LinkOption.NOFOLLOW_LINKS);
         if (started) {
-            var marker = input(read(root.resolve(STARTED), 15, MAX_METADATA_BYTES));
+            var marker = input(read(root.resolve(STARTED), 15, MAX_METADATA_BYTES, manifest.formatMinor()));
             require(hash(marker).equals(manifest.digest()) && text(marker, 64).equals(node.value()), PROTOCOL_MISMATCH, "generation-started identity mismatch"); end(marker);
         }
         if (!Files.exists(root.resolve(CURRENT), LinkOption.NOFOLLOW_LINKS)) {
             require(!started && !Files.exists(root.resolve(FLOOR), LinkOption.NOFOLLOW_LINKS), INTEGRITY_FAILURE, "installed generation selector is missing");
-            return new Selected(root, null, false);
+            return new Selected(root, null, false, 0);
         }
-        var pointer = input(read(root.resolve(CURRENT), POINTER_KIND, MAX_METADATA_BYTES));
+        var pointer = input(read(root.resolve(CURRENT), POINTER_KIND, MAX_METADATA_BYTES, manifest.formatMinor()));
         require(hash(pointer).equals(manifest.digest()) && text(pointer, 64).equals(node.value()), PROTOCOL_MISMATCH, "generation pointer identity mismatch");
         String slot = text(pointer, 32); UUID generation = uuid(pointer); String sealDigest = hash(pointer);
         int admittedFlag = pointer.readUnsignedByte(); require(admittedFlag <= 1, INTEGRITY_FAILURE, "invalid generation admission flag");
@@ -46,36 +46,39 @@ final class ReplicaGeneration {
         Path directory = root.resolve(slot); inventorySlot(directory, true);
         byte[] sealBytes = bytes(directory.resolve(SEAL), MAX_METADATA_BYTES);
         require(frameDigest(sealBytes).equals(sealDigest), INTEGRITY_FAILURE, "generation selector/seal mismatch");
-        var seal = input(decodeRecord(sealBytes, SEAL_KIND, MAX_METADATA_BYTES));
+        var seal = input(decodeRecord(sealBytes, SEAL_KIND, MAX_METADATA_BYTES, manifest.formatMinor()));
         require(hash(seal).equals(manifest.digest()) && text(seal, 64).equals(node.value()) && uuid(seal).equals(generation),
                 PROTOCOL_MISMATCH, "generation seal identity mismatch");
         byte[] snapshotBytes = bytes(directory.resolve(SNAPSHOT), ReplicaSnapshot.maximum(bounds));
         require(hash(seal).equals(frameDigest(snapshotBytes)), INTEGRITY_FAILURE, "generation snapshot digest mismatch");
         for (String journal : List.of(ReplicaStore.ENTRY_FILE, ReplicaStore.PROOF_FILE)) {
             try (var channel = FileChannel.open(directory.resolve(journal), StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
-                var header = ReplicaFormat.read(channel, 0, JOURNAL, MAX_METADATA_BYTES);
+                var header = ReplicaFormat.read(channel, 0, JOURNAL, MAX_METADATA_BYTES, manifest.formatMinor());
                 require(header != null && hash(seal).equals(header.digest()), INTEGRITY_FAILURE, "generation journal header mismatch");
             }
         }
         end(seal);
-        return new Selected(directory, ReplicaSnapshot.decode(snapshotBytes, manifest, ReplicaSnapshot.maximum(bounds)), admitted);
+        return new Selected(directory, ReplicaSnapshot.decode(snapshotBytes, manifest, ReplicaSnapshot.maximum(bounds)), admitted, generation.getMostSignificantBits() & Long.MAX_VALUE);
     }
 
     static Selected install(Path root, ReplicaManifest manifest, ReplicationNodeId node, ReplicationBounds bounds,
                             ReplicaRecoveryImage image, boolean admitted, ReplicaStore.Faults faults) throws IOException {
         image.validate(manifest, bounds);
         byte[] snapshot = image.snapshot().encode(ReplicaSnapshot.maximum(bounds));
-        long stagedBytes = snapshot.length + journalHeader(manifest.digest(), node, ENTRY).length
-                + journalHeader(manifest.digest(), node, PROOF).length + 196 + node.value().getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
+        long stagedBytes = snapshot.length + journalHeader(manifest, node, ENTRY).length
+                + journalHeader(manifest, node, PROOF).length + 196 + node.value().getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
         for (var entry : image.entries()) stagedBytes = Math.addExact(stagedBytes, entry.encodedLength());
         for (var proof : image.proofs()) stagedBytes = Math.addExact(stagedBytes, proof.encode().length);
         long rootMetadata = 4096; // selector, started/floor markers and temporary atomic-write metadata
-        for (String file : ReplicaStore.FILES) if (!file.equals(ReplicaStore.ENTRY_FILE) && !file.equals(ReplicaStore.PROOF_FILE)) rootMetadata += Files.size(root.resolve(file));
+        for (String file : ReplicaStore.files(manifest.formatMinor())) if (!file.equals(ReplicaStore.ENTRY_FILE) && !file.equals(ReplicaStore.PROOF_FILE)) rootMetadata += Files.size(root.resolve(file));
         require(stagedBytes <= bounds.maxSnapshotStagingBytes() && stagedBytes + rootMetadata <= bounds.maxRetainedLogBytes(),
                 CAPACITY_EXCEEDED, "generation exceeds retained/staging bounds before writing");
         var selected = selected(root, manifest, node, bounds);
         String name = selected.directory().getFileName().toString().equals("generation-a") ? "generation-b" : "generation-a";
         Path target = root.resolve(name);
+        long replacingBytes = Files.exists(target, LinkOption.NOFOLLOW_LINKS) ? directoryBytes(target) : 0;
+        require(directoryBytes(root) - replacingBytes + stagedBytes + 4096 <= bounds.maxRetainedLogBytes() + bounds.maxSnapshotStagingBytes(),
+                CAPACITY_EXCEEDED, "generation would exceed aggregate disk bounds");
         if (Files.exists(target, LinkOption.NOFOLLOW_LINKS)) {
             require(selected.snapshot() == null || selected.snapshot().index() <= floor(root, manifest, node),
                     CAPACITY_EXCEEDED, "a prior recovery source is retained until its quorum floor is established");
@@ -88,7 +91,7 @@ final class ReplicaGeneration {
         for (String file : List.of(ReplicaStore.ENTRY_FILE, ReplicaStore.PROOF_FILE)) {
             int kind = file.equals(ReplicaStore.ENTRY_FILE) ? ENTRY : PROOF;
             try (var channel = FileChannel.open(target.resolve(file), StandardOpenOption.CREATE_NEW, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS)) {
-                write(channel, journalHeader(manifest.digest(), node, kind));
+                write(channel, journalHeader(manifest, node, kind));
                 long length = channel.position();
                 if (kind == ENTRY) for (var entry : image.entries()) {
                     byte[] bytes = entry.encode(bounds.maxFrameBytes()); length += bytes.length;
@@ -105,16 +108,16 @@ final class ReplicaGeneration {
         UUID generation = UUID.randomUUID();
         byte[] seal = frame(SEAL_KIND, body(out -> {
             hash(out, manifest.digest()); text(out, node.value()); uuid(out, generation); hash(out, frameDigest(snapshot));
-            hash(out, frameDigest(journalHeader(manifest.digest(), node, ENTRY)));
-            hash(out, frameDigest(journalHeader(manifest.digest(), node, PROOF)));
-        }), MAX_METADATA_BYTES);
+            hash(out, frameDigest(journalHeader(manifest, node, ENTRY)));
+            hash(out, frameDigest(journalHeader(manifest, node, PROOF)));
+        }), MAX_METADATA_BYTES, manifest.formatMinor());
         write(target.resolve(SEAL), seal, faults, "RECOVERY_SEAL"); forceDirectory(target);
         long staged = directoryBytes(target);
         require(staged <= bounds.maxSnapshotStagingBytes() && staged <= bounds.maxRetainedLogBytes(), CAPACITY_EXCEEDED, "staged generation exceeds byte bounds");
         faults.at("AFTER_RECOVERY_STAGE_FORCE");
         byte[] pointer = frame(POINTER_KIND, body(out -> {
             hash(out, manifest.digest()); text(out, node.value()); text(out, name); uuid(out, generation); hash(out, frameDigest(seal)); out.writeBoolean(admitted);
-        }), MAX_METADATA_BYTES);
+        }), MAX_METADATA_BYTES, manifest.formatMinor());
         atomic(root, CURRENT, PENDING, pointer, faults, "RECOVERY_POINTER");
         ensureStarted(root, manifest, node);
         return selected(root, manifest, node, bounds);
@@ -122,7 +125,7 @@ final class ReplicaGeneration {
 
     static void ensureStarted(Path root, ReplicaManifest manifest, ReplicationNodeId node) throws IOException {
         if (!Files.exists(root.resolve(STARTED), LinkOption.NOFOLLOW_LINKS)) {
-            write(root.resolve(STARTED), frame(15, body(out -> { hash(out, manifest.digest()); text(out, node.value()); }), MAX_METADATA_BYTES), ReplicaStore.Faults.NONE, "GENERATION_STARTED");
+            write(root.resolve(STARTED), frame(15, body(out -> { hash(out, manifest.digest()); text(out, node.value()); }), MAX_METADATA_BYTES, manifest.formatMinor()), ReplicaStore.Faults.NONE, "GENERATION_STARTED");
             forceDirectory(root);
         }
     }
@@ -130,14 +133,14 @@ final class ReplicaGeneration {
     static void validateFloor(Path root, ReplicaManifest manifest, ReplicationNodeId node, ReplicaSnapshot snapshot) throws IOException {
         long floor = floor(root, manifest, node);
         if (Files.exists(root.resolve(FLOOR), LinkOption.NOFOLLOW_LINKS)) {
-            var in = input(read(root.resolve(FLOOR), FLOOR_KIND, MAX_METADATA_BYTES)); hash(in); text(in, 64); in.readLong();
+            var in = input(read(root.resolve(FLOOR), FLOOR_KIND, MAX_METADATA_BYTES, manifest.formatMinor())); hash(in); text(in, 64); in.readLong();
             require(snapshot != null && floor <= snapshot.index() && hash(in).equals(snapshot.digestAt(floor)), INTEGRITY_FAILURE, "floor ancestry differs from installed snapshot");
         }
     }
 
     static long floor(Path root, ReplicaManifest manifest, ReplicationNodeId node) throws IOException {
         if (!Files.exists(root.resolve(FLOOR), LinkOption.NOFOLLOW_LINKS)) return 0;
-        var in = input(read(root.resolve(FLOOR), FLOOR_KIND, MAX_METADATA_BYTES));
+        var in = input(read(root.resolve(FLOOR), FLOOR_KIND, MAX_METADATA_BYTES, manifest.formatMinor()));
         require(hash(in).equals(manifest.digest()) && text(in, 64).equals(node.value()), PROTOCOL_MISMATCH, "floor identity mismatch");
         long index = in.readLong(); hash(in); int count = in.readInt();
         require(index >= 0 && index <= MAX_ENTRIES && count >= 2 && count <= 3, INTEGRITY_FAILURE, "invalid recovery floor");
@@ -154,7 +157,7 @@ final class ReplicaGeneration {
         byte[] record = frame(FLOOR_KIND, body(out -> {
             hash(out, manifest.digest()); text(out, node.value()); out.writeLong(index); hash(out, digest); out.writeInt(voters.size());
             for (var voter : voters.stream().sorted().toList()) text(out, voter.value());
-        }), MAX_METADATA_BYTES);
+        }), MAX_METADATA_BYTES, manifest.formatMinor());
         atomic(root, FLOOR, "recovery-floor.pending.gsr", record, faults, "RECOVERY_FLOOR");
     }
     static void compact(Path root, Selected selected, ReplicaManifest manifest, ReplicationNodeId node,
@@ -164,22 +167,22 @@ final class ReplicaGeneration {
         // Original journal headers remain part of the immutable initialization inventory.
         for (String file : List.of(ReplicaStore.ENTRY_FILE, ReplicaStore.PROOF_FILE)) {
             try (var channel = FileChannel.open(root.resolve(file), StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS)) {
-                channel.truncate(journalHeader(manifest.digest(), node, file.equals(ReplicaStore.ENTRY_FILE) ? ENTRY : PROOF).length); channel.force(true);
+                channel.truncate(journalHeader(manifest, node, file.equals(ReplicaStore.ENTRY_FILE) ? ENTRY : PROOF).length); channel.force(true);
             }
             faults.at("AFTER_RECOVERY_LEGACY_COMPACTION");
         }
         forceDirectory(root); faults.at("AFTER_RECOVERY_CLEANUP_FORCE");
     }
     static byte[] rebuilding(ReplicaManifest manifest, ReplicationNodeId node) {
-        return frame(REBUILD_KIND, body(out -> { hash(out, manifest.digest()); text(out, node.value()); }), MAX_METADATA_BYTES);
+        return frame(REBUILD_KIND, body(out -> { hash(out, manifest.digest()); text(out, node.value()); }), MAX_METADATA_BYTES, manifest.formatMinor());
     }
     static void validateRebuilding(Path root, ReplicaManifest manifest, ReplicationNodeId node) throws IOException {
         if (!Files.exists(root.resolve(REBUILDING), LinkOption.NOFOLLOW_LINKS)) return;
-        var in = input(read(root.resolve(REBUILDING), REBUILD_KIND, MAX_METADATA_BYTES));
+        var in = input(read(root.resolve(REBUILDING), REBUILD_KIND, MAX_METADATA_BYTES, manifest.formatMinor()));
         require(hash(in).equals(manifest.digest()) && text(in, 64).equals(node.value()), PROTOCOL_MISMATCH, "replacement identity mismatch"); end(in);
     }
-    static byte[] journalHeader(String digest, ReplicationNodeId node, int kind) {
-        return frame(JOURNAL, body(out -> { hash(out, digest); text(out, node.value()); out.writeShort(kind); }), MAX_METADATA_BYTES);
+    static byte[] journalHeader(ReplicaManifest manifest, ReplicationNodeId node, int kind) {
+        return frame(JOURNAL, body(out -> { hash(out, manifest.digest()); text(out, node.value()); out.writeShort(kind); }), MAX_METADATA_BYTES, manifest.formatMinor());
     }
     static void inventorySlot(Path path, boolean complete) throws IOException {
         require(Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS), INTEGRITY_FAILURE, "generation is not a directory");
@@ -211,7 +214,7 @@ final class ReplicaGeneration {
             byte[] bytes = in.readNBytes(maximum + 1); require(bytes.length == length, INTEGRITY_FAILURE, "recovery file changed while owned"); return bytes;
         }
     }
-    private static byte[] read(Path file, int kind, int maximum) throws IOException { return decodeRecord(bytes(file, maximum), kind, maximum); }
+    private static byte[] read(Path file, int kind, int maximum, int minor) throws IOException { return decodeRecord(bytes(file, maximum), kind, maximum, minor); }
     private static void atomic(Path root, String target, String pending, byte[] bytes, ReplicaStore.Faults faults, String operation) throws IOException {
         Files.deleteIfExists(root.resolve(pending));
         write(root.resolve(pending), bytes, faults, operation);

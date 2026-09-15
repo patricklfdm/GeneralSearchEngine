@@ -30,6 +30,13 @@ final class ReplicaStore implements AutoCloseable {
     static final Set<String> FILES = Set.of(LOCK, MANIFEST_FILE, NODE_FILE, PROMISE_FILE,
             ENTRY_FILE, PROOF_FILE, READY_FILE);
 
+    static Set<String> files(int minor) {
+        if (minor == 0) return FILES;
+        var names = new java.util.HashSet<>(FILES);
+        names.addAll(List.of("genesis.gsr", "bootstrap-prepared.gsr", "bootstrap-seal.gsr"));
+        return Set.copyOf(names);
+    }
+
     interface Faults {
         Faults NONE = new Faults() { };
         default void at(String barrier) throws IOException { }
@@ -58,6 +65,7 @@ final class ReplicaStore implements AutoCloseable {
     private String lastDigest;
     private UUID lastIncarnation = NO_INCARNATION;
     private boolean closed, failed, quiescing;
+    private AdmissionNode.View admission;
 
     private ReplicaStore(Path directory, ReplicaManifest manifest, ReplicationNodeId node,
                          ReplicationBounds bounds, Faults faults, FileChannel lockChannel, FileLock lock,
@@ -90,6 +98,7 @@ final class ReplicaStore implements AutoCloseable {
 
     private static void initialize(Path path, ReplicaManifest manifest, ReplicationNodeId node,
                                    ReplicationBounds bounds, Faults faults, boolean replacement) {
+        require(manifest.formatMinor() == 0, PROTOCOL_MISMATCH, "1.1 authority requires sealed offline admission");
         require(manifest.contains(node), PROTOCOL_MISMATCH, "local identity is not a manifest voter");
         byte[] manifestBytes = manifest.encode();
         String manifestDigest = frameDigest(manifestBytes);
@@ -173,6 +182,19 @@ final class ReplicaStore implements AutoCloseable {
 
     private static ReplicaStore load(Path path, ReplicaManifest expected, ReplicationNodeId expectedNode,
                                      ReplicationBounds bounds, Faults faults, boolean readOnly, boolean recoveryMode) {
+        return load(path, expected, expectedNode, bounds, faults, readOnly, recoveryMode, null, null);
+    }
+
+    static ReplicaStore openAdmitted(ReplicationGroupConfig<?, ?> config,
+                                    io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<?, ?> application) {
+        return load(config.replicaDirectory(), null, config.localNodeId(), config.bounds(), ReplicaRuntimeHooks.CURRENT.get().storage(),
+                false, true, config, application);
+    }
+
+    private static ReplicaStore load(Path path, ReplicaManifest expected, ReplicationNodeId expectedNode,
+            ReplicationBounds bounds, Faults faults, boolean readOnly, boolean recoveryMode,
+            ReplicationGroupConfig<?, ?> config, io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration<?, ?> application) {
+        int minor = config == null ? 0 : 1;
         Path directory = safePath(path);
         List<FileChannel> opened = new ArrayList<>();
         FileLock lock = null;
@@ -180,32 +202,50 @@ final class ReplicaStore implements AutoCloseable {
             require(Files.isDirectory(directory, LinkOption.NOFOLLOW_LINKS), STORAGE_FAILURE,
                     "replica directory is absent");
             validateFileSystem(directory);
-            checkInventory(directory);
+            checkInventory(directory, minor);
             FileChannel lockChannel = FileChannel.open(directory.resolve(LOCK), readOnly
                     ? Set.of(StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)
                     : Set.of(StandardOpenOption.READ, StandardOpenOption.WRITE, LinkOption.NOFOLLOW_LINKS));
             opened.add(lockChannel);
             lock = acquire(lockChannel, readOnly);
-            checkInventory(directory);
-            Frame manifestFrame = single(directory.resolve(MANIFEST_FILE), MANIFEST);
-            ReplicaManifest manifest = ReplicaManifest.decode(manifestFrame.body());
+            checkInventory(directory, minor);
+            Frame manifestFrame = single(directory.resolve(MANIFEST_FILE), MANIFEST, minor);
+            ReplicaManifest manifest = ReplicaManifest.decode(manifestFrame.body(), minor);
             require(manifest.digest().equals(manifestFrame.digest()), INTEGRITY_FAILURE,
                     "noncanonical manifest encoding");
             if (expected != null) {
                 require(expected.digest().equals(manifestFrame.digest()), PROTOCOL_MISMATCH,
                         "replica manifest differs from expected immutable group");
             }
-            Frame nodeFrame = single(directory.resolve(NODE_FILE), NODE);
+            Frame nodeFrame = single(directory.resolve(NODE_FILE), NODE, minor);
             var identity = input(nodeFrame.body());
             require(hash(identity).equals(manifestFrame.digest()), PROTOCOL_MISMATCH, "node manifest mismatch");
             var node = new ReplicationNodeId(text(identity, 64));
-            boolean replacementIdentity = identity.available() > 0;
-            if (replacementIdentity) require(identity.readUnsignedByte() == 1
-                            && Files.exists(directory.resolve(ReplicaGeneration.REBUILDING), LinkOption.NOFOLLOW_LINKS),
+            int origin = minor == 1 || identity.available() > 0 ? identity.readUnsignedByte() : 0;
+            require(origin <= 1 && (origin == 0 || Files.exists(directory.resolve(ReplicaGeneration.REBUILDING), LinkOption.NOFOLLOW_LINKS)),
                     INTEGRITY_FAILURE, "replacement identity marker is missing or invalid");
             end(identity);
             require(manifest.contains(node) && (expectedNode == null || expectedNode.equals(node)),
                     PROTOCOL_MISMATCH, "local voter identity mismatch");
+            AdmissionNode.View admission = null;
+            if (minor == 1) {
+                admission = AdmissionNode.identity(directory);
+                var expectedGroup = ReplicaManifest.from(config, ReplicaApplication.configurationDigest(application.indexes()));
+                require(java.util.Arrays.equals(expectedGroup.encode(), admission.plan().manifest().group().encode()),
+                        PROTOCOL_MISMATCH, "configured group differs from admitted authority");
+                require(canonicalEqual(AdmissionConfiguration.application(application), admission.plan().descriptor().get("application")),
+                        PROTOCOL_MISMATCH, "captured application differs from admitted authority");
+                int localIndex = manifest.members().stream().map(ReplicationMember::nodeId).toList().indexOf(node);
+                var actual = new java.util.TreeMap<>(AdmissionConfiguration.local(config));
+                var sealed = new java.util.TreeMap<>(admission.plan().local(localIndex));
+                // Absolute bootstrap paths are provenance: a sealed volume can be attached elsewhere.
+                actual.remove("target"); sealed.remove("target");
+                var actualCore = new java.util.TreeMap<>(AdmissionConfiguration.object(actual.get("materialization")));
+                var sealedCore = new java.util.TreeMap<>(AdmissionConfiguration.object(sealed.get("materialization")));
+                actualCore.remove("directory"); sealedCore.remove("directory");
+                actual.put("materialization", actualCore); sealed.put("materialization", sealedCore);
+                require(canonicalEqual(actual, sealed), PROTOCOL_MISMATCH, "local configuration differs from sealed admission");
+            }
             ReplicaGeneration.validateRebuilding(directory, manifest, node);
             var selected = ReplicaGeneration.selected(directory, manifest, node, bounds);
             if (!readOnly && selected.snapshot() != null) ReplicaGeneration.ensureStarted(directory, manifest, node);
@@ -219,8 +259,9 @@ final class ReplicaStore implements AutoCloseable {
             }
             var store = new ReplicaStore(directory, manifest, node, bounds, faults, lockChannel, lock,
                     channels.get(0), channels.get(1), channels.get(2), readOnly);
-            store.selected = selected; store.recoveryMode = recoveryMode;
+            store.selected = selected; store.recoveryMode = recoveryMode; store.admission = admission;
             store.scan(manifestFrame, nodeFrame);
+            if (minor == 1) store.validateRetained();
             return store;
         } catch (IOException | RuntimeException error) {
             if (lock != null) {
@@ -255,7 +296,7 @@ final class ReplicaStore implements AutoCloseable {
             end(input);
             headers.add(header);
         }
-        Frame ready = single(directory.resolve(READY_FILE), READY);
+        Frame ready = single(directory.resolve(READY_FILE), READY, manifest.formatMinor());
         var readyInput = input(ready.body());
         for (Frame frame : List.of(manifestFrame, nodeFrame, headers.get(0), headers.get(1), headers.get(2))) {
             require(hash(readyInput).equals(frame.digest()), INTEGRITY_FAILURE, "incomplete storage initialization");
@@ -271,13 +312,15 @@ final class ReplicaStore implements AutoCloseable {
             long epoch = input.readLong();
             UUID incarnation = uuid(input);
             end(input);
-            require(epoch > promisedEpoch && !incarnation.equals(NO_INCARNATION), INTEGRITY_FAILURE,
+            boolean initial = manifest.formatMinor() == 1 && promiseHistory.isEmpty() && epoch == 1 && incarnation.equals(NO_INCARNATION);
+            require(initial || epoch > promisedEpoch && !incarnation.equals(NO_INCARNATION), INTEGRITY_FAILURE,
                     "promise ledger regresses or conflicts");
             promisedEpoch = epoch;
             this.incarnation = incarnation;
             promiseHistory.put(epoch, incarnation);
             offset = frame.nextOffset();
         }
+        require(manifest.formatMinor() == 0 || promiseHistory.containsKey(1L), INTEGRITY_FAILURE, "genesis promise missing");
         if (selected.snapshot() != null) {
             baseIndex = selected.snapshot().index(); commitIndex = baseIndex;
             lastEpoch = selected.snapshot().epochAt(baseIndex); lastDigest = selected.snapshot().digestAt(baseIndex);
@@ -289,7 +332,7 @@ final class ReplicaStore implements AutoCloseable {
         offset = headers.get(1).nextOffset();
         while ((frame = readEntryForScan(offset)) != null) {
             require(lastLogIndex() < MAX_ENTRIES, CAPACITY_EXCEEDED, "entry count exceeds bound");
-            ReplicaEntry entry = ReplicaEntry.decode(frame.body());
+            ReplicaEntry entry = ReplicaEntry.decode(frame.body(), manifest.formatMinor());
             validateEntryChain(entry);
             require(entry.incarnation().equals(promiseHistory.get(entry.epoch()))
                             || selected.snapshot() != null && !promiseHistory.containsKey(entry.epoch()) && entry.epoch() < promisedEpoch, INTEGRITY_FAILURE,
@@ -299,12 +342,46 @@ final class ReplicaStore implements AutoCloseable {
         }
         offset = headers.get(2).nextOffset();
         while ((frame = read(proofs, offset, PROOF, MAX_METADATA_BYTES)) != null) {
-            ReplicaProof proof = ReplicaProof.decode(frame.body());
+            ReplicaProof proof = ReplicaProof.decode(frame.body(), manifest.formatMinor());
             require(proof.index() > commitIndex, INTEGRITY_FAILURE, "commit ledger regresses/duplicates");
             validateProof(proof);
             commitIndex = proof.index();
             proofOffsets.set(Math.toIntExact(commitIndex - baseIndex - 1), offset);
             offset = frame.nextOffset();
+        }
+    }
+
+    /** Retained generations cannot hide a conflicting or newer durable proof behind the selected pointer. */
+    private void validateRetained() throws IOException {
+        var authoritative = image(genesisApplication());
+        var anchors = authoritative.anchors();
+        var sources = new ArrayList<Path>(); sources.add(directory);
+        for (String slot : ReplicaGeneration.SLOTS) {
+            Path source = directory.resolve(slot);
+            if (Files.exists(source.resolve(ReplicaGeneration.SEAL), LinkOption.NOFOLLOW_LINKS)) {
+                // Complete unselected slots must still be valid recovery sources. Incomplete staging is never authority.
+                byte[] raw = ReplicaGeneration.bytes(source.resolve(ReplicaGeneration.SNAPSHOT), ReplicaSnapshot.maximum(bounds));
+                var snapshot = ReplicaSnapshot.decode(raw, manifest, ReplicaSnapshot.maximum(bounds));
+                require(snapshot.index() <= commitIndex && snapshot.digestAt(snapshot.index()).equals(digestAt(snapshot.index())),
+                        CONFLICTING_HISTORY, "retained snapshot conflicts with selected committed history");
+                require(snapshot.index() != 0 || java.util.Arrays.equals(snapshot.application(), genesisApplication()),
+                        INTEGRITY_FAILURE, "retained genesis snapshot changed application");
+                sources.add(source);
+            }
+        }
+        for (Path source : sources) {
+            if (source.equals(selected.directory())) continue;
+            try (var channel = FileChannel.open(source.resolve(PROOF_FILE), StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
+                Frame header = read(channel, 0, JOURNAL, MAX_METADATA_BYTES);
+                require(header != null, INTEGRITY_FAILURE, "retained proof header missing");
+                long offset = header.nextOffset(); Frame row;
+                while ((row = read(channel, offset, PROOF, MAX_METADATA_BYTES)) != null) {
+                    var proof = ReplicaProof.decode(row.body(), manifest.formatMinor());
+                    require(proof.index() <= commitIndex, CONFLICTING_HISTORY, "selected generation lost a retained durable proof");
+                    ReplicaSnapshot.validateProof(manifest, proof, proof.index(), anchors.get(Math.toIntExact(proof.index() - 1)), digestAt(proof.index() - 1));
+                    offset = row.nextOffset();
+                }
+            }
         }
     }
 
@@ -325,7 +402,7 @@ final class ReplicaStore implements AutoCloseable {
             text(out, sender.value());
             out.writeLong(epoch);
             uuid(out, requestedIncarnation);
-        }), MAX_METADATA_BYTES);
+        }), MAX_METADATA_BYTES, manifest.formatMinor());
         appendFrame(promises, bytes, "PROMISE");
         promisedEpoch = epoch;
         incarnation = requestedIncarnation;
@@ -337,7 +414,7 @@ final class ReplicaStore implements AutoCloseable {
         writable();
         leader(sender);
         require(!damagedTail, CONFLICTING_HISTORY, "entry tail requires fenced recovery installation");
-        require(entry.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "entry group mismatch");
+        require(entry.formatMinor() == manifest.formatMinor() && entry.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "entry group mismatch");
         active(entry.epoch(), entry.incarnation());
         byte[] bytes = entry.encode(bounds.maxFrameBytes());
         String digest = frameDigest(bytes);
@@ -389,7 +466,7 @@ final class ReplicaStore implements AutoCloseable {
     }
 
     private void validateEntryChain(ReplicaEntry entry) {
-        require(entry.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "entry manifest mismatch");
+        require(entry.formatMinor() == manifest.formatMinor() && entry.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "entry manifest mismatch");
         require(entry.index() == lastLogIndex() + 1 && entry.previousIndex() == lastLogIndex()
                         && entry.previousEpoch() == lastEpoch && entry.previousDigest().equals(lastDigest)
                         && entry.epoch() >= lastEpoch
@@ -423,7 +500,7 @@ final class ReplicaStore implements AutoCloseable {
     }
 
     private void validateProof(ReplicaProof proof) throws IOException {
-        require(proof.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "proof manifest mismatch");
+        require(proof.formatMinor() == manifest.formatMinor() && proof.manifestDigest().equals(manifestDigest), PROTOCOL_MISMATCH, "proof manifest mismatch");
         if (proof.index() <= baseIndex) {
             require(proof.index() >= 1, CONFLICTING_HISTORY, "invalid compacted proof index");
             ReplicaSnapshot.validateProof(manifest, proof, proof.index(), selected.snapshot().anchors().get(Math.toIntExact(proof.index() - 1)),
@@ -433,7 +510,7 @@ final class ReplicaStore implements AutoCloseable {
         Frame frame = readEntry(proof.index());
         ReplicaEntry entry;
         try {
-            entry = ReplicaEntry.decode(frame.body());
+            entry = ReplicaEntry.decode(frame.body(), manifest.formatMinor());
         } catch (IOException | IllegalArgumentException | ReplicationException error) {
             failed = true;
             throw failure(INTEGRITY_FAILURE, "stored entry fields are invalid", error);
@@ -529,11 +606,13 @@ final class ReplicaStore implements AutoCloseable {
         require(index > baseIndex && index <= lastLogIndex(), CONFLICTING_HISTORY, "proof index unavailable");
         try {
             long offset = proofOffsets.get(Math.toIntExact(index - baseIndex - 1));
-            return offset < 0 ? null : ReplicaProof.decode(readStored(proofs, offset, PROOF, MAX_METADATA_BYTES).body());
+            return offset < 0 ? null : ReplicaProof.decode(readStored(proofs, offset, PROOF, MAX_METADATA_BYTES).body(), manifest.formatMinor());
         } catch (IOException error) { throw poison(error); }
     }
     synchronized ReplicaRecoveryImage image(byte[] emptyApplication) {
-        var snapshot = selected.snapshot() == null ? new ReplicaSnapshot(manifestDigest, List.of(), null, emptyApplication) : selected.snapshot();
+        require(selected.snapshot() == null || selected.snapshot().index() != 0 || java.util.Arrays.equals(selected.snapshot().application(), emptyApplication),
+                INTEGRITY_FAILURE, "index-zero snapshot differs from immutable genesis");
+        var snapshot = selected.snapshot() == null ? new ReplicaSnapshot(manifestDigest, List.of(), null, emptyApplication, manifest.baseSequence(), manifest.formatMinor()) : selected.snapshot();
         var tail = new ArrayList<ReplicaEntry>(); var ledger = new ArrayList<ReplicaProof>();
         for (long index = baseIndex + 1; index <= commitIndex; index++) {
             tail.add(entryAt(index)); var proof = proofAt(index); if (proof != null) ledger.add(proof);
@@ -542,6 +621,8 @@ final class ReplicaStore implements AutoCloseable {
     }
     synchronized ReplicaRecoveryImage preserveSnapshot(ReplicaRecoveryImage image) {
         image.validate(manifest, bounds);
+        require(manifest.formatMinor() == 0 || image.snapshot().index() != 0 || java.util.Arrays.equals(image.snapshot().application(), genesisApplication()),
+                INTEGRITY_FAILURE, "index-zero recovery differs from immutable genesis");
         require(image.index() >= commitIndex && image.digestAt(commitIndex).equals(digestAt(commitIndex)),
                 CONFLICTING_HISTORY, "recovery would discard protected local history");
         if (image.snapshot().index() < baseIndex) {
@@ -565,10 +646,26 @@ final class ReplicaStore implements AutoCloseable {
             promiseHistory.clear(); entryOffsets.clear(); proofOffsets.clear();
             promisedEpoch = 1; incarnation = NO_INCARNATION; lastEpoch = 1; commitIndex = 0; baseIndex = 0; lastDigest = manifestDigest; damagedTail = false;
             lastIncarnation = NO_INCARNATION;
-            scan(single(directory.resolve(MANIFEST_FILE), MANIFEST), single(directory.resolve(NODE_FILE), NODE));
+            scan(single(directory.resolve(MANIFEST_FILE), MANIFEST, manifest.formatMinor()), single(directory.resolve(NODE_FILE), NODE, manifest.formatMinor()));
         } catch (IOException error) { throw poison(error); }
-        catch (RuntimeException error) { failed = true; throw error; }
+        catch (RuntimeException error) { if (!(error instanceof ReplicationException r) || r.reason() != CAPACITY_EXCEEDED) failed = true; throw error; }
     }
+    synchronized void checkpointLocal(ReplicaRecoveryImage image) {
+        writable();
+        require(!damagedTail && lastLogIndex() == commitIndex && image.index() == commitIndex
+                && image.snapshot().index() == commitIndex && image.digestAt(commitIndex).equals(digestAt(commitIndex)),
+                CONFLICTING_HISTORY, "local checkpoint requires a resolved committed cut");
+        install(image, promisedEpoch, incarnation, false);
+    }
+    synchronized long checkpointSequence() { return selected.snapshot() == null ? manifest.baseSequence() : selected.snapshot().sequence(); }
+    synchronized long journalGeneration() { return selected.generation(); }
+    synchronized long journalRecords() { return entryOffsets.size(); }
+    synchronized long journalBytes() {
+        try { return Files.size(selected.directory().resolve(ENTRY_FILE)); } catch (IOException error) { throw poison(error); }
+    }
+    synchronized boolean failed() { return failed; }
+    boolean emptyGenesis() { return admission == null || admission.plan().source().kind() == 0; }
+
     synchronized void advanceFloor(long index, String digest, List<ReplicationNodeId> voters) {
         writable();
         try { ReplicaGeneration.advanceFloor(directory, manifest, node, selected.snapshot(), index, digest, voters, faults); }
@@ -588,7 +685,7 @@ final class ReplicaStore implements AutoCloseable {
             require(read == 16, INTEGRITY_FAILURE, "cannot read recovery entry header");
             int length = header.getInt(12);
             // Only a syntactically valid incomplete final ENTRY can await fenced repair.
-            if (header.getInt(0) == MAGIC && header.getShort(4) == 1 && header.getShort(6) == 0
+            if (header.getInt(0) == MAGIC && header.getShort(4) == 1 && header.getShort(6) == manifest.formatMinor()
                     && header.getShort(8) == ENTRY && header.getShort(10) == 0 && length > 0
                     && (long) length + HEADER_BYTES <= bounds.maxFrameBytes() && (long) length + HEADER_BYTES > remaining) {
                 damagedTail = true; return null;
@@ -597,7 +694,7 @@ final class ReplicaStore implements AutoCloseable {
         return read(entries, offset, ENTRY, bounds.maxFrameBytes());
     }
     synchronized ReplicaEntry entryAt(long index) {
-        try { return ReplicaEntry.decode(readEntry(index).body()); }
+        try { return ReplicaEntry.decode(readEntry(index).body(), manifest.formatMinor()); }
         catch (IOException error) { throw poison(error); }
         catch (IllegalArgumentException error) {
             failed = true;
@@ -619,15 +716,28 @@ final class ReplicaStore implements AutoCloseable {
 
     private long authoritativeBytes() throws IOException {
         long bytes = 0;
-        for (String file : FILES) {
+        for (String file : files(manifest.formatMinor())) {
             if (selected.snapshot() != null && (file.equals(ENTRY_FILE) || file.equals(PROOF_FILE)))
-                bytes += journalHeader(manifestDigest, node, file.equals(ENTRY_FILE) ? ENTRY : PROOF).length;
+                bytes += ReplicaGeneration.journalHeader(manifest, node, file.equals(ENTRY_FILE) ? ENTRY : PROOF).length;
             else bytes += Files.size(directory.resolve(file));
         }
         if (selected.snapshot() != null) bytes += ReplicaGeneration.directoryBytes(selected.directory());
         for (String name : List.of(ReplicaGeneration.CURRENT, ReplicaGeneration.FLOOR, ReplicaGeneration.REBUILDING, ReplicaGeneration.STARTED))
             if (Files.exists(directory.resolve(name), LinkOption.NOFOLLOW_LINKS)) bytes += Files.size(directory.resolve(name));
         return bytes;
+    }
+
+    private Frame read(FileChannel channel, long offset, int kind, int maximum) throws IOException {
+        return ReplicaFormat.read(channel, offset, kind, maximum, manifest.formatMinor());
+    }
+    private static boolean canonicalEqual(Object left, Object right) {
+        return java.util.Arrays.equals(ReplicaJson.encode(left, MAX_METADATA_BYTES), ReplicaJson.encode(right, MAX_METADATA_BYTES));
+    }
+    ReplicaManifest manifest() { return manifest; }
+    Path directory() { return directory; }
+    byte[] genesisApplication() {
+        try { return AdmissionFormat.Genesis.read(admission.genesis(), admission.plan().manifest()).application(); }
+        catch (IOException error) { throw failure(INTEGRITY_FAILURE, "invalid owned genesis", error); }
     }
 
     private static byte[] journalHeader(String digest, ReplicationNodeId node, int kind) {
@@ -638,9 +748,9 @@ final class ReplicaStore implements AutoCloseable {
         }), MAX_METADATA_BYTES);
     }
 
-    private static Frame single(Path path, int kind) throws IOException {
+    private static Frame single(Path path, int kind, int minor) throws IOException {
         try (var channel = FileChannel.open(path, StandardOpenOption.READ, LinkOption.NOFOLLOW_LINKS)) {
-            Frame frame = read(channel, 0, kind, MAX_METADATA_BYTES);
+            Frame frame = ReplicaFormat.read(channel, 0, kind, MAX_METADATA_BYTES, minor);
             require(frame != null && frame.nextOffset() == channel.size(), INTEGRITY_FAILURE,
                     "metadata must contain exactly one complete frame");
             return frame;
@@ -694,20 +804,23 @@ final class ReplicaStore implements AutoCloseable {
         return absolute.normalize();
     }
 
-    private static void checkInventory(Path directory) throws IOException {
+    private static void checkInventory(Path directory, int minor) throws IOException {
+        var required = files(minor);
         try (var paths = Files.list(directory)) {
             var names = new java.util.HashSet<String>();
             var iterator = paths.iterator();
             while (iterator.hasNext()) {
                 Path path = iterator.next(); String name = path.getFileName().toString();
-                require(names.size() < FILES.size() + ReplicaGeneration.OPTIONAL.size(), INTEGRITY_FAILURE, "too many replica directory members");
-                require(FILES.contains(name) || ReplicaGeneration.OPTIONAL.contains(name), INTEGRITY_FAILURE, "unknown replica member");
+                require(names.size() < required.size() + ReplicaGeneration.OPTIONAL.size(), INTEGRITY_FAILURE, "too many replica directory members");
+                require(required.contains(name) || ReplicaGeneration.OPTIONAL.contains(name), INTEGRITY_FAILURE, "unknown replica member");
                 if (ReplicaGeneration.SLOTS.contains(name)) ReplicaGeneration.inventorySlot(path, false);
                 else if (name.equals(ReplicaTransfer.DIRECTORY)) ReplicaTransfer.inventory(path);
                 else ReplicaGeneration.regular(path);
                 names.add(name);
             }
-            require(names.containsAll(FILES), INTEGRITY_FAILURE, "replica inventory is incomplete");
+            if (minor == 1 && names.containsAll(FILES) && !names.containsAll(required))
+                single(directory.resolve(MANIFEST_FILE), MANIFEST, minor); // Explicitly reject historical 1.0 authority.
+            require(names.containsAll(required), INTEGRITY_FAILURE, "replica inventory is incomplete");
             require(Files.size(directory.resolve(LOCK)) == 0, INTEGRITY_FAILURE, "replica lock file is not empty");
         }
     }

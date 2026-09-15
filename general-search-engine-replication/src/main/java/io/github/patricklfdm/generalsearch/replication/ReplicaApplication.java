@@ -19,6 +19,7 @@ import io.github.patricklfdm.generalsearch.analysis.SimpleAnalyzer;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.index.equality.EqualityIndexDefinition;
 import io.github.patricklfdm.generalsearch.index.prefix.PrefixIndexDefinition;
@@ -30,6 +31,7 @@ import io.github.patricklfdm.generalsearch.schema.SearchSchema;
 /** Private preparation plus atomic publication; neither engine opens a V4 WAL. */
 final class ReplicaApplication<K, T> implements AutoCloseable {
     private final SearchSchema<T, K> schema;
+    private final SearchEngineConfiguration<K, T> captured;
     private final DurableStorageConfig<K, T> configuration;
     private final DurableCodec<K, T> codec;
     private final ReplicationBounds bounds;
@@ -52,6 +54,12 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
 
     ReplicaApplication(SearchSchema<T, K> schema, List<IndexDefinition<T>> indexes,
                        DurableStorageConfig<K, T> configuration, ReplicationBounds bounds) {
+        this(SearchEngine.builder(schema).indexes(indexes).configuration(), configuration, bounds);
+    }
+
+    ReplicaApplication(SearchEngineConfiguration<K, T> captured, DurableStorageConfig<K, T> configuration, ReplicationBounds bounds) {
+        this.captured = captured;
+        var schema = captured.schema(); var indexes = captured.indexes();
         this.schema = schema; this.configuration = configuration; this.codec = configuration.codec(); this.bounds = bounds;
         this.initialIndexes = List.copyOf(indexes);
         for (var index : indexes) registered.put(index.field().name(), descriptor(index));
@@ -59,9 +67,9 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         maximumPayload = (bounds.maxFrameBytes() - 2048) / 4 * 3 - 197;
         var descriptions = indexes.stream().map(ReplicaApplication::descriptor).sorted().toList();
         require(descriptions.stream().distinct().count() == descriptions.size(), PROTOCOL_MISMATCH, "duplicate initial indexes");
-        indexDigest = sha256(ReplicaJson.encode(descriptions, MAX_METADATA_BYTES));
-        Slot<K, T> first = new Slot<>(SearchEngine.builder(schema).indexes(indexes).build());
-        try { working = new Slot<>(SearchEngine.builder(schema).indexes(indexes).build()); }
+        indexDigest = configurationDigest(indexes);
+        Slot<K, T> first = new Slot<>(captured.newBuilder().build());
+        try { working = new Slot<>(captured.newBuilder().build()); }
         catch (RuntimeException | Error error) { first.engine.close(); throw error; }
         first.readers.set(0);
         published = new AtomicReference<>(new Published<>(first, 0, 0));
@@ -78,7 +86,7 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     long sequence() { return published.get().sequence(); }
 
     byte[] emptySnapshot() {
-        try (var empty = new ReplicaApplication<>(schema, initialIndexes, configuration, bounds)) { return empty.snapshot(); }
+        try (var empty = new ReplicaApplication<>(captured, configuration, bounds)) { return empty.snapshot(); }
     }
 
     byte[] snapshot() {
@@ -102,7 +110,7 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
 
     /** Rebuilds privately; the caller publishes only after authority installation succeeds. */
     ReplicaApplication<K, T> rebuild(ReplicaRecoveryImage image) {
-        var rebuilt = new ReplicaApplication<>(schema, initialIndexes, configuration, bounds);
+        var rebuilt = new ReplicaApplication<>(captured, configuration, bounds);
         try {
             var snapshot = image.snapshot();
             var in = input(snapshot.application());
@@ -187,6 +195,11 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         return encodeItems(operation, keys, false);
     }
     byte[] index(IndexDefinition<T> definition) {
+        java.util.Objects.requireNonNull(definition, "definition");
+        if (schema.requireField(definition.field().name()) != definition.field())
+            throw new IllegalArgumentException("dynamic indexes require the canonical schema field: " + definition.field().name());
+        if (definition instanceof TextIndexDefinition<?> text && schema.requireTextField(text.textField().name()) != text.textField())
+            throw new IllegalArgumentException("dynamic text indexes require the canonical TextField: " + text.textField().name());
         return bounded(out -> { out.writeShort(1); text(out, descriptor(definition)); });
     }
     byte[] dropIndex(String field) {
@@ -196,7 +209,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
 
     @SuppressWarnings("unchecked")
     private byte[] encodeItems(String operation, Collection<?> items, boolean documents) {
-        require(items != null && items.size() <= configuration.maxBulkElements(), CAPACITY_EXCEEDED, "bulk count exceeds bound");
+        java.util.Objects.requireNonNull(items, "items");
+        require(items.size() <= configuration.maxBulkElements(), CAPACITY_EXCEEDED, "bulk count exceeds bound");
         require(operation.endsWith("_ALL") || items.size() == 1, PROTOCOL_MISMATCH, "single operation requires one item");
         return bounded(out -> {
             out.writeShort(1); out.writeInt(items.size());
@@ -257,8 +271,14 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
             }
             apply(working.engine, catchup); catchup = null;
         }
+        require(control(entry.operation()) || sequence() < Long.MAX_VALUE, CAPACITY_EXCEEDED, "application sequence exhausted");
         Operation<T, K> operation = decode(entry);
-        if (operation.type().equals("INDEX_CREATE")) require(registered.size() < 10_000, CAPACITY_EXCEEDED, "snapshot index count exceeds bound");
+        if (operation.type().equals("INDEX_CREATE")) {
+            String existing = registered.get(operation.index().field().name());
+            require(existing == null || existing.equals(descriptor(operation.index())), PROTOCOL_MISMATCH,
+                    "replica snapshots allow one index per field; drop the existing index first");
+            require(registered.size() < 10_000, CAPACITY_EXCEEDED, "snapshot index count exceeds bound");
+        }
         if (operation.type().equals("ADD") || operation.type().equals("ADD_ALL"))
             require((long) working.engine.metrics().documentCount() + operation.documents().size() <= configuration.maxDocuments(),
                     CAPACITY_EXCEEDED, "application document count exceeds bound");
@@ -272,10 +292,10 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         var old = published.get();
         if (prepared.type().equals("INDEX_CREATE")) registered.put(prepared.index().field().name(), descriptor(prepared.index()));
         if (prepared.type().equals("INDEX_DROP")) registered.remove(prepared.field());
-        boolean application = !prepared.type().equals("NO_OP");
+        boolean application = !control(prepared.type());
         if (application) {
             working.readers.set(0);
-            published.set(new Published<>(working, index, old.sequence() + 1));
+            published.set(new Published<>(working, index, Math.addExact(old.sequence(), 1)));
             old.slot().readers.getAndUpdate(readers -> readers | Integer.MIN_VALUE);
             working = old.slot();
             catchup = prepared;
@@ -284,9 +304,9 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     }
 
     private Operation<T, K> decode(ReplicaEntry entry) {
-        if (entry.operation().equals("NO_OP")) {
+        if (control(entry.operation())) {
             require(entry.payload().length == 0, INTEGRITY_FAILURE, "NO_OP payload must be empty");
-            return new Operation<>("NO_OP", List.of(), List.of(), null, null);
+            return new Operation<>(entry.operation(), List.of(), List.of(), null, null);
         }
         require(entry.payload().length <= maximumPayload, CAPACITY_EXCEEDED, "application payload exceeds bound");
         try {
@@ -322,7 +342,7 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
 
     private void apply(SearchEngine<K, T> engine, Operation<T, K> operation) {
         switch (operation.type()) {
-            case "NO_OP" -> { }
+            case "NO_OP", "SNAPSHOT_MARKER" -> { }
             case "ADD" -> engine.add(operation.documents().getFirst()).join();
             case "UPDATE" -> engine.update(operation.documents().getFirst()).join();
             case "REMOVE" -> engine.remove(operation.keys().getFirst()).join();
@@ -333,6 +353,25 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
             case "INDEX_DROP" -> engine.dropIndex(operation.field()).join();
             default -> throw new ReplicationException(PROTOCOL_MISMATCH, "unsupported application operation");
         }
+    }
+
+    static boolean control(String operation) { return operation.equals("NO_OP") || operation.equals("SNAPSHOT_MARKER"); }
+    static String configurationDigest(List<? extends IndexDefinition<?>> indexes) {
+        return sha256(ReplicaJson.encode(indexes.stream().map(ReplicaApplication::descriptor).sorted().toList(), MAX_METADATA_BYTES));
+    }
+    io.github.patricklfdm.generalsearch.durability.DurableBackupResult backup(java.util.UUID history,
+            io.github.patricklfdm.generalsearch.durability.DurableBackupRequest request) {
+        // V4 metadata binds descriptor order. Preserve captured field order, then append newly indexed fields canonically.
+        var active = new java.util.LinkedHashMap<String, IndexDefinition<T>>();
+        for (var initial : initialIndexes) {
+            String descriptor = registered.get(initial.field().name());
+            if (descriptor != null) active.put(initial.field().name(), definition(descriptor));
+        }
+        for (var entry : registered.entrySet()) active.putIfAbsent(entry.getKey(), definition(entry.getValue()));
+        var definitions = List.copyOf(active.values());
+        var state = new io.github.patricklfdm.generalsearch.durability.DurableApplicationState<T>(history, sequence(),
+                read(engine -> engine.search(document -> true)), definitions);
+        return captured.newBuilder().writeDurableBackup(state, configuration, request);
     }
 
     static String descriptor(IndexDefinition<?> definition) {

@@ -71,4 +71,4 @@ if rg -q 'ServerSocket|SocketChannel|AsynchronousServerSocketChannel' \
   exit 1
 fi
 
-echo "v50Phase1Foundation=PASS publicRuntime=disabled paidCloud=disabled"
+echo "v50Phase1Foundation=PASS publicRuntime=separate-admission-gate paidCloud=disabled"

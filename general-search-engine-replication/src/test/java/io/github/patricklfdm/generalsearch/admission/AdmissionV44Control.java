@@ -28,6 +28,7 @@ public final class AdmissionV44Control {
                 AdmissionSemanticModel.populate(engine);
                 engine.backup(new DurableBackupRequest(root.resolve("source"), 1 << 20)).join();
             }
+            if (command.equals("continue")) { AdmissionSemanticModel.populate(engine); PublicRuntimeWorkload.apply(engine); }
             System.out.println(AdmissionJson.canonical(Map.of("sequence", engine.currentSequence(), "semantics", AdmissionSemanticModel.report(engine))));
         }
     }

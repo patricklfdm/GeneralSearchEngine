@@ -34,7 +34,8 @@ is a separate public source file. Record constructors validate nulls/bounds and
 defensively copy lists. Configuration capture/reconstruction, backup transfer and
 offline operations were reserved at the Step A boundary; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
 implements them.
-The engine builder and administrative interface defaults remain reserved until Step C.
+[Step C](PUBLIC_ADMISSION_RUNTIME.md) implements the engine builder and administrative operations.
+Interface defaults continue to reject unsupported operations on third-party implementations.
 
 ```java
 // io.github.patricklfdm.generalsearch.engine
