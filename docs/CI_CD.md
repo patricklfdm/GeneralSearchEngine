@@ -27,7 +27,33 @@ supported for the local emergency release procedure.
 `.github/workflows/ci.yml` runs for pull requests, pushes to `master`, and manual
 dispatches. It has read-only repository permission and receives no release secrets.
 
-The workflow runs four parallel gates:
+A lightweight `Change scope` job compares the complete change set before scheduling
+the four full CI gates. Pull requests compare merge-base to PR head, so a final docs
+commit cannot hide earlier code changes. Master pushes compare the event's `before`
+and `after` commits, including every commit in the push. Renames include both paths;
+there is no changed-file API pagination limit.
+
+Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
+`LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
+only change-detection tests,
+the lightweight V5 contract check and `Required` run. Maven, Java setup and the four
+full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
+checksums) remain build inputs. Source/resources in every module, POMs, scripts,
+workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
+full CI too. Manual dispatch always runs full CI; missing history, an empty diff or
+an unreadable event conservatively selects full CI.
+
+The workflow itself remains enabled for every PR and master push so `CI / Required`
+is always reported. It requires successful change detection and either all four
+full gates to succeed, or all four to be intentionally skipped for a verified
+documentation-only change. Failed/cancelled detection and unexpected skipped tests
+cannot pass. This follows GitHub's distinction between
+[skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
+No branch-protection change is needed. A docs-only master CI receipt establishes
+documentation acceptance; it is not evidence that Maven or the process gates ran.
+Use manual dispatch when new full-runtime evidence is required for that exact commit.
+
+For build inputs or manual dispatch, the workflow runs four parallel gates:
 
 1. `Reactor tests` checks version alignment, compiles all reactor modules, runs the
    core and processor tests, and executes the travel example.

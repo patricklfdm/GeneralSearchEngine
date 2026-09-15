@@ -80,6 +80,16 @@ This is not a claim that all OS thread interleavings are deterministic.
 | Lifecycle | Interrupted and timed-out close retry, storage lock retention, sender callback close, concurrent/reentrant close, close during a partial proof write, leased reader across checkpoint replacement |
 | Pressure | Client admission, full writer queue, aggregate outbound bytes, cancelled-slot retention, retained disk capacity and corrupt/impossible transfer staging |
 
+The slow-follower process case releases the fault before requesting catch-up. Release
+does not synchronously drain the leader's eight admitted peer exchanges. A
+`CAPACITY_EXCEEDED` catch-up result is therefore retried only while the leader remains
+READY with write quorum, at 50-ms intervals, for at most 100 attempts and with no new
+attempt after a ten-second admission window. Each command retains the existing worker
+response timeout. Every response is retained in `catchup-after-pressure-node-3.json`;
+other failures and persistent capacity exhaustion still fail the case. This changes
+test-driver admission handling, not production queue, retry or timeout bounds. The
+subsequent restart, history/proof oracle and published V4.4 comparison remain required.
+
 Storage format, normal wire bytes, public signatures, core/processor source and POMs
 remain unchanged. Hooks, workers, fixture codecs and controls are not public runtime
 entry points; test classes are excluded from production artifacts.

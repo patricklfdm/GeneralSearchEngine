@@ -20,6 +20,9 @@ from scripts.v50.storage_harness import ROOT, save, check
 WORKER = "io.github.patricklfdm.generalsearch.replication.V50HardeningWorker"
 RECOVERY_CUTS = ("AFTER_PROMISE_QUORUM", "AFTER_RECOVERY_SELECTION", "AFTER_RECOVERY_INSTALL",
                  "AFTER_RECOVERY_APPLICATION_PUBLICATION", "AFTER_RECOVERY_READY_QUORUM")
+PRESSURE_CATCHUP_ATTEMPTS = 100
+PRESSURE_CATCHUP_SECONDS = 10
+PRESSURE_CATCHUP_BACKOFF = 0.05
 
 
 class Group(recovery.Group):
@@ -109,6 +112,34 @@ def exhausted_response(workspace, artifact, kind):
     finally: group.close()
 
 
+def catchup_after_pressure(group, peer):
+    """Re-admit catch-up after releasing pressure; permanent failures still fail."""
+    attempts = []
+    started = time.monotonic()
+    deadline = started + PRESSURE_CATCHUP_SECONDS
+    try:
+        for _ in range(PRESSURE_CATCHUP_ATTEMPTS):
+            if attempts and time.monotonic() >= deadline:
+                break
+            result = group.workers[0].command("catchup", peer=peer)
+            attempts.append({"elapsedSeconds": time.monotonic() - started, "result": result})
+            if result["accepted"]:
+                return result
+            check(result["reason"] == "CAPACITY_EXCEEDED", f"catchup failed after pressure release: {result}")
+            check(result["state"] == "READY" and result["writeQuorum"],
+                  f"capacity rejection changed leader availability: {result}")
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or len(attempts) == PRESSURE_CATCHUP_ATTEMPTS:
+                break
+            time.sleep(min(PRESSURE_CATCHUP_BACKOFF, remaining))
+        raise AssertionError(f"catchup capacity did not recover after {len(attempts)} attempts: {attempts[-1]['result']}")
+    finally:
+        save(group.case / f"catchup-after-pressure-{peer}.json", {
+            "peer": peer, "maximumAttempts": PRESSURE_CATCHUP_ATTEMPTS,
+            "admissionWindowSeconds": PRESSURE_CATCHUP_SECONDS,
+            "backoffSeconds": PRESSURE_CATCHUP_BACKOFF, "attempts": attempts})
+
+
 def slow_follower(workspace, artifact):
     group = Group(workspace / "slow-follower-pressure")
     try:
@@ -116,7 +147,9 @@ def slow_follower(workspace, artifact):
         for identity in range(20, 30): group.apply("add", id=identity, value="shared")
         lagging = group.workers[2].command("status")
         check(lagging["appliedIndex"] == initial["appliedIndex"], "held slow follower unexpectedly applied later state")
-        group.heal(); group.command("catchup", peer="node-3")
+        # heal releases the follower's held response, not the leader's queued
+        # exchanges. The eight in-flight slots can still be full at this point.
+        group.heal(); catchup_after_pressure(group, "node-3")
         group.command("catchup", peer="node-2")
         before = {}; group.restart("pre-reopen", before)
         return finish(group, before, artifact, [("APPEND", "hold")])
