@@ -14,17 +14,17 @@ public interface ReplicatedSearchEngine<K, T> extends DurableSearchEngine<K, T> 
     /** Requests a new quorum-persisted configured-leader incarnation. */
     CompletableFuture<ReplicationStatus> activateConfiguredLeader();
 
-    /** Reserved explicit peer recovery. The eventual result is a LogIndex. */
+    /** Explicit peer recovery on an activated configured leader; the result is a verified LogIndex. */
     default CompletableFuture<Long> catchUp(ReplicationNodeId peer) {
         throw new UnsupportedOperationException("Peer catch-up requires public-admission Step C");
     }
 
-    /** Reserved configured-leader disk reconstruction from both surviving voters. */
+    /** Explicit configured-leader disk reconstruction from both surviving voters. */
     default CompletableFuture<ReplicationStatus> reconstructConfiguredLeader() {
         throw new UnsupportedOperationException("Leader reconstruction requires public-admission Step C");
     }
 
-    /** Reserved consistent local and observed-peer diagnostics. */
+    /** Consistent local and observed-peer diagnostics without synchronous network waits. */
     default ReplicationDiagnostics replicationDiagnostics() {
         throw new UnsupportedOperationException("Diagnostics require public-admission Step C");
     }

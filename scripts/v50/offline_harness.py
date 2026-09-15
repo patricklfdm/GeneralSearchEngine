@@ -127,7 +127,7 @@ def run(workspace, artifact, only=None):
     check(not workspace.exists(), 'evidence directory must be absent')
     workspace.mkdir(parents=True)
     check(hashlib.sha256(artifact.read_bytes()).hexdigest() == CONTROL_SHA, 'published V4.4 checksum mismatch')
-    receipt = dict(schema='gse-v50-offline-authority-evidence-v1', status='RUNNING', publicRuntime='disabled',
+    receipt = dict(schema='gse-v50-offline-authority-evidence-v1', status='RUNNING', publicRuntime='not-exercised-by-offline-gate',
                    sourceSha=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
                    workingTreeDiffSha256=hashlib.sha256(subprocess.check_output(['git', 'diff', '--binary', 'HEAD'], cwd=ROOT)).hexdigest(),
                    coreJarSha256=hashlib.sha256(CORE.read_bytes()).hexdigest(), replicationJarSha256=hashlib.sha256(REPLICATION.read_bytes()).hexdigest(),
@@ -171,7 +171,7 @@ def run(workspace, artifact, only=None):
         check(worker_compile.returncode == 0, 'fault worker failed to compile: ' + worker_compile.stderr)
         CLASSPATH = os.pathsep.join(map(str, (CORE, REPLICATION, consumer, workers)))
         compile_result = subprocess.run(['javac', '--release', '21', '-proc:none', '-cp', os.pathsep.join(map(str, (artifact, REPLICATION, consumer))),
-                '-d', str(classes), *[str(sources / (name + '.java')) for name in ('AdmissionJson', 'AdmissionSemanticModel', 'AdmissionV44Control')]],
+                '-d', str(classes), *[str(sources / (name + '.java')) for name in ('AdmissionJson', 'AdmissionSemanticModel', 'PublicRuntimeWorkload', 'AdmissionV44Control')]],
                 cwd=ROOT, text=True, capture_output=True, timeout=40)
         (workspace / 'control-compile.stderr').write_text(compile_result.stderr)
         check(compile_result.returncode == 0, 'control did not compile against published V4.4: ' + compile_result.stderr)

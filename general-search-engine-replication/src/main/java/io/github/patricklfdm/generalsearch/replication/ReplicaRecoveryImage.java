@@ -29,7 +29,7 @@ record ReplicaRecoveryImage(ReplicaSnapshot snapshot, List<ReplicaEntry> entries
         var incarnation = snapshot.anchors().isEmpty() ? NO_INCARNATION : snapshot.anchors().getLast().incarnation();
         String previous = snapshot.digestAt(index);
         for (var entry : entries) {
-            require(entry.manifestDigest().equals(manifest.digest()) && entry.index() == index + 1
+            require(entry.manifestDigest().equals(manifest.digest()) && entry.formatMinor() == manifest.formatMinor() && entry.index() == index + 1
                     && entry.previousIndex() == index && entry.previousEpoch() == epoch
                     && entry.previousDigest().equals(previous) && entry.epoch() >= epoch
                     && (entry.epoch() > epoch || entry.incarnation().equals(incarnation)),
@@ -53,21 +53,22 @@ record ReplicaRecoveryImage(ReplicaSnapshot snapshot, List<ReplicaEntry> entries
             for (var entry : entries) ReplicaSnapshot.blob(out, entry.encode(bounds.maxFrameBytes()), maximum);
             out.writeInt(proofs.size());
             for (var proof : proofs) ReplicaSnapshot.blob(out, proof.encode(), maximum);
-        }), maximum);
+        }), maximum, snapshot.formatMinor());
     }
     static ReplicaRecoveryImage decode(byte[] bytes, ReplicaManifest manifest, ReplicationBounds bounds) {
         int maximum = ReplicaSnapshot.maximum(bounds);
         try {
-            var in = input(decodeRecord(bytes, KIND, maximum));
+            int minor = manifest.formatMinor();
+            var in = input(decodeRecord(bytes, KIND, maximum, minor));
             var snapshot = ReplicaSnapshot.decode(ReplicaSnapshot.blob(in, maximum), manifest, maximum);
             int count = in.readInt();
             require(count >= 0 && count <= MAX_ENTRIES && count <= in.available() / 4, CAPACITY_EXCEEDED, "recovery entry count exceeds bound");
             var entries = new ArrayList<ReplicaEntry>();
-            for (int i = 0; i < count; i++) entries.add(ReplicaEntry.decode(decodeRecord(ReplicaSnapshot.blob(in, bounds.maxFrameBytes()), ENTRY, bounds.maxFrameBytes())));
+            for (int i = 0; i < count; i++) entries.add(ReplicaEntry.decode(decodeRecord(ReplicaSnapshot.blob(in, bounds.maxFrameBytes()), ENTRY, bounds.maxFrameBytes(), minor), minor));
             count = in.readInt();
             require(count >= 0 && count <= entries.size() && count <= in.available() / 4, CAPACITY_EXCEEDED, "recovery proof count exceeds bound");
             var proofs = new ArrayList<ReplicaProof>();
-            for (int i = 0; i < count; i++) proofs.add(ReplicaProof.decode(decodeRecord(ReplicaSnapshot.blob(in, MAX_METADATA_BYTES), PROOF, MAX_METADATA_BYTES)));
+            for (int i = 0; i < count; i++) proofs.add(ReplicaProof.decode(decodeRecord(ReplicaSnapshot.blob(in, MAX_METADATA_BYTES), PROOF, MAX_METADATA_BYTES, minor), minor));
             end(in);
             var result = new ReplicaRecoveryImage(snapshot, entries, proofs); result.validate(manifest, bounds); return result;
         } catch (IOException | IllegalArgumentException error) { throw failure(INTEGRITY_FAILURE, "invalid recovery image", error); }

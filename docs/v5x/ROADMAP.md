@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 and public-admission contract accepted; Step A accepted; Step B offline authority under review
+- **Status:** Phase 5 and public-admission contract accepted; Steps A/B accepted; Step C public runtime implementation candidate
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -52,4 +52,4 @@ public runtime. These are completion gates between Phase 5 and Phase 6; the amen
 does not itself enable the public builder or establish paid-run readiness.
 [Step A declarations and independent 1.1 bytes](v5.0/PUBLIC_ADMISSION_FOUNDATION.md) were accepted in PR #153
 and exact-master CI `35006998165`. [Step B offline authority](v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
-is under review; Step C public runtime is next after its protected merge and master CI.
+was accepted in PR #154 with exact-master CI `35020203126`; [Step C public runtime](v5.0/PUBLIC_ADMISSION_RUNTIME.md) is the current implementation candidate.

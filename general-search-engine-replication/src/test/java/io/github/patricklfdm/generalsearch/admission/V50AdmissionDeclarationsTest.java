@@ -62,7 +62,7 @@ class V50AdmissionDeclarationsTest {
         assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.planBootstrap(
                 configs.getFirst().groupId(), "config-v1", ReplicationBootstrapSource.EMPTY, null, plan.absentReplicaTargets()));
         assertThrows(UnsupportedOperationException.class, () -> ReplicationStorageOperations.applyBootstrap(plan));
-        assertThrows(UnsupportedOperationException.class, () -> ReplicatedSearchEngines.builder(builder, configs.getFirst()).build());
+        try (var handle = ReplicatedSearchEngines.builder(builder, configs.getFirst()).build()) { assertEquals(ReplicaState.STARTING, handle.replicationStatus().state()); }
         assertEquals(0, calls.get());
         try (var files = Files.list(directory)) { assertEquals(0, files.count()); }
     }

@@ -45,9 +45,9 @@ class V50PublicApiContractTest {
         } catch (NoSuchMethodException exception) {
             throw new AssertionError(exception);
         }
-        assertThrows(UnsupportedOperationException.class, () ->
-                ReplicatedSearchEngines.builder(
-                        SearchEngine.builder(Document.class, ID), config).build());
+        try (var handle = ReplicatedSearchEngines.builder(SearchEngine.builder(Document.class, ID), config).build()) {
+            assertEquals(ReplicaState.STARTING, handle.replicationStatus().state());
+        }
     }
 
     @Test

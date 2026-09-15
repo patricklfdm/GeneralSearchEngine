@@ -10,7 +10,11 @@ import java.util.UUID;
 
 /** Received commit proof; never creates a quorum or completes an application operation. */
 record ReplicaProof(String manifestDigest, long epoch, UUID incarnation, long index,
-                    String entryDigest, String previousDigest, List<Receipt> receipts) {
+                    String entryDigest, String previousDigest, List<Receipt> receipts, int formatMinor) {
+    ReplicaProof(String manifestDigest, long epoch, UUID incarnation, long index,
+                 String entryDigest, String previousDigest, List<Receipt> receipts) {
+        this(manifestDigest, epoch, incarnation, index, entryDigest, previousDigest, receipts, 0);
+    }
     record Receipt(ReplicationNodeId voter, String digest) {
         Receipt {
             Objects.requireNonNull(voter, "voter");
@@ -22,6 +26,7 @@ record ReplicaProof(String manifestDigest, long epoch, UUID incarnation, long in
         validHash(manifestDigest);
         validHash(entryDigest);
         validHash(previousDigest);
+        require(formatMinor == 0 || formatMinor == 1, ReplicationException.Reason.PROTOCOL_MISMATCH, "invalid proof version");
         Objects.requireNonNull(incarnation, "incarnation");
         receipts = List.copyOf(receipts);
         if (epoch < 2 || index < 1 || incarnation.equals(NO_INCARNATION)
@@ -48,10 +53,14 @@ record ReplicaProof(String manifestDigest, long epoch, UUID incarnation, long in
                 text(output, receipt.voter().value());
                 hash(output, receipt.digest());
             }
-        }), MAX_METADATA_BYTES);
+        }), MAX_METADATA_BYTES, formatMinor);
     }
 
     static ReplicaProof decode(byte[] body) throws IOException {
+        return decode(body, 0);
+    }
+
+    static ReplicaProof decode(byte[] body, int minor) throws IOException {
         var input = input(body);
         String manifest = hash(input);
         long epoch = input.readLong();
@@ -66,12 +75,12 @@ record ReplicaProof(String manifestDigest, long epoch, UUID incarnation, long in
             receipts.add(new Receipt(new ReplicationNodeId(text(input, 64)), hash(input)));
         }
         end(input);
-        return new ReplicaProof(manifest, epoch, incarnation, index, entry, previous, receipts);
+        return new ReplicaProof(manifest, epoch, incarnation, index, entry, previous, receipts, minor);
     }
 
     static Receipt acknowledgement(ReplicationNodeId voter, ReplicaEntry entry, String entryDigest) {
         String digest = sha256(body(output -> {
-            text(output, "gse-replication/1.0/DURABLE_ACK");
+            text(output, "gse-replication/1." + entry.formatMinor() + "/DURABLE_ACK");
             hash(output, entry.manifestDigest());
             text(output, voter.value());
             output.writeLong(entry.epoch());
