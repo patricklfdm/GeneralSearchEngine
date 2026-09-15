@@ -18,8 +18,33 @@ env:
   MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
 
 jobs:
+  changes:
+    name: Change scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    outputs:
+      run_full_ci: ${{ steps.scope.outputs.run_full_ci }}
+    steps:
+      - name: Check out comparison history
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Test change detection and required-gate decisions
+        run: python3 -m unittest scripts.test_ci_changes
+
+      - name: Classify the complete change set
+        id: scope
+        run: python3 scripts/ci_changes.py
+
+      - name: Validate documentation-only contract changes
+        if: ${{ steps.scope.outputs.run_full_ci == 'false' }}
+        run: scripts/verify-v50-phase0-contract.sh
+
   reactor-tests:
     name: Reactor tests
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -226,6 +251,8 @@ jobs:
 
   compatibility:
     name: Compatibility
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -300,6 +327,8 @@ jobs:
 
   release-artifacts:
     name: Release artifacts
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
@@ -366,6 +395,8 @@ jobs:
 
   cloud-runner-tests:
     name: Cloud runner (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -515,6 +546,7 @@ jobs:
     name: Required
     if: ${{ always() }}
     needs:
+      - changes
       - reactor-tests
       - compatibility
       - release-artifacts
@@ -524,12 +556,19 @@ jobs:
     steps:
       - name: Require every CI gate
         env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          RUN_FULL_CI: ${{ needs.changes.outputs.run_full_ci }}
           REACTOR_RESULT: ${{ needs.reactor-tests.result }}
           COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
           RELEASE_RESULT: ${{ needs.release-artifacts.result }}
           CLOUD_RUNNER_RESULT: ${{ needs.cloud-runner-tests.result }}
         run: |
-          test "$REACTOR_RESULT" = success
-          test "$COMPATIBILITY_RESULT" = success
-          test "$RELEASE_RESULT" = success
-          test "$CLOUD_RUNNER_RESULT" = success
+          test "$CHANGES_RESULT" = success
+          case "$RUN_FULL_CI" in
+            true) expected=success ;;
+            false) expected=skipped ;;
+            *) echo "Invalid change-scope result" >&2; exit 1 ;;
+          esac
+          for result in "$REACTOR_RESULT" "$COMPATIBILITY_RESULT" "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT"; do
+            test "$result" = "$expected"
+          done
