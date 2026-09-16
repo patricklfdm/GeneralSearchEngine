@@ -159,8 +159,9 @@ from all production JARs and checked by the verifier and release artifact gate.
 inherited cloud resource ceilings, with cloud execution explicitly disabled.
 [6B](PHASE_6_CLOUD_RUNNER.md) now supplies the accepted runner, preflight machinery,
 guest/storage identities and reduced cloud evidence provenance. The separate
-[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) and its executable presets
-still require review and implementation before 6C measurements. Cloud presets
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159;
+[workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) and runner preset
+integration still require acceptance before 6C measurements. Cloud presets
 must allocate the complete cell matrix and measurement budgets from the accepted
 [entry plan](PHASE_6_ENTRY_PLAN.md); a local reduced schedule cannot satisfy them.
 
@@ -212,7 +213,8 @@ throughput/p99 target or cloud-readiness claim.
 - [x] Consolidated reactor/release and existing V5 regression gates pass.
 - [x] Protected 6A PR and exact-master CI accepted.
 - [x] 6B real runner/preflight accepted through PR #158 and exact-master CI `35051728286`.
-- [ ] Full cloud workload plan and executable cloud presets accepted.
+- [x] Full cloud workload plan accepted through PR #159.
+- [ ] Executable cloud workload/evidence and runner presets accepted.
 
 ## Protected acceptance
 
@@ -224,5 +226,6 @@ passed all six jobs. Master logs confirm public A/B/C, Phase 1–5 and 6A execut
 The 6A receipt reports `sourceDirty=false`, sequence 76, committed index 73,
 80 measured requests, 64 durable writes, one no-quorum indeterminate call and
 20 rejected semantic negatives. [6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md)
-has since been accepted through PR #158. The current candidate is the
-[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md).
+has since been accepted through PR #158 and the
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) through PR #159. The current
+candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).

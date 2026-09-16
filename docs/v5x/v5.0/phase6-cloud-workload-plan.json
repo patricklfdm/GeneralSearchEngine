@@ -1,0 +1,319 @@
+{
+  "preset": "v5.0-replicated-single-shard-v1",
+  "execution": "disabled-until-implementation-and-paid-admission",
+  "corpusDocuments": 4096,
+  "maximumClientCalls": 60000,
+  "maximumLogIndex": 32768,
+  "maximumFaultCalls": 12000,
+  "maximumRecoveryEntries": 1024,
+  "maximumEncodedDocumentBytes": 256,
+  "maximumEncodedApplicationPayloadBytes": 2048,
+  "maximumEncodedEntryBytes": 2560,
+  "maximumEncodedProofBytes": 2048,
+  "maximumSnapshotImageBytes": 16777216,
+  "application": {
+    "maxDocuments": 8192,
+    "maxBulkElements": 16,
+    "maxEncodedKeyBytes": 1024,
+    "maxEncodedDocumentBytes": 4096,
+    "checkpointWalBytes": 33554432,
+    "maxRetainedBytes": 134217728,
+    "maxDerivedStateBytes": 16777216,
+    "codec": "semantic-codec",
+    "codecVersion": 1,
+    "schema": "semantic-schema",
+    "storageIdentity": "performance-store",
+    "planner": "FORCE_SCAN",
+    "snapshot": {
+      "queueCapacity": 31,
+      "maxBatchSize": 16,
+      "maxBatchWaitSeconds": 0,
+      "maxBatchWaitNanos": 1234567
+    },
+    "indexes": [
+      "prefix:title",
+      "equality:category",
+      "range:price",
+      "text:body:gse-simple-v1"
+    ]
+  },
+  "replicationBounds": {
+    "maxFrameBytes": 1048576,
+    "maxEntriesPerAppend": 16,
+    "maxInFlightPerPeer": 4,
+    "maxPendingClientOperations": 16,
+    "maxRetryAttempts": 2,
+    "requestTimeoutMillis": 1500,
+    "retryBackoffMillis": 10,
+    "snapshotChunkBytes": 4096,
+    "maxRetainedLogBytes": 268435456,
+    "maxSnapshotStagingBytes": 67108864
+  },
+  "evidenceBounds": {
+    "maxBundleBytes": 4294967296,
+    "maxJsonMemberBytes": 16777216,
+    "maxBinaryMemberBytes": 33554432,
+    "maxFiles": 2000,
+    "maxResponseBytes": 4194304,
+    "maxSamplesAndTracesBytes": 536870912,
+    "maxJsonLineBytes": 1048576,
+    "maxStreamPartBytes": 8388608,
+    "maxSourceArchiveBytes": 134217728,
+    "maxSourceArchiveFiles": 4000
+  },
+  "schema": "gse-v50-cloud-workload-plan-v1",
+  "evidenceSchema": "gse-v50-cloud-workload-evidence-v1",
+  "protocol": "gse-replication/1.1",
+  "suite": "v5.0-replicated-single-shard-suite-v1",
+  "publishedControl": {
+    "artifact": "io.github.patricklfdm:general-search-engine:4.4.0",
+    "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+  },
+  "workload": {
+    "seed": 17,
+    "corpusSha256": "fbd977b2037c930f2bb7ae380cc61fbfb67f6157cee4609f5386cb869e7d8a92",
+    "loadBulkElements": 16,
+    "mutationBulkElements": 16,
+    "warmupSeconds": 20,
+    "healthyIntervalNanos": 100000000,
+    "sustainedIntervalNanos": 50000000,
+    "sustainedLanes": 4,
+    "resourceIntervalNanos": 1000000000,
+    "faultUpdatesPerSecond": 1,
+    "isolationSeconds": 10,
+    "slowAckMillis": 250,
+    "snapshotLagUpdates": 10,
+    "windows": [
+      "baseline-a",
+      "instrumented-a",
+      "instrumented-b",
+      "baseline-b"
+    ],
+    "operations": [
+      "ADD",
+      "UPDATE",
+      "REMOVE",
+      "ADD_ALL",
+      "UPDATE_ALL",
+      "REMOVE_ALL",
+      "INDEX_DROP",
+      "INDEX_CREATE",
+      "GET",
+      "QUERY"
+    ]
+  },
+  "jvmArguments": [
+    "-Xms256m",
+    "-Xmx2g",
+    "-XX:+UseG1GC",
+    "-XX:ActiveProcessorCount=8"
+  ],
+  "profiles": {
+    "experiment": {
+      "topologies": 1,
+      "cells": [
+        {
+          "name": "healthy",
+          "seconds": 120
+        },
+        {
+          "name": "unavailable",
+          "seconds": 30
+        },
+        {
+          "name": "slow",
+          "seconds": 30
+        },
+        {
+          "name": "incremental",
+          "seconds": 30
+        },
+        {
+          "name": "snapshot",
+          "seconds": 45
+        },
+        {
+          "name": "restart",
+          "seconds": 15
+        },
+        {
+          "name": "maintenance",
+          "seconds": 15
+        },
+        {
+          "name": "no-quorum",
+          "seconds": 15
+        }
+      ],
+      "reservationsSeconds": [
+        900,
+        180,
+        60,
+        300,
+        600,
+        300
+      ]
+    },
+    "failure-drill": {
+      "topologies": 1,
+      "cells": [
+        {
+          "name": "entry-cut",
+          "seconds": 100
+        },
+        {
+          "name": "proof-cut",
+          "seconds": 100
+        },
+        {
+          "name": "snapshot",
+          "seconds": 120
+        },
+        {
+          "name": "follower-replacement",
+          "seconds": 150
+        },
+        {
+          "name": "leader-replacement",
+          "seconds": 210
+        },
+        {
+          "name": "fencing",
+          "seconds": 70
+        },
+        {
+          "name": "maintenance",
+          "seconds": 60
+        },
+        {
+          "name": "capacity",
+          "seconds": 90
+        }
+      ],
+      "reservationsSeconds": [
+        900,
+        300,
+        60,
+        900,
+        900,
+        300
+      ]
+    },
+    "canonical": {
+      "topologies": 3,
+      "cells": [
+        {
+          "name": "healthy",
+          "seconds": 480
+        },
+        {
+          "name": "sustained",
+          "seconds": 300
+        },
+        {
+          "name": "unavailable",
+          "seconds": 60
+        },
+        {
+          "name": "slow",
+          "seconds": 60
+        },
+        {
+          "name": "incremental",
+          "seconds": 90
+        },
+        {
+          "name": "snapshot",
+          "seconds": 180
+        },
+        {
+          "name": "restart",
+          "seconds": 120
+        },
+        {
+          "name": "follower-replacement",
+          "seconds": 180
+        },
+        {
+          "name": "leader-replacement",
+          "seconds": 180
+        },
+        {
+          "name": "maintenance",
+          "seconds": 120
+        },
+        {
+          "name": "no-quorum",
+          "seconds": 30
+        }
+      ],
+      "reservationsSeconds": [
+        900,
+        900,
+        120,
+        1800,
+        1380,
+        300
+      ]
+    }
+  },
+  "localQualification": {
+    "preset": "v5.0-cloud-workload-local-qualification-v1",
+    "execution": "local-cloud-workload-only",
+    "corpusDocuments": 4096,
+    "warmupCycles": 1,
+    "cyclesPerWindow": 1,
+    "sustainedCalls": 32,
+    "healthyIntervalNanos": 200000000,
+    "sustainedIntervalNanos": 100000000,
+    "maximumRunSeconds": 480,
+    "cleanupReserveSeconds": 30,
+    "maximumCommandSeconds": 45,
+    "isolationUpdates": 2,
+    "cells": [
+      "healthy",
+      "sustained",
+      "unavailable",
+      "slow",
+      "incremental",
+      "snapshot",
+      "entry-cut",
+      "proof-cut",
+      "restart",
+      "follower-replacement",
+      "leader-replacement",
+      "maintenance",
+      "capacity",
+      "no-quorum"
+    ]
+  },
+  "resources": {
+    "voters": 3,
+    "machine": "n2-standard-8",
+    "zone": "us-west4-a",
+    "peakVcpus": 24,
+    "bootDiskGiB": 50,
+    "dataDiskGiB": 100,
+    "peakDiskGiB": 450,
+    "maximumTopologySeconds": 5400,
+    "cleanupReserveSeconds": 300,
+    "maximumCompleteSequenceMicrousd": 40000000,
+    "receiptTtlSeconds": 900,
+    "cleanupOverhangSeconds": 1080,
+    "artifactBundleBytes": 134217728,
+    "imageProject": "ubuntu-os-cloud",
+    "imageName": "ubuntu-2404-noble-amd64-v20260906",
+    "imageId": "6257327608773510097",
+    "provisioningModel": "STANDARD",
+    "diskType": "pd-balanced",
+    "filesystem": "ext4",
+    "replicationPort": 9700,
+    "externalIp": false,
+    "vmServiceAccount": false
+  },
+  "toolchain": {
+    "guestJavaRuntime": "21.0.12+8",
+    "gcloudVersion": "582.0.0",
+    "compilerRelease": 21
+  }
+}
