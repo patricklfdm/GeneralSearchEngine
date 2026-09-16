@@ -25,6 +25,11 @@ class CloudWorkloadTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             p=Path(tmp)/'plan.json';plan=read_plan();plan['localQualification']['execution']='gcp-canonical';p.write_text(json.dumps(plan))
             with self.assertRaisesRegex(ValueError,'unreviewed'):read_plan(p)
+    def test_local_pacing_is_separate_from_fixed_cloud_rates(self):
+        p=read_plan();local=p['localQualification']
+        self.assertEqual(local['preset'],'v5.0-cloud-workload-local-qualification-v2')
+        self.assertEqual((local['pacing'],local['maximumWindowSeconds']),('completion-paced',20))
+        self.assertEqual((p['workload']['healthyIntervalNanos'],p['workload']['sustainedIntervalNanos']),(100000000,50000000))
     def test_healthy_cycle_preserves_corpus_order_and_bulk_atomicity(self):
         m=Model()
         for i in range(10):
@@ -115,6 +120,10 @@ def negatives(raw,output):
         'ambiguous-read-cut':lambda r:change_row(r,leader+'calls',lambda v:v['operation']=='QUERY',lambda v:v.update(afterSequence=v['beforeSequence']+1)),
         'short-window':lambda r:change_row(r,leader+'windows',lambda v:True,lambda v:v.update(endNanos=v['startNanos']+1)),
         'changed-arrival-rate':lambda r:change_row(r,leader+'windows',lambda v:True,lambda v:v.update(intervalNanos=1)),
+        'changed-pacing-mode':lambda r:change_row(r,leader+'windows',lambda v:True,lambda v:v.update(pacing='fixed-rate')),
+        'forged-nominal-arrival':lambda r:change_row(r,leader+'calls',lambda v:True,lambda v:v.update(nominalScheduledNanos=v['nominalScheduledNanos']+1)),
+        'overlong-local-window':lambda r:change_row(r,leader+'windows',lambda v:True,lambda v:v.update(endNanos=v['startNanos']+20_000_000_001)),
+        'overlapping-client-lane':lambda r:change_row(r,leader+'calls',lambda v:v['call']==0,lambda v:v.update(endNanos=v['endNanos']+1_000_000_000)),
         'changed-corpus-output':lambda r:change_row(r,leader+'states',lambda v:True,lambda v:v['documents'].__setitem__(0,'forged document')),
         'forged-force':lambda r:change_row(r,leader+'forces',lambda v:True,lambda v:v.update(endNanos=v['startNanos'])),
         'missing-proof-stage':lambda r:change_row(r,leader+'events',lambda v:v['event']=='AFTER_PROOF_QUORUM',lambda v:v.update(event='BEFORE_PROOF_QUORUM')),

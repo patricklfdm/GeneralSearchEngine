@@ -10,7 +10,8 @@ import static io.github.patricklfdm.generalsearch.admission.CloudWorkload.*;
 public final class V50CloudWorkloadControl {
     private V50CloudWorkloadControl() { }
     public static void main(String[] args) throws Exception {
-        String command=args[0]; Path root=Path.of(args[1]); var plan=plan(Path.of(args[2])); var local=parameters(plan,args.length==4?args[3]:"local-qualification");
+        String command=args[0]; Path root=Path.of(args[1]); var plan=plan(Path.of(args[2]));
+        String profile=args.length==4?args[3]:"local-qualification"; var local=parameters(plan,profile);
         Path output=root.resolve(command.equals("measure")?"control-streams":"restore-streams"); CloudWorkloadTelemetry.initialize(output);
         var builder=PerformanceWorkload.builder(); var storage=storage(root.resolve("control-"+command),plan);
         if(command.equals("restore")) builder.restoreDurableBackup(root.resolve("export"),storage);
@@ -23,10 +24,10 @@ public final class V50CloudWorkloadControl {
                 int cycle=0; var windows=new ArrayList<Object>();
                 for(String name:List.of("warmup","baseline-a","instrumented-a","instrumented-b","baseline-b")) {
                     int cycles=number(local,name.equals("warmup")?"warmupCycles":"cyclesPerWindow");
-                    windows.add(execute(engine,plan,name,cycle,cycles*10,number(local,"healthyIntervalNanos"),false,() -> Map.of("sequence",engine.currentSequence())));
+                    windows.add(execute(engine,plan,profile,name,cycle,cycles*10,number(local,"healthyIntervalNanos"),false,() -> Map.of("sequence",engine.currentSequence())));
                     cycle+=cycles;
                 }
-                if(number(local,"sustainedCalls")>0) windows.add(execute(engine,plan,"sustained",cycle,number(local,"sustainedCalls"),number(local,"sustainedIntervalNanos"),true,() -> Map.of("sequence",engine.currentSequence())));
+                if(number(local,"sustainedCalls")>0) windows.add(execute(engine,plan,profile,"sustained",cycle,number(local,"sustainedCalls"),number(local,"sustainedIntervalNanos"),true,() -> Map.of("sequence",engine.currentSequence())));
                 result.put("windows",windows);
             } else if(!command.equals("restore")) throw new IllegalArgumentException(command);
             result.put("semantic",state(engine,command)); CloudWorkloadTelemetry.stopSampling();

@@ -73,7 +73,7 @@ public final class V50CloudWorkloadConsumer {
                         case "configure" -> { CloudWorkloadTelemetry.window=(String)q.get("window"); CloudWorkloadTelemetry.instrumented=(Boolean)q.get("enabled"); }
                         case "fault" -> CloudWorkloadTelemetry.fault=(String)q.get("mode");
                         case "arm" -> CloudWorkloadTelemetry.cut=(String)q.get("barrier");
-                        case "measure" -> result.put("measurement",execute(engine,plan,(String)q.get("window"),number(q,"firstCycle"),number(q,"calls"),
+                        case "measure" -> result.put("measurement",execute(engine,plan,(String)q.get("profile"),(String)q.get("window"),number(q,"firstCycle"),number(q,"calls"),
                                 ((Number)q.get("intervalNanos")).longValue(),(Boolean)q.get("sustained"),() -> status(engine)));
                         case "state" -> result.put("semantic",state(engine,(String)q.get("label")));
                         case "status" -> { }

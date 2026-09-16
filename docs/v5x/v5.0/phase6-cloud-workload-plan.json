@@ -258,8 +258,10 @@
     }
   },
   "localQualification": {
-    "preset": "v5.0-cloud-workload-local-qualification-v1",
+    "preset": "v5.0-cloud-workload-local-qualification-v2",
     "execution": "local-cloud-workload-only",
+    "pacing": "completion-paced",
+    "maximumWindowSeconds": 20,
     "corpusDocuments": 4096,
     "warmupCycles": 1,
     "cyclesPerWindow": 1,

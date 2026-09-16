@@ -131,7 +131,7 @@ def run(root,control, *, volume_layout=False, bundle=None):
             filesystem=runner.process('filesystem',['findmnt','-J','-T',str(raw),'-o','TARGET,SOURCE,FSTYPE,OPTIONS,SIZE']))
         save(raw/'metadata.json',metadata)
         source=ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch'
-        names=['AdmissionJson','AdmissionSemanticModel','PerformanceWorkload','PerformanceTelemetry','CloudWorkloadTelemetry','CloudWorkload']
+        names=['AdmissionJson','AdmissionSemanticModel','PerformanceWorkload','PerformanceTelemetry','CloudWorkloadTelemetry','CloudWorkloadSchedule','CloudWorkload']
         common=[source/'admission'/(n+'.java') for n in names]
         classes=raw/'classes-candidate';oracle=raw/'classes-control'
         cp=os.pathsep.join(jars[n]['path'] for n in ('core','replication'))
@@ -157,10 +157,10 @@ def run(root,control, *, volume_layout=False, bundle=None):
             for name in ['warmup',*plan['workload']['windows']]:
                 group.configure(name,name.startswith('instrumented'))
                 count=local['warmupCycles'] if name=='warmup' else local['cyclesPerWindow']
-                windows.append(group.command('measure',window=name,firstCycle=cycle,calls=count*10,intervalNanos=local['healthyIntervalNanos'],sustained=False)['measurement']);cycle+=count
+                windows.append(group.command('measure',profile='local-qualification',window=name,firstCycle=cycle,calls=count*10,intervalNanos=local['healthyIntervalNanos'],sustained=False)['measurement']);cycle+=count
             return dict(windows=windows)
         group.cell('healthy',healthy)
-        group.cell('sustained',lambda:dict(window=group.command('measure',window='sustained',firstCycle=cycle,calls=local['sustainedCalls'],intervalNanos=local['sustainedIntervalNanos'],sustained=True)['measurement'],semantic=group.command('state',label='paired-steady')['semantic']))
+        group.cell('sustained',lambda:dict(window=group.command('measure',profile='local-qualification',window='sustained',firstCycle=cycle,calls=local['sustainedCalls'],intervalNanos=local['sustainedIntervalNanos'],sustained=True)['measurement'],semantic=group.command('state',label='paired-steady')['semantic']))
         def unavailable():
             before=group.workers[3].command('status')['status'];group.command('fault',mode='block-node-3')
             for _ in range(local['isolationUpdates']):group.update();time.sleep(.1)

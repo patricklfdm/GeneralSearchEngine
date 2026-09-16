@@ -32,11 +32,13 @@ used to simulate disk loss do not attest physical cloud-disk replacement.
 
 [CloudWorkload](../../../general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/CloudWorkload.java)
 uses the published codec, query/index definitions and public engine interfaces.
-It records scheduled arrival, start and completion, operation-specific document counts,
+It records nominal arrival, paced arrival, dispatch, start and completion, operation-specific document counts,
 read-answer digests and publication sequence observations. Four independent client
 lanes exercise the sustained UPDATE/QUERY mix; a pending lane cannot accumulate an
-unbounded queue. A missed slot, unexpected rejection or incomplete window fails the
-qualification. No throughput improvement target is asserted.
+unbounded queue. Local qualification waits for a lane's previous completion and
+preserves every operation; an unexpected rejection or incomplete/overlong window
+fails. Cloud profiles retain fixed-rate arrivals and fail at the first missed slot.
+No throughput improvement target is asserted.
 
 Public reads are bracketed by public sequence reads. Matching sequences establish
 an unambiguous committed cut; changing sequences reject the sample. Independently
@@ -48,14 +50,18 @@ clock. Controller timestamps establish process overlap and command chronology.
 | Local qualification input | Value |
 | --- | --- |
 | Corpus/load | 4096 documents, seed 17, 256 batches of 16; independent corpus hash from the accepted plan |
-| Warmup | One ten-call cycle, 200 ms spacing; excluded from measured totals |
-| Healthy ABBA | One ten-call cycle in each of four windows, 200 ms spacing |
-| Sustained | 32 calls, four lanes, 100 ms global spacing; three UPDATEs then one QUERY per lane |
+| Warmup | One ten-call cycle, at least 200 ms between dispatches; excluded from measured totals |
+| Healthy ABBA | One ten-call cycle in each of four windows, at least 200 ms between dispatches |
+| Sustained | 32 calls, four lanes, at least 100 ms between dispatches; three UPDATEs then one QUERY per lane |
+| Local pacing/window bound | Completion-paced; no skipped calls, overlapping calls in one lane or catch-up burst; at most 20 seconds per window |
 | Fault reductions | Two updates during unavailable/incremental cells; two slow-follower updates; ten updates before snapshot transfer |
 | Whole local run | 480-second ceiling including a 30-second cleanup reserve |
 | Sampling | Every second plus window boundaries; heap/RSS/GC/CPU/IO, client/peer queues, retained bytes and network counters |
 
-These rates and durations belong only to `v5.0-cloud-workload-local-qualification-v1`.
+These intervals and bounds belong only to `v5.0-cloud-workload-local-qualification-v2`.
+The v2 revision addresses shared-runner scheduling jitter; the historical PR #160
+receipts below used v1. Summary output distinguishes the maximum offered rate from
+the observed rate and retains schedule deferral separately from operation latency.
 The cloud plan keeps 100 ms healthy arrivals, 50 ms sustained arrivals and the full
 measurement windows. A local PASS cannot replace experiment or canonical evidence.
 

@@ -50,7 +50,8 @@ def validate_schedule(root,plan):
         count=local['sustainedCalls'] if sustained else cycles*10
         interval=local['sustainedIntervalNanos'] if sustained else local['healthyIntervalNanos']
         f.check(w['calls']==count and w['intervalNanos']==interval and w['lanes']==(4 if sustained else 1) and w['firstCycle']==cycle,'unreviewed arrival schedule')
-        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=count*interval+10**9,'short/overlapping workload window')
+        f.check(w['pacing']==local['pacing']=='completion-paced','local pacing mode')
+        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=local['maximumWindowSeconds']*10**9,'short/overlapping/overlong workload window')
         f.check(w['instrumented'] is (name.startswith('instrumented') or sustained),'instrumentation mode')
         selected=sorted([r for r in calls if r['window']==name],key=lambda r:r['call'])
         f.check(len(selected)==count,'missing/extra operation samples')
@@ -58,12 +59,14 @@ def validate_schedule(root,plan):
             expected=operation(cycle+i//10,i,sustained)
             f.check(row['call']==i and row['cycle']==cycle+i//10 and row['outcome']=='success','operation schedule/outcome')
             f.check(all(row[k]==v for k,v in expected.items()),'workload keys/operation/revision')
-            due=w['startNanos']+i*interval
-            f.check(row['scheduledNanos']==due<=row['startNanos']<row['endNanos']<=w['endNanos'],'sample timing')
-            f.check(row['startNanos']-due<interval,'missed arrival slot')
+            nominal=w['startNanos']+i*interval
+            f.check(row['nominalScheduledNanos']==nominal<=row['scheduledNanos']<=row['dispatchNanos']<=row['startNanos']<row['endNanos']<=w['endNanos'],'sample timing')
+            if i: f.check(row['scheduledNanos']>=selected[i-1]['dispatchNanos']+interval,'catch-up arrival burst')
+            if i>=w['lanes']: f.check(row['scheduledNanos']>=selected[i-w['lanes']]['endNanos'],'overlapping client lane')
             f.check(256<=row['beforeSequence']<=row['afterSequence']<=33024,'operation sequence bounds')
             if row['operation'] not in OP_IDS:f.check(row['beforeSequence']==row['afterSequence'],'ambiguous concurrent read cut')
             all_rows.append(row)
+        f.check(w['endNanos']>=selected[-1]['dispatchNanos']+interval,'short final pacing interval')
         previous=w['endNanos']
         if not sustained:cycle+=cycles
     f.check(len(calls)==len(all_rows),'unbound operation sample')
@@ -203,7 +206,8 @@ def validate_raw(root):
     measured=[e for e in first_leader['exchanges'] if e['request']['command']=='measure'];f.check(len(measured)==6,'measurement command coverage')
     f.check(max(m['readyNanos'] for m in first)<measured[0]['sentNanos'] and measured[-1]['receivedNanos']<min(m['finishedNanos'] for m in first),'three-voter measurement overlap')
     for e,w in zip(measured,windows):
-        f.check(e['response']['measurement']=={k:w[k] for k in e['response']['measurement']} and e['request']['window']==w['name'],'window command binding')
+        f.check(e['response']['measurement']=={k:w[k] for k in e['response']['measurement']} and e['request']['window']==w['name'] and
+                e['request']['profile']=='local-qualification','window command binding')
     cuts=[r for d in worker_dirs for r in stream(d,'state-cuts')]
     wanted={r['sequence'] for r in cuts}|{r['beforeSequence'] for r in calls if r['operation'] not in OP_IDS}
     get_keys={r['keys'][0] for r in calls if r['operation']=='GET'};state_sequences={r['sequence'] for r in cuts}
@@ -309,8 +313,11 @@ def measurements(root):
                     rejected=0,timedOut=0,indeterminate=0,documents=sum(r['documents'] for r in selected),
                     p50Nanos=times[(n*50+99)//100-1],p95Nanos=times[(n*95+99)//100-1],p99Nanos=times[(n*99+99)//100-1],
                     maximumSchedulerDelayNanos=max(r['startNanos']-r['scheduledNanos'] for r in selected))
+                by_operation[op]['maximumScheduleDeferralNanos']=max(r['scheduledNanos']-r['nominalScheduledNanos'] for r in selected)
             measured[w['name']]=dict(startNanos=w['startNanos'],endNanos=w['endNanos'],sampleCount=w['calls'],
-                offeredRateMilliHz=10**12//w['intervalNanos'],completedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),operations=by_operation)
+                pacing=w['pacing'],maximumOfferedRateMilliHz=10**12//w['intervalNanos'],
+                observedOfferedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),
+                completedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),operations=by_operation)
         baseline=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('baseline'))
         instrumented=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('instrumented'))
         result[label]=dict(windows=measured,instrumentedToBaselineServiceTimePpm=instrumented*1000000//baseline)

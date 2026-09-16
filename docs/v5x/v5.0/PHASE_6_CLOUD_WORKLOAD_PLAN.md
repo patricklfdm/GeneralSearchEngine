@@ -317,6 +317,14 @@ resource generations, overlapping replacement disks above the cap, mixed canonic
 sources, forged cleanup and selective reruns, even after outer hashes are recomputed.
 Local reduced receipts, fake cloud receipts and real cloud receipts remain distinct.
 
+The named local qualification uses completion-paced v2 arrivals with a 20-second
+window ceiling. It waits for each lane's prior operation and keeps the nominal,
+deferred and actual dispatch timestamps, all operation samples and bounded concurrency.
+Its 200/100-ms intervals are minimum dispatch gaps. This avoids treating hosted-CI
+jitter as a cloud offered-load result. The cloud fixed-rate workload, durations,
+resource reservations and no-missed-slot requirement above are unchanged. Full cloud
+profiles abort at the first missed slot and retain its diagnostic record.
+
 - [x] Runner PR #158 and exact-master CI accepted, including executed 6A/6B gates.
 - [x] Corpus, operation mix, rates, ordered cells, durations and resource/evidence budgets proposed.
 - [x] This documentation plan accepted through PR #159 and exact-master documentation CI `35053778177`.

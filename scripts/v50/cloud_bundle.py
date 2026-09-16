@@ -40,7 +40,7 @@ def build(target, control, *, workload_qualification=False):
     sources = ROOT / 'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch'
     common = [sources / 'admission' / (n + '.java') for n in ('AdmissionJson', 'AdmissionSemanticModel', 'PerformanceTelemetry', 'PerformanceWorkload')]
     if workload_qualification:
-        common += [sources / 'admission' / (n + '.java') for n in ('CloudWorkloadTelemetry', 'CloudWorkload')]
+        common += [sources / 'admission' / (n + '.java') for n in ('CloudWorkloadTelemetry', 'CloudWorkloadSchedule', 'CloudWorkload')]
     def compile(dest, cp, files):
         dest.mkdir(exist_ok=True)
         subprocess.run(['javac', '--release', '21', '-cp', cp, '-d', str(dest), *map(str, files)], check=True, timeout=60)

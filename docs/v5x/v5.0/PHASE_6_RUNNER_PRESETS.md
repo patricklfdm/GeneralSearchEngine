@@ -122,7 +122,7 @@ days. No-GCP Python discovery includes the new policy and failure tests.
 - [ ] Fresh preflight/cloud setup and exact complete-sequence paid confirmation.
 - [ ] Staged 6C execution and separate 6D baseline registration accepted.
 
-### Final local receipts
+### Initial local receipts
 
 | Check | Result |
 | --- | --- |
@@ -136,8 +136,42 @@ days. No-GCP Python discovery includes the new policy and failure tests.
 | Release artifacts | PASS; nine JARs; production core and replication hashes unchanged from PR #160 |
 | Documentation/CI wiring | PASS; Phase 0 contract, fourteen classifier tests, workflow YAML, shell syntax, local links/fences and whitespace |
 
-The final workload receipt is `target/v50-cloud-workload/run.TZdQWY/evidence`;
+The initial workload receipt is `target/v50-cloud-workload/run.TZdQWY/evidence`;
 its sibling `presets` directory retains the fake matrix. The old 6B receipt is
 `target/v50-cloud-local/run.pefStW`. Both record starting source
 `cc46be814c23ea7544a0aafed30085f62c9de159` with `sourceDirty=true` and exact input
 inventories. Clean-source acceptance remains the protected PR and exact-master gate.
+
+### CI scheduling correction
+
+[CI run 35061971394](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35061971394)
+failed on the full-workload gate. Its retained `instrumented-a` call trace shows
+`REMOVE_ALL` took 221566147 ns, crossing the next 200-ms arrival. The old scheduler
+recorded call 6 as missed, skipped `INDEX_DROP`, then ran call 7 `INDEX_CREATE`.
+The resulting `ALREADY_EXISTS` error obscured the original missed-slot failure.
+
+Local qualification v2 now waits for the lane's prior completion, retains every
+operation and spaces dispatches without a catch-up burst. Each window still has a
+20-second ceiling; the original whole-run and process bounds remain. Candidate and
+published V4 control use the same pacing policy. The separate experiment/failure-drill/
+canonical schedules retain their fixed arrival rates and immediately abort on the
+first missed slot. Seven virtual-clock regression tests cover the exact 222-ms
+case, scheduler pauses, bounded four-lane dispatch, timeouts and strict cloud rates.
+
+The independent validator verifies nominal/deferred/dispatch timestamps, minimum
+dispatch spacing, same-lane completion, complete call counts and the window ceiling.
+Summaries retain deferral, observed rate and maximum rate explicitly. Resealed
+negatives reject altered pacing, nominal arrivals, overlong windows and lane overlap.
+Only the local qualification section of the full-workload JSON changed. Its current
+plan SHA-256 is `b05ec5f6f6f6088eeed47841dc0adbb2527e1d30d4f3626f85deaa144cbd4241`;
+the historical receipts above retain their original plan identity.
+
+Correction validation passed: seven deterministic Java scheduling tests, 147 V5
+Python tests and the complete workload gate, including all fourteen cells and thirty
+resealed semantic negatives. The 59.70-second local receipt is
+`target/v50-cloud-workload/run.NQ2gji/evidence`, with source
+`aa846e82584e0459e3ff8a7ad3b3558fffcd308e`, `sourceDirty=true`, 72 measured calls,
+56 durable measured mutations, committed index 92 and application sequence 340.
+The fake preset matrix also passed. A direct JSON comparison confirms every section
+outside `localQualification` is unchanged. The failing CI receipt remains failure
+evidence; acceptance requires a new passing protected CI run.
