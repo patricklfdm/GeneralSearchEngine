@@ -1,6 +1,6 @@
 # V5.0 Phase 6 performance and cloud entry plan
 
-- **Status:** Documentation candidate; implementation and paid-run gates below remain open
+- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A implementation candidate
 - **Branch:** `docs/v5.0-phase6-entry-plan`
 - **Starting master:** `836137aba672c010d0c7e3fc07bc194359543d9f`
 - **Predecessor:** [Step C, PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155), [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
@@ -19,7 +19,7 @@ runtime cases. The [public-admission acceptance checklist](PUBLIC_ADMISSION_ENTR
 is complete.
 
 Phase 6 now measures the accepted public 1.1 runtime and establishes independently
-validated cloud evidence. This entry PR records the work and its gates. It supplies
+validated cloud evidence. The entry plan records the work and its gates. It supplies
 no performance result, cloud-readiness receipt or registered baseline.
 
 ## Current implementation and remaining work
@@ -54,7 +54,8 @@ receipts for that candidate; a failed stage retains evidence and stops progressi
 | 6C — staged cloud evidence | Refresh read-only preflights and present exact source, plan, resources and total cost estimate for the existing explicit paid-run confirmation; execute experiment, then failure-drill, then canonical | Every member and topology set validates independently; cleanup and budget receipts pass after each run; no later topology starts with leftovers |
 | 6D — review and registration | Phase 6 baseline, checklist and canonical review; append-only registration of `v5.0.0-replicated-cloud` through a separate protected PR | Raw evidence remains retrievable, all three canonical repetitions pass, registered identities match the accepted source and artifacts |
 
-The next implementation is 6A. Its review freezes the exact workload parameters and
+The current implementation candidate is [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md).
+Its review freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
 affected gates before a new exact-source performance set is admitted.
@@ -202,7 +203,7 @@ remaining-budget admission, with the failed attempt still visible.
 
 - [x] Step C protected PR and exact-master CI verified; public-admission gates complete.
 - [x] Existing cloud scaffolding, measurement matrix, inherited caps and delivery order documented.
-- [ ] This entry plan accepted through protected PR and its exact-master documentation CI.
+- [x] This entry plan accepted through protected PR #156 and exact-master documentation CI `35039318340`.
 - [ ] 6A public probe, pinned control, exact plan and independent evidence validators accepted.
 - [ ] 6B real-runner ownership, preflight, fake-failure, retention and cleanup gates accepted.
 - [ ] Exact-source preflights and explicit paid-run confirmation recorded.
@@ -223,5 +224,9 @@ remain the accepted Step C results; 6A/6B code changes require their own full ga
 Local validation passed: Phase 0 contract, 14 existing CI-classifier/gate tests,
 609 local links across 40 Markdown files (including six anchor references), code
 fences and whitespace. All 12 changed paths classify as documentation; the expected
-PR/push decision is `run_full_ci=false`. Protected acceptance of this entry PR is
-still pending.
+PR/push decision is `run_full_ci=false`. Protected acceptance completed through [PR #156](https://github.com/patricklfdm/GeneralSearchEngine/pull/156)
+at `3eb0dc1067b3001c04768190a2844be69c137da3`. Its
+[PR CI 35039229374](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35039229374)
+and [exact-master CI 35039318340](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35039318340)
+passed Change scope and Required; the four full-CI jobs were correctly skipped.
+The Phase 0 documentation contract step ran successfully.

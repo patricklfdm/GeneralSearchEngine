@@ -102,5 +102,25 @@ class PressureCatchupTest(unittest.TestCase):
         self.assertEqual([], self.evidence()["attempts"])
 
 
+class PressureProgressTest(unittest.TestCase):
+    def test_held_reply_allows_follower_progress_within_acknowledged_prefix(self):
+        for applied in (9, 12, 19):
+            with self.subTest(applied=applied):
+                harness.validate_pressure_progress({"appliedIndex": 9},
+                    {"appliedIndex": 19, "state": "READY", "writeQuorum": True}, {"appliedIndex": applied})
+
+    def test_follower_regression_or_unacknowledged_progress_fails(self):
+        for applied in (8, 20):
+            with self.subTest(applied=applied), self.assertRaisesRegex(AssertionError, "acknowledged prefix"):
+                harness.validate_pressure_progress({"appliedIndex": 9},
+                    {"appliedIndex": 19, "state": "READY", "writeQuorum": True}, {"appliedIndex": applied})
+
+    def test_pressure_workload_requires_healthy_quorum_and_all_writes(self):
+        for changed in ({"appliedIndex": 18}, {"state": "FAILED"}, {"writeQuorum": False}):
+            with self.subTest(changed=changed), self.assertRaisesRegex(AssertionError, "healthy quorum"):
+                harness.validate_pressure_progress({"appliedIndex": 9},
+                    {"appliedIndex": 19, "state": "READY", "writeQuorum": True, **changed}, {"appliedIndex": 9})
+
+
 if __name__ == "__main__":
     unittest.main()

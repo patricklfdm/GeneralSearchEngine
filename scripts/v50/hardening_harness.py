@@ -140,13 +140,26 @@ def catchup_after_pressure(group, peer):
             "backoffSeconds": PRESSURE_CATCHUP_BACKOFF, "attempts": attempts})
 
 
+def validate_pressure_progress(initial, completed, follower):
+    """A held response delays a FIFO stream; it does not freeze remote application."""
+    check(completed["appliedIndex"] == initial["appliedIndex"] + 10
+          and completed["state"] == "READY" and completed["writeQuorum"],
+          "healthy quorum did not complete the pressure workload")
+    check(initial["appliedIndex"] <= follower["appliedIndex"] <= completed["appliedIndex"],
+          "slow follower escaped the acknowledged prefix")
+
+
 def slow_follower(workspace, artifact):
     group = Group(workspace / "slow-follower-pressure")
     try:
         group.prepare(); initial = group.command("status"); group.fault("APPEND", "hold-first", (2,))
-        for identity in range(20, 30): group.apply("add", id=identity, value="shared")
+        for identity in range(20, 30): completed = group.apply("add", id=identity, value="shared")
         lagging = group.workers[2].command("status")
-        check(lagging["appliedIndex"] == initial["appliedIndex"], "held slow follower unexpectedly applied later state")
+        save(group.case / "pressure-progress.json", {"initial": initial, "completed": completed, "follower": lagging})
+        # An expired APPEND exchange releases its outgoing FIFO slot. A later
+        # valid COMMIT_PROOF can apply the entry even while the earlier reply is
+        # held. Scheduler timing must not turn that legal progress into failure.
+        validate_pressure_progress(initial, completed, lagging)
         # heal releases the follower's held response, not the leader's queued
         # exchanges. The eight in-flight slots can still be full at this point.
         group.heal(); catchup_after_pressure(group, "node-3")

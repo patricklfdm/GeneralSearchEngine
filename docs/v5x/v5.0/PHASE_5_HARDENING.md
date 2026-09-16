@@ -80,6 +80,12 @@ This is not a claim that all OS thread interleavings are deterministic.
 | Lifecycle | Interrupted and timed-out close retry, storage lock retention, sender callback close, concurrent/reentrant close, close during a partial proof write, leased reader across checkpoint replacement |
 | Pressure | Client admission, full writer queue, aggregate outbound bytes, cancelled-slot retention, retained disk capacity and corrupt/impossible transfer staging |
 
+The slow-follower process case records the follower within the initial-to-acknowledged
+prefix. Holding an APPEND response does not freeze application: an expired outgoing
+exchange can release its FIFO slot, allowing a later valid COMMIT_PROOF to arrive.
+The case requires all ten leader writes to complete with a healthy quorum, verifies
+the real hold in the wire transcript, then independently checks the recovered state.
+
 The slow-follower process case releases the fault before requesting catch-up. Release
 does not synchronously drain the leader's eight admitted peer exchanges. A
 `CAPACITY_EXCEEDED` catch-up result is therefore retried only while the leader remains

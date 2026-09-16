@@ -1,0 +1,144 @@
+{
+  "schema": "gse-v50-phase6-plan-v1",
+  "suite": "v5.0-replicated-single-shard-suite-v1",
+  "preset": "v5.0-phase6-local-smoke-v1",
+  "evidenceSchema": "gse-v50-performance-evidence-v1",
+  "execution": "local-public-runtime-only",
+  "protocol": "gse-replication/1.1",
+  "publishedControl": {
+    "artifact": "io.github.patricklfdm:general-search-engine:4.4.0",
+    "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+  },
+  "localSmoke": {
+    "seed": 17,
+    "corpusDocuments": 64,
+    "loadBulkElements": 16,
+    "mutationBulkElements": 4,
+    "warmupCycles": 1,
+    "cyclesPerWindow": 2,
+    "clientConcurrency": 1,
+    "offeredRate": "closed-loop",
+    "windows": [
+      "baseline-a",
+      "instrumented-a",
+      "instrumented-b",
+      "baseline-b"
+    ],
+    "operations": [
+      "ADD",
+      "UPDATE",
+      "REMOVE",
+      "ADD_ALL",
+      "UPDATE_ALL",
+      "REMOVE_ALL",
+      "INDEX_DROP",
+      "INDEX_CREATE",
+      "GET",
+      "QUERY"
+    ],
+    "resourceSampling": "after-each-window-and-command",
+    "maximumWindowSeconds": 30,
+    "maximumRunSeconds": 240,
+    "maximumApplicationEntries": 72,
+    "maximumLogIndex": 74,
+    "maximumEncodedDocumentBytes": 256,
+    "corpusSha256": "1c0ce897a4074c9d8429067ba6a5d6e2d050027502c95fc17add23438a998cb8",
+    "encodedKeyBytes": 4,
+    "query": "category=guide AND body contains java; insertion order",
+    "get": "1 + cycle modulo corpusDocuments",
+    "cellOrder": [
+      "control",
+      "bootstrap",
+      "activate",
+      "warmup",
+      "ABBA-healthy",
+      "catchup",
+      "checkpoint",
+      "backup",
+      "no-quorum",
+      "close",
+      "V4-restore"
+    ],
+    "measurementBudgetSeconds": 120,
+    "controlAndSetupBudgetSeconds": 90,
+    "cleanupReserveSeconds": 30
+  },
+  "application": {
+    "codec": "semantic-codec",
+    "codecVersion": 1,
+    "schema": "semantic-schema",
+    "storageIdentity": "performance-store",
+    "indexes": [
+      "prefix:title",
+      "equality:category",
+      "range:price",
+      "text:body:gse-simple-v1"
+    ],
+    "snapshot": {
+      "queueCapacity": 31,
+      "maxBatchSize": 16,
+      "maxBatchWaitSeconds": 0,
+      "maxBatchWaitNanos": 1234567
+    },
+    "planner": "FORCE_SCAN",
+    "backupFormat": "gse-backup/1.2",
+    "maxDocuments": 1024,
+    "maxBulkElements": 16,
+    "maxEncodedKeyBytes": 1024,
+    "maxEncodedDocumentBytes": 4096,
+    "checkpointWalBytes": 33554432,
+    "maxRetainedBytes": 134217728,
+    "maxDerivedStateBytes": 4194304
+  },
+  "replicationBounds": {
+    "maxFrameBytes": 1048576,
+    "maxEntriesPerAppend": 16,
+    "maxInFlightPerPeer": 4,
+    "maxPendingClientOperations": 16,
+    "maxRetryAttempts": 2,
+    "requestTimeoutMillis": 1500,
+    "retryBackoffMillis": 10,
+    "snapshotChunkBytes": 4096,
+    "maxRetainedLogBytes": 67108864,
+    "maxSnapshotStagingBytes": 67108864
+  },
+  "jvmArguments": [
+    "-Xms64m",
+    "-Xmx256m",
+    "-XX:+UseG1GC",
+    "-XX:ActiveProcessorCount=2"
+  ],
+  "evidenceBounds": {
+    "maxMemberBytes": 16777216,
+    "maxBundleBytes": 134217728,
+    "maxFiles": 2000,
+    "maxResponseBytes": 4194304,
+    "maxObservationsPerWindow": 4096,
+    "maxEncodedAttemptBytesPerWindow": 8388608
+  },
+  "cloud": {
+    "execution": "disabled-until-6B-and-paid-admission",
+    "profiles": {
+      "experiment": {
+        "topologies": 1,
+        "maximumMeasurementSeconds": 300
+      },
+      "failure-drill": {
+        "topologies": 1,
+        "maximumMeasurementSeconds": 900
+      },
+      "canonical": {
+        "topologies": 3,
+        "measurementSeconds": 1800
+      }
+    },
+    "votersPerTopology": 3,
+    "votersConcurrent": true,
+    "repetitionsSerial": true,
+    "peakVcpus": 24,
+    "peakDiskGiB": 450,
+    "maximumTopologySeconds": 5400,
+    "maximumCompleteSequenceCostUsd": 40,
+    "workloadFreeze": "separate-cloud-preset-required-before-6C"
+  }
+}
