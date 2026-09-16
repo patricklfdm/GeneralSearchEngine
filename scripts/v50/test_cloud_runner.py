@@ -7,12 +7,14 @@ import tarfile
 import tempfile
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from urllib.parse import parse_qs, unquote, urlsplit
 from .cloud_bundle import extract
 from .cloud_common import canonical, plan, request, resources, sha
 from .cloud_fake import Fake, FakeProbe
 from .cloud_gcp import Api, ApiError, Gcp
-from .cloud_preflight import PROJECT_PERMISSIONS, STORAGE_PERMISSIONS, admission, check_observations, claims, condition_allows_only
+from .cloud_preflight import (CONTROL_OBJECTS, PROJECT_PERMISSIONS, STORAGE_PERMISSIONS, admission,
+    check_observations, claims, collect, collect_control_permissions, condition_allows_only)
 from .cloud_runner import BUDGET, LEASE, Runner, reconcile, reserve_budget
 
 
@@ -27,6 +29,7 @@ def observations(p):
         region=dict(quotas=[dict(metric=k, usage=0, limit=v) for k, v in [('N2_CPUS', 200), ('CPUS', 200), ('SSD_TOTAL_GB', 500)]]),
         subnetwork=dict(network='/networks/default', region='/regions/us-west4'), effectiveFirewalls=dict(firewalls=[]), regionalFirewalls={},
         permissions=dict(permissions=PROJECT_PERMISSIONS), storagePermissions=dict(permissions=STORAGE_PERMISSIONS),
+        controlObjectPermissions=dict(bucket=p['bucket'], objects={name: dict(permissions=['storage.objects.delete']) for name in CONTROL_OBJECTS}),
         bucket=dict(name=p['bucket'], iamConfiguration=dict(uniformBucketLevelAccess=dict(enabled=True))),
         budget=dict(schema='gse-v50-budget-v1', reservations=[]))
 
@@ -104,10 +107,111 @@ class CloudRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'stale'): admission(self.plan, receipt, self.req, approval, now=1901)
         forged = deepcopy(receipt); forged['observations']['region']['quotas'][0]['usage'] = 190
         with self.assertRaisesRegex(ValueError, 'not admitted'): admission(self.plan, forged, self.req, approval, now=1001)
+        forged = deepcopy(receipt)
+        forged['observations']['controlObjectPermissions']['objects'][BUDGET]['permissions'] = []
+        approval['preflightSha256'] = sha(canonical(forged))
+        with self.assertRaisesRegex(ValueError, 'not admitted'): admission(self.plan, forged, self.req, approval, now=1001)
+
+    def test_prefix_delete_grant_passes_without_bucket_delete_or_object_creation(self):
+        calls = []
+        expected = {'v5.0-replicated-single-shard/control/' + name for name in
+                    ('active-run.json', 'budget.json', 'workload-sequences.json')}
+        class ScopedPermissions:
+            def call(_, method, url):
+                calls.append((method, url))
+                self.assertEqual(method, 'GET')
+                parsed = urlsplit(url)
+                self.assertEqual(parsed.netloc, 'storage.googleapis.com')
+                self.assertEqual(parse_qs(parsed.query), {'permissions': ['storage.objects.delete']})
+                prefix = '/storage/v1/b/' + self.plan['bucket'] + '/o/'
+                self.assertTrue(parsed.path.startswith(prefix))
+                self.assertTrue(parsed.path.endswith('/iam/testPermissions'))
+                encoded = parsed.path[len(prefix):-len('/iam/testPermissions')]
+                self.assertNotIn('/', encoded)
+                # These names need not exist. A matching IAM prefix grants delete
+                # at object scope, while the bucket-level response omits it.
+                return dict(permissions=['storage.objects.delete'] if unquote(encoded) in expected else [])
+        value = observations(self.plan)
+        value['controlObjectPermissions'] = collect_control_permissions(self.plan, ScopedPermissions())
+        self.assertNotIn('storage.objects.delete', value['storagePermissions']['permissions'])
+        self.assertEqual(set(value['controlObjectPermissions']['objects']), expected)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(check_observations(self.plan, value, self.req['source'], 1001)['status'], 'READY_FOR_PAID_REVIEW')
+
+    def test_collect_queries_bucket_and_each_control_object_separately(self):
+        api = Mock(); api.call.return_value = {}
+        with patch('scripts.v50.cloud_preflight.subprocess.run', side_effect=OSError('offline test')):
+            result = collect(self.plan, self.req['source'], api)
+        self.assertEqual(result['status'], 'BLOCKED')
+        queries = [c.args for c in api.call.call_args_list if '/iam/testPermissions?' in c.args[1]]
+        bucket_url = 'https://storage.googleapis.com/storage/v1/b/' + self.plan['bucket'] + '/iam/testPermissions'
+        bucket = [c for c in queries if c[1].startswith(bucket_url + '?')]
+        self.assertEqual(len(bucket), 1)
+        self.assertEqual(parse_qs(urlsplit(bucket[0][1]).query),
+                         {'permissions': ['storage.buckets.get', 'storage.objects.create', 'storage.objects.get', 'storage.objects.list']})
+        self.assertEqual(len(queries), 4)
+        self.assertTrue(all(c[0] == 'GET' and len(c) == 2 for c in queries))
+        control = result['observations']['controlObjectPermissions']
+        self.assertEqual(control['bucket'], self.plan['bucket'])
+        self.assertEqual(set(control['objects']), set(CONTROL_OBJECTS))
+
+    def test_control_delete_query_errors_block_and_other_objects_are_still_checked(self):
+        for name in CONTROL_OBJECTS:
+            for status in (400, 403, 404, 500):
+                calls = []
+                def query(method, url):
+                    calls.append(url)
+                    if '/' + name + '/iam/' in unquote(url): raise ApiError(status, method, url)
+                    return dict(permissions=['storage.objects.delete'])
+                value = observations(self.plan)
+                value['controlObjectPermissions'] = collect_control_permissions(self.plan, Mock(call=query))
+                with self.subTest(name=name, status=status):
+                    self.assertEqual(len(calls), 3)
+                    self.assertIn('error', value['controlObjectPermissions']['objects'][name])
+                    result = check_observations(self.plan, value, self.req['source'], 1001)
+                    self.assertEqual(result['status'], 'BLOCKED')
+                    self.assertIn(name, result['blockers'][0])
+
+    def test_control_delete_requires_success_for_every_object_even_with_bucket_delete(self):
+        for name in CONTROL_OBJECTS:
+            for response in ({}, {'permissions': []}, {'permissions': ['storage.objects.get']},
+                             {'permissions': 'storage.objects.delete'}, {'permissions': None}, None,
+                             {'permissions': ['storage.objects.delete'], 'error': 'unavailable'}):
+                value = observations(self.plan)
+                value['storagePermissions'] = dict(permissions=STORAGE_PERMISSIONS + ['storage.objects.delete'])
+                value['controlObjectPermissions']['objects'][name] = response
+                with self.subTest(name=name, response=response):
+                    result = check_observations(self.plan, value, self.req['source'], 1001)
+                    self.assertEqual(result['status'], 'BLOCKED')
+                    self.assertIn(name, result['blockers'][0])
+
+    def test_control_permission_receipt_rejects_wrong_bucket_prefix_and_object_set(self):
+        good = observations(self.plan)['controlObjectPermissions']
+        cases = [dict(good, bucket='other-bucket'), dict(good, objects=None)]
+        for name in CONTROL_OBJECTS:
+            for replacement in (None, name.replace('/control/', '/control-copy/'), name + '.bak'):
+                changed = deepcopy(good); response = changed['objects'].pop(name)
+                if replacement: changed['objects'][replacement] = response
+                cases.append(changed)
+        extra = deepcopy(good); extra['objects']['v4.4-final-durable/control/active-run.json'] = dict(permissions=['storage.objects.delete'])
+        cases.append(extra)
+        for control in cases:
+            value = observations(self.plan); value['controlObjectPermissions'] = control
+            with self.subTest(control=control):
+                self.assertEqual(check_observations(self.plan, value, self.req['source'], 1001)['status'], 'BLOCKED')
+
+    def test_old_bucket_only_receipt_and_wrong_observer_remain_blocked(self):
+        old = observations(self.plan); del old['controlObjectPermissions']
+        old['storagePermissions'] = dict(permissions=STORAGE_PERMISSIONS + ['storage.objects.delete'])
+        self.assertEqual(check_observations(self.plan, old, self.req['source'], 1001)['status'], 'BLOCKED')
+        value = observations(self.plan); value['principal'] = 'local-user@example.com'
+        result = check_observations(self.plan, value, self.req['source'], 1001)
+        self.assertEqual(result['status'], 'BLOCKED')
+        self.assertTrue(any(v.startswith('identity:') for v in result['blockers']))
 
     def test_readonly_findings_fail_closed(self):
         for key in ('github', 'principal', 'provider', 'image', 'machine', 'zone', 'region', 'project',
-                    'subnetwork', 'effectiveFirewalls', 'regionalFirewalls', 'permissions', 'storagePermissions', 'bucket', 'budget'):
+                    'subnetwork', 'effectiveFirewalls', 'regionalFirewalls', 'permissions', 'storagePermissions', 'controlObjectPermissions', 'bucket', 'budget'):
             value = observations(self.plan); value[key] = dict(error='403')
             with self.subTest(key=key): self.assertEqual(check_observations(self.plan, value, self.req['source'], 1001)['status'], 'BLOCKED')
 

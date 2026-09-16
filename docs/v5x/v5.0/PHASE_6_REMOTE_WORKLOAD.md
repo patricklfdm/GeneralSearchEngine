@@ -1,6 +1,6 @@
 # V5.0 remote workload execution and evidence
 
-- **Status:** Implementation candidate; local adapter qualification
+- **Status:** Accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163), master `ddff5dd0e0af5b5aa7726ec7107f9815de6d5eef`, [full CI 35079404376](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35079404376); paid 6C execution pending
 - **Branch:** `feat/v5.0-phase6-remote-workload`
 - **Starting master:** `a885bc7789a332525d3c375635ce35ce7bc15dec`
 - **Predecessor:** [PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161), [correction #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162), [exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
@@ -107,9 +107,12 @@ the local gate does not spend 300/900/1800 seconds pretending to be a cloud run.
 
 - [x] Predecessor exact-master full CI verified.
 - [x] Local guest/runtime, policy, provenance and negative receipts recorded below.
-- [ ] This implementation accepted through protected PR and exact-master CI.
+- [x] This implementation accepted through protected PR #163 and exact-master CI `35079404376`, with all six jobs successful and the remote adapter gate executed.
 - [ ] Fresh paid admission and staged 6C cloud execution accepted.
 - [ ] Independent set review and 6D baseline registration accepted.
+
+Next: [6C configuration and readiness](PHASE_6_CLOUD_SETUP.md), followed by fresh
+paid admission. The local receipts below remain historical candidate evidence.
 
 ### Candidate validation receipts
 

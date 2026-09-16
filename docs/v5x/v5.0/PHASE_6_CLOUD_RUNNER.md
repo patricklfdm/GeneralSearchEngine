@@ -116,6 +116,40 @@ a token with Variables API access. Its closed
 CEL parser rejects unsupported expressions and tests all literal alternatives to
 detect an `OR` branch that bypasses repository/ref/environment guards.
 
+Storage permission checks use two resource scopes. The bucket-level
+`testIamPermissions` request requires bucket metadata get and object create/get/list. Three separate
+read-only [object `testIamPermissions` requests](https://developers.google.com/resources/api-libraries/documentation/storage/v1/python/latest/storage_v1.objects.html#testIamPermissions)
+require `storage.objects.delete` on these exact control objects:
+
+- `v5.0-replicated-single-shard/control/active-run.json`;
+- `v5.0-replicated-single-shard/control/budget.json`;
+- `v5.0-replicated-single-shard/control/workload-sequences.json`.
+
+Delete permission is needed both to remove the lease and to conditionally overwrite
+the control ledgers. A grant restricted to the `control/` object prefix can satisfy
+these checks without a bucket-wide delete grant. Google evaluates the caller's
+effective permissions and IAM conditions at each object name; preflight does not
+infer access from a local role definition. The object method also works before the
+control objects exist. It receives only the delete permission: create/list belong
+in the bucket request and produce HTTP 400 in an object request.
+
+The receipt records the bucket, exact object names and individual API responses.
+Missing/denied/malformed responses, HTTP failures (including 404), wrong object
+sets or bucket identities block admission; bucket-level delete cannot substitute
+for a missing object response. Older bucket-only receipts must be refreshed. The
+workflow-service-account check still applies, so a local owner's successful query
+does not admit the workflow. These are checks of required access, not an audit
+proving the absence of every broader grant; prefix-scoped IAM setup remains a
+separate reviewed action. No test objects are written or deleted and no additional
+IAM policy-reading permission is required.
+
+The [6C setup guide](PHASE_6_CLOUD_SETUP.md) generates reviewed WIF/IAM files
+offline and describes cleanup enablement, workflow-identity preflight and cost
+review. Preflight lists missing project/bucket permissions and preserves cleanup
+query failures. It also checks the permissions used by its catalog/WIF reads and
+rejects a disabled provider. Effective firewall queries provide the network rules;
+no extra project-wide firewall-list request is needed.
+
 Receipts expire after 900 seconds. Quota observations do not reserve allocation.
 The runner refreshes read-only checks immediately before mutation and rechecks the
 original admission expiry. A blocked or stale receipt cannot be relabelled READY.

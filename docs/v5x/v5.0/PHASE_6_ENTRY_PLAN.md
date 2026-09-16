@@ -63,9 +63,10 @@ with documentation CI `35053778177`.
 [Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
 with exact-master full CI `35058372449`.
 [Runner preset qualification](PHASE_6_RUNNER_PRESETS.md) was accepted through
-PR #161/#162 and exact-master CI `35069706211`. The current candidate is
-[remote workload execution and cloud evidence validation](PHASE_6_REMOTE_WORKLOAD.md),
-which must be accepted before 6C.
+PR #161/#162 and exact-master CI `35069706211`.
+[Remote workload execution and cloud evidence validation](PHASE_6_REMOTE_WORKLOAD.md)
+was accepted through PR #163 and exact-master CI `35079404376`.
+[6C configuration and readiness](PHASE_6_CLOUD_SETUP.md) is the next step.
 The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
@@ -220,7 +221,7 @@ remaining-budget admission, with the failed attempt still visible.
 - [x] 6B real-runner ownership, preflight, fake-failure, retention and cleanup gates accepted through PR #158 and exact-master CI `35051728286`.
 - [x] Full cloud workload plan accepted through PR #159 and exact-master documentation CI `35053778177`.
 - [x] Local workload/evidence and runner preset qualification accepted through PR #160–#162 and exact-master CI.
-- [ ] Remote workload/evidence and complete runner integration accepted before 6C.
+- [x] Remote workload/evidence and complete runner integration accepted through PR #163 and exact-master CI `35079404376`.
 - [ ] Exact-source preflights and explicit paid-run confirmation recorded.
 - [ ] Experiment, failure-drill and all three canonical repetitions pass with cleanup.
 - [ ] Independent member/set review and append-only baseline registration accepted.
