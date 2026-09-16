@@ -30,8 +30,12 @@ hardening under deterministic network faults and repeated process crashes. The
 [Step A declarations and 1.1 fixtures](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) were accepted in PR #153.
 [Step B offline authority](docs/v5x/v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) now implements
 typed bootstrap, resume, cleanup and non-voting replacement and was accepted in PR #154.
-[Step C public runtime](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md) is the current implementation candidate,
-including sealed startup, explicit activation/recovery, local checkpoint and V4 backup. See the [V5 development line](docs/v5x/README.md).
+[Step C public runtime](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md) was accepted through
+[PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155) and
+[exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266),
+including sealed startup, explicit activation/recovery, local checkpoint and V4 backup.
+The next candidate is the [Phase 6 performance and cloud entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md).
+See the [V5 development line](docs/v5x/README.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the

@@ -1,10 +1,22 @@
 # V5.0 public-admission Step C public runtime
 
-- **Status:** Implementation candidate; protected PR and exact-master acceptance pending
+- **Status:** Accepted through protected PR #155 and exact-master CI
 - **Branch:** `feat/v5.0-public-runtime`
 - **Starting master:** `915b79c4e197a262a3a8dbcc8d53b7b1a81f7c33`
 - **Predecessor:** [Step B, PR #154](https://github.com/patricklfdm/GeneralSearchEngine/pull/154), [master CI 35020203126](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35020203126)
 - **Contract:** [Public admission](PUBLIC_ADMISSION_CONTRACT.md), [accepted API](PUBLIC_ADMISSION_API.md), [frozen 1.1 bytes](PUBLIC_ADMISSION_FORMAT_1_1.md)
+
+## Protected-master acceptance
+
+[PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155) merged at
+`836137aba672c010d0c7e3fc07bc194359543d9f`. Both
+[PR CI 35029395429](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35029395429)
+and [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
+passed Change scope, Reactor tests, Compatibility, Release artifacts, Cloud runner
+(no GCP) and Required. The master Reactor log confirms Steps A/B/C and Phase 1–5
+actually ran successfully; all 21 public-runtime cases passed and evidence upload
+succeeded. This closes public-admission acceptance and establishes the entry boundary
+for the separate [Phase 6 plan](PHASE_6_ENTRY_PLAN.md).
 
 ## Delivered behavior
 
@@ -130,5 +142,6 @@ runs after their receipts were produced; implementation and tests remain unchang
 The local handoff archive is
 `/tmp/gse-v50-public-runtime-evidence/final-runtime-evidence.tar.gz`; it retains gate
 logs, process evidence, Java reports, release JARs and the final changed-source inventory.
-Protected PR/master acceptance remains pending; this candidate does not authorize
-Phase 6 or paid cloud work.
+These are the original local implementation results. Protected acceptance is recorded
+above; Phase 6 performance and paid execution follow the separate entry plan and its
+exact-source preflight gates.

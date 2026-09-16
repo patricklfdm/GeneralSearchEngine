@@ -1,8 +1,8 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Accepted Phase 0 plan and Phases 1–5; public-admission contract accepted, Step A accepted; Step B offline authority under review
+- **Status:** Accepted Phase 0 plan, Phases 1–5 and public-admission Steps A/B/C; Phase 6 entry plan under review
 - **Published control:** exact GeneralSearchEngine `4.4.0`
-- **Planned evidence schema:** `gse-v50-replication-evidence-v1`
+- **Foundation evidence schema:** `gse-v50-replication-evidence-v1`; Phase 6 freezes a separate versioned runtime-evidence contract
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`
 - **Planned preset:** `v5.0-replicated-single-shard-v1`
 - **Eventual baseline:** `v5.0.0-replicated-cloud`
@@ -14,7 +14,10 @@ adds typed bootstrap, publication/resume/cleanup and real three-JVM public consu
 before Phase 6. [Step A](PUBLIC_ADMISSION_FOUNDATION.md) supplies independent `1.1`
 format fixtures and declaration checks. [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
 adds actual offline authority, real process kills and published V4.4 import/export checks.
-Step C still requires the full public runtime gate; internal Phase 1–5 gates do not replace it.
+[Step C](PUBLIC_ADMISSION_RUNTIME.md) was accepted in PR #155 with exact-master CI
+`35031124266`, including its 21 real public-runtime cases. The
+[Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) defines the measurement, runtime-evidence
+and staged cloud work. The current foundation workflow still permits plan/fake only.
 
 V5.0 requires independent evidence at five layers before release:
 
@@ -88,11 +91,12 @@ records a quota increase:
 | Network | private addresses; no public replication listener |
 | Repetitions | topologies run serially; voters within a topology run concurrently |
 
-This fits the known 32 global-vCPU and 500-GiB regional-disk ceilings with explicit
-headroom. Phase 1 must verify an available Standard machine SKU and image in the
-selected zone, then freeze exact SKU/image/JDK/filesystem/mount/disk identities before
-any paid run. `c3d-standard-30` is explicitly invalid for a three-node topology under
-the current CPU quota.
+This fits the historically recorded 32 global-vCPU and 500-GiB regional-disk ceilings
+with explicit headroom; fresh usage/quota receipts are required before paid admission.
+Phase 1 recorded the catalog selection below. Phase 6 must freeze exact
+SKU/image/JDK/filesystem/mount/disk identities before any paid run.
+`c3d-standard-30` is explicitly invalid for a three-node topology under this
+24-vCPU planning cap.
 
 The Phase 1 candidate's read-only [availability receipt](cloud-availability.json)
 records `n2-standard-8` in `us-west4-a` and the exact READY, non-deprecated Ubuntu
@@ -127,8 +131,10 @@ The exact-source suite covers:
 - bounded heap, queue, log, proof, snapshot, disk and network bytes; and
 - identical committed application digest across all READY replicas.
 
-Failure-drill must kill a process after durable entry quorum and before Future
-completion, then independently prove recovery of the committed result. Canonical
+Failure-drill must kill a process after durable entry and commit-proof quorum but
+before Future completion, then independently prove recovery of the committed result.
+A separate cut after entry quorum but before proof remains indeterminate and must
+be reconciled from valid recovery evidence. Canonical
 requires every topology and aggregate set validation to pass; medians alone cannot
 hide a failed member.
 

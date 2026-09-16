@@ -1,14 +1,14 @@
 # V5.0 public-admission entry and acceptance plan
 
-- **Status:** Steps A/B accepted; Step C public runtime implementation candidate
+- **Status:** Steps A/B/C accepted; public-admission implementation complete
 - **Branch:** `feat/v5.0-public-runtime`
 - **Starting master:** `915b79c4e197a262a3a8dbcc8d53b7b1a81f7c33`
 - **Phase 5:** [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
 - **Exact-master CI:** [34956076066](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066)
 - **Accepted amendment:** [Contract](PUBLIC_ADMISSION_CONTRACT.md), [API delta](PUBLIC_ADMISSION_API.md)
-- **Current implementation:** [Step C public runtime](PUBLIC_ADMISSION_RUNTIME.md); [Step B offline authority](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md); [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md), [1.1 byte specification](PUBLIC_ADMISSION_FORMAT_1_1.md)
+- **Accepted implementation:** [Step C public runtime](PUBLIC_ADMISSION_RUNTIME.md); [Step B offline authority](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md); [Step A foundation](PUBLIC_ADMISSION_FOUNDATION.md), [1.1 byte specification](PUBLIC_ADMISSION_FORMAT_1_1.md)
 
-## Current change
+## Accepted sequence
 
 The contract amendment merged through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151)
 at `72ea9a6b176a7371d708cea1d84ad8d603adef61`; [master CI 34960589647](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34960589647) passed.
@@ -18,8 +18,12 @@ Step A was accepted through [PR #153](https://github.com/patricklfdm/GeneralSear
 at `855cfde29f3538121fa711e840f8701ded68c6a9`; [master CI 35006998165](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35006998165) passed.
 Step B was accepted through [PR #154](https://github.com/patricklfdm/GeneralSearchEngine/pull/154)
 at `915b79c4e197a262a3a8dbcc8d53b7b1a81f7c33`; [master CI 35020203126](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35020203126) passed with Steps A/B and Phase 1–5 executed.
-Step C enables the stopped public handle, sealed 1.1 startup and complete public runtime.
-Its evidence and pending protected acceptance are recorded in the [Step C report](PUBLIC_ADMISSION_RUNTIME.md).
+Step C was accepted through [PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155)
+at `836137aba672c010d0c7e3fc07bc194359543d9f`;
+[master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
+passed all six jobs, Steps A/B/C and Phase 1–5, including 21 public-runtime cases.
+The [Step C report](PUBLIC_ADMISSION_RUNTIME.md) records its delivered behavior and acceptance.
+The next candidate is the separate [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md).
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.
@@ -54,8 +58,9 @@ accepted, Phase 6 begins with a separate entry plan and current cloud preflights
 
 ## Required evidence matrix
 
-Future tests below are requirements, not results claimed by this documentation PR.
-Each failing case retains source/target hashes before reopen or cleanup.
+The matrix below is the accepted A–C requirement set; the linked implementation
+reports record its executed evidence. Each failing case retains source/target hashes
+before reopen or cleanup.
 
 | Boundary | Required positive and negative evidence |
 | --- | --- |
@@ -103,14 +108,14 @@ The Required CI job must depend on this executed gate and always upload its evid
 - [x] Protected PR #151 accepts this amendment.
 - [x] Exact-master CI `34960589647` accepts the merged documentation.
 
-### Future public runtime acceptance
+### Public runtime acceptance
 
 - [x] Step A declarations, reviewed inventory delta and independent `1.1` bytes accepted (PR #153, master CI `35006998165`).
 - [x] Step B source-preserving offline operations and crash/cleanup evidence accepted (PR #154, master CI `35020203126`).
-- [ ] Step C complete public runtime and real three-JVM public-consumer gate accepted.
+- [x] Step C complete public runtime and real three-JVM public-consumer gate accepted (PR #155, master CI `35031124266`).
 - [x] Local public V4 backup/import round trip and published V4.4 semantic comparison pass (Step C: 21 cases).
-- [x] Local full Phase 1–5 regression, compatibility, artifact and reproducibility checks pass; protected acceptance remains pending.
-- [ ] Protected master CI executes all required public-admission gates successfully.
+- [x] Local and protected-CI Phase 1–5 regression, compatibility, artifact and reproducibility checks pass.
+- [x] Protected master CI `35031124266` executes all required public-admission gates successfully.
 
 ## Historical validation for the documentation PR #151
 
