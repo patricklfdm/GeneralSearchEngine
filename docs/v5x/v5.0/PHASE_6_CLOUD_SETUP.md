@@ -18,7 +18,7 @@ gcloud iam roles describe gseCloudBenchmarkRunner --project=gse-benchmark \
   --format=json > target/v50-setup-inputs/runner-role.json
 gcloud projects get-iam-policy gse-benchmark --format=json \
   > target/v50-setup-inputs/project-policy.json
-python3.11 -m scripts.v50.cloud_setup \
+python3 -m scripts.v50.cloud_setup \
   --provider target/v50-setup-inputs/provider.json \
   --runner-role target/v50-setup-inputs/runner-role.json \
   --project-policy target/v50-setup-inputs/project-policy.json \
@@ -31,6 +31,9 @@ hashes, the frozen plan hash, WIF before/after expressions and diff, role defini
 the exact delete condition and `APPLY.md` commands. Inspect these before executing
 any configuration changes. Snapshots and proposals belong under ignored `target/`,
 not in source control.
+
+Local setup and generated review commands use `python3` from the environment;
+they do not require an executable named for a particular Python minor version.
 
 ## 2. Review and apply configuration separately
 
@@ -139,7 +142,7 @@ taxes/currency conversion are not a provider-enforced USD 40 cap.
 ## Local validation
 
 ```bash
-python3.11 -m unittest discover -s scripts/v50 -t . -p 'test_*.py'
+python3 -m unittest discover -s scripts/v50 -t . -p 'test_*.py'
 ```
 
 This covers prefix permission regressions, malformed/missing observations, WIF

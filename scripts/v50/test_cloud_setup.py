@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 import shlex
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -94,18 +95,23 @@ class CloudSetupTest(unittest.TestCase):
 
     def test_generated_drift_checks_fail_even_when_python_assertions_are_disabled(self):
         with tempfile.TemporaryDirectory() as temp:
+            # Run the generated commands unchanged with only the current
+            # interpreter exposed as python3, as on CI without python3.11.
+            bin_dir = Path(temp) / 'bin'; bin_dir.mkdir()
+            (bin_dir / 'python3').symlink_to(sys.executable)
+            environment = dict(os.environ, PATH=str(bin_dir), PYTHONOPTIMIZE='1')
             output = Path(temp) / 'review'
             write_proposal(output, self.p, self.provider, self.role, self.policy)
             checks = [shlex.split(line) for line in (output / 'APPLY.md').read_text().splitlines()
-                      if line.startswith('python3.11 -c ')]
+                      if line.startswith('python3 -c ')]
             self.assertEqual(len(checks), 3)
             for name, command in zip(('provider', 'runner-role', 'project-policy'), checks):
                 current = output / (name + '-current.json')
                 current.write_bytes((output / (name + '-before.json')).read_bytes())
-                result = subprocess.run(command, cwd=output, env=dict(os.environ, PYTHONOPTIMIZE='1'), capture_output=True)
+                result = subprocess.run(command, cwd=output, env=environment, capture_output=True)
                 self.assertEqual(result.returncode, 0, result.stderr)
                 current.write_text('{}')
-                result = subprocess.run(command, cwd=output, env=dict(os.environ, PYTHONOPTIMIZE='1'), capture_output=True)
+                result = subprocess.run(command, cwd=output, env=environment, capture_output=True)
                 self.assertNotEqual(result.returncode, 0)
                 self.assertIn(b'cloud setup input changed', result.stderr)
 

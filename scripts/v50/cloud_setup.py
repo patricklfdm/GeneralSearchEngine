@@ -73,7 +73,7 @@ def write_proposal(output, p, provider, runner_role, project_policy):
             ('runner-role', ['gcloud', 'iam', 'roles', 'describe', BASE_ROLE, project]),
             ('project-policy', ['gcloud', 'projects', 'get-iam-policy', p['project']])]:
         commands.append(shlex.join([*command, '--format=json']) + ' > ' + name + '-current.json')
-        add('python3.11', '-c', 'import json, sys; sys.exit(None if json.load(open("' + name +
+        add('python3', '-c', 'import json, sys; sys.exit(None if json.load(open("' + name +
             '-before.json")) == json.load(open("' + name + '-current.json")) else "cloud setup input changed; regenerate and review")')
     if value['wifBefore'] != value['wifAfter']:
         commands.append(shlex.join(['gcloud', 'iam', 'workload-identity-pools', 'providers', 'update-oidc', p['wifProvider'], project]) +
