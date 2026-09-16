@@ -11,7 +11,7 @@ The [public-admission amendment](PUBLIC_ADMISSION_CONTRACT.md) was accepted in P
 after Phase 5. It specifies bootstrap publication, public lifecycle, additive APIs
 and genesis-bound replicated storage/protocol `1.1`. [Step A](PUBLIC_ADMISSION_FOUNDATION.md)
 accepted the declarations and independent bytes in PR #153. [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
-implements offline authority; [Step C](PUBLIC_ADMISSION_RUNTIME.md) supplies the public runtime candidate. The `1.0`
+implements offline authority; [Step C](PUBLIC_ADMISSION_RUNTIME.md) supplies the public runtime accepted in PR #155. The `1.0`
 contract below remains the historical Phase 1–5 baseline.
 
 V5.0 establishes correct replicated single-shard durability under one configured

@@ -36,7 +36,14 @@ and genesis-bound replicated `1.1` formats. Its
 and independent fixtures, offline authority operations, then the complete public
 runtime gate before Phase 6. [Step A](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) was accepted
 in PR #153 with master CI `35006998165`. [Step B offline authority](docs/v5x/v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
-implements typed bootstrap, recovery, cleanup and replacement; public construction remains Step C.
+was accepted in PR #154 with master CI `35020203126`.
+[Step C public runtime](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md) was accepted in
+[PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155) at
+`836137aba672c010d0c7e3fc07bc194359543d9f`;
+[master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
+passed Steps A/B/C and Phase 1–5. The
+[Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) is now the documentation candidate
+for performance measurement and staged cloud evidence.
 
 ## v4.x completed development contract
 

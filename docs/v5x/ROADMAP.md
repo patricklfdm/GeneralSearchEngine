@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 and public-admission contract accepted; Steps A/B accepted; Step C public runtime implementation candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan under review
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -52,4 +52,14 @@ public runtime. These are completion gates between Phase 5 and Phase 6; the amen
 does not itself enable the public builder or establish paid-run readiness.
 [Step A declarations and independent 1.1 bytes](v5.0/PUBLIC_ADMISSION_FOUNDATION.md) were accepted in PR #153
 and exact-master CI `35006998165`. [Step B offline authority](v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md)
-was accepted in PR #154 with exact-master CI `35020203126`; [Step C public runtime](v5.0/PUBLIC_ADMISSION_RUNTIME.md) is the current implementation candidate.
+was accepted in PR #154 with exact-master CI `35020203126`. [Step C public runtime](v5.0/PUBLIC_ADMISSION_RUNTIME.md)
+was accepted through [PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155)
+at `836137aba672c010d0c7e3fc07bc194359543d9f`, with
+[exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
+passing all admission and Phase 1–5 gates.
+
+The [Phase 6 entry plan](v5.0/PHASE_6_ENTRY_PLAN.md) is the current documentation
+candidate. Its ordered work is the public performance probe and evidence contract,
+real runner and preflight, staged experiment/failure/canonical runs, then independent
+review and append-only baseline registration. Local correctness acceptance alone
+does not establish cloud performance or current paid-run readiness.

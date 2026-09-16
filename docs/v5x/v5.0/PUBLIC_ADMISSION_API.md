@@ -1,6 +1,6 @@
 # V5.0 public-admission API delta
 
-- **Status:** API amendment accepted in PR #151; declarations accepted in PR #153; [Step B](PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) implements configuration/transfer and typed offline operations
+- **Status:** API amendment accepted in PR #151; declarations accepted in PR #153; offline authority accepted in PR #154; [public runtime](PUBLIC_ADMISSION_RUNTIME.md) accepted in PR #155
 - **Behavior:** [Public-admission contract](PUBLIC_ADMISSION_CONTRACT.md)
 - **Gates:** [Implementation and acceptance plan](PUBLIC_ADMISSION_ENTRY_PLAN.md)
 
