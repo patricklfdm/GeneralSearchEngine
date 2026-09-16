@@ -1,6 +1,6 @@
 # V5.0 Phase 6B cloud runner and preflight
 
-- **Status:** Implementation candidate; no paid execution or cloud performance acceptance
+- **Status:** Runner accepted through PR #158 and exact-master CI; full cloud presets and paid execution pending
 - **Branch:** `feat/v5.0-phase6b-cloud-runner`
 - **Starting master:** `7754b696fea7e6fb18c79dd632ab055f5f1da546`
 - **Predecessor:** [PR #157](https://github.com/patricklfdm/GeneralSearchEngine/pull/157), [exact-master CI 35043760510](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35043760510)
@@ -11,7 +11,7 @@
 
 ## Scope and remaining preset work
 
-This candidate implements the owned three-VM runner and its admission/cleanup
+This accepted implementation supplies the owned three-VM runner and its admission/cleanup
 boundaries. Its only runtime profile is `admission-probe`: the exact reduced 6A
 64-document public workload, carried to three private VMs. It cannot select
 `experiment`, `failure-drill` or `canonical`, and its evidence cannot register a
@@ -23,7 +23,9 @@ proof-boundary failure drills and sustained sampling, with explicit cell budgets
 Those operations remain covered by the accepted local public/runtime correctness
 gates; this PR does not represent that coverage as cloud performance measurements.
 Any optional paid admission probe counts against the same USD 40 sequence budget.
-Accepting this runner alone does not close the cloud preset review gate.
+Accepting this runner alone does not close the cloud preset review gate. The
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) is the next documentation
+candidate; separate workload/evidence and runner-preset implementation follow it.
 
 ## Runtime and artifact path
 
@@ -168,7 +170,7 @@ resources. Paid execution commands belong to the later exact-cost review.
   unreachable member, interrupted upload, cancellation, deletion failure, forbidden
   reads, unresolved insertion and changed ownership/IDs.
 - [x] Final local build, volume-layout runtime, regression and compatibility receipts recorded below.
-- [ ] Protected runner PR and exact-master CI accepted.
+- [x] Protected runner PR #158 and exact-master CI `35051728286` accepted.
 - [ ] Full cloud workload/preset review accepted before 6C.
 - [ ] Fresh service-account preflight, enabled cleanup, exact current-price review and explicit paid confirmation.
 - [ ] Real cloud admission/runtime evidence, staged performance cells and baseline registration.
@@ -190,8 +192,8 @@ Both final runtime probes report sequence 76, committed index 73, 80 measured
 requests, 64 durable measured writes and one no-quorum indeterminate result. The
 6B receipt is explicitly `local-volume-layout-and-fake-runner-only`; it is not a
 three-VM cloud result. Local source is starting HEAD with `sourceDirty=true` and
-the retained final input inventory. Clean exact-source acceptance remains the
-subsequent protected PR/master CI gate.
+the retained final input inventory. The subsequent clean exact-source CI acceptance
+is recorded below; it does not relabel the earlier dirty-source local receipts.
 
 The first compatibility invocation correctly rejected a non-published 3.0.0 JAR
 in the default Maven cache. The successful comparison used
@@ -199,6 +201,24 @@ in the default Maven cache. The successful comparison used
 identified the missing default-core test report caused by combining `api-compat`
 with the reactor build; running the default core tests supplied that report and
 the complete offline gate passed. Neither issue required a production change.
+
+## Protected acceptance
+
+[PR #158](https://github.com/patricklfdm/GeneralSearchEngine/pull/158) merged at
+`72137865f39535e8f41052b455bbfdd0e01be163`.
+[PR CI 35050257631](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35050257631)
+and [exact-master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
+passed all six jobs: Change scope, Reactor tests, Compatibility, Release artifacts,
+Cloud runner (no GCP) and Required. Master logs confirm public A/B/C, Phase 1–5,
+6A and 6B actually executed successfully.
+
+The clean-source runtime receipts report `sourceDirty=false`, application sequence
+76, committed index 73, 80 measured requests, 64 durable writes and one no-quorum
+indeterminate call. All 20 semantic negatives were rejected. The 6B result is
+`v50Phase6B=PASS execution=local-volume-layout-and-fake-runner-only`. This accepts
+the runner infrastructure and its local/fake gate; it supplies no real three-VM
+cloud performance or paid-readiness receipt. Fresh preflight and cloud setup remain
+pending, as do the complete cloud presets described above.
 
 ## Provider contracts
 
