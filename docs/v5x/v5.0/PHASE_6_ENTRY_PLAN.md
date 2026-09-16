@@ -1,6 +1,6 @@
 # V5.0 Phase 6 performance and cloud entry plan
 
-- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A implementation candidate
+- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A accepted; 6B runner candidate
 - **Branch:** `docs/v5.0-phase6-entry-plan`
 - **Starting master:** `836137aba672c010d0c7e3fc07bc194359543d9f`
 - **Predecessor:** [Step C, PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155), [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
@@ -54,8 +54,11 @@ receipts for that candidate; a failed stage retains evidence and stops progressi
 | 6C — staged cloud evidence | Refresh read-only preflights and present exact source, plan, resources and total cost estimate for the existing explicit paid-run confirmation; execute experiment, then failure-drill, then canonical | Every member and topology set validates independently; cleanup and budget receipts pass after each run; no later topology starts with leftovers |
 | 6D — review and registration | Phase 6 baseline, checklist and canonical review; append-only registration of `v5.0.0-replicated-cloud` through a separate protected PR | Raw evidence remains retrievable, all three canonical repetitions pass, registered identities match the accepted source and artifacts |
 
-The current implementation candidate is [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md).
-Its review freezes the exact local workload parameters and
+[6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) was accepted through PR #157
+and exact-master CI `35043760510`. The current candidate is
+[6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md).
+Its reduced admission probe does not close the full cloud workload/preset gate.
+The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
 affected gates before a new exact-source performance set is admitted.
@@ -204,7 +207,7 @@ remaining-budget admission, with the failed attempt still visible.
 - [x] Step C protected PR and exact-master CI verified; public-admission gates complete.
 - [x] Existing cloud scaffolding, measurement matrix, inherited caps and delivery order documented.
 - [x] This entry plan accepted through protected PR #156 and exact-master documentation CI `35039318340`.
-- [ ] 6A public probe, pinned control, exact plan and independent evidence validators accepted.
+- [x] 6A public probe, pinned control, exact plan and independent evidence validators accepted through PR #157 and exact-master CI `35043760510`.
 - [ ] 6B real-runner ownership, preflight, fake-failure, retention and cleanup gates accepted.
 - [ ] Exact-source preflights and explicit paid-run confirmation recorded.
 - [ ] Experiment, failure-drill and all three canonical repetitions pass with cleanup.

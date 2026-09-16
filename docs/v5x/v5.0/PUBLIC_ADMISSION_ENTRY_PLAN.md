@@ -24,7 +24,8 @@ at `836137aba672c010d0c7e3fc07bc194359543d9f`;
 passed all six jobs, Steps A/B/C and Phase 1–5, including 21 public-runtime cases.
 The [Step C report](PUBLIC_ADMISSION_RUNTIME.md) records its delivered behavior and acceptance.
 The [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) was accepted in PR #156;
-[6A local performance and evidence](PHASE_6_LOCAL_PERFORMANCE.md) is the current candidate.
+[6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) was accepted in PR #157;
+[6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md) is the current candidate.
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.

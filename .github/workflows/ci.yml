@@ -119,6 +119,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.0 Phase 6B runner failures and offline volume-layout probe
+        run: scripts/verify-v50-phase6-runner.sh --skip-build
+
+      - name: Retain V5.0 Phase 6B no-GCP evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-cloud-runner-local-${{ github.sha }}
+          path: target/v50-cloud-local
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Exercise the V5.0 replication foundation
         run: scripts/verify-v50-phase1-foundation.sh --skip-build
 
@@ -525,6 +537,7 @@ jobs:
           bash -n scripts/verify-v50-offline-authority.sh
           bash -n scripts/verify-v50-public-runtime.sh
           bash -n scripts/verify-v50-phase6-performance.sh
+          bash -n scripts/verify-v50-phase6-runner.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

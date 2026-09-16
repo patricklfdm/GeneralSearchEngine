@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A local performance candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B cloud runner candidate
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -49,6 +49,7 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 public-admission Step C public runtime](v5.0/PUBLIC_ADMISSION_RUNTIME.md)
 - [V5.0 Phase 6 performance and cloud entry plan](v5.0/PHASE_6_ENTRY_PLAN.md)
 - [V5.0 Phase 6A local performance and evidence](v5.0/PHASE_6_LOCAL_PERFORMANCE.md)
+- [V5.0 Phase 6B cloud runner and preflight](v5.0/PHASE_6_CLOUD_RUNNER.md)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -70,5 +71,6 @@ at `836137aba672c010d0c7e3fc07bc194359543d9f`, with
 passing all admission and Phase 1–5 gates. The [Phase 6 entry plan](v5.0/PHASE_6_ENTRY_PLAN.md)
 was accepted in PR #156 at `3eb0dc1067b3001c04768190a2844be69c137da3`, with
 [master documentation CI 35039318340](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35039318340)
-passing. [6A local performance and evidence](v5.0/PHASE_6_LOCAL_PERFORMANCE.md) is the
-current implementation candidate.
+passing. [6A local performance and evidence](v5.0/PHASE_6_LOCAL_PERFORMANCE.md) was
+accepted in PR #157 with exact-master CI `35043760510` passing.
+[6B cloud runner and preflight](v5.0/PHASE_6_CLOUD_RUNNER.md) is the current candidate.

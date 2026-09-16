@@ -13,21 +13,29 @@ public final class V50PerformanceConsumer {
     private V50PerformanceConsumer() { }
     @SuppressWarnings("unchecked")
     public static List<ReplicationGroupConfig<Integer, AdmissionSemanticModel.Doc>> configs(Path root, String ports, PerformanceWorkload.Plan plan) {
+        return configs(root, ports, plan, false);
+    }
+    @SuppressWarnings("unchecked")
+    private static List<ReplicationGroupConfig<Integer, AdmissionSemanticModel.Doc>> configs(Path root, String ports, PerformanceWorkload.Plan plan, boolean volumes) {
         String[] numbers = ports.split(","); var b = (Map<String, Object>) plan.document().get("replicationBounds");
         var members = java.util.stream.IntStream.range(0, 3).mapToObj(i -> new ReplicationMember(new ReplicationNodeId("node-" + (i + 1)),
-                new ReplicationEndpoint("127.0.0.1", Integer.parseInt(numbers[i])))).toList();
+                new ReplicationEndpoint(volumes ? numbers[i].split(":")[0] : "127.0.0.1",
+                        Integer.parseInt(volumes ? numbers[i].split(":")[1] : numbers[i])))).toList();
         var bounds = new ReplicationBounds(n(b, "maxFrameBytes"), n(b, "maxEntriesPerAppend"), n(b, "maxInFlightPerPeer"),
                 n(b, "maxPendingClientOperations"), n(b, "maxRetryAttempts"), n(b, "requestTimeoutMillis"), n(b, "retryBackoffMillis"),
                 n(b, "snapshotChunkBytes"), n(b, "maxRetainedLogBytes"), n(b, "maxSnapshotStagingBytes"));
         return members.stream().map(m -> new ReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("50000000-0000-0000-0000-000000000006")), "phase6-local-v1",
-                m.nodeId(), members.getFirst().nodeId(), members, root.resolve(m.nodeId().value()),
-                PerformanceWorkload.storage(root.resolve("materialization-" + m.nodeId().value())), bounds)).toList();
+                m.nodeId(), members.getFirst().nodeId(), members,
+                volumes ? root.resolve("volume-" + m.nodeId().value().substring(5)).resolve(m.nodeId().value()) : root.resolve(m.nodeId().value()),
+                PerformanceWorkload.storage(volumes ? root.resolve("volume-" + m.nodeId().value().substring(5)).resolve("materialization")
+                        : root.resolve("materialization-" + m.nodeId().value())), bounds)).toList();
     }
     private static int n(Map<String, Object> m, String key) { return Math.toIntExact(((Number) m.get(key)).longValue()); }
     @SuppressWarnings("unchecked")
     public static void main(String[] args) throws Exception {
         Path root = Path.of(args[0]); int ordinal = Integer.parseInt(args[1]); var plan = PerformanceWorkload.plan(Path.of(args[3]));
-        var configs = configs(root, args[2], plan); var builder = PerformanceWorkload.builder();
+        if (args.length != 4 && !(args.length == 5 && args[4].equals("volumes"))) throw new IllegalArgumentException("layout");
+        var configs = configs(root, args[2], plan, args.length == 5); var builder = PerformanceWorkload.builder();
         if (ordinal == 0) {
             var request = new ReplicationBootstrapRequest<>(ReplicationBootstrapSource.VERIFIED_V44_BACKUP,
                     root.resolve("source"), configs, root.resolve("operation"), 64L << 20, 256L << 20);

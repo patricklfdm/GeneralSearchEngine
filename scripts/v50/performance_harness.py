@@ -121,7 +121,7 @@ def source_inputs():
              or p.endswith('pom.xml') or p in ('mvnw', 'docs/v5x/v5.0/phase6-plan.json'))}
 
 
-def run(root, control):
+def run(root, control, *, volume_layout=False, java_executable='java'):
     root = root.resolve(); control = control.resolve()
     check(not root.exists(), 'fresh evidence directory required'); root.mkdir(parents=True)
     raw_plan = PLAN.read_bytes(); plan = json.loads(raw_plan); validate_plan(plan)
@@ -143,6 +143,7 @@ def run(root, control):
                         dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], cwd=ROOT)), inputs=inputs,
                         jars=jars, platform=platform.platform(), bootId=Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
                         machineId='local-owned-processes', execution='local-public-runtime-only',
+                        javaExecutable=java_executable, volumeLayout=volume_layout,
                         filesystem=run.process('filesystem', ['findmnt', '-J', '-T', str(root), '-o', 'TARGET,SOURCE,FSTYPE,OPTIONS,SIZE']),
                         java=run.process('java-version', ['java', '--version']),
                         javac=run.process('javac-version', ['javac', '--version']),
@@ -158,15 +159,18 @@ def run(root, control):
         run.process('compile-observer', ['javac', '--release', '21', '-cp', cp, '-d', candidate, sources / 'replication/V50PerformanceWorker.java'])
         run.process('compile-control', ['javac', '--release', '21', '-cp', jars['control']['path'], '-d', oracle, *common, sources / 'admission/V50PerformanceControl.java'])
         control_cp = jars['control']['path'] + os.pathsep + str(oracle)
-        java = ['java', *plan['jvmArguments']]
+        java = [java_executable, *plan['jvmArguments']]
         control_args = [*java, '-cp', control_cp, PACKAGE + 'admission.V50PerformanceControl']
         control_result = run.process('control-measure', [*control_args, 'measure', root, root / 'plan.json'], True)
         save(root / 'control.json', control_result)
         metadata['sourceBackup'] = inventory(root / 'source')
         save(root / 'metadata.json', metadata)
         endpoints = ','.join(map(str, ports()))
+        if volume_layout:
+            endpoints = ','.join('127.0.0.1:' + p for p in endpoints.split(','))
+            for i in range(1, 4): (root / ('volume-' + str(i))).mkdir()
         def args(i):
-            return [str(root), str(i), endpoints, str(root / 'plan.json')]
+            return [str(root), str(i), endpoints, str(root / 'plan.json')] + (['volumes'] if volume_layout else [])
         run.process('bootstrap', [*java, '-cp', cp, PACKAGE + 'admission.V50PerformanceConsumer', *args(0)], True)
         for i in range(1, 4):
             Worker(run, i, [*java, '-cp', cp, PACKAGE + 'replication.V50PerformanceWorker', *args(i)])
@@ -193,6 +197,10 @@ def run(root, control):
         leader.command('no-quorum', accepted=False)
         check(leader.command('semantic')['semantic'] == semantic, 'failed write changed committed reads')
         leader.close()
+        if volume_layout:
+            # Inspect a quiescent copy at the conventional evidence path; sealed
+            # provenance retains the actual bootstrap/attach directory bindings.
+            for i in range(1, 4): shutil.copytree(root / ('volume-' + str(i)) / ('node-' + str(i)), root / ('node-' + str(i)))
         restored = run.process('control-restore', [*control_args, 'restore', root, root / 'plan.json'], True)
         save(root / 'restore.json', restored)
         check(inventory(root / 'source') == metadata['sourceBackup'], 'immutable source backup changed')
@@ -225,4 +233,5 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('workspace', type=Path); parser.add_argument('--control-jar', required=True, type=Path)
-    args = parser.parse_args(); run(args.workspace, args.control_jar)
+    parser.add_argument('--volume-layout', action='store_true'); parser.add_argument('--java', default='java')
+    args = parser.parse_args(); run(args.workspace, args.control_jar, volume_layout=args.volume_layout, java_executable=args.java)

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A local performance candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B cloud runner candidate
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -59,8 +59,10 @@ at `836137aba672c010d0c7e3fc07bc194359543d9f`, with
 passing all admission and Phase 1–5 gates.
 
 The [Phase 6 entry plan](v5.0/PHASE_6_ENTRY_PLAN.md) was accepted in PR #156,
-with exact-master documentation CI `35039318340` passing. The current candidate is
-[6A local performance and evidence](v5.0/PHASE_6_LOCAL_PERFORMANCE.md). The remaining work is the
-real runner and preflight, staged experiment/failure/canonical runs, then independent
+with exact-master documentation CI `35039318340` passing.
+[6A local performance](v5.0/PHASE_6_LOCAL_PERFORMANCE.md) was accepted in PR #157,
+with exact-master CI `35043760510` passing. The current candidate is
+[6B cloud runner and preflight](v5.0/PHASE_6_CLOUD_RUNNER.md). Remaining work includes
+cloud preset review, staged experiment/failure/canonical runs, independent
 review and append-only baseline registration. Local correctness acceptance alone
 does not establish cloud performance or current paid-run readiness.
