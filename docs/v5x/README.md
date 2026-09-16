@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence and runner preset qualification accepted; remote workload adapter candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence, runner presets and remote adapter accepted; 6C configuration/readiness in progress
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -53,6 +53,8 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 6 full cloud workload plan](v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md)
 - [V5.0 Phase 6 cloud workload and evidence implementation](v5.0/PHASE_6_CLOUD_WORKLOAD.md)
 - [V5.0 Phase 6 runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md)
+- [V5.0 Phase 6 remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md)
+- [V5.0 Phase 6C cloud setup and readiness](v5.0/PHASE_6_CLOUD_SETUP.md)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -86,6 +88,8 @@ with master documentation CI `35053778177` passing.
 [Cloud workload and evidence](v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
 with exact-master full CI `35058372449`.
 [Runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md) was accepted through
-PR #161/#162 and exact-master CI `35069706211`. The current candidate is
-[remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md).
+PR #161/#162 and exact-master CI `35069706211`.
+[Remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md) was accepted
+through PR #163 and exact-master CI `35079404376`. Next is
+[6C configuration and readiness](v5.0/PHASE_6_CLOUD_SETUP.md).
 Paid admission and cloud performance acceptance remain pending.

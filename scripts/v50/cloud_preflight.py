@@ -11,14 +11,54 @@ import time
 import urllib.parse
 from .cloud_common import PLAN, canonical, plan, read, require, save, sha
 from .cloud_gcp import Api
+from .cloud_presets import SEQUENCES
+from .cloud_runner import BUDGET, LEASE
 
 PROJECT_PERMISSIONS = ['compute.disks.create', 'compute.disks.delete', 'compute.disks.get', 'compute.disks.use',
     'compute.instances.create', 'compute.instances.delete', 'compute.instances.get', 'compute.instances.attachDisk',
     'compute.instances.detachDisk', 'compute.instances.setMetadata', 'compute.instances.setDiskAutoDelete',
     'compute.firewalls.create', 'compute.firewalls.delete', 'compute.firewalls.get', 'compute.networks.getEffectiveFirewalls',
     'compute.subnetworks.use', 'compute.zoneOperations.get', 'compute.globalOperations.get',
-    'compute.zoneOperations.list', 'compute.globalOperations.list', 'iap.tunnelInstances.accessViaIAP']
-STORAGE_PERMISSIONS = ['storage.objects.create', 'storage.objects.get', 'storage.objects.delete', 'storage.objects.list']
+    'compute.zoneOperations.list', 'compute.globalOperations.list', 'iap.tunnelInstances.accessViaIAP',
+    'compute.projects.get', 'compute.regions.get', 'compute.zones.get', 'compute.machineTypes.get',
+    'compute.subnetworks.get', 'iam.workloadIdentityPoolProviders.get']
+STORAGE_PERMISSIONS = ['storage.buckets.get', 'storage.objects.create', 'storage.objects.get', 'storage.objects.list']
+CONTROL_OBJECTS = (LEASE, BUDGET, SEQUENCES)
+
+
+def check_permissions(observation, required, scope):
+    require(isinstance(observation, dict), scope + ' permission response malformed')
+    require('error' not in observation, scope + ' permission query failed: ' + str(observation.get('error')))
+    permissions = observation.get('permissions', [])
+    require(isinstance(permissions, list) and all(isinstance(v, str) for v in permissions), scope + ' permission response malformed')
+    missing = sorted(set(required) - set(permissions))
+    require(not missing, scope + ' missing permissions: ' + ', '.join(missing))
+
+
+def collect_control_permissions(p, api):
+    """Test effective delete access at each exact control object, without writing it."""
+    base = 'https://storage.googleapis.com/storage/v1/b/' + p['bucket'] + '/o/'
+    responses = {}
+    for name in CONTROL_OBJECTS:
+        # Create/list are bucket permissions; sending them to the object method
+        # returns HTTP 400. Delete must be evaluated with the object resource name
+        # so prefix-conditioned grants apply, including before the object exists.
+        url = base + urllib.parse.quote(name, safe='') + '/iam/testPermissions?permissions=storage.objects.delete'
+        try: responses[name] = api.call('GET', url)
+        except Exception as error: responses[name] = dict(error=str(error))
+    return dict(bucket=p['bucket'], objects=responses)
+
+
+def check_control_permissions(p, observation):
+    require(isinstance(observation, dict) and observation.get('bucket') == p['bucket'], 'control permission bucket mismatch')
+    responses = observation.get('objects')
+    require(isinstance(responses, dict) and set(responses) == set(CONTROL_OBJECTS), 'control permission object set mismatch')
+    for name in CONTROL_OBJECTS:
+        response = responses[name]
+        require(isinstance(response, dict) and 'error' not in response, 'control permission query failed: ' + name)
+        permissions = response.get('permissions', [])
+        require(isinstance(permissions, list) and 'storage.objects.delete' in permissions,
+                'missing storage.objects.delete on control object: ' + name)
 
 
 def condition_allows_only(condition, claims):
@@ -83,12 +123,15 @@ def check_observations(p, observations, source, now=None):
                 observations['github']['runnerGate'] == 'success', 'full exact-source gates including 6B must execute'))
     def watchdog():
         receipt = observations['github']['cleanup']
+        require(isinstance(receipt, dict), 'scheduled cleanup response malformed')
+        require('error' not in receipt, 'scheduled cleanup unavailable: ' + str(receipt.get('error')))
         require(receipt['head'] == source and receipt['conclusion'] == receipt['stepConclusion'] == 'success' and
                 0 <= now - receipt['updatedAt'] <= 7200, 'no recent successful scheduled cleanup for the exact source')
     check('cleanup watchdog', watchdog)
     check('identity', lambda: require(observations['principal'] == p['serviceAccount'], 'observation is not made as the workflow service account'))
     check('WIF', lambda: condition_allows_only(observations['provider']['attributeCondition'], claims(p)))
     check('provider', lambda: require(observations['provider']['state'] == 'ACTIVE' and
+                not observations['provider'].get('disabled', False) and
                 observations['provider']['oidc']['issuerUri'] == 'https://token.actions.githubusercontent.com', 'inactive/wrong issuer'))
     check('image', lambda: require(observations['image']['id'] == p['imageId'] and observations['image']['status'] == 'READY' and
                 not observations['image'].get('deprecated') and observations['image']['architecture'] == 'X86_64', 'image identity/status changed'))
@@ -111,8 +154,9 @@ def check_observations(p, observations, source, now=None):
             if rule.get('disabled') or rule.get('direction', 'INGRESS') != 'INGRESS': continue
             require(rule.get('priority', 1000) > 950, 'existing firewall can override exact owned peer/IAP scope')
     check('firewall', firewalls)
-    check('permissions', lambda: require(set(PROJECT_PERMISSIONS) <= set(observations['permissions']['permissions']) and
-                set(STORAGE_PERMISSIONS) <= set(observations['storagePermissions']['permissions']), 'effective permissions incomplete'))
+    check('project permissions', lambda: check_permissions(observations['permissions'], PROJECT_PERMISSIONS, 'project'))
+    check('bucket permissions', lambda: check_permissions(observations['storagePermissions'], STORAGE_PERMISSIONS, 'bucket'))
+    check('control object permissions', lambda: check_control_permissions(p, observations['controlObjectPermissions']))
     check('storage', lambda: require(observations['bucket']['name'] == p['bucket'] and
                 observations['bucket']['iamConfiguration']['uniformBucketLevelAccess']['enabled'], 'bucket identity/access boundary'))
     def budget():
@@ -136,7 +180,6 @@ def collect(p, source, api=None):
         'subnetwork': base + '/regions/' + p['region'] + '/subnetworks/' + p['subnetwork'],
         'provider': 'https://iam.googleapis.com/v1/' + p['wifProvider'],
         'bucket': 'https://storage.googleapis.com/storage/v1/b/' + p['bucket'],
-        'firewalls': base + '/global/firewalls',
         'effectiveFirewalls': base + '/global/networks/' + p['network'] + '/getEffectiveFirewalls',
         'regionalFirewalls': base + '/regions/' + p['region'] + '/firewallPolicies/getEffectiveFirewalls?network=' +
                             urllib.parse.quote(base + '/global/networks/' + p['network'], safe=''),
@@ -147,7 +190,6 @@ def collect(p, source, api=None):
         except Exception as error: observed[label] = dict(error=str(error))
     try:
         from .cloud_gcp import Gcp
-        from .cloud_runner import BUDGET
         stored = Gcp(p, {}, '.', api=api).get_object(BUDGET)
         observed['budget'] = json.loads(stored[1]) if stored else dict(schema='gse-v50-budget-v1', reservations=[])
     except Exception as error: observed['budget'] = dict(error=str(error))
@@ -159,6 +201,7 @@ def collect(p, source, api=None):
                 observed[label] = api.call('GET', url + '?' + urllib.parse.urlencode({'permissions': permissions}, doseq=True))
             else: observed[label] = api.call('POST', url, {'permissions': permissions})
         except Exception as error: observed[label] = dict(error=str(error))
+    observed['controlObjectPermissions'] = collect_control_permissions(p, api)
     try:
         active = subprocess.run(['gcloud', 'auth', 'list', '--filter=status:ACTIVE', '--format=value(account)'], capture_output=True, text=True, timeout=30)
         require(active.returncode == 0, 'principal query failed'); observed['principal'] = active.stdout.strip()
@@ -167,7 +210,8 @@ def collect(p, source, api=None):
             require(result.returncode == 0, 'GitHub source query failed'); return json.loads(result.stdout)
         master = github('branches/master')['commit']['sha']
         runs = github('actions/workflows/ci.yml/runs?branch=master&per_page=10')['workflow_runs']
-        ci = next(r for r in runs if r['head_sha'] == source)
+        ci = next((r for r in runs if r['head_sha'] == source), None)
+        require(ci is not None, 'no CI run for the exact source')
         jobs = github('actions/runs/' + str(ci['id']) + '/jobs?per_page=100')['jobs']
         gate = next((s['conclusion'] for j in jobs for s in j.get('steps', []) if s['name'] ==
                     'Verify V5.0 Phase 6B runner failures and offline volume-layout probe'), None)
@@ -175,9 +219,11 @@ def collect(p, source, api=None):
         # successful *executed* scheduled cleanup proves more than a config flag.
         try:
             candidates = github('actions/workflows/v50-replication-evidence.yml/runs?event=schedule&per_page=10')['workflow_runs']
-            cleanup = next(r for r in candidates if r['head_sha'] == source and r['status'] == 'completed')
+            cleanup = next((r for r in candidates if r['head_sha'] == source and r['status'] == 'completed'), None)
+            require(cleanup is not None, 'no completed scheduled cleanup for the exact source')
             cleanup_jobs = github('actions/runs/' + str(cleanup['id']) + '/jobs?per_page=100')['jobs']
-            step = next(s['conclusion'] for j in cleanup_jobs for s in j.get('steps', []) if s['name'] == 'Reconcile only an expired retained ownership lease')
+            step = next((s['conclusion'] for j in cleanup_jobs for s in j.get('steps', []) if s['name'] == 'Reconcile only an expired retained ownership lease'), None)
+            require(step is not None, 'scheduled cleanup step did not execute (job may be skipped)')
             watchdog = dict(head=cleanup['head_sha'], conclusion=cleanup['conclusion'], stepConclusion=step, run=cleanup['id'],
                 updatedAt=int(datetime.fromisoformat(cleanup['updated_at'].replace('Z', '+00:00')).timestamp()))
         except Exception as error: watchdog = dict(error=str(error))
