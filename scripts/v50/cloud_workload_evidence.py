@@ -1,6 +1,7 @@
 """Independent local workload member/set verification. Cloud lifecycle admission is a later gate."""
 import argparse
 import base64
+import heapq
 import json
 from pathlib import Path
 import re
@@ -91,6 +92,70 @@ def validate_resources(directory,plan,windows=()):
         stamps=[s['observedNanos'] for s in samples if w['startNanos']-10**9<=s['observedNanos']<=w['endNanos']+10**9]
         f.check(stamps and stamps[0]<=w['startNanos'] and stamps[-1]>=w['endNanos']-10**9,'resource window coverage')
         f.check(all(b-a<=2_500_000_000 for a,b in zip(stamps,stamps[1:])),'resource sampling gap')
+
+
+def validate_commit_timings(windows,calls_by_index,events,forces):
+    """Bind force pairs to proven entries in writer order, even when clients overlap."""
+    enabled={w['name'] for w in windows if w['instrumented']}
+    stages=[e for e in events if e['event'] in STAGES]
+    f.check(all(v['window'] in enabled for v in [*stages,*forces]),'unbound commit observations')
+    for window in windows:
+        if not window['instrumented']:continue
+        name=window['name']
+        committed=sorted((i,r) for i,r in calls_by_index.items() if r['window']==name)
+        observed=[e for e in stages if e['window']==name]
+        selected=[v for v in forces if v['window']==name]
+        f.check([(e['index'],e['event']) for e in observed]==[(i,s) for i,_ in committed for s in STAGES],
+                'missing/reordered quorum/publication observations: '+name)
+        f.check([v['kind'] for v in selected]==['ENTRY','PROOF']*len(committed),
+                'missing/extra/reordered force timings: '+name)
+        previous=window['startNanos']
+        for offset,(index,row) in enumerate(committed):
+            stamps=[e['nanos'] for e in observed[offset*len(STAGES):(offset+1)*len(STAGES)]]
+            context=f'{name} index {index}'
+            f.check(stamps==sorted(stamps) and window['startNanos']<=row['startNanos']<=stamps[0]<=stamps[-1]<=row['endNanos']<=window['endNanos'],
+                    'success before proof/publication: '+context)
+            entry_force,proof_force=selected[2*offset:2*offset+2]
+            # The writer serializes commits; public client lifetimes may overlap or finish out of order.
+            f.check(max(previous,row['startNanos'])<=entry_force['startNanos']<entry_force['endNanos']<=stamps[0] and
+                    stamps[1]<=proof_force['startNanos']<proof_force['endNanos']<=stamps[2],
+                    'force-to-entry timing: '+context)
+            previous=stamps[-1]
+
+
+def control_views(calls,get_keys):
+    """Replay a control order consistent with public sequence brackets, not dispatch order.
+
+    Sustained writes update independent lane keys; each lane waits for its previous
+    call. Cross-lane writes commute, so any order satisfying all brackets is valid.
+    """
+    mutations=sorted((r for r in calls if r['operation'] in OP_IDS),key=lambda r:r['beforeSequence'])
+    model=Model();base=model.sequence;last=base+len(mutations)
+    completed=[];floor=base
+    for row in sorted(calls,key=lambda r:r['startNanos']):
+        while completed and completed[0][0]<=row['startNanos']:
+            _,after=heapq.heappop(completed);floor=max(floor,after)
+        f.check(floor<=row['beforeSequence']<=row['afterSequence']<=last,'control observation chronology')
+        heapq.heappush(completed,(row['endNanos'],row['afterSequence']))
+    wanted={r['beforeSequence'] for r in calls if r['operation'] not in OP_IDS}
+    wanted|={base,last};views={base:model.view(get_keys,True)}
+    pending=[];offset=0
+    for sequence in range(base+1,last+1):
+        while offset<len(mutations) and mutations[offset]['beforeSequence']<sequence:
+            row=mutations[offset];heapq.heappush(pending,(row['afterSequence'],offset,row));offset+=1
+        f.check(pending,'missing control publication')
+        after,_,row=heapq.heappop(pending)
+        f.check(sequence<=after<=last and base<=row['beforeSequence'] and row['answerDigest']==digest(canonical(None)),
+                'control mutation sequence/success')
+        model.apply(OP_IDS[row['operation']],payload(row['operation'],row['keys'],row['revision']))
+        if sequence in wanted:views[sequence]=model.view(get_keys,sequence==last)
+    for row in calls:
+        if row['operation'] in OP_IDS:continue
+        f.check(row['beforeSequence']==row['afterSequence'] and row['beforeSequence'] in views,'ambiguous control read cut')
+        v=views[row['beforeSequence']]
+        answer=v['queryDigest'] if row['operation']=='QUERY' else digest(canonical(v['gets'][row['keys'][0]]))
+        f.check(row['answerDigest']==answer,'independent control read')
+    return views
 
 
 def identity(value,receipt,metadata,plan,kind):
@@ -220,7 +285,7 @@ def validate_raw(root):
     f.check(model.sequence==strongest['sequence'],'independent sequence')
     for d in worker_dirs:state_cuts(d,views)
     # Mutation acknowledgements bind to decoded committed entries, independent of completion ordering.
-    events=list(stream(leader_dir,'events'));forces=list(stream(leader_dir,'forces'));successes=0
+    events=list(stream(leader_dir,'events'));forces=list(stream(leader_dir,'forces'));successes=0;instrumented={}
     for row in calls:
         op=row['operation']
         f.check(row['afterSequence']<=model.sequence,'claimed sequence exceeds proven authority')
@@ -230,30 +295,18 @@ def validate_raw(root):
             f.check(len(matches)==1 and row['answerDigest']==digest(canonical(None)),'forged durable success/payload')
             index,sequence=matches[0];successes+=1
             if row['window'].startswith('instrumented') or row['window']=='sustained':
-                stages=[e for e in events if e['index']==index and e['event'] in STAGES]
-                f.check([e['event'] for e in stages]==list(STAGES),'missing quorum/publication observations')
-                stamps=[e['nanos'] for e in stages];f.check(stamps==sorted(stamps) and row['startNanos']<=stamps[0]<=stamps[-1]<=row['endNanos'],'success before proof/publication')
-                own=[v for v in forces if stamps[0]>=v['endNanos']>=row['startNanos'] or stamps[1]<=v['startNanos']<v['endNanos']<=stamps[2]]
-                f.check([v['kind'] for v in own]==['ENTRY','PROOF'] and all(v['startNanos']<v['endNanos'] for v in own),'missing force timings')
+                f.check(index not in instrumented,'duplicate measured entry');instrumented[index]=row
         else:
             v=views[row['beforeSequence']];answer=v['queryDigest'] if op=='QUERY' else digest(canonical(v['gets'][row['keys'][0]]))
             f.check(row['answerDigest']==answer,'read does not match publication cut')
+    validate_commit_timings(windows,instrumented,events,forces)
     control,restore=read(root/'control.json'),read(root/'restore.json')
     for value,label in ((control,'control-measure'),(restore,'control-restore')):
         identity(value['result']['identity'],value['process'],meta,plan,'control')
         f.check(value['process']['exitCode']==0 and value['process']==read(root/'processes'/(label+'.json')) and value['result']==read(root/'processes'/(label+'.stdout')),'control process binding')
     f.check(control['process']['finishedNanos']<min(m['startedNanos'] for m in members) and max(m['finishedNanos'] for m in members)<restore['process']['startedNanos'],'control/candidate isolation')
     cw,cr=validate_schedule(root/'control-streams',plan);validate_resources(root/'control-streams',plan,cw)
-    cm=Model();control_views={256:cm.view(get_keys,True)}
-    for row in cr:
-        op=row['operation']
-        f.check(row['beforeSequence']==cm.sequence,'ambiguous control publication ordering')
-        if op in OP_IDS:cm.apply(OP_IDS[op],payload(op,row['keys'],row['revision']))
-        else:
-            v=cm.view(get_keys);expected=v['queryDigest'] if op=='QUERY' else digest(canonical(v['gets'][row['keys'][0]]))
-            f.check(row['answerDigest']==expected,'independent control read')
-        f.check(row['afterSequence']==cm.sequence,'control sequence')
-    control_views[cm.sequence]=cm.view(get_keys,True);state_cuts(root/'control-streams',control_views)
+    state_cuts(root/'control-streams',control_views(cr,get_keys))
     paired=next(r for r in cuts if r['label']=='paired-steady')
     f.check(all(paired[k]==control['result']['semantic'][k] for k in ('sequence','count','documentsSha256','indexCount')),'paired V4 workload mismatch')
     # Restore is the writer-ordered exported cut, which precedes the deliberate capacity writes.

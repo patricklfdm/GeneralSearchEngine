@@ -1,6 +1,6 @@
 # V5.0 Phase 6 runner preset qualification
 
-- **Status:** Implementation candidate; local and fake qualification
+- **Status:** PR #161 merged; exact-master acceptance blocked by workload evidence validation
 - **Branch:** `feat/v5.0-phase6-cloud-runner-presets`
 - **Starting master:** `cc46be814c23ea7544a0aafed30085f62c9de159`
 - **Predecessor:** [PR #160](https://github.com/patricklfdm/GeneralSearchEngine/pull/160), [exact-master CI 35058372449](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35058372449)
@@ -175,3 +175,52 @@ resealed semantic negatives. The 59.70-second local receipt is
 The fake preset matrix also passed. A direct JSON comparison confirms every section
 outside `localQualification` is unchanged. The failing CI receipt remains failure
 evidence; acceptance requires a new passing protected CI run.
+
+### Concurrent evidence validation correction
+
+[PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161) merged as
+`2ad57c19949f6a6c6b6af2e93a5520dfcb088677`. Its
+[post-merge CI 35065417333](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35065417333)
+passed all fourteen workload cells, then failed the independent validator with
+`missing force timings`. Exact-master acceptance remains open.
+
+The retained trace identifies sustained call 2, committed index 44: it started at
+`681231651712` ns while index 43's PROOF force was still running
+(`681174857082` through `681255568356` ns). The validator's client-time interval
+therefore selected the preceding PROOF as well as index 44's ENTRY and PROOF.
+Both required forces were present; the association was wrong.
+
+Force observations now pair one-to-one with independently proven log entries in
+serialized writer order within each instrumented window. The validator requires
+the complete indexed quorum/publication stage sequence, exactly one ENTRY/PROOF
+pair, positive durations, ENTRY after both client start and the previous commit's
+success barrier, and PROOF between entry quorum and local proof completion.
+Missing, duplicated, reordered, reused or out-of-window evidence still fails.
+Client starts and completions may overlap without changing that writer ordering.
+
+Revalidating the same artifact exposed a second serial-order assumption in the
+published V4 control: sustained calls 17, 19 and 24 began before the previous write
+completed, so their `beforeSequence` values legitimately lagged dispatch-order
+replay. Control replay now assigns each mutation a unique publication sequence
+inside its recorded public before/after bracket, choosing the eligible mutation
+with the earliest upper bound. This is sufficient for this frozen workload:
+cross-lane sustained updates use independent keys, same-lane calls do not overlap,
+the sustained query's membership/order stays unchanged, and healthy operations
+remain serial. Stable read cuts and complete final state
+still use the independent model; impossible brackets, sequence regression after a
+completed call, ambiguous reads and forged answers are rejected.
+
+The correction changes the Python evidence validator and its tests. Seventeen
+deterministic regressions cover overlapping force intervals, completion reordering,
+force ownership, control publication brackets and invalid evidence. All 164 V5
+Python tests pass. The original CI bundle passes read-only revalidation with its
+original hashes and clean source identity; all 38 resealed semantic negatives are
+rejected. This diagnostic replay does not change the failed CI run's status.
+
+The fresh full gate also passed: 48 workload/preset unit tests, the fake preset
+matrix, all fourteen three-JVM workload cells and 38 resealed semantic negatives.
+Its 60.66-second workload receipt is `target/v50-cloud-workload/run.moicFu/evidence`,
+with source `d25c9a10054053ff886b86bfe5a5dbe20e392819`, `sourceDirty=true`,
+72 measured calls, 56 durable measured mutations, committed index 92 and application
+sequence 340. Production core/replication JAR hashes and the workload plan digest
+remain unchanged. A new passing protected PR and exact-master CI are still required.

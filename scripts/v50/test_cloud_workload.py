@@ -15,6 +15,131 @@ from .cloud_workload_model import Model, operation, payload
 from .cloud_workload_io import parse_json, relative, pack, unpack, inventory, rows, validate_source_archive
 from .performance_model import OP_IDS, digest, canonical
 from .offline_harness import save
+from .cloud_workload_evidence import validate_commit_timings, control_views
+from .performance_evidence import STAGES
+
+
+class CommitTimingTests(unittest.TestCase):
+    def setUp(self):
+        self.windows=[dict(name='sustained',instrumented=True,startNanos=0,endNanos=300)]
+        # Like CI 35065417333, index 44 starts while index 43's PROOF force is in progress.
+        # Client completion order also differs from the serialized writer's commit order.
+        self.calls={44:dict(window='sustained',startNanos=90,endNanos=180),
+                    43:dict(window='sustained',startNanos=10,endNanos=190)}
+        self.events=[dict(window='sustained',index=i,event=s,nanos=t)
+                     for i,stamps in ((43,(40,50,120,125,130,135,140)),(44,(150,155,165,168,170,172,175)))
+                     for s,t in zip(STAGES,stamps)]
+        self.forces=[dict(window='sustained',kind=k,startNanos=a,endNanos=b)
+                     for k,a,b in (('ENTRY',20,30),('PROOF',60,110),('ENTRY',142,145),('PROOF',160,163))]
+
+    def validate(self):
+        validate_commit_timings(self.windows,self.calls,self.events,self.forces)
+
+    def test_overlapping_clients_and_reversed_completion_order(self):
+        self.validate()
+        self.calls[44]['startNanos']=25  # Also overlaps the preceding ENTRY force.
+        self.validate()
+
+    def test_serial_clients(self):
+        self.calls[43]['endNanos']=141;self.calls[44]['startNanos']=141
+        self.validate()
+
+    def test_missing_or_duplicate_force_is_rejected(self):
+        original=copy.deepcopy(self.forces)
+        for offset in range(len(original)):
+            for duplicate in (False,True):
+                with self.subTest(offset=offset,duplicate=duplicate):
+                    self.forces=copy.deepcopy(original)
+                    if duplicate:self.forces.insert(offset,copy.deepcopy(self.forces[offset]))
+                    else:self.forces.pop(offset)
+                    with self.assertRaisesRegex(ValueError,'force timings'):self.validate()
+
+    def test_reordered_force_pairs_are_rejected(self):
+        self.forces=self.forces[2:]+self.forces[:2]
+        with self.assertRaisesRegex(ValueError,'force-to-entry'):self.validate()
+
+    def test_previous_proof_cannot_be_reused(self):
+        self.forces[3]=copy.deepcopy(self.forces[1])
+        with self.assertRaisesRegex(ValueError,'force-to-entry'):self.validate()
+
+    def test_force_must_fit_its_own_commit_boundaries(self):
+        original=copy.deepcopy(self.forces)
+        for offset,change in ((0,dict(startNanos=9)),(0,dict(endNanos=41)),
+                              (1,dict(startNanos=49)),(1,dict(endNanos=121)),
+                              (2,dict(startNanos=139)),(2,dict(endNanos=142))):
+            with self.subTest(offset=offset,change=change):
+                self.forces=copy.deepcopy(original);self.forces[offset].update(change)
+                with self.assertRaisesRegex(ValueError,'force-to-entry'):self.validate()
+
+    def test_missing_duplicate_and_reassigned_stages_are_rejected(self):
+        original=copy.deepcopy(self.events)
+        for alteration in ('missing','duplicate','reassigned'):
+            with self.subTest(alteration=alteration):
+                self.events=copy.deepcopy(original)
+                if alteration=='missing':self.events.pop(3)
+                elif alteration=='duplicate':self.events.insert(3,copy.deepcopy(self.events[3]))
+                else:self.events[3]['index']=44
+                with self.assertRaisesRegex(ValueError,'quorum/publication'):self.validate()
+
+    def test_force_or_stage_in_unobserved_window_is_rejected(self):
+        for values in (self.forces,self.events):
+            with self.subTest(stream=values[0]):
+                values[0]['window']='baseline-a'
+                with self.assertRaisesRegex(ValueError,'unbound'):self.validate()
+                values[0]['window']='sustained'
+
+    def test_success_before_publication_is_rejected(self):
+        self.calls[44]['endNanos']=171
+        with self.assertRaisesRegex(ValueError,'success before'):self.validate()
+
+
+class ControlPublicationTests(unittest.TestCase):
+    def setUp(self):
+        self.calls=[dict(operation='UPDATE',keys=[key],revision=1,beforeSequence=256,afterSequence=after,
+                         answerDigest=digest(canonical(None)),startNanos=start,endNanos=end)
+                    for key,after,start,end in ((1,257,10,40),(2,258,20,50))]
+        self.model=Model()
+        for row in self.calls:self.model.apply(OP_IDS['UPDATE'],payload('UPDATE',row['keys'],1))
+
+    def validate(self):return control_views(self.calls,())
+
+    def test_overlapping_control_calls_keep_the_older_before_sequence(self):
+        self.assertEqual(self.validate()[258],self.model.view((),True))
+
+    def test_publication_order_can_differ_from_dispatch_order(self):
+        self.calls[0]['afterSequence']=258;self.calls[1]['afterSequence']=257
+        self.assertEqual(self.validate()[258],self.model.view((),True))
+
+    def test_both_callers_can_observe_both_completed_writes(self):
+        self.calls[0]['afterSequence']=258
+        self.assertEqual(self.validate()[258],self.model.view((),True))
+
+    def test_earliest_deadline_uses_only_eligible_mutations(self):
+        self.calls[0]['afterSequence']=258;self.calls[1]['beforeSequence']=257
+        self.assertEqual(self.validate()[258],self.model.view((),True))
+
+    def test_impossible_publication_brackets_are_rejected(self):
+        for field,value in (('afterSequence',257),('beforeSequence',258),('afterSequence',999)):
+            with self.subTest(field=field,value=value):
+                changed=copy.deepcopy(self.calls);changed[1][field]=value
+                with self.assertRaises(ValueError):control_views(changed,())
+
+    def test_sequence_cannot_regress_after_a_completed_call(self):
+        self.calls[1]['startNanos']=41
+        with self.assertRaisesRegex(ValueError,'chronology'):self.validate()
+
+    def test_reads_use_their_stable_sequence_cut(self):
+        view=Model().view();query=dict(operation='QUERY',keys=[],beforeSequence=256,afterSequence=256,
+                                     answerDigest=view['queryDigest'],startNanos=21,endNanos=22)
+        self.calls.append(query);self.validate()
+        query['answerDigest']='0'*64
+        with self.assertRaisesRegex(ValueError,'independent control read'):self.validate()
+        query['afterSequence']=257
+        with self.assertRaisesRegex(ValueError,'ambiguous control read'):self.validate()
+
+    def test_forged_mutation_answer_is_rejected(self):
+        self.calls[0]['answerDigest']='0'*64
+        with self.assertRaisesRegex(ValueError,'sequence/success'):self.validate()
 
 
 class CloudWorkloadTests(unittest.TestCase):
@@ -106,6 +231,9 @@ def negatives(raw,output):
                 if predicate(value):
                     fn(value);p.write_text(''.join(json.dumps(v,sort_keys=True,separators=(',',':'))+'\n' for v in values));return
         raise ValueError('negative fixture row not found')
+    def change_first_part(root,directory,fn):
+        p=root/directory/'part-0000.jsonl';values=[json.loads(line) for line in p.read_text().splitlines()]
+        fn(values);p.write_text(''.join(json.dumps(v,sort_keys=True,separators=(',',':'))+'\n' for v in values))
     leader='streams/node-1-1/'
     cases={
         'cloud-relabel':lambda r:change_json(r,'set.json',lambda v:v.update(execution='gcp-canonical')),
@@ -126,6 +254,14 @@ def negatives(raw,output):
         'overlapping-client-lane':lambda r:change_row(r,leader+'calls',lambda v:v['call']==0,lambda v:v.update(endNanos=v['endNanos']+1_000_000_000)),
         'changed-corpus-output':lambda r:change_row(r,leader+'states',lambda v:True,lambda v:v['documents'].__setitem__(0,'forged document')),
         'forged-force':lambda r:change_row(r,leader+'forces',lambda v:True,lambda v:v.update(endNanos=v['startNanos'])),
+        'missing-force':lambda r:change_first_part(r,leader+'forces',lambda v:v.pop(0)),
+        'duplicate-force':lambda r:change_first_part(r,leader+'forces',lambda v:v.insert(0,copy.deepcopy(v[0]))),
+        'reordered-force-pairs':lambda r:change_first_part(r,leader+'forces',lambda v:v.__setitem__(slice(0,4),v[2:4]+v[:2])),
+        'reused-proof-force':lambda r:change_first_part(r,leader+'forces',lambda v:v.__setitem__(3,copy.deepcopy(v[1]))),
+        'force-outside-instrumented-window':lambda r:change_row(r,leader+'forces',lambda v:True,lambda v:v.update(window='baseline-a')),
+        'control-sequence-regression':lambda r:change_row(r,'control-streams/calls',lambda v:v['window']=='sustained' and v['call']==4,lambda v:v.update(beforeSequence=256)),
+        'control-unpublished-success':lambda r:change_row(r,'control-streams/calls',lambda v:v['operation']=='UPDATE',lambda v:v.update(afterSequence=v['beforeSequence'])),
+        'control-forged-read':lambda r:change_row(r,'control-streams/calls',lambda v:v['operation']=='QUERY',lambda v:v.update(answerDigest='0'*64)),
         'missing-proof-stage':lambda r:change_row(r,leader+'events',lambda v:v['event']=='AFTER_PROOF_QUORUM',lambda v:v.update(event='BEFORE_PROOF_QUORUM')),
         'forged-resource':lambda r:change_row(r,leader+'resources',lambda v:True,lambda v:v['runtime'].update(pendingClients=999)),
         'missing-sample':lambda r:(r/leader/'calls/part-0000.jsonl').unlink(),
