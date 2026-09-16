@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud workload plan
 
-- **Status:** Documentation candidate; executable cloud presets and paid admission remain pending
+- **Status:** Plan accepted through PR #159 and exact-master documentation CI; workload/evidence implementation candidate
 - **Branch:** `docs/v5.0-phase6-cloud-workload-plan`
 - **Starting master:** `72137865f39535e8f41052b455bbfdd0e01be163`
 - **Predecessor:** [PR #158](https://github.com/patricklfdm/GeneralSearchEngine/pull/158), [exact-master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
@@ -9,7 +9,7 @@
 ## Delivery boundary
 
 PR #158 accepts the owned runner, preflight, fake failures and local volume-layout
-probe. Its sole executable profile remains `admission-probe`. This proposal freezes
+probe. Its sole executable profile remains `admission-probe`. This accepted plan freezes
 the separate full cloud workload before implementation and 6C. It supplies no cloud
 measurement, paid-readiness receipt or registered baseline.
 
@@ -318,7 +318,7 @@ Local reduced receipts, fake cloud receipts and real cloud receipts remain disti
 
 - [x] Runner PR #158 and exact-master CI accepted, including executed 6A/6B gates.
 - [x] Corpus, operation mix, rates, ordered cells, durations and resource/evidence budgets proposed.
-- [ ] This documentation plan accepted through protected PR and exact-master documentation CI.
+- [x] This documentation plan accepted through PR #159 and exact-master documentation CI `35053778177`.
 - [ ] Cloud workload/evidence implementation accepted with its independent negative fixtures.
 - [ ] Runner preset integration accepted with local/fake and exact-source full CI.
 - [ ] Fresh admission, cloud setup and exact paid confirmation complete.
@@ -338,4 +338,15 @@ Independent Python checks reproduced the corpus digest and table totals, exhaust
 6000 healthy cycles (maximum generated document 61 bytes, bulk payload 1169 bytes),
 and checked entry, disk/evidence and cost-unit arithmetic. Both executable plan files
 are byte-identical to accepted HEAD. The changed paths select `run_full_ci=false`;
-protected PR and exact-master documentation CI acceptance remain pending.
+protected acceptance completed below.
+
+
+## Protected acceptance
+
+[PR #159](https://github.com/patricklfdm/GeneralSearchEngine/pull/159) merged at
+`29f3d8458d93023c5d4d86b6a22692b4e95d14f8`.
+[PR CI 35053755868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35053755868)
+and [exact-master CI 35053778177](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35053778177)
+passed Change scope and Required, with all four full-build jobs correctly skipped.
+The current candidate is the [cloud workload and evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).
+Runner preset integration and paid admission remain later gates.

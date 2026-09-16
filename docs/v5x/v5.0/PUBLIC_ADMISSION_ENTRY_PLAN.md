@@ -26,8 +26,9 @@ The [Step C report](PUBLIC_ADMISSION_RUNTIME.md) records its delivered behavior 
 The [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) was accepted in PR #156;
 [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) was accepted in PR #157;
 [6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md) was accepted in PR #158
-with exact-master CI `35051728286`. The current candidate is the
-[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md).
+with exact-master CI `35051728286`. The
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
+The current candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.

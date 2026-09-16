@@ -24,8 +24,9 @@ Those operations remain covered by the accepted local public/runtime correctness
 gates; this PR does not represent that coverage as cloud performance measurements.
 Any optional paid admission probe counts against the same USD 40 sequence budget.
 Accepting this runner alone does not close the cloud preset review gate. The
-[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) is the next documentation
-candidate; separate workload/evidence and runner-preset implementation follow it.
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
+The current candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md);
+runner-preset integration follows it.
 
 ## Runtime and artifact path
 
@@ -171,7 +172,8 @@ resources. Paid execution commands belong to the later exact-cost review.
   reads, unresolved insertion and changed ownership/IDs.
 - [x] Final local build, volume-layout runtime, regression and compatibility receipts recorded below.
 - [x] Protected runner PR #158 and exact-master CI `35051728286` accepted.
-- [ ] Full cloud workload/preset review accepted before 6C.
+- [x] Full cloud workload plan accepted through PR #159.
+- [ ] Workload/evidence and full runner preset implementations accepted before 6C.
 - [ ] Fresh service-account preflight, enabled cleanup, exact current-price review and explicit paid confirmation.
 - [ ] Real cloud admission/runtime evidence, staged performance cells and baseline registration.
 
