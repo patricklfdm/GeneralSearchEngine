@@ -30,7 +30,8 @@ class PresetTest(unittest.TestCase):
             self.assertEqual(p['plannedMaximumSeconds'], maximum)
             self.assertEqual(p['resources']['peakDiskGiB'], 450)
             self.assertEqual(p['evidenceBounds']['maxBundleBytes'], 4 << 30)
-            self.assertFalse(p['paidEnabled'])
+            self.assertTrue(p['requiresPaidAdmission'])
+            self.assertEqual(p['execution'],'paid-admission-required')
         with self.assertRaises(ValueError): preset('admission-probe')
 
     def test_invalid_set_identity_and_repetitions_rejected(self):

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 /** A replacement inherits group provenance and starts at genesis as a durable non-voter. */
 final class AdmissionReplacement {
@@ -68,7 +69,7 @@ final class AdmissionReplacement {
         var local = AdmissionConfiguration.local(configuration); validateLocal(local, original.manifest());
         int index = manifest.members().stream().map(ReplicationMember::nodeId).toList().indexOf(configuration.localNodeId());
         var old = original.local(index);
-        require(Arrays.equals(ReplicaJson.encode(local.get("materialization"), META), ReplicaJson.encode(old.get("materialization"), META))
+        require(Arrays.equals(materializationPolicy(local), materializationPolicy(old))
                         && Arrays.equals(ReplicaJson.encode(local.get("replicationBounds"), META), ReplicaJson.encode(old.get("replicationBounds"), META)),
                 PROTOCOL_MISMATCH, "replacement must retain the original local configuration and bounds");
         var descriptor = Map.<String, Object>of("operation", AdmissionPaths.binding(operation), "source", AdmissionPaths.binding(source),
@@ -81,6 +82,14 @@ final class AdmissionReplacement {
         require(total <= configuration.bounds().maxRetainedLogBytes() && view.genesis().length <= Math.min(IMAGE, configuration.bounds().maxSnapshotStagingBytes()),
                 CAPACITY_EXCEEDED, "replacement exceeds retained/staging bound");
         return spec;
+    }
+
+    private static byte[] materializationPolicy(Map<String, Object> local) {
+        var policy = new TreeMap<>(object(local.get("materialization")));
+        // A replacement disk has a new filesystem identity at the configured path.
+        // Bind that identity in the new plan; apply/resume still reproject it exactly.
+        policy.put("directory", path(policy.get("directory")).toString());
+        return ReplicaJson.encode(policy, META);
     }
 
     private static Map<String, byte[]> files(Spec spec, byte[] genesis) {

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence accepted; runner preset qualification candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence and runner preset qualification accepted; remote workload adapter candidate
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -67,8 +67,10 @@ with exact-master CI `35051728286` passing. The
 [full cloud workload plan](v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159
 with exact-master documentation CI `35053778177` passing.
 [Cloud workload and evidence](v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
-with exact-master full CI `35058372449`. The current candidate is
-[runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md). Remaining
-work includes remote integration, staged experiment/failure/canonical runs, independent
+with exact-master full CI `35058372449`.
+[Runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md) was accepted through
+PR #161/#162 and exact-master CI `35069706211`. The current candidate is
+[remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md). Remaining
+work includes staged experiment/failure/canonical runs, independent
 review and append-only baseline registration. Local correctness acceptance alone
 does not establish cloud performance or current paid-run readiness.

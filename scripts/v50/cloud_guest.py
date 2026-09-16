@@ -32,7 +32,7 @@ def execute(args):
     return result.stdout
 
 
-def install(archive, expected):
+def install(archive, expected, remote_workload=False):
     check(not BASE.exists() and digest(archive) == expected, 'bundle digest/freshness')
     with tarfile.open(archive, 'r:gz') as stream:
         members = stream.getmembers(); names = [m.name for m in members]
@@ -40,7 +40,11 @@ def install(archive, expected):
         check(all(m.isfile() and not Path(m.name).is_absolute() and '..' not in Path(m.name).parts for m in members), 'unsafe bundle path')
         BASE.mkdir(); stream.extractall(BASE, members=members, filter='data')
     manifest = json.loads((BASE / 'bundle.json').read_bytes())
-    check(manifest['schema'] == 'gse-v50-cloud-bundle-v1' and 'execution' not in manifest, 'admission-probe bundle required')
+    if remote_workload:
+        check(manifest['schema'] == 'gse-v50-remote-workload-bundle-v1' and
+              manifest['execution'] == 'remote-workload-adapter-only', 'remote workload bundle required')
+    else:
+        check(manifest['schema'] == 'gse-v50-cloud-bundle-v1' and 'execution' not in manifest, 'admission-probe bundle required')
     actual = {str(p.relative_to(BASE)) for p in BASE.rglob('*') if p.is_file()} - {'bundle.json'}
     check(actual == set(manifest['files']), 'bundle member set')
     for name, record in manifest['files'].items():
@@ -129,8 +133,9 @@ def main():
     parser.add_argument('action', choices=['install', 'mount', 'unmount', 'facts', 'bootstrap', 'measure', 'restore', 'worker', 'stop', 'collect'])
     parser.add_argument('--node', type=int, default=0); parser.add_argument('--owner'); parser.add_argument('--endpoints', default='')
     parser.add_argument('--archive', type=Path); parser.add_argument('--sha256'); parser.add_argument('--fresh', action='store_true')
+    parser.add_argument('--remote-workload', action='store_true')
     args = parser.parse_args()
-    if args.action == 'install': result = install(args.archive, args.sha256)
+    if args.action == 'install': result = install(args.archive, args.sha256, args.remote_workload)
     elif args.action == 'mount': result = mount(args.node, args.owner, args.fresh)
     elif args.action == 'unmount':
         execute(['sudo', 'umount', ROOT / ('volume-' + str(args.node))]); result = dict(unmounted=args.node)

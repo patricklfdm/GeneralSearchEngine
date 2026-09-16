@@ -12,10 +12,18 @@ on:
         description: Actions run ID containing the reviewed v50-prepared artifact (run only)
         type: string
       profile:
-        description: Full workload presets support plan/fake only; paid runtime integration is pending
+        description: Workload profile; prepare/run require exact-source CI and separate paid admission
         type: choice
         default: admission-probe
         options: [admission-probe, experiment, failure-drill, canonical]
+      sequence:
+        description: Shared 32-character lowercase hex ID for experiment, drill and three canonical runs
+        type: string
+      repetition:
+        description: Canonical repetition 1, 2 or 3; other profiles use 1
+        type: choice
+        default: '1'
+        options: ['1', '2', '3']
       confirmation:
         description: Exact request SHA-256 approved for this run or retained-lease cleanup
         type: string
@@ -50,6 +58,8 @@ jobs:
       CONFIRMATION: ${{ inputs.confirmation }}
       ADMISSION_JSON: ${{ inputs.admission_json }}
       PRESET: ${{ inputs.profile || 'admission-probe' }}
+      SEQUENCE: ${{ inputs.sequence }}
+      REPETITION: ${{ inputs.repetition || '1' }}
       MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
     steps:
       - name: Require protected master
@@ -57,11 +67,11 @@ jobs:
           TRUSTED_REF: ${{ github.ref }}
         run: test "$TRUSTED_REF" = refs/heads/master
 
-      - name: Enforce preset execution scope before credentials
+      - name: Validate preset sequence before credentials
         run: |
-          if [[ "$PRESET" != admission-probe && "$EXECUTION" != plan && "$EXECUTION" != fake ]]; then
-            echo 'Full workload presets currently support plan/fake qualification only' >&2
-            exit 2
+          if [[ "$PRESET" != admission-probe && "$EXECUTION" == prepare ]]; then
+            [[ "$SEQUENCE" =~ ^[0-9a-f]{32}$ ]]
+            [[ "$PRESET" == canonical || "$REPETITION" == 1 ]]
           fi
 
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -113,7 +123,8 @@ jobs:
           cp target/v50-control/general-search-engine-4.4.0.jar "$RUNNER_TEMP/v44-control.jar"
           python -m scripts.v50.cloud_entry prepare --output target/v50-cloud/prepared \
             --source "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" \
-            --control-jar "$RUNNER_TEMP/v44-control.jar"
+            --control-jar "$RUNNER_TEMP/v44-control.jar" --profile "$PRESET" \
+            --sequence "$SEQUENCE" --repetition "$REPETITION"
 
       - name: Retain review bundle even when preflight blocks execution
         if: ${{ always() && inputs.execution == 'prepare' }}

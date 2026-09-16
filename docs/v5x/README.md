@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence accepted; runner preset qualification candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence and runner preset qualification accepted; remote workload adapter candidate
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -84,6 +84,8 @@ passing all six jobs and executing 6A/6B. The
 [full cloud workload plan](v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159
 with master documentation CI `35053778177` passing.
 [Cloud workload and evidence](v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
-with exact-master full CI `35058372449`. The current candidate is
-[runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md).
-Remote integration, paid admission and cloud performance acceptance remain pending.
+with exact-master full CI `35058372449`.
+[Runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md) was accepted through
+PR #161/#162 and exact-master CI `35069706211`. The current candidate is
+[remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md).
+Paid admission and cloud performance acceptance remain pending.

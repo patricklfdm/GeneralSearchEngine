@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud workload plan
 
-- **Status:** Plan accepted through PR #159 and exact-master documentation CI; workload/evidence accepted; runner preset qualification candidate
+- **Status:** Plan accepted through PR #159; workload/evidence and runner preset qualification accepted; remote workload adapter candidate
 - **Branch:** `docs/v5.0-phase6-cloud-workload-plan`
 - **Starting master:** `72137865f39535e8f41052b455bbfdd0e01be163`
 - **Predecessor:** [PR #158](https://github.com/patricklfdm/GeneralSearchEngine/pull/158), [exact-master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
@@ -143,6 +143,24 @@ Each reservation is a ceiling; unused time does not extend a measurement cell.
 The provider watchdog and paid cost reservation still cover 5400 seconds per topology.
 If the pre-cloud local/fake qualification cannot fit these budgets, stop and review
 an amended plan before paid admission.
+
+### Remote control accounting clarification
+
+The user approved separate control accounting on 2026-09-16 during remote adapter
+implementation. Healthy ABBA and sustained sampling retain every frozen call,
+interval and nominal measurement second. SSH round trips, window transitions and
+inter-cell preparation are recorded separately and charged, together with actual
+candidate warmup, to the existing 60/60/120-second candidate preparation reservation.
+Unused measurement time cannot fund that overhead. Fault cells retain their elapsed
+windows. Controller timestamps are used only within the controller clock; JVM
+sample durations and schedule checks remain within their issuing JVM.
+
+The independent validator recomputes nominal measurement time from call counts and
+intervals, measures the additional controller elapsed time and rejects an exhausted
+preparation reservation. The existing fixed-rate scheduler's one-second bounded
+completion allowance remains a rejection ceiling, and its elapsed overhead is
+included in control accounting. This clarification changes neither the workload
+JSON/hash nor the topology, cleanup or cost ceilings.
 
 ## Fault mechanics and authority checks
 

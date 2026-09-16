@@ -1,6 +1,6 @@
 # V5.0 Phase 6 runner preset qualification
 
-- **Status:** PR #161 merged; exact-master acceptance blocked by workload evidence validation
+- **Status:** Accepted through PR #161, correction PR #162 and exact-master CI 35069706211
 - **Branch:** `feat/v5.0-phase6-cloud-runner-presets`
 - **Starting master:** `cc46be814c23ea7544a0aafed30085f62c9de159`
 - **Predecessor:** [PR #160](https://github.com/patricklfdm/GeneralSearchEngine/pull/160), [exact-master CI 35058372449](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35058372449)
@@ -117,7 +117,7 @@ days. No-GCP Python discovery includes the new policy and failure tests.
 
 - [x] Predecessor PR #160 and exact-master full CI verified; workload gate executed.
 - [x] Final local policy, failure, bundle, volume and independent negative gates pass.
-- [ ] This implementation accepted through protected PR and exact-master CI.
+- [x] This implementation accepted through PR #161/#162 and exact-master CI `35069706211`.
 - [ ] Remote preset execution, cloud collection/provenance and set validation accepted.
 - [ ] Fresh preflight/cloud setup and exact complete-sequence paid confirmation.
 - [ ] Staged 6C execution and separate 6D baseline registration accepted.
@@ -224,3 +224,12 @@ with source `d25c9a10054053ff886b86bfe5a5dbe20e392819`, `sourceDirty=true`,
 72 measured calls, 56 durable measured mutations, committed index 92 and application
 sequence 340. Production core/replication JAR hashes and the workload plan digest
 remain unchanged. A new passing protected PR and exact-master CI are still required.
+
+### Exact-master acceptance
+
+[PR #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162) merged the
+correction as `a885bc7789a332525d3c375635ce35ce7bc15dec`.
+[Exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
+passed all six jobs and executed the full workload gate. This accepts the runner
+preset/local qualification and closes the historical CI blockers above.
+The next implementation is [remote workload execution and evidence](PHASE_6_REMOTE_WORKLOAD.md).

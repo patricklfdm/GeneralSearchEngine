@@ -183,6 +183,8 @@ def collect(p, source, api=None):
         except Exception as error: watchdog = dict(error=str(error))
         observed['github'] = dict(master=master, ciHead=ci['head_sha'], ciStatus=ci['status'], ciConclusion=ci['conclusion'], ciRun=ci['id'],
             jobs={j['name']: j['conclusion'] for j in jobs}, runnerGate=gate, cleanup=watchdog)
+        observed['github']['remoteGate']=next((s['conclusion'] for j in jobs for s in j.get('steps',[]) if s['name']==
+            'Verify V5.0 remote workload adapter and bounded evidence'),None)
     except Exception as error: observed['github'] = dict(error=str(error))
     return check_observations(p, observed, source)
 
@@ -194,6 +196,10 @@ def admission(p, receipt, request, approval, *, now=None):
     require(receipt['observedAt'] <= now <= receipt['expiresAt'] <= receipt['observedAt'] + p['receiptTtlSeconds'], 'stale preflight')
     checked = check_observations(p, receipt['observations'], request['source'], receipt['observedAt'])
     require(receipt == checked and receipt['status'] == 'READY_FOR_PAID_REVIEW', 'preflight not admitted')
+    if request['profile']!='admission-probe':
+        from .cloud_presets import validate_request
+        validate_request(request)
+        require(receipt['observations']['github'].get('remoteGate')=='success','exact-source remote workload gate must execute')
     require(approval['schema'] == 'gse-v50-paid-admission-v1' and approval['confirmed'] is True and
             approval['requestSha256'] == sha(canonical(request)) and approval['preflightSha256'] == sha(canonical(receipt)) and
             approval['planSha256'] == sha(canonical(p)) and approval['expiresAt'] >= now and approval['expiresAt'] <= receipt['expiresAt'], 'exact paid confirmation required')

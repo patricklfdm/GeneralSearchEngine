@@ -323,6 +323,10 @@ inventory complete closed source members. Exact descriptor keys: `operation`,
 `source`, `configuration`, `manifestDigest`, `genesisDigest`, `sourceInventoryDigest`.
 Operation/source are path bindings; configuration is the complete PLAN local
 configuration schema (same manifest membership is supplied by embedded receipt).
+The node, materialization's configured absolute path, format, identities, codec and
+all bounds must match the original local policy. The new disk's filesystem name,
+type and parent file key may differ from the original disk. The replacement plan
+binds those current physical identities; apply/resume reject a change after planning.
 The inventory includes the closed source's genesis, seal, headers, journals, selected
 and retained generations and known markers; it uses the inventory encoding above,
 with `sourceInventoryDigest` using the payload-inventory domain. Source selection

@@ -186,6 +186,10 @@ class Gcp:
         require(len(result.stdout) <= self.plan['maximumGuestResponseBytes'], 'guest output bound')
         return json.loads(result.stdout)
 
+    def worker(self, instance, arguments, stderr):
+        return subprocess.Popen([*self.ssh_args(instance), '--command='+shlex.join(arguments)],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr)
+
     def copy(self, instance, source, target, download=False):
         self.ssh_args(instance)  # Always recheck exact ownership before SSH metadata/file mutation.
         remote = instance['name'] + ':' + str(source if download else target)
