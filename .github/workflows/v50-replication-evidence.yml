@@ -30,8 +30,6 @@ on:
       admission_json:
         description: Reviewed gse-v50-paid-admission-v1 cost and confirmation JSON (run only)
         type: string
-  schedule:
-    - cron: '7,22,37,52 * * * *'
 
 permissions:
   contents: read
@@ -43,7 +41,7 @@ concurrency:
 
 jobs:
   runner:
-    if: ${{ github.event_name != 'schedule' || vars.GSE_V50_EXPIRED_CLEANUP_ENABLED == 'true' }}
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 110
     environment: cloud-benchmark
@@ -53,7 +51,7 @@ jobs:
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
-      EXECUTION: ${{ github.event_name == 'schedule' && 'expired-cleanup' || inputs.execution }}
+      EXECUTION: ${{ inputs.execution }}
       PREPARED_RUN: ${{ inputs.prepared_run }}
       CONFIRMATION: ${{ inputs.confirmation }}
       ADMISSION_JSON: ${{ inputs.admission_json }}
@@ -87,7 +85,7 @@ jobs:
         run: python -m scripts.v50.cloud_entry "$EXECUTION" --profile "$PRESET" --output target/v50-cloud/evidence
 
       - name: Authenticate exact protected workflow
-        if: ${{ github.event_name == 'schedule' || (inputs.execution != 'plan' && inputs.execution != 'fake') }}
+        if: ${{ inputs.execution != 'plan' && inputs.execution != 'fake' }}
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:
           workload_identity_provider: projects/266952534277/locations/global/workloadIdentityPools/gse-github/providers/general-search-engine
@@ -96,7 +94,7 @@ jobs:
           export_environment_variables: true
 
       - name: Install pinned Cloud CLI
-        if: ${{ github.event_name == 'schedule' || (inputs.execution != 'plan' && inputs.execution != 'fake') }}
+        if: ${{ inputs.execution != 'plan' && inputs.execution != 'fake' }}
         uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
         with:
           version: '582.0.0'
@@ -152,7 +150,7 @@ jobs:
             --approval target/v50-cloud/admission.json --confirm-request "$CONFIRMATION"
 
       - name: Reconcile only an expired retained ownership lease
-        if: ${{ github.event_name == 'schedule' || inputs.execution == 'reconcile' }}
+        if: ${{ inputs.execution == 'reconcile' }}
         run: |
           python -m scripts.v50.cloud_entry "$EXECUTION" --output target/v50-cloud/cleanup \
             --confirm-request "$CONFIRMATION"

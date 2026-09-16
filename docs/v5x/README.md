@@ -90,6 +90,8 @@ with exact-master full CI `35058372449`.
 [Runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md) was accepted through
 PR #161/#162 and exact-master CI `35069706211`.
 [Remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md) was accepted
-through PR #163 and exact-master CI `35079404376`. Next is
-[6C configuration and readiness](v5.0/PHASE_6_CLOUD_SETUP.md).
+through PR #163 and exact-master CI `35079404376`. Setup/preflight was accepted
+through PR #164 and exact-master CI `35089239868`. [6C configuration and readiness](v5.0/PHASE_6_CLOUD_SETUP.md)
+now includes applied cloud configuration and an isolated cleanup workflow candidate;
+new-source scheduled execution, fresh preflight and paid evidence remain pending.
 Paid admission and cloud performance acceptance remain pending.

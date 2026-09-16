@@ -16,15 +16,25 @@ from .cloud_gcp import Api, ApiError, Gcp
 from .cloud_preflight import (CONTROL_OBJECTS, PROJECT_PERMISSIONS, STORAGE_PERMISSIONS, admission,
     check_observations, claims, collect, collect_control_permissions, condition_allows_only)
 from .cloud_runner import BUDGET, LEASE, Runner, reconcile, reserve_budget
+from . import cloud_cleanup
 
 
 def observations(p):
     return dict(github=dict(master='a' * 40, ciHead='a' * 40, ciStatus='completed', ciConclusion='success', runnerGate='success',
-        cleanup=dict(head='a' * 40, conclusion='success', stepConclusion='success', updatedAt=1000),
+        cleanup=dict(head='a' * 40, conclusion='success', stepConclusion='success', updatedAt=1000,
+                     identityConclusion='success', event='schedule', workflow=cloud_cleanup.WORKFLOW),
+        cleanupEnvironment=dict(name=cloud_cleanup.ENVIRONMENT, protection_rules=[dict(type='branch_policy')],
+                                deployment_branch_policy=dict(protected_branches=False, custom_branch_policies=True)),
+        cleanupBranches=dict(total_count=1, branch_policies=[dict(name='master', type='branch')]),
+        cleanupCustomRules=dict(total_count=0, custom_deployment_protection_rules=[]),
         jobs={k: 'success' for k in ('Reactor tests', 'Compatibility', 'Release artifacts', 'Cloud runner (no GCP)', 'Required')}),
         principal=p['serviceAccount'], provider=dict(state='ACTIVE', oidc=dict(issuerUri='https://token.actions.githubusercontent.com'),
             attributeCondition=' && '.join("assertion." + k + " == '" + v + "'" for k, v in claims(p).items())),
         image=dict(id=p['imageId'], status='READY', architecture='X86_64'), machine=dict(guestCpus=8, memoryMb=32768), zone=dict(status='UP'),
+        cleanupProvider=dict(name=cloud_cleanup.identity(p)['provider'], state='ACTIVE',
+            oidc=dict(issuerUri='https://token.actions.githubusercontent.com'),
+            attributeMapping=dict(cloud_cleanup.ATTRIBUTE_MAPPING), attributeCondition=cloud_cleanup.condition(p)),
+        iapService=dict(name='projects/' + p['projectNumber'] + '/services/iap.googleapis.com', state='ENABLED'),
         project=dict(quotas=[dict(metric=k, usage=0, limit=v) for k, v in [('CPUS_ALL_REGIONS', 32), ('FIREWALLS', 100)]]),
         region=dict(quotas=[dict(metric=k, usage=0, limit=v) for k, v in [('N2_CPUS', 200), ('CPUS', 200), ('SSD_TOTAL_GB', 500)]]),
         subnetwork=dict(network='/networks/default', region='/regions/us-west4'), effectiveFirewalls=dict(firewalls=[]), regionalFirewalls={},

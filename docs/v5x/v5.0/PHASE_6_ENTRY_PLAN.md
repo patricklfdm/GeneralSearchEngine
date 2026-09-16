@@ -66,7 +66,10 @@ with exact-master full CI `35058372449`.
 PR #161/#162 and exact-master CI `35069706211`.
 [Remote workload execution and cloud evidence validation](PHASE_6_REMOTE_WORKLOAD.md)
 was accepted through PR #163 and exact-master CI `35079404376`.
-[6C configuration and readiness](PHASE_6_CLOUD_SETUP.md) is the next step.
+[6C configuration and readiness](PHASE_6_CLOUD_SETUP.md) now follows setup/preflight
+acceptance in PR #164. Cloud configuration has been applied; the isolated cleanup
+workflow still needs merge, full exact-source CI, scheduled execution and a fresh
+service-account preflight before manually triggered cloud experiments.
 The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
