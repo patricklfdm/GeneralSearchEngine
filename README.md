@@ -34,7 +34,8 @@ typed bootstrap, resume, cleanup and non-voting replacement and was accepted in 
 [PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155) and
 [exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266),
 including sealed startup, explicit activation/recovery, local checkpoint and V4 backup.
-The next candidate is the [Phase 6 performance and cloud entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md).
+The [Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) was accepted in PR #156.
+The current candidate is [6A local performance and evidence](docs/v5x/v5.0/PHASE_6_LOCAL_PERFORMANCE.md).
 See the [V5 development line](docs/v5x/README.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
