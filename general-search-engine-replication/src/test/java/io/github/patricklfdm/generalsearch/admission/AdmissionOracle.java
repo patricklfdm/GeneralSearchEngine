@@ -437,7 +437,13 @@ final class AdmissionOracle {
         var local = object(d.get("configuration")); exact(local, "node target materialization replicationBounds");
         String node = string(local.get("node")); require(m.nodes.contains(node), "replacement node");
         var original = object(list(p.descriptor.get("replicas")).get(m.nodes.indexOf(node)));
-        for (String key : List.of("node", "materialization", "replicationBounds")) require(local.get(key).equals(original.get(key)), "replacement configuration");
+        for (String key : List.of("node", "replicationBounds")) require(local.get(key).equals(original.get(key)), "replacement configuration");
+        var materialization = new java.util.TreeMap<>(object(local.get("materialization")));
+        var previousMaterialization = new java.util.TreeMap<>(object(original.get("materialization")));
+        path(object(materialization.get("directory")));
+        materialization.put("directory", object(materialization.get("directory")).get("path"));
+        previousMaterialization.put("directory", object(previousMaterialization.get("directory")).get("path"));
+        require(materialization.equals(previousMaterialization), "replacement materialization policy");
         path(object(local.get("target")));
         require(java.util.stream.Stream.of(object(d.get("operation")).get("path"), object(d.get("source")).get("path"), object(local.get("target")).get("path"))
                 .distinct().count() == 3, "replacement paths");

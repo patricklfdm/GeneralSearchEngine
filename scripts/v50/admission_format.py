@@ -532,7 +532,11 @@ def administrative_records(files, m, g, descriptor):
     local = d['configuration']; exact(local, 'node target materialization replicationBounds')
     check(local['node'] in m['nodes'], 'replacement node')
     original = descriptor['replicas'][m['nodes'].index(local['node'])]
-    check(all(local[k] == original[k] for k in ('node', 'materialization', 'replicationBounds')), 'replacement configuration')
+    check(all(local[k] == original[k] for k in ('node', 'replicationBounds')), 'replacement configuration')
+    mat, old_mat = local['materialization'], original['materialization']
+    path_binding(mat['directory'])
+    check(dict(mat, directory=mat['directory']['path']) == dict(old_mat, directory=old_mat['directory']['path']),
+          'replacement materialization policy')
     path_binding(local['target'])
     check(len({d['operation']['path'], d['source']['path'], local['target']['path']}) == 3, 'replacement paths')
     source_node = d['source']['path'].rsplit('/', 1)[-1]

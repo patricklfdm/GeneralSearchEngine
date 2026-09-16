@@ -10,7 +10,8 @@ from .offline_harness import CORE, REPLICATION
 from .performance_harness import source_inputs
 
 
-def build(target, control, *, workload_qualification=False):
+def build(target, control, *, workload_qualification=False, remote_workload=False):
+    workload_qualification = workload_qualification or remote_workload
     p = plan(); target = Path(target).resolve(); control = Path(control).resolve()
     require(not target.exists(), 'fresh bundle workspace required'); target.mkdir(parents=True)
     content = target / 'bundle'; content.mkdir()
@@ -26,6 +27,9 @@ def build(target, control, *, workload_qualification=False):
     shutil.copyfile(workload_path, content / 'workload.json')
     if not workload_qualification:
         shutil.copyfile(Path(__file__).with_name('cloud_guest.py'), content / 'guest.py')
+    elif remote_workload:
+        shutil.copyfile(Path(__file__).with_name('cloud_remote_guest.py'), content / 'guest.py')
+        shutil.copyfile(Path(__file__).with_name('cloud_guest.py'), content / 'install.py')
     java = Path(shutil.which('java')).resolve().parent
     version = subprocess.check_output([java / 'java', '--version'], text=True)
     require(p['runtimeJava'] in version, 'Java runtime pin')
@@ -62,6 +66,9 @@ def build(target, control, *, workload_qualification=False):
     if workload_qualification:
         manifest.update(schema='gse-v50-cloud-workload-bundle-v1', execution='offline-workload-bundle-only',
                         workloadPlanSha256=sha(workload_path.read_bytes()))
+    if remote_workload:
+        from .cloud_remote_guest import SCHEMA, EXECUTION
+        manifest.update(schema=SCHEMA, execution=EXECUTION)
     save(content / 'bundle.json', manifest)
     archive = target / 'bundle.tar.gz'
     with tarfile.open(archive, 'w:gz', dereference=True) as out:
@@ -88,4 +95,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('output', type=Path); parser.add_argument('--control-jar', type=Path, required=True)
     parser.add_argument('--workload-qualification', action='store_true')
-    args = parser.parse_args(); print(build(args.output, args.control_jar, workload_qualification=args.workload_qualification))
+    parser.add_argument('--remote-workload', action='store_true')
+    args = parser.parse_args(); print(build(args.output, args.control_jar,
+        workload_qualification=args.workload_qualification, remote_workload=args.remote_workload))

@@ -30,16 +30,15 @@ def reserve_budget(backend, approval):
 
 
 class Runner:
-    def __init__(self, backend, probe, workspace, *, approval=None):
+    def __init__(self, backend, probe, workspace, *, approval=None, remote_workload=False):
         self.backend, self.probe = backend, probe
         self.approval = approval
-        # Full presets currently qualify the controller with fake resources only.
-        # Paid admission stays closed until the remote workload/evidence adapter lands.
         self.full_preset = backend.request['profile'] != 'admission-probe'
         if self.full_preset:
             from .cloud_presets import validate_request
             self.preset = validate_request(backend.request)
-            require(backend.execution == 'fake-owned-runner-only', 'full cloud presets are not enabled for paid execution')
+            require(backend.execution == 'fake-owned-runner-only' or
+                    remote_workload and backend.execution == 'gcp-owned-runtime', 'full cloud presets are not enabled for paid execution')
             require(approval is not None, 'preset qualification requires a budget reservation')
         self.root = Path(workspace)
         require(not self.root.exists(), 'fresh runner workspace required')
@@ -115,7 +114,7 @@ class Runner:
         self.state['errors'].append(dict(phase=phase, type=type(error).__name__, message=str(error)[:2000])); self.persist()
 
     def upload(self, label):
-        files = inventory(self.root)
+        files = self.probe.retention_files(self.root) if hasattr(self.probe,'retention_files') else inventory(self.root)
         destination = prefix(self.backend.plan, self.backend.request) + '/' + label
         # Immutable object names and read-back; a partial upload is retained, never overwritten.
         for name in files:

@@ -91,9 +91,9 @@ class PresetProbe(FakeProbe):
         return result
 
 
-def run_one(root, profile, repetition, sequence, run_id, *, objects=None, fault=None):
+def run_one(root, profile, repetition, sequence, run_id, *, objects=None, fault=None, source='a'*40):
     import json
-    req = workload_request('a' * 40, run_id, 1, 'b' * 64, profile, sequence, repetition)
+    req = workload_request(source, run_id, 1, 'b' * 64, profile, sequence, repetition)
     backend = PresetFake(plan(), req, fault)
     if objects is not None: backend.objects = objects
     budget = backend.get_object(BUDGET)

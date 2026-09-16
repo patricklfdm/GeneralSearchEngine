@@ -143,6 +143,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.0 remote workload adapter and bounded evidence
+        run: scripts/verify-v50-phase6-remote-workload.sh --skip-build
+
+      - name: Retain V5.0 remote adapter qualification including failed probes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-remote-workload-local-${{ github.sha }}
+          path: target/v50-remote-workload
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Exercise the V5.0 replication foundation
         run: scripts/verify-v50-phase1-foundation.sh --skip-build
 
@@ -551,6 +563,7 @@ jobs:
           bash -n scripts/verify-v50-phase6-performance.sh
           bash -n scripts/verify-v50-phase6-runner.sh
           bash -n scripts/verify-v50-phase6-cloud-workload.sh
+          bash -n scripts/verify-v50-phase6-remote-workload.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

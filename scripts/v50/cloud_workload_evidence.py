@@ -42,17 +42,19 @@ def state_cuts(root,views):
     return cuts
 
 
-def validate_schedule(root,plan):
-    windows=list(stream(root,'windows'));calls=list(stream(root,'calls'));local=plan['localQualification']
-    names=['warmup',*plan['workload']['windows'],'sustained'];f.check([w['name'] for w in windows]==names,'missing/extra workload window')
+def validate_schedule(root,plan,profile='local-qualification',*,control=False):
+    from .cloud_remote_contract import schedule
+    windows=list(stream(root,'windows'));calls=list(stream(root,'calls'));local=schedule(profile,control=control)
+    names=local['windows'];f.check([w['name'] for w in windows]==names,'missing/extra workload window')
     all_rows=[];cycle=0;previous=0
     for w in windows:
         name=w['name'];sustained=name=='sustained';cycles=local['warmupCycles'] if name=='warmup' else local['cyclesPerWindow']
         count=local['sustainedCalls'] if sustained else cycles*10
         interval=local['sustainedIntervalNanos'] if sustained else local['healthyIntervalNanos']
         f.check(w['calls']==count and w['intervalNanos']==interval and w['lanes']==(4 if sustained else 1) and w['firstCycle']==cycle,'unreviewed arrival schedule')
-        f.check(w['pacing']==local['pacing']=='completion-paced','local pacing mode')
-        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=local['maximumWindowSeconds']*10**9,'short/overlapping/overlong workload window')
+        f.check(w['pacing']==local['pacing'],'local pacing mode')
+        maximum=local['maximumWindowSeconds']*10**9 if profile=='local-qualification' else count*interval+10**9
+        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=maximum,'short/overlapping/overlong workload window')
         f.check(w['instrumented'] is (name.startswith('instrumented') or sustained),'instrumentation mode')
         selected=sorted([r for r in calls if r['window']==name],key=lambda r:r['call'])
         f.check(len(selected)==count,'missing/extra operation samples')
@@ -62,12 +64,16 @@ def validate_schedule(root,plan):
             f.check(all(row[k]==v for k,v in expected.items()),'workload keys/operation/revision')
             nominal=w['startNanos']+i*interval
             f.check(row['nominalScheduledNanos']==nominal<=row['scheduledNanos']<=row['dispatchNanos']<=row['startNanos']<row['endNanos']<=w['endNanos'],'sample timing')
-            if i: f.check(row['scheduledNanos']>=selected[i-1]['dispatchNanos']+interval,'catch-up arrival burst')
-            if i>=w['lanes']: f.check(row['scheduledNanos']>=selected[i-w['lanes']]['endNanos'],'overlapping client lane')
+            if profile=='local-qualification':
+                if i: f.check(row['scheduledNanos']>=selected[i-1]['dispatchNanos']+interval,'catch-up arrival burst')
+                if i>=w['lanes']: f.check(row['scheduledNanos']>=selected[i-w['lanes']]['endNanos'],'overlapping client lane')
+            else:
+                f.check(row['scheduledNanos']==nominal and row['dispatchNanos']<nominal+interval,'missed fixed-rate slot')
+                if i>=w['lanes']:f.check(selected[i-w['lanes']]['endNanos']<=row['dispatchNanos'],'overlapping client lane')
             f.check(256<=row['beforeSequence']<=row['afterSequence']<=33024,'operation sequence bounds')
             if row['operation'] not in OP_IDS:f.check(row['beforeSequence']==row['afterSequence'],'ambiguous concurrent read cut')
             all_rows.append(row)
-        f.check(w['endNanos']>=selected[-1]['dispatchNanos']+interval,'short final pacing interval')
+        if profile=='local-qualification':f.check(w['endNanos']>=selected[-1]['dispatchNanos']+interval,'short final pacing interval')
         previous=w['endNanos']
         if not sustained:cycle+=cycles
     f.check(len(calls)==len(all_rows),'unbound operation sample')
@@ -199,16 +205,22 @@ def inspect_authority(path,plan,frames,volume_layout=False):
     return report,manifest
 
 
-def validate_raw(root):
-    plan=read_plan(root/'plan.json');local=plan['localQualification'];env=read(root/'set.json')
-    f.check((env['schema'],env['execution'],env['preset'],env['planSha256'])==(plan['evidenceSchema'],local['execution'],local['preset'],PLAN_SHA256),'evidence provenance/profile')
+def validate_raw(root,*,remote=False,qualification=False):
+    plan=read_plan(root/'plan.json');local=plan['localQualification'];env=read(root/'set.json');profile='local-qualification'
+    if remote:
+        from .cloud_remote_contract import schedule
+        profile=env['preset'];local=schedule(profile)
+        f.check((profile=='local-qualification') is qualification,'remote qualification/profile boundary')
+        local.update(execution='local-remote-workload-only' if qualification else 'gcp-cloud-workload',preset=profile)
+    f.check((env['schema'],env['execution'],env['preset'],env['planSha256'])==('gse-v50-remote-workload-evidence-v1' if remote else plan['evidenceSchema'],local['execution'],local['preset'],PLAN_SHA256),'evidence provenance/profile')
     f.check(env['members']==['node-1','node-2','node-3'] and 0<env['finishedNanos']-env['startedNanos']<=local['maximumRunSeconds']*10**9,'set members/deadline')
     before=inventory(root,exclude=('set.json',),logical=True);f.check(env['files']==before,'evidence inventory')
     meta=read(root/'metadata.json');f.check(meta['execution']==local['execution'] and re.fullmatch('[0-9a-f]{40}',meta['head']) and type(meta['dirty']) is bool,'source provenance')
     volume_layout=meta.get('volumeLayout',False);f.check(type(volume_layout) is bool,'volume layout flag')
-    if (root/'offline-bundle.json').exists():
-        bundle=read(root/'offline-bundle.json')
-        f.check(bundle['schema']=='gse-v50-cloud-workload-bundle-v1' and bundle['execution']=='offline-workload-bundle-only' and
+    if (root/('remote-bundle.json' if remote else 'offline-bundle.json')).exists():
+        bundle=read(root/('remote-bundle.json' if remote else 'offline-bundle.json'))
+        f.check(bundle['schema']==('gse-v50-remote-workload-bundle-v1' if remote else 'gse-v50-cloud-workload-bundle-v1') and
+                bundle['execution']==('remote-workload-adapter-only' if remote else 'offline-workload-bundle-only') and
                 bundle['workloadPlanSha256']==PLAN_SHA256 and bundle['inputs']==meta['inputs'] and bundle['source']==meta['head'] and
                 bundle['dirty']==meta['dirty'] and bundle['jars']=={n:v['sha256'] for n,v in meta['jars'].items()},'offline bundle provenance')
         f.check(meta['javaExecutable'].endswith('/jre/bin/java') and '21.0.12+8' in meta['java'],'bundled runtime identity')
@@ -247,7 +259,7 @@ def validate_raw(root):
                 decoded_entry=entry(raw);h=decoded_entry['digest'];f.check(h not in frames or frames[h]==decoded_entry,'conflicting ledger frame');frames[h]=decoded_entry
             else:f.check(row['type']=='COMMIT_PROOF' and len(raw)<=2048,'proof stream');proofs.append(raw)
     # Verify every retained crash/source generation independently, including snapshots after replacement.
-    paths=[root/n for n in env['members']]+list(root.glob('lost-node-*'))+list((root/'cuts').glob('*/node-*'))+list((root/'capacity-sources').iterdir())
+    paths=[root/n for n in env['members']]+list(root.glob('lost-node-*'))+list((root/'cuts').glob('*/node-*'))+list((root/'capacity-sources').glob('*'))
     reports=[];manifest=None
     for path in paths:
         report,manifest=inspect_authority(path,plan,frames,volume_layout);reports.append(report)
@@ -265,14 +277,15 @@ def validate_raw(root):
         chain.append((e['epoch'],e['incarnation'],e['op'],bytes.fromhex(h),bytes.fromhex(e['payloadSha256']),e['previous']))
     valid_proofs={runtime_format.proof(p,manifest,chain) for p in proofs if struct.unpack_from('>q',p,104)[0]<=len(chain)}
     f.check(len(history) in valid_proofs,'terminal proof missing from observed ledger')
-    first=[m for m in members if m['generation']==1];f.check(len(first)==3 and len({m['pid'] for m in first})==3,'three initial JVMs')
+    first=[m for m in members if m['generation']==1]
+    f.check(len(first)==3 and len({(m.get('instanceId','local'),m['pid']) for m in first})==3,'three initial JVMs')
     first_leader=next(m for m in first if m['node']=='node-1');leader_dir=root/first_leader['streams']
-    windows,calls=validate_schedule(leader_dir,plan);validate_resources(leader_dir,plan,windows)
-    measured=[e for e in first_leader['exchanges'] if e['request']['command']=='measure'];f.check(len(measured)==6,'measurement command coverage')
+    windows,calls=validate_schedule(leader_dir,plan,profile);validate_resources(leader_dir,plan,windows)
+    measured=[e for e in first_leader['exchanges'] if e['request']['command']=='measure'];f.check(len(measured)==len(windows),'measurement command coverage')
     f.check(max(m['readyNanos'] for m in first)<measured[0]['sentNanos'] and measured[-1]['receivedNanos']<min(m['finishedNanos'] for m in first),'three-voter measurement overlap')
     for e,w in zip(measured,windows):
         f.check(e['response']['measurement']=={k:w[k] for k in e['response']['measurement']} and e['request']['window']==w['name'] and
-                e['request']['profile']=='local-qualification','window command binding')
+                e['request']['profile']==profile,'window command binding')
     cuts=[r for d in worker_dirs for r in stream(d,'state-cuts')]
     wanted={r['sequence'] for r in cuts}|{r['beforeSequence'] for r in calls if r['operation'] not in OP_IDS}
     get_keys={r['keys'][0] for r in calls if r['operation']=='GET'};state_sequences={r['sequence'] for r in cuts}
@@ -305,51 +318,57 @@ def validate_raw(root):
         identity(value['result']['identity'],value['process'],meta,plan,'control')
         f.check(value['process']['exitCode']==0 and value['process']==read(root/'processes'/(label+'.json')) and value['result']==read(root/'processes'/(label+'.stdout')),'control process binding')
     f.check(control['process']['finishedNanos']<min(m['startedNanos'] for m in members) and max(m['finishedNanos'] for m in members)<restore['process']['startedNanos'],'control/candidate isolation')
-    cw,cr=validate_schedule(root/'control-streams',plan);validate_resources(root/'control-streams',plan,cw)
+    cw,cr=validate_schedule(root/'control-streams',plan,profile,control=True);validate_resources(root/'control-streams',plan,cw)
     state_cuts(root/'control-streams',control_views(cr,get_keys))
-    paired=next(r for r in cuts if r['label']=='paired-steady')
-    f.check(all(paired[k]==control['result']['semantic'][k] for k in ('sequence','count','documentsSha256','indexCount')),'paired V4 workload mismatch')
+    if profile!='failure-drill':
+        paired=next(r for r in cuts if r['label']=='paired-steady')
+        f.check(all(paired[k]==control['result']['semantic'][k] for k in ('sequence','count','documentsSha256','indexCount')),'paired V4 workload mismatch')
     # Restore is the writer-ordered exported cut, which precedes the deliberate capacity writes.
     restored=restore['result']['semantic'];seq=restored['sequence'];rm=Model()
     for h in history:
         if rm.sequence==seq:break
         e=frames[h];rm.apply(e['op'],e['payload'])
     f.check(rm.sequence==seq,'unproven backup cut');state_cuts(root/'restore-streams',{seq:rm.view((),True)})
-    validate_cells(root,plan,members,frames,history,views,restored)
+    validate_cells(root,plan,members,frames,history,views,restored,profile=profile)
     f.check(read(root/'measurements.json')==measurements(root),'forged measurement summary')
     f.check(inventory(root,exclude=('set.json',),logical=True)==before,'validator mutated evidence')
     return dict(status='PASS',execution=local['execution'],preset=local['preset'],sourceHead=meta['head'],sourceDirty=meta['dirty'],
-                corpusDocuments=4096,measuredCalls=len(calls)-10,durableSuccess=successes-8,committedThrough=len(history),applicationSequence=model.sequence,
+                corpusDocuments=4096,measuredCalls=len(calls)-local['warmupCycles']*10,durableSuccess=successes-local['warmupCycles']*8,committedThrough=len(history),applicationSequence=model.sequence,
                 cells=len(local['cells']),planSha256=PLAN_SHA256,volumeLayout=volume_layout,offlineBundle=(root/'offline-bundle.json').exists())
 
 
-def validate_cells(root,plan,members,frames,history,views,restored):
-    cells=read(root/'cells.json');f.check([c['name'] for c in cells]==plan['localQualification']['cells'],'missing/reordered cells')
+def validate_cells(root,plan,members,frames,history,views,restored,*,profile='local-qualification'):
+    from .cloud_remote_contract import schedule
+    cells=read(root/'cells.json');f.check([c['name'] for c in cells]==schedule(profile)['cells'],'missing/reordered cells')
     previous=0
     by_name={c['name']:c for c in cells}
     for cell in cells:
         f.check(cell['status']=='PASS' and previous<=cell['startedNanos']<cell['finishedNanos'],'failed/overlapping cell');previous=cell['finishedNanos']
     all_faults=[r for m in members for r in stream(root/m['streams'],'faults')]
-    f.check(any(r['action']=='disconnect' for r in all_faults) and any(r['action']=='delay' and r['endNanos']-r['startNanos']>=250000000 for r in all_faults) and
+    f.check(any(r['action']=='disconnect' for r in all_faults) and ('slow' not in by_name or any(r['action']=='delay' and r['endNanos']-r['startNanos']>=250000000 for r in all_faults)) and
             any(r['action']=='lost-ack' and r['type']=='SNAPSHOT_CHUNK' for r in all_faults),'missing actual injected fault evidence')
     snap=by_name['snapshot']['details'];f.check(snap['checkpoint']['status']['checkpointSequence']>snap['before']['sequence'],'snapshot selection boundary')
     for name,barrier in [('entry-cut','AFTER_ENTRY_QUORUM'),('proof-cut','AFTER_PROOF_QUORUM')]:
+        if name not in by_name:continue
         d=by_name[name]['details'];relative(d['member']);m=read(root/d['member']);f.check(m['forced'] and m['pid']==d['killedPid'],'proof-cut owned process')
         markers=list(stream(root/m['streams'],'barriers'));f.check(len(markers)==1 and markers[0]['barrier']==barrier and markers[0]['pid']==m['pid'],'proof-cut barrier identity')
         reports=[runtime_format.inspect(root/'cuts'/name/f'node-{i}',torn=True) for i in (1,2,3)]
         protected=max(r['committed'] for r in reports);f.check(d['recovered']['status']['commitIndex']>=protected,'lost proof during recovery')
         if name=='proof-cut':f.check(sum(r['committed']>=markers[0]['index'] for r in reports)>=2,'proof quorum lost')
         else:f.check(protected<markers[0]['index'],'entry-only cut manufactured proof')
-    restart=by_name['restart']['details'];f.check(restart['after']['epoch']>restart['before']['epoch'] and restart['staleResponse']['payload']['reason']=='STALE_EPOCH','stale incarnation fencing')
-    replacement=by_name['leader-replacement']['details'];f.check(replacement['oneSurvivor']['accepted'] is False and replacement['oneSurvivor']['reason']=='QUORUM_UNAVAILABLE' and replacement['recovered']['accepted'] is True,'leader replacement quorum')
-    f.check(runtime_format.inspect(root/'node-1')['origin']==runtime_format.inspect(root/'node-3')['origin']==1,'missing replacement authority')
+    restart=by_name['restart' if 'restart' in by_name else 'fencing']['details'];f.check(restart['after']['epoch']>restart['before']['epoch'] and restart['staleResponse']['payload']['reason']=='STALE_EPOCH','stale incarnation fencing')
+    if 'leader-replacement' in by_name:
+        replacement=by_name['leader-replacement']['details'];f.check(replacement['oneSurvivor']['accepted'] is False and replacement['oneSurvivor']['reason']=='QUORUM_UNAVAILABLE' and replacement['recovered']['accepted'] is True,'leader replacement quorum')
+        f.check(runtime_format.inspect(root/'node-1')['origin']==runtime_format.inspect(root/'node-3')['origin']==1,'missing replacement authority')
     maintenance=by_name['maintenance']['details'];f.check(inventory(root/'export')==maintenance['exportInventory'] and maintenance['exported']['backupSequence']==restored['sequence'],'backup cut/retention')
     f.check(maintenance['cancelled']['accepted'] is True and type(maintenance['cancelled']['cancelled']) is bool and (root/'published-after-cut').is_dir(),'cancel/close retention')
-    capacity=by_name['capacity']['details'];relative(capacity['beforePath']);relative(capacity['afterPath'])
-    f.check(inventory(root/capacity['beforePath'],logical=True)==capacity['sourceBefore']==capacity['sourceAfter']==inventory(root/capacity['afterPath'],logical=True),'capacity changed protected source bytes')
-    attempts=capacity['attempts'];f.check(1<=len(attempts)<=3 and attempts[-1]['accepted'] is False and attempts[-1]['reason']=='CAPACITY_EXCEEDED','capacity classification')
-    no=by_name['no-quorum']['details'];f.check(no['failure']['accepted'] is False and no['failure']['reason']=='QUORUM_UNAVAILABLE','no-quorum classification')
-    f.check(all(no['before'][k]==no['after'][k] for k in ('sequence','count','documentsSha256','indexCount')),'no-quorum committed read changed')
+    if 'capacity' in by_name:
+        capacity=by_name['capacity']['details'];relative(capacity['beforePath']);relative(capacity['afterPath'])
+        f.check(inventory(root/capacity['beforePath'],logical=True)==capacity['sourceBefore']==capacity['sourceAfter']==inventory(root/capacity['afterPath'],logical=True),'capacity changed protected source bytes')
+        attempts=capacity['attempts'];f.check(1<=len(attempts)<=3 and attempts[-1]['accepted'] is False and attempts[-1]['reason']=='CAPACITY_EXCEEDED','capacity classification')
+    if 'no-quorum' in by_name:
+        no=by_name['no-quorum']['details'];f.check(no['failure']['accepted'] is False and no['failure']['reason']=='QUORUM_UNAVAILABLE','no-quorum classification')
+        f.check(all(no['before'][k]==no['after'][k] for k in ('sequence','count','documentsSha256','indexCount')),'no-quorum committed read changed')
 
 
 def measurements(root):
@@ -373,7 +392,7 @@ def measurements(root):
                 completedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),operations=by_operation)
         baseline=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('baseline'))
         instrumented=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('instrumented'))
-        result[label]=dict(windows=measured,instrumentedToBaselineServiceTimePpm=instrumented*1000000//baseline)
+        result[label]=dict(windows=measured,instrumentedToBaselineServiceTimePpm=instrumented*1000000//baseline if baseline else None)
     result['faults']={}
     for cell in read(root/'cells.json'):
         if cell['name'] in ('healthy','sustained'):continue

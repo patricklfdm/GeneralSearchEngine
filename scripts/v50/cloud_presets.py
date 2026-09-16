@@ -1,4 +1,4 @@
-"""Closed full-workload presets and serial qualification policy. No paid admission."""
+"""Closed full-workload policy; a descriptor is never a paid admission receipt."""
 import re
 from .cloud_common import canonical, plan, request, require, sha
 from .cloud_workload_plan import PLAN_SHA256, read_plan
@@ -14,7 +14,7 @@ def preset(profile):
     require(profile in PROFILES, 'unknown workload profile')
     workload, runner = read_plan(), plan()
     selected = workload['profiles'][profile]
-    return dict(schema='gse-v50-cloud-runner-preset-v1', execution=EXECUTION, paidEnabled=False,
+    return dict(schema='gse-v50-cloud-runner-preset-v2', execution='paid-admission-required', requiresPaidAdmission=True,
         profile=profile, workloadPlanSha256=PLAN_SHA256, runnerPlanSha256=sha(canonical(runner)),
         cells=selected['cells'], reservationsSeconds=selected['reservationsSeconds'],
         plannedMaximumSeconds=sum(selected['reservationsSeconds']),
@@ -69,7 +69,7 @@ def reserve_sequence(backend):
         previous = state['request']; validate_request(previous)
         require(all(previous[k] == entry[k] for k in ('sequence', 'source', 'profile', 'repetition')) and
                 state['plan'] == backend.plan and not state['errors'], 'previous topology identity')
-        require(state['status'] == 'PASS' and state['cleanup']['status'] == 'PASS' and
+        require(state['execution']==backend.execution and state['status'] == 'PASS' and state['cleanup']['status'] == 'PASS' and
                 state['retention'] == 'VERIFIED' and sha(canonical(state['request'])) == entry['requestSha256'],
                 'previous topology lacks verified cleanup/retention')
     digest = sha(canonical(r))

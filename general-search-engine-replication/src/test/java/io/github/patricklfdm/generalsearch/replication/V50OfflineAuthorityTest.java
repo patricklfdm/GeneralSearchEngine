@@ -120,6 +120,61 @@ class V50OfflineAuthorityTest {
         assertEquals(plan.planDigest(), view.plan().digest()); assertTrue(Files.exists(target.resolve("rebuilding.gsr")));
     }
 
+    private ReplicationBootstrapRequest<Integer, Doc> volumeRequest() throws IOException {
+        var replicas = new ArrayList<ReplicationGroupConfig<Integer, Doc>>();
+        for (var old : configurations(directory)) {
+            Path volume = Files.createDirectory(directory.resolve("volume-" + old.localNodeId().value()));
+            replicas.add(new ReplicationGroupConfig<>(old.groupId(), old.configurationId(), old.localNodeId(),
+                    old.configuredLeaderId(), old.members(), volume.resolve(old.localNodeId().value()),
+                    storage(volume.resolve("materialization"), 2), old.bounds()));
+        }
+        var request = new ReplicationBootstrapRequest<>(ReplicationBootstrapSource.EMPTY, null, replicas,
+                directory.resolve("operation"), 1 << 30, 1 << 30);
+        ReplicationStorageOperations.applyBootstrap(builder(), request, ReplicationStorageOperations.planBootstrap(builder(), request));
+        return request;
+    }
+
+    @Test
+    void replacementAcceptsNewDiskIdentityButStillBindsThePlannedDisk() throws Exception {
+        var request = volumeRequest(); var config = request.replicas().get(2);
+        Path volume = config.replicaDirectory().getParent(), source = request.replicas().getFirst().replicaDirectory();
+        var originalBinding = AdmissionPaths.binding(config.materialization().directory());
+        // Renaming retains the old inode, so this cannot pass through inode reuse.
+        Files.move(volume, directory.resolve("lost-volume")); Files.createDirectory(volume);
+        assertNotEquals(originalBinding, AdmissionPaths.binding(config.materialization().directory()));
+        Path operation = directory.resolve("replacement-operation");
+        var stale = ReplicationStorageOperations.planReplacement(config, source, operation);
+        Files.move(volume, directory.resolve("unplanned-volume")); Files.createDirectory(volume);
+        var error = assertThrows(ReplicationException.class, () -> ReplicationStorageOperations.applyReplacement(config, stale));
+        assertEquals(ReplicationException.Reason.CONFLICTING_HISTORY, error.reason());
+        assertFalse(Files.exists(operation)); assertFalse(Files.exists(config.replicaDirectory()));
+        var before = AdmissionPaths.inventory(source, 1 << 20);
+        var replacement = ReplicationStorageOperations.planReplacement(config, source, operation);
+        ReplicationStorageOperations.applyReplacement(config, replacement);
+        ReplicationStorageOperations.resumeReplacement(config, replacement);
+        assertEquals(before, AdmissionPaths.inventory(source, 1 << 20));
+        assertTrue(AdmissionNode.read(config.replicaDirectory(), 1 << 20).replacement());
+        try (var engine = ReplicatedSearchEngines.builder(builder(), config).build()) {
+            assertEquals(ReplicaState.STARTING, engine.replicationStatus().state());
+        }
+    }
+
+    @Test
+    void replacementDiskDoesNotPermitMaterializationPolicyOrPathChanges() throws Exception {
+        var request = volumeRequest(); var old = request.replicas().get(2);
+        Path volume = old.replicaDirectory().getParent();
+        Files.move(volume, directory.resolve("lost-volume")); Files.createDirectory(volume);
+        for (var changed : List.of(storage(old.materialization().directory(), 1), storage(volume.resolve("other"), 2))) {
+            var config = new ReplicationGroupConfig<>(old.groupId(), old.configurationId(), old.localNodeId(),
+                    old.configuredLeaderId(), old.members(), old.replicaDirectory(), changed, old.bounds());
+            var error = assertThrows(ReplicationException.class, () -> ReplicationStorageOperations.planReplacement(config,
+                    request.replicas().getFirst().replicaDirectory(), directory.resolve("replacement-operation")));
+            assertEquals(ReplicationException.Reason.PROTOCOL_MISMATCH, error.reason());
+            assertFalse(Files.exists(config.replicaDirectory()));
+            assertFalse(Files.exists(directory.resolve("replacement-operation")));
+        }
+    }
+
     @Test
     void forgedPlanOccupiedTargetsOverlapsAndLowBoundsRejectBeforeWrites() throws Exception {
         var request = request(directory, null); var plan = ReplicationStorageOperations.planBootstrap(builder(), request);
