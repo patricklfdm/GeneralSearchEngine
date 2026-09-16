@@ -100,17 +100,24 @@ an explicit failure and blocks new topology admission. This is not a guarantee o
 instant deletion during a provider outage.
 
 The scheduled job is **disabled by default**. Before paid admission, the repository
-variable `GSE_V50_EXPIRED_CLEANUP_ENABLED` must be `true`, and the new workflow must
-be admitted by the protected WIF condition. Enabling this variable is a later cloud
-setup action; this implementation does not change it or IAM.
+variable `GSE_V50_EXPIRED_CLEANUP_ENABLED` must be `true`. The dedicated
+`v50-expired-cleanup.yml` workflow uses its own WIF provider, service account and
+master-only `cloud-benchmark-cleanup` environment without reviewers or delays.
+It has an independent concurrency group so a manual experiment awaiting approval
+cannot block cleanup. Its account has compute read/delete permissions and exact
+lease deletion, with no topology creation privileges. The paid workflow retains
+the `cloud-benchmark` approval gate. See the [setup/migration guide](PHASE_6_CLOUD_SETUP.md)
+for the applied configuration and remaining new-source execution checks.
 
 ## Read-only preflight and paid review
 
 Preflight checks exact-master full CI (including the 6B gate), workflow service
 account, WIF repository/ID/ref/environment/workflow conditions, pinned image ID,
 machine/zone, current quota headroom, effective firewall policies, permissions,
-uniform-access evidence bucket, remaining budget and an actually executed successful
-scheduled cleanup for the exact source within the last two hours. Reading Actions
+uniform-access evidence bucket, enabled IAP API, remaining budget and an actually
+executed successful dedicated scheduled cleanup (including identity verification)
+for the exact source within the last two hours. It also checks the cleanup environment's
+branch policy and absence of reviewers, timers and custom protection rules. Reading Actions
 run/step receipts uses the workflow's existing read permission; it does not require
 a token with Variables API access. Its closed
 CEL parser rejects unsupported expressions and tests all literal alternatives to
@@ -146,7 +153,7 @@ IAM policy-reading permission is required.
 The [6C setup guide](PHASE_6_CLOUD_SETUP.md) generates reviewed WIF/IAM files
 offline and describes cleanup enablement, workflow-identity preflight and cost
 review. Preflight lists missing project/bucket permissions and preserves cleanup
-query failures. It also checks the permissions used by its catalog/WIF reads and
+and firewall-query failures. It also checks the permissions used by its catalog/WIF/API-state reads and
 rejects a disabled provider. Effective firewall queries provide the network rules;
 no extra project-wide firewall-list request is needed.
 

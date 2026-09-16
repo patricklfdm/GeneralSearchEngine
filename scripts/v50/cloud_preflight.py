@@ -13,11 +13,13 @@ from .cloud_common import PLAN, canonical, plan, read, require, save, sha
 from .cloud_gcp import Api
 from .cloud_presets import SEQUENCES
 from .cloud_runner import BUDGET, LEASE
+from . import cloud_cleanup
 
 PROJECT_PERMISSIONS = ['compute.disks.create', 'compute.disks.delete', 'compute.disks.get', 'compute.disks.use',
     'compute.instances.create', 'compute.instances.delete', 'compute.instances.get', 'compute.instances.attachDisk',
     'compute.instances.detachDisk', 'compute.instances.setMetadata', 'compute.instances.setDiskAutoDelete',
     'compute.firewalls.create', 'compute.firewalls.delete', 'compute.firewalls.get', 'compute.networks.getEffectiveFirewalls',
+    'compute.networks.getRegionEffectiveFirewalls', 'serviceusage.services.get',
     'compute.subnetworks.use', 'compute.zoneOperations.get', 'compute.globalOperations.get',
     'compute.zoneOperations.list', 'compute.globalOperations.list', 'iap.tunnelInstances.accessViaIAP',
     'compute.projects.get', 'compute.regions.get', 'compute.zones.get', 'compute.machineTypes.get',
@@ -61,7 +63,7 @@ def check_control_permissions(p, observation):
                 'missing storage.objects.delete on control object: ' + name)
 
 
-def condition_allows_only(condition, claims):
+def condition_allows_only(condition, claims, *, exact_workflow=False):
     """Evaluate a closed equality/AND/OR CEL subset over all distinct literal values."""
     pattern = r"assertion\.[a-z_]+|'[^'\\]*'|==|&&|\|\||[()]"
     tokens = re.findall(pattern, condition)
@@ -101,7 +103,7 @@ def condition_allows_only(condition, claims):
     for values in itertools.product(*(alternatives[k] for k in keys)):
         candidate = dict(zip(keys, values))
         # Existing workflows may remain allowed; every repository/ref/environment guard must still hold.
-        if any(candidate[k] != claims[k] for k in keys if k != 'workflow_ref'):
+        if any(candidate[k] != claims[k] for k in keys if exact_workflow or k != 'workflow_ref'):
             require(not evaluate(tree, candidate), 'WIF allows an untrusted repository/ref/environment')
 
 
@@ -126,8 +128,28 @@ def check_observations(p, observations, source, now=None):
         require(isinstance(receipt, dict), 'scheduled cleanup response malformed')
         require('error' not in receipt, 'scheduled cleanup unavailable: ' + str(receipt.get('error')))
         require(receipt['head'] == source and receipt['conclusion'] == receipt['stepConclusion'] == 'success' and
+                receipt['identityConclusion'] == 'success' and receipt['event'] == 'schedule' and
+                receipt['workflow'] == cloud_cleanup.WORKFLOW and
                 0 <= now - receipt['updatedAt'] <= 7200, 'no recent successful scheduled cleanup for the exact source')
     check('cleanup watchdog', watchdog)
+    check('cleanup environment', lambda: cloud_cleanup.check_environment(
+        observations['github']['cleanupEnvironment'], observations['github']['cleanupBranches'], observations['github']['cleanupCustomRules']))
+    def cleanup_provider():
+        provider = observations['cleanupProvider']
+        require(isinstance(provider, dict) and 'error' not in provider, 'cleanup provider query failed: ' + str(provider))
+        require(provider.get('name') == cloud_cleanup.identity(p)['provider'] and provider.get('state') == 'ACTIVE' and
+                not provider.get('disabled', False) and isinstance(provider.get('oidc'), dict) and
+                provider['oidc'].get('issuerUri') == 'https://token.actions.githubusercontent.com',
+                'inactive/wrong cleanup provider')
+        require(provider.get('attributeMapping') == cloud_cleanup.ATTRIBUTE_MAPPING, 'cleanup provider must use its isolated principal attribute')
+        condition_allows_only(provider['attributeCondition'], cloud_cleanup.claims(p), exact_workflow=True)
+    check('cleanup WIF', cleanup_provider)
+    def iap():
+        service = observations['iapService']
+        require(isinstance(service, dict) and 'error' not in service, 'IAP API query failed: ' + str(service))
+        require(service.get('name') == 'projects/' + p['projectNumber'] + '/services/iap.googleapis.com' and
+                service.get('state') == 'ENABLED', 'iap.googleapis.com must be enabled before execution')
+    check('IAP API', iap)
     check('identity', lambda: require(observations['principal'] == p['serviceAccount'], 'observation is not made as the workflow service account'))
     check('WIF', lambda: condition_allows_only(observations['provider']['attributeCondition'], claims(p)))
     check('provider', lambda: require(observations['provider']['state'] == 'ACTIVE' and
@@ -148,11 +170,16 @@ def check_observations(p, observations, source, now=None):
                 observations['subnetwork']['region'].endswith('/regions/' + p['region']), 'subnet/network mismatch'))
     def firewalls():
         effective = observations['effectiveFirewalls']; regional = observations['regionalFirewalls']
-        require('error' not in effective and 'error' not in regional and
-                all(not response.get(key) for response in (effective, regional) for key in ('firewallPolicys', 'firewallPolicies')), 'unreviewed hierarchical/network firewall policy')
+        for label, response in [('global', effective), ('regional', regional)]:
+            require(isinstance(response, dict), label + ' firewall response malformed')
+            require('error' not in response, label + ' firewall query failed: ' + str(response.get('error')))
+            require(all(not response.get(key) for key in ('firewallPolicys', 'firewallPolicies')), 'unreviewed hierarchical/network firewall policy')
+            require(isinstance(response.get('firewalls', []), list), label + ' firewall rules malformed')
         for rule in [*effective.get('firewalls', []), *regional.get('firewalls', [])]:
+            require(isinstance(rule, dict), 'firewall rule malformed')
             if rule.get('disabled') or rule.get('direction', 'INGRESS') != 'INGRESS': continue
-            require(rule.get('priority', 1000) > 950, 'existing firewall can override exact owned peer/IAP scope')
+            require(type(rule.get('priority', 1000)) is int and rule.get('priority', 1000) > 950,
+                    'existing firewall can override exact owned peer/IAP scope')
     check('firewall', firewalls)
     check('project permissions', lambda: check_permissions(observations['permissions'], PROJECT_PERMISSIONS, 'project'))
     check('bucket permissions', lambda: check_permissions(observations['storagePermissions'], STORAGE_PERMISSIONS, 'bucket'))
@@ -179,6 +206,8 @@ def collect(p, source, api=None):
         'image': 'https://compute.googleapis.com/compute/v1/projects/' + p['imageProject'] + '/global/images/' + p['image'],
         'subnetwork': base + '/regions/' + p['region'] + '/subnetworks/' + p['subnetwork'],
         'provider': 'https://iam.googleapis.com/v1/' + p['wifProvider'],
+        'cleanupProvider': 'https://iam.googleapis.com/v1/' + cloud_cleanup.identity(p)['provider'],
+        'iapService': 'https://serviceusage.googleapis.com/v1/projects/' + p['projectNumber'] + '/services/iap.googleapis.com',
         'bucket': 'https://storage.googleapis.com/storage/v1/b/' + p['bucket'],
         'effectiveFirewalls': base + '/global/networks/' + p['network'] + '/getEffectiveFirewalls',
         'regionalFirewalls': base + '/regions/' + p['region'] + '/firewallPolicies/getEffectiveFirewalls?network=' +
@@ -218,17 +247,26 @@ def collect(p, source, api=None):
         # GITHUB_TOKEN has Actions read access, not Variables API permission. A
         # successful *executed* scheduled cleanup proves more than a config flag.
         try:
-            candidates = github('actions/workflows/v50-replication-evidence.yml/runs?event=schedule&per_page=10')['workflow_runs']
+            candidates = github('actions/workflows/' + Path(cloud_cleanup.WORKFLOW).name + '/runs?event=schedule&per_page=10')['workflow_runs']
             cleanup = next((r for r in candidates if r['head_sha'] == source and r['status'] == 'completed'), None)
             require(cleanup is not None, 'no completed scheduled cleanup for the exact source')
             cleanup_jobs = github('actions/runs/' + str(cleanup['id']) + '/jobs?per_page=100')['jobs']
-            step = next((s['conclusion'] for j in cleanup_jobs for s in j.get('steps', []) if s['name'] == 'Reconcile only an expired retained ownership lease'), None)
-            require(step is not None, 'scheduled cleanup step did not execute (job may be skipped)')
+            steps = {s['name']: s['conclusion'] for j in cleanup_jobs if j['name'] == 'cleanup' for s in j.get('steps', [])}
+            step = steps.get(cloud_cleanup.CLEANUP_STEP)
+            require(step is not None and steps.get(cloud_cleanup.IDENTITY_STEP) == 'success',
+                    'dedicated cleanup identity/step did not execute successfully (job may be skipped)')
+            require(cleanup['event'] == 'schedule' and cleanup['path'] == cloud_cleanup.WORKFLOW, 'wrong cleanup workflow/event')
             watchdog = dict(head=cleanup['head_sha'], conclusion=cleanup['conclusion'], stepConclusion=step, run=cleanup['id'],
+                identityConclusion=steps[cloud_cleanup.IDENTITY_STEP], event=cleanup['event'], workflow=cleanup['path'],
                 updatedAt=int(datetime.fromisoformat(cleanup['updated_at'].replace('Z', '+00:00')).timestamp()))
         except Exception as error: watchdog = dict(error=str(error))
         observed['github'] = dict(master=master, ciHead=ci['head_sha'], ciStatus=ci['status'], ciConclusion=ci['conclusion'], ciRun=ci['id'],
             jobs={j['name']: j['conclusion'] for j in jobs}, runnerGate=gate, cleanup=watchdog)
+        for label, path in [('cleanupEnvironment', 'environments/' + cloud_cleanup.ENVIRONMENT),
+                            ('cleanupBranches', 'environments/' + cloud_cleanup.ENVIRONMENT + '/deployment-branch-policies?per_page=100'),
+                            ('cleanupCustomRules', 'environments/' + cloud_cleanup.ENVIRONMENT + '/deployment_protection_rules')]:
+            try: observed['github'][label] = github(path)
+            except Exception as error: observed['github'][label] = dict(error=str(error))
         observed['github']['remoteGate']=next((s['conclusion'] for j in jobs for s in j.get('steps',[]) if s['name']==
             'Verify V5.0 remote workload adapter and bounded evidence'),None)
     except Exception as error: observed['github'] = dict(error=str(error))

@@ -135,9 +135,11 @@ def main():
         require(args.prepared and args.approval and args.confirm_request, 'run requires prepared evidence and exact paid confirmation')
         result = execute(args.prepared, args.output, args.approval, args.confirm_request)
     elif args.mode in ('reconcile', 'expired-cleanup'):
+        if args.mode == 'expired-cleanup':
+            from .cloud_cleanup import require_context
+            require_context(p)
         stored = Gcp(p, {}, args.output, api=Api()).get_object(LEASE)
         if args.mode == 'expired-cleanup':
-            require(os.environ.get('GITHUB_EVENT_NAME') == 'schedule' and os.environ.get('GITHUB_REF') == p['ref'], 'scheduled protected-master cleanup only')
             if stored is None:
                 save(args.output / 'cleanup.json', dict(status='PASS', activeLease=False)); return 0
         require(stored is not None, 'no active lease'); lease = json.loads(stored[1])

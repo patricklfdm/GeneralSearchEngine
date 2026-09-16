@@ -23,7 +23,8 @@ class Api:
 
     def call(self, method, url, body=None, *, raw=False, maximum=16 << 20):
         require(url.startswith(('https://compute.googleapis.com/', 'https://storage.googleapis.com/',
-                                'https://iam.googleapis.com/', 'https://cloudresourcemanager.googleapis.com/')), 'GCP API endpoint')
+                                'https://iam.googleapis.com/', 'https://cloudresourcemanager.googleapis.com/',
+                                'https://serviceusage.googleapis.com/')), 'GCP API endpoint')
         require(method == 'GET' or url.endswith(':testIamPermissions') or self.paid, 'mutating API requires paid admission')
         if time.monotonic() >= self.expiry:
             auth = subprocess.run(['gcloud', 'auth', 'print-access-token'], capture_output=True, timeout=30)
