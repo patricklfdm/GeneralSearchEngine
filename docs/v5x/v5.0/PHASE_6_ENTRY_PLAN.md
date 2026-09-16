@@ -1,6 +1,6 @@
 # V5.0 Phase 6 performance and cloud entry plan
 
-- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A accepted; 6B runner candidate
+- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A accepted; 6B runner accepted; full cloud workload plan candidate
 - **Branch:** `docs/v5.0-phase6-entry-plan`
 - **Starting master:** `836137aba672c010d0c7e3fc07bc194359543d9f`
 - **Predecessor:** [Step C, PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155), [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
@@ -55,9 +55,11 @@ receipts for that candidate; a failed stage retains evidence and stops progressi
 | 6D — review and registration | Phase 6 baseline, checklist and canonical review; append-only registration of `v5.0.0-replicated-cloud` through a separate protected PR | Raw evidence remains retrievable, all three canonical repetitions pass, registered identities match the accepted source and artifacts |
 
 [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) was accepted through PR #157
-and exact-master CI `35043760510`. The current candidate is
-[6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md).
+and exact-master CI `35043760510`. [6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md)
+was accepted through PR #158 and exact-master CI `35051728286`.
 Its reduced admission probe does not close the full cloud workload/preset gate.
+The current candidate is the [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md),
+followed by separate workload/evidence and runner-preset implementation PRs before 6C.
 The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
@@ -129,7 +131,8 @@ These are inherited planning limits, not fresh quota or price observations.
 All three voters run concurrently during healthy replication cells; deliberate fault
 windows record the lost member and surviving quorum. Canonical repetitions use fresh
 isolated topologies. The control is sequential on the same leader VM; no fourth
-measurement VM is budgeted. 6A records the allocation of each measurement budget
+measurement VM is budgeted. 6A records its reduced local allocation; the separate
+[cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) proposes the full cloud allocation
 across cells and reserves time for warmup, control, failure handling and cleanup.
 
 | Resource | Frozen planning ceiling |
@@ -208,7 +211,8 @@ remaining-budget admission, with the failed attempt still visible.
 - [x] Existing cloud scaffolding, measurement matrix, inherited caps and delivery order documented.
 - [x] This entry plan accepted through protected PR #156 and exact-master documentation CI `35039318340`.
 - [x] 6A public probe, pinned control, exact plan and independent evidence validators accepted through PR #157 and exact-master CI `35043760510`.
-- [ ] 6B real-runner ownership, preflight, fake-failure, retention and cleanup gates accepted.
+- [x] 6B real-runner ownership, preflight, fake-failure, retention and cleanup gates accepted through PR #158 and exact-master CI `35051728286`.
+- [ ] Full cloud workload plan and its executable workload/evidence/runner presets accepted before 6C.
 - [ ] Exact-source preflights and explicit paid-run confirmation recorded.
 - [ ] Experiment, failure-drill and all three canonical repetitions pass with cleanup.
 - [ ] Independent member/set review and append-only baseline registration accepted.

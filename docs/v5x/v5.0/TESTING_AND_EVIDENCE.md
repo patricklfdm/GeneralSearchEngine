@@ -1,6 +1,6 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Accepted Phase 0 plan, Phases 1–5 and public-admission Steps A/B/C; Phase 6 entry plan accepted; 6A accepted; 6B cloud runner candidate
+- **Status:** Accepted Phase 0 plan, Phases 1–5 and public-admission Steps A/B/C; Phase 6 entry plan accepted; 6A accepted; 6B runner accepted; full cloud workload plan candidate
 - **Published control:** exact GeneralSearchEngine `4.4.0`
 - **Foundation evidence schema:** `gse-v50-replication-evidence-v1`; 6A adds separate `gse-v50-performance-evidence-v1` and member schema
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`
@@ -19,7 +19,11 @@ adds actual offline authority, real process kills and published V4.4 import/expo
 [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) defines the measurement, runtime-evidence
 and staged cloud work. [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) adds the
 public probe, frozen reduced plan, pinned V4 control and independent runtime
-member/set validators. The current foundation workflow still permits plan/fake only.
+member/set validators. [6B](PHASE_6_CLOUD_RUNNER.md) was accepted through PR #158
+and exact-master CI `35051728286`; its runnable cloud profile is still only
+`admission-probe`. The [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md)
+proposes the separate workload/evidence extension before 6C. The current foundation
+workflow still permits plan/fake only.
 
 V5.0 requires independent evidence at five layers before release:
 
