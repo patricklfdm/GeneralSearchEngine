@@ -25,8 +25,10 @@ gates; this PR does not represent that coverage as cloud performance measurement
 Any optional paid admission probe counts against the same USD 40 sequence budget.
 Accepting this runner alone does not close the cloud preset review gate. The
 [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
-The current candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md);
-runner-preset integration follows it.
+[Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
+with exact-master CI `35058372449`. The current candidate is
+[runner preset qualification](PHASE_6_RUNNER_PRESETS.md), followed by the remote
+workload and cloud evidence adapter.
 
 ## Runtime and artifact path
 

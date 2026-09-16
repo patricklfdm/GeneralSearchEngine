@@ -28,7 +28,9 @@ The [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) was accepted in PR #156;
 [6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md) was accepted in PR #158
 with exact-master CI `35051728286`. The
 [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
-The current candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).
+[Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
+with exact-master CI `35058372449`. The current candidate is
+[runner preset qualification](PHASE_6_RUNNER_PRESETS.md).
 
 This is completion work between Phase 5 and Phase 6, not a renumbering of the charter.
 The existing performance/cloud prerequisites remain in force.

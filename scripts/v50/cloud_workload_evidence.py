@@ -50,7 +50,8 @@ def validate_schedule(root,plan):
         count=local['sustainedCalls'] if sustained else cycles*10
         interval=local['sustainedIntervalNanos'] if sustained else local['healthyIntervalNanos']
         f.check(w['calls']==count and w['intervalNanos']==interval and w['lanes']==(4 if sustained else 1) and w['firstCycle']==cycle,'unreviewed arrival schedule')
-        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=count*interval+10**9,'short/overlapping workload window')
+        f.check(w['pacing']==local['pacing']=='completion-paced','local pacing mode')
+        f.check(w['missedSlots']==0 and previous<=w['startNanos'] and count*interval<=w['endNanos']-w['startNanos']<=local['maximumWindowSeconds']*10**9,'short/overlapping/overlong workload window')
         f.check(w['instrumented'] is (name.startswith('instrumented') or sustained),'instrumentation mode')
         selected=sorted([r for r in calls if r['window']==name],key=lambda r:r['call'])
         f.check(len(selected)==count,'missing/extra operation samples')
@@ -58,12 +59,14 @@ def validate_schedule(root,plan):
             expected=operation(cycle+i//10,i,sustained)
             f.check(row['call']==i and row['cycle']==cycle+i//10 and row['outcome']=='success','operation schedule/outcome')
             f.check(all(row[k]==v for k,v in expected.items()),'workload keys/operation/revision')
-            due=w['startNanos']+i*interval
-            f.check(row['scheduledNanos']==due<=row['startNanos']<row['endNanos']<=w['endNanos'],'sample timing')
-            f.check(row['startNanos']-due<interval,'missed arrival slot')
+            nominal=w['startNanos']+i*interval
+            f.check(row['nominalScheduledNanos']==nominal<=row['scheduledNanos']<=row['dispatchNanos']<=row['startNanos']<row['endNanos']<=w['endNanos'],'sample timing')
+            if i: f.check(row['scheduledNanos']>=selected[i-1]['dispatchNanos']+interval,'catch-up arrival burst')
+            if i>=w['lanes']: f.check(row['scheduledNanos']>=selected[i-w['lanes']]['endNanos'],'overlapping client lane')
             f.check(256<=row['beforeSequence']<=row['afterSequence']<=33024,'operation sequence bounds')
             if row['operation'] not in OP_IDS:f.check(row['beforeSequence']==row['afterSequence'],'ambiguous concurrent read cut')
             all_rows.append(row)
+        f.check(w['endNanos']>=selected[-1]['dispatchNanos']+interval,'short final pacing interval')
         previous=w['endNanos']
         if not sustained:cycle+=cycles
     f.check(len(calls)==len(all_rows),'unbound operation sample')
@@ -93,13 +96,13 @@ def validate_resources(directory,plan,windows=()):
 def identity(value,receipt,metadata,plan,kind):
     f.check(value['pid']==receipt['pid'] and value['planSha256']==PLAN_SHA256 and value['coreSource']==metadata['jars'][kind]['path'],'process/artifact identity')
     f.check(value['jvmArguments']==plan['jvmArguments'] and value['availableProcessors']==8 and value['os']=='Linux' and value['javaRuntime'].startswith('21'),'JVM identity')
-    args=receipt['args'];f.check(args[:5]==['java',*plan['jvmArguments']] and args[5]=='-cp','JVM command flags')
+    args=receipt['args'];f.check(args[:5]==[metadata.get('javaExecutable','java'),*plan['jvmArguments']] and args[5]=='-cp','JVM command flags')
     wanted=[metadata['jars'][kind]['path']] if kind=='control' else [metadata['jars'][n]['path'] for n in ('core','replication')]
     f.check(args[6].split(':')[:-1]==wanted,'isolated classpath')
     f.check(receipt['startedNanos']<receipt['finishedNanos'],'process duration')
 
 
-def inspect_authority(path,plan,frames):
+def inspect_authority(path,plan,frames,volume_layout=False):
     report=runtime_format.inspect(path,torn=True)
     f.check(report['base']==256 and report['lastIndex']<=32768,'authority index bounds')
     genesis=f.genesis((path/'genesis.gsr').read_bytes());genesis['raw']=(path/'genesis.gsr').read_bytes()
@@ -112,6 +115,10 @@ def inspect_authority(path,plan,frames):
         f.check(replica['replicationBounds']==plan['replicationBounds'],'resolved replication bounds')
         mat=replica['materialization'];f.check(all(v==plan['application'][k] for k,v in mat['bounds'].items()),'resolved application bounds')
         f.check(mat['codecId']=='semantic-codec' and mat['codecVersion']==1 and mat['schemaIdentity']=='semantic-schema' and mat['storageIdentity']=='performance-store','storage identity')
+        node=replica['node'];ordinal=node.removeprefix('node-')
+        target=Path(replica['target']['path']);materialization=Path(mat['directory']['path'])
+        f.check(target.name==node and materialization==target.parent/('materialization-'+node),'authority/materialization placement')
+        f.check((target.parent.name=='volume-'+ordinal) is volume_layout,'sealed volume layout')
     # Match the snapshot's complete ancestry and application to independently replayed wire payloads.
     if (path/'current.gsr').exists():
         selector=f.record((path/'current.gsr').read_bytes(),10);selector.take(32);selector.text(64);slot=selector.text(32)
@@ -133,6 +140,17 @@ def validate_raw(root):
     f.check(env['members']==['node-1','node-2','node-3'] and 0<env['finishedNanos']-env['startedNanos']<=local['maximumRunSeconds']*10**9,'set members/deadline')
     before=inventory(root,exclude=('set.json',),logical=True);f.check(env['files']==before,'evidence inventory')
     meta=read(root/'metadata.json');f.check(meta['execution']==local['execution'] and re.fullmatch('[0-9a-f]{40}',meta['head']) and type(meta['dirty']) is bool,'source provenance')
+    volume_layout=meta.get('volumeLayout',False);f.check(type(volume_layout) is bool,'volume layout flag')
+    if (root/'offline-bundle.json').exists():
+        bundle=read(root/'offline-bundle.json')
+        f.check(bundle['schema']=='gse-v50-cloud-workload-bundle-v1' and bundle['execution']=='offline-workload-bundle-only' and
+                bundle['workloadPlanSha256']==PLAN_SHA256 and bundle['inputs']==meta['inputs'] and bundle['source']==meta['head'] and
+                bundle['dirty']==meta['dirty'] and bundle['jars']=={n:v['sha256'] for n,v in meta['jars'].items()},'offline bundle provenance')
+        f.check(meta['javaExecutable'].endswith('/jre/bin/java') and '21.0.12+8' in meta['java'],'bundled runtime identity')
+        for directory in ('classes-candidate','classes-control'):
+            expected={k.removeprefix(directory+'/'):v for k,v in bundle['files'].items() if k.startswith(directory+'/')}
+            f.check(inventory(root/directory)==expected,'independently compiled bundle classes')
+    else: f.check(meta.get('javaExecutable','java')=='java','unbound runtime executable')
     f.check(sum(v['bytes'] for k,v in before.items() if k.startswith(('streams/','control-streams/','restore-streams/')))<=plan['evidenceBounds']['maxSamplesAndTracesBytes'],'combined sample/trace budget')
     f.check(meta['arithmetic']==arithmetic(plan),'forged budget arithmetic');validate_source_archive(root/'source-inputs.zip',meta['inputs'])
     f.check(meta['inputs']['docs/v5x/v5.0/phase6-cloud-workload-plan.json']==PLAN_SHA256,'source plan binding')
@@ -167,7 +185,10 @@ def validate_raw(root):
     paths=[root/n for n in env['members']]+list(root.glob('lost-node-*'))+list((root/'cuts').glob('*/node-*'))+list((root/'capacity-sources').iterdir())
     reports=[];manifest=None
     for path in paths:
-        report,manifest=inspect_authority(path,plan,frames);reports.append(report)
+        report,manifest=inspect_authority(path,plan,frames,volume_layout);reports.append(report)
+    if volume_layout:
+        for i in (1,2,3):
+            f.check(inventory(root/f'node-{i}',logical=True)==inventory(root/f'volume-{i}'/f'node-{i}',logical=True),'retained volume authority differs')
     final=reports[:3];strongest=max(final,key=lambda r:r['committed']);history=strongest['anchors'][:strongest['committed']]
     for report in reports:
         common=min(report['committed'],len(history));f.check(report['anchors'][:common]==history[:common],'conflicting proven history')
@@ -185,7 +206,8 @@ def validate_raw(root):
     measured=[e for e in first_leader['exchanges'] if e['request']['command']=='measure'];f.check(len(measured)==6,'measurement command coverage')
     f.check(max(m['readyNanos'] for m in first)<measured[0]['sentNanos'] and measured[-1]['receivedNanos']<min(m['finishedNanos'] for m in first),'three-voter measurement overlap')
     for e,w in zip(measured,windows):
-        f.check(e['response']['measurement']=={k:w[k] for k in e['response']['measurement']} and e['request']['window']==w['name'],'window command binding')
+        f.check(e['response']['measurement']=={k:w[k] for k in e['response']['measurement']} and e['request']['window']==w['name'] and
+                e['request']['profile']=='local-qualification','window command binding')
     cuts=[r for d in worker_dirs for r in stream(d,'state-cuts')]
     wanted={r['sequence'] for r in cuts}|{r['beforeSequence'] for r in calls if r['operation'] not in OP_IDS}
     get_keys={r['keys'][0] for r in calls if r['operation']=='GET'};state_sequences={r['sequence'] for r in cuts}
@@ -245,7 +267,7 @@ def validate_raw(root):
     f.check(inventory(root,exclude=('set.json',),logical=True)==before,'validator mutated evidence')
     return dict(status='PASS',execution=local['execution'],preset=local['preset'],sourceHead=meta['head'],sourceDirty=meta['dirty'],
                 corpusDocuments=4096,measuredCalls=len(calls)-10,durableSuccess=successes-8,committedThrough=len(history),applicationSequence=model.sequence,
-                cells=len(local['cells']),planSha256=PLAN_SHA256)
+                cells=len(local['cells']),planSha256=PLAN_SHA256,volumeLayout=volume_layout,offlineBundle=(root/'offline-bundle.json').exists())
 
 
 def validate_cells(root,plan,members,frames,history,views,restored):
@@ -291,8 +313,11 @@ def measurements(root):
                     rejected=0,timedOut=0,indeterminate=0,documents=sum(r['documents'] for r in selected),
                     p50Nanos=times[(n*50+99)//100-1],p95Nanos=times[(n*95+99)//100-1],p99Nanos=times[(n*99+99)//100-1],
                     maximumSchedulerDelayNanos=max(r['startNanos']-r['scheduledNanos'] for r in selected))
+                by_operation[op]['maximumScheduleDeferralNanos']=max(r['scheduledNanos']-r['nominalScheduledNanos'] for r in selected)
             measured[w['name']]=dict(startNanos=w['startNanos'],endNanos=w['endNanos'],sampleCount=w['calls'],
-                offeredRateMilliHz=10**12//w['intervalNanos'],completedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),operations=by_operation)
+                pacing=w['pacing'],maximumOfferedRateMilliHz=10**12//w['intervalNanos'],
+                observedOfferedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),
+                completedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),operations=by_operation)
         baseline=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('baseline'))
         instrumented=sum(r['endNanos']-r['startNanos'] for r in calls if r['window'].startswith('instrumented'))
         result[label]=dict(windows=measured,instrumentedToBaselineServiceTimePpm=instrumented*1000000//baseline)

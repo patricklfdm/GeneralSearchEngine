@@ -2,7 +2,6 @@ package io.github.patricklfdm.generalsearch.admission;
 
 import java.nio.file.*;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
@@ -70,38 +69,44 @@ public final class CloudWorkload {
             catch (InterruptedException e) { Thread.currentThread().interrupt(); throw new IllegalStateException(e); }
         }
     }
-    public static Map<String, Object> execute(DurableSearchEngine<Integer,Doc> engine, Plan plan, String name,
+    public static Map<String, Object> execute(DurableSearchEngine<Integer,Doc> engine, Plan plan, String profile, String name,
             int firstCycle, int calls, long interval, boolean sustained, Supplier<Map<String,Object>> status) throws Exception {
         AdmissionJson.require(calls > 0 && calls <= 60000 && interval >= 50000000L, "workload command bound");
         CloudWorkloadTelemetry.window = name; CloudWorkloadTelemetry.instrumented = name.startsWith("instrumented") || sustained;
         CloudWorkloadTelemetry.sample(status);
+        parameters(plan, profile); // Reject unknown profile names before issuing any operation.
+        boolean paced = profile.equals("local-qualification");
+        String pacing = paced ? (String)plan.section("localQualification").get("pacing") : "fixed-rate";
+        AdmissionJson.require(!paced || pacing.equals("completion-paced"), "local pacing contract");
+        long maximum = paced ? TimeUnit.SECONDS.toNanos(number(plan.section("localQualification"),"maximumWindowSeconds"))
+                : Math.addExact(Math.multiplyExact((long)calls, interval), TimeUnit.SECONDS.toNanos(1));
         int lanes = sustained ? 4 : 1;
-        var pending = new ArrayList<CompletableFuture<Void>>(Collections.nCopies(lanes, null));
-        long begin = System.nanoTime(); int missed = 0;
+        CloudWorkloadSchedule.Window measured;
         try (var executor = Executors.newFixedThreadPool(lanes)) {
-            for (int call=0; call<calls; call++) {
-                long due = begin + call*interval; until(due);
-                int lane = call % lanes; var prior = pending.get(lane);
-                if (prior != null && !prior.isDone() || System.nanoTime()-due >= interval) {
-                    CloudWorkloadTelemetry.record("calls",Map.of("call",call,"scheduledNanos",due,"outcome","missed-slot"));
-                    missed++; continue;
+            measured = CloudWorkloadSchedule.run(calls, lanes, interval, paced, maximum, new CloudWorkloadSchedule.Driver() {
+                public long now() { return System.nanoTime(); }
+                public void until(long due) { CloudWorkload.until(due); }
+                public void await(CompletableFuture<Void> future, long deadline) throws Exception {
+                    future.get(Math.max(0, deadline-System.nanoTime()), TimeUnit.NANOSECONDS);
                 }
-                if (prior != null) prior.join();
-                int index=call;
-                pending.set(lane, CompletableFuture.runAsync(() -> operation(engine, plan, name, firstCycle, index, due, sustained), executor));
-            }
-            for (var future : pending) if (future != null) future.get(10,TimeUnit.SECONDS);
-            until(begin+calls*interval);
+                public CompletableFuture<Void> submit(int call, long nominal, long due, long dispatched) {
+                    return CompletableFuture.runAsync(() -> operation(engine, plan, name, firstCycle, call, nominal, due, dispatched, sustained), executor);
+                }
+                public void missed(int call, long due, long observed, boolean pending) {
+                    CloudWorkloadTelemetry.record("calls", Map.of("window",name,"call",call,"scheduledNanos",due,
+                            "dispatchNanos",observed,"outcome","missed-slot","pendingLane",pending));
+                }
+            });
         }
-        long end = System.nanoTime(); CloudWorkloadTelemetry.sample(status); CloudWorkloadTelemetry.check();
-        var result = Map.<String,Object>of("name",name,"firstCycle",firstCycle,"calls",calls,"intervalNanos",interval,
-                "lanes",lanes,"startNanos",begin,"endNanos",end,"missedSlots",missed,"instrumented",CloudWorkloadTelemetry.instrumented);
+        CloudWorkloadTelemetry.sample(status); CloudWorkloadTelemetry.check();
+        var result = new TreeMap<String,Object>(Map.of("name",name,"firstCycle",firstCycle,"calls",calls,"intervalNanos",interval,
+                "lanes",lanes,"startNanos",measured.start(),"endNanos",measured.end(),"missedSlots",0,"instrumented",CloudWorkloadTelemetry.instrumented));
+        result.put("pacing",pacing);
         CloudWorkloadTelemetry.record("windows",result);
-        AdmissionJson.require(missed==0 && end-begin <= calls*interval + 1000000000L,"missed arrival/window deadline");
         return result;
     }
     private static void operation(DurableSearchEngine<Integer,Doc> engine, Plan plan, String window,
-            int firstCycle, int call, long due, boolean sustained) {
+            int firstCycle, int call, long nominal, long due, long dispatched, boolean sustained) {
         int cycle = firstCycle+call/10, lane=call%4, laneCall=call/4;
         String op = sustained ? (laneCall%4 == 3 ? "QUERY" : "UPDATE") : PerformanceWorkload.OPERATIONS.get(call%10);
         int size = op.endsWith("_ALL") ? 16 : 1;
@@ -114,6 +119,7 @@ public final class CloudWorkload {
         long start=System.nanoTime(), before=engine.currentSequence(); Object answer=null;
         var row=new TreeMap<String,Object>(); row.put("call",call); row.put("cycle",cycle); row.put("lane",sustained?lane:0);
         row.put("operation",op); row.put("scheduledNanos",due); row.put("startNanos",start); row.put("beforeSequence",before);
+        row.put("nominalScheduledNanos",nominal); row.put("dispatchNanos",dispatched);
         row.put("keys",op.startsWith("INDEX") || op.equals("QUERY") ? List.of() : op.equals("GET") ? List.of(1+cycle%4096) : keys);
         row.put("revision",revision); row.put("documents",op.startsWith("INDEX")||op.equals("QUERY") ? 0:size);
         try {

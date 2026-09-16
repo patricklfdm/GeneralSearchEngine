@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence implementation candidate
+- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan accepted; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence accepted; runner preset qualification candidate
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -52,6 +52,7 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 6B cloud runner and preflight](v5.0/PHASE_6_CLOUD_RUNNER.md)
 - [V5.0 Phase 6 full cloud workload plan](v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md)
 - [V5.0 Phase 6 cloud workload and evidence implementation](v5.0/PHASE_6_CLOUD_WORKLOAD.md)
+- [V5.0 Phase 6 runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -81,6 +82,8 @@ accepted in PR #157 with exact-master CI `35043760510` passing.
 [master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
 passing all six jobs and executing 6A/6B. The
 [full cloud workload plan](v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159
-with master documentation CI `35053778177` passing. The current candidate is the
-[cloud workload and evidence implementation](v5.0/PHASE_6_CLOUD_WORKLOAD.md).
-Runner integration, paid admission and cloud performance acceptance remain pending.
+with master documentation CI `35053778177` passing.
+[Cloud workload and evidence](v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
+with exact-master full CI `35058372449`. The current candidate is
+[runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md).
+Remote integration, paid admission and cloud performance acceptance remain pending.

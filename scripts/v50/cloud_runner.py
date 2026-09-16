@@ -3,7 +3,7 @@ import signal
 import time
 import uuid
 from pathlib import Path
-from .cloud_common import canonical, inventory, prefix, require, resources, save, sha
+from .cloud_common import canonical, deletion_order, inventory, prefix, require, resources, replacement_resource, save, sha, validate_inventory
 
 LEASE = 'v5.0-replicated-single-shard/control/active-run.json'
 BUDGET = 'v5.0-replicated-single-shard/control/budget.json'
@@ -15,6 +15,9 @@ def reserve_budget(backend, approval):
     current = backend.get_object(BUDGET)
     ledger = json.loads(current[1]) if current else dict(schema='gse-v50-budget-v1', reservations=[])
     require(ledger['schema'] == 'gse-v50-budget-v1', 'budget ledger schema')
+    require(type(approval['maximumCostMicrousd']) is int and approval['maximumCostMicrousd'] > 0 and
+            type(approval['previousAttemptsCostMicrousd']) is int and approval['previousAttemptsCostMicrousd'] >= 0,
+            'budget reservation values')
     total = sum(r['maximumCostMicrousd'] for r in ledger['reservations'])
     require(all(type(r['maximumCostMicrousd']) is int and r['maximumCostMicrousd'] > 0 for r in ledger['reservations']), 'budget ledger values')
     request_sha = sha(canonical(backend.request))
@@ -30,6 +33,14 @@ class Runner:
     def __init__(self, backend, probe, workspace, *, approval=None):
         self.backend, self.probe = backend, probe
         self.approval = approval
+        # Full presets currently qualify the controller with fake resources only.
+        # Paid admission stays closed until the remote workload/evidence adapter lands.
+        self.full_preset = backend.request['profile'] != 'admission-probe'
+        if self.full_preset:
+            from .cloud_presets import validate_request
+            self.preset = validate_request(backend.request)
+            require(backend.execution == 'fake-owned-runner-only', 'full cloud presets are not enabled for paid execution')
+            require(approval is not None, 'preset qualification requires a budget reservation')
         self.root = Path(workspace)
         require(not self.root.exists(), 'fresh runner workspace required')
         self.root.mkdir(parents=True)
@@ -38,7 +49,9 @@ class Runner:
             request=r, plan=p, startedAt=int(time.time()), status='RUNNING', events=[], errors=[],
             resources=[dict(v, requestId=str(uuid.uuid4()), attempted=False) for v in resources(p, r)])
         self.generation = None
-        self.deadline = time.monotonic() + p['maximumTopologySeconds'] - p['cleanupReserveSeconds']
+        limit = self.preset['plannedMaximumSeconds'] if self.full_preset else p['maximumTopologySeconds']
+        self.deadline = time.monotonic() + limit - p['cleanupReserveSeconds']
+        if hasattr(self.backend, 'resource_inventory'): self.backend.resource_inventory = self.state['resources']
         self.persist()
 
     def update_lease(self):
@@ -57,6 +70,46 @@ class Runner:
 
     def rows(self, kind):
         return [r for r in self.state['resources'] if r['kind'] == kind]
+
+    def create(self, row):
+        self.bounded()
+        require(self.backend.describe(row) is None, 'resource name already exists')
+        row['attempted'] = True; self.persist(); self.update_lease()
+        value = self.backend.create(row)
+        require(self.backend.owns(value), 'created resource ownership')
+        row.update(id=str(value['id']), insertFinished=True, observation=value)
+        self.persist(); self.update_lease()
+
+    def replace_data_disk(self, target, source):
+        """Delete/read back the old disk before allocating one new owned generation."""
+        require(self.full_preset and self.generation is not None and source in (1, 2, 3) and source != target,
+                'replacement context')
+        require((target, source) in ((3, 1), (1, 2)), 'replacement authority source')
+        spec = replacement_resource(self.backend.plan, self.backend.request, target)
+        validate_inventory(self.backend.plan, self.backend.request, [*self.state['resources'], spec])
+        nodes = {v['node']: v for v in self.rows('instances')}
+        old = next(v for v in self.rows('disks') if v['name'] == spec['replaces'])
+        self.bounded(); self.probe.quiesce()
+        preserved = self.probe.preserve_disk(nodes[target], old)
+        self.probe.unmount(nodes[target], old)
+        self.backend.attach(nodes[target], old, False)
+        self.backend.delete(old, old['id'])
+        require(self.backend.describe(old) is None, 'old data disk must be absent before replacement allocation')
+        old['retired'] = dict(absent=True, expectedId=old['id'], at=int(time.time()), preserved=preserved)
+        self.persist(); self.update_lease()
+        row = dict(spec, requestId=str(uuid.uuid4()), attempted=False)
+        self.state['resources'].append(row); self.persist(); self.update_lease()
+        self.create(row)
+        self.backend.attach(nodes[source], row)
+        row['replacementReceipt'] = self.probe.initialize_replacement(nodes[source], row)
+        self.probe.unmount(nodes[source], row)
+        self.backend.attach(nodes[source], row, False)
+        self.backend.attach(nodes[target], row)
+        row['mountReceipt'] = self.probe.mount_replacement(nodes[target], row)
+        self.persist(); self.update_lease()
+        self.probe.resume_replacement(target)
+        self.event('disk-replaced', node=target, previousId=old['id'], replacementId=row['id'])
+        return row
 
     def failure(self, phase, error):
         self.state['errors'].append(dict(phase=phase, type=type(error).__name__, message=str(error)[:2000])); self.persist()
@@ -80,7 +133,7 @@ class Runner:
             try: self.probe.collect(row, self.root / 'guests' / str(row['node']))
             except Exception as error: self.failure('collect:' + row['name'], error)
         # Instances first: deleting an instance releases/deletes its attached owned disks.
-        for row in reversed(self.state['resources']):
+        for row in deletion_order(self.state['resources']):
             if not row['attempted']: continue
             try:
                 if hasattr(self.backend, 'insert_finished'):
@@ -119,16 +172,14 @@ class Runner:
             # lease (even expired) blocks creation until its owner is reconciled explicitly.
             self.generation = self.backend.put_object(LEASE, canonical(lease))
             self.event('lease-acquired', generation=self.generation)
-            if self.backend.execution == 'gcp-owned-runtime':
+            if self.backend.execution == 'gcp-owned-runtime' or self.full_preset:
                 require(self.approval is not None, 'paid runner requires admitted budget')
+                if self.full_preset:
+                    from .cloud_presets import reserve_sequence
+                    self.state['sequenceReservation'] = reserve_sequence(self.backend); self.persist()
                 self.state['budgetReservation'] = reserve_budget(self.backend, self.approval); self.persist()
             for row in self.state['resources']:
-                self.bounded()
-                require(self.backend.describe(row) is None, 'resource name already exists')
-                row['attempted'] = True; self.persist(); self.update_lease()
-                value = self.backend.create(row)
-                require(self.backend.owns(value), 'created resource ownership')
-                row.update(id=str(value['id']), insertFinished=True, observation=value); self.persist(); self.update_lease()
+                self.create(row)
             nodes = self.rows('instances')
             disks = [r for r in self.rows('disks') if r['purpose'] == 'data']
             for node in nodes:
@@ -161,8 +212,12 @@ class Runner:
                     try:
                         self.upload('final')
                         self.state['retention'] = 'VERIFIED'
-                        self.backend.put_object(prefix(self.backend.plan, self.backend.request) + '/completion.json', canonical(self.state))
+                        completion = prefix(self.backend.plan, self.backend.request) + '/completion.json'
+                        self.backend.put_object(completion, canonical(self.state))
                         save(self.root / 'completion.json', self.state)
+                        if 'sequenceReservation' in self.state:
+                            from .cloud_presets import finish_sequence
+                            finish_sequence(self.backend, completion, self.state)
                     except Exception as error:
                         self.failure('retention', error); self.state['retention'] = 'INCOMPLETE'; self.state['status'] = 'FAIL'
                     # Failed retention also holds the lease; a later recovery can retain
@@ -190,13 +245,12 @@ def reconcile(backend, root):
     require(lease['schema'] == 'gse-v50-cloud-lease-v1' and lease['request'] == backend.request and
             lease['plan'] == backend.plan, 'lease identity mismatch')
     require(int(time.time()) > lease['expiresAt'] + backend.plan['commandTimeoutSeconds'], 'active owner may still be running')
-    expected = resources(backend.plan, backend.request)
-    require([{k: r[k] for k in e} for r, e in zip(lease['resources'], expected)] == expected and
-            len(lease['resources']) == len(expected), 'cleanup inventory scope')
+    validate_inventory(backend.plan, backend.request, lease['resources'])
+    if hasattr(backend, 'resource_inventory'): backend.resource_inventory = lease['resources']
     if hasattr(backend, 'known_ids'):
         backend.known_ids.update({r['name']: r['id'] for r in lease['resources'] if 'id' in r})
     errors = []; observations = []
-    for row in reversed(lease['resources']):
+    for row in deletion_order(lease['resources']):
         try:
             if hasattr(backend, 'insert_finished'):
                 require(backend.insert_finished(row), 'insert is still unresolved; retain lease')

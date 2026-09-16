@@ -50,6 +50,7 @@ class Gcp:
         self.base = 'https://compute.googleapis.com/compute/v1/projects/' + plan['project']
         self.ssh_key = ssh_key
         self.known_ids = {}
+        self.resource_inventory = resources(plan, request) if 'owner' in request else []
 
     def url(self, resource):
         scope = 'global' if resource['kind'] == 'firewalls' else 'zones/' + self.plan['zone']
@@ -125,7 +126,10 @@ class Gcp:
         require(str(value['id']) == expected_id and self.owns(value), 'refusing changed resource ownership')
         require(not value.get('users'), 'disk remains attached')
         if resource['kind'] == 'instances':
-            expected = {r['name']: r for r in resources(self.plan, self.request) if r['kind'] == 'disks'}
+            from .cloud_common import validate_inventory
+            inventory = getattr(self, 'resource_inventory', resources(self.plan, self.request))
+            validate_inventory(self.plan, self.request, inventory)
+            expected = {r['name']: r for r in inventory if r['kind'] == 'disks'}
             for attached in value.get('disks', []):
                 name = attached['source'].rsplit('/', 1)[-1]
                 require(name in expected, 'foreign disk attached to owned VM')
