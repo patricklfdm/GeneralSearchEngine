@@ -11,6 +11,11 @@ on:
       prepared_run:
         description: Actions run ID containing the reviewed v50-prepared artifact (run only)
         type: string
+      profile:
+        description: Full workload presets support plan/fake only; paid runtime integration is pending
+        type: choice
+        default: admission-probe
+        options: [admission-probe, experiment, failure-drill, canonical]
       confirmation:
         description: Exact request SHA-256 approved for this run or retained-lease cleanup
         type: string
@@ -44,12 +49,20 @@ jobs:
       PREPARED_RUN: ${{ inputs.prepared_run }}
       CONFIRMATION: ${{ inputs.confirmation }}
       ADMISSION_JSON: ${{ inputs.admission_json }}
+      PRESET: ${{ inputs.profile || 'admission-probe' }}
       MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
     steps:
       - name: Require protected master
         env:
           TRUSTED_REF: ${{ github.ref }}
         run: test "$TRUSTED_REF" = refs/heads/master
+
+      - name: Enforce preset execution scope before credentials
+        run: |
+          if [[ "$PRESET" != admission-probe && "$EXECUTION" != plan && "$EXECUTION" != fake ]]; then
+            echo 'Full workload presets currently support plan/fake qualification only' >&2
+            exit 2
+          fi
 
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -61,7 +74,7 @@ jobs:
 
       - name: Plan and fake lifecycle without credentials
         if: ${{ inputs.execution == 'plan' || inputs.execution == 'fake' }}
-        run: python -m scripts.v50.cloud_entry "$EXECUTION" --output target/v50-cloud/evidence
+        run: python -m scripts.v50.cloud_entry "$EXECUTION" --profile "$PRESET" --output target/v50-cloud/evidence
 
       - name: Authenticate exact protected workflow
         if: ${{ github.event_name == 'schedule' || (inputs.execution != 'plan' && inputs.execution != 'fake') }}

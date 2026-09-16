@@ -93,13 +93,13 @@ def validate_resources(directory,plan,windows=()):
 def identity(value,receipt,metadata,plan,kind):
     f.check(value['pid']==receipt['pid'] and value['planSha256']==PLAN_SHA256 and value['coreSource']==metadata['jars'][kind]['path'],'process/artifact identity')
     f.check(value['jvmArguments']==plan['jvmArguments'] and value['availableProcessors']==8 and value['os']=='Linux' and value['javaRuntime'].startswith('21'),'JVM identity')
-    args=receipt['args'];f.check(args[:5]==['java',*plan['jvmArguments']] and args[5]=='-cp','JVM command flags')
+    args=receipt['args'];f.check(args[:5]==[metadata.get('javaExecutable','java'),*plan['jvmArguments']] and args[5]=='-cp','JVM command flags')
     wanted=[metadata['jars'][kind]['path']] if kind=='control' else [metadata['jars'][n]['path'] for n in ('core','replication')]
     f.check(args[6].split(':')[:-1]==wanted,'isolated classpath')
     f.check(receipt['startedNanos']<receipt['finishedNanos'],'process duration')
 
 
-def inspect_authority(path,plan,frames):
+def inspect_authority(path,plan,frames,volume_layout=False):
     report=runtime_format.inspect(path,torn=True)
     f.check(report['base']==256 and report['lastIndex']<=32768,'authority index bounds')
     genesis=f.genesis((path/'genesis.gsr').read_bytes());genesis['raw']=(path/'genesis.gsr').read_bytes()
@@ -112,6 +112,10 @@ def inspect_authority(path,plan,frames):
         f.check(replica['replicationBounds']==plan['replicationBounds'],'resolved replication bounds')
         mat=replica['materialization'];f.check(all(v==plan['application'][k] for k,v in mat['bounds'].items()),'resolved application bounds')
         f.check(mat['codecId']=='semantic-codec' and mat['codecVersion']==1 and mat['schemaIdentity']=='semantic-schema' and mat['storageIdentity']=='performance-store','storage identity')
+        node=replica['node'];ordinal=node.removeprefix('node-')
+        target=Path(replica['target']['path']);materialization=Path(mat['directory']['path'])
+        f.check(target.name==node and materialization==target.parent/('materialization-'+node),'authority/materialization placement')
+        f.check((target.parent.name=='volume-'+ordinal) is volume_layout,'sealed volume layout')
     # Match the snapshot's complete ancestry and application to independently replayed wire payloads.
     if (path/'current.gsr').exists():
         selector=f.record((path/'current.gsr').read_bytes(),10);selector.take(32);selector.text(64);slot=selector.text(32)
@@ -133,6 +137,17 @@ def validate_raw(root):
     f.check(env['members']==['node-1','node-2','node-3'] and 0<env['finishedNanos']-env['startedNanos']<=local['maximumRunSeconds']*10**9,'set members/deadline')
     before=inventory(root,exclude=('set.json',),logical=True);f.check(env['files']==before,'evidence inventory')
     meta=read(root/'metadata.json');f.check(meta['execution']==local['execution'] and re.fullmatch('[0-9a-f]{40}',meta['head']) and type(meta['dirty']) is bool,'source provenance')
+    volume_layout=meta.get('volumeLayout',False);f.check(type(volume_layout) is bool,'volume layout flag')
+    if (root/'offline-bundle.json').exists():
+        bundle=read(root/'offline-bundle.json')
+        f.check(bundle['schema']=='gse-v50-cloud-workload-bundle-v1' and bundle['execution']=='offline-workload-bundle-only' and
+                bundle['workloadPlanSha256']==PLAN_SHA256 and bundle['inputs']==meta['inputs'] and bundle['source']==meta['head'] and
+                bundle['dirty']==meta['dirty'] and bundle['jars']=={n:v['sha256'] for n,v in meta['jars'].items()},'offline bundle provenance')
+        f.check(meta['javaExecutable'].endswith('/jre/bin/java') and '21.0.12+8' in meta['java'],'bundled runtime identity')
+        for directory in ('classes-candidate','classes-control'):
+            expected={k.removeprefix(directory+'/'):v for k,v in bundle['files'].items() if k.startswith(directory+'/')}
+            f.check(inventory(root/directory)==expected,'independently compiled bundle classes')
+    else: f.check(meta.get('javaExecutable','java')=='java','unbound runtime executable')
     f.check(sum(v['bytes'] for k,v in before.items() if k.startswith(('streams/','control-streams/','restore-streams/')))<=plan['evidenceBounds']['maxSamplesAndTracesBytes'],'combined sample/trace budget')
     f.check(meta['arithmetic']==arithmetic(plan),'forged budget arithmetic');validate_source_archive(root/'source-inputs.zip',meta['inputs'])
     f.check(meta['inputs']['docs/v5x/v5.0/phase6-cloud-workload-plan.json']==PLAN_SHA256,'source plan binding')
@@ -167,7 +182,10 @@ def validate_raw(root):
     paths=[root/n for n in env['members']]+list(root.glob('lost-node-*'))+list((root/'cuts').glob('*/node-*'))+list((root/'capacity-sources').iterdir())
     reports=[];manifest=None
     for path in paths:
-        report,manifest=inspect_authority(path,plan,frames);reports.append(report)
+        report,manifest=inspect_authority(path,plan,frames,volume_layout);reports.append(report)
+    if volume_layout:
+        for i in (1,2,3):
+            f.check(inventory(root/f'node-{i}',logical=True)==inventory(root/f'volume-{i}'/f'node-{i}',logical=True),'retained volume authority differs')
     final=reports[:3];strongest=max(final,key=lambda r:r['committed']);history=strongest['anchors'][:strongest['committed']]
     for report in reports:
         common=min(report['committed'],len(history));f.check(report['anchors'][:common]==history[:common],'conflicting proven history')
@@ -245,7 +263,7 @@ def validate_raw(root):
     f.check(inventory(root,exclude=('set.json',),logical=True)==before,'validator mutated evidence')
     return dict(status='PASS',execution=local['execution'],preset=local['preset'],sourceHead=meta['head'],sourceDirty=meta['dirty'],
                 corpusDocuments=4096,measuredCalls=len(calls)-10,durableSuccess=successes-8,committedThrough=len(history),applicationSequence=model.sequence,
-                cells=len(local['cells']),planSha256=PLAN_SHA256)
+                cells=len(local['cells']),planSha256=PLAN_SHA256,volumeLayout=volume_layout,offlineBundle=(root/'offline-bundle.json').exists())
 
 
 def validate_cells(root,plan,members,frames,history,views,restored):

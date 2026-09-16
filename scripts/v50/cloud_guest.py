@@ -40,6 +40,7 @@ def install(archive, expected):
         check(all(m.isfile() and not Path(m.name).is_absolute() and '..' not in Path(m.name).parts for m in members), 'unsafe bundle path')
         BASE.mkdir(); stream.extractall(BASE, members=members, filter='data')
     manifest = json.loads((BASE / 'bundle.json').read_bytes())
+    check(manifest['schema'] == 'gse-v50-cloud-bundle-v1' and 'execution' not in manifest, 'admission-probe bundle required')
     actual = {str(p.relative_to(BASE)) for p in BASE.rglob('*') if p.is_file()} - {'bundle.json'}
     check(actual == set(manifest['files']), 'bundle member set')
     for name, record in manifest['files'].items():

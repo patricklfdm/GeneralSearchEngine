@@ -126,6 +126,12 @@ def negatives(raw,output):
         'changed-protected-source':lambda r:change_json(r,'cells.json',lambda v:next(c for c in v if c['name']=='capacity')['details'].update(sourceAfter={})),
         'forged-capacity':lambda r:change_json(r,'cells.json',lambda v:next(c for c in v if c['name']=='capacity')['details']['attempts'][-1].update(reason='STORAGE_FAILURE')),
     }
+    if (raw/'offline-bundle.json').exists():
+        cases['changed-bundle-class'] = lambda r: next((r/'classes-candidate').rglob('V50CloudWorkloadConsumer.class')).write_bytes(b'forged')
+        cases['forged-bundle-inputs'] = lambda r: change_json(r,'offline-bundle.json',lambda v:v.update(inputs={}))
+    if json.loads((raw/'metadata.json').read_text()).get('volumeLayout'):
+        cases['false-volume-layout'] = lambda r: change_json(r,'metadata.json',lambda v:v.update(volumeLayout=False))
+        cases['missing-volume-authority'] = lambda r: (r/'volume-1/node-1/manifest.gsr').unlink()
     for name,mutate in cases.items():
         with tempfile.TemporaryDirectory(prefix='gse-workload-negative-') as tmp:
             candidate=Path(tmp)/'raw';shutil.copytree(raw,candidate);mutate(candidate)

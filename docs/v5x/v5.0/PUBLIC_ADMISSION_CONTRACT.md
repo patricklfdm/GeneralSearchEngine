@@ -1,6 +1,6 @@
 # V5.0 public bootstrap and lifecycle contract amendment
 
-- **Status:** Contract accepted through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151); Steps A/B/C accepted; [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) accepted; [6A](PHASE_6_LOCAL_PERFORMANCE.md) accepted; [6B](PHASE_6_CLOUD_RUNNER.md) runner accepted; [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) accepted; [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) candidate
+- **Status:** Contract accepted through [PR #151](https://github.com/patricklfdm/GeneralSearchEngine/pull/151); Steps A/B/C accepted; [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md) accepted; [6A](PHASE_6_LOCAL_PERFORMANCE.md) accepted; [6B](PHASE_6_CLOUD_RUNNER.md) runner accepted; [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) accepted; [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) accepted; [runner preset qualification](PHASE_6_RUNNER_PRESETS.md) candidate
 - **Base:** Phase 5 accepted at `4a8fd3dfd9e398d712e896c9af511cf55f4cb16e`
 - **Scope:** Complete the public-admission gap before Phase 6
 - **API delta:** [Proposed declarations and compatibility](PUBLIC_ADMISSION_API.md)

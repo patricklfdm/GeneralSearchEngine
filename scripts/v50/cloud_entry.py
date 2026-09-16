@@ -64,6 +64,8 @@ def execute(prepared, output, approval_path, confirmation):
     with tempfile.TemporaryDirectory(prefix='gse-v50-execute-') as temporary:
         content = Path(temporary) / 'bundle'; extract(archive, content)
         manifest = read(content / 'bundle.json', 16 << 20)
+        require(manifest['schema'] == 'gse-v50-cloud-bundle-v1' and 'execution' not in manifest,
+                'paid execution requires the admission-probe bundle schema')
         actual = inventory(content); actual.pop('bundle.json')
         require(actual == manifest['files'], 'bundle inventory')
         inputs = source_inputs(); inputs['docs/v5x/v5.0/phase6-runner-plan.json'] = sha((ROOT / 'docs/v5x/v5.0/phase6-runner-plan.json').read_bytes())
@@ -91,10 +93,20 @@ def main():
     parser.add_argument('--output', required=True, type=Path); parser.add_argument('--source')
     parser.add_argument('--control-jar', type=Path); parser.add_argument('--run-id'); parser.add_argument('--attempt', default='1')
     parser.add_argument('--prepared', type=Path); parser.add_argument('--approval', type=Path); parser.add_argument('--confirm-request')
+    parser.add_argument('--profile', choices=['admission-probe', 'experiment', 'failure-drill', 'canonical'], default='admission-probe')
     args = parser.parse_args(); p = plan()
+    require(args.profile == 'admission-probe' or args.mode in ('plan', 'fake'),
+            'full workload presets currently support plan/fake qualification only')
     if args.mode == 'plan':
+        if args.profile != 'admission-probe':
+            from .cloud_presets import preset
+            p = preset(args.profile)
         result = dict(plan=p, paidResourcesCreated=False, execution='plan-only'); save(args.output / 'plan.json', result)
-    elif args.mode == 'fake': result = fake_matrix(args.output)
+    elif args.mode == 'fake':
+        if args.profile == 'admission-probe': result = fake_matrix(args.output)
+        else:
+            from .cloud_preset_fake import matrix
+            result = matrix(args.output, args.profile)
     elif args.mode == 'prepare':
         require(args.source and args.control_jar and args.run_id, 'prepare requires source, control JAR and run ID')
         result = prepare(args.output, args.source, args.control_jar, args.run_id, args.attempt)

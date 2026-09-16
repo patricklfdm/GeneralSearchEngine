@@ -1,6 +1,6 @@
 # V5.0 Phase 6 performance and cloud entry plan
 
-- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence implementation candidate
+- **Status:** Accepted through PR #156 and exact-master documentation CI; 6A accepted; 6B runner accepted; cloud workload plan accepted; workload/evidence accepted; runner preset qualification candidate
 - **Branch:** `docs/v5.0-phase6-entry-plan`
 - **Starting master:** `836137aba672c010d0c7e3fc07bc194359543d9f`
 - **Predecessor:** [Step C, PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155), [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
@@ -59,9 +59,11 @@ and exact-master CI `35043760510`. [6B cloud runner and preflight](PHASE_6_CLOUD
 was accepted through PR #158 and exact-master CI `35051728286`.
 Its reduced admission probe does not close the full cloud workload/preset gate.
 The [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159
-with documentation CI `35053778177`. The current candidate is the
-[workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md), followed by a separate
-runner-preset integration PR before 6C.
+with documentation CI `35053778177`.
+[Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
+with exact-master full CI `35058372449`. The current candidate is
+[runner preset qualification](PHASE_6_RUNNER_PRESETS.md), followed by remote
+execution and cloud evidence validation before 6C.
 The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns

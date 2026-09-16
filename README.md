@@ -38,8 +38,9 @@ The [Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) was accepted in PR
 [6A local performance and evidence](docs/v5x/v5.0/PHASE_6_LOCAL_PERFORMANCE.md) was accepted in PR #157.
 [6B cloud runner and preflight](docs/v5x/v5.0/PHASE_6_CLOUD_RUNNER.md) was accepted in PR #158.
 The [full cloud workload plan](docs/v5x/v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
-The current candidate implements [cloud workload and independent evidence](docs/v5x/v5.0/PHASE_6_CLOUD_WORKLOAD.md);
-runner preset integration and paid admission remain pending.
+[Cloud workload and independent evidence](docs/v5x/v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160.
+The current candidate is [runner preset qualification](docs/v5x/v5.0/PHASE_6_RUNNER_PRESETS.md);
+remote integration and paid admission remain pending.
 See the [V5 development line](docs/v5x/README.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,

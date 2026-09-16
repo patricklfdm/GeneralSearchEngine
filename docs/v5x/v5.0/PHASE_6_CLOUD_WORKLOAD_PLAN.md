@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud workload plan
 
-- **Status:** Plan accepted through PR #159 and exact-master documentation CI; workload/evidence implementation candidate
+- **Status:** Plan accepted through PR #159 and exact-master documentation CI; workload/evidence accepted; runner preset qualification candidate
 - **Branch:** `docs/v5.0-phase6-cloud-workload-plan`
 - **Starting master:** `72137865f39535e8f41052b455bbfdd0e01be163`
 - **Predecessor:** [PR #158](https://github.com/patricklfdm/GeneralSearchEngine/pull/158), [exact-master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
@@ -305,7 +305,8 @@ enablement and an exact paid confirmation remain separate later actions.
 | Next PR | Deliverable | Required gate |
 | --- | --- | --- |
 | Cloud workload and evidence | Materialize this plan as a separate JSON contract; parameterized public worker, deterministic schedule, streaming independent model/validators, bounded evidence extension | Reduced named local preset plus full-size corpus/byte arithmetic checks, ordered fault/public-operation sequence, concurrent read-cut verification and resealed semantic negatives; no cloud credentials |
-| Runner preset integration | Add explicit experiment/failure-drill/canonical selection, timed cells, safe signals/network faults, replacement resource generations, retention and shared ledger sequencing | Same runner decisions through fake adapter, real local three-JVM workload, partial replacement/lost create ACK/collection overflow/cancellation/cleanup failures; full CI on exact merged source |
+| Runner preset qualification | Add explicit experiment/failure-drill/canonical plan/fake selection, closed elapsed allocations, replacement resource generations and shared ledger sequencing; full offline bundle with volume paths | Same runner decisions through fake adapter, serial-set/cost negatives, partial replacement/lost create ACK/cancellation/cleanup failures, real local three-JVM workload and full CI |
+| Remote runner preset integration | Connect remote signals/network faults, public replacement, timed cloud cells, bounded collection and independent cloud/member/set provenance | Real adapter contracts, collection overflow/failure and resealed cloud-provenance negatives; exact-source full CI before paid preparation |
 | 6C staged execution | Fresh read-only admission, current-price complete-sequence review and explicit paid confirmation; then experiment, failure-drill, three canonical topologies serially | Independently valid member/topology/set evidence and cleanup after every topology |
 | 6D registration | Review every retained result and exact measured source/artifacts; separate append-only baseline PR | Register `v5.0.0-replicated-cloud` only after complete accepted evidence |
 
@@ -319,7 +320,7 @@ Local reduced receipts, fake cloud receipts and real cloud receipts remain disti
 - [x] Runner PR #158 and exact-master CI accepted, including executed 6A/6B gates.
 - [x] Corpus, operation mix, rates, ordered cells, durations and resource/evidence budgets proposed.
 - [x] This documentation plan accepted through PR #159 and exact-master documentation CI `35053778177`.
-- [ ] Cloud workload/evidence implementation accepted with its independent negative fixtures.
+- [x] Cloud workload/evidence implementation accepted in PR #160 with exact-master full CI `35058372449` and 22 independent negative fixtures.
 - [ ] Runner preset integration accepted with local/fake and exact-source full CI.
 - [ ] Fresh admission, cloud setup and exact paid confirmation complete.
 - [ ] Experiment, failure-drill and three canonical repetitions independently accepted.
@@ -348,5 +349,7 @@ protected acceptance completed below.
 [PR CI 35053755868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35053755868)
 and [exact-master CI 35053778177](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35053778177)
 passed Change scope and Required, with all four full-build jobs correctly skipped.
-The current candidate is the [cloud workload and evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).
-Runner preset integration and paid admission remain later gates.
+[Cloud workload and evidence](PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
+with exact-master full CI `35058372449`. The current candidate is
+[runner preset qualification](PHASE_6_RUNNER_PRESETS.md).
+Remote integration and paid admission remain later gates.

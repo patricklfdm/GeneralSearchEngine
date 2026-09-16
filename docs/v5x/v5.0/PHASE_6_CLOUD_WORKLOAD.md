@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud workload and evidence implementation
 
-- **Status:** Implementation candidate; local qualification only
+- **Status:** Accepted through PR #160 and exact-master CI; local qualification only
 - **Branch:** `feat/v5.0-phase6-cloud-workload-evidence`
 - **Starting master:** `29f3d8458d93023c5d4d86b6a22692b4e95d14f8`
 - **Predecessor:** [PR #159](https://github.com/patricklfdm/GeneralSearchEngine/pull/159), [exact-master CI 35053778177](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35053778177)
@@ -23,11 +23,10 @@ also resolve the three planned cloud profiles. The new local controller executes
 named reduced qualification preset with the full 4096-document corpus and 2-GiB heap.
 It has no GCP adapter and cannot admit paid/cloud evidence.
 
-The accepted runner still exposes only `admission-probe`. The next implementation
-PR connects the full presets to its timed cloud cells, resource generations,
-retention and admission controls. VM/disk ownership, cloud provenance and canonical
-set acceptance remain that integration's gates. Local directories used to simulate
-disk loss do not attest physical cloud-disk replacement.
+Runner integration now proceeds through [preset qualification](PHASE_6_RUNNER_PRESETS.md)
+followed by remote execution and cloud evidence validation. VM/disk ownership, cloud
+provenance and canonical set acceptance remain integration gates. Local directories
+used to simulate disk loss do not attest physical cloud-disk replacement.
 
 ## Public workload and local schedule
 
@@ -141,7 +140,7 @@ No IAM, cleanup enablement or paid dispatch is performed by this implementation.
 - [x] Fourteen-cell development qualification and independent replay pass.
 - [x] Resealed semantic negatives reject forged readings, success/proof/force observations, cells, resources, summaries, ownership/cleanup and replacement claims.
 - [x] Final candidate build and local gate pass; regression receipts recorded below.
-- [ ] Protected implementation PR and exact-master full CI accepted.
+- [x] Protected implementation PR #160 and exact-master full CI accepted.
 - [ ] Full runner preset integration and real cloud evidence provenance accepted.
 - [ ] Fresh preflight, cloud setup, exact paid confirmation and staged 6C evidence accepted.
 - [ ] Independent 6D review and baseline registration accepted.
@@ -164,5 +163,18 @@ The workload receipt records starting HEAD `29f3d8458d93023c5d4d86b6a22692b4e95d
 with `sourceDirty=true` and the final source/build-input inventory. Its plan SHA-256
 is `148e7808680b51f1427d9be535291ec7629c7a64eac59bf8ac96691b7a6086fa`.
 The final local evidence is `target/v50-cloud-workload/run.3wxL5X/evidence`.
-These results qualify the local workload/evidence implementation; clean-source
-acceptance follows through the protected PR and exact-master CI.
+These are development receipts. Clean-source acceptance completed below.
+
+## Protected acceptance
+
+[PR #160](https://github.com/patricklfdm/GeneralSearchEngine/pull/160) merged at
+`cc46be814c23ea7544a0aafed30085f62c9de159`.
+[PR CI 35056941292](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35056941292)
+and [exact-master CI 35058372449](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35058372449)
+passed all six jobs. The master Reactor log confirms public runtime, 6A, 6B and
+the full-workload gate actually executed. The workload receipt reports this exact
+source with `sourceDirty=false`, 4096 documents, fourteen cells, 72 measured calls,
+56 durable measured mutations, committed index 92 and application sequence 340.
+All 22 resealed semantic negatives were rejected. The pinned workload plan hash
+matches the local receipt above. Acceptance supplies local qualification, not a
+paid-readiness receipt or real cloud measurement.

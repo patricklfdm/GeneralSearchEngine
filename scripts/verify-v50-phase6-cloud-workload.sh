@@ -16,11 +16,13 @@ if [[ ! -f "$control_jar" && -z "${GSE_V50_CONTROL_JAR:-}" ]]; then
     -Dartifact=io.github.patricklfdm:general-search-engine:4.4.0 \
     -DoutputDirectory="$root/target/v50-control"
 fi
-"$python_command" -m unittest scripts.v50.test_cloud_workload
+"$python_command" -m unittest scripts.v50.test_cloud_workload scripts.v50.test_cloud_presets
 mkdir -p target/v50-cloud-workload
 work_parent=$(mktemp -d "$root/target/v50-cloud-workload/run.XXXXXX")
 echo "v50CloudWorkloadEvidence=$work_parent/evidence"
+"$python_command" -m scripts.v50.cloud_entry fake --profile canonical --output "$work_parent/presets"
+"$python_command" -m scripts.v50.cloud_bundle "$work_parent/artifacts" --control-jar "$control_jar" --workload-qualification
 timeout --signal=TERM --kill-after=10s 490s "$python_command" -m scripts.v50.cloud_workload_harness \
-  "$work_parent/evidence" --control-jar "$control_jar"
+  "$work_parent/evidence" --control-jar "$control_jar" --volume-layout --bundle "$work_parent/artifacts/bundle"
 "$python_command" -m scripts.v50.test_cloud_workload --evidence "$work_parent/evidence/raw" --output "$work_parent/semantic-negatives.json"
-echo 'v50CloudWorkload=PASS execution=local-cloud-workload-only'
+echo 'v50CloudWorkload=PASS execution=local-cloud-workload-only volumeLayout=true offlineBundle=true'

@@ -160,8 +160,9 @@ inherited cloud resource ceilings, with cloud execution explicitly disabled.
 [6B](PHASE_6_CLOUD_RUNNER.md) now supplies the accepted runner, preflight machinery,
 guest/storage identities and reduced cloud evidence provenance. The separate
 [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159;
-[workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) and runner preset
-integration still require acceptance before 6C measurements. Cloud presets
+[workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160.
+[Runner preset qualification](PHASE_6_RUNNER_PRESETS.md) and remote integration
+still require acceptance before 6C measurements. Cloud presets
 must allocate the complete cell matrix and measurement budgets from the accepted
 [entry plan](PHASE_6_ENTRY_PLAN.md); a local reduced schedule cannot satisfy them.
 
@@ -227,5 +228,7 @@ The 6A receipt reports `sourceDirty=false`, sequence 76, committed index 73,
 80 measured requests, 64 durable writes, one no-quorum indeterminate call and
 20 rejected semantic negatives. [6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md)
 has since been accepted through PR #158 and the
-[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) through PR #159. The current
-candidate is the [workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md).
+[full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) through PR #159.
+[Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
+with exact-master CI `35058372449`. The current candidate is
+[runner preset qualification](PHASE_6_RUNNER_PRESETS.md).

@@ -83,6 +83,34 @@ def resources(p, r):
     return rows
 
 
+def replacement_resource(p, r, node):
+    from .cloud_presets import validate_request
+    require(node in validate_request(r)['replacementNodes'], 'replacement outside preset')
+    return dict(kind='disks', name=f"{r['owner']}-n{node}-data-g2", purpose='data', node=node,
+                sizeGiB=p['dataDiskGiB'], generation=2, replaces=f"{r['owner']}-n{node}-data")
+
+
+def validate_inventory(p, r, rows):
+    """Closed initial inventory plus an ordered prefix of reviewed disk generations."""
+    expected = resources(p, r)
+    if r['profile'] != 'admission-probe':
+        from .cloud_presets import validate_request
+        allowed = validate_request(r)['replacementNodes']
+        count = len(rows) - len(expected)
+        require(0 <= count <= len(allowed), 'replacement inventory count')
+        expected += [replacement_resource(p, r, node) for node in allowed[:count]]
+    require(len(rows) == len(expected) and
+            [{k: row.get(k) for k in item} for row, item in zip(rows, expected)] == expected,
+            'cleanup inventory scope')
+    return expected
+
+
+def deletion_order(rows):
+    # Appended replacement disks come after VMs in the journal, but are still
+    # attached to those VMs. Always delete instances before any disk generation.
+    return sorted(reversed(rows), key=lambda row: {'instances': 0, 'disks': 1, 'firewalls': 2}[row['kind']])
+
+
 def prefix(p, r):
     return '/'.join((p['evidencePrefix'], r['source'], r['runId'] + '-' + r['attempt'] + '-' + r['nonce']))
 

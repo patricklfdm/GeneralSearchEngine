@@ -13,15 +13,21 @@ import static io.github.patricklfdm.generalsearch.admission.CloudWorkload.*;
 public final class V50CloudWorkloadConsumer {
     private V50CloudWorkloadConsumer() { }
     public static List<ReplicationGroupConfig<Integer,AdmissionSemanticModel.Doc>> configs(Path root, String endpoints, Plan plan) {
+        return configs(root, endpoints, plan, false);
+    }
+    public static List<ReplicationGroupConfig<Integer,AdmissionSemanticModel.Doc>> configs(Path root, String endpoints, Plan plan, boolean volumes) {
         var addresses=endpoints.split(","); var b=plan.section("replicationBounds");
         var members=java.util.stream.IntStream.range(0,3).mapToObj(i -> new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),
                 new ReplicationEndpoint(addresses[i].split(":")[0],Integer.parseInt(addresses[i].split(":")[1])))).toList();
         var bounds=new ReplicationBounds(number(b,"maxFrameBytes"),number(b,"maxEntriesPerAppend"),number(b,"maxInFlightPerPeer"),
                 number(b,"maxPendingClientOperations"),number(b,"maxRetryAttempts"),number(b,"requestTimeoutMillis"),number(b,"retryBackoffMillis"),
                 number(b,"snapshotChunkBytes"),number(b,"maxRetainedLogBytes"),number(b,"maxSnapshotStagingBytes"));
-        return members.stream().map(m -> new ReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("50000000-0000-0000-0000-000000000016")),
-                "phase6-cloud-workload-v1",m.nodeId(),members.getFirst().nodeId(),members,root.resolve(m.nodeId().value()),
-                storage(root.resolve("materialization-"+m.nodeId().value()),plan),bounds)).toList();
+        return members.stream().map(m -> {
+            Path directory = volumes ? root.resolve("volume-" + m.nodeId().value().substring(5)) : root;
+            return new ReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("50000000-0000-0000-0000-000000000016")),
+                    "phase6-cloud-workload-v1",m.nodeId(),members.getFirst().nodeId(),members,directory.resolve(m.nodeId().value()),
+                    storage(directory.resolve("materialization-"+m.nodeId().value()),plan),bounds);
+        }).toList();
     }
     public static Map<String,Object> status(ReplicatedSearchEngine<?,?> engine) {
         var s=engine.replicationStatus(); var d=engine.replicationDiagnostics(); var m=engine.durabilityMetrics();
@@ -36,7 +42,7 @@ public final class V50CloudWorkloadConsumer {
     }
     public static void main(String[] args) throws Exception {
         Path root=Path.of(args[0]); int ordinal=Integer.parseInt(args[1]); var plan=plan(Path.of(args[3]));
-        var configs=configs(root,args[2],plan); var builder=PerformanceWorkload.builder();
+        var configs=configs(root,args[2],plan,args[args.length-1].equals("volumes")); var builder=PerformanceWorkload.builder();
         if (ordinal==0) {
             if (args[4].equals("bootstrap")) {
                 var request=new ReplicationBootstrapRequest<>(ReplicationBootstrapSource.VERIFIED_V44_BACKUP,root.resolve("source"),configs,
