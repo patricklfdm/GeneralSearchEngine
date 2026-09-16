@@ -1,6 +1,6 @@
 # V5.0 testing and evidence plan
 
-- **Status:** Accepted Phase 0 plan, Phases 1–5 and public-admission Steps A/B/C; Phase 6 entry plan accepted; 6A local performance candidate
+- **Status:** Accepted Phase 0 plan, Phases 1–5 and public-admission Steps A/B/C; Phase 6 entry plan accepted; 6A accepted; 6B cloud runner candidate
 - **Published control:** exact GeneralSearchEngine `4.4.0`
 - **Foundation evidence schema:** `gse-v50-replication-evidence-v1`; 6A adds separate `gse-v50-performance-evidence-v1` and member schema
 - **Planned suite:** `v5.0-replicated-single-shard-suite-v1`

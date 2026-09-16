@@ -99,7 +99,7 @@ def identity(value, receipt, metadata, plan, plan_sha, jar):
             value['availableProcessors'] == 2 and value['os'] == 'Linux' and value['javaRuntime'].startswith('21'), 'runtime identity')
     f.check(receipt['exitCode'] == 0 and receipt['startedNanos'] < receipt['finishedNanos'], 'process lifetime/exit')
     args = receipt['args']
-    f.check(args[:5] == ['java', *plan['jvmArguments']] and args[5] == '-cp', 'process JVM flags')
+    f.check(args[:5] == [metadata.get('javaExecutable', 'java'), *plan['jvmArguments']] and args[5] == '-cp', 'process JVM flags')
     expected_jars = [metadata['jars'][jar]['path']] if jar == 'control' else [metadata['jars'][n]['path'] for n in ('core', 'replication')]
     entries = args[6].split(':')
     f.check(entries[:-1] == expected_jars and entries[-1].endswith('/classes-' + ('control' if jar == 'control' else 'candidate')), 'isolated runtime classpath')
@@ -160,21 +160,27 @@ def selected_state(root, node, plan, model):
     return report
 
 
-def validate(root, expected_plan):
+def validate(root, expected_plan, *, cloud=False):
     root = Path(root); expected_plan = Path(expected_plan)
     plan = read(root / 'plan.json'); validate_plan(plan)
     f.check((root / 'plan.json').read_bytes() == expected_plan.read_bytes(), 'unreviewed plan')
     psha = digest(expected_plan.read_bytes()); model = schedule(plan)
     envelope = read(root / 'set.json')
+    if cloud:
+        from .cloud_evidence import hosts
+        hosts(root)
+    execution = 'gcp-public-admission-probe-only' if cloud else plan['execution']
+    schema = 'gse-v50-cloud-probe-v1' if cloud else plan['evidenceSchema']
+    preset = 'v5.0-three-vm-admission-probe-v1' if cloud else plan['preset']
     f.check((envelope['schema'], envelope['execution'], envelope['preset'], envelope['protocol'], envelope['planSha256']) ==
-            (plan['evidenceSchema'], plan['execution'], plan['preset'], plan['protocol'], psha), 'set provenance')
+            (schema, execution, preset, plan['protocol'], psha), 'set provenance')
     f.check(envelope['members'] == ['node-1', 'node-2', 'node-3'], 'member set')
     original = inventory(root); f.check(envelope['files'] == original, 'member inventory/checksum')
-    f.check(0 < envelope['finishedNanos'] - envelope['startedNanos'] <= plan['localSmoke']['maximumRunSeconds'] * 1_000_000_000, 'run deadline')
+    f.check(0 < envelope['finishedNanos'] - envelope['startedNanos'] <= (5100 if cloud else plan['localSmoke']['maximumRunSeconds']) * 1_000_000_000, 'run deadline')
     metadata = read(root / 'metadata.json')
     f.check(inventory(root / 'source') == metadata['sourceBackup'], 'immutable source backup changed')
     f.check(re.fullmatch('[0-9a-f]{40}', metadata['head']) and type(metadata['dirty']) is bool and
-            metadata['execution'] == plan['execution'] and metadata['bootId'] and metadata['filesystem'] and metadata['maven'], 'source/host provenance')
+            metadata['execution'] == execution and metadata['bootId'] and metadata['filesystem'] and metadata['maven'], 'source/host provenance')
     with zipfile.ZipFile(root / 'source-inputs.zip') as archive:
         names = archive.namelist()
         f.check(len(names) == len(set(names)) and set(names) == set(metadata['inputs']) and
@@ -194,7 +200,7 @@ def validate(root, expected_plan):
                 value['result'] == read(root / 'processes' / (label + '.stdout')), 'control process binding')
     windows(control['result']['windows'], plan, model)
     members = [member(root, n, metadata, plan, psha) for n in envelope['members']]
-    f.check(len({m['pid'] for m in members}) == 3, 'three distinct JVMs')
+    f.check(cloud or len({m['pid'] for m in members}) == 3, 'three distinct JVMs')
     f.check(control['process']['finishedNanos'] < min(m['startedNanos'] for m in members) and
             max(m['finishedNanos'] for m in members) < restore['process']['startedNanos'], 'control isolation')
     f.check(envelope['startedNanos'] <= control['process']['startedNanos'] and
@@ -253,7 +259,7 @@ def validate(root, expected_plan):
     f.check(all(r['manifest'] == reports[0]['manifest'] and r['anchors'][:73] == reports[0]['anchors'][:73] for r in reports), 'conflicting topology history')
     f.check(read(root / 'measurements.json') == summary(candidate, control['result']['windows']), 'forged measurement aggregate')
     f.check(inventory(root) == original, 'validator modified evidence')
-    return dict(status='PASS', execution=plan['execution'], nodes=3, applicationSequence=model['sequence'],
+    return dict(status='PASS', execution=execution, nodes=3, applicationSequence=model['sequence'],
                 committedThrough=73, measuredRequests=80, durableSuccess=64, noQuorumIndeterminate=1,
                 sourceHead=metadata['head'], sourceDirty=metadata['dirty'], planSha256=psha)
 

@@ -1,0 +1,143 @@
+name: V5.0 Replication Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution:
+        description: Plan/fake/preflight are unpaid; prepare builds a review bundle; run requires exact paid admission
+        type: choice
+        default: plan
+        options: [plan, fake, preflight, prepare, run, reconcile]
+      prepared_run:
+        description: Actions run ID containing the reviewed v50-prepared artifact (run only)
+        type: string
+      confirmation:
+        description: Exact request SHA-256 approved for this run or retained-lease cleanup
+        type: string
+      admission_json:
+        description: Reviewed gse-v50-paid-admission-v1 cost and confirmation JSON (run only)
+        type: string
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v50-owned-gse-benchmark
+  cancel-in-progress: false
+
+jobs:
+  runner:
+    if: ${{ github.event_name != 'schedule' || vars.GSE_V50_EXPIRED_CLEANUP_ENABLED == 'true' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 110
+    environment: cloud-benchmark
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EXECUTION: ${{ github.event_name == 'schedule' && 'expired-cleanup' || inputs.execution }}
+      PREPARED_RUN: ${{ inputs.prepared_run }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+      ADMISSION_JSON: ${{ inputs.admission_json }}
+      MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
+    steps:
+      - name: Require protected master
+        env:
+          TRUSTED_REF: ${{ github.ref }}
+        run: test "$TRUSTED_REF" = refs/heads/master
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Plan and fake lifecycle without credentials
+        if: ${{ inputs.execution == 'plan' || inputs.execution == 'fake' }}
+        run: python -m scripts.v50.cloud_entry "$EXECUTION" --output target/v50-cloud/evidence
+
+      - name: Authenticate exact protected workflow
+        if: ${{ github.event_name == 'schedule' || (inputs.execution != 'plan' && inputs.execution != 'fake') }}
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: projects/266952534277/locations/global/workloadIdentityPools/gse-github/providers/general-search-engine
+          service_account: gse-cloud-benchmark@gse-benchmark.iam.gserviceaccount.com
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install pinned Cloud CLI
+        if: ${{ github.event_name == 'schedule' || (inputs.execution != 'plan' && inputs.execution != 'fake') }}
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Read-only preflight
+        if: ${{ inputs.execution == 'preflight' }}
+        run: python -m scripts.v50.cloud_preflight --source "$GITHUB_SHA" --output target/v50-cloud/preflight.json
+
+      - name: Set up pinned Java for preparation or execution
+        if: ${{ inputs.execution == 'prepare' || inputs.execution == 'run' }}
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Prepare exact offline bundle and expiring review receipt
+        if: ${{ inputs.execution == 'prepare' }}
+        run: |
+          ./mvnw -q org.apache.maven.plugins:maven-dependency-plugin:3.9.0:copy \
+            -Dartifact=io.github.patricklfdm:general-search-engine:4.4.0 \
+            -DoutputDirectory=target/v50-control
+          cp target/v50-control/general-search-engine-4.4.0.jar "$RUNNER_TEMP/v44-control.jar"
+          python -m scripts.v50.cloud_entry prepare --output target/v50-cloud/prepared \
+            --source "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --attempt "$GITHUB_RUN_ATTEMPT" \
+            --control-jar "$RUNNER_TEMP/v44-control.jar"
+
+      - name: Retain review bundle even when preflight blocks execution
+        if: ${{ always() && inputs.execution == 'prepare' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-prepared
+          path: |
+            target/v50-cloud/prepared/artifacts/bundle.tar.gz
+            target/v50-cloud/prepared/request.json
+            target/v50-cloud/prepared/preflight.json
+            target/v50-cloud/prepared/review.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Execute the exact reviewed request
+        if: ${{ inputs.execution == 'run' }}
+        run: |
+          [[ "$PREPARED_RUN" =~ ^[1-9][0-9]{0,19}$ ]]
+          [[ "$CONFIRMATION" =~ ^[0-9a-f]{64}$ ]]
+          mkdir -p target/v50-cloud
+          python -c 'import os,pathlib; pathlib.Path("target/v50-cloud/admission.json").write_text(os.environ["ADMISSION_JSON"])'
+          gh run download "$PREPARED_RUN" --name v50-prepared --dir target/v50-cloud/prepared
+          timeout --signal=TERM --kill-after=300s 5400s python -m scripts.v50.cloud_entry run \
+            --prepared target/v50-cloud/prepared --output target/v50-cloud/evidence \
+            --approval target/v50-cloud/admission.json --confirm-request "$CONFIRMATION"
+
+      - name: Reconcile only an expired retained ownership lease
+        if: ${{ github.event_name == 'schedule' || inputs.execution == 'reconcile' }}
+        run: |
+          python -m scripts.v50.cloud_entry "$EXECUTION" --output target/v50-cloud/cleanup \
+            --confirm-request "$CONFIRMATION"
+
+      - name: Retain failure, cleanup and preflight evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-runner-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v50-cloud
+          if-no-files-found: warn
+          retention-days: 14

@@ -1,6 +1,6 @@
 # V5.0 Phase 6A local performance and evidence
 
-- **Status:** Implementation candidate; protected PR and exact-master CI pending
+- **Status:** Accepted through PR #157 and exact-master CI `35043760510`
 - **Branch:** `feat/v5.0-phase6a-local-performance`
 - **Starting master:** `3eb0dc1067b3001c04768190a2844be69c137da3`
 - **Predecessor:** [Entry plan, PR #156](https://github.com/patricklfdm/GeneralSearchEngine/pull/156), [master CI 35039318340](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35039318340)
@@ -199,7 +199,7 @@ with `sourceDirty=true` and retains the exact candidate inputs.
 | Phase 6A | PASS; pinned V4 control, concurrent JVMs, independent state/measurement checks and 20 negative cases |
 | Documentation/shell | PASS; Phase 0 contract, local links, fences, shell syntax and whitespace |
 
-Cloud profiles and clean exact-master CI remain pending. The local run makes no
+Cloud profiles remain pending. Clean exact-master CI is now accepted below. The local run makes no
 throughput/p99 target or cloud-readiness claim.
 
 ## Acceptance
@@ -208,5 +208,17 @@ throughput/p99 target or cloud-readiness claim.
 - [x] Public consumer and independently compiled pinned V4 control execute locally.
 - [x] Final three-JVM smoke, independent member/set validation and 20 resealed negative cases pass.
 - [x] Consolidated reactor/release and existing V5 regression gates pass.
-- [ ] Protected 6A PR and exact-master CI accepted.
+- [x] Protected 6A PR and exact-master CI accepted.
 - [ ] 6B real runner/preflight and cloud preset review accepted.
+
+## Protected acceptance
+
+[PR #157](https://github.com/patricklfdm/GeneralSearchEngine/pull/157) merged at
+`7754b696fea7e6fb18c79dd632ab055f5f1da546`.
+[PR CI 35042495172](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35042495172)
+and [exact-master CI 35043760510](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35043760510)
+passed all six jobs. Master logs confirm public A/B/C, Phase 1–5 and 6A executed.
+The 6A receipt reports `sourceDirty=false`, sequence 76, committed index 73,
+80 measured requests, 64 durable writes, one no-quorum indeterminate call and
+20 rejected semantic negatives. The next candidate is
+[6B cloud runner and preflight](PHASE_6_CLOUD_RUNNER.md).
