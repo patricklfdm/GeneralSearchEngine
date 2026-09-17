@@ -137,7 +137,8 @@ class CloudCleanupTest(unittest.TestCase):
              patch('sys.argv', ['cloud_entry', 'expired-cleanup', '--output', temp]), patch('scripts.v50.cloud_entry.Gcp') as gcp:
             gcp.return_value.get_object.return_value = ('1', canonical(dict(request=req, expiresAt=10**12)))
             self.assertEqual(main(), 0)
-            self.assertEqual(json.loads((Path(temp) / 'cleanup.json').read_text()), dict(status='WAITING', activeLease=True))
+            self.assertEqual(json.loads((Path(temp) / 'cleanup.json').read_text()),
+                             dict(status='WAITING', activeLease=True, request=req, expiresAt=10**12))
             self.assertEqual(gcp.call_count, 1); self.assertFalse(gcp.call_args.kwargs['api'].paid)
 
     def test_collect_uses_dedicated_workflow_identity_step_and_separate_custom_rule_endpoint(self):
@@ -186,7 +187,9 @@ class CloudCleanupTest(unittest.TestCase):
                 self.assertNotIn('repos/' + self.p['repository'] + '/environments/' + self.p['environment'], command)
             compute = value['roles'][cleanup.PROJECT_ROLE]['includedPermissions']
             self.assertFalse(set(compute) & set(cleanup.FORBIDDEN_PERMISSIONS))
-            self.assertTrue(all(v.rsplit('.', 1)[1] in ('get', 'list', 'delete') for v in compute))
+            self.assertIn('compute.networks.updatePolicy', compute)
+            self.assertTrue(all(v.rsplit('.', 1)[1] in ('get', 'list', 'delete') or
+                                v == 'compute.networks.updatePolicy' for v in compute))
             self.assertIn("/objects/" + LEASE + "'", value['leaseCondition']['expression'])
             self.assertNotIn('startsWith', value['leaseCondition']['expression'])
             with self.assertRaises(FileExistsError): write_proposal(root, self.p)

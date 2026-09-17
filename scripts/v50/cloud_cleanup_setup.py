@@ -32,7 +32,7 @@ def write_proposal(output, p):
     project = '--project=' + p['project']
     add('gcloud', 'services', 'enable', 'iap.googleapis.com', project)
     add('gcloud', 'iam', 'roles', 'update', 'gseV50RunnerSupplement', project,
-        '--add-permissions=compute.networks.getRegionEffectiveFirewalls,serviceusage.services.get')
+        '--add-permissions=compute.networks.getRegionEffectiveFirewalls,compute.networks.updatePolicy,compute.instances.setTags,compute.instances.setLabels,serviceusage.services.get')
     add('gcloud', 'iam', 'service-accounts', 'create', 'gse-v50-cleanup', project, '--display-name=GSE V5 expired resource cleanup')
     add('gcloud', 'iam', 'workload-identity-pools', 'providers', 'create-oidc', who['provider'], project,
         '--issuer-uri=https://token.actions.githubusercontent.com',
@@ -61,7 +61,8 @@ def write_proposal(output, p):
         'The shared experiment environment/provider and their approval rules are not modified.\n\n'
         'The new WIF provider maps only `attribute.gse_v50_cleanup` and a prefixed subject. It cannot match the '
         'experiment account\'s `attribute.repository_id` impersonation grant. The cleanup account gets compute '
-        'read/delete, bucket object read/create, and deletion of only the exact V5 active lease.\n\n'
+        'read/delete plus the network updatePolicy permission required for firewall deletion, bucket object read/create, '
+        'and deletion of only the exact V5 active lease.\n\n'
         '```bash\nset -euo pipefail\n' + '\n'.join(shlex.join(c) for c in commands) + '\n```\n\n'
         'Read back all bindings and bucket policy version 3. Confirm the cleanup environment allows only master, '
         'has no reviewers/timers/custom protection rules, and that the paid environment is unchanged. '

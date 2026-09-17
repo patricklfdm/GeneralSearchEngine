@@ -1,6 +1,6 @@
 # V5.0 Phase 6C cloud setup and readiness
 
-- **Status:** Cloud configuration applied and read back on 2026-09-16; isolated cleanup workflow candidate. New-source scheduled cleanup, workflow preflight and paid evidence remain pending.
+- **Status:** First experiment rejected before VM allocation; permission corrections and audited lease repair applied and read back on 2026-09-17 UTC. Fresh-source CI, scheduled cleanup, preparation and successful paid evidence remain pending.
 - **Predecessor:** Setup/preflight accepted through [PR #164](https://github.com/patricklfdm/GeneralSearchEngine/pull/164), master `36b7e44828864b11b696c6f2a1d81e9af28f1c44`, [full CI 35089239868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35089239868).
 - **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), USD 40 complete sequence.
 
@@ -101,7 +101,7 @@ overwriting. Also verify the reused `gseV50ControlDeleter` role contains only
 | WIF provider `v50-expired-cleanup` | Exact repository/ID/owner, master, cleanup workflow, cleanup environment and `event_name == schedule` |
 | Principal mapping | `attribute.gse_v50_cleanup` and prefixed `google.subject`; no `attribute.repository_id` mapping, so the existing experiment account's impersonation grant cannot match |
 | Service account `gse-v50-cleanup@gse-benchmark.iam.gserviceaccount.com` | Only the cleanup principal can impersonate it |
-| Project role `gseV50CleanupRunner` | Compute instance/disk/firewall get/delete and operation get/list; no resource creation, SSH metadata or disk attachment privileges |
+| Project role `gseV50CleanupRunner` | Compute instance/disk/firewall get/delete, operation get/list and `compute.networks.updatePolicy` required for firewall deletion; no resource creation, SSH metadata or disk attachment privileges |
 | Bucket role `gseV50CleanupEvidence` | Object get/create for reading the lease and appending reconciliation evidence; no object deletion |
 | Conditional `gseV50ControlDeleter` binding | Delete only `v5.0-replicated-single-shard/control/active-run.json`, using exact resource equality |
 | Environment `cloud-benchmark-cleanup` | Exact master branch, no approval or delay; does not alter the paid environment |
@@ -120,6 +120,16 @@ preflight read permissions `compute.networks.getRegionEffectiveFirewalls` and
 from the global firewall query. Preflight checks IAP's state through
 [Service Usage](https://docs.cloud.google.com/service-usage/docs/reference/rest/v1/services/get);
 IAM tunnel permission alone cannot establish that the API is enabled.
+
+Firewall creation and deletion also require `compute.networks.updatePolicy` on
+the network ([insert](https://docs.cloud.google.com/compute/docs/reference/rest/v1/firewalls/insert),
+[delete](https://docs.cloud.google.com/compute/docs/reference/rest/v1/firewalls/delete)).
+Both runner and cleanup permission probes include it. Instance creation uses tags
+and labels, so the runner additionally probes `compute.instances.setTags` and
+`compute.instances.setLabels`
+([instance insert](https://docs.cloud.google.com/compute/docs/reference/rest/v1/instances/insert)).
+For an existing installation, inspect the roles and add only missing permissions;
+the cleanup role must retain its prohibition on instance creation, tags and labels.
 
 ### Scheduled receipt and fresh preflight
 
@@ -177,6 +187,27 @@ or retained lease existed, and no cloud experiment was triggered. The new workfl
 must first be merged; then record full exact-source CI, a successful new schedule
 and a fresh service-account preflight. Configuration read-back is not proof that
 the unmerged scheduled workflow has run.
+
+### First experiment rejection and configuration correction
+
+[Run 35167079625](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35167079625)
+failed on 2026-09-17 UTC at its first firewall insert. The provider audit bound to
+request ID `d80946e5-b9d0-4d77-972c-ca3fda50aa7a` recorded denial of
+`compute.networks.updatePolicy`; no VM or disk was attempted. The runner supplement
+was updated with that permission and `compute.instances.setTags`, and the cleanup
+role with `compute.networks.updatePolicy`. Both roles were read back; existing base
+permissions already include `compute.instances.setLabels`.
+
+After confirming the Actions owner had stopped, its exact request/audit binding,
+and absence of all 13 intended resources, an immutable recovery receipt was stored
+under that request's GCS `recovery/denied-insert-audit-<sha256>.json` prefix. A
+generation-conditional lease update marked only the denied insert as finished.
+The original expiry remains 02:06:35 UTC, with the existing 180-second grace;
+scheduled cleanup is eligible after 02:09:35 UTC. The lease was not deleted early.
+The failed sequence and USD 6 reservation remain unchanged; USD 34 reservation
+capacity remains under the USD 40 ceiling. Reservations are not actual billing.
+Fresh source CI, scheduled cleanup and paid preparation are still required before
+the user starts a new sequence.
 
 ## 4. Prepare the paid review only after readiness
 

@@ -1,6 +1,7 @@
 """GCP adapter: explicit HTTP status, exact IDs, conditional GCS writes and private SSH."""
 import json
 from pathlib import Path
+import re
 import shlex
 import subprocess
 import time
@@ -10,10 +11,38 @@ import urllib.request
 from .cloud_common import canonical, require, resources
 
 
+def error_detail(raw, status):
+    """Keep bounded error fields only; never retain headers, request bodies or credentials."""
+    try:
+        value = json.loads(raw)['error']
+        if not isinstance(value, dict) or value.get('code') != status: return {}
+        details = {k: value[k] for k in ('message', 'status') if isinstance(value.get(k), str)}
+        errors = value.get('errors', [])
+        if isinstance(errors, list):
+            details['reasons'] = [v['reason'][:100] for v in errors[:5]
+                                  if isinstance(v, dict) and isinstance(v.get('reason'), str)]
+        for key in ('message', 'status'):
+            if key in details:
+                text = details[key]
+                text = re.sub(r'(?i)(bearer\s+)[^\s,;]+', r'\1[REDACTED]', text)
+                text = re.sub(r'(?i)((?:access_token|id_token|token|key|signature|credential|secret|password)[\"\s:=]+)[^\s&,;\"]+',
+                              r'\1[REDACTED]', text)
+                text = re.sub(r'(?:ya29\.[\w.-]+|eyJ[\w.-]{30,})', '[REDACTED]', text)
+                details[key] = ' '.join(text.split())[:1000]
+        return details
+    except (ValueError, TypeError, KeyError): return {}
+
+
 class ApiError(RuntimeError):
-    def __init__(self, status, method, url):
-        self.status = status
-        super().__init__(f'GCP {method} failed ({status}): {url.split("?")[0]}')
+    def __init__(self, status, method, url, detail=None):
+        self.status, self.method, self.url = status, method, url.split('?')[0]
+        self.detail = detail or {}
+        message = self.detail.get('message', '')
+        super().__init__(f'GCP {method} failed ({status}): {self.url}' + (': ' + message if message else ''))
+
+
+class InsertRejected(ApiError):
+    """A structured synchronous denial of the insert itself, before any operation exists."""
 
 
 class Api:
@@ -39,7 +68,11 @@ class Api:
             require(len(value) <= maximum, 'GCP response bound')
             return value if raw else json.loads(value) if value else {}
         except urllib.error.HTTPError as error:
-            raise ApiError(error.code, method, url) from None
+            try:
+                raw_error = error.read(8193)
+                detail = error_detail(raw_error, error.code) if len(raw_error) <= 8192 else {}
+            except (OSError, ValueError): detail = {}
+            raise ApiError(error.code, method, url, detail) from None
 
 
 class Gcp:
@@ -75,7 +108,9 @@ class Gcp:
         result = self.api.call('GET', self.base + '/' + scope + '/operations?' + query)
         require(not result.get('nextPageToken'), 'ambiguous paginated insert operations')
         operations = result.get('items', [])
-        return bool(operations) and all(o.get('clientOperationId') == row['requestId'] and o.get('status') == 'DONE' for o in operations)
+        finished = bool(operations) and all(o.get('clientOperationId') == row['requestId'] and o.get('status') == 'DONE' for o in operations)
+        if finished: row['insertFinished'] = True
+        return finished
 
     def wait(self, operation):
         operation = dict(operation)
@@ -111,7 +146,16 @@ class Gcp:
                 metadata={'items': [{'key': 'block-project-ssh-keys', 'value': 'TRUE'}, {'key': 'enable-oslogin', 'value': 'FALSE'}]},
                 disks=[dict(boot=True, autoDelete=True, mode='READ_WRITE', type='PERSISTENT',
                     source=self.base + '/zones/' + p['zone'] + '/disks/' + r['owner'] + f'-n{node}-boot')])
-        operation = self.api.call('POST', self.url(resource).rsplit('/', 1)[0] + '?requestId=' + resource['requestId'], body)
+        url = self.url(resource).rsplit('/', 1)[0] + '?requestId=' + resource['requestId']
+        try:
+            operation = self.api.call('POST', url, body)
+        except ApiError as error:
+            # A later polling/describe 403 cannot establish that insert was denied.
+            # Timeouts, conflict/precondition failures, throttling and 5xx stay ambiguous.
+            if (error.method == 'POST' and error.url == url.split('?')[0] and
+                    error.status in (400, 401, 403, 404) and error.detail.get('message')):
+                raise InsertRejected(error.status, error.method, error.url, error.detail) from error
+            raise
         self.wait(operation)
         value = self.describe(resource)
         require(value is not None and self.owns(value), 'created resource identity')

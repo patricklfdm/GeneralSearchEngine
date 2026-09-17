@@ -9,6 +9,28 @@
 - **Workflow:** [v50-replication-evidence.yml](../../../.github/workflows/v50-replication-evidence.yml)
 - **Authority:** [Phase 6 entry plan](PHASE_6_ENTRY_PLAN.md), [6A workload](PHASE_6_LOCAL_PERFORMANCE.md)
 
+## Actions summaries and provider rejections
+
+The Runner and Expired Cleanup workflows always render a local `summary.md` before
+artifact upload. The page shows source/run/sequence identity, machine/image/disks,
+frozen workload parameters, planned and observed cell timings, separate control
+overhead, admission expiry and digests, budget reservations, resource cleanup and
+bounded failure diagnostics. Foundation also always summarizes its plan/fake
+parameters and job outcome. Missing evidence is reported as unknown or not recorded;
+a stored READY receipt does not override a failed job or authorize paid execution.
+Budget reservations are explicitly distinguished from actual billed cost.
+
+Direct structured Compute insert denials (HTTP 400/401/403/404) are recorded in the
+ownership lease before cleanup. Cleanup still verifies absence of every resource
+and evidence retention before releasing the lease. Timeouts, conflicts, transient
+errors, unstructured responses and operation-poll failures remain unresolved and
+retain the lease. A completed operation discovered later is persisted as finished;
+an empty operation list alone cannot establish that an insert was rejected.
+
+Legacy leases from earlier code need a separately verified provider rejection
+receipt; new code cannot infer this from an absent resource. Failed budget and
+sequence entries remain in their append-only ledgers after resource cleanup.
+
 ## Scope and remaining preset work
 
 This accepted implementation supplies the owned three-VM runner and its admission/cleanup

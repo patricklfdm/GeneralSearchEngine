@@ -129,11 +129,19 @@ def main():
             result = matrix(args.output, args.profile)
     elif args.mode == 'prepare':
         require(args.source and args.control_jar and args.run_id, 'prepare requires source, control JAR and run ID')
-        result = prepare(args.output, args.source, args.control_jar, args.run_id, args.attempt,
-            profile=args.profile,sequence=args.sequence,repetition=args.repetition)
+        try:
+            result = prepare(args.output, args.source, args.control_jar, args.run_id, args.attempt,
+                profile=args.profile,sequence=args.sequence,repetition=args.repetition)
+        except Exception as error:
+            save(args.output / 'entry-error.json', dict(phase='prepare', type=type(error).__name__, message=str(error)[:2000]))
+            raise
     elif args.mode == 'run':
         require(args.prepared and args.approval and args.confirm_request, 'run requires prepared evidence and exact paid confirmation')
-        result = execute(args.prepared, args.output, args.approval, args.confirm_request)
+        try:
+            result = execute(args.prepared, args.output, args.approval, args.confirm_request)
+        except Exception as error:
+            save(args.output / 'entry-error.json', dict(phase='run admission/setup', type=type(error).__name__, message=str(error)[:2000]))
+            raise
     elif args.mode in ('reconcile', 'expired-cleanup'):
         if args.mode == 'expired-cleanup':
             from .cloud_cleanup import require_context
@@ -152,7 +160,8 @@ def main():
             expected['createdAt'] = req['createdAt']; require(req == expected, 'invalid retained request')
         if args.mode == 'reconcile': require(args.confirm_request == sha(canonical(req)), 'explicit cleanup must identify the retained request')
         elif int(time.time()) <= lease['expiresAt'] + p['commandTimeoutSeconds']:
-            save(args.output / 'cleanup.json', dict(status='WAITING', activeLease=True)); return 0
+            save(args.output / 'cleanup.json', dict(status='WAITING', activeLease=True, request=req,
+                                                   expiresAt=lease['expiresAt'])); return 0
         result = reconcile(Gcp(p, lease['request'], args.output), args.output)
     else:
         if read(args.output/'completion.json',16<<20)['request']['profile']=='admission-probe':
@@ -160,7 +169,7 @@ def main():
         else:
             from .cloud_remote_evidence import validate
         result = validate(args.output)
-    print(json.dumps({k: result[k] for k in ('status', 'execution', 'blockers', 'requestSha256') if k in result}, sort_keys=True))
+    print(json.dumps({k: result[k] for k in ('status', 'execution', 'blockers', 'requestSha256', 'errors', 'cleanup') if k in result}, sort_keys=True))
     return 0 if result.get('status', 'PASS') in ('PASS', 'READY_FOR_PAID_REVIEW') else 2
 
 

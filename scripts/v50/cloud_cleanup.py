@@ -18,10 +18,12 @@ PROJECT_ROLE = 'gseV50CleanupRunner'
 EVIDENCE_ROLE = 'gseV50CleanupEvidence'
 PROJECT_PERMISSIONS = ['compute.disks.get', 'compute.disks.delete',
     'compute.instances.get', 'compute.instances.delete', 'compute.firewalls.get', 'compute.firewalls.delete',
+    'compute.networks.updatePolicy',  # Required by firewalls.delete as well as insert.
     'compute.zoneOperations.get', 'compute.zoneOperations.list',
     'compute.globalOperations.get', 'compute.globalOperations.list']
 FORBIDDEN_PERMISSIONS = ['compute.instances.create', 'compute.disks.create', 'compute.firewalls.create',
-    'compute.instances.setMetadata', 'compute.instances.attachDisk', 'compute.instances.detachDisk']
+    'compute.instances.setMetadata', 'compute.instances.setTags', 'compute.instances.setLabels',
+    'compute.instances.attachDisk', 'compute.instances.detachDisk']
 ATTRIBUTE_MAPPING = {'google.subject': "'v50-cleanup:' + assertion.sub",
                      'attribute.gse_v50_cleanup': 'assertion.repository_id'}
 
