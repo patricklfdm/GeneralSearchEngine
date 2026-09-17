@@ -1,4 +1,5 @@
 """Summaries distinguish reviewed plans, observed results and retained failures."""
+from html import unescape
 from pathlib import Path
 import tempfile
 import unittest
@@ -55,13 +56,23 @@ class CloudSummaryTest(unittest.TestCase):
 
     def test_cleanup_waiting_and_fake_outcomes_are_explicit(self):
         save(self.root / 'reconciliation/cleanup.json', dict(status='WAITING', activeLease=True, expiresAt=1100))
-        save(self.root / 'identity.json', dict(principal='cleanup@example.com', status='PASS'))
+        save(self.root / 'identity.json', dict(principal='cleanup@example.com', status='PASS', trigger='manual'))
         text = self.summary('expired-cleanup')
         self.assertIn('Result: WAITING', text); self.assertIn('cleanup@example.com / PASS', text)
         self.assertIn('Active lease reported by cleanup | True', text)
+        self.assertIn('Cleanup trigger | manual', text)
         save(self.root / 'evidence/matrix.json', dict(status='PASS'))
         text = self.summary('fake')
         self.assertIn('Result: PASS', text); self.assertIn('No real-cloud performance claim', text)
+
+    def test_preflight_shows_selected_cleanup_entry(self):
+        save(self.root / 'preflight.json', dict(status='READY', observations=dict(github=dict(cleanup=dict(
+            run=456, conclusion='success', event='workflow_dispatch',
+            workflow='.github/workflows/v50-manual-cleanup.yml', updatedAt=950)))))
+        text = self.summary('preflight')
+        self.assertIn('Qualified cleanup run / conclusion | 456 / success', text)
+        self.assertIn('workflow_dispatch / .github/workflows/v50-manual-cleanup.yml', unescape(text))
+        self.assertIn('Cleanup executed at', text)
 
     def test_missing_or_corrupt_receipts_do_not_hide_job_failure(self):
         text = self.summary(job_status='cancelled')

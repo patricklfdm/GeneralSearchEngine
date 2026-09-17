@@ -16,6 +16,7 @@ from .cloud_runner import BUDGET, LEASE
 from . import cloud_cleanup
 
 PROJECT_PERMISSIONS = ['compute.disks.create', 'compute.disks.delete', 'compute.disks.get', 'compute.disks.use',
+    'compute.disks.setLabels',  # Boot/data/replacement inserts all carry ownership labels.
     'compute.instances.create', 'compute.instances.delete', 'compute.instances.get', 'compute.instances.attachDisk',
     'compute.instances.detachDisk', 'compute.instances.setMetadata', 'compute.instances.setDiskAutoDelete',
     'compute.instances.setTags', 'compute.instances.setLabels',
@@ -23,6 +24,7 @@ PROJECT_PERMISSIONS = ['compute.disks.create', 'compute.disks.delete', 'compute.
     'compute.networks.getRegionEffectiveFirewalls', 'compute.networks.updatePolicy', 'serviceusage.services.get',
     'compute.subnetworks.use', 'compute.zoneOperations.get', 'compute.globalOperations.get',
     'compute.zoneOperations.list', 'compute.globalOperations.list', 'iap.tunnelInstances.accessViaIAP',
+    'compute.instances.list', 'compute.projects.setCommonInstanceMetadata',  # gcloud SSH/SCP without OS Login.
     'compute.projects.get', 'compute.regions.get', 'compute.zones.get', 'compute.machineTypes.get',
     'compute.subnetworks.get', 'iam.workloadIdentityPoolProviders.get']
 STORAGE_PERMISSIONS = ['storage.buckets.get', 'storage.objects.create', 'storage.objects.get', 'storage.objects.list']
@@ -113,6 +115,55 @@ def claims(p):
                 ref=p['ref'], environment=p['environment'], workflow_ref=p['repository'] + '/' + p['workflow'] + '@' + p['ref'])
 
 
+def check_cleanup_receipt(receipt, source, now):
+    require(isinstance(receipt, dict), 'cleanup response malformed')
+    require('error' not in receipt, 'cleanup unavailable: ' + str(receipt.get('error')))
+    trigger = cloud_cleanup.trigger_for(receipt['workflow'], receipt['event'])
+    require(receipt['head'] == source and receipt['conclusion'] == receipt['stepConclusion'] == 'success' and
+            receipt['identityConclusion'] == 'success' and type(receipt['updatedAt']) is int and
+            0 <= now - receipt['updatedAt'] <= 7200, 'no recent successful cleanup for the exact source')
+    if trigger == 'manual':
+        require(receipt.get('authorizationConclusion') == 'success', 'manual cleanup authorization did not execute')
+
+
+def collect_cleanup_receipt(github, source, now):
+    """Either exact entry may qualify; failed/newer runs cannot hide an older valid one."""
+    qualified = []; errors = []
+    for trigger, event in [('schedule', 'schedule'), ('manual', 'workflow_dispatch')]:
+        path = cloud_cleanup.workflow(trigger)
+        try:
+            runs = github('actions/workflows/' + Path(path).name + '/runs?event=' + event + '&per_page=10')['workflow_runs']
+            require(isinstance(runs, list), 'cleanup run list malformed')
+        except Exception as error:
+            errors.append(trigger + ': ' + str(error)); continue
+        for run in runs[:10]:
+            if (run.get('head_sha') != source or run.get('head_branch') != 'master' or
+                    run.get('status') != 'completed' or run.get('conclusion') != 'success'): continue
+            try:
+                require(run['event'] == event and run['path'] == path, 'wrong cleanup workflow/event')
+                updated = int(datetime.fromisoformat(run['updated_at'].replace('Z', '+00:00')).timestamp())
+                if not 0 <= now - updated <= 7200: continue
+                jobs = github('actions/runs/' + str(run['id']) + '/jobs?per_page=100')['jobs']
+                steps = {s['name']: s for j in jobs if j['name'] == 'cleanup' and j.get('conclusion') == 'success'
+                         for s in j.get('steps', [])}
+                step = steps.get(cloud_cleanup.CLEANUP_STEP, {})
+                identity = steps.get(cloud_cleanup.IDENTITY_STEP, {})
+                require(step.get('conclusion') == identity.get('conclusion') == 'success',
+                        'dedicated cleanup identity/step did not execute successfully (job may be skipped)')
+                # Use the actual cleanup step's completion time, not mutable run metadata.
+                completed = int(datetime.fromisoformat(step['completed_at'].replace('Z', '+00:00')).timestamp())
+                receipt = dict(head=run['head_sha'], conclusion=run['conclusion'], stepConclusion=step['conclusion'],
+                    run=run['id'], identityConclusion=identity['conclusion'], event=event, workflow=path, updatedAt=completed)
+                if trigger == 'manual':
+                    receipt['authorizationConclusion'] = next((j['conclusion'] for j in jobs
+                        if j['name'] == cloud_cleanup.MANUAL_APPROVAL_JOB), None)
+                check_cleanup_receipt(receipt, source, now); qualified.append(receipt)
+            except Exception as error: errors.append(trigger + ' run ' + str(run.get('id')) + ': ' + str(error))
+    return max(qualified, key=lambda v: (v['updatedAt'], int(v['run']))) if qualified else dict(
+        error='no recent successful scheduled or manual cleanup for the exact source' +
+              ('; ' + '; '.join(errors[:5]) if errors else ''))
+
+
 def check_observations(p, observations, source, now=None):
     now = int(time.time()) if now is None else now
     failures = []
@@ -124,27 +175,22 @@ def check_observations(p, observations, source, now=None):
     check('CI gates', lambda: require(all(observations['github']['jobs'].get(name) == 'success' for name in
                 ('Reactor tests', 'Compatibility', 'Release artifacts', 'Cloud runner (no GCP)', 'Required')) and
                 observations['github']['runnerGate'] == 'success', 'full exact-source gates including 6B must execute'))
-    def watchdog():
-        receipt = observations['github']['cleanup']
-        require(isinstance(receipt, dict), 'scheduled cleanup response malformed')
-        require('error' not in receipt, 'scheduled cleanup unavailable: ' + str(receipt.get('error')))
-        require(receipt['head'] == source and receipt['conclusion'] == receipt['stepConclusion'] == 'success' and
-                receipt['identityConclusion'] == 'success' and receipt['event'] == 'schedule' and
-                receipt['workflow'] == cloud_cleanup.WORKFLOW and
-                0 <= now - receipt['updatedAt'] <= 7200, 'no recent successful scheduled cleanup for the exact source')
-    check('cleanup watchdog', watchdog)
+    check('cleanup watchdog', lambda: check_cleanup_receipt(observations['github']['cleanup'], source, now))
     check('cleanup environment', lambda: cloud_cleanup.check_environment(
         observations['github']['cleanupEnvironment'], observations['github']['cleanupBranches'], observations['github']['cleanupCustomRules']))
-    def cleanup_provider():
-        provider = observations['cleanupProvider']
+    def cleanup_provider(trigger='schedule'):
+        provider = observations['cleanupProvider' if trigger == 'schedule' else 'manualCleanupProvider']
         require(isinstance(provider, dict) and 'error' not in provider, 'cleanup provider query failed: ' + str(provider))
-        require(provider.get('name') == cloud_cleanup.identity(p)['provider'] and provider.get('state') == 'ACTIVE' and
+        require(provider.get('name') == cloud_cleanup.identity(p, trigger=trigger)['provider'] and provider.get('state') == 'ACTIVE' and
                 not provider.get('disabled', False) and isinstance(provider.get('oidc'), dict) and
                 provider['oidc'].get('issuerUri') == 'https://token.actions.githubusercontent.com',
                 'inactive/wrong cleanup provider')
-        require(provider.get('attributeMapping') == cloud_cleanup.ATTRIBUTE_MAPPING, 'cleanup provider must use its isolated principal attribute')
-        condition_allows_only(provider['attributeCondition'], cloud_cleanup.claims(p), exact_workflow=True)
+        require(provider.get('attributeMapping') == cloud_cleanup.attribute_mapping(trigger), 'cleanup provider must use its isolated principal attribute')
+        condition_allows_only(provider['attributeCondition'], cloud_cleanup.claims(p, trigger=trigger), exact_workflow=True)
     check('cleanup WIF', cleanup_provider)
+    if isinstance(observations.get('github'), dict) and isinstance(observations['github'].get('cleanup'), dict) and \
+            observations['github']['cleanup'].get('workflow') == cloud_cleanup.MANUAL_WORKFLOW:
+        check('manual cleanup WIF', lambda: cleanup_provider('manual'))
     def iap():
         service = observations['iapService']
         require(isinstance(service, dict) and 'error' not in service, 'IAP API query failed: ' + str(service))
@@ -208,6 +254,7 @@ def collect(p, source, api=None):
         'subnetwork': base + '/regions/' + p['region'] + '/subnetworks/' + p['subnetwork'],
         'provider': 'https://iam.googleapis.com/v1/' + p['wifProvider'],
         'cleanupProvider': 'https://iam.googleapis.com/v1/' + cloud_cleanup.identity(p)['provider'],
+        'manualCleanupProvider': 'https://iam.googleapis.com/v1/' + cloud_cleanup.identity(p, trigger='manual')['provider'],
         'iapService': 'https://serviceusage.googleapis.com/v1/projects/' + p['projectNumber'] + '/services/iap.googleapis.com',
         'bucket': 'https://storage.googleapis.com/storage/v1/b/' + p['bucket'],
         'effectiveFirewalls': base + '/global/networks/' + p['network'] + '/getEffectiveFirewalls',
@@ -245,22 +292,7 @@ def collect(p, source, api=None):
         jobs = github('actions/runs/' + str(ci['id']) + '/jobs?per_page=100')['jobs']
         gate = next((s['conclusion'] for j in jobs for s in j.get('steps', []) if s['name'] ==
                     'Verify V5.0 Phase 6B runner failures and offline volume-layout probe'), None)
-        # GITHUB_TOKEN has Actions read access, not Variables API permission. A
-        # successful *executed* scheduled cleanup proves more than a config flag.
-        try:
-            candidates = github('actions/workflows/' + Path(cloud_cleanup.WORKFLOW).name + '/runs?event=schedule&per_page=10')['workflow_runs']
-            cleanup = next((r for r in candidates if r['head_sha'] == source and r['status'] == 'completed'), None)
-            require(cleanup is not None, 'no completed scheduled cleanup for the exact source')
-            cleanup_jobs = github('actions/runs/' + str(cleanup['id']) + '/jobs?per_page=100')['jobs']
-            steps = {s['name']: s['conclusion'] for j in cleanup_jobs if j['name'] == 'cleanup' for s in j.get('steps', [])}
-            step = steps.get(cloud_cleanup.CLEANUP_STEP)
-            require(step is not None and steps.get(cloud_cleanup.IDENTITY_STEP) == 'success',
-                    'dedicated cleanup identity/step did not execute successfully (job may be skipped)')
-            require(cleanup['event'] == 'schedule' and cleanup['path'] == cloud_cleanup.WORKFLOW, 'wrong cleanup workflow/event')
-            watchdog = dict(head=cleanup['head_sha'], conclusion=cleanup['conclusion'], stepConclusion=step, run=cleanup['id'],
-                identityConclusion=steps[cloud_cleanup.IDENTITY_STEP], event=cleanup['event'], workflow=cleanup['path'],
-                updatedAt=int(datetime.fromisoformat(cleanup['updated_at'].replace('Z', '+00:00')).timestamp()))
-        except Exception as error: watchdog = dict(error=str(error))
+        watchdog = collect_cleanup_receipt(github, source, int(time.time()))
         observed['github'] = dict(master=master, ciHead=ci['head_sha'], ciStatus=ci['status'], ciConclusion=ci['conclusion'], ciRun=ci['id'],
             jobs={j['name']: j['conclusion'] for j in jobs}, runnerGate=gate, cleanup=watchdog)
         for label, path in [('cleanupEnvironment', 'environments/' + cloud_cleanup.ENVIRONMENT),

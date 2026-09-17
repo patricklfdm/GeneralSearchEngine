@@ -1,0 +1,87 @@
+name: V5.0 Safe Manual Cleanup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  authorize:
+    name: Authorize manual cleanup
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment: cloud-benchmark
+    steps:
+      - name: Acknowledge expired-lease cleanup
+        run: echo 'Check expired V5 leases only; active leases wait; no topology creation or budget reset.'
+
+  cleanup:
+    needs: authorize
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/master' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: cloud-benchmark-cleanup
+    # Acquire the shared cleanup slot only after the approval job has finished.
+    concurrency:
+      group: v50-expired-cleanup-gse-benchmark
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Require dedicated manual master workflow
+        env:
+          TRUSTED_EVENT: ${{ github.event_name }}
+          TRUSTED_REF: ${{ github.ref }}
+          TRUSTED_WORKFLOW: ${{ github.workflow_ref }}
+        run: |
+          test "$TRUSTED_EVENT" = workflow_dispatch
+          test "$TRUSTED_REF" = refs/heads/master
+          test "$TRUSTED_WORKFLOW" = patricklfdm/GeneralSearchEngine/.github/workflows/v50-manual-cleanup.yml@refs/heads/master
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Authenticate cleanup-only identity
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: projects/266952534277/locations/global/workloadIdentityPools/gse-github/providers/v50-manual-cleanup
+          service_account: gse-v50-manual-cleanup@gse-benchmark.iam.gserviceaccount.com
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install pinned Cloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Verify cleanup identity and permissions
+        run: python -m scripts.v50.cloud_cleanup --trigger manual --output target/v50-cleanup/identity.json
+
+      - name: Reconcile only an expired retained ownership lease
+        run: python -m scripts.v50.cloud_entry expired-cleanup --cleanup-trigger manual --output target/v50-cleanup/reconciliation
+
+      - name: Summarize cleanup identity and result
+        if: ${{ always() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python -m scripts.v50.cloud_summary --root target/v50-cleanup \
+            --mode expired-cleanup --job-status "$JOB_STATUS" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain cleanup evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-manual-cleanup-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v50-cleanup
+          if-no-files-found: warn
+          retention-days: 14

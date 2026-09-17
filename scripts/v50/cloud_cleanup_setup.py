@@ -32,7 +32,7 @@ def write_proposal(output, p):
     project = '--project=' + p['project']
     add('gcloud', 'services', 'enable', 'iap.googleapis.com', project)
     add('gcloud', 'iam', 'roles', 'update', 'gseV50RunnerSupplement', project,
-        '--add-permissions=compute.networks.getRegionEffectiveFirewalls,compute.networks.updatePolicy,compute.instances.setTags,compute.instances.setLabels,serviceusage.services.get')
+        '--add-permissions=compute.networks.getRegionEffectiveFirewalls,compute.networks.updatePolicy,compute.instances.setTags,compute.instances.setLabels,compute.disks.setLabels,serviceusage.services.get')
     add('gcloud', 'iam', 'service-accounts', 'create', 'gse-v50-cleanup', project, '--display-name=GSE V5 expired resource cleanup')
     add('gcloud', 'iam', 'workload-identity-pools', 'providers', 'create-oidc', who['provider'], project,
         '--issuer-uri=https://token.actions.githubusercontent.com',
@@ -66,7 +66,7 @@ def write_proposal(output, p):
         '```bash\nset -euo pipefail\n' + '\n'.join(shlex.join(c) for c in commands) + '\n```\n\n'
         'Read back all bindings and bucket policy version 3. Confirm the cleanup environment allows only master, '
         'has no reviewers/timers/custom protection rules, and that the paid environment is unchanged. '
-        'After merge/full CI, wait for a real scheduled cleanup and refresh workflow preflight. '
+        'After merge/full CI, obtain a successful scheduled or separately configured safe manual cleanup and refresh workflow preflight. '
         'This setup does not launch an experiment.\n')
     return value
 

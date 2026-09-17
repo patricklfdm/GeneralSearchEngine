@@ -116,7 +116,9 @@ def main():
     parser.add_argument('--prepared', type=Path); parser.add_argument('--approval', type=Path); parser.add_argument('--confirm-request')
     parser.add_argument('--profile', choices=['admission-probe', 'experiment', 'failure-drill', 'canonical'], default='admission-probe')
     parser.add_argument('--sequence');parser.add_argument('--repetition',type=int,default=1)
+    parser.add_argument('--cleanup-trigger', choices=('schedule', 'manual'), default='schedule')
     args = parser.parse_args(); p = plan()
+    require(args.cleanup_trigger == 'schedule' or args.mode == 'expired-cleanup', 'manual trigger is only valid for expired cleanup')
     if args.mode == 'plan':
         if args.profile != 'admission-probe':
             from .cloud_presets import preset
@@ -145,7 +147,7 @@ def main():
     elif args.mode in ('reconcile', 'expired-cleanup'):
         if args.mode == 'expired-cleanup':
             from .cloud_cleanup import require_context
-            require_context(p)
+            require_context(p, trigger=args.cleanup_trigger)
         stored = Gcp(p, {}, args.output, api=Api()).get_object(LEASE)
         if args.mode == 'expired-cleanup':
             if stored is None:

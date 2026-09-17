@@ -78,7 +78,8 @@ def render(root, *, mode, profile='admission-probe', job_status='unknown', env=N
         ('Java / gcloud', p['runtimeJava'] + ' / ' + p['gcloudVersion']),
         ('VM watchdog / cleanup reserve', f"{p['maximumTopologySeconds']} s / {p['cleanupReserveSeconds']} s"),
         ('Evidence bucket', 'gs://' + p['bucket'] + '/' + p['evidencePrefix']),
-        ('Actions artifacts', '14 days; v50-prepared for prepare, v50-runner-<run>-<attempt> for runner, v50-cleanup-<run>-<attempt> for cleanup')])
+        ('Actions artifacts', '14 days; v50-prepared for prepare, v50-runner-<run>-<attempt> for runner, '
+         'v50-cleanup-<run>-<attempt> for schedule, v50-manual-cleanup-<run>-<attempt> for manual cleanup')])
     if profile in workload['profiles']:
         selected = workload['profiles'][profile]
         table('Frozen workload plan', ['Field', 'Value'], [
@@ -112,7 +113,9 @@ def render(root, *, mode, profile='admission-probe', job_status='unknown', env=N
             ('Observed / expires', utc(preflight.get('observedAt')) + ' / ' + utc(expires)),
             ('Admission time remaining at summary generation', str(remaining) + ' s' if remaining is not None else 'Unknown'),
             ('Exact-source CI run / conclusion', str(github.get('ciRun', '—')) + ' / ' + str(github.get('ciConclusion', '—'))),
-            ('Scheduled cleanup run / conclusion', str(github.get('cleanup', {}).get('run', '—')) + ' / ' + str(github.get('cleanup', {}).get('conclusion', '—'))),
+            ('Qualified cleanup run / conclusion', str(github.get('cleanup', {}).get('run', '—')) + ' / ' + str(github.get('cleanup', {}).get('conclusion', '—'))),
+            ('Cleanup entry / workflow', str(github.get('cleanup', {}).get('event', '—')) + ' / ' + str(github.get('cleanup', {}).get('workflow', '—'))),
+            ('Cleanup executed at', utc(github.get('cleanup', {}).get('updatedAt'))),
             ('Request SHA-256 (confirmation)', sha(canonical(req)) if req else review.get('requestSha256')),
             ('Preflight SHA-256', sha(canonical(preflight)) if preflight else review.get('preflightSha256')),
             ('Bundle SHA-256', req.get('bundleSha256'))])
@@ -134,6 +137,7 @@ def render(root, *, mode, profile='admission-probe', job_status='unknown', env=N
         ('Lease released by this runner', 'Yes' if state.get('leaseReleased') else 'Not recorded'),
         ('Active lease reported by cleanup', cleanup.get('activeLease')),
         ('Cleanup identity / verification', str(cleanup_identity.get('principal', '—')) + ' / ' + str(cleanup_identity.get('status', 'Not recorded'))),
+        ('Cleanup trigger', cleanup_identity.get('trigger') or env.get('GITHUB_EVENT_NAME')),
         ('Retained lease expiry', utc(cleanup.get('expiresAt'))),
         ('Evidence retention', state.get('retention', 'Not recorded'))])
     if state.get('resources'):

@@ -1,6 +1,6 @@
 # V5.0 Phase 6C cloud setup and readiness
 
-- **Status:** First experiment rejected before VM allocation; permission corrections and audited lease repair applied and read back on 2026-09-17 UTC. Fresh-source CI, scheduled cleanup, preparation and successful paid evidence remain pending.
+- **Status:** Two experiments rejected before VM allocation; permission corrections and cleanup repairs are recorded below. This update adds safe manual cleanup and admission through either cleanup entry. Fresh-source CI, a qualifying cleanup, preparation and successful paid evidence remain pending.
 - **Predecessor:** Setup/preflight accepted through [PR #164](https://github.com/patricklfdm/GeneralSearchEngine/pull/164), master `36b7e44828864b11b696c6f2a1d81e9af28f1c44`, [full CI 35089239868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35089239868).
 - **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), USD 40 complete sequence.
 
@@ -131,7 +131,73 @@ and labels, so the runner additionally probes `compute.instances.setTags` and
 For an existing installation, inspect the roles and add only missing permissions;
 the cleanup role must retain its prohibition on instance creation, tags and labels.
 
-### Scheduled receipt and fresh preflight
+### Permissions attached to the actual request fields
+
+Permission review includes request fields and CLI helpers, in addition to the
+top-level create/delete API method:
+
+| Request/helper | Required permissions covered by the runner |
+| --- | --- |
+| Firewall insert/delete on the selected network | `compute.firewalls.create/delete/get`, `compute.networks.updatePolicy` |
+| Boot, data and replacement disk inserts with ownership labels | `compute.disks.create/get`, **`compute.disks.setLabels`** |
+| Instance labels, tags and SSH metadata | `compute.instances.create`, `setLabels`, `setTags`, `setMetadata` |
+| Existing boot/data disk and private subnetwork | `compute.disks.use`, `compute.subnetworks.use` |
+| Data disk movement and automatic deletion | `compute.instances.attachDisk`, `detachDisk`, `setDiskAutoDelete` |
+| IAP SSH/SCP without OS Login | `iap.tunnelInstances.accessViaIAP`, `compute.instances.get/list/setMetadata`, `compute.projects.get/setCommonInstanceMetadata`, `compute.globalOperations.get` |
+
+The [disk insert API](https://docs.cloud.google.com/compute/docs/reference/rest/v1/disks/insert)
+requires `compute.disks.setLabels` whenever the request carries labels. The
+[IAP helper requirements](https://docs.cloud.google.com/iap/docs/using-tcp-forwarding#permissions_details)
+also include instance listing and project SSH metadata; preflight checks these
+existing base-role permissions explicitly. The cleanup identity is forbidden from
+setting disk labels or project SSH metadata.
+
+Boot disks use the pinned public image in `ubuntu-os-cloud`; `compute.images.useReadOnly`
+applies to that source resource. A grant in the experiment project is not proof of
+access in the image project. The current preflight verifies the exact image's GET,
+ID and readiness, while disk creation remains the provider's final access check.
+
+### Safe manual cleanup
+
+The separate [`v50-manual-cleanup.yml`](../../../.github/workflows/v50-manual-cleanup.yml)
+workflow accepts only `workflow_dispatch` on `master`, with no force-delete input.
+Its **Authorize manual cleanup** job uses the existing `cloud-benchmark` reviewer
+gate without cloud credentials. After approval, the cleanup job uses
+`cloud-benchmark-cleanup` and enters the same concurrency group as scheduled cleanup.
+Waiting for approval therefore does not occupy the automatic cleanup slot.
+
+The manual entry has its own `gse-v50-manual-cleanup` service account and
+`v50-manual-cleanup` WIF provider. Trust pins the repository/owner IDs, master ref,
+cleanup environment, exact manual workflow and `workflow_dispatch` event. Its
+distinct principal attribute cannot match the scheduled or experiment identity.
+It reuses the existing cleanup roles: compute read/delete, evidence get/create,
+and deletion of only the exact active lease. It cannot create a topology or delete
+budget/sequence ledgers. Generate the configuration proposal with:
+
+```bash
+python3 -m scripts.v50.cloud_manual_cleanup_setup \
+  --output target/v50-manual-cleanup-setup-review
+```
+
+Review and apply its `APPLY.md`, then read back the provider and IAM bindings.
+The generated commands check the exact existing role contents before adding
+bindings; they do not modify the scheduled/paid providers or environment rules.
+The manual account, provider and bindings have been applied and read back for this
+update. The shared roles, existing bucket grants and both existing providers were
+verified unchanged. This is configuration evidence only; the manual workflow
+must still be merged and executed by the operator.
+
+After merge, open **Actions → V5.0 Safe Manual Cleanup → Run workflow → master**,
+then approve **Authorize manual cleanup**. Both entries invoke
+`scripts.v50.cloud_entry expired-cleanup`: no lease returns `PASS`; an active lease
+or operation grace period returns `WAITING` without deleting resources. Only an
+expired lease past the 180-second grace permits the same ownership/resource-ID
+reconciliation used by scheduled cleanup. Repeated clicks do not bypass these
+checks, release active leases or refund failed-attempt budget reservations.
+Manual cleanup provides operator recovery; automatic scheduling remains the
+unattended safety net and can still be delayed by GitHub.
+
+### Qualifying cleanup receipt and fresh preflight
 
 Only after configuration review and checking that any retained lease is understood,
 enable the existing scheduled cleanup:
@@ -143,14 +209,19 @@ gh variable set GSE_V50_EXPIRED_CLEANUP_ENABLED --body true \
 
 This enables the dedicated workflow's cleanup behavior: a verified expired owned
 lease can lead to deletion of its owned resources. It does not allocate a topology.
-The cron is `7,22,37,52 * * * *`; scheduling can be delayed. Wait for an actually
-executed successful `Verify cleanup identity and permissions` and
-`Reconcile only an expired retained ownership lease` steps in
-`v50-expired-cleanup.yml` for the current master SHA. A skipped job, manual
-reconcile, receipt from the old combined workflow or older source does not satisfy
-the gate. If the job is skipped, inspect the repository/environment variable values
-and environment protection settings. With an older `gh` lacking `variable`, use
-the repository Variables REST API and read back the result.
+The cron is `7,22,37,52 * * * *`; scheduling can be delayed. Admission accepts
+**either** `v50-expired-cleanup.yml` (`schedule`) **or** `v50-manual-cleanup.yml`
+(`workflow_dispatch`) for the current master SHA, completed successfully within
+two hours. Both `Verify cleanup identity and permissions` and
+`Reconcile only an expired retained ownership lease` must actually succeed;
+manual cleanup also requires its authorization job to succeed. Freshness uses
+the cleanup step's completion timestamp, not the run's last update timestamp.
+Preflight selects the newest qualifying receipt, even if a newer run failed or
+was skipped. A skipped job, the paid runner's `reconcile` mode, a receipt from the
+old combined workflow or an older source does not satisfy the gate. If the
+scheduled job is skipped, inspect repository/environment variable values and
+environment protection settings. With an older `gh` lacking `variable`, use the
+repository Variables REST API and read back the result.
 
 Then request the read-only workflow:
 
@@ -160,13 +231,16 @@ gh workflow run v50-replication-evidence.yml --ref master \
 ```
 
 Inspect its retained `preflight.json`. It must identify the workflow service
-account, the exact current source/full CI, successful recent scheduled cleanup,
+account, the exact current source/full CI, successful recent scheduled or manual cleanup,
 current quotas/image/firewalls, bucket metadata and permissions for all three
 control objects. It also validates the isolated cleanup WIF mapping and queries
 the cleanup environment, exact branch policy and the separate
 [custom protection rules endpoint](https://docs.github.com/en/rest/deployments/protection-rules#get-all-deployment-protection-rules-for-an-environment).
-Missing configuration, API errors and any approval gate block admission, even if
-an earlier cleanup was manually approved. These queries use Actions read access.
+Missing required configuration, API errors and approval gates on the unattended
+cleanup environment block admission. The separate manual authorization job may
+require review; when its receipt is selected, preflight additionally validates
+the manual WIF provider. Summary shows the selected cleanup entry, run and
+execution time. These queries use Actions read access.
 Project/bucket permission failures list the specific missing permissions; firewall
 and cleanup-query errors retain their cause. A local owner's successful
 query cannot replace this receipt. Receipts expire after 900 seconds and cleanup
@@ -206,8 +280,23 @@ The original expiry remains 02:06:35 UTC, with the existing 180-second grace;
 scheduled cleanup is eligible after 02:09:35 UTC. The lease was not deleted early.
 The failed sequence and USD 6 reservation remain unchanged; USD 34 reservation
 capacity remains under the USD 40 ceiling. Reservations are not actual billing.
-Fresh source CI, scheduled cleanup and paid preparation are still required before
+Fresh source CI, a qualifying cleanup and paid preparation are still required before
 the user starts a new sequence.
+
+### Disk-label denial and follow-up correction
+
+[Run 35191609181](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35191609181)
+created its four firewalls, then the first boot disk insert was rejected for
+missing `compute.disks.setLabels`. The runner retained the explicit rejection,
+deleted the firewalls and released the lease after verified retention. Read-back
+confirmed all 13 intended resource names absent. No VM was created.
+
+Only `compute.disks.setLabels` was added to `gseV50RunnerSupplement` and read back.
+It is now required by preflight and included in both setup proposal paths. The
+failed sequence remains failed. Two attempts retain USD 12 in reservations,
+leaving USD 28 under the frozen USD 40 ceiling. Five further USD 6 reservations
+would total USD 42 with those earlier attempts, so retry preparation needs a new
+complete-sequence reservation review; cleanup does not refund the ledger.
 
 ## 4. Prepare the paid review only after readiness
 
