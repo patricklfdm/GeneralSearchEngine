@@ -1,4 +1,5 @@
 name: V5.0 Replication Runner
+run-name: V5.0 ${{ inputs.execution }} · ${{ inputs.profile }} · repetition ${{ inputs.repetition }}
 
 on:
   workflow_dispatch:
@@ -154,6 +155,15 @@ jobs:
         run: |
           python -m scripts.v50.cloud_entry "$EXECUTION" --output target/v50-cloud/cleanup \
             --confirm-request "$CONFIRMATION"
+
+      - name: Summarize V5 parameters, admission and lifecycle
+        if: ${{ always() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python -m scripts.v50.cloud_summary --root target/v50-cloud \
+            --mode "$EXECUTION" --profile "$PRESET" --job-status "$JOB_STATUS" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
 
       - name: Retain failure, cleanup and preflight evidence
         if: ${{ always() }}

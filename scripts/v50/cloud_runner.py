@@ -4,6 +4,7 @@ import time
 import uuid
 from pathlib import Path
 from .cloud_common import canonical, deletion_order, inventory, prefix, require, resources, replacement_resource, save, sha, validate_inventory
+from .cloud_gcp import InsertRejected
 
 LEASE = 'v5.0-replicated-single-shard/control/active-run.json'
 BUDGET = 'v5.0-replicated-single-shard/control/budget.json'
@@ -74,7 +75,13 @@ class Runner:
         self.bounded()
         require(self.backend.describe(row) is None, 'resource name already exists')
         row['attempted'] = True; self.persist(); self.update_lease()
-        value = self.backend.create(row)
+        try:
+            value = self.backend.create(row)
+        except InsertRejected as error:
+            row.update(insertFinished=True, insertRejected=dict(status=error.status, method=error.method,
+                       url=error.url, detail=error.detail, requestId=row['requestId']))
+            self.persist(); self.update_lease()
+            raise
         require(self.backend.owns(value), 'created resource ownership')
         row.update(id=str(value['id']), insertFinished=True, observation=value)
         self.persist(); self.update_lease()
@@ -136,8 +143,12 @@ class Runner:
             if not row['attempted']: continue
             try:
                 if hasattr(self.backend, 'insert_finished'):
+                    finished_before = row.get('insertFinished')
                     require(self.backend.insert_finished(row), 'insert is still unresolved; keep lease')
+                    if row.get('insertFinished') and not finished_before:
+                        self.persist(); self.update_lease()
                 current = self.backend.describe(row)
+                require(not row.get('insertRejected') or current is None, 'resource exists after rejected insert; retain lease')
                 if current is None:
                     # A timed-out insert could still create the object. Only an observed
                     # resource ID or a conclusively finished insert makes absence final.
@@ -254,6 +265,7 @@ def reconcile(backend, root):
             if hasattr(backend, 'insert_finished'):
                 require(backend.insert_finished(row), 'insert is still unresolved; retain lease')
             value = backend.describe(row)
+            require(not row.get('insertRejected') or value is None, 'resource exists after rejected insert; retain lease')
             if value is not None:
                 require(backend.owns(value), 'foreign resource at owned intent name')
                 require('id' not in row or row['id'] == str(value['id']), 'reused ID at owned intent name')

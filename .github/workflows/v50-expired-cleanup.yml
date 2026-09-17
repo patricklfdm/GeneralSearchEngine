@@ -60,6 +60,15 @@ jobs:
       - name: Reconcile only an expired retained ownership lease
         run: python -m scripts.v50.cloud_entry expired-cleanup --output target/v50-cleanup/reconciliation
 
+      - name: Summarize cleanup identity and result
+        if: ${{ always() }}
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          python -m scripts.v50.cloud_summary --root target/v50-cleanup \
+            --mode expired-cleanup --job-status "$JOB_STATUS" \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
       - name: Retain cleanup evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

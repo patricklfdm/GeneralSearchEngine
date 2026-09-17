@@ -71,10 +71,6 @@ jobs:
           python -m scripts.v50.cloud_workflow plan \
             --profile "$PROFILE" --source-sha "$GITHUB_SHA" \
             --output "$output/workflow-plan.json"
-          python -m scripts.v50.cloud_workflow summary \
-            --profile "$PROFILE" --source-sha "$GITHUB_SHA" \
-            --output "$output/workflow-summary.md"
-          cat "$output/workflow-summary.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Exercise fake topology and cleanup
         if: ${{ inputs.execution == 'fake' }}
@@ -86,6 +82,20 @@ jobs:
             --output "$output/evidence" --source-sha "$GITHUB_SHA" \
             --profile "$PROFILE"
           python -m scripts.v50.evidence validate "$output/evidence"
+
+      - name: Summarize foundation parameters and outcome
+        if: ${{ always() }}
+        env:
+          PROFILE: ${{ inputs.profile }}
+          EXECUTION: ${{ inputs.execution }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          output="benchmark-results/v50-foundation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          python -m scripts.v50.cloud_workflow summary \
+            --profile "$PROFILE" --source-sha "$GITHUB_SHA" \
+            --execution "$EXECUTION" --job-status "$JOB_STATUS" \
+            --output "$output/workflow-summary.md"
+          cat "$output/workflow-summary.md" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload no-paid foundation evidence
         if: ${{ always() }}
