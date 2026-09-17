@@ -12,7 +12,7 @@ from urllib.error import HTTPError
 from .cloud_common import canonical, plan, request, resources
 from .cloud_fake import Fake, FakeProbe
 from .cloud_gcp import Api, ApiError, Gcp, InsertRejected
-from .cloud_preflight import check_observations
+from .cloud_preflight import check_observations, collect
 from .cloud_runner import LEASE, Runner, reconcile
 from . import cloud_cleanup
 from .test_cloud_runner import observations
@@ -25,8 +25,9 @@ class CloudFailureTest(unittest.TestCase):
         self.row = dict(resources(self.p, self.req)[0], requestId='12345678-1234-1234-1234-123456789012')
         self.url = 'https://compute.googleapis.com/compute/v1/projects/gse-benchmark/global/firewalls'
 
-    def test_missing_network_policy_tags_or_labels_blocks_before_mutation(self):
-        for permission in ('compute.networks.updatePolicy', 'compute.instances.setTags', 'compute.instances.setLabels'):
+    def test_missing_insert_fields_or_ssh_permissions_blocks_before_mutation(self):
+        for permission in ('compute.networks.updatePolicy', 'compute.instances.setTags', 'compute.instances.setLabels',
+                           'compute.disks.setLabels', 'compute.instances.list', 'compute.projects.setCommonInstanceMetadata'):
             value = deepcopy(observations(self.p))
             value['permissions']['permissions'].remove(permission)
             result = check_observations(self.p, value, self.req['source'], 1001)
@@ -34,6 +35,18 @@ class CloudFailureTest(unittest.TestCase):
             self.assertIn(permission, ' '.join(result['blockers']))
         self.assertIn('compute.networks.updatePolicy', cloud_cleanup.PROJECT_PERMISSIONS)
         self.assertIn('compute.instances.setTags', cloud_cleanup.FORBIDDEN_PERMISSIONS)
+        self.assertIn('compute.disks.setLabels', cloud_cleanup.FORBIDDEN_PERMISSIONS)
+
+    def test_collection_probes_disk_labels_and_ssh_permissions_without_creation(self):
+        api = Mock(); api.call.return_value = {}
+        with patch('scripts.v50.cloud_preflight.subprocess.run', return_value=Mock(returncode=1)):
+            collect(self.p, self.req['source'], api)
+        project = next(c for c in api.call.call_args_list if c.args[1].endswith(':testIamPermissions'))
+        for permission in ('compute.disks.setLabels', 'compute.instances.list', 'compute.projects.setCommonInstanceMetadata'):
+            self.assertIn(permission, project.args[2]['permissions'])
+        self.assertTrue(all(c.args[0] == 'GET' or c.args[0] == 'POST' and
+                           c.args[1].endswith(':testIamPermissions')
+                           for c in api.call.call_args_list))
 
     def test_api_keeps_bounded_structured_diagnostic_without_credentials(self):
         api = Api(paid=True); api.token = 'CREDENTIAL'; api.expiry = time.monotonic() + 100
@@ -94,6 +107,23 @@ class CloudFailureTest(unittest.TestCase):
         with patch('scripts.v50.cloud_runner.time.time', return_value=state['startedAt'] + 6000):
             result = reconcile(backend, self.root / 'recovery')
         self.assertEqual(result['status'], 'PASS'); self.assertNotIn(LEASE, backend.objects)
+
+    def test_boot_disk_denial_cleans_previously_created_firewalls_and_releases_lease(self):
+        backend = Fake(self.p, self.req); create = backend.create
+        def reject_disk(row):
+            if row['kind'] == 'disks':
+                raise InsertRejected(403, 'POST', Gcp(self.p, self.req, self.root).url(row).rsplit('/', 1)[0],
+                                     dict(message="Required 'compute.disks.setLabels' permission"))
+            return create(row)
+        backend.create = reject_disk
+        result = Runner(backend, FakeProbe(backend), self.root / 'disk-denial').run()
+        self.assertEqual(result['status'], 'FAIL'); self.assertEqual(result['cleanup']['status'], 'PASS')
+        self.assertEqual(len([c for c in backend.calls if c[0] == 'delete']), 4)
+        self.assertEqual(len([r for r in result['resources'] if r['attempted']]), 5)
+        disk = next(r for r in result['resources'] if r['kind'] == 'disks')
+        self.assertTrue(disk['insertFinished']); self.assertEqual(disk['insertRejected']['status'], 403)
+        self.assertFalse(backend.resources); self.assertNotIn(LEASE, backend.objects)
+        self.assertTrue(result['leaseReleased']); self.assertEqual(result['retention'], 'VERIFIED')
 
     def test_resource_after_rejection_is_never_adopted_or_deleted(self):
         backend = Fake(self.p, self.req)

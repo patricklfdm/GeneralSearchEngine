@@ -96,7 +96,7 @@ def write_proposal(output, p, provider, runner_role, project_policy):
         'changes but are not an atomic lock against concurrent administrators.\n\n'
         '```bash\nset -euo pipefail\n' + '\n'.join(commands) + '\n```\n\n'
         'Read back the provider and bucket IAM policy version 3 after applying. Follow '
-        '`docs/v5x/v5.0/PHASE_6_CLOUD_SETUP.md` for scheduled cleanup and workflow-identity preflight. '
+        '`docs/v5x/v5.0/PHASE_6_CLOUD_SETUP.md` for scheduled/manual cleanup and workflow-identity preflight. '
         'This proposal neither enables cleanup nor authorizes paid execution.\n')
     return value
 

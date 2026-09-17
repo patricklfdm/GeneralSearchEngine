@@ -45,6 +45,7 @@ class CloudSetupTest(unittest.TestCase):
     def test_supplement_is_only_missing_project_permissions_and_storage_stays_separate(self):
         result = self.make(); roles = result['roles']
         self.assertEqual(set(roles[SUPPLEMENT_ROLE]['includedPermissions']), set(PROJECT_PERMISSIONS) - {'compute.instances.get'})
+        self.assertIn('compute.disks.setLabels', roles[SUPPLEMENT_ROLE]['includedPermissions'])
         self.assertEqual(roles[METADATA_ROLE]['includedPermissions'], ['storage.buckets.get'])
         self.assertEqual(roles[DELETE_ROLE]['includedPermissions'], ['storage.objects.delete'])
         self.assertEqual(result['deleteCondition']['expression'],

@@ -131,14 +131,24 @@ lease deletion, with no topology creation privileges. The paid workflow retains
 the `cloud-benchmark` approval gate. See the [setup/migration guide](PHASE_6_CLOUD_SETUP.md)
 for the applied configuration and remaining new-source execution checks.
 
+The separate `v50-manual-cleanup.yml` entry first requires approval in
+`cloud-benchmark`, then enters the cleanup environment and the scheduled cleanup
+concurrency group. Its isolated WIF/service account has the same deletion-only
+authority and invokes the same expired-lease reconciliation. Manual dispatch
+changes when the check runs; active leases and the operation grace still return
+`WAITING`, with no force mode or budget/sequence reset.
+
 ## Read-only preflight and paid review
 
 Preflight checks exact-master full CI (including the 6B gate), workflow service
 account, WIF repository/ID/ref/environment/workflow conditions, pinned image ID,
 machine/zone, current quota headroom, effective firewall policies, permissions,
 uniform-access evidence bucket, enabled IAP API, remaining budget and an actually
-executed successful dedicated scheduled cleanup (including identity verification)
-for the exact source within the last two hours. It also checks the cleanup environment's
+executed successful dedicated **scheduled or manual cleanup** (including identity
+verification) for the exact source within the last two hours, measured from the
+cleanup step's completion time. Manual receipts additionally require a successful
+authorization job and the exact isolated manual WIF provider. Failed or skipped
+runs cannot hide another qualifying receipt. It also checks the cleanup environment's
 branch policy and absence of reviewers, timers and custom protection rules. Reading Actions
 run/step receipts uses the workflow's existing read permission; it does not require
 a token with Variables API access. Its closed

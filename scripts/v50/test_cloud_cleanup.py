@@ -142,7 +142,7 @@ class CloudCleanupTest(unittest.TestCase):
             self.assertEqual(gcp.call_count, 1); self.assertFalse(gcp.call_args.kwargs['api'].paid)
 
     def test_collect_uses_dedicated_workflow_identity_step_and_separate_custom_rule_endpoint(self):
-        scheduled = dict(id=101, head_sha='a' * 40, status='completed', conclusion='success', event='schedule',
+        scheduled = dict(id=101, head_sha='a' * 40, head_branch='master', status='completed', conclusion='success', event='schedule',
                          path=cleanup.WORKFLOW, updated_at='1970-01-01T00:16:40Z')
         ci = dict(id=100, head_sha='a' * 40, status='completed', conclusion='success')
         identity_step = dict(name=cleanup.IDENTITY_STEP, conclusion='success')
@@ -152,8 +152,8 @@ class CloudCleanupTest(unittest.TestCase):
             'actions/runs/100/jobs?per_page=100': dict(jobs=[dict(name='Cloud runner (no GCP)', conclusion='success', steps=[
                 dict(name='Verify V5.0 Phase 6B runner failures and offline volume-layout probe', conclusion='success')])]),
             'actions/workflows/v50-expired-cleanup.yml/runs?event=schedule&per_page=10': dict(workflow_runs=[scheduled]),
-            'actions/runs/101/jobs?per_page=100': dict(jobs=[dict(name='cleanup', steps=[identity_step,
-                dict(name=cleanup.CLEANUP_STEP, conclusion='success')])]),
+            'actions/runs/101/jobs?per_page=100': dict(jobs=[dict(name='cleanup', conclusion='success', steps=[identity_step,
+                dict(name=cleanup.CLEANUP_STEP, conclusion='success', completed_at='1970-01-01T00:16:40Z')])]),
             'environments/' + cleanup.ENVIRONMENT: self.good['github']['cleanupEnvironment'],
             'environments/' + cleanup.ENVIRONMENT + '/deployment-branch-policies?per_page=100': self.good['github']['cleanupBranches'],
             'environments/' + cleanup.ENVIRONMENT + '/deployment_protection_rules': self.good['github']['cleanupCustomRules']}
@@ -181,12 +181,16 @@ class CloudCleanupTest(unittest.TestCase):
             root = Path(temp) / 'proposal'; value = write_proposal(root, self.p)
             self.assertFalse(value['applied'])
             commands = json.loads((root / 'commands.json').read_text())
+            update = next(c for c in commands if c[:4] == ['gcloud', 'iam', 'roles', 'update'])
+            added = next(v.split('=', 1)[1].split(',') for v in update if v.startswith('--add-permissions='))
+            self.assertIn('compute.disks.setLabels', added)
             for command in commands:
                 self.assertNotIn('roles/owner', command)
                 self.assertNotIn(self.p['wifProvider'], command)
                 self.assertNotIn('repos/' + self.p['repository'] + '/environments/' + self.p['environment'], command)
             compute = value['roles'][cleanup.PROJECT_ROLE]['includedPermissions']
             self.assertFalse(set(compute) & set(cleanup.FORBIDDEN_PERMISSIONS))
+            self.assertNotIn('compute.disks.setLabels', compute)
             self.assertIn('compute.networks.updatePolicy', compute)
             self.assertTrue(all(v.rsplit('.', 1)[1] in ('get', 'list', 'delete') or
                                 v == 'compute.networks.updatePolicy' for v in compute))
