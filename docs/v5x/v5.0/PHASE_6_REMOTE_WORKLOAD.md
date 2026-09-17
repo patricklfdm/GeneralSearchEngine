@@ -1,6 +1,6 @@
 # V5.0 remote workload execution and evidence
 
-- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). Paid experiment [35200890419](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35200890419) passed healthy measurement but failed during follower catch-up; the recovery correction is documented below. Complete paid 6C evidence remains pending.
+- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). Paid experiments passed healthy measurement but failed during follower catch-up. The latest [run 35241694135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35241694135) exercised the controller retries and exposed repeated application replay in the READY handshake; the runtime correction is documented below. Complete paid 6C evidence remains pending.
 - **Branch:** `feat/v5.0-phase6-remote-workload`
 - **Starting master:** `a885bc7789a332525d3c375635ce35ce7bc15dec`
 - **Predecessor:** [PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161), [correction #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162), [exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
@@ -38,6 +38,12 @@ response wait by the remaining cell and run deadlines. Conflict, fencing,
 integrity, storage and closed-state failures remain terminal. A failed cell now
 records `FAIL` and its diagnostic; each command response remains in the member
 receipt. Neither the 1500-ms RPC bound nor any frozen workload allocation changes.
+
+The follower's READY handshake reuses an already published application at the
+verified committed boundary. Startup and recovery installation already rebuild
+that application; retrying READY must not repeat the full replay. The handshake
+still validates voter status, intact committed history, index and digest. A stale
+application or unresolved private prepared operation still requires reconstruction.
 
 Both replacements use the existing delete/read-back/create lifecycle. The old
 authority copy is diagnostic only. The fresh disk mounts on the designated survivor
@@ -144,6 +150,47 @@ local remote workload cells and all 15 provenance negatives. The injected timeou
 reproduced the original abort before the fix; afterward two public timeout
 responses were followed by successful catch-up and follower READY at index 67.
 These are local qualification results, not a successful paid cloud rerun.
+
+### Repeated READY replay after controller retries
+
+[Run 35241694135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35241694135)
+used source `95c954f5326edde231dab47bb0ea0c676ea1f7fc`, including the retry correction
+from PR #168. Healthy measurement passed. The unavailable cell produced nine
+completed `QUORUM_UNAVAILABLE` catch-up responses and a tenth indeterminate request
+before its 30-second deadline. From the second completed response onward the
+leader observed node-3 at committed/applied index 1131; node-3 telemetry repeatedly
+remained `CATCHING_UP`. The leader retained write quorum.
+
+The runtime unconditionally rebuilt the entire application in every `ready`
+request, even though batch installation had already published that same history.
+Repeated activation and READY requests therefore repeated expensive replay rather
+than finishing with the existing materialization. The single delayed-batch local
+regression from PR #168 did not cover this persistent replay cost.
+
+`V50ReadyTest` counts real document decoding across node catch-up calls. Before
+the runtime fix, all three restart/incremental/snapshot cases failed because READY
+decoded the published history again. The correction reuses that application only
+when its applied index matches the validated committed boundary and no prepared
+operation remains. Regression cases also exercise repeated catch-up, a subsequent
+write with the recovered follower as the only available peer, and reconstruction
+of missing published state or an unresolved private operation. The workload rates,
+RPC timeout and cell deadlines remain unchanged.
+
+Local correction validation passed `./mvnw -o -f reactor/pom.xml package`:
+549 core tests (4 skipped), 165 replication tests including five new READY cases,
+and five processor tests. The remote adapter gate passed all 19 Python tests,
+14 workload cells and 15 provenance negatives. Its delayed-batch receipt contains
+two public `QUORUM_UNAVAILABLE` responses followed by successful catch-up and
+follower READY at index 67. The Phase 4 recovery and Phase 5 hardening gates also
+passed with the rebuilt runtime. These results qualify the local implementation;
+complete paid cloud evidence remains pending.
+
+This run remains failed evidence. All 13 resources were verified absent,
+retention passed, and the live lease read-back was absent. Sequence
+`57ef85cf9c994afabe8d65fc3323fc74` cannot be reused. The budget ledger retains its
+USD 4.48 reservation; cumulative reservations are USD 22.08 and the remaining
+frozen allocation is USD 17.92. A new paid sequence requires a new complete cost
+review and admission; this runtime correction does not authorize execution.
 
 - [x] Predecessor exact-master full CI verified.
 - [x] Local guest/runtime, policy, provenance and negative receipts recorded below.

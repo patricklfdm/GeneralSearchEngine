@@ -85,6 +85,9 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     long appliedIndex() { return published.get().index(); }
     long sequence() { return published.get().sequence(); }
 
+    /** Writer-only check: a pending private operation must be discarded before resuming. */
+    boolean canResumeAt(long index) { return !closed && prepared == null && appliedIndex() == index; }
+
     byte[] emptySnapshot() {
         try (var empty = new ReplicaApplication<>(captured, configuration, bounds)) { return empty.snapshot(); }
     }
