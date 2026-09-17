@@ -24,7 +24,7 @@ class PresetTest(unittest.TestCase):
                        objects=self.objects, fault=fault)
 
     def test_presets_bind_frozen_windows_resource_and_evidence_bounds(self):
-        for name, seconds, maximum in [('experiment', 300, 2340), ('failure-drill', 900, 3360), ('canonical', 1800, 5400)]:
+        for name, seconds, maximum in [('experiment', 450, 2490), ('failure-drill', 960, 3420), ('canonical', 1800, 5400)]:
             p = preset(name)
             self.assertEqual(sum(c['seconds'] for c in p['cells']), seconds)
             self.assertEqual(p['plannedMaximumSeconds'], maximum)
@@ -187,8 +187,8 @@ class PresetTest(unittest.TestCase):
         def sleep(seconds): stamp[0] += seconds
         def action(name, deadline): stamp[0] += 1
         rows = cells('experiment', action, lambda: stamp[0], sleep)
-        self.assertEqual(stamp[0], 300)
-        self.assertEqual([r['finishedSeconds']-r['startedSeconds'] for r in rows], [120,30,30,30,45,15,15,15])
+        self.assertEqual(stamp[0], 450)
+        self.assertEqual([r['finishedSeconds']-r['startedSeconds'] for r in rows], [120,30,30,30,45,60,120,15])
         def late(name, deadline): stamp[0] = deadline+1
         with self.assertRaisesRegex(ValueError, 'deadline'): cells('experiment', late, lambda: stamp[0], sleep)
 

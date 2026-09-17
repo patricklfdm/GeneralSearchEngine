@@ -134,11 +134,11 @@
         },
         {
           "name": "restart",
-          "seconds": 15
+          "seconds": 60
         },
         {
           "name": "maintenance",
-          "seconds": 15
+          "seconds": 120
         },
         {
           "name": "no-quorum",
@@ -149,7 +149,7 @@
         900,
         180,
         60,
-        300,
+        450,
         600,
         300
       ]
@@ -183,7 +183,7 @@
         },
         {
           "name": "maintenance",
-          "seconds": 60
+          "seconds": 120
         },
         {
           "name": "capacity",
@@ -194,7 +194,7 @@
         900,
         300,
         60,
-        900,
+        960,
         900,
         300
       ]

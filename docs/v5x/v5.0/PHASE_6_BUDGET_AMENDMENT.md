@@ -69,6 +69,10 @@ requests (USD 0.058); the USD 2 allowance also covers control data and overhead.
 
 ## Plan binding and next admission
 
+The digests below record the budget-only amendment. The subsequent
+[remote recovery window amendment](PHASE_6_CLOUD_WORKLOAD_PLAN.md#remote-recovery-window-amendment-2026-09-17)
+replaces the full-workload digest and records the next failed-attempt reservation.
+
 - 6A plan SHA-256: `c4f14925ab54302249193da2284d0bdebaa538a7dbcd56a005a7437807158cc1`.
 - Full-workload plan SHA-256: `64732d1b192351dbe91f81b05314555c7c734eb06a5d6c7b87f1d2208a3a83d5`.
 - The runner binds the amended 6A digest; preset/request and bundle digests bind the

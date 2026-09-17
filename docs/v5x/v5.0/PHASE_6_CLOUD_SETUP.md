@@ -334,8 +334,8 @@ append-only and are not actual billed charges.
 
 ### Approved USD 100 budget amendment
 
-The user approved a USD **100** ceiling on 2026-09-17. Existing reservations remain
-USD **22.08**, so capacity under the amended plan is USD **77.92**. The reviewed
+The user approved a USD **100** ceiling on 2026-09-17. At approval, existing reservations were
+USD **22.08**, leaving capacity of USD **77.92** under the amended plan. The reviewed
 five-run allocation remains USD 4.48 each, totaling USD **22.40**; completing those
 reservations would leave USD **55.52**. Each additional attempt still needs its own
 cost review and exact paid admission. See the
@@ -344,6 +344,22 @@ cost review and exact paid admission. See the
 This code/plan change requires a protected merge, passing exact-master CI, matching
 recent cleanup and fresh workflow-service-account preflight. Old prepared bundles
 and confirmations cannot be reused. The user triggers cloud experiments manually.
+
+### Remote restart window failure
+
+Experiment [35284962814](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35284962814)
+on source `52b56454ab4819f04a95572bbbaefc8948b23bb0` passed the first five cells.
+Restart recovered READY with a higher epoch and rejected stale traffic, but its
+30.685-second elapsed duration exceeded the experiment's 15-second window. See the
+[recovery window amendment](PHASE_6_CLOUD_WORKLOAD_PLAN.md#remote-recovery-window-amendment-2026-09-17)
+for the retained timeline and revised experiment/failure-drill budgets.
+
+Completion evidence confirms all thirteen resources absent and retention VERIFIED.
+The attempt's USD 4.48 reservation raises the cumulative ledger to USD **26.56**,
+leaving USD **73.44** below the approved ceiling. The failed sequence remains
+failed. After the amended plan passes review, merge and exact-master CI, obtain
+matching recent cleanup and prepare a new sequence. No paid rerun is included in
+the local correction.
 
 ## 4. Prepare the paid review only after readiness
 
