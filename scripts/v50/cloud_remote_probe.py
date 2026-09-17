@@ -69,9 +69,10 @@ class RemoteWorker:
         self.process.stdin.write(canonical(request)+b'\n'); self.process.stdin.flush()
         return exchange
 
-    def command(self, name, accepted=True, **values):
+    def command(self, name, accepted=True, response_timeout=None, **values):
         exchange = self.send(name, **values)
         maximum = values['calls']*values['intervalNanos']/1e9+30 if name == 'measure' else 40
+        if response_timeout is not None: maximum=min(maximum,response_timeout)
         result = self.receive(maximum)
         exchange.update(response=result, receivedNanos=now()); exchange.pop('outcome')
         save(self.path, self.receipt)
@@ -210,12 +211,23 @@ class RemoteProbe:
         self.revision += 1; return self.command('update', id=5, revision=self.revision)
 
     def catchup(self, node):
-        for _ in range(20):
-            result = self.command('catchup', accepted=None, peer=f'node-{node}')
+        # A peer can finish a durable recovery batch after its RPC caller times out.
+        # Resume through public catchUp only while the leader remains writable;
+        # no safety rejection, cell deadline or run deadline may be bypassed.
+        deadline=min(self.deadline,getattr(self,'cell_deadline',None) or self.deadline)
+        result=None
+        def diagnostic(message): return f'remote catchup node-{node} {message}; last response: '+json.dumps(result,sort_keys=True)
+        for attempt in range(1,21):
+            remaining=deadline-time.monotonic()
+            require(remaining>0,diagnostic('deadline exhausted'))
+            result = self.command('catchup', accepted=None, peer=f'node-{node}',response_timeout=remaining)
+            require(time.monotonic()<=deadline,diagnostic('deadline exhausted'))
             if result['accepted']: return result
-            require(result['reason']=='CAPACITY_EXCEEDED' and result['status']['writeQuorum'], 'remote catchup failure')
+            require(result['reason'] in ('CAPACITY_EXCEEDED','QUORUM_UNAVAILABLE') and
+                    result['status']['state']=='READY' and result['status']['writeQuorum'],diagnostic('rejected'))
+            if attempt==20: raise ValueError(diagnostic('exhausted 20 attempts'))
+            require(time.monotonic()+.05<deadline,diagnostic('deadline exhausted'))
             time.sleep(.05)
-        raise ValueError('remote catchup capacity did not recover')
 
     def restart(self):
         self.quiesce(); self.start_all(); return self.command('activate')
@@ -327,6 +339,7 @@ class RemoteProbe:
         for spec in selected:
             name=spec['name'];self.configure(name)
             record=dict(name=name,startedNanos=now(),status='RUNNING');self.cells.append(record);save(self.root/'cells.json',self.cells)
+            self.cell_deadline=None if self.qualification else record['startedNanos']/1e9+spec['seconds']
             control_overhead+=record['startedNanos']-previous
             try:
                 if name=='healthy':
@@ -355,8 +368,12 @@ class RemoteProbe:
                         require(now()<=deadline,'cloud cell overrun: '+name)
                         while now()<deadline: time.sleep(max(0,min(.25,(deadline-now())/1e9)))
                 record['status']='PASS'
+            except Exception as error:
+                record.update(status='FAIL',error=dict(type=type(error).__name__,message=str(error)[:2000]))
+                raise
             finally:
                 record['finishedNanos']=now();save(self.root/'cells.json',self.cells)
+                self.cell_deadline=None
             previous=record['finishedNanos']
             if not self.qualification:
                 require(warmup_finished-warmup_started+control_overhead<=self.plan['profiles'][self.profile]['reservationsSeconds'][2]*10**9,

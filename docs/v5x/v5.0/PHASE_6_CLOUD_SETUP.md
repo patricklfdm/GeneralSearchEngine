@@ -1,6 +1,6 @@
 # V5.0 Phase 6C cloud setup and readiness
 
-- **Status:** Two experiments rejected before VM allocation; permission corrections and cleanup repairs are recorded below. This update adds safe manual cleanup and admission through either cleanup entry. Fresh-source CI, a qualifying cleanup, preparation and successful paid evidence remain pending.
+- **Status:** Manual-cleanup admission is verified. After two pre-allocation rejections, the next experiment allocated three VMs and passed healthy measurement, then failed on a catch-up timeout. Cleanup and lease release passed; the recovery correction and new budget boundary are recorded below. Complete paid evidence remains pending.
 - **Predecessor:** Setup/preflight accepted through [PR #164](https://github.com/patricklfdm/GeneralSearchEngine/pull/164), master `36b7e44828864b11b696c6f2a1d81e9af28f1c44`, [full CI 35089239868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35089239868).
 - **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), USD 40 complete sequence.
 
@@ -297,6 +297,26 @@ failed sequence remains failed. Two attempts retain USD 12 in reservations,
 leaving USD 28 under the frozen USD 40 ceiling. Five further USD 6 reservations
 would total USD 42 with those earlier attempts, so retry preparation needs a new
 complete-sequence reservation review; cleanup does not refund the ledger.
+
+### Workload catch-up timeout and budget boundary
+
+Manual cleanup [35198924637](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35198924637)
+and preflight [35199471296](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35199471296)
+passed on master `f524ac177e9017fdd1ba0a3e5ceb592c77ee4d9c`. Preflight selected the
+manual receipt and verified the corrected disk/SSH permissions. The new five-run
+allocation was USD 5.60 each: USD 12 already reserved plus USD 28 remaining.
+
+Experiment [35200890419](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35200890419)
+then failed during node-3 catch-up after its healthy windows passed. Retained
+lifecycle evidence records all 13 resources absent, verified retention and lease
+release; the live lease read-back was absent. The [adapter diagnosis and regression](PHASE_6_REMOTE_WORKLOAD.md#first-workload-catch-up-failure)
+describe the correction. This sequence remains failed and cannot be reused.
+
+The ledger now retains USD **17.60**, leaving USD **22.40** under the frozen
+USD 40 ceiling. Reservations are not actual charges. Five additional USD 5.60
+reservations would total USD 45.60, so another paid sequence needs a new complete
+cost/allocation review before execution. This fix does not refund reservations,
+raise the ceiling or authorize a cloud rerun.
 
 ## 4. Prepare the paid review only after readiness
 

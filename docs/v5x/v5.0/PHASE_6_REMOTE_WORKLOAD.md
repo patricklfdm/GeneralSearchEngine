@@ -1,6 +1,6 @@
 # V5.0 remote workload execution and evidence
 
-- **Status:** Accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163), master `ddff5dd0e0af5b5aa7726ec7107f9815de6d5eef`, [full CI 35079404376](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35079404376); paid 6C execution pending
+- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). Paid experiment [35200890419](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35200890419) passed healthy measurement but failed during follower catch-up; the recovery correction is documented below. Complete paid 6C evidence remains pending.
 - **Branch:** `feat/v5.0-phase6-remote-workload`
 - **Starting master:** `a885bc7789a332525d3c375635ce35ce7bc15dec`
 - **Predecessor:** [PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161), [correction #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162), [exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
@@ -29,6 +29,15 @@ and snapshot cells issue ten bounded background updates with at least one second
 between dispatches. Snapshot selection follows a public checkpoint ahead of the
 isolated follower; the first chunk acknowledgement is deliberately lost. Restart
 replays a retained old-incarnation request and requires `STALE_EPOCH`.
+
+Catch-up can outlive one bounded peer RPC while the follower is still installing
+the durable batch. The controller retries public `catchUp` for `QUORUM_UNAVAILABLE`
+or `CAPACITY_EXCEEDED` only while the leader reports `READY` and write quorum
+available. It retains the existing 20-attempt/50-ms-backoff bound and limits each
+response wait by the remaining cell and run deadlines. Conflict, fencing,
+integrity, storage and closed-state failures remain terminal. A failed cell now
+records `FAIL` and its diagnostic; each command response remains in the member
+receipt. Neither the 1500-ms RPC bound nor any frozen workload allocation changes.
 
 Both replacements use the existing delete/read-back/create lifecycle. The old
 authority copy is diagnostic only. The fresh disk mounts on the designated survivor
@@ -104,6 +113,37 @@ cleanup, preventing accidental inode reuse. Its label is
 `local-remote-workload-only`; it proves neither IAP/SSH connectivity nor GCP physical
 disk operations. Cloud durations are checked with deterministic budget fixtures;
 the local gate does not spend 300/900/1800 seconds pretending to be a cloud run.
+
+The local lane also delays one follower's durable catch-up batch response beyond
+the RPC timeout. It requires an actual public `QUORUM_UNAVAILABLE` followed by
+successful public catch-up and a `READY` follower at the verified applied/commit
+index. The extra fault is selected only by the local qualification controller;
+the paid fault schedule is unchanged. The receipt is
+`runner/catchup-timeout-regression.json`. This regression reproduces the previous
+controller failure before the retry correction.
+
+### First workload catch-up failure
+
+[Run 35200890419](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35200890419)
+used source `f524ac177e9017fdd1ba0a3e5ceb592c77ee4d9c`. All four healthy windows
+passed. The unavailable cell isolated node-3 for ten background updates, leaving
+its committed index at 1121 while the leader reached 1131. After healing, the
+public catch-up call returned `QUORUM_UNAVAILABLE` after approximately 1.59 seconds;
+the leader remained `READY` with write quorum. Subsequent node-3 samples show the
+batch reached committed/applied index 1131 and application sequence 1386, but the
+controller had already aborted instead of completing the public READY handshake.
+The timeout is therefore not evidence that the whole write quorum was lost.
+
+The original failure remains rejected evidence. All 13 owned cloud resources
+were verified absent, retention passed, and the lease was released. The failed
+sequence and its USD 5.60 reservation remain in the ledgers; see the
+[current budget boundary](PHASE_6_CLOUD_SETUP.md#workload-catch-up-timeout-and-budget-boundary).
+
+Correction validation passed 242 Python tests (19 remote-adapter tests), all 14
+local remote workload cells and all 15 provenance negatives. The injected timeout
+reproduced the original abort before the fix; afterward two public timeout
+responses were followed by successful catch-up and follower READY at index 67.
+These are local qualification results, not a successful paid cloud rerun.
 
 - [x] Predecessor exact-master full CI verified.
 - [x] Local guest/runtime, policy, provenance and negative receipts recorded below.

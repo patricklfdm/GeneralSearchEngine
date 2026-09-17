@@ -28,10 +28,19 @@ public final class V50CloudWorkloadWorker {
     public static void main(String[] args) throws Exception {
         CloudWorkloadTelemetry.observer=V50CloudWorkloadWorker::observe;
         var starts=ThreadLocal.withInitial(HashMap<String,Long>::new);
+        var delayedCatchup=new AtomicBoolean();
+        long catchupDelayMillis=2L*CloudWorkload.number(CloudWorkload.plan(Path.of(args[3])).section("replicationBounds"),"requestTimeoutMillis");
         ReplicaNode.Events events=(name,index) -> {
             if(index>32768) throw new IOException("cloud log index bound");
             if(CloudWorkloadTelemetry.instrumented)
                 CloudWorkloadTelemetry.record("events",Map.of("event",name,"index",index,"nanos",System.nanoTime()));
+            // Local remote-adapter regression: a durable batch may outlive its caller's RPC wait.
+            if(name.equals("AFTER_CATCHUP_BATCH") && CloudWorkloadTelemetry.fault.equals("delay-catchup-once") && delayedCatchup.compareAndSet(false,true)) {
+                long start=System.nanoTime();
+                try { Thread.sleep(catchupDelayMillis); }
+                catch(InterruptedException error) { Thread.currentThread().interrupt(); throw new IOException(error); }
+                CloudWorkloadTelemetry.record("faults",Map.of("action","delayed-catchup","index",index,"startNanos",start,"endNanos",System.nanoTime()));
+            }
             if(name.equals(CloudWorkloadTelemetry.cut)) {
                 CloudWorkloadTelemetry.record("barriers",Map.of("barrier",name,"index",index,"pid",ProcessHandle.current().pid()));
                 Files.writeString(CloudWorkloadTelemetry.root().resolve("barrier"),ProcessHandle.current().pid()+"\n"+name+"\n");
