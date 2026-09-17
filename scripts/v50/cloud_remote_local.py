@@ -41,6 +41,25 @@ class LocalBackend(PresetFake):
             if path.exists():path.rename(self.guest_root.parent/f'retired-fake-volume-{row["node"]}')
 
 
+class QualificationProbe(RemoteProbe):
+    """Exercise a real timed-out catch-up only in the no-GCP qualification lane."""
+    def catchup(self, node):
+        if not self.cells or self.cells[-1]['name'] != 'unavailable': return super().catchup(node)
+        leader=self.workers[1]; first=len(leader.receipt['exchanges'])
+        self.workers[node].command('fault',mode='delay-catchup-once')
+        try: result=super().catchup(node)
+        finally: self.workers[node].command('fault',mode='none')
+        responses=[e['response'] for e in leader.receipt['exchanges'][first:] if e['request']['command']=='catchup']
+        require(any(r['accepted'] is False and r['reason']=='QUORUM_UNAVAILABLE' and r['status']['writeQuorum'] for r in responses),
+                'catchup timeout regression did not exercise a real public timeout')
+        recovered=self.workers[node].command('status')['status']
+        require(result['accepted'] and recovered['state']=='READY' and
+                recovered['commitIndex']==recovered['appliedIndex']==result['verifiedIndex'], 'timed-out catchup did not recover')
+        save(self.root.parent/'catchup-timeout-regression.json',dict(status='PASS',execution='local-remote-workload-only',
+            responses=responses,recovered=recovered))
+        return result
+
+
 def run(root,archive,content):
     root=Path(root);require(not root.exists(),'fresh remote qualification');root.mkdir(parents=True)
     objects={};sequence='e'*32;manifest=json.loads((Path(content)/'bundle.json').read_bytes())
@@ -52,7 +71,7 @@ def run(root,archive,content):
     backend=LocalBackend(plan(),req,root/'guest');backend.objects=objects
     workspace=root/'runner'
     runner=Runner(backend,None,workspace,approval=dict(maximumCostMicrousd=1_000_000,previousAttemptsCostMicrousd=2_000_000))
-    probe=RemoteProbe(backend,archive,workspace,content,qualification=True);runner.probe=probe;probe.runner=runner
+    probe=QualificationProbe(backend,archive,workspace,content,qualification=True);runner.probe=probe;probe.runner=runner
     try:state=runner.run()
     finally:
         for path in root.glob('retired-fake-volume-*'):shutil.rmtree(path)

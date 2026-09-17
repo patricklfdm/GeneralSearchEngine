@@ -6,11 +6,11 @@ from pathlib import Path
 import shutil
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from .cloud_common import canonical, plan, save, sha
 from .cloud_remote_contract import schedule, measurement_seconds
 from .cloud_remote_guest import Guest, SCHEMA, EXECUTION, alive
-from .cloud_remote_probe import RemoteProbe, collection_member
+from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
 from .cloud_workload_io import inventory
@@ -80,6 +80,68 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(schedule('experiment')['healthyIntervalNanos'],100_000_000)
         self.assertEqual(schedule('local-qualification')['pacing'],'completion-paced')
         with self.assertRaises(ValueError):schedule('unreviewed')
+
+    def catchup_probe(self, responses):
+        probe=RemoteProbe.__new__(RemoteProbe);probe.deadline=120;probe.cell_deadline=110
+        probe.command=Mock(side_effect=responses)
+        return probe
+
+    def catchup_failure(self, reason='QUORUM_UNAVAILABLE', **status):
+        return dict(command='catchup',accepted=False,reason=reason,
+                    status=dict(dict(state='READY',writeQuorum=True),**status))
+
+    def test_catchup_retries_peer_timeout_and_capacity_until_public_success(self):
+        success=dict(command='catchup',accepted=True,verifiedIndex=1131)
+        probe=self.catchup_probe([self.catchup_failure('CAPACITY_EXCEEDED'),self.catchup_failure(),success])
+        with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=100), \
+             patch('scripts.v50.cloud_remote_probe.time.sleep') as sleep:
+            self.assertEqual(probe.catchup(3),success)
+        self.assertEqual(probe.command.call_count,3);self.assertEqual(sleep.call_count,2)
+        self.assertTrue(all(c.kwargs['peer']=='node-3' and c.kwargs['response_timeout']<=10 for c in probe.command.call_args_list))
+
+    def test_catchup_does_not_retry_safety_failures_or_suspended_leader(self):
+        failures=[self.catchup_failure(reason) for reason in
+            ('CONFLICTING_HISTORY','STALE_EPOCH','INTEGRITY_FAILURE','PROTOCOL_MISMATCH','STORAGE_FAILURE','CLOSED')]
+        failures += [dict(self.catchup_failure(),status=dict(state=state,writeQuorum=quorum)) for state,quorum in
+                     [('READY',False),('UNAVAILABLE',True),('FAILED',True)]]
+        for failure in failures:
+            with self.subTest(failure=failure):
+                probe=self.catchup_probe([failure])
+                with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=100), \
+                     patch('scripts.v50.cloud_remote_probe.time.sleep') as sleep, \
+                     self.assertRaisesRegex(ValueError,failure['reason']):probe.catchup(3)
+                self.assertEqual(probe.command.call_count,1);sleep.assert_not_called()
+
+    def test_catchup_persistent_timeout_exhausts_attempts_with_last_response(self):
+        probe=self.catchup_probe([self.catchup_failure()]*20)
+        with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=100), \
+             patch('scripts.v50.cloud_remote_probe.time.sleep') as sleep, \
+             self.assertRaisesRegex(ValueError,'20 attempts.*QUORUM_UNAVAILABLE'):probe.catchup(3)
+        self.assertEqual(probe.command.call_count,20);self.assertEqual(sleep.call_count,19)
+
+    def test_catchup_respects_cell_and_run_deadlines_without_extending_waits(self):
+        for cell,run in [(101.62,120),(120,101.62)]:
+            with self.subTest(cell=cell,run=run):
+                clock=[100.0];probe=self.catchup_probe([]);probe.cell_deadline=cell;probe.deadline=run
+                def rejected(*args,**kwargs):clock[0]+=1.6;return self.catchup_failure()
+                probe.command.side_effect=rejected
+                with patch('scripts.v50.cloud_remote_probe.time.monotonic',side_effect=lambda:clock[0]), \
+                     patch('scripts.v50.cloud_remote_probe.time.sleep') as sleep, \
+                     self.assertRaisesRegex(ValueError,'deadline.*QUORUM_UNAVAILABLE'):probe.catchup(3)
+                self.assertEqual(probe.command.call_count,1);sleep.assert_not_called()
+                self.assertAlmostEqual(probe.command.call_args.kwargs['response_timeout'],1.62)
+        probe=self.catchup_probe([]);probe.cell_deadline=100
+        with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=100),self.assertRaisesRegex(ValueError,'deadline'):
+            probe.catchup(3)
+        probe.command.assert_not_called()
+
+    def test_remote_wait_budget_is_not_sent_to_the_guest(self):
+        worker=RemoteWorker.__new__(RemoteWorker);worker.receipt={};worker.path=self.root/'member.json'
+        worker.send=Mock(return_value=dict(outcome='indeterminate'))
+        worker.receive=Mock(return_value=dict(command='catchup',accepted=False))
+        worker.command('catchup',accepted=None,peer='node-3',response_timeout=.25)
+        worker.send.assert_called_once_with('catchup',peer='node-3')
+        worker.receive.assert_called_once_with(.25)
 
     def test_full_admission_requires_executed_remote_gate(self):
         p=plan();req=workload_request('a'*40,1,1,'b'*64,'experiment','c'*32)
