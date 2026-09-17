@@ -14,7 +14,7 @@ from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
 from .cloud_workload_io import inventory
-from .cloud_presets import workload_request
+from .cloud_presets import ORDER, workload_request
 from .cloud_preflight import admission, check_observations
 from .test_cloud_runner import observations
 
@@ -25,6 +25,26 @@ class RemoteTests(unittest.TestCase):
         self.base=self.root/'bundle';self.base.mkdir();shutil.copyfile(PLAN,self.base/'workload.json')
         save(self.base/'bundle.json',dict(schema=SCHEMA,execution=EXECUTION,workloadPlanSha256=PLAN_SHA256))
         self.owner='gse-v50-012345abcdef'
+
+    def test_set_budget_accepts_new_headroom_and_rejects_excess(self):
+        roots=[];states=[]
+        for ordinal,(profile,repetition) in enumerate(ORDER,1):
+            root=self.root/f'member-{ordinal}';roots.append(root)
+            req=workload_request('a'*40,ordinal,1,'b'*64,profile,'c'*32,repetition,nonce=f'{ordinal:012x}')
+            state=dict(request=req,startedAt=ordinal*10,finishedAt=ordinal*10+5,
+                plan=dict(maximumSequenceCostMicrousd=1_000_000_000),budgetReservation=dict(reservations=[]))
+            states.append(state);save(root/'completion.json',state)
+        # Isolate the aggregate check from member provenance validation. Even a
+        # claimed higher limit in a receipt cannot override the pinned local plan.
+        with patch('scripts.v50.cloud_remote_evidence.validate',return_value=dict(artifactSha256='d'*64)):
+            for total in (44_480_000,100_000_000,100_000_001):
+                with self.subTest(total=total):
+                    states[-1]['budgetReservation']['reservations']=[dict(maximumCostMicrousd=22_080_000),
+                        dict(maximumCostMicrousd=total-22_080_000)]
+                    save(roots[-1]/'completion.json',states[-1])
+                    if total<=100_000_000:self.assertEqual(validate_set(roots)['status'],'PASS')
+                    else:
+                        with self.assertRaisesRegex(ValueError,'cloud set cost ceiling'):validate_set(roots)
 
     def test_guest_rejects_local_paths_without_qualification(self):
         with self.assertRaisesRegex(ValueError,'path boundary'):Guest(self.base,self.root,self.owner)

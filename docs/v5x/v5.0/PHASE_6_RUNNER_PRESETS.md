@@ -48,7 +48,7 @@ blocks progression. Reconciliation can release a resource lease; it cannot turn
 a failed or incomplete sequence into a passing one. A new set starts with experiment.
 
 The same global ownership lease serializes topology creation. Cost reservations use
-the existing append-only USD 40 sequence ledger, including failed attempts and new
+the existing append-only sequence ledger with the [amended USD 100 ceiling](PHASE_6_BUDGET_AMENDMENT.md), including failed attempts and new
 sets; cleanup never refunds them. The fake fixture uses USD 1 reservations to test
 the arithmetic. That number is a test input, not a cloud price estimate or approval.
 
@@ -162,9 +162,10 @@ The independent validator verifies nominal/deferred/dispatch timestamps, minimum
 dispatch spacing, same-lane completion, complete call counts and the window ceiling.
 Summaries retain deferral, observed rate and maximum rate explicitly. Resealed
 negatives reject altered pacing, nominal arrivals, overlong windows and lane overlap.
-Only the local qualification section of the full-workload JSON changed. Its current
-plan SHA-256 is `b05ec5f6f6f6088eeed47841dc0adbb2527e1d30d4f3626f85deaa144cbd4241`;
-the historical receipts above retain their original plan identity.
+That correction changed only the local qualification section of the full-workload
+JSON. Its plan SHA-256 was `b05ec5f6f6f6088eeed47841dc0adbb2527e1d30d4f3626f85deaa144cbd4241`;
+the historical receipts retain that identity. The later
+[budget amendment](PHASE_6_BUDGET_AMENDMENT.md) records the current reviewed hash.
 
 Correction validation passed: seven deterministic Java scheduling tests, 147 V5
 Python tests and the complete workload gate, including all fourteen cells and thirty

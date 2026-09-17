@@ -15,6 +15,8 @@ FAILURES = ("provision-node-2", "run-node-1", "cleanup-node-2-data-disk")
 def plan(profile: str) -> dict:
     if profile not in PROFILE_REPEATS:
         raise ValueError("unsupported profile")
+    foundation = json.loads((Path(__file__).resolve().parents[2]
+                             / "docs/v5x/v5.0/phase1-plan.json").read_text())
     return {
         "schemaVersion": "gse-v50-cloud-plan-v1",
         "suite": "v5.0-replicated-single-shard-suite-v1",
@@ -24,8 +26,7 @@ def plan(profile: str) -> dict:
         "repeatsAreSerial": True,
         "votersPerTopology": 3,
         "votersConcurrent": True,
-        "selection": json.loads((Path(__file__).resolve().parents[2]
-                                 / "docs/v5x/v5.0/phase1-plan.json").read_text())["cloudSelection"],
+        "selection": foundation["cloudSelection"],
         "resources": {
             "vcpusPerVoter": 8,
             "peakVcpus": 24,
@@ -35,7 +36,7 @@ def plan(profile: str) -> dict:
             "privateReplicationOnly": True,
         },
         "limits": {"maximumTopologyRuntimeSeconds": 5400,
-                   "maximumCompleteRunCostUsd": 40},
+                   "maximumCompleteRunCostUsd": foundation["resourceBounds"]["maximumCompleteRunCostUsd"]},
     }
 
 

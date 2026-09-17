@@ -121,9 +121,10 @@ any paid execution; a catalog query does not reserve capacity.
 | failure-drill | 1 | up to 900 seconds | GitHub Actions |
 | canonical | 3 serial repetitions | 1800 seconds each | GCS plus Actions summary |
 
-The initial complete-run budget ceiling is USD 40 and maximum topology runtime is
-5400 seconds. Phase 1 pricing/availability calibration may lower these values. Raising
-resource, runtime or cost ceilings requires reviewed documentation before execution.
+The complete-run budget ceiling is USD 100 following the
+[2026-09-17 approved amendment](PHASE_6_BUDGET_AMENDMENT.md); maximum topology runtime
+is 5400 seconds. The original budget was USD 40. Further increases to resource,
+runtime or cost ceilings require reviewed documentation before execution.
 
 ## Required cloud cells
 

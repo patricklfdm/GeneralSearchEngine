@@ -22,7 +22,7 @@ class CloudSummaryTest(unittest.TestCase):
             observations=dict(budget=dict(reservations=[]))))
         text = self.summary('prepare', job_status='success')
         for value in ('Result: READY', '800 s', '4096 documents', 'n2-standard-8', 'Not executed',
-                      'USD 0.00', 'USD 40.00', 'reservations are not billing', 'manual run'):
+                      'USD 0.00', 'USD 100.00', 'reservations are not billing', 'manual run'):
             self.assertIn(value, text)
         self.assertNotIn('Reservation written by this run | Yes', text)
 
@@ -33,7 +33,7 @@ class CloudSummaryTest(unittest.TestCase):
             resources=[dict(name='peer', kind='firewalls', attempted=True)],
             errors=[dict(phase='execution', type='ApiError', message='403: compute.networks.updatePolicy')]))
         text = self.summary(job_status='failure')
-        for value in ('Result: FAILURE', 'USD 6.00', 'USD 34.00', 'Cleanup result | FAIL', 'Unresolved',
+        for value in ('Result: FAILURE', 'USD 6.00', 'USD 94.00', 'Cleanup result | FAIL', 'Unresolved',
                       'compute.networks.updatePolicy', 'prepare a new sequence'):
             self.assertIn(value, text)
         self.assertNotIn('Lease released by this runner | Yes', text)

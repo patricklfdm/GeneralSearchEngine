@@ -1,8 +1,8 @@
 # V5.0 Phase 6C cloud setup and readiness
 
-- **Status:** Manual-cleanup admission is verified. The latest experiment passed healthy measurement but exhausted its catch-up deadline despite controller retries. Cleanup and lease release passed; the READY runtime correction and updated budget boundary are recorded below. Complete paid evidence remains pending.
+- **Status:** READY and admission-backpressure corrections are merged; exact-master CI `35275378501` passed. The user approved increasing the total budget ceiling to USD 100. The budget amendment requires new exact-source CI, cleanup and admission receipts after merge. Complete paid evidence remains pending.
 - **Predecessor:** Setup/preflight accepted through [PR #164](https://github.com/patricklfdm/GeneralSearchEngine/pull/164), master `36b7e44828864b11b696c6f2a1d81e9af28f1c44`, [full CI 35089239868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35089239868).
-- **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), USD 40 complete sequence.
+- **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), [amended USD 100 complete-sequence budget](PHASE_6_BUDGET_AMENDMENT.md).
 
 ## 1. Capture configuration and generate an offline proposal
 
@@ -326,11 +326,24 @@ but repeated READY requests rebuilt its entire application. See the
 All 13 resources were verified absent, retention passed and the live lease was
 absent. Its failed sequence cannot be reused.
 
-The latest read-back retains USD **22.08**, leaving USD **17.92** under the frozen
+The read-back after that failure retained USD **22.08**, leaving USD **17.92** under the original
 USD 40 ceiling. Five more USD 4.48 reservations would total USD 44.48. The previous
 five-run allocation is therefore insufficient after this failure; reassess the
 complete sequence before preparing a fresh paid admission. Reservations remain
 append-only and are not actual billed charges.
+
+### Approved USD 100 budget amendment
+
+The user approved a USD **100** ceiling on 2026-09-17. Existing reservations remain
+USD **22.08**, so capacity under the amended plan is USD **77.92**. The reviewed
+five-run allocation remains USD 4.48 each, totaling USD **22.40**; completing those
+reservations would leave USD **55.52**. Each additional attempt still needs its own
+cost review and exact paid admission. See the
+[amendment, hashes and cost basis](PHASE_6_BUDGET_AMENDMENT.md).
+
+This code/plan change requires a protected merge, passing exact-master CI, matching
+recent cleanup and fresh workflow-service-account preflight. Old prepared bundles
+and confirmations cannot be reused. The user triggers cloud experiments manually.
 
 ## 4. Prepare the paid review only after readiness
 
@@ -351,7 +364,7 @@ quote or admission document. Reprice it and agree evidence retention before use.
 | Evidence transfer allowance | 60 GiB × 0.23 | 13.8000 |
 | Operations/control/metadata allowance | Reserved | 3.0000 |
 | Failed-attempt allowance | Reserved | 8.0000 |
-| **Planning estimate / frozen ceiling** | | **35.81 / 40.00** |
+| **Historical planning estimate / original ceiling** | | **35.81 / 40.00** |
 
 Rates use the official `us-west4` [N2](https://cloud.google.com/products/compute/pricing/general-purpose),
 [balanced disk](https://cloud.google.com/compute/disks-image-pricing), and
@@ -366,7 +379,7 @@ Thirty days is only a proposed review horizon; keeping 20 GiB longer adds about
 USD 0.46/month. Public-repository standard [GitHub Actions](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 usage is free; the workflow retains Actions artifacts for 14 days. Failed attempts
 consume the same append-only budget. Outages beyond the cleanup allowance and
-taxes/currency conversion are not a provider-enforced USD 40 cap.
+taxes/currency conversion are not bounded by a provider-enforced spending cap.
 
 ## Local validation
 

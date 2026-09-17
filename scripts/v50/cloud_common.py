@@ -50,7 +50,7 @@ def plan(path=PLAN):
             value['measurementClaim'] == 'admission-probe-only' and value['paidProfiles'] == ['admission-probe'], 'runner plan scope')
     require((value['voters'], value['vcpusPerVoter'], value['bootDiskGiB'], value['dataDiskGiB']) == (3, 8, 50, 100), 'resource ceilings')
     require(value['maximumTopologySeconds'] == 5400 and value['cleanupReserveSeconds'] == 300 and
-            value['maximumSequenceCostMicrousd'] == 40_000_000, 'time/cost ceilings')
+            value['maximumSequenceCostMicrousd'] == 100_000_000, 'time/cost ceilings')
     require(value['project'] == 'gse-benchmark' and value['zone'] == 'us-west4-a' and value['machineType'] == 'n2-standard-8', 'catalog selection')
     require(value['ref'] == 'refs/heads/master' and value['environment'] == 'cloud-benchmark' and
             value['workflow'] == '.github/workflows/v50-replication-evidence.yml', 'workflow boundary')

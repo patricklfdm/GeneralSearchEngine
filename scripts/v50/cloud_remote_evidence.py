@@ -183,7 +183,8 @@ def validate_set(roots):
     require(all(v['artifactSha256']==values[0]['artifactSha256'] for v in values),'cloud set artifact drift')
     states=[read(Path(p)/'completion.json',16<<20) for p in roots]
     require(all(a['finishedAt']<=b['startedAt'] for a,b in zip(states,states[1:])),'overlapping cloud topologies')
-    require(sum(v['maximumCostMicrousd'] for v in states[-1]['budgetReservation']['reservations'])<=40_000_000,'cloud set cost ceiling')
+    ceiling=read_plan()['resources']['maximumCompleteSequenceMicrousd']
+    require(sum(v['maximumCostMicrousd'] for v in states[-1]['budgetReservation']['reservations'])<=ceiling,'cloud set cost ceiling')
     return dict(status='PASS',execution='gcp-cloud-workload-set',source=requests[0]['source'],sequence=requests[0]['sequence'],members=values)
 
 
