@@ -185,6 +185,17 @@ follower READY at index 67. The Phase 4 recovery and Phase 5 hardening gates als
 passed with the rebuilt runtime. These results qualify the local implementation;
 complete paid cloud evidence remains pending.
 
+The READY regression also accounts for transport admission after isolation:
+completion through the healthy quorum does not drain requests queued for the
+unavailable follower. Its incremental case holds a proof response on the leader's
+sender thread until the queue fills and catch-up returns `CAPACITY_EXCEEDED`, then
+releases the response and retries admission within one ten-second test deadline.
+Only that capacity classification is retried; RPC timeouts and recovery failures
+still fail the test. The zero-replay assertions remain in force after admission.
+This removes the scheduler-dependent assumption exposed by the PR CI run.
+Validation passed 44 targeted READY/recovery/network/pressure tests and three
+additional consecutive runs of all five READY cases, each forcing backpressure.
+
 This run remains failed evidence. All 13 resources were verified absent,
 retention passed, and the live lease read-back was absent. Sequence
 `57ef85cf9c994afabe8d65fc3323fc74` cannot be reused. The budget ledger retains its
