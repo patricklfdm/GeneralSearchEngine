@@ -1,6 +1,6 @@
 # V5.0 Phase 6C cloud setup and readiness
 
-- **Status:** Manual-cleanup admission is verified. After two pre-allocation rejections, the next experiment allocated three VMs and passed healthy measurement, then failed on a catch-up timeout. Cleanup and lease release passed; the recovery correction and new budget boundary are recorded below. Complete paid evidence remains pending.
+- **Status:** Manual-cleanup admission is verified. The latest experiment passed healthy measurement but exhausted its catch-up deadline despite controller retries. Cleanup and lease release passed; the READY runtime correction and updated budget boundary are recorded below. Complete paid evidence remains pending.
 - **Predecessor:** Setup/preflight accepted through [PR #164](https://github.com/patricklfdm/GeneralSearchEngine/pull/164), master `36b7e44828864b11b696c6f2a1d81e9af28f1c44`, [full CI 35089239868](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35089239868).
 - **Frozen boundaries:** [Runner](PHASE_6_CLOUD_RUNNER.md), [full workload](PHASE_6_CLOUD_WORKLOAD_PLAN.md), USD 40 complete sequence.
 
@@ -312,11 +312,25 @@ lifecycle evidence records all 13 resources absent, verified retention and lease
 release; the live lease read-back was absent. The [adapter diagnosis and regression](PHASE_6_REMOTE_WORKLOAD.md#first-workload-catch-up-failure)
 describe the correction. This sequence remains failed and cannot be reused.
 
-The ledger now retains USD **17.60**, leaving USD **22.40** under the frozen
+That first workload failure left USD **17.60** reserved and USD **22.40** under the frozen
 USD 40 ceiling. Reservations are not actual charges. Five additional USD 5.60
 reservations would total USD 45.60, so another paid sequence needs a new complete
 cost/allocation review before execution. This fix does not refund reservations,
 raise the ceiling or authorize a cloud rerun.
+
+The subsequent experiment [35241694135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35241694135)
+on source `95c954f5326edde231dab47bb0ea0c676ea1f7fc` reserved USD 4.48 and failed
+after repeated catch-up RPC timeouts. The follower had reached the committed index
+but repeated READY requests rebuilt its entire application. See the
+[runtime diagnosis and regression](PHASE_6_REMOTE_WORKLOAD.md#repeated-ready-replay-after-controller-retries).
+All 13 resources were verified absent, retention passed and the live lease was
+absent. Its failed sequence cannot be reused.
+
+The latest read-back retains USD **22.08**, leaving USD **17.92** under the frozen
+USD 40 ceiling. Five more USD 4.48 reservations would total USD 44.48. The previous
+five-run allocation is therefore insufficient after this failure; reassess the
+complete sequence before preparing a fresh paid admission. Reservations remain
+append-only and are not actual billed charges.
 
 ## 4. Prepare the paid review only after readiness
 

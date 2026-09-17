@@ -527,7 +527,12 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 require(store.voter() && !store.damagedTail() && store.lastLogIndex() == store.commitIndex()
                         && store.commitIndex() == number(p, "index") && store.digestAt(store.commitIndex()).equals(string(p, "digest")),
                         CONFLICTING_HISTORY, "follower has not reconstructed the required committed boundary");
-                try (var rebuilt = application.rebuild(store.image(emptyApplication))) { application.replaceWith(rebuilt); }
+                // Startup, catch-up installation or normal proof publication already materialized
+                // this authority. Replaying it again on every READY retry can exceed the RPC
+                // bound indefinitely. Rebuild only a stale view or unresolved private operation.
+                if (!application.canResumeAt(store.commitIndex())) {
+                    try (var rebuilt = application.rebuild(store.image(emptyApplication))) { application.replaceWith(rebuilt); }
+                }
                 committed = store.commitIndex(); state = ReplicaState.READY; refresh();
                 return response(request, "COMMIT_ADVANCE", authorityStatus());
             }
