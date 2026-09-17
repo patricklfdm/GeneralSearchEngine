@@ -6,7 +6,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
@@ -35,9 +38,28 @@ class V50ReadyTest {
     @ParameterizedTest
     @ValueSource(strings = {"restart", "incremental", "snapshot"})
     void readyAndRetriesReuseTheReconstructedApplication(String recovery) throws Exception {
-        try (var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE)) {
+        var holdResponse = new AtomicBoolean();
+        var responseHeld = new CountDownLatch(1); var releaseResponse = new CountDownLatch(1);
+        var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
+            if (local == 0 && barrier.equals("AFTER_RESPONSE_READ") && request.get("recipient").equals("node-3")
+                    && request.get("type").equals("COMMIT_PROOF")
+                    && Long.valueOf(2).equals(ReplicaWire.object(response.get("payload")).get("index"))
+                    && holdResponse.compareAndSet(true, false)) {
+                responseHeld.countDown();
+                try {
+                    if (!releaseResponse.await(10, TimeUnit.SECONDS)) throw new java.io.IOException("response release missing");
+                } catch (InterruptedException error) {
+                    Thread.currentThread().interrupt(); throw new java.io.IOException(error);
+                }
+            }
+        });
+        try {
             group.leader().activate().get(10, TimeUnit.SECONDS);
+            // Hold the sender before it releases its slot, then fill its queue while the
+            // other follower supplies quorum. This forces the CI admission race locally.
+            holdResponse.set(recovery.equals("incremental"));
             group.add(new Document(1, "before isolation")).get(10, TimeUnit.SECONDS);
+            if (recovery.equals("incremental")) assertTrue(responseHeld.await(5, TimeUnit.SECONDS));
             await(() -> group.nodes.get(2).status().appliedIndex() == 2);
             group.nodes.get(2).close();
             if (!recovery.equals("restart")) {
@@ -61,18 +83,40 @@ class V50ReadyTest {
                     }));
             installedDecodes.set(codec.decodes.get());
             long committed = group.leader().status().commitIndex();
+            var backpressure = new AtomicInteger();
             for (int retry = 0; retry < 3; retry++) {
-                assertEquals(committed, group.leader().catchUp(peer).get(10, TimeUnit.SECONDS));
+                assertEquals(committed, catchUpWhenAdmitted(group, peer, () -> {
+                    backpressure.incrementAndGet(); releaseResponse.countDown();
+                }));
                 assertEquals(ReplicaState.READY, group.nodes.get(2).status().state());
                 assertEquals(committed, app.appliedIndex());
                 assertEquals(group.leader().status().applicationSequence(), app.sequence());
                 assertEquals(group.leader().<Document>read(engine -> engine.get(1)), app.read(engine -> engine.get(1)));
                 assertEquals(installedDecodes.get(), codec.decodes.get(), "READY must not replay an already published history");
             }
+            if (recovery.equals("incremental")) assertTrue(backpressure.get() > 0, "fixture must exercise admission backpressure");
             // The reused private working state must support the next real quorum write.
             group.nodes.get(1).close();
             group.add(new Document(2, "new quorum")).get(10, TimeUnit.SECONDS);
             assertEquals(new Document(2, "new quorum"), app.read(engine -> engine.get(2)));
+        } finally { releaseResponse.countDown(); group.close(); }
+    }
+
+    private static long catchUpWhenAdmitted(Group group, ReplicationNodeId peer, Runnable onBackpressure) throws Exception {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        while (true) {
+            long remaining = deadline - System.nanoTime();
+            assertTrue(remaining > 0, "catch-up admission did not recover within the test deadline");
+            try { return group.leader().catchUp(peer).get(remaining, TimeUnit.NANOSECONDS); }
+            catch (ExecutionException error) {
+                // Quorum completion does not drain the unavailable peer's asynchronous
+                // requests. Only admission backpressure is expected here; READY, replay,
+                // timeout and integrity failures must still fail this regression.
+                if (!(error.getCause() instanceof ReplicationException failure)
+                        || failure.reason() != ReplicationException.Reason.CAPACITY_EXCEEDED) throw error;
+                onBackpressure.run();
+                Thread.sleep(10);
+            }
         }
     }
 
