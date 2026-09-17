@@ -138,7 +138,7 @@
     "peakVcpus": 24,
     "peakDiskGiB": 450,
     "maximumTopologySeconds": 5400,
-    "maximumCompleteSequenceCostUsd": 40,
+    "maximumCompleteSequenceCostUsd": 100,
     "workloadFreeze": "separate-cloud-preset-required-before-6C"
   }
 }

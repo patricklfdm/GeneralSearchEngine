@@ -44,7 +44,8 @@ slow/unavailable followers, interrupted transfer, restart/fencing, disk replacem
 proof-boundary failure drills and sustained sampling, with explicit cell budgets.
 Those operations remain covered by the accepted local public/runtime correctness
 gates; this PR does not represent that coverage as cloud performance measurements.
-Any optional paid admission probe counts against the same USD 40 sequence budget.
+Any optional paid admission probe counts against the same USD 100 sequence budget
+under the [approved budget amendment](PHASE_6_BUDGET_AMENDMENT.md).
 Accepting this runner alone does not close the cloud preset review gate. The
 [full cloud workload plan](PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
 [Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
@@ -198,7 +199,7 @@ manual `run` dispatch requires the reviewed request SHA-256 and a
 `gse-v50-paid-admission-v1` document containing:
 
 - `confirmed: true`, exact `requestSha256`, `preflightSha256`, `planSha256` and `expiresAt`;
-- integer `maximumCostMicrousd` and `previousAttemptsCostMicrousd`, whose sum is at most 40,000,000;
+- integer `maximumCostMicrousd` and `previousAttemptsCostMicrousd`, whose sum is at most 100,000,000;
 - current `priceSources` and `estimateIncludes` exactly
   `three-vms, boot-disks, data-disks, control, evidence, cleanup, failed-attempts`;
 - `pricedThroughTopologySeconds` at least 5400 and `cleanupOverhangSeconds` at least 1080.

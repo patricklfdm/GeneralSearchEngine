@@ -94,7 +94,7 @@ class PresetTest(unittest.TestCase):
     def test_budget_exhaustion_stops_before_compute(self):
         self.run_case()
         version, raw = self.objects[BUDGET]; ledger = json.loads(raw)
-        ledger['reservations'][0]['maximumCostMicrousd'] = 40_000_000
+        ledger['reservations'][0]['maximumCostMicrousd'] = 100_000_000
         self.objects[BUDGET] = (version, canonical(ledger))
         backend, state = self.run_case('failure-drill')
         self.assertEqual(state['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))

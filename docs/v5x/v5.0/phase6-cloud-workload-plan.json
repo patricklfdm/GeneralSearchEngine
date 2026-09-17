@@ -299,7 +299,7 @@
     "peakDiskGiB": 450,
     "maximumTopologySeconds": 5400,
     "cleanupReserveSeconds": 300,
-    "maximumCompleteSequenceMicrousd": 40000000,
+    "maximumCompleteSequenceMicrousd": 100000000,
     "receiptTtlSeconds": 900,
     "cleanupOverhangSeconds": 1080,
     "artifactBundleBytes": 134217728,

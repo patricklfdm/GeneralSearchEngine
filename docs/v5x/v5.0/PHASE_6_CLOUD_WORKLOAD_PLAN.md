@@ -294,8 +294,8 @@ The pinned image remains `ubuntu-2404-noble-amd64-v20260906`, ID
 `6257327608773510097`; catalog/quota observations in the runner report are historical.
 A changed image/JDK/build input requires a reviewed exact plan and new receipts.
 
-The complete experiment + failure-drill + three canonical sequence remains at most
-USD 40, including control, evidence, cleanup, failed attempts and any optional paid
+The complete experiment + failure-drill + three canonical sequence is limited to
+USD 100 under the [approved budget amendment](PHASE_6_BUDGET_AMENDMENT.md), including control, evidence, cleanup, failed attempts and any optional paid
 admission probe. Pricing every topology at the 5400-second ceiling reserves 22.5
 VM-hours and 3375 GiB-hours of provisioned disks before cleanup overhang. Reserve
 at least 1080 seconds of disk overhang per topology (another 675 GiB-hours across
@@ -306,7 +306,7 @@ Actions copies, metadata, failed attempts and retention/transfer duration.
 Before approval, attach current VM/disk/storage/transfer price sources and the
 calculation `VM-hours * VM-rate + disk-hours * disk-rate + evidence/transfer +
 cleanup/failed-attempt reserve`. This document supplies ceilings, not a current-price
-quote. Optional admission probes and retries consume the same append-only USD 40
+quote. Optional admission probes and retries consume the same append-only USD 100
 ledger; failed reservations are not automatically refunded. If the priced complete
 sequence does not fit, stop before mutation and review scope/budget explicitly.
 

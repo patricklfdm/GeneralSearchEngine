@@ -13,6 +13,8 @@ EXECUTION = 'fake-cloud-preset-runner-only'
 def preset(profile):
     require(profile in PROFILES, 'unknown workload profile')
     workload, runner = read_plan(), plan()
+    require(workload['resources']['maximumCompleteSequenceMicrousd'] == runner['maximumSequenceCostMicrousd'],
+            'runner/workload budget drift')
     selected = workload['profiles'][profile]
     return dict(schema='gse-v50-cloud-runner-preset-v2', execution='paid-admission-required', requiresPaidAdmission=True,
         profile=profile, workloadPlanSha256=PLAN_SHA256, runnerPlanSha256=sha(canonical(runner)),

@@ -31,7 +31,7 @@
   "resourceBounds": {
     "bootDiskGiBPerVoter": 50,
     "dataDiskGiBPerVoter": 100,
-    "maximumCompleteRunCostUsd": 40,
+    "maximumCompleteRunCostUsd": 100,
     "maximumTopologyRuntimeSeconds": 5400,
     "peakProvisionedDiskGiB": 450,
     "peakVcpus": 24,

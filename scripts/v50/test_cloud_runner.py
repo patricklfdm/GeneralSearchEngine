@@ -54,6 +54,22 @@ class CloudRunnerTest(unittest.TestCase):
         runner = Runner(backend, probe, self.root / label)
         return backend, probe, runner.run()
 
+    def test_budget_ceiling_agrees_across_foundation_runner_and_workload(self):
+        from .cloud_common import ROOT
+        from .cloud_workload_plan import read_plan
+        from .fake_cloud_lane import plan as foundation_plan
+        from .cloud_presets import preset
+        foundation = json.loads((ROOT / 'docs/v5x/v5.0/phase1-plan.json').read_text())
+        local = json.loads((ROOT / self.plan['workloadPlan']).read_text())
+        for ceiling in (self.plan['maximumSequenceCostMicrousd'],
+                        read_plan()['resources']['maximumCompleteSequenceMicrousd'],
+                        foundation['resourceBounds']['maximumCompleteRunCostUsd'] * 1_000_000,
+                        foundation_plan('experiment')['limits']['maximumCompleteRunCostUsd'] * 1_000_000,
+                        local['cloud']['maximumCompleteSequenceCostUsd'] * 1_000_000):
+            self.assertEqual(ceiling, 100_000_000)
+        with patch('scripts.v50.cloud_presets.plan', return_value=dict(self.plan, maximumSequenceCostMicrousd=40_000_000)):
+            with self.assertRaisesRegex(ValueError, 'runner/workload budget drift'): preset('experiment')
+
     def test_success_uses_private_three_volume_bootstrap_order_and_retains(self):
         backend, probe, state = self.run_case()
         self.assertEqual(state['status'], 'PASS'); self.assertFalse(backend.resources); self.assertNotIn(LEASE, backend.objects)
@@ -110,7 +126,8 @@ class CloudRunnerTest(unittest.TestCase):
             pricedThroughTopologySeconds=5400, cleanupOverhangSeconds=1080,
             estimateIncludes=['three-vms', 'boot-disks', 'data-disks', 'control', 'evidence', 'cleanup', 'failed-attempts'])
         admission(self.plan, receipt, self.req, approval, now=1001)
-        for changed in [dict(confirmed=False), dict(maximumCostMicrousd=40_000_001), dict(previousAttemptsCostMicrousd=31_000_000),
+        admission(self.plan, receipt, self.req, dict(approval, maximumCostMicrousd=100_000_000), now=1001)
+        for changed in [dict(confirmed=False), dict(maximumCostMicrousd=100_000_001), dict(previousAttemptsCostMicrousd=91_000_000),
                         dict(requestSha256='c' * 64), dict(estimateIncludes=['three-vms']), dict(priceSources=[])]:
             with self.subTest(changed=changed), self.assertRaises(ValueError):
                 admission(self.plan, receipt, self.req, dict(approval, **changed), now=1001)
@@ -257,9 +274,23 @@ class CloudRunnerTest(unittest.TestCase):
         backend.request = request('a' * 40, 2, 1, 'c' * 64)
         with self.assertRaisesRegex(ValueError, 'budget changed'): reserve_budget(backend, approval)
         with self.assertRaisesRegex(ValueError, 'budget changed'):
-            reserve_budget(backend, dict(maximumCostMicrousd=16_000_000, previousAttemptsCostMicrousd=25_000_000))
-        reserve_budget(backend, dict(maximumCostMicrousd=15_000_000, previousAttemptsCostMicrousd=25_000_000))
-        self.assertEqual(sum(v['maximumCostMicrousd'] for v in json.loads(backend.objects[BUDGET][1])['reservations']), 40_000_000)
+            reserve_budget(backend, dict(maximumCostMicrousd=75_000_001, previousAttemptsCostMicrousd=25_000_000))
+        reserve_budget(backend, dict(maximumCostMicrousd=75_000_000, previousAttemptsCostMicrousd=25_000_000))
+        self.assertEqual(sum(v['maximumCostMicrousd'] for v in json.loads(backend.objects[BUDGET][1])['reservations']), 100_000_000)
+
+    def test_budget_amendment_keeps_old_reservations_when_crossing_the_old_ceiling(self):
+        backend = Fake(dict(self.plan, maximumSequenceCostMicrousd=40_000_000), self.req)
+        reserve_budget(backend, dict(maximumCostMicrousd=22_080_000, previousAttemptsCostMicrousd=0))
+        original = json.loads(backend.objects[BUDGET][1])['reservations']
+        backend.plan = self.plan
+        total = 22_080_000
+        for run_id in range(2, 7):
+            backend.request = request('a' * 40, run_id, 1, 'c' * 64)
+            reserve_budget(backend, dict(maximumCostMicrousd=4_480_000, previousAttemptsCostMicrousd=total))
+            total += 4_480_000
+        reservations = json.loads(backend.objects[BUDGET][1])['reservations']
+        self.assertEqual(reservations[:len(original)], original)
+        self.assertEqual(sum(r['maximumCostMicrousd'] for r in reservations), 44_480_000)
 
     def test_gcp_404_is_absence_403_is_error(self):
         class Denied:

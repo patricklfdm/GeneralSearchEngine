@@ -199,8 +199,10 @@ additional consecutive runs of all five READY cases, each forcing backpressure.
 This run remains failed evidence. All 13 resources were verified absent,
 retention passed, and the live lease read-back was absent. Sequence
 `57ef85cf9c994afabe8d65fc3323fc74` cannot be reused. The budget ledger retains its
-USD 4.48 reservation; cumulative reservations are USD 22.08 and the remaining
-frozen allocation is USD 17.92. A new paid sequence requires a new complete cost
+USD 4.48 reservation; cumulative reservations were USD 22.08 and the remaining
+allocation under the original USD 40 ceiling was USD 17.92. The later
+[approved USD 100 amendment](PHASE_6_BUDGET_AMENDMENT.md) preserves those reservations.
+A new paid sequence requires a new complete cost
 review and admission; this runtime correction does not authorize execution.
 
 - [x] Predecessor exact-master full CI verified.

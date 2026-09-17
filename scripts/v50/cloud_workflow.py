@@ -38,7 +38,7 @@ def main() -> None:
             f"| Image | `{document['selection']['image']}` |\n"
             "| Boot / data disk per voter | 50 GiB / 100 GiB |\n"
             "| Topology time ceiling | 5400 s |\n"
-            "| Planned complete sequence budget | USD 40; no paid approval in Foundation |\n"
+            f"| Planned complete sequence budget | USD {document['limits']['maximumCompleteRunCostUsd']}; no paid approval in Foundation |\n"
             "| Network | private replication only |\n"
             "| Artifacts | v50-foundation run/attempt/profile; 14-day retention |\n"
             "| Execution | `fake only; no GCP authentication or resources` |\n",

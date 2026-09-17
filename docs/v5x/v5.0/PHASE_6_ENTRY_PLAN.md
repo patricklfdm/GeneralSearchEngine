@@ -152,7 +152,7 @@ across cells and reserves time for warmup, control, failure handling and cleanup
 | Boot disks | 50 GiB per voter, 150 GiB total |
 | Peak provisioned disk | 450 GiB, including retained disks during replacement |
 | Topology wall-clock limit | 5400 seconds; stop workload early enough to execute cleanup |
-| Complete-run cost | USD 40 across the admitted experiment, failure-drill and canonical sequence, including control and evidence costs |
+| Complete-run cost | USD 100 across the admitted experiment, failure-drill and canonical sequence, including failed attempts, control and evidence costs; [approved amendment](PHASE_6_BUDGET_AMENDMENT.md) |
 | Replication network | Private endpoints and explicit three-member firewall scope |
 
 The previous catalog selection was Standard `n2-standard-8` in `us-west4-a`, with

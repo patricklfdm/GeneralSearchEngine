@@ -6,7 +6,7 @@ from .admission_format import check
 from .performance_model import document, encoded, blob
 
 PLAN = Path(__file__).resolve().parents[2] / 'docs/v5x/v5.0/phase6-cloud-workload-plan.json'
-PLAN_SHA256 = 'b05ec5f6f6f6088eeed47841dc0adbb2527e1d30d4f3626f85deaa144cbd4241'
+PLAN_SHA256 = '64732d1b192351dbe91f81b05314555c7c734eb06a5d6c7b87f1d2208a3a83d5'
 
 
 def read_plan(path=PLAN):
