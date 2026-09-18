@@ -121,6 +121,78 @@ class V50ReadyTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = {"published", "private", "missing"})
+    void incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix(String materialization) throws Exception {
+        var isolated = new AtomicBoolean();
+        int history = materialization.equals("published") ? 300 : 20;
+        long prefix = history + 2, target = prefix + 10;
+        var defaults = BOUNDS;
+        var bounds = new ReplicationBounds(defaults.maxFrameBytes(), 4, defaults.maxInFlightPerPeer(),
+                defaults.maxPendingClientOperations(), defaults.maxRetryAttempts(), defaults.requestTimeoutMillis(),
+                defaults.retryBackoffMillis(), defaults.snapshotChunkBytes(), defaults.maxRetainedLogBytes(), defaults.maxSnapshotStagingBytes());
+        try (var group = new Group(temporary, bounds, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
+            if (local == 0 && isolated.get() && barrier.equals("BEFORE_REQUEST_WRITE")
+                    && request.get("recipient").equals("node-3")) throw new java.io.IOException("isolated follower");
+        })) {
+            group.nodes.get(2).close();
+            var codec = new CountingCodec();
+            var config = DurableStorageConfig.builder(temporary.resolve("counted-app"), codec)
+                    .storageIdentity("fixture-storage").schemaIdentity("fixture-schema")
+                    .maxDocuments(1000).maxBulkElements(100).build();
+            var app = new ReplicaApplication<>(SCHEMA, INDEXES, config, bounds);
+            var peer = group.manifest.members().get(2).nodeId();
+            var installs = new AtomicInteger();
+            group.applications.set(2, app);
+            group.nodes.set(2, new ReplicaNode<>(temporary.resolve(peer.value()), group.manifest, peer, bounds, app,
+                    ReplicaStore.Faults.NONE, (barrier, index) -> {
+                        if (barrier.equals("AFTER_RECOVERY_INSTALL") && index > prefix) {
+                            // The new authority is durable, but the rebuilt batch is still private.
+                            assertTrue(app.appliedIndex() < index);
+                            assertNotEquals(new Document(1, "update-" + (index - 3)), app.read(engine -> engine.get(1)));
+                            installs.incrementAndGet();
+                        }
+                    }));
+            group.leader().activate().get(10, TimeUnit.SECONDS);
+            group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
+            for (int i = 0; i < history; i++) group.leader().submit("UPDATE",
+                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
+                    .get(10, TimeUnit.SECONDS);
+            await(() -> app.appliedIndex() == prefix);
+            isolated.set(true);
+            for (int i = history; i < history + 10; i++) group.leader().submit("UPDATE",
+                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
+                    .get(10, TimeUnit.SECONDS);
+            assertEquals(prefix, app.appliedIndex());
+            if (materialization.equals("private")) {
+                app.prepare(new ReplicaEntry(group.manifest.digest(), group.leader().status().activeEpoch(), java.util.UUID.randomUUID(),
+                        prefix + 1, "ADD", group.leader().status().activeEpoch(), prefix, "0".repeat(64),
+                        app.documents("ADD", List.of(new Document(99, "uncommitted")))));
+            } else if (materialization.equals("missing")) {
+                try (var empty = application(temporary.resolve("empty-materialization"), bounds)) { app.replaceWith(empty); }
+            }
+            codec.decodes.set(0);
+            isolated.set(false);
+            assertEquals(target, catchUpWhenAdmitted(group, peer, () -> { }));
+            assertEquals(3, installs.get(), "ten missing entries require three bounded batches");
+            if (materialization.equals("published")) assertTrue(codec.decodes.get() < 64,
+                    "catch-up replayed the existing 300 updates: " + codec.decodes.get());
+            else assertTrue(codec.decodes.get() >= history, "unsafe or missing state must rebuild from durable authority");
+            assertEquals(ReplicaState.READY, group.nodes.get(2).status().state());
+            assertEquals(target, app.appliedIndex());
+            assertEquals(0, group.nodes.get(2).durabilityMetrics().checkpointSequence(), "private cut must not become a durable checkpoint");
+            assertEquals(group.leader().status().applicationSequence(), app.sequence());
+            assertEquals(new Document(1, "update-" + (history + 9)), app.read(engine -> engine.get(1)));
+            assertNull(app.read(engine -> engine.get(99)));
+            int decodes = codec.decodes.get();
+            assertEquals(target, catchUpWhenAdmitted(group, peer, () -> { }));
+            assertEquals(decodes, codec.decodes.get(), "duplicate catch-up must not replay");
+            group.nodes.get(1).close();
+            group.add(new Document(2, "next quorum")).get(10, TimeUnit.SECONDS);
+            assertEquals(new Document(2, "next quorum"), app.read(engine -> engine.get(2)));
+        }
+    }
+
+    @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void readyRebuildsUnresolvedPrivateOrMissingPublishedState(boolean unresolved) throws Exception {
         try (var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE)) {
