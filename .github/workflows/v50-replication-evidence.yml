@@ -18,7 +18,7 @@ on:
         default: admission-probe
         options: [admission-probe, experiment, failure-drill, canonical]
       sequence:
-        description: Shared 32-character lowercase hex ID for experiment, drill and three canonical runs
+        description: Shared 32-character lowercase hex ID; first member (experiment or canonical 1) locks the five-run order
         type: string
       repetition:
         description: Canonical repetition 1, 2 or 3; other profiles use 1

@@ -379,8 +379,12 @@ a new sequence before manual execution.
 
 ## 4. Prepare the paid review only after readiness
 
-Keep the sequence experiment, failure-drill, canonical 1/2/3 serial. Prepare the
-exact artifact/request bundle, then present its request/preflight digests and a
+Select a fresh sequence's order by its first profile: experiment → failure-drill →
+canonical 1/2/3, or canonical 1/2/3 → experiment → failure-drill. Keep all five
+topologies serial and use the same source/artifacts. The first member locks the
+order; see the [amendment](PHASE_6_RUNNER_PRESETS.md#execution-order-amendment--2026-09-18).
+For canonical-first, prepare `profile=canonical`, `repetition=1` and a fresh sequence.
+Prepare the exact artifact/request bundle, then present its request/preflight digests and a
 fresh complete-sequence cost calculation before paid execution. Configuration
 approval, offline proposal generation and a green preflight are not paid approval.
 Any source change requires new exact-source CI, cleanup and admission receipts.

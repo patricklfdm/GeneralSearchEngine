@@ -52,22 +52,39 @@ class RemoteWorker:
         save(self.path, self.receipt)
 
     def receive(self, maximum=40):
-        deadline = min(time.monotonic() + maximum, self.probe.deadline)
-        while b'\n' not in self.buffer:
-            wait = deadline-time.monotonic()
-            require(wait > 0 and select.select([self.process.stdout], [], [], wait)[0], 'remote response deadline')
-            chunk = os.read(self.process.stdout.fileno(), 65536)
-            require(chunk, 'remote JVM/SSH stream exited'); self.buffer += chunk
-            require(len(self.buffer) <= 4 << 20, 'remote response bound')
-        line, self.buffer = self.buffer.split(b'\n', 1)
-        from .cloud_workload_io import parse_json
-        return parse_json(line)
+        try:
+            deadline = min(time.monotonic() + maximum, self.probe.deadline)
+            while b'\n' not in self.buffer:
+                wait = deadline-time.monotonic()
+                require(wait > 0 and select.select([self.process.stdout], [], [], wait)[0], 'remote response deadline')
+                chunk = os.read(self.process.stdout.fileno(), 65536)
+                require(chunk, 'remote JVM/SSH stream exited'); self.buffer += chunk
+                require(len(self.buffer) <= 4 << 20, 'remote response bound')
+            line, self.buffer = self.buffer.split(b'\n', 1)
+            from .cloud_workload_io import parse_json
+            return parse_json(line)
+        except (OSError, ValueError) as error:
+            raise self.transport_error('receive', error) from error
+
+    def transport_error(self, phase, error):
+        exchanges = self.receipt['exchanges']
+        command = exchanges[-1]['request']['command'] if exchanges else 'ready'
+        failure = dict(node=f'node-{self.node}', generation=self.generation, command=command, phase=phase,
+            transportExitCode=self.process.poll(), errorType=type(error).__name__,
+            reason=str(error)[:300], stderr=self.path.with_suffix('.stderr').relative_to(self.probe.root).as_posix())
+        self.receipt.setdefault('transportFailure', failure); save(self.path, self.receipt)
+        return ValueError(f'remote control stream failed: {failure["node"]} generation={self.generation} '
+            f'command={command} phase={phase} transportExitCode={failure["transportExitCode"]}; '
+            f'{failure["errorType"]}: {failure["reason"]}; stderr={failure["stderr"]}')
 
     def send(self, name, **values):
         request = dict(command=name, **values)
         exchange = dict(request=request, sentNanos=now(), outcome='indeterminate')
         self.receipt['exchanges'].append(exchange); save(self.path, self.receipt)
-        self.process.stdin.write(canonical(request)+b'\n'); self.process.stdin.flush()
+        try:
+            self.process.stdin.write(canonical(request)+b'\n'); self.process.stdin.flush()
+        except OSError as error:
+            raise self.transport_error('send', error) from error
         return exchange
 
     def command(self, name, accepted=True, response_timeout=None, **values):
@@ -100,7 +117,12 @@ class RemoteWorker:
                 try: self.probe.guest(self.node, 'stop', generation=self.generation)
                 finally: self.process.kill(); self.process.wait(timeout=10)
             save(self.path, self.receipt)
-            self.process.stdin.close(); self.process.stdout.close(); self.stderr.close()
+            # A failed buffered send may raise again while flushing stdin. The
+            # process has already been reaped; preserve the original diagnostic.
+            try: self.process.stdin.close()
+            except (BrokenPipeError, ConnectionResetError): pass
+            finally:
+                self.process.stdout.close(); self.stderr.close()
 
 
 class RemoteProbe:

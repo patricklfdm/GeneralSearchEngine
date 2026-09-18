@@ -26,6 +26,13 @@ class CloudSummaryTest(unittest.TestCase):
             self.assertIn(value, text)
         self.assertNotIn('Reservation written by this run | Yes', text)
 
+    def test_canonical_preparation_shows_both_locked_orders_and_complete_set_requirement(self):
+        save(self.root/'prepared/request.json',dict(profile='canonical',repetition=1,sequence='b'*32,source='a'*40))
+        text=self.summary('prepare',job_status='success')
+        self.assertIn('canonical-first: canonical 1 → canonical 2 → canonical 3 → experiment → failure-drill',text)
+        self.assertIn('experiment-first: experiment → failure-drill → canonical 1 → canonical 2 → canonical 3',text)
+        self.assertIn('First member locks the order; all five must pass',text)
+
     def test_failure_keeps_budget_cleanup_and_resource_uncertainty_visible(self):
         save(self.root / 'evidence/lifecycle.json', dict(status='FAIL', request=dict(profile='experiment'),
             budgetReservation=dict(reservations=[dict(maximumCostMicrousd=6000000)]),

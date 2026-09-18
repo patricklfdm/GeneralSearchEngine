@@ -4,7 +4,7 @@ import ipaddress
 from pathlib import Path
 import tempfile
 from .cloud_common import canonical, plan, read, require, sha, validate_inventory
-from .cloud_presets import ORDER, validate_request
+from .cloud_presets import ORDER, sequence_order, validate_request
 from .cloud_workload_io import inventory, unpack
 from .cloud_workload_plan import PLAN_SHA256, read_plan
 from .cloud_remote_guest import SCHEMA, EXECUTION
@@ -178,7 +178,7 @@ def validate(root):
 def validate_set(roots):
     require(len(roots)==len(ORDER),'complete experiment/drill/three-canonical set required')
     values=[validate(Path(p)) for p in roots];requests=[read(Path(p)/'completion.json',16<<20)['request'] for p in roots]
-    require([(r['profile'],r['repetition']) for r in requests]==list(ORDER),'cloud set order')
+    order=sequence_order(requests)
     require(len({r['sequence'] for r in requests})==len({r['source'] for r in requests})==1 and
             len({r['owner'] for r in requests})==5,'cloud set source/namespace identity')
     require(all(v['artifactSha256']==values[0]['artifactSha256'] for v in values),'cloud set artifact drift')
@@ -186,7 +186,8 @@ def validate_set(roots):
     require(all(a['finishedAt']<=b['startedAt'] for a,b in zip(states,states[1:])),'overlapping cloud topologies')
     ceiling=read_plan()['resources']['maximumCompleteSequenceMicrousd']
     require(sum(v['maximumCostMicrousd'] for v in states[-1]['budgetReservation']['reservations'])<=ceiling,'cloud set cost ceiling')
-    return dict(status='PASS',execution='gcp-cloud-workload-set',source=requests[0]['source'],sequence=requests[0]['sequence'],members=values)
+    return dict(status='PASS',execution='gcp-cloud-workload-set',source=requests[0]['source'],sequence=requests[0]['sequence'],
+                sequenceOrder=order,members=values)
 
 
 if __name__=='__main__':

@@ -2,10 +2,12 @@
 import argparse
 import copy
 import json
+import os
 from pathlib import Path
 import shutil
 import stat
 import tempfile
+import time
 import unittest
 import warnings
 import zipfile
@@ -18,7 +20,7 @@ from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
 from .cloud_workload_io import inventory, pack, sha_file, unpack
-from .cloud_presets import ORDER, workload_request
+from .cloud_presets import ORDER, SEQUENCE_ORDERS, workload_request
 from .cloud_preflight import admission, check_observations
 from .test_cloud_runner import observations
 
@@ -49,6 +51,45 @@ class RemoteTests(unittest.TestCase):
                     if total<=100_000_000:self.assertEqual(validate_set(roots)['status'],'PASS')
                     else:
                         with self.assertRaisesRegex(ValueError,'cloud set cost ceiling'):validate_set(roots)
+
+    def canonical_first_set(self):
+        roots=[];states=[]
+        for ordinal,(profile,repetition) in enumerate(SEQUENCE_ORDERS['canonical-first'],1):
+            root=self.root/f'canonical-first-{ordinal}';roots.append(root)
+            req=workload_request('a'*40,ordinal,1,'b'*64,profile,'c'*32,repetition,nonce=f'{ordinal:012x}')
+            state=dict(request=req,startedAt=ordinal*10,finishedAt=ordinal*10+5,
+                budgetReservation=dict(reservations=[dict(maximumCostMicrousd=4_480_000)]*ordinal))
+            states.append(state);save(root/'completion.json',state)
+        return roots,states
+
+    def test_canonical_first_set_requires_all_five_members(self):
+        roots,_=self.canonical_first_set()
+        with patch('scripts.v50.cloud_remote_evidence.validate',return_value=dict(artifactSha256='d'*64)) as member:
+            for count in (1,2,3,4):
+                with self.subTest(count=count),self.assertRaisesRegex(ValueError,'complete experiment'):
+                    validate_set(roots[:count])
+            member.assert_not_called()
+            result=validate_set(roots)
+            self.assertEqual(result['sequenceOrder'],'canonical-first')
+            self.assertEqual(len(result['members']),5)
+            for wrong in ([*roots[:3],roots[4],roots[3]], [roots[0],roots[0],*roots[2:]],
+                          [roots[1],roots[0],*roots[2:]]):
+                with self.assertRaisesRegex(ValueError,'sequence order'):validate_set(wrong)
+
+    def test_canonical_first_set_keeps_chronology_source_artifact_and_budget_checks(self):
+        roots,states=self.canonical_first_set()
+        for case,expected in [('overlap','overlapping'),('source','source/namespace'),
+                              ('artifact','artifact drift'),('budget','cost ceiling')]:
+            with self.subTest(case=case):
+                changed=copy.deepcopy(states[-1]);values=[dict(artifactSha256='d'*64) for _ in roots]
+                if case=='overlap':changed['startedAt']=states[-2]['finishedAt']-1
+                elif case=='source':changed['request']['source']='e'*40
+                elif case=='artifact':values[-1]['artifactSha256']='e'*64
+                else:changed['budgetReservation']['reservations']=[dict(maximumCostMicrousd=100_000_001)]
+                save(roots[-1]/'completion.json',changed)
+                with patch('scripts.v50.cloud_remote_evidence.validate',side_effect=values),self.assertRaisesRegex(ValueError,expected):
+                    validate_set(roots)
+        save(roots[-1]/'completion.json',states[-1])
 
     def test_guest_rejects_local_paths_without_qualification(self):
         with self.assertRaisesRegex(ValueError,'path boundary'):Guest(self.base,self.root,self.owner)
@@ -249,6 +290,53 @@ class RemoteTests(unittest.TestCase):
         worker.command('catchup',accepted=None,peer='node-3',response_timeout=.25)
         worker.send.assert_called_once_with('catchup',peer='node-3')
         worker.receive.assert_called_once_with(.25)
+
+    def disconnected_worker(self):
+        worker=RemoteWorker.__new__(RemoteWorker);worker.node=2;worker.generation=1
+        worker.probe=Mock(root=self.root,deadline=time.monotonic()+5)
+        worker.path=self.root/'members/node-2-1.json';worker.buffer=b''
+        worker.receipt=dict(exchanges=[])
+        worker.process=Mock();worker.process.poll.return_value=255
+        return worker
+
+    def test_broken_send_retains_node_command_and_indeterminate_exchange(self):
+        worker=self.disconnected_worker()
+        read_fd,write_fd=os.pipe();os.close(read_fd)
+        worker.process.stdin=os.fdopen(write_fd,'wb',buffering=0);self.addCleanup(worker.process.stdin.close)
+        with self.assertRaisesRegex(ValueError,'node-2.*configure.*send.*255'):
+            worker.command('configure',window='instrumented-a',enabled=True)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(len(saved['exchanges']),1)
+        self.assertEqual(saved['exchanges'][0]['outcome'],'indeterminate')
+        self.assertNotIn('response',saved['exchanges'][0])
+        self.assertEqual(saved['transportFailure']['errorType'],'BrokenPipeError')
+        self.assertEqual(saved['transportFailure']['stderr'],'members/node-2-1.stderr')
+        worker.process.wait.assert_not_called()
+
+    def test_lost_response_is_not_retried_or_changed_to_success(self):
+        worker=self.disconnected_worker()
+        read_fd,write_fd=os.pipe();os.close(write_fd)
+        worker.process.stdout=os.fdopen(read_fd,'rb');self.addCleanup(worker.process.stdout.close)
+        with self.assertRaisesRegex(ValueError,'node-2.*measure.*receive.*255'):
+            worker.command('measure',calls=1200,intervalNanos=100_000_000)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(saved['transportFailure']['phase'],'receive')
+        self.assertEqual(len(saved['exchanges']),1)
+        self.assertEqual(saved['exchanges'][0]['outcome'],'indeterminate')
+        self.assertNotIn('response',saved['exchanges'][0])
+        worker.process.stdin.write.assert_called_once()
+
+    def test_broken_pipe_flush_does_not_mask_owned_process_cleanup(self):
+        worker=self.disconnected_worker();worker.stderr=Mock()
+        worker.receipt.update(pid=1953,linuxStartTicks='93298')
+        worker.probe.guest.side_effect=[dict(pid=1953,startTicks='93298',status='EXITED'),dict(status='EXITED')]
+        worker.process.stdin.close.side_effect=BrokenPipeError(32,'Broken pipe')
+        worker.process.returncode=255
+        worker.close(killed=True)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(saved['cleanup'],'reaped')
+        self.assertEqual(saved['transportExitCode'],255)
+        worker.process.stdout.close.assert_called_once();worker.stderr.close.assert_called_once()
 
     def test_full_admission_requires_executed_remote_gate(self):
         p=plan();req=workload_request('a'*40,1,1,'b'*64,'experiment','c'*32)

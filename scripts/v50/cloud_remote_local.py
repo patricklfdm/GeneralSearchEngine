@@ -6,7 +6,7 @@ import shutil
 import subprocess
 import sys
 from .cloud_common import canonical, plan, require, save, sha
-from .cloud_preset_fake import PresetFake, run_one
+from .cloud_preset_fake import PresetFake
 from .cloud_presets import workload_request
 from .cloud_runner import Runner
 from .cloud_remote_probe import RemoteProbe
@@ -62,15 +62,13 @@ class QualificationProbe(RemoteProbe):
 
 def run(root,archive,content):
     root=Path(root);require(not root.exists(),'fresh remote qualification');root.mkdir(parents=True)
-    objects={};sequence='e'*32;manifest=json.loads((Path(content)/'bundle.json').read_bytes())
-    for i,profile in enumerate(('experiment','failure-drill'),1):
-        _,state=run_one(root/f'prerequisite-{i}',profile,1,sequence,i,objects=objects,source=manifest['source'])
-        require(state['status']=='PASS','fake prerequisite failed')
+    # Exercise canonical-first admission with real local JVMs and an empty ledger.
+    sequence='e'*32
     manifest=json.loads((Path(content)/'bundle.json').read_bytes())
-    req=workload_request(manifest['source'],3,1,sha_file(archive),'canonical',sequence)
-    backend=LocalBackend(plan(),req,root/'guest');backend.objects=objects
+    req=workload_request(manifest['source'],1,1,sha_file(archive),'canonical',sequence)
+    backend=LocalBackend(plan(),req,root/'guest')
     workspace=root/'runner'
-    runner=Runner(backend,None,workspace,approval=dict(maximumCostMicrousd=1_000_000,previousAttemptsCostMicrousd=2_000_000))
+    runner=Runner(backend,None,workspace,approval=dict(maximumCostMicrousd=1_000_000,previousAttemptsCostMicrousd=0))
     probe=QualificationProbe(backend,archive,workspace,content,qualification=True);runner.probe=probe;probe.runner=runner
     try:state=runner.run()
     finally:

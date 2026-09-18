@@ -7,6 +7,7 @@ from pathlib import Path
 import time
 from .cloud_common import plan, read, sha, canonical
 from .cloud_workload_plan import read_plan
+from .cloud_presets import SEQUENCE_ORDERS
 
 
 def cell(value):
@@ -92,7 +93,10 @@ def render(root, *, mode, profile='admission-probe', job_status='unknown', env=N
             ('Topology allowance', str(sum(selected['reservationsSeconds'])) + ' s'),
             ('Allowances: setup / control / candidate warmup and window control / cells / retention / cleanup',
              ' / '.join(str(v) + ' s' for v in selected['reservationsSeconds'])),
-            ('Sequence order', 'experiment → failure-drill → canonical 1 → canonical 2 → canonical 3')])
+            ('Allowed sequence orders', '; '.join(name + ': ' + ' → '.join(
+                profile + (' ' + str(repetition) if profile == 'canonical' else '')
+                for profile, repetition in order) for name, order in SEQUENCE_ORDERS.items())),
+            ('Order selection', 'First member locks the order; all five must pass on the same source and artifacts')])
         actual = {c.get('name'): c for c in load('evidence/runtime/cells.json', list) if isinstance(c, dict)}
         rows = []
         for spec in selected['cells']:

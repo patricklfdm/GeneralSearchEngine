@@ -6,6 +6,7 @@ from .cloud_workload_io import parse_json
 
 PROFILES = ('experiment', 'failure-drill', 'canonical')
 ORDER = (('experiment', 1), ('failure-drill', 1), ('canonical', 1), ('canonical', 2), ('canonical', 3))
+SEQUENCE_ORDERS = {'experiment-first': ORDER, 'canonical-first': ORDER[2:] + ORDER[:2]}
 SEQUENCES = 'v5.0-replicated-single-shard/control/workload-sequences.json'
 EXECUTION = 'fake-cloud-preset-runner-only'
 
@@ -16,13 +17,14 @@ def preset(profile):
     require(workload['resources']['maximumCompleteSequenceMicrousd'] == runner['maximumSequenceCostMicrousd'],
             'runner/workload budget drift')
     selected = workload['profiles'][profile]
-    return dict(schema='gse-v50-cloud-runner-preset-v2', execution='paid-admission-required', requiresPaidAdmission=True,
+    return dict(schema='gse-v50-cloud-runner-preset-v3', execution='paid-admission-required', requiresPaidAdmission=True,
         profile=profile, workloadPlanSha256=PLAN_SHA256, runnerPlanSha256=sha(canonical(runner)),
         cells=selected['cells'], reservationsSeconds=selected['reservationsSeconds'],
         plannedMaximumSeconds=sum(selected['reservationsSeconds']),
         maximumTopologySeconds=workload['resources']['maximumTopologySeconds'],
         cleanupReserveSeconds=workload['resources']['cleanupReserveSeconds'],
-        sequence=[dict(profile=p, repetition=n) for p, n in ORDER],
+        sequenceOrders={name: [dict(profile=p, repetition=n) for p, n in order]
+                        for name, order in SEQUENCE_ORDERS.items()},
         replacementNodes=[] if profile == 'experiment' else [3, 1],
         resources=workload['resources'], evidenceBounds=workload['evidenceBounds'])
 
@@ -53,6 +55,14 @@ def sequence_ledger(backend):
     return stored, ledger
 
 
+def sequence_order(members):
+    """The first member selects one fixed order; later members cannot switch it."""
+    slots = tuple((v['profile'], v['repetition']) for v in members)
+    for name, order in SEQUENCE_ORDERS.items():
+        if slots and slots == order[:len(slots)]: return name
+    raise ValueError('sequence order/repetition: start with experiment or canonical 1 and follow that order')
+
+
 def reserve_sequence(backend):
     """Append before resource creation; any unresolved/failed member poisons its set."""
     r = backend.request; validate_request(r)
@@ -60,9 +70,9 @@ def reserve_sequence(backend):
     require(len(ledger['attempts']) < 1000, 'sequence ledger full')
     entries = [v for v in ledger['attempts'] if v['sequence'] == r['sequence']]
     require(len(entries) < len(ORDER), 'sequence already complete')
-    require((r['profile'], r['repetition']) == ORDER[len(entries)], 'sequence order/repetition')
-    for index, entry in enumerate(entries):
-        require((entry['profile'], entry['repetition']) == ORDER[index] and entry['source'] == r['source'] and
+    sequence_order([*entries, r])
+    for entry in entries:
+        require(entry['source'] == r['source'] and
                 entry['workloadPlanSha256'] == PLAN_SHA256 and entry['status'] == 'PASS', 'failed, unresolved or different-source sequence')
         # A ledger claim alone is not completion. Bind it to immutable retained bytes.
         completion = backend.get_object(entry['completionObject'])
