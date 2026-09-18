@@ -186,7 +186,10 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 image = store.preserveSnapshot(image);
                 event("AFTER_RECOVERY_SELECTION", image.index());
                 establishLocalFloor(promised, image);
-                installLocal(image, replacement);
+                // Startup already materialized intact local authority. Reuse that
+                // published cut only when recovery selected this node's own history;
+                // newer survivor authority and replacement reconstruction still rebuild.
+                installLocal(image, replacement, source == null && !replacement);
                 int ready = 0;
                 for (var reply : promised) {
                     try {
@@ -640,13 +643,13 @@ final class ReplicaNode<K, T> implements AutoCloseable {
     private void installLocal(ReplicaRecoveryImage requested, boolean admit) {
         installLocal(requested, admit, false);
     }
-    private void installLocal(ReplicaRecoveryImage requested, boolean admit, boolean incremental) {
+    private void installLocal(ReplicaRecoveryImage requested, boolean admit, boolean reusePublished) {
         var image = store.preserveSnapshot(requested);
         var materialization = image;
         long published = store.commitIndex();
-        if (incremental && store.voter() && !store.damagedTail() && store.lastLogIndex() == published
+        if (reusePublished && store.voter() && !store.damagedTail() && store.lastLogIndex() == published
                 && image.snapshot().index() <= published && application.canResumeAt(published)) {
-            // The validated batch extends our published prefix. Rebuild privately from
+            // The validated image agrees with our published prefix. Rebuild privately from
             // its current application cut, not from every historical operation again.
             // This cut is only a materialization aid: durable authority, recovery floors
             // and retained sources still use the original, fully validated image below.

@@ -78,6 +78,51 @@ class CloudFailureTest(unittest.TestCase):
             with self.assertRaises(type(error)):
                 Gcp(self.p, self.req, self.root, api=api).create(self.row)
 
+    def test_cached_token_401_refreshes_once_and_preserves_exact_request(self):
+        for method,body,raw in [('GET',None,True),('POST',b'evidence',False),('DELETE',None,False)]:
+            with self.subTest(method=method):
+                api=Api(paid=True);api.token='OLD';api.expiry=time.monotonic()+2400
+                url='https://storage.googleapis.com/storage/v1/b/evidence/o/part?ifGenerationMatch=123'
+                failure=HTTPError(url,401,'Unauthorized',{},io.BytesIO(b'{}'))
+                response=b'evidence' if raw else b'{"generation":"124"}'
+                with patch('scripts.v50.cloud_gcp.subprocess.run',return_value=Mock(returncode=0,stdout=b'NEW\n')) as auth, \
+                     patch('urllib.request.urlopen',side_effect=[failure,io.BytesIO(response)]) as http:
+                    result=api.call(method,url,body,raw=raw)
+                self.assertEqual(result,response if raw else dict(generation='124'))
+                auth.assert_called_once_with(['gcloud','auth','print-access-token'],capture_output=True,timeout=30)
+                requests=[c.args[0] for c in http.call_args_list]
+                self.assertEqual([r.get_header('Authorization') for r in requests],['Bearer OLD','Bearer NEW'])
+                self.assertTrue(all(r.full_url==url and r.get_method()==method and r.data==body for r in requests))
+
+    def test_repeated_401_stops_and_invalidates_the_failed_token(self):
+        api=Api(paid=True);api.token='OLD';api.expiry=time.monotonic()+100
+        failures=[HTTPError(self.url,401,'Unauthorized',{},io.BytesIO(canonical(dict(error=dict(code=401,message='Invalid Credentials'))))) for _ in range(2)]
+        with patch('scripts.v50.cloud_gcp.subprocess.run',return_value=Mock(returncode=0,stdout=b'NEW')) as auth, \
+             patch('urllib.request.urlopen',side_effect=failures) as http,self.assertRaises(ApiError) as raised:
+            api.call('POST',self.url,{})
+        self.assertEqual(raised.exception.status,401);self.assertEqual(http.call_count,2);self.assertEqual(auth.call_count,1)
+        self.assertIsNone(api.token);self.assertEqual(api.expiry,0)
+        self.assertNotIn('NEW',str(raised.exception));self.assertNotIn('OLD',str(raised.exception))
+
+    def test_auth_refresh_never_replays_ambiguous_or_permission_failures(self):
+        for error in [TimeoutError('timeout'),ConnectionError('lost response')]+[
+                HTTPError(self.url,code,'rejected',{},io.BytesIO(b'{}')) for code in (403,409,412,429,500,503)]:
+            api=Api(paid=True);api.token='OLD';api.expiry=time.monotonic()+100
+            with self.subTest(error=error),patch('scripts.v50.cloud_gcp.subprocess.run') as auth, \
+                 patch('urllib.request.urlopen',side_effect=error) as http, self.assertRaises((ApiError,TimeoutError,ConnectionError)):
+                api.call('POST',self.url,{})
+            auth.assert_not_called();self.assertEqual(http.call_count,1)
+
+    def test_failed_refresh_cannot_leak_credentials_or_bypass_admission(self):
+        api=Api(paid=True);api.token='OLD';api.expiry=time.monotonic()+100
+        with patch('scripts.v50.cloud_gcp.subprocess.run',return_value=Mock(returncode=1,stdout=b'',stderr=b'SECRET')) as auth, \
+             patch('urllib.request.urlopen',side_effect=HTTPError(self.url,401,'Unauthorized',{},io.BytesIO(b'{}'))) as http:
+            with self.assertRaisesRegex(ValueError,'short-lived GCP credential unavailable') as raised:api.call('POST',self.url,{})
+            self.assertNotIn('SECRET',str(raised.exception));self.assertEqual(http.call_count,1)
+            auth.reset_mock();http.reset_mock()
+            with self.assertRaisesRegex(ValueError,'paid admission'):Api().call('POST',self.url,{})
+            auth.assert_not_called();http.assert_not_called()
+
     def test_polling_403_after_accepted_insert_remains_unresolved(self):
         api = Mock()
         api.call.side_effect = [dict(status='PENDING', selfLink=self.url.rsplit('/', 1)[0] + '/operations/op'),

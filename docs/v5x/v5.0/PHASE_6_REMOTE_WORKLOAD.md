@@ -97,6 +97,57 @@ The first member locks the order; the independent validator still requires all f
 The local remote-adapter gate now starts canonical 1 on an empty sequence ledger,
 while fake lifecycle tests exercise both complete orders and reject invalid prefixes.
 
+### Canonical maintenance restart and retention credentials
+
+[Canonical 1 run 35340265644](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35340265644)
+used source `ebc75c11aa01b60646428acbc1ea4f50e0f32fdc`. Its first nine cells passed,
+including incremental recovery and both disk replacements. Maintenance completed
+its backup, crash recovery and cancellation operations, but its 216.066 seconds
+exceeded the unchanged 120-second cell budget; no-quorum was not reached.
+
+The two three-node restarts spent 70.506 and 70.996 seconds waiting for serial JVM
+startup. Their subsequent leader activations took another 23.957 and 23.866 seconds.
+Startup had already reconstructed the leader's intact committed application, yet
+activation replayed that same history again. A counting-codec regression reproduced
+602 document decodes for 300 previously recovered updates before the correction.
+
+Group restart now launches all three independent JVMs before waiting for their
+READY messages. Every node must still match its retained PID receipt before leader
+activation; readiness uses each process's original forty-second deadline. Failed
+startup keeps all launched workers tracked, and cleanup can verify and stop a guest
+whose READY message was never received. Initial topology setup remains unchanged.
+
+Leader activation may now rebuild its private application from the already
+published cut when recovery selects its own intact local authority. Selecting
+newer survivor authority, replacement reconstruction, damaged/uncommitted tails or
+missing/unresolved application state retains full reconstruction. Full history
+validation, durable-before-visible publication, quorum fencing and the new epoch's
+NO_OP remain in place. No workload duration, retry limit or budget was increased.
+Cloud confirmation that maintenance now fits the original window remains pending.
+
+After resource deletion, evidence read-back received HTTP 401 and retention stopped
+at `INCOMPLETE`. The API adapter cached the result of `gcloud auth print-access-token`
+for forty minutes; obtaining a token from the CLI does not establish a new full
+lifetime. Google documents a default [one-hour access-token lifetime](https://docs.cloud.google.com/sdk/gcloud/reference/auth/print-access-token).
+An explicit 401 now invalidates the cached credential, obtains another token through
+the same CLI identity, and retries the exact request once. Generation conditions,
+request IDs and payload bytes are preserved. Repeated 401, permission errors,
+timeouts, lost responses and other API failures do not enter an unbounded retry.
+Credential material is not retained in diagnostics.
+
+All fifteen intended resources were verified absent. The retained lease was later
+reconciled by [scheduled cleanup 35359960042](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35359960042),
+and read-back found no active lease. Retention failure left the old sequence member
+unresolved (`RUNNING`) in the ledger; cleanup does not convert it into successful
+evidence. The USD 4.48 reservation remains, totaling USD 62.40 of USD 100. Use a new
+sequence and fresh exact-source preparation after merging the corrections.
+
+Local verification passed: 270 Python tests; the full reactor package with 549 core
+tests (four skipped), 171 replication tests and five processor tests; Phase 4's
+17 recovery and six corruption cases; Phase 5's 16 hardening cases; and the remote
+adapter gate's 34 unit tests, fourteen separate-JVM cells and fifteen evidence
+rejection checks. These results do not replace the pending paid canonical rerun.
+
 ### Canonical incremental recovery after a long history
 
 [Canonical 1 run 35330186527](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35330186527)
