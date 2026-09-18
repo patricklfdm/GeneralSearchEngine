@@ -4,16 +4,20 @@ import copy
 import json
 from pathlib import Path
 import shutil
+import stat
 import tempfile
 import unittest
+import warnings
+import zipfile
 from unittest.mock import Mock, patch
 from .cloud_common import canonical, plan, save, sha
+from .cloud_collection import ARCHIVE_LIMIT, archive_parts, extract_parts
 from .cloud_remote_contract import schedule, measurement_seconds
 from .cloud_remote_guest import Guest, SCHEMA, EXECUTION, alive
 from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
-from .cloud_workload_io import inventory
+from .cloud_workload_io import inventory, pack, sha_file, unpack
 from .cloud_presets import ORDER, workload_request
 from .cloud_preflight import admission, check_observations
 from .test_cloud_runner import observations
@@ -90,6 +94,89 @@ class RemoteTests(unittest.TestCase):
             self.assertFalse(collection_member(node,name),(node,name))
         for name in ('../x','/x','streams/../x'):
             with self.assertRaises(ValueError):collection_member(1,name)
+
+    def test_collection_downloads_many_parts_in_one_verified_transfer(self):
+        guest_root=self.root/'guest';streams=guest_root/'streams/node-1-1/calls';streams.mkdir(parents=True)
+        for i in range(100):(streams/f'part-{i:04d}.jsonl').write_bytes(canonical(dict(sequence=i))+b'\n')
+        (streams/'empty').touch()
+        guest=Guest(self.base,guest_root,self.owner,qualification=True)
+        receipt=guest.collect(1,guest_root/'collection-1')
+        self.assertEqual(len(receipt['manifest']['files']),101)
+        self.assertEqual(sum(len(v['parts']) for v in receipt['manifest']['files'].values()),100)
+        probe=RemoteProbe.__new__(RemoteProbe);probe.root=self.root/'runtime';probe.guest_root=guest_root
+        probe.guest=Mock(return_value=receipt);probe.hosts={1:{}};probe.backend=Mock()
+        def copy(instance,source,target,download):
+            self.assertTrue(download);shutil.copyfile(source,target)
+        probe.backend.copy.side_effect=copy
+        probe.collect(dict(node=1),self.root/'downloads/node-1')
+        probe.backend.copy.assert_called_once()
+        self.assertEqual(probe.backend.copy.call_args.args[1],str(guest_root/'collection-1.zip'))
+        self.assertEqual(inventory(probe.root/'streams'),inventory(guest_root/'streams'))
+        self.assertEqual(probe.hosts[1]['collection']['transfers'],1)
+        self.assertGreater(probe.hosts[1]['collection']['finishedNanos'],probe.hosts[1]['collection']['startedNanos'])
+
+    def collection_archive(self):
+        source=self.root/'source';source.mkdir();(source/'evidence').write_bytes(b'evidence')
+        parts=self.root/'parts';manifest=pack(source,parts)
+        archive=self.root/'collection.zip';archive_parts(parts,archive)
+        return archive,manifest,sha_file(parts/'parts.json')
+
+    def test_collection_archive_preserves_multi_part_reassembly(self):
+        source=self.root/'large-source';source.mkdir()
+        with (source/'authority').open('wb') as stream:
+            for _ in range(33):stream.write(b'x'*(1<<20))
+        parts=self.root/'large-parts';manifest=pack(source,parts)
+        self.assertEqual(len(manifest['files']['authority']['parts']),2)
+        archive=self.root/'large.zip';archive_parts(parts,archive)
+        received=self.root/'received';extract_parts(archive,received,manifest,sha_file(parts/'parts.json'))
+        restored=self.root/'restored';unpack(received,restored)
+        self.assertEqual(inventory(source,logical=True),inventory(restored,logical=True))
+
+    def test_collection_archive_rejects_resealed_invalid_members(self):
+        archive,manifest,digest=self.collection_archive()
+        with zipfile.ZipFile(archive) as original:
+            values={v.filename:original.read(v) for v in original.infolist()}
+        for case in ('traversal','missing','extra','duplicate','symlink','compressed','wrong-size','corrupt','manifest'):
+            with self.subTest(case=case):
+                forged=self.root/(case+'.zip')
+                with warnings.catch_warnings():
+                    warnings.simplefilter('ignore',UserWarning)
+                    with zipfile.ZipFile(forged,'w') as out:
+                        for name,raw in values.items():
+                            if case=='missing' and name!='parts.json':continue
+                            info=zipfile.ZipInfo(name)
+                            if name!='parts.json':
+                                if case=='traversal':info.filename='../escape'
+                                if case=='symlink':info.external_attr=(stat.S_IFLNK|0o777)<<16
+                                if case=='compressed':info.compress_type=zipfile.ZIP_DEFLATED
+                                if case=='wrong-size':raw+=b'x'
+                                if case=='corrupt':raw=b'X'+raw[1:]
+                            elif case=='manifest':raw=raw.replace(b'files',b'FILES')
+                            out.writestr(info,raw)
+                        if case=='extra':out.writestr('unlisted',b'bad')
+                        if case=='duplicate':out.writestr('parts.json',values['parts.json'])
+                with self.assertRaises(ValueError):extract_parts(forged,self.root/(case+'-parts'),manifest,digest)
+        self.assertFalse((self.root/'escape').exists())
+
+    def test_collection_archive_requires_the_exact_chunk_descriptors(self):
+        archive,manifest,digest=self.collection_archive()
+        for case in ('duplicate','oversized','total','checksum'):
+            changed=copy.deepcopy(manifest);item=changed['files']['evidence']
+            if case=='duplicate':item['parts'].append(dict(item['parts'][0]))
+            elif case=='oversized':item['parts'][0]['bytes']=(32<<20)+1
+            elif case=='total':changed['bytes']+=1
+            else:item['parts'][0]['sha256']='0'*64
+            with self.subTest(case=case),self.assertRaises(ValueError):
+                extract_parts(archive,self.root/(case+'-parts'),changed,digest)
+
+    def test_collection_rejects_wrong_archive_identity_before_transfer(self):
+        for descriptor in (dict(path='/foreign.zip',bytes=1,sha256='a'*64),
+                           dict(path='/guest/collection-1.zip',bytes=ARCHIVE_LIMIT+1,sha256='a'*64)):
+            probe=RemoteProbe.__new__(RemoteProbe);probe.guest_root=Path('/guest');probe.backend=Mock()
+            probe.guest=Mock(return_value=dict(directory='/guest/collection-1',manifest=dict(bytes=0,files={}),archive=descriptor))
+            with self.assertRaisesRegex(ValueError,'collection archive descriptor'):
+                probe.collect(dict(node=1),self.root/'invalid-download')
+            probe.backend.copy.assert_not_called()
 
     def test_cloud_and_qualification_schedules_remain_distinct(self):
         self.assertEqual(schedule('canonical')['windows'],['warmup','baseline-a','instrumented-a','instrumented-b','baseline-b','sustained'])
@@ -247,6 +334,11 @@ class RemoteTests(unittest.TestCase):
         save(self.root/'control.json',dict(process=dict(startedNanos=10*second,finishedNanos=160*second)))
         save(self.root/'restore.json',dict(process=dict(startedNanos=start,finishedNanos=start+10*second)))
         save(self.root/'cells.json',cells);timings(self.root,'experiment')
+        env=json.loads((self.root/'set.json').read_text())
+        save(self.root/'set.json',dict(env,finishedNanos=env['finishedNanos']+900*second))
+        with self.assertRaisesRegex(ValueError,'collection/cleanup reservation: elapsed=.*limit=900s'):
+            timings(self.root,'experiment')
+        save(self.root/'set.json',env)
         for difference in (-second,2*second):
             changed=copy.deepcopy(cells)
             changed[5]['finishedNanos']+=difference

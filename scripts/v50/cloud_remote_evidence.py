@@ -91,7 +91,8 @@ def timings(root,profile):
     warmup=timing['warmupFinishedNanos']-timing['warmupStartedNanos']
     require(0<warmup and warmup+overhead<=reserved[2]*10**9,'candidate warmup/control reservation')
     tail=env['finishedNanos']-cells[-1]['finishedNanos']-(restore['finishedNanos']-restore['startedNanos'])
-    require(0<tail<=(reserved[4]+reserved[5])*10**9,'collection/cleanup reservation')
+    require(0<tail<=(reserved[4]+reserved[5])*10**9,
+            f'collection/cleanup reservation: elapsed={tail/1e9:.3f}s, limit={reserved[4]+reserved[5]}s')
 
 
 def validate_raw(root,*,qualification=False):

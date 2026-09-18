@@ -361,6 +361,22 @@ failed. After the amended plan passes review, merge and exact-master CI, obtain
 matching recent cleanup and prepare a new sequence. No paid rerun is included in
 the local correction.
 
+### Evidence collection tail failure
+
+Experiment [35293055410](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35293055410)
+on source `2864b1425229851e8a942ca98fb02fef2d984654` passed all eight cells but failed
+the final collection/cleanup time check (915.47 seconds versus 900 seconds).
+All thirteen resources were verified absent, evidence retention passed and the
+runner released the lease. The
+[batch collection correction](PHASE_6_REMOTE_WORKLOAD.md#per-part-collection-overhead-correction)
+reduces manifest/part downloads from 134 SCP calls to three while preserving the
+frozen plan and all file checks.
+
+Its USD 4.48 reservation raises the ledger to USD **31.04**, leaving USD **68.96**
+below the approved ceiling. The sequence remains failed despite its passing cells;
+after review/merge and exact-source CI, obtain recent matching cleanup and prepare
+a new sequence before manual execution.
+
 ## 4. Prepare the paid review only after readiness
 
 Keep the sequence experiment, failure-drill, canonical 1/2/3 serial. Prepare the

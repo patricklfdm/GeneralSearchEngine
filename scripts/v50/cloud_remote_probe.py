@@ -11,6 +11,7 @@ import time
 import zipfile
 from .cloud_common import ROOT, canonical, read, require, save
 from .cloud_workload_io import inventory, pack, unpack, sha_file, relative
+from .cloud_collection import ARCHIVE_LIMIT, extract_parts
 from .cloud_workload_plan import PLAN, PLAN_SHA256, arithmetic, read_plan
 from .cloud_presets import preset
 from .cloud_remote_guest import SCHEMA, EXECUTION
@@ -390,23 +391,24 @@ class RemoteProbe:
             if worker.node==node and 'finishedNanos' not in worker.receipt: worker.close(killed=True)
 
     def collect(self, instance, target):
-        node=instance['node'];receipt=self.guest(node,'collect')
-        target=Path(target);chunks=target.with_name(target.name+'-chunks');chunks.mkdir(parents=True)
+        started=now();node=instance['node'];receipt=self.guest(node,'collect')
+        target=Path(target);chunks=target.with_name(target.name+'-chunks')
         manifest=receipt['manifest'];require(manifest['bytes']<=4<<30 and len(manifest['files'])<=2000,'guest collection budget')
         require(receipt['directory']==str(self.guest_root/f'collection-{node}') and
                 all(collection_member(node,name) for name in manifest['files']),'guest collection namespace')
         raw=canonical(manifest);require(len(raw)<=16<<20,'collection manifest bound')
-        self.backend.copy(instance, receipt['directory']+'/parts.json', chunks/'parts.json', download=True)
-        require(sha_file(chunks/'parts.json')==receipt['manifestSha256'] and read(chunks/'parts.json',16<<20)==manifest,'collection manifest transfer')
-        seen=set();total=0
-        for item in manifest['files'].values():
-            for part in item['parts']:
-                require(re.fullmatch('chunk-[0-9]{4}\\.bin',part['path']) and part['path'] not in seen and
-                        0<part['bytes']<=32<<20,'collection part identity/bound')
-                seen.add(part['path']);total+=part['bytes'];require(total<=4<<30 and len(seen)<2000,'collection aggregate bound')
-                self.backend.copy(instance,receipt['directory']+'/'+part['path'],chunks/part['path'],download=True)
-                require((chunks/part['path']).stat().st_size==part['bytes'] and sha_file(chunks/part['path'])==part['sha256'],'collection part transfer')
+        descriptor=receipt['archive']
+        require(descriptor['path']==receipt['directory']+'.zip' and type(descriptor['bytes']) is int and
+                0<descriptor['bytes']<=ARCHIVE_LIMIT and re.fullmatch('[0-9a-f]{64}',descriptor['sha256']),
+                'collection archive descriptor')
+        archive=target.with_name(target.name+'-collection.zip')
+        require(not archive.exists() and not archive.is_symlink(),'fresh collection archive')
+        archive.parent.mkdir(parents=True,exist_ok=True)
+        self.backend.copy(instance,descriptor['path'],archive,download=True)
+        require(archive.stat().st_size==descriptor['bytes'] and sha_file(archive)==descriptor['sha256'],'collection archive transfer')
+        extract_parts(archive,chunks,manifest,receipt['manifestSha256'])
         unpack(chunks,target);shutil.rmtree(chunks)
+        archive.unlink()
         for path in sorted(target.rglob('*')):
             if not path.is_file():continue
             name=path.relative_to(target);relative(name.as_posix());dest=self.root/name
@@ -414,7 +416,7 @@ class RemoteProbe:
         shutil.rmtree(target)
         authority=self.root/f'volume-{node}/node-{node}'
         if authority.exists():shutil.copytree(authority,self.root/f'node-{node}')
-        self.hosts[node]['collection']=receipt
+        self.hosts[node]['collection']=dict(receipt,startedNanos=started,finishedNanos=now(),transfers=1)
 
     def validate(self, workspace):
         require(self.completed and len(self.hosts)==3,'incomplete remote workload')
