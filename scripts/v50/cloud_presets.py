@@ -16,6 +16,8 @@ def preset(profile):
     workload, runner = read_plan(), plan()
     require(workload['resources']['maximumCompleteSequenceMicrousd'] == runner['maximumSequenceCostMicrousd'],
             'runner/workload budget drift')
+    require((workload['resources']['imageProject'], workload['resources']['imageName'], workload['resources']['imageId']) ==
+            (runner['imageProject'], runner['image'], runner['imageId']), 'runner/workload image drift')
     selected = workload['profiles'][profile]
     return dict(schema='gse-v50-cloud-runner-preset-v3', execution='paid-admission-required', requiresPaidAdmission=True,
         profile=profile, workloadPlanSha256=PLAN_SHA256, runnerPlanSha256=sha(canonical(runner)),

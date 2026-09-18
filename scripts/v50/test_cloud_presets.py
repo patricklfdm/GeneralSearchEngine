@@ -34,6 +34,13 @@ class PresetTest(unittest.TestCase):
             self.assertEqual(p['execution'],'paid-admission-required')
         with self.assertRaises(ValueError): preset('admission-probe')
 
+    def test_different_runner_image_cannot_create_a_full_workload_request(self):
+        runner = plan()
+        for key, value in [('imageProject', 'other-project'), ('image', 'other-image'), ('imageId', '1')]:
+            with self.subTest(key=key), patch('scripts.v50.cloud_presets.plan', return_value=dict(runner, **{key: value})):
+                with self.assertRaisesRegex(ValueError, 'runner/workload image drift'):
+                    workload_request('a'*40, 1, 1, 'b'*64, 'canonical', 'c'*32)
+
     def test_invalid_set_identity_and_repetitions_rejected(self):
         for profile, repetition, sequence in [('experiment', 2, 'c'*32), ('canonical', True, 'c'*32),
                 ('canonical', 4, 'c'*32), ('canonical', 1, '../other')]:
