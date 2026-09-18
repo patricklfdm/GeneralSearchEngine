@@ -92,10 +92,10 @@ bootstrap or unreported extra topology is allowed between cells.
 | 3 | One slow follower, then healed | 30 |
 | 4 | Incremental catch-up | 30 |
 | 5 | Snapshot transfer, interrupt and retry | 45 |
-| 6 | Restart and stale-incarnation fencing | 15 |
-| 7 | Writer-ordered backup, cancellation/close and restart | 15 |
+| 6 | Restart and stale-incarnation fencing | 60 |
+| 7 | Writer-ordered backup, cancellation/close and restart | 120 |
 | 8 | No write quorum and committed leader reads; final shutdown | 15 |
-| | **Total** | **300** |
+| | **Total** | **450** |
 
 | Order | Failure-drill cell | Seconds |
 | ---: | --- | ---: |
@@ -105,9 +105,9 @@ bootstrap or unreported extra topology is allowed between cells.
 | 4 | Follower disk loss and replacement | 150 |
 | 5 | Configured-leader disk loss and reconstruction | 210 |
 | 6 | Stale incarnation rejected after fencing | 70 |
-| 7 | Backup cancellation, close and restart | 60 |
+| 7 | Backup cancellation, close and restart | 120 |
 | 8 | Local checkpoint capacity rejection preserves sources | 90 |
-| | **Total** | **900** |
+| | **Total** | **960** |
 
 | Order | Canonical cell (each of three serial fresh topologies) | Seconds |
 | ---: | --- | ---: |
@@ -134,15 +134,59 @@ canonical repetition fails the set; a successful retry cannot replace it in plac
 | Provision, distribute, mount, bootstrap, start | 900 | 900 | 900 |
 | Control, including warmup and final V4 restore | 180 | 300 | 900 |
 | Candidate warmup and pre-measurement checks | 60 | 60 | 120 |
-| Measurement cells | 300 | 900 | 1800 |
+| Measurement cells | 450 | 960 | 1800 |
 | Quiesce, collect, independently validate, retain | 600 | 900 | 1380 |
 | Cleanup reserve | 300 | 300 | 300 |
-| **Planned maximum elapsed time** | **2340** | **3360** | **5400** |
+| **Planned maximum elapsed time** | **2490** | **3420** | **5400** |
 
 Each reservation is a ceiling; unused time does not extend a measurement cell.
 The provider watchdog and paid cost reservation still cover 5400 seconds per topology.
 If the pre-cloud local/fake qualification cannot fit these budgets, stop and review
 an amended plan before paid admission.
+
+### Remote recovery window amendment (2026-09-17)
+
+[Experiment 35284962814](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35284962814)
+passed healthy, unavailable, slow, incremental and snapshot. Restart completed in
+30.685196299 seconds, returned the leader to READY at epoch 3 (previously 2), and
+rejected the retained epoch-2 request with STALE_EPOCH. The former 15-second window
+therefore rejected a functionally completed recovery. Controller receipts account
+for 9.19 seconds stopping/reaping three JVMs, 18.79 seconds opening three new worker
+streams and checking their identities, 0.288 seconds activating, and approximately
+2.41 seconds checking stale-message rejection. Startup/identity intervals include
+SSH/IAP setup and guest JVM work; the evidence does not isolate pure SSH latency.
+
+The experiment restart window becomes 60 seconds. Experiment and failure-drill
+maintenance become 120 seconds, matching canonical: maintenance performs two
+restart rounds in addition to backup publication, kill, cancellation and close.
+Its previous 15/60-second windows did not allow two instances of the observed
+restart path. No maintenance completion is claimed for this failed experiment;
+that scenario was not reached. The table values above supersede the original
+300/900-second profile totals with 450/960 seconds.
+
+All recovery orchestration remains charged to its elapsed fault cell. Overruns
+still fail, early completion waits out the full window, and the independent
+validator enforces the same limits. Healthy/sustained calls, rates and windows,
+canonical cells, cleanup reserves, VM/disk bounds and the 5400-second watchdog are
+unchanged. Existing USD 4.48 per-attempt allocations already price that watchdog
+and 1080 seconds of disk cleanup overhang; this change needs no larger allocation.
+
+The amended full-workload plan SHA-256 is
+`93fe1627fad6a39e073ffcd0cb6a87b3bfcab20fa62a3211b383121f6a28b944`.
+It replaces the budget-amendment digest `64732d1b192351dbe91f81b05314555c7c734eb06a5d6c7b87f1d2208a3a83d5`.
+This is a prospective plan change: the prior experiment remains failed and its
+USD 4.48 reservation remains in the ledger (USD 26.56 cumulative, USD 73.44 below
+the approved USD 100 ceiling). All thirteen owned resources had confirmed absence
+and evidence retention was VERIFIED. After protected review/merge and exact-source
+CI, prepare a new sequence and review its current preflight before manual execution.
+
+Local validation: 246 Python tests and the Foundation gate passed. The virtual
+controller regression fails the former plan with the observed 30.685-second
+restart and a simulated 75-second maintenance, passes the amended schedules, and
+still rejects elapsed work beyond the new limits. Independent timing tests reject
+shortened and overrun fault windows. The remote adapter gate passed 21 Python tests,
+all fourteen local JVM cells and fifteen provenance negatives using the existing
+built Java runtime. These are local checks; the amended cloud sequence has not run.
 
 ### Remote control accounting clarification
 

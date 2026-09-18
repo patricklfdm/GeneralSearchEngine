@@ -6,7 +6,7 @@ from .admission_format import check
 from .performance_model import document, encoded, blob
 
 PLAN = Path(__file__).resolve().parents[2] / 'docs/v5x/v5.0/phase6-cloud-workload-plan.json'
-PLAN_SHA256 = '64732d1b192351dbe91f81b05314555c7c734eb06a5d6c7b87f1d2208a3a83d5'
+PLAN_SHA256 = '93fe1627fad6a39e073ffcd0cb6a87b3bfcab20fa62a3211b383121f6a28b944'
 
 
 def read_plan(path=PLAN):
@@ -24,7 +24,7 @@ def arithmetic(plan):
         check(measured == profile['reservationsSeconds'][3], 'cell budget')
         check(sum(profile['reservationsSeconds']) <= plan['resources']['maximumTopologySeconds'], 'topology budget')
         totals[name] = measured
-    check(totals == {'experiment': 300, 'failure-drill': 900, 'canonical': 1800}, 'profile budget')
+    check(totals == {'experiment': 450, 'failure-drill': 960, 'canonical': 1800}, 'profile budget')
     entries = 480 * 8 + 300 * 20 * 3 // 4 + 20 * 8 + plan['maximumFaultCalls'] + plan['maximumRecoveryEntries']
     check(entries == 21524 < plan['maximumLogIndex'] < 1000000, 'ancestry headroom')
     log_bytes = plan['maximumLogIndex'] * (plan['maximumEncodedEntryBytes'] + plan['maximumEncodedProofBytes'])

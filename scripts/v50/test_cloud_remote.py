@@ -247,6 +247,12 @@ class RemoteTests(unittest.TestCase):
         save(self.root/'control.json',dict(process=dict(startedNanos=10*second,finishedNanos=160*second)))
         save(self.root/'restore.json',dict(process=dict(startedNanos=start,finishedNanos=start+10*second)))
         save(self.root/'cells.json',cells);timings(self.root,'experiment')
+        for difference in (-second,2*second):
+            changed=copy.deepcopy(cells)
+            changed[5]['finishedNanos']+=difference
+            save(self.root/'cells.json',changed)
+            with self.assertRaisesRegex(ValueError,'elapsed cloud cell budget'):timings(self.root,'experiment')
+        save(self.root/'cells.json',cells)
         cells[0]['details']['windows'][0]=dict(calls=299,intervalNanos=100_000_000)
         save(self.root/'cells.json',cells)
         with self.assertRaisesRegex(ValueError,'measurement/control'):timings(self.root,'experiment')
@@ -272,12 +278,18 @@ class RemoteTests(unittest.TestCase):
                     interval=spec['sustainedIntervalNanos'] if sustained else spec['healthyIntervalNanos']
                     clock[0]+=calls*interval/1e9+.1;windows.append(name)
                     return dict(calls=calls,intervalNanos=interval)
+                def fault(name):
+                    # Paid run 35284962814 completed restart/fencing correctly in
+                    # 30.685 s, including serial SSH and guest identity checks.
+                    # Maintenance has two restart rounds plus backup/kill work.
+                    sleep({'restart':30.685196299,'fencing':30.685196299,'maintenance':75}.get(name,1))
+                    return {}
                 probe=RemoteProbe.__new__(RemoteProbe)
                 probe.root=self.root/profile;probe.plan=json.loads(PLAN.read_bytes());probe.profile=profile
                 probe.qualification=False;probe.cells=[]
                 probe.command=lambda *a,**k:sleep(.1)
                 probe.measure=measure;probe.configure=lambda name:sleep(.05)
-                probe.fault_cell=lambda name:(sleep(1) or {})
+                probe.fault_cell=fault
                 probe.quiesce=lambda:None;probe.control=lambda name:None
                 with patch('scripts.v50.cloud_remote_probe.now',side_effect=now),patch('scripts.v50.cloud_remote_probe.time.sleep',side_effect=sleep),patch('builtins.print'):
                     probe.exercise()
@@ -290,6 +302,31 @@ class RemoteTests(unittest.TestCase):
                     if cell['name'] in ('healthy','sustained'):
                         self.assertEqual(cell['measurementNanos'],spec['seconds']*10**9)
                         self.assertGreater(cell['controlOverheadNanos'],0)
+
+    def test_recovery_overrun_still_fails_and_retains_elapsed_diagnostics(self):
+        for profile,name in (('experiment','restart'),('experiment','maintenance'),('failure-drill','maintenance')):
+            with self.subTest(profile=profile,cell=name):
+                clock=[1.0]
+                def sleep(seconds):clock[0]+=seconds
+                def now():return round(clock[0]*10**9)
+                p=json.loads(PLAN.read_bytes());spec=next(c for c in p['profiles'][profile]['cells'] if c['name']==name)
+                probe=RemoteProbe.__new__(RemoteProbe)
+                probe.root=self.root/profile/name;probe.plan=p;probe.profile=profile
+                probe.qualification=False;probe.cells=[];probe.completed=False
+                probe.command=lambda *a,**k:None;probe.configure=lambda *a:None
+                probe.measure=lambda *a:sleep(20)
+                probe.fault_cell=lambda *a:(sleep(spec['seconds']+.25) or {})
+                probe.quiesce=Mock();probe.control=Mock()
+                with patch('scripts.v50.cloud_remote_probe.preset',return_value=dict(cells=[spec])), \
+                     patch('scripts.v50.cloud_remote_probe.now',side_effect=now), \
+                     patch('scripts.v50.cloud_remote_probe.time.sleep',side_effect=sleep), \
+                     self.assertRaisesRegex(ValueError,f'cloud cell overrun: {name}; elapsed=.*limit={spec["seconds"]}s'):
+                    probe.exercise()
+                cell=json.loads((probe.root/'cells.json').read_text())[0]
+                self.assertEqual(cell['status'],'FAIL')
+                self.assertEqual(cell['budgetNanos'],spec['seconds']*10**9)
+                self.assertEqual(cell['workNanos'],cell['budgetNanos']+250_000_000)
+                self.assertFalse(probe.completed);probe.control.assert_not_called()
 
 
 def negatives(root,output):

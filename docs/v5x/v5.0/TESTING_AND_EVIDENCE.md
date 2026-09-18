@@ -117,8 +117,8 @@ any paid execution; a catalog query does not reserve capacity.
 
 | Profile | Independent topologies | Measurement | Retention |
 | --- | ---: | ---: | --- |
-| experiment | 1 | up to 300 seconds | GitHub Actions |
-| failure-drill | 1 | up to 900 seconds | GitHub Actions |
+| experiment | 1 | 450 seconds including recovery cells | GitHub Actions |
+| failure-drill | 1 | 960 seconds including recovery cells | GitHub Actions |
 | canonical | 3 serial repetitions | 1800 seconds each | GCS plus Actions summary |
 
 The complete-run budget ceiling is USD 100 following the

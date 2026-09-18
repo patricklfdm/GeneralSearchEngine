@@ -364,8 +364,10 @@ class RemoteProbe:
                         allowance=self.plan['profiles'][self.profile]['reservationsSeconds'][2]*10**9
                         require(warmup_finished-warmup_started+control_overhead<=allowance,'candidate setup/control budget')
                     else:
-                        deadline=record['startedNanos']+spec['seconds']*10**9
-                        require(now()<=deadline,'cloud cell overrun: '+name)
+                        budget=spec['seconds']*10**9;elapsed=now()-record['startedNanos']
+                        record.update(workNanos=elapsed,budgetNanos=budget)
+                        deadline=record['startedNanos']+budget
+                        require(elapsed<=budget,f'cloud cell overrun: {name}; elapsed={elapsed/1e9:.3f}s, limit={spec["seconds"]}s')
                         while now()<deadline: time.sleep(max(0,min(.25,(deadline-now())/1e9)))
                 record['status']='PASS'
             except Exception as error:

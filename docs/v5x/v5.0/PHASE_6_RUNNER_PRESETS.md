@@ -30,9 +30,12 @@ repetition and unique ownership nonce. Invalid ordinals and unknown profiles fai
 
 | Profile | Measurement seconds | Planned ceiling | Replacement order |
 | --- | ---: | ---: | --- |
-| Experiment | 300 | 2340 | None |
-| Failure-drill | 900 | 3360 | Node 3, then node 1 |
+| Experiment | 450 | 2490 | None |
+| Failure-drill | 960 | 3420 | Node 3, then node 1 |
 | Canonical, each repetition | 1800 | 5400 | Node 3, then node 1 |
+
+Experiment and failure-drill use the
+[remote recovery window amendment](PHASE_6_CLOUD_WORKLOAD_PLAN.md#remote-recovery-window-amendment-2026-09-17).
 
 The fake adapter exercises all five fresh topologies through the existing Runner:
 experiment, failure-drill, canonical 1, canonical 2, canonical 3. Cell timing uses
