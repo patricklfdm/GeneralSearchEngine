@@ -129,12 +129,15 @@ def validate_commit_timings(windows,calls_by_index,events,forces):
             previous=stamps[-1]
 
 
-def control_views(calls,get_keys):
+def control_views(calls):
     """Replay a control order consistent with public sequence brackets, not dispatch order.
 
     Sustained writes update independent lane keys; each lane waits for its previous
     call. Cross-lane writes commute, so any order satisfying all brackets is valid.
+    Failure-drill control runs beyond candidate warmup; derive its GET keys from
+    its own validated calls rather than the shorter candidate request stream.
     """
+    get_keys={r['keys'][0] for r in calls if r['operation']=='GET'}
     mutations=sorted((r for r in calls if r['operation'] in OP_IDS),key=lambda r:r['beforeSequence'])
     model=Model();base=model.sequence;last=base+len(mutations)
     completed=[];floor=base
@@ -319,7 +322,7 @@ def validate_raw(root,*,remote=False,qualification=False):
         f.check(value['process']['exitCode']==0 and value['process']==read(root/'processes'/(label+'.json')) and value['result']==read(root/'processes'/(label+'.stdout')),'control process binding')
     f.check(control['process']['finishedNanos']<min(m['startedNanos'] for m in members) and max(m['finishedNanos'] for m in members)<restore['process']['startedNanos'],'control/candidate isolation')
     cw,cr=validate_schedule(root/'control-streams',plan,profile,control=True);validate_resources(root/'control-streams',plan,cw)
-    state_cuts(root/'control-streams',control_views(cr,get_keys))
+    state_cuts(root/'control-streams',control_views(cr))
     if profile!='failure-drill':
         paired=next(r for r in cuts if r['label']=='paired-steady')
         f.check(all(paired[k]==control['result']['semantic'][k] for k in ('sequence','count','documentsSha256','indexCount')),'paired V4 workload mismatch')

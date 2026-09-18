@@ -101,7 +101,7 @@ class ControlPublicationTests(unittest.TestCase):
         self.model=Model()
         for row in self.calls:self.model.apply(OP_IDS['UPDATE'],payload('UPDATE',row['keys'],1))
 
-    def validate(self):return control_views(self.calls,())
+    def validate(self):return control_views(self.calls)
 
     def test_overlapping_control_calls_keep_the_older_before_sequence(self):
         self.assertEqual(self.validate()[258],self.model.view((),True))
@@ -122,7 +122,7 @@ class ControlPublicationTests(unittest.TestCase):
         for field,value in (('afterSequence',257),('beforeSequence',258),('afterSequence',999)):
             with self.subTest(field=field,value=value):
                 changed=copy.deepcopy(self.calls);changed[1][field]=value
-                with self.assertRaises(ValueError):control_views(changed,())
+                with self.assertRaises(ValueError):control_views(changed)
 
     def test_sequence_cannot_regress_after_a_completed_call(self):
         self.calls[1]['startNanos']=41
@@ -140,6 +140,45 @@ class ControlPublicationTests(unittest.TestCase):
     def test_forged_mutation_answer_is_rejected(self):
         self.calls[0]['answerDigest']='0'*64
         with self.assertRaisesRegex(ValueError,'sequence/success'):self.validate()
+
+
+class ControlProfileTests(unittest.TestCase):
+    def setUp(self):
+        from .cloud_remote_contract import schedule
+        candidate=schedule('failure-drill');control=schedule('failure-drill',control=True)
+        self.assertEqual(candidate['windows'],['warmup'])
+        self.candidate_keys={operation(cycle,4)['keys'][0] for cycle in range(candidate['warmupCycles'])}
+        self.calls=[];self.model=Model();cycle=0
+        for window in control['windows']:
+            count=control['warmupCycles'] if window=='warmup' else control['cyclesPerWindow']
+            for call in range(count*10):
+                row=operation(cycle+call//10,call);before=self.model.sequence
+                if row['operation'] in OP_IDS:
+                    self.model.apply(OP_IDS[row['operation']],payload(row['operation'],row['keys'],row['revision']))
+                    answer=digest(canonical(None))
+                else:
+                    view=self.model.view(row['keys'])
+                    answer=view['queryDigest'] if row['operation']=='QUERY' else digest(canonical(view['gets'][row['keys'][0]]))
+                start=len(self.calls)*2+1
+                self.calls.append(dict(row,window=window,beforeSequence=before,afterSequence=self.model.sequence,
+                    answerDigest=answer,startNanos=start,endNanos=start+1))
+            cycle+=count
+
+    def test_drill_control_reads_beyond_candidate_warmup(self):
+        self.assertEqual(self.candidate_keys,set(range(1,21)))
+        control_keys={r['keys'][0] for r in self.calls if r['operation']=='GET'}
+        self.assertEqual(control_keys,set(range(1,141)))
+        views=control_views(self.calls)
+        self.assertEqual(views[self.model.sequence],self.model.view(control_keys,True))
+
+    def test_forged_control_only_reads_are_rejected(self):
+        for key in (21,140):
+            with self.subTest(key=key):
+                calls=copy.deepcopy(self.calls)
+                row=next(r for r in calls if r['operation']=='GET' and r['keys']==[key])
+                row['answerDigest']='0'*64
+                with self.assertRaisesRegex(ValueError,'independent control read'):
+                    control_views(calls)
 
 
 class CloudWorkloadTests(unittest.TestCase):
