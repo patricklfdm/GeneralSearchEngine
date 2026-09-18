@@ -55,24 +55,33 @@ class Api:
                                 'https://iam.googleapis.com/', 'https://cloudresourcemanager.googleapis.com/',
                                 'https://serviceusage.googleapis.com/')), 'GCP API endpoint')
         require(method == 'GET' or url.endswith(':testIamPermissions') or self.paid, 'mutating API requires paid admission')
-        if time.monotonic() >= self.expiry:
-            auth = subprocess.run(['gcloud', 'auth', 'print-access-token'], capture_output=True, timeout=30)
-            require(auth.returncode == 0 and auth.stdout.strip(), 'short-lived GCP credential unavailable')
-            self.token = auth.stdout.decode().strip(); self.expiry = time.monotonic() + 2400
         payload = body if isinstance(body, bytes) else canonical(body) if body is not None else None
-        request = urllib.request.Request(url, data=payload, method=method,
-                headers={'Authorization': 'Bearer ' + self.token, 'Content-Type': 'application/octet-stream' if isinstance(body, bytes) else 'application/json'})
-        try:
-            with urllib.request.urlopen(request, timeout=30) as response:
-                value = response.read(maximum + 1)
-            require(len(value) <= maximum, 'GCP response bound')
-            return value if raw else json.loads(value) if value else {}
-        except urllib.error.HTTPError as error:
+        for attempt in range(2):
+            if time.monotonic() >= self.expiry:
+                auth = subprocess.run(['gcloud', 'auth', 'print-access-token'], capture_output=True, timeout=30)
+                require(auth.returncode == 0 and auth.stdout.strip(), 'short-lived GCP credential unavailable')
+                self.token = auth.stdout.decode().strip(); self.expiry = time.monotonic() + 2400
+            request = urllib.request.Request(url, data=payload, method=method,
+                    headers={'Authorization': 'Bearer ' + self.token, 'Content-Type': 'application/octet-stream' if isinstance(body, bytes) else 'application/json'})
             try:
-                raw_error = error.read(8193)
-                detail = error_detail(raw_error, error.code) if len(raw_error) <= 8192 else {}
-            except (OSError, ValueError): detail = {}
-            raise ApiError(error.code, method, url, detail) from None
+                with urllib.request.urlopen(request, timeout=30) as response:
+                    value = response.read(maximum + 1)
+                require(len(value) <= maximum, 'GCP response bound')
+                return value if raw else json.loads(value) if value else {}
+            except urllib.error.HTTPError as error:
+                try:
+                    # gcloud can return an already cached token. Our cache interval
+                    # does not establish its remaining lifetime. Retry only an explicit
+                    # authentication rejection, once, with the exact original request.
+                    if error.code == 401:
+                        self.token = None; self.expiry = 0
+                        if attempt == 0: continue
+                    try:
+                        raw_error = error.read(8193)
+                        detail = error_detail(raw_error, error.code) if len(raw_error) <= 8192 else {}
+                    except (OSError, ValueError): detail = {}
+                    raise ApiError(error.code, method, url, detail) from None
+                finally: error.close()
 
 
 class Gcp:

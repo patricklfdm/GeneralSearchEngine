@@ -218,4 +218,46 @@ class V50ReadyTest {
             assertEquals(new Document(2, "committed after recovery"), app.read(engine -> engine.get(2)));
         }
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"published", "private", "missing"})
+    void activationReusesTheHistoryAlreadyRebuiltAtStartup(String materialization) throws Exception {
+        int history = materialization.equals("published") ? 300 : 20;
+        try (var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE)) {
+            group.leader().activate().get(10, TimeUnit.SECONDS);
+            group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
+            for (int i = 0; i < history; i++) group.leader().submit("UPDATE",
+                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
+                    .get(10, TimeUnit.SECONDS);
+            long boundary = group.leader().status().commitIndex(), epoch = group.leader().status().activeEpoch();
+            await(() -> group.nodes.get(1).status().appliedIndex() == boundary && group.nodes.get(2).status().appliedIndex() == boundary);
+            group.leader().close();
+            var codec = new CountingCodec();
+            var config = DurableStorageConfig.builder(temporary.resolve("restarted-leader-app"), codec)
+                    .storageIdentity("fixture-storage").schemaIdentity("fixture-schema")
+                    .maxDocuments(1000).maxBulkElements(100).build();
+            var app = new ReplicaApplication<>(SCHEMA, INDEXES, config, BOUNDS);
+            group.applications.set(0, app);
+            group.nodes.set(0, new ReplicaNode<>(temporary.resolve("node-1"), group.manifest, LEADER, BOUNDS,
+                    app, ReplicaStore.Faults.NONE, ReplicaNode.Events.NONE));
+            assertEquals(boundary, app.appliedIndex());
+            if (materialization.equals("private")) app.prepare(new ReplicaEntry(group.manifest.digest(), epoch, java.util.UUID.randomUUID(),
+                    boundary + 1, "ADD", epoch, boundary, "0".repeat(64), app.documents("ADD", List.of(new Document(99, "uncommitted")))));
+            else if (materialization.equals("missing")) {
+                try (var empty = application(temporary.resolve("empty-leader"), BOUNDS)) { app.replaceWith(empty); }
+            }
+            codec.decodes.set(0);
+            var recovered = group.leader().activate().get(10, TimeUnit.SECONDS);
+            assertEquals(ReplicaState.READY, recovered.state());
+            assertTrue(recovered.activeEpoch() > epoch);assertEquals(boundary + 1, recovered.commitIndex());
+            if (materialization.equals("published")) assertTrue(codec.decodes.get() < 10,
+                    "activation replayed startup history: " + codec.decodes.get());
+            else assertTrue(codec.decodes.get() >= history, "unsafe or missing materialization must rebuild");
+            assertEquals(new Document(1, "update-" + (history - 1)), group.leader().<Document>read(engine -> engine.get(1)));
+            assertNull(group.leader().read(engine -> engine.get(99)));
+            assertEquals(0, group.leader().durabilityMetrics().checkpointSequence());
+            group.add(new Document(2, "after activation")).get(10, TimeUnit.SECONDS);
+            assertEquals(new Document(2, "after activation"), group.leader().<Document>read(engine -> engine.get(2)));
+        }
+    }
 }

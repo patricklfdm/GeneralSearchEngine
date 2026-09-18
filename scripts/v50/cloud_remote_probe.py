@@ -34,7 +34,7 @@ def collection_member(node,name):
 
 
 class RemoteWorker:
-    def __init__(self, probe, node, generation):
+    def __init__(self, probe, node, generation, *, wait=True):
         self.probe, self.node, self.generation = probe, node, generation
         self.path = probe.root / 'members' / f'node-{node}-{generation}.json'
         self.path.parent.mkdir(parents=True, exist_ok=True)
@@ -43,12 +43,22 @@ class RemoteWorker:
         self.buffer = b''; self.stderr = self.path.with_suffix('.stderr').open('wb')
         self.process = probe.backend.worker(probe.nodes[node], probe.guest_args('worker', node, generation=generation), self.stderr)
         probe.all_workers.append(self); save(self.path, self.receipt)
-        ready = self.receive(40)
-        require(ready['ready'] and ready['node'] == f'node-{node}', 'remote worker readiness')
-        retained = probe.guest(node, 'receipt', generation=generation)
-        require(ready['identity']['pid'] == retained['pid'], 'remote ready/receipt PID')
-        self.receipt.update(ready=ready, readyNanos=now(), pid=retained['pid'], args=retained['args'],
+        self.readiness_deadline = time.monotonic() + 40
+        if wait: self.await_ready()
+
+    def retain_identity(self):
+        retained = self.probe.guest(self.node, 'receipt', generation=self.generation)
+        self.receipt.update(pid=retained['pid'], args=retained['args'],
                             linuxStartTicks=retained['startTicks'], bootId=retained['bootId'])
+        save(self.path, self.receipt)
+        return retained
+
+    def await_ready(self):
+        ready = self.receive(self.readiness_deadline - time.monotonic())
+        require(ready['ready'] and ready['node'] == f'node-{self.node}', 'remote worker readiness')
+        retained = self.retain_identity()
+        require(ready['identity']['pid'] == retained['pid'], 'remote ready/receipt PID')
+        self.receipt.update(ready=ready, readyNanos=now())
         save(self.path, self.receipt)
 
     def receive(self, maximum=40):
@@ -102,6 +112,7 @@ class RemoteWorker:
         if 'finishedNanos' in self.receipt: return
         try:
             if killed:
+                if 'pid' not in self.receipt: self.retain_identity()
                 stop = self.probe.guest(self.node, 'stop', generation=self.generation, barrier=barrier)
                 require(stop['pid'] == self.receipt['pid'] and stop['startTicks'] == self.receipt['linuxStartTicks'], 'remote kill ownership')
             elif not already_closed: self.command('close')
@@ -211,14 +222,17 @@ class RemoteProbe:
     def unmount(self, instance, disk):
         if not self.qualification: self.backend.ssh(instance, self.guest_args('unmount', disk['node']))
 
-    def start(self, instance):
+    def start(self, instance, *, wait=True):
         node = instance['node']; require(node not in self.workers, 'worker already active')
         if self.generations[node] == 0 and node != 1: self.hosts[node]['runtimeMount'] = self.mount(node, node)
         self.generations[node] += 1
-        self.workers[node] = RemoteWorker(self, node, self.generations[node])
+        self.workers[node] = RemoteWorker(self, node, self.generations[node], wait=wait)
 
     def start_all(self):
-        for node in (1,2,3): self.start(self.nodes[node])
+        # All three JVMs reconstruct independently. Launch the whole group before
+        # waiting; activation still requires every process's verified readiness.
+        for node in (1,2,3): self.start(self.nodes[node], wait=False)
+        for node in (1,2,3): self.workers[node].await_ready()
 
     def stop_node(self, node, **values):
         worker = self.workers.pop(node, None)

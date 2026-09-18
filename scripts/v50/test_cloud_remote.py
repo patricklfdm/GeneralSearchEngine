@@ -6,6 +6,8 @@ import os
 from pathlib import Path
 import shutil
 import stat
+import subprocess
+import sys
 import tempfile
 import time
 import unittest
@@ -291,6 +293,52 @@ class RemoteTests(unittest.TestCase):
         worker.send.assert_called_once_with('catchup',peer='node-3')
         worker.receive.assert_called_once_with(.25)
 
+    def test_restart_launches_all_processes_before_waiting_and_requires_every_identity(self):
+        for bad_identity in (False,True):
+            with self.subTest(bad_identity=bad_identity),tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);probe=RemoteProbe.__new__(RemoteProbe)
+                probe.root=root;probe.deadline=time.monotonic()+8;probe.workers={};probe.all_workers=[]
+                probe.nodes={n:dict(node=n,id=str(n)) for n in (1,2,3)};probe.generations={n:1 for n in (1,2,3)}
+                probe.quiesce=Mock();probe.command=Mock(return_value='activated');probe.guest_args=Mock(return_value=[])
+                processes={};probe.backend=Mock()
+                # Real stdout pipes: each child withholds READY until all three
+                # processes have launched. Serial startup cannot satisfy this barrier.
+                script='''import json,os,pathlib,sys,time
+root=pathlib.Path(sys.argv[1]);node=int(sys.argv[2]);(root/str(node)).touch()
+while len(list(root.glob('[123]')))<3:time.sleep(.01)
+print(json.dumps(dict(ready=True,node='node-'+str(node),identity=dict(pid=os.getpid()))),flush=True)
+sys.stdin.read()
+'''
+                def worker(instance,args,stderr):
+                    process=subprocess.Popen([sys.executable,'-c',script,str(root),str(instance['node'])],
+                        stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=stderr)
+                    processes[instance['node']]=process;return process
+                probe.backend.worker.side_effect=worker
+                probe.guest=lambda node,action,**kw:dict(pid=processes[node].pid+(1 if bad_identity and node==2 else 0),
+                    args=['fixture'],startTicks='123',bootId='test-boot')
+                try:
+                    if bad_identity:
+                        with self.assertRaisesRegex(ValueError,'ready/receipt PID'):probe.restart()
+                        probe.command.assert_not_called()
+                    else:
+                        self.assertEqual(probe.restart(),'activated');probe.command.assert_called_once_with('activate')
+                        self.assertTrue(all('readyNanos' in w.receipt for w in probe.all_workers))
+                    self.assertEqual(len(processes),3);self.assertEqual(len(probe.all_workers),3)
+                    self.assertEqual(set(probe.workers),{1,2,3})
+                    self.assertTrue(all(w.path.exists() for w in probe.all_workers))
+                finally:
+                    for process in processes.values():
+                        process.kill();process.wait(timeout=5);process.stdin.close();process.stdout.close()
+                    for w in probe.all_workers:w.stderr.close()
+
+    def test_deferred_readiness_does_not_restart_the_timeout(self):
+        worker=self.disconnected_worker();worker.readiness_deadline=100;worker.probe.deadline=120
+        with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=101), \
+             patch('scripts.v50.cloud_remote_probe.select.select') as select, \
+             self.assertRaisesRegex(ValueError,'remote response deadline'):
+            worker.await_ready()
+        select.assert_not_called();worker.probe.guest.assert_not_called()
+
     def disconnected_worker(self):
         worker=RemoteWorker.__new__(RemoteWorker);worker.node=2;worker.generation=1
         worker.probe=Mock(root=self.root,deadline=time.monotonic()+5)
@@ -337,6 +385,15 @@ class RemoteTests(unittest.TestCase):
         self.assertEqual(saved['cleanup'],'reaped')
         self.assertEqual(saved['transportExitCode'],255)
         worker.process.stdout.close.assert_called_once();worker.stderr.close.assert_called_once()
+
+    def test_unready_worker_cleanup_checks_and_retains_the_guest_identity(self):
+        worker=self.disconnected_worker();worker.stderr=Mock();worker.process.returncode=255
+        identity=dict(pid=1953,startTicks='93298',args=['fixture'],bootId='test-boot')
+        worker.probe.guest.side_effect=[identity,dict(identity,status='KILLED'),dict(identity,status='EXITED')]
+        worker.close(killed=True)
+        self.assertEqual(worker.receipt['pid'],1953);self.assertEqual(worker.receipt['cleanup'],'reaped')
+        self.assertNotIn('ready',worker.receipt)
+        self.assertEqual([c.args[1] for c in worker.probe.guest.call_args_list],['receipt','stop','stop'])
 
     def test_full_admission_requires_executed_remote_gate(self):
         p=plan();req=workload_request('a'*40,1,1,'b'*64,'experiment','c'*32)
