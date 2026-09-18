@@ -336,12 +336,54 @@ framing, backup or evidence exceed it, stop and retain a classified failure befo
 admitting another topology. Keep only bounded wire traces for fault windows; preserve
 raw per-operation measurements and streaming independent state evidence for all cells.
 
+## Image selection amendment — 2026-09-18
+
+[Prepare 35380017023](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35380017023)
+on source `5e7ea10ab707a7442a808d0069caaf6a3a9dc539` passed all fourteen local
+remote-adapter cells and fifteen evidence rejection checks. The subsequent live
+preflight blocked admission: the pinned `ubuntu-2404-noble-amd64-v20260906` still
+had ID `6257327608773510097`, status READY and architecture X86_64, but its publisher
+had marked it DEPRECATED. The API supplied `ubuntu-2404-noble-amd64-v20260918` as
+the replacement. No paid topology was started or budget reservation added by prepare.
+
+The runner and full-workload plans now pin that replacement's exact name and ID
+`763874002631433611` in `ubuntu-os-cloud`. The new read-only
+[image receipt](phase6-image-availability.json) records READY, X86_64 and no
+deprecation marker. It proves catalog availability only; guest startup and cloud
+measurements remain pending. The Phase 1 selection and its original availability
+receipt remain historical records.
+
+The full-workload plan SHA-256 becomes
+`79c1c0f93c152b37012441ba882dba8fc4a8cd20c89757b99c63908e8e49e275`, superseding
+`93fe1627fad6a39e073ffcd0cb6a87b3bfcab20fa62a3211b383121f6a28b944`.
+The canonical JSON runner-plan SHA-256 becomes
+`058b26b92207dcfddff356c2fbfe44a5c9e2a7369bdcb775cd0dd43163286d19`.
+The plans must agree on image project, name and ID before a full-workload request
+can be prepared. Preflight continues rejecting any deprecated image and now
+identifies ID, readiness, architecture and deprecation failures separately.
+It does not follow replacement links automatically or resolve a mutable image family.
+Google's [image-family guidance](https://docs.cloud.google.com/compute/docs/images/image-families-best-practices)
+describes why a family selection can advance when publishers release new images.
+
+This prospective input change requires review/merge, exact-source CI, recent
+exact-source scheduled or manual cleanup, and a fresh prepared bundle and approval.
+Prior-source results cannot be mixed into the new five-member sequence. Workload
+parameters, cell deadlines (including maintenance's 120 seconds), topology bounds,
+JDK and the USD 100 append-only budget remain unchanged.
+
+Local verification passed: all 272 V5 Python tests and the Foundation gate; the
+remote-adapter gate's 34 unit tests, fourteen separate-JVM cells and fifteen
+evidence rejection checks. Offline replay of the retained failed preflight reports
+the explicit deprecation reason; substituting the new image observation removes
+that blocker. This replay is diagnostic only and does not issue a fresh admission.
+
 ## Resource, cost and admission gates
 
 Inherit three Standard `n2-standard-8` VMs, `us-west4-a`, 24 vCPU, private replication
 endpoints, three 50-GiB boot disks and three 100-GiB `pd-balanced` ext4 data disks.
-The pinned image remains `ubuntu-2404-noble-amd64-v20260906`, ID
-`6257327608773510097`; catalog/quota observations in the runner report are historical.
+The pinned image is `ubuntu-2404-noble-amd64-v20260918`, ID
+`763874002631433611`, under the image amendment above; catalog/quota observations
+in earlier runner reports are historical.
 A changed image/JDK/build input requires a reviewed exact plan and new receipts.
 
 The complete experiment + failure-drill + three canonical sequence is limited to

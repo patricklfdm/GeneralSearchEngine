@@ -202,8 +202,16 @@ def check_observations(p, observations, source, now=None):
     check('provider', lambda: require(observations['provider']['state'] == 'ACTIVE' and
                 not observations['provider'].get('disabled', False) and
                 observations['provider']['oidc']['issuerUri'] == 'https://token.actions.githubusercontent.com', 'inactive/wrong issuer'))
-    check('image', lambda: require(observations['image']['id'] == p['imageId'] and observations['image']['status'] == 'READY' and
-                not observations['image'].get('deprecated') and observations['image']['architecture'] == 'X86_64', 'image identity/status changed'))
+    def image():
+        value = observations['image']
+        require(value['id'] == p['imageId'], f"image ID changed: expected {p['imageId']}, observed {value['id']}")
+        require(value['status'] == 'READY', 'image is not READY: ' + str(value['status']))
+        deprecated = value.get('deprecated')
+        detail = (str(deprecated.get('state')) + '; replacement=' + str(deprecated.get('replacement'))
+                  if isinstance(deprecated, dict) else str(deprecated))
+        require(not deprecated, 'image deprecated: ' + detail)
+        require(value['architecture'] == 'X86_64', 'image architecture changed: ' + str(value['architecture']))
+    check('image', image)
     check('machine', lambda: require(observations['machine']['guestCpus'] == 8 and observations['machine']['memoryMb'] == 32768, 'machine shape changed'))
     check('zone', lambda: require(observations['zone']['status'] == 'UP', 'zone unavailable'))
     def quota():

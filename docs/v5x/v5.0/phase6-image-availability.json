@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "gse-v50-phase6-image-availability-v1",
+  "observedAt": "2026-09-18T18:37:52Z",
+  "method": "read-only gcloud compute images describe",
+  "project": "ubuntu-os-cloud",
+  "image": {
+    "architecture": "X86_64",
+    "creationTimestamp": "2026-09-18T04:41:24.546-07:00",
+    "family": "ubuntu-2404-lts-amd64",
+    "id": "763874002631433611",
+    "name": "ubuntu-2404-noble-amd64-v20260918",
+    "selfLink": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-2404-noble-amd64-v20260918",
+    "status": "READY"
+  },
+  "resourcesCreated": false,
+  "claims": [
+    "exact replacement image exists, is READY, X86_64 and has no deprecated marker"
+  ],
+  "notValidated": [
+    "VM allocation capacity",
+    "guest boot/runtime behavior",
+    "paid workload performance"
+  ]
+}

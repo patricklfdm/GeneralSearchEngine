@@ -142,6 +142,22 @@ class CloudRunnerTest(unittest.TestCase):
         approval['preflightSha256'] = sha(canonical(forged))
         with self.assertRaisesRegex(ValueError, 'not admitted'): admission(self.plan, forged, self.req, approval, now=1001)
 
+    def test_image_preflight_reports_drift_and_never_follows_a_deprecated_replacement(self):
+        self.assertEqual(check_observations(self.plan, observations(self.plan), self.req['source'], 1000)['status'],
+                         'READY_FOR_PAID_REVIEW')
+        replacement = 'https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/newer-image'
+        cases = [({'id': '1'}, 'image ID changed'), ({'status': 'PENDING'}, 'image is not READY'),
+                 ({'architecture': 'ARM64'}, 'image architecture changed')]
+        cases += [({'deprecated': dict(state=state, replacement=replacement)}, 'image deprecated: ' + state)
+                  for state in ('DEPRECATED', 'OBSOLETE', 'DELETED')]
+        for change, message in cases:
+            with self.subTest(change=change):
+                values = observations(self.plan); values['image'].update(change)
+                receipt = check_observations(self.plan, values, self.req['source'], 1000)
+                self.assertEqual(receipt['status'], 'BLOCKED'); self.assertFalse(receipt['resourcesCreated'])
+                self.assertEqual(len(receipt['blockers']), 1); self.assertIn(message, receipt['blockers'][0])
+                if 'deprecated' in change: self.assertIn(replacement, receipt['blockers'][0])
+
     def test_prefix_delete_grant_passes_without_bucket_delete_or_object_creation(self):
         calls = []
         expected = {'v5.0-replicated-single-shard/control/' + name for name in
