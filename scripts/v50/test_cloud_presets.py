@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 from .cloud_common import canonical, plan, replacement_resource, request, resources, save, sha, validate_inventory
 from .cloud_preset_fake import PresetFake, PresetProbe, cells, run_one
-from .cloud_presets import ORDER, SEQUENCES, preset, reserve_sequence, workload_request
+from .cloud_presets import ORDER, SEQUENCE_ORDERS, SEQUENCES, preset, reserve_sequence, workload_request
 from .cloud_runner import BUDGET, LEASE, Runner, reconcile
 
 
@@ -41,23 +41,56 @@ class PresetTest(unittest.TestCase):
                 workload_request('a'*40, 1, 1, 'b'*64, profile, sequence, repetition)
 
     def test_all_five_topologies_are_serial_and_costs_accumulate(self):
-        for name, repetition in ORDER:
-            backend, state = self.run_case(name, repetition)
-            self.assertEqual(state['status'], 'PASS', state['errors'])
-            self.assertTrue(state['leaseReleased']); self.assertNotIn(LEASE, self.objects)
-            self.assertFalse(backend.resources); self.assertEqual(backend.peak_disk_gib, 450)
-        ledger = json.loads(self.objects[SEQUENCES][1])
-        self.assertEqual([v['status'] for v in ledger['attempts']], ['PASS']*5)
-        self.assertEqual(sum(v['maximumCostMicrousd'] for v in json.loads(self.objects[BUDGET][1])['reservations']), 5_000_000)
-        backend, repeat = self.run_case('canonical', 3)
-        self.assertEqual(repeat['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))
+        for order_name, order in SEQUENCE_ORDERS.items():
+            with self.subTest(order=order_name):
+                self.objects = {}
+                for name, repetition in order:
+                    backend, state = self.run_case(name, repetition)
+                    self.assertEqual(state['status'], 'PASS', state['errors'])
+                    self.assertTrue(state['leaseReleased']); self.assertNotIn(LEASE, self.objects)
+                    self.assertFalse(backend.resources); self.assertEqual(backend.peak_disk_gib, 450)
+                ledger = json.loads(self.objects[SEQUENCES][1])
+                self.assertEqual([v['status'] for v in ledger['attempts']], ['PASS']*5)
+                self.assertEqual([(v['profile'], v['repetition']) for v in ledger['attempts']], list(order))
+                self.assertEqual(sum(v['maximumCostMicrousd'] for v in json.loads(self.objects[BUDGET][1])['reservations']), 5_000_000)
+                backend, repeat = self.run_case('canonical', 3)
+                self.assertEqual(repeat['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))
 
     def test_skip_or_reorder_cannot_create_resources(self):
-        backend, state = self.run_case('canonical')
-        self.assertEqual(state['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))
-        self.run_case()
-        backend, state = self.run_case('canonical', 2)
-        self.assertEqual(state['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))
+        for first, invalid in [(None, ('failure-drill', 1)), (None, ('canonical', 2)),
+                               (None, ('canonical', 3)), ('experiment', ('canonical', 1)),
+                               ('canonical', ('experiment', 1)), ('canonical', ('canonical', 1)),
+                               ('canonical', ('canonical', 3))]:
+            with self.subTest(first=first, invalid=invalid):
+                self.objects = {}
+                if first:self.assertEqual(self.run_case(first)[1]['status'], 'PASS')
+                backend, state = self.run_case(*invalid)
+                self.assertEqual(state['status'], 'FAIL'); self.assertFalse(any(c[0] == 'create' for c in backend.calls))
+
+    def test_failed_canonical_first_cannot_be_retried_or_backfilled(self):
+        for fault in ('cell-overrun', 'upload-failure'):
+            with self.subTest(fault=fault):
+                self.objects = {}
+                self.assertEqual(self.run_case('canonical', fault=fault)[1]['status'], 'FAIL')
+                for profile, repetition in [('canonical', 1), ('canonical', 2), ('experiment', 1), ('failure-drill', 1)]:
+                    backend, result = self.run_case(profile, repetition)
+                    self.assertEqual(result['status'], 'FAIL')
+                    self.assertFalse(any(c[0] == 'create' for c in backend.calls))
+                self.assertEqual(len(json.loads(self.objects[BUDGET][1])['reservations']), 1)
+
+    def test_canonical_first_cannot_borrow_an_old_source_completion(self):
+        backend, _ = self.run_case('canonical')
+        backend.request = workload_request('d'*40, 2, 1, 'b'*64, 'canonical', 'c'*32, 2)
+        with self.assertRaisesRegex(ValueError, 'different-source'):reserve_sequence(backend)
+
+    def test_preset_digest_binds_both_closed_execution_orders(self):
+        descriptor = preset('canonical')
+        self.assertEqual(descriptor['schema'], 'gse-v50-cloud-runner-preset-v3')
+        self.assertEqual(descriptor['sequenceOrders']['canonical-first'], [
+            dict(profile='canonical', repetition=i) for i in (1, 2, 3)] + [
+            dict(profile='experiment', repetition=1), dict(profile='failure-drill', repetition=1)])
+        req = workload_request('a'*40, 1, 1, 'b'*64, 'canonical', 'c'*32)
+        self.assertEqual(req['presetSha256'], sha(canonical(descriptor)))
 
     def test_failed_member_poisoned_even_after_successful_cleanup(self):
         self.run_case()

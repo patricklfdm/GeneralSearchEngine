@@ -129,6 +129,12 @@ and deliberate capacity failure. Canonical repeats its complete matrix three tim
 the aggregate set requires the admitted experiment and failure-drill too. A failed
 canonical repetition fails the set; a successful retry cannot replace it in place.
 
+The [2026-09-18 execution-order amendment](PHASE_6_RUNNER_PRESETS.md#execution-order-amendment--2026-09-18)
+permits either experiment → failure-drill → canonical 1/2/3 or canonical 1/2/3 →
+experiment → failure-drill. The first member locks the order. Every member must
+still pass on the same source/artifacts, and the full five-member set is required.
+This changes sequencing policy, not the frozen workload JSON or measurements.
+
 | Per-topology reservation, seconds | Experiment | Failure-drill | Canonical |
 | --- | ---: | ---: | ---: |
 | Provision, distribute, mount, bootstrap, start | 900 | 900 | 900 |
@@ -369,7 +375,7 @@ enablement and an exact paid confirmation remain separate later actions.
 | Cloud workload and evidence | Materialize this plan as a separate JSON contract; parameterized public worker, deterministic schedule, streaming independent model/validators, bounded evidence extension | Reduced named local preset plus full-size corpus/byte arithmetic checks, ordered fault/public-operation sequence, concurrent read-cut verification and resealed semantic negatives; no cloud credentials |
 | Runner preset qualification | Add explicit experiment/failure-drill/canonical plan/fake selection, closed elapsed allocations, replacement resource generations and shared ledger sequencing; full offline bundle with volume paths | Same runner decisions through fake adapter, serial-set/cost negatives, partial replacement/lost create ACK/cancellation/cleanup failures, real local three-JVM workload and full CI |
 | Remote runner preset integration | Connect remote signals/network faults, public replacement, timed cloud cells, bounded collection and independent cloud/member/set provenance | Real adapter contracts, collection overflow/failure and resealed cloud-provenance negatives; exact-source full CI before paid preparation |
-| 6C staged execution | Fresh read-only admission, current-price complete-sequence review and explicit paid confirmation; then experiment, failure-drill, three canonical topologies serially | Independently valid member/topology/set evidence and cleanup after every topology |
+| 6C staged execution | Fresh read-only admission, current-price complete-sequence review and explicit paid confirmation; execute all five topologies serially in either admitted order | Independently valid member/topology/set evidence and cleanup after every topology |
 | 6D registration | Review every retained result and exact measured source/artifacts; separate append-only baseline PR | Register `v5.0.0-replicated-cloud` only after complete accepted evidence |
 
 The cloud schema must reject missing/short cells, incomplete/duplicated parts, altered

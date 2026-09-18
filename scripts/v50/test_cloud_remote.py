@@ -20,7 +20,7 @@ from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
 from .cloud_workload_io import inventory, pack, sha_file, unpack
-from .cloud_presets import ORDER, workload_request
+from .cloud_presets import ORDER, SEQUENCE_ORDERS, workload_request
 from .cloud_preflight import admission, check_observations
 from .test_cloud_runner import observations
 
@@ -51,6 +51,45 @@ class RemoteTests(unittest.TestCase):
                     if total<=100_000_000:self.assertEqual(validate_set(roots)['status'],'PASS')
                     else:
                         with self.assertRaisesRegex(ValueError,'cloud set cost ceiling'):validate_set(roots)
+
+    def canonical_first_set(self):
+        roots=[];states=[]
+        for ordinal,(profile,repetition) in enumerate(SEQUENCE_ORDERS['canonical-first'],1):
+            root=self.root/f'canonical-first-{ordinal}';roots.append(root)
+            req=workload_request('a'*40,ordinal,1,'b'*64,profile,'c'*32,repetition,nonce=f'{ordinal:012x}')
+            state=dict(request=req,startedAt=ordinal*10,finishedAt=ordinal*10+5,
+                budgetReservation=dict(reservations=[dict(maximumCostMicrousd=4_480_000)]*ordinal))
+            states.append(state);save(root/'completion.json',state)
+        return roots,states
+
+    def test_canonical_first_set_requires_all_five_members(self):
+        roots,_=self.canonical_first_set()
+        with patch('scripts.v50.cloud_remote_evidence.validate',return_value=dict(artifactSha256='d'*64)) as member:
+            for count in (1,2,3,4):
+                with self.subTest(count=count),self.assertRaisesRegex(ValueError,'complete experiment'):
+                    validate_set(roots[:count])
+            member.assert_not_called()
+            result=validate_set(roots)
+            self.assertEqual(result['sequenceOrder'],'canonical-first')
+            self.assertEqual(len(result['members']),5)
+            for wrong in ([*roots[:3],roots[4],roots[3]], [roots[0],roots[0],*roots[2:]],
+                          [roots[1],roots[0],*roots[2:]]):
+                with self.assertRaisesRegex(ValueError,'sequence order'):validate_set(wrong)
+
+    def test_canonical_first_set_keeps_chronology_source_artifact_and_budget_checks(self):
+        roots,states=self.canonical_first_set()
+        for case,expected in [('overlap','overlapping'),('source','source/namespace'),
+                              ('artifact','artifact drift'),('budget','cost ceiling')]:
+            with self.subTest(case=case):
+                changed=copy.deepcopy(states[-1]);values=[dict(artifactSha256='d'*64) for _ in roots]
+                if case=='overlap':changed['startedAt']=states[-2]['finishedAt']-1
+                elif case=='source':changed['request']['source']='e'*40
+                elif case=='artifact':values[-1]['artifactSha256']='e'*64
+                else:changed['budgetReservation']['reservations']=[dict(maximumCostMicrousd=100_000_001)]
+                save(roots[-1]/'completion.json',changed)
+                with patch('scripts.v50.cloud_remote_evidence.validate',side_effect=values),self.assertRaisesRegex(ValueError,expected):
+                    validate_set(roots)
+        save(roots[-1]/'completion.json',states[-1])
 
     def test_guest_rejects_local_paths_without_qualification(self):
         with self.assertRaisesRegex(ValueError,'path boundary'):Guest(self.base,self.root,self.owner)

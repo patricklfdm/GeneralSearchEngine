@@ -48,7 +48,37 @@ creation. Each predecessor must have an immutable completion object whose hash,
 request, successful cleanup and retention agree with the ledger. A missing receipt,
 different source, skipped ordinal, duplicate repetition or failed/unresolved member
 blocks progression. Reconciliation can release a resource lease; it cannot turn
-a failed or incomplete sequence into a passing one. A new set starts with experiment.
+a failed or incomplete sequence into a passing one.
+
+### Execution-order amendment — 2026-09-18
+
+The user requested canonical-first execution so a canonical-only failure is found
+before spending time on the two shorter profiles again. Preset schema v3 binds two
+closed orders in its request digest:
+
+- `experiment-first`: experiment → failure-drill → canonical 1 → canonical 2 → canonical 3.
+- `canonical-first`: canonical 1 → canonical 2 → canonical 3 → experiment → failure-drill.
+
+The first member of a fresh sequence selects and locks its order. No additional
+workflow input is needed: prepare `profile=canonical`, `repetition=1` to choose the
+second order. A failed canonical member blocks backfilling, retrying or continuing
+that same sequence. The same rule applies to the shorter profiles.
+
+The complete-set validator accepts either chronological order and still requires
+exactly five successful members, identical source and production artifacts,
+distinct ownership namespaces, serial lifetimes, complete retention/cleanup and
+the cumulative budget ceiling. Three successful canonical runs alone do not pass
+set validation. Older-source experiment/drill receipts cannot fill the new set.
+Pass all five evidence roots to `cloud_remote_evidence --set` in execution order.
+
+Only execution order changes. The checksum-pinned workload JSON, cell durations,
+arrival rates, resource bounds and cost allocations retain their accepted values.
+Fresh preset-v3 requests and prepared bundles are required after merge.
+
+Local validation passed the Foundation gate (263 Python tests) and the remote
+adapter gate starting canonical 1 with an empty ledger (14 real JVM cells and 15
+provenance rejection checks). Fake lifecycle tests complete both five-member
+orders; cloud execution of the amended order remains pending.
 
 The same global ownership lease serializes topology creation. Cost reservations use
 the existing append-only sequence ledger with the [amended USD 100 ceiling](PHASE_6_BUDGET_AMENDMENT.md), including failed attempts and new

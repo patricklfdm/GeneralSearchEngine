@@ -51,7 +51,7 @@ receipts for that candidate; a failed stage retains evidence and stops progressi
 | --- | --- | --- |
 | 6A — local performance and evidence | Public-API probe, independently compiled published V4.4 control, bounded local three-JVM smoke, machine-readable `phase6-plan.json`, runtime member/set schema and validators; integrate a bounded gate into Required CI | Exact-source smoke, semantic comparison, measurements and semantic negative fixtures pass; worker/instrumentation assets stay outside production JARs |
 | 6B — real runner and preflight | Owned private three-VM lifecycle, exact artifact distribution, fresh admission receipts, watchdogs, GCS/Actions retention and verified cleanup; a proposed separate `v50-replication-evidence.yml` workflow | Fake tests exercise the same orchestration decisions, including partial provisioning, failed startup, unreachable member, interrupted upload, cancellation and failed deletion; local/public/regression and compatibility gates pass |
-| 6C — staged cloud evidence | Refresh read-only preflights and present exact source, plan, resources and total cost estimate for the existing explicit paid-run confirmation; execute experiment, then failure-drill, then canonical | Every member and topology set validates independently; cleanup and budget receipts pass after each run; no later topology starts with leftovers |
+| 6C — staged cloud evidence | Refresh read-only preflights and present exact source, plan, resources and total cost estimate for the existing explicit paid-run confirmation; execute all five members in either admitted serial order | Every member and topology set validates independently; cleanup and budget receipts pass after each run; no later topology starts with leftovers |
 | 6D — review and registration | Phase 6 baseline, checklist and canonical review; append-only registration of `v5.0.0-replicated-cloud` through a separate protected PR | Raw evidence remains retrievable, all three canonical repetitions pass, registered identities match the accepted source and artifacts |
 
 [6A local performance](PHASE_6_LOCAL_PERFORMANCE.md) was accepted through PR #157
@@ -191,7 +191,10 @@ resources before allocating replacements if overlap would breach the peak cap.
    evidence storage/transfer. Track failed attempts and remaining budget. Record
    expiry/revalidation rules for these receipts and present the existing explicit
    paid-run confirmation for this exact plan under the `cloud-benchmark` environment.
-5. Run one experiment. Admission requires valid semantics, measurements, resource
+5. Select and lock either experiment-first or canonical-first using the first member
+   of a fresh sequence, per the [execution-order amendment](PHASE_6_RUNNER_PRESETS.md#execution-order-amendment--2026-09-18).
+   Run one experiment before the failure-drill, either before all three canonical
+   repetitions or after all three. Admission requires valid semantics, measurements, resource
    bounds, upload and cleanup. A failed experiment stops the sequence.
 6. Run one failure-drill. Kill an owned leader after proof quorum and before client
    success, then independently prove the committed result survives. Separately

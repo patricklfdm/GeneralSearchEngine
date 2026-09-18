@@ -91,6 +91,11 @@ Set validation requires experiment, failure-drill and canonical repetitions 1–
 the same source and production artifacts, distinct ownership nonces, serial
 lifetimes, retained approval/budget receipts and verified cleanup for every member.
 A failed member remains a failed set. Baseline registration remains a separate 6D PR.
+The [execution-order amendment](PHASE_6_RUNNER_PRESETS.md#execution-order-amendment--2026-09-18)
+also permits canonical 1/2/3 first, followed by experiment and failure-drill.
+The first member locks the order; the independent validator still requires all five.
+The local remote-adapter gate now starts canonical 1 on an empty sequence ledger,
+while fake lifecycle tests exercise both complete orders and reject invalid prefixes.
 
 ### SSH control stream hardening
 
@@ -160,8 +165,8 @@ seconds; its lifecycle confirms all fifteen resources absent, retention VERIFIED
 and lease release. Cumulative budget reservations are USD 40.00, leaving USD 60.00.
 
 This offline recheck does not amend the retained failed completion or sequence
-ledger. After protected merge and exact-source CI, a new sequence must start with
-experiment and receive fresh preparation/admission for each member.
+ledger. After protected merge and exact-source CI, a new sequence must use one of
+the admitted execution orders and receive fresh preparation/admission for each member.
 
 ### Per-part collection overhead correction
 
