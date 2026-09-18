@@ -558,7 +558,7 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                     if (proof.index() > store.commitIndex()) proofs.add(proof);
                     else ReplicaSnapshot.validateProof(manifest, proof, proof.index(), old.anchors().get(Math.toIntExact(proof.index() - 1)), old.digestAt(proof.index() - 1));
                 }
-                if (tail.size() != old.entries().size()) installLocal(new ReplicaRecoveryImage(old.snapshot(), tail, proofs), false);
+                if (tail.size() != old.entries().size()) installLocal(new ReplicaRecoveryImage(old.snapshot(), tail, proofs), false, true);
                 event("AFTER_CATCHUP_BATCH", store.commitIndex());
                 return response(request, "COMMIT_ADVANCE", authorityStatus());
             }
@@ -638,8 +638,26 @@ final class ReplicaNode<K, T> implements AutoCloseable {
                 && number(installed, "index") == image.index() && string(installed, "digest").equals(image.digestAt(image.index())), INTEGRITY_FAILURE, "invalid snapshot installation ACK");
     }
     private void installLocal(ReplicaRecoveryImage requested, boolean admit) {
+        installLocal(requested, admit, false);
+    }
+    private void installLocal(ReplicaRecoveryImage requested, boolean admit, boolean incremental) {
         var image = store.preserveSnapshot(requested);
-        try (var rebuilt = application.rebuild(image)) {
+        var materialization = image;
+        long published = store.commitIndex();
+        if (incremental && store.voter() && !store.damagedTail() && store.lastLogIndex() == published
+                && image.snapshot().index() <= published && application.canResumeAt(published)) {
+            // The validated batch extends our published prefix. Rebuild privately from
+            // its current application cut, not from every historical operation again.
+            // This cut is only a materialization aid: durable authority, recovery floors
+            // and retained sources still use the original, fully validated image below.
+            var cut = new ReplicaSnapshot(manifest.digest(), image.anchors().subList(0, Math.toIntExact(published)),
+                    store.proofAt(published), application.snapshot(), manifest.baseSequence(), manifest.formatMinor());
+            require(cut.sequence() == application.sequence(), INTEGRITY_FAILURE, "published recovery prefix sequence mismatch");
+            materialization = new ReplicaRecoveryImage(cut,
+                    image.entries().stream().filter(entry -> entry.index() > published).toList(),
+                    image.proofs().stream().filter(proof -> proof.index() > published).toList());
+        }
+        try (var rebuilt = application.rebuild(materialization)) {
             boolean same = store.voter() && !store.damagedTail() && store.lastLogIndex() == image.index()
                     && store.commitIndex() == image.index() && store.snapshotIndex() == image.snapshot().index();
             event("BEFORE_RECOVERY_INSTALL", image.index());

@@ -97,6 +97,54 @@ The first member locks the order; the independent validator still requires all f
 The local remote-adapter gate now starts canonical 1 on an empty sequence ledger,
 while fake lifecycle tests exercise both complete orders and reject invalid prefixes.
 
+### Canonical incremental recovery after a long history
+
+[Canonical 1 run 35330186527](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35330186527)
+used source `298f60e2123e62952767a79cc1cad2931b5dc028` and the canonical-first
+sequence `4153d8755498447582028ab345e01edd`. Healthy (four 120-second windows) and
+sustained (6000 calls over 300 seconds) completed with zero missed slots. The
+third cell, unavailable, failed during node-3 catch-up: twelve completed
+`QUORUM_UNAVAILABLE` replies were followed by eight `CAPACITY_EXCEEDED` replies.
+The leader remained READY with write quorum at index 8511. This was neither the
+previous broken SSH stream nor the 5400-second topology deadline.
+
+Node-3 had already published index 8501, only ten entries behind. Incremental
+batch installation nevertheless rebuilt its application from the original
+snapshot and replayed the entire retained tail. The writer queue reached 28;
+the controller exhausted twenty attempts after about 31.5 seconds. Retained
+node-3 samples later reached index 8511 but remained CATCHING_UP, after the
+controller had already abandoned the public READY handshake.
+
+Incremental installation now builds its private application from the current
+published cut and replays only the missing entries when that state exactly
+matches intact committed local authority and has no unresolved prepared operation.
+The complete incoming history is still validated. The temporary application cut
+does not become a durable snapshot, advance a recovery floor or remove a retained
+source. The original recovery image is installed before publishing the new
+application. Missing, stale or unresolved application state still requires full
+reconstruction; snapshot installation retains its existing reconstruction path.
+
+The regression counts actual document decoding with 300 prior updates and a
+ten-entry gap split across three batches. It also checks publication after durable
+installation, the unchanged durable checkpoint, repeated catch-up, the next write
+with the recovered follower as the only available peer, and fallback for missing
+state or an unresolved private operation. The original implementation timed out
+in the long-history case; the optimized path completes without replaying the
+published prefix. Workload parameters, RPC deadlines, retry limits and budget
+ceilings are unchanged. Paid cloud validation of this correction remains pending.
+
+Local validation passed the full reactor package: 549 core tests (four skipped),
+168 replication tests and five processor tests. Phase 4 passed 17 recovery cases
+and six corruption cases; Phase 5 passed 16 hardening cases. The remote-adapter
+gate passed 31 Python tests, all fourteen real JVM cells and fifteen provenance
+rejection checks with the rebuilt production JARs.
+
+The failed run retained complete failure evidence, verified all thirteen resources
+absent and released its lease. Its USD 4.48 reservation remains in the append-only
+ledger, bringing cumulative reservations to USD 57.92 of USD 100. This sequence
+cannot continue; after merging the correction, use a fresh exact-source preparation
+and a new canonical-first sequence.
+
 ### SSH control stream hardening
 
 [Canonical 1 run 35319134654](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35319134654)
