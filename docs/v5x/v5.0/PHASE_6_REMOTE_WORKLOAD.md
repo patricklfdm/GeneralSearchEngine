@@ -67,6 +67,13 @@ replacement deterministic; deleting/recreating a local directory can reuse it.
 
 Each guest packs only its own node/generation namespace. Transfers use a bounded
 manifest, ordered parts of at most 32 MiB, checksums and exclusive extraction.
+The manifest and parts travel in one uncompressed ZIP per guest, so a small logical
+file does not require a separate SCP/IAP connection. The controller verifies the
+fixed guest archive path, byte count and SHA-256, then its exact flat inventory,
+regular-file types, stored (uncompressed) method, part sizes and hashes. Reassembly
+still uses the existing parts schema and verifies every logical file. The transport
+envelope is bounded by 4 GiB of part data, 16 MiB of manifest and 512 bytes per
+allowed archive entry; it is removed locally after successful verification.
 The complete retained workload stays within 4 GiB/2000 files. The Runner uploads
 the packed workload plus lifecycle/admission receipts with conditional GCS writes
 and read-back, including incomplete runs. Collection failure still permits resource
@@ -84,6 +91,47 @@ Set validation requires experiment, failure-drill and canonical repetitions 1–
 the same source and production artifacts, distinct ownership nonces, serial
 lifetimes, retained approval/budget receipts and verified cleanup for every member.
 A failed member remains a failed set. Baseline registration remains a separate 6D PR.
+
+### Per-part collection overhead correction
+
+[Experiment 35293055410](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35293055410)
+on source `2864b1425229851e8a942ca98fb02fef2d984654` passed all eight cells, including
+restart and maintenance with the amended recovery windows. Its independent
+controller timing check rejected the collection/cleanup tail: 915.465605794 seconds
+against the existing 600-second collection plus 300-second cleanup allocation.
+The lifecycle records all thirteen resources absent, retention VERIFIED and lease
+release. The USD 4.48 reservation remains: USD 31.04 cumulative, USD 68.96 available.
+
+The guest receipts contain 80/24/33 logical files, 76/23/32 nonempty binary parts
+and 10,632,414 / 2,387,246 / 1,870,778 logical bytes. The previous collector called
+SCP separately for each manifest and part: 77 + 24 + 33 = 134 transfers. Each call
+also performed ownership read-back and created a fresh gcloud/SCP/IAP session.
+The receipts do not isolate per-connection latency, but the code performed these
+134 serial transfers for less than 15 MB of logical evidence.
+
+[cloud_collection.py](../../../scripts/v50/cloud_collection.py) provides the bounded
+transport wrapper. The new collector uses three downloads for that same evidence.
+Guest identity, namespace, individual part and logical-file checks remain in force;
+compressed members, duplicate/unlisted/missing names, links, path traversal,
+inconsistent sizes and tampered bytes fail validation. Collection receipts record
+controller elapsed time and transfer count. Timing failures now report elapsed and
+allowed seconds. The frozen plan, measurement parameters and 900-second experiment
+tail allowance are unchanged.
+
+A local recheck repacked and reconstructed the exact retained guest evidence with
+all hashes preserved. The standalone cloud provenance and independent semantic
+stages also passed on the original immutable evidence: 1200 measured calls, 960
+durable successes, committed index 1165 and application sequence 1417. These checks
+do not override the timing failure or admit this sequence. A new cloud sequence
+still requires protected merge, exact-source CI and fresh preparation/admission.
+
+Validation: the original collector fails the new many-file regression with 101
+copy calls where the revised collector makes one. The 26 remote tests cover
+100 small parts, an empty logical file, a 33-MiB multi-part file, resealed archive
+counterexamples and retained timing limits. All 251 Python tests and the Foundation
+gate passed. The remote adapter gate passed all fourteen local JVM cells and
+fifteen provenance negatives using the existing built runtime. The archived cloud
+fault cadence checks also passed. The batch transfer has not yet run on GCP.
 
 ## Budget interpretation and admission
 

@@ -17,6 +17,7 @@ if __package__ in (None, ''):
     sys.path.insert(0, str(Path(__file__).resolve().parent / 'source-inputs'))
 from scripts.v50.cloud_common import canonical, read, require, save
 from scripts.v50.cloud_workload_io import inventory, pack, sha_file
+from scripts.v50.cloud_collection import archive_parts
 from scripts.v50.cloud_workload_plan import PLAN_SHA256, read_plan
 from scripts.v50 import cloud_guest, runtime_format, admission_format
 
@@ -169,7 +170,8 @@ class Guest:
                 if path.is_dir(): inventory(path, logical=True); shutil.copytree(path, dest)
                 else: shutil.copyfile(path, dest)
             manifest = pack(staging, output)
-            return dict(directory=str(output), manifest=manifest, manifestSha256=sha_file(output / 'parts.json'))
+            archive = archive_parts(output, output.with_suffix('.zip'))
+            return dict(directory=str(output), manifest=manifest, manifestSha256=sha_file(output / 'parts.json'), archive=archive)
         finally: shutil.rmtree(staging)
 
     def replay(self, endpoints):
