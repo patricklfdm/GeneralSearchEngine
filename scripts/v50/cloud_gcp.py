@@ -221,8 +221,11 @@ class Gcp:
     def ssh_args(self, instance):
         value = self.describe(instance)
         require(value and self.owns(value) and str(value['id']) == instance['id'], 'guest ownership')
+        # Canonical measurement windows leave the SSH control streams silent for
+        # 120/300 seconds. Keep the encrypted transport active without guest commands.
         return ['gcloud', 'compute', 'ssh', instance['name'], '--project=' + self.plan['project'], '--zone=' + self.plan['zone'],
-                '--tunnel-through-iap', '--ssh-key-file=' + str(self.ssh_key), '--quiet']
+                '--tunnel-through-iap', '--ssh-key-file=' + str(self.ssh_key), '--quiet',
+                '--ssh-flag=-oServerAliveInterval=15', '--ssh-flag=-oServerAliveCountMax=3']
 
     def ssh(self, instance, arguments, timeout=None):
         result = subprocess.run([*self.ssh_args(instance), '--command=' + shlex.join(arguments)], capture_output=True,

@@ -2,10 +2,12 @@
 import argparse
 import copy
 import json
+import os
 from pathlib import Path
 import shutil
 import stat
 import tempfile
+import time
 import unittest
 import warnings
 import zipfile
@@ -249,6 +251,53 @@ class RemoteTests(unittest.TestCase):
         worker.command('catchup',accepted=None,peer='node-3',response_timeout=.25)
         worker.send.assert_called_once_with('catchup',peer='node-3')
         worker.receive.assert_called_once_with(.25)
+
+    def disconnected_worker(self):
+        worker=RemoteWorker.__new__(RemoteWorker);worker.node=2;worker.generation=1
+        worker.probe=Mock(root=self.root,deadline=time.monotonic()+5)
+        worker.path=self.root/'members/node-2-1.json';worker.buffer=b''
+        worker.receipt=dict(exchanges=[])
+        worker.process=Mock();worker.process.poll.return_value=255
+        return worker
+
+    def test_broken_send_retains_node_command_and_indeterminate_exchange(self):
+        worker=self.disconnected_worker()
+        read_fd,write_fd=os.pipe();os.close(read_fd)
+        worker.process.stdin=os.fdopen(write_fd,'wb',buffering=0);self.addCleanup(worker.process.stdin.close)
+        with self.assertRaisesRegex(ValueError,'node-2.*configure.*send.*255'):
+            worker.command('configure',window='instrumented-a',enabled=True)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(len(saved['exchanges']),1)
+        self.assertEqual(saved['exchanges'][0]['outcome'],'indeterminate')
+        self.assertNotIn('response',saved['exchanges'][0])
+        self.assertEqual(saved['transportFailure']['errorType'],'BrokenPipeError')
+        self.assertEqual(saved['transportFailure']['stderr'],'members/node-2-1.stderr')
+        worker.process.wait.assert_not_called()
+
+    def test_lost_response_is_not_retried_or_changed_to_success(self):
+        worker=self.disconnected_worker()
+        read_fd,write_fd=os.pipe();os.close(write_fd)
+        worker.process.stdout=os.fdopen(read_fd,'rb');self.addCleanup(worker.process.stdout.close)
+        with self.assertRaisesRegex(ValueError,'node-2.*measure.*receive.*255'):
+            worker.command('measure',calls=1200,intervalNanos=100_000_000)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(saved['transportFailure']['phase'],'receive')
+        self.assertEqual(len(saved['exchanges']),1)
+        self.assertEqual(saved['exchanges'][0]['outcome'],'indeterminate')
+        self.assertNotIn('response',saved['exchanges'][0])
+        worker.process.stdin.write.assert_called_once()
+
+    def test_broken_pipe_flush_does_not_mask_owned_process_cleanup(self):
+        worker=self.disconnected_worker();worker.stderr=Mock()
+        worker.receipt.update(pid=1953,linuxStartTicks='93298')
+        worker.probe.guest.side_effect=[dict(pid=1953,startTicks='93298',status='EXITED'),dict(status='EXITED')]
+        worker.process.stdin.close.side_effect=BrokenPipeError(32,'Broken pipe')
+        worker.process.returncode=255
+        worker.close(killed=True)
+        saved=json.loads(worker.path.read_text())
+        self.assertEqual(saved['cleanup'],'reaped')
+        self.assertEqual(saved['transportExitCode'],255)
+        worker.process.stdout.close.assert_called_once();worker.stderr.close.assert_called_once()
 
     def test_full_admission_requires_executed_remote_gate(self):
         p=plan();req=workload_request('a'*40,1,1,'b'*64,'experiment','c'*32)

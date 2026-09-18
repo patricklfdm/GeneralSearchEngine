@@ -3,6 +3,9 @@ from copy import deepcopy
 import io
 import json
 from pathlib import Path
+import shlex
+import shutil
+import subprocess
 import tarfile
 import tempfile
 import time
@@ -314,6 +317,34 @@ class CloudRunnerTest(unittest.TestCase):
         self.assertEqual(body['scheduling']['maxRunDuration']['seconds'], '5400')
         self.assertEqual(body['scheduling']['instanceTerminationAction'], 'DELETE'); self.assertTrue(body['disks'][0]['autoDelete'])
         self.assertIn('requestId=' + row['requestId'], calls[0][1])
+
+    @unittest.skipUnless(shutil.which('ssh'), 'OpenSSH configuration parser required')
+    def test_private_ssh_keeps_silent_control_sessions_alive(self):
+        vm = dict(resources(self.plan, self.req)[-1], id='123')
+        api = Mock(); api.call.return_value = dict(id='123', labels={'gse-owner': self.req['owner']})
+        adapter = Gcp(self.plan, self.req, self.root, api=api, ssh_key=self.root/'ssh-key')
+        with patch('scripts.v50.cloud_gcp.subprocess.run', return_value=Mock(returncode=0, stdout=b'{}', stderr=b'')) as run, \
+                patch('scripts.v50.cloud_gcp.subprocess.Popen') as popen:
+            adapter.ssh(vm, ['python3', 'guest.py', 'measure'], timeout=930)
+            adapter.worker(vm, ['python3', 'guest.py', 'worker'], io.BytesIO())
+        self.assertEqual(api.call.call_count, 2)
+        self.assertEqual(run.call_args.kwargs['timeout'], 930)
+        for args in (run.call_args.args[0], popen.call_args.args[0]):
+            self.assertIn('--tunnel-through-iap', args)
+            flags = [part for arg in args if arg.startswith('--ssh-flag=')
+                     for part in shlex.split(arg.split('=', 1)[1])]
+            # Parse with OpenSSH itself: a misspelled or wrongly quoted option must fail.
+            parsed = subprocess.check_output(['ssh', '-G', '-F', '/dev/null', *flags, 'example.invalid'],
+                                             stderr=subprocess.DEVNULL, text=True)
+            config = dict(line.split(' ', 1) for line in parsed.splitlines())
+            interval, count = int(config['serveraliveinterval']), int(config['serveralivecountmax'])
+            self.assertTrue(0 < interval <= 15)
+            self.assertTrue(0 < count <= 3)
+        api.call.return_value['id'] = 'reused'
+        with patch('scripts.v50.cloud_gcp.subprocess.Popen') as popen:
+            with self.assertRaisesRegex(ValueError, 'guest ownership'):
+                adapter.worker(vm, ['python3', 'guest.py', 'worker'], io.BytesIO())
+            popen.assert_not_called()
 
     def test_real_evidence_rejects_fake_or_false_cleanup(self):
         from .cloud_evidence import validate

@@ -1,6 +1,6 @@
 # V5.0 remote workload execution and evidence
 
-- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). [Experiment 35300853722](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35300853722) passed complete cloud validation. [Failure-drill 35303805854](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35303805854) passed all eight cells and cleanup but failed final control-read validation; the verifier correction is documented below. Complete paid 6C evidence remains pending.
+- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). On source `bd7cbe52b93d334c21225999b8eb052af5efd870`, [experiment 35310278684](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35310278684) and [failure-drill 35312481714](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35312481714) passed complete cloud validation. [Canonical 1 run 35319134654](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35319134654) failed when a follower's SSH control stream disconnected during the first healthy window. Transport hardening is documented below. Complete paid 6C evidence remains pending.
 - **Branch:** `feat/v5.0-phase6-remote-workload`
 - **Starting master:** `a885bc7789a332525d3c375635ce35ce7bc15dec`
 - **Predecessor:** [PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161), [correction #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162), [exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
@@ -91,6 +91,50 @@ Set validation requires experiment, failure-drill and canonical repetitions 1–
 the same source and production artifacts, distinct ownership nonces, serial
 lifetimes, retained approval/budget receipts and verified cleanup for every member.
 A failed member remains a failed set. Baseline registration remains a separate 6D PR.
+
+### SSH control stream hardening
+
+[Canonical 1 run 35319134654](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35319134654)
+completed warmup and the first 120-second `baseline-a` window: 1200 measured calls,
+zero missed slots, committed index 1121 and application sequence 1376. The leader
+still had write quorum through node-3, but node-2 was unreachable. Sending node-2's
+next `configure` command raised `BrokenPipeError`; its SSH stderr records
+`client_loop: send disconnect: Broken pipe` and exit 255. The healthy cell failed
+before `instrumented-a`, so no complete canonical cell or topology passed.
+
+The retained evidence identifies the failed control connection, not the network
+hop or cause that closed it. In particular, it does not establish an IAP idle
+timeout: the [documented IAP inactivity limit](https://docs.cloud.google.com/iap/docs/using-tcp-forwarding#known_limitations)
+is one hour. The adapter previously left SSH keepalives disabled by default.
+Canonical windows leave control streams without application messages for 120 or
+300 seconds, longer than experiment's thirty-second healthy windows.
+
+Both one-shot and persistent private SSH commands now explicitly use
+`ServerAliveInterval=15` and `ServerAliveCountMax=3`, passed via
+[gcloud's SSH flags](https://docs.cloud.google.com/sdk/gcloud/reference/compute/ssh#--ssh-flag).
+[OpenSSH keepalives](https://man.openbsd.org/ssh_config#ServerAliveInterval)
+request responses through the encrypted connection; they add no workload commands,
+replication messages or samples. An unresponsive transport remains bounded, and
+the existing command/run deadlines, workload durations, rates and budgets remain
+in force. There is no reconnect or replay of an indeterminate mutation.
+
+Stream failures now retain node, generation, command, send/receive phase, transport
+exit code and the stderr artifact path in the member receipt and error message.
+Closing stdin after reaping a disconnected worker tolerates a repeated broken-pipe
+flush, preserving the original diagnostic and closing the remaining descriptors.
+Tests exercise real broken/EOF pipes, prohibit replay after a lost response and
+parse the effective keepalive options with OpenSSH for both SSH entry points.
+Foreign/reused VM identities still fail before starting SSH.
+
+Validation: all four new regressions fail against the previous implementation.
+All 257 Python tests and the Foundation gate pass after the change. The remote
+adapter gate passes 29 tests, all fourteen local JVM cells and fifteen provenance
+negatives using the existing built production runtime. No paid run was triggered.
+
+All thirteen resources were read back absent; retention was VERIFIED and the lease
+was released. The USD 4.48 reservation remains: USD 53.44 cumulative, USD 46.56
+available. The failed sequence is retained. This connection hardening still needs
+cloud qualification after protected merge, exact-source CI and fresh admission.
 
 ### Failure-drill control-read coverage correction
 
