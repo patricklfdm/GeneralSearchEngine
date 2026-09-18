@@ -1,6 +1,6 @@
 # V5.0 remote workload execution and evidence
 
-- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). Paid experiments passed healthy measurement but failed during follower catch-up. The latest [run 35241694135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35241694135) exercised the controller retries and exposed repeated application replay in the READY handshake; the runtime correction is documented below. Complete paid 6C evidence remains pending.
+- **Status:** Adapter accepted through [PR #163](https://github.com/patricklfdm/GeneralSearchEngine/pull/163). [Experiment 35300853722](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35300853722) passed complete cloud validation. [Failure-drill 35303805854](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35303805854) passed all eight cells and cleanup but failed final control-read validation; the verifier correction is documented below. Complete paid 6C evidence remains pending.
 - **Branch:** `feat/v5.0-phase6-remote-workload`
 - **Starting master:** `a885bc7789a332525d3c375635ce35ce7bc15dec`
 - **Predecessor:** [PR #161](https://github.com/patricklfdm/GeneralSearchEngine/pull/161), [correction #162](https://github.com/patricklfdm/GeneralSearchEngine/pull/162), [exact-master CI 35069706211](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35069706211)
@@ -92,6 +92,33 @@ the same source and production artifacts, distinct ownership nonces, serial
 lifetimes, retained approval/budget receipts and verified cleanup for every member.
 A failed member remains a failed set. Baseline registration remains a separate 6D PR.
 
+### Failure-drill control-read coverage correction
+
+[Failure-drill 35303805854](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35303805854)
+on source `80fff4c5f904bf036fc119e8208e857dadafad6b` passed all eight cells.
+Final verification raised `KeyError: 21` while checking a published V4 control GET.
+The candidate runs 200 warmup calls and reads keys 1–20; the control runs 1400 calls
+across warmup and four healthy windows and reads keys 1–140. The verifier incorrectly
+built control views using the candidate's smaller key set.
+
+Control replay now derives its GET keys from its own validated calls. The separate
+candidate proof replay, control schedule, publication brackets and answer-digest
+checks remain in force. Regression coverage exercises the full failure-drill
+control schedule and rejects forged answers for control-only keys 21 and 140.
+The valid regression reproduced `KeyError: 21` before the correction.
+All 253 Python tests and the Foundation gate pass with the correction.
+
+The corrected verifier passes the original immutable drill workload evidence,
+including cloud provenance, timing and all eight cells, with committed index 182
+and application sequence 430. The successful experiment's complete lifecycle
+evidence also still passes. The drill's collection/cleanup tail was 473.437159933
+seconds; its lifecycle confirms all fifteen resources absent, retention VERIFIED
+and lease release. Cumulative budget reservations are USD 40.00, leaving USD 60.00.
+
+This offline recheck does not amend the retained failed completion or sequence
+ledger. After protected merge and exact-source CI, a new sequence must start with
+experiment and receive fresh preparation/admission for each member.
+
 ### Per-part collection overhead correction
 
 [Experiment 35293055410](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35293055410)
@@ -131,7 +158,8 @@ copy calls where the revised collector makes one. The 26 remote tests cover
 counterexamples and retained timing limits. All 251 Python tests and the Foundation
 gate passed. The remote adapter gate passed all fourteen local JVM cells and
 fifteen provenance negatives using the existing built runtime. The archived cloud
-fault cadence checks also passed. The batch transfer has not yet run on GCP.
+fault cadence checks also passed. Subsequent experiment 35300853722 passed on GCP
+with one transfer per guest and a 458.854251357-second collection/cleanup tail.
 
 ## Budget interpretation and admission
 
