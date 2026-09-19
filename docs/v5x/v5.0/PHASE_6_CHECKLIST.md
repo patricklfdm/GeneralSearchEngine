@@ -1,6 +1,6 @@
 # V5.0 Phase 6 checklist
 
-- **Status:** Cloud execution and independent review complete; protected 6D registration pending.
+- **Status:** Cloud execution/review complete and registration merged in PR #179; exact-master CI acceptance pending.
 - **Measured source:** `340df06148bc7d5a25a29a55c3ee928c9472dd09`.
 - **Candidate baseline:** `v5.0.0-replicated-cloud`.
 
@@ -34,9 +34,10 @@
 - [x] Append-only registrar requires all five raw bundles and regenerates the reviewed metrics before writing.
 - [x] [Registry](cloud-benchmark-baselines.json) contains exactly one candidate entry bound to measured source and review digest.
 - [x] Registration counterexamples and tracked-registry integrity run in existing CI Python discovery.
-- [ ] Separate protected 6D review/registration PR merged, including acceptance of the disclosed administrative exception.
+- [x] Separate protected 6D review/registration PR #179 merged at `8f31d8589528e872db30de68df689cd458b107a9`, including the disclosed administrative exception.
 - [ ] Exact-master CI for the registration merge passed and its identity recorded.
 
-Phase 7 remains closed until the last two items are complete. This candidate PR
-changes evidence tooling and documentation; it introduces no production/runtime
-change and does not relabel the measured source as the future registration commit.
+Master CI `35420066938` failed the local 6A telemetry window check; its
+[correction](PHASE_6_LOCAL_PERFORMANCE.md#window-attribution-correction--2026-09-19-utc)
+must pass protected review and exact-master CI before Phase 7. The measured source
+and retained cloud baseline identities remain unchanged.

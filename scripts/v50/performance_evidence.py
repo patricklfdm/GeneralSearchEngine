@@ -227,7 +227,8 @@ def validate(root, expected_plan, *, cloud=False):
             f.check(configured['request'] == dict(command='configure', window=o['window'], enabled=enabled), 'telemetry configuration')
             start, end = configured['response']['startNanos'], captured['response']['endNanos']
             f.check(all(start <= v['startNanos'] < v['endNanos'] <= end for v in o['forces']) and
-                    all(start <= v['nanos'] <= end for v in o['events']), 'member observation window')
+                    all(start <= v['nanos'] <= end for v in o['events']),
+                    f"member observation window: {m['node']} / {o['window']}")
             f.check(o['enabled'] is enabled and len(o['forces']) <= 4096 and len(o['events']) <= 4096 and
                     0 <= o['wireAttempts'] <= 4096 and 0 <= o['encodedAttemptBytes'] <= 8 << 20, 'telemetry bounds')
             if not enabled:

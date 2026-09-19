@@ -232,3 +232,36 @@ has since been accepted through PR #158 and the
 [Workload/evidence implementation](PHASE_6_CLOUD_WORKLOAD.md) was accepted in PR #160
 with exact-master CI `35058372449`. The current candidate is
 [runner preset qualification](PHASE_6_RUNNER_PRESETS.md).
+
+## Window attribution correction — 2026-09-19 UTC
+
+After registration PR #179, master CI
+[35420066938](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35420066938)
+failed the 6A `member observation window` check. The retained node-2 PROOF force
+started at `698542272233` ns, before the instrumented-b configure command at
+`698563218998` ns, and ended at `698667962641` ns. A 125.690408-ms follower force
+crossed the boundary by 20.946765 ms. Clearing the observation lists did not clear
+the pending force's thread-local start timestamp; its callback subsequently added
+the old observation to the new window.
+
+The test-only `PerformanceTelemetry` collector now records a monotonic lower bound
+on every configure operation and excludes forces/events originating before that
+bound. This also covers disable/re-enable with the same window name and events
+delayed while acquiring the collector monitor. The independent validator retains
+its strict interval check and reports the offending node/window. No observation
+timestamp is clamped or shifted.
+
+Three deterministic Java regressions reproduce the old behavior and check that
+current-window samples remain recorded. The resealed evidence matrix adds a
+force-before-window case; valid checksums cannot make that observation acceptable.
+The frozen plans, production JARs and registered cloud evidence keep their original
+identities. The full cloud workload uses its separate streaming collector; this
+change corrects the local 6A collector, not the measured historical cloud result.
+
+Local correction validation: all three Java regressions failed before the fix and
+passed afterward. `verify-v50-phase6-performance.sh --skip-build` passed the real
+three-JVM probe (80 measured requests, 64 durable successes, committed index 73)
+and 21 resealed semantic negatives, including force-before-window. The seven
+Python evidence tests, registered-baseline digest check and documentation checks
+also passed. These are development receipts on the uncommitted correction;
+protected PR and exact-master acceptance are still required.

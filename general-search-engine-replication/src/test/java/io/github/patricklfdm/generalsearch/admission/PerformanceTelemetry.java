@@ -9,20 +9,24 @@ import java.util.*;
 public final class PerformanceTelemetry {
     private static boolean enabled;
     private static String window = "disabled";
+    private static long windowStartedNanos;
     private static final List<Object> FORCES = new ArrayList<>(), EVENTS = new ArrayList<>();
     private static long wireAttempts, encodedAttemptBytes;
     private PerformanceTelemetry() { }
     public static synchronized boolean enabled() { return enabled; }
     public static synchronized void configure(String name, boolean value) {
+        windowStartedNanos = System.nanoTime();
         window = name; enabled = value; FORCES.clear(); EVENTS.clear(); wireAttempts = 0; encodedAttemptBytes = 0;
     }
     public static synchronized void force(String kind, long start, long end) {
-        if (!enabled) return;
+        // A follower may finish an old force after configure clears the lists.
+        // Attribute only observations that began within the current window.
+        if (!enabled || start < windowStartedNanos) return;
         AdmissionJson.require(FORCES.size() < 4096, "force observation bound");
         FORCES.add(Map.of("kind", kind, "startNanos", start, "endNanos", end, "elapsedNanos", end - start));
     }
     public static synchronized void event(String name, long index, long now) {
-        if (!enabled) return;
+        if (!enabled || now < windowStartedNanos) return;
         AdmissionJson.require(EVENTS.size() < 4096, "event observation bound");
         EVENTS.add(Map.of("event", name, "index", index, "nanos", now));
     }
