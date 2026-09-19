@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud workload plan
 
-- **Status:** Plan accepted through PR #159; workload/evidence and runner preset qualification accepted; remote workload adapter candidate
+- **Status:** Plan accepted through PR #159; all five cloud members and independent review passed; 6D registration candidate
 - **Branch:** `docs/v5.0-phase6-cloud-workload-plan`
 - **Starting master:** `72137865f39535e8f41052b455bbfdd0e01be163`
 - **Predecessor:** [PR #158](https://github.com/patricklfdm/GeneralSearchEngine/pull/158), [exact-master CI 35051728286](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35051728286)
@@ -439,9 +439,9 @@ profiles abort at the first missed slot and retain its diagnostic record.
 - [x] Corpus, operation mix, rates, ordered cells, durations and resource/evidence budgets proposed.
 - [x] This documentation plan accepted through PR #159 and exact-master documentation CI `35053778177`.
 - [x] Cloud workload/evidence implementation accepted in PR #160 with exact-master full CI `35058372449` and 22 independent negative fixtures.
-- [ ] Runner preset integration accepted with local/fake and exact-source full CI.
-- [ ] Fresh admission, cloud setup and exact paid confirmation complete.
-- [ ] Experiment, failure-drill and three canonical repetitions independently accepted.
+- [x] Runner preset integration accepted with local/fake and exact-source full CI.
+- [x] Fresh admission, cloud setup and exact paid confirmation complete.
+- [x] Experiment, failure-drill and three canonical repetitions independently validate; protected acceptance is tracked in the [6D checklist](PHASE_6_CHECKLIST.md).
 - [ ] Baseline registration accepted; only then may Phase 7 begin.
 
 ## Validation scope

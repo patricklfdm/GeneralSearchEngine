@@ -42,8 +42,13 @@ was accepted in PR #154 with master CI `35020203126`.
 `836137aba672c010d0c7e3fc07bc194359543d9f`;
 [master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
 passed Steps A/B/C and Phase 1–5. The
-[Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) is now the documentation candidate
-for performance measurement and staged cloud evidence.
+[Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) led to the accepted local and
+remote evidence tooling. Source `340df06148bc7d5a25a29a55c3ee928c9472dd09` passed full
+CI `35384694759` and all five cloud members (49 cell executions). The
+[6D canonical review](docs/v5x/v5.0/PHASE_6_CANONICAL_REVIEW.md) records independent
+complete-set validation, performance observations and the authorized IAP retry
+exception. The [baseline registration](docs/v5x/v5.0/PHASE_6_BASELINE.md) is a
+candidate; protected merge and exact-master CI remain pending before Phase 7.
 
 ## v4.x completed development contract
 

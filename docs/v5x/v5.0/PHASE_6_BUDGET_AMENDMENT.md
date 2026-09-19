@@ -12,6 +12,13 @@ reservations, request identities and failed sequences remain recorded. Cleanup
 releases resource leases without refunding budget. The limit is a reservation
 guard, not an actual billing report or a provider-enforced spending cap.
 
+The subsequent user-authorized 2026-09-19 UTC IAP retry is an explicit
+administrative exception: one USD 4.48 reservation was removed with preserved
+before/after audit objects. The [6D review](PHASE_6_CANONICAL_REVIEW.md#failed-attempt-and-budget-exception)
+discloses the failed run and reports both USD 84.80 live reservations and USD 89.28
+gross allocations including that failure. It does not imply an automatic refund
+or change ordinary admission behavior.
+
 This amendment updates Foundation, 6A, runner and full-workload plans, Foundation
 and Runner summaries, admission boundaries and the independent five-topology
 validator. The VM/disk sizes, timing, measurement rates, fault matrix, cleanup,
