@@ -69,6 +69,13 @@ def negative_fixtures(source, output):
         return next(x['response']['measurement'] for x in m['exchanges'] if x['request']['command'] == 'measure')
     def telemetry(m):
         return next(x['response']['telemetry'] for x in m['exchanges'] if x['request']['command'] == 'telemetry' and x['response']['telemetry']['enabled'])
+    def force_before_window(m):
+        observed = telemetry(m)
+        configured = next(x for x in m['exchanges'] if x['request']['command'] == 'configure' and
+                          x['request']['window'] == observed['window'])
+        force = observed['forces'][0]
+        force['startNanos'] = configured['response']['startNanos'] - 1
+        force['elapsedNanos'] = force['endNanos'] - force['startNanos']
     cases = {
         'fake-provenance': lambda p: change_json(p / 'set.json', lambda v: v.update(execution='fake')),
         'cloud-relabel': lambda p: change_json(p / 'set.json', lambda v: v.update(execution='gcp')),
@@ -81,6 +88,7 @@ def negative_fixtures(source, output):
         'reused-pid': lambda p: change_json(p / 'members/node-3.json', lambda v: v.update(pid=e.read(p / 'members/node-1.json')['pid'])),
         'false-cleanup': lambda p: leader(p, lambda v: v.update(cleanup='still-running')),
         'missing-force': lambda p: leader(p, lambda v: telemetry(v)['forces'].pop()),
+        'force-before-window': lambda p: leader(p, force_before_window),
         'success-before-proof': lambda p: leader(p, lambda v: telemetry(v)['events'].__setitem__(0, dict(event='BEFORE_CLIENT_SUCCESS', index=26, nanos=1))),
         'wrong-control-source': lambda p: change_json(p / 'control.json', lambda v: v['result']['identity'].update(coreSource=e.read(p / 'metadata.json')['jars']['core']['path'])),
         'mixed-artifacts': lambda p: change_json(p / 'metadata.json', lambda v: v['jars']['core'].update(sha256=v['jars']['control']['sha256'])),
