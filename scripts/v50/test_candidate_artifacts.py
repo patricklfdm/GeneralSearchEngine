@@ -4,6 +4,8 @@ import tempfile
 import unittest
 import json
 import hashlib
+import io
+import tarfile
 from pathlib import Path
 
 from scripts.v50.candidate_artifacts import (
@@ -15,11 +17,34 @@ from scripts.v50.candidate_artifacts import (
     write_from_evidence,
 )
 from scripts.v50.canonical_reproducibility import (
-    ARTIFACTS, JARS, ReproducibilityError, validate_record, write_record,
+    ARTIFACTS, JARS, ReproducibilityError, git_source_mode, validate_record, write_record,
 )
 
 
 class CandidateArtifactsTest(unittest.TestCase):
+    def test_local_read_write_modes_do_not_change_source_archive_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            source = Path(temporary) / "Source.java"
+            source.write_text("class Source {}\n")
+            archives = []
+            for mode in (0o600, 0o640, 0o644, 0o664):
+                source.chmod(mode)
+                buffer = io.BytesIO()
+                with tarfile.open(fileobj=buffer, mode="w") as archive:
+                    archive.add(source, arcname=source.name, filter=git_source_mode)
+                archives.append(buffer.getvalue())
+            self.assertEqual(1, len(set(archives)))
+            with tarfile.open(fileobj=io.BytesIO(archives[0])) as archive:
+                member = archive.getmember(source.name)
+                self.assertEqual(0o644, member.mode)
+                self.assertEqual(source.read_bytes(), archive.extractfile(member).read())
+
+    def test_source_archive_preserves_git_executable_bit(self) -> None:
+        for mode in (0o700, 0o750, 0o755, 0o775):
+            member = tarfile.TarInfo("mvnw")
+            member.mode = mode
+            self.assertEqual(0o755, git_source_mode(member).mode)
+
     def _capture(self, root: Path) -> Path:
         root.mkdir()
         for name in ARTIFACTS:

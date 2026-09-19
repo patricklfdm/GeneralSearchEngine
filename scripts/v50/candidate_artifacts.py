@@ -62,7 +62,9 @@ def validate_hashes(expected: dict[str, str], actual: dict[str, str]) -> None:
     differences = sorted(name for name in JARS if actual[name] != expected[name])
     if differences:
         raise CandidateArtifactError(
-            "candidate artifact hashes differ: " + ",".join(differences))
+            "candidate artifact hashes differ: " + "; ".join(
+                f"{name} (expected={expected[name]}, actual={actual[name]})"
+                for name in differences))
 
 
 def validate_evidence(manifest: Path, bundle: Path) -> dict[str, str]:

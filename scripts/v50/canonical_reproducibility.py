@@ -8,6 +8,7 @@ import hashlib
 import json
 import re
 import sys
+import tarfile
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,12 @@ ARTIFACTS = JARS | POMS
 
 class ReproducibilityError(ValueError):
     """Canonical build evidence is absent, malformed, or not reproducible."""
+
+
+def git_source_mode(member: tarfile.TarInfo) -> tarfile.TarInfo:
+    """Keep Git's executable bit, not untracked local read/write permissions."""
+    member.mode = 0o755 if member.mode & 0o100 else 0o644
+    return member
 
 
 def sha256(path: Path) -> str:

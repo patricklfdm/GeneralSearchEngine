@@ -15,7 +15,7 @@ NS = {"m": "http://maven.apache.org/POM/4.0.0"}
 class Phase7ReleaseFixtureTest(unittest.TestCase):
     def test_toolchain_and_nine_jar_inventory_are_frozen(self):
         path = ROOT / "docs/v5x/v5.0/release-toolchain.json"
-        self.assertEqual("c05a038b3cb73adaf12c7298871dd0409770bf0a0611795f25acd3dc81c1b087",
+        self.assertEqual("3433c725214836f80412ca86f3a0abbc448f6a47f4bfe88a4a23aed45d9a3390",
                          hashlib.sha256(path.read_bytes()).hexdigest())
         self.assertEqual(9, validate(path)["canonicalJarCount"])
         self.assertEqual("5.0.0", VERSION)

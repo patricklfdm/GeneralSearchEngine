@@ -25,6 +25,7 @@
 
 - [x] Two independent clean temporary workspaces under the pinned canonical image produced identical nine-JAR/three-POM bytes.
 - [x] [Candidate hashes](candidate-artifacts.sha256) derived from the canonical receipt.
+- [x] [Source-permission correction](RELEASE_CHECKLIST.md#source-permission-correction) makes working-tree captures match Git checkout modes; candidate byte checks remain strict.
 - [x] Full reactor tests (728 discovered, four existing published-baseline-dependent skips), strict Javadocs and nine-JAR artifact inspection pass at final coordinates.
 - [x] V1–V5 independent consumers pass in an isolated Maven repository; frozen source/reflection API and published API compatibility pass. Published comparisons use a fresh repository, excluding locally installed historical versions.
 - [x] V5 Python evidence/release discovery passed 288 tests. After the barrier fix, all four bound Java suites and all 21 public-runtime process cases passed; Phase 6A passed 80 measured calls, 64 durable successes and 21 semantic negatives.

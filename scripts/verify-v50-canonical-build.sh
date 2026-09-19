@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+umask 0022
 
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root"
@@ -102,6 +103,7 @@ else
     "$python_command" - "$work_root/source.tar" <<'PY'
 import subprocess, sys, tarfile
 from pathlib import Path
+from scripts.v50.canonical_reproducibility import git_source_mode
 names = sorted(set(subprocess.check_output(
     ['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard']).split(b'\0')) - {b''})
 with tarfile.open(sys.argv[1], 'w') as archive:
@@ -111,7 +113,7 @@ with tarfile.open(sys.argv[1], 'w') as archive:
             continue  # Tracked deletion in the candidate.
         if not path.is_file() or path.is_symlink():
             raise ValueError('source member must be a regular file: ' + str(path))
-        archive.add(path, arcname=str(path), recursive=False)
+        archive.add(path, arcname=str(path), recursive=False, filter=git_source_mode)
 PY
 fi
 tar -xf "$work_root/source.tar" -C "$work_root/one"

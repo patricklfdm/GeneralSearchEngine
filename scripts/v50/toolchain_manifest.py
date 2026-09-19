@@ -97,6 +97,7 @@ def validate(path: Path) -> dict[str, object]:
     if environment.get("locale") != "C.UTF-8" \
             or environment.get("timezone") != "UTC" \
             or environment.get("umask") != "0022" \
+            or environment.get("sourceFileModes") != "git-0644-or-0755" \
             or environment.get("cleanWorkspace") is not True:
         raise ToolchainError("canonical environment is incomplete")
     if environment.get("outputTimestamp") != "2026-09-19T00:00:00Z" or any(
