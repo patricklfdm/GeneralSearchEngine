@@ -101,5 +101,8 @@ CI `35384694759`. Three canonical repetitions, experiment and failure-drill now
 pass all 49 cell executions and independent complete-set validation. The
 [6D review](v5.0/PHASE_6_CANONICAL_REVIEW.md) records measurements, cleanup, retention
 and the user-authorized pre-candidate IAP rollback. The
-[registration checklist](v5.0/PHASE_6_CHECKLIST.md) keeps protected merge and
-exact-master acceptance open; Phase 7 begins after those gates.
+[registration checklist](v5.0/PHASE_6_CHECKLIST.md) is closed by PR #179/#180 and
+exact-master CI `35421934224` at `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`.
+[Phase 7](v5.0/PHASE_7_CHECKLIST.md) prepares final `5.0.0` coordinates and nine
+canonical JARs. [Migration guidance](v5.0/MIGRATION_GUIDE.md) and the
+[release checklist](v5.0/RELEASE_CHECKLIST.md) keep Phase 8 publication explicit.

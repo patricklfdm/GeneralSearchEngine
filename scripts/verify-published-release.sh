@@ -45,6 +45,9 @@ gpg --batch --yes --dearmor --output "$gpg_home/pubring.gpg" \
 group_path=io/github/patricklfdm
 repository=https://repo1.maven.org/maven2
 artifacts=(general-search-engine general-search-engine-processor)
+if [[ "$version" == 5.* ]]; then
+    artifacts+=(general-search-engine-replication)
+fi
 for artifact in "${artifacts[@]}"; do
     base="$artifact-$version"
     base_url="$repository/$group_path/$artifact/$version"
@@ -78,12 +81,27 @@ manifest_version() {
         | tail -n 1
 }
 
-for jar_file in "$core_jar" "$processor_jar"; do
+for artifact in "${artifacts[@]}"; do
+    jar_file="$download_dir/$artifact-$version.jar"
     if [[ "$(manifest_version "$jar_file")" != "$version" ]]; then
         echo "published manifest version mismatch: $jar_file" >&2
         exit 1
     fi
 done
+if [[ "$version" == 5.0.0 ]]; then
+    # The flat candidate directory is deliberately exact: no POMs, signatures,
+    # checksums or extra JARs can hide a missing canonical member.
+    mkdir "$verification_root/candidate-jars"
+    for artifact in "${artifacts[@]}"; do
+        for suffix in '' -sources -javadoc; do
+            cp "$download_dir/$artifact-$version$suffix.jar" "$verification_root/candidate-jars/"
+        done
+    done
+    (
+        cd "$project_dir"
+        python3 -m scripts.v50.candidate_artifacts validate-directory "$verification_root/candidate-jars"
+    )
+fi
 if jar tf "$core_jar" | grep -Fxq "$service_entry"; then
     echo "published core JAR contains processor service entry" >&2
     exit 1
@@ -123,4 +141,13 @@ else
     consumer_summary="clean V3 consumer"
 fi
 
-echo "Published release verification: PASS (8 artifacts, signatures, SHA-1 files, and $consumer_summary)"
+if [[ "$version" == 5.* ]]; then
+    for consumer in v1 v2 v5; do
+        "$project_dir/mvnw" --batch-mode --no-transfer-progress \
+            -Dmaven.repo.local="$maven_repo" \
+            -f "$project_dir/compatibility/$consumer-style-consumer/pom.xml" \
+            -Dgse.version="$version" clean test
+    done
+    consumer_summary="clean V1 through V5 consumers"
+fi
+echo "Published release verification: PASS ($((${#artifacts[@]} * 4)) artifacts, signatures, SHA-1 files, and $consumer_summary)"

@@ -22,26 +22,20 @@ under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available fro
 Maven Central.
 The complete document map is available in [`docs/README.md`](docs/README.md).
 
-V5 Phase 5 is accepted through [PR #150](https://github.com/patricklfdm/GeneralSearchEngine/pull/150)
-and [exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/34956076066).
-The `5.0.0-SNAPSHOT` internal runtime includes shutdown, bounded admission and recovery
-hardening under deterministic network faults and repeated process crashes. The
-[public-admission contract](docs/v5x/v5.0/PUBLIC_ADMISSION_CONTRACT.md) was accepted in PR #151;
-[Step A declarations and 1.1 fixtures](docs/v5x/v5.0/PUBLIC_ADMISSION_FOUNDATION.md) were accepted in PR #153.
-[Step B offline authority](docs/v5x/v5.0/PUBLIC_ADMISSION_OFFLINE_AUTHORITY.md) now implements
-typed bootstrap, resume, cleanup and non-voting replacement and was accepted in PR #154.
-[Step C public runtime](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md) was accepted through
-[PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155) and
-[exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266),
-including sealed startup, explicit activation/recovery, local checkpoint and V4 backup.
-The [Phase 6 entry plan](docs/v5x/v5.0/PHASE_6_ENTRY_PLAN.md) was accepted in PR #156.
-[6A local performance and evidence](docs/v5x/v5.0/PHASE_6_LOCAL_PERFORMANCE.md) was accepted in PR #157.
-[6B cloud runner and preflight](docs/v5x/v5.0/PHASE_6_CLOUD_RUNNER.md) was accepted in PR #158.
-The [full cloud workload plan](docs/v5x/v5.0/PHASE_6_CLOUD_WORKLOAD_PLAN.md) was accepted in PR #159.
-[Cloud workload and independent evidence](docs/v5x/v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160.
-The current candidate is [runner preset qualification](docs/v5x/v5.0/PHASE_6_RUNNER_PRESETS.md);
-remote integration and paid admission remain pending.
-See the [V5 development line](docs/v5x/README.md).
+V5.0 is now a `5.0.0` release candidate. It adds an optional replication artifact
+with exactly three fixed voters, a configured leader, durable quorum commit proof,
+explicit activation, catch-up and recovery. Existing in-memory and single-node
+APIs remain opt-in and retain the published V4.4 search semantics. The public
+bootstrap/lifecycle API and all five Phase 6 cloud members are accepted; the
+[registered baseline](docs/v5x/v5.0/PHASE_6_BASELINE.md) covers 49 successful scenario
+executions under the documented workload.
+
+The [Phase 7 checklist](docs/v5x/v5.0/PHASE_7_CHECKLIST.md) tracks final coordinates,
+consumers, compatibility and nine reproducible JARs. Publication remains Phase 8;
+`4.4.0` is still the version available to stable users. See the
+[4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md),
+[public runtime semantics](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md), and
+[V5 development line](docs/v5x/README.md).
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the

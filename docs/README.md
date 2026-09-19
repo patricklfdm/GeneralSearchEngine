@@ -46,6 +46,12 @@ remains the phase history and decision source of truth.
 - [V5.0 cloud baseline registry](v5x/v5.0/cloud-benchmark-baselines.json)
 - [V5.0 public-admission 1.1 byte specification](v5x/v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 
+- [V4.4-to-V5.0 migration guide](v5x/v5.0/MIGRATION_GUIDE.md)
+- [V5.0 Phase 7 release-candidate checklist](v5x/v5.0/PHASE_7_CHECKLIST.md)
+- [V5.0 release and publication checklist](v5x/v5.0/RELEASE_CHECKLIST.md)
+- [V5.0 canonical toolchain](v5x/v5.0/release-toolchain.json)
+- [V5.0 candidate JAR hashes](v5x/v5.0/candidate-artifacts.sha256)
+
 ## v4.x — completed durable single-node development line
 
 - [Development overview and authority map](v4x/README.md)
