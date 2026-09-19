@@ -167,15 +167,21 @@ start until the preceding topology's resource deletion is verified.
 
 ## Admission sequence
 
-No paid run occurs during Phases 0 or 1. Phase 6 paid execution requires, in order:
+No paid run occurs during Phases 0 or 1. Phase 6 paid execution requires:
 
 1. exact-master CI;
 2. local model and process matrices;
 3. production probe smoke evidence;
 4. fake-cloud profile/set validation;
 5. WIF/IAM/quota/image dry-run;
-6. one experiment topology;
+6. one experiment topology before its failure-drill;
 7. one failure-drill topology;
-8. three canonical topology repetitions;
+8. three canonical topology repetitions, either all before experiment/drill or all
+   after them, following the locked [execution-order amendment](PHASE_6_RUNNER_PRESETS.md#execution-order-amendment--2026-09-18);
 9. independent member/set validation and cleanup proof; and
 10. append-only baseline registration through a separate protected PR.
+
+The [Phase 6D review](PHASE_6_CANONICAL_REVIEW.md) records the five passing cloud
+members, independently reproduced measurements and the retained audit of the
+user-authorized pre-candidate IAP retry. Registration merge and exact-master
+acceptance remain tracked in the [Phase 6 checklist](PHASE_6_CHECKLIST.md).

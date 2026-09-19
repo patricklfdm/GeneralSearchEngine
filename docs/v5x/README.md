@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence, runner presets and remote adapter accepted; 6C configuration/readiness in progress
+- **Status:** Phase 6 cloud execution and independent five-member review passed; 6D baseline registration candidate, protected merge pending
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -55,6 +55,10 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 6 runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md)
 - [V5.0 Phase 6 remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md)
 - [V5.0 Phase 6C cloud setup and readiness](v5.0/PHASE_6_CLOUD_SETUP.md)
+- [V5.0 Phase 6 cloud baseline](v5.0/PHASE_6_BASELINE.md)
+- [V5.0 Phase 6 canonical review](v5.0/PHASE_6_CANONICAL_REVIEW.md)
+- [V5.0 Phase 6 checklist](v5.0/PHASE_6_CHECKLIST.md)
+- [V5.0 cloud baseline registry](v5.0/cloud-benchmark-baselines.json)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -91,7 +95,11 @@ with exact-master full CI `35058372449`.
 PR #161/#162 and exact-master CI `35069706211`.
 [Remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md) was accepted
 through PR #163 and exact-master CI `35079404376`. Setup/preflight was accepted
-through PR #164 and exact-master CI `35089239868`. [6C configuration and readiness](v5.0/PHASE_6_CLOUD_SETUP.md)
-now includes applied cloud configuration and an isolated cleanup workflow candidate;
-new-source scheduled execution, fresh preflight and paid evidence remain pending.
-Paid admission and cloud performance acceptance remain pending.
+through PR #164 and exact-master CI `35089239868`. Subsequent runner corrections
+culminated in measured source `340df06148bc7d5a25a29a55c3ee928c9472dd09`, with full
+CI `35384694759`. Three canonical repetitions, experiment and failure-drill now
+pass all 49 cell executions and independent complete-set validation. The
+[6D review](v5.0/PHASE_6_CANONICAL_REVIEW.md) records measurements, cleanup, retention
+and the user-authorized pre-candidate IAP rollback. The
+[registration checklist](v5.0/PHASE_6_CHECKLIST.md) keeps protected merge and
+exact-master acceptance open; Phase 7 begins after those gates.

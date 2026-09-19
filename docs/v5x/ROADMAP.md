@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 5 and public-admission Steps A/B/C accepted; Phase 6 entry plan, 6A/6B, workload/evidence and runner preset qualification accepted; remote workload adapter candidate
+- **Status:** Phase 6 cloud execution and independent review passed; 6D baseline registration candidate
 - **Reference:** published `4.4.0`
 
 ## Version sequence
@@ -69,8 +69,10 @@ with exact-master documentation CI `35053778177` passing.
 [Cloud workload and evidence](v5.0/PHASE_6_CLOUD_WORKLOAD.md) were accepted in PR #160
 with exact-master full CI `35058372449`.
 [Runner preset qualification](v5.0/PHASE_6_RUNNER_PRESETS.md) was accepted through
-PR #161/#162 and exact-master CI `35069706211`. The current candidate is
-[remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md). Remaining
-work includes staged experiment/failure/canonical runs, independent
-review and append-only baseline registration. Local correctness acceptance alone
-does not establish cloud performance or current paid-run readiness.
+PR #161/#162 and exact-master CI `35069706211`.
+[Remote workload execution and evidence](v5.0/PHASE_6_REMOTE_WORKLOAD.md) was
+accepted through PR #163. The measured source `340df06148bc7d5a25a29a55c3ee928c9472dd09`
+passed full CI `35384694759`, three canonical repetitions, experiment and failure-drill.
+The [6D review](v5.0/PHASE_6_CANONICAL_REVIEW.md) and independent complete-set validation
+are complete. Protected review of the append-only registration and its exact-master
+CI remain the final [Phase 6 gates](v5.0/PHASE_6_CHECKLIST.md).

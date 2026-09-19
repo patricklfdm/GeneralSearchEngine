@@ -40,6 +40,10 @@ remains the phase history and decision source of truth.
 - [V5.0 public-admission Step C public runtime](v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md)
 - [V5.0 Phase 6 performance and cloud entry plan](v5x/v5.0/PHASE_6_ENTRY_PLAN.md)
 - [V5.0 Phase 6A local performance and evidence](v5x/v5.0/PHASE_6_LOCAL_PERFORMANCE.md)
+- [V5.0 Phase 6 cloud baseline](v5x/v5.0/PHASE_6_BASELINE.md)
+- [V5.0 Phase 6 canonical review](v5x/v5.0/PHASE_6_CANONICAL_REVIEW.md)
+- [V5.0 Phase 6 checklist](v5x/v5.0/PHASE_6_CHECKLIST.md)
+- [V5.0 cloud baseline registry](v5x/v5.0/cloud-benchmark-baselines.json)
 - [V5.0 public-admission 1.1 byte specification](v5x/v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 
 ## v4.x — completed durable single-node development line

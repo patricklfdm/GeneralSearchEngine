@@ -1,6 +1,6 @@
 # V5.0 Phase 6 performance and cloud entry plan
 
-- **Status:** Accepted through PR #156; 6A/6B, workload/evidence and runner preset qualification accepted; remote workload adapter candidate
+- **Status:** Accepted through PR #156; 6A–6C executed and independently validated; 6D registration candidate
 - **Branch:** `docs/v5.0-phase6-entry-plan`
 - **Starting master:** `836137aba672c010d0c7e3fc07bc194359543d9f`
 - **Predecessor:** [Step C, PR #155](https://github.com/patricklfdm/GeneralSearchEngine/pull/155), [exact-master CI 35031124266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35031124266)
@@ -67,9 +67,10 @@ PR #161/#162 and exact-master CI `35069706211`.
 [Remote workload execution and cloud evidence validation](PHASE_6_REMOTE_WORKLOAD.md)
 was accepted through PR #163 and exact-master CI `35079404376`.
 [6C configuration and readiness](PHASE_6_CLOUD_SETUP.md) now follows setup/preflight
-acceptance in PR #164. Cloud configuration has been applied; the isolated cleanup
-workflow still needs merge, full exact-source CI, scheduled execution and a fresh
-service-account preflight before manually triggered cloud experiments.
+acceptance in PR #164. Cloud configuration and cleanup admission were subsequently
+accepted. All five cloud members from source `340df06148bc7d5a25a29a55c3ee928c9472dd09`
+now pass; see the [6D review](PHASE_6_CANONICAL_REVIEW.md), including its disclosed
+administrative retry exception, and [registration checklist](PHASE_6_CHECKLIST.md).
 The accepted 6A plan freezes the exact local workload parameters and
 evidence limits before timings become comparable. Optimization is evidence-driven:
 any production change receives its own correctness/compatibility review and reruns
@@ -228,8 +229,8 @@ remaining-budget admission, with the failed attempt still visible.
 - [x] Full cloud workload plan accepted through PR #159 and exact-master documentation CI `35053778177`.
 - [x] Local workload/evidence and runner preset qualification accepted through PR #160–#162 and exact-master CI.
 - [x] Remote workload/evidence and complete runner integration accepted through PR #163 and exact-master CI `35079404376`.
-- [ ] Exact-source preflights and explicit paid-run confirmation recorded.
-- [ ] Experiment, failure-drill and all three canonical repetitions pass with cleanup.
+- [x] Exact-source preflights and explicit paid-run confirmation recorded.
+- [x] Experiment, failure-drill and all three canonical repetitions pass with cleanup; see [6D review](PHASE_6_CANONICAL_REVIEW.md).
 - [ ] Independent member/set review and append-only baseline registration accepted.
 
 Phase 7 begins only after the final Phase 6 gate. Phase 6 introduces no election,
