@@ -1,9 +1,9 @@
 # GeneralSearchEngine development roadmap
 
-## v5.x candidate replicated single-shard development contract
+## v5.x replicated single-shard development contract
 
 Published `4.4.0` is the exact V5 compatibility and failure-classification reference.
-The V5 candidate lifts authority from one local durable owner to one replicated
+Published V5.0 lifts authority from one local durable owner to one replicated
 single-shard group without changing frozen V4.4 search truth. V5.0 is deliberately a
 configured-leader replication-correctness foundation: exactly three fixed voters,
 quorum-persisted epoch fencing, quorum durable entry plus commit proof, leader-only
@@ -47,11 +47,17 @@ remote evidence tooling. Source `340df06148bc7d5a25a29a55c3ee928c9472dd09` passe
 CI `35384694759` and all five cloud members (49 cell executions). The
 [6D canonical review](docs/v5x/v5.0/PHASE_6_CANONICAL_REVIEW.md) records independent
 complete-set validation, performance observations and the authorized IAP retry
-exception. The [baseline registration](docs/v5x/v5.0/PHASE_6_BASELINE.md) is a
-registered through PR #179; PR #180 corrected a local telemetry race, and full
+exception. The [baseline registration](docs/v5x/v5.0/PHASE_6_BASELINE.md) was
+accepted through PR #179; PR #180 corrected a local telemetry race, and full
 exact-master CI `35421934224` passed at `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`.
-[Phase 7](docs/v5x/v5.0/PHASE_7_CHECKLIST.md) prepares final `5.0.0` coordinates,
-compatibility, consumers and nine canonical JARs. Publication remains Phase 8.
+[Phase 7](docs/v5x/v5.0/PHASE_7_CHECKLIST.md) finalized `5.0.0` coordinates and
+nine canonical JARs through PR #181 at `e6afb5349c018fe163d4938d7637a4de8854d4ea`;
+exact-master CI `35427118768` passed. [Phase 8](docs/v5x/v5.0/RELEASE_CHECKLIST.md)
+is complete: signed tag `v5.0.0`, release workflow `35428718030`, Central deployment
+`94651c88-9730-42c1-980c-40bccc0ece6c`, GitHub deployment `6538377881`, and
+GitHub Release `391984253` are reconciled. All twelve published files pass signature/
+checksum validation, all nine JAR hashes match the canonical candidate, and fresh
+V1–V5 consumers pass. The V5.1 automated-leadership boundary remains planned.
 
 ## v4.x completed development contract
 
@@ -456,10 +462,10 @@ through protected PR #142 as `c9f77d2`; exact-master CI `34892824621` passed. Ph
 passed. Phase 8 published and independently reconciled the exact accepted commit as
 described above.
 
-## v4.4.0 current stable release
+## v4.4.0 published single-node baseline
 
-Version `4.4.0` was published on September 14, 2026 Pacific time as the current
-stable release:
+Version `4.4.0` was published on September 14, 2026 Pacific time and remains the
+frozen single-node compatibility baseline for V5.0:
 
 - `io.github.patricklfdm:general-search-engine:4.4.0`;
 - `io.github.patricklfdm:general-search-engine-processor:4.4.0`; and
@@ -470,8 +476,8 @@ guarantee while closing the single-node durable line with zero production Java
 change, the ten-family final matrix, paired published-4.3 cloud evidence and exact
 canonical/Central artifact identity. It does not add `(1,3)`, repair, salvage,
 online/reverse migration, replication, sharding, consensus, remote live storage or a
-third artifact. Published `4.3.0` remains the immediate prior stable release and
-fast-reopen compatibility baseline; V5 owns any new architecture boundary.
+third artifact. Published `4.3.0` is V4.4's immediate predecessor and fast-reopen
+compatibility baseline; V5 owns the replication architecture boundary.
 
 ## v4.0 completed development contract
 

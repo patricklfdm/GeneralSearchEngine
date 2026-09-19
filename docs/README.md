@@ -50,7 +50,9 @@ remains the phase history and decision source of truth.
 - [V5.0 Phase 7 release-candidate checklist](v5x/v5.0/PHASE_7_CHECKLIST.md)
 - [V5.0 release and publication checklist](v5x/v5.0/RELEASE_CHECKLIST.md)
 - [V5.0 canonical toolchain](v5x/v5.0/release-toolchain.json)
-- [V5.0 candidate JAR hashes](v5x/v5.0/candidate-artifacts.sha256)
+- [V5.0 published JAR hashes](v5x/v5.0/candidate-artifacts.sha256)
+- [V5.0 release notes](v5x/v5.0/RELEASE_NOTES.md)
+- [V5.0 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
 
 ## v4.x — completed durable single-node development line
 

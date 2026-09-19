@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** Phase 6 cloud execution and independent five-member review passed; 6D baseline registration candidate, protected merge pending
+- **Status:** V5.0 published and independently verified; Phases 0–8 complete
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -59,6 +59,9 @@ hardening. Sharding and distributed query are not V5 work.
 - [V5.0 Phase 6 canonical review](v5.0/PHASE_6_CANONICAL_REVIEW.md)
 - [V5.0 Phase 6 checklist](v5.0/PHASE_6_CHECKLIST.md)
 - [V5.0 cloud baseline registry](v5.0/cloud-benchmark-baselines.json)
+- [V5.0 Phase 7 acceptance](v5.0/PHASE_7_CHECKLIST.md)
+- [V5.0 release reconciliation](v5.0/RELEASE_CHECKLIST.md)
+- [V5.0 release notes](v5.0/RELEASE_NOTES.md)
 - [V5.0 public-admission 1.1 byte specification](v5.0/PUBLIC_ADMISSION_FORMAT_1_1.md)
 - [Published V4.4 to V5 handoff](../v4x/v4.4/V5_HANDOFF.md)
 
@@ -103,6 +106,10 @@ pass all 49 cell executions and independent complete-set validation. The
 and the user-authorized pre-candidate IAP rollback. The
 [registration checklist](v5.0/PHASE_6_CHECKLIST.md) is closed by PR #179/#180 and
 exact-master CI `35421934224` at `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`.
-[Phase 7](v5.0/PHASE_7_CHECKLIST.md) prepares final `5.0.0` coordinates and nine
-canonical JARs. [Migration guidance](v5.0/MIGRATION_GUIDE.md) and the
-[release checklist](v5.0/RELEASE_CHECKLIST.md) keep Phase 8 publication explicit.
+[Phase 7](v5.0/PHASE_7_CHECKLIST.md) was accepted through PR #181 at
+`e6afb5349c018fe163d4938d7637a4de8854d4ea`, with exact-master CI `35427118768`.
+Phase 8 published signed tag `v5.0.0` through workflow `35428718030`; all twelve
+published files pass signature/checksum verification, all nine canonical JAR hashes
+match Central, and clean V1–V5 consumers pass. See the
+[migration guide](v5.0/MIGRATION_GUIDE.md), [release checklist](v5.0/RELEASE_CHECKLIST.md)
+and [release notes](v5.0/RELEASE_NOTES.md).

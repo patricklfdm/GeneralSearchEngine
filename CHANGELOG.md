@@ -19,12 +19,20 @@ Semantic Versioning once the first stable artifact is published.
 
 ### Compatibility and status
 
-This is the final-coordinate release candidate; signing and publication are pending
-Phase 8. Published `4.4.0` remains stable. Replication is explicitly enabled and
-requires a new sealed group. V5.0 provides no automatic election, public follower
+Version `5.0.0` is published. Replication is explicitly enabled and requires a new
+sealed group. V5.0 provides no automatic election, public follower
 reads, mixed-version cluster, rolling upgrade or in-place V4 conversion. See the
 [migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md) and
 [release checklist](docs/v5x/v5.0/RELEASE_CHECKLIST.md).
+
+Signed tag `v5.0.0` points to protected-master commit
+`e6afb5349c018fe163d4938d7637a4de8854d4ea` (PR #181, exact-master CI `35427118768`).
+[Release workflow `35428718030`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35428718030),
+Central deployment `94651c88-9730-42c1-980c-40bccc0ece6c`, GitHub deployment
+`6538377881`, and [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
+completed successfully. All twelve published POM/JAR files pass signature/checksum
+verification, all nine JARs match the canonical hashes, and clean V1–V5 consumers pass.
+GitHub Release publication time is `2026-09-19T07:34:25Z`.
 
 ## 4.4.0 — 2026-09-14
 

@@ -1,7 +1,7 @@
 # Moving from V4.4 to V5.0
 
-**Status:** `5.0.0` release candidate; Maven Central publication is pending Phase 8.
-Published `4.4.0` remains the stable release.
+**Status:** `5.0.0` is published and independently verified.
+Published `4.4.0` remains the prior stable release and compatibility reference.
 
 ## Existing single-node applications
 
@@ -24,7 +24,7 @@ Add the optional artifact alongside the same-version core:
 </dependency>
 ```
 
-Before publication, this coordinate must come from a local reactor installation.
+This coordinate is available from Maven Central.
 Core does not depend on replication; the annotation processor remains optional.
 
 1. Define one group identity, exactly three fixed voter identities/endpoints, one
@@ -79,6 +79,6 @@ The [registered cloud baseline](PHASE_6_BASELINE.md) covers three canonical
 repetitions, experiment and failure-drill at the retained snapshot source. Its
 10/20 requests-per-second workloads establish the documented behavior and resource
 bounds; they do not establish maximum throughput, a latency SLA or automatic failover.
-The release candidate changes coordinates, packaging and release tooling, preserving
-that measured runtime source. Final JAR hashes are recorded separately in the
+Release preparation changed coordinates, packaging and release tooling, preserving
+that measured runtime source. Published JAR hashes match the frozen inventory in the
 [candidate manifest](candidate-artifacts.sha256).
