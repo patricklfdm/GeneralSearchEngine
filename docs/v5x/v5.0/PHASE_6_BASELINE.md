@@ -1,6 +1,6 @@
 # V5.0 Phase 6 cloud evidence baseline
 
-- **Status:** Five cloud members and independent set validation PASS; registration merged in PR #179, exact-master CI acceptance pending.
+- **Status:** Accepted — registration PR #179 and telemetry correction PR #180; exact-master CI `35421934224` passed.
 - **Measured source:** `340df06148bc7d5a25a29a55c3ee928c9472dd09` (`5.0.0-SNAPSHOT`).
 - **Exact-source CI:** [35384694759](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35384694759), all six jobs passed.
 - **Sequence:** `893a44dee3a84a6eb2ac5d263a75f8db`, canonical-first.
@@ -76,8 +76,10 @@ The separate 6D registration merged through
 `8f31d8589528e872db30de68df689cd458b107a9`; it is not relabelled as the measured
 source. PR CI `35419078286` passed, but master CI `35420066938` found a local 6A
 [telemetry window race](PHASE_6_LOCAL_PERFORMANCE.md#window-attribution-correction--2026-09-19-utc).
-Successful exact-master CI remains pending. The [checklist](PHASE_6_CHECKLIST.md)
-keeps that gate open before Phase 7.
+PR #180 fixed that local observation race. [Exact-master CI `35421934224`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35421934224)
+passed all six jobs on `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`, closing the
+[Phase 6 checklist](PHASE_6_CHECKLIST.md). Phase 7 starts from this accepted master;
+the measured source, cloud artifacts and review digest remain unchanged.
 
 ## Local validation for the registration candidate
 

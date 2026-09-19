@@ -56,13 +56,15 @@ Use manual dispatch when new full-runtime evidence is required for that exact co
 For build inputs or manual dispatch, the workflow runs four parallel gates:
 
 1. `Reactor tests` checks version alignment, compiles all reactor modules, runs the
-   core and processor tests, and executes the travel example.
+   core, replication and processor tests, and executes the travel example and V5 process gates.
 2. `Compatibility` runs the frozen source/reflection fixture, compares the public API
-   with published 1.0.0, 2.0.0, and 2.1.0 artifacts from an isolated Maven repository,
-   and compiles all three independent consumers.
+   with published baselines through 4.4.0 from an isolated Maven repository,
+   and compiles all five independent V1–V5 consumers.
 3. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
-   skipped; checks all six JARs, Manifest versions, and processor service isolation;
-   then verifies that all six publishable JARs are reproducible.
+   skipped; checks all nine V5 JARs, Manifest versions, and processor service isolation;
+   then reproduces the nine JARs and three POMs in two clean workspaces under the
+   digest-pinned canonical image and matches the frozen candidate hashes. Historical
+   two-artifact releases keep their six-JAR checks.
 4. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
    workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
    It receives no OIDC permission or cloud Environment and creates no paid resource.
@@ -224,10 +226,10 @@ required.
 
 Before creating a tag:
 
-1. change core, processor, reactor, example, and consumer versions from the snapshot
+1. change core, processor, replication, reactor, example, and consumer versions from the snapshot
    to the same final `X.Y.Z` value;
 2. add a dated `## X.Y.Z — YYYY-MM-DD` section to `CHANGELOG.md`;
-3. freeze `project.build.outputTimestamp` in both publishable POMs;
+3. freeze `project.build.outputTimestamp` in all publishable POMs;
 4. complete the version-specific release checklist;
 5. merge the approved release commit to `master` and rerun the local release gates;
 6. create an annotated signed tag on that exact commit.
@@ -255,10 +257,11 @@ validate the exact tag without secrets
 -> reject a version already present on Maven Central
 -> wait for production-release approval
 -> import the ephemeral private key and Central token
--> clean, test, package, sign, and verify all 8 detached signatures
--> deploy core + processor
+-> clean, test, package, sign, and verify all 12 V5 detached signatures
+-> deploy core + processor + replication
 -> wait for Central state PUBLISHED
--> resolve both coordinates from a clean Maven repository
+-> resolve all three coordinates from a clean Maven repository
+-> reconcile the nine canonical JAR hashes and run V1–V5 consumers
 -> create the GitHub Release with Maven links and the matching changelog section
 ```
 
@@ -328,7 +331,7 @@ machine with Maven server `central` and the release private key configured:
 ./mvnw -f reactor/pom.xml clean -Prelease deploy
 ```
 
-The default local deployment stops at Central state `VALIDATED`. Inspect the two
+The default local deployment stops at Central state `VALIDATED`. Inspect all release
 coordinates and publish the deployment manually in Central Portal, then create the
 GitHub Release.
 

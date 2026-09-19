@@ -412,6 +412,12 @@ jobs:
             echo "V4.4 Phase 7 gate: SKIP (project is not the 4.4.0 candidate)"
           fi
 
+      - name: Verify the V5.0 final candidate boundary
+        run: |
+          if grep -Eq '^    <version>5\.0\.0</version>$' pom.xml; then
+            scripts/verify-v50-phase7-release.sh --skip-consumers
+          fi
+
   release-artifacts:
     name: Release artifacts
     needs: changes
@@ -452,7 +458,23 @@ jobs:
           fi
 
       - name: Verify reproducible artifacts
-        run: scripts/verify-reproducible-build.sh
+        run: |
+          if grep -Eq '^    <version>5\.0\.0</version>$' pom.xml; then
+            python3 -m scripts.v50.candidate_artifacts validate-build
+            scripts/verify-v50-canonical-build.sh
+            python3 -m scripts.v50.candidate_artifacts validate-evidence target/v50-canonical-reproducibility
+          else
+            scripts/verify-reproducible-build.sh
+          fi
+
+      - name: Upload V5.0 canonical reproducibility receipt
+        if: ${{ always() && hashFiles('target/v50-canonical-reproducibility/**') != '' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-canonical-reproducibility-${{ github.sha }}
+          path: target/v50-canonical-reproducibility
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Verify the V4.4 digest-pinned canonical build twice
         run: |

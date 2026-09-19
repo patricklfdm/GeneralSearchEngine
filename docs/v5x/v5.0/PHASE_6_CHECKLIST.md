@@ -1,6 +1,6 @@
 # V5.0 Phase 6 checklist
 
-- **Status:** Cloud execution/review complete and registration merged in PR #179; exact-master CI acceptance pending.
+- **Status:** Complete — registration in PR #179 and local telemetry correction in PR #180 accepted; exact-master CI `35421934224` passed.
 - **Measured source:** `340df06148bc7d5a25a29a55c3ee928c9472dd09`.
 - **Candidate baseline:** `v5.0.0-replicated-cloud`.
 
@@ -28,16 +28,17 @@
 - [x] Final live reservations USD 84.80 and gross allocations USD 89.28 both remain below USD 100.
 - [x] Failed evidence is preserved; the administrative rollback is not described as a billing refund.
 
-## Candidate registration and remaining gate
+## Accepted registration
 
 - [x] [Canonical review](PHASE_6_CANONICAL_REVIEW.md), [baseline](PHASE_6_BASELINE.md) and [machine-readable report](phase6-cloud-review.json) prepared.
 - [x] Append-only registrar requires all five raw bundles and regenerates the reviewed metrics before writing.
 - [x] [Registry](cloud-benchmark-baselines.json) contains exactly one candidate entry bound to measured source and review digest.
 - [x] Registration counterexamples and tracked-registry integrity run in existing CI Python discovery.
 - [x] Separate protected 6D review/registration PR #179 merged at `8f31d8589528e872db30de68df689cd458b107a9`, including the disclosed administrative exception.
-- [ ] Exact-master CI for the registration merge passed and its identity recorded.
+- [x] Exact-master CI `35421934224` passed all six jobs on `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`, after PR #180 corrected the local telemetry window race.
 
 Master CI `35420066938` failed the local 6A telemetry window check; its
 [correction](PHASE_6_LOCAL_PERFORMANCE.md#window-attribution-correction--2026-09-19-utc)
-must pass protected review and exact-master CI before Phase 7. The measured source
+was accepted through PR #180 and [exact-master CI](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35421934224).
+This closes Phase 6 and permits [Phase 7](PHASE_7_CHECKLIST.md). The measured source
 and retained cloud baseline identities remain unchanged.

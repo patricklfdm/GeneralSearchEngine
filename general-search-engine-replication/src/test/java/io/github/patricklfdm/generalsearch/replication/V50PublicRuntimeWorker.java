@@ -3,6 +3,7 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.atomic.AtomicLong;
 import io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer;
 
@@ -14,7 +15,11 @@ public final class V50PublicRuntimeWorker {
         String cut = System.getProperty("gse.runtime.cut", "");
         ReplicaNode.Events events = (barrier, index) -> {
             if (barrier.equals(cut) && Files.exists(evidence.resolve("armed"))) {
-                Files.writeString(evidence.resolve("barrier"), ProcessHandle.current().pid() + "\n" + barrier + "\n");
+                // The harness treats existence as publication. Publish the complete
+                // identity atomically so it cannot observe an empty/partial file.
+                Path pending = evidence.resolve("barrier.tmp");
+                Files.writeString(pending, ProcessHandle.current().pid() + "\n" + barrier + "\n");
+                Files.move(pending, evidence.resolve("barrier"), StandardCopyOption.ATOMIC_MOVE);
                 try { new java.util.concurrent.CountDownLatch(1).await(); }
                 catch (InterruptedException error) { Thread.currentThread().interrupt(); throw new IOException(error); }
             }

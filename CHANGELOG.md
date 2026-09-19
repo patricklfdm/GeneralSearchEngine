@@ -3,6 +3,29 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## 5.0.0 — 2026-09-19
+
+### Added
+
+- Optional `general-search-engine-replication` artifact: one shard, three fixed
+  voters, a configured leader, quorum-persisted fencing and durable commit proof.
+- Typed offline bootstrap, resume, cleanup and replacement, sealed public 1.1
+  authority, explicit leader activation/reconstruction, incremental catch-up and
+  verified replica snapshot transfer.
+- Bounded admission, diagnostics, local checkpoint and portable V4 application
+  backup, with inherited core search semantics and independent V1–V5 consumers.
+- Registered `v5.0.0-replicated-cloud` evidence covering three canonical runs,
+  experiment and failure-drill; nine-JAR canonical release-byte validation.
+
+### Compatibility and status
+
+This is the final-coordinate release candidate; signing and publication are pending
+Phase 8. Published `4.4.0` remains stable. Replication is explicitly enabled and
+requires a new sealed group. V5.0 provides no automatic election, public follower
+reads, mixed-version cluster, rolling upgrade or in-place V4 conversion. See the
+[migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md) and
+[release checklist](docs/v5x/v5.0/RELEASE_CHECKLIST.md).
+
 ## 4.4.0 — 2026-09-14
 
 ### Added

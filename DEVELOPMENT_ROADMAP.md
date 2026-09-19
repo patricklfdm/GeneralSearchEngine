@@ -48,7 +48,10 @@ CI `35384694759` and all five cloud members (49 cell executions). The
 [6D canonical review](docs/v5x/v5.0/PHASE_6_CANONICAL_REVIEW.md) records independent
 complete-set validation, performance observations and the authorized IAP retry
 exception. The [baseline registration](docs/v5x/v5.0/PHASE_6_BASELINE.md) is a
-candidate; protected merge and exact-master CI remain pending before Phase 7.
+registered through PR #179; PR #180 corrected a local telemetry race, and full
+exact-master CI `35421934224` passed at `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`.
+[Phase 7](docs/v5x/v5.0/PHASE_7_CHECKLIST.md) prepares final `5.0.0` coordinates,
+compatibility, consumers and nine canonical JARs. Publication remains Phase 8.
 
 ## v4.x completed development contract
 
