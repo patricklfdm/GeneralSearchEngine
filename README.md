@@ -1,41 +1,35 @@
 # GeneralSearchEngine
 
 GeneralSearchEngine is a generic Java 21 object search engine with an in-memory default
-and opt-in single-node local durability. Product is its reference document type. The
-engine uses immutable search snapshots and persistent, block-based bitmaps so readers
+and opt-in single-node durability or fixed-group replication. Product is its reference
+document type. The engine uses immutable search snapshots and persistent, block-based
+bitmaps so readers
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version 4.4.0 is the current stable release. Its signed `v4.4.0` tag, both Maven
-artifacts, production deployment, GitHub Release, clean remote V3/V4 consumer
-verification, exact six-JAR canonical/Central byte reconciliation, and
-`v4.4.0-final-durable-cloud` evidence baseline are complete. Publication completed
-on September 14, 2026 Pacific time (`2026-09-14T22:15:36Z`). Version 4.3.0 remains
-the immediate prior stable release and fast-reopen compatibility baseline; version
-4.2.0 remains the storage-evolution baseline, version 4.1.0 remains the operational-
-safety baseline, version 4.0.0 remains the immutable correct-durability/live-format
-`1.0` baseline, and version 3.4.0 remains the frozen in-memory compatibility baseline.
-The completed work and compatibility constraints are recorded in the
-[development roadmap](DEVELOPMENT_ROADMAP.md) and
-[V4.x development map](docs/v4x/README.md). The published V4.0 foundation remains
-under the [V4 contract map](docs/v4/README.md). Version `4.4.0` is available from
-Maven Central.
-The complete document map is available in [`docs/README.md`](docs/README.md).
+Version **5.0.0** is the current stable release, published on September 19, 2026.
+Its signed `v5.0.0` tag, three Maven artifacts, protected production deployment and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
+are complete. All nine published JAR hashes match the canonical builds, and clean
+V1–V5 consumers pass against Maven Central. The
+[release checklist](docs/v5x/v5.0/RELEASE_CHECKLIST.md) records publication and
+independent verification.
 
-V5.0 is now a `5.0.0` release candidate. It adds an optional replication artifact
-with exactly three fixed voters, a configured leader, durable quorum commit proof,
-explicit activation, catch-up and recovery. Existing in-memory and single-node
-APIs remain opt-in and retain the published V4.4 search semantics. The public
-bootstrap/lifecycle API and all five Phase 6 cloud members are accepted; the
-[registered baseline](docs/v5x/v5.0/PHASE_6_BASELINE.md) covers 49 successful scenario
-executions under the documented workload.
+V5.0 adds an optional replication artifact with exactly three fixed voters, a
+configured leader, durable quorum commit proof, explicit activation, catch-up and
+recovery. Existing in-memory and single-node APIs retain the published V4.4 search
+semantics. The [registered cloud baseline](docs/v5x/v5.0/PHASE_6_BASELINE.md) covers
+49 successful scenario executions across three canonical runs, experiment and
+failure-drill under the documented workload. V5.0 does not provide automatic election,
+public follower reads, dynamic membership or rolling upgrades.
 
-The [Phase 7 checklist](docs/v5x/v5.0/PHASE_7_CHECKLIST.md) tracks final coordinates,
-consumers, compatibility and nine reproducible JARs. Publication remains Phase 8;
-`4.4.0` is still the version available to stable users. See the
-[4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md),
-[public runtime semantics](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md), and
-[V5 development line](docs/v5x/README.md).
+See the [4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md),
+[public runtime semantics](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md),
+[V5 development line](docs/v5x/README.md), and
+[development roadmap](DEVELOPMENT_ROADMAP.md).
+Version `4.4.0` remains the prior stable release and frozen single-node compatibility
+reference. The [V4.x development map](docs/v4x/README.md) and
+[complete document map](docs/README.md) preserve the earlier published contracts.
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
 public API or storage-format change. It closes the single-node durable line with the
@@ -200,7 +194,7 @@ retrieval behavior or artifact. Distributed architecture remains deferred to V5.
 
 ## Install
 
-### Stable 4.4.0
+### Stable 5.0.0
 
 The runtime dependency is:
 
@@ -208,25 +202,24 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>4.4.0</version>
+    <version>5.0.0</version>
 </dependency>
 ```
 
-The optional annotation processor is published separately as
-`io.github.patricklfdm:general-search-engine-processor:4.4.0`. Existing 4.3 users can
-upgrade without an API or storage migration through the
-[4.3-to-4.4 migration guide](docs/v4x/v4.4/MIGRATION_GUIDE.md). Existing V4 users
-retain their selected formats, and existing 3.4 users can retain the in-memory path
-without supported source changes. All earlier published contracts remain recorded in
-their historical documentation and compatibility gates.
+The annotation processor and replication runtime are separate optional artifacts,
+using the same `5.0.0` version as core. Replication requires explicit sealed-group
+bootstrap and activation. Existing single-node applications retain their selected
+storage formats; adding the core dependency does not enable replication. See the
+[4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md).
 
-Both the
-[`general-search-engine`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/4.4.0)
-and
-[`general-search-engine-processor`](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/4.4.0)
-artifacts are available from Maven Central. Release notes and direct-download archives
-are available from the
-[`v4.4.0` GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v4.4.0).
+All three artifacts are available from Maven Central:
+
+- [general-search-engine](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/5.0.0)
+- [general-search-engine-processor](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/5.0.0)
+- [general-search-engine-replication](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-replication/5.0.0)
+
+See the [v5.0.0 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
+for release notes and the tagged source archive.
 
 V4.2 keeps ordinary search in memory unless `buildDurable(...)` is selected and keeps
 durable storage at format `(1,0)` unless `(1,1)` is selected explicitly. See the

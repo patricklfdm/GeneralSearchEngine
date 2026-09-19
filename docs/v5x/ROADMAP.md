@@ -1,13 +1,13 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** Phase 6 cloud execution and independent review passed; 6D baseline registration candidate
+- **Status:** V5.0 published and reconciled; V5.1–V5.4 remain planned
 - **Reference:** published `4.4.0`
 
 ## Version sequence
 
 | Version | Boundary | Completion question |
 | --- | --- | --- |
-| 5.0 | Configured-leader replication | Can one fixed three-voter group commit, recover and catch up without ambiguity? |
+| 5.0 — published | Configured-leader replication | Accepted through Phases 0–8; see the [release record](v5.0/RELEASE_CHECKLIST.md). |
 | 5.1 | Automated leadership | Can a quorum safely fence an old leader and restore write availability? |
 | 5.2 | Replica reads | Can followers serve only the consistency they explicitly prove? |
 | 5.3 | Cluster operations | Can membership and maintenance change without violating committed history? |
@@ -74,5 +74,10 @@ PR #161/#162 and exact-master CI `35069706211`.
 accepted through PR #163. The measured source `340df06148bc7d5a25a29a55c3ee928c9472dd09`
 passed full CI `35384694759`, three canonical repetitions, experiment and failure-drill.
 The [6D review](v5.0/PHASE_6_CANONICAL_REVIEW.md) and independent complete-set validation
-are complete. Protected review of the append-only registration and its exact-master
-CI remain the final [Phase 6 gates](v5.0/PHASE_6_CHECKLIST.md).
+are complete. Registration PR #179 and telemetry correction PR #180 passed
+exact-master CI `35421934224`, closing [Phase 6](v5.0/PHASE_6_CHECKLIST.md).
+[Phase 7](v5.0/PHASE_7_CHECKLIST.md) merged through PR #181 as
+`e6afb5349c018fe163d4938d7637a4de8854d4ea`; exact-master CI `35427118768` passed.
+[Phase 8](v5.0/RELEASE_CHECKLIST.md) published signed tag `v5.0.0` in workflow
+`35428718030`, with three Central artifacts, nine canonical JARs and independent
+V1–V5 consumer verification. Later minor versions remain separate planned work.

@@ -1,6 +1,39 @@
 # V5.0 release checklist
 
-**Status:** Phase 7 candidate; Phase 8 publication has not started.
+**Status:** published; Phase 7 acceptance and Phase 8 publication independently reconciled.
+
+## Accepted publication
+
+| Item | Verified identity |
+| --- | --- |
+| Candidate PR / exact-master CI | [#181](https://github.com/patricklfdm/GeneralSearchEngine/pull/181) / [35427118768](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35427118768), all six jobs passed |
+| Published commit | `e6afb5349c018fe163d4938d7637a4de8854d4ea` |
+| Signed tag | `v5.0.0`, tag object `5d8e67c3d592d1bbc25d51190168b9f84a49c52f` |
+| Pinned signing key | `91AAB7A2B0FB55C3BBB334534B6103148D643AB3` |
+| Release workflow | [35428718030](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35428718030), all three jobs passed |
+| Central deployment | `94651c88-9730-42c1-980c-40bccc0ece6c`, published |
+| GitHub deployment | `6538377881`, `production-release`, successful at `2026-09-19T07:34:28Z` |
+| GitHub Release | [391984253 / v5.0.0](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0), latest stable release |
+| GitHub Release publication time | `2026-09-19T07:34:25Z` |
+| Release canonical receipt SHA-256 | `c488d28e4ede4b41d638be8f3c850d2edd75e53208a6d04e533970b9703ed54c` |
+
+The release canonical receipt identifies a clean `git-commit` source at the exact
+published commit. Both clean captures contain nine identical JARs and three identical
+POMs. The release log records successful candidate matching before/after signing and
+before/after deploy, followed by remote verification of all twelve published files.
+
+An independent post-publication execution of
+`scripts/verify-published-release.sh 5.0.0` also passed: twelve detached signatures
+and SHA-1 sidecars, all nine canonical JAR SHA-256 values, three manifest versions,
+processor service isolation, immutable storage fixtures and fresh V1–V5 consumers.
+Downloaded logs and receipts remain under ignored
+`target/v50-publication-review-35428718030/`; the normative JAR inventory remains
+[candidate-artifacts.sha256](candidate-artifacts.sha256).
+
+The tag's cryptographic signature passes against the repository's pinned key in
+the release validator. GitHub's account-level signature badge currently reports
+`unknown_key`; that badge is distinct from the pinned-key verification performed
+by the release workflow and the detached-artifact checks.
 
 ## Candidate identity
 
@@ -81,19 +114,24 @@ expected/actual hashes when it fails.
   file and atomically renames it before the controller can observe readiness.
   This changes no production class, public descriptor or cloud baseline.
 
-## Phase 8 — after protected acceptance and explicit authorization
+## Phase 8 — completed publication
 
-- [ ] Record the accepted master commit and successful exact-master CI.
-- [ ] Confirm local/remote `v5.0.0` tag absence and Central HTTP 404 for all three coordinates.
-- [ ] Create and verify the annotated signed tag at that exact commit; user pushes it.
-- [ ] Release validation passes version/tag signature, consumers, API, packaging and canonical byte gates.
-- [ ] Approve the `production-release` deployment; build/sign all twelve publishable files.
-- [ ] Candidate hashes match before signing, after signing, before deploy and after deploy.
-- [ ] Publish all three artifacts with signatures, sources and strict Javadocs.
-- [ ] Download all twelve files plus signatures/checksums from Central into a fresh directory.
-- [ ] Validate signature/checksum/manifest versions, exact nine canonical hashes and fresh V1–V5 consumers.
-- [ ] Record Central deployment, GitHub deployment, workflow and GitHub Release identities.
-- [ ] Update README/changelog to published status only after reconciliation.
+- [x] Record the accepted master commit and successful exact-master CI.
+- [x] Confirm local/remote `v5.0.0` tag absence and Central HTTP 404 for all three coordinates before signing.
+- [x] User creates, verifies and pushes the annotated signed tag at that exact commit.
+- [x] Release validation passes version/tag signature, consumers, API, packaging and canonical byte gates.
+- [x] User approves `production-release`; all twelve publishable files are built and signed.
+- [x] Candidate hashes match before signing, after signing, before deploy and after deploy.
+- [x] Publish all three artifacts with signatures, sources and strict Javadocs.
+- [x] Download all twelve files plus signatures/checksums from Central into a fresh directory.
+- [x] Validate signature/checksum/manifest versions, exact nine canonical hashes and fresh V1–V5 consumers.
+- [x] Record Central deployment, GitHub deployment, workflow and GitHub Release identities.
+- [x] Prepare the README/changelog publication update after independent reconciliation.
+
+The documentation follow-up contains [final release notes](RELEASE_NOTES.md) for
+the user to apply to the existing GitHub Release. Its initial body was generated
+from the immutable candidate changelog and still described publication as pending.
+Updating that body does not rebuild artifacts, move the tag or repeat publication.
 
 Never overwrite an existing Central version or retarget a published tag. A partial
 publication or polling failure requires inspection of exact remote coordinates and

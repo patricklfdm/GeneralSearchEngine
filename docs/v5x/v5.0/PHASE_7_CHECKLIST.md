@@ -1,6 +1,6 @@
 # V5.0 Phase 7 release candidate
 
-**Status:** candidate prepared; protected PR and exact-master CI acceptance pending.
+**Status:** complete — protected candidate accepted; Phase 8 publication is reconciled.
 **Starting master:** `3e5da79c0fae47d4d1e8e50022c928fb3d0b1d60`.
 
 ## Accepted entry
@@ -14,7 +14,7 @@
 - [x] Core, processor, replication, reactor, example and V1–V5 consumers use final `5.0.0` coordinates.
 - [x] All three publishable POMs freeze `2026-09-19T00:00:00Z`; replication includes the Central publishing extension.
 - [x] Existing process harnesses resolve final artifact filenames.
-- [x] README/changelog describe a candidate and retain published `4.4.0` as stable.
+- [x] Candidate documentation retained `4.4.0` as stable until Phase 8 publication; the post-publication update now identifies `5.0.0` as stable.
 - [x] [Migration guide](MIGRATION_GUIDE.md) covers opt-in activation, sealed bootstrap, compatibility and backup/recovery boundaries.
 - [x] CI checks the candidate inventory and digest-pinned two-workspace build; Phase 8 checks unsigned bytes before/after signing/deploy and after download.
 - [x] Three artifacts, three POMs and nine JARs are included in Central preflight and remote signature/checksum verification; remote consumers cover V1–V5.
@@ -39,9 +39,9 @@ cloud downloads remain outside the source archive.
 
 ## Protected acceptance and Phase 8 handoff
 
-- [ ] Candidate PR passed required checks and merged through protected master.
-- [ ] Exact-master CI passed; merge commit and run identity recorded.
-- [ ] Phase 8 signing/publication separately authorized from that accepted commit.
+- [x] PR #181 passed all checks in CI `35425979189` and merged as `e6afb5349c018fe163d4938d7637a4de8854d4ea`.
+- [x] Exact-master CI `35427118768` passed all six jobs, including nine-JAR byte matching and the two-workspace canonical build.
+- [x] The user created/pushed signed tag `v5.0.0` at that commit and approved `production-release`; workflow `35428718030` and post-publication reconciliation passed.
 
 Phase 7 creates no signed tag, publication or new cloud measurement. The
 [release checklist](RELEASE_CHECKLIST.md) owns the remaining publication steps.
