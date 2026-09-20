@@ -73,7 +73,7 @@ jobs:
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build
 
-      - name: Verify V5.1 durable authority and real JVM crash recovery
+      - name: Verify V5.1 ledgers, frozen recovery and real JVM interruption cuts
         run: scripts/verify-v51-phase2-storage.sh --skip-build
 
       - name: Retain V5.1 authority bytes and process crash evidence

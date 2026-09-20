@@ -13,7 +13,7 @@ class V51AutomaticRecordsTest {
         var samples = V51StorageFixture.samples();
         try (var in = getClass().getResourceAsStream("/replication/v51/format-catalog.json")) {
             var schemas = object(object(io.github.patricklfdm.generalsearch.admission.AdmissionJson.parse(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8))).get("records"));
-            assertEquals(13, CATALOG.size());
+            assertEquals(25, CATALOG.size());
             for (String name : CATALOG.keySet()) {
                 var expected = V51StorageFixture.copy(object(schemas.get(name))); expected.remove("path");
                 assertEquals(expected, CATALOG.get(name), name);
@@ -32,7 +32,7 @@ class V51AutomaticRecordsTest {
         }
         for (int size : List.of(0, 1, 47, 48, original.length - 1, original.length + 1))
             assertThrows(AutomaticReplicationException.class, () -> decode(Arrays.copyOf(original, size), "ACCEPT"));
-        assertThrows(AutomaticReplicationException.class, () -> decode(original, "SELECTED"));
+        assertThrows(AutomaticReplicationException.class, () -> decode(original, "REPLACEMENT"));
     }
     @Test void validChecksumCannotHideWrongPayloadReceiptsOrRankedProposer() throws Exception {
         var samples = V51StorageFixture.samples(); byte[] manifest = unbase(samples.get("MANIFEST"));

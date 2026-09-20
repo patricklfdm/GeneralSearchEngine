@@ -7,10 +7,11 @@ V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `35487644896` passing. The [Phase 1 foundation](docs/v5x/v5.1/PHASE_1_FOUNDATION.md)
 was accepted in PR #185 at `5c5c02e728347f31e6ae7c9935ab9f6852d817f1`;
 exact-master CI `35491646610` passed all six jobs. The user entered
-[Phase 2 storage](docs/v5x/v5.1/PHASE_2_ENTRY_PLAN.md). Batch A implements sealed
-root-authority admission and forced promise/accept/proof ledgers with crash evidence;
-frozen recovery/generation work remains pending. Public automatic runtime admission
-remains disabled.
+[Phase 2 storage](docs/v5x/v5.1/PHASE_2_ENTRY_PLAN.md). Batch A was accepted in PR #186 at `284f23d398138d0a747bde42e041da291c68574f`,
+with exact-master CI `35495493715` passing all six jobs.
+[Batch B recovery](docs/v5x/v5.1/PHASE_2_RECOVERY.md) now implements frozen selection,
+generation installation and two-source retirement with independent process-cut evidence.
+Protected Phase 2 acceptance is pending; public automatic runtime admission remains disabled.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
