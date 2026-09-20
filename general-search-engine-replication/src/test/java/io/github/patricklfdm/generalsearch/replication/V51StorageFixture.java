@@ -20,6 +20,10 @@ final class V51StorageFixture {
     static byte[] setup(Path root) throws Exception {
         var samples = samples(); byte[] manifest = unbase(samples.get("MANIFEST")), genesis = unbase(samples.get("GENESIS"));
         var plan = copy(decode(unbase(samples.get("PLAN")), "PLAN").value());
+        return setup(root,manifest,genesis,plan);
+    }
+    static byte[] setup(Path root,byte[] manifest,byte[] genesis,Map<String,Object> plan) throws Exception {
+        plan.put("manifest",b64(manifest));plan.put("genesis",b64(genesis));
         plan.put("operationPath", root.resolve("operation").toString());
         var inventories = new ArrayList<Map<String, byte[]>>();
         for (int i = 1; i <= 3; i++) {

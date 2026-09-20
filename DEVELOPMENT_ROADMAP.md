@@ -14,8 +14,10 @@ generation installation and two-source retirement with independent process-cut e
 Phase 2 was accepted in PR #187 at `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`,
 with exact-master CI `35503107173` passing all six jobs. The user entered
 [Phase 3](docs/v5x/v5.1/PHASE_3_ENTRY_PLAN.md); its internal election/activation
-transition kernel is implemented locally. Real transport/application integration
-and public automatic runtime admission remain open.
+transition kernel was accepted in PR #188 at `cf13a87e84a25ed1470f8e6de307e53b0d67424c`
+with exact-master CI `35507802486`. The [runtime batch](docs/v5x/v5.1/PHASE_3_RUNTIME.md)
+now implements real TCP and V4 application staging with independent JVM evidence.
+Third-voter rejoin/source floors and public automatic runtime admission remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

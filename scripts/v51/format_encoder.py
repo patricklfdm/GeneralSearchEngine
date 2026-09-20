@@ -10,6 +10,10 @@ CATALOG=Path(__file__).resolve().parents[2]/'general-search-engine-replication/s
 
 
 def catalog():return json.loads(CATALOG.read_text())
+def runtime_catalog():
+    value=catalog();extension=json.loads((CATALOG.parent/'runtime-wire-extension.json').read_text())
+    value['wire'].update(extension['wire']);value['envelope']['object']['type']['enum']+=list(extension['wire'])
+    return value
 def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode('ascii')
 def frame(kind,body,magic=b'GSER',minor=2):
     header=struct.pack('>4sHHHHi',magic,1,minor,kind,0,len(body))
@@ -35,4 +39,4 @@ def encode(name,value):
 
 def wire(name,envelope,payload):
     value=dict(envelope,type=name,payload=payload)
-    return frame(catalog()['wire'][name]['id'],canonical(value),b'GSRP')
+    return frame(runtime_catalog()['wire'][name]['id'],canonical(value),b'GSRP')

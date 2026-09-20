@@ -95,6 +95,12 @@ final class AutomaticProtocol implements AutoCloseable {
         electionAt=after(policy.minElectionTimeoutMillis()+Math.floorMod(randomness.getAsLong(),width));
     }
     synchronized List<Action> drain() {var result=List.copyOf(actions);actions.clear();return result;}
+    synchronized Record promise() {return durablePromise;}
+    synchronized AutomaticRecovery.Basis frozen(Record ballot) {
+        need(state!=STOPPED&&state!=STARTING&&state!=FAILED&&state!=AutomaticReplicationState.CLOSED
+                &&same(fence,ballot)&&same(durablePromise,ballot),"frozen basis no longer current");
+        return store.prepare(ballot.bytes(),text(ballot.value(),"proposer"),new byte[0]);
+    }
     synchronized View view() {
         return new View(state,epoch(durablePromise),maxEpoch,state==FAILED||state==AutomaticReplicationState.CLOSED?lastProven:proven(),publishedIndex,exchanges.size(),
                 reconstruction!=null||publication!=null);
@@ -349,11 +355,14 @@ final class AutomaticProtocol implements AutoCloseable {
     private void fail(AutomaticReplicationException.Reason reason) {
         abandon(reason);state=FAILED;electionAt=Long.MAX_VALUE;
     }
-    @Override public synchronized void close() {
+    synchronized void quiesce() {
         room();if(state!=AutomaticReplicationState.CLOSED) {
             if(preparing!=null) {reply(preparing,false,AutomaticReplicationException.Reason.CLOSED);preparing=null;}
             abandon(AutomaticReplicationException.Reason.CLOSED);state=AutomaticReplicationState.CLOSED;electionAt=Long.MAX_VALUE;
         }
+    }
+    @Override public synchronized void close() {
+        quiesce();
         if(reconstruction!=null||publication!=null)throw failure(DEADLINE_EXCEEDED,"application work must quiesce before authority unlock",null);
         store.close();
     }

@@ -1,18 +1,18 @@
 # V5.1 Phase 3 entry: automatic protocol and runtime
 
-**Status:** user authorized on `feat/v5.1-phase3-election`; Batch A implemented
-locally, protected acceptance pending. Phase 3 as a whole remains open.
-**Accepted base:** [PR #187](https://github.com/patricklfdm/GeneralSearchEngine/pull/187),
-`eb2b8c0b51d9d3352b037d6435e3aad2839d788d`,
-[exact-master CI 35503107173](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35503107173).
-All six jobs passed, including the actual Phase 2 storage/recovery gate.
+**Status:** Batch A accepted; the user entered `feat/v5.1-phase3-runtime` and
+authorized Batch B. Phase 3 as a whole remains open.
+**Accepted base:** [PR #188](https://github.com/patricklfdm/GeneralSearchEngine/pull/188),
+`cf13a87e84a25ed1470f8e6de307e53b0d67424c`,
+[exact-master CI 35507802486](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35507802486).
+All six jobs passed, including the actual foundation, storage/recovery and protocol gates.
 
 The [contract](PHASE_0_CONTRACT.md), [protocol](LEADERSHIP_AND_RECOVERY.md),
 [frozen format catalog](PHASE_1_FORMAT_CATALOG.md) and [evidence matrix](TESTING_AND_EVIDENCE.md)
 govern this phase. Public automatic factories/bootstrap remain guarded until Phase 4.
 The user performs commit, push and PR; no paid execution or release is part of this work.
 
-## A — transition kernel, election and activation (this batch)
+## A — transition kernel, election and activation (accepted)
 
 - A package-private state machine backed by the real sealed `AutomaticStore`.
   Elapsed monotonic ticks and independently chosen bounded delays schedule campaigns;
@@ -34,7 +34,16 @@ The user performs commit, push and PR; no paid execution or release is part of t
 
 See [implementation and limits](PHASE_3_PROTOCOL.md) and the [checklist](PHASE_3_CHECKLIST.md).
 
-## B — transport, application integration and retained-disk rejoin (next)
+## B — transport and application integration (current batch)
+
+The [runtime implementation](PHASE_3_RUNTIME.md) now connects the kernel to real
+TCP and V4 application staging/publication. Reviewing the frozen catalog found that
+it could not represent the complete selected quorum at the receiving voter; the
+[explicit additive extension](PHASE_3_WIRE_EXTENSION.md) records that gap and the
+new kind 24. Original fixture bytes remain fixed. This runtime/format batch and its
+independent three-JVM evidence need protected review before the remaining rejoin work.
+
+The original mapping requirements remain:
 
 Map assembled internal actions to the reviewed 1.2 wire schema and bounded chunk
 transfers. In particular, the receiver must reconstruct and verify the complete
@@ -43,8 +52,8 @@ is insufficient. Review that mapping against the frozen catalog before writing a
 adapter; an unrepresentable contract requires an explicit catalog decision, not an
 unreviewed extra envelope field.
 
-Implement the bounded driver/executors, real retry deadlines and progress heartbeats,
-then connect the genuine V4 application staging/reconstruction/publication path.
+## C — retained-disk rejoin, source floors and remaining qualification (next)
+
 Probe and reconcile the third voter, retrieve real peer recovery-source packets,
 and advance two-source floors before reclaiming generation slots. Batch A's
 synthetic application and assembled in-memory messages cannot satisfy these checks.
@@ -56,7 +65,7 @@ strong-read pins and end-to-end public readiness/outcome obligations.
 
 ## Exit
 
-Accept the complete Phase 3 only after both batches, exact-master CI, independent
+Accept the complete Phase 3 only after all batches, exact-master CI, independent
 history checks and required process/network cuts pass. Keep all configured 1.1
 compatibility gates and frozen fixture bytes. Missing/corrupt authority, exhausted
 capacity or ambiguous I/O must remain unavailable rather than silently repair a voter.

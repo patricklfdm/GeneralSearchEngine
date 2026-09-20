@@ -79,6 +79,18 @@ jobs:
       - name: Verify V5.1 election and activation transition evidence
         run: scripts/verify-v51-phase3-protocol.sh --skip-build
 
+      - name: Verify V5.1 real TCP runtime and application recovery
+        run: scripts/verify-v51-phase3-runtime.sh --skip-build
+
+      - name: Retain V5.1 runtime wire, force and JVM recovery evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-runtime-${{ github.sha }}
+          path: target/v51-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.1 protocol transitions and independent causal evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -625,6 +637,7 @@ jobs:
           bash -n scripts/verify-v50-phase6-cloud-workload.sh
           bash -n scripts/verify-v50-phase6-remote-workload.sh
           bash -n scripts/verify-v51-phase3-protocol.sh
+          bash -n scripts/verify-v51-phase3-runtime.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

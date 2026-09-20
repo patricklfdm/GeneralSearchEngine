@@ -1,9 +1,14 @@
 # V5.1 Phase 3A automatic transition kernel
 
-**Status:** implemented locally; protected acceptance pending.
-**Boundary:** internal protocol transitions over real durable authority; public
-automatic runtime, actual wire execution and production application integration
-remain open in the [phase entry](PHASE_3_ENTRY_PLAN.md).
+**Status:** accepted through [PR #188](https://github.com/patricklfdm/GeneralSearchEngine/pull/188),
+master `cf13a87e84a25ed1470f8e6de307e53b0d67424c`;
+[CI 35507802486](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35507802486)
+passed all six jobs and executed the protocol gate. Subsequent transport/application
+work is recorded in [the runtime batch](PHASE_3_RUNTIME.md).
+**Boundary:** this record covers internal protocol transitions over real durable
+authority. Actual wire/application execution is recorded separately in the
+[runtime batch](PHASE_3_RUNTIME.md); remaining admission is tracked in the
+[phase entry](PHASE_3_ENTRY_PLAN.md).
 
 ## Execution and authority
 
@@ -83,8 +88,8 @@ three networked public engines, a process-crash test, or a failover latency resu
 The previously accepted Phase 2 JVM crash gates remain separate and mandatory.
 
 CI runs this verifier after the storage/recovery gate and retains evidence even on
-failure. Exact protected acceptance must be recorded after the user merges and the
-corresponding master CI passes; local results do not close Phase 3.
+failure. PR #188 and its exact-master CI accepted this batch. Full Phase 3 closure
+still requires the remaining obligations in the phase entry.
 
 ## Local validation (2026-09-20)
 
