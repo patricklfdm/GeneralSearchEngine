@@ -16,7 +16,7 @@ if [[ ! -f "$control_jar" && -z "${GSE_V50_CONTROL_JAR:-}" ]]; then
     -Dartifact=io.github.patricklfdm:general-search-engine:4.4.0 \
     -DoutputDirectory="$root/target/v50-control"
 fi
-"$python_command" -m unittest scripts.v50.test_offline_format
+"$python_command" -m unittest scripts.v50.test_current_jars scripts.v50.test_offline_format
 mkdir -p target/v50-offline-authority
 work_parent=$(mktemp -d "$root/target/v50-offline-authority/run.XXXXXX")
 echo "v50OfflineAuthorityEvidence=$work_parent/evidence"

@@ -1,7 +1,14 @@
 # V5.1 leadership and recovery candidate
 
-**Status:** PROPOSED, revision 0.1; D01-D05/D08 design, pending protected review.
+**Status:** Phase 0 design accepted through PR #184; revision 0.1, D01-D05/D08.
 **Source:** `09d2bf247f004eb134eb81c59ee88005affafe92`.
+
+**Acceptance update:** protected PR [#184](https://github.com/patricklfdm/GeneralSearchEngine/pull/184)
+accepted this Phase 0 design at `31b70d08b509ac75037a8eb6386780affc353ed9`.
+[Exact-master CI 35487644896](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35487644896)
+passed the documentation lane; reactor/compatibility/packaging jobs were skipped.
+Original candidate wording below records the reviewed design, not runtime evidence.
+The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FOUNDATION.md).
 
 ## Protocol lineage
 

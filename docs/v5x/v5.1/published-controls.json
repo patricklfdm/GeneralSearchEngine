@@ -1,0 +1,9 @@
+{
+  "schema": "gse-v51-published-controls-v1",
+  "v50ReleaseCommit": "e6afb5349c018fe163d4938d7637a4de8854d4ea",
+  "artifacts": [
+    {"artifact": "general-search-engine", "version": "4.4.0", "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"},
+    {"artifact": "general-search-engine", "version": "5.0.0", "sha256": "cd3a60c158db5f111ebcb9f26b4823ad2dbeb3081f21e80f8af8ca120f2954ac"},
+    {"artifact": "general-search-engine-replication", "version": "5.0.0", "sha256": "66463c3ac6e531616363eaca3ec9d891865ce8b9e54ba0c707c2fde2b1f106ff"}
+  ]
+}

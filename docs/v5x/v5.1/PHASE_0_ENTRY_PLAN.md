@@ -12,8 +12,8 @@
 **Design progress:** the user started this task on 2026-09-19. The
 [contract candidate](PHASE_0_CONTRACT.md) supplies the six outputs below from
 reviewed checkout `09d2bf247f004eb134eb81c59ee88005affafe92`, after planning PR #183.
-D01-D12 have proposed resolutions; [protected acceptance](PHASE_0_CHECKLIST.md)
-and Phase 1 authorization remain pending. The original base above records entry provenance.
+D01-D12 were accepted through PR #184; [acceptance and Phase 1 authorization](PHASE_0_CHECKLIST.md)
+are now recorded. The original base above records entry provenance.
 
 Read the [accepted charter](../DEVELOPMENT_CHARTER.md),
 [roadmap](../ROADMAP.md) and [proposed addendum](../NEXT_DEVELOPMENT_ADDENDUM.md).
@@ -79,7 +79,7 @@ pointer that can be switched after a heartbeat timeout.
 
 At entry, all rows below started **OPEN**. Recommended postures remain design
 inputs. The [candidate decision register](PHASE_0_CONTRACT.md#scope-decisions) now
-supplies proposed resolutions; review and acceptance are still pending. Phase 0
+supplies the resolutions subsequently accepted through PR #184. Phase 0
 cannot be closed while a safety, compatibility, API or evidence blocker remains
 unresolved.
 
@@ -201,7 +201,7 @@ baseline identity; authorization and quota evidence must be renewed for paid wor
 ## 7. Concrete Phase 0 deliverables
 
 Create a small coherent document set under `docs/v5x/v5.1/`. These six outputs
-now exist as review candidates; their presence does not establish acceptance:
+were delivered as review candidates and subsequently accepted through PR #184:
 
 | Candidate document | Required contents |
 | --- | --- |
@@ -236,7 +236,10 @@ These phases are directional until the new contract accepts their exact boundari
 Do not defer public bootstrap/lifecycle contracts until after internal implementation.
 Public enablement must be accepted before end-user performance or cloud claims.
 
-## 9. Exit checklist and stop point
+## 9. Original exit checklist and stop point
+
+The completed source/decision/validation and protected acceptance records now live in
+[PHASE_0_CHECKLIST.md](PHASE_0_CHECKLIST.md); the requirements below preserve the entry checklist.
 
 - [ ] Current source and governing documents reviewed; differences from this base recorded.
 - [ ] D01-D12 resolved with rationale; incompatible alternatives and counterexamples retained.

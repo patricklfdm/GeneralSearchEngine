@@ -1,0 +1,1143 @@
+{
+  "envelope": {
+    "object": {
+      "configurationId": "id",
+      "epoch": "positive",
+      "eventSequence": "counter",
+      "groupId": "uuid",
+      "incarnationId": "uuid",
+      "manifestDigest": "hash",
+      "proposer": {
+        "optional": "node"
+      },
+      "protocol": {
+        "enum": [
+          "gse-replication/1.2"
+        ]
+      },
+      "recipient": "node",
+      "sender": "node",
+      "traceId": "uuid",
+      "type": {
+        "enum": [
+          "HANDSHAKE",
+          "COMMIT_PROOF",
+          "COMMIT_PROOF_ACK",
+          "COMMIT_ADVANCE",
+          "CONFLICT",
+          "AUTHORITY_STATUS_PROBE",
+          "SNAPSHOT_OFFER",
+          "SNAPSHOT_CHUNK",
+          "SNAPSHOT_INSTALL",
+          "AUTHORITY_STATUS",
+          "SNAPSHOT_ABORT",
+          "REJECT",
+          "PREPARE",
+          "PROMISE",
+          "BASIS_CHUNK",
+          "ACCEPT",
+          "ACCEPT_ACK",
+          "HEARTBEAT",
+          "HEARTBEAT_ACK"
+        ]
+      }
+    }
+  },
+  "frameHeaderBytes": 48,
+  "optionalRootFiles": [
+    "current.gsr",
+    "current.pending.gsr",
+    "generation-started.gsr",
+    "rebuilding.gsr",
+    "recovery-floor.gsr",
+    "recovery-floor.pending.gsr",
+    "selected.gsr",
+    "generation-a",
+    "generation-b",
+    "basis",
+    "transfer"
+  ],
+  "records": {
+    "ACCEPT": {
+      "encoding": "binary",
+      "fields": [
+        [
+          "manifestDigest",
+          "hash"
+        ],
+        [
+          "epoch",
+          "positive"
+        ],
+        [
+          "proposer",
+          "node"
+        ],
+        [
+          "incarnation",
+          "uuid"
+        ],
+        [
+          "entry",
+          "frame:ENTRY"
+        ],
+        [
+          "entryDigest",
+          "hash"
+        ]
+      ],
+      "id": 24,
+      "maximum": 67108864,
+      "path": "accepted.gsr",
+      "schema": {
+        "object": {
+          "entry": "frame:ENTRY",
+          "entryDigest": "hash",
+          "epoch": "positive",
+          "incarnation": "uuid",
+          "manifestDigest": "hash",
+          "proposer": "node"
+        }
+      }
+    },
+    "BASIS": {
+      "encoding": "canonical-json",
+      "id": 25,
+      "maximum": 65536,
+      "path": "basis/<peer>/basis.gsr",
+      "schema": {
+        "object": {
+          "accepted": {
+            "optional": "frame:ACCEPT"
+          },
+          "ballot": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "basisId": "uuid",
+          "files": {
+            "array": {
+              "object": {
+                "path": "relative",
+                "sha256": "hash",
+                "size": {
+                  "integer": [
+                    0,
+                    1099511627776
+                  ]
+                }
+              }
+            },
+            "max": 16,
+            "min": 1
+          },
+          "imageBytes": {
+            "integer": [
+              1,
+              67108864
+            ]
+          },
+          "imageDigest": "hash",
+          "manifestDigest": "hash",
+          "node": "node"
+        }
+      }
+    },
+    "CLEANUP": {
+      "encoding": "canonical-json",
+      "id": 22,
+      "maximum": 65536,
+      "path": "operation/cleanup.gsr",
+      "schema": {
+        "object": {
+          "decisionTail": "hash",
+          "deletePaths": {
+            "array": "relative",
+            "max": 10000,
+            "min": 0
+          },
+          "files": {
+            "array": {
+              "object": {
+                "path": "relative",
+                "sha256": "hash",
+                "size": {
+                  "integer": [
+                    0,
+                    1099511627776
+                  ]
+                }
+              }
+            },
+            "max": 10000,
+            "min": 0
+          },
+          "operationDigest": "hash",
+          "planDigest": "hash"
+        }
+      }
+    },
+    "DECISION": {
+      "encoding": "canonical-json",
+      "id": 21,
+      "maximum": 65536,
+      "path": "operation/decisions.gsr",
+      "schema": {
+        "object": {
+          "planDigest": "hash",
+          "previousDigest": "hash",
+          "sequence": "positive",
+          "state": {
+            "enum": [
+              "PREPARING",
+              "PREPARED",
+              "COMMITTING",
+              "COMMITTED"
+            ]
+          }
+        }
+      }
+    },
+    "ENTRY": {
+      "encoding": "binary",
+      "fields": [
+        [
+          "manifestDigest",
+          "hash"
+        ],
+        [
+          "originEpoch",
+          "positive"
+        ],
+        [
+          "originIncarnation",
+          "uuid"
+        ],
+        [
+          "index",
+          "positive"
+        ],
+        [
+          "operation",
+          "u8"
+        ],
+        [
+          "previousEpoch",
+          "positive"
+        ],
+        [
+          "previousIndex",
+          "counter"
+        ],
+        [
+          "previousDigest",
+          "hash"
+        ],
+        [
+          "payload",
+          "blob"
+        ],
+        [
+          "payloadDigest",
+          "hash"
+        ]
+      ],
+      "id": 5,
+      "maximum": 67108864,
+      "path": "nested in ACCEPT",
+      "schema": {
+        "object": {
+          "index": "positive",
+          "manifestDigest": "hash",
+          "operation": "u8",
+          "originEpoch": "positive",
+          "originIncarnation": "uuid",
+          "payload": "blob",
+          "payloadDigest": "hash",
+          "previousDigest": "hash",
+          "previousEpoch": "positive",
+          "previousIndex": "counter"
+        }
+      }
+    },
+    "FLOOR": {
+      "encoding": "canonical-json",
+      "id": 12,
+      "maximum": 65536,
+      "path": "recovery-floor.gsr|recovery-floor.pending.gsr",
+      "schema": {
+        "object": {
+          "entryDigest": "hash",
+          "index": "counter",
+          "manifestDigest": "hash",
+          "node": "node",
+          "sources": {
+            "array": {
+              "object": {
+                "generationDigest": "hash",
+                "node": "node",
+                "snapshotDigest": "hash"
+              }
+            },
+            "max": 2,
+            "min": 2
+          }
+        }
+      }
+    },
+    "GENERATION": {
+      "encoding": "canonical-json",
+      "id": 11,
+      "maximum": 65536,
+      "path": "generation-a|b/generation.gsr",
+      "schema": {
+        "object": {
+          "files": {
+            "array": {
+              "object": {
+                "path": "relative",
+                "sha256": "hash",
+                "size": {
+                  "integer": [
+                    0,
+                    1099511627776
+                  ]
+                }
+              }
+            },
+            "max": 16,
+            "min": 1
+          },
+          "manifestDigest": "hash",
+          "node": "node",
+          "prefixIndex": "counter",
+          "selectedDigest": {
+            "optional": "hash"
+          },
+          "snapshotDigest": "hash"
+        }
+      }
+    },
+    "GENESIS": {
+      "encoding": "canonical-json",
+      "id": 16,
+      "maximum": 67108864,
+      "path": "genesis.gsr",
+      "schema": {
+        "object": {
+          "application": "blob",
+          "baseSequence": "counter",
+          "groupId": "uuid",
+          "historyId": "uuid",
+          "indexesDigest": "hash",
+          "schemaDigest": "hash",
+          "source": {
+            "enum": [
+              "EMPTY",
+              "VERIFIED_V44_BACKUP"
+            ]
+          },
+          "sourceDigest": {
+            "optional": "hash"
+          }
+        }
+      }
+    },
+    "IMAGE": {
+      "encoding": "canonical-json",
+      "id": 9,
+      "maximum": 67108864,
+      "path": "transfer/image.gsr",
+      "schema": {
+        "object": {
+          "acceptances": {
+            "array": "frame:ACCEPT",
+            "max": 1,
+            "min": 0
+          },
+          "manifestDigest": "hash",
+          "snapshot": "frame:SNAPSHOT"
+        }
+      }
+    },
+    "JOURNAL": {
+      "encoding": "canonical-json",
+      "id": 3,
+      "maximum": 65536,
+      "path": "<ledger header>",
+      "schema": {
+        "object": {
+          "manifestDigest": "hash",
+          "node": "node",
+          "recordKind": {
+            "enum": [
+              4,
+              6,
+              24
+            ]
+          }
+        }
+      }
+    },
+    "MANIFEST": {
+      "encoding": "canonical-json",
+      "id": 1,
+      "maximum": 65536,
+      "path": "manifest.gsr",
+      "schema": {
+        "object": {
+          "baseSequence": "counter",
+          "codecId": "id",
+          "codecVersion": "counter",
+          "configurationId": "id",
+          "genesisDigest": "hash",
+          "genesisEpoch": {
+            "enum": [
+              1
+            ]
+          },
+          "groupId": "uuid",
+          "historyId": "uuid",
+          "indexesDigest": "hash",
+          "members": {
+            "array": {
+              "object": {
+                "host": "text",
+                "node": "node",
+                "port": {
+                  "integer": [
+                    1,
+                    65535
+                  ]
+                }
+              }
+            },
+            "max": 3,
+            "min": 3
+          },
+          "mode": {
+            "enum": [
+              "AUTOMATIC"
+            ]
+          },
+          "protocol": {
+            "enum": [
+              "gse-replication/1.2"
+            ]
+          },
+          "schemaDigest": "hash",
+          "storageMajor": {
+            "enum": [
+              1
+            ]
+          },
+          "storageMinor": {
+            "enum": [
+              2
+            ]
+          }
+        }
+      }
+    },
+    "NODE": {
+      "encoding": "canonical-json",
+      "id": 2,
+      "maximum": 65536,
+      "path": "node.gsr",
+      "schema": {
+        "object": {
+          "manifestDigest": "hash",
+          "node": "node",
+          "origin": {
+            "enum": [
+              "BOOTSTRAP"
+            ]
+          }
+        }
+      }
+    },
+    "PLAN": {
+      "encoding": "canonical-json",
+      "id": 17,
+      "maximum": 65536,
+      "path": "operation/plan.gsr",
+      "schema": {
+        "object": {
+          "genesis": "frame:GENESIS",
+          "manifest": "frame:MANIFEST",
+          "maxOperationBytes": "positive",
+          "maxSourceBytes": "positive",
+          "operationPath": "text",
+          "sourcePath": {
+            "optional": "text"
+          },
+          "targets": {
+            "array": {
+              "object": {
+                "authorityPath": "text",
+                "bounds": {
+                  "object": {
+                    "maxEntriesPerAppend": "positive",
+                    "maxFrameBytes": "positive",
+                    "maxInFlightPerPeer": "positive",
+                    "maxPendingClientOperations": "positive",
+                    "maxRetainedLogBytes": "positive",
+                    "maxRetryAttempts": "positive",
+                    "maxSnapshotStagingBytes": "positive",
+                    "requestTimeoutMillis": "positive",
+                    "retryBackoffMillis": "positive",
+                    "snapshotChunkBytes": "positive"
+                  }
+                },
+                "files": {
+                  "array": {
+                    "object": {
+                      "path": "relative",
+                      "sha256": "hash",
+                      "size": {
+                        "integer": [
+                          0,
+                          1099511627776
+                        ]
+                      }
+                    }
+                  },
+                  "max": 16,
+                  "min": 1
+                },
+                "materializationPath": "text",
+                "node": "node",
+                "policy": {
+                  "object": {
+                    "heartbeatIntervalMillis": "positive",
+                    "maxElectionTimeoutMillis": "positive",
+                    "minElectionTimeoutMillis": "positive",
+                    "operationTimeoutMillis": "positive"
+                  }
+                }
+              }
+            },
+            "max": 3,
+            "min": 3
+          }
+        }
+      }
+    },
+    "PREPARED": {
+      "encoding": "canonical-json",
+      "id": 18,
+      "maximum": 65536,
+      "path": "bootstrap-prepared.gsr",
+      "schema": {
+        "object": {
+          "inventoryDigest": "hash",
+          "manifestDigest": "hash",
+          "node": "node",
+          "planDigest": "hash"
+        }
+      }
+    },
+    "PROMISE": {
+      "encoding": "binary",
+      "fields": [
+        [
+          "manifestDigest",
+          "hash"
+        ],
+        [
+          "epoch",
+          "positive"
+        ],
+        [
+          "proposer",
+          {
+            "optional": "node"
+          }
+        ],
+        [
+          "incarnation",
+          "uuid"
+        ]
+      ],
+      "id": 4,
+      "maximum": 65536,
+      "path": "promises.gsr",
+      "schema": {
+        "object": {
+          "epoch": "positive",
+          "incarnation": "uuid",
+          "manifestDigest": "hash",
+          "proposer": {
+            "optional": "node"
+          }
+        }
+      }
+    },
+    "PROOF": {
+      "encoding": "binary",
+      "fields": [
+        [
+          "manifestDigest",
+          "hash"
+        ],
+        [
+          "epoch",
+          "positive"
+        ],
+        [
+          "proposer",
+          "node"
+        ],
+        [
+          "incarnation",
+          "uuid"
+        ],
+        [
+          "index",
+          "positive"
+        ],
+        [
+          "entryDigest",
+          "hash"
+        ],
+        [
+          "previousDigest",
+          "hash"
+        ],
+        [
+          "receipts",
+          {
+            "array": {
+              "object": {
+                "digest": "hash",
+                "voter": "node"
+              }
+            },
+            "max": 3,
+            "min": 2
+          }
+        ]
+      ],
+      "id": 6,
+      "maximum": 65536,
+      "path": "proofs.gsr",
+      "schema": {
+        "object": {
+          "entryDigest": "hash",
+          "epoch": "positive",
+          "incarnation": "uuid",
+          "index": "positive",
+          "manifestDigest": "hash",
+          "previousDigest": "hash",
+          "proposer": "node",
+          "receipts": {
+            "array": {
+              "object": {
+                "digest": "hash",
+                "voter": "node"
+              }
+            },
+            "max": 3,
+            "min": 2
+          }
+        }
+      }
+    },
+    "READY": {
+      "encoding": "canonical-json",
+      "id": 7,
+      "maximum": 65536,
+      "path": "storage-ready.gsr",
+      "schema": {
+        "object": {
+          "genesisDigest": "hash",
+          "manifestDigest": "hash",
+          "node": "node"
+        }
+      }
+    },
+    "REBUILDING": {
+      "encoding": "canonical-json",
+      "id": 13,
+      "maximum": 65536,
+      "path": "rebuilding.gsr",
+      "schema": {
+        "object": {
+          "manifestDigest": "hash",
+          "node": "node"
+        }
+      }
+    },
+    "RECEIPT": {
+      "encoding": "canonical-json",
+      "id": 19,
+      "maximum": 65536,
+      "path": "operation/receipt.gsr",
+      "schema": {
+        "object": {
+          "plan": "frame:PLAN",
+          "preparations": {
+            "array": "frame:PREPARED",
+            "max": 3,
+            "min": 3
+          }
+        }
+      }
+    },
+    "SEAL": {
+      "encoding": "canonical-json",
+      "id": 20,
+      "maximum": 65536,
+      "path": "bootstrap-seal.gsr",
+      "schema": {
+        "object": {
+          "node": "node",
+          "receipt": "frame:RECEIPT"
+        }
+      }
+    },
+    "SELECTED": {
+      "encoding": "canonical-json",
+      "id": 26,
+      "maximum": 65536,
+      "path": "selected.gsr",
+      "schema": {
+        "object": {
+          "ballot": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "bases": {
+            "array": {
+              "object": {
+                "basisDigest": "hash",
+                "basisId": "uuid",
+                "node": "node"
+              }
+            },
+            "max": 2,
+            "min": 2
+          },
+          "manifestDigest": "hash",
+          "nextEntry": {
+            "optional": "frame:ENTRY"
+          },
+          "prefixDigest": "hash",
+          "prefixIndex": "counter",
+          "sourceBallot": {
+            "optional": {
+              "object": {
+                "epoch": "positive",
+                "incarnation": "uuid",
+                "proposer": {
+                  "optional": "node"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "SELECTOR": {
+      "encoding": "canonical-json",
+      "id": 10,
+      "maximum": 65536,
+      "path": "current.gsr|current.pending.gsr",
+      "schema": {
+        "object": {
+          "generation": {
+            "enum": [
+              "generation-a",
+              "generation-b"
+            ]
+          },
+          "generationDigest": "hash",
+          "manifestDigest": "hash",
+          "node": "node"
+        }
+      }
+    },
+    "SNAPSHOT": {
+      "encoding": "canonical-json",
+      "id": 8,
+      "maximum": 67108864,
+      "path": "generation-a|b/snapshot.gsr",
+      "schema": {
+        "object": {
+          "anchors": {
+            "array": {
+              "object": {
+                "entryDigest": "hash",
+                "operation": {
+                  "integer": [
+                    1,
+                    10
+                  ]
+                },
+                "originEpoch": "positive",
+                "originIncarnation": "uuid",
+                "payloadDigest": "hash"
+              }
+            },
+            "max": 1000000,
+            "min": 0
+          },
+          "application": "blob",
+          "applicationSequence": "counter",
+          "baseSequence": "counter",
+          "manifestDigest": "hash",
+          "terminalProof": {
+            "optional": "frame:PROOF"
+          }
+        }
+      }
+    },
+    "STARTED": {
+      "encoding": "canonical-json",
+      "id": 15,
+      "maximum": 65536,
+      "path": "generation-started.gsr",
+      "schema": {
+        "object": {
+          "manifestDigest": "hash",
+          "node": "node"
+        }
+      }
+    },
+    "TRANSFER": {
+      "encoding": "canonical-json",
+      "id": 14,
+      "maximum": 65536,
+      "path": "transfer/transfer.gsr",
+      "schema": {
+        "object": {
+          "ballot": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "imageBytes": {
+            "integer": [
+              1,
+              67108864
+            ]
+          },
+          "imageDigest": "hash",
+          "manifestDigest": "hash",
+          "node": "node",
+          "receivedBytes": "counter",
+          "transferId": "uuid"
+        }
+      }
+    }
+  },
+  "reservedStorageIds": [
+    23
+  ],
+  "reservedWireIds": [
+    2,
+    3,
+    4,
+    13
+  ],
+  "rootFiles": [
+    "replica.lock",
+    "manifest.gsr",
+    "node.gsr",
+    "genesis.gsr",
+    "promises.gsr",
+    "accepted.gsr",
+    "proofs.gsr",
+    "storage-ready.gsr",
+    "bootstrap-prepared.gsr",
+    "bootstrap-seal.gsr"
+  ],
+  "schema": "gse-v51-format-catalog-v1",
+  "storage": [
+    1,
+    2
+  ],
+  "wire": {
+    "ACCEPT": {
+      "id": 20,
+      "schema": {
+        "object": {
+          "acceptance": "frame:ACCEPT"
+        }
+      }
+    },
+    "ACCEPT_ACK": {
+      "id": 21,
+      "schema": {
+        "object": {
+          "entryDigest": "hash",
+          "index": "positive",
+          "receipt": "hash"
+        }
+      }
+    },
+    "AUTHORITY_STATUS": {
+      "id": 14,
+      "schema": {
+        "object": {
+          "applicationSequence": "counter",
+          "appliedIndex": "counter",
+          "nonce": "uuid",
+          "promised": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "provenIndex": "counter",
+          "ready": "bool"
+        }
+      }
+    },
+    "AUTHORITY_STATUS_PROBE": {
+      "id": 9,
+      "schema": {
+        "object": {
+          "nonce": "uuid"
+        }
+      }
+    },
+    "BASIS_CHUNK": {
+      "id": 19,
+      "schema": {
+        "object": {
+          "action": {
+            "enum": [
+              "REQUEST",
+              "DATA",
+              "ACK"
+            ]
+          },
+          "basisId": "uuid",
+          "chunk": "blob",
+          "chunkBytes": {
+            "integer": [
+              0,
+              67108864
+            ]
+          },
+          "chunkDigest": "hash",
+          "maxChunkBytes": {
+            "integer": [
+              4096,
+              67108864
+            ]
+          },
+          "offset": "counter"
+        }
+      }
+    },
+    "COMMIT_ADVANCE": {
+      "id": 7,
+      "schema": {
+        "object": {
+          "entryDigest": "hash",
+          "index": "counter"
+        }
+      }
+    },
+    "COMMIT_PROOF": {
+      "id": 5,
+      "schema": {
+        "object": {
+          "proof": "frame:PROOF"
+        }
+      }
+    },
+    "COMMIT_PROOF_ACK": {
+      "id": 6,
+      "schema": {
+        "object": {
+          "index": "positive",
+          "proofDigest": "hash",
+          "receipt": "hash"
+        }
+      }
+    },
+    "CONFLICT": {
+      "id": 8,
+      "schema": {
+        "object": {
+          "entryDigest": "hash",
+          "promised": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "provenIndex": "counter"
+        }
+      }
+    },
+    "HANDSHAKE": {
+      "id": 1,
+      "schema": {
+        "object": {
+          "mode": {
+            "enum": [
+              "AUTOMATIC"
+            ]
+          }
+        }
+      }
+    },
+    "HEARTBEAT": {
+      "id": 22,
+      "schema": {
+        "object": {
+          "activated": "bool",
+          "progressBytes": "counter",
+          "provenIndex": "counter",
+          "sequence": "positive",
+          "stage": "counter"
+        }
+      }
+    },
+    "HEARTBEAT_ACK": {
+      "id": 23,
+      "schema": {
+        "object": {
+          "provenIndex": "counter",
+          "sequence": "positive"
+        }
+      }
+    },
+    "PREPARE": {
+      "id": 17,
+      "schema": {
+        "object": {
+          "nonce": "uuid"
+        }
+      }
+    },
+    "PROMISE": {
+      "id": 18,
+      "schema": {
+        "object": {
+          "basis": "frame:BASIS",
+          "nonce": "uuid"
+        }
+      }
+    },
+    "REJECT": {
+      "id": 16,
+      "schema": {
+        "object": {
+          "promised": {
+            "object": {
+              "epoch": "positive",
+              "incarnation": "uuid",
+              "proposer": {
+                "optional": "node"
+              }
+            }
+          },
+          "reason": {
+            "enum": [
+              "NOT_READY",
+              "STALE_EPOCH",
+              "CONFLICTING_HISTORY",
+              "CAPACITY_EXCEEDED",
+              "PROTOCOL_MISMATCH",
+              "INTEGRITY_FAILURE",
+              "STORAGE_FAILURE",
+              "CLOSED"
+            ]
+          }
+        }
+      }
+    },
+    "SNAPSHOT_ABORT": {
+      "id": 15,
+      "schema": {
+        "object": {
+          "response": "bool",
+          "transferId": "uuid"
+        }
+      }
+    },
+    "SNAPSHOT_CHUNK": {
+      "id": 11,
+      "schema": {
+        "object": {
+          "action": {
+            "enum": [
+              "REQUEST",
+              "DATA",
+              "ACK"
+            ]
+          },
+          "chunk": "blob",
+          "chunkBytes": {
+            "integer": [
+              0,
+              67108864
+            ]
+          },
+          "chunkDigest": "hash",
+          "maxChunkBytes": {
+            "integer": [
+              4096,
+              67108864
+            ]
+          },
+          "offset": "counter",
+          "transferId": "uuid"
+        }
+      }
+    },
+    "SNAPSHOT_INSTALL": {
+      "id": 12,
+      "schema": {
+        "object": {
+          "imageDigest": "hash",
+          "response": "bool",
+          "selectedDigest": "hash",
+          "transferId": "uuid"
+        }
+      }
+    },
+    "SNAPSHOT_OFFER": {
+      "id": 10,
+      "schema": {
+        "object": {
+          "imageBytes": {
+            "integer": [
+              1,
+              67108864
+            ]
+          },
+          "imageDigest": "hash",
+          "response": "bool",
+          "transferId": "uuid"
+        }
+      }
+    }
+  },
+  "wireProtocol": "gse-replication/1.2"
+}

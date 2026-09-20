@@ -1,7 +1,8 @@
 # V5.1 Phase 1 entry candidate: independent foundation
 
-**Status:** PROPOSED, not authorized by creation of this document.
-**Governing candidate:** [Phase 0 contract](PHASE_0_CONTRACT.md).
+**Status:** Phase 1 authorized by the user after PR #184 and exact-master CI 35487644896.
+The [local foundation implementation](PHASE_1_FOUNDATION.md) awaits its own protected acceptance.
+**Governing contract:** [Phase 0 contract](PHASE_0_CONTRACT.md).
 
 ## Entry and stop conditions
 

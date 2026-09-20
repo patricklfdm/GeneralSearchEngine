@@ -24,6 +24,7 @@ class V50PublicApiInventoryTest {
     void reflectionInventoryMatchesTheFrozenTopLevelPublicSurface() throws Exception {
         Map<String, String> expected = loadInventory();
         Set<String> actual = compiledTopLevelTypes();
+        actual.retainAll(expected.keySet()); // V5.1 separately checks the complete old + additive surface.
         assertEquals(expected.keySet(), actual,
                 "update the reviewed reflection fixture when the public surface changes");
         for (Map.Entry<String, String> entry : expected.entrySet()) {
@@ -87,13 +88,13 @@ class V50PublicApiInventoryTest {
 
     private String signatures() throws Exception {
         Set<String> declarations = new TreeSet<>();
-        for (String name : compiledTopLevelTypes()) {
+        for (String name : loadInventory().keySet()) {
             collectSignatures(Class.forName(name), declarations);
         }
         return String.join("\n", declarations) + "\n";
     }
 
-    private void collectSignatures(Class<?> type, Set<String> declarations) throws Exception {
+    void collectSignatures(Class<?> type, Set<String> declarations) throws Exception {
         if (!Modifier.isPublic(type.getModifiers()) && !Modifier.isProtected(type.getModifiers())) {
             return;
         }
@@ -172,7 +173,7 @@ class V50PublicApiInventoryTest {
         return inventory;
     }
 
-    private Set<String> compiledTopLevelTypes() throws Exception {
+    Set<String> compiledTopLevelTypes() throws Exception {
         URI classesRoot = ReplicationNodeId.class.getProtectionDomain()
                 .getCodeSource().getLocation().toURI();
         Path packageDirectory = Path.of(classesRoot)

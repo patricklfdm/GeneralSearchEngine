@@ -1,8 +1,15 @@
 # V5.1 testing and evidence candidate
 
-**Status:** PROPOSED evidence contract, revision 0.1. No V5.1 model, runtime or
-cloud results exist from this documentation task.
+**Status:** Phase 0 evidence design accepted through PR #184; revision 0.1.
+Phase 0 produced no V5.1 model, runtime or cloud results; later evidence is recorded separately.
 **Reviewed source:** `09d2bf247f004eb134eb81c59ee88005affafe92`.
+
+**Acceptance update:** protected PR [#184](https://github.com/patricklfdm/GeneralSearchEngine/pull/184)
+accepted this Phase 0 design at `31b70d08b509ac75037a8eb6386780affc353ed9`.
+[Exact-master CI 35487644896](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35487644896)
+passed the documentation lane; reactor/compatibility/packaging jobs were skipped.
+Original candidate wording below records the reviewed design, not runtime evidence.
+The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FOUNDATION.md).
 
 ## Independent foundation before production
 

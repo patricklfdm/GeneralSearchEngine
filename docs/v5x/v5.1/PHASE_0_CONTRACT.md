@@ -1,7 +1,14 @@
 # V5.1 Phase 0 contract candidate: automatic leadership
 
-**Status:** PROPOSED contract candidate, revision 0.1, 2026-09-19. Design assignment
-started by the user; protected acceptance and Phase 1 authorization remain pending.
+**Status:** Phase 0 design accepted through PR #184; revision 0.1, 2026-09-19.
+Phase 1 subsequently authorized; automatic runtime remains a later-phase obligation.
+
+**Acceptance update:** protected PR [#184](https://github.com/patricklfdm/GeneralSearchEngine/pull/184)
+accepted this Phase 0 design at `31b70d08b509ac75037a8eb6386780affc353ed9`.
+[Exact-master CI 35487644896](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35487644896)
+passed the documentation lane; reactor/compatibility/packaging jobs were skipped.
+Original candidate wording below records the reviewed design, not runtime evidence.
+The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FOUNDATION.md).
 
 **Reviewed checkout:** `09d2bf247f004eb134eb81c59ee88005affafe92`.
 Relative to the entry plan's `066a04602f7116a0386c645ddfcf4c2e3d41312a` base, this
@@ -27,10 +34,9 @@ amend the published configured-leader contract by changing that contract's files
 - [Phase 0 checklist](PHASE_0_CHECKLIST.md): current review and acceptance state.
 - [Phase 1 entry plan](PHASE_1_ENTRY_PLAN.md): declarations and independent foundations.
 
-Candidate decisions below are design selections with rationale. Their status is
-**CANDIDATE / REVIEW REQUIRED**, not accepted or experimentally proven. The original
-entry register records the initial OPEN state; this table records the proposed
-resolution. A counterexample that defeats a selection reopens that decision.
+Decisions below were accepted through protected PR #184 as design selections with
+rationale, not as experimental proof. The original entry register records the initial
+OPEN state; this table records the reviewed resolutions. A counterexample that defeats a selection reopens that decision.
 
 ## Goal and assumptions
 
@@ -104,5 +110,6 @@ shortcuts deferred until cloud testing.
 Review must concentrate on D01/D03's accepted-tail rule and preservation of the
 charter's protocol lineage, D05's barrier/view race, D07's exact API/format inventory,
 and D08's intentionally narrower automatic disk-loss boundary. The selected design
-has written safety arguments and falsifying schedules; no model, runtime or paid
-experiment has executed it yet. Protected acceptance remains a required open gate.
+has written safety arguments and falsifying schedules. Phase 0 executed no model,
+runtime or paid experiment. Subsequent independent foundation evidence and its limits
+are recorded separately; production acceptance remains a later gate.

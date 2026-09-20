@@ -17,8 +17,18 @@ ROOT = Path(__file__).resolve().parents[2]
 PACKAGE = 'io.github.patricklfdm.generalsearch.'
 WORKER = PACKAGE + 'replication.V50OfflineCrashWorker'
 CONTROL = PACKAGE + 'admission.AdmissionV44Control'
-CORE = ROOT / 'target/general-search-engine-5.0.0.jar'
-REPLICATION = ROOT / 'general-search-engine-replication/target/general-search-engine-replication-5.0.0.jar'
+
+
+def current_jars(root):
+    """Use the aligned reactor version, never a leftover or published control JAR."""
+    version = ET.parse(root / 'pom.xml').getroot().findtext('{http://maven.apache.org/POM/4.0.0}version')
+    check(version and version.strip(), 'root POM must declare the current reactor version')
+    version = version.strip()
+    return (root / f'target/general-search-engine-{version}.jar',
+            root / f'general-search-engine-replication/target/general-search-engine-replication-{version}.jar')
+
+
+CORE, REPLICATION = current_jars(ROOT)
 CLASSPATH = None  # Set only after isolated consumer/fault-worker compilation.
 BOOTSTRAP_CUTS = ['BOOTSTRAP_PLAN_FORCED', 'BOOTSTRAP_PREPARING_FORCED']
 BOOTSTRAP_CUTS += [f'BOOTSTRAP_TARGET_{i}_CREATED' for i in range(3)]

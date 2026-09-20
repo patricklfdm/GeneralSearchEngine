@@ -1,12 +1,14 @@
 # GeneralSearchEngine development roadmap
 
-## Next development entry: V5.1 contract design
+## Current development: V5.1 independent foundation
 
-V5.0 is published. The user has started documentation-only V5.1 Phase 0 under the
-[entry plan](docs/v5x/v5.1/PHASE_0_ENTRY_PLAN.md). Its six-document
-[contract candidate](docs/v5x/v5.1/PHASE_0_CONTRACT.md) is available for review;
-[protected acceptance and Phase 1 entry](docs/v5x/v5.1/PHASE_0_CHECKLIST.md) remain pending.
-V5.1 runtime implementation and V5.2-V5.4 remain future work.
+V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
+`31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
+`35487644896` passing. The user authorized the
+[Phase 1 foundation](docs/v5x/v5.1/PHASE_1_FOUNDATION.md): declarations, independent
+format/model/process evidence and no-GCP planning are implemented locally for review.
+Automatic runtime admission remains disabled; Phase 1 protected acceptance is pending.
+V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
 revision 0.1 refinements dated 2026-09-19, not accepted implementation contracts.
