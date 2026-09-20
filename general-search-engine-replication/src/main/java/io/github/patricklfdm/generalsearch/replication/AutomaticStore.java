@@ -191,7 +191,11 @@ final class AutomaticStore implements AutoCloseable {
         return recoveryIo(()->{var basis=recovery.basis(requester);need(basis.record().value().get("basisId").equals(id)&&basis.record().value().get("ballot").equals(AutomaticRecovery.ballotOf(promise)),"stale frozen basis");byte[] raw=basis.image().encoded().bytes();capacity(length>0&&length<=bounds.snapshotChunkBytes(),"basis chunk bound");need(offset>=0&&offset<=raw.length&&length<=raw.length-offset,"basis chunk offset");return Arrays.copyOfRange(raw,(int)offset,(int)offset+length);});
     }
     synchronized AutomaticRecovery.Selection select(List<AutomaticRecovery.Basis> bases) {
-        return recoveryIo(()->{var decision=AutomaticRecovery.select(manifest,AutomaticRecovery.ballotOf(promise),bases);need(AutomaticRecovery.index(decision.snapshot())>=provenThrough(),"selection would roll back local proof");checkPrefix(decision.snapshot(),provenThrough());recovery.select(decision);selected=decision;return decision;});
+        return recoveryIo(()->{var decision=AutomaticRecovery.select(manifest,AutomaticRecovery.ballotOf(promise),bases);
+            boolean retry=selected!=null&&Arrays.equals(selected.record().bytes(),decision.record().bytes());
+            need(retry||AutomaticRecovery.index(decision.snapshot())>=provenThrough(),"selection would roll back local proof");
+            checkPrefix(decision.snapshot(),Math.min(provenThrough(),AutomaticRecovery.index(decision.snapshot())));
+            recovery.select(decision);selected=decision;return decision;});
     }
     synchronized void installSelected() {
         recoveryIo(()->{need(selected!=null&&selected.record().value().get("ballot").equals(AutomaticRecovery.ballotOf(promise)),"no current recovery selection");install(selected.snapshot(),selected.record());return null;});
@@ -269,6 +273,50 @@ final class AutomaticStore implements AutoCloseable {
         usable(); return Map.of("promisedEpoch", number(promise.value(), "epoch"), "promiseCount", grants.size(),
                 "acceptedThrough", acceptedThrough(), "provenThrough", provenThrough(), "applicationSequence", applicationSequence,
                 "retainedBytes", retainedBytes, "node", node, "manifestDigest", manifest.digest());
+    }
+    synchronized Record promised() { usable(); return promise; }
+    synchronized boolean quarantined() { return failed||closed; }
+    record Head(int index,long originEpoch,String digest) { }
+    synchronized Head head() {
+        usable();int index=provenThrough();
+        try {return new Head(index,epochAt(index),digestAt(index));}
+        catch(IOException error) {failed=true;throw failure(STORAGE_FAILURE,"cannot read proven head",error);}
+    }
+    synchronized Record manifest() { usable(); return manifest; }
+    synchronized ReplicationBounds bounds() { usable(); return bounds; }
+    synchronized AutomaticLeadershipPolicy leadershipPolicy() {
+        usable();
+        try {
+            var seal=decode(Files.readAllBytes(directory.resolve("bootstrap-seal.gsr")),"SEAL");
+            var receipt=decode(unbase(seal.value().get("receipt")),"RECEIPT");
+            var plan=decode(unbase(receipt.value().get("plan")),"PLAN");
+            var target=list(plan.value().get("targets")).stream().map(AutomaticRecords::object)
+                    .filter(t->node.equals(t.get("node"))).findFirst().orElseThrow();
+            var policy=object(target.get("policy"));
+            return new AutomaticLeadershipPolicy(Math.toIntExact(number(policy,"heartbeatIntervalMillis")),
+                    Math.toIntExact(number(policy,"minElectionTimeoutMillis")),Math.toIntExact(number(policy,"maxElectionTimeoutMillis")),
+                    Math.toIntExact(number(policy,"operationTimeoutMillis")));
+        } catch (IOException error) { failed=true;throw failure(STORAGE_FAILURE,"cannot read sealed leadership policy",error); }
+    }
+    /** Immutable bounded input for application reconstruction outside the control dispatcher. */
+    record Replay(Record snapshot,List<Record> entries,int through,long sequence) {
+        Replay { entries=List.copyOf(entries); }
+    }
+    synchronized Replay replay() {
+        usable();
+        try {
+            long bytes=baseSnapshot.bytes().length;var entries=new ArrayList<Record>();
+            for(int i=baseIndex+1;i<=provenThrough();i++) {
+                var row=entry(i);bytes+=row.bytes().length;
+                capacity(bytes<=IMAGE,"application reconstruction input bound");entries.add(row);
+            }
+            return new Replay(baseSnapshot,entries,provenThrough(),applicationSequence);
+        } catch(IOException error) {failed=true;throw failure(STORAGE_FAILURE,"cannot read proven reconstruction input",error);}
+    }
+    synchronized Record provenSnapshot(byte[] application) {
+        usable();
+        try {return snapshot(application);}
+        catch(IOException error) {failed=true;throw failure(STORAGE_FAILURE,"cannot read proven snapshot",error);}
     }
     synchronized byte[] acceptedEntry(int index) {
         usable(); need(index > baseIndex && index <= acceptedThrough(), "accepted index");

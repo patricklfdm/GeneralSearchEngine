@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current development: V5.1 durable automatic authority
+## Current development: V5.1 automatic election and activation
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
@@ -11,7 +11,11 @@ exact-master CI `35491646610` passed all six jobs. The user entered
 with exact-master CI `35495493715` passing all six jobs.
 [Batch B recovery](docs/v5x/v5.1/PHASE_2_RECOVERY.md) now implements frozen selection,
 generation installation and two-source retirement with independent process-cut evidence.
-Protected Phase 2 acceptance is pending; public automatic runtime admission remains disabled.
+Phase 2 was accepted in PR #187 at `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`,
+with exact-master CI `35503107173` passing all six jobs. The user entered
+[Phase 3](docs/v5x/v5.1/PHASE_3_ENTRY_PLAN.md); its internal election/activation
+transition kernel is implemented locally. Real transport/application integration
+and public automatic runtime admission remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

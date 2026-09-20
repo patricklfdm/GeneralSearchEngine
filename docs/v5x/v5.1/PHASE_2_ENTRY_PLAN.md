@@ -1,7 +1,9 @@
 # V5.1 Phase 2 entry: durable automatic authority
 
-**Status:** Batch A accepted; Batch B implemented locally after the user switched to
-`feat/v5.1-phase2-recovery`; protected Phase 2 acceptance pending.
+**Status:** Phase 2 accepted through [PR #187](https://github.com/patricklfdm/GeneralSearchEngine/pull/187)
+at `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`;
+[exact-master CI 35503107173](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35503107173)
+passed all six jobs. The user has entered [Phase 3](PHASE_3_ENTRY_PLAN.md).
 **Accepted base:** Batch A [PR #186](https://github.com/patricklfdm/GeneralSearchEngine/pull/186),
 `284f23d398138d0a747bde42e041da291c68574f`.
 [Exact-master CI 35495493715](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35495493715)
@@ -29,7 +31,7 @@ published V5.0 artifact is regenerated to accommodate an implementation.
   every ledger at write/force/ACK boundaries. Retain bytes before product reopen.
 - Keep public automatic factory/bootstrap disabled and all configured-mode gates.
 
-### B — frozen recovery and complete generation authority (this batch)
+### B — frozen recovery and complete generation authority (accepted)
 
 Implemented frozen basis/image inventory and chunk identity, selected-next persistence,
 highest-accepted quorum selection, snapshot/accepted-tail carry, generation inventory
@@ -47,8 +49,9 @@ restriction is not the final election protocol or a claimed liveness property.
 
 Both batches require reviewed source, independent/product byte agreement, meaningful
 corruption negatives, actual process-cut evidence and exact accepted-master CI.
-Phase 2 remains incomplete until Batch B is accepted. Only then review Phase 3's
-election, activation, replication and retained-disk rejoin entry. Public automatic
+Both batches are accepted; the [checklist](PHASE_2_CHECKLIST.md) records the exact
+master and executed CI. Phase 3's entry covers election, activation, replication
+and retained-disk rejoin. Public automatic
 enablement remains Phase 4; no cloud execution or release is part of this entry.
 
 See the [current storage boundary](PHASE_2_STORAGE.md) and [checklist](PHASE_2_CHECKLIST.md).
