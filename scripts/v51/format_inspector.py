@@ -200,6 +200,8 @@ def walk_context(schema,value,manifest):
 def wire(raw,manifest):
     need(48<len(raw)<=MAX_IMAGE,'wire capacity')
     magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16]);catalog=load()
+    extension=json.loads((Path(__file__).resolve().parents[2]/'general-search-engine-replication/src/test/resources/replication/v51/runtime-wire-extension.json').read_text())
+    catalog['wire'].update(extension['wire']);catalog['envelope']['object']['type']['enum']+=list(extension['wire'])
     spec=next((v for v in catalog['wire'].values() if v['id']==kind),None)
     need((magic,major,minor,flags)==(b'GSRP',1,2,0) and spec is not None,'wire version/kind')
     need(size==len(raw)-48 and hashlib.sha256(raw[:16]+raw[48:]).digest()==raw[16:48],'wire length/digest')
@@ -226,6 +228,13 @@ def wire(raw,manifest):
     if value['type']=='PROMISE':
         basis=inspect(base64.b64decode(payload['basis']),'BASIS');b=basis['ballot']
         need(basis['node']==value['sender'] and (b['epoch'],b['proposer'],b['incarnation'])==(value['epoch'],value['proposer'],value['incarnationId']),'promise basis sender/ballot')
+    if value['type']=='SELECTED_OFFER':
+        selected=inspect(base64.b64decode(payload['selected']),'SELECTED')
+        b=dict(epoch=value['epoch'],proposer=value['proposer'],incarnation=value['incarnationId'])
+        bases=[base64.b64decode(row) for row in payload['bases']]
+        descriptors=[inspect(row,'BASIS') for row in bases]
+        need(selected['ballot']==b and all(d['ballot']==b for d in descriptors),'selected offer ballot')
+        need(selected['bases']==[dict(node=d['node'],basisId=d['basisId'],basisDigest=row[16:48].hex()) for row,d in zip(bases,descriptors)],'selected offer exact bases')
     if value['type'] in ('ACCEPT_ACK','COMMIT_PROOF_ACK'):
         proof=value['type']=='COMMIT_PROOF_ACK';digest=payload['proofDigest' if proof else 'entryDigest']
         need(payload['receipt']==receipt('PROOF_ACK' if proof else 'ACCEPT_ACK',value['manifestDigest'],value['sender'],value['epoch'],value['proposer'],value['incarnationId'],payload['index'],digest),'wire receipt domain')

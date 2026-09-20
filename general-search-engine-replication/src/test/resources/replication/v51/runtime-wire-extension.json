@@ -1,0 +1,19 @@
+{
+  "schema": "gse-v51-runtime-wire-extension-v1",
+  "wire": {
+    "SELECTED_OFFER": {
+      "id": 24,
+      "schema": {
+        "object": {
+          "bases": {
+            "array": "frame:BASIS",
+            "max": 2,
+            "min": 2
+          },
+          "response": "bool",
+          "selected": "frame:SELECTED"
+        }
+      }
+    }
+  }
+}

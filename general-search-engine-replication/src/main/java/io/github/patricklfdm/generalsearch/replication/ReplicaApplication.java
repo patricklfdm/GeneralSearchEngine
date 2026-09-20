@@ -113,10 +113,19 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
 
     /** Rebuilds privately; the caller publishes only after authority installation succeeds. */
     ReplicaApplication<K, T> rebuild(ReplicaRecoveryImage image) {
+        var snapshot = image.snapshot();
+        var rebuilt = rebuildApplication(snapshot.application(), snapshot.index(), snapshot.sequence());
+        try {
+            for (var entry : image.entries()) { rebuilt.prepare(entry); rebuilt.publish(entry.index()); }
+            return rebuilt;
+        } catch (RuntimeException | Error error) { rebuilt.close(); throw error; }
+    }
+
+    /** Canonical V4 application bytes only; the caller separately validates its authority format. */
+    ReplicaApplication<K, T> rebuildApplication(byte[] application, long appliedIndex, long sequence) {
         var rebuilt = new ReplicaApplication<>(captured, configuration, bounds);
         try {
-            var snapshot = image.snapshot();
-            var in = input(snapshot.application());
+            var in = input(application);
             require(in.readUnsignedShort() == 1, PROTOCOL_MISMATCH, "unsupported application snapshot version");
             int count = in.readInt();
             require(count >= 0 && count <= 10_000 && count <= in.available() / 4, CAPACITY_EXCEEDED, "snapshot index count exceeds bound");
@@ -154,9 +163,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
                 }
             }
             end(in);
-            rebuilt.published.set(new Published<>(rebuilt.published.get().slot(), snapshot.index(), snapshot.sequence()));
-            require(Arrays.equals(snapshot.application(), rebuilt.snapshot()), INTEGRITY_FAILURE, "noncanonical application snapshot");
-            for (var entry : image.entries()) { rebuilt.prepare(entry); rebuilt.publish(entry.index()); }
+            rebuilt.published.set(new Published<>(rebuilt.published.get().slot(), appliedIndex, sequence));
+            require(Arrays.equals(application, rebuilt.snapshot()), INTEGRITY_FAILURE, "noncanonical application snapshot");
             return rebuilt;
         } catch (IOException | RuntimeException | Error error) {
             rebuilt.close();
@@ -264,7 +272,9 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
     }
 
     /** Prepares only private state. Rejected atomic operations leave it unchanged. */
-    void prepare(ReplicaEntry entry) {
+    void prepare(ReplicaEntry entry) { prepare(entry.operation(), entry.payload()); }
+
+    void prepare(String operationName, byte[] payload) {
         require(!closed && prepared == null, CLOSED, "application has an unresolved prepared operation");
         if (catchup != null) {
             long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
@@ -274,8 +284,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
             }
             apply(working.engine, catchup); catchup = null;
         }
-        require(control(entry.operation()) || sequence() < Long.MAX_VALUE, CAPACITY_EXCEEDED, "application sequence exhausted");
-        Operation<T, K> operation = decode(entry);
+        require(control(operationName) || sequence() < Long.MAX_VALUE, CAPACITY_EXCEEDED, "application sequence exhausted");
+        Operation<T, K> operation = decode(operationName, payload);
         if (operation.type().equals("INDEX_CREATE")) {
             String existing = registered.get(operation.index().field().name());
             require(existing == null || existing.equals(descriptor(operation.index())), PROTOCOL_MISMATCH,
@@ -306,28 +316,28 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
         prepared = null;
     }
 
-    private Operation<T, K> decode(ReplicaEntry entry) {
-        if (control(entry.operation())) {
-            require(entry.payload().length == 0, INTEGRITY_FAILURE, "NO_OP payload must be empty");
-            return new Operation<>(entry.operation(), List.of(), List.of(), null, null);
+    private Operation<T, K> decode(String operation, byte[] payload) {
+        if (control(operation)) {
+            require(payload.length == 0, INTEGRITY_FAILURE, "NO_OP payload must be empty");
+            return new Operation<>(operation, List.of(), List.of(), null, null);
         }
-        require(entry.payload().length <= maximumPayload, CAPACITY_EXCEEDED, "application payload exceeds bound");
+        require(payload.length <= maximumPayload, CAPACITY_EXCEEDED, "application payload exceeds bound");
         try {
-            var in = input(entry.payload());
+            var in = input(payload);
             require(in.readUnsignedShort() == 1, PROTOCOL_MISMATCH, "unsupported application payload version");
             var docs = new ArrayList<T>(); var keys = new ArrayList<K>();
             IndexDefinition<T> index = null; String field = null;
-            if (List.of("ADD", "UPDATE", "REMOVE", "ADD_ALL", "UPDATE_ALL", "REMOVE_ALL").contains(entry.operation())) {
+            if (List.of("ADD", "UPDATE", "REMOVE", "ADD_ALL", "UPDATE_ALL", "REMOVE_ALL").contains(operation)) {
                 int count = in.readInt();
                 require(count >= 0 && count <= configuration.maxBulkElements() && count <= in.available() / 4,
                         CAPACITY_EXCEEDED, "invalid bulk count");
-                require(entry.operation().endsWith("_ALL") || count == 1, INTEGRITY_FAILURE, "single operation count mismatch");
+                require(operation.endsWith("_ALL") || count == 1, INTEGRITY_FAILURE, "single operation count mismatch");
                 for (int i = 0; i < count; i++) {
                     byte[] bytes = blob(in, configuration.maxEncodedKeyBytes());
                     K key = codec.decodeKey(bytes.clone());
                     require(Arrays.equals(bytes, canonicalKey(key)), INTEGRITY_FAILURE, "noncanonical key payload");
                     keys.add(key);
-                    if (!entry.operation().startsWith("REMOVE")) {
+                    if (!operation.startsWith("REMOVE")) {
                         byte[] document = blob(in, configuration.maxEncodedDocumentBytes());
                         T decoded = codec.decodeDocument(document.clone());
                         require(Arrays.equals(document, canonicalDocument(decoded))
@@ -335,11 +345,11 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
                         docs.add(decoded);
                     }
                 }
-            } else if (entry.operation().equals("INDEX_CREATE")) index = definition(text(in, 8192));
-            else if (entry.operation().equals("INDEX_DROP")) { field = text(in, 1024); schema.requireField(field); }
+            } else if (operation.equals("INDEX_CREATE")) index = definition(text(in, 8192));
+            else if (operation.equals("INDEX_DROP")) { field = text(in, 1024); schema.requireField(field); }
             else throw new ReplicationException(PROTOCOL_MISMATCH, "application operation is not enabled in Phase 3");
             end(in);
-            return new Operation<>(entry.operation(), docs, keys, index, field);
+            return new Operation<>(operation, docs, keys, index, field);
         } catch (IOException error) { throw failure(INTEGRITY_FAILURE, "invalid application payload", error); }
     }
 

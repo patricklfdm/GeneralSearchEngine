@@ -128,7 +128,7 @@ final class AutomaticRecords {
         return decode(ByteBuffer.allocate(HEADER + body.length).put(header).put(hash(header, body)).put(body).array(), name).bytes();
     }
 
-    private static void schema(Object type, Object value, int depth) {
+    static void schema(Object type, Object value, int depth) {
         capacity(depth <= 16, "schema depth");
         if (type instanceof Map<?, ?>) {
             var spec = object(type);
@@ -148,6 +148,7 @@ final class AutomaticRecords {
             return;
         }
         String name = (String) type;
+        if (name.equals("bool")) { need(value instanceof Boolean, "boolean scalar"); return; }
         if (List.of("positive", "counter", "u8").contains(name)) {
             long n = integer(value); need(n >= (name.equals("positive") ? 1 : 0) && (!name.equals("u8") || n <= 255), "integer scalar"); return;
         }
@@ -247,7 +248,7 @@ final class AutomaticRecords {
         }
         walkContext(object(CATALOG.get(record.name())).get("schema"), value, manifest);
     }
-    private static void walkContext(Object schema, Object value, Record manifest) {
+    static void walkContext(Object schema, Object value, Record manifest) {
         if (schema instanceof Map<?, ?>) {
             var s = object(schema);
             if (s.containsKey("optional")) { if (value != null) walkContext(s.get("optional"), value, manifest); }
