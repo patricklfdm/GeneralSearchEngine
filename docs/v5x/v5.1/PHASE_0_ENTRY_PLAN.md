@@ -9,6 +9,12 @@
 
 **Frozen search/storage reference:** published `4.4.0`.
 
+**Design progress:** the user started this task on 2026-09-19. The
+[contract candidate](PHASE_0_CONTRACT.md) supplies the six outputs below from
+reviewed checkout `09d2bf247f004eb134eb81c59ee88005affafe92`, after planning PR #183.
+D01-D12 have proposed resolutions; [protected acceptance](PHASE_0_CHECKLIST.md)
+and Phase 1 authorization remain pending. The original base above records entry provenance.
+
 Read the [accepted charter](../DEVELOPMENT_CHARTER.md),
 [roadmap](../ROADMAP.md) and [proposed addendum](../NEXT_DEVELOPMENT_ADDENDUM.md).
 This document is the task specification for producing Phase 0. It is not the
@@ -71,9 +77,11 @@ pointer that can be switched after a heartbeat timeout.
 
 ## 4. Blocking decision register
 
-All rows below start **OPEN**. Recommended postures are design inputs, not accepted
-decisions. Phase 0 cannot be closed while a safety, compatibility, API or evidence
-blocker remains unresolved.
+At entry, all rows below started **OPEN**. Recommended postures remain design
+inputs. The [candidate decision register](PHASE_0_CONTRACT.md#scope-decisions) now
+supplies proposed resolutions; review and acceptance are still pending. Phase 0
+cannot be closed while a safety, compatibility, API or evidence blocker remains
+unresolved.
 
 | ID | Required decision | Recommended posture and required analysis |
 | --- | --- | --- |
@@ -192,17 +200,17 @@ baseline identity; authorization and quota evidence must be renewed for paid wor
 
 ## 7. Concrete Phase 0 deliverables
 
-Create a small coherent document set under `docs/v5x/v5.1/`. The following are
-planned output names, not files already delivered by this entry plan:
+Create a small coherent document set under `docs/v5x/v5.1/`. These six outputs
+now exist as review candidates; their presence does not establish acceptance:
 
-| Planned document | Required contents |
+| Candidate document | Required contents |
 | --- | --- |
-| `PHASE_0_CONTRACT.md` | Goal, non-goals, assumptions, D01-D12 decisions, authority hierarchy, compatibility and approval boundary |
-| `LEADERSHIP_AND_RECOVERY.md` | State machine, durable transitions, protocol pseudocode, safety arguments and counterexamples |
-| `API_FORMAT_AND_COMPATIBILITY.md` | Exact proposed API declarations, error/outcome table, mode/wire/storage matrices, format strategy and operator transition |
-| `TESTING_AND_EVIDENCE.md` | E01-E12 expansion, independent-model contract, crash points, public consumers, metrics and cloud preflight design |
-| `PHASE_0_CHECKLIST.md` | Evidence-linked review items, open blockers, reviewed source and actual acceptance identity |
-| `PHASE_1_ENTRY_PLAN.md` | Declaration/model/network/crash foundation scope; explicit prohibition on early production leadership |
+| [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) | Goal, non-goals, assumptions, D01-D12 decisions, authority hierarchy, compatibility and approval boundary |
+| [LEADERSHIP_AND_RECOVERY.md](LEADERSHIP_AND_RECOVERY.md) | State machine, durable transitions, protocol pseudocode, safety arguments and counterexamples |
+| [API_FORMAT_AND_COMPATIBILITY.md](API_FORMAT_AND_COMPATIBILITY.md) | Exact proposed API declarations, error/outcome table, mode/wire/storage matrices, format strategy and operator transition |
+| [TESTING_AND_EVIDENCE.md](TESTING_AND_EVIDENCE.md) | E01-E12 expansion, independent-model contract, crash points, public consumers, metrics and cloud preflight design |
+| [PHASE_0_CHECKLIST.md](PHASE_0_CHECKLIST.md) | Evidence-linked review items, open blockers, reviewed source and actual acceptance identity |
+| [PHASE_1_ENTRY_PLAN.md](PHASE_1_ENTRY_PLAN.md) | Declaration/model/network/crash foundation scope; explicit prohibition on early production leadership |
 
 Link each D decision to its document section and each safety/API requirement to one
 or more E cases. Every externally visible method should have lifecycle, role,

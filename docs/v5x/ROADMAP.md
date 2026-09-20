@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1–V5.4 remain planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 0 candidate under review; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **New planning material:** PROPOSED revision 0.1, 2026-09-19; not implementation authorization
@@ -17,8 +17,10 @@
 
 ## Next entry and proposal status
 
-The next recommended task is [V5.1 Phase 0](v5.1/PHASE_0_ENTRY_PLAN.md), limited to
-contract and evidence design. Its entry plan is not the finished consensus contract.
+The user has started [V5.1 Phase 0](v5.1/PHASE_0_ENTRY_PLAN.md), limited to contract
+and evidence design. The [contract candidate](v5.1/PHASE_0_CONTRACT.md) supplies the
+six planned documents; [protected acceptance](v5.1/PHASE_0_CHECKLIST.md) remains
+pending. The next review concerns those decisions before Phase 1 implementation.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

@@ -13,6 +13,8 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [Development handoff, reading order and integration review](v5x/NEXT_DEVELOPMENT_HANDOFF.md)
 - [V5.x proposed scope refinement](v5x/NEXT_DEVELOPMENT_ADDENDUM.md)
 - [V5.1 Phase 0 entry plan: documentation only](v5x/v5.1/PHASE_0_ENTRY_PLAN.md)
+- [V5.1 Phase 0 automatic-leadership contract candidate](v5x/v5.1/PHASE_0_CONTRACT.md)
+- [V5.1 Phase 0 delivery and pending acceptance checklist](v5x/v5.1/PHASE_0_CHECKLIST.md)
 - [V6 architecture preview: research only](v6x/README.md)
 
 The accepted V5 charter and published V5.0 records remain unchanged. These new
