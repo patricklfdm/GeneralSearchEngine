@@ -42,6 +42,28 @@ def state_cuts(root,views):
     return cuts
 
 
+def validate_read_attempts(row,profile):
+    """Resampling qualifies local queries only; the final stable cut remains mandatory."""
+    if 'readAttempts' not in row:return  # Original stable-cut evidence remains valid.
+    attempts=row['readAttempts']
+    f.check(profile=='local-qualification' and row['window']=='sustained' and row['operation']=='QUERY',
+            'read resampling outside local sustained query')
+    f.check(isinstance(attempts,list) and 1<=len(attempts)<=4,'local read attempt bound')
+    previous_time=row['startNanos'];previous_sequence=256
+    for i,attempt in enumerate(attempts):
+        before,after=attempt['beforeSequence'],attempt['afterSequence']
+        f.check(type(before) is int and type(after) is int and previous_sequence<=before<=after<=33024,
+                'local read attempt sequence')
+        f.check(previous_time<=attempt['startNanos']<attempt['endNanos']<=row['endNanos'],
+                'local read attempt timing')
+        f.check(isinstance(attempt['answerDigest'],str) and re.fullmatch('[0-9a-f]{64}',attempt['answerDigest']),
+                'local read attempt digest')
+        f.check((before==after)==(i==len(attempts)-1),'local read attempt stability')
+        previous_time=attempt['endNanos'];previous_sequence=after
+    f.check(all(attempts[-1][key]==row[key] for key in ('beforeSequence','afterSequence','answerDigest')),
+            'local read final attempt binding')
+
+
 def validate_schedule(root,plan,profile='local-qualification',*,control=False):
     from .cloud_remote_contract import schedule
     windows=list(stream(root,'windows'));calls=list(stream(root,'calls'));local=schedule(profile,control=control)
@@ -71,6 +93,7 @@ def validate_schedule(root,plan,profile='local-qualification',*,control=False):
                 f.check(row['scheduledNanos']==nominal and row['dispatchNanos']<nominal+interval,'missed fixed-rate slot')
                 if i>=w['lanes']:f.check(selected[i-w['lanes']]['endNanos']<=row['dispatchNanos'],'overlapping client lane')
             f.check(256<=row['beforeSequence']<=row['afterSequence']<=33024,'operation sequence bounds')
+            validate_read_attempts(row,profile)
             if row['operation'] not in OP_IDS:f.check(row['beforeSequence']==row['afterSequence'],'ambiguous concurrent read cut')
             all_rows.append(row)
         if profile=='local-qualification':f.check(w['endNanos']>=selected[-1]['dispatchNanos']+interval,'short final pacing interval')
@@ -389,6 +412,9 @@ def measurements(root):
                     p50Nanos=times[(n*50+99)//100-1],p95Nanos=times[(n*95+99)//100-1],p99Nanos=times[(n*99+99)//100-1],
                     maximumSchedulerDelayNanos=max(r['startNanos']-r['scheduledNanos'] for r in selected))
                 by_operation[op]['maximumScheduleDeferralNanos']=max(r['scheduledNanos']-r['nominalScheduledNanos'] for r in selected)
+                if any('readAttempts' in r for r in selected):
+                    by_operation[op]['readExecutions']=sum(len(r.get('readAttempts',[None])) for r in selected)
+                    by_operation[op]['ambiguousReadAttempts']=by_operation[op]['readExecutions']-n
             measured[w['name']]=dict(startNanos=w['startNanos'],endNanos=w['endNanos'],sampleCount=w['calls'],
                 pacing=w['pacing'],maximumOfferedRateMilliHz=10**12//w['intervalNanos'],
                 observedOfferedRateMilliHz=w['calls']*10**12//(w['endNanos']-w['startNanos']),

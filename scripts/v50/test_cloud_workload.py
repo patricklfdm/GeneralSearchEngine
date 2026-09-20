@@ -15,7 +15,7 @@ from .cloud_workload_model import Model, operation, payload
 from .cloud_workload_io import parse_json, relative, pack, unpack, inventory, rows, validate_source_archive
 from .performance_model import OP_IDS, digest, canonical
 from .offline_harness import save
-from .cloud_workload_evidence import validate_commit_timings, control_views
+from .cloud_workload_evidence import validate_commit_timings, control_views, validate_read_attempts
 from .performance_evidence import STAGES
 
 
@@ -140,6 +140,63 @@ class ControlPublicationTests(unittest.TestCase):
     def test_forged_mutation_answer_is_rejected(self):
         self.calls[0]['answerDigest']='0'*64
         with self.assertRaisesRegex(ValueError,'sequence/success'):self.validate()
+
+
+class LocalReadAttemptTests(unittest.TestCase):
+    def setUp(self):
+        self.row=dict(window='sustained',operation='QUERY',startNanos=10,endNanos=40,
+                      beforeSequence=257,afterSequence=257,answerDigest='a'*64,readAttempts=[
+            dict(beforeSequence=256,afterSequence=257,startNanos=11,endNanos=20,answerDigest='b'*64),
+            dict(beforeSequence=257,afterSequence=257,startNanos=21,endNanos=30,answerDigest='a'*64)])
+
+    def validate(self,profile='local-qualification'):validate_read_attempts(self.row,profile)
+
+    def test_bounded_resampling_and_original_stable_evidence(self):
+        self.validate()
+        self.row.pop('readAttempts');self.validate()
+
+    def test_cloud_healthy_and_get_cannot_resample(self):
+        for profile in ('canonical','experiment','failure-drill'):
+            with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'outside local'):self.validate(profile)
+        self.row['window']='baseline-a'
+        with self.assertRaisesRegex(ValueError,'outside local'):self.validate()
+        self.row.update(window='sustained',operation='GET')
+        with self.assertRaisesRegex(ValueError,'outside local'):self.validate()
+
+    def test_missing_or_excessive_attempts_fail(self):
+        for count in (0,5):
+            self.row['readAttempts']=[self.row.copy()]*count
+            with self.assertRaisesRegex(ValueError,'attempt bound'):self.validate()
+
+    def test_changed_final_binding_fails(self):
+        for key,value in (('beforeSequence',256),('afterSequence',258),('answerDigest','c'*64)):
+            original=self.row[key];self.row[key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'final attempt binding'):self.validate()
+            self.row[key]=original
+
+    def test_unstable_final_or_unnecessary_retry_fails(self):
+        for index in (0,1):
+            old=self.row['readAttempts'][index]['afterSequence']
+            self.row['readAttempts'][index]['afterSequence']=256 if index==0 else 258
+            with self.subTest(index=index),self.assertRaisesRegex(ValueError,'attempt stability'):self.validate()
+            self.row['readAttempts'][index]['afterSequence']=old
+
+    def test_hidden_duration_overlap_regression_and_malformed_digest_fail(self):
+        for key,value,message in (('startNanos',19,'timing'),('endNanos',41,'timing'),
+                                  ('beforeSequence',256,'sequence'),('afterSequence',33025,'sequence'),
+                                  ('answerDigest','not-a-digest','digest')):
+            attempt=self.row['readAttempts'][1];old=attempt[key];attempt[key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,message):self.validate()
+            attempt[key]=old
+
+    def test_final_stable_answer_still_requires_independent_control_replay(self):
+        calls=[dict(operation='UPDATE',keys=[1],revision=1,beforeSequence=256,afterSequence=257,
+                    answerDigest=digest(canonical(None)),startNanos=12,endNanos=19)]
+        self.validate()
+        with self.assertRaisesRegex(ValueError,'independent control read'):control_views([*calls,self.row])
+        model=Model();model.apply(OP_IDS['UPDATE'],payload('UPDATE',[1],1))
+        self.row['answerDigest']=self.row['readAttempts'][-1]['answerDigest']=model.view()['queryDigest']
+        self.validate();control_views([*calls,self.row])
 
 
 class ControlProfileTests(unittest.TestCase):
@@ -313,6 +370,14 @@ def negatives(raw,output):
     if (raw/'offline-bundle.json').exists():
         cases['changed-bundle-class'] = lambda r: next((r/'classes-candidate').rglob('V50CloudWorkloadConsumer.class')).write_bytes(b'forged')
         cases['forged-bundle-inputs'] = lambda r: change_json(r,'offline-bundle.json',lambda v:v.update(inputs={}))
+    if any('readAttempts' in row for row in rows(raw/leader/'calls')):
+        cases['unbounded-read-resampling']=lambda r:change_row(r,leader+'calls',lambda v:'readAttempts' in v,
+            lambda v:v.update(readAttempts=v['readAttempts']*5))
+        cases['hidden-read-resampling-time']=lambda r:change_row(r,leader+'calls',lambda v:'readAttempts' in v,
+            lambda v:v['readAttempts'][-1].update(endNanos=v['endNanos']+1))
+        def forge_resampled_answer(value):
+            value['answerDigest']='0'*64;value['readAttempts'][-1]['answerDigest']='0'*64
+        cases['forged-resampled-answer']=lambda r:change_row(r,leader+'calls',lambda v:'readAttempts' in v,forge_resampled_answer)
     if json.loads((raw/'metadata.json').read_text()).get('volumeLayout'):
         cases['false-volume-layout'] = lambda r: change_json(r,'metadata.json',lambda v:v.update(volumeLayout=False))
         cases['missing-volume-authority'] = lambda r: (r/'volume-1/node-1/manifest.gsr').unlink()
