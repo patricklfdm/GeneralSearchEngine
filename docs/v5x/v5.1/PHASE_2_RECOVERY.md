@@ -1,12 +1,16 @@
 # V5.1 Phase 2B frozen recovery and generation authority
 
-**Status:** implemented locally on `feat/v5.1-phase2-recovery`; protected acceptance pending.
+**Status:** accepted in [PR #187](https://github.com/patricklfdm/GeneralSearchEngine/pull/187),
+master `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`;
+[exact-master CI 35503107173](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35503107173)
+passed all six jobs. The documentation-only check and historical canonical receipt
+uploads were skipped; V5.1 foundation/storage and inherited runtime gates executed.
 **Accepted predecessor:** Batch A, [PR #186](https://github.com/patricklfdm/GeneralSearchEngine/pull/186),
 master `284f23d398138d0a747bde42e041da291c68574f`;
 [CI 35495493715](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35495493715)
 passed all six jobs. The documentation-only step and historical V5.0/V4.4 receipt
 uploads were skipped. This batch completes the planned local recovery storage work;
-Phase 2 acceptance still requires the protected merge and exact-master CI.
+The protected merge and exact-master CI now close Phase 2 acceptance.
 
 ## Recovery selection
 

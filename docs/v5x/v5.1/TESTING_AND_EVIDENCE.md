@@ -10,6 +10,9 @@ accepted this Phase 0 design at `31b70d08b509ac75037a8eb6386780affc353ed9`.
 passed the documentation lane; reactor/compatibility/packaging jobs were skipped.
 Original candidate wording below records the reviewed design, not runtime evidence.
 The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FOUNDATION.md).
+Phase 2's real storage/recovery evidence is recorded in [its acceptance record](PHASE_2_RECOVERY.md).
+The current [Phase 3A protocol evidence](PHASE_3_PROTOCOL.md) covers real-store
+transitions with simulated delivery; it does not close the public-process matrix below.
 
 ## Independent foundation before production
 

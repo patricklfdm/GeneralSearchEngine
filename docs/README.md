@@ -20,6 +20,9 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 2A sealed root-ledger authority](v5x/v5.1/PHASE_2_STORAGE.md)
 - [V5.1 Phase 2B frozen recovery and generation authority](v5x/v5.1/PHASE_2_RECOVERY.md)
 - [V5.1 Phase 2 checklist](v5x/v5.1/PHASE_2_CHECKLIST.md)
+- [V5.1 Phase 3 entry and implementation batches](v5x/v5.1/PHASE_3_ENTRY_PLAN.md)
+- [V5.1 Phase 3A election and activation transition kernel](v5x/v5.1/PHASE_3_PROTOCOL.md)
+- [V5.1 Phase 3 checklist](v5x/v5.1/PHASE_3_CHECKLIST.md)
 - [V6 architecture preview: research only](v6x/README.md)
 
 The accepted V5 charter and published V5.0 records remain unchanged. These new

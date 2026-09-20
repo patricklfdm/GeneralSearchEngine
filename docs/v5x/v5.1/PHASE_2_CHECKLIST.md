@@ -1,6 +1,6 @@
 # V5.1 Phase 2 checklist
 
-**Status:** Batch A accepted; Batch B implemented locally; protected phase acceptance pending.
+**Status:** Phase 2 accepted through PR #187; exact-master CI passed.
 
 - [x] Phase 1 accepted in PR #185 at `5c5c02e728347f31e6ae7c9935ab9f6852d817f1`;
   exact-master CI `35491646610` passed all six jobs with actual skips recorded.
@@ -19,7 +19,14 @@
 - [x] Two-source recovery floor, safe deletion and interruption/restart evidence.
 - [x] [Batch B recovery record](PHASE_2_RECOVERY.md): 25 codec records, independent recovery
   oracle, 72 additional process cuts, and CI evidence retention.
-- [ ] Complete Phase 2 protected acceptance before the Phase 3 entry review.
+- [x] Batch B and its inherited CI probe correction accepted in
+  [PR #187](https://github.com/patricklfdm/GeneralSearchEngine/pull/187), master
+  `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`;
+  [exact-master CI 35503107173](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35503107173)
+  passed all six jobs. Only the documentation-only check and historical canonical
+  receipt uploads were skipped; both V5.1 foundation and storage gates executed.
+- [x] User entered `feat/v5.1-phase3-election` and authorized the
+  [Phase 3 entry](PHASE_3_ENTRY_PLAN.md) with “下一步”.
 
 Batch A's logical proven position is not an application publication or automatic
 readiness result. No public automatic bootstrap/engine or paid experiment is enabled.
