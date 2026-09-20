@@ -1,6 +1,9 @@
 # V5.1 Phase 1 independent foundation
 
-**Status:** implemented locally; protected Phase 1 acceptance pending.
+**Status:** accepted through PR #185 at `5c5c02e728347f31e6ae7c9935ab9f6852d817f1`.
+[Exact-master CI 35491646610](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35491646610)
+passed all six jobs; the documentation-only step and historical V5.0/V4.4 canonical
+receipt uploads were skipped. The user has entered [Phase 2 storage](PHASE_2_ENTRY_PLAN.md).
 **Implementation base:** `31b70d08b509ac75037a8eb6386780affc353ed9` (Phase 0, PR #184).
 **Authorization:** user instructed “继续下一批” after merge and branch synchronization.
 

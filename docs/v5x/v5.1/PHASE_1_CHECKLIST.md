@@ -1,6 +1,6 @@
 # V5.1 Phase 1 checklist
 
-**Status:** local independent foundation delivered; protected acceptance pending.
+**Status:** accepted in PR #185; exact-master CI `35491646610` passed all six jobs.
 
 - [x] Phase 0 accepted in PR #184 at `31b70d08b509ac75037a8eb6386780affc353ed9`;
   exact-master documentation CI `35487644896` passed.
@@ -15,9 +15,10 @@
 - [x] CI foundation step/evidence upload; existing required/configured-mode gates retained.
 - [x] Reactor, V1-V5 consumers and inherited V5.0 foundation passed locally.
 - [x] Nine release JARs, documentation links/anchors, YAML and source scope checked locally.
-- [ ] Protected Phase 1 PR and accepted master commit recorded after merge.
-- [ ] Exact accepted-master CI recorded with actual executed/skipped jobs.
-- [ ] User instruction and reviewed entry before Phase 2 production storage work.
+- [x] Protected Phase 1 PR #185 accepted at `5c5c02e728347f31e6ae7c9935ab9f6852d817f1`.
+- [x] Exact-master CI `35491646610`: all six jobs passed; documentation-only step and
+  historical V5.0/V4.4 canonical-receipt uploads skipped.
+- [x] User switched to the Phase 2 branch; [storage entry](PHASE_2_ENTRY_PLAN.md) records this batch and remaining phase scope.
 
 See [foundation scope and evidence](PHASE_1_FOUNDATION.md) and
 [format catalog](PHASE_1_FORMAT_CATALOG.md). Model/fixture-process successes do not

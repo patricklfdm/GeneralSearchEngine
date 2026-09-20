@@ -73,6 +73,18 @@ jobs:
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build
 
+      - name: Verify V5.1 durable authority and real JVM crash recovery
+        run: scripts/verify-v51-phase2-storage.sh --skip-build
+
+      - name: Retain V5.1 authority bytes and process crash evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-storage-${{ github.sha }}
+          path: target/v51-storage
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.1 model traces, process cuts and public consumer evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

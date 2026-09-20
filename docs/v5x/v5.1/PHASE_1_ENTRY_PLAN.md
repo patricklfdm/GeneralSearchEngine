@@ -1,7 +1,8 @@
 # V5.1 Phase 1 entry candidate: independent foundation
 
 **Status:** Phase 1 authorized by the user after PR #184 and exact-master CI 35487644896.
-The [local foundation implementation](PHASE_1_FOUNDATION.md) awaits its own protected acceptance.
+The [foundation implementation](PHASE_1_FOUNDATION.md) was accepted in PR #185 and
+exact-master CI `35491646610`; the user has entered [Phase 2](PHASE_2_ENTRY_PLAN.md).
 **Governing contract:** [Phase 0 contract](PHASE_0_CONTRACT.md).
 
 ## Entry and stop conditions
