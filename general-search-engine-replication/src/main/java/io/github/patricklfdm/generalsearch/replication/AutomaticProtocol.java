@@ -96,6 +96,24 @@ final class AutomaticProtocol implements AutoCloseable {
     }
     synchronized List<Action> drain() {var result=List.copyOf(actions);actions.clear();return result;}
     synchronized Record promise() {return durablePromise;}
+    synchronized boolean maintenanceCurrent(Record ballot) {
+        return state!=STOPPED&&state!=STARTING&&state!=FAILED&&state!=AutomaticReplicationState.CLOSED
+                &&same(fence,ballot)&&same(durablePromise,ballot);
+    }
+    synchronized Record maintenanceSnapshot() {
+        if(state!=LEADER_READY||operation!=null||publication!=null||reconstruction!=null||imageIndex!=proven()||publishedIndex!=proven())return null;
+        return store.provenSnapshot(image);
+    }
+    synchronized void observePromise(Record observed) {
+        context(observed,manifest);
+        if(epoch(observed)>epoch(fence)) {maxEpoch=Math.max(maxEpoch,epoch(observed));abandon(STALE_EPOCH);fence=observed;}
+    }
+    synchronized void rejoin(Record ballot,Record snapshot) {
+        need(maintenanceCurrent(ballot)&&campaign==null&&preparing==null&&reconstruction==null&&publication==null,"rejoin requires quiescent current follower");
+        store.installProven(snapshot);imageIndex=-1;proven();
+        // Installation is durable recovery, never a vote or public follower publication.
+        armElection();
+    }
     synchronized AutomaticRecovery.Basis frozen(Record ballot) {
         need(state!=STOPPED&&state!=STARTING&&state!=FAILED&&state!=AutomaticReplicationState.CLOSED
                 &&same(fence,ballot)&&same(durablePromise,ballot),"frozen basis no longer current");

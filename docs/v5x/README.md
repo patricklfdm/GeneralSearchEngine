@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3A accepted; Phase 3B real runtime implemented locally; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3A/B accepted; Phase 3C rejoin implemented locally; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -29,9 +29,9 @@ Batch A was accepted in PR #186 with exact-master CI `35495493715`.
 [Batch B recovery](v5.1/PHASE_2_RECOVERY.md) was accepted in PR #187 with exact-master
 CI `35503107173`. The user entered [Phase 3](v5.1/PHASE_3_ENTRY_PLAN.md); its
 [transition kernel](v5.1/PHASE_3_PROTOCOL.md) was accepted in PR #188 with CI `35507802486`.
-The [runtime batch](v5.1/PHASE_3_RUNTIME.md) now implements real TCP and V4 application
-staging with independent JVM evidence. Third-voter rejoin/source floors and public
-automatic enablement remain later obligations.
+The [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35527143425`.
+[Phase 3C](v5.1/PHASE_3_REJOIN.md) implements retained-voter rejoin and two-source reclamation;
+local qualification passed and protected acceptance is pending. Public automatic enablement remains Phase 4.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

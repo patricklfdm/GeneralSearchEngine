@@ -1,6 +1,10 @@
 # Phase 3B runtime: real transport and V4 application path
 
-**Status:** implemented and locally validated; protected acceptance pending.
+**Status:** accepted in [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
+master `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
+[CI 35527143425](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35527143425),
+including the actual runtime gate. Subsequent rejoin work is recorded in
+[Phase 3C](PHASE_3_REJOIN.md). The implementation and local receipts below describe Batch B.
 **Accepted base:** [PR #188](https://github.com/patricklfdm/GeneralSearchEngine/pull/188),
 master `cf13a87e84a25ed1470f8e6de307e53b0d67424c`,
 [CI 35507802486](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35507802486).

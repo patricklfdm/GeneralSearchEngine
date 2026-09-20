@@ -23,6 +23,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 3 entry and implementation batches](v5x/v5.1/PHASE_3_ENTRY_PLAN.md)
 - [V5.1 Phase 3A election and activation transition kernel](v5x/v5.1/PHASE_3_PROTOCOL.md)
 - [V5.1 Phase 3B real TCP runtime and V4 application path](v5x/v5.1/PHASE_3_RUNTIME.md)
+- [V5.1 Phase 3C retained-voter rejoin and two-source reclamation](v5x/v5.1/PHASE_3_REJOIN.md)
 - [V5.1 selected-quorum wire extension decision](v5x/v5.1/PHASE_3_WIRE_EXTENSION.md)
 - [V5.1 Phase 3 checklist](v5x/v5.1/PHASE_3_CHECKLIST.md)
 - [V6 architecture preview: research only](v6x/README.md)

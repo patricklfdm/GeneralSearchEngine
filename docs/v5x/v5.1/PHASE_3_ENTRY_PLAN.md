@@ -1,11 +1,11 @@
 # V5.1 Phase 3 entry: automatic protocol and runtime
 
-**Status:** Batch A accepted; the user entered `feat/v5.1-phase3-runtime` and
-authorized Batch B. Phase 3 as a whole remains open.
-**Accepted base:** [PR #188](https://github.com/patricklfdm/GeneralSearchEngine/pull/188),
-`cf13a87e84a25ed1470f8e6de307e53b0d67424c`,
-[exact-master CI 35507802486](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35507802486).
-All six jobs passed, including the actual foundation, storage/recovery and protocol gates.
+**Status:** Batches A/B accepted; the user entered `feat/v5.1-phase3-rejoin` and
+authorized Batch C. Local qualification passed; Phase 3 awaits protected acceptance.
+**Accepted base:** [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
+`bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
+[exact-master CI 35527143425](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35527143425).
+All six jobs passed, including the actual foundation, storage/recovery, protocol and runtime gates.
 
 The [contract](PHASE_0_CONTRACT.md), [protocol](LEADERSHIP_AND_RECOVERY.md),
 [frozen format catalog](PHASE_1_FORMAT_CATALOG.md) and [evidence matrix](TESTING_AND_EVIDENCE.md)
@@ -34,14 +34,14 @@ The user performs commit, push and PR; no paid execution or release is part of t
 
 See [implementation and limits](PHASE_3_PROTOCOL.md) and the [checklist](PHASE_3_CHECKLIST.md).
 
-## B — transport and application integration (current batch)
+## B — transport and application integration (accepted)
 
 The [runtime implementation](PHASE_3_RUNTIME.md) now connects the kernel to real
 TCP and V4 application staging/publication. Reviewing the frozen catalog found that
 it could not represent the complete selected quorum at the receiving voter; the
 [explicit additive extension](PHASE_3_WIRE_EXTENSION.md) records that gap and the
 new kind 24. Original fixture bytes remain fixed. This runtime/format batch and its
-independent three-JVM evidence need protected review before the remaining rejoin work.
+independent three-JVM evidence were accepted in PR #189.
 
 The original mapping requirements remain:
 
@@ -52,7 +52,10 @@ is insufficient. Review that mapping against the frozen catalog before writing a
 adapter; an unrepresentable contract requires an explicit catalog decision, not an
 unreviewed extra envelope field.
 
-## C — retained-disk rejoin, source floors and remaining qualification (next)
+## C — retained-disk rejoin, source floors and remaining qualification (current)
+
+The [implementation record](PHASE_3_REJOIN.md) covers passive proven-state transfer,
+complete source exchange, two-source retirement and the explicit additive wire mapping.
 
 Probe and reconcile the third voter, retrieve real peer recovery-source packets,
 and advance two-source floors before reclaiming generation slots. Batch A's

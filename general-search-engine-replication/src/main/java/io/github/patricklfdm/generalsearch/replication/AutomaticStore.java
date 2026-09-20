@@ -201,6 +201,29 @@ final class AutomaticStore implements AutoCloseable {
         recoveryIo(()->{need(selected!=null&&selected.record().value().get("ballot").equals(AutomaticRecovery.ballotOf(promise)),"no current recovery selection");install(selected.snapshot(),selected.record());return null;});
     }
     synchronized void checkpoint(byte[] application) { recoveryIo(()->{install(snapshot(application),null);return null;}); }
+    // Expected maintenance pressure is checked before entering the ambiguous-I/O path.
+    synchronized boolean generationAvailable(Record snapshot) {
+        usable();
+        if(Arrays.equals(baseSnapshot.bytes(),snapshot.bytes()))return true;
+        try {
+            var current=recovery.current();
+            String target=current==null||current.selector().value().get("generation").equals("generation-b")?"generation-a":"generation-b";
+            return !Files.exists(directory.resolve(target));
+        } catch(IOException error) {throw failure(STORAGE_FAILURE,"generation inventory",error);}
+    }
+    synchronized void installProven(Record snapshot) {
+        usable();context(snapshot,manifest);
+        need(snapshot.name().equals("SNAPSHOT"),"rejoin snapshot kind");
+        int cut=AutomaticRecovery.index(snapshot);
+        need(cut>=provenThrough(),"rejoin cannot roll back proof");
+        capacity(acceptedThrough()<=cut,"rejoin waits for the retained next acceptance");
+        if(snapshot.value().get("terminalProof")!=null)
+            need(number(decode(unbase(snapshot.value().get("terminalProof")),"PROOF").value(),"epoch")<=number(promise.value(),"epoch"),"rejoin proof exceeds promise");
+        capacity(generationAvailable(snapshot),"rejoin needs two-source retirement first");
+        if(Arrays.equals(baseSnapshot.bytes(),snapshot.bytes()))return;
+        recoveryIo(()->{install(snapshot,null);return null;});
+    }
+    synchronized AutomaticRecoveryFiles.Source currentSource() {return recoveryIo(recovery::current);}
     private void install(Record image,Record decision) throws IOException {
         int cut=AutomaticRecovery.index(image);need(cut>=provenThrough(),"snapshot rolls back proven prefix");checkPrefix(image,provenThrough());
         Record tail=acceptedThrough()>cut?acceptance(acceptedThrough()):null;

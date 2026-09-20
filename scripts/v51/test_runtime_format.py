@@ -17,7 +17,7 @@ class RuntimeWireTest(unittest.TestCase):
             raw=base64.b64decode(fixture[name]);message=f.wire(raw,manifest);payload=message.pop('payload');kind=message.pop('type')
             self.assertEqual(raw,e.wire(kind,message,payload))
         original=e.catalog();runtime=e.runtime_catalog()
-        self.assertEqual(original['wire'],{k:v for k,v in runtime['wire'].items() if k!='SELECTED_OFFER'})
+        self.assertEqual(original['wire'],{k:v for k,v in runtime['wire'].items() if k in original['wire']})
 
     def test_changed_basis_and_ballot_reject_even_with_recomputed_checksum(self):
         root=e.CATALOG.parent;manifest=json.loads((root/'format-fixtures.json').read_text())['manifest']

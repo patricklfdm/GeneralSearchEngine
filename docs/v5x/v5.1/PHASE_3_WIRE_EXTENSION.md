@@ -1,6 +1,7 @@
 # Phase 3 runtime wire extension: selected quorum transfer
 
-**Status:** implemented in the current development batch; protected review pending.
+**Status:** accepted with Batch B in PR #189 and exact-master CI `35527143425`.
+The separate [Phase 3C extension](PHASE_3_REJOIN.md) preserves this catalog and its bytes.
 **Base:** the accepted [Phase 1 catalog](PHASE_1_FORMAT_CATALOG.md).
 **Decision:** add automatic wire kind 24, `SELECTED_OFFER`, through a separate
 [extension catalog](../../../general-search-engine-replication/src/test/resources/replication/v51/runtime-wire-extension.json).

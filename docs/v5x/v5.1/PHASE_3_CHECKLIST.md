@@ -1,6 +1,6 @@
 # V5.1 Phase 3 checklist
 
-**Status:** Batch A accepted; Batch B runtime implemented locally; protected review pending.
+**Status:** Batches A/B accepted; Batch C locally qualified; protected acceptance pending.
 
 - [x] Phase 2 accepted in PR #187, master `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`, CI `35503107173`.
 - [x] User entered `feat/v5.1-phase3-election` and authorized the next implementation batch.
@@ -19,8 +19,12 @@
 - [x] Bounded real TCP driver and V4 application staging/reconstruction/publication.
 - [x] Real three-JVM execution, leader SIGKILL, retained restart and independent wire/application evidence.
 - [x] [Batch B local validation](PHASE_3_RUNTIME.md): full reactor, four runtime/three wire regressions, foundation/protocol gates and final three-JVM evidence with five rejected negatives.
-- [ ] Protected Batch B merge and exact-master CI; accept the explicit wire extension.
-- [ ] Retained-disk third-voter rejoin/source-floor integration and transfer-lifetime pressure qualification.
+- [x] Protected Batch B: PR #189, master `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`, CI `35527143425`; all six jobs and the actual runtime gate passed; kind 24 accepted.
+- [x] User entered `feat/v5.1-phase3-rejoin` and authorized Batch C.
+- [x] Retained-disk third-voter rejoin/source-floor integration and transfer-lifetime pressure tests; see [Phase 3C](PHASE_3_REJOIN.md).
+- [x] Batch C local runtime/lease/wire regressions, independent three-JVM evidence and five rejoin negatives.
+- [x] Full reactor, 46 Python tests, foundation/protocol gates and all 108 ledger/recovery process cuts; initial local barrier failure retained alongside the passing retry.
+- [ ] Protected Batch C merge/exact-master CI and acceptance of kinds 25–27.
 - [ ] Concurrent real-voter JVM/network/crash evidence and complete Phase 3 acceptance.
 
 Public automatic bootstrap/façade/strong-read enablement remains Phase 4.
