@@ -1,0 +1,10 @@
+record io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy
+interface io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine
+class io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder
+class io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngines
+record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest
+class io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException
+record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig
+enum io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState
+record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus
+class io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations

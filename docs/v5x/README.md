@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 0 candidate under review; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 0 accepted; Phase 1 foundation implemented locally; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -14,17 +14,17 @@ hardening. Sharding and distributed query are not V5 work.
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
 review boundaries, source identities and validation guidance in this repository.
 
-**Proposal status:** the new planning material below is revision 0.1 dated
-2026-09-19. It has not been accepted as a new minor contract and does not authorize
-runtime implementation, a version bump, cloud execution or publication.
+**Planning status:** V5.1 Phase 0 was accepted in PR #184 and Phase 1 was separately
+authorized by the user. Later-minor/V6 refinements remain proposals; they do not
+authorize runtime work, paid execution or publication beyond an accepted phase entry.
 
 Start with the [V5.x roadmap](ROADMAP.md), then the
 [proposed next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) and
 [V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). The user subsequently assigned
-the design task: its [six-document contract candidate](v5.1/PHASE_0_CONTRACT.md)
-now records D01-D12 selections and E01-E12 evidence design. The
-[checklist](v5.1/PHASE_0_CHECKLIST.md) distinguishes delivered design from pending
-protected acceptance and separately authorized Phase 1 work.
+the design task: its [six-document contract](v5.1/PHASE_0_CONTRACT.md)
+records D01-D12 and E01-E12, accepted through PR #184. The user authorized
+[Phase 1 foundation](v5.1/PHASE_1_FOUNDATION.md), now implemented locally with automatic
+runtime admission disabled. Its own protected acceptance remains pending.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

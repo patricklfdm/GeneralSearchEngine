@@ -16,7 +16,7 @@ if [[ "$skip_build" == false ]]; then
   ./mvnw -f reactor/pom.xml clean test
 fi
 
-scripts/verify-version-alignment.sh 5.0.0
+scripts/verify-version-alignment.sh
 scripts/verify-v50-phase0-contract.sh
 
 python_command=python3

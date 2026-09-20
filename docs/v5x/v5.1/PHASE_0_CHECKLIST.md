@@ -1,6 +1,6 @@
 # V5.1 Phase 0 candidate review checklist
 
-**Status:** design candidate produced locally; protected acceptance pending.
+**Status:** Phase 0 design accepted through protected PR #184; implementation evidence belongs to later phases.
 **Reviewed checkout:** `09d2bf247f004eb134eb81c59ee88005affafe92`.
 **Design authorization:** user's instruction to start according to the development
 plan, 2026-09-19. This starts the entry plan's documentation-only Phase 0.
@@ -23,27 +23,26 @@ plan, 2026-09-19. This starts the entry plan's documentation-only Phase 0.
 - [x] Pass local documentation checks and record their actual scope below.
 
 These checked items mean documents/source review exist, not that a protocol has
-passed runtime, model or cloud tests. D01-D12 now have candidate resolutions; none
-is marked protected-accepted by this local checklist.
+passed runtime, model or cloud tests. D01-D12 now have candidate resolutions; their protected acceptance is recorded below independently of local validation.
 
-## Required review before Phase 0 acceptance
+## Protected acceptance record
 
-- [ ] D01/D03: accept the prepare/accept extension and chosen-value preservation
+- [x] D01/D03: accept the prepare/accept extension and chosen-value preservation
   argument, including its relation to charter principle 7 and V5.0 proof authority.
-- [ ] D02/D08: accept durable promise/restart rules and the explicit exclusion of
+- [x] D02/D08: accept durable promise/restart rules and the explicit exclusion of
   automatic same-group disk replacement; no implicit stable-state loss recovery.
-- [ ] D04/D05: accept lifecycle and fresh-NO_OP/pinned-view read semantics, including
+- [x] D04/D05: accept lifecycle and fresh-NO_OP/pinned-view read semantics, including
   the force/log cost, cursor behavior and callback/rebuild/close races.
-- [ ] D06/D07: approve exact public inventory, outcome meanings, 1.2 separation and
+- [x] D06/D07: approve exact public inventory, outcome meanings, 1.2 separation and
   source-preserving new-group transition; keep all configured contracts unchanged.
-- [ ] D09/D10: approve finite bounds/timing policy, lifetime exhaustion and observable
+- [x] D09/D10: approve finite bounds/timing policy, lifetime exhaustion and observable
   evidence, without interpreting configuration defaults as measured SLAs.
-- [ ] D11/D12: approve independent foundation/E01-E12 coverage and phase ownership.
-- [ ] Resolve any review counterexample or compatibility objection in the owning
+- [x] D11/D12: approve independent foundation/E01-E12 coverage and phase ownership.
+- [x] Resolve any review counterexample or compatibility objection in the owning
   document; do not turn it into an undocumented implementation choice.
-- [ ] Record protected Phase 0 PR, accepted master commit and exact-master CI result
+- [x] Record protected Phase 0 PR, accepted master commit and exact-master CI result
   with actual executed/skipped scope.
-- [ ] Obtain the user's Phase 1 instruction before declarations or version opening.
+- [x] Obtain the user's Phase 1 instruction before declarations or version opening.
 
 ## Acceptance identity
 
@@ -51,9 +50,9 @@ is marked protected-accepted by this local checklist.
 | --- | --- |
 | Reviewed planning checkout | `09d2bf247f004eb134eb81c59ee88005affafe92` |
 | Published replication reference | V5.0 `e6afb5349c018fe163d4938d7637a4de8854d4ea` |
-| Phase 0 acceptance PR / master commit | Pending; not inferred from planning PR #183 |
-| Exact accepted-master CI | Pending |
-| Phase 1 implementation authorization | Pending |
+| Phase 0 acceptance PR / master commit | [PR #184](https://github.com/patricklfdm/GeneralSearchEngine/pull/184), `31b70d08b509ac75037a8eb6386780affc353ed9` |
+| Exact accepted-master CI | [35487644896](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35487644896): Change scope and Required passed; reactor, no-GCP runner, compatibility and release artifacts skipped for documentation-only changes |
+| Phase 1 implementation authorization | User: “继续下一批”, after protected merge and branch synchronization |
 | New automatic model/runtime/cloud evidence | Not executed in Phase 0 |
 
 ## Validation record
@@ -77,4 +76,4 @@ commit references and pending acceptance state. It did not check protocol safety
 
 No Java/source, tests, scripts, dependencies, Maven coordinates, workflows, golden
 bytes, accepted V5.0 documents, baseline registries or release identities change in
-this batch. Documentation checks cannot close the unchecked review/acceptance items.
+this batch. Documentation checks alone did not establish acceptance; the subsequent protected merge and user instruction above do.

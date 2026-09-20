@@ -94,7 +94,7 @@ if [[ "$version" == 5.* ]]; then
     # including in source/Javadoc artifacts; none is a supported production API.
     for artifact in "${artifacts[@]}"; do
         artifact_entries=$(jar tf "$artifact")
-        if grep -Eq '(^|/)(admission/|compatibility/|replication/v50-|V50[^/]*(Test|Worker|Control|Fixture)[^/]*$|ReplicaNetworkFaults[^/]*$)' <<< "$artifact_entries"; then
+        if grep -Eq '(^|/)(admission/|compatibility/|replication/v50-|replication/v51/|fixture/v51/|V5[01][^/]*(Test|Worker|Control|Fixture)[^/]*$|ReplicaNetworkFaults[^/]*$)' <<< "$artifact_entries"; then
             echo "test-only V5 evidence leaked into release artifact: $artifact" >&2
             exit 1
         fi

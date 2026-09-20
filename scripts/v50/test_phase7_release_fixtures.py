@@ -22,11 +22,12 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
         self.assertEqual(12, len(ARTIFACTS))
         self.assertEqual(JARS, set(read_manifest(ROOT / MANIFEST)))
 
-    def test_all_three_artifacts_have_final_coordinates_and_release_plugins(self):
+    def test_all_three_artifacts_keep_aligned_coordinates_and_release_plugins(self):
+        current = ET.parse(ROOT / "pom.xml").getroot().findtext("m:version", namespaces=NS)
         for module in (".", "general-search-engine-processor", "general-search-engine-replication"):
             with self.subTest(module=module):
                 pom = ET.parse(ROOT / module / "pom.xml").getroot()
-                self.assertEqual(VERSION, pom.findtext("m:version", namespaces=NS))
+                self.assertEqual(current, pom.findtext("m:version", namespaces=NS))
                 profile = pom.find("m:profiles/m:profile[m:id='release']", NS)
                 plugins = {p.findtext("m:artifactId", namespaces=NS): p
                            for p in profile.findall("m:build/m:plugins/m:plugin", NS)}

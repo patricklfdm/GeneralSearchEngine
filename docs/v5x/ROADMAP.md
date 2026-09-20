@@ -1,9 +1,9 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 0 candidate under review; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 0 accepted; Phase 1 foundation implemented locally; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
-- **New planning material:** PROPOSED revision 0.1, 2026-09-19; not implementation authorization
+- **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
 
 ## Version sequence
 
@@ -19,8 +19,9 @@
 
 The user has started [V5.1 Phase 0](v5.1/PHASE_0_ENTRY_PLAN.md), limited to contract
 and evidence design. The [contract candidate](v5.1/PHASE_0_CONTRACT.md) supplies the
-six planned documents; [protected acceptance](v5.1/PHASE_0_CHECKLIST.md) remains
-pending. The next review concerns those decisions before Phase 1 implementation.
+six planned documents; [protected acceptance](v5.1/PHASE_0_CHECKLIST.md) is
+recorded for PR #184. The user authorized the [Phase 1 foundation](v5.1/PHASE_1_FOUNDATION.md);
+its independent model/format/process/API work is now ready for review, with runtime disabled.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

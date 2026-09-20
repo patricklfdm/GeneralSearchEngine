@@ -1,0 +1,154 @@
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy(int,int,int,int)
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest(io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource,java.nio.file.Path,java.util.List<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K, T>>,java.nio.file.Path,long,long)
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException(io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>,java.lang.String)
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException(io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>,java.lang.String,java.lang.Throwable)
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig(io.github.patricklfdm.generalsearch.replication.ReplicationGroupId,java.lang.String,io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationMember>,java.nio.file.Path,io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBounds,io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy)
+constructor public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus(io.github.patricklfdm.generalsearch.replication.ReplicationNodeId,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>,java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId>,long,java.util.UUID,long,long,long,long,int,java.util.Optional<java.time.Instant>,java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus>)
+enum-values io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome NOT_APPLICABLE,NOT_SUBMITTED,INDETERMINATE
+enum-values io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason NOT_LEADER,NOT_READY,QUORUM_UNAVAILABLE,STALE_EPOCH,CONFLICTING_HISTORY,CAPACITY_EXCEEDED,PROTOCOL_MISMATCH,INTEGRITY_FAILURE,STORAGE_FAILURE,DEADLINE_EXCEEDED,REENTRANT_CALL,CLOSED
+enum-values io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState STOPPED,STARTING,FOLLOWER,CANDIDATE,RECOVERING,LEADER_READY,UNAVAILABLE,FAILED,CLOSED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome.INDETERMINATE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome.NOT_APPLICABLE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome.NOT_SUBMITTED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.CAPACITY_EXCEEDED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.CLOSED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.CONFLICTING_HISTORY
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.DEADLINE_EXCEEDED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.INTEGRITY_FAILURE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.NOT_LEADER
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.NOT_READY
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.PROTOCOL_MISMATCH
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.QUORUM_UNAVAILABLE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.REENTRANT_CALL
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.STALE_EPOCH
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.STORAGE_FAILURE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.CANDIDATE
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.CLOSED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.FAILED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.FOLLOWER
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.LEADER_READY
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.RECOVERING
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.STARTING
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.STOPPED
+field public static final io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.UNAVAILABLE
+field public static final java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngines.PROTOCOL = gse-replication/1.2
+interface io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine io.github.patricklfdm.generalsearch.durability.DurableSearchEngine<K, T>
+method public abstract io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine.leadershipStatus()
+method public abstract java.util.concurrent.CompletableFuture<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine.start()
+method public final boolean io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.equals(java.lang.Object)
+method public final boolean io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.equals(java.lang.Object)
+method public final int io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.hashCode()
+method public final int io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.hashCode()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.toString()
+method public final java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.toString()
+method public int io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.heartbeatIntervalMillis()
+method public int io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.maxElectionTimeoutMillis()
+method public int io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.minElectionTimeoutMillis()
+method public int io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.operationTimeoutMillis()
+method public int io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.pendingOperations()
+method public io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.materialization()
+method public io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder.applicationBuilder()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.leadershipPolicy()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine<K, T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder.build()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException.outcome()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException.reason()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K, T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder.configuration()
+method public io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.state()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.source()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationBounds io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.bounds()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationGroupId io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.groupId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.localNodeId()
+method public io.github.patricklfdm.generalsearch.replication.ReplicationNodeId io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.localNodeId()
+method public java.lang.String io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.configurationId()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.operationDirectory()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.sourcePath()
+method public java.nio.file.Path io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.replicaDirectory()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K, T>> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.replicas()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationMember> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig.members()
+method public java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.peers()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException.observedLeader()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.observedLeader()
+method public java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.promisedLeader()
+method public java.util.Optional<java.time.Instant> io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.lastQuorumSuccess()
+method public java.util.UUID io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.promisedIncarnation()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.maxOperationBytes()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest.maxSourceBytes()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.activeEpoch()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.applicationSequence()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.appliedIndex()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.promisedEpoch()
+method public long io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus.provenIndex()
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder<K, T> io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngines.builder(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K, T>)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.planBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest<K, T>)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.applyBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan)
+method public static <K,T> io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.resumeBootstrap(io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder<K, T>,io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest<K, T>,io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapPlan)
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy.forBounds(io.github.patricklfdm.generalsearch.replication.ReplicationBounds)
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome[] io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome.values()
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason[] io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason.values()
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.valueOf(java.lang.String)
+method public static io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState[] io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState.values()
+method public static io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapResult io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.readBootstrapResult(java.nio.file.Path)
+method public static io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.planCleanup(java.nio.file.Path)
+method public static void io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations.applyCleanup(io.github.patricklfdm.generalsearch.replication.ReplicationCleanupPlan)
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy 0 int heartbeatIntervalMillis
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy 1 int minElectionTimeoutMillis
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy 2 int maxElectionTimeoutMillis
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy 3 int operationTimeoutMillis
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 0 io.github.patricklfdm.generalsearch.replication.ReplicationBootstrapSource source
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 1 java.nio.file.Path sourcePath
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 2 java.util.List<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K, T>> replicas
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 3 java.nio.file.Path operationDirectory
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 4 long maxSourceBytes
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest 5 long maxOperationBytes
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 0 io.github.patricklfdm.generalsearch.replication.ReplicationGroupId groupId
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 1 java.lang.String configurationId
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 2 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId localNodeId
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 3 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationMember> members
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 4 java.nio.file.Path replicaDirectory
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 5 io.github.patricklfdm.generalsearch.durability.DurableStorageConfig<K, T> materialization
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 6 io.github.patricklfdm.generalsearch.replication.ReplicationBounds bounds
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig 7 io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy leadershipPolicy
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 0 io.github.patricklfdm.generalsearch.replication.ReplicationNodeId localNodeId
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 1 io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState state
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 10 int pendingOperations
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 11 java.util.Optional<java.time.Instant> lastQuorumSuccess
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 12 java.util.List<io.github.patricklfdm.generalsearch.replication.ReplicationPeerStatus> peers
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 2 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> observedLeader
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 3 java.util.Optional<io.github.patricklfdm.generalsearch.replication.ReplicationNodeId> promisedLeader
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 4 long promisedEpoch
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 5 java.util.UUID promisedIncarnation
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 6 long activeEpoch
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 7 long provenIndex
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 8 long appliedIndex
+record-component io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus 9 long applicationSequence
+super io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder java.lang.Object
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngines java.lang.Object
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException java.lang.RuntimeException
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome java.lang.Enum<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome>
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason java.lang.Enum<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason>
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState java.lang.Enum<io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState>
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus java.lang.Record
+super io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations java.lang.Object
+type public abstract interface io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngine<K,T>
+type public final class io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngineBuilder<K,T>
+type public final class io.github.patricklfdm.generalsearch.replication.AutomaticReplicatedSearchEngines
+type public final class io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException
+type public final class io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStorageOperations
+type public final enum io.github.patricklfdm.generalsearch.replication.AutomaticReplicationState
+type public final record io.github.patricklfdm.generalsearch.replication.AutomaticLeadershipPolicy
+type public final record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationBootstrapRequest<K,T>
+type public final record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationGroupConfig<K,T>
+type public final record io.github.patricklfdm.generalsearch.replication.AutomaticReplicationStatus
+type public static final enum io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Outcome
+type public static final enum io.github.patricklfdm.generalsearch.replication.AutomaticReplicationException$Reason
