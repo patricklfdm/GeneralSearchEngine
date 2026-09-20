@@ -1,13 +1,16 @@
 # GeneralSearchEngine development roadmap
 
-## Current development: V5.1 independent foundation
+## Current development: V5.1 durable automatic authority
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
-`35487644896` passing. The user authorized the
-[Phase 1 foundation](docs/v5x/v5.1/PHASE_1_FOUNDATION.md): declarations, independent
-format/model/process evidence and no-GCP planning are implemented locally for review.
-Automatic runtime admission remains disabled; Phase 1 protected acceptance is pending.
+`35487644896` passing. The [Phase 1 foundation](docs/v5x/v5.1/PHASE_1_FOUNDATION.md)
+was accepted in PR #185 at `5c5c02e728347f31e6ae7c9935ab9f6852d817f1`;
+exact-master CI `35491646610` passed all six jobs. The user entered
+[Phase 2 storage](docs/v5x/v5.1/PHASE_2_ENTRY_PLAN.md). Batch A implements sealed
+root-authority admission and forced promise/accept/proof ledgers with crash evidence;
+frozen recovery/generation work remains pending. Public automatic runtime admission
+remains disabled.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

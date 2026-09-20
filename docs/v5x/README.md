@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 0 accepted; Phase 1 foundation implemented locally; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 1 accepted; Phase 2A storage implemented locally; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -14,7 +14,7 @@ hardening. Sharding and distributed query are not V5 work.
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
 review boundaries, source identities and validation guidance in this repository.
 
-**Planning status:** V5.1 Phase 0 was accepted in PR #184 and Phase 1 was separately
+**Planning status:** V5.1 Phase 1 was accepted in PR #185 and Phase 2 was separately
 authorized by the user. Later-minor/V6 refinements remain proposals; they do not
 authorize runtime work, paid execution or publication beyond an accepted phase entry.
 
@@ -23,8 +23,9 @@ Start with the [V5.x roadmap](ROADMAP.md), then the
 [V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). The user subsequently assigned
 the design task: its [six-document contract](v5.1/PHASE_0_CONTRACT.md)
 records D01-D12 and E01-E12, accepted through PR #184. The user authorized
-[Phase 1 foundation](v5.1/PHASE_1_FOUNDATION.md), now implemented locally with automatic
-runtime admission disabled. Its own protected acceptance remains pending.
+[Phase 1 foundation](v5.1/PHASE_1_FOUNDATION.md), accepted in PR #185 with exact-master CI
+`35491646610`. The user has entered [Phase 2 storage](v5.1/PHASE_2_ENTRY_PLAN.md);
+Batch A is implemented and the public automatic runtime remains disabled.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the
