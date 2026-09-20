@@ -28,6 +28,8 @@ public final class V51RuntimeWorker {
             var manifest=decode(group.manifest,"MANIFEST");
             var hooks=new AutomaticStore.Faults(){
                 public void at(String event) throws IOException {
+                    if(event.equals("FLOOR_BEFORE_ACK")||event.equals("SELECTOR_BEFORE_ACK")||event.equals("SOURCE_BEFORE_ACK")||event.equals("TRANSFER_PROGRESS_BEFORE_ACK")||event.startsWith("DELETE_AFTER_"))
+                        trace.event("STORAGE_CUT",Map.of("cut",event));
                     for(String kind:List.of("PROMISE","ACCEPT","PROOF"))if(event.equals(kind+"_AFTER_FORCE")) {
                         Path directory=root.resolve(local);
                         if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
@@ -51,6 +53,7 @@ public final class V51RuntimeWorker {
                         if(name.equals("status")) {
                             var view=runtime.view();result.put("state",view.state().name());result.put("epoch",view.promisedEpoch());result.put("provenIndex",view.provenIndex());result.put("publishedIndex",view.publishedIndex());
                             result.put("failure",runtime.failure()==null?null:runtime.failure().toString());
+                            result.put("recovery",String.valueOf(runtime.lastRecoveryFailure()));result.put("recoveryRejected",String.valueOf(runtime.lastRecoveryRejection()));
                         } else if(name.equals("add")||name.equals("update")) {
                             var document=new Document((int)number(command,"id"),text(command,"value"));trace.event("CALL",command);
                             long index=runtime.submit(name.equals("add")?1:2,app->app.documents(name.toUpperCase(Locale.ROOT),List.of(document))).get(20,TimeUnit.SECONDS);

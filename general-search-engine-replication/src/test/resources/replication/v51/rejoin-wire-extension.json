@@ -1,0 +1,62 @@
+{
+  "schema": "gse-v51-rejoin-wire-extension-v1",
+  "wire": {
+    "REJOIN_INSTALL": {
+      "id": 25,
+      "schema": {
+        "object": {
+          "imageDigest": "hash",
+          "response": "bool",
+          "transferId": "uuid"
+        }
+      }
+    },
+    "SOURCE_CHUNK": {
+      "id": 27,
+      "schema": {
+        "object": {
+          "action": {
+            "enum": [
+              "REQUEST",
+              "DATA",
+              "ACK"
+            ]
+          },
+          "chunk": "blob",
+          "chunkBytes": {
+            "integer": [
+              0,
+              67108864
+            ]
+          },
+          "chunkDigest": "hash",
+          "maxChunkBytes": {
+            "integer": [
+              4096,
+              67108864
+            ]
+          },
+          "offset": "counter",
+          "transferId": "uuid"
+        }
+      }
+    },
+    "SOURCE_OFFER": {
+      "id": 26,
+      "schema": {
+        "object": {
+          "index": "counter",
+          "response": "bool",
+          "sourceBytes": {
+            "integer": [
+              0,
+              67108864
+            ]
+          },
+          "sourceDigest": "hash",
+          "transferId": "uuid"
+        }
+      }
+    }
+  }
+}

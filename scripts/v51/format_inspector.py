@@ -200,8 +200,9 @@ def walk_context(schema,value,manifest):
 def wire(raw,manifest):
     need(48<len(raw)<=MAX_IMAGE,'wire capacity')
     magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16]);catalog=load()
-    extension=json.loads((Path(__file__).resolve().parents[2]/'general-search-engine-replication/src/test/resources/replication/v51/runtime-wire-extension.json').read_text())
-    catalog['wire'].update(extension['wire']);catalog['envelope']['object']['type']['enum']+=list(extension['wire'])
+    for name in ('runtime-wire-extension.json','rejoin-wire-extension.json'):
+        extension=json.loads((Path(__file__).resolve().parents[2]/'general-search-engine-replication/src/test/resources/replication/v51'/name).read_text())
+        catalog['wire'].update(extension['wire']);catalog['envelope']['object']['type']['enum']+=list(extension['wire'])
     spec=next((v for v in catalog['wire'].values() if v['id']==kind),None)
     need((magic,major,minor,flags)==(b'GSRP',1,2,0) and spec is not None,'wire version/kind')
     need(size==len(raw)-48 and hashlib.sha256(raw[:16]+raw[48:]).digest()==raw[16:48],'wire length/digest')
@@ -219,7 +220,7 @@ def wire(raw,manifest):
     replies={'PROMISE','ACCEPT_ACK','COMMIT_PROOF_ACK','HEARTBEAT_ACK'}
     if value['type'] in requests:need(value['sender']==value['proposer'],'request proposer')
     if value['type'] in replies:need(value['recipient']==value['proposer'],'response proposer')
-    if 'response' in payload:
+    if 'response' in payload and value['type']!='SOURCE_OFFER':
         need(value['recipient' if payload['response'] else 'sender']==value['proposer'],'snapshot request/response proposer')
     if value['type'] in ('ACCEPT','COMMIT_PROOF'):
         field='acceptance' if value['type']=='ACCEPT' else 'proof'

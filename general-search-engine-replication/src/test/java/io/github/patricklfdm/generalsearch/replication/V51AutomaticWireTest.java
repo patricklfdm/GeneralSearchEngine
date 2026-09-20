@@ -10,6 +10,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 class V51AutomaticWireTest {
+    @Test void independentRejoinWireVectorsAgree() throws Exception {
+        var manifest=decode(unbase(V51StorageFixture.samples().get("MANIFEST")),"MANIFEST");
+        try(var in=getClass().getResourceAsStream("/replication/v51/rejoin-wire-fixtures.json")) {
+            var fixtures=object(io.github.patricklfdm.generalsearch.admission.AdmissionJson.parse(new String(in.readAllBytes(),StandardCharsets.UTF_8)));
+            for(Object value:fixtures.values()) {byte[] bytes=unbase(value);assertArrayEquals(bytes,AutomaticWire.encode(AutomaticWire.decode(bytes,manifest,IMAGE),manifest,IMAGE));}
+        }
+    }
     @TempDir Path root;
     @Test void frozenNineteenMessagesHaveExactProductionBytes() throws Exception {
         try(var in=getClass().getResourceAsStream("/replication/v51/format-fixtures.json")) {
@@ -41,6 +48,10 @@ class V51AutomaticWireTest {
         object(original.get("wire")).putAll(object(extension.get("wire")));
         var types=object(object(object(original.get("envelope")).get("object")).get("type"));
         list(types.get("enum")).addAll(object(extension.get("wire")).keySet());
+        try(var in=getClass().getResourceAsStream("/replication/v51/rejoin-wire-extension.json")) {
+            var rejoin=object(io.github.patricklfdm.generalsearch.admission.AdmissionJson.parse(new String(in.readAllBytes(),StandardCharsets.UTF_8)));
+            object(original.get("wire")).putAll(object(rejoin.get("wire")));list(types.get("enum")).addAll(object(rejoin.get("wire")).keySet());
+        }
         assertArrayEquals(canonical(Map.of("wire",original.get("wire"),"envelope",original.get("envelope"))),canonical(AutomaticWire.CATALOG));
         try(var in=getClass().getResourceAsStream("/replication/v51/runtime-wire-fixtures.json")) {fixtures=object(io.github.patricklfdm.generalsearch.admission.AdmissionJson.parse(new String(in.readAllBytes(),StandardCharsets.UTF_8)));}
         var manifest=decode(unbase(V51StorageFixture.samples().get("MANIFEST")),"MANIFEST");

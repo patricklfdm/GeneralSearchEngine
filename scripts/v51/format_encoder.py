@@ -11,8 +11,10 @@ CATALOG=Path(__file__).resolve().parents[2]/'general-search-engine-replication/s
 
 def catalog():return json.loads(CATALOG.read_text())
 def runtime_catalog():
-    value=catalog();extension=json.loads((CATALOG.parent/'runtime-wire-extension.json').read_text())
-    value['wire'].update(extension['wire']);value['envelope']['object']['type']['enum']+=list(extension['wire'])
+    value=catalog()
+    for name in ('runtime-wire-extension.json','rejoin-wire-extension.json'):
+        extension=json.loads((CATALOG.parent/name).read_text())
+        value['wire'].update(extension['wire']);value['envelope']['object']['type']['enum']+=list(extension['wire'])
     return value
 def canonical(value):return json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=True,allow_nan=False).encode('ascii')
 def frame(kind,body,magic=b'GSER',minor=2):

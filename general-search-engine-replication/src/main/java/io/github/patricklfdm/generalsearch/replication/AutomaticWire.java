@@ -50,7 +50,7 @@ final class AutomaticWire {
         if(number(value,"epoch")==1)need(Set.of("HANDSHAKE","AUTHORITY_STATUS_PROBE","AUTHORITY_STATUS","REJECT").contains(type),"genesis authority message");
         if(Set.of("PREPARE","ACCEPT","COMMIT_PROOF","HEARTBEAT","COMMIT_ADVANCE").contains(type))need(value.get("sender").equals(value.get("proposer")),"wire request proposer");
         if(Set.of("PROMISE","ACCEPT_ACK","COMMIT_PROOF_ACK","HEARTBEAT_ACK").contains(type))need(value.get("recipient").equals(value.get("proposer")),"wire response proposer");
-        if(payload.containsKey("response"))need(value.get(Boolean.TRUE.equals(payload.get("response"))?"recipient":"sender").equals(value.get("proposer")),"wire transfer direction");
+        if(payload.containsKey("response")&&!type.equals("SOURCE_OFFER"))need(value.get(Boolean.TRUE.equals(payload.get("response"))?"recipient":"sender").equals(value.get("proposer")),"wire transfer direction");
         if(type.equals("ACCEPT")||type.equals("COMMIT_PROOF")) {
             var row=AutomaticRecords.decode(unbase(payload.get(type.equals("ACCEPT")?"acceptance":"proof")),type.equals("ACCEPT")?"ACCEPT":"PROOF");
             need(AutomaticRecovery.ballotOf(row).equals(AutomaticRecovery.ballotOf(ballot)),"nested wire ballot");

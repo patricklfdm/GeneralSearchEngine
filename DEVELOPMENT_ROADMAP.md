@@ -16,8 +16,10 @@ with exact-master CI `35503107173` passing all six jobs. The user entered
 [Phase 3](docs/v5x/v5.1/PHASE_3_ENTRY_PLAN.md); its internal election/activation
 transition kernel was accepted in PR #188 at `cf13a87e84a25ed1470f8e6de307e53b0d67424c`
 with exact-master CI `35507802486`. The [runtime batch](docs/v5x/v5.1/PHASE_3_RUNTIME.md)
-now implements real TCP and V4 application staging with independent JVM evidence.
-Third-voter rejoin/source floors and public automatic runtime admission remain open.
+was accepted in PR #189 with exact-master CI `35527143425`.
+[Phase 3C](docs/v5x/v5.1/PHASE_3_REJOIN.md) implements retained-voter rejoin and two-source
+reclamation; local qualification passed and protected acceptance is pending. Public automatic
+runtime admission remains Phase 4.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

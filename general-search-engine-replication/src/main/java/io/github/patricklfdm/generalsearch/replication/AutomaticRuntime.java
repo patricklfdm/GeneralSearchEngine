@@ -22,6 +22,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final AutomaticProtocol protocol;
     private final AutomaticApplication<K,T> application;
     private final AutomaticTransport transport;
+    private final AutomaticRejoin rejoin;
     private final Record manifest;
     private final String local;
     private final ReplicationBounds bounds;
@@ -63,6 +64,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             protocol=new AutomaticProtocol(store,()->ThreadLocalRandom.current().nextLong(),UUID::randomUUID);
             promise=protocol.promise();view=protocol.view();
             listening=new AutomaticTransport(manifest,local,bounds,this::handle,transportEvents);transport=listening;
+            rejoin=new AutomaticRejoin(store,protocol,this::controlled,this::send,this::now,this::id,events);
             control=Thread.ofPlatform().daemon().name("gse-automatic-control-"+local).unstarted(this::loop);
             inputs.add(()->protocol.start(now()));control.start();
         } catch(RuntimeException|Error error) {
@@ -75,6 +77,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     AutomaticProtocol.View view() {return view;}
     Throwable failure() {return failure;}
     Throwable lastExchangeFailure() {return lastExchangeFailure;}
+    Throwable lastRecoveryFailure() {return rejoin.lastFailure();}
+    Throwable lastRecoveryRejection() {return rejoin.lastRejected();}
     // Test/internal inspection only; this is deliberately not a public strong-read implementation.
     <R> CompletableFuture<R> inspectLocal(Function<SearchEngine<K,T>,R> action) {
         var result=new CompletableFuture<R>();
@@ -127,7 +131,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         while(!terminated)try {
             for(int i=0;i<16;i++){Runnable task=completions.poll();if(task==null)break;task.run();flush();}
             Runnable task=inputs.poll(20,TimeUnit.MILLISECONDS);if(task!=null)task.run();
-            if(!closing)protocol.tick(now());flush();
+            if(!closing) {protocol.tick(now());rejoin.tick();}flush();
         }catch(InterruptedException error){if(!terminated){failure=error;closing=true;}}
         catch(Throwable error){failure=error;closing=true;try{protocol.quiesce();flush();}catch(Throwable ignored){}}
     }
@@ -213,6 +217,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         try {
             need(!closing,"runtime closing");String type=text(request,"type");var payload=object(request.get("payload"));Record ballot=AutomaticWire.ballot(request,manifest);
             if(type.equals("HANDSHAKE"))return AutomaticWire.reply(request,type,Map.of("mode","AUTOMATIC"));
+            if(rejoin.handles(type))return rejoin.handle(request);
             if(type.equals("BASIS_CHUNK")) {
                 need(payload.get("action").equals("REQUEST"),"basis request direction");var basis=controlled(()->protocol.frozen(ballot));
                 need(basis.record().value().get("basisId").equals(payload.get("basisId")),"expired basis identity");
@@ -265,11 +270,11 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     @Override public synchronized void close() {
         if(terminated)return;closing=true;
         var stop=new CompletableFuture<Void>();complete(()->{
-            try {protocol.quiesce();flush();Runnable queued;while((queued=inputs.poll())!=null){queued.run();flush();}stop.complete(null);}
+            try {rejoin.stop();protocol.quiesce();flush();Runnable queued;while((queued=inputs.poll())!=null){queued.run();flush();}stop.complete(null);}
             catch(Throwable error){stop.completeExceptionally(error);}
         });
         try {
-            stop.get(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);transport.close();network.shutdown();app.shutdown();
+            stop.get(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);transport.close();rejoin.close();network.shutdown();app.shutdown();
             if(!network.awaitTermination(bounds.requestTimeoutMillis()+100L,TimeUnit.MILLISECONDS)||!app.awaitTermination(bounds.requestTimeoutMillis()+100L,TimeUnit.MILLISECONDS))throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
             application.close();var released=new CompletableFuture<Void>();complete(()->{try{protocol.close();released.complete(null);}catch(Throwable error){released.completeExceptionally(error);}});
             released.get(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);terminated=true;control.interrupt();control.join(bounds.requestTimeoutMillis());clients.shutdown();
