@@ -1,7 +1,8 @@
 # V5.1 Phase 3 entry: automatic protocol and runtime
 
-**Status:** Batches A/B accepted; the user entered `feat/v5.1-phase3-rejoin` and
-authorized Batch C. Local qualification passed; Phase 3 awaits protected acceptance.
+**Status:** Batches A/B accepted; Batch C merged in PR #190. Its master CI exposed
+a recovery-floor liveness failure; see the [correction](PHASE_3_REJOIN.md#different-snapshot-cuts-pr-190-follow-up).
+Phase 3 awaits a passing exact-master gate and protected acceptance.
 **Accepted base:** [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
 `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
 [exact-master CI 35527143425](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35527143425).

@@ -224,6 +224,15 @@ final class AutomaticStore implements AutoCloseable {
         recoveryIo(()->{install(snapshot,null);return null;});
     }
     synchronized AutomaticRecoveryFiles.Source currentSource() {return recoveryIo(recovery::current);}
+    synchronized AutomaticRecoveryFiles.Source retainWitness(String requester,Record snapshot) {
+        usable();context(snapshot,manifest);need(snapshot.name().equals("SNAPSHOT"),"witness snapshot kind");
+        need(nodes(manifest.value()).contains(requester)&&!requester.equals(node),"witness requester");
+        int cut=AutomaticRecovery.index(snapshot);
+        if(cut>provenThrough())throw failure(AutomaticReplicationException.Reason.NOT_READY,"witness exceeds local proof",null);
+        need(snapshot.value().get("baseSequence").equals(manifest.value().get("baseSequence")),"witness genesis sequence");
+        if(snapshot.value().get("terminalProof")!=null)need(number(decode(unbase(snapshot.value().get("terminalProof")),"PROOF").value(),"epoch")<=number(promise.value(),"epoch"),"witness proof exceeds promise");
+        return recoveryIo(()->{checkPrefix(snapshot,cut);if(cut==0)AutomaticRecovery.agrees(genesisSnapshot(),snapshot,0);return recovery.witness(requester,snapshot);});
+    }
     private void install(Record image,Record decision) throws IOException {
         int cut=AutomaticRecovery.index(image);need(cut>=provenThrough(),"snapshot rolls back proven prefix");checkPrefix(image,provenThrough());
         Record tail=acceptedThrough()>cut?acceptance(acceptedThrough()):null;

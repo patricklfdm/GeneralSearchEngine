@@ -71,4 +71,70 @@ class V51RecoveryExchangeTest {
             rows.add(rows.getFirst());assertThrows(AutomaticReplicationException.class,()->AutomaticRejoin.packet(canonical(Map.of("files",rows)),f.m));
         }
     }
+    private static Map<String,Object> data(String id,int offset,byte[] bytes) {
+        return Map.of("transferId",id,"action","DATA","offset",(long)offset,"maxChunkBytes",4096L,"chunkBytes",(long)bytes.length,"chunk",b64(bytes),"chunkDigest",sha(bytes));
+    }
+    private Map<String,Object> seedOffer(String nonce,AutomaticRecoveryFiles.Source source) {
+        byte[] bytes=canonical(AutomaticRejoin.packetValue(source));
+        return Map.of("transferId",nonce,"response",false,"index",(long)AutomaticRecovery.index(source.snapshot()),"sourceBytes",(long)bytes.length,"sourceDigest",sha(bytes));
+    }
+    private AutomaticRecoveryFiles.Source seedAndDownload(Fixture f,AutomaticRecoveryFiles.Source own) throws Exception {
+        String nonce=UUID.randomUUID().toString();byte[] bytes=canonical(AutomaticRejoin.packetValue(own));
+        String upload=text(object(f.call("SOURCE_OFFER",seedOffer(nonce,own)).get("payload")),"transferId");
+        for(int offset=0;offset<bytes.length;offset+=4096) {
+            var chunk=data(upload,offset,Arrays.copyOfRange(bytes,offset,Math.min(bytes.length,offset+4096)));
+            assertEquals(f.call("SOURCE_CHUNK",chunk).get("payload"),f.call("SOURCE_CHUNK",chunk).get("payload"));
+        }
+        var query=new LinkedHashMap<>(f.offer(nonce));query.put("index",(long)AutomaticRecovery.index(own.snapshot()));
+        var offered=object(f.call("SOURCE_OFFER",query).get("payload"));String export=text(offered,"transferId");assertNotEquals(upload,export);
+        var downloaded=new java.io.ByteArrayOutputStream();
+        while(downloaded.size()<number(offered,"sourceBytes")) {
+            var chunk=Map.<String,Object>of("transferId",export,"action","REQUEST","offset",(long)downloaded.size(),"maxChunkBytes",4096L,"chunkBytes",0L,"chunk","","chunkDigest",sha(new byte[0]));
+            downloaded.write(unbase(object(f.call("SOURCE_CHUNK",chunk).get("payload")).get("chunk")));
+        }
+        assertEquals(offered.get("sourceDigest"),sha(downloaded.toByteArray()));return AutomaticRejoin.packet(downloaded.toByteArray(),f.m);
+    }
+    @Test void differentFullGenerationCutsConvergeWithoutRollingBackHigherPeer() throws Exception {
+        try(var f=new Fixture();var a=AutomaticStore.open(root.resolve("node-1"),f.manifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+            a.checkpoint(unbase(decode(Files.readAllBytes(root.resolve("node-1/genesis.gsr")),"GENESIS").value().get("application")));
+            byte[] first=entry(f.manifest,1,null,1,new byte[]{1}),second=entry(f.manifest,2,first,1,new byte[]{2});
+            a.promise(f.ballot.bytes());
+            for(var s:List.of(a,f.store)){s.accept(accept(f.manifest,first,2));s.prove(proof(f.manifest,first,2));}
+            a.checkpoint(new byte[]{1});
+            for(var s:List.of(a,f.store)){s.accept(accept(f.manifest,second,2));s.prove(proof(f.manifest,second,2));}
+            f.store.checkpoint(new byte[]{2});
+            byte[] tail=entry(f.manifest,3,second,1,new byte[]{3});f.store.accept(accept(f.manifest,tail,2));
+            var own=a.recoverySource();var higher=f.store.recoverySource();
+            assertFalse(a.generationAvailable(a.provenSnapshot(new byte[]{2})));
+            var query=new LinkedHashMap<>(f.offer(UUID.randomUUID().toString()));query.put("index",1L);
+            assertEquals(AutomaticReplicationException.Reason.NOT_READY,assertThrows(AutomaticReplicationException.class,()->f.call("SOURCE_OFFER",query)).reason());
+            var remote=seedAndDownload(f,own);
+            assertEquals("node-2",remote.seal().value().get("node"));assertEquals(1,AutomaticRecovery.index(remote.snapshot()));
+            assertEquals(higher.seal().digest(),f.store.currentSource().seal().digest());assertEquals(2,f.store.status().get("provenThrough"));
+            assertArrayEquals(tail,f.store.acceptedEntry(3));
+            a.establishRecoveryFloor(List.of(own,remote));a.cleanup();assertTrue(a.generationAvailable(a.provenSnapshot(new byte[]{2})));
+            a.installProven(a.provenSnapshot(new byte[]{2}));a.establishRecoveryFloor(List.of(a.recoverySource(),higher));a.cleanup();
+            f.store.establishRecoveryFloor(List.of(f.store.recoverySource(),a.recoverySource()));f.store.cleanup();
+            assertFalse(a.quarantined());assertFalse(f.store.quarantined());
+        }
+        var manifest=Files.readAllBytes(root.resolve("node-2/manifest.gsr"));
+        try(var s=AutomaticStore.open(root.resolve("node-2"),manifest,"node-2",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+            assertEquals(2,s.status().get("provenThrough"));assertEquals(2,AutomaticRecovery.index(s.currentSource().snapshot()));
+            assertEquals(3,s.status().get("acceptedThrough"));
+        }
+    }
+    @Test void sourceSeedRejectsChangedBytesAndExpiresWithoutCreatingAuthority() throws Exception {
+        try(var f=new Fixture();var a=AutomaticStore.open(root.resolve("node-1"),f.manifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+            a.checkpoint(unbase(decode(Files.readAllBytes(root.resolve("node-1/genesis.gsr")),"GENESIS").value().get("application")));
+            var own=a.recoverySource();String nonce=UUID.randomUUID().toString();var offered=seedOffer(nonce,own);
+            var before=f.store.currentSource().seal().digest();String id=text(object(f.call("SOURCE_OFFER",offered).get("payload")),"transferId");
+            byte[] bytes=Arrays.copyOf(canonical(AutomaticRejoin.packetValue(own)),32);f.call("SOURCE_CHUNK",data(id,0,bytes));
+            bytes[0]^=1;assertThrows(AutomaticReplicationException.class,()->f.call("SOURCE_CHUNK",data(id,0,bytes)));
+            assertThrows(AutomaticReplicationException.class,()->f.call("SOURCE_OFFER",f.offer(UUID.randomUUID().toString())));
+            f.time.set(f.store.leadershipPolicy().operationTimeoutMillis());
+            assertThrows(AutomaticReplicationException.class,()->f.call("SOURCE_OFFER",offered));
+            assertThrows(AutomaticReplicationException.class,()->f.call("SOURCE_CHUNK",data(id,0,bytes)));
+            assertEquals(before,f.store.currentSource().seal().digest());assertFalse(Files.exists(root.resolve("node-2/transfer/witness")));assertFalse(f.store.quarantined());
+        }
+    }
 }

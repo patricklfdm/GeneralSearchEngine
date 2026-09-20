@@ -53,7 +53,7 @@ def run(output,rejoin=False):
     receipt['sourceInventorySha256']=storage.sha(storage.canonical({p:storage.sha((ROOT/p).read_bytes()) for p in sorted(set(files)) if p and (ROOT/p).is_file()}))
     receipt['javaReports']={}
     required=[('V51AutomaticRuntimeTest',4),('V51AutomaticWireTest',4),('V51AutomaticProtocolTest',21)]
-    if rejoin:required += [('V51AutomaticRejoinTest',2),('V51RecoveryExchangeTest',4)]
+    if rejoin:required += [('V51AutomaticRejoinTest',3),('V51RecoveryExchangeTest',6),('V51RecoveryWitnessTest',2)]
     for name,minimum in required:
         report=module/'target/surefire-reports'/('TEST-io.github.patricklfdm.generalsearch.replication.'+name+'.xml');suite=ET.parse(report).getroot()
         need(int(suite.attrib['tests'])>=minimum and all(int(suite.attrib.get(k,0))==0 for k in ('failures','errors','skipped')),'runtime regression prerequisite: '+name)
@@ -75,6 +75,17 @@ def run(output,rejoin=False):
             if all(p.exists() and oracle.f.inspect(p.read_bytes(),'FLOOR')['index']>=cut for p in floors):return
             time.sleep(.15)
         raise ValueError('rejoin floor timeout: '+json.dumps(states))
+    def witness(cut):
+        deadline=time.monotonic()+45
+        while time.monotonic()<deadline:
+            for path in root.glob('node-*-trace.jsonl'):
+                # A concurrently appended last line may still be incomplete.
+                rows=path.read_text().rsplit('\n',1)[0].splitlines()
+                if any(row.get('event')=='SOURCE_WITNESS' and row['index']==cut for row in map(json.loads,rows)):return
+            states={n:w.command('status') for n,w in workers.items()}
+            need(all(s['failure'] is None and s['state']!='FAILED' for s in states.values()),'witness voter failed: '+json.dumps(states))
+            time.sleep(.15)
+        raise ValueError('exact-cut witness timeout: '+json.dumps(states))
     try:
         for i in range(1,4):
             node='node-'+str(i);workers[node]=Worker(root,node,cp);receipt['pids'].append(workers[node].process.pid)
@@ -82,7 +93,13 @@ def run(output,rejoin=False):
         added=active.command('add',id=1,value=large);need(active.command('query')['documents']==[dict(id=1,value=large)],'initial V4 query')
         if rejoin:
             converge(added['index'])
-            for _ in range(2):converge(active.command('update',id=1,value=large)['index'])
+            for worker in workers.values():worker.command('hold-rejoin',hold=True)
+            try:
+                updated=active.command('update',id=1,value=large)['index'];witness(updated)
+            finally:
+                for worker in workers.values():worker.command('hold-rejoin',hold=False)
+            converge(updated);converge(active.command('update',id=1,value=large)['index'])
+            receipt['cases'].append(dict(case='different-cuts-witness-exchange',status='PASS'))
             receipt['cases'].append(dict(case='repeated-three-voter-reclamation',status='PASS'))
         receipt['cases'].append(dict(case='healthy',status='PASS',leader=old));print(json.dumps(receipt['cases'][-1]),flush=True)
         active.kill();del workers[old]
@@ -116,6 +133,7 @@ def run(output,rejoin=False):
         if rejoin:
             from . import rejoin_evidence
             receipt['rejoin']=rejoin_evidence.validate(root);receipt['rejoinNegatives']=rejoin_evidence.negatives(root)
+            need(receipt['rejoin']['witnesses']>0 and len(receipt['rejoinNegatives'])==7,'missing witness qualification')
     except BaseException as error:receipt.update(status='FAIL',failure=str(error));raise
     finally:save(root/'receipt.json',receipt)
     print(json.dumps(receipt['validation']),flush=True)

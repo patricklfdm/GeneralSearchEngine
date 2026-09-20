@@ -55,8 +55,8 @@ final class AutomaticRecoveryFiles {
         if (p[0].equals("basis")) return voters.contains(p[1]) && (directory ? p.length==2 : p.length==3 && Set.of("basis.gsr","basis.pending.gsr","image.gsr").contains(p[2]));
         if (!p[0].equals("transfer")) return false;
         if (p.length==2 && !directory) return Set.of("selected.pending.gsr","started.pending.gsr","transfer.gsr","transfer.pending.gsr","image.gsr").contains(p[1]);
-        if (!Set.of("selection-a","selection-b","floor-a","floor-b","retiring").contains(p[1])) return false;
-        if (directory) return p.length==2 || p.length==3 && p[1].startsWith("floor-") && voters.contains(p[2]);
+        if (!Set.of("selection-a","selection-b","floor-a","floor-b","retiring","witness").contains(p[1])) return false;
+        if (directory) return p.length==2 || p.length==3 && (p[1].startsWith("floor-") || p[1].equals("witness")) && voters.contains(p[2]);
         if (p[1].startsWith("selection-")) return p.length==3 && voters.stream().anyMatch(n -> p[2].equals("basis-"+n+".gsr") || p[2].equals("image-"+n+".gsr"));
         if (p[1].equals("retiring")) return p.length==3 && (GENERATION_FILES.contains(p[2]) || p[2].equals("current.gsr"));
         return p.length==4 && voters.contains(p[2]) && (GENERATION_FILES.contains(p[3]) || p[3].equals("current.gsr"));
@@ -195,6 +195,19 @@ final class AutomaticRecoveryFiles {
         var source=Source.read(files,manifest);
         if(source.seal.value().get("selectedDigest")!=null)need(Files.isRegularFile(root.resolve("selected.gsr"),LinkOption.NOFOLLOW_LINKS),"generation lost selected authority");
         return source;
+    }
+    // Auxiliary exact-cut copy, never selected as this voter's active authority on reopen.
+    Source witness(String requester,Record snapshot) throws IOException {
+        var files=new java.util.TreeMap<String,byte[]>();files.put("snapshot.gsr",snapshot.bytes());
+        files.put("accepted.gsr",encode("JOURNAL",Map.of("manifestDigest",manifest.digest(),"node",node,"recordKind",24)));
+        files.put("proofs.gsr",encode("JOURNAL",Map.of("manifestDigest",manifest.digest(),"node",node,"recordKind",6)));
+        var value=new LinkedHashMap<String,Object>();value.put("manifestDigest",manifest.digest());value.put("node",node);value.put("snapshotDigest",snapshot.digest());
+        value.put("prefixIndex",(long)AutomaticRecovery.index(snapshot));value.put("selectedDigest",null);
+        value.put("files",files.entrySet().stream().map(e->AutomaticRecovery.file(e.getKey(),e.getValue())).toList());
+        var seal=decode(encode("GENERATION",value),"GENERATION");files.put("generation.gsr",seal.bytes());
+        files.put("current.gsr",encode("SELECTOR",Map.of("manifestDigest",manifest.digest(),"node",node,"generation","generation-a","generationDigest",seal.digest())));
+        var source=Source.read(files,manifest);Path dir=root.resolve("transfer/witness").resolve(requester);
+        saveSource(dir,source,"WITNESS");sync(dir);faults.at("WITNESS_BEFORE_ACK");faults.at("SOURCE_BEFORE_ACK");return source;
     }
     Source install(Record snapshot,Record localTail,Record selected) throws IOException {
         Source current=current();String target=current==null||current.selector.value().get("generation").equals("generation-b")?"generation-a":"generation-b";

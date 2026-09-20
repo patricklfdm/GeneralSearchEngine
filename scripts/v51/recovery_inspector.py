@@ -26,8 +26,8 @@ def allowed(parts, directory, voters, required):
         return parts[1] in voters and (len(parts) == 2 if directory else len(parts) == 3 and parts[2] in {'basis.gsr', 'basis.pending.gsr', 'image.gsr'})
     if parts[0] != 'transfer': return False
     if len(parts) == 2 and not directory: return parts[1] in {'selected.pending.gsr', 'started.pending.gsr', 'transfer.gsr', 'transfer.pending.gsr', 'image.gsr'}
-    if parts[1] not in {'selection-a', 'selection-b', 'floor-a', 'floor-b', 'retiring'}: return False
-    if directory: return len(parts) == 2 or len(parts) == 3 and parts[1].startswith('floor-') and parts[2] in voters
+    if parts[1] not in {'selection-a', 'selection-b', 'floor-a', 'floor-b', 'retiring', 'witness'}: return False
+    if directory: return len(parts) == 2 or len(parts) == 3 and (parts[1].startswith('floor-') or parts[1] == 'witness') and parts[2] in voters
     if parts[1].startswith('selection-'): return len(parts) == 3 and parts[2] in {f'{k}-{n}.gsr' for k in ('basis', 'image') for n in voters}
     if parts[1] == 'retiring': return len(parts) == 3 and parts[2] in GENERATION | {'current.gsr'}
     return len(parts) == 4 and parts[2] in voters and parts[3] in GENERATION | {'current.gsr'}
