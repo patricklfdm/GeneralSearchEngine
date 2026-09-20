@@ -12,8 +12,11 @@ Retain the accepted V5.1, V5.2, V5.3 and V5.4 sequence. This proposal makes the
 next entry point and cross-version obligations explicit; it does not replace the
 accepted charter, rewrite V5.0 evidence, or claim that a V5.1 protocol is proven.
 
-The next recommended engineering task is the documentation-only
-[V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). V6 is an
+The next engineering task identified here is the documentation-only
+[V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). It has since been assigned;
+the [contract candidate](v5.1/PHASE_0_CONTRACT.md) and
+[review checklist](v5.1/PHASE_0_CHECKLIST.md) record its proposed resolutions.
+V6 is an
 [architecture preview](../v6x/ARCHITECTURE_PREVIEW.md), not an implementation lane.
 Acceptance of a planning document is distinct from acceptance of a complete minor
 contract, authorization of the next phase, execution of paid work, and publication.

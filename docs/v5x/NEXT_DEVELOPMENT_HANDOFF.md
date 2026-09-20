@@ -6,6 +6,12 @@ constitute protected acceptance of a protocol or authorization to implement it.
 
 **Reviewed source:** `066a04602f7116a0386c645ddfcf4c2e3d41312a`.
 
+**Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0
+on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
+[contract candidate](v5.1/PHASE_0_CONTRACT.md) now supplies all six design outputs;
+its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
+The integration record below retains the original boundary and validation history.
+
 ## Self-contained development map
 
 The revision 0.1 proposal's development material is integrated at the following
@@ -52,8 +58,8 @@ over these already integrated documents.
    resolving decisions through source inspection, counterexamples and review.
    That assignment still stops before separately authorized Phase 1 work.
 
-At this integration boundary D01-D12 remain OPEN, E01-E12 are planned evidence
-families, and the six Phase 0 output documents have not been produced. Do not invent
+At the original integration boundary D01-D12 were OPEN, E01-E12 were planned evidence
+families, and the six Phase 0 output documents had not been produced. Do not invent
 protocol proof, API compatibility, numerical defaults or acceptance evidence to
 close them. A planning-document merge does not establish a completed Phase 0.
 
@@ -80,7 +86,7 @@ unchanged during this planning work. Preserve historical acceptance sections in
 the root roadmap and V5 navigation. Historical corrections require an explicitly
 identified erratum; they must not conceal an incompatibility in a later proposal.
 
-The current integration and future documentation-only Phase 0 scope do not include
+The integration and documentation-only Phase 0 scopes do not include
 production or test code, declaration classes, fixtures, version/dependency changes,
 workflow changes, cluster startup, fault execution, paid cloud runs or publication.
 Commit, push and merge remain user-owned operations. V6 research may proceed as

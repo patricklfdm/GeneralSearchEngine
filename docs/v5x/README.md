@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.0 phases complete; V5.1-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 0 candidate under review; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -20,9 +20,11 @@ runtime implementation, a version bump, cloud execution or publication.
 
 Start with the [V5.x roadmap](ROADMAP.md), then the
 [proposed next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) and
-[V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). After that design task is
-explicitly assigned, use the entry plan to produce and review the automated-leadership
-contract. Integrating these proposals does not start Phase 0 design or implementation.
+[V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). The user subsequently assigned
+the design task: its [six-document contract candidate](v5.1/PHASE_0_CONTRACT.md)
+now records D01-D12 selections and E01-E12 evidence design. The
+[checklist](v5.1/PHASE_0_CHECKLIST.md) distinguishes delivered design from pending
+protected acceptance and separately authorized Phase 1 work.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

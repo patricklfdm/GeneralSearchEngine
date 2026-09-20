@@ -2,8 +2,11 @@
 
 ## Next development entry: V5.1 contract design
 
-V5.0 is published; V5.1-V5.4 remain future work. The next recommended task is the
-[V5.1 Phase 0 entry plan](docs/v5x/v5.1/PHASE_0_ENTRY_PLAN.md), documentation only.
+V5.0 is published. The user has started documentation-only V5.1 Phase 0 under the
+[entry plan](docs/v5x/v5.1/PHASE_0_ENTRY_PLAN.md). Its six-document
+[contract candidate](docs/v5x/v5.1/PHASE_0_CONTRACT.md) is available for review;
+[protected acceptance and Phase 1 entry](docs/v5x/v5.1/PHASE_0_CHECKLIST.md) remain pending.
+V5.1 runtime implementation and V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
 revision 0.1 refinements dated 2026-09-19, not accepted implementation contracts.
