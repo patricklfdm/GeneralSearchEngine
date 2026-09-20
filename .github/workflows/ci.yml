@@ -48,7 +48,9 @@ jobs:
     needs: changes
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # The serial V4/V5/V5.1 evidence gates now consume nearly 30 minutes before soak.
+    # Leave room for stabilization, the travel example, and runner variation.
+    timeout-minutes: 60
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6

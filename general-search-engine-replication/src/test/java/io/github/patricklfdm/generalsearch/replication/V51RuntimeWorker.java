@@ -24,11 +24,12 @@ public final class V51RuntimeWorker {
         Path root=Path.of(args[0]).toAbsolutePath();
         if(args[1].equals("setup")) {try(var group=new V51RuntimeFixture(root,true,false)){print(Map.of("status","SETUP","manifestDigest",digest(group.manifest)));}return;}
         int ordinal=Integer.parseInt(args[1]);String local="node-"+ordinal;var trace=new Trace(root.resolve(local+"-trace.jsonl"));
+        var holdRejoin=new java.util.concurrent.atomic.AtomicBoolean();
         try(var group=new V51RuntimeFixture(root,false,false)) {
             var manifest=decode(group.manifest,"MANIFEST");
             var hooks=new AutomaticStore.Faults(){
                 public void at(String event) throws IOException {
-                    if(event.equals("FLOOR_BEFORE_ACK")||event.equals("SELECTOR_BEFORE_ACK")||event.equals("SOURCE_BEFORE_ACK")||event.equals("TRANSFER_PROGRESS_BEFORE_ACK")||event.startsWith("DELETE_AFTER_"))
+                    if(event.equals("FLOOR_BEFORE_ACK")||event.equals("SELECTOR_BEFORE_ACK")||event.equals("SOURCE_BEFORE_ACK")||event.equals("WITNESS_BEFORE_ACK")||event.equals("TRANSFER_PROGRESS_BEFORE_ACK")||event.startsWith("DELETE_AFTER_"))
                         trace.event("STORAGE_CUT",Map.of("cut",event));
                     for(String kind:List.of("PROMISE","ACCEPT","PROOF"))if(event.equals(kind+"_AFTER_FORCE")) {
                         Path directory=root.resolve(local);
@@ -40,7 +41,8 @@ public final class V51RuntimeWorker {
                 }
             };
             group.open(ordinal,hooks,trace::event,(barrier,request,response)->{
-                if(barrier.equals("BEFORE_RESPONSE_WRITE"))trace.event("REPLY",Map.of("frame",b64(AutomaticWire.encode(response,manifest,V51RuntimeFixture.BOUNDS.maxFrameBytes()))));
+                if(barrier.equals("BEFORE_REQUEST_WRITE")&&request.get("type").equals("SNAPSHOT_OFFER")&&holdRejoin.get())throw new IOException("test holds passive rejoin");
+                if(barrier.equals("BEFORE_RESPONSE_WRITE"))trace.event("REPLY",Map.of("request",b64(AutomaticWire.encode(request,manifest,V51RuntimeFixture.BOUNDS.maxFrameBytes())),"frame",b64(AutomaticWire.encode(response,manifest,V51RuntimeFixture.BOUNDS.maxFrameBytes()))));
                 if(barrier.equals("AFTER_RESPONSE_READ"))trace.event("RECEIVED",Map.of("request",b64(AutomaticWire.encode(request,manifest,V51RuntimeFixture.BOUNDS.maxFrameBytes())),"frame",b64(AutomaticWire.encode(response,manifest,V51RuntimeFixture.BOUNDS.maxFrameBytes()))));
             });
             var runtime=group.nodes.get(local);trace.event("STARTED",Map.of("node",local));print(Map.of("status","STARTED","node",local,"pid",ProcessHandle.current().pid()));
@@ -54,6 +56,8 @@ public final class V51RuntimeWorker {
                             var view=runtime.view();result.put("state",view.state().name());result.put("epoch",view.promisedEpoch());result.put("provenIndex",view.provenIndex());result.put("publishedIndex",view.publishedIndex());
                             result.put("failure",runtime.failure()==null?null:runtime.failure().toString());
                             result.put("recovery",String.valueOf(runtime.lastRecoveryFailure()));result.put("recoveryRejected",String.valueOf(runtime.lastRecoveryRejection()));
+                        } else if(name.equals("hold-rejoin")) {
+                            holdRejoin.set(Boolean.TRUE.equals(command.get("hold")));trace.event("HOLD_REJOIN",Map.of("hold",holdRejoin.get()));
                         } else if(name.equals("add")||name.equals("update")) {
                             var document=new Document((int)number(command,"id"),text(command,"value"));trace.event("CALL",command);
                             long index=runtime.submit(name.equals("add")?1:2,app->app.documents(name.toUpperCase(Locale.ROOT),List.of(document))).get(20,TimeUnit.SECONDS);

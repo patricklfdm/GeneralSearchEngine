@@ -1,6 +1,7 @@
 # Phase 3C: retained-voter rejoin and recovery-source exchange
 
-**Status:** implemented and locally qualified; protected acceptance pending.
+**Status:** PR #190 merged; its exact-master CI found a recovery-floor liveness
+failure. The correction below still requires protected acceptance.
 **Accepted base:** [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
 master `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
 [CI 35527143425](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35527143425).
@@ -80,6 +81,57 @@ promise ceilings remain finite; reclamation does not remove those lifetime limit
 
 ## Bounds, stale work and shutdown
 
+### Different snapshot cuts (PR #190 follow-up)
+
+[Master CI 35533377860](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35533377860)
+failed after retained-node restart: the three active snapshot cuts were 6, 7 and 4,
+while the full voters could not checkpoint again before reclaiming an inactive
+generation. Each requested its own exact cut from another voter's current
+generation. No pair matched, so retries could not make progress. Push CI did not
+encounter this ordering; raising the convergence timeout would not remove the cycle.
+
+The homogeneous, unreleased SOURCE exchange now also supports a bounded upload:
+
+1. A zero-byte `SOURCE_OFFER` keeps its download meaning. An unavailable current
+   cut returns `NOT_READY`; only that response triggers the upload fallback.
+2. A positive `sourceBytes` offers the requester's complete, hashed source packet.
+   The receiver must already prove through the requested cut in the current ballot.
+   It assigns a fresh upload ID and receives `SOURCE_CHUNK DATA`, replying with
+   exact `ACK` ranges. Intermediate ACKs acknowledge buffered bytes, not authority.
+3. After validating the whole packet, owner and local proven ancestry, the receiver
+   forces a complete locally owned copy at `transfer/witness/<requester>/`.
+   This optional directory has exactly the five source files, one bounded slot per
+   fixed peer. Its nested selector describes the packet; it never replaces the root
+   selector, contributes a vote, changes a promise or rolls back application state.
+   Interrupted auxiliary copies are never used as startup authority.
+4. Only after the complete copy is forced does the receiver create an export lease,
+   with a different immutable ID. The original zero-byte offer then downloads that
+   locally owned source through the normal hash-checked path. Upload and download
+   share the original finite deadline. The requester still needs its unchanged
+   active source plus the downloaded peer source at the exact same cut before FLOOR
+   publication and deletion. No floor, proof or journal-retirement check is relaxed.
+
+There is at most one incoming source upload per runtime in addition to the existing
+two peer export leases and one snapshot transfer. Each has the existing quarter
+staging cap; uploads cannot replace an unread export. Same-ID retries cannot change
+bytes or renew a deadline. An expired/restarted transfer must receive a new server
+identity. Auxiliary copies are retained independently of active generation cleanup;
+replacement is limited to a fresh exchange from the same requester after its prior
+export is consumed or expired, and requires a locally proven prefix again.
+
+This explicitly extends the semantics of the existing Phase 3C fields/directions;
+it changes no frozen catalog, record or vector bytes. Java and the independent
+Python inventory checker recognize only the bounded auxiliary paths. The evidence
+checker reconstructs the upload, checks its durable boundary, and separately checks
+the download used by each floor. Witness events bind both upload and export IDs:
+a SIGKILL after forcing a copy but before tracing its final ACK may leave an unused
+copy; a downloaded export always requires complete upload evidence. Unused,
+unacknowledged copies do not count toward witness qualification.
+Public bootstrap and mixed-version compatibility
+remain outside this qualification.
+
+### Common limits
+
 - One maintenance pipeline is admitted, so its executor cannot accumulate work.
   Network waits stay outside the authority dispatcher and retain transport limits.
 - At most one incoming image and one immutable source lease per requesting peer
@@ -102,12 +154,18 @@ exchange tests cover fixed lifetime, duplicate chunks, competing lease identitie
 higher promises and incomplete source inventories.
 
 `scripts/verify-v51-phase3-rejoin.sh` runs concurrent real JVMs, repeated all-voter
-floor advancement, two leader SIGKILL events and retained-node reopen. It retains
+floor advancement, two leader SIGKILL events and retained-node reopen. A test-worker
+fault briefly holds outgoing passive snapshot offers while a new mutation commits;
+the peers prove the new cut while retaining older snapshots. The gate requires an
+actual exact-cut witness upload before releasing the hold and checking convergence.
+This hook exists only in the test worker, and the 45-second limits remain unchanged.
+It retains
 wire frames, source packets, storage boundaries, application publications and the
 source/JAR/test-report identities. The independent checker verifies chosen history
 and V4 application bytes, reconstructs downloaded source packets and checks that
 deletion follows a durable floor. Missing transfer/force evidence and forged source
-inventories must fail. CI always retains the evidence directory.
+inventories must fail. The witness path adds mandatory missing-upload and
+missing-witness-force negatives. CI always retains the evidence directory.
 
 Full Phase 3 acceptance still requires protected merge and exact-master CI. Public
 bootstrap, façade, fresh read barriers/pins and lifecycle admission remain Phase 4.
@@ -136,3 +194,32 @@ This batch makes no cloud, mixed-version or public readiness claim.
 
 These are local worktree receipts based on `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
 not protected-master or public-service acceptance.
+
+## Recovery-floor correction validation (2026-09-20)
+
+- Reactor package passed. Current test reports: core 549 (four existing skips),
+  replication 264, processor five, with no failures/errors. The full-suite attempt
+  found a missing parent directory in the new interruption-test fixture; correcting
+  that fixture and rerunning its tests completed qualification. Later tracing-only
+  refinements were packaged and exercised by the final real-JVM gate.
+- New Java coverage includes three different full-generation cuts over real TCP,
+  exact-cut source upload/download, immutable retries/expiry, retained higher proof
+  and unresolved acceptance, and 16 interrupted witness writes/acknowledgments.
+- All 47 Python tests passed. Foundation passed at
+  `target/v51-foundation/run.ebbOFg/evidence`.
+- Storage passed all 36 ledger and 72 recovery process cuts at
+  `target/v51-storage/run.jNNcQZ`. Protocol passed six scenarios and seven negatives
+  at `target/v51-protocol/run.XmY0kG/evidence`.
+- Final rejoin gate passed at `target/v51-rejoin/run.ZSDVID/evidence/receipt.json`:
+  five JVM identities, nine chosen slots/publications, six acknowledged mutations,
+  three qualified witnesses, 19 floors, 21 downloaded sources and 98 deletion
+  boundaries. All five history negatives and seven rejoin negatives were rejected.
+  The forced witness scenario and the original convergence limits both passed.
+- The earlier enhanced run `target/v51-rejoin/run.Rp4BJJ/evidence` retained an
+  evidence-validation failure for a copy forced immediately before SIGKILL, without
+  a final ACK. Export-ID correlation fixes this accounting boundary; the failed
+  attempt remains preserved alongside the final passing run.
+
+These are local receipts based on `8cf283e73340990651b309ebeeb4a5a0943a9c8f` plus
+this fix. PR #190's master failure remains the protected result until the fix is
+merged and its exact-master CI passes. Phase 3 is not marked accepted.

@@ -13,6 +13,20 @@ from .recovery_harness import witness
 
 
 class RecoveryInspectorTest(unittest.TestCase):
+    def test_auxiliary_witness_inventory_is_bounded_and_cannot_replace_root_authority(self):
+        self.generation(); before = inspect(self.node)
+        directory = self.node / 'transfer/witness/node-2'; directory.mkdir(parents=True)
+        # A crash may leave a partial witness. Only the root selector chooses authority on reopen.
+        (directory / 'current.gsr').write_bytes(b'incomplete')
+        after = inspect(self.node)
+        for key in ('provenThrough', 'acceptedThrough', 'applicationSequence', 'promisedEpoch'):
+            self.assertEqual(before[key], after[key])
+        (directory / 'unexpected.gsr').write_bytes(b'')
+        with self.assertRaises(ValueError): inspect(self.node)
+        (directory / 'unexpected.gsr').unlink()
+        (self.node / 'transfer/witness/node-4').mkdir()
+        with self.assertRaises(ValueError): inspect(self.node)
+
     def setUp(self):
         temp = tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); self.root = Path(temp.name)
         self.records = create(self.root); self.node = self.root / 'node-1'; self.manifest_raw = (self.node / 'manifest.gsr').read_bytes()

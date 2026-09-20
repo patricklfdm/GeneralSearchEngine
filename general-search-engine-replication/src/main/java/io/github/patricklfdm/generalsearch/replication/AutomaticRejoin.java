@@ -13,6 +13,14 @@ final class AutomaticRejoin implements AutoCloseable {
     private record Lease(String requestId,String id,Record ballot,String peer,long deadline,byte[] bytes,boolean delivered) { }
     private record Transfer(String id,Record ballot,String peer,long deadline,long length,String digest) { }
     private record Cut(Record ballot,Record snapshot) { }
+    private static final class Seed {
+        final String requestId,id,peer,digest;final Record ballot;final long deadline,index;final byte[] bytes;
+        int received;boolean complete;
+        Seed(String requestId,String peer,Record ballot,long deadline,long index,int length,String digest) {
+            this.requestId=requestId;this.id=UUID.randomUUID().toString();this.peer=peer;this.ballot=ballot;this.deadline=deadline;
+            this.index=index;this.bytes=new byte[length];this.digest=digest;
+        }
+    }
     private final AutomaticStore store;
     private final AutomaticProtocol protocol;
     private final Record manifest;
@@ -28,6 +36,7 @@ final class AutomaticRejoin implements AutoCloseable {
     // These fields belong to the control thread; no network wait holds that thread.
     private final Map<String,Lease> sources=new HashMap<>();
     private Transfer transfer;
+    private Seed seed;
     private boolean installed;
     private Record offerBallot;
     private String offerTrace;
@@ -52,6 +61,7 @@ final class AutomaticRejoin implements AutoCloseable {
     private void expire() {
         long now=clock.getAsLong();sources.values().removeIf(s->now>=s.deadline()||!protocol.maintenanceCurrent(s.ballot()));
         if(transfer!=null&&!protocol.maintenanceCurrent(transfer.ballot()))transfer=null;
+        if(seed!=null&&!protocol.maintenanceCurrent(seed.ballot))seed=null;
     }
     private void current(Record ballot) {need(!closed&&protocol.maintenanceCurrent(ballot),"retired recovery exchange");}
     private Map<String,Object> request(Record ballot,String peer,String type,Map<String,Object> payload) throws Exception {
@@ -65,7 +75,8 @@ final class AutomaticRejoin implements AutoCloseable {
             }
             return null;
         });
-        need(!response.get("type").equals("REJECT"),"peer recovery unavailable: "+response.get("payload"));return response;
+        if(response.get("type").equals("REJECT"))throw failure(AutomaticReplicationException.Reason.valueOf(text(object(response.get("payload")),"reason")),"peer recovery unavailable: "+response.get("payload"),null);
+        return response;
     }
     private void cycle() throws Exception {
         Cut cut=control.call(()->{
@@ -85,7 +96,7 @@ final class AutomaticRejoin implements AutoCloseable {
         if(own==null)return;
         Record ballot=control.call(protocol::promise);
         for(String peer:nodes(manifest.value()))if(!peer.equals(local))try {
-            var remote=fetchSource(ballot,peer,AutomaticRecovery.index(own.snapshot()));
+            var remote=fetchSource(ballot,peer,own);
             control.call(()->{
                 current(ballot);var active=store.currentSource();
                 need(active!=null&&active.seal().digest().equals(own.seal().digest()),"local source changed during recovery exchange");
@@ -136,9 +147,16 @@ final class AutomaticRejoin implements AutoCloseable {
         for(Object item:list(values.get("files"))) {var row=object(item);need(row.keySet().equals(Set.of("name","bytes"))&&files.put(text(row,"name"),unbase(row.get("bytes")))==null,"source packet file identity");}
         return AutomaticRecoveryFiles.Source.read(files,manifest);
     }
-    private AutomaticRecoveryFiles.Source fetchSource(Record ballot,String peer,int cut) throws Exception {
-        String id=UUID.randomUUID().toString();long deadline=clock.getAsLong()+lifetime;
-        var response=request(ballot,peer,"SOURCE_OFFER",Map.of("transferId",id,"response",false,"index",(long)cut,"sourceBytes",0L,"sourceDigest",sha(new byte[0])));
+    private AutomaticRecoveryFiles.Source fetchSource(Record ballot,String peer,AutomaticRecoveryFiles.Source own) throws Exception {
+        int cut=AutomaticRecovery.index(own.snapshot());String id=UUID.randomUUID().toString();long deadline=clock.getAsLong()+lifetime;
+        var query=Map.<String,Object>of("transferId",id,"response",false,"index",(long)cut,"sourceBytes",0L,"sourceDigest",sha(new byte[0]));
+        Map<String,Object> response;
+        try {response=request(ballot,peer,"SOURCE_OFFER",query);}
+        catch(AutomaticReplicationException error) {
+            if(error.reason()!=AutomaticReplicationException.Reason.NOT_READY)throw error;
+            seedSource(ballot,peer,id,own,deadline);
+            response=request(ballot,peer,"SOURCE_OFFER",query);
+        }
         need(response.get("type").equals("SOURCE_OFFER"),"source response type");var offer=object(response.get("payload"));
         need(Boolean.TRUE.equals(offer.get("response"))&&number(offer,"index")==cut,"source offer binding");
         id=text(offer,"transferId"); // The source chooses a fresh immutable identity; request correlation binds the offer.
@@ -151,6 +169,18 @@ final class AutomaticRejoin implements AutoCloseable {
         }
         need(sha(bytes).equals(offer.get("sourceDigest")),"source whole packet digest");var source=packet(bytes,manifest);
         need(source.seal().value().get("node").equals(peer)&&AutomaticRecovery.index(source.snapshot())==cut,"source owner/cut");return source;
+    }
+    private void seedSource(Record ballot,String peer,String nonce,AutomaticRecoveryFiles.Source own,long deadline) throws Exception {
+        byte[] bytes=canonical(packetValue(own));capacity(bytes.length<=Math.min(IMAGE,bounds.maxSnapshotStagingBytes()/4),"source seed capacity");
+        var offer=Map.<String,Object>of("transferId",nonce,"response",false,"index",(long)AutomaticRecovery.index(own.snapshot()),"sourceBytes",(long)bytes.length,"sourceDigest",sha(bytes));
+        var response=request(ballot,peer,"SOURCE_OFFER",offer);need(response.get("type").equals("SOURCE_OFFER"),"seed response type");
+        var answer=object(response.get("payload"));String id=text(answer,"transferId");var expected=new LinkedHashMap<>(offer);expected.put("response",true);expected.put("transferId",id);need(expected.equals(answer),"seed offer binding");
+        for(int offset=0;offset<bytes.length;) {
+            need(clock.getAsLong()<deadline,"source seed total deadline");int count=Math.min(chunkSize(),bytes.length-offset);
+            var body=chunk(id,"DATA",offset,chunkSize(),Arrays.copyOfRange(bytes,offset,offset+count));
+            var ack=request(ballot,peer,"SOURCE_CHUNK",body);var wanted=new LinkedHashMap<>(body);wanted.put("action","ACK");wanted.put("chunk","");
+            need(ack.get("type").equals("SOURCE_CHUNK")&&wanted.equals(ack.get("payload")),"source seed exact ACK");offset+=count;
+        }
     }
     boolean handles(String type) {return Set.of("AUTHORITY_STATUS_PROBE","SNAPSHOT_OFFER","SNAPSHOT_CHUNK","REJOIN_INSTALL","SNAPSHOT_ABORT","SOURCE_OFFER","SOURCE_CHUNK").contains(type);}
     Map<String,Object> handle(Map<String,Object> request) throws Exception {
@@ -165,18 +195,22 @@ final class AutomaticRejoin implements AutoCloseable {
         }
         current(ballot);
         if(type.equals("SOURCE_OFFER")) {
+            if(number(p,"sourceBytes")>0)return seedOffer(request,ballot,peer,p);
             need(Boolean.FALSE.equals(p.get("response"))&&number(p,"sourceBytes")==0&&p.get("sourceDigest").equals(sha(new byte[0])),"source request direction");
+            capacity(seed==null||!seed.peer.equals(peer)||seed.complete||clock.getAsLong()>=seed.deadline,"source seed upload pending");
             Lease lease=sources.get(peer);String id=text(p,"transferId");
             if(lease!=null&&lease.requestId().equals(id)) {
                 need(AutomaticRecovery.index(packet(lease.bytes(),manifest).snapshot())==number(p,"index"),"changed source retry");
             } else {
-                capacity(lease==null||lease.delivered(),"one live source lease per peer");var current=store.currentSource();need(current!=null&&AutomaticRecovery.index(current.snapshot())==number(p,"index"),"source cut unavailable");
+                capacity(lease==null||lease.delivered(),"one live source lease per peer");var current=store.currentSource();
+                if(current==null||AutomaticRecovery.index(current.snapshot())!=number(p,"index"))throw failure(AutomaticReplicationException.Reason.NOT_READY,"source cut unavailable",null);
                 byte[] bytes=canonical(packetValue(store.recoverySource()));capacity(bytes.length<=Math.min(IMAGE,bounds.maxSnapshotStagingBytes()/4),"source lease capacity");
                 lease=new Lease(id,UUID.randomUUID().toString(),ballot,peer,clock.getAsLong()+lifetime,bytes,false);sources.put(peer,lease);
             }
             var answer=new LinkedHashMap<>(p);answer.put("response",true);answer.put("transferId",lease.id());answer.put("sourceBytes",(long)lease.bytes().length);answer.put("sourceDigest",sha(lease.bytes()));return AutomaticWire.reply(request,type,answer);
         }
         if(type.equals("SOURCE_CHUNK")) {
+            if(p.get("action").equals("DATA"))return seedChunk(request,peer,p);
             Lease lease=sources.get(peer);need(lease!=null&&lease.id().equals(p.get("transferId"))&&p.get("action").equals("REQUEST"),"expired source lease");
             long offset=number(p,"offset");need(offset<lease.bytes().length,"source offset");int count=(int)Math.min(lease.bytes().length-offset,Math.min(number(p,"maxChunkBytes"),chunkSize()));
             var data=Arrays.copyOfRange(lease.bytes(),(int)offset,(int)offset+count);
@@ -213,7 +247,37 @@ final class AutomaticRejoin implements AutoCloseable {
         }
         var answer=new LinkedHashMap<>(p);answer.put("response",true);return AutomaticWire.reply(request,type,answer);
     }
-    void stop() {closed=true;sources.clear();transfer=null;worker.shutdown();}
+    private Map<String,Object> seedOffer(Map<String,Object> request,Record ballot,String peer,Map<String,Object> p) {
+        need(Boolean.FALSE.equals(p.get("response")),"source seed direction");long length=number(p,"sourceBytes");String nonce=text(p,"transferId");
+        capacity(length<=Math.min(IMAGE,bounds.maxSnapshotStagingBytes()/4),"source seed capacity");
+        if(number(p,"index")>number(store.status(),"provenThrough"))throw failure(AutomaticReplicationException.Reason.NOT_READY,"source seed requires local proven prefix",null);
+        if(seed!=null&&seed.requestId.equals(nonce)) {
+            need(clock.getAsLong()<seed.deadline&&seed.peer.equals(peer)&&seed.index==number(p,"index")&&seed.bytes.length==length&&seed.digest.equals(p.get("sourceDigest")),"changed or expired source seed retry");
+        } else {
+            capacity(seed==null||clock.getAsLong()>=seed.deadline||seed.complete,"one live source seed");
+            Lease lease=sources.get(peer);capacity(lease==null||lease.delivered(),"source seed cannot replace live export");
+            seed=new Seed(nonce,peer,ballot,clock.getAsLong()+lifetime,number(p,"index"),(int)length,text(p,"sourceDigest"));
+        }
+        var answer=new LinkedHashMap<>(p);answer.put("response",true);answer.put("transferId",seed.id);return AutomaticWire.reply(request,"SOURCE_OFFER",answer);
+    }
+    private Map<String,Object> seedChunk(Map<String,Object> request,String peer,Map<String,Object> p) throws Exception {
+        need(seed!=null&&clock.getAsLong()<seed.deadline&&seed.peer.equals(peer)&&seed.id.equals(p.get("transferId")),"expired source seed");
+        byte[] bytes=unbase(p.get("chunk"));long offset=number(p,"offset");capacity(bytes.length>0&&bytes.length<=chunkSize(),"source seed chunk capacity");
+        need(offset<=seed.received&&bytes.length<=seed.bytes.length-offset,"source seed range");
+        if(offset<seed.received)need(offset+bytes.length<=seed.received&&Arrays.equals(bytes,Arrays.copyOfRange(seed.bytes,(int)offset,(int)offset+bytes.length)),"changed source seed retry");
+        else {System.arraycopy(bytes,0,seed.bytes,(int)offset,bytes.length);seed.received+=bytes.length;}
+        if(seed.received==seed.bytes.length&&!seed.complete) {
+            need(sha(seed.bytes).equals(seed.digest),"source seed whole digest");var source=packet(seed.bytes,manifest);
+            need(source.seal().value().get("node").equals(peer)&&AutomaticRecovery.index(source.snapshot())==seed.index,"source seed owner/cut");
+            var witness=store.retainWitness(peer,source.snapshot());byte[] exported=canonical(packetValue(witness));
+            capacity(exported.length<=Math.min(IMAGE,bounds.maxSnapshotStagingBytes()/4),"witness export capacity");
+            // Upload receipt is not source authority. A separately identified download follows the durable write.
+            sources.put(peer,new Lease(seed.requestId,UUID.randomUUID().toString(),seed.ballot,peer,seed.deadline,exported,false));seed.complete=true;
+            events.at("SOURCE_WITNESS",Map.of("requester",peer,"transferId",seed.id,"exportId",sources.get(peer).id(),"source",packetValue(source),"witness",packetValue(witness),"index",seed.index));
+        }
+        var answer=new LinkedHashMap<>(p);answer.put("action","ACK");answer.put("chunk","");return AutomaticWire.reply(request,"SOURCE_CHUNK",answer);
+    }
+    void stop() {closed=true;sources.clear();transfer=null;seed=null;worker.shutdown();}
     @Override public void close() throws InterruptedException {
         if(!worker.awaitTermination(lifetime+100,TimeUnit.MILLISECONDS))throw failure(AutomaticReplicationException.Reason.DEADLINE_EXCEEDED,"rejoin pipeline close pending",null);
     }

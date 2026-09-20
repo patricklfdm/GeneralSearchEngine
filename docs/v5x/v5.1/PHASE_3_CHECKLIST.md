@@ -1,6 +1,7 @@
 # V5.1 Phase 3 checklist
 
-**Status:** Batches A/B accepted; Batch C locally qualified; protected acceptance pending.
+**Status:** Batches A/B accepted; Batch C merged in PR #190, but its exact-master
+CI failed on mismatched recovery-source cuts. The fix awaits protected acceptance.
 
 - [x] Phase 2 accepted in PR #187, master `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`, CI `35503107173`.
 - [x] User entered `feat/v5.1-phase3-election` and authorized the next implementation batch.
@@ -24,6 +25,7 @@
 - [x] Retained-disk third-voter rejoin/source-floor integration and transfer-lifetime pressure tests; see [Phase 3C](PHASE_3_REJOIN.md).
 - [x] Batch C local runtime/lease/wire regressions, independent three-JVM evidence and five rejoin negatives.
 - [x] Full reactor, 46 Python tests, foundation/protocol gates and all 108 ledger/recovery process cuts; initial local barrier failure retained alongside the passing retry.
+- [x] Diagnose PR #190 master CI `35533377860`: active cuts 6/7/4 and full generation slots formed a recovery-floor cycle; add bounded exact-cut witness exchange and deterministic regression coverage.
 - [ ] Protected Batch C merge/exact-master CI and acceptance of kinds 25–27.
 - [ ] Concurrent real-voter JVM/network/crash evidence and complete Phase 3 acceptance.
 
