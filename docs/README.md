@@ -2,10 +2,21 @@
 
 - [CI/CD and release operations](CI_CD.md)
 
-This directory preserves the published v1 through v4 records together with completed
-development phases. The repository root [`README.md`](../README.md) remains the
-user-facing entry point, and [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md)
-remains the phase history and decision source of truth.
+This directory preserves published records through V5.0 and completed development
+phases. The repository root [`README.md`](../README.md) remains the user-facing entry
+point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase history and
+current planning. Accepted version-specific charters and contracts govern their
+scope. Proposed documents are not accepted merely because they are linked here.
+
+## Next development proposals
+
+- [Development handoff, reading order and integration review](v5x/NEXT_DEVELOPMENT_HANDOFF.md)
+- [V5.x proposed scope refinement](v5x/NEXT_DEVELOPMENT_ADDENDUM.md)
+- [V5.1 Phase 0 entry plan: documentation only](v5x/v5.1/PHASE_0_ENTRY_PLAN.md)
+- [V6 architecture preview: research only](v6x/README.md)
+
+The accepted V5 charter and published V5.0 records remain unchanged. These new
+revision 0.1 proposals do not authorize implementation, cloud execution or release.
 
 ## v5.x — replicated single-shard development line
 

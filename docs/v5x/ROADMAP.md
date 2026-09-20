@@ -1,7 +1,9 @@
 # GeneralSearchEngine V5.x roadmap
 
 - **Status:** V5.0 published and reconciled; V5.1–V5.4 remain planned
-- **Reference:** published `4.4.0`
+- **Search/storage reference:** published `4.4.0`
+- **V5.1 replication reference:** published `5.0.0`
+- **New planning material:** PROPOSED revision 0.1, 2026-09-19; not implementation authorization
 
 ## Version sequence
 
@@ -12,6 +14,56 @@
 | 5.2 | Replica reads | Can followers serve only the consistency they explicitly prove? |
 | 5.3 | Cluster operations | Can membership and maintenance change without violating committed history? |
 | 5.4 | Final hardening | Is the replicated single-shard line a stable future architecture reference? |
+
+## Next entry and proposal status
+
+The next recommended task is [V5.1 Phase 0](v5.1/PHASE_0_ENTRY_PLAN.md), limited to
+contract and evidence design. Its entry plan is not the finished consensus contract.
+The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
+refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
+No implementation, version bump, paid run or release is authorized by these files.
+
+V5.0 publication closes V5.0, not the entire V5 line. V6 may proceed as
+[architecture research](../v6x/ARCHITECTURE_PREVIEW.md), while production work remains
+on V5.x. The proposed V6 implementation prerequisite is a mature V5.4 handoff;
+changing that gate requires an explicit reviewed decision.
+
+## Proposed minor-release acceptance boundaries
+
+| Minor | Required refinement before implementation | Public acceptance example |
+| --- | --- | --- |
+| V5.1 | Election and durable history reconciliation; old-leader fencing; compatible operating modes; safe leader-read admission; client outcome rules | Kill the current leader without manual activation, restore service on a surviving majority, preserve acknowledged history, and safely rejoin the old leader. |
+| V5.2 | Strong leader, stale-allowed and history-bound at-least-index policies; publication-aware waits; bounded pins/cursors | A lagging replica waits or rejects exactly as requested and never disguises stale or uncommitted state as a stronger read. |
+| V5.3 | Safe membership protocol; non-voting catch-up; serialized transitions; restartable operation identities | Add/remove/replace a member through interruptions without conflicting authority or unsafe cleanup. |
+| V5.4 | Combined faults; longer runs; capacity/load sweeps; complete metadata/resource bounds; stable public group contract | Repeated elections, replica reads and maintenance coexist inside a measured supported operating envelope. |
+
+Strong leader-read safety under automatic leadership is a V5.1 obligation, even
+though public follower reads are V5.2 work. Preserve legacy V5.0 configured-mode
+behavior explicitly; do not relabel its quorum-loss readable view as linearizable.
+
+Learner catch-up does not replace a safe voting-configuration transition. Rolling
+restart does not establish mixed-version rolling upgrade. Minimum-index reads do
+not by themselves establish global freshness. All later minor scopes remain
+proposed until their own Phase 0 is accepted.
+
+## Evidence and reference progression
+
+Published V4.4 remains the inherited search/storage oracle. V5.1 additionally pins
+published V5.0 as its immediate replication reference; later minors pin their
+immediate published predecessor and preserve the earlier guarantees.
+
+The V5.0 cloud baseline records 49 scenario executions at controlled offered load,
+not 49 distinct fault types, maximum throughput, automatic failover or sharding.
+Each new boundary requires separately identified evidence, independently validated
+results and explicit source/artifact identity. Do not relabel the measured V5.0
+snapshot source as a later release commit.
+
+Retain the established contract, independent-foundation, implementation, public
+admission, fault-hardening, evidence and publication gates. Before paid work, renew
+quota, cost, cleanup, source and authorization checks. A documentation-only CI pass
+must not be reported as a fresh full-runtime or consensus validation.
+
+The V5.0 section below preserves the accepted historical gates and records.
 
 ## V5.0 gates
 

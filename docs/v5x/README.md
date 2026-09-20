@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; Phases 0–8 complete
+- **Status:** V5.0 published and independently verified; V5.0 phases complete; V5.1-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -8,6 +8,30 @@ V5.x builds one replicated group over the frozen V4.4 durable/search semantics. 
 first establishes correct replication under one configured leader. Later V5 minors
 add automated leadership, explicit replica reads, membership operations and final
 hardening. Sharding and distributed query are not V5 work.
+
+## Next development entry
+
+The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
+review boundaries, source identities and validation guidance in this repository.
+
+**Proposal status:** the new planning material below is revision 0.1 dated
+2026-09-19. It has not been accepted as a new minor contract and does not authorize
+runtime implementation, a version bump, cloud execution or publication.
+
+Start with the [V5.x roadmap](ROADMAP.md), then the
+[proposed next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) and
+[V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). After that design task is
+explicitly assigned, use the entry plan to produce and review the automated-leadership
+contract. Integrating these proposals does not start Phase 0 design or implementation.
+
+The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
+unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the
+immediate replication reference for the next minor. Proposed files do not supersede
+accepted guarantees by being newer.
+
+[V6 architecture research](../v6x/README.md) may develop in parallel with V5.x design,
+but sharding implementation is not V5 work. The proposed gate for V6 production is
+a mature V5.4 replicated-group handoff, not V5.0 publication alone.
 
 ## Authority map
 

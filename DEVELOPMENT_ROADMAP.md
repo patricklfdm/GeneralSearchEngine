@@ -1,5 +1,24 @@
 # GeneralSearchEngine development roadmap
 
+## Next development entry: V5.1 contract design
+
+V5.0 is published; V5.1-V5.4 remain future work. The next recommended task is the
+[V5.1 Phase 0 entry plan](docs/v5x/v5.1/PHASE_0_ENTRY_PLAN.md), documentation only.
+The [updated minor roadmap](docs/v5x/ROADMAP.md) and
+[next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
+revision 0.1 refinements dated 2026-09-19, not accepted implementation contracts.
+
+The [accepted V5 charter](docs/v5x/DEVELOPMENT_CHARTER.md) remains governing.
+Published V4.4 is the inherited search/storage oracle; published V5.0 is the next
+minor's immediate replication reference. New proposals do not supersede published
+contracts or authorize version bumps, production changes, paid runs or publication.
+
+[V6 architecture research](docs/v6x/README.md) covers partitioned distributed search.
+Its suggested release labels are provisional. V6 implementation is proposed to
+follow a mature V5.4 replicated-group handoff, not V5.0 publication alone.
+
+The sections below retain the existing phase history and evidence identities.
+
 ## v5.x replicated single-shard development contract
 
 Published `4.4.0` is the exact V5 compatibility and failure-classification reference.
@@ -64,9 +83,11 @@ V1–V5 consumers pass. The V5.1 automated-leadership boundary remains planned.
 Published `4.0.0` is the immutable correct-durability foundation. The V4.x line has
 completed V4.1 operational safety, V4.2 explicit storage evolution, V4.3 fast reopen
 through reconstructible persisted derived state, and V4.4 final single-node durable
-hardening. Published `4.4.0` is the V5 comparison reference. Replication, consensus,
-sharding, multi-writer storage, remote live WAL, vector retrieval, and new ranking
-semantics remain V5 decisions.
+hardening. Published `4.4.0` is the V5 comparison reference. The accepted V5
+charter now assigns replicated single-shard authority and safe leadership to V5.
+Sharding and distributed query are outside V5 and appear only in the proposed V6
+architecture preview. Other capabilities deferred at the V4 handoff are not thereby
+authorized for either line. Historical V4 acceptance records remain unchanged.
 
 V4.1 Phase 0 is accepted through protected PR #93 at
 `8d83f41f7fd3431b63ee550502ea97376d586108`; exact-master CI run `33714630130`
