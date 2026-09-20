@@ -73,14 +73,8 @@ final class AutomaticAdmission {
     }
 
     static Record verify(Path root, Record expected, String node, ReplicationBounds bounds) throws IOException {
-        var names = new HashSet<String>();
-        try (var members = Files.newDirectoryStream(root)) {
-            for (Path p : members) {
-                need(Files.isRegularFile(p, LinkOption.NOFOLLOW_LINKS), "authority directory/link not supported in Phase 2A");
-                names.add(p.getFileName().toString());
-            }
-        }
-        need(names.equals(ROOT_FILES), "missing/unknown authority file; generation recovery not enabled");
+        AutomaticRecoveryFiles.inventory(root, bounds);
+        for (String name : ROOT_FILES) need(Files.isRegularFile(root.resolve(name), LinkOption.NOFOLLOW_LINKS), "missing sealed authority file");
         var manifest = decode(read(root.resolve("manifest.gsr"), META), "MANIFEST");
         need(manifest.digest().equals(expected.digest()) && nodes(manifest.value()).contains(node), "expected manifest/voter mismatch");
         var local = decode(read(root.resolve("node.gsr"), META), "NODE"); context(local, manifest);
@@ -98,7 +92,8 @@ final class AutomaticAdmission {
         need(root.toString().equals(target.get("authorityPath")), "copied/stale seal path");
         var sealedBounds = object(target.get("bounds"));
         need(bounds.maxFrameBytes() <= number(sealedBounds, "maxFrameBytes")
-                && bounds.maxRetainedLogBytes() <= number(sealedBounds, "maxRetainedLogBytes"), "store bounds exceed sealed authority limits");
+                && bounds.maxRetainedLogBytes() <= number(sealedBounds, "maxRetainedLogBytes")
+                && bounds.maxSnapshotStagingBytes() <= number(sealedBounds, "maxSnapshotStagingBytes"), "store bounds exceed sealed authority limits");
         var prep = decode(read(root.resolve("bootstrap-prepared.gsr"), META), "PREPARED");
         need(java.util.Arrays.equals(prep.bytes(), unbase(list(receipt.value().get("preparations")).get(ordinal))), "local preparation mismatch");
         for (int i = 0; i < 3; i++) {

@@ -67,6 +67,18 @@ and proofs; it must not trust a worker-supplied expected digest. Report attempte
 admitted, completed, durable-success, rejected, timed-out and indeterminate counts
 separately; bulk request counts and affected document counts are separate.
 
+For `local-qualification` only, a sustained QUERY may take at most four read
+samples to obtain an unchanged before/after publication sequence. Each ambiguous
+attempt is retained with its sequence bracket, actual answer digest and timing;
+only the final stable attempt is used for independent semantic qualification.
+All attempts remain inside the original call's measured latency and window deadline.
+The summary distinguishes logical calls from `readExecutions` and
+`ambiguousReadAttempts`; this local resampling is not fixed-rate cloud performance
+evidence. An unstable fourth attempt, sequence regression or query exception fails.
+Healthy reads, GETs and all cloud profiles retain the original single-read rule.
+This accommodates shared-CI scheduling without claiming that concurrent sequence
+changes imply a broken query or that all possible query answers are identical.
+
 The independently compiled published V4.4 control remains
 `io.github.patricklfdm:general-search-engine:4.4.0`, SHA-256
 `0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5`.

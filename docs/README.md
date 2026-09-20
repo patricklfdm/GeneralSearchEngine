@@ -18,6 +18,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 1 independent foundation](v5x/v5.1/PHASE_1_FOUNDATION.md)
 - [V5.1 Phase 2 storage entry](v5x/v5.1/PHASE_2_ENTRY_PLAN.md)
 - [V5.1 Phase 2A sealed root-ledger authority](v5x/v5.1/PHASE_2_STORAGE.md)
+- [V5.1 Phase 2B frozen recovery and generation authority](v5x/v5.1/PHASE_2_RECOVERY.md)
 - [V5.1 Phase 2 checklist](v5x/v5.1/PHASE_2_CHECKLIST.md)
 - [V6 architecture preview: research only](v6x/README.md)
 

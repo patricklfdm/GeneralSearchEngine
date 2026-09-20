@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 1 accepted; Phase 2A storage implemented locally; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 1 accepted; Phase 2A accepted; Phase 2B recovery implemented locally; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -25,7 +25,9 @@ the design task: its [six-document contract](v5.1/PHASE_0_CONTRACT.md)
 records D01-D12 and E01-E12, accepted through PR #184. The user authorized
 [Phase 1 foundation](v5.1/PHASE_1_FOUNDATION.md), accepted in PR #185 with exact-master CI
 `35491646610`. The user has entered [Phase 2 storage](v5.1/PHASE_2_ENTRY_PLAN.md);
-Batch A is implemented and the public automatic runtime remains disabled.
+Batch A was accepted in PR #186 with exact-master CI `35495493715`.
+[Batch B recovery](v5.1/PHASE_2_RECOVERY.md) is implemented locally; protected
+Phase 2 acceptance is pending and the public automatic runtime remains disabled.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

@@ -11,9 +11,10 @@ fi
 scripts/verify-version-alignment.sh
 python_command=python3
 command -v python3.11 >/dev/null 2>&1 && python_command=python3.11
-"$python_command" -m unittest scripts.v51.test_storage_inspector
+"$python_command" -m unittest scripts.v51.test_storage_inspector scripts.v51.test_recovery_inspector
 mkdir -p target/v51-storage
 work=$(mktemp -d "$root/target/v51-storage/run.XXXXXX")
 echo "v51StorageEvidence=$work/evidence"
 "$python_command" -m scripts.v51.storage_harness "$work/evidence"
-echo 'v51Storage=PASS execution=automatic-root-ledger-only publicRuntime=false'
+"$python_command" -m scripts.v51.recovery_harness "$work/recovery"
+echo 'v51Storage=PASS execution=automatic-ledger-and-recovery-only publicRuntime=false'

@@ -1,6 +1,8 @@
 # V5.1 Phase 2A sealed root-ledger authority
 
-**Status:** implementation and local validation; protected acceptance pending.
+**Status:** Batch A accepted through PR #186 at `284f23d398138d0a747bde42e041da291c68574f`,
+exact-master CI `35495493715`. This document records the accepted Batch A boundary;
+[Batch B recovery](PHASE_2_RECOVERY.md) extends it with generations and frozen selection.
 **Scope:** storage authority only. No automatic election, application publication,
 public bootstrap or service-readiness result is produced by this batch.
 
@@ -95,7 +97,7 @@ storage JVMs. Only the target is killed; the other owners close normally. Setup 
 proof cases obtains real forced acceptances from the test voters before the proof
 cut. This is not a network or autonomous failover qualification.
 
-Java tests cover all 13 supported fixture records, receipt/payload/rank/schema
+Batch A Java tests covered all 13 supported fixture records, receipt/payload/rank/schema
 negatives, ownership, exact retries, partial I/O, corruption, finite capacity and
 re-proposal with preserved origin. Inherited V5.1 foundation, V5.0 behavior and package
 checks stay enabled. See [remaining phase obligations](PHASE_2_CHECKLIST.md).

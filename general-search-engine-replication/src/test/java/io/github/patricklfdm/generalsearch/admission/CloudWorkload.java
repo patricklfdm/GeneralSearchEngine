@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Supplier;
+import java.util.function.LongSupplier;
 import io.github.patricklfdm.generalsearch.durability.*;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
@@ -90,7 +91,7 @@ public final class CloudWorkload {
                     future.get(Math.max(0, deadline-System.nanoTime()), TimeUnit.NANOSECONDS);
                 }
                 public CompletableFuture<Void> submit(int call, long nominal, long due, long dispatched) {
-                    return CompletableFuture.runAsync(() -> operation(engine, plan, name, firstCycle, call, nominal, due, dispatched, sustained), executor);
+                    return CompletableFuture.runAsync(() -> operation(engine, plan, name, firstCycle, call, nominal, due, dispatched, sustained, paced), executor);
                 }
                 public void missed(int call, long due, long observed, boolean pending) {
                     CloudWorkloadTelemetry.record("calls", Map.of("window",name,"call",call,"scheduledNanos",due,
@@ -106,7 +107,7 @@ public final class CloudWorkload {
         return result;
     }
     private static void operation(DurableSearchEngine<Integer,Doc> engine, Plan plan, String window,
-            int firstCycle, int call, long nominal, long due, long dispatched, boolean sustained) {
+            int firstCycle, int call, long nominal, long due, long dispatched, boolean sustained, boolean local) {
         int cycle = firstCycle+call/10, lane=call%4, laneCall=call/4;
         String op = sustained ? (laneCall%4 == 3 ? "QUERY" : "UPDATE") : PerformanceWorkload.OPERATIONS.get(call%10);
         int size = op.endsWith("_ALL") ? 16 : 1;
@@ -133,13 +134,38 @@ public final class CloudWorkload {
                 case "INDEX_DROP" -> engine.dropIndex("category").join();
                 case "INDEX_CREATE" -> engine.createIndex(IndexDefinition.equality(CATEGORY)).join();
                 case "GET" -> answer=engine.get(1+cycle%4096).toString();
-                case "QUERY" -> answer=engine.search(Query.and(Query.eq(CATEGORY,"guide"),Query.term(TEXT,"java"))).stream().map(Doc::id).toList();
+                case "QUERY" -> {
+                    Supplier<List<Integer>> query = () -> engine.search(Query.and(Query.eq(CATEGORY,"guide"),Query.term(TEXT,"java"))).stream().map(Doc::id).toList();
+                    answer = local && sustained ? sampleLocalQuery(engine::currentSequence, query, row) : query.get();
+                }
                 default -> throw new IllegalArgumentException(op);
             }
-            long after=engine.currentSequence();
+            // The qualified attempt already captured both sequence samples. A later read
+            // would reintroduce the race after the query has successfully finished.
+            if (row.containsKey("readAttempts")) before=((Number)row.get("beforeSequence")).longValue();
+            long after=row.containsKey("readAttempts") ? ((Number)row.get("afterSequence")).longValue() : engine.currentSequence();
             if (op.equals("QUERY")||op.equals("GET")) AdmissionJson.require(before==after,"ambiguous read cut");
             row.put("afterSequence",after); row.put("answerDigest",PerformanceWorkload.digest(answer)); row.put("outcome","success");
         } catch (RuntimeException error) { row.put("outcome","failed"); row.put("reason",error.toString()); throw error; }
         finally { row.put("endNanos",System.nanoTime()); CloudWorkloadTelemetry.record("calls",row); }
+    }
+
+    /** Local qualification only: retain bounded retries and charge all time to the call. */
+    static <T> T sampleLocalQuery(LongSupplier sequence, Supplier<T> query, Map<String,Object> row) {
+        var attempts = new ArrayList<Map<String,Object>>();
+        row.put("readAttempts", attempts);
+        for (int attempt=0; attempt<4; attempt++) {
+            long start=System.nanoTime(), before=sequence.getAsLong();
+            T answer=query.get();
+            long after=sequence.getAsLong(), end=System.nanoTime();
+            attempts.add(Map.of("beforeSequence",before,"afterSequence",after,"startNanos",start,
+                    "endNanos",end,"answerDigest",PerformanceWorkload.digest(answer)));
+            AdmissionJson.require(before<=after,"read sequence regression");
+            if (before==after) {
+                row.put("beforeSequence",before); row.put("afterSequence",after);
+                return answer;
+            }
+        }
+        throw new IllegalArgumentException("ambiguous read cut after 4 local attempts");
     }
 }

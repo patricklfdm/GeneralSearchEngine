@@ -68,9 +68,7 @@ public final class V51StorageWorker {
         if (command.equals("inspect")) {
             try (var store = AutomaticStore.open(root.resolve(node), manifest, node, ReplicationBounds.defaults(), AutomaticStore.Faults.NONE)) {
                 var result = new java.util.LinkedHashMap<>(store.status()); result.put("status", "PASS");
-                var digests = new ArrayList<String>();
-                for (int i = 1; i <= ((Number) result.get("acceptedThrough")).intValue(); i++) digests.add(digest(store.acceptedEntry(i)));
-                result.put("acceptedDigests", digests); print(result);
+                result.put("acceptedDigests", store.authorityDigests()); print(result);
             } catch (AutomaticReplicationException error) { print(Map.of("status", "REJECT", "reason", error.reason().name())); System.exit(3); }
             return;
         }

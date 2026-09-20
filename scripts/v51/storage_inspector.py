@@ -6,6 +6,7 @@ from pathlib import Path
 import struct
 
 from . import format_inspector as f
+from . import recovery_inspector as recovery
 
 INITIAL = {'replica.lock', 'manifest.gsr', 'genesis.gsr', 'node.gsr', 'promises.gsr',
            'accepted.gsr', 'proofs.gsr', 'storage-ready.gsr'}
@@ -21,12 +22,14 @@ def ballot(v): return v['epoch'], v['proposer'], v['incarnation']
 
 def inventory(directory):
     result = {}
-    for path in sorted(Path(directory).iterdir()):
-        f.need(path.is_file() and not path.is_symlink(), 'authority file type')
+    for path in sorted(Path(directory).rglob("*")):
+        f.need(not path.is_symlink(), 'authority file type')
+        if path.is_dir(): continue
+        f.need(path.is_file(), 'authority file type')
         digest = hashlib.sha256()
         with path.open('rb') as stream:
             for chunk in iter(lambda: stream.read(1 << 20), b''): digest.update(chunk)
-        result[path.name] = {'size': path.stat().st_size, 'sha256': digest.hexdigest()}
+        result[str(path.relative_to(directory))] = {'size': path.stat().st_size, 'sha256': digest.hexdigest()}
     return result
 
 
@@ -34,13 +37,15 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
     directory = Path(directory)
     f.need(not any(p.is_symlink() for p in (directory, *directory.parents)), 'authority symlink')
     before = inventory(directory)
-    f.need(set(before) == FILES and before['replica.lock']['size'] == 0, 'authority inventory')
+    f.need(FILES <= set(before) and before['replica.lock']['size'] == 0, 'authority inventory')
     f.need(sum(v['size'] for v in before.values()) <= maximum_bytes, 'retained byte capacity')
     for name in FILES - set(LEDGERS):
         f.need(before[name]['size'] <= (f.MAX_IMAGE if name == 'genesis.gsr' else 65536), 'metadata byte capacity')
     manifest_raw = (directory / 'manifest.gsr').read_bytes()
     manifest = dict(f.inspect(manifest_raw, 'MANIFEST'), digest=manifest_raw[16:48].hex())
     voters = [m['node'] for m in manifest['members']]
+    for path in directory.rglob('*'):
+        f.need(recovery.allowed(path.relative_to(directory).parts, path.is_dir(), voters, FILES), 'unknown authority inventory')
     def record(name, kind): return f.contextual_frame((directory / name).read_bytes(), kind, manifest)
     node = record('node.gsr', 'NODE')['node']
     ready = record('storage-ready.gsr', 'READY')
@@ -66,9 +71,12 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
         with (directory / name).open('rb') as stream: prefix = stream.read(size)
         f.need(sha(prefix) == item['sha256'], 'initial authority bytes')
 
+    active, snapshot, selected, selected_snapshot = recovery.state(directory, manifest, node, genesis)
+    base = len(snapshot["anchors"])
+
     def rows(filename):
         kind, identifier = LEDGERS[filename]
-        with (directory / filename).open('rb') as stream:
+        with ((directory if filename == 'promises.gsr' else active) / filename).open('rb') as stream:
             first = True
             while True:
                 header = stream.read(48)
@@ -90,24 +98,29 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
         f.need(len(grants) < 10000 and (value['epoch'] == 1 if not grants else value['epoch'] > highest), 'promise history')
         highest = value['epoch']; grants[highest] = ballot(value)
     f.need(grants, 'missing genesis promise')
-    accepted = {}; accepted_count = 0
+    if snapshot['terminalProof']:
+        f.need(f.inspect(raw(snapshot['terminalProof']), 'PROOF')['epoch'] <= highest, 'snapshot exceeds root promise')
+    if selected: f.need(selected['ballot']['epoch'] <= highest, 'selection exceeds root promise')
+    accepted = {}; accepted_count = 0; replacements = []
     for value, digest in rows('accepted.gsr'):
         accepted_count += 1; f.need(accepted_count <= 1010000, 'acceptance row capacity')
         entry_raw = raw(value['entry']); entry = f.contextual_frame(entry_raw, 'ENTRY', manifest)
         index = entry['index']; identity = entry_raw[16:48].hex()
         f.need(grants.get(value['epoch']) == ballot(value), 'acceptance promise binding')
-        f.need(index <= 1000000 and index in (len(accepted), len(accepted) + 1), 'acceptance slot order')
-        if index in accepted:
-            old = accepted[index]
-            f.need(value['epoch'] > old['highestBallot'] and identity == old['digest'], 'conflicting acceptance')
+        f.need(index <= 1000000 and index in (base + len(accepted), base + len(accepted) + 1), 'acceptance slot order')
+        old = accepted.get(index)
+        if old:
+            f.need(value['epoch'] > old['highestBallot'], 'conflicting acceptance ballot')
+            if identity != old['digest']: replacements.append((value, entry))
         else:
             previous = accepted.get(index - 1)
-            f.need(entry['previousDigest'] == (previous['digest'] if previous else manifest['digest'])
-                   and entry['previousEpoch'] == (previous['originEpoch'] if previous else 1), 'accepted prefix')
-            accepted[index] = dict(digest=identity, originEpoch=entry['originEpoch'], operation=entry['operation'],
-                                   previousDigest=entry['previousDigest'], ballots={})
+            anchor = snapshot['anchors'][-1] if base else None
+            f.need(entry['previousDigest'] == (previous['digest'] if previous else anchor['entryDigest'] if anchor else manifest['digest'])
+                   and entry['previousEpoch'] == (previous['originEpoch'] if previous else anchor['originEpoch'] if anchor else 1), 'accepted prefix')
+        accepted[index] = dict(digest=identity, originEpoch=entry['originEpoch'], operation=entry['operation'],
+                               previousDigest=entry['previousDigest'], frame=raw(value['entry']), acceptance=value, ballots=old['ballots'] if old else {})
         accepted[index]['highestBallot'] = value['epoch']; accepted[index]['ballots'][value['epoch']] = ballot(value)
-    proven = 0; sequence = manifest['baseSequence']
+    proven = base; sequence = snapshot['applicationSequence']
     for value, digest in rows('proofs.gsr'):
         index = value['index']; f.need(index == proven + 1 and index in accepted, 'proof prefix')
         entry = accepted[index]
@@ -115,9 +128,21 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
                and entry['ballots'].get(value['epoch']) == ballot(value), 'proof acceptance binding')
         proven = index; sequence += entry['operation'] <= 8
         f.need(sequence <= (1 << 63) - 1, 'application sequence exhaustion')
-    f.need(len(accepted) <= proven + 1, 'multiple unresolved accepted slots')
+    f.need(base + len(accepted) <= proven + 1, 'multiple unresolved accepted slots')
+    frozen = [f.contextual_frame(raw(v), 'ACCEPT', manifest) for v in recovery.frozen_acceptances(directory, selected, manifest)]
+    for value, entry in replacements:
+        if entry['index'] <= proven: continue
+        latest = accepted[entry['index']]['acceptance']
+        f.need(latest in frozen or selected is not None and selected['ballot'] == {k: latest[k] for k in ('epoch', 'proposer', 'incarnation')}
+               and entry['index'] == selected['prefixIndex'] + 1 and latest['entry'] == selected['nextEntry'], 'conflicting acceptance lacks selected authority')
+    if selected_snapshot:
+        through = min(proven, len(selected_snapshot['anchors']))
+        for i in range(1, through + 1):
+            d = snapshot['anchors'][i-1]['entryDigest'] if i <= base else accepted[i]['digest']
+            f.need(d == selected_snapshot['anchors'][i-1]['entryDigest'], 'selection conflicts with local prefix')
+        if through == base == len(selected_snapshot['anchors']): recovery.agree(snapshot, selected_snapshot, through)
     f.need(before == inventory(directory), 'inspection changed authority')
     return dict(status='PASS', execution='automatic-root-ledger-only', node=node, promisedEpoch=highest,
-                promiseCount=len(grants), acceptedThrough=len(accepted), provenThrough=proven,
+                promiseCount=len(grants), acceptedThrough=base + len(accepted), provenThrough=proven,
                 applicationSequence=sequence, retainedBytes=sum(v['size'] for v in before.values()),
-                manifestDigest=manifest['digest'], acceptedDigests=[v['digest'] for v in accepted.values()])
+                manifestDigest=manifest['digest'], acceptedDigests=[a['entryDigest'] for a in snapshot['anchors']] + [v['digest'] for v in accepted.values()])

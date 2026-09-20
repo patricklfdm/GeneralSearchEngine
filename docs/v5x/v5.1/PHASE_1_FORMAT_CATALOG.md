@@ -1,7 +1,8 @@
 # V5.1 Phase 1 automatic 1.2 byte catalog
 
 **Status:** accepted foundation fixture specification; [Phase 2A](PHASE_2_STORAGE.md)
-implements the 13 root-authority record codecs. Other production formats remain pending.
+implemented 13 root-authority codecs. [Phase 2B](PHASE_2_RECOVERY.md) extends storage
+codec coverage to all 25 catalog records. Public automatic operations remain disabled.
 **Authority:** [accepted API/format decisions](API_FORMAT_AND_COMPATIBILITY.md), PR #184.
 
 ## Exact catalog and encodings

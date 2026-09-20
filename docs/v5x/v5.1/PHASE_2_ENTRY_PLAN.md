@@ -1,12 +1,12 @@
 # V5.1 Phase 2 entry: durable automatic authority
 
-**Status:** user authorized Phase 2 after switching to `feat/v5.1-phase2-storage`.
-**Accepted base:** Phase 1 [PR #185](https://github.com/patricklfdm/GeneralSearchEngine/pull/185),
-`5c5c02e728347f31e6ae7c9935ab9f6852d817f1`.
-[Exact-master CI 35491646610](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35491646610)
-passed all six jobs, including the complete reactor, configured-mode gates,
-compatibility, no-GCP runner and release artifacts. Only the documentation-only step
-and the two historical canonical-receipt uploads were skipped.
+**Status:** Batch A accepted; Batch B implemented locally after the user switched to
+`feat/v5.1-phase2-recovery`; protected Phase 2 acceptance pending.
+**Accepted base:** Batch A [PR #186](https://github.com/patricklfdm/GeneralSearchEngine/pull/186),
+`284f23d398138d0a747bde42e041da291c68574f`.
+[Exact-master CI 35495493715](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35495493715)
+passed all six jobs. Only the documentation-only step and historical V5.0/V4.4
+canonical-receipt uploads were skipped.
 
 The accepted [contract](PHASE_0_CONTRACT.md), [selection/recovery rules](LEADERSHIP_AND_RECOVERY.md)
 and [1.2 catalog](PHASE_1_FORMAT_CATALOG.md) govern this phase. No frozen fixture or
@@ -14,7 +14,7 @@ published V5.0 artifact is regenerated to accommodate an implementation.
 
 ## Coherent batches
 
-### A — sealed root authority and forced ledgers (this batch)
+### A — sealed root authority and forced ledgers (accepted)
 
 - Production codecs for the 13 records needed to admit a sealed root directory and
   maintain PROMISE, ACCEPT and PROOF. Schema data is a reviewed static subset of the
@@ -29,17 +29,17 @@ published V5.0 artifact is regenerated to accommodate an implementation.
   every ledger at write/force/ACK boundaries. Retain bytes before product reopen.
 - Keep public automatic factory/bootstrap disabled and all configured-mode gates.
 
-### B — frozen recovery and complete generation authority (still pending)
+### B — frozen recovery and complete generation authority (this batch)
 
-Implement frozen basis/image inventory and chunk identity, selected-next persistence,
+Implemented frozen basis/image inventory and chunk identity, selected-next persistence,
 highest-accepted quorum selection, snapshot/accepted-tail carry, generation inventory
 and selector publication, root-promise preservation, recovery-floor evidence from two
-complete durable sources and safe physical deletion. Include interruption/restart,
-changed basis, accepted-tail and selector/floor/delete cuts. Unknown or incomplete
-generation authority must keep rejecting until its complete recovery path exists.
+complete durable sources and safe physical deletion. Includes interruption/restart,
+changed basis, accepted-tail and selector/floor/delete cuts. Unknown or incomplete selected generation authority rejects. Unpublished stages do not
+become voting authority. See [implementation and evidence](PHASE_2_RECOVERY.md).
 
 Batch A deliberately permits reaccepting the same immutable value at a higher ballot;
-it rejects replacing a different local accepted value. Batch B must supply the frozen
+it rejects replacing a different local accepted value. Batch B supplies the frozen
 quorum selection that can justify that replacement. This conservative intermediate
 restriction is not the final election protocol or a claimed liveness property.
 

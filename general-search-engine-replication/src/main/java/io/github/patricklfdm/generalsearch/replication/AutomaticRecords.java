@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-/** Explicit automatic-only framing and the Phase 2A authority record subset. */
+/** Explicit automatic-only framing and the reviewed storage record catalog. */
 final class AutomaticRecords {
     static final int HEADER = 48, META = 65536, IMAGE = 67108864;
     static final String ZERO = "00000000-0000-0000-0000-000000000000";
@@ -235,7 +235,25 @@ final class AutomaticRecords {
         if (List.of("PROMISE", "ACCEPT", "PROOF").contains(record.name()) && number(value, "epoch") > 1)
             need(nodes.get((int) ((number(value, "epoch") - 2) % 3)).equals(value.get("proposer")), "ranked ballot owner");
         if (record.name().equals("PROOF")) for (Object r : list(value.get("receipts"))) need(nodes.contains(object(r).get("voter")), "foreign receipt voter");
-        if (record.name().equals("ACCEPT")) context(decode(unbase(value.get("entry")), "ENTRY"), manifest);
+        if (record.name().equals("MANIFEST")) need(record.digest().equals(manifest.digest()), "nested manifest bytes");
+        if (record.name().equals("GENESIS")) need(value.get("groupId").equals(manifest.value().get("groupId")), "genesis group");
+        for (String key : List.of("ballot", "sourceBallot")) if (value.get(key) != null) {
+            var b = object(value.get(key)); ballot(b);
+            if (number(b, "epoch") > 1) need(nodes.get((int) ((number(b, "epoch") - 2) % 3)).equals(b.get("proposer")), "ranked nested ballot");
+        }
+        if (record.name().equals("SELECTED")) {
+            var voters = list(value.get("bases")).stream().map(v -> object(v).get("node")).toList();
+            need(nodes.containsAll(voters) && voters.contains(object(value.get("ballot")).get("proposer")), "selection quorum identity");
+        }
+        walkContext(object(CATALOG.get(record.name())).get("schema"), value, manifest);
+    }
+    private static void walkContext(Object schema, Object value, Record manifest) {
+        if (schema instanceof Map<?, ?>) {
+            var s = object(schema);
+            if (s.containsKey("optional")) { if (value != null) walkContext(s.get("optional"), value, manifest); }
+            else if (s.containsKey("object")) object(s.get("object")).forEach((k, t) -> walkContext(t, object(value).get(k), manifest));
+            else if (s.containsKey("array")) for (Object item : list(value)) walkContext(s.get("array"), item, manifest);
+        } else if (((String) schema).startsWith("frame:")) context(decode(unbase(value), ((String) schema).substring(6)), manifest);
     }
 
     static String receipt(String domain, String manifest, String voter, Map<String, Object> ballot, long index, String digest) {
@@ -271,6 +289,19 @@ final class AutomaticRecords {
                 var r = object(item); need(r.get("digest").equals(receipt("ACCEPT_ACK", text(v, "manifestDigest"), text(r, "voter"), v,
                         number(v, "index"), text(v, "entryDigest"))), "accept receipt digest/domain");
             }
+        }
+        if (name.equals("SNAPSHOT")) AutomaticRecovery.snapshotSemantics(v);
+        if (name.equals("IMAGE")) AutomaticRecovery.imageSemantics(v);
+        if (name.equals("BASIS") || name.equals("SELECTED") || name.equals("TRANSFER")) ballot(object(v.get("ballot")));
+        if (name.equals("SELECTED")) {
+            need(list(v.get("bases")).stream().map(x -> object(x).get("node")).distinct().count() == 2, "selection needs two voters");
+            need((v.get("nextEntry") == null) == (v.get("sourceBallot") == null), "selected optional pair");
+        }
+        if (name.equals("FLOOR")) need(list(v.get("sources")).stream().map(x -> object(x).get("node")).distinct().count() == 2, "floor needs two sources");
+        if (name.equals("TRANSFER")) need(number(v, "receivedBytes") <= number(v, "imageBytes"), "transfer progress");
+        if (name.equals("CLEANUP")) {
+            var files = list(v.get("files")).stream().map(x -> object(x).get("path")).toList(); var deletes = list(v.get("deletePaths"));
+            need(files.stream().distinct().count() == files.size() && deletes.stream().distinct().count() == deletes.size() && files.containsAll(deletes), "cleanup inventory");
         }
         if (name.equals("PLAN")) AutomaticAdmission.checkPlan(v);
         if (name.equals("RECEIPT")) AutomaticAdmission.checkReceipt(v);
