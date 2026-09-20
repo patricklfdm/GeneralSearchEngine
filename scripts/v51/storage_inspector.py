@@ -45,7 +45,7 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
     manifest = dict(f.inspect(manifest_raw, 'MANIFEST'), digest=manifest_raw[16:48].hex())
     voters = [m['node'] for m in manifest['members']]
     for path in directory.rglob('*'):
-        f.need(recovery.allowed(path.relative_to(directory).parts, path.is_dir(), voters, FILES), 'unknown authority inventory')
+        f.need(recovery.allowed(path.relative_to(directory).parts, path.is_dir(), voters, FILES | {'bootstrap-binding.gsr'}), 'unknown authority inventory')
     def record(name, kind): return f.contextual_frame((directory / name).read_bytes(), kind, manifest)
     node = record('node.gsr', 'NODE')['node']
     ready = record('storage-ready.gsr', 'READY')
@@ -64,7 +64,7 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
     for t, p in zip(plan['targets'], preparations):
         f.need(p['inventoryDigest'] == sha(canonical(t['files'])), 'preparation inventory digest')
         names = [v['path'] for v in t['files']]
-        f.need(names == sorted(INITIAL), 'ordered initial inventory')
+        f.need(names in (sorted(INITIAL), sorted(INITIAL | {'bootstrap-binding.gsr'})), 'ordered initial inventory')
     for item in target['files']:
         name, size = item['path'], item['size']
         f.need(size <= f.MAX_IMAGE and (before[name]['size'] >= size if name in LEDGERS else before[name]['size'] == size), 'missing initial authority')

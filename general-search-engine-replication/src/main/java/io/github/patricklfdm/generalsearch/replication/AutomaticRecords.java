@@ -24,8 +24,15 @@ import java.util.UUID;
 final class AutomaticRecords {
     static final int HEADER = 48, META = 65536, IMAGE = 67108864;
     static final String ZERO = "00000000-0000-0000-0000-000000000000";
-    static final Map<String, Object> CATALOG = object(ReplicaJson.decode(
-            AutomaticRecordCatalog.JSON.strip().getBytes(StandardCharsets.US_ASCII), 65536));
+    static final Map<String, Object> CATALOG = catalog();
+    private static Map<String,Object> catalog() {
+        var result = new LinkedHashMap<>(object(ReplicaJson.decode(AutomaticRecordCatalog.JSON.strip().getBytes(StandardCharsets.US_ASCII),65536)));
+        result.put("BOOTSTRAP_BINDING",Map.of("id",28L,"encoding","canonical-json","maximum",65536L,
+                "schema",Map.of("object",Map.of("descriptor","blob"))));
+        result.put("BOOTSTRAP_CLEANUP",Map.of("id",29L,"encoding","canonical-json","maximum",65536L,
+                "schema",Map.of("object",Map.of("plan","frame:PLAN","binding","frame:BOOTSTRAP_BINDING","cleanup","frame:CLEANUP"))));
+        return Collections.unmodifiableMap(result);
+    }
 
     private AutomaticRecords() { }
 

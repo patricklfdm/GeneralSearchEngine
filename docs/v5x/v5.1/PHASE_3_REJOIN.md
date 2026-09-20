@@ -1,8 +1,8 @@
 # Phase 3C: retained-voter rejoin and recovery-source exchange
 
-**Status:** PR #190 merged; its exact-master CI found a recovery-floor liveness
-failure. The correction below still requires protected acceptance.
-**Accepted base:** [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
+**Status:** Phase 3 accepted in PR #191 with exact-master CI `35542143840`;
+see the [checklist](PHASE_3_CHECKLIST.md). PR #190's failure and its correction are retained below.
+**Implementation base:** [PR #189](https://github.com/patricklfdm/GeneralSearchEngine/pull/189),
 master `bc78f6587fee2c3c80ce3198230cfcfb13316f9f`,
 [CI 35527143425](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35527143425).
 All six jobs passed, including the actual real TCP runtime gate.
@@ -220,6 +220,9 @@ not protected-master or public-service acceptance.
   a final ACK. Export-ID correlation fixes this accounting boundary; the failed
   attempt remains preserved alongside the final passing run.
 
-These are local receipts based on `8cf283e73340990651b309ebeeb4a5a0943a9c8f` plus
-this fix. PR #190's master failure remains the protected result until the fix is
-merged and its exact-master CI passes. Phase 3 is not marked accepted.
+These local receipts were followed by protected acceptance in
+[PR #191](https://github.com/patricklfdm/GeneralSearchEngine/pull/191), master
+`263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`.
+[Exact-master CI 35542143840](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35542143840)
+passed all six jobs and executed the rejoin gate. Phase 3, including kinds 25–27,
+is accepted; PR #190's failed result remains historical evidence.

@@ -1,7 +1,9 @@
 # V5.1 Phase 3 checklist
 
-**Status:** Batches A/B accepted; Batch C merged in PR #190, but its exact-master
-CI failed on mismatched recovery-source cuts. The fix awaits protected acceptance.
+**Status:** Phase 3 accepted through PR #191 at master
+`263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`;
+[exact-master CI 35542143840](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35542143840)
+passed all six jobs, including the actual foundation/storage/protocol/runtime/rejoin gates and final soak.
 
 - [x] Phase 2 accepted in PR #187, master `eb2b8c0b51d9d3352b037d6435e3aad2839d788d`, CI `35503107173`.
 - [x] User entered `feat/v5.1-phase3-election` and authorized the next implementation batch.
@@ -26,7 +28,7 @@ CI failed on mismatched recovery-source cuts. The fix awaits protected acceptanc
 - [x] Batch C local runtime/lease/wire regressions, independent three-JVM evidence and five rejoin negatives.
 - [x] Full reactor, 46 Python tests, foundation/protocol gates and all 108 ledger/recovery process cuts; initial local barrier failure retained alongside the passing retry.
 - [x] Diagnose PR #190 master CI `35533377860`: active cuts 6/7/4 and full generation slots formed a recovery-floor cycle; add bounded exact-cut witness exchange and deterministic regression coverage.
-- [ ] Protected Batch C merge/exact-master CI and acceptance of kinds 25–27.
-- [ ] Concurrent real-voter JVM/network/crash evidence and complete Phase 3 acceptance.
+- [x] Protected Batch C: [PR #191](https://github.com/patricklfdm/GeneralSearchEngine/pull/191), master and CI above; kinds 25–27 accepted.
+- [x] Concurrent real-voter JVM/network/crash evidence and complete Phase 3 acceptance.
 
-Public automatic bootstrap/façade/strong-read enablement remains Phase 4.
+Next: [Phase 4 public lifecycle](PHASE_4_ENTRY_PLAN.md).

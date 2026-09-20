@@ -1,0 +1,14 @@
+{
+  "BOOTSTRAP_BINDING": {
+    "id": 28,
+    "encoding": "canonical-json",
+    "maximum": 65536,
+    "schema": {"object": {"descriptor": "blob"}}
+  },
+  "BOOTSTRAP_CLEANUP": {
+    "id": 29,
+    "encoding": "canonical-json",
+    "maximum": 65536,
+    "schema": {"object": {"plan": "frame:PLAN", "binding": "frame:BOOTSTRAP_BINDING", "cleanup": "frame:CLEANUP"}}
+  }
+}

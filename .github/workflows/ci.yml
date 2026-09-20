@@ -86,6 +86,17 @@ jobs:
       - name: Verify V5.1 retained-voter rejoin and two-source reclamation
         run: scripts/verify-v51-phase3-rejoin.sh --skip-build
 
+      - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
+        run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
+
+      - name: Retain V5.1 public bootstrap and pre-reopen evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-bootstrap-${{ github.sha }}
+          path: target/v51-bootstrap
+          retention-days: 14
+
       - name: Retain V5.1 rejoin sources and process evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -651,6 +662,7 @@ jobs:
           bash -n scripts/verify-v51-phase3-protocol.sh
           bash -n scripts/verify-v51-phase3-runtime.sh
           bash -n scripts/verify-v51-phase3-rejoin.sh
+          bash -n scripts/verify-v51-phase4-bootstrap.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

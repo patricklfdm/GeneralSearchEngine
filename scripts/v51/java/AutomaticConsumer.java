@@ -51,15 +51,14 @@ public final class AutomaticConsumer {
         require(builder.applicationBuilder()==app && builder.configuration()==configs.getFirst(),"builder arguments");
         calls.set(0);
         disabled(builder::build);
-        disabled(()->AutomaticReplicationStorageOperations.planBootstrap(app,request));
-        disabled(()->AutomaticReplicationStorageOperations.applyBootstrap(app,request,null));
-        disabled(()->AutomaticReplicationStorageOperations.resumeBootstrap(app,request,null));
-        disabled(()->AutomaticReplicationStorageOperations.readBootstrapResult(request.operationDirectory()));
-        disabled(()->AutomaticReplicationStorageOperations.planCleanup(request.operationDirectory()));
-        disabled(()->AutomaticReplicationStorageOperations.applyCleanup(null));
         require(calls.get()==0,"codec callback before disabled guard");
         try(var paths=Files.list(root)){require(paths.findAny().isEmpty(),"disabled operation created a file");}
-        System.out.println("v51ExternalConsumer=PASS disabledEntries=7 runtime=not-enabled");
+        var plan=AutomaticReplicationStorageOperations.planBootstrap(app,request);
+        try(var paths=Files.list(root)){require(paths.findAny().isEmpty(),"planning created a file");}
+        var result=AutomaticReplicationStorageOperations.applyBootstrap(app,request,plan);
+        require(result.equals(AutomaticReplicationStorageOperations.readBootstrapResult(request.operationDirectory())),"committed receipt");
+        require(result.equals(AutomaticReplicationStorageOperations.resumeBootstrap(app,request,plan)),"idempotent resume");
+        System.out.println("v51ExternalConsumer=PASS disabledEntries=1 offlineBootstrap=PASS runtime=not-enabled");
     }
     /** Compile-only full inherited surface. No fake runtime stands in for these operations. */
     static void compileLifecycle(AutomaticReplicatedSearchEngine<Integer, Doc> engine, Path backup) {

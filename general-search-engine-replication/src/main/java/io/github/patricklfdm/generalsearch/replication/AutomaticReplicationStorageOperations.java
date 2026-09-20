@@ -3,29 +3,29 @@ package io.github.patricklfdm.generalsearch.replication;
 import java.nio.file.Path;
 import io.github.patricklfdm.generalsearch.engine.SearchEngineBuilder;
 
-/** Declaration-only automatic storage operations; every entry rejects before IO in Phase 1. */
+/** Offline, all-three automatic bootstrap and inventory-bound pre-commit cleanup. */
 public final class AutomaticReplicationStorageOperations {
     private AutomaticReplicationStorageOperations() { }
 
     public static <K, T> ReplicationBootstrapPlan planBootstrap(SearchEngineBuilder<K, T> builder,
             AutomaticReplicationBootstrapRequest<K, T> request) {
-        throw AutomaticFoundation.unavailable();
+        return AutomaticBootstrap.guarded(() -> AutomaticBootstrap.project(builder,request,true).summary());
     }
     public static <K, T> ReplicationBootstrapResult applyBootstrap(SearchEngineBuilder<K, T> builder,
             AutomaticReplicationBootstrapRequest<K, T> request, ReplicationBootstrapPlan plan) {
-        throw AutomaticFoundation.unavailable();
+        return AutomaticBootstrap.apply(builder,request,plan,false);
     }
     public static <K, T> ReplicationBootstrapResult resumeBootstrap(SearchEngineBuilder<K, T> builder,
             AutomaticReplicationBootstrapRequest<K, T> request, ReplicationBootstrapPlan plan) {
-        throw AutomaticFoundation.unavailable();
+        return AutomaticBootstrap.apply(builder,request,plan,true);
     }
     public static ReplicationBootstrapResult readBootstrapResult(Path operationDirectory) {
-        throw AutomaticFoundation.unavailable();
+        return AutomaticBootstrap.readResult(operationDirectory);
     }
     public static ReplicationCleanupPlan planCleanup(Path operationDirectory) {
-        throw AutomaticFoundation.unavailable();
+        return AutomaticBootstrapCleanup.plan(operationDirectory);
     }
     public static void applyCleanup(ReplicationCleanupPlan plan) {
-        throw AutomaticFoundation.unavailable();
+        AutomaticBootstrapCleanup.apply(plan);
     }
 }

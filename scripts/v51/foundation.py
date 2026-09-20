@@ -64,7 +64,7 @@ def run(output,control_directory):
         legacy_source=ROOT/'compatibility/v5-style-consumer/src/main/java/fixture'
         command(['javac','-cp',old_cp,'-d',str(legacy),str(legacy_source/'V5StyleConsumer.java'),str(legacy_source/'V5Document.java'),str(java/'LegacyRunner.java')],output/'legacy-compile.log')
         command(['java','-cp',str(legacy)+':'+classpath,'fixture.v51.LegacyRunner',str(output/'legacy-no-io')],output/'legacy.log')
-        record['publicConsumer']={'status':'PASS','disabledEntries':7,'fullLifecycle':'compile-only','legacyBinary':'published-5.0-to-current'}
+        record['publicConsumer']={'status':'PASS','disabledEntries':1,'offlineBootstrap':'executed','fullLifecycle':'compile-only','legacyBinary':'published-5.0-to-current'}
         record['status']='PASS'
     except Exception as error:
         record['error']=dict(type=type(error).__name__,message=str(error));raise

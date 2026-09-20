@@ -84,7 +84,11 @@ class Reader:
 
 
 def inspect(raw,name,depth=0):
-    need(depth<=16,'nested frame depth');spec=load()['records'][name]
+    need(depth<=16,'nested frame depth')
+    catalog=load()['records']
+    if name in ('BOOTSTRAP_BINDING','BOOTSTRAP_CLEANUP'):
+        catalog=json.loads((CATALOG.parent/'bootstrap-catalog.json').read_bytes())
+    spec=catalog[name]
     need(48<len(raw)<=spec['maximum'],'frame capacity')
     magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16])
     need((magic,major,minor,kind,flags)==(b'GSER',1,2,spec['id'],0),'storage version/kind/flags')
