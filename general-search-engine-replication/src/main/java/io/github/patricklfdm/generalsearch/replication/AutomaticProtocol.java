@@ -96,6 +96,11 @@ final class AutomaticProtocol implements AutoCloseable {
     }
     synchronized List<Action> drain() {var result=List.copyOf(actions);actions.clear();return result;}
     synchronized Record promise() {return durablePromise;}
+    synchronized void restored(byte[] application) {
+        need(state==STOPPED,"initial restoration precedes start");
+        var snapshot=store.provenSnapshot(application);image=application.clone();
+        imageIndex=publishedIndex=AutomaticRecovery.index(snapshot);
+    }
     synchronized boolean maintenanceCurrent(Record ballot) {
         return state!=STOPPED&&state!=STARTING&&state!=FAILED&&state!=AutomaticReplicationState.CLOSED
                 &&same(fence,ballot)&&same(durablePromise,ballot);

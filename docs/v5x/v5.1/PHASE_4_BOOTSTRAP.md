@@ -1,8 +1,9 @@
 # Phase 4A: public automatic bootstrap and cleanup
 
-**Status:** local implementation and validation; protected acceptance pending.
-The public runtime factory remains guarded. Public method descriptors and all
-published configured-mode 1.1 behavior remain unchanged.
+**Status:** accepted through PR #192 at
+`fce35d955e0b6b973014959e23fc38eb95dd2745` (CI `35547603482`).
+Batch A retained the runtime factory guard; [Batch B](PHASE_4_PUBLIC_RUNTIME.md)
+subsequently enables it. Public method descriptors and configured 1.1 behavior stay unchanged.
 
 ## Complete request binding
 
@@ -112,5 +113,6 @@ Base `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` plus this batch, 2026-09-20:
   corrected test-fixture JSON parser failure remain retained; none is used as a
   substitute for the final passing receipts.
 
-These are local results. Protected merge/exact-master acceptance, including kinds
-28/29, remains unchecked in the [Phase 4 checklist](PHASE_4_CHECKLIST.md).
+These local results were followed by protected acceptance of Batch A, including
+kinds 28/29, through PR #192 at `fce35d955e0b6b973014959e23fc38eb95dd2745`
+(exact-master CI `35547603482`). See the [Phase 4 checklist](PHASE_4_CHECKLIST.md).

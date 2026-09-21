@@ -13,7 +13,9 @@ The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FO
 Phase 2's real storage/recovery evidence is recorded in [its acceptance record](PHASE_2_RECOVERY.md).
 [Phase 3](PHASE_3_CHECKLIST.md) is accepted through PR #191 with real concurrent
 JVM/TCP/rejoin evidence. [Phase 4A](PHASE_4_BOOTSTRAP.md) enables the public offline
-bootstrap/cleanup subset; the public-runtime/strong-read matrix below remains open.
+bootstrap/cleanup subset. [Phase 4B](PHASE_4_PUBLIC_RUNTIME.md) implements the
+public lifecycle/strong-read façade and initial public JVM evidence; the complete
+continuous-history/crash matrix below remains open.
 
 ## Independent foundation before production
 

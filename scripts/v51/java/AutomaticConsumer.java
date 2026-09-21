@@ -21,14 +21,6 @@ public final class AutomaticConsumer {
     record Doc(int id) { }
     static final Field<Doc, Integer> ID = Field.of("id", Integer.class, Doc::id);
     public static void require(boolean value, String message) { if (!value) throw new AssertionError(message); }
-    static void disabled(Runnable call) {
-        try { call.run(); throw new AssertionError("automatic operation admitted in Phase 1"); }
-        catch (AutomaticReplicationException expected) {
-            require(expected.reason() == AutomaticReplicationException.Reason.NOT_READY, "reason");
-            require(expected.outcome() == AutomaticReplicationException.Outcome.NOT_APPLICABLE, "outcome");
-            require(expected.observedLeader().isEmpty(), "invented leader hint");
-        }
-    }
     public static List<AutomaticReplicationGroupConfig<Integer, Doc>> configs(Path root, AtomicInteger calls) {
         var members = new ArrayList<ReplicationMember>();
         for (int i=1;i<=3;i++) members.add(new ReplicationMember(new ReplicationNodeId("node-"+i),new ReplicationEndpoint("127.0.0.1",19600+i)));
@@ -50,15 +42,15 @@ public final class AutomaticConsumer {
         var app=SearchEngine.builder(Doc.class,ID);var builder=AutomaticReplicatedSearchEngines.builder(app,configs.getFirst());
         require(builder.applicationBuilder()==app && builder.configuration()==configs.getFirst(),"builder arguments");
         calls.set(0);
-        disabled(builder::build);
-        require(calls.get()==0,"codec callback before disabled guard");
-        try(var paths=Files.list(root)){require(paths.findAny().isEmpty(),"disabled operation created a file");}
+        try(var handle=builder.build()){require(handle.leadershipStatus().state()==AutomaticReplicationState.STOPPED,"stopped handle");}
+        require(calls.get()==0,"codec callback while building stopped handle");
+        try(var paths=Files.list(root)){require(paths.findAny().isEmpty(),"stopped handle created a file");}
         var plan=AutomaticReplicationStorageOperations.planBootstrap(app,request);
         try(var paths=Files.list(root)){require(paths.findAny().isEmpty(),"planning created a file");}
         var result=AutomaticReplicationStorageOperations.applyBootstrap(app,request,plan);
         require(result.equals(AutomaticReplicationStorageOperations.readBootstrapResult(request.operationDirectory())),"committed receipt");
         require(result.equals(AutomaticReplicationStorageOperations.resumeBootstrap(app,request,plan)),"idempotent resume");
-        System.out.println("v51ExternalConsumer=PASS disabledEntries=1 offlineBootstrap=PASS runtime=not-enabled");
+        System.out.println("v51ExternalConsumer=PASS stoppedHandle=PASS offlineBootstrap=PASS runtime=not-started");
     }
     /** Compile-only full inherited surface. No fake runtime stands in for these operations. */
     static void compileLifecycle(AutomaticReplicatedSearchEngine<Integer, Doc> engine, Path backup) {

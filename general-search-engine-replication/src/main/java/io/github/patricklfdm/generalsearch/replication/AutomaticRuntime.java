@@ -10,6 +10,9 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.*;
+import java.time.Instant;
+import java.time.Duration;
+import io.github.patricklfdm.generalsearch.durability.*;
 
 /** Internal runtime over retained sealed authority. Public lifecycle/read admission belongs to Phase 4. */
 final class AutomaticRuntime<K,T> implements AutoCloseable {
@@ -27,6 +30,19 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final String local;
     private final ReplicationBounds bounds;
     private final AutomaticLeadershipPolicy policy;
+    private final Object callbackOwner;
+    private final List<ReplicationMember> members;
+    private final CompletableFuture<AutomaticReplicationStatus> started=new CompletableFuture<>();
+    private final Map<String,ReplicationPeerStatus> observations=new LinkedHashMap<>();
+    private volatile AutomaticReplicationStatus publicStatus;
+    private volatile DurabilityMetrics durability;
+    private long publishedSequence;
+    private long startupReplayedRecords;
+    private Duration startupRecoveryDuration=Duration.ZERO, startupRebuildDuration=Duration.ZERO;
+    private Instant quorumSuccess;
+    private boolean startupCompletionQueued;
+    private String observedLeader;
+    private long observedLeaderEpoch;
     private final UUID trace=UUID.randomUUID();
     private final AtomicLong ids=new AtomicLong();
     private final long origin=System.nanoTime();
@@ -52,7 +68,14 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     }
     AutomaticRuntime(AutomaticReplicationGroupConfig<K,T> config,SearchEngineConfiguration<K,T> captured,
                      byte[] manifestBytes,AutomaticStore.Faults faults,AutomaticTransport.Events transportEvents,Events events) {
+        this(config,captured,manifestBytes,faults,transportEvents,events,null);
+    }
+    AutomaticRuntime(AutomaticReplicationGroupConfig<K,T> config,SearchEngineConfiguration<K,T> captured,
+                     byte[] manifestBytes,AutomaticStore.Faults faults,AutomaticTransport.Events transportEvents,Events events,Object callbackOwner) {
+        long startupBegin=System.nanoTime();
         this.events=events;
+        this.callbackOwner=callbackOwner;members=config.members();
+        for(var m:members) if(!m.nodeId().equals(config.localNodeId())) observations.put(m.nodeId().value(),new ReplicationPeerStatus(m.nodeId(),false,0,0,0,Optional.empty()));
         bounds=config.bounds();policy=config.leadershipPolicy();local=config.localNodeId().value();manifest=decode(manifestBytes,"MANIFEST");
         need(config.groupId().value().toString().equals(manifest.value().get("groupId"))&&config.configurationId().equals(manifest.value().get("configurationId")),"runtime group configuration");
         need(config.members().stream().map(m->Map.of("node",m.nodeId().value(),"host",m.endpoint().host(),"port",(long)m.endpoint().port())).toList().equals(manifest.value().get("members")),"runtime members/order");
@@ -60,9 +83,19 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         AutomaticApplication<K,T> opening=null;AutomaticTransport listening=null;
         try {
             need(store.leadershipPolicy().equals(policy),"runtime policy differs from seal");
+            if(callbackOwner!=null) AutomaticPublicAdmission.verify(config,captured);
+            long rebuildBegin=System.nanoTime();
             opening=new AutomaticApplication<>(captured,config.materialization(),bounds);opening.validate(manifest,config.materialization());application=opening;
             protocol=new AutomaticProtocol(store,()->ThreadLocalRandom.current().nextLong(),UUID::randomUUID);
+            if(callbackOwner!=null) {
+                var replay=store.replay();startupReplayedRecords=replay.entries().size();
+                byte[] restored=application.reconstruct(replay);application.publish(store.provenSnapshot(restored));protocol.restored(restored);
+                publishedSequence=application.sequence();
+            }
+            startupRebuildDuration=Duration.ofNanos(System.nanoTime()-rebuildBegin);
+            startupRecoveryDuration=Duration.ofNanos(System.nanoTime()-startupBegin);
             promise=protocol.promise();view=protocol.view();
+            refresh();
             listening=new AutomaticTransport(manifest,local,bounds,this::handle,transportEvents);transport=listening;
             rejoin=new AutomaticRejoin(store,protocol,this::controlled,this::send,this::now,this::id,events);
             control=Thread.ofPlatform().daemon().name("gse-automatic-control-"+local).unstarted(this::loop);
@@ -79,10 +112,14 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     Throwable lastExchangeFailure() {return lastExchangeFailure;}
     Throwable lastRecoveryFailure() {return rejoin.lastFailure();}
     Throwable lastRecoveryRejection() {return rejoin.lastRejected();}
+    CompletableFuture<AutomaticReplicationStatus> started() {return started.copy();}
+    AutomaticReplicationStatus status() {return publicStatus;}
+    DurabilityMetrics durability() {return durability;}
+    private void applicationTask(Runnable task) {app.execute(()->AutomaticContext.run(callbackOwner,task));}
     // Test/internal inspection only; this is deliberately not a public strong-read implementation.
     <R> CompletableFuture<R> inspectLocal(Function<SearchEngine<K,T>,R> action) {
         var result=new CompletableFuture<R>();
-        try {app.execute(()->{try {result.complete(application.readLocal(action));}catch(Throwable e){result.completeExceptionally(e);}});}
+        try {applicationTask(()->{try {result.complete(application.readLocal(action));}catch(Throwable e){result.completeExceptionally(e);}});}
         catch(RejectedExecutionException error) {result.completeExceptionally(error);}return result;
     }
     CompletableFuture<Long> submit(int operation,Function<ReplicaApplication<K,T>,byte[]> encoder) {
@@ -92,15 +129,24 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         try {enqueue(()->{
             if(view.state()!=AutomaticReplicationState.LEADER_READY) {finish(result,null,outcome(NOT_READY,NOT_SUBMITTED));return;}
             Record expected=promise;int cut=view.publishedIndex();
-            try {app.execute(()->{
+            try {applicationTask(()->{
                 byte[] payload=null;Throwable error=null;
                 try {need(operation>=1&&operation<=9,"application operation");payload=Objects.requireNonNull(encoder.apply(application.encoder())).clone();application.stage(operation,payload);}
                 catch(Throwable e){error=e;}
                 byte[] bytes=payload;Throwable rejected=error;
                 complete(()->{
-                    if(rejected!=null) {finish(result,null,rejected);return;}
+                    if(rejected!=null) {
+                        Throwable cause=rejected;
+                        while(cause instanceof CompletionException&&cause.getCause()!=null)cause=cause.getCause();
+                        if(cause instanceof ReplicationException old) {
+                            AutomaticReplicationException.Reason reason;
+                            try{reason=AutomaticReplicationException.Reason.valueOf(old.reason().name());}catch(IllegalArgumentException ignored){reason=STORAGE_FAILURE;}
+                            cause=new AutomaticReplicationException(reason,NOT_SUBMITTED,Optional.empty(),old.getMessage(),old);
+                        }
+                        finish(result,null,cause);return;
+                    }
                     if(closing||now()>=deadline||!Arrays.equals(expected.bytes(),promise.bytes())||view.state()!=AutomaticReplicationState.LEADER_READY||view.publishedIndex()!=cut) {
-                        finish(result,null,outcome(NOT_READY,NOT_SUBMITTED));return;
+                        finish(result,null,outcome(closing?CLOSED:now()>=deadline?DEADLINE_EXCEEDED:NOT_READY,NOT_SUBMITTED));return;
                     }
                     if(result.isCancelled()) {finish(result,null,outcome(NOT_READY,NOT_SUBMITTED));return;}
                     requests.put(request,result);protocol.submit(request,operation,bytes,now());
@@ -114,7 +160,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         return new AutomaticReplicationException(reason,outcome,Optional.empty(),"automatic runtime "+reason);
     }
     private void finish(CompletableFuture<Long> future,Long value,Throwable error) {
-        clients.execute(()->{try {if(error==null)future.complete(value);else future.completeExceptionally(error);}finally{submission.release();}});
+        clients.execute(()->{submission.release();if(error==null)future.complete(value);else future.completeExceptionally(error);});
     }
     private void enqueue(Runnable task) {
         if(closing||terminated||!inputs.offer(task))throw outcome(closing?CLOSED:CAPACITY_EXCEEDED,NOT_SUBMITTED);
@@ -137,24 +183,110 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     }
     private void flush() {
         promise=protocol.promise();view=protocol.view();
+        var clientCompletions=new ArrayList<Runnable>();
         for(var action:protocol.drain()) {
             if(action instanceof AutomaticProtocol.Send send) {
                 var message=send.message();
                 if(message.response()) {var future=incoming.remove(message.id());if(future!=null)future.complete(message);}
                 else try {network.execute(()->{
-                    try {var reply=exchange(message);complete(()->protocol.receive(reply,now()));}
-                    catch(Throwable error){lastExchangeFailure=error;complete(()->protocol.transportFailed(message.id(),now()));}
+                    try {var reply=exchange(message);complete(()->{protocol.receive(reply,now());observe(message,reply);});}
+                    catch(Throwable error){lastExchangeFailure=error;complete(()->{protocol.transportFailed(message.id(),now());unreachable(message.recipient());});}
                 });}catch(RejectedExecutionException error){protocol.transportFailed(message.id(),now());}
             }else if(action instanceof AutomaticProtocol.Reconstruct rebuild) {
-                app.execute(()->{byte[] image=null;Throwable failure=null;try{image=application.reconstruct(rebuild.replay());}catch(Throwable e){failure=e;}
+                applicationTask(()->{byte[] image=null;Throwable failure=null;try{image=application.reconstruct(rebuild.replay());}catch(Throwable e){failure=e;}
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
-                app.execute(()->{Throwable failure=null;try{application.publish(publish.snapshot());events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
-                    Throwable error=failure;complete(()->protocol.published(publish.id(),error,now()));});
+                applicationTask(()->{Throwable failure=null;try{application.publish(publish.snapshot());events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
+                    Throwable error=failure;complete(()->{protocol.published(publish.id(),error,now());
+                        if(error==null&&protocol.view().publishedIndex()==AutomaticRecovery.index(publish.snapshot()))publishedSequence=number(publish.snapshot().value(),"applicationSequence");});});
             }else if(action instanceof AutomaticProtocol.Completed done) {
-                var future=requests.remove(done.request());if(future!=null)finish(future,done.index(),done.reason()==null?null:outcome(done.reason(),done.outcome()));
+                var future=requests.remove(done.request());if(future!=null)clientCompletions.add(()->finish(future,done.index(),done.reason()==null?null:outcome(done.reason(),done.outcome())));
             }
         }
+        refresh();
+        for(var completion:clientCompletions)completion.run();
+    }
+    private void observe(AutomaticProtocol.Message request,AutomaticProtocol.Message reply) {
+        var old=observations.get(request.recipient());if(old==null)return;
+        long durable=old.durableIndex(),matched=old.matchIndex();
+        if(reply.accepted()&&(request.kind()==AutomaticProtocol.Kind.ACCEPT||request.kind()==AutomaticProtocol.Kind.PROOF)) {
+            var record=(Record)request.payload();long index=request.kind()==AutomaticProtocol.Kind.ACCEPT?
+                    number(decode(unbase(record.value().get("entry")),"ENTRY").value(),"index"):number(record.value(),"index");
+            durable=Math.max(durable,index);if(request.kind()==AutomaticProtocol.Kind.PROOF)matched=Math.max(matched,index);
+        }
+        observations.put(request.recipient(),new ReplicationPeerStatus(old.nodeId(),true,durable,matched,old.appliedIndex(),Optional.of(Instant.now())));
+        if(reply.accepted()&&protocol.view().state()==AutomaticReplicationState.LEADER_READY&&Arrays.equals(reply.ballot().bytes(),protocol.promise().bytes()))quorumSuccess=Instant.now();
+    }
+    private void unreachable(String peer) {
+        var old=observations.get(peer);if(old!=null)observations.put(peer,new ReplicationPeerStatus(old.nodeId(),false,old.durableIndex(),old.matchIndex(),old.appliedIndex(),Optional.of(Instant.now())));
+    }
+    private void refresh() {
+        var current=protocol.view();var promised=protocol.promise();view=current;promise=promised;var state=current.state();
+        if(state==AutomaticReplicationState.STOPPED)state=AutomaticReplicationState.STARTING;
+        if(observedLeaderEpoch<number(promised.value(),"epoch")||state!=AutomaticReplicationState.LEADER_READY)observedLeader=null;
+        if(state==AutomaticReplicationState.LEADER_READY){observedLeader=local;observedLeaderEpoch=current.promisedEpoch();}
+        publicStatus=new AutomaticReplicationStatus(new ReplicationNodeId(local),state,Optional.ofNullable(observedLeader).map(ReplicationNodeId::new),
+                number(promised.value(),"epoch")<=1?Optional.empty():Optional.of(new ReplicationNodeId(text(promised.value(),"proposer"))),number(promised.value(),"epoch"),UUID.fromString(text(promised.value(),"incarnation")),
+                state==AutomaticReplicationState.LEADER_READY?current.promisedEpoch():0,current.provenIndex(),current.publishedIndex(),publishedSequence,
+                submission.availablePermits()==0?1:0,Optional.ofNullable(quorumSuccess),List.copyOf(observations.values()));
+        if(state!=AutomaticReplicationState.CLOSED&&!store.quarantined()) {
+            var counts=store.diagnosticCounts();
+            durability=new DurabilityMetrics(state==AutomaticReplicationState.FAILED?DurabilityStatus.FAILED:DurabilityStatus.OPEN,
+                    counts.get("sequence"),counts.get("checkpointSequence"),0,counts.get("walRecords"),counts.get("walBytes"),counts.get("retainedBytes"),
+                    startupReplayedRecords==0?RecoverySource.CHECKPOINT_ONLY:RecoverySource.CHECKPOINT_AND_WAL,startupReplayedRecords,startupRecoveryDuration,startupRebuildDuration,Optional.empty());
+        }
+        if(!startupCompletionQueued&&!started.isDone()&&state!=AutomaticReplicationState.STARTING) {
+            startupCompletionQueued=true;
+            var snapshot=publicStatus;
+            clients.execute(()->{if(snapshot.state()==AutomaticReplicationState.FAILED||snapshot.state()==AutomaticReplicationState.CLOSED)started.completeExceptionally(outcome(NOT_READY,NOT_APPLICABLE));else started.complete(snapshot);});
+        }
+    }
+
+    record Captured<R>(CompletableFuture<Void> begun,CompletableFuture<R> result) { }
+    <R> Captured<R> capture(long epoch,long index,long deadline,Function<AutomaticApplication<K,T>,R> action) {
+        var begun=new CompletableFuture<Void>();var result=new CompletableFuture<R>();
+        try { applicationTask(()->{
+            try {
+                if(closing||result.isCancelled())throw outcome(CLOSED,NOT_APPLICABLE);
+                if(System.nanoTime()>=deadline)throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                // Validate at the capture point, not against a possibly older diagnostic cache.
+                // The application worker keeps this view alive; no query callback runs under the protocol monitor.
+                synchronized(protocol) {
+                    var status=protocol.view();
+                    if(status.state()!=AutomaticReplicationState.LEADER_READY||status.promisedEpoch()!=epoch||application.index()!=index)
+                        throw outcome(STALE_EPOCH,NOT_APPLICABLE);
+                }
+                begun.complete(null);result.complete(action.apply(application));
+            } catch(Throwable error){begun.completeExceptionally(error);result.completeExceptionally(error);}
+        });} catch(Throwable error){begun.completeExceptionally(error);result.completeExceptionally(error);}
+        return new Captured<>(begun,result);
+    }
+    CompletableFuture<Void> checkpoint(long deadline) {
+        var result=new CompletableFuture<Void>();
+        try { enqueue(()->{
+            try {
+                if(System.nanoTime()>=deadline)throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                var state=protocol.view();var status=store.status();
+                if(state.applicationPending()||!Set.of(AutomaticReplicationState.LEADER_READY,AutomaticReplicationState.FOLLOWER,AutomaticReplicationState.UNAVAILABLE).contains(state.state())
+                        ||!status.get("acceptedThrough").equals(status.get("provenThrough")))throw outcome(NOT_READY,NOT_APPLICABLE);
+                var replay=store.replay();var promised=protocol.promise();
+                applicationTask(()->{
+                    byte[] image=null;Throwable failed=null;try{image=application.checkpointImage(replay);}catch(Throwable error){failed=error;}
+                    byte[] bytes=image;Throwable error=failed;
+                    complete(()->{
+                        try {
+                            if(error!=null)throw new CompletionException(error);
+                            if(System.nanoTime()>=deadline)throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                            var fresh=store.status();
+                            if(closing||protocol.view().applicationPending()||!Arrays.equals(promised.bytes(),protocol.promise().bytes())
+                                    ||((Number)fresh.get("provenThrough")).intValue()!=replay.through()||!fresh.get("acceptedThrough").equals(fresh.get("provenThrough")))throw outcome(NOT_READY,NOT_APPLICABLE);
+                            var snapshot=store.provenSnapshot(bytes);if(!store.generationAvailable(snapshot))throw outcome(CAPACITY_EXCEEDED,NOT_APPLICABLE);
+                            store.checkpoint(bytes);refresh();result.complete(null);
+                        }catch(Throwable failure){result.completeExceptionally(failure);}
+                    });
+                });
+            }catch(Throwable error){result.completeExceptionally(error);}
+        });}catch(Throwable error){result.completeExceptionally(error);}return result;
     }
     private Map<String,Object> wire(AutomaticProtocol.Message message,String type,Map<String,Object> payload) {
         return AutomaticWire.message(manifest,message.ballot(),local,message.recipient(),type,trace,message.id(),payload);

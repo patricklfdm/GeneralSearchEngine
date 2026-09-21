@@ -39,7 +39,7 @@ class V51BootstrapTest {
         }
         assertThrows(AutomaticReplicationException.class,() -> AutomaticReplicationStorageOperations.planCleanup(request.operationDirectory()));
         assertThrows(ReplicationException.class,() -> ReplicationStorageOperations.readBootstrapResult(request.operationDirectory()));
-        assertThrows(AutomaticReplicationException.class,() -> AutomaticReplicatedSearchEngines.builder(builder(),request.replicas().getFirst()).build());
+        try(var handle=AutomaticReplicatedSearchEngines.builder(builder(),request.replicas().getFirst()).build()) {assertEquals(AutomaticReplicationState.STOPPED,handle.leadershipStatus().state());}
     }
     @Test void importedFormatsPreserveSequenceIndexesDocumentOrderAndSourceBytes() throws Exception {
         for(int minor=0;minor<3;minor++) {

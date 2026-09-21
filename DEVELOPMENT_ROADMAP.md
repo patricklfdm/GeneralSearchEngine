@@ -19,8 +19,10 @@ with exact-master CI `35507802486`. The [runtime batch](docs/v5x/v5.1/PHASE_3_RU
 was accepted in PR #189 with exact-master CI `35527143425`.
 [Phase 3C](docs/v5x/v5.1/PHASE_3_REJOIN.md) was accepted in PR #191 at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, with exact-master CI `35542143840`.
-The user entered [Phase 4](docs/v5x/v5.1/PHASE_4_ENTRY_PLAN.md). Batch A implements
-public offline bootstrap/resume/result/cleanup; public runtime and strong reads remain Batch B.
+[Phase 4A](docs/v5x/v5.1/PHASE_4_BOOTSTRAP.md) is accepted through PR #192 at
+`fce35d955e0b6b973014959e23fc38eb95dd2745` (exact-master CI `35547603482`).
+[Phase 4B public runtime](docs/v5x/v5.1/PHASE_4_PUBLIC_RUNTIME.md) is implemented
+locally; protected acceptance and complete public history/crash qualification remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
