@@ -12,6 +12,8 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class V51AutomaticRecoveryTest {
     @TempDir Path root;
@@ -152,6 +154,28 @@ class V51AutomaticRecoveryTest {
         try(var a=open(1)){assertEquals(1,a.status().get("provenThrough"));a.cleanup();}
         assertFalse(Files.exists(root.resolve("node-1/generation-a")));
         try(var a=open(1)){assertEquals(2L,a.status().get("promisedEpoch"));}
+    }
+    @ParameterizedTest @ValueSource(strings={"DELETE_AFTER_DIRECTORY","DELETE_AFTER_ROOT_TRUNCATE"})
+    void removedDirectoryIsNotReusableUntilRetirementFinishes(String cut) throws Exception {
+        try(var a=open(1);var b=open(2)) {
+            for(var s:List.of(a,b)){commit(s,value(1));s.checkpoint(new byte[]{1});s.checkpoint(new byte[]{1});}
+            a.establishRecoveryFloor(List.of(a.recoverySource(),b.recoverySource()));
+        }
+        try(var a=open(1,fail(cut))){assertThrows(AutomaticReplicationException.class,a::cleanup);}
+        assertFalse(Files.exists(root.resolve("node-1/generation-a")));
+        assertTrue(Files.exists(root.resolve("node-1/transfer/retiring/generation.gsr")));
+        try(var a=open(1)) {
+            byte[] next=entry(manifest,2,value(1),9,new byte[0]);
+            a.accept(accept(manifest,next,2));a.prove(proof(manifest,next,2));
+            var snapshot=a.provenSnapshot(new byte[]{1});
+            assertFalse(a.generationAvailable(snapshot));
+            var error=assertThrows(AutomaticReplicationException.class,()->a.installProven(snapshot));
+            assertEquals(AutomaticReplicationException.Reason.CAPACITY_EXCEEDED,error.reason());
+            assertFalse(a.quarantined());assertFalse(Files.exists(root.resolve("node-1/generation-a")));
+            a.cleanup();assertTrue(a.generationAvailable(snapshot));a.installProven(snapshot);
+            assertEquals(2,AutomaticRecovery.index(a.currentSource().snapshot()));
+        }
+        try(var a=open(1)){assertEquals(2,a.status().get("provenThrough"));}
     }
     @Test void selectorNeverFallsBackToOldRootWhenActiveGenerationMissing() throws Exception {
         try(var a=open(1)){commit(a,value(1));a.checkpoint(new byte[]{1});}

@@ -208,7 +208,10 @@ final class AutomaticStore implements AutoCloseable {
         try {
             var current=recovery.current();
             String target=current==null||current.selector().value().get("generation").equals("generation-b")?"generation-a":"generation-b";
-            return !Files.exists(directory.resolve(target));
+            // The directory may already be gone while its retirement intent
+            // still owns that slot. Finish cleanup before a new generation can
+            // reuse the name and conflict with the retained deletion inventory.
+            return !Files.exists(directory.resolve(target))&&!Files.exists(directory.resolve("transfer/retiring"));
         } catch(IOException error) {throw failure(STORAGE_FAILURE,"generation inventory",error);}
     }
     synchronized void installProven(Record snapshot) {

@@ -18,6 +18,22 @@ CASES = (*NETWORK, *TAILS, *(f'{kind}-{mode}' for kind in RECOVERY for mode in (
 CUTS = {'basis': 'WIRE_BEFORE_RESPONSE_WRITE_BASIS_CHUNK:continuation',
         'snapshot-progress': 'STORAGE_CUT:TRANSFER_PROGRESS_BEFORE_ACK',
         'snapshot-selector': 'STORAGE_CUT:SELECTOR_BEFORE_ACK'}
+READ_REJECTIONS = ('NOT_LEADER', 'NOT_READY', 'QUORUM_UNAVAILABLE', 'STALE_EPOCH', 'DEADLINE_EXCEEDED')
+
+
+def read_after_recovery(workers, expected):
+    # LEADER_READY is a role hint; every read still needs its own quorum barrier.
+    # Keep all attempts in Worker.history and bound recovery without replaying writes.
+    for _ in range(4):
+        node, active = fault.leader(workers)
+        result = active.send('read').result(timeout=35)
+        need(result is not None, 'public protocol read disconnected')
+        if result['outcome'] == 'SUCCESS':
+            need(result['documents'] == expected, 'public protocol projection changed')
+            return node, active
+        need(result['outcome'] == 'NOT_APPLICABLE' and result.get('reasonCode') in READ_REJECTIONS,
+             'unexpected public protocol read failure: ' + str(result))
+    raise ValueError('public protocol read did not stabilize after recovery: ' + str(result))
 
 
 def network(root, rules):
@@ -97,10 +113,10 @@ def scenario(root, cp, case):
                 removed = next(iter(workers)); workers.pop(removed).stop()
                 network(root, [f'{a} {b} BEFORE_REQUEST_WRITE *' for a in NODES for b in NODES if a != b and removed in (a, b)])
                 start(old, 2); expected.extend(docs)
-                new, active = fault.leader(workers); read(active); write(active, 50)
+                new, active = read_after_recovery(workers, expected); write(active, 50)
                 network(root, []); start(removed, 2)
             else:
-                new, active = fault.leader(workers); read(active); write(active, 50)
+                new, active = read_after_recovery(workers, expected); write(active, 50)
                 start(old, 2)
             receipt['selectedLeader'] = new
         else:
@@ -124,9 +140,9 @@ def scenario(root, cp, case):
             crash(target, cut, mode); start(target, 2)
             if kind != 'basis':
                 active.stop(); del workers[old]
-            new, active = fault.leader(workers); read(active); write(active, 50)
+            new, active = read_after_recovery(workers, expected); write(active, 50)
             start(old, 2)
-        final, active = fault.leader(workers); read(active)
+        final, active = read_after_recovery(workers, expected)
         receipt.update(oldLeader=old, finalLeader=final, expected=expected)
     except BaseException as error: receipt['failure'] = str(error); raise
     finally:

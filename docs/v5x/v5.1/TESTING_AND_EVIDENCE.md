@@ -25,8 +25,10 @@ and mutation-stage interruptions, accepted through PR #195, exact-master CI
 missing/copied authority rejection, cancellation/close and cursor reconstruction.
 Phase 4E is accepted through PR #196, exact-master CI `35579584390`.
 [Phase 4F](PHASE_4_PUBLIC_PROTOCOL.md) adds competing campaigns, asymmetric faults,
-minority-tail selection and basis/snapshot interruption. These batches do not
-close unrelated E rows.
+minority-tail selection and basis/snapshot interruption, accepted through PR #197,
+exact-master CI `35591386329`. [Phase 4G](PHASE_4_PUBLIC_RECLAMATION.md) adds
+two-source floor publication, interrupted physical retirement and retained restart.
+These batches do not close unrelated E rows.
 
 ## Independent foundation before production
 

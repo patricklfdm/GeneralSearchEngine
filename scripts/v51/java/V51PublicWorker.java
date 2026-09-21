@@ -8,6 +8,20 @@ import java.util.*;
 
 /** Observes force and wire boundaries only; cannot bootstrap, submit or activate privately. */
 public final class V51PublicWorker {
+    /** Read bytes only, at an existing serialized storage hook. Never repairs authority. */
+    private static List<Map<String,Object>> reclamationFiles(Path directory) throws IOException {
+        var files=new TreeMap<String,Object>();
+        try(var paths=Files.walk(directory)) {
+            for(Path path:paths.filter(Files::isRegularFile).toList()) {
+                String name=directory.relativize(path).toString().replace(File.separatorChar,'/');
+                if(Set.of("promises.gsr","accepted.gsr","proofs.gsr","current.gsr","recovery-floor.gsr","recovery-floor.pending.gsr").contains(name)
+                        ||name.startsWith("generation-a/")||name.startsWith("generation-b/")
+                        ||name.startsWith("transfer/floor-")||name.startsWith("transfer/retiring/"))
+                    files.put(name,b64(Files.readAllBytes(path)));
+            }
+        }
+        return files.entrySet().stream().map(e->Map.<String,Object>of("name",e.getKey(),"bytes",e.getValue())).toList();
+    }
     private static final class Trace {
         final Path path,arm;final int generation;final String node,group,manifestDigest;long order;boolean crashing;
         Trace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest){
@@ -52,8 +66,12 @@ public final class V51PublicWorker {
         var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest);
             var hooks=new AutomaticStore.Faults(){
                 public void at(String event) throws IOException {
-                    if(event.equals("FLOOR_BEFORE_ACK")||event.equals("SELECTOR_BEFORE_ACK")||event.equals("SOURCE_BEFORE_ACK")||event.equals("WITNESS_BEFORE_ACK")||event.equals("TRANSFER_PROGRESS_BEFORE_ACK")||event.startsWith("DELETE_AFTER_"))
-                        trace.event("STORAGE_CUT",Map.of("cut",event));
+                    if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
+                        var values=new LinkedHashMap<String,Object>();values.put("cut",event);
+                        if(Files.exists(root.resolve("reclamation-evidence"))&&(event.startsWith("FLOOR_")||event.startsWith("DELETE_AFTER_")))
+                            values.put("authority",reclamationFiles(root.resolve(local)));
+                        trace.event("STORAGE_CUT",values);
+                    }
                     for(String kind:List.of("PROMISE","ACCEPT","PROOF"))if(event.equals(kind+"_AFTER_FORCE")) {
                         Path directory=root.resolve(local);
                         if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
