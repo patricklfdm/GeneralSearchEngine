@@ -1,9 +1,11 @@
 # V5.1 Phase 4F: public protocol and recovery fault matrix
 
-**Status:** implemented and locally qualified. Protected Batch F
-and complete Phase 4 acceptance remain open. [Batch E](PHASE_4_PUBLIC_RECOVERY.md)
-was accepted through PR #196 at `15eb04054f28ecb52b896eedb79775c257736e00`,
-exact-master CI `35579584390`; all six jobs and the new recovery/lifecycle gate passed.
+**Status:** accepted through [PR #197](https://github.com/patricklfdm/GeneralSearchEngine/pull/197)
+at `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d`, exact-master
+[CI 35591386329](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35591386329).
+All six jobs passed, including actual execution of the public protocol/recovery
+matrix. [Batch G](PHASE_4_PUBLIC_RECLAMATION.md) extends reclamation qualification;
+complete Phase 4 acceptance remains open.
 
 ## Public boundary and scenarios
 
@@ -64,6 +66,7 @@ not establish all schedules in those rows: conflicting/ambiguous selections,
 floor/deletion interruption with two durable sources, capacity/promise exhaustion,
 mixed-mode/wire/disk rejection and the remaining E11/E12 mapping still require
 their public evidence. Internal Phase 2/3 evidence keeps its original scope.
+Batch G takes up two-source floors and generation/root-journal reclamation cuts.
 Phase 5, cloud runs and release remain outside this batch.
 
 ## Local validation
@@ -98,4 +101,5 @@ genesis image may occupy only one chunk, and a candidate's own basis need not
 appear in a PROMISE reply. Final checks bind the actual frozen bytes and exact
 cut rather than weakening quorum/force requirements. Snapshot cases additionally
 require a subsequent election involving the recovered voter. This summary is
-written after execution; protected Batch F and full Phase 4 acceptance remain open.
+written after execution. The acceptance update above records the later protected
+merge and exact-master CI; full Phase 4 acceptance remains open.

@@ -29,8 +29,10 @@ through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `
 `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79` (exact-master CI `35570118695`).
 [Phase 4E](docs/v5x/v5.1/PHASE_4_PUBLIC_RECOVERY.md) is accepted through PR #196 at
 `15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
-[Phase 4F](docs/v5x/v5.1/PHASE_4_PUBLIC_PROTOCOL.md) adds public protocol/recovery
-faults; full Phase 4 acceptance remains open.
+[Phase 4F](docs/v5x/v5.1/PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 at
+`764cbf4a41bd6afc79e39cb3f97e612a3d66d39d` (exact-master CI `35591386329`).
+[Phase 4G](docs/v5x/v5.1/PHASE_4_PUBLIC_RECLAMATION.md) adds public two-source
+recovery floors and interrupted reclamation; full Phase 4 acceptance remains open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

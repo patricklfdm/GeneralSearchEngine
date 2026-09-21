@@ -146,6 +146,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 public two-source floors and interrupted reclamation
+        run: scripts/verify-v51-phase4-public-reclamation.sh --skip-build
+
+      - name: Retain V5.1 public reclamation evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-reclamation-${{ github.sha }}
+          path: target/v51-public-reclamation
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
         run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
 

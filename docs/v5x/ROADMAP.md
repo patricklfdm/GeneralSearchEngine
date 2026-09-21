@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E accepted; Phase 4F protocol/recovery in progress; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F accepted; Phase 4G locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -38,8 +38,10 @@ its transition kernel was accepted in PR #188 with CI `35507802486`. The
 `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79`, exact-master CI `35570118695`).
 [Phase 4E](v5.1/PHASE_4_PUBLIC_RECOVERY.md) is accepted through PR #196 (master
 `15eb04054f28ecb52b896eedb79775c257736e00`, exact-master CI `35579584390`).
-[Phase 4F](v5.1/PHASE_4_PUBLIC_PROTOCOL.md) adds public protocol/recovery faults;
-full Phase 4 acceptance remains open.
+[Phase 4F](v5.1/PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 (master
+`764cbf4a41bd6afc79e39cb3f97e612a3d66d39d`, exact-master CI `35591386329`).
+[Phase 4G](v5.1/PHASE_4_PUBLIC_RECLAMATION.md) adds public two-source floors and
+interrupted reclamation; full Phase 4 acceptance remains open.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

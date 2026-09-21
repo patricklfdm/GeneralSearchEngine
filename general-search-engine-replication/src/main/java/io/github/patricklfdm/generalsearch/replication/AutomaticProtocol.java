@@ -220,7 +220,8 @@ final class AutomaticProtocol implements AutoCloseable {
                     AutomaticRecovery.select(manifest,AutomaticRecovery.ballotOf(ballot),bases);
                     var frozen=store.prepare(ballot.bytes(),message.sender(),new byte[0]);
                     need(bases.stream().filter(b->local.equals(b.record().value().get("node"))).anyMatch(b->Arrays.equals(b.record().bytes(),frozen.record().bytes())),"installation substituted local frozen basis");
-                    var chosen=store.select(bases);adopt(chosen);
+                    var chosen=store.select(bases);
+                    if(!adopt(chosen)) {reply(message,false,CAPACITY_EXCEEDED);return;}
                     reply(message,true,chosen.record().digest());
                 }
                 case ACCEPT -> {var row=decode(((Record)message.payload()).bytes(),"ACCEPT");need(AutomaticRecovery.ballotOf(row).equals(AutomaticRecovery.ballotOf(ballot)),"accept envelope ballot");reply(message,true,store.accept(row.bytes()));}
@@ -286,7 +287,8 @@ final class AutomaticProtocol implements AutoCloseable {
                     capacity((long)ownBasis.image().encoded().bytes().length+basis.image().encoded().bytes().length<=bounds.maxSnapshotStagingBytes(),"prepare quorum image bound");
                     selection=store.select(List.of(ownBasis,basis));quorumPeer=response.sender();
                     exchanges.entrySet().removeIf(e->e.getValue().message.kind()==Kind.PREPARE);
-                    adopt(selection);state=RECOVERING;progress();
+                    if(!adopt(selection)) {abandon(CAPACITY_EXCEEDED);return;}
+                    state=RECOVERING;progress();
                     send(quorumPeer,Kind.INSTALL,selection.bases());
                 }
                 case INSTALL -> {
@@ -300,10 +302,17 @@ final class AutomaticProtocol implements AutoCloseable {
             }
         } catch(AutomaticReplicationException error) {fail(error.reason());}
     }
-    private void adopt(AutomaticRecovery.Selection chosen) {
+    private boolean adopt(AutomaticRecovery.Selection chosen) {
         // The verified local proven prefix needs no generation rewrite. In particular,
         // duplicate INSTALL and equal-prefix elections cannot consume generation slots.
-        if(AutomaticRecovery.index(chosen.snapshot())>proven()) {store.installSelected();imageIndex=-1;proven();}
+        if(AutomaticRecovery.index(chosen.snapshot())>proven()) {
+            // Interrupted retirement can leave both generation slots occupied.
+            // Reject before ambiguous I/O so background two-source cleanup can
+            // free the slot and a later campaign can adopt the verified prefix.
+            if(!store.generationAvailable(chosen.snapshot()))return false;
+            store.installSelected();imageIndex=-1;proven();
+        }
+        return true;
     }
     private Record fresh(int operation,byte[] payload) {
         // Origin/predecessor are read from proven authority, never the last response.

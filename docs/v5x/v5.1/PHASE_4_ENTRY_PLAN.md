@@ -10,8 +10,10 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79` (exact-master CI `35570118695`).
 [Batch E](PHASE_4_PUBLIC_RECOVERY.md) is accepted through PR #196 at
 `15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
-[Batch F](PHASE_4_PUBLIC_PROTOCOL.md) is in progress; complete Phase 4 acceptance
-remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
+[Batch F](PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 at
+`764cbf4a41bd6afc79e39cb3f97e612a3d66d39d` (exact-master CI `35591386329`).
+[Batch G](PHASE_4_PUBLIC_RECLAMATION.md) passed local qualification; protected
+Batch G and complete Phase 4 acceptance remain pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
 
@@ -91,3 +93,17 @@ chunk transfer, durable snapshot progress and snapshot selector publication with
 halt/SIGKILL; retain exact pre-reopen bytes and recover through public startup.
 Keep two-source floor/deletion interruptions, selection ambiguity, exhaustion and
 mixed-mode rejection in the remaining full public mapping.
+
+## Batch G — public two-source reclamation
+
+Block recovery-source exchanges while a public quorum continues serving, and
+verify that no floor or physical retirement is established. Heal, establish two
+complete agreeing sources, then interrupt floor write/force/publication and old
+generation file/directory/root-journal retirement with halt and SIGKILL. Preserve
+exact bytes before public restart, retain root promises and all acknowledged data,
+and require the recovered voter to participate in a later majority and advance
+its own floor through a new source download. Compare actual deleted bytes with
+the durable floor and retained retirement inventory independently.
+
+The matrix also requires selection to defer under generation-slot pressure and
+an interrupted retirement to finish before its deleted directory can be reused.
