@@ -8,6 +8,7 @@ elif [[ $# -ne 1 || "$1" != --skip-build ]]; then
   echo "usage: $0 [--skip-build]" >&2
   exit 2
 fi
+python3 -m unittest scripts.v51.test_public_runtime_harness
 mkdir -p target/v51-public-runtime
 work=$(mktemp -d "$root/target/v51-public-runtime/run.XXXXXX")
 echo "v51PublicRuntimeEvidence=$work/evidence"

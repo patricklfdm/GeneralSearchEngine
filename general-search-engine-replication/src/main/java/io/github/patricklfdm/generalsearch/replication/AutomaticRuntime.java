@@ -295,7 +295,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                             if(closing||protocol.view().applicationPending()||!Arrays.equals(promised.bytes(),protocol.promise().bytes())
                                     ||((Number)fresh.get("provenThrough")).intValue()!=replay.through()||!fresh.get("acceptedThrough").equals(fresh.get("provenThrough")))throw outcome(NOT_READY,NOT_APPLICABLE);
                             var snapshot=store.provenSnapshot(bytes);if(!store.generationAvailable(snapshot))throw outcome(CAPACITY_EXCEEDED,NOT_APPLICABLE);
-                            store.checkpoint(bytes);refresh();result.complete(null);
+                            // Reuse an already retained cut, as the capacity check permits. Blind rotation
+                            // can overwrite an occupied inactive generation before its durable floor exists.
+                            store.installProven(snapshot);refresh();result.complete(null);
                         }catch(Throwable failure){result.completeExceptionally(failure);}
                     });
                 });

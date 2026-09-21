@@ -89,8 +89,8 @@ genesis failover, missing/copied authority, cancellation/close schedules, cursor
 continuity across rebuild, and the remaining partition/selection/exhaustion/mixed-mode
 mapping in E01–E12. Those cases and protected acceptance remain separate work.
 
-The production changes are package-private observation points and the capture-time
-cancellation/deadline recheck; the rest is test/evidence tooling. Public
+The production changes are package-private observation points, the capture-time
+cancellation/deadline recheck and the checkpoint idempotency follow-up below. Public
 API descriptors, authority formats, configured 1.1 behavior, versions, dependencies
 and paid-cloud settings are unchanged.
 
@@ -116,12 +116,60 @@ Base `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` plus this batch, 2026-09-20:
 - CI YAML/retention entry, shell/Python syntax, V5 documentation contract,
   changed Markdown links/anchors/fences and whitespace checks passed.
 
-Final replication JAR SHA-256:
+Original fault-matrix replication JAR SHA-256:
 `0f3426cf8bcde213b5b75c12c4aa369fb9826ee68749d04fa04cb07238c40064`.
-Exploratory receipts retain their original source/JAR identities; only the final
-receipts above qualify this implementation. The initial driver incorrectly waited
+Exploratory receipts retain their original source/JAR identities; the receipts
+above qualify the original fault-matrix candidate. The initial driver incorrectly waited
 for an isolated node's cached role hint to change without issuing a read. The final
 case instead verifies the actual fresh-barrier rejection, as the contract requires.
 
 Receipts retain the source inventory at execution time. This summary is written
 after execution; protected acceptance awaits the user's merge and exact-master CI.
+
+## Checkpoint CI follow-up
+
+Source `93f7eaa02f00b24a9273c2ef137c682fce7a98cb` plus this follow-up, 2026-09-20:
+
+The public checkpoint capacity check allowed reuse of an identical retained cut,
+but execution unconditionally rotated to the inactive generation. If that directory
+still held an older cut, the storage guard rejected the operation with
+`inactive generation requires durable floor cleanup` and quarantined the voter.
+Checkpoint now uses the same idempotent proven-snapshot installation as background
+recovery. An identical cut leaves both generations and the selector untouched;
+a newer cut still needs capacity and the existing two-source retirement authority.
+
+Two Java regressions deliberately seed both generation slots, then exercise the
+public checkpoint and reopen paths on a single running voter. Both reproduced the
+original integrity failure before the fix. They now verify repeated identical-cut
+success, unchanged retained bytes, classified capacity rejection for a newer cut,
+and successful advancement only after durable floor cleanup. These are focused
+storage-seeded regressions, separate from the public fault matrix above.
+
+The first process rerun also exposed legitimate capacity pressure immediately after
+backup advanced the proven prefix. The driver now records checkpoint attempts and
+waits at most 30 seconds, retrying only `CAPACITY_EXCEEDED` / `NOT_APPLICABLE`.
+It requires actual checkpoint success and fails immediately on integrity/storage
+errors, other classifications or a missing response. Mutations and backup remain
+single calls. Five Python regressions enforce that boundary and the total deadline.
+
+Validation:
+
+- Targeted reactor package: 46 Java tests passed across checkpoint, public/internal
+  runtime, recovery storage and recovery exchange.
+- V5.1 Python discovery: 69 tests passed, including the five new driver regressions.
+- Public runtime gate:
+  `target/v51-public-runtime/run.jcTKiy/evidence/receipt.json` — four JVM process
+  instances, nine chosen entries/publications, three writes, three fresh reads,
+  seven rejected negatives and the published V4.4 backup comparison passed.
+- Rejoin gate:
+  `target/v51-rejoin/run.gld2LB/evidence/receipt.json` — five JVM process instances,
+  retained restart/second failover and independently verified floor/retirement
+  evidence passed. Its source inventory precedes the driver-only follow-up.
+- The intermediate capacity-pressure failure remains at
+  `target/v51-public-runtime/run.YlaUrF/evidence/receipt.json`.
+
+Follow-up replication JAR SHA-256:
+`2300c45c8f2bb5596d96ffe6479254b50a7fd2f87df81a3ba592c67898c2db4f`.
+The earlier full fault-matrix, qualification and foundation receipts retain their
+original JAR identities. This is targeted follow-up validation; protected
+acceptance still requires the current PR and exact-master CI.
