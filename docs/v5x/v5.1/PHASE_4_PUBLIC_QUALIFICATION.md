@@ -1,9 +1,11 @@
 # V5.1 Phase 4C: public history and search qualification
 
-**Status:** implemented and locally qualified on
-`test/v5.1-phase4-public-qualification`, based on accepted Batch B master
-`6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6` (PR #193, exact-master CI `35554352587`).
-Protected Batch C and complete Phase 4 acceptance remain open.
+**Status:** accepted through [PR #194](https://github.com/patricklfdm/GeneralSearchEngine/pull/194)
+at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4`, with exact-master
+[CI 35560692475](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35560692475).
+All six jobs passed; the reactor and new public qualification step actually executed.
+[Batch D](PHASE_4_PUBLIC_FAULTS.md) extends the public fault coverage; complete
+Phase 4 acceptance remains open.
 
 ## Concurrent public history
 
@@ -68,6 +70,9 @@ and repeats the rich report. NO_OP reads must leave the application sequence equ
 to the control. Code source locations and the published control hash are retained.
 
 ## Coverage boundary
+
+The table records the gaps at Batch C's completion. [Batch D](PHASE_4_PUBLIC_FAULTS.md)
+now adds public mutation crashes, old-leader isolation and higher-promise read fencing.
 
 | Evidence family | This batch | Still required before full public-matrix acceptance |
 | --- | --- | --- |

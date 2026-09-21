@@ -36,8 +36,9 @@ public final class PublicRuntimeConsumer {
     public static List<AutomaticReplicationGroupConfig<Integer,Doc>> configs(Path root) throws IOException {
         var lines=Files.readAllLines(root.resolve("ports.txt"));var members=new ArrayList<ReplicationMember>();
         for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(lines.get(i)))));
+        int operationTimeout=Files.exists(root.resolve("operation-timeout.txt"))?Integer.parseInt(Files.readString(root.resolve("operation-timeout.txt")).trim()):9600;
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
-                root.resolve(m.nodeId().value()),storage(root.resolve("app-"+m.nodeId().value())),bounds(),new AutomaticLeadershipPolicy(1200,3600,6000,9600))).toList();
+                root.resolve(m.nodeId().value()),storage(root.resolve("app-"+m.nodeId().value())),bounds(),new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout))).toList();
     }
     private static void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     @SuppressWarnings("unchecked") public static void main(String[] args) throws Exception {
@@ -80,7 +81,12 @@ public final class PublicRuntimeConsumer {
                         else if(name.equals("backup")){engine.backup(new DurableBackupRequest(root.resolve("backup"),1<<20)).get(15,TimeUnit.SECONDS);result.put("sequence",engine.durabilityMetrics().currentSequence());}
                         else if(name.equals("close")){engine.close();observer.accept("CLOSED",Map.of());print(result);break;}
                         else throw new IllegalArgumentException(name);
-                    }catch(Exception error){result.put("accepted",false);result.put("reason",error.toString());}
+                    }catch(Exception error){
+                        result.put("accepted",false);result.put("reason",error.toString());
+                        Throwable cause=error;
+                        while((cause instanceof ExecutionException||cause instanceof CompletionException)&&cause.getCause()!=null)cause=cause.getCause();
+                        if(cause instanceof AutomaticReplicationException failure){result.put("reasonCode",failure.reason().name());result.put("outcome",failure.outcome().name());}
+                    }
                     print(result);
                 }
             }

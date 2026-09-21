@@ -71,6 +71,15 @@ available. Core business/query/cursor exceptions keep their original types.
 a private proven cut, rechecks the promise/proven boundary and absence of unresolved
 acceptance, and verifies generation capacity before selecting local checkpoint
 storage. It neither adds an application entry nor advances the recovery floor.
+If the exact cut is already retained as the active snapshot (or sealed genesis),
+checkpoint reuses it without rotating generations. A newer cut still requires an
+available generation slot; capacity rejection must not quarantine the voter or
+retire storage without the existing two-source durable floor.
+The process gate allows up to 30 seconds for checkpoint capacity to become
+available. It retries only `CAPACITY_EXCEEDED` / `NOT_APPLICABLE`, records every
+attempt in `checkpoint-maintenance.json`, and still requires an actual success.
+Other failures and missing responses are not retried; application mutations and
+backup are issued once.
 
 `backup()` obtains a fresh read barrier and exports the captured application through
 the existing bounded V4 backup path. It preserves core backup failures and rejects

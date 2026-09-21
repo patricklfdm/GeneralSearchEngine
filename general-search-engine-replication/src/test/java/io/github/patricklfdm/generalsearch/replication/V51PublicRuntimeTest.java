@@ -168,6 +168,24 @@ class V51PublicRuntimeTest {
             assertEquals(AutomaticReplicationState.CLOSED,leader.leadershipStatus().state());assertEquals(DurabilityStatus.CLOSED,leader.durabilityMetrics().status());
         } finally {release.countDown();}
     }
+    @Test void expiredReadWaitingToCaptureNeverInvokesItsQuery() throws Exception {
+        var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var callbacks=new AtomicInteger();
+        AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(AutomaticStore.Faults.NONE,(a,b,c)->{},(event,value)->{
+            if(event.equals("READ_BEFORE_CAPTURE")){entered.countDown();latch(release);}
+        }));
+        try(var group=new Group(builder(),null,true)) {
+            var leader=group.leader();leader.add(new Doc(1,"shared")).join();
+            var reading=CompletableFuture.supplyAsync(()->leader.search(doc->{callbacks.incrementAndGet();return true;}));
+            assertTrue(entered.await(15,TimeUnit.SECONDS));
+            try {
+                var failure=assertThrows(ExecutionException.class,()->reading.get(15,TimeUnit.SECONDS));
+                var error=assertInstanceOf(AutomaticReplicationException.class,failure.getCause());
+                assertEquals(DEADLINE_EXCEEDED,error.reason());assertEquals(NOT_APPLICABLE,error.outcome());
+            } finally {release.countDown();}
+            // This mutation must pass the same application worker after the paused read drains.
+            leader.add(new Doc(2,"later")).get(15,TimeUnit.SECONDS);assertEquals(0,callbacks.get());
+        } finally {release.countDown();}
+    }
     @Test void missingQuorumCannotReturnAStaleRead() throws Exception {
         try(var group=new Group(builder(),null,true)) {
             var leader=group.leader();leader.add(new Doc(1,"shared")).join();

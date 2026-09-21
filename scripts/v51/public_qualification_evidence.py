@@ -34,12 +34,15 @@ def physical(root, history, traces=None):
     need(len(attempts) == len(history), 'duplicate client operation')
     seen_success, captured_reads, barriers, invocation_orders, acceptance_orders = {}, {}, set(), {}, {}
     for node, rows in traces.items():
-        invocations, forces, publications, current = {}, {}, {}, {}
+        invocations, forces, publications, current, promises, validated = {}, {}, {}, {}, {}, {}
         for row in rows:
             pid = row['pid']; event = row['event']
             if event == 'CLIENT_INVOKE':
                 invocations[(pid, row['opId'])] = row['order']
                 invocation_orders[(node, pid, row['opId'])] = row['order']
+            elif event == 'FORCE' and row['kind'] == 'PROMISE':
+                promise = authority.f.inspect(authority.raw(row['record']), 'PROMISE')
+                promises[pid] = promise['epoch']
             elif event == 'FORCE' and row['kind'] == 'ACCEPT':
                 vote = authority.f.inspect(authority.raw(row['record']), 'ACCEPT')
                 forces.setdefault((pid, vote['entryDigest']), row['order'])
@@ -47,7 +50,13 @@ def physical(root, history, traces=None):
             elif event == 'PUBLISHED':
                 snapshot = authority.f.inspect(authority.raw(row['snapshot']), 'SNAPSHOT')
                 publications[(pid, len(snapshot['anchors']))] = snapshot
+            elif event == 'READ_CAPTURE_VALIDATED':
+                need(row['epoch'] == promises.get(pid), 'capture after higher promise')
+                need(pid not in validated, 'duplicate capture validation')
+                validated[pid] = row
             elif event == 'READ_CAPTURED':
+                validation = validated.pop(pid, None)
+                need(validation is not None and all(validation[k] == row[k] for k in ('epoch', 'index', 'sequence')), 'capture lacks exact validation')
                 need(pid not in current, 'overlapping local capture')
                 snapshot = publications.get((pid, row['index']))
                 need(snapshot is not None and snapshot['applicationSequence'] == row['sequence'], 'capture has no exact publication')
@@ -55,7 +64,7 @@ def physical(root, history, traces=None):
                 digest = snapshot['anchors'][-1]['entryDigest']
                 need(digest in chosen and chosen[digest]['operation'] == 9 and proof['epoch'] == row['epoch'], 'capture barrier fence')
                 need(digest not in barriers, 'read barrier reused'); barriers.add(digest)
-                current[pid] = dict(row=row, snapshot=snapshot, digest=digest, opId=None)
+                current[pid] = dict(row=validation, snapshot=snapshot, digest=digest, opId=None)
             elif event == 'READ_CALLBACK':
                 capture = current.get(pid); key = pid, row['opId']
                 need(capture is not None and capture['opId'] is None and key in invocations, 'callback without own capture')

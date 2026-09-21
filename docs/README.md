@@ -28,6 +28,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 4A public bootstrap and offline cleanup](v5x/v5.1/PHASE_4_BOOTSTRAP.md)
 - [V5.1 Phase 4B public runtime and strong reads](v5x/v5.1/PHASE_4_PUBLIC_RUNTIME.md)
 - [V5.1 Phase 4C concurrent public qualification](v5x/v5.1/PHASE_4_PUBLIC_QUALIFICATION.md)
+- [V5.1 Phase 4D public fencing and mutation fault matrix](v5x/v5.1/PHASE_4_PUBLIC_FAULTS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)
 - [V5.1 selected-quorum wire extension decision](v5x/v5.1/PHASE_3_WIRE_EXTENSION.md)
 - [V5.1 Phase 3 checklist](v5x/v5.1/PHASE_3_CHECKLIST.md)

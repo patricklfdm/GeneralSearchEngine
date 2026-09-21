@@ -57,10 +57,13 @@ class Worker:
         threading.Thread(target=read, daemon=True).start()
         try: need(self.receive()['status'] == 'STARTED', 'public startup')
         except BaseException: self.kill(); raise
-    def receive(self): return json.loads(self.lines.get(timeout=35))
-    def command(self, name, **values):
+    def receive(self, timeout=35): return json.loads(self.lines.get(timeout=timeout))
+    def request(self, name, timeout=35, **values):
         self.process.stdin.write(json.dumps(dict(command=name, **values)) + '\n'); self.process.stdin.flush()
-        result = self.receive(); need(result['command'] == name and result['accepted'], 'public command: ' + json.dumps(result)); return result
+        result = self.receive(timeout)
+        need(result['command'] == name and type(result['accepted']) is bool, 'public response: ' + json.dumps(result)); return result
+    def command(self, name, **values):
+        result = self.request(name, **values); need(result['accepted'], 'public command: ' + json.dumps(result)); return result
     def kill(self):
         if self.process.poll() is None: self.process.kill()
         self.process.wait(timeout=10); self.process.stdin.close(); self.log.close()
@@ -71,6 +74,28 @@ class Worker:
         finally:
             if self.process.poll() is None: self.kill()
             self.log.close()
+
+
+def checkpoint_when_available(worker, output, timeout=30):
+    """Only a classified, side-effect-free maintenance capacity rejection can wait."""
+    record = dict(status='FAIL', timeoutSeconds=timeout, attempts=[])
+    started = time.monotonic(); deadline = started + timeout
+    try:
+        while True:
+            remaining = deadline - time.monotonic()
+            need(remaining > 0, 'public checkpoint capacity timeout')
+            attempt = dict(startSeconds=time.monotonic() - started); record['attempts'].append(attempt)
+            result = worker.request('checkpoint', timeout=remaining)
+            attempt.update(endSeconds=time.monotonic() - started, result=result)
+            if result['accepted']:
+                record['status'] = 'PASS'; return record
+            need(result.get('reasonCode') == 'CAPACITY_EXCEEDED' and result.get('outcome') == 'NOT_APPLICABLE',
+                 'public checkpoint failed: ' + json.dumps(result))
+            time.sleep(min(.25, max(0, deadline - time.monotonic())))
+    except BaseException as error:
+        record['failure'] = str(error); raise
+    finally:
+        save(output, record)
 
 
 def run(output):
@@ -121,7 +146,8 @@ def run(output):
         need(active.command('query')['documents'] == expected, 'public post-failover query')
         workers[old] = Worker(root, old, cp)
         need(workers[old].command('status')['state'] != 'LEADER_READY', 'public retained startup revived leadership')
-        active.command('backup'); active.command('checkpoint')
+        active.command('backup')
+        receipt['checkpoint'] = checkpoint_when_available(active, root / 'checkpoint-maintenance.json')
         controls.resolve(ROOT / 'target/v51-controls'); control = ROOT / 'target/v51-controls/general-search-engine-4.4.0.jar'
         control_classes = root / 'control-classes'; control_classes.mkdir()
         control_cp = os.pathsep.join(map(str, (control, REPLICATION, control_classes)))

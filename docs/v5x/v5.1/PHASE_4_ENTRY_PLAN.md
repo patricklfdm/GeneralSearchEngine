@@ -4,8 +4,10 @@
 `fce35d955e0b6b973014959e23fc38eb95dd2745` (exact-master CI `35547603482`).
 [Batch B public runtime](PHASE_4_PUBLIC_RUNTIME.md) is accepted through PR #193 at
 `6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6` (exact-master CI `35554352587`).
-[Batch C qualification](PHASE_4_PUBLIC_QUALIFICATION.md) is in progress; complete
-Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
+[Batch C qualification](PHASE_4_PUBLIC_QUALIFICATION.md) is accepted through PR #194
+at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
+[Batch D faults](PHASE_4_PUBLIC_FAULTS.md) is in progress; complete Phase 4 acceptance
+remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
 
@@ -54,3 +56,13 @@ Compare rich query, ranking, paging, highlight, explain, index lifecycle and bac
 semantics against a separately compiled and executed published V4.4 control.
 Track the remaining E01–E12 public scenarios explicitly rather than inferring full
 acceptance from the internal protocol matrix.
+
+## Batch D — public fencing and mutation interruption
+
+Isolate the current public leader while the surviving majority activates and
+acknowledges a tagged write. Verify that subsequent old-leader calls cannot succeed.
+Hold a read before/after capture, deliver naturally generated higher-ballot traffic,
+and independently establish whether its callback was rejected or completed on the
+already captured view. Exercise public writes at ACCEPT, PROOF and publication
+boundaries with halt/SIGKILL, then inspect retained bytes and recover through public
+start/election. No controller activation or authority repair is permitted.

@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B accepted. Batch C public qualification passed locally;
-protected Batch C and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C accepted. Batch D public fault matrix passed locally;
+protected Batch D and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -23,5 +23,9 @@ protected Batch C and complete Phase 4 acceptance remain open.
   `6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6`, exact-master CI `35554352587`.
 - [x] [Batch C](PHASE_4_PUBLIC_QUALIFICATION.md): concurrent histories, read/response
   crash cuts and rich published V4.4 semantics, local validation.
-- [ ] Protected Batch C acceptance.
+- [x] Protected Batch C acceptance: PR #194, master
+  `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4`, exact-master CI `35560692475`.
+- [x] [Batch D](PHASE_4_PUBLIC_FAULTS.md): public partitions, capture/promise
+  ordering and mutation crash cuts, local validation.
+- [ ] Protected Batch D acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

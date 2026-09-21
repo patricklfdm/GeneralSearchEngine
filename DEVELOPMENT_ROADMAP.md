@@ -23,8 +23,10 @@ was accepted in PR #189 with exact-master CI `35527143425`.
 `fce35d955e0b6b973014959e23fc38eb95dd2745` (exact-master CI `35547603482`).
 [Phase 4B public runtime](docs/v5x/v5.1/PHASE_4_PUBLIC_RUNTIME.md) is accepted through
 PR #193 at `6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6` (exact-master CI `35554352587`).
-[Phase 4C qualification](docs/v5x/v5.1/PHASE_4_PUBLIC_QUALIFICATION.md) adds concurrent
-histories, read/response crash cuts and rich V4.4 comparisons; full Phase 4 acceptance remains open.
+[Phase 4C qualification](docs/v5x/v5.1/PHASE_4_PUBLIC_QUALIFICATION.md) is accepted
+through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
+[Phase 4D](docs/v5x/v5.1/PHASE_4_PUBLIC_FAULTS.md) adds public partitions, read fencing
+and mutation crash cuts; full Phase 4 acceptance remains open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

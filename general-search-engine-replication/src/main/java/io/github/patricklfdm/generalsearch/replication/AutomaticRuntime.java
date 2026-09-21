@@ -196,7 +196,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 applicationTask(()->{byte[] image=null;Throwable failure=null;try{image=application.reconstruct(rebuild.replay());}catch(Throwable e){failure=e;}
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
-                applicationTask(()->{Throwable failure=null;try{application.publish(publish.snapshot());events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
+                applicationTask(()->{Throwable failure=null;try{events.at("BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
+                    application.publish(publish.snapshot());events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
                     Throwable error=failure;complete(()->{protocol.published(publish.id(),error,now());
                         if(error==null&&protocol.view().publishedIndex()==AutomaticRecovery.index(publish.snapshot()))publishedSequence=number(publish.snapshot().value(),"applicationSequence");});});
             }else if(action instanceof AutomaticProtocol.Completed done) {
@@ -249,14 +250,21 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             try {
                 if(closing||result.isCancelled())throw outcome(CLOSED,NOT_APPLICABLE);
                 if(System.nanoTime()>=deadline)throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
+                events.at("READ_BEFORE_CAPTURE",Map.of("epoch",epoch,"index",index));
                 // Validate at the capture point, not against a possibly older diagnostic cache.
                 // The application worker keeps this view alive; no query callback runs under the protocol monitor.
+                var cut=Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence());
                 synchronized(protocol) {
+                    // Lock contention or a test pause may outlive the initial check.
+                    if(closing||result.isCancelled())throw outcome(CLOSED,NOT_APPLICABLE);
+                    if(System.nanoTime()>=deadline)throw outcome(DEADLINE_EXCEEDED,NOT_APPLICABLE);
                     var status=protocol.view();
                     if(status.state()!=AutomaticReplicationState.LEADER_READY||status.promisedEpoch()!=epoch||application.index()!=index)
                         throw outcome(STALE_EPOCH,NOT_APPLICABLE);
+                    // Record the validation boundary before another promise can interleave.
+                    // The pausable observation below remains outside the protocol monitor.
+                    events.at("READ_CAPTURE_VALIDATED",cut);
                 }
-                var cut=Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence());
                 begun.complete(null);
                 events.at("READ_CAPTURED",cut);
                 R value;
@@ -287,7 +295,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                             if(closing||protocol.view().applicationPending()||!Arrays.equals(promised.bytes(),protocol.promise().bytes())
                                     ||((Number)fresh.get("provenThrough")).intValue()!=replay.through()||!fresh.get("acceptedThrough").equals(fresh.get("provenThrough")))throw outcome(NOT_READY,NOT_APPLICABLE);
                             var snapshot=store.provenSnapshot(bytes);if(!store.generationAvailable(snapshot))throw outcome(CAPACITY_EXCEEDED,NOT_APPLICABLE);
-                            store.checkpoint(bytes);refresh();result.complete(null);
+                            // Reuse an already retained cut, as the capacity check permits. Blind rotation
+                            // can overwrite an occupied inactive generation before its durable floor exists.
+                            store.installProven(snapshot);refresh();result.complete(null);
                         }catch(Throwable failure){result.completeExceptionally(failure);}
                     });
                 });

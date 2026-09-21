@@ -18,6 +18,9 @@ public lifecycle/strong-read façade and initial public JVM evidence and is acce
 through PR #193 (exact-master CI `35554352587`). [Phase 4C](PHASE_4_PUBLIC_QUALIFICATION.md)
 adds concurrent histories, read/response crashes and rich V4.4 comparisons. Its
 coverage table distinguishes these cases from the remaining full public matrix below.
+Phase 4C is accepted through PR #194, exact-master CI `35560692475`.
+[Phase 4D](PHASE_4_PUBLIC_FAULTS.md) adds public old-leader isolation, read fencing
+and mutation-stage interruptions; its coverage does not close unrelated E rows.
 
 ## Independent foundation before production
 
