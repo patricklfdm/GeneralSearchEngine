@@ -2,8 +2,10 @@
 
 **Status:** Batch A accepted through PR #192 at
 `fce35d955e0b6b973014959e23fc38eb95dd2745` (exact-master CI `35547603482`).
-[Batch B public runtime](PHASE_4_PUBLIC_RUNTIME.md) is implemented locally; its
-protected acceptance and the complete Phase 4 qualification remain pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
+[Batch B public runtime](PHASE_4_PUBLIC_RUNTIME.md) is accepted through PR #193 at
+`6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6` (exact-master CI `35554352587`).
+[Batch C qualification](PHASE_4_PUBLIC_QUALIFICATION.md) is in progress; complete
+Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
 
@@ -41,3 +43,14 @@ Then run the full Phase 4 evidence matrix and obtain protected acceptance.
 Batch A acceptance covers offline admission. Batch B implements the runtime façade
 and its first public process gate; the remaining complete public history/crash
 matrix is explicitly tracked in the [runtime record](PHASE_4_PUBLIC_RUNTIME.md#remaining-phase-4-qualification).
+
+## Batch C — independent public qualification
+
+Run bounded concurrent atomic bulk/read histories across real public JVM failover,
+with an independent client-interval linearizability search and a separately decoded
+chosen-prefix/captured-view oracle. Interrupt read capture, view release and client
+response delivery with both halt and SIGKILL; preserve bytes before retained restart.
+Compare rich query, ranking, paging, highlight, explain, index lifecycle and backup
+semantics against a separately compiled and executed published V4.4 control.
+Track the remaining E01–E12 public scenarios explicitly rather than inferring full
+acceptance from the internal protocol matrix.
