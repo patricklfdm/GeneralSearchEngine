@@ -1,7 +1,10 @@
 # V5.1 Phase 4B: public automatic runtime
 
-**Status:** implemented and locally qualified on `feat/v5.1-phase4-public-runtime`;
-protected acceptance is tracked in the [Phase 4 checklist](PHASE_4_CHECKLIST.md).
+**Status:** accepted through [PR #193](https://github.com/patricklfdm/GeneralSearchEngine/pull/193)
+at `6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6`, with exact-master
+[CI 35554352587](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35554352587).
+All six jobs succeeded; the reactor and V5.1 evidence steps actually executed.
+Complete Phase 4 acceptance is tracked in the [checklist](PHASE_4_CHECKLIST.md).
 Phase 4A was accepted through [PR #192](https://github.com/patricklfdm/GeneralSearchEngine/pull/192)
 at `fce35d955e0b6b973014959e23fc38eb95dd2745`, with exact-master
 [CI 35547603482](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35547603482).
@@ -111,8 +114,8 @@ cancellation/deadlines, first-IO outcomes and close with an active view.
 ## Remaining Phase 4 qualification
 
 This batch is a functional public-runtime milestone. It does not close every E01–E12
-row in [TESTING_AND_EVIDENCE.md](TESTING_AND_EVIDENCE.md). Before complete Phase 4
-acceptance, add the continuous concurrent public-client history with bounded
+row in [TESTING_AND_EVIDENCE.md](TESTING_AND_EVIDENCE.md). [Batch C](PHASE_4_PUBLIC_QUALIFICATION.md)
+adds the concurrent public-client history with bounded
 linearizability checking, deterministic public read capture/release and response
 crash cuts with both halt/SIGKILL, and the full separate V4.4 rich-query comparison.
 The existing internal protocol/rejoin fault evidence remains necessary but is not
@@ -151,5 +154,5 @@ configuration) remain retained. The final gate uses V4.4's actual restore/open/q
 path and an explicitly compatible batch size. Those failed driver attempts are not
 counted as qualifying runs.
 
-These are local results. Protected acceptance and the remaining complete public
-matrix stay open in the checklist.
+These are the original local results. The acceptance update above records the
+subsequent protected Batch B merge; the complete public matrix remains separately tracked.

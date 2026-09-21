@@ -256,7 +256,13 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                     if(status.state()!=AutomaticReplicationState.LEADER_READY||status.promisedEpoch()!=epoch||application.index()!=index)
                         throw outcome(STALE_EPOCH,NOT_APPLICABLE);
                 }
-                begun.complete(null);result.complete(action.apply(application));
+                var cut=Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence());
+                begun.complete(null);
+                events.at("READ_CAPTURED",cut);
+                R value;
+                try {value=action.apply(application);}
+                finally {events.at("READ_RELEASED",cut);}
+                result.complete(value);
             } catch(Throwable error){begun.completeExceptionally(error);result.completeExceptionally(error);}
         });} catch(Throwable error){begun.completeExceptionally(error);result.completeExceptionally(error);}
         return new Captured<>(begun,result);

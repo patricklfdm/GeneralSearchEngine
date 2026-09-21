@@ -98,6 +98,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 concurrent public histories, read crash cuts and rich V4.4 semantics
+        run: scripts/verify-v51-phase4-public-qualification.sh --skip-build
+
+      - name: Retain V5.1 public qualification including failed histories and pre-reopen bytes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-qualification-${{ github.sha }}
+          path: target/v51-public-qualification
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
         run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
 
@@ -676,6 +688,7 @@ jobs:
           bash -n scripts/verify-v51-phase3-rejoin.sh
           bash -n scripts/verify-v51-phase4-bootstrap.sh
           bash -n scripts/verify-v51-phase4-public-runtime.sh
+          bash -n scripts/verify-v51-phase4-public-qualification.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

@@ -14,8 +14,10 @@ Phase 2's real storage/recovery evidence is recorded in [its acceptance record](
 [Phase 3](PHASE_3_CHECKLIST.md) is accepted through PR #191 with real concurrent
 JVM/TCP/rejoin evidence. [Phase 4A](PHASE_4_BOOTSTRAP.md) enables the public offline
 bootstrap/cleanup subset. [Phase 4B](PHASE_4_PUBLIC_RUNTIME.md) implements the
-public lifecycle/strong-read façade and initial public JVM evidence; the complete
-continuous-history/crash matrix below remains open.
+public lifecycle/strong-read façade and initial public JVM evidence and is accepted
+through PR #193 (exact-master CI `35554352587`). [Phase 4C](PHASE_4_PUBLIC_QUALIFICATION.md)
+adds concurrent histories, read/response crashes and rich V4.4 comparisons. Its
+coverage table distinguishes these cases from the remaining full public matrix below.
 
 ## Independent foundation before production
 

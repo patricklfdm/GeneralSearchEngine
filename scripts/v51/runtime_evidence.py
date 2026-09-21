@@ -27,10 +27,20 @@ def application(data):
 
 
 def command(data):
-    f.need(data[:2]==b'\x00\x01' and struct.unpack('>i',data[2:6])[0]==1,'command header')
-    key_bytes=struct.unpack('>i',data[6:10])[0];f.need(key_bytes==4,'command key size');key=struct.unpack('>i',data[10:14])[0]
-    size=struct.unpack('>i',data[14:18])[0];doc=data[18:];f.need(len(doc)==size and struct.unpack('>i',doc[:4])[0]==key,'command document identity')
-    return key,doc[4:].decode('utf-8')
+    values=documents_command(data);f.need(len(values)==1,'single command count');return values[0]
+
+
+def documents_command(data):
+    f.need(len(data)>=6 and data[:2]==b'\x00\x01','command header')
+    count=struct.unpack('>i',data[2:6])[0];f.need(0<count<=100,'command count');offset=6;values=[]
+    for _ in range(count):
+        f.need(len(data)-offset>=12,'command item header')
+        key_bytes,key,size=struct.unpack('>iii',data[offset:offset+12]);offset+=12
+        f.need(key_bytes==4 and 4<=size<=len(data)-offset,'command item size')
+        doc=data[offset:offset+size];offset+=size
+        f.need(struct.unpack('>i',doc[:4])[0]==key and key not in dict(values),'command document identity')
+        values.append((key,doc[4:].decode('utf-8')))
+    f.need(offset==len(data),'command trailing data');return values
 
 
 def validate(root,traces=None):
@@ -103,14 +113,22 @@ def validate(root,traces=None):
                 projection=dict(initial);sequence=genesis['baseSequence']
                 for index,anchor in enumerate(snapshot['anchors'],1):
                     f.need(chosen.get(index)==anchor['entryDigest'],'unobserved publication ancestor');entry=entries[anchor['entryDigest']]
-                    if entry['operation'] in (1,2):
-                        key,value=command(raw(entry['payload']));f.need((key in projection)==(entry['operation']==2),'application mutation precondition');projection[key]=value;sequence+=1
+                    if entry['operation'] in (1,2,4,5):
+                        items=documents_command(raw(entry['payload']))
+                        f.need(entry['operation'] in (4,5) or len(items)==1,'single mutation count')
+                        for key,value in items:
+                            f.need((key in projection)==(entry['operation'] in (2,5)),'application mutation precondition');projection[key]=value
+                        sequence+=1
                     else:f.need(entry['operation']==9,'unsupported runtime fixture operation')
                 actual_indexes,actual=application(raw(snapshot['application']))
-                f.need(actual==projection and actual_indexes==indexes and snapshot['applicationSequence']==sequence,'V4 canonical application projection')
+                f.need(list(actual.items())==list(projection.items()) and actual_indexes==indexes and snapshot['applicationSequence']==sequence,'V4 canonical application projection')
                 published[len(snapshot['anchors'])]=projection;publications+=1
             elif event=='SUCCESS':
                 f.need(row['index'] in published and published[row['index']].get(row['id'])==row['value'],'success before exact publication');successes+=1
+            elif event=='CLIENT_SUCCESS' and row['kind']=='addAll':
+                # Concurrent callers cannot identify their own cut from a later status cache.
+                # Unique tagged documents must already occur together in one proven publication.
+                f.need(any(all(state.get(d['id'])==d['value'] for d in row['documents']) for state in published.values()),'bulk success before publication');successes+=1
         for index,digest in chosen.items():
             if reports[node]['provenThrough']>=index:f.need(reports[node]['acceptedDigests'][index-1]==digest,'retained chosen history changed')
     f.need(successes>=3 and publications>=5 and chunks>=6,'incomplete runtime execution')

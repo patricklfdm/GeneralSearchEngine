@@ -12,6 +12,14 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
+**Current implementation handoff:** V5.1 Phase 4B was accepted through PR #193 at
+`6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6` (exact-master CI `35554352587`).
+[Phase 4C public qualification](v5.1/PHASE_4_PUBLIC_QUALIFICATION.md) now has local
+concurrent-history, read/response crash and rich published V4.4 evidence. Follow
+the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md) and its remaining public
+scenario mapping; this does not authorize Phase 5, cloud runs or publication.
+The original Phase 0 planning-only restrictions below describe that earlier task.
+
 ## Self-contained development map
 
 The revision 0.1 proposal's development material is integrated at the following
