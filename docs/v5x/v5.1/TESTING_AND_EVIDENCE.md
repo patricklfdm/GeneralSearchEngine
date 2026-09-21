@@ -11,8 +11,9 @@ passed the documentation lane; reactor/compatibility/packaging jobs were skipped
 Original candidate wording below records the reviewed design, not runtime evidence.
 The user subsequently authorized Phase 1; see its [foundation record](PHASE_1_FOUNDATION.md).
 Phase 2's real storage/recovery evidence is recorded in [its acceptance record](PHASE_2_RECOVERY.md).
-The current [Phase 3A protocol evidence](PHASE_3_PROTOCOL.md) covers real-store
-transitions with simulated delivery; it does not close the public-process matrix below.
+[Phase 3](PHASE_3_CHECKLIST.md) is accepted through PR #191 with real concurrent
+JVM/TCP/rejoin evidence. [Phase 4A](PHASE_4_BOOTSTRAP.md) enables the public offline
+bootstrap/cleanup subset; the public-runtime/strong-read matrix below remains open.
 
 ## Independent foundation before production
 

@@ -17,9 +17,10 @@ with exact-master CI `35503107173` passing all six jobs. The user entered
 transition kernel was accepted in PR #188 at `cf13a87e84a25ed1470f8e6de307e53b0d67424c`
 with exact-master CI `35507802486`. The [runtime batch](docs/v5x/v5.1/PHASE_3_RUNTIME.md)
 was accepted in PR #189 with exact-master CI `35527143425`.
-[Phase 3C](docs/v5x/v5.1/PHASE_3_REJOIN.md) implements retained-voter rejoin and two-source
-reclamation; local qualification passed and protected acceptance is pending. Public automatic
-runtime admission remains Phase 4.
+[Phase 3C](docs/v5x/v5.1/PHASE_3_REJOIN.md) was accepted in PR #191 at
+`263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, with exact-master CI `35542143840`.
+The user entered [Phase 4](docs/v5x/v5.1/PHASE_4_ENTRY_PLAN.md). Batch A implements
+public offline bootstrap/resume/result/cleanup; public runtime and strong reads remain Batch B.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

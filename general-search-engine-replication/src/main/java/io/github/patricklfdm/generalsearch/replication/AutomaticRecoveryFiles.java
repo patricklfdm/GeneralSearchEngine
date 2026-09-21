@@ -21,7 +21,7 @@ import java.util.Set;
 final class AutomaticRecoveryFiles {
     static final Set<String> GENERATION_FILES = Set.of("snapshot.gsr", "accepted.gsr", "proofs.gsr", "generation.gsr");
     static final Set<String> OPTIONAL = Set.of("current.gsr", "current.pending.gsr", "generation-started.gsr",
-            "selected.gsr", "recovery-floor.gsr", "recovery-floor.pending.gsr", "generation-a", "generation-b", "basis", "transfer");
+            "selected.gsr", "recovery-floor.gsr", "recovery-floor.pending.gsr", "generation-a", "generation-b", "basis", "transfer", AutomaticBootstrapPlan.BINDING);
     final Path root;
     final Record manifest;
     final String node;

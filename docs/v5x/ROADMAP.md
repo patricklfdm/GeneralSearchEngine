@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3A/B accepted; Phase 3C rejoin implemented locally; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A offline bootstrap implemented locally; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -27,8 +27,9 @@ it was accepted in PR #185 with exact-master CI `35491646610`. The user has ente
 with exact-master CI `35503107173`. The user has entered [Phase 3](v5.1/PHASE_3_ENTRY_PLAN.md);
 its transition kernel was accepted in PR #188 with CI `35507802486`. The
 [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35527143425`.
-[Phase 3C](v5.1/PHASE_3_REJOIN.md) implements retained-voter rejoin and two-source reclamation;
-local qualification passed and protected acceptance is pending. Public automatic enablement remains Phase 4.
+[Phase 3C](v5.1/PHASE_3_REJOIN.md) was accepted in PR #191 with exact-master CI `35542143840`.
+The user entered [Phase 4](v5.1/PHASE_4_ENTRY_PLAN.md); Batch A implements public
+offline bootstrap and cleanup, with public runtime/strong reads reserved for Batch B.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

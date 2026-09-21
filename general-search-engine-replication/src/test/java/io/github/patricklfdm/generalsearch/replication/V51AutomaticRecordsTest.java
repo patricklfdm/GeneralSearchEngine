@@ -13,8 +13,8 @@ class V51AutomaticRecordsTest {
         var samples = V51StorageFixture.samples();
         try (var in = getClass().getResourceAsStream("/replication/v51/format-catalog.json")) {
             var schemas = object(object(io.github.patricklfdm.generalsearch.admission.AdmissionJson.parse(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8))).get("records"));
-            assertEquals(25, CATALOG.size());
-            for (String name : CATALOG.keySet()) {
+            assertEquals(27, CATALOG.size());
+            for (String name : schemas.keySet()) {
                 var expected = V51StorageFixture.copy(object(schemas.get(name))); expected.remove("path");
                 assertEquals(expected, CATALOG.get(name), name);
                 byte[] bytes = unbase(samples.get(name)); var actual = decode(bytes, name);

@@ -100,11 +100,10 @@ final class AutomaticAdmission {
             var voterTarget = object(list(plan.value().get("targets")).get(i));
             var prepared = decode(unbase(list(receipt.value().get("preparations")).get(i)), "PREPARED");
             need(prepared.value().get("inventoryDigest").equals(sha(canonical(voterTarget.get("files")))), "preparation inventory binding");
-            need(list(voterTarget.get("files")).stream().map(v -> text(object(v), "path")).toList()
-                    .equals(INITIAL.stream().sorted().toList()), "complete preparation inventory");
+            need(initial(list(voterTarget.get("files")).stream().map(v -> text(object(v), "path")).toList()), "complete preparation inventory");
         }
         var inventory = list(target.get("files"));
-        need(inventory.stream().map(x -> text(object(x), "path")).collect(java.util.stream.Collectors.toSet()).equals(INITIAL), "initial inventory completeness");
+        need(initial(inventory.stream().map(x -> text(object(x), "path")).toList()), "initial inventory completeness");
         for (Object item : inventory) {
             var file = object(item); String name = text(file, "path"); long size = number(file, "size");
             capacity(size <= IMAGE && size <= bounds.maxRetainedLogBytes(), "initial file size");
@@ -116,7 +115,17 @@ final class AutomaticAdmission {
             }
         }
         need(Files.size(root.resolve("replica.lock")) == 0, "unexpected ownership bytes");
+        if (Files.exists(root.resolve(AutomaticBootstrapPlan.BINDING),LinkOption.NOFOLLOW_LINKS)) {
+            var bound = new AutomaticBootstrapPlan(plan,read(root.resolve(AutomaticBootstrapPlan.BINDING),META));
+            // Startup depends only on the local sealed binding, never on coordinator/source availability.
+            var localBinding = object(list(bound.descriptor().get("replicas")).get(ordinal));
+            AdmissionPaths.recheck(object(localBinding.get("target")));
+        }
         return manifest;
+    }
+    private static boolean initial(List<String> names) {
+        var extended = new java.util.TreeSet<>(INITIAL); extended.add(AutomaticBootstrapPlan.BINDING);
+        return names.equals(INITIAL.stream().sorted().toList()) || names.equals(List.copyOf(extended));
     }
     static Path safe(Path path) throws IOException {
         Path p = path.toAbsolutePath().normalize();
