@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A/B accepted; Phase 4C public qualification in progress; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A/B/C accepted; Phase 4D public fault matrix in progress; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -35,8 +35,10 @@ The [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35
 `fce35d955e0b6b973014959e23fc38eb95dd2745`, CI `35547603482`).
 [Phase 4B](v5.1/PHASE_4_PUBLIC_RUNTIME.md) is accepted through PR #193 (master
 `6ca9418ae14bb3434e3ee2aa8dcc6ba2cd7e45b6`, exact-master CI `35554352587`).
-[Phase 4C](v5.1/PHASE_4_PUBLIC_QUALIFICATION.md) adds concurrent public histories,
-read/response crash cuts and rich V4.4 comparisons; full Phase 4 acceptance remains open.
+[Phase 4C](v5.1/PHASE_4_PUBLIC_QUALIFICATION.md) is accepted through PR #194 (master
+`6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4`, exact-master CI `35560692475`).
+[Phase 4D](v5.1/PHASE_4_PUBLIC_FAULTS.md) adds public partitions, read fencing and
+mutation crash cuts; full Phase 4 acceptance remains open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

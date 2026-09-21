@@ -110,6 +110,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 public partitions, read fencing and mutation crash cuts
+        run: scripts/verify-v51-phase4-public-faults.sh --skip-build
+
+      - name: Retain V5.1 public fault matrix including failed cases and pre-reopen bytes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-faults-${{ github.sha }}
+          path: target/v51-public-faults
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
         run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
 
@@ -689,6 +701,7 @@ jobs:
           bash -n scripts/verify-v51-phase4-bootstrap.sh
           bash -n scripts/verify-v51-phase4-public-runtime.sh
           bash -n scripts/verify-v51-phase4-public-qualification.sh
+          bash -n scripts/verify-v51-phase4-public-faults.sh
           bash -n scripts/v50/run_local_crash_harness.sh
           bash -n scripts/v42/remote_storage_evolution_stage.sh
           bash -n scripts/v42/run_storage_evolution_cloud_member.sh

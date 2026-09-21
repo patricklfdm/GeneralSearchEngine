@@ -39,6 +39,7 @@ class Worker:
                     if record is not None:
                         record.update(endNanos=now, outcome=result['outcome'])
                         if 'reason' in result: record['reason'] = result['reason']
+                        if 'reasonCode' in result: record['reasonCode'] = result['reasonCode']
                         if result['kind'] == 'read' and result['outcome'] == 'SUCCESS': record['documents'] = result['documents']
                     future.set_result(result)
         finally:
@@ -82,7 +83,7 @@ def command(args, root, name, timeout=120):
     need(result.returncode == 0, name + ': ' + result.stderr[-6000:]); return result
 
 
-def scenario(root, cp, cut, mode):
+def scenario(root, cp, cut, mode, mutation_cut=False):
     root.mkdir(); workers = {}; history = []; receipt = dict(status='FAIL', cut=cut, mode=mode)
     tag = 0
     def docs():
@@ -112,7 +113,7 @@ def scenario(root, cp, cut, mode):
         wave(active)
         armed = root / (old + '-arm.tmp'); armed.write_text(cut + '\n' + mode + '\n'); armed.replace(root / (old + '-arm.txt'))
         fault_start = time.monotonic_ns()
-        pending = active.send('addAll', documents=docs()) if cut == 'BEFORE_CLIENT_RESPONSE' else active.send('read')
+        pending = active.send('addAll', documents=docs()) if mutation_cut or cut == 'BEFORE_CLIENT_RESPONSE' else active.send('read')
         # The public role hint can race dispatch. Keep this attempt and its structured outcome;
         # never replay an uncertain operation to manufacture a successful write count.
         follower = next(w for n, w in workers.items() if n != old)

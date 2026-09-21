@@ -18,7 +18,11 @@ public final class PublicQualificationConsumer {
         var response=new LinkedHashMap<String,Object>(command);
         observer.accept("CLIENT_INVOKE",command);
         try {
-            if(kind.equals("status"))response.put("state",engine.leadershipStatus().state().name());
+            if(kind.equals("status")) {
+                var status=engine.leadershipStatus();response.put("state",status.state().name());
+                response.put("epoch",status.promisedEpoch());response.put("appliedIndex",status.appliedIndex());
+                response.put("provenIndex",status.provenIndex());
+            }
             else if(kind.equals("addAll")) {
                 var docs=((List<Map<String,Object>>)command.get("documents")).stream()
                         .map(d->new Doc(((Number)d.get("id")).intValue(),(String)d.get("value"))).toList();
@@ -36,6 +40,7 @@ public final class PublicQualificationConsumer {
             Throwable cause=failure;
             while((cause instanceof ExecutionException||cause instanceof CompletionException)&&cause.getCause()!=null)cause=cause.getCause();
             response.put("outcome",cause instanceof AutomaticReplicationException automatic?automatic.outcome().name():"VALIDATION_FAILURE");
+            if(cause instanceof AutomaticReplicationException automatic)response.put("reasonCode",automatic.reason().name());
             response.put("reason",cause.toString());observer.accept("CLIENT_FAILURE",response);
         }
         if(!kind.equals("status"))observer.accept("BEFORE_CLIENT_RESPONSE",response);
