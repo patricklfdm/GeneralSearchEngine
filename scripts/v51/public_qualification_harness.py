@@ -19,11 +19,12 @@ CUTS = ('READ_CAPTURED', 'READ_RELEASED', 'BEFORE_CLIENT_RESPONSE')
 
 
 class Worker:
-    def __init__(self, root, node, cp, history, generation=1):
+    def __init__(self, root, node, cp, history, generation=1, consumer='qualification'):
         self.node, self.history, self.generation = node, history, generation
         self.lock = threading.Lock(); self.pending = {}; self.serial = 0; self.startup = queue.Queue(1)
         self.log = (root / (node + '-stderr.log')).open('ab')
-        self.proc = subprocess.Popen(['java', '-cp', cp, PACKAGE + 'replication.V51PublicWorker', str(root), node[-1], 'qualification', str(generation)],
+        self.consumer = consumer
+        self.proc = subprocess.Popen(['java', '-cp', cp, PACKAGE + 'replication.V51PublicWorker', str(root), node[-1], consumer, str(generation)],
                                      cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log, text=True)
         self.reader = threading.Thread(target=self.read, daemon=True); self.reader.start()
         try: need(self.startup.get(timeout=30).get('status') == 'STARTED', 'public startup')
@@ -40,6 +41,7 @@ class Worker:
                         record.update(endNanos=now, outcome=result['outcome'])
                         if 'reason' in result: record['reason'] = result['reason']
                         if 'reasonCode' in result: record['reasonCode'] = result['reasonCode']
+                        if self.consumer == 'lifecycle': record['response'] = result
                         if result['kind'] == 'read' and result['outcome'] == 'SUCCESS': record['documents'] = result['documents']
                     future.set_result(result)
         finally:

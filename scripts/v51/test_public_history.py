@@ -43,6 +43,20 @@ class PublicHistoryTest(unittest.TestCase):
         w = write(outcome='NOT_SUBMITTED')
         with self.assertRaisesRegex(ValueError, 'not linearizable'): check([w, read(w['documents'])])
 
+    def test_cancelled_future_does_not_prove_rollback_or_completion(self):
+        w = write(outcome='CANCELLED')
+        for docs in ([], w['documents']): self.assertEqual(check([w, read(docs)])['status'], 'PASS')
+        with self.assertRaisesRegex(ValueError, 'not linearizable'): check([w, read(w['documents'][:1])])
+        history = [w, read([], 3, 4), dict(read(w['documents'], 5, 6), opId='later')]
+        self.assertEqual(check(history)['status'], 'PASS')
+
+    def test_imported_documents_are_the_initial_state_not_new_mutations(self):
+        initial = [dict(id=7, value='imported'), dict(id=9, value='ordered')]; w = write()
+        self.assertEqual(check([w, read(initial + w['documents'])], initial_documents=initial)['status'], 'PASS')
+        with self.assertRaisesRegex(ValueError, 'not linearizable'): check([w, read(w['documents'])], initial_documents=initial)
+        with self.assertRaisesRegex(ValueError, 'not linearizable'): check([read(initial[::-1])], initial_documents=initial)
+        with self.assertRaisesRegex(ValueError, 'duplicate initial'): check([read(initial)], initial_documents=initial+initial)
+
     def test_search_and_operation_bounds_fail_closed(self):
         for bounds in (dict(max_operations=1), dict(max_states=0)):
             with self.assertRaisesRegex(ValueError, 'bound'): check([write(), read([])], **bounds)

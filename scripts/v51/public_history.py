@@ -7,8 +7,10 @@ invocation, including after an uncertainty response. This is not an unbounded pr
 from .storage_harness import need
 
 
-def check(history, max_operations=24, max_states=100000):
+def check(history, max_operations=24, max_states=100000, initial_documents=None):
     need(0 < len(history) <= max_operations, 'history operation bound')
+    initial = tuple((d['id'], d['value']) for d in (initial_documents or []))
+    need(len(dict(initial)) == len(initial), 'duplicate initial document')
     ids = set()
     active = []
     for op in history:
@@ -17,7 +19,7 @@ def check(history, max_operations=24, max_states=100000):
         end = op.get('endNanos')
         need(end is None or isinstance(end, int) and end >= op['startNanos'], 'response interval')
         outcome = op['outcome']
-        need(outcome in ('SUCCESS', 'NOT_SUBMITTED', 'INDETERMINATE', 'PENDING', 'NOT_APPLICABLE', 'VALIDATION_FAILURE'), 'unknown outcome')
+        need(outcome in ('SUCCESS', 'NOT_SUBMITTED', 'INDETERMINATE', 'PENDING', 'CANCELLED', 'NOT_APPLICABLE', 'VALIDATION_FAILURE'), 'unknown outcome')
         need(outcome == 'PENDING' or end is not None, 'missing response time')
         need(op['kind'] in ('addAll', 'read'), 'unsupported history operation')
         if op['kind'] == 'addAll':
@@ -25,9 +27,9 @@ def check(history, max_operations=24, max_states=100000):
             need(docs and len({d['id'] for d in docs}) == len(docs), 'atomic bulk keys')
             need(outcome != 'NOT_APPLICABLE', 'mutation without outcome')
         else:
-            need(outcome not in ('NOT_SUBMITTED', 'INDETERMINATE'), 'read has mutation outcome')
+            need(outcome not in ('NOT_SUBMITTED', 'INDETERMINATE', 'CANCELLED'), 'read has mutation outcome')
             if outcome == 'SUCCESS': need(isinstance(op.get('documents'), list), 'missing read result')
-        if outcome == 'SUCCESS' or op['kind'] == 'addAll' and outcome in ('PENDING', 'INDETERMINATE'):
+        if outcome == 'SUCCESS' or op['kind'] == 'addAll' and outcome in ('PENDING', 'INDETERMINATE', 'CANCELLED'):
             active.append(op)
     # Only successful responses constrain a required completion's real-time edge.
     # Uncertain writes have no abstract completion until a chosen completion extension.
@@ -60,7 +62,7 @@ def check(history, max_operations=24, max_states=100000):
             if result is not None: return result
         return None
 
-    witness = search(0, (), [])
+    witness = search(0, initial, [])
     need(witness is not None, 'history is not linearizable within declared model')
     return dict(status='PASS', checker='bounded-exhaustive-client-history', operations=len(history),
                 activeOperations=len(active), exploredStates=len(visited), maxOperations=max_operations,

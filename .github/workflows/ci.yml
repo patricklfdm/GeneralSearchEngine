@@ -122,6 +122,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 imported failover, rejected authority and public lifecycle boundaries
+        run: scripts/verify-v51-phase4-public-recovery.sh --skip-build
+
+      - name: Retain V5.1 public recovery and lifecycle evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-recovery-${{ github.sha }}
+          path: target/v51-public-recovery
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
         run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
 
