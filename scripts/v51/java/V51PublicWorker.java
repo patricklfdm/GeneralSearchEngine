@@ -28,9 +28,9 @@ public final class V51PublicWorker {
                     write(name,values);
                     if(!Files.exists(arm))return;
                     var settings=Files.readAllLines(arm);
-                    if(!settings.get(0).equals(name))return;
+                    if(!settings.get(0).equals(name)&&!settings.get(0).equals(name+":"+values.get("cut")))return;
                     mode=settings.get(1);crashing=!mode.equals("pause");
-                    Files.delete(arm);write("CUT_REACHED",Map.of("cut",name,"mode",mode));
+                    Files.delete(arm);write("CUT_REACHED",Map.of("cut",settings.get(0),"mode",mode));
                 }
             }
             if(mode.equals("halt"))Runtime.getRuntime().halt(71);
@@ -65,6 +65,22 @@ public final class V51PublicWorker {
                 }
             };
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(hooks,(barrier,request,response)->{
+                Path rules=root.resolve("network-rules.txt");
+                if(Files.exists(rules))for(String rule:Files.readAllLines(rules)) {
+                    if(rule.isBlank())continue;
+                    String[] fields=rule.split(" ");
+                    if(fields.length!=4)throw new IOException("invalid owned network rule");
+                    if(fields[0].equals(request.get("sender"))&&fields[1].equals(request.get("recipient"))
+                            &&fields[2].equals(barrier)&&(fields[3].equals("*")||fields[3].equals(request.get("type")))) {
+                        trace.event("NETWORK_DROP",Map.of("barrier",barrier,"rule",rule,"request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes()))));
+                        throw new IOException("controller-owned directional network fault");
+                    }
+                }
+                if(Set.of("BASIS_CHUNK","SNAPSHOT_CHUNK","REJOIN_INSTALL").contains(request.get("type"))) {
+                    var values=new LinkedHashMap<String,Object>();values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                    if(request.get("type").equals("BASIS_CHUNK"))values.put("cut",number(object(request.get("payload")),"offset")>0?"continuation":"first");
+                    trace.event("WIRE_"+barrier+"_"+request.get("type"),values);
+                }
                 Path partition=root.resolve("network-blocks.txt");
                 if((barrier.equals("BEFORE_REQUEST_WRITE")||barrier.equals("AFTER_RESPONSE_READ"))&&Files.exists(partition)
                         &&Files.readAllLines(partition).contains(request.get("sender")+" "+request.get("recipient"))) {

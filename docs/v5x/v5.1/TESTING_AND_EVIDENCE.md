@@ -23,7 +23,10 @@ Phase 4C is accepted through PR #194, exact-master CI `35560692475`.
 and mutation-stage interruptions, accepted through PR #195, exact-master CI
 `35570118695`. [Phase 4E](PHASE_4_PUBLIC_RECOVERY.md) adds imported failover,
 missing/copied authority rejection, cancellation/close and cursor reconstruction.
-These batches do not close unrelated E rows.
+Phase 4E is accepted through PR #196, exact-master CI `35579584390`.
+[Phase 4F](PHASE_4_PUBLIC_PROTOCOL.md) adds competing campaigns, asymmetric faults,
+minority-tail selection and basis/snapshot interruption. These batches do not
+close unrelated E rows.
 
 ## Independent foundation before production
 

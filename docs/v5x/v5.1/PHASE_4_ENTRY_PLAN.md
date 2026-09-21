@@ -8,7 +8,9 @@
 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 [Batch D faults](PHASE_4_PUBLIC_FAULTS.md) is accepted through PR #195 at
 `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79` (exact-master CI `35570118695`).
-[Batch E](PHASE_4_PUBLIC_RECOVERY.md) is in progress; complete Phase 4 acceptance
+[Batch E](PHASE_4_PUBLIC_RECOVERY.md) is accepted through PR #196 at
+`15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
+[Batch F](PHASE_4_PUBLIC_PROTOCOL.md) is in progress; complete Phase 4 acceptance
 remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -77,3 +79,15 @@ Reject missing/copied authority through new public processes while preserving th
 rejected bytes. Exercise cancellation before dispatch and after force, plus close
 with a pinned read and retained directory ownership. Compare cursor continuation
 across NO_OP versus mutation/reconstruction with the published V4.4 behavior.
+
+## Batch F — public protocol and recovery faults
+
+Allow all three isolated voters to campaign, then heal; exercise asymmetric
+request and response loss with the reverse direction still active. Interrupt a
+locally accepted minority tail and recover both with and without its voter in the
+next quorum. Bind retention/discard to independently decoded frozen selections and
+distinguish immutable entry origin from higher acceptance ballots. Interrupt basis
+chunk transfer, durable snapshot progress and snapshot selector publication with
+halt/SIGKILL; retain exact pre-reopen bytes and recover through public startup.
+Keep two-source floor/deletion interruptions, selection ambiguity, exhaustion and
+mixed-mode rejection in the remaining full public mapping.
