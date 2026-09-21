@@ -1,8 +1,11 @@
 # V5.1 Phase 4E: public recovery and lifecycle qualification
 
-**Status:** implemented and locally qualified on `test/v5.1-phase4-recovery-lifecycle`,
-based on accepted Batch D master `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79`
-(PR #195, exact-master CI `35570118695`). Complete Phase 4 acceptance remains open.
+**Status:** accepted through [PR #196](https://github.com/patricklfdm/GeneralSearchEngine/pull/196)
+at `15eb04054f28ecb52b896eedb79775c257736e00`, exact-master
+[CI 35579584390](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35579584390).
+All six jobs passed, including actual execution of the recovery/lifecycle gate.
+[Batch F](PHASE_4_PUBLIC_PROTOCOL.md) extends protocol/recovery qualification;
+complete Phase 4 acceptance remains open.
 
 ## Execution boundaries
 
@@ -64,8 +67,9 @@ cancellation, ownership and cursor evidence. It does not close all E01–E12 row
 the remaining public mapping includes asymmetric/competing campaigns, ambiguous
 selection and minority tails, recovery transfer/floor/deletion interruptions,
 capacity/promise exhaustion and mixed-mode rejection. Internal Phase 2/3 evidence
-continues to apply within its recorded scope. Full Phase 4 and protected Batch E
-acceptance remain separate gates.
+continues to apply within its recorded scope. Batch F takes up competing campaigns,
+asymmetric faults, minority tails and basis/snapshot interruption. Full Phase 4
+acceptance remains a separate gate.
 
 ## Local validation
 
@@ -99,4 +103,5 @@ Published V4.4 control SHA-256:
 
 Exploratory compiler/fixture failures remain retained and are not qualification
 results. Each receipt binds the source inventory at execution; this summary is
-written afterward. Protected Batch E and full Phase 4 acceptance remain open.
+written afterward. The acceptance update above records the later protected merge
+and exact-master CI; full Phase 4 acceptance remains open.

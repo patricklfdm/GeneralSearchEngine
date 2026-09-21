@@ -12,10 +12,10 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4D was accepted through PR #195 at
-`da9f3e9fe957e61c0fe45cf041431a5c4c74cd79` (exact-master CI `35570118695`).
-[Phase 4E recovery/lifecycle](v5.1/PHASE_4_PUBLIC_RECOVERY.md) adds imported failover,
-rejected authority, cancellation/close and cursor reconstruction evidence. Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md)
+**Current implementation handoff:** V5.1 Phase 4E was accepted through PR #196 at
+`15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
+[Phase 4F protocol/recovery](v5.1/PHASE_4_PUBLIC_PROTOCOL.md) adds competing campaigns,
+asymmetric faults, minority tails and basis/snapshot interruption evidence. Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md)
 and its remaining public scenario mapping; this does not authorize Phase 5, cloud
 runs or publication. The original Phase 0 planning-only restrictions below describe
 that earlier task.
