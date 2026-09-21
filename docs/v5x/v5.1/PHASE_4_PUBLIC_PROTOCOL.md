@@ -35,6 +35,16 @@ genesis transfer for a multichunk recovery. The fixture freezes 4096-byte chunks
 to exercise actual multichunk transfers with bounded small data. This is a test
 configuration, not a change to defaults or a performance claim.
 
+After a fault or retained restart, `LEADER_READY` is only a role hint; the next
+strong read still requires a fresh quorum barrier. The controller permits at
+most four read attempts, rediscovering the leader before each one. Only
+`NOT_APPLICABLE` with `NOT_LEADER`, `NOT_READY`, `QUORUM_UNAVAILABLE`, `STALE_EPOCH`
+or `DEADLINE_EXCEEDED` permits another attempt. Every invocation and rejection
+remains in the bounded client history. A wrong successful projection, storage or
+integrity failure, disconnection, missing leader or exhausted attempt bound fails
+the case. Writes are never replayed; the next write uses the node that actually
+completed the read. The initial healthy read still requires immediate success.
+
 ## Independent evidence
 
 The existing bounded client-history checker and separate chosen-prefix/force/read
@@ -103,3 +113,34 @@ cut rather than weakening quorum/force requirements. Snapshot cases additionally
 require a subsequent election involving the recovered voter. This summary is
 written after execution. The acceptance update above records the later protected
 merge and exact-master CI; full Phase 4 acceptance remains open.
+
+## Recovery-read CI follow-up
+
+[CI 35655025714](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35655025714)
+failed `basis-kill` on the first read after the interrupted voter reopened. The
+surviving node-3 reported `LEADER_READY` at epoch 10, but its fresh read barrier
+returned `NOT_APPLICABLE / QUORUM_UNAVAILABLE`. The driver stopped immediately,
+before trying another public read or restoring the original leader. The trace
+does not establish persistent unavailability or a wrong successful read.
+
+The bounded recovery reads described above replace that single-attempt
+assumption. Eight driver regressions cover the observed rejection followed by
+success on a rediscovered leader, classified availability failures, exhausted
+attempts, wrong projections, integrity/storage failures, invalid outcomes,
+disconnections and leader-discovery failure. The gate runs them alongside its
+twelve existing independent scenario-checker tests.
+
+Local validation on `0e2f98da0983a4365a9dfeaf8919ad83760f038e` plus this follow-up,
+2026-09-21:
+
+- Targeted `basis-kill` passed:
+  `target/v51-public-protocol/read-recovery.StNsrx/evidence/receipt.json`.
+- Complete eleven-case gate passed:
+  `target/v51-public-protocol/run.mc3Hw9/evidence/receipt.json`, with 73 application
+  calls checked and 92 negative variants rejected by the existing oracles.
+- All 110 V5.1 Python tests passed; the 29-document contract, 173 local links,
+  shell syntax and whitespace checks passed.
+
+The process gates used the core JAR hash listed above and the Batch G replication
+JAR `c43a9088e99929faf8a2b8a7266967c27887a325926be3e1a6916a108a770ed4`.
+These are local results; protected Batch G acceptance remains open.
