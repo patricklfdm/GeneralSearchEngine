@@ -308,6 +308,13 @@ final class AutomaticStore implements AutoCloseable {
     }
     synchronized Record promised() { usable(); return promise; }
     synchronized boolean quarantined() { return failed||closed; }
+    synchronized Map<String,Long> diagnosticCounts() {
+        usable();
+        try { return Map.of("sequence",applicationSequence,"checkpointSequence",number(baseSnapshot.value(),"applicationSequence"),
+                "walRecords",acceptanceRows+(long)proven.size()+grants.size(),"walBytes",promises.size()+acceptances.size()+proofs.size(),
+                "retainedBytes",retainedBytes,"replayedRecords",(long)provenThrough()-baseIndex); }
+        catch(IOException error) { throw failure(STORAGE_FAILURE,"automatic diagnostic snapshot",error); }
+    }
     record Head(int index,long originEpoch,String digest) { }
     synchronized Head head() {
         usable();int index=provenThrough();

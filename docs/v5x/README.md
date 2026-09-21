@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A offline bootstrap implemented locally; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A accepted; Phase 4B public runtime implemented locally; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -31,8 +31,10 @@ CI `35503107173`. The user entered [Phase 3](v5.1/PHASE_3_ENTRY_PLAN.md); its
 [transition kernel](v5.1/PHASE_3_PROTOCOL.md) was accepted in PR #188 with CI `35507802486`.
 The [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35527143425`.
 [Phase 3C](v5.1/PHASE_3_REJOIN.md) was accepted in PR #191 with exact-master CI `35542143840`.
-The user entered [Phase 4](v5.1/PHASE_4_ENTRY_PLAN.md); Batch A implements public
-offline bootstrap and cleanup, with public runtime/strong reads reserved for Batch B.
+[Phase 4A](v5.1/PHASE_4_BOOTSTRAP.md) is accepted in PR #192 (master
+`fce35d955e0b6b973014959e23fc38eb95dd2745`, CI `35547603482`).
+[Phase 4B](v5.1/PHASE_4_PUBLIC_RUNTIME.md) implements the public runtime and strong
+reads locally; protected acceptance and the full Phase 4 public matrix remain open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

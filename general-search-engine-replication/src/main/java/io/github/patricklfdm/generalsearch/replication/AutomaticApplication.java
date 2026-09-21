@@ -8,7 +8,7 @@ import io.github.patricklfdm.generalsearch.engine.SearchEngineConfiguration;
 import java.util.*;
 import java.util.function.Function;
 
-/** Single application-worker port; two current engines plus at most two staged engines. */
+/** Single application-worker port; two current engines, two staged engines and at most two checkpoint engines. */
 final class AutomaticApplication<K,T> implements AutoCloseable {
     private final ReplicaApplication<K,T> current;
     private final String schemaDigest;
@@ -33,6 +33,14 @@ final class AutomaticApplication<K,T> implements AutoCloseable {
     <R> R readLocal(Function<SearchEngine<K,T>,R> action) {return current.read(action);}
     long index() {return current.appliedIndex();}
     long sequence() {return current.sequence();}
+    byte[] checkpointImage(AutomaticStore.Replay replay) {
+        var snapshot=replay.snapshot();
+        try(var copy=current.rebuildApplication(unbase(snapshot.value().get("application")),AutomaticRecovery.index(snapshot),number(snapshot.value(),"applicationSequence"))) {
+            for(var entry:replay.entries()) { copy.prepare(ReplicaEntry.OPERATIONS.get((int)number(entry.value(),"operation")-1),unbase(entry.value().get("payload"))); copy.publish(number(entry.value(),"index")); }
+            need(copy.appliedIndex()==replay.through()&&copy.sequence()==replay.sequence(),"checkpoint application cut");
+            return copy.snapshot();
+        }
+    }
     private void discard() {if(staged!=null)staged.close();staged=null;stagedIndex=-1;}
     /** Business validation must finish before the runtime dispatches an acceptance. */
     void stage(int operation,byte[] payload) {

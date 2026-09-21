@@ -19,4 +19,4 @@ mkdir -p target/v51-foundation
 work_dir=$(mktemp -d "$root/target/v51-foundation/run.XXXXXX")
 echo "v51FoundationEvidence=$work_dir/evidence"
 "$python_command" -m scripts.v51.foundation "$work_dir/evidence"
-echo 'v51Phase1Foundation=PASS execution=independent-foundation-only automaticRuntime=disabled paidCloud=disabled'
+echo 'v51Phase1Foundation=PASS execution=independent-foundation-only automaticRuntime=not-executed paidCloud=disabled'
