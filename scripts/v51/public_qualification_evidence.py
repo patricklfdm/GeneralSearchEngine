@@ -75,7 +75,7 @@ def physical(root, history, traces=None):
                 need(capture is not None and capture['opId'] is not None, 'release without captured query')
                 need(all(row[k] == capture['row'][k] for k in ('epoch', 'index', 'sequence')), 'release changed view')
                 captured_reads[(node, pid, capture['opId'])] = capture
-            elif event == 'CLIENT_SUCCESS' and row['kind'] != 'status':
+            elif event == 'CLIENT_SUCCESS' and row['kind'] in ('read', 'addAll'):
                 key = node, pid, row['opId']; seen_success[key] = row
                 need(row['opId'] in attempts, 'unrecorded client response')
                 if row['kind'] == 'read':
@@ -103,7 +103,7 @@ def physical(root, history, traces=None):
                 capturedReads=len(captured_reads), attemptedOperations=len(history))
 
 
-def negatives(root, history):
+def negatives(root, history, initial_documents=None):
     original = traces_at(root); cases = []
     target = next(op for op in reversed(history) if op['kind'] == 'read' and op['outcome'] == 'SUCCESS')
     for name, docs in [('stale-read', []), ('partial-atomic-bulk', target['documents'][1:]),
@@ -114,7 +114,7 @@ def negatives(root, history):
             for row in rows:
                 if row.get('opId') == target['opId'] and row['event'] == 'CLIENT_SUCCESS': row['documents'] = docs
         rejected = []
-        for label, verify in [('client-history', lambda: public_history.check(changed)),
+        for label, verify in [('client-history', lambda: public_history.check(changed, initial_documents=initial_documents)),
                               ('chosen-and-captured-bytes', lambda: physical(root, changed, traces))]:
             try: verify()
             except ValueError as error: rejected.append(dict(checker=label, reason=str(error)))

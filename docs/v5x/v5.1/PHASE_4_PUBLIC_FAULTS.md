@@ -1,9 +1,11 @@
 # V5.1 Phase 4D: public fencing and mutation fault matrix
 
-**Status:** implemented and locally qualified on
-`test/v5.1-phase4-public-fault-matrix`, based on accepted Batch C master
-`6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (PR #194, exact-master CI `35560692475`).
-Protected Batch D and complete Phase 4 acceptance remain open.
+**Status:** accepted through [PR #195](https://github.com/patricklfdm/GeneralSearchEngine/pull/195)
+at `da9f3e9fe957e61c0fe45cf041431a5c4c74cd79`, with exact-master
+[CI 35570118695](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35570118695).
+All six jobs passed; public runtime, qualification, faults and rejoin steps actually
+executed, including the checkpoint follow-up. [Batch E](PHASE_4_PUBLIC_RECOVERY.md)
+extends recovery/lifecycle evidence; complete Phase 4 acceptance remains open.
 
 ## Public process boundary
 
@@ -84,10 +86,10 @@ must still fail their negative checks.
 
 This batch extends E03/E05/E09/E10 with public process evidence. It preserves the
 existing bounded model, storage inspector and internal runtime coverage without
-relabeling them as public execution. Remaining public scenarios include imported
-genesis failover, missing/copied authority, cancellation/close schedules, cursor
-continuity across rebuild, and the remaining partition/selection/exhaustion/mixed-mode
-mapping in E01–E12. Those cases and protected acceptance remain separate work.
+relabeling them as public execution. [Batch E](PHASE_4_PUBLIC_RECOVERY.md) takes up
+imported genesis failover, missing/copied authority, cancellation/close schedules
+and cursor behavior across rebuild. Remaining partition/selection/exhaustion/mixed-mode
+mapping in E01–E12 and full protected Phase 4 acceptance remain separate work.
 
 The production changes are package-private observation points, the capture-time
 cancellation/deadline recheck and the checkpoint idempotency follow-up below. Public
@@ -124,7 +126,7 @@ for an isolated node's cached role hint to change without issuing a read. The fi
 case instead verifies the actual fresh-barrier rejection, as the contract requires.
 
 Receipts retain the source inventory at execution time. This summary is written
-after execution; protected acceptance awaits the user's merge and exact-master CI.
+after execution. The acceptance update above records the later exact-master CI.
 
 ## Checkpoint CI follow-up
 
@@ -171,5 +173,5 @@ Validation:
 Follow-up replication JAR SHA-256:
 `2300c45c8f2bb5596d96ffe6479254b50a7fd2f87df81a3ba592c67898c2db4f`.
 The earlier full fault-matrix, qualification and foundation receipts retain their
-original JAR identities. This is targeted follow-up validation; protected
-acceptance still requires the current PR and exact-master CI.
+original JAR identities. This is targeted follow-up validation; the acceptance
+update above records the subsequent protected merge and exact-master CI.

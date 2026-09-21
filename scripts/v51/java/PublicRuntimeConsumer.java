@@ -43,10 +43,12 @@ public final class PublicRuntimeConsumer {
     private static void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     @SuppressWarnings("unchecked") public static void main(String[] args) throws Exception {
         Path root=Path.of(args[0]).toAbsolutePath();String action=args[1];
-        if(action.equals("setup")) {
+        if(action.equals("setup")||action.equals("setup-import")) {
             var sockets=new ArrayList<ServerSocket>();try {for(int i=0;i<3;i++)sockets.add(new ServerSocket(0));Files.write(root.resolve("ports.txt"),sockets.stream().map(s->Integer.toString(s.getLocalPort())).toList());}
             finally {for(var socket:sockets)socket.close();}
-            var request=new AutomaticReplicationBootstrapRequest<>(ReplicationBootstrapSource.EMPTY,null,configs(root),root.resolve("operation"),1L<<30,1L<<30);
+            boolean imported=action.equals("setup-import");
+            var request=new AutomaticReplicationBootstrapRequest<>(imported?ReplicationBootstrapSource.VERIFIED_V44_BACKUP:ReplicationBootstrapSource.EMPTY,
+                    imported?root.resolve("import-backup"):null,configs(root),root.resolve("operation"),1L<<30,1L<<30);
             AutomaticReplicationStorageOperations.applyBootstrap(builder(),request,AutomaticReplicationStorageOperations.planBootstrap(builder(),request));
             print(Map.of("status","SETUP","admission","public-bootstrap"));return;
         }

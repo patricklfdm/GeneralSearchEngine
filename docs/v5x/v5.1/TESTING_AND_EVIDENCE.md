@@ -20,7 +20,10 @@ adds concurrent histories, read/response crashes and rich V4.4 comparisons. Its
 coverage table distinguishes these cases from the remaining full public matrix below.
 Phase 4C is accepted through PR #194, exact-master CI `35560692475`.
 [Phase 4D](PHASE_4_PUBLIC_FAULTS.md) adds public old-leader isolation, read fencing
-and mutation-stage interruptions; its coverage does not close unrelated E rows.
+and mutation-stage interruptions, accepted through PR #195, exact-master CI
+`35570118695`. [Phase 4E](PHASE_4_PUBLIC_RECOVERY.md) adds imported failover,
+missing/copied authority rejection, cancellation/close and cursor reconstruction.
+These batches do not close unrelated E rows.
 
 ## Independent foundation before production
 
