@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B/C/D/E/F/G/H/I accepted. Batch J public candidate crash
-qualification passed locally; protected Batch J and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C/D/E/F/G/H/I/J accepted. Batch K transport pressure
+qualification passed locally; protected Batch K and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -52,5 +52,9 @@ qualification passed locally; protected Batch J and complete Phase 4 acceptance 
   `6a781ac33945016645961ec1c6564d8975cd82fd`, exact-master CI `35693468905`.
 - [x] [Batch J](PHASE_4_PUBLIC_CANDIDATES.md): public candidate self-promise,
   frozen-basis/PREPARE interruption and fresh retained election qualification.
-- [ ] Protected Batch J acceptance.
+- [x] Protected Batch J acceptance: PR #201, master
+  `04106a0c2e88010c2c14c43ad485bc3113ed1d05`, exact-master CI `35698045261`.
+- [x] [Batch K](PHASE_4_PUBLIC_PRESSURE.md): transport reservations, delayed force,
+  conservative outcomes, released capacity and retained public restart.
+- [ ] Protected Batch K acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

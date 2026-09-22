@@ -8,6 +8,42 @@ import java.util.*;
 
 /** Observes force and wire boundaries only; cannot bootstrap, submit or activate privately. */
 public final class V51PublicWorker {
+    private static byte[] lastJournal(Path directory,String kind) throws IOException {
+        if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))
+            directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
+        byte[] bytes=Files.readAllBytes(directory.resolve(kind.equals("PROMISE")?"promises.gsr":kind.equals("ACCEPT")?"accepted.gsr":"proofs.gsr"));
+        int offset=0,last=0;while(offset<bytes.length){last=offset;offset+=HEADER+ByteBuffer.wrap(bytes,offset+12,4).getInt();}
+        return Arrays.copyOfRange(bytes,last,offset);
+    }
+    private static final class Pressure {
+        final Path root;final Trace trace;final AutomaticRecords.Record manifest;
+        final Map<Object,Long> reservations=new IdentityHashMap<>();long serial,holds;
+        Pressure(Path root,Trace trace,AutomaticRecords.Record manifest){this.root=root;this.trace=trace;this.manifest=manifest;}
+        synchronized void accounting(String event,Map<String,Object> request,Object token,int bytes) {
+            try {
+                long id=0;
+                if(event.endsWith("_ADMITTED")){id=++serial;if(reservations.put(token,id)!=null)throw new IOException("duplicate reservation");}
+                if(event.endsWith("_RELEASED")){Long found=reservations.remove(token);if(found==null)throw new IOException("unmatched reservation release");id=found;}
+                var row=new LinkedHashMap<String,Object>();row.put("transition",event);row.put("reservation",id);row.put("bytes",bytes);
+                if(!request.isEmpty())row.put("request",b64(AutomaticWire.encode(request,manifest,1<<20)));
+                trace.write("TRANSPORT",row);
+            }catch(IOException e){throw new UncheckedIOException(e);}
+        }
+        void hold(String barrier,Map<String,Object> request) throws IOException {
+            Path rules=root.resolve("pressure-rules.txt");if(!Files.exists(rules))return;
+            String match=request.get("sender")+" "+request.get("recipient")+" "+barrier+" "+request.get("type");
+            String wildcard=request.get("sender")+" "+request.get("recipient")+" "+barrier+" *";
+            var settings=Files.readAllLines(rules);if(!settings.contains(match)&&!settings.contains(wildcard))return;
+            long id; synchronized(this){id=++holds;}
+            trace.write("PRESSURE_HELD",Map.of("hold",id,"barrier",barrier,"request",b64(AutomaticWire.encode(request,manifest,1<<20))));
+            long until=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(60);
+            try {
+                while(!Files.exists(root.resolve("pressure-release"))&&System.nanoTime()<until)Thread.sleep(10);
+                if(!Files.exists(root.resolve("pressure-release")))throw new IOException("pressure controller did not release");
+                trace.write("PRESSURE_RELEASED",Map.of("hold",id));
+            }catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException(e);}
+        }
+    }
     /** Read bytes only, at an existing serialized storage hook. Never repairs authority. */
     private static List<Map<String,Object>> reclamationFiles(Path directory) throws IOException {
         var files=new TreeMap<String,Object>();
@@ -65,6 +101,7 @@ public final class V51PublicWorker {
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
         var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest);
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
+        Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;
             var hooks=new AutomaticStore.Faults(){
                 public void at(String event) throws IOException {
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
@@ -74,18 +111,18 @@ public final class V51PublicWorker {
                         trace.event("STORAGE_CUT",values);
                     }
                     for(String kind:List.of("PROMISE","ACCEPT","PROOF"))if(event.equals(kind+"_AFTER_FORCE")) {
-                        Path directory=root.resolve(local);
-                        if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
-                        byte[] bytes=Files.readAllBytes(directory.resolve(kind.equals("PROMISE")?"promises.gsr":kind.equals("ACCEPT")?"accepted.gsr":"proofs.gsr"));
-                        int offset=0,last=0;while(offset<bytes.length){last=offset;offset+=HEADER+ByteBuffer.wrap(bytes,offset+12,4).getInt();}
-                        trace.event("FORCE",Map.of("kind",kind,"record",b64(Arrays.copyOfRange(bytes,last,offset))));
+                        trace.event("FORCE",Map.of("kind",kind,"record",b64(lastJournal(root.resolve(local),kind))));
                     }
-                    if(event.startsWith("ACCEPT_")||event.startsWith("PROOF_"))trace.event(event,Map.of());
+                    if(event.startsWith("ACCEPT_")||event.startsWith("PROOF_"))
+                        trace.event(event,pressure!=null&&event.endsWith("_AFTER_WRITE")?Map.of("record",b64(lastJournal(root.resolve(local),event.startsWith("ACCEPT_")?"ACCEPT":"PROOF"))):Map.of());
                     if(promiseEvidence&&(event.startsWith("PROMISE_")||event.equals("BASIS_BEFORE_ACK")))
                         trace.event(event,Map.of("journal",b64(Files.readAllBytes(root.resolve(local+"/promises.gsr")))));
                 }
             };
-        AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(hooks,(barrier,request,response)->{
+        AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(hooks,new AutomaticTransport.Events(){
+            public void accounting(String event,Map<String,Object> request,Object token,int bytes){if(pressure!=null)pressure.accounting(event,request,token,bytes);}
+            public void at(String barrier,Map<String,Object> request,Map<String,Object> response) throws IOException {
+                if(pressure!=null)pressure.hold(barrier,request);
                 Path rules=root.resolve("network-rules.txt");
                 if(Files.exists(rules))for(String rule:Files.readAllLines(rules)) {
                     if(rule.isBlank())continue;
@@ -123,6 +160,7 @@ public final class V51PublicWorker {
                     if(response.get("type").equals("ACCEPT_ACK"))trace.event("ACCEPT_ACK_RECEIVED",Map.of());
                     if(response.get("type").equals("COMMIT_PROOF_ACK"))trace.event("PROOF_ACK_RECEIVED",Map.of());
                 }
+            }
         },(name,values)->{
             if(name.equals("READ_CAPTURE_VALIDATED"))trace.write(name,values); // Observation only; never pause under the protocol monitor.
             else trace.event(name,values);

@@ -81,7 +81,7 @@ Action pins, Java setup and Maven dependency caching are copied from the origina
 job. Maven's dependency cache is not a substitute for build outputs. No artifacts
 are downloaded between jobs; evidence uploads keep their exact existing names,
 paths, `always()` conditions, missing-file behavior and 14-day retention. All 27
-workflow artifact names remain unique, including the V5.1 public-bounds, public-promises and public-candidates uploads.
+workflow artifact names remain unique, including the V5.1 public-bounds, public-promises, public-candidates and public-pressure uploads.
 
 ## Required and documentation-only behavior
 
@@ -220,7 +220,7 @@ The five V5 lanes are partitioned as follows:
 - `v50-authority`: public admission, offline authority, public runtime, Phase 1–3.
 - `v50-recovery-workload`: Phase 4–6, including hardening and local cloud workloads.
 - `v51-foundation-admission`: Phase 1–3, public admission/bounds, promise crashes and bootstrap.
-- `v51-public-lifecycle`: public runtime, concurrent qualification, faults and recovery/lifecycle.
+- `v51-public-lifecycle`: public runtime, concurrent qualification, faults, recovery/lifecycle and transport pressure.
 - `v51-protocol-reclamation`: public protocol faults, candidate election crashes and interrupted reclamation.
 
 Each gate constructs its own process/evidence workspace. Sharing Python helpers
@@ -261,3 +261,10 @@ Phase 4J adds fourteen candidate-side election crash cases and an always-retaine
 It shares only compilation and read-only evidence helpers with the peer-promise
 suite, not generated artifacts or process state. The eleven required lanes and
 historical migration map remain intact; earlier timing estimates exclude this gate.
+
+Phase 4K adds five public transport pressure/slow-force cases and an always-retained
+`v51-public-pressure-${{ github.sha }}` artifact to `v51-public-lifecycle`.
+The lane builds its own candidate JARs and runs three transport reservation Java
+regressions as part of its existing reactor build. No required lane, existing gate
+or evidence upload is removed. The historical 87-step map and timing estimates
+remain unchanged; hosted CI must measure the additive qualification duration.
