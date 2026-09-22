@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B/C/D/E/F/G/H accepted. Batch I public promise crash
-qualification passed locally; protected Batch I and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C/D/E/F/G/H/I accepted. Batch J public candidate crash
+qualification passed locally; protected Batch J and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -48,5 +48,9 @@ qualification passed locally; protected Batch I and complete Phase 4 acceptance 
   `fdf9482781e04727e20326fa0e32bcd281242f04`, exact-master CI `35688926607`.
 - [x] [Batch I](PHASE_4_PUBLIC_PROMISES.md): public peer-promise write/force,
   frozen-basis and actual reply crash qualification.
-- [ ] Protected Batch I acceptance.
+- [x] Protected Batch I acceptance: PR #200, master
+  `6a781ac33945016645961ec1c6564d8975cd82fd`, exact-master CI `35693468905`.
+- [x] [Batch J](PHASE_4_PUBLIC_CANDIDATES.md): public candidate self-promise,
+  frozen-basis/PREPARE interruption and fresh retained election qualification.
+- [ ] Protected Batch J acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

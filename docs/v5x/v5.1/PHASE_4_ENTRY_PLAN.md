@@ -16,7 +16,9 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
 [Batch H](PHASE_4_PUBLIC_BOUNDS.md) is accepted through PR #199 at
 `fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
-[Batch I](PHASE_4_PUBLIC_PROMISES.md) adds public promise crash qualification;
+[Batch I](PHASE_4_PUBLIC_PROMISES.md) is accepted through PR #200 at
+`6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
+[Batch J](PHASE_4_PUBLIC_CANDIDATES.md) adds public candidate election crashes;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -133,3 +135,13 @@ public restart, and require that restarted voter in a later read/write majority.
 Independently bind raw journal prefixes, monotonic ballots, force order and frozen
 basis/image/reply identity. Keep candidate-side epoch selection, resource
 exhaustion and full Phase 4 acceptance as separate remaining work.
+
+## Batch J — public candidate interruption and fresh campaigns
+
+Interrupt the candidate's own promise write/force/return, frozen self basis,
+PREPARE dispatch and positive peer reply with halt/SIGKILL. Inspect and archive
+retained authority before public restart. Require a fresh self campaign above
+all retained epochs with an unused incarnation, then acknowledged reads/writes while the
+original leader stays absent. Independently check dispatch/peer-force/reply order,
+exact journal prefix retention and controller-clock recovery intervals. Pre-force
+bytes and unwritten volatile ballots must not be described as durable promises.

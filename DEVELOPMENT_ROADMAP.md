@@ -35,8 +35,10 @@ through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `
 `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
 [Phase 4H](docs/v5x/v5.1/PHASE_4_PUBLIC_BOUNDS.md) is accepted through PR #199 at
 `fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
-[Phase 4I](docs/v5x/v5.1/PHASE_4_PUBLIC_PROMISES.md) adds public promise crash
-qualification; full Phase 4 acceptance remains open.
+[Phase 4I](docs/v5x/v5.1/PHASE_4_PUBLIC_PROMISES.md) is accepted through PR #200 at
+`6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
+[Phase 4J](docs/v5x/v5.1/PHASE_4_PUBLIC_CANDIDATES.md) adds public candidate election
+crashes; full Phase 4 acceptance remains open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

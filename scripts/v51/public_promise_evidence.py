@@ -35,10 +35,8 @@ def extension(before, retained, final, written):
     need(len(retained) > len(before) if written else retained == before, 'wrong promise write boundary')
 
 
-def validate(root, traces, history, receipt):
-    root = Path(root); stage, mode = receipt['case'].rsplit('-', 1); crash = receipt['crash']; node = crash['node']
-    need(stage in BOUNDARIES and crash['cut'] == BOUNDARIES[stage] and crash['mode'] == mode and node == 'node-3', 'wrong promise scenario')
-    before = crash_rows(traces, crash)
+def sealed_schedule(root, node):
+    """Read the actual admitted PLAN; election policy is not in BOOTSTRAP_BINDING."""
     manifest_raw = (root/node/'manifest.gsr').read_bytes()
     manifest = dict(a.f.inspect(manifest_raw, 'MANIFEST'), digest=manifest_raw[16:48].hex())
     seal = a.f.contextual_frame((root/node/'bootstrap-seal.gsr').read_bytes(), 'SEAL', manifest)
@@ -49,12 +47,25 @@ def validate(root, traces, history, receipt):
     need(replicas[2]['policy']['minElectionTimeoutMillis'] == 600000
          and replicas[2]['policy']['maxElectionTimeoutMillis'] == 601200
          and all(v['policy']['minElectionTimeoutMillis'] == 3600 for v in replicas[:2]), 'promise election schedule not sealed')
+    return manifest
+
+
+def retained_files(root, node, retained):
     archive = root/'before-reopen.tar.gz'
-    need(a.storage.sha(archive.read_bytes()) == receipt['retained']['sha256'], 'pre-reopen archive identity')
+    need(a.storage.sha(archive.read_bytes()) == retained['sha256'], 'pre-reopen archive identity')
     with tarfile.open(archive) as tar:
         files = {m.name.removeprefix(node+'/'): tar.extractfile(m).read() for m in tar.getmembers() if m.isfile()}
-    need({p: dict(size=len(data), sha256=a.storage.sha(data)) for p, data in files.items()} == receipt['retained']['inventory'], 'pre-reopen archive inventory')
-    need(files['manifest.gsr'] == manifest_raw, 'pre-reopen manifest changed')
+    need({p: dict(size=len(data), sha256=a.storage.sha(data)) for p, data in files.items()} == retained['inventory'], 'pre-reopen archive inventory')
+    need(files['manifest.gsr'] == (root/node/'manifest.gsr').read_bytes(), 'pre-reopen manifest changed')
+    return files
+
+
+def validate(root, traces, history, receipt):
+    root = Path(root); stage, mode = receipt['case'].rsplit('-', 1); crash = receipt['crash']; node = crash['node']
+    need(stage in BOUNDARIES and crash['cut'] == BOUNDARIES[stage] and crash['mode'] == mode and node == 'node-3', 'wrong promise scenario')
+    before = crash_rows(traces, crash)
+    manifest = sealed_schedule(root, node)
+    files = retained_files(root, node, receipt['retained'])
     previous = next((r for r in reversed(before) if r['event'] == 'PROMISE_BEFORE_WRITE'), None)
     need(previous is not None, 'missing pre-write journal observation')
     initial = a.raw(previous['journal']); retained = files['promises.gsr']; final = (root/node/'promises.gsr').read_bytes()

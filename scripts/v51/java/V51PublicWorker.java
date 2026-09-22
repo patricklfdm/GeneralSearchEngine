@@ -105,7 +105,10 @@ public final class V51PublicWorker {
                 if(promiseEvidence&&request.get("type").equals("PREPARE")) {
                     var values=new LinkedHashMap<String,Object>();
                     values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
-                    if(!response.isEmpty())values.put("frame",b64(AutomaticWire.encode(response,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                    if(!response.isEmpty()) {
+                        values.put("frame",b64(AutomaticWire.encode(response,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                        values.put("cut",response.get("type"));
+                    }
                     trace.event("WIRE_"+barrier+"_PREPARE",values);
                 }
                 Path partition=root.resolve("network-blocks.txt");

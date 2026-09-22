@@ -1,9 +1,10 @@
 # V5.1 Phase 4I: public promise crash boundaries
 
-**Status:** local qualification passed; protected Batch I and complete Phase 4
-acceptance remain open. [Batch H](PHASE_4_PUBLIC_BOUNDS.md) is accepted through
-PR #199, master `fdf9482781e04727e20326fa0e32bcd281242f04`, exact-master CI
-`35688926607` (all eleven full-CI lanes and the Required gate succeeded).
+**Status:** accepted through PR #200 at master
+`6a781ac33945016645961ec1c6564d8975cd82fd`, exact-master CI `35693468905`.
+All eleven full-CI lanes and the Required gate succeeded. Complete Phase 4
+acceptance remains open; [Batch J](PHASE_4_PUBLIC_CANDIDATES.md) adds candidate-side
+election crash qualification.
 
 ## Public schedule
 
@@ -73,8 +74,8 @@ exit codes, independent validation and failed negative variants.
 
 This adds public E04 promise write/force/frozen-basis/reply interruption evidence
 and supplements E08 retained-restart/history checks. It does not complete E04
-or the entire Phase 4 matrix. Candidate-side epoch selection before outbound
-traffic, epoch/promise/ancestry exhaustion, snapshot-staging capacity, saturated
+or the entire Phase 4 matrix. Candidate-side crashes are extended in
+[Batch J](PHASE_4_PUBLIC_CANDIDATES.md). Epoch/promise/ancestry exhaustion, snapshot-staging capacity, saturated
 transport queues, slow-force accounting, ambiguous/conflicting frozen selections
 and the remaining E01–E12 mapping still need explicit qualification.
 
