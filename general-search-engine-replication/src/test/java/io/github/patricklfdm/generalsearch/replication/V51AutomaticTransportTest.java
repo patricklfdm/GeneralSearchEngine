@@ -7,6 +7,8 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class V51AutomaticTransportTest {
     static final class Accounting implements AutomaticTransport.Events {
@@ -30,7 +32,7 @@ class V51AutomaticTransportTest {
     }
     static final class Pair implements AutoCloseable {
         final AutomaticRecords.Record manifest;final AutomaticTransport sender,receiver;
-        Pair(Accounting observer) throws Exception {
+        Pair(AutomaticTransport.Events observer) throws Exception {
             var value=V51StorageFixture.copy(decode(unbase(V51StorageFixture.samples().get("MANIFEST")),"MANIFEST").value());
             var ports=ReplicaLeaderTestSupport.ports();var members=new ArrayList<Object>();
             for(int i=0;i<3;i++)members.add(Map.of("node","node-"+(i+1),"host","127.0.0.1","port",(long)ports.get(i)));
@@ -75,6 +77,37 @@ class V51AutomaticTransportTest {
             assertTrue(observer.entered.await(3,TimeUnit.SECONDS));pair.sender.close();
             assertTrue(one.isCompletedExceptionally());assertTrue(two.isCompletedExceptionally());assertEquals(0,observer.size());
         }finally{observer.release.countDown();}
+    }
+    @ParameterizedTest @ValueSource(booleans={false,true})
+    void completedExchangeReleasesCapacityBeforeContinuation(boolean fail) throws Exception {
+        var entered=new CountDownLatch(2);var firstRelease=new CountDownLatch(1);var secondRelease=new CountDownLatch(1);
+        AutomaticTransport.Events observer=(barrier,request,response)->{
+            long sequence=number(request,"eventSequence");
+            if(barrier.equals("BEFORE_REQUEST_WRITE")&&sequence<=2)try {
+                entered.countDown();
+                if(!(sequence==1?firstRelease:secondRelease).await(5,TimeUnit.SECONDS))throw new IOException("test release timeout");
+                if(sequence==1&&fail)throw new IllegalStateException("completed exchange failed");
+            }catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+        };
+        try(var pair=new Pair(observer)) {
+            var request=new HashMap<>(pair.request());request.put("eventSequence",2L);
+            var first=pair.sender.exchange("node-2",pair.request());var second=pair.sender.exchange("node-2",request);
+            try {
+                assertTrue(entered.await(3,TimeUnit.SECONDS));
+                // Attach before releasing either exchange: this continuation executes
+                // synchronously when the first future completes, while the second is live.
+                var next=first.handle((reply,error)->{
+                    assertEquals(fail,error!=null);
+                    if(!fail)assertEquals("HANDSHAKE",reply.get("type"));
+                    var follow=new HashMap<>(pair.request());follow.put("eventSequence",3L);
+                    return pair.sender.exchange("node-2",follow);
+                }).thenCompose(value->value);
+                firstRelease.countDown();
+                assertEquals("HANDSHAKE",next.get(3,TimeUnit.SECONDS).get("type"));
+                assertFalse(second.isDone(),"other reservation must remain live");
+            }finally{firstRelease.countDown();secondRelease.countDown();}
+            second.get(3,TimeUnit.SECONDS);
+        }finally{firstRelease.countDown();secondRelease.countDown();}
     }
     static void assertCapacity(CompletableFuture<?> future) {
         var failure=assertThrows(ExecutionException.class,()->future.get(1,TimeUnit.SECONDS));

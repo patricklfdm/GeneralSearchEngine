@@ -110,6 +110,57 @@ CI runs the gate in `v51-foundation-admission` and always retains
 eleven required lanes, documentation-only routing and paid-cloud behavior remain
 unchanged. No cloud run or publication is part of this batch.
 
+## Transport completion correction after PR #204
+
+The resource gate failed again on merged master `0725df1c003be74fb2047f066586ea2e6f9b7bfa`
+in [CI run 35722871682](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35722871682).
+This time `snapshot-staging` passed. The retained-byte case recorded the expected
+146,760-byte reservation rejection against 131,072 bytes, and the healthy majority
+completed the subsequent write/read and the read after node 3 restarted. Failure
+came after the original leader restarted: the healthy voters repeatedly abandoned
+campaigns while fetching the roughly 148-KiB frozen basis in 4096-byte chunks.
+Most observed downloads stopped before the final chunk; increasing the scenario
+wait alone would not address the exchange admission race found during diagnosis.
+
+`AutomaticTransport` completed an exchange future before its `finally` block
+released the peer permit and queued-byte reservation. A continuation could submit
+the next chunk while the completed exchange still occupied one of the two peer
+slots. With another exchange in flight, this returned a spurious capacity rejection.
+The transport now closes the socket and releases the reservation before publishing
+either success or failure. Cancellation still retains capacity until the actual
+exchange exits. Peer limits, byte limits, retry counts and all deadlines are unchanged.
+
+A deterministic TCP regression holds both peer slots, attaches a continuation to
+one exchange, then releases only that exchange. The continuation must successfully
+send a third request while the other original request remains held. Both the
+successful and exceptional completion variants fail on the old implementation
+with `peer in-flight limit reached`; they exercise the release ordering without
+depending on scheduler speed or a probabilistic stress loop.
+
+This changes the replication runtime JAR. Historical qualification hashes below
+describe their original executions; they are not evidence for the corrected JAR.
+The resource workload, its capacity assertions and leader-restart requirement remain
+enabled. Phase 4 acceptance still requires the protected CI result for the fix.
+
+Local correction validation on `a5098c872dfc2f0eff08cf335da8ff86599f07a9` plus the fix
+(PR #204's merged master contains that source):
+
+- `target/v51-resource-recovery-fix/transport-before.log` retains both expected
+  regression failures on the original transport. The corrected reactor package
+  passed 32 Java tests in `target/v51-resource-recovery-fix/build.log`.
+- The complete resource gate passed all eight scenarios at
+  `target/v51-resources/run.RwaZBy`, including the unchanged large retained-byte
+  load and strong read after the leader restart. Both public receipts rejected
+  all fifteen negative variants each; all six internal boundary checks also passed.
+- All five public transport-pressure scenarios passed at
+  `target/v51-public-pressure/run.ZFMGkU/evidence`, including cancellation while
+  reservations are held, saturation and slow storage/peer recovery.
+- All 47 resource, public-pressure and backpressure Python tests passed, along
+  with the 36-document / 209-link documentation contract and whitespace checks.
+- Corrected replication JAR SHA-256:
+  `2ff8fae57f0ee0ce09f2aefe80cfdba294c6f3599eb45823fd5df4fb327a996e`.
+  Core remains `f9d7408be9c675c9d489a6f517f73d3a738b587ea1f6d87c1bc7d690d0a0395d`.
+
 ## Local validation
 
 Base: `3bb84b250800c7871745450491e56b6821195d1d` plus this batch.
