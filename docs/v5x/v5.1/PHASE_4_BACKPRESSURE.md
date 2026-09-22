@@ -1,7 +1,9 @@
 # V5.1 Phase 4M: runtime backpressure and callback ownership
 
-**Status:** local qualification passed; protected Batch M and complete
-Phase 4 acceptance remain open. [Batch L](PHASE_4_RESOURCE_LIMITS.md) is accepted
+**Status:** Batch M accepted through PR #204 and transport correction PR #205,
+master `39332feb71f877d3cbd976631e8a26a9cf2f607c`, [exact-master CI 35753082195](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35753082195);
+all eleven full-CI lanes and Required passed. Complete Phase 4 acceptance remains open.
+[Batch L](PHASE_4_RESOURCE_LIMITS.md) is accepted
 through PR #203 at master `a5595f8efad34ec96a3f6e883e5c9c9491004279`, exact-master
 CI `35712922357`; all eleven full-CI lanes and Required passed.
 
@@ -107,4 +109,7 @@ The first preflight correctly refused an older generated JAR timestamp after the
 branch update. Repackaging regenerated the same bytes. An initial complete matrix
 also passed; the final run above adds stricter response/process/restart binding and
 counterexamples. Execution-time source inventories precede this final documentation
-record. Protected Batch M and full Phase 4 acceptance remain pending.
+record. These are historical local receipts; the acceptance update above records
+the subsequent protected result, including the transport correction described in
+[the resource record](PHASE_4_RESOURCE_LIMITS.md#transport-completion-correction-after-pr-204).
+Full Phase 4 acceptance remains pending.

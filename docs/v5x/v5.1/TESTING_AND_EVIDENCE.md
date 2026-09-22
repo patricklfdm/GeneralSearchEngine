@@ -53,6 +53,10 @@ fixtures as public executions. These batches do not close unrelated E rows.
 Phase 4L is accepted through PR #203, exact-master CI `35712922357`.
 [Phase 4M](PHASE_4_BACKPRESSURE.md) adds four public queued-deadline/callback
 scenarios and two separately identified internal mailbox boundary fixtures.
+Phase 4M and its transport correction are accepted through PR #204 / #205,
+exact-master CI `35753082195`. [Phase 4N](PHASE_4_PUBLIC_SELECTION.md) adds six
+public selection/recovery schedules; its conflict-evidence mapping explicitly
+keeps the existing internal store checks separate from public process evidence.
 
 ## Independent foundation before production
 

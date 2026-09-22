@@ -22,7 +22,9 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
 [Batch K](PHASE_4_PUBLIC_PRESSURE.md) is accepted through PR #202 at
 `3bb84b250800c7871745450491e56b6821195d1d` (exact-master CI `35705020751`).
-[Batch L](PHASE_4_RESOURCE_LIMITS.md) adds resource-limit qualification;
+[Batches L](PHASE_4_RESOURCE_LIMITS.md) and [M](PHASE_4_BACKPRESSURE.md) are
+accepted through PR #205, exact-master CI `35753082195`.
+[Batch N](PHASE_4_PUBLIC_SELECTION.md) adds selection/recovery qualification;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -181,3 +183,12 @@ CI `35712922357`). Qualify public queued deadlines, callback reentrancy and
 completion-permit ownership; retain separate internal evidence for fixed mailbox
 boundaries. Preserve conservative outcomes, raw authority and retained restart.
 Use the [current evidence map](PHASE_4_EVIDENCE_STATUS.md) for remaining work.
+
+## Batch N — public selection and recovery fencing
+
+[Batch N](PHASE_4_PUBLIC_SELECTION.md) follows accepted Batch M and its transport
+completion correction. Qualify exact duplicate-PREPARE replies, delayed ACCEPT/PROOF
+across higher promises, hidden proof, a lagging candidate adopting a higher proven
+prefix, and epoch change during partial basis download. Bind all outcomes to actual
+raw wire/force/basis evidence and public service. Map existing conflict-selection
+fixtures at their internal layer; retain the remaining E01–E12 acceptance review.

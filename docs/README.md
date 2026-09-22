@@ -38,6 +38,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 4K public transport pressure and slow-force boundaries](v5x/v5.1/PHASE_4_PUBLIC_PRESSURE.md)
 - [V5.1 Phase 4L resource limits and public budget isolation](v5x/v5.1/PHASE_4_RESOURCE_LIMITS.md)
 - [V5.1 Phase 4M runtime backpressure and callbacks](v5x/v5.1/PHASE_4_BACKPRESSURE.md)
+- [V5.1 Phase 4N public selection and recovery fencing](v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md)
 - [V5.1 Phase 4 current E01–E12 evidence status](v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)
 - [V5.1 selected-quorum wire extension decision](v5x/v5.1/PHASE_3_WIRE_EXTENSION.md)

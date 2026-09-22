@@ -367,3 +367,13 @@ as success. This does not add a required job or change docs-only routing.
 V5.1 Phase 4M runs separate internal mailbox boundaries and public callback/deadline
 scenarios in `v51-public-lifecycle`, retaining `v51-backpressure` on every outcome.
 Existing required lanes and documentation-only routing remain unchanged.
+
+### V5.1 Phase 4N selection qualification
+
+`v51-protocol-reclamation` additionally runs
+`scripts/verify-v51-phase4-public-selection.sh --skip-build`: six public JVM/TCP
+selection/recovery cases plus independent evidence checks. It always uploads
+`target/v51-public-selection` as `v51-public-selection-${{ github.sha }}` for
+fourteen days. This uses the lane's existing reactor build; the eleven required
+lanes, prior gates/uploads, documentation routing and cloud workflows are unchanged.
+See [the scope and evidence record](v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md).

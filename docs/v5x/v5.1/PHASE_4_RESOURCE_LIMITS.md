@@ -140,7 +140,10 @@ depending on scheduler speed or a probabilistic stress loop.
 This changes the replication runtime JAR. Historical qualification hashes below
 describe their original executions; they are not evidence for the corrected JAR.
 The resource workload, its capacity assertions and leader-restart requirement remain
-enabled. Phase 4 acceptance still requires the protected CI result for the fix.
+enabled. PR #205 merged the fix at `39332feb71f877d3cbd976631e8a26a9cf2f607c`;
+[exact-master CI 35753082195](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35753082195)
+passed all eleven full-CI lanes and Required. This accepts the correction and Batch M;
+full Phase 4 acceptance remains open.
 
 Local correction validation on `a5098c872dfc2f0eff08cf335da8ff86599f07a9` plus the fix
 (PR #204's merged master contains that source):
