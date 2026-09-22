@@ -268,3 +268,10 @@ The lane builds its own candidate JARs and runs three transport reservation Java
 regressions as part of its existing reactor build. No required lane, existing gate
 or evidence upload is removed. The historical 87-step map and timing estimates
 remain unchanged; hosted CI must measure the additive qualification duration.
+
+Phase 4L adds six internal resource-boundary cases and two public budget-isolation
+cases to `v51-foundation-admission`, with the always-retained
+`v51-resources-${{ github.sha }}` artifact. Internal fixtures and public executions
+have separate receipts and source inventories. The original migration map, eleven
+required lanes and existing gates/uploads remain unchanged. Historical timing
+estimates exclude this additive gate.

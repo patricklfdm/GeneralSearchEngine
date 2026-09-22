@@ -39,8 +39,11 @@ through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `
 `6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
 [Phase 4J](docs/v5x/v5.1/PHASE_4_PUBLIC_CANDIDATES.md) is accepted through PR #201 at
 `04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
-[Phase 4K](docs/v5x/v5.1/PHASE_4_PUBLIC_PRESSURE.md) adds public transport saturation,
-slow force and capacity-release evidence; full Phase 4 acceptance remains open.
+[Phase 4K](docs/v5x/v5.1/PHASE_4_PUBLIC_PRESSURE.md) is accepted through PR #202 at
+`3bb84b250800c7871745450491e56b6821195d1d` (exact-master CI `35705020751`).
+[Phase 4L](docs/v5x/v5.1/PHASE_4_RESOURCE_LIMITS.md) adds resource exhaustion and
+public budget isolation; the [current evidence map](docs/v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
+tracks remaining qualification before full Phase 4 acceptance.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

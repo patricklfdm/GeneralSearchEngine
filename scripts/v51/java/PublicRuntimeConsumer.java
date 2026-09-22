@@ -39,13 +39,16 @@ public final class PublicRuntimeConsumer {
         int operationTimeout=Files.exists(root.resolve("operation-timeout.txt"))?Integer.parseInt(Files.readString(root.resolve("operation-timeout.txt")).trim()):9600;
         int chunkBytes=Files.exists(root.resolve("chunk-bytes.txt"))?Integer.parseInt(Files.readString(root.resolve("chunk-bytes.txt")).trim()):bounds().snapshotChunkBytes();
         String profile=Files.exists(root.resolve("bounds-profile.txt"))?Files.readString(root.resolve("bounds-profile.txt")).trim():"default";
-        if(!Set.of("default","small","wire","pressure").contains(profile))throw new IllegalArgumentException("bounds profile");
+        if(!Set.of("default","small","wire","pressure","resource-staging","resource-retained").contains(profile))throw new IllegalArgumentException("bounds profile");
         boolean small=profile.equals("small");
         var fixtureBounds=new ReplicationBounds(small?128<<10:1<<20,100,8,small||profile.equals("pressure")?1:16,2,1200,25,chunkBytes,64L<<20,64L<<20);
         var policy=profile.equals("wire")?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout);
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
                 root.resolve(m.nodeId().value()),small?DurableStorageConfig.builder(root.resolve("app-"+m.nodeId().value()),new Codec())
-                        .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),fixtureBounds,
+                        .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),
+                m.nodeId().value().equals("node-3")&&profile.startsWith("resource-")
+                        ?new ReplicationBounds(1<<20,100,8,16,2,1200,25,chunkBytes,
+                            profile.equals("resource-retained")?128L<<10:64L<<20,profile.equals("resource-staging")?128L<<10:64L<<20):fixtureBounds,
                 Files.exists(root.resolve("promise-evidence"))&&m.nodeId().value().equals("node-3")
                         ?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):policy)).toList();
     }

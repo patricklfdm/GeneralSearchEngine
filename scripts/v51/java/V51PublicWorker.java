@@ -103,6 +103,18 @@ public final class V51PublicWorker {
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
         Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;
             var hooks=new AutomaticStore.Faults(){
+                public void capacityRejected(String budget,long limit,long retained,long replaced,long requested) {
+                    if(!Files.exists(root.resolve("resource-evidence")))return;
+                    try {
+                        var inventory=new ArrayList<Map<String,Object>>();Path directory=root.resolve(local);
+                        try(var files=Files.walk(directory)) {
+                            for(Path file:files.filter(Files::isRegularFile).sorted().toList())
+                                inventory.add(Map.of("path",directory.relativize(file).toString(),"size",Files.size(file),"sha256",sha(Files.readAllBytes(file))));
+                        }
+                        trace.write("RESOURCE_REJECTED",Map.of("budget",budget,"limit",limit,"retained",retained,"replaced",replaced,"requested",requested,"files",inventory));
+                    }
+                    catch(IOException error){throw new UncheckedIOException(error);}
+                }
                 public void at(String event) throws IOException {
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
                         var values=new LinkedHashMap<String,Object>();values.put("cut",event);

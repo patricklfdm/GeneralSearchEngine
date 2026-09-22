@@ -359,3 +359,7 @@ After the core workflows have run successfully, evaluate Dependabot for Maven an
 GitHub Actions, dependency review on pull requests, CodeQL for Java, and GitHub artifact
 attestations. These are additive controls and do not replace the required correctness,
 compatibility, signing, or reproducibility gates.
+
+V5.1 Phase 4L additionally runs internal resource limits and public minority-budget
+isolation in `v51-foundation-admission`, retaining `v51-resources` on failure as well
+as success. This does not add a required job or change docs-only routing.

@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B/C/D/E/F/G/H/I/J accepted. Batch K transport pressure
-qualification passed locally; protected Batch K and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C/D/E/F/G/H/I/J/K accepted. Batch L resource-limit
+qualification passed locally; protected Batch L and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -56,5 +56,10 @@ qualification passed locally; protected Batch K and complete Phase 4 acceptance 
   `04106a0c2e88010c2c14c43ad485bc3113ed1d05`, exact-master CI `35698045261`.
 - [x] [Batch K](PHASE_4_PUBLIC_PRESSURE.md): transport reservations, delayed force,
   conservative outcomes, released capacity and retained public restart.
-- [ ] Protected Batch K acceptance.
+- [x] Protected Batch K acceptance: PR #202, master
+  `3bb84b250800c7871745450491e56b6821195d1d`, exact-master CI `35705020751`.
+- [x] [Batch L](PHASE_4_RESOURCE_LIMITS.md): internal fixed-limit witnesses and
+  public staging/retained-budget isolation with retained restart.
+- [x] Consolidated [E01–E12 evidence status](PHASE_4_EVIDENCE_STATUS.md), including layer boundaries.
+- [ ] Protected Batch L acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

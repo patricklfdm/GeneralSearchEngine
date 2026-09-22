@@ -69,11 +69,16 @@ final class AutomaticRecoveryFiles {
     static void sync(Path dir) throws IOException { try (var c=FileChannel.open(dir,StandardOpenOption.READ)) { c.force(true); } }
     byte[] bytes(Path path) throws IOException { return AutomaticAdmission.read(path, IMAGE); }
     Record record(Path path,String name) throws IOException { var row=decode(bytes(path),name); context(row,manifest); return row; }
+    private void reserve(String budget,long limit,long total,long old,long requested,String message) {
+        if(requested>limit-total+old)faults.capacityRejected(budget,limit,total,old,requested);
+        capacity(requested<=limit-total+old,message);
+    }
     void write(Path path,byte[] value,String event) throws IOException {
         long total=inventory(root,bounds); long old=Files.exists(path)?Files.size(path):0;
-        capacity(value.length<=IMAGE && value.length<=bounds.maxRetainedLogBytes()-total+old,"recovery write capacity");
+        capacity(value.length<=IMAGE,"recovery write capacity");
+        reserve("retained",bounds.maxRetainedLogBytes(),total,old,value.length,"recovery write capacity");
         // A conservative aggregate staging bound includes generations and root metadata as well.
-        capacity(value.length<=bounds.maxSnapshotStagingBytes()-total+old,"recovery staging capacity");
+        reserve("staging",bounds.maxSnapshotStagingBytes(),total,old,value.length,"recovery staging capacity");
         mkdir(path.getParent()); faults.at(event+"_BEFORE_WRITE");
         try (var c=FileChannel.open(path,StandardOpenOption.CREATE,StandardOpenOption.WRITE,StandardOpenOption.TRUNCATE_EXISTING,LinkOption.NOFOLLOW_LINKS)) {
             var b=ByteBuffer.wrap(value); int chunk=faults.maximumWriteBytes(); need(chunk>0,"recovery write chunk");
@@ -336,7 +341,8 @@ final class AutomaticRecoveryFiles {
         long received=number(meta.value(),"receivedBytes"),total=number(meta.value(),"imageBytes");
         capacity(chunk.length>0&&chunk.length<=bounds.snapshotChunkBytes(),"transfer chunk capacity");need(offset>=0&&offset<=received&&chunk.length<=total-offset,"transfer chunk offset");
         Path image=root.resolve("transfer/image.gsr");long count=inventory(root,bounds),old=Files.exists(image)?Files.size(image):0;
-        capacity(total<=bounds.maxSnapshotStagingBytes()-count+old&&total<=bounds.maxRetainedLogBytes()-count+old,"transfer reservation");
+        reserve("staging",bounds.maxSnapshotStagingBytes(),count,old,total,"transfer reservation");
+        reserve("retained",bounds.maxRetainedLogBytes(),count,old,total,"transfer reservation");
         if(offset<received){need(chunk.length<=received-offset&&Files.exists(image),"overlapping transfer retry");byte[] raw=bytes(image);need(raw.length>=received&&Arrays.equals(chunk,Arrays.copyOfRange(raw,(int)offset,(int)offset+chunk.length)),"changed transfer retry");force(image);return received;}
         try(var c=FileChannel.open(image,StandardOpenOption.CREATE,StandardOpenOption.READ,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
             need(c.size()>=received,"lost acknowledged transfer bytes");c.truncate(received);c.position(received);var b=ByteBuffer.wrap(chunk);while(b.hasRemaining())need(c.write(b)>0,"transfer write stalled");faults.at("TRANSFER_DATA_AFTER_WRITE");c.force(true);faults.at("TRANSFER_DATA_AFTER_FORCE");
