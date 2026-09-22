@@ -1,7 +1,11 @@
 # V5.1 Phase 4G: public two-source reclamation
 
-**Status:** local qualification passed. Protected Batch G
-and complete Phase 4 acceptance remain open. [Batch F](PHASE_4_PUBLIC_PROTOCOL.md)
+**Status:** accepted through [PR #198](https://github.com/patricklfdm/GeneralSearchEngine/pull/198)
+at `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master
+[CI 35664882661](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35664882661).
+All six jobs passed, including the public reclamation gate. [Batch H](PHASE_4_PUBLIC_BOUNDS.md)
+extends capacity and admission evidence; complete Phase 4 acceptance remains open.
+[Batch F](PHASE_4_PUBLIC_PROTOCOL.md)
 is accepted through PR #197, master `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d`,
 exact-master CI `35591386329`.
 

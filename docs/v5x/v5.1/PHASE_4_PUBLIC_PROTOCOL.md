@@ -143,4 +143,6 @@ Local validation on `0e2f98da0983a4365a9dfeaf8919ad83760f038e` plus this follow-
 
 The process gates used the core JAR hash listed above and the Batch G replication
 JAR `c43a9088e99929faf8a2b8a7266967c27887a325926be3e1a6916a108a770ed4`.
-These are local results; protected Batch G acceptance remains open.
+These were local results at execution. Batch G was subsequently accepted through
+PR #198, master `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master CI
+`35664882661`; see its [acceptance record](PHASE_4_PUBLIC_RECLAMATION.md).

@@ -43,14 +43,13 @@ jobs:
           scripts/verify-v50-phase0-contract.sh
           python3 -m scripts.v51.contract
 
-  reactor-tests:
+  reactor-core:
+    # Keep the display name consumed by the existing V5.0 cloud preflight.
     name: Reactor tests
     needs: changes
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
-    # The serial V4/V5/V5.1 evidence gates now consume nearly 30 minutes before soak.
-    # Leave room for stabilization, the travel example, and runner variation.
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -72,6 +71,28 @@ jobs:
       - name: Test the reactor
         run: ./mvnw -f reactor/pom.xml clean package
 
+  v51-foundation-admission:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.1 foundation and admission
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
+
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build
 
@@ -86,75 +107,15 @@ jobs:
       - name: Verify V5.1 retained-voter rejoin and two-source reclamation
         run: scripts/verify-v51-phase3-rejoin.sh --skip-build
 
-      - name: Verify V5.1 public lifecycle, strong reads and retained failover
-        run: scripts/verify-v51-phase4-public-runtime.sh --skip-build
+      - name: Verify V5.1 public capacity, admission and wire rejection
+        run: scripts/verify-v51-phase4-public-bounds.sh --skip-build
 
-      - name: Retain V5.1 public runtime and read barrier evidence
+      - name: Retain V5.1 public bounds and rejection evidence including failed cases
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-public-runtime-${{ github.sha }}
-          path: target/v51-public-runtime
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Verify V5.1 concurrent public histories, read crash cuts and rich V4.4 semantics
-        run: scripts/verify-v51-phase4-public-qualification.sh --skip-build
-
-      - name: Retain V5.1 public qualification including failed histories and pre-reopen bytes
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-public-qualification-${{ github.sha }}
-          path: target/v51-public-qualification
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Verify V5.1 public partitions, read fencing and mutation crash cuts
-        run: scripts/verify-v51-phase4-public-faults.sh --skip-build
-
-      - name: Retain V5.1 public fault matrix including failed cases and pre-reopen bytes
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-public-faults-${{ github.sha }}
-          path: target/v51-public-faults
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Verify V5.1 imported failover, rejected authority and public lifecycle boundaries
-        run: scripts/verify-v51-phase4-public-recovery.sh --skip-build
-
-      - name: Retain V5.1 public recovery and lifecycle evidence including failed cases
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-public-recovery-${{ github.sha }}
-          path: target/v51-public-recovery
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Verify V5.1 public campaigns, minority selection and interrupted recovery
-        run: scripts/verify-v51-phase4-public-protocol.sh --skip-build
-
-      - name: Retain V5.1 public protocol and recovery evidence including failed cases
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-public-protocol-${{ github.sha }}
-          path: target/v51-public-protocol
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Verify V5.1 public two-source floors and interrupted reclamation
-        run: scripts/verify-v51-phase4-public-reclamation.sh --skip-build
-
-      - name: Retain V5.1 public reclamation evidence including failed cases
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-public-reclamation-${{ github.sha }}
-          path: target/v51-public-reclamation
+          name: v51-public-bounds-${{ github.sha }}
+          path: target/v51-public-bounds
           if-no-files-found: warn
           retention-days: 14
 
@@ -213,6 +174,144 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  v51-public-lifecycle:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.1 public lifecycle
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
+
+      - name: Verify V5.1 public lifecycle, strong reads and retained failover
+        run: scripts/verify-v51-phase4-public-runtime.sh --skip-build
+
+      - name: Retain V5.1 public runtime and read barrier evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-runtime-${{ github.sha }}
+          path: target/v51-public-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 concurrent public histories, read crash cuts and rich V4.4 semantics
+        run: scripts/verify-v51-phase4-public-qualification.sh --skip-build
+
+      - name: Retain V5.1 public qualification including failed histories and pre-reopen bytes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-qualification-${{ github.sha }}
+          path: target/v51-public-qualification
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 public partitions, read fencing and mutation crash cuts
+        run: scripts/verify-v51-phase4-public-faults.sh --skip-build
+
+      - name: Retain V5.1 public fault matrix including failed cases and pre-reopen bytes
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-faults-${{ github.sha }}
+          path: target/v51-public-faults
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 imported failover, rejected authority and public lifecycle boundaries
+        run: scripts/verify-v51-phase4-public-recovery.sh --skip-build
+
+      - name: Retain V5.1 public recovery and lifecycle evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-recovery-${{ github.sha }}
+          path: target/v51-public-recovery
+          if-no-files-found: warn
+          retention-days: 14
+
+  v51-protocol-reclamation:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.1 protocol and reclamation
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
+
+      - name: Verify V5.1 public campaigns, minority selection and interrupted recovery
+        run: scripts/verify-v51-phase4-public-protocol.sh --skip-build
+
+      - name: Retain V5.1 public protocol and recovery evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-protocol-${{ github.sha }}
+          path: target/v51-public-protocol
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 public two-source floors and interrupted reclamation
+        run: scripts/verify-v51-phase4-public-reclamation.sh --skip-build
+
+      - name: Retain V5.1 public reclamation evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-reclamation-${{ github.sha }}
+          path: target/v51-public-reclamation
+          if-no-files-found: warn
+          retention-days: 14
+
+  v50-authority:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.0 authority
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
+
       - name: Verify V5.0 public-admission declarations and independent 1.1 bytes
         run: scripts/verify-v50-public-admission-foundation.sh --skip-build
 
@@ -251,6 +350,64 @@ jobs:
           path: target/v50-public-runtime
           if-no-files-found: warn
           retention-days: 14
+
+      - name: Exercise the V5.0 replication foundation
+        run: scripts/verify-v50-phase1-foundation.sh --skip-build
+
+      - name: Exercise V5.0 production storage and independent crash inspection
+        run: scripts/verify-v50-phase2-storage.sh --skip-build
+
+      - name: Exercise V5.0 leader quorum and publication over three concurrent JVMs
+        run: scripts/verify-v50-phase3-leader.sh --skip-build
+
+      - name: Retain V5.0 leader-path evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-leader-${{ github.sha }}
+          path: target/v50-leader
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.0 storage evidence including pre-reopen bytes and failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-storage-${{ github.sha }}
+          path: target/v50-storage
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.0 foundation evidence including failed process workspaces
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v50-local-foundation-${{ github.sha }}
+          path: target/v50-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
+  v50-recovery-workload:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.0 recovery and workload
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
 
       - name: Verify V5.0 Phase 6A public performance probe and independent evidence
         run: scripts/verify-v50-phase6-performance.sh --skip-build
@@ -300,15 +457,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Exercise the V5.0 replication foundation
-        run: scripts/verify-v50-phase1-foundation.sh --skip-build
-
-      - name: Exercise V5.0 production storage and independent crash inspection
-        run: scripts/verify-v50-phase2-storage.sh --skip-build
-
-      - name: Exercise V5.0 leader quorum and publication over three concurrent JVMs
-        run: scripts/verify-v50-phase3-leader.sh --skip-build
-
       - name: Exercise V5.0 recovery, snapshot installation and safe compaction
         run: scripts/verify-v50-phase4-recovery.sh --skip-build
 
@@ -333,32 +481,27 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain V5.0 leader-path evidence including failed cases
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v50-local-leader-${{ github.sha }}
-          path: target/v50-leader
-          if-no-files-found: warn
-          retention-days: 14
+  v4-regression:
+    # Preserve the in-lane JMH rebuild order and final non-JMH restoration.
+    name: V4 regression
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - name: Retain V5.0 storage evidence including pre-reopen bytes and failed cases
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
-          name: v50-local-storage-${{ github.sha }}
-          path: target/v50-storage
-          if-no-files-found: warn
-          retention-days: 14
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
 
-      - name: Retain V5.0 foundation evidence including failed process workspaces
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v50-local-foundation-${{ github.sha }}
-          path: target/v50-foundation
-          if-no-files-found: warn
-          retention-days: 14
+      - name: Build core and compile the historical process harnesses
+        run: ./mvnw -DskipTests package
 
       - name: Exercise the V4 crash-harness and fake-cloud foundation
         run: scripts/verify-v40-phase1-foundation.sh --skip-build
@@ -471,6 +614,25 @@ jobs:
           else
             echo "V4.4 Phase 5 gate: SKIP (closed published line)"
           fi
+
+  soak-examples:
+    # The JMH test, soak script and travel script each build their own inputs.
+    name: Soak and examples
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
 
       - name: Test benchmark-only instrumentation contracts
         run: ./mvnw -Pjmh -Dtest=V3ProductionSoakTest test
@@ -815,7 +977,14 @@ jobs:
     if: ${{ always() }}
     needs:
       - changes
-      - reactor-tests
+      - reactor-core
+      - v51-foundation-admission
+      - v51-public-lifecycle
+      - v51-protocol-reclamation
+      - v50-authority
+      - v50-recovery-workload
+      - v4-regression
+      - soak-examples
       - compatibility
       - release-artifacts
       - cloud-runner-tests
@@ -826,7 +995,14 @@ jobs:
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
           RUN_FULL_CI: ${{ needs.changes.outputs.run_full_ci }}
-          REACTOR_RESULT: ${{ needs.reactor-tests.result }}
+          REACTOR_RESULT: ${{ needs.reactor-core.result }}
+          V51_FOUNDATION_RESULT: ${{ needs.v51-foundation-admission.result }}
+          V51_LIFECYCLE_RESULT: ${{ needs.v51-public-lifecycle.result }}
+          V51_PROTOCOL_RESULT: ${{ needs.v51-protocol-reclamation.result }}
+          V50_AUTHORITY_RESULT: ${{ needs.v50-authority.result }}
+          V50_RECOVERY_RESULT: ${{ needs.v50-recovery-workload.result }}
+          V4_RESULT: ${{ needs.v4-regression.result }}
+          SOAK_RESULT: ${{ needs.soak-examples.result }}
           COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
           RELEASE_RESULT: ${{ needs.release-artifacts.result }}
           CLOUD_RUNNER_RESULT: ${{ needs.cloud-runner-tests.result }}
@@ -837,6 +1013,8 @@ jobs:
             false) expected=skipped ;;
             *) echo "Invalid change-scope result" >&2; exit 1 ;;
           esac
-          for result in "$REACTOR_RESULT" "$COMPATIBILITY_RESULT" "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT"; do
+          for result in "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_LIFECYCLE_RESULT" "$V51_PROTOCOL_RESULT" \
+            "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" "$V4_RESULT" "$SOAK_RESULT" \
+            "$COMPATIBILITY_RESULT" "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT"; do
             test "$result" = "$expected"
           done

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -81,11 +82,43 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
             "f1435bdf528138363986542ecafac563dbee0cf9dbed60f781ada27ff53c6465",
             entry["setDigest"])
 
-    def test_workflows_select_the_available_temurin_lts_catalog_version(self) -> None:
+    def check_workflow_java_selectors(self, workflow: str, release: bool = False) -> None:
+        # Inspect explicit job/step blocks without adding a YAML dependency to CI.
+        parts = re.split(r"^  ([\w-]+):\n", workflow.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
+        jobs = dict(zip(parts[1::2], parts[2::2]))
+        expected_jobs = ({"validate", "publish"} if release else
+                         set(jobs) - {"changes", "required", "cloud-runner-tests"})
+        java_jobs = {name for name, body in jobs.items() if "uses: actions/setup-java@" in body}
+        self.assertEqual(expected_jobs, java_jobs)
         selector = "21.0.12+8.0.LTS"
-        self.assertEqual(2, CI_WORKFLOW.read_text(encoding="utf-8").count(selector))
-        self.assertEqual(2,
-                         RELEASE_WORKFLOW.read_text(encoding="utf-8").count(selector))
+        for name in sorted(java_jobs):
+            steps = re.split(r"^      - ", jobs[name], flags=re.MULTILINE)[1:]
+            setups = [step for step in steps if "uses: actions/setup-java@" in step]
+            self.assertEqual(1, len(setups), name)
+            self.assertEqual(["temurin"], re.findall(r"^          distribution: (.+)$", setups[0], re.MULTILINE), name)
+            expected = "'21'" if name == "compatibility" else "'" + selector + "'"
+            if release:
+                expected = "${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0') && '" + selector + "' || '21' }}"
+            self.assertEqual([expected], re.findall(r"^          java-version: (.+)$", setups[0], re.MULTILINE), name)
+
+    def test_workflows_select_the_available_temurin_lts_catalog_version(self) -> None:
+        self.check_workflow_java_selectors(CI_WORKFLOW.read_text(encoding="utf-8"))
+        self.check_workflow_java_selectors(RELEASE_WORKFLOW.read_text(encoding="utf-8"), release=True)
+
+    def test_java_selector_check_allows_an_additional_ci_lane(self) -> None:
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        lane = re.search(r"^  reactor-core:\n.*?(?=^  [\w-]+:\n)", workflow, re.MULTILINE | re.DOTALL).group()
+        self.check_workflow_java_selectors(workflow + lane.replace("  reactor-core:\n", "  extra-regression:\n", 1))
+
+    def test_java_selector_check_rejects_drift_or_missing_setup(self) -> None:
+        workflow = CI_WORKFLOW.read_text(encoding="utf-8")
+        for old, new in (("21.0.12+8.0.LTS", "21.0.12+8"),
+                         ("distribution: temurin", "distribution: zulu"),
+                         ("java-version: '21.0.12+8.0.LTS'", "java-version: '21'"),
+                         ("java-version: '21.0.12+8.0.LTS'", "# missing version"),
+                         ("uses: actions/setup-java@", "uses: actions/missing-java@")):
+            with self.subTest(drift=new), self.assertRaises(AssertionError):
+                self.check_workflow_java_selectors(workflow.replace(old, new, 1))
 
 
 if __name__ == "__main__":

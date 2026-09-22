@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B/C/D/E/F accepted. Batch G public reclamation
-qualification passed locally; protected Batch G and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C/D/E/F/G accepted. Batch H public capacity and rejection
+qualification passed locally; protected Batch H and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -40,5 +40,9 @@ qualification passed locally; protected Batch G and complete Phase 4 acceptance 
 - [x] [Batch G](PHASE_4_PUBLIC_RECLAMATION.md): two-source floors, interrupted
   generation/root-journal reclamation and retained restart, local qualification;
   selection capacity and interrupted-retirement slot reuse fixes.
-- [ ] Protected Batch G acceptance.
+- [x] Protected Batch G acceptance: PR #198, master
+  `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master CI `35664882661`.
+- [x] [Batch H](PHASE_4_PUBLIC_BOUNDS.md): public capacity, admission and wire
+  rejection with unchanged authority and later public service.
+- [ ] Protected Batch H acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

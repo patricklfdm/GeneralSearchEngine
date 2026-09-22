@@ -31,8 +31,10 @@ through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `
 `15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
 [Phase 4F](docs/v5x/v5.1/PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 at
 `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d` (exact-master CI `35591386329`).
-[Phase 4G](docs/v5x/v5.1/PHASE_4_PUBLIC_RECLAMATION.md) adds public two-source
-recovery floors and interrupted reclamation; full Phase 4 acceptance remains open.
+[Phase 4G](docs/v5x/v5.1/PHASE_4_PUBLIC_RECLAMATION.md) is accepted through PR #198 at
+`4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
+[Phase 4H](docs/v5x/v5.1/PHASE_4_PUBLIC_BOUNDS.md) adds public capacity and
+admission/wire rejection; full Phase 4 acceptance remains open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

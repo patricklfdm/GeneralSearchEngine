@@ -28,7 +28,7 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the four full CI gates. Pull requests compare merge-base to PR head, so a final docs
+the eleven full CI gates. Pull requests compare merge-base to PR head, so a final docs
 commit cannot hide earlier code changes. Master pushes compare the event's `before`
 and `after` commits, including every commit in the push. Renames include both paths;
 there is no changed-file API pagination limit.
@@ -36,7 +36,7 @@ there is no changed-file API pagination limit.
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
 only change-detection tests,
-the lightweight V5 contract check and `Required` run. Maven, Java setup and the four
+the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the eleven
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
 workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
@@ -44,8 +44,8 @@ full CI too. Manual dispatch always runs full CI; missing history, an empty diff
 an unreadable event conservatively selects full CI.
 
 The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all four
-full gates to succeed, or all four to be intentionally skipped for a verified
+is always reported. It requires successful change detection and either all eleven
+full gates to succeed, or all eleven to be intentionally skipped for a verified
 documentation-only change. Failed/cancelled detection and unexpected skipped tests
 cannot pass. This follows GitHub's distinction between
 [skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
@@ -53,21 +53,39 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs four parallel gates:
+For build inputs or manual dispatch, the workflow runs eleven independent gates after
+`changes`, each with its own runner workspace:
 
-1. `Reactor tests` checks version alignment, compiles all reactor modules, runs the
-   core, replication and processor tests, and executes the travel example and V5 process gates.
-2. `Compatibility` runs the frozen source/reflection fixture, compares the public API
+1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
+   then performs the full clean Maven reactor package, including core, replication,
+   processor and example tests. Its display name remains compatible with V5.0 cloud preflight.
+2. `v51-foundation-admission` runs V5.1 Phase 1–3, public bounds/admission and bootstrap.
+3. `v51-public-lifecycle` runs public runtime, concurrent qualification, faults and recovery/lifecycle.
+4. `v51-protocol-reclamation` runs public protocol faults and interrupted reclamation.
+5. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
+6. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
+   Each V5 lane builds and tests its own reactor and retains its own evidence.
+7. `v4-regression` (`V4 regression`) compiles its own core and test harnesses, then
+   retains the V4.0–V4.4 chain, specialized JMH rebuilds and closed-line conditions.
+8. `soak-examples` (`Soak and examples`) runs the JMH instrumentation contract tests,
+   reduced stabilization/JFR end-to-end checks and travel example. These commands
+   build their own prerequisites.
+9. `Compatibility` runs the frozen source/reflection fixture, compares the public API
    with published baselines through 4.4.0 from an isolated Maven repository,
    and compiles all five independent V1–V5 consumers.
-3. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
-   skipped; checks all nine V5 JARs, Manifest versions, and processor service isolation;
-   then reproduces the nine JARs and three POMs in two clean workspaces under the
-   digest-pinned canonical image and matches the frozen candidate hashes. Historical
-   two-artifact releases keep their six-JAR checks.
-4. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
-   workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
-   It receives no OIDC permission or cloud Environment and creates no paid resource.
+10. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
+    skipped; checks all nine V5 JARs, Manifest versions, and processor service isolation;
+    then reproduces the nine JARs and three POMs in two clean workspaces under the
+    digest-pinned canonical image and matches the frozen candidate hashes. Historical
+    two-artifact releases keep their six-JAR checks.
+11. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
+    workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
+    It receives no OIDC permission or cloud Environment and creates no paid resource.
+
+The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
+record build prerequisites, artifact ownership and the scheduling-only change.
+Maven execution inside each job remains serial. There is no cross-job `target/`
+sharing, and every lane is required for full CI.
 
 The stable required status check is:
 
