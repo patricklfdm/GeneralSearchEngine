@@ -119,6 +119,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 public promise force and reply crash boundaries
+        run: scripts/verify-v51-phase4-public-promises.sh --skip-build
+
+      - name: Retain V5.1 public promise and pre-reopen evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-promises-${{ github.sha }}
+          path: target/v51-public-promises
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public bootstrap, V4.4 import and offline crash recovery
         run: scripts/verify-v51-phase4-bootstrap.sh --skip-build
 

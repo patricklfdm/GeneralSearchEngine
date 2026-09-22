@@ -64,6 +64,7 @@ public final class V51PublicWorker {
         Path root=Path.of(args[0]).toAbsolutePath();String local="node-"+args[1];
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
         var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest);
+        boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
             var hooks=new AutomaticStore.Faults(){
                 public void at(String event) throws IOException {
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
@@ -80,6 +81,8 @@ public final class V51PublicWorker {
                         trace.event("FORCE",Map.of("kind",kind,"record",b64(Arrays.copyOfRange(bytes,last,offset))));
                     }
                     if(event.startsWith("ACCEPT_")||event.startsWith("PROOF_"))trace.event(event,Map.of());
+                    if(promiseEvidence&&(event.startsWith("PROMISE_")||event.equals("BASIS_BEFORE_ACK")))
+                        trace.event(event,Map.of("journal",b64(Files.readAllBytes(root.resolve(local+"/promises.gsr")))));
                 }
             };
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(hooks,(barrier,request,response)->{
@@ -98,6 +101,12 @@ public final class V51PublicWorker {
                     var values=new LinkedHashMap<String,Object>();values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
                     if(request.get("type").equals("BASIS_CHUNK"))values.put("cut",number(object(request.get("payload")),"offset")>0?"continuation":"first");
                     trace.event("WIRE_"+barrier+"_"+request.get("type"),values);
+                }
+                if(promiseEvidence&&request.get("type").equals("PREPARE")) {
+                    var values=new LinkedHashMap<String,Object>();
+                    values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                    if(!response.isEmpty())values.put("frame",b64(AutomaticWire.encode(response,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                    trace.event("WIRE_"+barrier+"_PREPARE",values);
                 }
                 Path partition=root.resolve("network-blocks.txt");
                 if((barrier.equals("BEFORE_REQUEST_WRITE")||barrier.equals("AFTER_RESPONSE_READ"))&&Files.exists(partition)

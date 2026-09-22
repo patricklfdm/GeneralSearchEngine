@@ -31,7 +31,11 @@ two-source floor publication, interrupted physical retirement and retained resta
 Phase 4G is accepted through PR #198, exact-master CI `35664882661`.
 [Phase 4H](PHASE_4_PUBLIC_BOUNDS.md) adds public admission capacity, application
 bounds, no-quorum startup and incompatible configuration/mode/wire rejection.
-These batches do not close unrelated E rows.
+Phase 4H is accepted through PR #199, exact-master CI `35688926607`.
+[Phase 4I](PHASE_4_PUBLIC_PROMISES.md) adds twelve public peer-promise write/force,
+frozen-basis and reply interruption cases with independent retained-journal checks.
+This supplements E04; candidate epoch-selection cuts and resource exhaustion
+remain open. These batches do not close unrelated E rows.
 
 ## Independent foundation before production
 

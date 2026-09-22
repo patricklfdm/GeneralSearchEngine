@@ -59,7 +59,7 @@ For build inputs or manual dispatch, the workflow runs eleven independent gates 
 1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
    then performs the full clean Maven reactor package, including core, replication,
    processor and example tests. Its display name remains compatible with V5.0 cloud preflight.
-2. `v51-foundation-admission` runs V5.1 Phase 1–3, public bounds/admission and bootstrap.
+2. `v51-foundation-admission` runs V5.1 Phase 1–3, public bounds/admission, promise crashes and bootstrap.
 3. `v51-public-lifecycle` runs public runtime, concurrent qualification, faults and recovery/lifecycle.
 4. `v51-protocol-reclamation` runs public protocol faults and interrupted reclamation.
 5. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.

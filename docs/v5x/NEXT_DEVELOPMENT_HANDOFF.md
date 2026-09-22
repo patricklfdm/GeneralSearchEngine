@@ -12,10 +12,10 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4G was accepted through PR #198 at
-`4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
-[Phase 4H](v5.1/PHASE_4_PUBLIC_BOUNDS.md) adds public capacity and incompatible
-configuration/mode/wire rejection evidence. Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md)
+**Current implementation handoff:** V5.1 Phase 4H was accepted through PR #199 at
+`fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
+[Phase 4I](v5.1/PHASE_4_PUBLIC_PROMISES.md) adds public promise write/force,
+frozen-basis and reply crash evidence. Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md)
 and its remaining public scenario mapping; this does not authorize Phase 5, cloud
 runs or publication. The original Phase 0 planning-only restrictions below describe
 that earlier task.
