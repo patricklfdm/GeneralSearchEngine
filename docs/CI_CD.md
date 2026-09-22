@@ -363,3 +363,7 @@ compatibility, signing, or reproducibility gates.
 V5.1 Phase 4L additionally runs internal resource limits and public minority-budget
 isolation in `v51-foundation-admission`, retaining `v51-resources` on failure as well
 as success. This does not add a required job or change docs-only routing.
+
+V5.1 Phase 4M runs separate internal mailbox boundaries and public callback/deadline
+scenarios in `v51-public-lifecycle`, retaining `v51-backpressure` on every outcome.
+Existing required lanes and documentation-only routing remain unchanged.

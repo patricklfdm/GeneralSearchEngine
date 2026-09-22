@@ -1,5 +1,6 @@
 """Public minority resource exhaustion; no authority initialization or repair."""
 import argparse
+import json
 import time
 from . import public_qualification_harness as q, public_qualification_evidence as physical
 from . import public_fault_harness as fault, public_protocol_harness as protocol
@@ -20,7 +21,10 @@ def scenario(root,cp,case):
         active.call('addAll',documents=docs);expected.extend(docs);return history[-1]['opId']
     def capacity_reply():
         for row in fault.rows(root,'node-3'):
-            if row['event']=='RESOURCE_REJECTED':return row
+            if case=='retained-bytes' and row['event']=='RESOURCE_REJECTED':return row
+            if case=='snapshot-staging' and row['event']=='REPLY':
+                request=json.loads(storage.raw(row['request'])[48:]);response=json.loads(storage.raw(row['frame'])[48:])
+                if request['type']=='SNAPSHOT_OFFER' and response['type']=='REJECT' and response['payload']['reason']=='CAPACITY_EXCEEDED':return row
     try:
         q.command(['java','-cp',cp,q.PACKAGE+'admission.PublicRuntimeConsumer',root,'setup'],root,'public-bootstrap')
         protocol.network(root,[f'{n} node-3 BEFORE_REQUEST_WRITE PREPARE' for n in ('node-1','node-2')])
@@ -32,7 +36,22 @@ def scenario(root,cp,case):
         index=active.call('status')['provenIndex']
         fault.wait_for(lambda: workers['node-3'].call('status')['provenIndex']>=index,'bounded voter never caught up before load')
         receipt['seedIndex']=index;receipt['seedInventory']=storage.inventory(root/'node-3')
-        receipt['loadWrite']=write(active,40,6000)
+        # Each admitted command stays below the frozen-basis metadata bound.
+        # For retained pressure, isolate only the minority while two bulks create
+        # a full image larger than 128 KiB; heal after the leader retains that cut.
+        if case=='retained-bytes':
+            rules=[f'{a} {b} BEFORE_REQUEST_WRITE *' for a in protocol.NODES for b in protocol.NODES if a!=b and 'node-3' in (a,b)]
+            protocol.network(root,rules);receipt['loadWrites']=[]
+            for tag in (40,60):receipt['loadWrites'].append(write(active,tag,20000))
+            receipt['loadWrite']=receipt['loadWrites'][-1]
+            through=active.call('status')['provenIndex']
+            fault.wait_for(lambda:any(r['event']=='RECOVERY_FLOOR' and r['index']>=through for r in fault.rows(root,leader)),
+                           'large resource snapshot did not become a retained source')
+            protocol.network(root,[])
+        else:
+            # The real IMAGE exceeds one quarter of the sealed staging budget,
+            # independent of background generation cleanup.
+            receipt['loadWrite']=write(active,40,10000)
         receipt['rejection']=fault.wait_for(capacity_reply,'no real capacity rejection from bounded voter')
         receipt['observedNanos']=time.monotonic_ns()
         receipt['rejectedCalls']=[]
@@ -52,6 +71,7 @@ def scenario(root,cp,case):
         receipt['expected']=expected
     except BaseException as error:receipt['failure']=str(error);raise
     finally:
+        protocol.network(root,[])
         errors=[]
         for worker in workers.values():
             try:worker.stop()

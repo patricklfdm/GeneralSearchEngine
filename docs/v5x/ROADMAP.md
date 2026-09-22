@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F/G/H/I/J/K accepted; Phase 4L locally qualified; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–L accepted; Phase 4M locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -50,8 +50,10 @@ its transition kernel was accepted in PR #188 with CI `35507802486`. The
 `04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
 [Phase 4K](v5.1/PHASE_4_PUBLIC_PRESSURE.md) is accepted through PR #202 at
 `3bb84b250800c7871745450491e56b6821195d1d` (exact-master CI `35705020751`).
-[Phase 4L](v5.1/PHASE_4_RESOURCE_LIMITS.md) adds resource exhaustion and
-public budget isolation; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
+[Phase 4L](v5.1/PHASE_4_RESOURCE_LIMITS.md) is accepted through PR #203 at
+`a5595f8efad34ec96a3f6e883e5c9c9491004279` (exact-master CI `35712922357`).
+[Phase 4M](v5.1/PHASE_4_BACKPRESSURE.md) adds internal mailbox and public
+callback/backpressure qualification; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
 tracks remaining qualification before full Phase 4 acceptance.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

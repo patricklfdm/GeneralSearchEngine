@@ -55,4 +55,47 @@ class ResourceEvidenceTest(unittest.TestCase):
         row['eventsAfter']['PROMISE_AFTER_WRITE']=1
         with self.assertRaisesRegex(ValueError,'wrote/deleted'):e.internal_claim(row,report,dict(epoch=29999),0)
 
+class SnapshotOfferEvidenceTest(unittest.TestCase):
+    def pair(self,size=32769):
+        request=dict(type='SNAPSHOT_OFFER',groupId='group',configurationId='config',manifestDigest='digest',
+                     epoch=2,proposer='node-1',incarnationId='incarnation',traceId='trace',eventSequence=19,
+                     sender='node-1',recipient='node-3',payload=dict(response=False,imageBytes=size))
+        reply=dict(request,type='REJECT',sender='node-3',recipient='node-1',payload=dict(reason='CAPACITY_EXCEEDED'))
+        return request,reply
+
+    def test_offer_above_one_quarter_staging_is_a_real_rejection(self):
+        self.assertEqual(dict(boundary='snapshot-offer',transferLimit=32768),e.snapshot_offer(*self.pair(),128<<10))
+
+    def test_ci_image_and_exactly_fitting_image_do_not_prove_exhaustion(self):
+        # Actual CI failure: cleanup let the 25,452-byte image fit repeatedly.
+        for size in (25452,32768):
+            with self.subTest(size=size),self.assertRaisesRegex(ValueError,'fits'):
+                e.snapshot_offer(*self.pair(size),128<<10)
+
+    def test_rejection_for_another_exchange_is_not_capacity_evidence(self):
+        for key in ('traceId','eventSequence','epoch','proposer','incarnationId','sender','recipient','manifestDigest','groupId','configurationId'):
+            request,reply=self.pair();reply[key]='different'
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'correlation'):
+                e.snapshot_offer(request,reply,128<<10)
+
+    def test_not_ready_or_integrity_failure_cannot_replace_capacity(self):
+        for reason in ('NOT_READY','INTEGRITY_FAILURE','STALE_EPOCH'):
+            request,reply=self.pair();reply['payload']['reason']=reason
+            with self.assertRaisesRegex(ValueError,'capacity'):e.snapshot_offer(request,reply,128<<10)
+
+    def test_successful_offer_does_not_establish_exhaustion(self):
+        request,reply=self.pair();reply['type']='SNAPSHOT_OFFER'
+        with self.assertRaisesRegex(ValueError,'capacity'):e.snapshot_offer(request,reply,128<<10)
+
+    def test_enlarged_sealed_bound_invalidates_exhaustion_claim(self):
+        with self.assertRaisesRegex(ValueError,'fits'):e.snapshot_offer(*self.pair(),256<<10)
+
+    def test_global_image_limit_still_caps_large_staging_budget(self):
+        self.assertEqual(64<<20,e.snapshot_offer(*self.pair((64<<20)+1),1<<30)['transferLimit'])
+
+    def test_wrong_request_direction_or_kind_cannot_prove_exhaustion(self):
+        for changes in (dict(type='SOURCE_OFFER'),dict(payload=dict(response=True,imageBytes=32769))):
+            request,reply=self.pair();request.update(changes)
+            with self.assertRaisesRegex(ValueError,'request'):e.snapshot_offer(request,reply,128<<10)
+
 if __name__=='__main__':unittest.main()

@@ -280,6 +280,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 runtime backpressure and callback ownership
+        run: scripts/verify-v51-phase4-backpressure.sh --skip-build
+
+      - name: Retain V5.1 mailbox and public callback evidence including failed cases
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: v51-backpressure-${{ github.sha }}
+          path: target/v51-backpressure
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-protocol-reclamation:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 protocol and reclamation

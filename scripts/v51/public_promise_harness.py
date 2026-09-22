@@ -79,7 +79,7 @@ def scenario(root, cp, case):
     return receipt
 
 
-def run_matrix(output, only, *, cases, scenario_runner, execution):
+def run_matrix(output, only, *, cases, scenario_runner, execution, consumer_sources=()):
     root = Path(output).resolve(); root.mkdir(parents=True, exist_ok=False)
     receipt = dict(status='FAIL', execution=execution, paidCloud=False, cases=[],
                    scope='targeted-case' if only else f'complete-{len(cases)}-case-matrix')
@@ -95,7 +95,8 @@ def run_matrix(output, only, *, cases, scenario_runner, execution):
         classes = root/'consumer'; classes.mkdir(); observer = root/'observer'; observer.mkdir()
         jars = os.pathsep.join(map(str, (CORE, REPLICATION)))
         sources = [module/'src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java',
-                   java/'PublicRuntimeConsumer.java', java/'PublicQualificationConsumer.java']
+                   java/'PublicRuntimeConsumer.java', java/'PublicQualificationConsumer.java',
+                   *[java/name for name in consumer_sources]]
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars, '-d', classes, *sources], root, 'compile-consumer')
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars+os.pathsep+str(classes), '-d', observer, java/'V51PublicWorker.java'], root, 'compile-observer')
         cp = os.pathsep.join(map(str, (CORE, REPLICATION, classes, observer)))

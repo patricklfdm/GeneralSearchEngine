@@ -275,3 +275,9 @@ cases to `v51-foundation-admission`, with the always-retained
 have separate receipts and source inventories. The original migration map, eleven
 required lanes and existing gates/uploads remain unchanged. Historical timing
 estimates exclude this additive gate.
+
+Phase 4M adds two internal mailbox fixtures and four public queued-deadline/callback
+cases to `v51-public-lifecycle`, with the always-retained
+`v51-backpressure-${{ github.sha }}` artifact. The gate builds no shared state across
+lanes. The original migration map, eleven required lanes and existing gates/uploads
+remain unchanged; earlier timing estimates exclude this addition.

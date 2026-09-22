@@ -1,10 +1,28 @@
 """Independent resource-boundary inspection; no production decoder imports."""
 import copy
 import json
+import struct
 import tarfile
 from pathlib import Path
 from . import storage_inspector as s, public_qualification_evidence as physical, model
 from .storage_harness import need
+
+
+def image_offer(snapshot,manifest_digest):
+    """Derive only the IMAGE envelope size/digest, using the independent catalog."""
+    body=s.canonical(dict(manifestDigest=manifest_digest,snapshot=snapshot,acceptances=[]))
+    header=struct.pack('>4sHHHHi',b'GSER',1,2,s.f.load()['records']['IMAGE']['id'],0,len(body))
+    return 48+len(body),s.sha(header+body)
+
+
+def snapshot_offer(request,reply,staging):
+    need(request['type']=='SNAPSHOT_OFFER' and request['payload']['response'] is False,'wrong snapshot admission request')
+    need(reply['type']=='REJECT' and reply['payload']['reason']=='CAPACITY_EXCEEDED','snapshot offer did not reject capacity')
+    need(all(request[k]==reply[k] for k in ('groupId','configurationId','manifestDigest','epoch','proposer','incarnationId','traceId','eventSequence')) and
+         request['sender']==reply['recipient'] and request['recipient']==reply['sender'],'snapshot rejection correlation')
+    limit=min(s.f.MAX_IMAGE,staging//4)
+    need(request['payload']['imageBytes']>limit,'snapshot image fits sealed transfer allowance')
+    return dict(boundary='snapshot-offer',transferLimit=limit)
 
 
 def public(root,traces,history,receipt):
@@ -16,12 +34,39 @@ def public(root,traces,history,receipt):
     key='maxSnapshotStagingBytes' if receipt['case']=='snapshot-staging' else 'maxRetainedLogBytes'
     need(receipt['case'] in ('snapshot-staging','retained-bytes'),'unknown resource case')
     need([v['bounds'][key] for v in plan['targets']]==[64<<20,64<<20,128<<10],'resource bound not sealed')
-    row=receipt['rejection'];need(row in traces['node-3'] and row['event']=='RESOURCE_REJECTED','missing actual capacity observation')
+    row=receipt['rejection'];need(row in traces['node-3'],'missing actual capacity observation')
     need(row['node']=='node-3' and row['manifestDigest']==manifest['digest'] and row['groupId']==manifest['groupId'],'capacity authority binding')
-    need(row['budget']==('staging' if receipt['case']=='snapshot-staging' else 'retained') and row['limit']==plan['targets'][2]['bounds'][key],'wrong resource rejection')
-    reservation(row)
-    need(row['files'] and len({v['path'] for v in row['files']})==len(row['files']) and
-         sum(v['size'] for v in row['files'])==row['retained'],'capacity inventory differs from accounting')
+    if receipt['case']=='snapshot-staging':
+        request=s.f.wire(s.raw(row['request']),manifest);reply=s.f.wire(s.raw(row['frame']),manifest)
+        need(row['event']=='REPLY','missing snapshot rejection reply')
+        detail=snapshot_offer(request,reply,plan['targets'][2]['bounds'][key])
+        need(request['sender']==receipt['leader'] and request['recipient']=='node-3','snapshot rejection peer')
+        candidates=[r for r in traces[receipt['leader']] if r['event']=='PUBLISHED'
+                    and image_offer(r['snapshot'],manifest['digest'])==
+                    (request['payload']['imageBytes'],request['payload']['imageDigest'])]
+        need(candidates,'offered image has no exact published source')
+        from .runtime_evidence import application
+        docs=next(v for v in history if v['opId']==receipt['loadWrite'])['documents']
+        for source in candidates:
+            snapshot=s.f.inspect(s.raw(source['snapshot']),'SNAPSHOT');_,values=application(s.raw(snapshot['application']))
+            need(all(values.get(v['id'])==v['value'] for v in docs),'oversized source lacks load write')
+        need(any(r['event']=='RECEIVED' and r.get('request')==row['request'] and r.get('frame')==row['frame']
+                 for r in traces[receipt['leader']]),'snapshot rejection not received by proposer')
+        transfer=request['payload']['transferId']
+        for own in traces.values():
+            for event in own:
+                if not isinstance(event.get('request'),str):continue
+                sent=s.f.wire(s.raw(event['request']),manifest)
+                if sent['sender']==request['sender'] and sent['recipient']=='node-3' and sent['payload'].get('transferId')==transfer:
+                    need(sent['type'] not in ('SNAPSHOT_CHUNK','REJOIN_INSTALL'),'rejected offer transferred or installed')
+        requested=request['payload']['imageBytes']
+    else:
+        need(row['event']=='RESOURCE_REJECTED' and row['budget']=='retained' and row['limit']==plan['targets'][2]['bounds'][key],'wrong resource rejection')
+        reservation(row)
+        need(row['requested']>row['limit'],'retained image must exceed total budget independent of cleanup')
+        need(row['files'] and len({v['path'] for v in row['files']})==len(row['files']) and
+             sum(v['size'] for v in row['files'])==row['retained'],'capacity inventory differs from accounting')
+        detail=dict(boundary='recovery-write');requested=row['requested']
     need(any(v['event']=='STARTED' and v['pid']==row['pid'] and v['generation']==row['generation'] for v in traces['node-3']),'capacity observation process')
     calls={v['opId']:v for v in history}
     need(len(receipt['rejectedCalls'])==2,'missing exhausted voter calls')
@@ -46,7 +91,7 @@ def public(root,traces,history,receipt):
     for inventory in (before['inventory'],s.inventory(root/'node-3')):
         retained=sum(v['size'] for v in inventory.values());staging=sum(v['size'] for k,v in inventory.items() if k.startswith(('basis/','transfer/')))
         need(retained<=plan['targets'][2]['bounds']['maxRetainedLogBytes'] and staging<=plan['targets'][2]['bounds']['maxSnapshotStagingBytes'],'retained resource budget exceeded')
-    return dict(status='PASS',bound=key,limit=128<<10,requestedBytes=row['requested'],retainedProvenIndex=current['provenThrough'])
+    return dict(status='PASS',bound=key,limit=128<<10,requestedBytes=requested,detail=detail,retainedProvenIndex=current['provenThrough'])
 
 
 def public_negatives(root,history,receipt):
@@ -57,8 +102,18 @@ def public_negatives(root,history,receipt):
         h=copy.deepcopy(history);next(v for v in h if v['opId']==receipt[field])['outcome']='NOT_APPLICABLE';variants.append(('missing-'+field,traces,h,receipt))
     claim=copy.deepcopy(receipt);claim['retained']['sha256']='0'*64;variants.append(('changed-archive',traces,history,claim))
     claim=copy.deepcopy(receipt);changed=copy.deepcopy(traces)
-    own=next(r for r in changed['node-3'] if r==receipt['rejection']);own['retained']+=1
-    claim['rejection']=own;variants.append(('forged-occupancy',changed,history,claim))
+    own=next(r for r in changed['node-3'] if r==receipt['rejection'])
+    if receipt['case']=='retained-bytes':
+        own['retained']+=1;claim['rejection']=own;variants.append(('forged-occupancy',changed,history,claim))
+        claim=copy.deepcopy(receipt);changed=copy.deepcopy(traces)
+        own=next(r for r in changed['node-3'] if r==receipt['rejection']);own['requested']=own['limit']
+        claim['rejection']=own;variants.append(('cleanup-dependent-load',changed,history,claim))
+    else:
+        # Keep valid wire bytes, but splice in a response for a different exchange.
+        other=next(r for r in changed['node-3'] if r['event']=='REPLY' and r['frame']!=own['frame'])
+        own['frame']=other['frame'];claim['rejection']=own;variants.append(('borrowed-response',changed,history,claim))
+        changed={n:[r for r in rows if r['event']!='PUBLISHED'] for n,rows in traces.items()}
+        variants.append(('missing-published-image',changed,history,receipt))
     h=copy.deepcopy(history);next(v for v in h if v['opId']==receipt['rejectedCalls'][0])['outcome']='SUCCESS';variants.append(('exhausted-voter-success',traces,h,receipt))
     results=[]
     for name,t,h,r in variants:

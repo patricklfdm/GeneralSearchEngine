@@ -39,9 +39,9 @@ public final class PublicRuntimeConsumer {
         int operationTimeout=Files.exists(root.resolve("operation-timeout.txt"))?Integer.parseInt(Files.readString(root.resolve("operation-timeout.txt")).trim()):9600;
         int chunkBytes=Files.exists(root.resolve("chunk-bytes.txt"))?Integer.parseInt(Files.readString(root.resolve("chunk-bytes.txt")).trim()):bounds().snapshotChunkBytes();
         String profile=Files.exists(root.resolve("bounds-profile.txt"))?Files.readString(root.resolve("bounds-profile.txt")).trim():"default";
-        if(!Set.of("default","small","wire","pressure","resource-staging","resource-retained").contains(profile))throw new IllegalArgumentException("bounds profile");
+        if(!Set.of("default","small","wire","pressure","resource-staging","resource-retained","backpressure").contains(profile))throw new IllegalArgumentException("bounds profile");
         boolean small=profile.equals("small");
-        var fixtureBounds=new ReplicationBounds(small?128<<10:1<<20,100,8,small||profile.equals("pressure")?1:16,2,1200,25,chunkBytes,64L<<20,64L<<20);
+        var fixtureBounds=new ReplicationBounds(small?128<<10:1<<20,100,8,small||profile.equals("pressure")?1:profile.equals("backpressure")?4:16,2,1200,25,chunkBytes,64L<<20,64L<<20);
         var policy=profile.equals("wire")?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout);
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
                 root.resolve(m.nodeId().value()),small?DurableStorageConfig.builder(root.resolve("app-"+m.nodeId().value()),new Codec())
