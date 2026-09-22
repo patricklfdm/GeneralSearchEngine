@@ -12,8 +12,10 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `15eb04054f28ecb52b896eedb79775c257736e00` (exact-master CI `35579584390`).
 [Batch F](PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 at
 `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d` (exact-master CI `35591386329`).
-[Batch G](PHASE_4_PUBLIC_RECLAMATION.md) passed local qualification; protected
-Batch G and complete Phase 4 acceptance remain pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
+[Batch G](PHASE_4_PUBLIC_RECLAMATION.md) is accepted through PR #198 at
+`4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
+[Batch H](PHASE_4_PUBLIC_BOUNDS.md) adds public capacity and rejection qualification;
+complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
 
@@ -107,3 +109,15 @@ the durable floor and retained retirement inventory independently.
 
 The matrix also requires selection to defer under generation-slot pressure and
 an interrupted retirement to finish before its deleted directory can be reused.
+
+## Batch H — public capacity and rejection
+
+Seal tiny public admission/payload/application bounds, hold actual read and write
+boundaries, and require structured rejection with no accepted mutation. Release
+capacity, acknowledge fresh work and reopen a retained voter. Start one voter
+without peers, reject client calls, then gain service by starting the other two.
+Probe incompatible configuration and both public modes in independent JVMs, and
+send incompatible wire headers/envelopes to a live public endpoint. Inspect exact
+authority inventories and raw replies; a connection timeout alone is insufficient.
+Preserve the remaining promise/ancestry exhaustion, full control-queue schedules
+and complete E01–E12 mapping as explicit work before full Phase 4 acceptance.

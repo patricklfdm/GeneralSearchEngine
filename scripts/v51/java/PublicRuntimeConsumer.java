@@ -38,9 +38,14 @@ public final class PublicRuntimeConsumer {
         for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(lines.get(i)))));
         int operationTimeout=Files.exists(root.resolve("operation-timeout.txt"))?Integer.parseInt(Files.readString(root.resolve("operation-timeout.txt")).trim()):9600;
         int chunkBytes=Files.exists(root.resolve("chunk-bytes.txt"))?Integer.parseInt(Files.readString(root.resolve("chunk-bytes.txt")).trim()):bounds().snapshotChunkBytes();
-        var fixtureBounds=new ReplicationBounds(1<<20,100,8,16,2,1200,25,chunkBytes,64L<<20,64L<<20);
+        String profile=Files.exists(root.resolve("bounds-profile.txt"))?Files.readString(root.resolve("bounds-profile.txt")).trim():"default";
+        if(!Set.of("default","small","wire").contains(profile))throw new IllegalArgumentException("bounds profile");
+        boolean small=profile.equals("small");
+        var fixtureBounds=new ReplicationBounds(small?128<<10:1<<20,100,8,small?1:16,2,1200,25,chunkBytes,64L<<20,64L<<20);
+        var policy=profile.equals("wire")?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout);
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
-                root.resolve(m.nodeId().value()),storage(root.resolve("app-"+m.nodeId().value())),fixtureBounds,new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout))).toList();
+                root.resolve(m.nodeId().value()),small?DurableStorageConfig.builder(root.resolve("app-"+m.nodeId().value()),new Codec())
+                        .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),fixtureBounds,policy)).toList();
     }
     private static void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     @SuppressWarnings("unchecked") public static void main(String[] args) throws Exception {

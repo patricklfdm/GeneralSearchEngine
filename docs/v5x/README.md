@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F accepted; Phase 4G locally qualified; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F/G accepted; Phase 4H locally qualified; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -43,8 +43,10 @@ The [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35
 `15eb04054f28ecb52b896eedb79775c257736e00`, exact-master CI `35579584390`).
 [Phase 4F](v5.1/PHASE_4_PUBLIC_PROTOCOL.md) is accepted through PR #197 (master
 `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d`, exact-master CI `35591386329`).
-[Phase 4G](v5.1/PHASE_4_PUBLIC_RECLAMATION.md) adds public two-source floors and
-interrupted reclamation; full Phase 4 acceptance remains open.
+[Phase 4G](v5.1/PHASE_4_PUBLIC_RECLAMATION.md) is accepted through PR #198 (master
+`4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master CI `35664882661`).
+[Phase 4H](v5.1/PHASE_4_PUBLIC_BOUNDS.md) adds public capacity and admission/wire
+rejection; full Phase 4 acceptance remains open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

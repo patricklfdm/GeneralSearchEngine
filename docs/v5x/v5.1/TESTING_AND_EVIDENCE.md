@@ -28,6 +28,9 @@ Phase 4E is accepted through PR #196, exact-master CI `35579584390`.
 minority-tail selection and basis/snapshot interruption, accepted through PR #197,
 exact-master CI `35591386329`. [Phase 4G](PHASE_4_PUBLIC_RECLAMATION.md) adds
 two-source floor publication, interrupted physical retirement and retained restart.
+Phase 4G is accepted through PR #198, exact-master CI `35664882661`.
+[Phase 4H](PHASE_4_PUBLIC_BOUNDS.md) adds public admission capacity, application
+bounds, no-quorum startup and incompatible configuration/mode/wire rejection.
 These batches do not close unrelated E rows.
 
 ## Independent foundation before production
