@@ -43,7 +43,11 @@ Phase 4J is accepted through PR #201, exact-master CI `35698045261`.
 scenarios, reservation release accounting, conservative uncertain outcomes and
 public recovery without write replay. These supplement E10/E11; internal runtime
 mailbox saturation and snapshot/promise/ancestry exhaustion remain open.
-These batches do not close unrelated E rows.
+Phase 4K is accepted through PR #202, exact-master CI `35705020751`.
+[Phase 4L](PHASE_4_RESOURCE_LIMITS.md) adds internal promise/epoch/entry/ancestry
+limit checks plus public staging/retained-budget isolation. The [current coverage
+map](PHASE_4_EVIDENCE_STATUS.md) consolidates E01–E12 without relabelling internal
+fixtures as public executions. These batches do not close unrelated E rows.
 
 ## Independent foundation before production
 

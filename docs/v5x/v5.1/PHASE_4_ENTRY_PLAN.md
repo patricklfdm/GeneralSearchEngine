@@ -20,7 +20,9 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
 [Batch J](PHASE_4_PUBLIC_CANDIDATES.md) is accepted through PR #201 at
 `04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
-[Batch K](PHASE_4_PUBLIC_PRESSURE.md) adds transport pressure and slow-force qualification;
+[Batch K](PHASE_4_PUBLIC_PRESSURE.md) is accepted through PR #202 at
+`3bb84b250800c7871745450491e56b6821195d1d` (exact-master CI `35705020751`).
+[Batch L](PHASE_4_RESOURCE_LIMITS.md) adds resource-limit qualification;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -158,3 +160,16 @@ the leader. Preserve conservative uncertain outcomes across the request deadline
 resolve them with fresh public reads without replay, and test bounded client
 admission while the leader is paused. Inspect raw reservations/frames/force bytes
 independently; do not infer full runtime mailbox or storage exhaustion coverage.
+
+## Batch L — resource exhaustion and evidence reconciliation
+
+Reach the real 10,000-promise limit through forced store operations and verify
+exact retries/reopen without append/reset. Check retained bytes, full-image transfer
+reservation, entry/ancestry counts and ranked-epoch overflow in separate internal
+JVM fixtures. Keep their evidence identity separate from public execution.
+
+Seal a small staging or retained-byte budget on one public voter, retain a healthy
+two-voter quorum, and fill the bounded voter through normal public work/recovery.
+Observe the actual capacity check, conservative local rejection, continued quorum
+reads/writes and retained restarts without enlarging limits or repairing authority.
+Consolidate [E01–E12 status](PHASE_4_EVIDENCE_STATUS.md), preserving explicit gaps.

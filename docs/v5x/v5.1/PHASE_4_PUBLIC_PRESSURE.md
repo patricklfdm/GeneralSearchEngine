@@ -1,9 +1,9 @@
 # V5.1 Phase 4K: public transport pressure and slow force
 
-**Status:** local qualification passed. Protected Batch K and complete Phase 4
-acceptance remain open. [Batch J](PHASE_4_PUBLIC_CANDIDATES.md) is accepted through
-PR #201 at master `04106a0c2e88010c2c14c43ad485bc3113ed1d05`, exact-master CI
-`35698045261`; all eleven full-CI lanes and the Required gate succeeded.
+**Status:** accepted through PR #202 at master `3bb84b250800c7871745450491e56b6821195d1d`,
+exact-master CI `35705020751`; all eleven full-CI lanes and the Required gate
+succeeded. Complete Phase 4 acceptance remains open. The local record below
+retains Batch K execution-time evidence and its prior Batch J base.
 
 ## Public execution and boundaries
 

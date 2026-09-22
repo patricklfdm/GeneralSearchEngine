@@ -26,6 +26,8 @@ final class AutomaticStore implements AutoCloseable {
         Faults NONE = new Faults() { };
         default void at(String cut) throws IOException { }
         default int maximumWriteBytes() { return Integer.MAX_VALUE; }
+        /** Observation only; all sizes are the values used by the actual admission check. */
+        default void capacityRejected(String budget,long limit,long retained,long replaced,long requested) { }
     }
     private record Ref(long offset, int size, String digest, long epoch, String entryDigest) { }
     private final Path directory;
