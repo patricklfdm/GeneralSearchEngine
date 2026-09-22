@@ -1,21 +1,24 @@
 # CI parallel lanes: dependency audit and migration map
 
-The CI refactor splits the former serial `reactor-tests` job into five jobs.
-The three existing independent jobs retain their steps and settings. All eight
-full jobs depend only on `changes`; `required` waits for all eight plus `changes`.
+The CI refactor splits the former serial `reactor-tests` job into eight jobs.
+The three existing independent jobs retain their steps and settings. All eleven
+full jobs depend only on `changes`; `required` waits for all eleven plus `changes`.
 See [CI/CD operations](CI_CD.md) for triggers and branch protection.
 
 ```text
 changes
   ├── reactor-core (display name: Reactor tests)
-  ├── v51-regression
-  ├── v50-regression
+  ├── v51-foundation-admission
+  ├── v51-public-lifecycle
+  ├── v51-protocol-reclamation
+  ├── v50-authority
+  ├── v50-recovery-workload
   ├── v4-regression
   ├── soak-examples
   ├── compatibility
   ├── release-artifacts
   └── cloud-runner-tests
-            ↓ all eight results + changes
+            ↓ all eleven results + changes
          Required
 ```
 
@@ -24,8 +27,11 @@ changes
 | Job | Local prerequisites | Timeout |
 | --- | --- | --- |
 | `reactor-core` | Existing `./mvnw -f reactor/pom.xml clean package`, with all reactor tests | 30 minutes |
-| `v51-regression` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
-| `v50-regression` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v51-foundation-admission` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v51-public-lifecycle` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v51-protocol-reclamation` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v50-authority` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v50-recovery-workload` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v4-regression` | `./mvnw -DskipTests package` compiles core test harnesses; original specialized builds stay in place | 60 minutes |
 | `soak-examples` | Its first Maven JMH test compiles its inputs; the soak script packages JMH and travel script compiles the example reactor | 30 minutes |
 | `compatibility` | Unchanged independent build | 20 minutes |
@@ -67,8 +73,8 @@ selection or Surefire concurrency setting changes.
   reordering or concurrent process-harness execution is introduced.
 - **V5.0 cloud preflight consumes CI identifiers.** The internal job ID becomes
   `reactor-core`, but its display name remains `Reactor tests`. The Phase 6B
-  step name remains unchanged in `v50-regression`; preflight already searches
-  all jobs for that step. `Required` now covers all eight lanes. No cloud
+  step name remains unchanged in `v50-recovery-workload`; preflight already searches
+  all jobs for that step. `Required` now covers all eleven lanes. No cloud
   preflight, environment, WIF, paid workflow or release behavior changes.
 
 Action pins, Java setup and Maven dependency caching are copied from the original
@@ -80,7 +86,7 @@ workflow artifact names remain unique, including the new V5.1 public-bounds uplo
 ## Required and documentation-only behavior
 
 `Required` retains `always()` and its stable display name. Successful change
-classification is mandatory. For `run_full_ci=true`, every one of the eight lanes
+classification is mandatory. For `run_full_ci=true`, every one of the eleven lanes
 must return `success`; for `false`, every lane must return `skipped`. Failure,
 cancellation, an unexpected skip/success or an invalid classification fails the
 gate. Change classification itself is unchanged. Docs-only CI runs no Maven.
@@ -95,7 +101,7 @@ This table uses the 87-step worktree immediately before the split, including the
 V5.1 Phase 4H public-bounds gate added in the same batch. Original substantive
 steps and upload configurations move unchanged and in order within each lane.
 Steps 1–2 belong to `reactor-core` and their setup is also copied into the other
-four new jobs. The three additional prerequisite build steps are described above.
+seven jobs. The six additional prerequisite build steps are described above.
 
 | Old # | Original step | New job |
 | --- | --- | --- |
@@ -104,56 +110,56 @@ four new jobs. The three additional prerequisite build steps are described above
 | 3 | Verify aligned development versions | `reactor-core` |
 | 4 | Verify the V5.0 Phase 0 contract candidate | `reactor-core` |
 | 5 | Test the reactor | `reactor-core` |
-| 6 | Verify V5.1 declarations and independent leadership foundation | `v51-regression` |
-| 7 | Verify V5.1 ledgers, frozen recovery and real JVM interruption cuts | `v51-regression` |
-| 8 | Verify V5.1 election and activation transition evidence | `v51-regression` |
-| 9 | Verify V5.1 real TCP runtime and application recovery | `v51-regression` |
-| 10 | Verify V5.1 retained-voter rejoin and two-source reclamation | `v51-regression` |
-| 11 | Verify V5.1 public lifecycle, strong reads and retained failover | `v51-regression` |
-| 12 | Retain V5.1 public runtime and read barrier evidence | `v51-regression` |
-| 13 | Verify V5.1 concurrent public histories, read crash cuts and rich V4.4 semantics | `v51-regression` |
-| 14 | Retain V5.1 public qualification including failed histories and pre-reopen bytes | `v51-regression` |
-| 15 | Verify V5.1 public partitions, read fencing and mutation crash cuts | `v51-regression` |
-| 16 | Retain V5.1 public fault matrix including failed cases and pre-reopen bytes | `v51-regression` |
-| 17 | Verify V5.1 imported failover, rejected authority and public lifecycle boundaries | `v51-regression` |
-| 18 | Retain V5.1 public recovery and lifecycle evidence including failed cases | `v51-regression` |
-| 19 | Verify V5.1 public campaigns, minority selection and interrupted recovery | `v51-regression` |
-| 20 | Retain V5.1 public protocol and recovery evidence including failed cases | `v51-regression` |
-| 21 | Verify V5.1 public two-source floors and interrupted reclamation | `v51-regression` |
-| 22 | Retain V5.1 public reclamation evidence including failed cases | `v51-regression` |
-| 23 | Verify V5.1 public capacity, admission and wire rejection | `v51-regression` |
-| 24 | Retain V5.1 public bounds and rejection evidence including failed cases | `v51-regression` |
-| 25 | Verify V5.1 public bootstrap, V4.4 import and offline crash recovery | `v51-regression` |
-| 26 | Retain V5.1 public bootstrap and pre-reopen evidence | `v51-regression` |
-| 27 | Retain V5.1 rejoin sources and process evidence | `v51-regression` |
-| 28 | Retain V5.1 runtime wire, force and JVM recovery evidence | `v51-regression` |
-| 29 | Retain V5.1 protocol transitions and independent causal evidence | `v51-regression` |
-| 30 | Retain V5.1 authority bytes and process crash evidence | `v51-regression` |
-| 31 | Retain V5.1 model traces, process cuts and public consumer evidence | `v51-regression` |
-| 32 | Verify V5.0 public-admission declarations and independent 1.1 bytes | `v50-regression` |
-| 33 | Retain V5.0 public-admission foundation evidence | `v50-regression` |
-| 34 | Verify V5.0 public offline authority and published V4.4 round trips | `v50-regression` |
-| 35 | Retain V5.0 offline authority evidence including killed processes and pre-reopen bytes | `v50-regression` |
-| 36 | Verify V5.0 public runtime with three owned JVMs and pinned V4.4 | `v50-regression` |
-| 37 | Retain V5.0 public runtime evidence including SIGKILL cuts and wire bytes | `v50-regression` |
-| 38 | Verify V5.0 Phase 6A public performance probe and independent evidence | `v50-regression` |
-| 39 | Retain V5.0 performance evidence including failed probes | `v50-regression` |
-| 40 | Verify V5.0 Phase 6B runner failures and offline volume-layout probe | `v50-regression` |
-| 41 | Retain V5.0 Phase 6B no-GCP evidence | `v50-regression` |
-| 42 | Verify V5.0 full cloud workload and independent local evidence | `v50-regression` |
-| 43 | Retain V5.0 cloud workload qualification including failed probes | `v50-regression` |
-| 44 | Verify V5.0 remote workload adapter and bounded evidence | `v50-regression` |
-| 45 | Retain V5.0 remote adapter qualification including failed probes | `v50-regression` |
-| 46 | Exercise the V5.0 replication foundation | `v50-regression` |
-| 47 | Exercise V5.0 production storage and independent crash inspection | `v50-regression` |
-| 48 | Exercise V5.0 leader quorum and publication over three concurrent JVMs | `v50-regression` |
-| 49 | Exercise V5.0 recovery, snapshot installation and safe compaction | `v50-regression` |
-| 50 | Exercise V5.0 deterministic faults, pressure, close and repeated recovery | `v50-regression` |
-| 51 | Retain V5.0 hardening evidence including failed cases and wire attempts | `v50-regression` |
-| 52 | Retain V5.0 recovery evidence including failed cases and V4.4 comparison | `v50-regression` |
-| 53 | Retain V5.0 leader-path evidence including failed cases | `v50-regression` |
-| 54 | Retain V5.0 storage evidence including pre-reopen bytes and failed cases | `v50-regression` |
-| 55 | Retain V5.0 foundation evidence including failed process workspaces | `v50-regression` |
+| 6 | Verify V5.1 declarations and independent leadership foundation | `v51-foundation-admission` |
+| 7 | Verify V5.1 ledgers, frozen recovery and real JVM interruption cuts | `v51-foundation-admission` |
+| 8 | Verify V5.1 election and activation transition evidence | `v51-foundation-admission` |
+| 9 | Verify V5.1 real TCP runtime and application recovery | `v51-foundation-admission` |
+| 10 | Verify V5.1 retained-voter rejoin and two-source reclamation | `v51-foundation-admission` |
+| 11 | Verify V5.1 public lifecycle, strong reads and retained failover | `v51-public-lifecycle` |
+| 12 | Retain V5.1 public runtime and read barrier evidence | `v51-public-lifecycle` |
+| 13 | Verify V5.1 concurrent public histories, read crash cuts and rich V4.4 semantics | `v51-public-lifecycle` |
+| 14 | Retain V5.1 public qualification including failed histories and pre-reopen bytes | `v51-public-lifecycle` |
+| 15 | Verify V5.1 public partitions, read fencing and mutation crash cuts | `v51-public-lifecycle` |
+| 16 | Retain V5.1 public fault matrix including failed cases and pre-reopen bytes | `v51-public-lifecycle` |
+| 17 | Verify V5.1 imported failover, rejected authority and public lifecycle boundaries | `v51-public-lifecycle` |
+| 18 | Retain V5.1 public recovery and lifecycle evidence including failed cases | `v51-public-lifecycle` |
+| 19 | Verify V5.1 public campaigns, minority selection and interrupted recovery | `v51-protocol-reclamation` |
+| 20 | Retain V5.1 public protocol and recovery evidence including failed cases | `v51-protocol-reclamation` |
+| 21 | Verify V5.1 public two-source floors and interrupted reclamation | `v51-protocol-reclamation` |
+| 22 | Retain V5.1 public reclamation evidence including failed cases | `v51-protocol-reclamation` |
+| 23 | Verify V5.1 public capacity, admission and wire rejection | `v51-foundation-admission` |
+| 24 | Retain V5.1 public bounds and rejection evidence including failed cases | `v51-foundation-admission` |
+| 25 | Verify V5.1 public bootstrap, V4.4 import and offline crash recovery | `v51-foundation-admission` |
+| 26 | Retain V5.1 public bootstrap and pre-reopen evidence | `v51-foundation-admission` |
+| 27 | Retain V5.1 rejoin sources and process evidence | `v51-foundation-admission` |
+| 28 | Retain V5.1 runtime wire, force and JVM recovery evidence | `v51-foundation-admission` |
+| 29 | Retain V5.1 protocol transitions and independent causal evidence | `v51-foundation-admission` |
+| 30 | Retain V5.1 authority bytes and process crash evidence | `v51-foundation-admission` |
+| 31 | Retain V5.1 model traces, process cuts and public consumer evidence | `v51-foundation-admission` |
+| 32 | Verify V5.0 public-admission declarations and independent 1.1 bytes | `v50-authority` |
+| 33 | Retain V5.0 public-admission foundation evidence | `v50-authority` |
+| 34 | Verify V5.0 public offline authority and published V4.4 round trips | `v50-authority` |
+| 35 | Retain V5.0 offline authority evidence including killed processes and pre-reopen bytes | `v50-authority` |
+| 36 | Verify V5.0 public runtime with three owned JVMs and pinned V4.4 | `v50-authority` |
+| 37 | Retain V5.0 public runtime evidence including SIGKILL cuts and wire bytes | `v50-authority` |
+| 38 | Verify V5.0 Phase 6A public performance probe and independent evidence | `v50-recovery-workload` |
+| 39 | Retain V5.0 performance evidence including failed probes | `v50-recovery-workload` |
+| 40 | Verify V5.0 Phase 6B runner failures and offline volume-layout probe | `v50-recovery-workload` |
+| 41 | Retain V5.0 Phase 6B no-GCP evidence | `v50-recovery-workload` |
+| 42 | Verify V5.0 full cloud workload and independent local evidence | `v50-recovery-workload` |
+| 43 | Retain V5.0 cloud workload qualification including failed probes | `v50-recovery-workload` |
+| 44 | Verify V5.0 remote workload adapter and bounded evidence | `v50-recovery-workload` |
+| 45 | Retain V5.0 remote adapter qualification including failed probes | `v50-recovery-workload` |
+| 46 | Exercise the V5.0 replication foundation | `v50-authority` |
+| 47 | Exercise V5.0 production storage and independent crash inspection | `v50-authority` |
+| 48 | Exercise V5.0 leader quorum and publication over three concurrent JVMs | `v50-authority` |
+| 49 | Exercise V5.0 recovery, snapshot installation and safe compaction | `v50-recovery-workload` |
+| 50 | Exercise V5.0 deterministic faults, pressure, close and repeated recovery | `v50-recovery-workload` |
+| 51 | Retain V5.0 hardening evidence including failed cases and wire attempts | `v50-recovery-workload` |
+| 52 | Retain V5.0 recovery evidence including failed cases and V4.4 comparison | `v50-recovery-workload` |
+| 53 | Retain V5.0 leader-path evidence including failed cases | `v50-authority` |
+| 54 | Retain V5.0 storage evidence including pre-reopen bytes and failed cases | `v50-authority` |
+| 55 | Retain V5.0 foundation evidence including failed process workspaces | `v50-authority` |
 | 56 | Exercise the V4 crash-harness and fake-cloud foundation | `v4-regression` |
 | 57 | Exercise the V4 production WAL crash-barrier matrix | `v4-regression` |
 | 58 | Exercise the V4 production recovery crash matrix | `v4-regression` |
@@ -187,13 +193,48 @@ four new jobs. The three additional prerequisite build steps are described above
 | 86 | Exercise reduced stabilization and measurement-only JFR | `soak-examples` |
 | 87 | Run the travel example | `soak-examples` |
 
-## Performance expectations and remaining validation
+## Measured partitioning and remaining validation
 
-The long serial version chain becomes approximately the longest of the V5.1,
-V5.0, V4 and soak lanes, plus each lane's setup/build overhead. The complete CI
-run also waits for compatibility and release artifacts. Duplicate builds can
-increase total runner minutes while reducing elapsed time; actual improvement
-depends on GitHub runner availability, cache hits and the slowest gate.
+The first [PR #199 CI run](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35685132725)
+completed V5.0 in **17m19s** and V5.1 in **32m40s**. Their reactor builds took
+289s and 305s respectively. The follow-up split uses those successful step timings:
+
+| Lane | Verification and upload seconds | Build/setup seconds | Estimated lane total |
+| --- | --- | --- | --- |
+| `v51-foundation-admission` | 471 | 315 | 13m06s |
+| `v51-public-lifecycle` | 570 | 315 | 14m45s |
+| `v51-protocol-reclamation` | 601 | 315 | 15m16s |
+| `v50-authority` | 360 | 302 | 11m02s |
+| `v50-recovery-workload` | 374 | 302 | 11m16s |
+
+These totals sum this one run's existing steps and repeat its build/setup cost for
+each new lane. They are estimates, not new measurements or timing guarantees.
+With comparable runner capacity, V5.0 should finish in roughly 11–12 minutes and
+V5.1 in 15–16 minutes. The complete CI still waits for compatibility and release
+artifacts. Three additional reactor builds increase total runner minutes by
+roughly 15 minutes at these observed build durations. Queueing, cache hits and
+runner variation can change the outcome.
+
+The five V5 lanes are partitioned as follows:
+
+- `v50-authority`: public admission, offline authority, public runtime, Phase 1–3.
+- `v50-recovery-workload`: Phase 4–6, including hardening and local cloud workloads.
+- `v51-foundation-admission`: Phase 1–3, public admission/bounds and bootstrap.
+- `v51-public-lifecycle`: public runtime, concurrent qualification, faults and recovery/lifecycle.
+- `v51-protocol-reclamation`: public protocol faults and interrupted reclamation.
+
+Each gate constructs its own process/evidence workspace. Sharing Python helpers
+between public harnesses does not mean sharing generated evidence: each harness
+compiles its own consumer/observer and bootstraps its own processes. Gates needing
+published V4.4 controls resolve them locally. No split lane consumes an earlier
+lane's receipt, archive, port file or process state. Original within-lane order
+and every upload remain intact.
+
+The V4.4 toolchain fixture test now checks each Java job's distribution and version
+selector, including the existing broad Java 21 compatibility selector and the
+conditional release selectors. It no longer counts occurrences of the pinned
+version string; adding lanes cannot invalidate the fixture solely by changing
+that count. Negative tests still reject missing setup, missing versions and drift.
 
 Maven `-T` is deliberately deferred. The project has reactor dependencies and
 JMH generated-source/shaded-artifact steps, and this change does not establish
@@ -201,7 +242,7 @@ plugin/test safety under threaded Maven execution. Job-level isolation delivers
 the scheduling improvement without introducing that additional variable.
 
 Local syntax, migration comparison and Required decision tests cannot reproduce
-GitHub scheduling, cache races, upload execution or hosted-runner load. The first
+GitHub scheduling, cache races, upload execution or hosted-runner load. The next
 full PR CI run must confirm those behaviors and the actual duration. A docs-only
 run can pass Required, but remains documentation evidence rather than proof that
 the full regression lanes executed.

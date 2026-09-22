@@ -18,8 +18,11 @@ PUSH = {"before": BASE, "after": HEAD}
 PR = {"pull_request": {"base": {"sha": BASE}, "head": {"sha": HEAD}}}
 FULL_GATES = {
     "reactor-core": "REACTOR_RESULT",
-    "v51-regression": "V51_RESULT",
-    "v50-regression": "V50_RESULT",
+    "v51-foundation-admission": "V51_FOUNDATION_RESULT",
+    "v51-public-lifecycle": "V51_LIFECYCLE_RESULT",
+    "v51-protocol-reclamation": "V51_PROTOCOL_RESULT",
+    "v50-authority": "V50_AUTHORITY_RESULT",
+    "v50-recovery-workload": "V50_RECOVERY_RESULT",
     "v4-regression": "V4_RESULT",
     "soak-examples": "SOAK_RESULT",
     "compatibility": "COMPATIBILITY_RESULT",
@@ -175,7 +178,7 @@ class WorkflowTopologyTest(unittest.TestCase):
     def test_cloud_preflight_keeps_its_existing_ci_identifiers(self):
         self.assertIn("    name: Reactor tests\n", self.jobs["reactor-core"])
         self.assertIn("      - name: Verify V5.0 Phase 6B runner failures and offline volume-layout probe\n",
-                      self.jobs["v50-regression"])
+                      self.jobs["v50-recovery-workload"])
 
 
 if __name__ == "__main__":
