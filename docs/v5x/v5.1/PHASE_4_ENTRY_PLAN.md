@@ -173,3 +173,11 @@ two-voter quorum, and fill the bounded voter through normal public work/recovery
 Observe the actual capacity check, conservative local rejection, continued quorum
 reads/writes and retained restarts without enlarging limits or repairing authority.
 Consolidate [E01–E12 status](PHASE_4_EVIDENCE_STATUS.md), preserving explicit gaps.
+
+## Batch M: runtime backpressure and callbacks
+
+[Batch M](PHASE_4_BACKPRESSURE.md) follows accepted Batch L (PR #203, exact-master
+CI `35712922357`). Qualify public queued deadlines, callback reentrancy and
+completion-permit ownership; retain separate internal evidence for fixed mailbox
+boundaries. Preserve conservative outcomes, raw authority and retained restart.
+Use the [current evidence map](PHASE_4_EVIDENCE_STATUS.md) for remaining work.

@@ -1,7 +1,8 @@
 # V5.1 Phase 4L: resource limits and public budget isolation
 
-**Status:** local qualification passed; protected Batch L and complete Phase 4
-acceptance remain open. [Batch K](PHASE_4_PUBLIC_PRESSURE.md) is accepted through
+**Status:** Batch L accepted through PR #203 at master
+`a5595f8efad34ec96a3f6e883e5c9c9491004279`, exact-master CI `35712922357`,
+with all eleven full-CI lanes and Required passing. Complete Phase 4 remains open. [Batch K](PHASE_4_PUBLIC_PRESSURE.md) is accepted through
 PR #202 at master `3bb84b250800c7871745450491e56b6821195d1d`, exact-master CI
 `35705020751`; all eleven full-CI lanes and Required passed.
 
@@ -124,5 +125,5 @@ failure; the final scenarios observe the actual resource boundary and keep that
 minority's rejection evidence. Existing runtime evidence also requires basis
 transfer, supplied by the retained leader restart. Source inventories describe
 execution-time files; final documentation and stricter oracle review followed.
-Each protected CI lane retains its full reactor build/tests; hosted acceptance is
-still pending.
+Each protected CI lane retains its full reactor build/tests. The acceptance update
+above records the subsequent hosted result.

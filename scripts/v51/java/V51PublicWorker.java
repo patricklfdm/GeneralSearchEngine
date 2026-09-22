@@ -178,8 +178,8 @@ public final class V51PublicWorker {
             else trace.event(name,values);
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
-        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")))
-            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("lifecycle")?"PublicLifecycleConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
+        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")))
+            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);
     }
 }
