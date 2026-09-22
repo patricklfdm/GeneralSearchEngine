@@ -8,6 +8,26 @@ import java.util.*;
 
 /** Observes force and wire boundaries only; cannot bootstrap, submit or activate privately. */
 public final class V51PublicWorker {
+    /** Read thread-safe queue/semaphore counters only; never enqueue or change authority. */
+    private static Object field(Object owner,String name) throws ReflectiveOperationException {
+        var value=owner.getClass().getDeclaredField(name);value.setAccessible(true);return value.get(owner);
+    }
+    private static Map<String,Object> queues(Object engine) {
+        try {
+            var result=new LinkedHashMap<String,Object>();Object runtime=field(engine,"node");
+            result.put("admissionAvailable",((java.util.concurrent.Semaphore)field(engine,"admission")).availablePermits());
+            for(String name:List.of("ordered","deadlines")) {
+                var pool=(java.util.concurrent.ThreadPoolExecutor)field(engine,name);result.put(name+"Queue",pool.getQueue().size());
+            }
+            for(String name:List.of("inputs","completions")) {
+                var queue=(java.util.concurrent.BlockingQueue<?>)field(runtime,name);result.put(name+"Queue",queue.size());result.put(name+"Remaining",queue.remainingCapacity());
+            }
+            for(String name:List.of("network","app","clients")) {
+                var pool=(java.util.concurrent.ThreadPoolExecutor)field(runtime,name);result.put(name+"Queue",pool.getQueue().size());result.put(name+"Active",pool.getActiveCount());
+            }
+            return result;
+        }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+    }
     private static byte[] lastJournal(Path directory,String kind) throws IOException {
         if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))
             directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
@@ -103,6 +123,8 @@ public final class V51PublicWorker {
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
         Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;
             var hooks=new AutomaticStore.Faults(){
+                private Path partialPath;private byte[] before;
+                public int maximumWriteBytes(){return Files.exists(root.resolve(local+"-partial-write.txt"))?64:Integer.MAX_VALUE;}
                 public void capacityRejected(String budget,long limit,long retained,long replaced,long requested) {
                     if(!Files.exists(root.resolve("resource-evidence")))return;
                     try {
@@ -116,6 +138,22 @@ public final class V51PublicWorker {
                     catch(IOException error){throw new UncheckedIOException(error);}
                 }
                 public void at(String event) throws IOException {
+                    Path partial=root.resolve(local+"-partial-write.txt");
+                    if(Files.exists(partial)) {
+                        String kind=Files.readString(partial).trim();
+                        if(!Set.of("ACCEPT","PROOF").contains(kind))throw new IOException("partial-write kind");
+                        if(event.equals(kind+"_BEFORE_WRITE")) {
+                            Path directory=root.resolve(local);
+                            if(Files.exists(directory.resolve("current.gsr")))directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
+                            partialPath=directory.resolve(kind.equals("ACCEPT")?"accepted.gsr":"proofs.gsr");before=Files.readAllBytes(partialPath);
+                        }
+                        if(event.equals(kind+"_WRITE_CHUNK")) {
+                            Files.delete(partial);
+                            trace.write("PARTIAL_WRITE_FAILURE",Map.of("kind",kind,"path",root.resolve(local).relativize(partialPath).toString(),
+                                    "before",b64(before),"after",b64(Files.readAllBytes(partialPath))));
+                            throw new IOException("controller-owned partial "+kind+" write error");
+                        }
+                    }
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
                         var values=new LinkedHashMap<String,Object>();values.put("cut",event);
                         if(Files.exists(root.resolve("reclamation-evidence"))&&(event.startsWith("FLOOR_")||event.startsWith("DELETE_AFTER_")))
@@ -185,6 +223,7 @@ public final class V51PublicWorker {
             else trace.event(name,values);
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
+        if(Files.exists(root.resolve("lifecycle-evidence")))io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.diagnostics=V51PublicWorker::queues;
         if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")))
             Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);

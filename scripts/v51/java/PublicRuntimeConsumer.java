@@ -21,6 +21,8 @@ public final class PublicRuntimeConsumer {
     public static final Field<Doc,Integer> ID=Field.of("id",Integer.class,Doc::id);
     public static final Field<Doc,String> VALUE=Field.of("value",String.class,Doc::value);
     public static BiConsumer<String,Map<String,Object>> observer=(event,row)->{};
+    /** Optional read-only test probe, supplied separately from this public consumer. */
+    public static java.util.function.Function<Object,Map<String,Object>> diagnostics=engine->Map.of();
     public static SearchEngineBuilder<Integer,Doc> builder(){return SearchEngine.builder(Doc.class,ID).index(IndexDefinition.equality(VALUE)).config(new SnapshotEngineConfig(64,16,java.time.Duration.ofMillis(1)));}
     public static final class Codec implements DurableCodec<Integer,Doc> {
         public String codecId(){return "public-runtime-codec";}public int codecVersion(){return 1;}

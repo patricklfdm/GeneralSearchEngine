@@ -12,11 +12,10 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4M and the transport completion
-correction were accepted through PR #204 / #205 at
-`39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
-[Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) adds public duplicate PREPARE,
-delayed ACK fencing, hidden proof, lagging selection and epoch-crossing downloads.
+**Current implementation handoff:** V5.1 Phase 4N was accepted through PR #206 at
+`3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
+[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned-view/reconstruction
+overlap, real partial-write errors and repeated timeout resource accounting.
 The [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
 distinguishes completed scenarios, internal witnesses and remaining public work.
 Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md) and its remaining

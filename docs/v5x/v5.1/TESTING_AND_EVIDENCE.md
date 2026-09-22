@@ -57,6 +57,10 @@ Phase 4M and its transport correction are accepted through PR #204 / #205,
 exact-master CI `35753082195`. [Phase 4N](PHASE_4_PUBLIC_SELECTION.md) adds six
 public selection/recovery schedules; its conflict-evidence mapping explicitly
 keeps the existing internal store checks separate from public process evidence.
+Phase 4N is accepted through PR #206, exact-master CI `35779031221`.
+[Phase 4O](PHASE_4_LIFECYCLE_HARDENING.md) adds five public pinned-recovery,
+partial-I/O and repeated-timeout cases, with read-only internal counter samples and
+explicit independent rejection of the deliberately damaged minority authority.
 
 ## Independent foundation before production
 
