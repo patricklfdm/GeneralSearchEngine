@@ -33,6 +33,38 @@ def inventory(directory):
     return result
 
 
+def torn_append(directory, witness):
+    """A deliberately quarantined voter is not a valid retained-history report."""
+    directory = Path(directory); kind = witness['kind']; relative = Path(witness['path'])
+    name = {'ACCEPT': 'accepted.gsr', 'PROOF': 'proofs.gsr'}.get(kind)
+    f.need(name is not None and relative.as_posix() in (name, 'generation-a/'+name, 'generation-b/'+name), 'torn journal path/kind')
+    before, after = raw(witness['before']), raw(witness['after'])
+    f.need(after.startswith(before) and len(after)-len(before) == 64, 'not one exact partial write')
+    f.need((directory/relative).read_bytes() == after, 'partial journal changed after failure')
+    manifest_bytes = (directory/'manifest.gsr').read_bytes()
+    manifest = dict(f.inspect(manifest_bytes, 'MANIFEST'), digest=manifest_bytes[16:48].hex())
+    selector = directory/'current.gsr'
+    active = f.contextual_frame(selector.read_bytes(), 'SELECTOR', manifest)['generation']+'/' if selector.exists() else ''
+    f.need(relative.as_posix() == active+name, 'partial append is not the active journal')
+    offset = 0
+    while offset < len(before):
+        f.need(len(before)-offset >= 48, 'torn pre-failure prefix')
+        length = 48+int.from_bytes(before[offset+12:offset+16], 'big', signed=True)
+        f.need(48 < length <= len(before)-offset, 'torn pre-failure frame')
+        value = f.contextual_frame(before[offset:offset+length], 'JOURNAL' if offset == 0 else kind, manifest)
+        if offset == 0: f.need(value['node'] == directory.name and value['recordKind'] == (24 if kind == 'ACCEPT' else 6), 'partial journal identity')
+        offset += length
+    f.need(offset > 0, 'missing original journal')
+    tail = after[offset:]; magic, major, minor, identifier, flags, size = struct.unpack('>4sHHHHi', tail[:16])
+    f.need((magic, major, minor, identifier, flags) == (b'GSER', 1, 2, 24 if kind == 'ACCEPT' else 6, 0)
+           and 64 < 48+size <= f.load()['records'][kind]['maximum'], 'partial frame not incomplete')
+    try: inspect(directory)
+    except ValueError as error:
+        f.need(str(error) in ('torn ledger body', 'source journal row size'), 'unrelated quarantine cause: '+str(error))
+        return dict(status='QUARANTINED', kind=kind, partialBytes=len(tail), reason=str(error))
+    raise ValueError('partial write accepted as valid authority')
+
+
 def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
     directory = Path(directory)
     f.need(not any(p.is_symlink() for p in (directory, *directory.parents)), 'authority symlink')

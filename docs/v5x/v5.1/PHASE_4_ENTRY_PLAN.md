@@ -24,7 +24,8 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `3bb84b250800c7871745450491e56b6821195d1d` (exact-master CI `35705020751`).
 [Batches L](PHASE_4_RESOURCE_LIMITS.md) and [M](PHASE_4_BACKPRESSURE.md) are
 accepted through PR #205, exact-master CI `35753082195`.
-[Batch N](PHASE_4_PUBLIC_SELECTION.md) adds selection/recovery qualification;
+[Batch N](PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206, exact-master
+CI `35779031221`. [Batch O](PHASE_4_LIFECYCLE_HARDENING.md) adds lifecycle hardening;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -192,3 +193,13 @@ across higher promises, hidden proof, a lagging candidate adopting a higher prov
 prefix, and epoch change during partial basis download. Bind all outcomes to actual
 raw wire/force/basis evidence and public service. Map existing conflict-selection
 fixtures at their internal layer; retain the remaining E01–E12 acceptance review.
+
+## Batch O — pinned recovery and bounded failure cleanup
+
+[Batch O](PHASE_4_LIFECYCLE_HARDENING.md) follows accepted Batch N. Hold an old
+query while a newer recovery snapshot arrives and reconstruction queues behind it;
+require the old view to finish before application replacement. Inject real partial
+ACCEPT/PROOF channel writes and require quarantine, unchanged rejected restarts and
+remaining-majority service. Repeat public queued deadlines and real transport
+timeouts with independent reservation/counter evidence. Preserve the difference
+between finite public schedules and an unbounded resource proof.

@@ -193,7 +193,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                     catch(Throwable error){lastExchangeFailure=error;complete(()->{protocol.transportFailed(message.id(),now());unreachable(message.recipient());});}
                 });}catch(RejectedExecutionException error){protocol.transportFailed(message.id(),now());}
             }else if(action instanceof AutomaticProtocol.Reconstruct rebuild) {
-                applicationTask(()->{byte[] image=null;Throwable failure=null;try{image=application.reconstruct(rebuild.replay());}catch(Throwable e){failure=e;}
+                var cut=Map.<String,Object>of("id",rebuild.id(),"index",rebuild.replay().through(),"sequence",rebuild.replay().sequence());
+                try {events.at("RECONSTRUCT_QUEUED",cut);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+                applicationTask(()->{byte[] image=null;Throwable failure=null;try{events.at("RECONSTRUCT_BEGIN",cut);image=application.reconstruct(rebuild.replay());events.at("RECONSTRUCT_END",cut);}catch(Throwable e){failure=e;}
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
                 applicationTask(()->{Throwable failure=null;try{events.at("BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));

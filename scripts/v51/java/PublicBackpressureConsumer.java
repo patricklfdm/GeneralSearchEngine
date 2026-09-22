@@ -97,7 +97,10 @@ public final class PublicBackpressureConsumer {
                     if(kind.equals("close"))break;
                     if(kind.equals("status")) {
                         var status=engine.leadershipStatus();var result=new LinkedHashMap<>(command);
-                        result.put("state",status.state().name());result.put("provenIndex",status.provenIndex());result.put("pending",status.pendingOperations());result.put("outcome","SUCCESS");print(result);
+                        result.put("state",status.state().name());result.put("provenIndex",status.provenIndex());result.put("pending",status.pendingOperations());
+                        result.put("epoch",status.promisedEpoch());result.put("appliedIndex",status.appliedIndex());
+                        var sample=diagnostics.apply(engine);if(!sample.isEmpty()){observer.accept("LIFECYCLE_SAMPLE",Map.of("opId",command.get("opId"),"sample",sample));result.put("sample",sample);}
+                        result.put("outcome","SUCCESS");print(result);
                     }else if(kind.equals("addAll"))callbacks.add(client.write(command,null));
                     else if(kind.equals("read"))readers.execute(()->client.read(command));
                     else if(kind.equals("completionChain")) {

@@ -377,3 +377,13 @@ selection/recovery cases plus independent evidence checks. It always uploads
 fourteen days. This uses the lane's existing reactor build; the eleven required
 lanes, prior gates/uploads, documentation routing and cloud workflows are unchanged.
 See [the scope and evidence record](v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md).
+
+### V5.1 Phase 4O lifecycle hardening
+
+`v51-public-lifecycle` additionally runs
+`scripts/verify-v51-phase4-lifecycle-hardening.sh --skip-build`: five public JVM/TCP
+scenarios for pinned reconstruction, partial writes and repeated timeouts, with
+independent history/physical checks and negative variants. It always uploads
+`target/v51-lifecycle-hardening` as `v51-lifecycle-hardening-${{ github.sha }}` for
+fourteen days. The existing eleven required lanes, all prior gates/uploads and
+documentation-only routing are preserved. See [the evidence record](v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md).

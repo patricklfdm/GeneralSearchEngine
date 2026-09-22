@@ -43,12 +43,16 @@ def documents_command(data):
     f.need(offset==len(data),'command trailing data');return values
 
 
-def validate(root,traces=None):
+def validate(root,traces=None,*,rejected_tails=None):
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
-    nodes={row['node'] for row in manifest['members']};reports={node:storage.inspect(root/node) for node in nodes}
+    nodes={row['node'] for row in manifest['members']};rejected_tails=rejected_tails or {}
+    f.need(len(rejected_tails)<=1 and set(rejected_tails)<=nodes,'only one explicitly witnessed torn voter may be excluded')
+    quarantined={node:storage.torn_append(root/node,witness) for node,witness in rejected_tails.items()}
+    reports={node:storage.inspect(root/node) for node in nodes-set(rejected_tails)}
     traces=traces if traces is not None else {node:[json.loads(line) for line in (root/(node+'-trace.jsonl')).read_text().splitlines()] for node in nodes}
     f.need(set(traces)==nodes and all(traces.values()),'incomplete voter traces')
+    f.need(all(witness in traces[node] and witness['event']=='PARTIAL_WRITE_FAILURE' for node,witness in rejected_tails.items()),'unobserved quarantined append')
     entries={};accepted={};chosen={};reply_frames=set();pids=set();basis_bytes={};parts={};selections={}
     for node,rows in traces.items():
         for row in rows:
@@ -130,9 +134,9 @@ def validate(root,traces=None):
                 # Unique tagged documents must already occur together in one proven publication.
                 f.need(any(all(state.get(d['id'])==d['value'] for d in row['documents']) for state in published.values()),'bulk success before publication');successes+=1
         for index,digest in chosen.items():
-            if reports[node]['provenThrough']>=index:f.need(reports[node]['acceptedDigests'][index-1]==digest,'retained chosen history changed')
+            if node in reports and reports[node]['provenThrough']>=index:f.need(reports[node]['acceptedDigests'][index-1]==digest,'retained chosen history changed')
     f.need(successes>=3 and publications>=5 and chunks>=6,'incomplete runtime execution')
-    return dict(status='PASS',execution='internal-runtime-real-tcp',publicRuntime=False,processes=len(pids),chosen=len(chosen),publications=publications,successes=successes,chunkFrames=chunks)
+    return dict(status='PASS',execution='internal-runtime-real-tcp',publicRuntime=False,processes=len(pids),chosen=len(chosen),publications=publications,successes=successes,chunkFrames=chunks,quarantined=quarantined)
 
 
 def negatives(root):

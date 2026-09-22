@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A–M accepted. Batch N selection/recovery qualification passed locally;
-protected Batch N and complete Phase 4 acceptance remain open.
+**Status:** Batches A–N accepted. Batch O lifecycle hardening qualification passed locally;
+protected Batch O and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -69,5 +69,9 @@ protected Batch N and complete Phase 4 acceptance remain open.
   master `39332feb71f877d3cbd976631e8a26a9cf2f607c`, exact-master CI `35753082195`.
 - [x] [Batch N](PHASE_4_PUBLIC_SELECTION.md): public duplicate PREPARE, delayed
   ACCEPT/PROOF, hidden proof, lagging candidate and epoch-crossing basis transfer.
-- [ ] Protected Batch N acceptance.
+- [x] Protected Batch N acceptance: PR #206, master
+  `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4`, exact-master CI `35779031221`.
+- [x] [Batch O](PHASE_4_LIFECYCLE_HARDENING.md): pinned reconstruction, partial
+  ACCEPT/PROOF errors and repeated queue/transport timeout accounting.
+- [ ] Protected Batch O acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

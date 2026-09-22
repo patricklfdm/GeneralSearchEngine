@@ -1,8 +1,9 @@
 # V5.1 Phase 4N: public selection and recovery fencing
 
-**Status:** local qualification passed; protected Batch N and full Phase 4 acceptance
-remain open. Batches A–M are accepted through PR #205 at
-`39332feb71f877d3cbd976631e8a26a9cf2f607c`, exact-master CI `35753082195`.
+**Status:** Batch N accepted through PR #206 at
+`3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4`, [exact-master CI 35779031221](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35779031221).
+All eleven full-CI lanes, Required and the new selection gate passed.
+Complete Phase 4 acceptance remains open.
 
 ## Public execution boundary
 

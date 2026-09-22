@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–M accepted; Phase 4N locally qualified; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–N accepted; Phase 4O locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -54,8 +54,10 @@ its transition kernel was accepted in PR #188 with CI `35507802486`. The
 `a5595f8efad34ec96a3f6e883e5c9c9491004279` (exact-master CI `35712922357`).
 [Phase 4M](v5.1/PHASE_4_BACKPRESSURE.md) is accepted through PR #204 / #205
 at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
-[Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) adds public selection and
-epoch-crossing recovery qualification; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
+[Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206
+at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
+[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned recovery,
+partial I/O and repeated timeout qualification; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
 tracks remaining qualification before full Phase 4 acceptance.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
