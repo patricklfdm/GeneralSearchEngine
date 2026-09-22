@@ -81,7 +81,7 @@ Action pins, Java setup and Maven dependency caching are copied from the origina
 job. Maven's dependency cache is not a substitute for build outputs. No artifacts
 are downloaded between jobs; evidence uploads keep their exact existing names,
 paths, `always()` conditions, missing-file behavior and 14-day retention. All 27
-workflow artifact names remain unique, including the V5.1 public-bounds and public-promises uploads.
+workflow artifact names remain unique, including the V5.1 public-bounds, public-promises and public-candidates uploads.
 
 ## Required and documentation-only behavior
 
@@ -221,7 +221,7 @@ The five V5 lanes are partitioned as follows:
 - `v50-recovery-workload`: Phase 4–6, including hardening and local cloud workloads.
 - `v51-foundation-admission`: Phase 1–3, public admission/bounds, promise crashes and bootstrap.
 - `v51-public-lifecycle`: public runtime, concurrent qualification, faults and recovery/lifecycle.
-- `v51-protocol-reclamation`: public protocol faults and interrupted reclamation.
+- `v51-protocol-reclamation`: public protocol faults, candidate election crashes and interrupted reclamation.
 
 Each gate constructs its own process/evidence workspace. Sharing Python helpers
 between public harnesses does not mean sharing generated evidence: each harness
@@ -255,3 +255,9 @@ The 87-row map above remains the original migration record; the new gate is
 additive. The eleven required lanes, build isolation, cloud-preflight identifiers
 and docs-only behavior are unchanged. Historical timing estimates above exclude
 this new qualification; later CI runs measure its added runtime.
+
+Phase 4J adds fourteen candidate-side election crash cases and an always-retained
+`v51-public-candidates-${{ github.sha }}` artifact to `v51-protocol-reclamation`.
+It shares only compilation and read-only evidence helpers with the peer-promise
+suite, not generated artifacts or process state. The eleven required lanes and
+historical migration map remain intact; earlier timing estimates exclude this gate.

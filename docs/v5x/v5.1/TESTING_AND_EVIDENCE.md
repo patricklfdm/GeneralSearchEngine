@@ -34,8 +34,11 @@ bounds, no-quorum startup and incompatible configuration/mode/wire rejection.
 Phase 4H is accepted through PR #199, exact-master CI `35688926607`.
 [Phase 4I](PHASE_4_PUBLIC_PROMISES.md) adds twelve public peer-promise write/force,
 frozen-basis and reply interruption cases with independent retained-journal checks.
-This supplements E04; candidate epoch-selection cuts and resource exhaustion
-remain open. These batches do not close unrelated E rows.
+Phase 4I is accepted through PR #200, exact-master CI `35693468905`.
+[Phase 4J](PHASE_4_PUBLIC_CANDIDATES.md) adds fourteen candidate-side promise,
+frozen-basis and PREPARE request/response interruption cases with fresh retained
+campaign checks. These supplement E04; resource exhaustion remains open.
+These batches do not close unrelated E rows.
 
 ## Independent foundation before production
 

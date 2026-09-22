@@ -61,7 +61,7 @@ For build inputs or manual dispatch, the workflow runs eleven independent gates 
    processor and example tests. Its display name remains compatible with V5.0 cloud preflight.
 2. `v51-foundation-admission` runs V5.1 Phase 1–3, public bounds/admission, promise crashes and bootstrap.
 3. `v51-public-lifecycle` runs public runtime, concurrent qualification, faults and recovery/lifecycle.
-4. `v51-protocol-reclamation` runs public protocol faults and interrupted reclamation.
+4. `v51-protocol-reclamation` runs public protocol faults, candidate election crashes and interrupted reclamation.
 5. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
 6. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
    Each V5 lane builds and tests its own reactor and retains its own evidence.

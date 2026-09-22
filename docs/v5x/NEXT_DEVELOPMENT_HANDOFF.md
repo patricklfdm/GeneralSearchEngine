@@ -12,13 +12,13 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4H was accepted through PR #199 at
-`fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
-[Phase 4I](v5.1/PHASE_4_PUBLIC_PROMISES.md) adds public promise write/force,
-frozen-basis and reply crash evidence. Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md)
-and its remaining public scenario mapping; this does not authorize Phase 5, cloud
-runs or publication. The original Phase 0 planning-only restrictions below describe
-that earlier task.
+**Current implementation handoff:** V5.1 Phase 4I was accepted through PR #200 at
+`6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
+[Phase 4J](v5.1/PHASE_4_PUBLIC_CANDIDATES.md) adds public candidate self-promise,
+frozen-basis/PREPARE interruption and fresh retained election evidence.
+Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md) and its remaining
+public scenario mapping; this does not authorize Phase 5, cloud runs or publication.
+The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map
 

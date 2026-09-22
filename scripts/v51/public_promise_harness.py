@@ -79,12 +79,12 @@ def scenario(root, cp, case):
     return receipt
 
 
-def run(output, only=None):
+def run_matrix(output, only, *, cases, scenario_runner, execution):
     root = Path(output).resolve(); root.mkdir(parents=True, exist_ok=False)
-    receipt = dict(status='FAIL', execution='public-promise-crashes', paidCloud=False, cases=[],
-                   scope='targeted-case' if only else 'complete-12-case-matrix')
+    receipt = dict(status='FAIL', execution=execution, paidCloud=False, cases=[],
+                   scope='targeted-case' if only else f'complete-{len(cases)}-case-matrix')
     try:
-        need(only is None or only in CASES, 'unknown public promise case')
+        need(only is None or only in cases, 'unknown public crash case')
         receipt['head'] = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
         paths = subprocess.check_output(['git', 'ls-files', '-z', '--cached', '--others', '--exclude-standard'], cwd=ROOT).decode().split('\0')
         inventory = {p: storage.sha((ROOT/p).read_bytes()) for p in sorted(set(paths)) if p and (ROOT/p).is_file()}
@@ -99,20 +99,24 @@ def run(output, only=None):
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars, '-d', classes, *sources], root, 'compile-consumer')
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars+os.pathsep+str(classes), '-d', observer, java/'V51PublicWorker.java'], root, 'compile-observer')
         cp = os.pathsep.join(map(str, (CORE, REPLICATION, classes, observer)))
-        for case in CASES:
+        for case in cases:
             if only and case != only: continue
             try:
-                result = scenario(root/case, cp, case)
+                result = scenario_runner(root/case, cp, case)
                 receipt['cases'].append(dict(case=case, status=result['status']))
             except Exception as error:
                 receipt['cases'].append(dict(case=case, status='FAIL', failure=str(error)))
             print(json.dumps(receipt['cases'][-1]), flush=True)
-        need(all(case['status'] == 'PASS' for case in receipt['cases']), 'public promise cases failed: '+
+        need(all(case['status'] == 'PASS' for case in receipt['cases']), 'public crash cases failed: '+
              ', '.join(case['case'] for case in receipt['cases'] if case['status'] != 'PASS'))
         receipt['status'] = 'PASS'
     except BaseException as error: receipt['failure'] = str(error); raise
     finally: save(root/'receipt.json', receipt)
     return receipt
+
+
+def run(output, only=None):
+    return run_matrix(output, only, cases=CASES, scenario_runner=scenario, execution='public-promise-crashes')
 
 
 if __name__ == '__main__':
