@@ -14,7 +14,9 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `764cbf4a41bd6afc79e39cb3f97e612a3d66d39d` (exact-master CI `35591386329`).
 [Batch G](PHASE_4_PUBLIC_RECLAMATION.md) is accepted through PR #198 at
 `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc` (exact-master CI `35664882661`).
-[Batch H](PHASE_4_PUBLIC_BOUNDS.md) adds public capacity and rejection qualification;
+[Batch H](PHASE_4_PUBLIC_BOUNDS.md) is accepted through PR #199 at
+`fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
+[Batch I](PHASE_4_PUBLIC_PROMISES.md) adds public promise crash qualification;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -121,3 +123,13 @@ send incompatible wire headers/envelopes to a live public endpoint. Inspect exac
 authority inventories and raw replies; a connection timeout alone is insufficient.
 Preserve the remaining promise/ancestry exhaustion, full control-queue schedules
 and complete E01–E12 mapping as explicit work before full Phase 4 acceptance.
+
+## Batch I — public promise crash boundaries
+
+Crash a public peer voter before/after promise write, after force, before the
+storage return, after frozen-basis publication and before the actual PROMISE
+reply. Exercise both halt and SIGKILL, archive exact authority before retained
+public restart, and require that restarted voter in a later read/write majority.
+Independently bind raw journal prefixes, monotonic ballots, force order and frozen
+basis/image/reply identity. Keep candidate-side epoch selection, resource
+exhaustion and full Phase 4 acceptance as separate remaining work.

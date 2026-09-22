@@ -81,7 +81,7 @@ Action pins, Java setup and Maven dependency caching are copied from the origina
 job. Maven's dependency cache is not a substitute for build outputs. No artifacts
 are downloaded between jobs; evidence uploads keep their exact existing names,
 paths, `always()` conditions, missing-file behavior and 14-day retention. All 27
-workflow artifact names remain unique, including the new V5.1 public-bounds upload.
+workflow artifact names remain unique, including the V5.1 public-bounds and public-promises uploads.
 
 ## Required and documentation-only behavior
 
@@ -219,7 +219,7 @@ The five V5 lanes are partitioned as follows:
 
 - `v50-authority`: public admission, offline authority, public runtime, Phase 1–3.
 - `v50-recovery-workload`: Phase 4–6, including hardening and local cloud workloads.
-- `v51-foundation-admission`: Phase 1–3, public admission/bounds and bootstrap.
+- `v51-foundation-admission`: Phase 1–3, public admission/bounds, promise crashes and bootstrap.
 - `v51-public-lifecycle`: public runtime, concurrent qualification, faults and recovery/lifecycle.
 - `v51-protocol-reclamation`: public protocol faults and interrupted reclamation.
 
@@ -246,3 +246,12 @@ GitHub scheduling, cache races, upload execution or hosted-runner load. The next
 full PR CI run must confirm those behaviors and the actual duration. A docs-only
 run can pass Required, but remains documentation evidence rather than proof that
 the full regression lanes executed.
+
+## Additions after the migration
+
+Phase 4I adds the twelve-case public promise crash gate and an always-retained
+`v51-public-promises-${{ github.sha }}` artifact to `v51-foundation-admission`.
+The 87-row map above remains the original migration record; the new gate is
+additive. The eleven required lanes, build isolation, cloud-preflight identifiers
+and docs-only behavior are unchanged. Historical timing estimates above exclude
+this new qualification; later CI runs measure its added runtime.

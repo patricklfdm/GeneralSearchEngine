@@ -33,6 +33,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 4F public protocol and recovery fault matrix](v5x/v5.1/PHASE_4_PUBLIC_PROTOCOL.md)
 - [V5.1 Phase 4G public two-source recovery floors and interrupted reclamation](v5x/v5.1/PHASE_4_PUBLIC_RECLAMATION.md)
 - [V5.1 Phase 4H public capacity and admission/wire rejection](v5x/v5.1/PHASE_4_PUBLIC_BOUNDS.md)
+- [V5.1 Phase 4I public promise write/force and reply crashes](v5x/v5.1/PHASE_4_PUBLIC_PROMISES.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)
 - [V5.1 selected-quorum wire extension decision](v5x/v5.1/PHASE_3_WIRE_EXTENSION.md)
 - [V5.1 Phase 3 checklist](v5x/v5.1/PHASE_3_CHECKLIST.md)

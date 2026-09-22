@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A/B/C/D/E/F/G accepted. Batch H public capacity and rejection
-qualification passed locally; protected Batch H and complete Phase 4 acceptance remain open.
+**Status:** Batches A/B/C/D/E/F/G/H accepted. Batch I public promise crash
+qualification passed locally; protected Batch I and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -44,5 +44,9 @@ qualification passed locally; protected Batch H and complete Phase 4 acceptance 
   `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master CI `35664882661`.
 - [x] [Batch H](PHASE_4_PUBLIC_BOUNDS.md): public capacity, admission and wire
   rejection with unchanged authority and later public service.
-- [ ] Protected Batch H acceptance.
+- [x] Protected Batch H acceptance: PR #199, master
+  `fdf9482781e04727e20326fa0e32bcd281242f04`, exact-master CI `35688926607`.
+- [x] [Batch I](PHASE_4_PUBLIC_PROMISES.md): public peer-promise write/force,
+  frozen-basis and actual reply crash qualification.
+- [ ] Protected Batch I acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

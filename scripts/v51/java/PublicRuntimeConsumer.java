@@ -45,7 +45,9 @@ public final class PublicRuntimeConsumer {
         var policy=profile.equals("wire")?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout);
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
                 root.resolve(m.nodeId().value()),small?DurableStorageConfig.builder(root.resolve("app-"+m.nodeId().value()),new Codec())
-                        .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),fixtureBounds,policy)).toList();
+                        .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),fixtureBounds,
+                Files.exists(root.resolve("promise-evidence"))&&m.nodeId().value().equals("node-3")
+                        ?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):policy)).toList();
     }
     private static void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     @SuppressWarnings("unchecked") public static void main(String[] args) throws Exception {

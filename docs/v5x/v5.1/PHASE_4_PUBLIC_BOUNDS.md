@@ -1,9 +1,10 @@
 # V5.1 Phase 4H: public capacity and admission boundaries
 
-**Status:** local qualification passed. Protected Batch H and complete
-Phase 4 acceptance remain open. [Batch G](PHASE_4_PUBLIC_RECLAMATION.md) is accepted
-through PR #198, master `4833bddf08b95a9cd28d63ee0b1c78e2e3de16dc`, exact-master
-CI `35664882661`.
+**Status:** accepted through PR #199, master
+`fdf9482781e04727e20326fa0e32bcd281242f04`, exact-master CI `35688926607`.
+All eleven full-CI lanes and the Required gate succeeded. Complete Phase 4
+acceptance remains open; [Batch I](PHASE_4_PUBLIC_PROMISES.md) adds public promise
+crash qualification.
 
 ## Public execution and sealed bounds
 
