@@ -26,6 +26,8 @@ final class AutomaticTransport implements AutoCloseable {
     interface Events {
         Events NONE = (barrier, request, response) -> { };
         void at(String barrier, Map<String, Object> request, Map<String, Object> response) throws IOException;
+        /** Internal observation only. The token identifies one reservation, including exact-request retries. */
+        default void accounting(String event, Map<String,Object> request, Object token, int bytes) { }
     }
     private final AutomaticRecords.Record manifest;
     private final String local;
@@ -98,7 +100,10 @@ final class AutomaticTransport implements AutoCloseable {
         if (closed) return CompletableFuture.failedFuture(new ReplicationException(CLOSED, "transport closed"));
         Semaphore capacity = outbound.get(peer);
         if (capacity == null || peer.equals(local)) return CompletableFuture.failedFuture(new ReplicationException(PROTOCOL_MISMATCH, "invalid peer"));
-        if (!capacity.tryAcquire()) return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "peer in-flight limit reached"));
+        if (!capacity.tryAcquire()) {
+            events.accounting("OUTBOUND_REJECTED",request,null,0);
+            return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "peer in-flight limit reached"));
+        }
         var result = new CompletableFuture<Map<String, Object>>();
         byte[] bytes;
         try { bytes = AutomaticWire.encode(request, manifest, bounds.maxFrameBytes()); }
@@ -110,6 +115,7 @@ final class AutomaticTransport implements AutoCloseable {
         long deadline = deadline();
         Map<String, Object> expected = java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(request));
         try {
+            events.accounting("OUTBOUND_ADMITTED",expected,result,bytes.length);
             senders.get(peer).execute(() -> {
                 try {
                     // The deadline includes queue time; two admitted lanes prevent reverse basis fetch from waiting behind itself.
@@ -149,10 +155,20 @@ final class AutomaticTransport implements AutoCloseable {
                 } catch (Throwable error) {
                     if (error instanceof InterruptedException) Thread.currentThread().interrupt();
                     result.completeExceptionally(closed ? failure(CLOSED, "transport closed", error) : error);
-                } finally { capacity.release(); queuedBytes.addAndGet(-bytes.length); }
+                } finally { releaseOutbound(expected,result,bytes.length,capacity); }
             });
-        } catch (RuntimeException error) { capacity.release(); queuedBytes.addAndGet(-bytes.length); result.completeExceptionally(error); }
+        } catch (RuntimeException error) { releaseOutbound(expected,result,bytes.length,capacity); result.completeExceptionally(error); }
         return result;
+    }
+
+    private void releaseOutbound(Map<String,Object> request,Object token,int bytes,Semaphore capacity) {
+        try { events.accounting("OUTBOUND_RELEASED",request,token,bytes); }
+        finally { queuedBytes.addAndGet(-bytes); capacity.release(); }
+    }
+
+    private void releaseInbound(SocketChannel channel) {
+        try { events.accounting("INBOUND_RELEASED",Map.of(),channel,0); }
+        finally { channels.remove(channel); inbound.release(); }
     }
 
     private void accept() {
@@ -163,12 +179,15 @@ final class AutomaticTransport implements AutoCloseable {
                 selector.selectedKeys().clear();
                 SocketChannel channel;
                 while ((channel = server.accept()) != null) {
-                    if (!inbound.tryAcquire()) { channel.close(); continue; }
+                    if (!inbound.tryAcquire()) { channel.close(); events.accounting("INBOUND_REJECTED",Map.of(),null,0); continue; }
                     channels.add(channel);
                     SocketChannel accepted = channel;
-                    try { workers.execute(() -> serve(accepted)); }
+                    try {
+                        events.accounting("INBOUND_ADMITTED",Map.of(),accepted,0);
+                        workers.execute(() -> serve(accepted));
+                    }
                     catch (RuntimeException error) {
-                        channels.remove(channel); inbound.release(); channel.close();
+                        try { releaseInbound(channel); } finally { channel.close(); }
                         if (!closed) throw error;
                     }
                 }
@@ -190,7 +209,7 @@ final class AutomaticTransport implements AutoCloseable {
             transfer(channel, selector, ByteBuffer.wrap(AutomaticWire.encode(response, manifest, bounds.maxFrameBytes())), true, deadline);
         } catch (IOException | RuntimeException ignored) {
             // Malformed/uncorrelated frames close the connection; no durable success is manufactured.
-        } finally { channels.remove(channel); inbound.release(); }
+        } finally { releaseInbound(channel); }
     }
 
     private Map<String, Object> read(SocketChannel channel, Selector selector, long deadline) throws IOException {

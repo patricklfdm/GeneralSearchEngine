@@ -18,7 +18,9 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 `fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
 [Batch I](PHASE_4_PUBLIC_PROMISES.md) is accepted through PR #200 at
 `6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
-[Batch J](PHASE_4_PUBLIC_CANDIDATES.md) adds public candidate election crashes;
+[Batch J](PHASE_4_PUBLIC_CANDIDATES.md) is accepted through PR #201 at
+`04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
+[Batch K](PHASE_4_PUBLIC_PRESSURE.md) adds transport pressure and slow-force qualification;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -145,3 +147,14 @@ all retained epochs with an unused incarnation, then acknowledged reads/writes w
 original leader stays absent. Independently check dispatch/peer-force/reply order,
 exact journal prefix retention and controller-clock recovery intervals. Pre-force
 bytes and unwritten volatile ballots must not be described as durable promises.
+
+## Batch K — public transport pressure and delayed force
+
+Hold both outbound reservations toward a non-quorum peer and all eight inbound
+connections at that peer. Prove actual rejection while all reservations are held,
+continued public quorum service, exact release accounting and retained restart.
+Pause ACCEPT/PROOF before force at the actual selected quorum peer, and ACCEPT on
+the leader. Preserve conservative uncertain outcomes across the request deadline,
+resolve them with fresh public reads without replay, and test bounded client
+admission while the leader is paused. Inspect raw reservations/frames/force bytes
+independently; do not infer full runtime mailbox or storage exhaustion coverage.

@@ -1,9 +1,9 @@
 # V5.1 Phase 4J: public candidate election crashes
 
-**Status:** local qualification passed. Protected Batch J and complete Phase 4
-acceptance remain open. [Batch I](PHASE_4_PUBLIC_PROMISES.md) is accepted through
-PR #200 at master `6a781ac33945016645961ec1c6564d8975cd82fd`, exact-master CI
-`35693468905`; all eleven full-CI lanes and the Required gate succeeded.
+**Status:** accepted through PR #201 at master `04106a0c2e88010c2c14c43ad485bc3113ed1d05`,
+exact-master CI `35698045261`; all eleven full-CI lanes and the Required gate
+succeeded. Complete Phase 4 acceptance remains open. The local record below
+retains the Batch J execution-time evidence and prior Batch I base.
 
 ## Public execution
 

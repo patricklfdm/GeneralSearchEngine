@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F/G/H/I accepted; Phase 4J locally qualified; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A/B/C/D/E/F/G/H/I/J accepted; Phase 4K locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -46,8 +46,10 @@ its transition kernel was accepted in PR #188 with CI `35507802486`. The
 `fdf9482781e04727e20326fa0e32bcd281242f04` (exact-master CI `35688926607`).
 [Phase 4I](v5.1/PHASE_4_PUBLIC_PROMISES.md) is accepted through PR #200 at
 `6a781ac33945016645961ec1c6564d8975cd82fd` (exact-master CI `35693468905`).
-[Phase 4J](v5.1/PHASE_4_PUBLIC_CANDIDATES.md) adds public candidate election
-crashes; full Phase 4 acceptance remains open.
+[Phase 4J](v5.1/PHASE_4_PUBLIC_CANDIDATES.md) is accepted through PR #201 at
+`04106a0c2e88010c2c14c43ad485bc3113ed1d05` (exact-master CI `35698045261`).
+[Phase 4K](v5.1/PHASE_4_PUBLIC_PRESSURE.md) adds public transport saturation,
+slow force and capacity-release evidence; full Phase 4 acceptance remains open.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

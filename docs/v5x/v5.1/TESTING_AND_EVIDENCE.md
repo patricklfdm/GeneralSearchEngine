@@ -38,6 +38,11 @@ Phase 4I is accepted through PR #200, exact-master CI `35693468905`.
 [Phase 4J](PHASE_4_PUBLIC_CANDIDATES.md) adds fourteen candidate-side promise,
 frozen-basis and PREPARE request/response interruption cases with fresh retained
 campaign checks. These supplement E04; resource exhaustion remains open.
+Phase 4J is accepted through PR #201, exact-master CI `35698045261`.
+[Phase 4K](PHASE_4_PUBLIC_PRESSURE.md) adds five transport saturation/slow-force
+scenarios, reservation release accounting, conservative uncertain outcomes and
+public recovery without write replay. These supplement E10/E11; internal runtime
+mailbox saturation and snapshot/promise/ancestry exhaustion remain open.
 These batches do not close unrelated E rows.
 
 ## Independent foundation before production

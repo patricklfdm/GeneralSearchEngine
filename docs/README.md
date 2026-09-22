@@ -35,6 +35,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 4H public capacity and admission/wire rejection](v5x/v5.1/PHASE_4_PUBLIC_BOUNDS.md)
 - [V5.1 Phase 4I public promise write/force and reply crashes](v5x/v5.1/PHASE_4_PUBLIC_PROMISES.md)
 - [V5.1 Phase 4J public candidate crashes and fresh retained elections](v5x/v5.1/PHASE_4_PUBLIC_CANDIDATES.md)
+- [V5.1 Phase 4K public transport pressure and slow-force boundaries](v5x/v5.1/PHASE_4_PUBLIC_PRESSURE.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)
 - [V5.1 selected-quorum wire extension decision](v5x/v5.1/PHASE_3_WIRE_EXTENSION.md)
 - [V5.1 Phase 3 checklist](v5x/v5.1/PHASE_3_CHECKLIST.md)
