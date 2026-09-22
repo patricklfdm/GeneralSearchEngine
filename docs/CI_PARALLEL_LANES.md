@@ -281,3 +281,13 @@ cases to `v51-public-lifecycle`, with the always-retained
 `v51-backpressure-${{ github.sha }}` artifact. The gate builds no shared state across
 lanes. The original migration map, eleven required lanes and existing gates/uploads
 remain unchanged; earlier timing estimates exclude this addition.
+
+### V5.1 Phase 4N selection qualification
+
+`v51-protocol-reclamation` additionally runs
+`scripts/verify-v51-phase4-public-selection.sh --skip-build`: six public JVM/TCP
+selection/recovery cases plus independent evidence checks. It always uploads
+`target/v51-public-selection` as `v51-public-selection-${{ github.sha }}` for
+fourteen days. This uses the lane's existing reactor build; the eleven required
+lanes, prior gates/uploads, documentation routing and cloud workflows are unchanged.
+See [the scope and evidence record](v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md).

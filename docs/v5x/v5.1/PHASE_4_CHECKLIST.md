@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A–L accepted. Batch M backpressure/callback qualification passed locally;
-protected Batch M and complete Phase 4 acceptance remain open.
+**Status:** Batches A–M accepted. Batch N selection/recovery qualification passed locally;
+protected Batch N and complete Phase 4 acceptance remain open.
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -65,5 +65,9 @@ protected Batch M and complete Phase 4 acceptance remain open.
   `a5595f8efad34ec96a3f6e883e5c9c9491004279`, exact-master CI `35712922357`.
 - [x] [Batch M](PHASE_4_BACKPRESSURE.md): internal mailbox boundaries and public
   queued deadlines, query reentrancy and completion callback ownership.
-- [ ] Protected Batch M acceptance.
+- [x] Protected Batch M acceptance including transport correction: PR #204 / #205,
+  master `39332feb71f877d3cbd976631e8a26a9cf2f607c`, exact-master CI `35753082195`.
+- [x] [Batch N](PHASE_4_PUBLIC_SELECTION.md): public duplicate PREPARE, delayed
+  ACCEPT/PROOF, hidden proof, lagging candidate and epoch-crossing basis transfer.
+- [ ] Protected Batch N acceptance.
 - [ ] Complete external public runtime matrix and protected Phase 4 acceptance.

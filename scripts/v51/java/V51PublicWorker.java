@@ -146,8 +146,10 @@ public final class V51PublicWorker {
                         throw new IOException("controller-owned directional network fault");
                     }
                 }
-                if(Set.of("BASIS_CHUNK","SNAPSHOT_CHUNK","REJOIN_INSTALL").contains(request.get("type"))) {
+                if(Set.of("BASIS_CHUNK","SNAPSHOT_CHUNK","REJOIN_INSTALL").contains(request.get("type"))
+                        ||Files.exists(root.resolve("selection-evidence"))&&Set.of("ACCEPT","COMMIT_PROOF").contains(request.get("type"))) {
                     var values=new LinkedHashMap<String,Object>();values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
+                    if(!response.isEmpty())values.put("frame",b64(AutomaticWire.encode(response,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
                     if(request.get("type").equals("BASIS_CHUNK"))values.put("cut",number(object(request.get("payload")),"offset")>0?"continuation":"first");
                     trace.event("WIRE_"+barrier+"_"+request.get("type"),values);
                 }
@@ -159,6 +161,11 @@ public final class V51PublicWorker {
                         values.put("cut",response.get("type"));
                     }
                     trace.event("WIRE_"+barrier+"_PREPARE",values);
+                    if(barrier.equals("BEFORE_RESPONSE_WRITE")&&response.get("type").equals("PROMISE")
+                            &&Files.deleteIfExists(root.resolve(local+"-lose-promise"))) {
+                        trace.write("PROMISE_REPLY_LOST",values);
+                        throw new IOException("controller-owned single PROMISE response loss");
+                    }
                 }
                 Path partition=root.resolve("network-blocks.txt");
                 if((barrier.equals("BEFORE_REQUEST_WRITE")||barrier.equals("AFTER_RESPONSE_READ"))&&Files.exists(partition)

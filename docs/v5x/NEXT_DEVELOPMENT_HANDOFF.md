@@ -12,10 +12,12 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4L was accepted through PR #203 at
-`a5595f8efad34ec96a3f6e883e5c9c9491004279` (exact-master CI `35712922357`).
-[Phase 4M](v5.1/PHASE_4_BACKPRESSURE.md) adds internal mailbox boundaries and
-public queued-deadline/callback ownership qualification. The [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
+**Current implementation handoff:** V5.1 Phase 4M and the transport completion
+correction were accepted through PR #204 / #205 at
+`39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
+[Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) adds public duplicate PREPARE,
+delayed ACK fencing, hidden proof, lagging selection and epoch-crossing downloads.
+The [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
 distinguishes completed scenarios, internal witnesses and remaining public work.
 Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md) and its remaining
 public scenario mapping; this does not authorize Phase 5, cloud runs or publication.

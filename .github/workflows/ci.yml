@@ -326,6 +326,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 public selection and recovery across higher epochs
+        run: scripts/verify-v51-phase4-public-selection.sh --skip-build
+
+      - name: Retain V5.1 public selection evidence including failed cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-public-selection-${{ github.sha }}
+          path: target/v51-public-selection
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public candidate crashes and fresh elections
         run: scripts/verify-v51-phase4-public-candidates.sh --skip-build
 

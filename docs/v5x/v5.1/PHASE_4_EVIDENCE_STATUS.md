@@ -1,7 +1,8 @@
 # V5.1 Phase 4 current evidence status
 
-**Status:** Batch L accepted through PR #203 / exact-master CI `35712922357`.
-Batch M mailbox/callback qualification passed locally; its protected acceptance and full
+**Status:** Batches A–M accepted through PR #204 / #205 at master
+`39332feb71f877d3cbd976631e8a26a9cf2f607c`, exact-master CI `35753082195`.
+Batch N selection/recovery qualification passed locally; protected Batch N and full
 Phase 4 acceptance remain pending.
 This is a coverage review, not a replacement for the accepted
 [scenario matrix](TESTING_AND_EVIDENCE.md#scenario-matrix) or a Phase 5 entry decision.
@@ -18,12 +19,12 @@ that distinction for impractically large public exhaustion schedules.
 | Family | Concrete evidence now available | Remaining qualification/reconciliation |
 | --- | --- | --- |
 | E01 startup/activation | A public EMPTY/import bootstrap; B public lifecycle/failover; E imported retained recovery; H no-quorum startup. | Reconcile activation NO_OP and successful-prefix coverage across those receipts in final Phase 4 review. |
-| E02 campaigns | F competing campaigns and asymmetric transport schedules; I/J peer and candidate promise/PREPARE boundaries; Phase 3 model/kernel checks. | Explicit public duplicate-PREPARE and higher-ballot-during-ACCEPT/PROOF schedules still need a final mapping or added cases. |
-| E03 fencing | D isolated old leader and promise-versus-read capture; F directed request/response loss; retained public rejoin. | Reconcile delayed heartbeat/proof/reply cases against the accepted row; do not infer every delay from a generic partition. |
+| E02 campaigns | F competing campaigns and asymmetric transport schedules; I/J peer and candidate promise/PREPARE boundaries; N exact duplicate PREPARE and higher promise crossing delayed ACCEPT/PROOF; Phase 3 model/kernel checks. | N protected acceptance and final named-schedule reconciliation remain required. |
+| E03 fencing | D isolated old leader and promise-versus-read capture; F directed request/response loss; N delayed ACKs crossing a forced higher epoch; retained public rejoin. | Reconcile delayed heartbeat coverage against the accepted row; delayed ACCEPT/PROOF evidence does not establish every heartbeat schedule. |
 | E04 promises/epochs | I twelve peer crash cases; J fourteen candidate crash cases; L real 10,000-row store exhaustion and ranked integer overflow. | L limits are internal fixtures, not 10,000 public elections; retain this boundary in acceptance and assess full-row sufficiency explicitly. |
 | E05 mutation stages | C lost response and independent histories; D ACCEPT/PROOF/publication interruption; K delayed exact force and conservative outcomes. | Final correlation of each named force/quorum/publication/response boundary, including uncertain inclusion. |
-| E06 selection | F minority tail selected/discarded; internal recovery tests cover conflicting equal-ballot bases and different acceptance/origin ballots; model covers selection rules. | Public lagging-candidate/hidden-proof and ambiguous/conflicting frozen-selection rejection mapping remains open. |
-| E07 snapshots/reclamation | F basis/snapshot progress/selector cuts; G two-source floors and retirement interruptions; K retained pressure restart; L snapshot reservation/budget exhaustion. | Explicit pin-during-rebuild and epoch-change-during-download mapping; complete control queue saturation remains separate. |
+| E06 selection | F minority tail selected/discarded; N public lagging candidate, hidden proof and chosen-unknown retention; N also maps exact internal conflicting-selection/acceptance-versus-origin tests. | Conflict/mixed-basis rejection uses internal fixtures, not fabricated public quorum traffic. Review that layer boundary at final acceptance. |
+| E07 snapshots/reclamation | F basis/snapshot progress/selector cuts; G two-source floors and retirement interruptions; K retained pressure restart; L snapshot reservation/budget exhaustion; N higher epoch during partial basis download. | Explicit pin-during-rebuild mapping remains; complete control queue saturation remains separate. |
 | E08 disk/restart | B/C/D/F/G retained restarts; E imported recovery and missing/copied authority rejection; I/J archived promises and fresh campaigns; K/L retained pressure restarts. | Reconcile one/two lost disks and new-group verified-cut transition with public admission/cleanup evidence. No same-group disk re-enrollment is enabled. |
 | E09 reads | B complete façade; C rich V4.4 query/page/rank/highlight/explain comparison; D capture fencing; E cursor reconstruction; independent per-read NO_OP/view checks. | Final method-to-consumer inventory and callback/rebuild overlap mapping, without broadening follower-read guarantees. |
 | E10 lifecycle/outcomes | C/D uncertainty/response cuts; E cancellation/close/pins; H admission rejection; K delayed force/reservation release; L exhausted-voter rejection and quorum service; M queued deadlines, query reentrancy and completion callbacks. | Partial-write error and the final lifecycle method/scenario mapping remain to be reconciled. |
@@ -32,12 +33,12 @@ that distinction for impractically large public exhaustion schedules.
 
 ## Next bounded work
 
-1. Obtain protected acceptance of [Batch M](PHASE_4_BACKPRESSURE.md), preserving
-   the distinction between internal mailbox boundary fixtures and public callback
-   admission evidence. Reconcile repeated-timeout schedules explicitly.
-2. Complete the remaining selection/recovery schedules or document their exact
-   existing evidence mapping. A model/fixture result must keep its own execution
-   identity even when it supports a public safety argument.
+1. Obtain protected acceptance of [Batch N](PHASE_4_PUBLIC_SELECTION.md). Preserve
+   internal/public evidence identities in its selection-conflict mapping.
+2. Qualify or map pinned-read/rebuild overlap, partial-write errors and repeated
+   timeout/mailbox accumulation. Reconcile the named delayed-heartbeat and remaining
+   compatibility/admission cases with their actual gates; do not infer them from a
+   generic partition or from queue capacity alone.
 3. Review the final method/scenario map, run the required gates on the final source,
    and obtain protected Phase 4 acceptance. No individual batch merge closes it.
 
