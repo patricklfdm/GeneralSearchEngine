@@ -46,15 +46,33 @@ No controller supplies an epoch, vote or activation.
 
 All three public JVMs start normally. Three small tagged atomic bulks and a strong
 read establish a prefix that node 3 must recover before pressure begins. A larger
-public bulk then drives normal replication/recovery beyond node 3's budget.
-The actual failed admission calculation is observed inside the serialized storage
-operation, with its budget, limit, existing/replaced/requested bytes and a hashed
-file inventory. The independent oracle verifies the sealed limit, inventory sum
-and `requested > limit - retained + replaced`. The existing write/transfer
-staging check conservatively charges the whole authority inventory, including
-root metadata and generations; it is not just the size of the transfer directory.
+public bulk then exercises the declared resource boundary. Following the Batch M
+CI correction below, the two public cases intentionally observe different checks:
 
-The exhausted voter may become FAILED and must reject its public write/read calls
+- `snapshot-staging` uses two documents with 10,000 bytes of padding each. The resulting real IMAGE
+  exceeds the **32,768-byte transfer allowance**, one quarter of the sealed 128-KiB
+  staging budget. The oracle requires the exact `SNAPSHOT_OFFER` / `REJECT` exchange
+  with reason `CAPACITY_EXCEEDED`, matching ballot/peers/correlation and a response
+  observed by the proposer. It independently derives the offered image size/digest
+  from an actual published snapshot containing the load write, and rejects any
+  observed chunk/install attempt for that refused transfer.
+- `retained-bytes` temporarily isolates node 3 after its seed recovery, then uses
+  two legal atomic bulks, each containing two documents with 20,000 bytes of padding each. The
+  leader retains the final cut before the controller heals the minority. The full
+  offered image exceeds the entire 128-KiB retained budget, so its first chunk must fail
+  reservation regardless of cleanup timing. It observes the actual failed
+  storage admission inside the serialized operation, including budget,
+  existing/replaced/requested bytes and hashed inventory. The oracle verifies
+  `requested > limit - retained + replaced`, `requested > limit`, and the inventory sum.
+
+The internal `transfer-staging` fixture still checks full-image reservation against
+existing authority. The write/transfer staging check conservatively charges the
+whole authority inventory, including root metadata and generations. The public
+snapshot case now proves the earlier transfer admission boundary; it does not
+claim deterministic exhaustion of that later aggregate-write boundary.
+
+A refused snapshot offer need not quarantine the follower; a failed retained write
+may do so. The bounded voter must reject its public write/read calls
 with conservative `NOT_SUBMITTED` / `NOT_APPLICABLE` outcomes. The healthy two-voter
 quorum must acknowledge another bulk and strong read after the rejection. The
 controller archives node 3, reopens its retained directory without changing the
@@ -127,3 +145,42 @@ transfer, supplied by the retained leader restart. Source inventories describe
 execution-time files; final documentation and stricter oracle review followed.
 Each protected CI lane retains its full reactor build/tests. The acceptance update
 above records the subsequent hosted result.
+
+## Batch M CI correction: deterministic snapshot admission
+
+CI run [35717163313](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35717163313)
+failed the original `snapshot-staging` witness. Its retained artifact shows 33
+successful offers of the 25,452-byte load image, no storage capacity rejection,
+and a final inventory of 120,333 bytes, below the 131,072-byte budget. Background
+floor/generation cleanup had allowed the image to fit. The original local pass
+instead observed a transient aggregate write reservation above the limit. Waiting
+longer does not guarantee that the latter schedule will occur.
+
+This correction changes the test load and the inspected boundary, leaving all
+production bounds, timeout values and rejection requirements intact. Both raw
+capacity rejection and published-image provenance are mandatory. The original
+Batch L receipts above remain historical observations of the earlier workload.
+The retained-write case receives the analogous cleanup-independent load; its
+serialized inventory/reservation oracle and all six internal resource cases remain
+enabled.
+
+Correction validation on base `9846269b27098786f079976e787bd6f82472e073`:
+
+- Full eight-case gate passed at `target/v51-resources/run.19qKEo`; its unchanged
+  six internal-case validations remain applicable. The subsequently strengthened
+  public workloads passed at `target/v51-resource-ci-fix/final-public/snapshot-staging/receipt.json`
+  and `target/v51-resource-ci-fix/retained-final/retained-bytes/receipt.json`.
+- Final images were 39,668 bytes against the 32,768-byte staging transfer allowance
+  and 146,760 bytes against the 131,072-byte retained budget. All 48 negative variants
+  across the six internal and two final public cases were rejected. Exact receipt
+  paths/hashes are indexed in `target/v51-resource-ci-fix/validation-summary.json`.
+- All 196 V5.1 Python tests passed, including 23 resource-oracle tests. New cases
+  reject the actual CI image size as an exhaustion witness, exactly fitting images,
+  borrowed/mismatched replies, wrong reasons and incorrectly enlarged budgets.
+- Production sources, JAR bytes, limits and timeouts are unchanged. The larger
+  retained image is built with two admitted commands; an exploratory single larger
+  command hit the existing frozen-basis metadata limit before the intended test.
+  That failed fixture is retained rather than relabelled as a pass.
+
+The original CI failure evidence remains at
+`target/v51-resource-ci-fix/ci-35717163313/run.fkADvj`. No paid cloud run is involved.
