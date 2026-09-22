@@ -6,15 +6,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import io.github.patricklfdm.generalsearch.durability.DurableCodec;
 import io.github.patricklfdm.generalsearch.durability.DurableStorageConfig;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 class V50ReadyTest {
@@ -121,19 +124,37 @@ class V50ReadyTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"published", "private", "missing"})
-    void incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix(String materialization) throws Exception {
+    @CsvSource({"published,none", "private,none", "missing,none", "published,APPEND", "published,COMMIT_PROOF"})
+    void incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix(String materialization, String lostMessage) throws Exception {
         var isolated = new AtomicBoolean();
+        var seedStarted = new AtomicBoolean();
+        var lostRequest = new AtomicReference<String>();
+        var droppedAttempts = new AtomicInteger();
+        var peerRejections = new ConcurrentHashMap<String, String>();
         int history = materialization.equals("published") ? 300 : 20;
         long prefix = history + 2, target = prefix + 10;
         var defaults = BOUNDS;
         var bounds = new ReplicationBounds(defaults.maxFrameBytes(), 4, defaults.maxInFlightPerPeer(),
                 defaults.maxPendingClientOperations(), defaults.maxRetryAttempts(), defaults.requestTimeoutMillis(),
                 defaults.retryBackoffMillis(), defaults.snapshotChunkBytes(), defaults.maxRetainedLogBytes(), defaults.maxSnapshotStagingBytes());
-        try (var group = new Group(temporary, bounds, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
+        var group = new Group(temporary, bounds, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
+            if (local == 0 && barrier.equals("AFTER_RESPONSE_READ") && "REJECT".equals(response.get("type")))
+                peerRejections.put(request.get("recipient") + " " + request.get("type"), response.get("payload").toString());
+            // Lose one whole exchange, including its retry. The other follower still
+            // supplies quorum, so a successful seed does not imply node-2 caught up.
+            if (local == 0 && seedStarted.get() && barrier.equals("BEFORE_REQUEST_WRITE")
+                    && request.get("recipient").equals("node-2") && request.get("type").equals(lostMessage)) {
+                String trace = (String) request.get("traceId");
+                lostRequest.compareAndSet(null, trace);
+                if (trace.equals(lostRequest.get())) {
+                    droppedAttempts.incrementAndGet();
+                    throw new java.io.IOException("lost seed " + lostMessage + " to node-2");
+                }
+            }
             if (local == 0 && isolated.get() && barrier.equals("BEFORE_REQUEST_WRITE")
                     && request.get("recipient").equals("node-3")) throw new java.io.IOException("isolated follower");
-        })) {
+        });
+        try {
             group.nodes.get(2).close();
             var codec = new CountingCodec();
             var config = DurableStorageConfig.builder(temporary.resolve("counted-app"), codec)
@@ -154,10 +175,25 @@ class V50ReadyTest {
                     }));
             group.leader().activate().get(10, TimeUnit.SECONDS);
             group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
+            seedStarted.set(true);
             for (int i = 0; i < history; i++) group.leader().submit("UPDATE",
                     group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
                     .get(10, TimeUnit.SECONDS);
             await(() -> app.appliedIndex() == prefix);
+            if (!lostMessage.equals("none")) {
+                assertTrue(droppedAttempts.get() > 0, "fixture did not lose the selected seed exchange");
+                assertTrue(group.nodes.get(1).status().appliedIndex() < prefix,
+                        "fixture must leave the surviving voter behind before recovery");
+            }
+            // Seed writes need only one remote ACK. The future survivor may have
+            // missed an APPEND or PROOF while node-3 supplied quorum; waiting alone
+            // cannot repair that gap. Recover it before removing the current quorum.
+            assertEquals(prefix, catchUpWhenAdmitted(group, group.manifest.members().get(1).nodeId(), () -> { }));
+            var survivor = group.nodes.get(1).status();
+            assertEquals(ReplicaState.READY, survivor.state());
+            assertEquals(prefix, survivor.lastLogIndex());
+            assertEquals(prefix, survivor.commitIndex());
+            assertEquals(prefix, survivor.appliedIndex());
             isolated.set(true);
             for (int i = history; i < history + 10; i++) group.leader().submit("UPDATE",
                     group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
@@ -189,7 +225,12 @@ class V50ReadyTest {
             group.nodes.get(1).close();
             group.add(new Document(2, "next quorum")).get(10, TimeUnit.SECONDS);
             assertEquals(new Document(2, "next quorum"), app.read(engine -> engine.get(2)));
-        }
+        } catch (Exception | AssertionError error) {
+            error.addSuppressed(new IllegalStateException("replica states before close: "
+                    + group.nodes.stream().map(ReplicaNode::status).toList()
+                    + "; observed peer rejections: " + new java.util.TreeMap<>(peerRejections)));
+            throw error;
+        } finally { group.close(); }
     }
 
     @ParameterizedTest

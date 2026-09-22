@@ -136,3 +136,38 @@ independent oracle. It retains the damaged disks and conservative outcomes inste
 of repairing authority or relaxing timeouts. Execution-time source inventories
 precede this final documentation record. Protected Batch O and full Phase 4
 acceptance remain pending.
+
+## CI regression follow-up: V5.0 isolation prerequisite
+
+CI run [35785207300](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35785207300/job/106940284845)
+failed in the recovery/workload lane's prerequisite Maven tests, at
+`V50ReadyTest.incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix`.
+The fixture waited for node-3's published prefix before isolating it, but had not
+established that node-2 could provide the surviving write quorum. Seed completion
+requires only one remote voter; a missed APPEND or COMMIT_PROOF can leave the
+other voter behind until explicit recovery.
+
+The fixture now calls the existing catch-up path for node-2 and checks its READY
+state and exact log/commit/applied prefix before isolating node-3. Two added
+schedules lose one APPEND or COMMIT_PROOF exchange, including its retry, and
+require an actually lagging survivor. Without the prerequisite fix, both reproduce
+`no valid remote voter for APPEND`; all three original schedules pass. This proves
+the fixture defect, although the original CI log did not retain node-2's reason
+and cannot identify the precise exchange it lost.
+
+The original ten-entry recovery, three bounded batches, replay-count limits,
+private-publication checks, duplicate recovery and subsequent quorum write remain
+asserted. Failures attach all three pre-close states and the latest rejection for
+each peer/message pair. This follow-up changes the test fixture and this record;
+production code, request deadlines, resource bounds and write retries are preserved.
+The deliberately failing regression reports and log remain under
+`target/ci-investigation-35785207300/before-fix-reports` and
+`target/ci-investigation-35785207300/reproduce-before-fix.log`.
+
+Follow-up validation: the full `./mvnw -B -ntp -f reactor/pom.xml package` passed
+(853 tests, 4 skipped, no failures/errors), including all 13 `V50ReadyTest`
+cases. Log: `target/ci-investigation-35785207300/reactor-after-fix.log`;
+summary: `target/ci-investigation-35785207300/validation-summary.json`.
+Both production JAR hashes remain identical to the candidate values above.
+The 38-document contract and whitespace checks passed. Updated-source protected
+CI remains pending.
