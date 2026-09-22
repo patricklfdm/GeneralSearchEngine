@@ -118,47 +118,56 @@ final class AutomaticTransport implements AutoCloseable {
             events.accounting("OUTBOUND_ADMITTED",expected,result,bytes.length);
             senders.get(peer).execute(() -> {
                 try {
-                    // The deadline includes queue time; two admitted lanes prevent reverse basis fetch from waiting behind itself.
-                    require(System.nanoTime() < deadline, QUORUM_UNAVAILABLE, "peer request expired in queue");
-                    IOException last = null;
-                    for (int attempt = 0; attempt <= bounds.maxRetryAttempts(); attempt++) {
-                        if (closed) throw new ReplicationException(CLOSED, "transport closed");
-                        try (var channel = SocketChannel.open(); var selector = Selector.open()) {
-                            channels.add(channel);
-                            try {
-                                require(!closed, CLOSED, "transport closed");
-                                channel.configureBlocking(false);
-                                channel.register(selector, SelectionKey.OP_CONNECT);
-                                channel.connect(addresses.get(peer));
-                                while (!channel.finishConnect()) ready(selector, SelectionKey.OP_CONNECT, deadline);
-                                events.at("BEFORE_REQUEST_WRITE", expected, Map.of());
-                                transfer(channel, selector, ByteBuffer.wrap(bytes), true, deadline);
-                                Map<String, Object> response = read(channel, selector, deadline);
-                                AutomaticRecords.need(local.equals(response.get("recipient")), "wrong response endpoint");
-                                AutomaticWire.correlated(expected,response);
-                                for (String field : java.util.List.of("epoch", "incarnationId", "traceId", "eventSequence"))
-                                    require(expected.get(field).equals(response.get(field)), PROTOCOL_MISMATCH, "uncorrelated response: " + field);
-                                require(AutomaticRecords.text(response, "sender").equals(peer), PROTOCOL_MISMATCH, "wrong response voter");
-                                events.at("AFTER_RESPONSE_READ", expected, response);
-                                result.complete(response);
-                                return;
-                            } finally { channels.remove(channel); }
-                        } catch (IOException error) {
-                            last = error;
-                            if (attempt == bounds.maxRetryAttempts() || System.nanoTime() >= deadline) break;
-                            long left = deadline - System.nanoTime();
-                            if (left <= 0) break;
-                            TimeUnit.NANOSECONDS.sleep(Math.min(left, TimeUnit.MILLISECONDS.toNanos(bounds.retryBackoffMillis())));
-                        }
-                    }
-                    throw failure(QUORUM_UNAVAILABLE, "peer request failed or timed out", last);
+                    Map<String,Object> response;
+                    try { response = sendRequest(peer, expected, bytes, deadline); }
+                    finally { releaseOutbound(expected,result,bytes.length,capacity); }
+                    // Completion can immediately submit the next recovery chunk. Its
+                    // predecessor must have closed its socket and released capacity first.
+                    result.complete(response);
                 } catch (Throwable error) {
                     if (error instanceof InterruptedException) Thread.currentThread().interrupt();
                     result.completeExceptionally(closed ? failure(CLOSED, "transport closed", error) : error);
-                } finally { releaseOutbound(expected,result,bytes.length,capacity); }
+                }
             });
         } catch (RuntimeException error) { releaseOutbound(expected,result,bytes.length,capacity); result.completeExceptionally(error); }
         return result;
+    }
+
+    private Map<String,Object> sendRequest(String peer, Map<String,Object> expected, byte[] bytes, long deadline)
+            throws IOException, InterruptedException {
+        // The deadline includes queue time; two admitted lanes prevent reverse basis fetch from waiting behind itself.
+        require(System.nanoTime() < deadline, QUORUM_UNAVAILABLE, "peer request expired in queue");
+        IOException last = null;
+        for (int attempt = 0; attempt <= bounds.maxRetryAttempts(); attempt++) {
+            if (closed) throw new ReplicationException(CLOSED, "transport closed");
+            try (var channel = SocketChannel.open(); var selector = Selector.open()) {
+                channels.add(channel);
+                try {
+                    require(!closed, CLOSED, "transport closed");
+                    channel.configureBlocking(false);
+                    channel.register(selector, SelectionKey.OP_CONNECT);
+                    channel.connect(addresses.get(peer));
+                    while (!channel.finishConnect()) ready(selector, SelectionKey.OP_CONNECT, deadline);
+                    events.at("BEFORE_REQUEST_WRITE", expected, Map.of());
+                    transfer(channel, selector, ByteBuffer.wrap(bytes), true, deadline);
+                    Map<String, Object> response = read(channel, selector, deadline);
+                    AutomaticRecords.need(local.equals(response.get("recipient")), "wrong response endpoint");
+                    AutomaticWire.correlated(expected,response);
+                    for (String field : java.util.List.of("epoch", "incarnationId", "traceId", "eventSequence"))
+                        require(expected.get(field).equals(response.get(field)), PROTOCOL_MISMATCH, "uncorrelated response: " + field);
+                    require(AutomaticRecords.text(response, "sender").equals(peer), PROTOCOL_MISMATCH, "wrong response voter");
+                    events.at("AFTER_RESPONSE_READ", expected, response);
+                    return response;
+                } finally { channels.remove(channel); }
+            } catch (IOException error) {
+                last = error;
+                if (attempt == bounds.maxRetryAttempts() || System.nanoTime() >= deadline) break;
+                long left = deadline - System.nanoTime();
+                if (left <= 0) break;
+                TimeUnit.NANOSECONDS.sleep(Math.min(left, TimeUnit.MILLISECONDS.toNanos(bounds.retryBackoffMillis())));
+            }
+        }
+        throw failure(QUORUM_UNAVAILABLE, "peer request failed or timed out", last);
     }
 
     private void releaseOutbound(Map<String,Object> request,Object token,int bytes,Semaphore capacity) {
