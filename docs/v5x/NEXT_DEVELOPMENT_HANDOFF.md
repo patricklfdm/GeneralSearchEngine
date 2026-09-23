@@ -17,11 +17,14 @@ The integration record below retains the original boundary and validation histor
 The [final Phase 4 review](v5.1/PHASE_4_FINAL_COVERAGE.md) preserves the E01–E12
 public/internal evidence boundaries. [Phase 5A combined recovery](v5.1/PHASE_5_COMBINED_RECOVERY.md)
 is accepted at master `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI
-`35818964327`, all 19 jobs passed). The user entered
-[Phase 5B combined lifecycle](v5.1/PHASE_5_COMBINED_LIFECYCLE.md), whose complete
-four-case local gate and 60 evidence negatives passed. Follow its validation record
-and [checklist](v5.1/PHASE_5_CHECKLIST.md). Batch B protected acceptance,
-Phase 5C and full Phase 5 acceptance remain open; Phase 6/cloud/publication stay separate.
+`35818964327`, all 19 jobs passed). [Phase 5B combined lifecycle](v5.1/PHASE_5_COMBINED_LIFECYCLE.md)
+is accepted through PR #213 at `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`, exact-master
+CI `35826641489` (all 19 jobs and 23 V5.1 verification steps passed).
+[Phase 5C reconciliation](v5.1/PHASE_5_ACCEPTANCE.md) reviews original CI evidence
+for 23 public cases and eight separately identified internal boundary cases.
+The [checklist](v5.1/PHASE_5_CHECKLIST.md) leaves protected acceptance pending this
+review's merge. After acceptance, propose the separate Phase 6 workload/measurement
+contract; cloud execution and publication remain separately authorized work.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

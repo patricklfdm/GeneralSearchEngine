@@ -53,9 +53,11 @@ master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`
 PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`).
 [Phase 5A](docs/v5x/v5.1/PHASE_5_COMBINED_RECOVERY.md) is accepted at master
 `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI `35818964327`, all 19 jobs passed).
-The user entered [Phase 5B](docs/v5x/v5.1/PHASE_5_COMBINED_LIFECYCLE.md): quarantine with
-pressure/retained recovery, and cancellation/close across a recovery cut.
-[Hardening progress](docs/v5x/v5.1/PHASE_5_CHECKLIST.md) remains separate from full Phase 5 acceptance.
+[Phase 5B](docs/v5x/v5.1/PHASE_5_COMBINED_LIFECYCLE.md) is accepted through PR #213 at
+`fc1feca4dee6ee346e45d3afb22c4df9b9e0d945` (exact-master CI `35826641489`, all 19 jobs passed).
+[Phase 5C reconciliation](docs/v5x/v5.1/PHASE_5_ACCEPTANCE.md) reviews the seven combined-fault
+cases and supporting resource evidence. Full Phase 5 protected acceptance awaits this
+review's merge; the [checklist](docs/v5x/v5.1/PHASE_5_CHECKLIST.md) keeps Phase 6 design and cloud entry separate.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

@@ -65,8 +65,12 @@ Phase 4O is accepted through PR #207, exact-master CI `35794875603`.
 [Phase 4P and full Phase 4](PHASE_4_FINAL_COVERAGE.md) are accepted through PR #208,
 master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895`.
 [Phase 5A](PHASE_5_COMBINED_RECOVERY.md) adds three rounds per combined-fault case,
-retained process/archive identity and bounded resource accounting; full Phase 5
-acceptance remains open.
+retained process/archive identity and bounded resource accounting.
+[Phase 5B](PHASE_5_COMBINED_LIFECYCLE.md) adds four quarantine/pressure/cancellation/close
+combinations. Both batches passed on master `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`,
+exact-master CI `35826641489`. The [Phase 5C review](PHASE_5_ACCEPTANCE.md) reconciles
+23 public and eight internal resource/hardening cases; it preserves the E01–E12
+boundaries and leaves full protected acceptance pending the review's merge.
 
 ## Independent foundation before production
 
