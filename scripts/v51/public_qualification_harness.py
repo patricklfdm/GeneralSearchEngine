@@ -87,6 +87,37 @@ def command(args, root, name, timeout=120):
     need(result.returncode == 0, name + ': ' + result.stderr[-6000:]); return result
 
 
+RECOVERY_REASONS = frozenset(('NOT_LEADER', 'NOT_READY', 'QUORUM_UNAVAILABLE', 'STALE_EPOCH', 'DEADLINE_EXCEEDED'))
+UNCERTAIN_RECOVERY_REASONS = frozenset(('QUORUM_UNAVAILABLE', 'STALE_EPOCH', 'DEADLINE_EXCEEDED'))
+WAVE_KINDS = ('addAll', 'read', 'addAll', 'read')
+
+
+def concurrent_wave(active, documents):
+    # Submit all four calls before collecting; never drop a partial wave's results.
+    futures = [active.send(kind, **(dict(documents=documents()) if kind == 'addAll' else {}))
+               for kind in WAVE_KINDS]
+    return [future.result(timeout=35) for future in futures]
+
+
+def recovered_wave(choose_leader, documents, attempts):
+    # READY is only a role hint. Each subsequent wave uses fresh application keys;
+    # no uncertain mutation is replayed and every attempt stays in Worker.history.
+    # At most 22 calls including setup/crash/final read fit the existing 24-call oracle.
+    for _ in range(3):
+        node, active = choose_leader()
+        responses = concurrent_wave(active, documents)
+        attempts.append(dict(node=node, responses=responses))
+        for kind, response in zip(WAVE_KINDS, responses):
+            need(response is not None and response.get('kind') == kind, 'recovery wave missing/mismatched response: ' + str(response))
+            outcome = response.get('outcome'); reason = response.get('reasonCode')
+            if outcome == 'SUCCESS': continue
+            allowed = (outcome == ('NOT_SUBMITTED' if kind == 'addAll' else 'NOT_APPLICABLE') and reason in RECOVERY_REASONS or
+                       kind == 'addAll' and outcome == 'INDETERMINATE' and reason in UNCERTAIN_RECOVERY_REASONS)
+            need(allowed, 'unexpected recovery wave failure: ' + str(response))
+        if all(response['outcome'] == 'SUCCESS' for response in responses): return node, active
+    raise ValueError('public concurrent wave did not recover after three fresh waves: ' + str(responses))
+
+
 def scenario(root, cp, cut, mode, mutation_cut=False):
     root.mkdir(); workers = {}; history = []; receipt = dict(status='FAIL', cut=cut, mode=mode)
     tag = 0
@@ -104,10 +135,7 @@ def scenario(root, cp, cut, mode, mutation_cut=False):
             time.sleep(.1)
         raise ValueError('public election timeout: ' + str(states))
     def wave(active):
-        futures = [active.send(kind, **(dict(documents=docs()) if kind == 'addAll' else {}))
-                   for kind in ('addAll', 'read', 'addAll', 'read')]
-        for future in futures:
-            result = future.result(timeout=35)
+        for result in concurrent_wave(active, docs):
             need(result is not None and result['outcome'] == 'SUCCESS', 'stable concurrent call failed: ' + str(result))
     try:
         command(['java', '-cp', cp, PACKAGE + 'admission.PublicRuntimeConsumer', root, 'setup'], root, 'bootstrap')
@@ -144,8 +172,9 @@ def scenario(root, cp, cut, mode, mutation_cut=False):
         receipt['crash'] = dict(pid=active.proc.pid, generation=1, node=old, exitCode=code, requestedCut=cut,
                                 faultNanos=fault_start, observed=reached, preReopen=inspected, inventory=before,
                                 archiveSha256=storage.sha(archive.read_bytes()))
-        new, active = leader(); need(new != old, 'manual revival of old leader')
-        wave(active)
+        receipt['recoveryWaves'] = []
+        new, active = recovered_wave(leader, docs, receipt['recoveryWaves'])
+        need(new != old, 'manual revival of old leader')
         workers[old] = Worker(root, old, cp, history, generation=2)
         active.call('read')
     except BaseException as error:

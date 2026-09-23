@@ -22,6 +22,12 @@ is retained, including NOT_SUBMITTED and calls whose responses were lost. There 
 no uncertain-write retry. Controller invocation/response times use one monotonic
 clock; per-worker clocks are never subtracted across processes.
 
+Post-crash progress now requires a complete successful four-call wave within three
+fresh, uniquely tagged waves. All intermediate outcomes remain in the same history;
+uncertain mutations are never replayed. See the [CI follow-up and bounded outcome
+rules](PHASE_4_PUBLIC_FAULTS.md#post-crash-concurrent-service-ci-follow-up). The original
+24-call / 100000-state limits and both independent safety oracles remain unchanged.
+
 Two independent checks must agree:
 
 - The client-only exhaustive search models ordered atomic bulks and reads. A
