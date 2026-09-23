@@ -60,8 +60,10 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 unchanged-runtime full CI `35826641489`). The [Phase 6 entry](docs/v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
 is accepted through PR #215 at `243434f6e1dc94422b57997b33eabb3cc1e8f64d`
 (docs-only master CI `35831892351`). The [rich model foundation](docs/v5x/v5.1/PHASE_6_MODEL_FOUNDATION.md)
-is the current 6A implementation candidate; full three-mode measurements and cloud
-qualification remain pending in the [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md).
+was accepted through PR #216 (master `bcac615aeef93dadcab6636162a86ce2156e5515`,
+full CI `35841378072`). The [local runtime candidate](docs/v5x/v5.1/PHASE_6_LOCAL_PERFORMANCE.md)
+adds three-mode measurements and bounded failover; full 6A protected acceptance
+and cloud qualification remain pending in the [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md).
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

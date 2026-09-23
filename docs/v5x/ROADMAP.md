@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A model implementation; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A runtime implementation; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -69,8 +69,10 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 unchanged-runtime full CI `35826641489`). The [Phase 6 entry](v5.1/PHASE_6_ENTRY_PLAN.md)
 is accepted through PR #215 at `243434f6e1dc94422b57997b33eabb3cc1e8f64d`
 (docs-only master CI `35831892351`). The [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md)
-is the current 6A implementation candidate; full three-mode measurements and cloud
-qualification remain pending in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
+was accepted through PR #216 (master `bcac615aeef93dadcab6636162a86ce2156e5515`,
+full CI `35841378072`). The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORMANCE.md)
+adds three-mode measurements and bounded failover; full 6A protected acceptance
+and cloud qualification remain pending in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

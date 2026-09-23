@@ -1,7 +1,8 @@
 # V5.1 Phase 6 checklist
 
-**Status:** entry accepted through PR #215; rich model foundation is an
-implementation candidate. Full local performance and cloud qualification remain pending.
+**Status:** entry accepted through PR #215; rich model foundation accepted through
+PR #216. The [local runtime](PHASE_6_LOCAL_PERFORMANCE.md) is an implementation
+candidate; full 6A protected acceptance and cloud qualification remain pending.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -12,9 +13,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Protected entry/local-contract acceptance: PR #215, master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, docs CI `35831892351`.
 - [x] 6A model candidate: closed machine-readable preset, independent rich decoder/projection and adversarial fixtures.
 - [x] 6A model candidate: 90-call published V4.4 semantic execution, actual backup/checkpoint/reopen checks and three isolated core compilations.
-- [ ] Protected acceptance and exact-source full CI for the [model foundation](PHASE_6_MODEL_FOUNDATION.md).
-- [ ] 6A: materialized plan/schema and isolated external published-control/candidate probes.
-- [ ] 6A: full local healthy modes and bounded concurrent failover/rejoin history pass.
+- [x] Protected acceptance of the [model foundation](PHASE_6_MODEL_FOUNDATION.md): PR #216, master `bcac615aeef93dadcab6636162a86ce2156e5515`, exact-master full CI `35841378072`.
+- [x] 6A implementation candidate: materialized plan/schema and isolated external published-control/candidate probes.
+- [x] 6A local candidate: all three healthy modes and bounded concurrent failover/rejoin history pass; protected acceptance remains pending.
 - [ ] 6A: physical/semantic/timing/resource negatives, relevant regressions and exact-source full CI pass.
 - [ ] 6B: local calibration retained; complete cloud loads, timings, counts, bytes and numerical criteria frozen through review.
 - [ ] 6C: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

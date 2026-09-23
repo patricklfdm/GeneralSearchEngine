@@ -40,14 +40,15 @@ fresh executed Surefire reports. No child downloads another child's build output
 Phase 6A adds its rich-model/control qualification inside the existing foundation
 command, retained under that command's `rich-workload` subdirectory. It compiles
 against three isolated core JARs and runs only the published V4.4 semantic consumer;
-full performance runtime qualification is still pending. Gate and artifact counts
-below are unchanged.
+the separate `phase6-performance.sh` gate now adds three measured runtime modes and
+a bounded automatic SIGKILL/rejoin schedule. Its 900-second ceiling includes cleanup;
+measured CI overhead must be reviewed on this implementation source.
 
 Shared Python helpers do not share process/evidence state: every gate creates its
 own workspace and compiles its own public consumer/observer when required.
 
 The original split preserved 44 substantive steps: 22 verification commands and
-22 evidence uploads. Phase 5B adds one gate/upload pair, for 23 of each. The original
+22 evidence uploads. Phase 5B adds one gate/upload pair, for 23 of each. Phase 6A adds one local performance gate/upload pair, for 24 of each. The original
 steps remain present exactly once with their original text/configuration. Within
 each child their relative order is preserved. The V4 JMH chain, V5.0 cloud-preflight
 job/step identifiers, paid workflows and release jobs keep their prior wiring.
@@ -59,6 +60,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase3-protocol.sh` | `v51-foundation` | `target/v51-protocol` |
 | `phase3-runtime.sh` | `v51-foundation` | `target/v51-runtime` |
 | `phase3-rejoin.sh` | `v51-foundation` | `target/v51-rejoin` |
+| `phase6-performance.sh` | `v51-foundation` | `target/v51-performance` |
 | `phase4-public-bounds.sh` | `v51-admission-resources` | `target/v51-public-bounds` |
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
 | `phase4-bootstrap.sh` | `v51-admission-resources` | `target/v51-bootstrap` |
@@ -81,7 +83,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 Each child additionally always uploads `**/target/surefire-reports/**` as
 `<job-id>-java-tests-${{ github.sha }}`, for fourteen days. These nine unique artifacts
 include XML reports, failure details and JVM dump files when available, even if the
-initial package fails and no process gate runs. All 46 workflow artifact names are
+initial package fails and no process gate runs. All 47 workflow artifact names are
 unique. No failed or cancelled child can pass Required. The actual Required shell
 is tested with failure/cancellation/unexpected-skip cases for all seventeen children,
 and all seventeen intentional skips are required for a verified docs-only run.

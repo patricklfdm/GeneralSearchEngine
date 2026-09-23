@@ -86,7 +86,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             if(callbackOwner!=null) AutomaticPublicAdmission.verify(config,captured);
             long rebuildBegin=System.nanoTime();
             opening=new AutomaticApplication<>(captured,config.materialization(),bounds);opening.validate(manifest,config.materialization());application=opening;
-            protocol=new AutomaticProtocol(store,()->ThreadLocalRandom.current().nextLong(),UUID::randomUUID);
+            protocol=new AutomaticProtocol(store,()->ThreadLocalRandom.current().nextLong(),UUID::randomUUID,events==Events.NONE?null:(name,value)->{
+                try{events.at(name,value);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+            });
             if(callbackOwner!=null) {
                 var replay=store.replay();startupReplayedRecords=replay.entries().size();
                 byte[] restored=application.reconstruct(replay);application.publish(store.provenSnapshot(restored));protocol.restored(restored);
@@ -188,10 +190,13 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             if(action instanceof AutomaticProtocol.Send send) {
                 var message=send.message();
                 if(message.response()) {var future=incoming.remove(message.id());if(future!=null)future.complete(message);}
-                else try {network.execute(()->{
+                else try {
+                    if(events!=Events.NONE)events.at("SEND_QUEUED",Map.of("id",message.id(),"peer",message.recipient(),"kind",message.kind().name(),"ballot",b64(message.ballot().bytes())));
+                    network.execute(()->{
                     try {var reply=exchange(message);complete(()->{protocol.receive(reply,now());observe(message,reply);});}
                     catch(Throwable error){lastExchangeFailure=error;complete(()->{protocol.transportFailed(message.id(),now());unreachable(message.recipient());});}
                 });}catch(RejectedExecutionException error){protocol.transportFailed(message.id(),now());}
+                catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
             }else if(action instanceof AutomaticProtocol.Reconstruct rebuild) {
                 var cut=Map.<String,Object>of("id",rebuild.id(),"index",rebuild.replay().through(),"sequence",rebuild.replay().sequence());
                 try {events.at("RECONSTRUCT_QUEUED",cut);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}

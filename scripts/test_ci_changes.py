@@ -188,7 +188,7 @@ class WorkflowTopologyTest(unittest.TestCase):
             "phase4-public-runtime", "phase4-public-qualification", "phase4-public-faults",
             "phase4-public-recovery", "phase4-public-pressure", "phase4-backpressure", "phase4-final-coverage",
             "phase4-lifecycle-hardening", "phase5-hardening", "phase5-combined-lifecycle", "phase4-public-protocol",
-            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation",
+            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance",
         }
         found = []
         for name in FULL_GATES:

@@ -116,6 +116,18 @@ jobs:
       - name: Verify V5.1 retained-voter rejoin and two-source reclamation
         run: scripts/verify-v51-phase3-rejoin.sh --skip-build
 
+      - name: Verify V5.1 three-mode local performance and bounded failover
+        run: scripts/verify-v51-phase6-performance.sh --skip-build
+
+      - name: Retain V5.1 local measurements, raw authority and failed schedules
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-performance-${{ github.sha }}
+          path: target/v51-performance
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.1 rejoin sources and process evidence
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

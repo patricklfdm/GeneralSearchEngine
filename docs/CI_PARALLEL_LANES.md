@@ -341,3 +341,13 @@ Phase 4 final coverage, with always-retained `v51-hardening` evidence. Its three
 cases execute nine consecutive recovery rounds in total. The lane's reactor build
 runs the five snapshot-rebuild regressions required by this gate. This extends the
 lane without changing dependencies, its 60-minute timeout or Required aggregation.
+
+## V5.1 Phase 6A follow-up
+
+The existing `v51-foundation` job additionally executes
+`scripts/verify-v51-phase6-performance.sh --skip-build` and always uploads
+`target/v51-performance` as `v51-performance-${{ github.sha }}` for fourteen days.
+This is a bounded local three-mode/SIGKILL qualification, with no provider access.
+The seventeen required job identities, docs-only decision and other verification
+commands are unchanged; the original migration table above remains historical.
+See [current V5.1 gate ownership](CI_V51_LANES.md).
