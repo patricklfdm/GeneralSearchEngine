@@ -1,7 +1,8 @@
 # V5.1 Phase 6A local runtime measurements
 
-**Status:** implementation candidate; protected exact-source full CI and review
-are required before accepting 6A. The rich model foundation was accepted through
+**Status:** runtime implementation and corrections passed exact-master full CI
+`35920225478` through PR #219. The [6A acceptance record](PHASE_6_LOCAL_ACCEPTANCE.md)
+now supplies the final reconciliation; its protected review remains pending. The rich model foundation was accepted through
 PR #216 at `bcac615aeef93dadcab6636162a86ce2156e5515`, full master CI `35841378072`.
 The [frozen local contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md) and
 [plan](phase6-plan.json) remain unchanged. No cloud configuration, admission,
@@ -228,3 +229,13 @@ performance lane but failed the earlier public bounds gate in the admission lane
 The [bounds driver correction](PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission)
 addresses response-versus-permit-release ordering without changing the runtime
 artifact. The skipped resource step and failed master run do not qualify full 6A.
+
+
+## PR #219 exact-master completion
+
+Master `54e203eeca6c087b7ba03954d546c7682e8338f2`, CI `35920225478`, passed all
+nineteen jobs, including actual public bounds, resource and performance execution.
+The [6A review](PHASE_6_LOCAL_ACCEPTANCE.md) retains the original CI artifacts,
+observed measurements and successful independent downloaded replay. The
+[6B candidate](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) separately freezes cloud workload
+parameters; none of these local measurements is cloud or paid-admission evidence.

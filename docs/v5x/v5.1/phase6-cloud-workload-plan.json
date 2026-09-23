@@ -1,0 +1,456 @@
+{
+  "schema": "gse-v51-cloud-workload-contract-v1",
+  "execution": "cloud-workload-contract-only",
+  "paidAdmission": false,
+  "suite": "v5.1-automatic-leadership-suite-v1",
+  "status": "review-candidate",
+  "localPlanSha256": "1dff2117631534ead866cfbd2ea7da3ec29ab57e510a6a5e8e5bf17a32092c33",
+  "corpus": {
+    "documents": 64,
+    "seed": 17,
+    "loadBulkElements": 16,
+    "mutationBulkElements": 4,
+    "corpusSha256": "1c0ce897a4074c9d8429067ba6a5d6e2d050027502c95fc17add23438a998cb8",
+    "revision": "1 + cycle % 9",
+    "indexes": [
+      "title:prefix",
+      "category:equality",
+      "price:range",
+      "body:text"
+    ],
+    "planner": "FORCE_SCAN"
+  },
+  "application": {
+    "schema": "semantic-schema",
+    "codec": "semantic-codec",
+    "codecVersion": 1,
+    "storageIdentity": "performance-store",
+    "planner": "FORCE_SCAN",
+    "snapshot": {
+      "queueCapacity": 31,
+      "maxBatchSize": 16,
+      "maxWaitNanos": 1234567
+    },
+    "maxDocuments": 1024,
+    "maxBulkElements": 16,
+    "maxEncodedKeyBytes": 1024,
+    "maxEncodedDocumentBytes": 4096,
+    "checkpointWalBytes": 33554432,
+    "maxRetainedBytes": 134217728,
+    "maxDerivedStateBytes": 4194304
+  },
+  "replicationBounds": {
+    "maxFrameBytes": 1048576,
+    "maxEntriesPerAppend": 16,
+    "maxInFlightPerPeer": 4,
+    "maxPendingClientOperations": 4,
+    "maxRetryAttempts": 2,
+    "requestTimeoutMillis": 1200,
+    "retryBackoffMillis": 25,
+    "snapshotChunkBytes": 4096,
+    "maxRetainedLogBytes": 67108864,
+    "maxSnapshotStagingBytes": 67108864
+  },
+  "automaticPolicy": {
+    "heartbeatIntervalMillis": 1200,
+    "minElectionTimeoutMillis": 3600,
+    "maxElectionTimeoutMillis": 6000,
+    "operationTimeoutMillis": 9600,
+    "applyTo": "all-three-voters"
+  },
+  "publishedControls": {
+    "schema": "gse-v51-published-controls-v1",
+    "v50ReleaseCommit": "e6afb5349c018fe163d4938d7637a4de8854d4ea",
+    "artifacts": [
+      {
+        "artifact": "general-search-engine",
+        "version": "4.4.0",
+        "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+      },
+      {
+        "artifact": "general-search-engine",
+        "version": "5.0.0",
+        "sha256": "cd3a60c158db5f111ebcb9f26b4823ad2dbeb3081f21e80f8af8ca120f2954ac"
+      },
+      {
+        "artifact": "general-search-engine-replication",
+        "version": "5.0.0",
+        "sha256": "66463c3ac6e531616363eaca3ec9d891865ce8b9e54ba0c707c2fde2b1f106ff"
+      }
+    ]
+  },
+  "environment": {
+    "machineType": "n2-standard-8",
+    "zone": "us-west4-a",
+    "provisioning": "STANDARD",
+    "voters": 3,
+    "vcpusPerVm": 8,
+    "bootDiskGiB": 50,
+    "dataDiskGiB": 100,
+    "diskType": "pd-balanced",
+    "filesystem": "ext4",
+    "architecture": "x86_64",
+    "externalIps": false,
+    "guestSsh": "IAP",
+    "replicationNetwork": "private-vpc",
+    "imageProject": "ubuntu-os-cloud",
+    "imageName": "ubuntu-2404-noble-amd64-v20260918",
+    "imageId": "763874002631433611",
+    "imageQualification": "historical selection; fresh exact-ID READY check required in 6C",
+    "javaVendor": "Eclipse Adoptium",
+    "javaRuntime": "21.0.12+8-LTS",
+    "jvmArguments": [
+      "-Xms64m",
+      "-Xmx512m",
+      "-XX:+UseG1GC",
+      "-XX:ActiveProcessorCount=2"
+    ],
+    "runtimePackaging": "6C must pin complete jlink/build/bundle digests before any prepare"
+  },
+  "scheduler": {
+    "clock": "issuing-guest-monotonic",
+    "maxCallers": 4,
+    "queuedArrivals": 0,
+    "maxDispatchLatenessMillis": 250,
+    "catchUp": false,
+    "operationReplay": false,
+    "missedArrival": "retain NOT_DISPATCHED and fail healthy cell",
+    "unfinished": "retain original outcome and fail healthy cell",
+    "requestTransport": "persistent command receipt; never one SSH invocation per API call"
+  },
+  "healthy": {
+    "operations": [
+      "ADD",
+      "UPDATE",
+      "REMOVE",
+      "ADD_ALL",
+      "UPDATE_ALL",
+      "REMOVE_ALL",
+      "INDEX_DROP",
+      "INDEX_CREATE",
+      "GET",
+      "QUERY"
+    ],
+    "arrivalIntervalMillis": 1000,
+    "concurrency": 1,
+    "warmupCalls": 20,
+    "windowSeconds": 60,
+    "windows": [
+      "baseline-a",
+      "instrumented-a",
+      "instrumented-b",
+      "baseline-b"
+    ],
+    "modeSeconds": 300,
+    "modeOrder": [
+      "published-v4.4-local",
+      "published-v5.0-configured",
+      "candidate-v5.1-automatic"
+    ],
+    "controlHostByRepetition": [
+      1,
+      2,
+      3
+    ],
+    "automaticLeader": "observed; never selected for matching placement"
+  },
+  "readHeavy": {
+    "seconds": 120,
+    "burstPeriodMillis": 4000,
+    "lanes": 4,
+    "operationsByLane": [
+      [
+        "UPDATE"
+      ],
+      [
+        "GET"
+      ],
+      [
+        "QUERY"
+      ],
+      [
+        "GET",
+        "QUERY"
+      ]
+    ],
+    "sameBurstDispatchMillis": 10,
+    "writerKey": "1 + burst % 64",
+    "readKey": "1 + burst % 64"
+  },
+  "sustained": {
+    "seconds": 180,
+    "burstPeriodMillis": 4000,
+    "lanes": 4,
+    "operationsByLane": [
+      "ADD",
+      "UPDATE",
+      "GET",
+      "QUERY",
+      "REMOVE"
+    ],
+    "sameBurstDispatchMillis": 10,
+    "temporaryKey": "200000 + lane * 10000 + cycle",
+    "revision": "1 + cycle % 9"
+  },
+  "cells": [
+    {
+      "name": "healthy",
+      "seconds": 900,
+      "model": "rich",
+      "modes": [
+        "published-v4.4-local",
+        "published-v5.0-configured",
+        "candidate-v5.1-automatic"
+      ]
+    },
+    {
+      "name": "read-heavy",
+      "seconds": 180,
+      "model": "rich"
+    },
+    {
+      "name": "sustained",
+      "seconds": 240,
+      "model": "rich"
+    },
+    {
+      "name": "leader-loss",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "SIGKILL the ready leader after a successful fresh read; restart the same retained voter after majority progress.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "isolated-old-leader",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Bidirectionally isolate the observed leader; reject minority reads/writes; majority advances; heal and retain rejoin.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "asymmetric-requests",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Drop old-leader outgoing protocol requests for 15 seconds, retaining reverse traffic; heal after observed drops.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "asymmetric-responses",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Drop responses to old-leader requests for 15 seconds; retain requests and actual peer receipts; heal.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "slow-follower",
+      "seconds": 180,
+      "model": "two-field-fault",
+      "schedule": "Delay one follower ACCEPT and PROOF force by 1500 ms for 15 seconds; other quorum progresses; release and verify lag recovery.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "interrupted-transfer",
+      "seconds": 180,
+      "model": "two-field-fault",
+      "schedule": "Hold a real continuation after the first 4096-byte snapshot chunk; kill the recipient; restart from its unchanged partial transfer and rejoin.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "entry-chosen",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Kill the leader at ACCEPT_ACK_RECEIVED before proof; retain the chosen value and uncertain client outcome through recovery.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "proof-quorum",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Kill the leader at PROOF_ACK_RECEIVED before publication/client response; recover the proven prefix without inventing a success.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "group-restart",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Stop all three voters after a successful read; restart all from their same retained authorities; elect and read the acknowledged prefix.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "maintenance",
+      "seconds": 240,
+      "model": "two-field-fault",
+      "schedule": "Hold a captured public read; majority advances while it is pinned; release the original view; checkpoint, backup, close and restore backup with published V4.4.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "no-quorum",
+      "seconds": 120,
+      "model": "two-field-fault",
+      "schedule": "Isolate all three voters for 15 seconds; require typed read/write refusal; heal and obtain a fresh write/read.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    },
+    {
+      "name": "minority-capacity",
+      "seconds": 180,
+      "model": "two-field-fault",
+      "schedule": "Seal node 3 retained budget at 128 KiB; catch up seeds, isolate it, add two two-document 20000-byte-value bulks on healthy majority, heal, observe real capacity refusal; restart bounded voter then leader and verify healthy service.",
+      "historyCallsMaximum": 24,
+      "progressPairsMaximum": 4,
+      "finalReadAttemptsMaximum": 4
+    }
+  ],
+  "faultProgram": {
+    "source": "fresh empty automatic group per cell",
+    "codec": "existing two-field Doc codec",
+    "seedBulks": 3,
+    "documentsPerBulk": 2,
+    "seedValueBytes": 64,
+    "loadValueBytes": 512,
+    "mutationReplay": false,
+    "historyMaximum": 24,
+    "checkerStates": 100000,
+    "availabilityReasons": [
+      "NOT_LEADER",
+      "NOT_READY",
+      "QUORUM_UNAVAILABLE",
+      "STALE_EPOCH",
+      "DEADLINE_EXCEEDED"
+    ],
+    "auxiliaryBarriersMaximum": 8,
+    "campaignSlotsMaximum": 64,
+    "logicalSlotsMaximum": 512,
+    "leaderRecoverySeconds": 60,
+    "rejoinSeconds": 60,
+    "requestIntervalMillis": 1000,
+    "capacityInitialPrepareIsolation": "only node-1/node-2 PREPARE requests to bounded node-3 until healthy leader; all policies unchanged",
+    "transferSeed": "two 4096-byte-value documents before recipient catch-up",
+    "groupPolicy": "same leadership policy on every voter; fresh cell IDs; no same-group disk replacement"
+  },
+  "budgets": {
+    "leaseSeconds": 5400,
+    "operationGraceSeconds": 1080,
+    "preparationSeconds": 600,
+    "controlOverheadSeconds": 540,
+    "validationRetentionSeconds": 600,
+    "cleanupSeconds": 600,
+    "unused": "never extends another cell ceiling"
+  },
+  "evidence": {
+    "expandedBytes": 8589934592,
+    "compressedBytes": 2147483648,
+    "traceBytes": 6442450944,
+    "files": 16000,
+    "memberBytes": 33554432,
+    "partBytes": 8388608,
+    "parts": 256,
+    "responseBytes": 4194304,
+    "retentionDays": 30,
+    "rawHistory": "complete, hash-bound; no truncation",
+    "perNodePerCellTraceBytes": 134217728,
+    "sampleIntervalMillis": 1000,
+    "measurements": "A retains essential correctness/samples; B additionally measures force and queue timings"
+  },
+  "acceptance": {
+    "healthyCompletedPercent": 100,
+    "requiredOverlap": true,
+    "dispatchWithinMillis": 250,
+    "windowDrainSeconds": 10,
+    "healthyRetries": 0,
+    "storageOrIntegrityErrors": 0,
+    "capacityFailuresOutsideCapacityCell": 0,
+    "readBarrierReuse": 0,
+    "clock": "never subtract clocks from different processes",
+    "p99": "nearest rank with counts; diagnostic, no speedup or general failover SLA",
+    "instrumentation": "all measured calls complete within the same offered load and deadlines; report per-operation B/A, no invented equivalence threshold",
+    "cleanupLeftovers": 0,
+    "unsupportedCounters": "explicit; required heap/RSS/queues/retained/staging/pins missing is FAIL"
+  },
+  "sequence": {
+    "members": [
+      "experiment",
+      "failure-drill",
+      "canonical-1",
+      "canonical-2",
+      "canonical-3"
+    ],
+    "allowedOrders": [
+      "experiment-first",
+      "canonical-first"
+    ],
+    "oneTopologyAtATime": true,
+    "maximumBudgetMicrousd": 100000000,
+    "priceQualification": "not performed; fresh complete request required",
+    "failures": "append-only attempts and costs; no refunds or rollback",
+    "canonicalFailure": "fresh comparable canonical set required"
+  },
+  "presets": {
+    "experiment": {
+      "cells": [
+        "healthy",
+        "leader-loss",
+        "maintenance",
+        "no-quorum"
+      ],
+      "healthyWarmupCalls": 10,
+      "healthyWindowSeconds": 20
+    },
+    "failureDrill": {
+      "cells": [
+        "leader-loss",
+        "isolated-old-leader",
+        "asymmetric-requests",
+        "asymmetric-responses",
+        "slow-follower",
+        "interrupted-transfer",
+        "entry-chosen",
+        "proof-quorum",
+        "group-restart",
+        "maintenance",
+        "no-quorum",
+        "minority-capacity"
+      ]
+    },
+    "canonical": {
+      "cells": [
+        "healthy",
+        "read-heavy",
+        "sustained",
+        "leader-loss",
+        "isolated-old-leader",
+        "asymmetric-requests",
+        "asymmetric-responses",
+        "slow-follower",
+        "interrupted-transfer",
+        "entry-chosen",
+        "proof-quorum",
+        "group-restart",
+        "maintenance",
+        "no-quorum",
+        "minority-capacity"
+      ]
+    }
+  }
+}

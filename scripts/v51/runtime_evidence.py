@@ -43,7 +43,7 @@ def documents_command(data):
     f.need(offset==len(data),'command trailing data');return values
 
 
-def validate(root,traces=None,*,rejected_tails=None,retired_voters=None):
+def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None):
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
     nodes={row['node'] for row in manifest['members']};rejected_tails=rejected_tails or {}
@@ -51,8 +51,10 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None):
     quarantined={node:storage.torn_append(root/node,witness) for node,witness in rejected_tails.items()}
     retired_voters=retired_voters or {}
     f.need(len(retired_voters)<=2 and set(retired_voters)<=nodes and not set(retired_voters)&set(rejected_tails), 'invalid retired voters')
+    f.need(evidence_location is None or (not retired_voters and not rejected_tails), 'relocated fault inventory unsupported')
+    inspect=evidence_location.inspect if evidence_location is not None else storage.inspect
     reports={node:(storage.inspect_archive(root/'lost'/node,root/node,retired_voters[node])
-                   if node in retired_voters else storage.inspect(root/node)) for node in nodes-set(rejected_tails)}
+                   if node in retired_voters else inspect(root/node)) for node in nodes-set(rejected_tails)}
     traces=traces if traces is not None else {node:[json.loads(line) for line in (root/(node+'-trace.jsonl')).read_text().splitlines()] for node in nodes}
     f.need(set(traces)==nodes and all(traces.values()),'incomplete voter traces')
     f.need(all(witness in traces[node] and witness['event']=='PARTIAL_WRITE_FAILURE' for node,witness in rejected_tails.items()),'unobserved quarantined append')
