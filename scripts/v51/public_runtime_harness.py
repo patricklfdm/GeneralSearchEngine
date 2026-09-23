@@ -10,7 +10,7 @@ import tarfile
 import threading
 import time
 import xml.etree.ElementTree as ET
-from . import runtime_evidence as authority, storage_inspector as storage, controls
+from . import runtime_evidence as authority, storage_inspector as storage, controls, public_trace
 from .storage_harness import ROOT, need, save
 from scripts.v50.offline_harness import CORE, REPLICATION
 
@@ -48,6 +48,7 @@ def validate(root, traces=None):
 
 class Worker:
     def __init__(self, root, node, cp):
+        self.root, self.node = root, node
         self.log = (root / (node + '-stderr.log')).open('ab')
         self.process = subprocess.Popen(['java', '-cp', cp, 'io.github.patricklfdm.generalsearch.replication.V51PublicWorker', str(root), node[-1]],
                                         cwd=ROOT, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.log, text=True)
@@ -67,6 +68,7 @@ class Worker:
     def kill(self):
         if self.process.poll() is None: self.process.kill()
         self.process.wait(timeout=10); self.process.stdin.close(); self.log.close()
+        public_trace.finish(self.root, self.node, self.process)
     def close(self):
         try:
             if self.process.poll() is None:
@@ -74,6 +76,7 @@ class Worker:
         finally:
             if self.process.poll() is None: self.kill()
             self.log.close()
+            public_trace.finish(self.root, self.node, self.process)
 
 
 def checkpoint_when_available(worker, output, timeout=30):
