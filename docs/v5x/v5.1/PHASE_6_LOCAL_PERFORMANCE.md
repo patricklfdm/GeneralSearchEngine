@@ -166,3 +166,44 @@ failover diagnostic and complete passing schedules have separate directories.
 Next: review exact-source protected full CI before accepting 6A, then separately
 freeze 6B cloud workloads/rates/timings/collection inputs. Local results do not
 reuse or reset any V5.0 cloud ledger, cleanup admission or prior paid approval.
+
+## PR #217 resource-oracle compatibility correction
+
+[CI 35849128807](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35849128807)
+passed the new three-mode performance gate (75 seconds) but failed the existing
+internal `promise-count` resource check. The Phase 6 observer added
+`PROMISE_BEFORE_FORCE`; the resource oracle still expected only AFTER_FORCE and
+BEFORE_ACK for the permitted identical-promise retry after capacity rejection.
+This was a deterministic observation-contract mismatch, not a timing failure.
+
+The retained CI archive has identical before/after authority inventories, 10,000
+promises and unchanged epoch 29,996. The actual delta is exactly one BEFORE_FORCE,
+one AFTER_FORCE and one BEFORE_ACK. The corrected oracle requires all three once
+for both promise-count and retained-byte retries. It still rejects missing/duplicate
+force observations, all additional writes/deletes and any force event in rejection
+cases that have no retry. The authority/archive/reopen checks remain intact.
+Production code, limits, timeouts and workloads are unchanged by this correction.
+
+Regression coverage adds missing/duplicate force/ACK, unrelated force/write/cleanup
+and nonretry refusal cases. All 26 resource-oracle tests and all 313 V5.1 Python
+tests pass. The retained failed CI input is independently rechecked; its original
+failed receipt remains unmodified. Logs are `target/pr217-resource-fix.log` and
+`target/pr217-resource-python.log`.
+
+The full local resource gate is **not passing**: at `target/v51-resources/run.osjTv8`,
+all six internal cases and public `snapshot-staging` pass, but public
+`retained-bytes` fails the unchanged 40-second majority activation deadline after
+the original leader restarts. Its raw traces show repeated selection of exhausted
+node 3, incomplete healthy-peer basis transfers and no activated healthy majority
+before the deadline. The traces do not establish the precise transfer failure cause.
+This is separate from the deterministic counter mismatch; this patch does not
+claim to fix it or accept Phase 6A.
+
+One targeted diagnostic run, using temporary external consumers with additional
+read-only last-exchange/last-recovery status fields, passes at
+`target/pr217-resource-diagnostic/run/retained-bytes`. It selects healthy node 2
+at node 1's next campaign and completes the post-restart read. No production
+code, workload, budget or deadline changed between these runs. This diagnostic
+pass does not replace the failed full gate or establish stable recovery. Keep the
+original failure and treat minority-capacity recovery as an open follow-up; exact
+protected CI on the corrected source remains required.
