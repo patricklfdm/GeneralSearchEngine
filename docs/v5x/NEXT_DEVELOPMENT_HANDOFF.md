@@ -15,11 +15,13 @@ The integration record below retains the original boundary and validation histor
 **Current implementation handoff:** full V5.1 Phase 4 is accepted through PR #208 at
 `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`, all 13 jobs passed).
 The [final Phase 4 review](v5.1/PHASE_4_FINAL_COVERAGE.md) preserves the E01–E12
-public/internal evidence boundaries. The user entered
-[Phase 5A combined recovery](v5.1/PHASE_5_ENTRY_PLAN.md); follow its fixed schedules,
-[implementation record](v5.1/PHASE_5_COMBINED_RECOVERY.md) and
-[checklist](v5.1/PHASE_5_CHECKLIST.md). Phase 5B/C and full acceptance remain open;
-Phase 6/cloud/publication remain separate.
+public/internal evidence boundaries. [Phase 5A combined recovery](v5.1/PHASE_5_COMBINED_RECOVERY.md)
+is accepted at master `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI
+`35818964327`, all 19 jobs passed). The user entered
+[Phase 5B combined lifecycle](v5.1/PHASE_5_COMBINED_LIFECYCLE.md), whose complete
+four-case local gate and 60 evidence negatives passed. Follow its validation record
+and [checklist](v5.1/PHASE_5_CHECKLIST.md). Batch B protected acceptance,
+Phase 5C and full Phase 5 acceptance remain open; Phase 6/cloud/publication stay separate.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

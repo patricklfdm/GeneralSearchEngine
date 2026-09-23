@@ -40,8 +40,9 @@ fresh executed Surefire reports. No child downloads another child's build output
 Shared Python helpers do not share process/evidence state: every gate creates its
 own workspace and compiles its own public consumer/observer when required.
 
-The existing 44 substantive steps comprise 22 verification commands and 22 evidence
-uploads. All are moved exactly once with their original text/configuration. Within
+The original split preserved 44 substantive steps: 22 verification commands and
+22 evidence uploads. Phase 5B adds one gate/upload pair, for 23 of each. The original
+steps remain present exactly once with their original text/configuration. Within
 each child their relative order is preserved. The V4 JMH chain, V5.0 cloud-preflight
 job/step identifiers, paid workflows and release jobs keep their prior wiring.
 
@@ -56,6 +57,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
 | `phase4-bootstrap.sh` | `v51-admission-resources` | `target/v51-bootstrap` |
 | `phase4-resources.sh` | `v51-admission-resources` | `target/v51-resources` |
+| `phase5-combined-lifecycle.sh` | `v51-admission-resources` | `target/v51-combined-lifecycle` |
 | `phase4-public-runtime.sh` | `v51-public-reads-faults` | `target/v51-public-runtime` |
 | `phase4-public-qualification.sh` | `v51-public-reads-faults` | `target/v51-public-qualification` |
 | `phase4-public-faults.sh` | `v51-public-reads-faults` | `target/v51-public-faults` |
@@ -73,7 +75,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 Each child additionally always uploads `**/target/surefire-reports/**` as
 `<job-id>-java-tests-${{ github.sha }}`, for fourteen days. These nine unique artifacts
 include XML reports, failure details and JVM dump files when available, even if the
-initial package fails and no process gate runs. All 45 workflow artifact names are
+initial package fails and no process gate runs. All 46 workflow artifact names are
 unique. No failed or cancelled child can pass Required. The actual Required shell
 is tested with failure/cancellation/unexpected-skip cases for all seventeen children,
 and all seventeen intentional skips are required for a verified docs-only run.
@@ -119,3 +121,13 @@ replication protocol change.
 Local logs and migration/validation JSON are under `target/v51-ci-split/`.
 The next full PR/master runs must establish hosted scheduling and actual child-job
 durations; the nine individual hosted jobs have not run locally.
+
+## Phase 5B addition
+
+`phase5-combined-lifecycle.sh` runs in `v51-admission-resources` and retains
+`target/v51-combined-lifecycle` with `always()`. The fixed four-case gate extends
+quarantine/admission into transport pressure, retained recovery and cancellation/close.
+The independent reactor build already supplies every required JAR; no job dependency
+is added. Exact-master CI `35818964327` measured this lane at 9m28s versus 12m18s
+for public hardening, so the new gate uses the shorter lane. Actual added CI time
+remains to be measured. Seventeen required full-CI jobs and docs-only behavior remain.

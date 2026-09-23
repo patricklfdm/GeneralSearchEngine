@@ -43,6 +43,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 4P final API/scenario/compatibility coverage](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md)
 - [V5.1 Phase 5 entry plan](v5x/v5.1/PHASE_5_ENTRY_PLAN.md)
 - [V5.1 Phase 5A combined faults and repeated recovery](v5x/v5.1/PHASE_5_COMBINED_RECOVERY.md)
+- [V5.1 Phase 5B quarantine, pressure and recovery lifecycle](v5x/v5.1/PHASE_5_COMBINED_LIFECYCLE.md)
 - [V5.1 Phase 5 checklist](v5x/v5.1/PHASE_5_CHECKLIST.md)
 - [V5.1 Phase 4 current E01–E12 evidence status](v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)

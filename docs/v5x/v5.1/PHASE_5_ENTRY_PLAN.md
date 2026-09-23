@@ -1,8 +1,11 @@
 # V5.1 Phase 5 entry: combined faults and repeated recovery
 
-**Status:** user entered `test/v5.1-phase5-hardening` after Phase 4 acceptance.
-This batch defines and implements the first bounded hardening gate. Phase 5 as a
-whole remains open; Phase 6/cloud/release are separate decisions.
+**Status:** Batch A accepted at master
+`04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI `35818964327`,
+all 19 jobs passed). The original schedule below remains the Batch A record.
+Continue with [Batch B combined lifecycle](PHASE_5_COMBINED_LIFECYCLE.md) and the
+[Phase 5 checklist](PHASE_5_CHECKLIST.md). Full Phase 5 and Phase 6/cloud/release
+remain separate acceptance decisions.
 
 ## Accepted starting point
 
@@ -49,13 +52,14 @@ an endurance benchmark or proof about OS-level exhaustion.
 
 - A: the combined partition/acknowledgement/crash and complete retained restart
   matrix above; independent archive/process/outcome/accounting negatives and CI.
-- B: separately freeze broader deterministic combinations, including corrupted
+- B: the [combined lifecycle schedule](PHASE_5_COMBINED_LIFECYCLE.md), including corrupted
   authority with recovery/pressure and cancellation/close across a recovery cut.
   Preserve failed schedules rather than retrying an entire case into a PASS.
 - C: reconcile hardening coverage and resource accounting, run the complete relevant
   local/CI gates, record protected Phase 5 acceptance and then propose Phase 6 entry.
 
-These later combinations are planning scope, not completed evidence. No API,
+The linked Batch B record identifies actual local evidence separately from
+protected acceptance. Batch C remains open. No API,
 authority-format, membership, follower-read or paid-cloud behavior changes are
 included. If a concrete production fault is found, retain its failing trace and
 make the smallest regression-backed correction within this contract.
