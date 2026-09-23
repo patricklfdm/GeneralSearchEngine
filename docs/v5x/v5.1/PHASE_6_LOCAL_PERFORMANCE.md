@@ -207,3 +207,16 @@ code, workload, budget or deadline changed between these runs. This diagnostic
 pass does not replace the failed full gate or establish stable recovery. Keep the
 original failure and treat minority-capacity recovery as an open follow-up; exact
 protected CI on the corrected source remains required.
+
+
+## Post-merge recovery follow-up
+
+PR #217 merged at `e3efda820beef9efcd6f6f06e8af71006c3b85ce`;
+[exact-master CI 35889987294](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35889987294)
+passed all nineteen jobs, including resources and local performance. The prior
+local failure remains evidence of an intermittent recovery path. The
+[resource recovery correction](PHASE_4_RESOURCE_LIMITS.md#recovery-scheduling-after-the-phase-6a-resource-rerun)
+adds a bounded alternate-peer opportunity after failed activation, with deterministic
+regressions. It changes the candidate runtime artifact, so the original performance
+hashes and PR #217 CI do not qualify that new artifact. Full 6A acceptance and the
+separate 6B cloud-parameter freeze await correction validation and protected CI.

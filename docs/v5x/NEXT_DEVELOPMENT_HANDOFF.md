@@ -30,8 +30,12 @@ The current [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md) implements
 closed local plan, independent rich prefix decoder and actual published V4.4 parity.
 It is accepted through PR #216, master `bcac615aeef93dadcab6636162a86ce2156e5515`, exact-master full CI `35841378072`.
 The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORMANCE.md) adds the three-mode
-measurement gate and bounded automatic SIGKILL/rejoin history. Review its exact-source
-full CI before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md);
+measurement gate and bounded automatic SIGKILL/rejoin history. PR #217 merged at
+`e3efda820beef9efcd6f6f06e8af71006c3b85ce`, exact-master full CI `35889987294`
+(all nineteen jobs passed). The separately retained local resource-recovery failure
+has a [scheduling correction candidate](v5.1/PHASE_4_RESOURCE_LIMITS.md#recovery-scheduling-after-the-phase-6a-resource-rerun).
+Review corrected-runtime resource/performance evidence and exact-source full CI
+before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md). Then enter 6B;
 cloud parameters need separate qualification and paid execution remains user-triggered.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
