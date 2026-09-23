@@ -50,6 +50,11 @@ public final class PublicLifecycleConsumer {
                         if(entered.compareAndSet(false,true))observer.accept("READ_CALLBACK",Map.of("opId",id));return true;
                     }).stream().map(d->Map.of("id",d.id(),"value",d.value())).toList());
                 }
+                case "backup" -> {
+                    var backup=engine.backup(new io.github.patricklfdm.generalsearch.durability.DurableBackupRequest(Path.of((String)command.get("target")),1<<20)).get(20,TimeUnit.SECONDS);
+                    result.put("sequence",backup.sequence());result.put("contentIdentity",backup.contentIdentity());
+                    result.put("sourceHistory",backup.sourceHistory().toString());
+                }
                 case "cancel" -> {
                     var future=pending.get((String)command.get("target"));
                     if(future==null)throw new IllegalStateException("target future is not pending");

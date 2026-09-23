@@ -12,14 +12,12 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4N was accepted through PR #206 at
-`3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
-[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned-view/reconstruction
-overlap, real partial-write errors and repeated timeout resource accounting.
-The [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
-distinguishes completed scenarios, internal witnesses and remaining public work.
-Follow the [current Phase 4 checklist](v5.1/PHASE_4_CHECKLIST.md) and its remaining
-public scenario mapping; this does not authorize Phase 5, cloud runs or publication.
+**Current implementation handoff:** V5.1 Phase 4O is accepted through PR #207 at
+`1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
+[Phase 4P](v5.1/PHASE_4_FINAL_COVERAGE.md) supplies the final crossed-heartbeat and
+lost-authority/new-group witnesses plus method/scenario/compatibility reconciliation.
+Follow the [checklist](v5.1/PHASE_4_CHECKLIST.md), local evidence and protected final
+CI before making full Phase 4 acceptance. Phase 5/cloud/publication remain separate.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

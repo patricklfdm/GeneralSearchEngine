@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A–N accepted; Phase 4O locally qualified; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4A–O accepted; Phase 4P locally qualified; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -59,9 +59,11 @@ The [runtime batch](v5.1/PHASE_3_RUNTIME.md) was accepted in PR #189 with CI `35
 at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
 [Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206
 at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
-[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned recovery,
-partial I/O and repeated timeout qualification; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
-tracks remaining qualification before full Phase 4 acceptance.
+[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) is accepted through PR #207,
+master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
+[Phase 4P](v5.1/PHASE_4_FINAL_COVERAGE.md) adds locally qualified crossed
+heartbeats, lost-authority/new-group recovery and the final method/scenario/format
+map. Protected full Phase 4 acceptance remains pending.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

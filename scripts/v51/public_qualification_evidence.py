@@ -11,9 +11,9 @@ def traces_at(root):
             for i in (1, 2, 3)}
 
 
-def physical(root, history, traces=None, *, rejected_tails=None):
+def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=None):
     traces = traces if traces is not None else traces_at(root)
-    result = authority.validate(root, traces, rejected_tails=rejected_tails)
+    result = authority.validate(root, traces, rejected_tails=rejected_tails, retired_voters=retired_voters)
     manifest_bytes = (Path(root) / 'node-1/manifest.gsr').read_bytes()
     manifest = authority.f.inspect(manifest_bytes, 'MANIFEST')
     processes = {}
@@ -35,10 +35,14 @@ def physical(root, history, traces=None, *, rejected_tails=None):
     seen_success, captured_reads, barriers, invocation_orders, acceptance_orders = {}, {}, set(), {}, {}
     for node, rows in traces.items():
         invocations, forces, publications, current, promises, validated = {}, {}, {}, {}, {}, {}
+        pending_backups, released_backups = {}, {}
         for row in rows:
             pid = row['pid']; event = row['event']
             if event == 'CLIENT_INVOKE':
                 invocations[(pid, row['opId'])] = row['order']
+                if row['kind'] == 'backup':
+                    need(pid not in pending_backups, 'overlapping backup fixture')
+                    pending_backups[pid] = row['opId']
                 invocation_orders[(node, pid, row['opId'])] = row['order']
             elif event == 'FORCE' and row['kind'] == 'PROMISE':
                 promise = authority.f.inspect(authority.raw(row['record']), 'PROMISE')
@@ -72,9 +76,19 @@ def physical(root, history, traces=None, *, rejected_tails=None):
                 capture['opId'] = row['opId']
             elif event == 'READ_RELEASED':
                 capture = current.pop(pid, None)
-                need(capture is not None and capture['opId'] is not None, 'release without captured query')
+                need(capture is not None, 'release without captured view')
+                if capture['opId'] is None:
+                    identity = pending_backups.pop(pid, None)
+                    need(identity is not None and (pid, identity) not in released_backups, 'release without captured query or backup')
+                    need(invocations[(pid, identity)] < forces.get((pid, capture['digest']), -1) < capture['row']['order'], 'backup barrier predates invocation')
+                    released_backups[(pid, identity)] = capture
+                    need(all(row[k] == capture['row'][k] for k in ('epoch', 'index', 'sequence')), 'backup release changed view')
+                    continue
                 need(all(row[k] == capture['row'][k] for k in ('epoch', 'index', 'sequence')), 'release changed view')
                 captured_reads[(node, pid, capture['opId'])] = capture
+            elif event == 'CLIENT_SUCCESS' and row['kind'] == 'backup':
+                capture = released_backups.pop((pid, row['opId']), None)
+                need(capture is not None and row['sequence'] == capture['row']['sequence'], 'backup response lacks exact released view')
             elif event == 'CLIENT_SUCCESS' and row['kind'] in ('read', 'addAll'):
                 key = node, pid, row['opId']; seen_success[key] = row
                 need(row['opId'] in attempts, 'unrecorded client response')
@@ -83,6 +97,7 @@ def physical(root, history, traces=None, *, rejected_tails=None):
                     need(capture is not None, 'read response before view release')
                     _, docs = authority.application(authority.raw(capture['snapshot']['application']))
                     need(row['documents'] == [dict(id=k, value=v) for k, v in docs.items()], 'read differs from exact captured bytes')
+        need(not pending_backups and not released_backups, 'uncompleted backup capture')
     matched = set()
     for op in history:
         key = op['node'], op['pid'], op['opId']
@@ -103,7 +118,7 @@ def physical(root, history, traces=None, *, rejected_tails=None):
                 capturedReads=len(captured_reads), attemptedOperations=len(history))
 
 
-def negatives(root, history, initial_documents=None, *, rejected_tails=None):
+def negatives(root, history, initial_documents=None, *, rejected_tails=None, retired_voters=None):
     original = traces_at(root); cases = []
     target = next(op for op in reversed(history) if op['kind'] == 'read' and op['outcome'] == 'SUCCESS')
     for name, docs in [('stale-read', []), ('partial-atomic-bulk', target['documents'][1:]),
@@ -115,7 +130,7 @@ def negatives(root, history, initial_documents=None, *, rejected_tails=None):
                 if row.get('opId') == target['opId'] and row['event'] == 'CLIENT_SUCCESS': row['documents'] = docs
         rejected = []
         for label, verify in [('client-history', lambda: public_history.check(changed, initial_documents=initial_documents)),
-                              ('chosen-and-captured-bytes', lambda: physical(root, changed, traces, rejected_tails=rejected_tails))]:
+                              ('chosen-and-captured-bytes', lambda: physical(root, changed, traces, rejected_tails=rejected_tails, retired_voters=retired_voters))]:
             try: verify()
             except ValueError as error: rejected.append(dict(checker=label, reason=str(error)))
             else: raise ValueError(name + ' admitted by ' + label)
@@ -136,7 +151,7 @@ def negatives(root, history, initial_documents=None, *, rejected_tails=None):
                 own['order'] = counters[own['pid']]
         else:
             traces = {n: [r for r in rows if r['event'] != 'FORCE' or r['kind'] != 'PROOF'] for n, rows in traces.items()}
-        try: physical(root, history, traces, rejected_tails=rejected_tails)
+        try: physical(root, history, traces, rejected_tails=rejected_tails, retired_voters=retired_voters)
         except ValueError as error: cases.append(dict(case=name, rejected=[dict(checker='chosen-and-captured-bytes', reason=str(error))]))
         else: raise ValueError(name + ' admitted')
     return cases

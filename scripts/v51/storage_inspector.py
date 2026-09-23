@@ -65,7 +65,19 @@ def torn_append(directory, witness):
     raise ValueError('partial write accepted as valid authority')
 
 
+def inspect_archive(directory, original_path, expected_inventory):
+    """Read a displaced, immutable witness; never admit it as live authority."""
+    original_path = Path(original_path)
+    f.need(not original_path.exists() and not original_path.is_symlink(), 'retired authority still present')
+    f.need(bool(expected_inventory) and inventory(directory) == expected_inventory, 'retired inventory changed')
+    return _inspect(directory, 8 << 30, 8 << 20, original_path.resolve())
+
+
 def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
+    return _inspect(directory, maximum_bytes, maximum_frame, Path(directory).resolve())
+
+
+def _inspect(directory, maximum_bytes, maximum_frame, admitted_path):
     directory = Path(directory)
     f.need(not any(p.is_symlink() for p in (directory, *directory.parents)), 'authority symlink')
     before = inventory(directory)
@@ -90,7 +102,7 @@ def inspect(directory, maximum_bytes=8 << 30, maximum_frame=8 << 20):
     genesis = f.inspect(raw(plan['genesis']), 'GENESIS')
     f.need(all(genesis[k] == manifest[k] for k in ('groupId', 'historyId', 'baseSequence', 'schemaDigest', 'indexesDigest')), 'genesis identity')
     target = plan['targets'][voters.index(node)]
-    f.need(target['authorityPath'] == str(directory.resolve()), 'copied/stale seal path')
+    f.need(target['authorityPath'] == str(admitted_path), 'copied/stale seal path')
     preparations = [f.inspect(raw(v), 'PREPARED') for v in receipt['preparations']]
     f.need((directory / 'bootstrap-prepared.gsr').read_bytes() == raw(receipt['preparations'][voters.index(node)]), 'local preparation')
     for t, p in zip(plan['targets'], preparations):

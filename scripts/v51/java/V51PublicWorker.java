@@ -185,7 +185,8 @@ public final class V51PublicWorker {
                     }
                 }
                 if(Set.of("BASIS_CHUNK","SNAPSHOT_CHUNK","REJOIN_INSTALL").contains(request.get("type"))
-                        ||Files.exists(root.resolve("selection-evidence"))&&Set.of("ACCEPT","COMMIT_PROOF").contains(request.get("type"))) {
+                        ||Files.exists(root.resolve("selection-evidence"))&&Set.of("ACCEPT","COMMIT_PROOF").contains(request.get("type"))
+                        ||Files.exists(root.resolve("final-coverage-evidence"))&&request.get("type").equals("HEARTBEAT")) {
                     var values=new LinkedHashMap<String,Object>();values.put("request",b64(AutomaticWire.encode(request,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
                     if(!response.isEmpty())values.put("frame",b64(AutomaticWire.encode(response,manifest,io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.bounds().maxFrameBytes())));
                     if(request.get("type").equals("BASIS_CHUNK"))values.put("cut",number(object(request.get("payload")),"offset")>0?"continuation":"first");

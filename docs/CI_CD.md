@@ -387,3 +387,15 @@ independent history/physical checks and negative variants. It always uploads
 `target/v51-lifecycle-hardening` as `v51-lifecycle-hardening-${{ github.sha }}` for
 fourteen days. The existing eleven required lanes, all prior gates/uploads and
 documentation-only routing are preserved. See [the evidence record](v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md).
+
+### V5.1 Phase 4P final coverage
+
+The existing `v51-public-lifecycle` lane runs
+`scripts/verify-v51-phase4-final-coverage.sh --skip-build` after its reactor build
+and earlier lifecycle gates. Four public process cases bind delayed heartbeat
+fencing and lost-authority/new-group recovery to independent raw evidence and a
+published V4.4 restore control. `V51VersionBoundaryTest` runs in reactor tests.
+The always-uploaded `v51-public-final-coverage-${{ github.sha }}` artifact retains
+`target/v51-final-coverage`, including failed attempts. All eleven required full-CI
+lanes, timeouts and docs-only routing stay unchanged. See the
+[final coverage record](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md).

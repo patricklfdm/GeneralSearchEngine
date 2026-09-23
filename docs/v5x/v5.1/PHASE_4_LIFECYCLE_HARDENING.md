@@ -1,8 +1,9 @@
 # V5.1 Phase 4O: pinned recovery, partial I/O and repeated timeouts
 
-**Status:** local qualification passed; protected Batch O and complete Phase 4
-acceptance remain open. Batch N was accepted through PR #206 at
-`3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4`, exact-master CI `35779031221`.
+**Status:** Batch O accepted through PR #207, master
+`1a043615ec4a8de5b7f110d999c5f7268e5e165c`, exact-master CI `35794875603`.
+Full Phase 4 acceptance remains open; [Batch P](PHASE_4_FINAL_COVERAGE.md)
+continues final qualification and coverage reconciliation.
 
 ## Scope and execution layers
 
@@ -171,3 +172,11 @@ summary: `target/ci-investigation-35785207300/validation-summary.json`.
 Both production JAR hashes remain identical to the candidate values above.
 The 38-document contract and whitespace checks passed. Updated-source protected
 CI remains pending.
+
+## Protected acceptance
+
+PR #207 merged at master `1a043615ec4a8de5b7f110d999c5f7268e5e165c`.
+Exact-master CI `35794875603` passed all 13 jobs, including the public lifecycle
+lane and V5.0 recovery/workload. This supersedes the pending-CI statements in the
+historical local records above. The [final coverage batch](PHASE_4_FINAL_COVERAGE.md)
+continues the remaining Phase 4 reconciliation; no Phase 5/cloud work is implied.

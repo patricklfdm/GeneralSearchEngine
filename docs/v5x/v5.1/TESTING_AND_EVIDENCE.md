@@ -135,6 +135,11 @@ success is never reported as completion of the implementation column.
 | E11 | Zero/one reachable peer, slow force, long callback, full payload/control queues, tiny bounds, snapshot/promise/ancestry exhaustion | Control remains bounded/admitted; unsafe cleanup never makes space; no-quorum and capacity errors carry correct outcomes | D09, I01/I07/I08 |
 | E12 | 1.0/1.1/1.2 wire/disk mismatches, mode/manifest/schema mismatch, configured/API compatibility, absent-target bootstrap and ambiguous cleanup | External V1-V5.0 consumers unchanged; new automatic consumer covers full lifecycle; wrong mode/version rejects before authority mutation | D07/D11/D12, I04/I07 |
 
+The [Phase 4 final coverage record](PHASE_4_FINAL_COVERAGE.md) maps these accepted
+rows to exact gates, internal fixtures and public methods, including crossed
+heartbeats, unavailable authority and verified-cut import into a new group.
+It records layer boundaries and pending protected acceptance without changing this matrix.
+
 ## Process and public-consumer requirements
 
 The public consumer compiles outside implementation packages against built core and
