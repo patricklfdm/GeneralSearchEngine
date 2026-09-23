@@ -213,6 +213,7 @@ final class AutomaticTransport implements AutoCloseable {
             long deadline = deadline();
             Map<String, Object> request = read(channel, selector, deadline);
             AutomaticRecords.need(local.equals(request.get("recipient")), "wrong request endpoint");
+            events.at("AFTER_REQUEST_READ", request, Map.of());
             Map<String, Object> response = handler.apply(request);
             events.at("BEFORE_RESPONSE_WRITE", request, response);
             transfer(channel, selector, ByteBuffer.wrap(AutomaticWire.encode(response, manifest, bounds.maxFrameBytes())), true, deadline);

@@ -301,3 +301,11 @@ independent history/physical checks and negative variants. It always uploads
 `target/v51-lifecycle-hardening` as `v51-lifecycle-hardening-${{ github.sha }}` for
 fourteen days. The existing eleven required lanes, all prior gates/uploads and
 documentation-only routing are preserved. See [the evidence record](v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md).
+
+## Phase 4P addition
+
+`v51-public-lifecycle` adds `verify-v51-phase4-final-coverage.sh --skip-build`
+after the Phase 4O gate, with always-retained `v51-public-final-coverage` evidence.
+The migration table above remains the historical original-step audit. This new
+gate uses the lane's existing reactor artifacts; the eleven-lane Required result
+and dependency graph are unchanged. See [the final map](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md).

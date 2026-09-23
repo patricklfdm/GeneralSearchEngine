@@ -13,6 +13,10 @@ import java.util.concurrent.*;
 public final class PublicSemanticConsumer {
     private static Object exercise(SearchEngine<Integer,Doc> engine) {
         var stages=new LinkedHashMap<String,Object>();
+        if(engine.schema().requireField("id")!=engine.field("id")||engine.field("id",Integer.class)!=ID
+                ||engine.field("category",String.class)!=CATEGORY||engine.textField("body")!=TEXT)
+            throw new AssertionError("canonical public metadata");
+        stages.put("metadata",Map.of("id",engine.field("id").name(),"text",engine.textField("body").field().name()));
         populate(engine);stages.put("populated",report(engine));
         engine.updateAll(List.of(new Doc(3,"Java Revised","guide",31,"java search revised"),
                 new Doc(7,"Prefix Query","reference",71,"query search search"))).join();
@@ -55,6 +59,8 @@ public final class PublicSemanticConsumer {
                 if(leader==null)Thread.sleep(20);
             }
             if(leader==null)throw new IllegalStateException("rich public election timeout");
+            if(leader.lastReopenReport().isPresent())throw new AssertionError("automatic authority does not expose a core reopen report");
+            if(leader.durabilityMetrics().status()!=DurabilityStatus.OPEN)throw new AssertionError("public durability readiness");
             Object stages=exercise(leader);long sequence=leader.currentSequence();
             leader.checkpoint().get(20,TimeUnit.SECONDS);leader.backup(new DurableBackupRequest(root.resolve("backup"),1<<20)).get(20,TimeUnit.SECONDS);
             System.out.println(AdmissionJson.canonical(Map.of("stages",stages,"sequence",sequence)));

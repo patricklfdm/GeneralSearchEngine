@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–N accepted; Phase 4O locally qualified; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–O accepted; Phase 4P locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -56,9 +56,11 @@ its transition kernel was accepted in PR #188 with CI `35507802486`. The
 at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
 [Phase 4N](v5.1/PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206
 at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
-[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned recovery,
-partial I/O and repeated timeout qualification; the [current evidence map](v5.1/PHASE_4_EVIDENCE_STATUS.md)
-tracks remaining qualification before full Phase 4 acceptance.
+[Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) is accepted through PR #207,
+master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
+[Phase 4P](v5.1/PHASE_4_FINAL_COVERAGE.md) adds locally qualified crossed
+heartbeats, lost-authority/new-group recovery and the final method/scenario/format
+map. Protected full Phase 4 acceptance remains pending.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

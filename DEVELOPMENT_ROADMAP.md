@@ -47,9 +47,11 @@ through PR #194 at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `
 at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
 [Phase 4N](docs/v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206
 at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
-[Phase 4O](docs/v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md) adds pinned recovery,
-partial I/O and repeated timeout qualification; the [current evidence map](docs/v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
-tracks remaining qualification before full Phase 4 acceptance.
+[Phase 4O](docs/v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md) is accepted through PR #207,
+master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
+[Phase 4P](docs/v5x/v5.1/PHASE_4_FINAL_COVERAGE.md) adds locally qualified crossed
+heartbeats, lost-authority/new-group recovery and the final method/scenario/format
+map. Protected full Phase 4 acceptance remains pending.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

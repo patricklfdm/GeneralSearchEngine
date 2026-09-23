@@ -32,19 +32,41 @@ class V51AutomaticTransportTest {
     }
     static final class Pair implements AutoCloseable {
         final AutomaticRecords.Record manifest;final AutomaticTransport sender,receiver;
-        Pair(AutomaticTransport.Events observer) throws Exception {
+        final java.util.concurrent.atomic.AtomicInteger handled=new java.util.concurrent.atomic.AtomicInteger();
+        Pair(AutomaticTransport.Events observer) throws Exception {this(observer,AutomaticTransport.Events.NONE);}
+        Pair(AutomaticTransport.Events observer,AutomaticTransport.Events receiving) throws Exception {this(observer,receiving,V51RuntimeFixture.BOUNDS);}
+        Pair(AutomaticTransport.Events observer,AutomaticTransport.Events receiving,ReplicationBounds bounds) throws Exception {
             var value=V51StorageFixture.copy(decode(unbase(V51StorageFixture.samples().get("MANIFEST")),"MANIFEST").value());
             var ports=ReplicaLeaderTestSupport.ports();var members=new ArrayList<Object>();
             for(int i=0;i<3;i++)members.add(Map.of("node","node-"+(i+1),"host","127.0.0.1","port",(long)ports.get(i)));
             value.put("members",members);manifest=decode(encode("MANIFEST",value),"MANIFEST");
-            receiver=new AutomaticTransport(manifest,"node-2",V51RuntimeFixture.BOUNDS,r->AutomaticWire.reply(r,"HANDSHAKE",Map.of("mode","AUTOMATIC")));
-            sender=new AutomaticTransport(manifest,"node-1",V51RuntimeFixture.BOUNDS,r->AutomaticWire.reply(r,"HANDSHAKE",Map.of("mode","AUTOMATIC")),observer);
+            receiver=new AutomaticTransport(manifest,"node-2",bounds,r->{handled.incrementAndGet();return AutomaticWire.reply(r,"HANDSHAKE",Map.of("mode","AUTOMATIC"));},receiving);
+            sender=new AutomaticTransport(manifest,"node-1",bounds,r->AutomaticWire.reply(r,"HANDSHAKE",Map.of("mode","AUTOMATIC")),observer);
         }
         Map<String,Object> request(){
             var ballot=decode(encode("PROMISE",Map.of("manifestDigest",manifest.digest(),"epoch",2L,"proposer","node-1","incarnation",UUID.randomUUID().toString())),"PROMISE");
             return AutomaticWire.message(manifest,ballot,"node-1","node-2","HANDSHAKE",UUID.randomUUID(),1,Map.of("mode","AUTOMATIC"));
         }
         public void close(){sender.close();receiver.close();}
+    }
+    @Test void receivedRequestCanPauseBeforeDispatchWithoutBlockingAnotherConnection() throws Exception {
+        var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var held=new AtomicBoolean();
+        AutomaticTransport.Events receiving=(barrier,request,response)->{
+            if(barrier.equals("AFTER_REQUEST_READ")&&held.compareAndSet(false,true)) {
+                assertTrue(response.isEmpty());entered.countDown();
+                try{if(!release.await(10,TimeUnit.SECONDS))throw new IOException("receive pause timeout");}
+                catch(InterruptedException e){Thread.currentThread().interrupt();throw new IOException(e);}
+            }
+        };
+        try(var pair=new Pair(AutomaticTransport.Events.NONE,receiving,ReplicaLeaderTestSupport.bounds(10000,8))) {
+            var first=pair.sender.exchange("node-2",pair.request());
+            try {
+                assertTrue(entered.await(5,TimeUnit.SECONDS));assertEquals(0,pair.handled.get());
+                assertEquals("HANDSHAKE",pair.sender.exchange("node-2",pair.request()).get(5,TimeUnit.SECONDS).get("type"));
+                assertEquals(1,pair.handled.get());assertFalse(first.isDone());
+            }finally{release.countDown();}
+            assertEquals("HANDSHAKE",first.get(3,TimeUnit.SECONDS).get("type"));assertEquals(2,pair.handled.get());
+        }
     }
     @Test void cancellationDoesNotFreeAStillRunningReservation() throws Exception {
         var observer=new Accounting();observer.hold=true;

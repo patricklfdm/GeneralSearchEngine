@@ -25,7 +25,8 @@ at `6d3fbb7ae149222903eba4ccbce0cab5cafb1cf4` (exact-master CI `35560692475`).
 [Batches L](PHASE_4_RESOURCE_LIMITS.md) and [M](PHASE_4_BACKPRESSURE.md) are
 accepted through PR #205, exact-master CI `35753082195`.
 [Batch N](PHASE_4_PUBLIC_SELECTION.md) is accepted through PR #206, exact-master
-CI `35779031221`. [Batch O](PHASE_4_LIFECYCLE_HARDENING.md) adds lifecycle hardening;
+CI `35779031221`. [Batch O](PHASE_4_LIFECYCLE_HARDENING.md) is accepted through
+PR #207, exact-master CI `35794875603`. [Batch P](PHASE_4_FINAL_COVERAGE.md) adds final coverage;
 complete Phase 4 acceptance remains pending. Phase 3 is [accepted](PHASE_3_CHECKLIST.md) at
 `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab` (PR #191, CI `35542143840`).
 The [checklist](PHASE_4_CHECKLIST.md) separates local qualification from protected acceptance.
@@ -203,3 +204,13 @@ ACCEPT/PROOF channel writes and require quarantine, unchanged rejected restarts 
 remaining-majority service. Repeat public queued deadlines and real transport
 timeouts with independent reservation/counter evidence. Preserve the difference
 between finite public schedules and an unbounded resource proof.
+
+## Batch P — final coverage reconciliation
+
+Add real delayed HEARTBEAT request/ACK schedules across a higher durable promise,
+one/two unavailable authority directories, rejected same-group startup and a
+verified-backup transition to a new GroupId. Compare the backup with published
+V4.4, preserve separate old/new chosen histories and archive bytes, and retain
+meaningful causal negatives. Complete the E01–E12, runtime-method and bidirectional
+format compatibility maps in [the final coverage record](PHASE_4_FINAL_COVERAGE.md).
+Protected full CI and a separate Phase 4 acceptance record remain required.

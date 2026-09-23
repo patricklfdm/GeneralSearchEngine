@@ -45,7 +45,8 @@ public final class PublicRuntimeConsumer {
         boolean small=profile.equals("small");
         var fixtureBounds=new ReplicationBounds(small?128<<10:1<<20,100,8,small||profile.equals("pressure")?1:profile.equals("backpressure")?4:16,2,1200,25,chunkBytes,64L<<20,64L<<20);
         var policy=profile.equals("wire")?new AutomaticLeadershipPolicy(1200,600000,601200,operationTimeout):new AutomaticLeadershipPolicy(1200,3600,6000,operationTimeout);
-        return members.stream().map(m->new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString("11111111-1111-1111-1111-111111111111")),"public-runtime-fixture",m.nodeId(),members,
+        var group=new ReplicationGroupId(UUID.fromString(Files.exists(root.resolve("group-id.txt"))?Files.readString(root.resolve("group-id.txt")).trim():"11111111-1111-1111-1111-111111111111"));
+        return members.stream().map(m->new AutomaticReplicationGroupConfig<>(group,"public-runtime-fixture",m.nodeId(),members,
                 root.resolve(m.nodeId().value()),small?DurableStorageConfig.builder(root.resolve("app-"+m.nodeId().value()),new Codec())
                         .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema").maxDocuments(4).maxBulkElements(4).build():storage(root.resolve("app-"+m.nodeId().value())),
                 m.nodeId().value().equals("node-3")&&profile.startsWith("resource-")
