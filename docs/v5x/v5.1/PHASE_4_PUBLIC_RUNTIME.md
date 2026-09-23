@@ -81,6 +81,16 @@ attempt in `checkpoint-maintenance.json`, and still requires an actual success.
 Other failures and missing responses are not retried; application mutations and
 backup are issued once.
 
+The Maven public-facade test uses the same bounded maintenance policy. A one-shot
+checkpoint raced background generation retirement in
+[CI run 35835260963](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35835260963/job/107097095512).
+Its test-only wait shares one 30-second deadline across calls and pauses, and keeps
+the attempt count and last capacity rejection if that deadline expires. Deterministic
+tests cover permanent pressure, all other reason/outcome pairs, missing responses,
+submission time, cancellation and interruption. Checkpoint sequence and exported
+backup contents still require actual success; the storage regression still requires
+a newer cut to reject without changing retained bytes until a durable floor exists.
+
 `backup()` obtains a fresh read barrier and exports the captured application through
 the existing bounded V4 backup path. It preserves core backup failures and rejects
 an absent target beneath local authority. Cancellation never deletes created output.
