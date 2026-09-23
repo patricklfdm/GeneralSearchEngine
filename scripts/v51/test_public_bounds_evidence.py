@@ -124,3 +124,47 @@ class PublicBoundsEvidenceTest(unittest.TestCase):
         args = self.wire(); raw = bytearray(base64.b64decode(args[1][-1]['request'])); raw[7] = 1
         args[1][-1]['request'] = base64.b64encode(raw).decode()
         with self.assertRaisesRegex(ValueError, 'oversized declaration'): e.wire(*args)
+
+
+class SequentialAdmissionEvidenceTest(unittest.TestCase):
+    def fixture(self):
+        history = [dict(opId='next', node='node-1', pid=10)]
+        traces = {'node-1': [
+            dict(event='CLIENT_SUCCESS', kind='read', opId='previous', pid=10, order=1),
+            dict(event='CLIENT_SUCCESS', kind='status', pid=10, order=2, pending=0),
+            dict(event='CLIENT_INVOKE', kind='addAll', opId='next', pid=10, order=3)]}
+        return [history, traces, 'document-limit', []]
+
+    def test_successful_response_alone_does_not_establish_released_admission(self):
+        args = self.fixture()
+        self.assertEqual(1, e.sequential_admission(*args)['checkedCalls'])
+        args[1]['node-1'].pop(1)
+        with self.assertRaisesRegex(ValueError, 'fresh idle'): e.sequential_admission(*args)
+
+    def test_idle_status_must_be_fresh_successful_local_and_actually_idle(self):
+        for change in (dict(order=0), dict(order=4), dict(pending=1), dict(pid=11),
+                       dict(event='CLIENT_FAILURE'), dict(kind='read')):
+            with self.subTest(change=change):
+                args = self.fixture(); args[1]['node-1'][1].update(change)
+                with self.assertRaisesRegex(ValueError, 'fresh idle'): e.sequential_admission(*args)
+
+    def test_only_intentional_held_or_solo_rejections_are_exempt(self):
+        for case in ('pending-read', 'pending-write', 'no-quorum-start', 'document-limit', 'bulk-limit', 'payload-limit'):
+            with self.subTest(case=case):
+                args = self.fixture(); args[2] = case; args[3] = ['probe']
+                args[0].append(dict(opId='probe', node='node-1', pid=10))
+                args[1]['node-1'].extend([
+                    dict(event='CLIENT_SUCCESS', kind='addAll', opId='next', pid=10, order=4),
+                    dict(event='CLIENT_INVOKE', kind='addAll', opId='probe', pid=10, order=5)])
+                if case.startswith('pending-') or case == 'no-quorum-start':
+                    self.assertEqual(1, e.sequential_admission(*args)['checkedCalls'])
+                else:
+                    with self.assertRaisesRegex(ValueError, 'fresh idle'): e.sequential_admission(*args)
+
+    def test_missing_or_duplicate_invocation_and_empty_evidence_fail(self):
+        for duplicate in (False, True):
+            args = self.fixture()
+            if duplicate: args[1]['node-1'].append(dict(args[1]['node-1'][-1]))
+            else: args[1]['node-1'].pop()
+            with self.assertRaisesRegex(ValueError, 'sequential invocation'): e.sequential_admission(*args)
+        with self.assertRaisesRegex(ValueError, 'no sequential'): e.sequential_admission([], {}, 'document-limit', [])

@@ -78,3 +78,20 @@ class PublicProtocolRecoveryReadTest(unittest.TestCase):
         self.leader.side_effect = ValueError('public voter failed')
         with self.assertRaisesRegex(ValueError, 'public voter failed'): self.read(worker)
         worker.send.assert_not_called()
+
+
+    def test_admission_observation_precedes_each_recovery_read_attempt(self):
+        worker = self.worker(dict(outcome='NOT_APPLICABLE', reasonCode='QUORUM_UNAVAILABLE'), self.success)
+        self.leader.return_value = ('node-3', worker)
+        observations = []
+        def before_read(active):
+            self.assertIs(worker, active); observations.append(worker.send.call_count)
+        self.assertEqual(('node-3', worker), protocol.read_after_recovery({'node-3': worker}, self.expected, before_read=before_read))
+        self.assertEqual([0, 1], observations)
+
+    def test_admission_wait_failure_does_not_submit_or_retry_a_read(self):
+        worker = self.worker(self.success); self.leader.return_value = ('node-3', worker)
+        before_read = Mock(side_effect=ValueError('bounds admission did not drain'))
+        with self.assertRaisesRegex(ValueError, 'did not drain'):
+            protocol.read_after_recovery({'node-3': worker}, self.expected, before_read=before_read)
+        before_read.assert_called_once_with(worker); worker.send.assert_not_called()

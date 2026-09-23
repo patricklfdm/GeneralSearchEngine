@@ -77,6 +77,29 @@ def bounds(root, history, traces, case, targets):
     return rejection_history(history, traces, case, targets)
 
 
+def sequential_admission(history, traces, case, targets):
+    # Pending-capacity probes intentionally overlap their held call; solo startup
+    # probes test role rejection. All other calls need an actual idle observation
+    # newer than the preceding application response in the same worker process.
+    exempt = set(targets) if case.startswith('pending-') or case == 'no-quorum-start' else set()
+    checked = 0
+    for op in history:
+        if op['opId'] in exempt: continue
+        own = [r for r in traces[op['node']] if r['pid'] == op['pid']]
+        invoke = [r for r in own if r['event'] == 'CLIENT_INVOKE' and r.get('opId') == op['opId']]
+        need(len(invoke) == 1, 'missing sequential invocation')
+        before = invoke[0]['order']
+        previous = max((r['order'] for r in own if r['order'] < before and
+                        r['event'] in ('CLIENT_SUCCESS', 'CLIENT_FAILURE') and
+                        r.get('kind') in ('addAll', 'read')), default=0)
+        need(any(previous < r['order'] < before and r['event'] == 'CLIENT_SUCCESS' and
+                 r.get('kind') == 'status' and r.get('pending') == 0 for r in own),
+             'missing fresh idle admission before '+op['opId'])
+        checked += 1
+    need(checked > 0, 'no sequential admission observations')
+    return dict(status='PASS', checkedCalls=checked)
+
+
 def rejection_history(history, traces, case, targets):
     need(len(targets) == (2 if case.startswith('pending-') or case == 'no-quorum-start' else 1)
          and len(set(targets)) == len(targets), 'missing rejection targets')
