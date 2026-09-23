@@ -57,6 +57,8 @@ final class AutomaticProtocol implements AutoCloseable {
     private AutomaticRecovery.Basis ownBasis;
     private AutomaticRecovery.Selection selection;
     private String quorumPeer;
+    // Scheduling hints only: never retained authority or an exclusion from voting.
+    private String failedQuorumPeer,deferredPreparePeer;
     private Operation operation;
     private Message preparing;
     private Reconstruct reconstruction;
@@ -188,7 +190,11 @@ final class AutomaticProtocol implements AutoCloseable {
                 // Own promise and immutable basis are forced before any outbound PREPARE.
                 ownBasis=store.prepare(expected.bytes(),local,image);
                 durablePromise=store.promised();
-                for(String peer:peers)send(peer,Kind.PREPARE,null);
+                // After a failed activation, give the other voter one bounded
+                // PREPARE opportunity. Otherwise a fast unusable voter can win
+                // every campaign before a slower healthy basis finishes.
+                deferredPreparePeer=failedQuorumPeer;
+                for(String peer:peers)if(!peer.equals(deferredPreparePeer))send(peer,Kind.PREPARE,null);
             });
         } catch(AutomaticReplicationException error) {fail(error.reason());}
     }
@@ -207,7 +213,13 @@ final class AutomaticProtocol implements AutoCloseable {
         Pending pending=exchanges.remove(id);if(pending==null)return;
         Kind kind=pending.message.kind();
         if(kind==Kind.HEARTBEAT)return;
-        if(kind==Kind.PREPARE&&exchanges.values().stream().anyMatch(p->p.message.kind()==Kind.PREPARE))return;
+        if(kind==Kind.PREPARE) {
+            if(exchanges.values().stream().anyMatch(p->p.message.kind()==Kind.PREPARE))return;
+            if(deferredPreparePeer!=null&&state==CANDIDATE&&campaign!=null&&now<campaignDeadline) {
+                String peer=deferredPreparePeer;deferredPreparePeer=null;
+                send(peer,Kind.PREPARE,null);return;
+            }
+        }
         abandon(QUORUM_UNAVAILABLE);
     }
     synchronized void receive(Message message,long time) {
@@ -293,7 +305,7 @@ final class AutomaticProtocol implements AutoCloseable {
                     var basis=(AutomaticRecovery.Basis)response.payload();
                     need(response.sender().equals(basis.record().value().get("node")),"basis responder binding");
                     capacity((long)ownBasis.image().encoded().bytes().length+basis.image().encoded().bytes().length<=bounds.maxSnapshotStagingBytes(),"prepare quorum image bound");
-                    selection=store.select(List.of(ownBasis,basis));quorumPeer=response.sender();
+                    selection=store.select(List.of(ownBasis,basis));quorumPeer=response.sender();deferredPreparePeer=null;
                     if(observer!=null)observer.accept("PROMISE_QUORUM",Map.of("selected",b64(selection.record().bytes())));
                     exchanges.entrySet().removeIf(e->e.getValue().message.kind()==Kind.PREPARE);
                     if(!adopt(selection)) {abandon(CAPACITY_EXCEEDED);return;}
@@ -381,13 +393,16 @@ final class AutomaticProtocol implements AutoCloseable {
                     ||!committed.entry.value().get("originIncarnation").equals(campaign.value().get("incarnation"))) {
                 commit(fresh(9,new byte[0]),0,true);return;
             }
-            state=LEADER_READY;campaignDeadline=Long.MAX_VALUE;heartbeatAt=now;progress();
+            state=LEADER_READY;failedQuorumPeer=null;campaignDeadline=Long.MAX_VALUE;heartbeatAt=now;progress();
         } else emit(new Completed(committed.request,publishedIndex,null,NOT_APPLICABLE));
     }
     synchronized void cancel(long request,long time) {
         clock(time);room();if(operation!=null&&!operation.campaign&&operation.request==request)abandon(NOT_READY);
     }
     private void abandon(AutomaticReplicationException.Reason reason) {
+        if(state==RECOVERING&&quorumPeer!=null&&(reason==QUORUM_UNAVAILABLE||reason==DEADLINE_EXCEEDED))
+            failedQuorumPeer=quorumPeer;
+        deferredPreparePeer=null;
         if(operation!=null&&!operation.campaign)emit(new Completed(operation.request,0,reason,operation.issued?INDETERMINATE:NOT_SUBMITTED));
         operation=null;campaign=null;ownBasis=null;selection=null;quorumPeer=null;imageContinuation=null;
         exchanges.clear();actions.removeIf(a->a instanceof Send s&&!s.message.response());

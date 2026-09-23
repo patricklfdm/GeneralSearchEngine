@@ -238,3 +238,78 @@ Correction validation on base `9846269b27098786f079976e787bd6f82472e073`:
 
 The original CI failure evidence remains at
 `target/v51-resource-ci-fix/ci-35717163313/run.fkADvj`. No paid cloud run is involved.
+
+## Recovery scheduling after the Phase 6A resource rerun
+
+**Status:** implementation candidate on PR #217 master
+`e3efda820beef9efcd6f6f06e8af71006c3b85ce`; protected acceptance of this correction
+remains pending. PR #217's event-counter correction passed
+[exact-master CI 35889987294](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35889987294)
+(all seventeen full lanes plus Change scope and Required). That pass does not erase
+the separate local `retained-bytes` recovery failure recorded in
+[Phase 6A](PHASE_6_LOCAL_PERFORMANCE.md#pr-217-resource-oracle-compatibility-correction).
+
+At `target/v51-resources/run.osjTv8/public/retained-bytes`, healthy node 1 selected
+node 3 at epochs 5/17/23; restarted node 2 selected node 3 at epochs 9/12/15.
+Node 3 could promise and return a small frozen basis but could not install the
+larger selected state within its retained budget. The healthy peer's larger basis
+arrived later or remained incomplete. Each failed activation abandoned the ballot;
+the next campaign again let the faster unusable peer select the pair. There was no
+scheduling preference for the untried healthy pair. The raw traces alone do not
+identify every transport failure cause; a deterministic delivery-order test now
+reproduces the repeated-pair starvation independently of transfer speed.
+
+The correction keeps one process-local failed-activation peer hint. After a selected
+pair fails activation through unavailable quorum or deadline, a fresh higher-ballot
+campaign gives the other peer one PREPARE exchange first. If that exchange rejects,
+exhausts its bounded transport retries or expires, the deferred peer remains eligible
+for a PREPARE within the same original campaign deadline. Successful activation
+clears the hint; restart does not persist it. Higher-ballot fencing, abandonment and
+close discard any deferred send.
+
+This changes request scheduling only. It still forces the local promise/basis before
+sending, freezes the first complete received basis, retains exactly one selected pair
+per campaign, verifies both voters' selection/acceptance/proof and publishes a fresh
+activation NO_OP before readiness. Late replies cannot replace the selected peer.
+No vote is fabricated, no existing pair is changed at the same ballot, and no voter
+is permanently excluded. Limits, election/request/operation timings, retry counts,
+resource fixtures, cleanup authority and public APIs/formats remain unchanged. When
+the preferred peer is unavailable, fallback can cost one existing request timeout;
+this is a bounded scheduling tradeoff, not a new failover SLA.
+
+`V51CampaignRetryTest` covers fast capacity refusal, failed installation transport,
+preferred-peer timeout and fallback, late responses, higher-ballot cancellation,
+the original campaign deadline and lost activation-proof ACK with a retained proof.
+All six tests fail on the old implementation and pass with the correction, alongside
+the existing 21 protocol tests. Original failing and diagnostic receipts remain
+unchanged. Validation logs live under `target/v51-resource-recovery-fairness/`.
+
+Local correction validation:
+
+- Complete reactor `package`: 877 tests, four existing skips, zero failures/errors
+  (`build.log`). This includes all public-runtime, automatic rejoin, storage,
+  transport, V5.0 compatibility and new campaign tests in the reactor.
+- Unchanged eight-case resource gate passes at `target/v51-resources/run.tA2W2D`:
+  six internal cases plus both public cases, with fifteen evidence mutations
+  rejected for each public case (`resources.log`).
+- Two predeclared additional retained-byte executions both pass at
+  `retained-check-2` and `retained-check-3`, giving three independent successful
+  executions on the corrected JAR. These runs use no diagnostic consumer overlay.
+- The third execution observes the correction over real TCP: node 2 selects node 3
+  at epoch 6, then sends its sole initial PREPARE to node 1 at epoch 9, activates
+  the node 1/2 pair and completes the strong read after retained leader restart.
+  `alternate-peer-observed.json` indexes those raw trace events.
+- The full six-case internal protocol evidence gate passes (`kernel-gate.log`).
+- Public `competing-campaigns` and `basis-kill` qualification pass with their
+  independent physical/history checks (`public-campaigns.log`, `public-basis.log`).
+- The complete three-mode performance gate passes at
+  `target/v51-performance/run.ZODuzq/evidence`: 270 healthy calls, nine SIGKILL/rejoin
+  calls, all thirty evidence negatives and clean process shutdown (`performance.log`).
+- `validation-summary.json` binds the passing receipts and corrected JAR/source
+  hashes; the documentation contract, changed local links and whitespace checks pass.
+
+The corrected replication JAR SHA-256 is
+`81ecb892c548cf8691a9958b649df8537621d2c3bcf3f5575356d1866039e39a`.
+These local runs and deterministic delivery-order tests establish the corrected
+failure mechanism under the declared schedules; they do not guarantee bounded
+recovery under arbitrary resource or network delays. Protected CI remains required.
