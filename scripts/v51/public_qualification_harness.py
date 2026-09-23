@@ -186,6 +186,11 @@ def run(output):
         command(['javac', '--release', '21', '-proc:none', '-cp', jars, '-d', classes, *consumer_sources], root, 'compile-consumer')
         command(['javac', '--release', '21', '-proc:none', '-cp', jars + os.pathsep + str(classes), '-d', bridge, java / 'V51PublicWorker.java'], root, 'compile-observer')
         cp = os.pathsep.join(map(str, (CORE, REPLICATION, classes, bridge)))
+        command(['javac', '--release', '21', '-proc:none', '-cp', cp, '-d', classes,
+                 java / 'PublicSemanticCheckpointProbe.java'], root, 'compile-checkpoint-probe')
+        probe = command(['java', '-cp', cp, PACKAGE + 'admission.PublicSemanticCheckpointProbe',
+                         root / 'checkpoint-probe'], root, 'checkpoint-probe')
+        receipt['checkpointProbe'] = json.loads(probe.stdout)
         for mode in ('halt', 'kill'):
             for cut in CUTS:
                 name = mode + '-' + cut.lower(); result = scenario(root / name, cp, cut, mode)
@@ -199,6 +204,8 @@ def run(output):
         finally:
             for s in sockets: s.close()
         candidate = command(['java', '-cp', cp, PACKAGE + 'admission.PublicSemanticConsumer', rich, 'candidate'], rich, 'candidate')
+        checkpoint = json.loads((rich / 'checkpoint-maintenance.json').read_text())
+        need(checkpoint['status'] == 'PASS' and checkpoint['attempts'][-1]['status'] == 'PASS', 'rich checkpoint never succeeded')
         control_classes = root / 'control'; control_classes.mkdir()
         control_cp = os.pathsep.join(map(str, (control, REPLICATION, control_classes)))
         command(['javac', '--release', '21', '-proc:none', '-cp', control_cp, '-d', control_classes,
@@ -209,7 +216,8 @@ def run(output):
         need(actual['stages'] == expected['stages'] and actual['sequence'] == expected['sequence'] == expected['restoredSequence'], 'published V4.4 rich semantics/sequence')
         need(actual['stages']['recreated'] == expected['restored'], 'published V4.4 restored rich semantics')
         receipt['semantics'] = dict(status='PASS', stages=list(actual['stages']), controlSha256=storage.sha(control.read_bytes()),
-                                    controlCoreSource=str(control), candidateCoreSource=str(CORE), richPublicVoters=3, richJvmProcesses=1)
+                                    controlCoreSource=str(control), candidateCoreSource=str(CORE), richPublicVoters=3, richJvmProcesses=1,
+                                    checkpointAttempts=len(checkpoint['attempts']))
         receipt['status'] = 'PASS'
     except BaseException as error: receipt['failure'] = str(error); raise
     finally: save(root / 'receipt.json', receipt)

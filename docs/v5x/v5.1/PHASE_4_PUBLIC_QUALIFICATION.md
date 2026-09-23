@@ -69,6 +69,26 @@ The candidate checkpoints and exports a backup; published V4.4 restores that bac
 and repeats the rich report. NO_OP reads must leave the application sequence equal
 to the control. Code source locations and the published control hash are retained.
 
+The rich candidate uses the same bounded maintenance policy as the public runtime
+gate: checkpoint may wait up to 30 seconds in total for generation retirement,
+retrying only the classified `CAPACITY_EXCEEDED` / `NOT_APPLICABLE` result. Each
+attempt, including failures and a pending response, is retained in
+`rich/checkpoint-maintenance.json`; success still requires a completed checkpoint.
+Other reasons, uncertain outcomes, timeouts and interruption fail immediately.
+Application operations and backup are not replayed. The published V4.4 comparison
+and restore remain mandatory after checkpoint succeeds.
+
+This closes the one-shot checkpoint race seen in master CI `35816488469`: all six
+public read/crash cases passed, then rich checkpoint failed while the retained
+voters still held snapshots at cuts 37 and 71 with a durable recovery floor at 37.
+The checkpoint was correctly refused before overwriting the occupied generation;
+the semantic consumer must allow the normal background reclamation to finish.
+The gate runs a deterministic Java probe against this same helper before the
+process matrix. It covers capacity recovery, permanent pressure with a fixed
+deadline, all other reason/outcome classifications, missing responses, interruption
+and synchronous/unclassified failures, retaining per-case receipts in
+`checkpoint-probe/`. Production capacity checks and retention rules are unchanged.
+
 ## Coverage boundary
 
 The table records the gaps at Batch C's completion. [Batch D](PHASE_4_PUBLIC_FAULTS.md)

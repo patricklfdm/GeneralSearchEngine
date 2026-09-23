@@ -8,9 +8,46 @@ import io.github.patricklfdm.generalsearch.replication.*;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.LongSupplier;
+import java.util.function.Supplier;
 
 /** Same query program compiled separately against candidate and published V4.4 core. */
 public final class PublicSemanticConsumer {
+    @FunctionalInterface interface Pause { void sleep(long nanos) throws InterruptedException; }
+
+    /** A local maintenance rejection may wait for durable generation retirement.
+     * Never replay a mutation, backup, missing response or unclassified failure. */
+    static void checkpointWhenAvailable(Path evidence, Supplier<CompletableFuture<Void>> checkpoint,
+            LongSupplier clock, Pause pause, long budgetNanos) throws Exception {
+        long started=clock.getAsLong();
+        var attempts=new ArrayList<Map<String,Object>>();var receipt=new LinkedHashMap<String,Object>();
+        receipt.put("status","FAIL");receipt.put("timeoutNanos",budgetNanos);receipt.put("attempts",attempts);
+        try {
+            while(true) {
+                long elapsed=clock.getAsLong()-started,remaining=budgetNanos-elapsed;
+                if(remaining<=0)throw new TimeoutException("rich checkpoint capacity timeout");
+                var attempt=new LinkedHashMap<String,Object>();attempt.put("startNanos",elapsed);attempt.put("status","PENDING");attempts.add(attempt);
+                try {
+                    checkpoint.get().get(remaining,TimeUnit.NANOSECONDS);
+                    attempt.put("endNanos",clock.getAsLong()-started);attempt.put("status","PASS");
+                    receipt.put("status","PASS");return;
+                } catch(ExecutionException error) {
+                    attempt.put("endNanos",clock.getAsLong()-started);attempt.put("status","FAIL");attempt.put("failure",error.toString());
+                    if(!(error.getCause() instanceof AutomaticReplicationException failure))throw error;
+                    attempt.put("reasonCode",failure.reason().name());attempt.put("outcome",failure.outcome().name());
+                    if(failure.reason()!=AutomaticReplicationException.Reason.CAPACITY_EXCEEDED
+                            ||failure.outcome()!=AutomaticReplicationException.Outcome.NOT_APPLICABLE)throw error;
+                }
+                remaining=budgetNanos-(clock.getAsLong()-started);
+                if(remaining<=0)throw new TimeoutException("rich checkpoint capacity timeout");
+                pause.sleep(Math.min(remaining,TimeUnit.MILLISECONDS.toNanos(250)));
+            }
+        } catch(Exception error) {
+            if(error instanceof InterruptedException)Thread.currentThread().interrupt();
+            receipt.put("failure",error.toString());throw error;
+        } finally {Files.writeString(evidence,AdmissionJson.canonical(receipt)+"\n");}
+    }
+
     private static Object exercise(SearchEngine<Integer,Doc> engine) {
         var stages=new LinkedHashMap<String,Object>();
         if(engine.schema().requireField("id")!=engine.field("id")||engine.field("id",Integer.class)!=ID
@@ -62,7 +99,9 @@ public final class PublicSemanticConsumer {
             if(leader.lastReopenReport().isPresent())throw new AssertionError("automatic authority does not expose a core reopen report");
             if(leader.durabilityMetrics().status()!=DurabilityStatus.OPEN)throw new AssertionError("public durability readiness");
             Object stages=exercise(leader);long sequence=leader.currentSequence();
-            leader.checkpoint().get(20,TimeUnit.SECONDS);leader.backup(new DurableBackupRequest(root.resolve("backup"),1<<20)).get(20,TimeUnit.SECONDS);
+            checkpointWhenAvailable(root.resolve("checkpoint-maintenance.json"),leader::checkpoint,
+                    System::nanoTime,nanos->TimeUnit.NANOSECONDS.sleep(nanos),TimeUnit.SECONDS.toNanos(30));
+            leader.backup(new DurableBackupRequest(root.resolve("backup"),1<<20)).get(20,TimeUnit.SECONDS);
             System.out.println(AdmissionJson.canonical(Map.of("stages",stages,"sequence",sequence)));
         } finally {for(var engine:engines)engine.close();}
     }
