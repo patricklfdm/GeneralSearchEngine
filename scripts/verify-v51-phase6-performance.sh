@@ -12,7 +12,7 @@ fi
 python_command=python3
 command -v python3.11 >/dev/null 2>&1 && python_command=python3.11
 "$python_command" -m scripts.v51.performance_plan
-"$python_command" -m unittest scripts.v51.test_performance_runtime
+"$python_command" -m unittest scripts.v51.test_performance_runtime scripts.v51.test_performance_artifacts
 mkdir -p target/v51-performance
 work_dir=$(mktemp -d "$root/target/v51-performance/run.XXXXXX")
 echo "v51PerformanceEvidence=$work_dir/evidence"

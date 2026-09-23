@@ -7,14 +7,15 @@ need = m.need
 raw = projection.raw
 
 
-def automatic(root, calls, traces):
+def automatic(root, calls, traces, *, evidence_location=None):
     root = Path(root)
     manifest_bytes = (root / 'node-1/manifest.gsr').read_bytes()
     votes = {n: [raw(r['record']) for r in rows if r['event'] == 'FORCE' and r['kind'] == 'ACCEPT'] for n, rows in traces.items()}
     projected = projection.project(manifest_bytes, (root / 'node-1/genesis.gsr').read_bytes(), votes)
     manifest = projected['manifest']
     need(set(traces) == {'node-1', 'node-2', 'node-3'}, 'rich voter coverage')
-    reports = {node: storage.inspect(root / node, 64 << 20, 1 << 20) for node in traces}
+    inspect = evidence_location.inspect if evidence_location is not None else storage.inspect
+    reports = {node: inspect(root / node, 64 << 20, 1 << 20) for node in traces}
     need(0 < len(projected['chosen']) <= 192, 'automatic slot ceiling')
     need(all(r['provenThrough'] >= max(projected['chosen']) for r in reports.values()), 'voter missing final durable cut')
     replies, descriptors, parts, selections = set(), {}, {}, {}

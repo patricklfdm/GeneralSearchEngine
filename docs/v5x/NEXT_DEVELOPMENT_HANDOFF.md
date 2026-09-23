@@ -37,9 +37,16 @@ has a [scheduling correction candidate](v5.1/PHASE_4_RESOURCE_LIMITS.md#recovery
 PR #218 merged that correction at `84990b3fa6d5007b90427c95f376473c8db48bd9`.
 Its PR CI `35894824934` passed; master CI `35896844608` failed the earlier public
 bounds gate on a [single-permit driver race](v5.1/PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission),
-so the resource step was skipped. Review the corrected driver and exact-source
-full CI before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md). Then enter 6B;
-cloud parameters need separate qualification and paid execution remains user-triggered.
+so the resource step was skipped. PR #219 then passed exact-master CI `35920225478`
+at `54e203eeca6c087b7ba03954d546c7682e8338f2`, all nineteen jobs and 24 V5.1 steps.
+The [6A review](v5.1/PHASE_6_LOCAL_ACCEPTANCE.md) independently replays that raw
+performance evidence and corrects portable evidence inspection without changing
+live authority admission. The [6B cloud contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md)
+is a closed candidate with local calibration, synthetic full-slot encoding and
+fifteen canonical cells. Obtain protected acceptance under the
+[checklist](v5.1/PHASE_6_CHECKLIST.md), then implement 6C's scheduler/remote adapter,
+full-size qualification and distinct V5.1 runner/admission. Paid execution remains
+user-triggered after fresh exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

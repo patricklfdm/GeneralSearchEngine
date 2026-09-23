@@ -10,7 +10,7 @@ def b64(value):
     return base64.b64encode(value).decode('ascii')
 
 
-def generate(plan):
+def generate(plan, *, program=None):
     source, _, _ = fixtures.generate()
     genesis = fmt.inspect(source['GENESIS'], 'GENESIS')
     state = model.initial(plan)
@@ -26,7 +26,7 @@ def generate(plan):
     votes = {f'node-{i}': [] for i in (1, 2, 3)}
     anchors, snapshots, entries, proofs = [], [], [], []
     previous_digest, previous_epoch = digest, 1
-    calls = [dict(operation='NO_OP', payload=b'')] + list(model.program(plan))
+    calls = [dict(operation='NO_OP', payload=b'')] + list(model.program(plan) if program is None else program)
     for call in calls:
         operation = model.OP_IDS.get(call['operation'], 9)  # each GET/QUERY adds a distinct NO_OP
         payload = call['payload']

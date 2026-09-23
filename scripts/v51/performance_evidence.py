@@ -6,6 +6,7 @@ from pathlib import Path
 from . import performance_plan as plan, performance_model as model, performance_semantics as semantic
 from . import performance_physical as physical, storage_inspector as storage
 from scripts.v50 import runtime_format as configured
+from . import performance_artifacts as retained_artifacts
 
 need = model.need
 
@@ -268,12 +269,13 @@ def artifacts(root,mode,adapter,pinned,source_inventory):
     classes=root/('classes-'+mode)
     need(storage.inventory(classes)==adapter['classes'],'compiled adapter inventory differs')
     need(adapter['sources'] and all(source_inventory.get(p)==digest for p,digest in adapter['sources'].items()),'mixed adapter source')
-    paths=[Path(a['path']) for a in adapter['artifacts']]
-    need(len(paths)==(1 if mode=='published-v4.4-local' else 2) and adapter['cp']==os.pathsep.join(map(str,[*paths,classes])),'isolated adapter classpath')
+    paths=[retained_artifacts.recorded_path(a['path']) for a in adapter['artifacts']]
+    need(len(paths)==(1 if mode=='published-v4.4-local' else 2) and len(set(paths))==len(paths) and
+         len({p.parent for p in paths})==1 and
+         adapter['cp']==os.pathsep.join(map(str,[*paths,paths[0].parent.parent/classes.name])), 'isolated adapter classpath')
     names=[]
-    for artifact,path in zip(adapter['artifacts'],paths):
-        need(path.parent==root/'artifacts' and path.is_file() and not path.is_symlink() and
-             model.sha(path.read_bytes())==artifact['sha256'],'retained artifact identity')
+    for artifact in adapter['artifacts']:
+        path=retained_artifacts.retained(root,artifact['path'],artifact['sha256'])
         if mode!='candidate-v5.1-automatic':need(pinned[path.name]==artifact['sha256'],'wrong control artifact')
         else:need(path.name.endswith('-5.1.0-SNAPSHOT.jar'),'wrong candidate version')
         with zipfile.ZipFile(path) as archive:
@@ -296,6 +298,9 @@ def validate(root):
              0<receipt['elapsedNanos']<=900_000_000_000,'incomplete final qualification')
         negatives=read(root/'negatives.json')
         need(len(negatives)==receipt['negativeCases']>=30 and all(n['status']=='REJECTED' for n in negatives),'incomplete negative qualification')
+    original_roots={retained_artifacts.recorded_path(a['path']).parent.parent for adapter in execution['adapters'].values() for a in adapter['artifacts']}
+    need(len(original_roots)==1, 'mixed recorded evidence roots')
+    location=retained_artifacts.EvidenceLocation(root,next(iter(original_roots)))
     expected=model.expected(admitted);results={};pids=set();toolchains=set()
     source_inventory=read(root/'source-inventory.json')
     need(model.sha((root/'source-inventory.json').read_bytes())==execution['sourceInventorySha256'],'source inventory binding')
@@ -340,7 +345,7 @@ def validate(root):
         else:
             restored=read(root/('restore-'+mode)/'restore.stdout')
             semantic.state_observation(restored,expected['state'])
-            proof=physical.automatic(directory,rows,traces) if mode=='candidate-v5.1-automatic' else configured_physical(directory,rows,traces)
+            proof=physical.automatic(directory,rows,traces,evidence_location=location) if mode=='candidate-v5.1-automatic' else configured_physical(directory,rows,traces)
         manifest_bytes=(directory/'node-1/manifest.gsr').read_bytes() if mode=='candidate-v5.1-automatic' else None
         manifest=dict(physical.f.inspect(manifest_bytes,'MANIFEST'),digest=manifest_bytes[16:48].hex()) if manifest_bytes else None
         results[mode]=dict(status='PASS',calls=len(rows),measuredCalls=80,latency=summary(rows),resources=resources,physical=proof,
@@ -348,7 +353,7 @@ def validate(root):
     need(len(toolchains)==1 and len(pids)==7,'toolchain/process-set identity')
     from .performance_failover import validate as validate_failover
     failure_root=root/'failover'
-    failure=validate_failover(failure_root,read(failure_root/'receipt.json'),read(failure_root/'history.json'),admitted)
+    failure=validate_failover(failure_root,read(failure_root/'receipt.json'),read(failure_root/'history.json'),admitted,evidence_location=location)
     candidate_artifacts=execution['adapters']['candidate-v5.1-automatic']['artifacts']
     for trace in physical_trace_values(failure_root):
         for identity in (r for r in trace if r['event']=='PERFORMANCE_IDENTITY'):

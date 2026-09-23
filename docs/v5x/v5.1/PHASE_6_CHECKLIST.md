@@ -1,14 +1,11 @@
 # V5.1 Phase 6 checklist
 
-**Status:** entry accepted through PR #215; rich model foundation accepted through
-PR #216. The [local runtime](PHASE_6_LOCAL_PERFORMANCE.md) merged through PR #217,
-master `e3efda820beef9efcd6f6f06e8af71006c3b85ce`, with exact-master full CI
-`35889987294`. The [resource recovery follow-up](PHASE_4_RESOURCE_LIMITS.md#recovery-scheduling-after-the-phase-6a-resource-rerun)
-merged through PR #218 at `84990b3fa6d5007b90427c95f376473c8db48bd9`. PR CI
-`35894824934` passed all nineteen jobs. Master CI `35896844608` failed the earlier
-[public bounds driver](PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission);
-its resource step was skipped. Full 6A protected acceptance and cloud qualification
-remain pending on corrected-source full CI.
+**Status:** entry/model foundation accepted; runtime and its corrections merged
+through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
+`35920225478` passed all nineteen jobs and all 24 V5.1 verification steps, including
+public bounds, resources and local performance. The [6A acceptance record](PHASE_6_LOCAL_ACCEPTANCE.md)
+reconciles original evidence and downloaded replay. Its final protected review and
+the [6B cloud contract candidate](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) are pending.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -23,9 +20,13 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6A implementation candidate: materialized plan/schema and isolated external published-control/candidate probes.
 - [x] 6A local candidate: all three healthy modes and bounded concurrent failover/rejoin history pass; protected acceptance remains pending.
 - [x] PR #217 runtime implementation merged; exact-master CI `35889987294` passed all nineteen jobs.
-- [ ] Resource recovery follow-up: deterministic alternate-peer regression, unchanged public resource gate and corrected-source protected CI accepted.
-- [ ] 6A: physical/semantic/timing/resource negatives, relevant regressions and exact-source full CI pass.
-- [ ] 6B: local calibration retained; complete cloud loads, timings, counts, bytes and numerical criteria frozen through review.
+- [x] Resource recovery follow-up: corrected-runtime resource/performance gates passed exact-master CI `35920225478`.
+- [x] 6A runtime: physical/semantic/timing/resource negatives, relevant regressions and exact-source full CI pass at PR #219.
+- [x] 6A review candidate: original downloaded performance evidence independently revalidated; receipt/source/member identities retained.
+- [ ] Protected acceptance of the final 6A review and portable evidence replay correction.
+- [x] 6B candidate: trace-backed local calibration and synthetic full-slot encoding retained, with cloud execution explicitly absent.
+- [x] 6B candidate: closed cloud plan, three rich tapes, fifteen cells, exact allocations, evidence ceilings and numerical completion criteria.
+- [ ] 6B: protected acceptance of the workload hash and calibration; full rich concurrency/remote schedule execution remains a 6C prerequisite.
 - [ ] 6C: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.

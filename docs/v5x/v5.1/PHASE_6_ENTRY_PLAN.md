@@ -3,8 +3,9 @@
 **Status:** entry and local contract accepted through [PR #215](https://github.com/patricklfdm/GeneralSearchEngine/pull/215),
 master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, documentation-only master CI
 `35831892351`. The [rich model foundation](PHASE_6_MODEL_FOUNDATION.md) is the first
-6A implementation candidate. Full local measurements and subsequent cloud gates
-remain pending; entry acceptance does not authorize paid execution.
+6A implementation candidate. The [6A review](PHASE_6_LOCAL_ACCEPTANCE.md) now reconciles the full local gate through
+PR #219; the [6B workload contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) is a closed
+review candidate. Entry acceptance does not authorize paid execution.
 
 **Starting master:** `15c8c68011e37370dfcd31ee855f91247c3771d8`.
 [PR #214](https://github.com/patricklfdm/GeneralSearchEngine/pull/214) accepted

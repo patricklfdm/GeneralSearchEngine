@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A runtime implementation; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A review and 6B cloud contract; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -74,8 +74,12 @@ is accepted through PR #215 at `243434f6e1dc94422b57997b33eabb3cc1e8f64d`
 (docs-only master CI `35831892351`). The [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md)
 was accepted through PR #216 (master `bcac615aeef93dadcab6636162a86ce2156e5515`,
 full CI `35841378072`). The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORMANCE.md)
-adds three-mode measurements and bounded failover; full 6A protected acceptance
-and cloud qualification remain pending in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
+and corrections passed full master CI `35920225478` through PR #219. The
+[6A review](v5.1/PHASE_6_LOCAL_ACCEPTANCE.md) reconciles original measurements;
+the [6B cloud workload contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) adds a
+closed fifteen-cell plan and trace-backed local calibration. Protected review,
+remote implementation and cloud qualification remain pending in the
+[checklist](v5.1/PHASE_6_CHECKLIST.md).
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

@@ -1,0 +1,211 @@
+{
+  "arithmetic": {
+    "allocatedSeconds": 5400,
+    "auxiliaryAutomaticBarriersMaximum": 120,
+    "canonicalHealthySamplesPerOperation": 24,
+    "canonicalScheduledCallsMaximum": 1368,
+    "execution": "cloud-workload-contract-only",
+    "maximumDiskGiBHours": 4050.0,
+    "maximumVmHours": 27.0,
+    "paidAdmission": false,
+    "planSha256": "bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a",
+    "presetCellCounts": {
+      "canonical": 15,
+      "experiment": 4,
+      "failureDrill": 12
+    },
+    "status": "PASS",
+    "workloads": {
+      "experiment-healthy": {
+        "calls": 90,
+        "finalDocuments": 64,
+        "finalSequence": 76,
+        "maximumDocumentBytes": 58,
+        "maximumPayloadBytes": 285,
+        "mutations": 72,
+        "peakDocuments": 68,
+        "reads": 18,
+        "scheduleSha256": "3e1b0dc7ccfb1d60645e7f163c96a3b8d8f4b34be8bdd0fdba8140628af88c4a"
+      },
+      "healthy": {
+        "calls": 260,
+        "finalDocuments": 64,
+        "finalSequence": 212,
+        "maximumDocumentBytes": 58,
+        "maximumPayloadBytes": 285,
+        "mutations": 208,
+        "peakDocuments": 68,
+        "reads": 52,
+        "scheduleSha256": "a2315f2a372de675cc6bd2f69a0a8b2ab7eb67445f2392e59ec16177df984acd"
+      },
+      "read-heavy": {
+        "calls": 120,
+        "finalDocuments": 64,
+        "finalSequence": 34,
+        "maximumDocumentBytes": 50,
+        "maximumPayloadBytes": 68,
+        "mutations": 30,
+        "peakDocuments": 64,
+        "reads": 90,
+        "scheduleSha256": "6fa4b4daea547c3818f05a84447848f6353f12c34194467e350ddf56f5ddffae"
+      },
+      "sustained": {
+        "calls": 180,
+        "finalDocuments": 64,
+        "finalSequence": 112,
+        "maximumDocumentBytes": 58,
+        "maximumPayloadBytes": 76,
+        "mutations": 108,
+        "peakDocuments": 68,
+        "reads": 72,
+        "scheduleSha256": "a63b7cb49ecdac68f76f29a20a7723c10d6287d62f0c56b5109c873ab4cdded9"
+      }
+    }
+  },
+  "cloudExecution": false,
+  "cloudScheduleExecuted": false,
+  "encodings": {
+    "execution": "synthetic-encoding-only",
+    "fullRuntimeRetentionQualified": false,
+    "imageBase64Bytes": 243208,
+    "imageBytes": 182404,
+    "note": "single 512-slot image; re-proposals, actual compaction, queues, concurrent calls and remote frames require 6C qualification",
+    "recordPeaks": {
+      "ACCEPT": 632,
+      "ENTRY": 482,
+      "PROOF": 274
+    },
+    "slots": 512,
+    "snapshotBytes": 136680,
+    "transferAdmissionBytes": 16777216
+  },
+  "execution": "revalidated-local-traces-and-synthetic-encoding",
+  "failover": {
+    "addAll": {
+      "clientOutageNanos": 4608643606,
+      "firstOpId": "node-2-g1-165",
+      "fromConfirmedExitNanos": 4477729149,
+      "fromFaultRequestNanos": 4485685513
+    },
+    "read": {
+      "clientOutageNanos": 4597951904,
+      "firstOpId": "node-2-g1-166",
+      "fromConfirmedExitNanos": 4580037372,
+      "fromFaultRequestNanos": 4587993736
+    }
+  },
+  "githubEvidence": {
+    "artifact": "v51-performance-54e203eeca6c087b7ba03954d546c7682e8338f2",
+    "artifactId": 10776619460,
+    "artifactRetentionDays": 14,
+    "localReplay": "target/v51-phase6-cloud-contract/master-performance/run.uMX9h3/evidence",
+    "run": 35920225478,
+    "source": "54e203eeca6c087b7ba03954d546c7682e8338f2",
+    "url": "https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35920225478"
+  },
+  "limitations": [
+    "one local CI host; no remote disk/network prediction",
+    "64 documents, not corpus scaling",
+    "new fixed arrivals, concurrent rich calls and complete fault schedules remain unexecuted until 6C",
+    "observed maximum is a sample, not a latency bound or SLA"
+  ],
+  "localElapsedNanos": 83057571169,
+  "memberIndexSha256": "71ffd4917c00dd31cdc8652f90be0ce504a491552618f0b3fabc547a92e642ef",
+  "modes": {
+    "candidate-v5.1-automatic": {
+      "calls": 90,
+      "instrumentedToBaselineRatio": 0.9478785195565841,
+      "maximumObservedApiNanos": 194735834,
+      "measuredCalls": 80,
+      "minimumObservedCompletionRate": 7.837963479756908,
+      "resources": {
+        "node-1": {
+          "heapPeakBytes": 61221584,
+          "sampledRssPeakBytes": 179519488,
+          "samples": 34
+        },
+        "node-2": {
+          "heapPeakBytes": 38180736,
+          "sampledRssPeakBytes": 143073280,
+          "samples": 34
+        },
+        "node-3": {
+          "heapPeakBytes": 49802728,
+          "sampledRssPeakBytes": 149950464,
+          "samples": 33
+        }
+      },
+      "windowNanos": {
+        "baseline-a": 2551683234,
+        "baseline-b": 2342351487,
+        "instrumented-a": 2302629830,
+        "instrumented-b": 2336320556
+      }
+    },
+    "published-v4.4-local": {
+      "calls": 90,
+      "instrumentedToBaselineRatio": 0.9583505626816816,
+      "maximumObservedApiNanos": 9590637,
+      "measuredCalls": 80,
+      "minimumObservedCompletionRate": 248.31571177439108,
+      "resources": {
+        "local": {
+          "heapPeakBytes": 21470968,
+          "sampledRssPeakBytes": 88571904,
+          "samples": 13
+        }
+      },
+      "windowNanos": {
+        "baseline-a": 70082144,
+        "baseline-b": 80542628,
+        "instrumented-a": 70984016,
+        "instrumented-b": 73367319
+      }
+    },
+    "published-v5.0-configured": {
+      "calls": 90,
+      "instrumentedToBaselineRatio": 0.9141679137536004,
+      "maximumObservedApiNanos": 55692335,
+      "measuredCalls": 80,
+      "minimumObservedCompletionRate": 42.02252028464349,
+      "resources": {
+        "node-1": {
+          "heapPeakBytes": 37632840,
+          "sampledRssPeakBytes": 119787520,
+          "samples": 16
+        },
+        "node-2": {
+          "heapPeakBytes": 35505624,
+          "sampledRssPeakBytes": 122880000,
+          "samples": 15
+        },
+        "node-3": {
+          "heapPeakBytes": 31439464,
+          "sampledRssPeakBytes": 116518912,
+          "samples": 15
+        }
+      },
+      "windowNanos": {
+        "baseline-a": 475935281,
+        "baseline-b": 279789901,
+        "instrumented-a": 362505913,
+        "instrumented-b": 328353800
+      }
+    }
+  },
+  "negativeCases": 30,
+  "paidAdmission": false,
+  "planSha256": "bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a",
+  "proposalMargins": {
+    "burstPeriodToFourObservedMaxima": 5.135161718618259,
+    "healthyIntervalToObservedMaximum": 5.135161718618259
+  },
+  "receiptSha256": "57d2579e2e86e91292da8dfa5d362c0c93e194b16dc98135f9a17da45838d3ed",
+  "schema": "gse-v51-cloud-calibration-v1",
+  "source": "54e203eeca6c087b7ba03954d546c7682e8338f2",
+  "sourceInventorySha256": "88a1bacfef6c3cc0e113a8113982465098cd908879aace89d3e888aa0ed06f9f",
+  "toolchain": [
+    "21.0.12+8-LTS",
+    "Eclipse Adoptium"
+  ]
+}

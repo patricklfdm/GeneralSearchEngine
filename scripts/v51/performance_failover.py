@@ -129,7 +129,7 @@ def run(runner, adapter):
     return receipt['validation']
 
 
-def validate(root,receipt,history,admitted):
+def validate(root,receipt,history,admitted,*,evidence_location=None):
     root=Path(root);traces=physical.traces_at(root)
     need(receipt['healthyCalls']==6 and 1<=len(receipt['progress'])<=4 and 1<=len(receipt['finalReads'])<=4,'small schedule count')
     kinds=['addAll','read',*q.WAVE_KINDS]+['addAll','read']*len(receipt['progress'])+['read']*len(receipt['finalReads'])
@@ -138,7 +138,7 @@ def validate(root,receipt,history,admitted):
     starts=receipt['starts'];need(len(starts)==4 and len({s['pid'] for s in starts})==4,'small distinct process generations')
     mapping={(s['node'],s['pid']):s['generation'] for s in starts}
     checked_history=public_history.check(history)
-    checked_physical=physical.physical(root,history,process_generations=mapping)
+    checked_physical=physical.physical(root,history,process_generations=mapping,evidence_location=evidence_location)
     need(checked_physical['chosen']<=192 and checked_physical['chosen']-len(history)<=64,'small slot/recovery ceiling')
     need(not receipt['cleanupErrors'] and len(receipt['stops'])==4,'small cleanup evidence')
     responses=receipt['progress']
@@ -179,7 +179,8 @@ def validate(root,receipt,history,admitted):
     post_callback=next(r for r in post_rows if r['event']=='READ_CALLBACK' and r['opId']==post_read['opId'])
     post_capture=max((r for r in post_rows if r['event']=='READ_CAPTURED' and r['order']<post_callback['order']),key=lambda r:r['order'])
     need(post_capture['index']<=receipt['rejoin']['through']<=192,'rejoin did not cover post-fault captured cut')
-    retained=storage.inspect(root/fault['node'])
+    inspect=evidence_location.inspect if evidence_location is not None else storage.inspect
+    retained=inspect(root/fault['node'])
     need(retained['provenThrough']>=receipt['rejoin']['through'] and receipt['rejoin']['observed']['provenIndex']>=receipt['rejoin']['through'],'rejoin durable cut')
     need(max(s['readyNanos'] for s in starts[:3])<fault['startNanos'],'small voters did not overlap')
     for start in starts:
@@ -194,8 +195,8 @@ def validate(root,receipt,history,admitted):
         identity=identities[0]
         need(identity['pid']==start['pid'] and identity['node']==start['node'] and identity['planFileSha256']==model.sha((root/'plan.json').read_bytes()),'small loaded identity')
         for kind in ('core','replication'):
-            path=Path(identity[kind+'Source'])
-            need(path.is_file() and model.sha(path.read_bytes())==identity[kind+'Sha256'],'small loaded artifact')
+            from .performance_artifacts import retained
+            retained(root.parent,identity[kind+'Source'],identity[kind+'Sha256'])
         need(start['args'][1:5]==admitted['jvmArguments'] and start['args'][6].split(':')[:2]==[identity['coreSource'],identity['replicationSource']],'small classpath identity')
         samples=[r for r in own if r['event']=='PERFORMANCE_SAMPLE']
         need(samples and all(0<r['heapUsedBytes']<=r['heapMaxBytes']<=512<<20 and

@@ -11,9 +11,9 @@ def traces_at(root):
             for i in (1, 2, 3)}
 
 
-def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=None, process_generations=None):
+def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=None, process_generations=None, evidence_location=None):
     traces = traces if traces is not None else traces_at(root)
-    result = authority.validate(root, traces, rejected_tails=rejected_tails, retired_voters=retired_voters)
+    result = authority.validate(root, traces, rejected_tails=rejected_tails, retired_voters=retired_voters, evidence_location=evidence_location)
     manifest_bytes = (Path(root) / 'node-1/manifest.gsr').read_bytes()
     manifest = authority.f.inspect(manifest_bytes, 'MANIFEST')
     processes = {}
