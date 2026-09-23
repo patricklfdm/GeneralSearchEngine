@@ -8,7 +8,7 @@ elif [[ $# -ne 1 || "$1" != --skip-build ]]; then
   echo "usage: $0 [--skip-build]" >&2
   exit 2
 fi
-python3 -m unittest scripts.v51.test_hardening_evidence scripts.v51.test_public_pressure_evidence
+python3 -m unittest scripts.v51.test_hardening_evidence scripts.v51.test_hardening_harness scripts.v51.test_public_pressure_evidence
 mkdir -p target/v51-hardening
 work=$(mktemp -d "$root/target/v51-hardening/run.XXXXXX")
 echo "v51HardeningEvidence=$work/evidence"

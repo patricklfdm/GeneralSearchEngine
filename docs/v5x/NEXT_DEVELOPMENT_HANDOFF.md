@@ -43,7 +43,10 @@ The [6A review](v5.1/PHASE_6_LOCAL_ACCEPTANCE.md) independently replays that raw
 performance evidence and corrects portable evidence inspection without changing
 live authority admission. The [6B cloud contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md)
 is a closed candidate with local calibration, synthetic full-slot encoding and
-fifteen canonical cells. Obtain protected acceptance under the
+fifteen canonical cells. PR #220 merged at `717bed8f578019c71ffe3d739deaf067ec0fa8d2`;
+master CI `35927462738` failed an inherited
+[Phase 5A recovery-write assumption](v5.1/PHASE_5_COMBINED_RECOVERY.md#post-pr-220-correction-a-recovered-read-does-not-lease-leadership).
+Review that driver correction and obtain protected acceptance under the
 [checklist](v5.1/PHASE_6_CHECKLIST.md), then implement 6C's scheduler/remote adapter,
 full-size qualification and distinct V5.1 runner/admission. Paid execution remains
 user-triggered after fresh exact-request confirmation.

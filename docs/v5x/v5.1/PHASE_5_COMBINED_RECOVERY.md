@@ -100,3 +100,74 @@ same parent directory. CI uploads `target/v51-hardening` as
 `v51-hardening-${{ github.sha }}` even on failure. The acceptance record above supersedes the original pending
 Batch A status; [Phase 5B](PHASE_5_COMBINED_LIFECYCLE.md) now has its own protected
 acceptance and [Phase 5C](PHASE_5_ACCEPTANCE.md) reconciles both on exact-master evidence.
+
+## Post-PR-220 correction: a recovered read does not lease leadership
+
+[Master CI 35927462738](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35927462738)
+at `717bed8f578019c71ffe3d739deaf067ec0fa8d2` failed `partition-accept-kill`
+in its first round. The other two Phase 5A cases passed. The downloaded original
+failure remains under `target/v51-hardening-recovery-race/failed-master`, artifact
+`v51-hardening-717bed8f578019c71ffe3d739deaf067ec0fa8d2`, ID `10779324202`.
+
+The physical trace shows a valid leadership race, rather than an ordinary API
+latency timeout: node 1 completed the recovered read at epoch 5, then nodes 1 and 3
+forced the next bulk (keys 140/141) at index 13. The restarted node 2 returned a
+rejection advertising its retained epoch-6 promise. Node 1 received that higher
+promise before the proof acknowledgment was processed and conservatively completed
+the write as `INDETERMINATE / STALE_EPOCH`. A successful read only qualifies its own
+captured cut; it cannot guarantee leadership through a later write. The original
+driver incorrectly required that first post-restart write to succeed immediately.
+
+The correction is restricted to the Phase 5A client schedule. After each restart,
+allow at most three **fresh** recovery writes, each preceded by a new strong read.
+Attempt `a` in round `r` uses keys `100*r + 40 + 2*a` and the following key, with
+`a` starting at zero. No uncertain mutation is replayed. Every response remains in
+the client history; each receipt records the read/write operation IDs and the
+recovery start boundary. The final attempt must actually succeed, followed by a
+successful final read and the existing per-voter proof/resource drain checks.
+
+Only the existing conservative availability outcomes permit another fresh attempt:
+`NOT_SUBMITTED` with NOT_LEADER, NOT_READY, QUORUM_UNAVAILABLE, STALE_EPOCH or
+DEADLINE_EXCEEDED, or `INDETERMINATE` with the last three reasons. Integrity,
+storage, capacity, closed, unknown and disconnected results fail immediately.
+The next successful read may contain exactly the prior acknowledged projection,
+or that projection followed by the entire immediately preceding uncertain bulk.
+Partial, changed, reordered or unrelated documents fail. The original independent
+physical and history validators still decide whether that observed cut is legal;
+the harness does not turn an uncertain response into a successful acknowledgment.
+
+Each read retains the four-attempt limit. The complete history retains its
+48-operation / 100000-state bounds, with the operation limit also checked before
+dispatch. With first-try reads, the partition cases use at most 40 calls across
+three rounds if each recovery needs all three fresh writes; read refusals consume
+the remaining headroom. Exceeding any bound fails. Sealed policy, timeouts,
+production code, fault cuts and three-round requirements remain unchanged. Shared
+Phase 5B lifecycle drivers retain their previous behavior.
+
+Independent recovery checks account for every call between the recorded recovery
+boundary and the successful write, enforce distinct predetermined keys, require
+only classified failures before that success, and reconstruct the exact expected
+projection. Additional evidence negatives remove attempts, replay keys, shift the
+boundary or forge the projection. The deterministic regression reproduces the
+original STALE_EPOCH failure and covers both chosen and unchosen uncertainty,
+exhausted attempts, forbidden errors, invalid projections and history preservation.
+Corrected-source protected CI remains required; this does not establish a failover
+SLA or eliminate every possible scheduling or storage delay.
+
+### Correction validation
+
+- Original deterministic chosen-write regression fails with the original single-write
+  driver; all twelve new driver/evidence tests pass with the correction.
+- All 349 V5.1 Python tests pass. Full reactor package: 877 tests, four existing
+  skips, zero failures/errors. Packaging identical JAR bytes preserved an old file
+  timestamp locally; removing only the generated replication JAR and repackaging
+  with already tested classes satisfied the existing freshness check.
+- Complete unchanged three-case/nine-round gate passes at
+  `target/v51-hardening/run.K3Yo9X/evidence`: accept-cut 28 calls / 21 negatives,
+  proof-cut 28 / 21, whole-group restart 22 / 19. All 61 negative variants reject.
+  This live run used one recovery write per round; the classified-refusal branch
+  is covered by the deterministic regression and the original failed CI trace.
+- Documentation contract, changed local links, shell syntax and whitespace pass.
+  Local evidence/source hashes and original-failure analysis are retained under
+  `target/v51-hardening-recovery-race/validation-summary.json` and
+  `failure-analysis.json`. No paid cloud work or production/workflow edit.
