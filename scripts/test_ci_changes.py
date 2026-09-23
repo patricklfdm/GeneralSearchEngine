@@ -18,9 +18,15 @@ PUSH = {"before": BASE, "after": HEAD}
 PR = {"pull_request": {"base": {"sha": BASE}, "head": {"sha": HEAD}}}
 FULL_GATES = {
     "reactor-core": "REACTOR_RESULT",
-    "v51-foundation-admission": "V51_FOUNDATION_RESULT",
-    "v51-public-lifecycle": "V51_LIFECYCLE_RESULT",
-    "v51-protocol-reclamation": "V51_PROTOCOL_RESULT",
+    "v51-foundation": "V51_FOUNDATION_RESULT",
+    "v51-admission-resources": "V51_ADMISSION_RESOURCES_RESULT",
+    "v51-promise-crashes": "V51_PROMISE_CRASHES_RESULT",
+    "v51-public-reads-faults": "V51_PUBLIC_READS_FAULTS_RESULT",
+    "v51-public-recovery-pressure": "V51_PUBLIC_RECOVERY_PRESSURE_RESULT",
+    "v51-public-hardening": "V51_PUBLIC_HARDENING_RESULT",
+    "v51-protocol-selection": "V51_PROTOCOL_SELECTION_RESULT",
+    "v51-candidate-crashes": "V51_CANDIDATE_CRASHES_RESULT",
+    "v51-reclamation": "V51_RECLAMATION_RESULT",
     "v50-authority": "V50_AUTHORITY_RESULT",
     "v50-recovery-workload": "V50_RECOVERY_RESULT",
     "v4-regression": "V4_RESULT",
@@ -174,6 +180,48 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertCountEqual(["changes", *FULL_GATES], re.findall(r"^      - ([\w-]+)$", body, re.MULTILINE))
         result_bindings = re.findall(r"^          (\w+): \$\{\{ needs\.([\w-]+)\.result \}\}$", body, re.MULTILINE)
         self.assertCountEqual([("CHANGES_RESULT", "changes"), *[(env, job) for job, env in FULL_GATES.items()]], result_bindings)
+
+    def test_v51_split_keeps_every_gate_once_with_its_own_evidence(self):
+        expected = {
+            "phase1-foundation", "phase2-storage", "phase3-protocol", "phase3-runtime", "phase3-rejoin",
+            "phase4-public-bounds", "phase4-bootstrap", "phase4-resources", "phase4-public-promises",
+            "phase4-public-runtime", "phase4-public-qualification", "phase4-public-faults",
+            "phase4-public-recovery", "phase4-public-pressure", "phase4-backpressure", "phase4-final-coverage",
+            "phase4-lifecycle-hardening", "phase5-hardening", "phase4-public-protocol",
+            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation",
+        }
+        found = []
+        for name in FULL_GATES:
+            if not name.startswith("v51-"):
+                continue
+            body = self.jobs[name]
+            gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE)
+            self.assertTrue(gates, name)
+            found.extend(gates)
+            uploads = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
+                       if "uses: actions/upload-artifact@" in step]
+            for gate in gates:
+                artifact = "target/v51-" + gate.split("-", 1)[1]
+                own = [step for step in uploads if "          path: " + artifact + "\n" in step]
+                self.assertEqual(1, len(own), (name, artifact))
+                self.assertRegex(own[0], r"if: (?:\$\{\{ )?always\(\)")
+                self.assertIn("          retention-days: 14\n", own[0])
+        self.assertCountEqual(expected, found)
+
+    def test_v51_lanes_execute_local_tests_and_retain_build_failures(self):
+        for name in FULL_GATES:
+            if not name.startswith("v51-"):
+                continue
+            with self.subTest(job=name):
+                body = self.jobs[name]
+                build = "        run: ./mvnw -f reactor/pom.xml package\n"
+                self.assertEqual(1, body.count(build))
+                self.assertLess(body.index(build), body.index("run: scripts/verify-v51-"))
+                reports = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
+                           if "path: '**/target/surefire-reports/**'" in step]
+                self.assertEqual(1, len(reports))
+                self.assertIn("if: ${{ always() }}", reports[0])
+                self.assertIn("name: " + name + "-java-tests-${{ github.sha }}", reports[0])
 
     def test_cloud_preflight_keeps_its_existing_ci_identifiers(self):
         self.assertIn("    name: Reactor tests\n", self.jobs["reactor-core"])
