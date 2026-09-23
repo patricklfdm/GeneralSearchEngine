@@ -7,7 +7,7 @@ import subprocess
 import sys
 import xml.etree.ElementTree as ET
 import zipfile
-from . import cloud_plan, controls, explore, fixtures, process_harness
+from . import cloud_plan, controls, explore, fixtures, process_harness, performance_foundation
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -52,6 +52,7 @@ def run(output,control_directory):
         core=ROOT/'target/general-search-engine-5.1.0-SNAPSHOT.jar'
         replication=ROOT/'general-search-engine-replication/target/general-search-engine-replication-5.1.0-SNAPSHOT.jar'
         record['artifacts']=[artifact(core),artifact(replication)]
+        record['richWorkload']=performance_foundation.run(output/'rich-workload',control_directory,core)
         classes=output/'consumer-classes';classes.mkdir()
         classpath=str(core)+':'+str(replication)
         java=ROOT/'scripts/v51/java'

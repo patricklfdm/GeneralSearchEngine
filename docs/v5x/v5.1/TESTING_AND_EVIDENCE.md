@@ -72,7 +72,7 @@ exact-master CI `35826641489`. The [Phase 5C review](PHASE_5_ACCEPTANCE.md) reco
 23 public and eight internal resource/hardening cases; it preserves the E01–E12
 boundaries. Full Phase 5 is accepted through PR #214, master
 `15c8c68011e37370dfcd31ee855f91247c3771d8`, docs-only CI `35830149418`.
-The [Phase 6 entry candidate](PHASE_6_ENTRY_PLAN.md) and
+The [accepted Phase 6 entry](PHASE_6_ENTRY_PLAN.md) and
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md) now specify performance
 work without relabelling prior correctness evidence as a measured cloud result.
 

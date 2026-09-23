@@ -1,8 +1,10 @@
 # V5.1 Phase 6 entry: automatic leadership performance and cloud evidence
 
-**Status:** design candidate, pending protected acceptance. This batch freezes the
-6A local measurement contract and the subsequent delivery/admission gates. It does
-not claim measured performance, a qualified cloud preset or permission to spend.
+**Status:** entry and local contract accepted through [PR #215](https://github.com/patricklfdm/GeneralSearchEngine/pull/215),
+master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, documentation-only master CI
+`35831892351`. The [rich model foundation](PHASE_6_MODEL_FOUNDATION.md) is the first
+6A implementation candidate. Full local measurements and subsequent cloud gates
+remain pending; entry acceptance does not authorize paid execution.
 
 **Starting master:** `15c8c68011e37370dfcd31ee855f91247c3771d8`.
 [PR #214](https://github.com/patricklfdm/GeneralSearchEngine/pull/214) accepted
@@ -52,7 +54,10 @@ convenience, expose follower application reads or re-enroll a missing voter disk
 | 6E — review and registration | Reconcile raw member/set results, costs, failed attempts and cleanup; append-only baseline registration through a separate PR | Complete accepted set, retrievable raw evidence and exact measured source. Only then enter Phase 7. |
 
 6A may be delivered as a substantial implementation batch, splitting only where a
-concrete review boundary requires it. Integrate its CI gate once with always-retained
+concrete review boundary requires it. The first such boundary is the
+[rich model and published-control foundation](PHASE_6_MODEL_FOUNDATION.md): the old
+public history checker cannot validate this ten-operation rich program. Review its
+independent decoder/control parity before accepting measured automatic traces. Integrate its CI gate once with always-retained
 evidence; use observed job timings to place it without serializing the existing
 lanes. Do not rerun unchanged large matrices merely to fill a documentation PR.
 A code/plan/build-input change requires the relevant full checks before new admission.
@@ -158,11 +163,11 @@ all new/changed Markdown links/anchors/fences, contract gates, CI-classifier tes
 preservation of published controls/charter/production/workflows. All changes in this
 batch are Markdown, retaining the standard docs-only CI path.
 
-After protected entry acceptance, start 6A with the
+After protected entry acceptance, 6A started with the
 [local measurement plan](PHASE_6_LOCAL_MEASUREMENT_PLAN.md) and
 [Phase 6 checklist](PHASE_6_CHECKLIST.md). Commit, push, PR and merge remain user-owned.
 
-## Validation of this entry candidate
+## Validation of the accepted entry
 
 - Independent static calculation reproduced the 64-document corpus digest, 3149
   encoded corpus bytes, all 90 calls/72 mutations/18 reads, final application sequence

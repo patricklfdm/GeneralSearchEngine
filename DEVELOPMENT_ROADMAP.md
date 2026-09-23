@@ -57,9 +57,11 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945` (exact-master CI `35826641489`, all 19 jobs passed).
 [Full Phase 5](docs/v5x/v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
 `15c8c68011e37370dfcd31ee855f91247c3771d8` (docs-only master CI `35830149418`;
-unchanged-runtime full CI `35826641489`). The current [Phase 6 entry candidate](docs/v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
-specifies local measurements, published controls and subsequent cloud qualification.
-Its [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md) keeps design acceptance, implementation and paid execution separate.
+unchanged-runtime full CI `35826641489`). The [Phase 6 entry](docs/v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
+is accepted through PR #215 at `243434f6e1dc94422b57997b33eabb3cc1e8f64d`
+(docs-only master CI `35831892351`). The [rich model foundation](docs/v5x/v5.1/PHASE_6_MODEL_FOUNDATION.md)
+is the current 6A implementation candidate; full three-mode measurements and cloud
+qualification remain pending in the [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md).
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

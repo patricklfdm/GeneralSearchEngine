@@ -1,12 +1,14 @@
 # V5.1 Phase 6A local measurement contract
 
-**Status:** design candidate accompanying the [Phase 6 entry](PHASE_6_ENTRY_PLAN.md).
+**Status:** accepted with the [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) through PR #215.
+Implementation begins with the [rich model foundation](PHASE_6_MODEL_FOUNDATION.md).
 Values below are the implementation specification for a reduced local preset, not
 observed performance or a cloud preset. Changing them requires a reviewed plan revision.
 
 ## Identities and execution layers
 
-Proposed new identities to materialize in 6A:
+The [machine-readable plan](phase6-plan.json) materializes these 6A identities.
+The full performance evidence schema remains reserved until runtime qualification:
 
 - Plan: `gse-v51-phase6-plan-v1`; preset: `v5.1-phase6-local-smoke-v1`.
 - Measurement evidence: `gse-v51-performance-evidence-v1`.
