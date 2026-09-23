@@ -79,7 +79,8 @@ def scenario(root, cp, case):
 
 
 def run(output, only=None):
-    return promise.run_matrix(output, only, cases=CASES, scenario_runner=scenario, execution='public-candidate-crashes')
+    from .public_trace import verify_writer
+    return promise.run_matrix(output, only, cases=CASES, scenario_runner=scenario, execution='public-candidate-crashes', observer_check=verify_writer)
 
 
 if __name__ == '__main__':

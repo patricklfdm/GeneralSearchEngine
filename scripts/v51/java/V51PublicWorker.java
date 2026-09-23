@@ -78,17 +78,32 @@ public final class V51PublicWorker {
         }
         return files.entrySet().stream().map(e->Map.<String,Object>of("name",e.getKey(),"bytes",e.getValue())).toList();
     }
-    private static final class Trace {
+    static class Trace {
         final Path path,arm;final int generation;final String node,group,manifestDigest;long order;boolean crashing;
-        Trace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest){
+        Trace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest) throws IOException {
             this.path=path;this.arm=arm;this.generation=generation;this.node=node;
             group=text(manifest.value(),"groupId");manifestDigest=manifest.digest();
+            if(Files.exists(path.resolveSibling(path.getFileName()+".pending")))
+                throw new IOException("stopped observer trace must be completed before restart");
         }
         synchronized void write(String name,Map<String,Object> values) throws IOException {
             var row=new LinkedHashMap<>(values);row.put("event",name);row.put("order",++order);row.put("pid",ProcessHandle.current().pid());
             row.put("generation",generation);row.put("localNanos",System.nanoTime());
             row.put("node",node);row.put("groupId",group);row.put("manifestDigest",manifestDigest);
-            Files.writeString(path,new String(canonical(row),StandardCharsets.US_ASCII)+"\n",StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+            byte[] json=canonical(row),line=Arrays.copyOf(json,json.length+1);line[json.length]='\n';
+            // Test telemetry only, outside replica authority. Publish the complete
+            // observation before SIGKILL can interrupt its JSONL append.
+            Path pending=path.resolveSibling(path.getFileName()+".pending"), staging=path.resolveSibling(path.getFileName()+".staging");
+            if(Files.exists(pending))throw new IOException("unfinished observer append");
+            byte[] record=ByteBuffer.allocate(48+line.length).put("GSETRC1\n".getBytes(StandardCharsets.US_ASCII))
+                    .putLong(Files.exists(path)?Files.size(path):0).put(hash(line)).put(line).array();
+            Files.write(staging,record);
+            Files.move(staging,pending,StandardCopyOption.ATOMIC_MOVE);
+            append(line);
+            Files.delete(pending);
+        }
+        void append(byte[] line) throws IOException {
+            Files.write(path,line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
         }
         void event(String name,Map<String,Object> values) throws IOException {
             String mode;

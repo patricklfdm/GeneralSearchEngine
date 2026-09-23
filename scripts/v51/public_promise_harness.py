@@ -79,7 +79,7 @@ def scenario(root, cp, case):
     return receipt
 
 
-def run_matrix(output, only, *, cases, scenario_runner, execution, consumer_sources=()):
+def run_matrix(output, only, *, cases, scenario_runner, execution, consumer_sources=(), observer_check=None):
     root = Path(output).resolve(); root.mkdir(parents=True, exist_ok=False)
     receipt = dict(status='FAIL', execution=execution, paidCloud=False, cases=[],
                    scope='targeted-case' if only else f'complete-{len(cases)}-case-matrix')
@@ -100,6 +100,7 @@ def run_matrix(output, only, *, cases, scenario_runner, execution, consumer_sour
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars, '-d', classes, *sources], root, 'compile-consumer')
         q.command(['javac', '--release', '21', '-proc:none', '-cp', jars+os.pathsep+str(classes), '-d', observer, java/'V51PublicWorker.java'], root, 'compile-observer')
         cp = os.pathsep.join(map(str, (CORE, REPLICATION, classes, observer)))
+        if observer_check is not None: receipt['observer'] = observer_check(root, cp)
         for case in cases:
             if only and case != only: continue
             try:

@@ -13,6 +13,38 @@ startup, mutation, strong-read and close operations use public APIs. Existing
 storage/transport hooks only observe bytes or stop a JVM at a real boundary.
 The controller cannot assign an epoch, inject a vote or rewrite retained authority.
 
+### Observer append integrity under SIGKILL
+
+Master CI `35812934722` failed `after-write-kill` while parsing observation
+JSONL, after the public recovery calls had completed. The old leader's final
+`RECEIVED` row ended at exactly 8192 bytes; its restarted process appended
+`STARTED` directly to that unterminated row. This was a process-killed observer
+append, not a failed candidate-election assertion. The downloaded failure
+remains failed evidence; it has no complete copy of the interrupted observation.
+
+The shared public observer now publishes a complete pending observation by
+same-directory atomic rename before appending JSONL. Its envelope binds the
+append offset and SHA-256 of the exact newline-terminated record. After the
+owning JVM has exited, both public worker controllers verify the envelope,
+node/PID/generation/order, prior line boundary and every byte already appended.
+Only the missing suffix of that exact observation can then be appended, before
+another generation starts. A complete append awaiting pending-file removal is
+recognized without duplication. Unpublished staging files cannot repair a tail;
+missing records, mismatched bytes and invalid JSON still fail the gate.
+
+Completion retains the original pending envelope, interrupted tail and a receipt
+under `node-N-trace.jsonl.recovery-PID-ORDER/`. These are observer files outside
+the replica authority directories. This mechanism covers process termination on
+the local filesystem; it adds no host power-loss claim. Final physical, quorum,
+history and candidate oracles still parse every finalized row strictly.
+
+The candidate gate also executes the actual Java observer writer with a 32 KiB
+payload. It SIGKILLs it before append, after exactly 8192 bytes and after the
+complete append but before pending-file removal, then starts another generation.
+All original records and both generations' event orders must survive exactly.
+Python negatives cover invalid envelopes, process identities, offsets, content,
+missing events, live-writer rejection and incomplete live polling.
+
 Each fresh three-voter group acknowledges three tagged atomic bulks and reads
 their ordered contents. Node 3 uses the same bootstrap-sealed 600–601.2-second
 election interval as Batch I; nodes 1 and 2 retain the fixture's 3.6–6-second

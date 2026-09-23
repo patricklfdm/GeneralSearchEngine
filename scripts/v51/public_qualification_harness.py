@@ -10,7 +10,7 @@ import subprocess
 import tarfile
 import threading
 import time
-from . import controls, storage_inspector as storage, public_history, public_qualification_evidence as evidence
+from . import controls, storage_inspector as storage, public_history, public_qualification_evidence as evidence, public_trace
 from .storage_harness import ROOT, need, save
 from scripts.v50.offline_harness import CORE, REPLICATION
 
@@ -20,6 +20,7 @@ CUTS = ('READ_CAPTURED', 'READ_RELEASED', 'BEFORE_CLIENT_RESPONSE')
 
 class Worker:
     def __init__(self, root, node, cp, history, generation=1, consumer='qualification'):
+        self.root = root
         self.node, self.history, self.generation = node, history, generation
         self.lock = threading.Lock(); self.pending = {}; self.serial = 0; self.startup = queue.Queue(1)
         self.log = (root / (node + '-stderr.log')).open('ab')
@@ -77,6 +78,7 @@ class Worker:
         finally:
             if self.proc.poll() is None: self.proc.kill(); self.proc.wait(timeout=10)
             self.log.close()
+            public_trace.finish(self.root, self.node, self.proc, self.generation)
 
 
 def command(args, root, name, timeout=120):
@@ -122,7 +124,7 @@ def scenario(root, cp, cut, mode, mutation_cut=False):
         rejected = follower.send('addAll', documents=docs())
         deadline = time.monotonic() + 30; reached = None
         while time.monotonic() < deadline:
-            rows = [json.loads(line) for line in (root / (old + '-trace.jsonl')).read_text().splitlines() if line.endswith('}')]
+            rows = public_trace.live_rows(root, old)
             reached = next((r for r in rows if r['event'] == 'CUT_REACHED'), None)
             if reached: break
             if active.proc.poll() is not None: break

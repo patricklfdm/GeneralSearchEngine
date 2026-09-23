@@ -10,12 +10,7 @@ from . import public_qualification_harness as q, public_qualification_evidence a
 from . import public_fault_evidence as faults, storage_inspector as storage
 from .storage_harness import ROOT, need, save
 from scripts.v50.offline_harness import CORE, REPLICATION
-
-
-def rows(root, node):
-    # A writer may currently have appended only part of the last JSON line.
-    raw = (root / (node + '-trace.jsonl')).read_text()
-    return [json.loads(line) for line in raw.split('\n')[:-1]]
+from .public_trace import live_rows as rows
 
 
 def replace(path, text):
