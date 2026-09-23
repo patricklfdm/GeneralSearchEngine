@@ -1,6 +1,7 @@
 # V5.1 Phase 5 evidence ledger
 
-**Status:** offline replay PASS; protected acceptance follows the [Phase 5C review](PHASE_5_ACCEPTANCE.md).
+**Status:** offline replay PASS; accepted through PR #214 with the [Phase 5C review](PHASE_5_ACCEPTANCE.md).
+The source/artifact identities below remain those of the original fully tested runtime.
 This is a static review index of existing CI evidence, not runtime authority or a new test run.
 
 ## Common identity

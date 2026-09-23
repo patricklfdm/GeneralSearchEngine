@@ -20,11 +20,13 @@ is accepted at master `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master C
 `35818964327`, all 19 jobs passed). [Phase 5B combined lifecycle](v5.1/PHASE_5_COMBINED_LIFECYCLE.md)
 is accepted through PR #213 at `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`, exact-master
 CI `35826641489` (all 19 jobs and 23 V5.1 verification steps passed).
-[Phase 5C reconciliation](v5.1/PHASE_5_ACCEPTANCE.md) reviews original CI evidence
-for 23 public cases and eight separately identified internal boundary cases.
-The [checklist](v5.1/PHASE_5_CHECKLIST.md) leaves protected acceptance pending this
-review's merge. After acceptance, propose the separate Phase 6 workload/measurement
-contract; cloud execution and publication remain separately authorized work.
+[Full Phase 5](v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
+`15c8c68011e37370dfcd31ee855f91247c3771d8`, docs-only master CI `35830149418`.
+Its review retains the 23 public/eight internal cases on the unchanged fully tested runtime.
+The current [Phase 6 entry candidate](v5.1/PHASE_6_ENTRY_PLAN.md) and
+[local measurement contract](v5.1/PHASE_6_LOCAL_MEASUREMENT_PLAN.md) specify the next
+implementation batch after entry acceptance. Follow the [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md);
+cloud parameters need separate qualification and paid execution remains user-triggered.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5A/B accepted; Phase 5C acceptance review; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6 entry design; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -64,9 +64,11 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI `35818964327`, all 19 jobs passed).
 [Phase 5B](v5.1/PHASE_5_COMBINED_LIFECYCLE.md) is accepted through PR #213 at
 `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945` (exact-master CI `35826641489`, all 19 jobs passed).
-[Phase 5C reconciliation](v5.1/PHASE_5_ACCEPTANCE.md) reviews the seven combined-fault
-cases and supporting resource evidence. Full Phase 5 protected acceptance awaits this
-review's merge; the [checklist](v5.1/PHASE_5_CHECKLIST.md) keeps Phase 6 design and cloud entry separate.
+[Full Phase 5](v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
+`15c8c68011e37370dfcd31ee855f91247c3771d8` (docs-only master CI `35830149418`;
+unchanged-runtime full CI `35826641489`). The current [Phase 6 entry candidate](v5.1/PHASE_6_ENTRY_PLAN.md)
+specifies local measurements, published controls and subsequent cloud qualification.
+Its [checklist](v5.1/PHASE_6_CHECKLIST.md) keeps design acceptance, implementation and paid execution separate.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

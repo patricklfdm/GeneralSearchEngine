@@ -5,8 +5,9 @@
 [exact-master CI 35826641489](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35826641489),
 all 19 jobs passed. The original local record below remains bound to its Batch A
 base plus working-tree implementation. [Phase 5C](PHASE_5_ACCEPTANCE.md) reconciles
-the exact-master evidence; full Phase 5 protected acceptance and Phase 6 entry
-remain separate. See the [checklist](PHASE_5_CHECKLIST.md).
+the exact-master evidence and is accepted through PR #214, completing Phase 5.
+The separate [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) is now a candidate.
+See the [checklist](PHASE_5_CHECKLIST.md).
 
 ## Fixed scenarios (before execution)
 
@@ -111,4 +112,4 @@ PR #213 also corrected the inherited post-crash concurrent-wave driver; its
 [classified, bounded progress rule](PHASE_4_PUBLIC_FAULTS.md) preserves every
 intermediate outcome and never replays an uncertain write. The exact-master
 [Phase 5C review](PHASE_5_ACCEPTANCE.md) covers that correction and the complete
-hardening/resource evidence before full Phase 5 acceptance or Phase 6 entry.
+hardening/resource evidence accepted through PR #214; Phase 6 remains a separate entry.

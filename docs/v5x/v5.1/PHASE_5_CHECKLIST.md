@@ -4,7 +4,8 @@
 exact-master CI `35818964327` (all 19 jobs passed). Batch B accepted through PR #213,
 master `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`, exact-master CI `35826641489`
 (all 19 jobs and 23 V5.1 verification steps passed). [Batch C reconciliation](PHASE_5_ACCEPTANCE.md)
-is complete for review; full Phase 5 protected acceptance awaits this review's merge.
+is accepted through PR #214 at `15c8c68011e37370dfcd31ee855f91247c3771d8`,
+docs-only master CI `35830149418`. Full Phase 5 is complete within that review's scope.
 
 - [x] Phase 4 accepted through PR #208, master
   `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895`.
@@ -23,5 +24,5 @@ is complete for review; full Phase 5 protected acceptance awaits this review's m
 - [x] Batch C: reconcile seven combined-fault cases plus supporting public/internal resource evidence.
 - [x] Batch C: independently replay source/JAR/physical/history/archive/accounting checks and rejection variants.
 - [x] Batch C: document resource ceilings, defect disposition, claim limits and Phase 6 design handoff.
-- [ ] Protected acceptance of this Batch C review, completing Phase 5 within its recorded scope.
-- [ ] Separate Phase 6 entry decision; no paid-cloud execution authorized by this batch.
+- [x] Protected Batch C acceptance through PR #214, completing Phase 5 within its recorded scope.
+- [ ] Separate [Phase 6 entry candidate](PHASE_6_ENTRY_PLAN.md) acceptance; no paid-cloud execution authorized by Phase 5.

@@ -4,7 +4,7 @@
 [exact-master CI 35818964327](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35818964327),
 all 19 jobs passed. PR #209 supplied Batch A; PRs #210–#212 corrected the inherited
 CI/test issues encountered before this exact-master pass. Full Phase 5 acceptance
-is reviewed in [Phase 5C](PHASE_5_ACCEPTANCE.md), pending that review's protected merge.
+is recorded in [Phase 5C](PHASE_5_ACCEPTANCE.md), accepted through PR #214.
 The local record below retains its original Phase 4 source. See the
 [fixed entry plan](PHASE_5_ENTRY_PLAN.md) and [checklist](PHASE_5_CHECKLIST.md).
 
