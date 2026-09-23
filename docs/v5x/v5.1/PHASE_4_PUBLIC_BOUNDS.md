@@ -105,3 +105,62 @@ acknowledged writes, while the configured-mode inventory check rejects an
 automatic-only member before inspecting its format header. The final scenarios
 meet those requirements and preserve the existing exact error classification.
 The source inventory is captured at execution; this summary is written afterward.
+
+
+## Post-PR #218 correction: observe released admission
+
+PR #218's PR CI `35894824934` passed all nineteen jobs. The identical source tree
+merged at `84990b3fa6d5007b90427c95f376473c8db48bd9`, but
+[master CI 35896844608](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35896844608)
+failed this gate's `document-limit` case. The subsequent resource gate was skipped.
+This failure does not establish recurrence of the activation-peer starvation bug.
+
+The retained history shows two successful seed documents, the intended
+`application document count exceeds bound` rejection, then a successful read of
+exactly those two documents. The following one-document write instead received
+`automatic application CAPACITY_EXCEEDED / NOT_SUBMITTED`. That message originates
+at the public facade's admission semaphore, before document encoding or submission.
+A future result can wake its caller before the completion task's `finally` releases
+its permit. With one sealed permit, response receipt alone does not establish that
+another call can be admitted. Holding the permit until completion callbacks return
+is the existing [public runtime](PHASE_4_PUBLIC_RUNTIME.md) and
+[backpressure](PHASE_4_BACKPRESSURE.md) contract.
+
+The six process scenarios now observe public `status.pending == 0` before each
+independent seed, boundary probe and resumed operation. Recovery reads perform
+this observation before each of the existing bounded read attempts. The two
+intentional probes against a held operation, and the solo-start role rejections,
+remain exempt. Waiting uses the existing forty-second controller poll limit;
+a leaked permit or failed status call fails the case. Mutations still have one
+attempt, and unexpected capacity rejections still fail immediately.
+
+Raw worker status responses are retained. A separate oracle requires an idle
+observation in the same process, after the preceding application response and
+before each non-exempt invocation. Missing, occupied, stale, other-process or
+failed status observations cannot establish the precondition. The original sealed
+limits, rejected-operation classification, forced-record checks, complete-history
+validation and retained-restart checks remain in force.
+
+Four deterministic schedules defer permit release after a seed write, seed read,
+expected rejection or recovery read. All four fail on the former harness, including
+the CI's read-to-write failure. The correction also checks persistent permit leakage,
+status failure, single-attempt mutation failure and recovery-read preconditions.
+Production Java, timeouts, workflow lanes and cloud execution are unchanged.
+
+Local validation, base `7e69796e5b90dd58e63d05038f0dafa8f1146ae7` plus this correction:
+
+- Complete fifteen-case gate passed at
+  `target/v51-public-bounds/run.1tgOVe/evidence`: 47 independently checked idle
+  preconditions and 89 rejected evidence mutations (including twelve new variants).
+- All 32 focused schedule/evidence/recovery-read tests and all 323 V5.1 Python
+  tests passed. The four delayed-release schedules first failed on the old driver;
+  their failures remain at `target/pr218-master-fix/regression-before.log`.
+- The 49-document/326-local-link contract, changed-document local links, shell
+  syntax and whitespace checks passed. No production source changed, so this
+  correction did not rebuild the reactor. The replication JAR hash is
+  `81ecb892c548cf8691a9958b649df8537621d2c3bcf3f5575356d1866039e39a`, identical
+  to the failed master run's replication JAR.
+- Original CI artifacts remain at `target/pr218-master-fix/ci-bounds`; local
+  receipt/hash index: `target/pr218-master-fix/validation-summary.json`.
+
+Protected full CI on the corrected source remains required before Phase 6A acceptance.

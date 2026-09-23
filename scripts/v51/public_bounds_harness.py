@@ -29,6 +29,12 @@ def bootstrap(root, cp, configured=False):
                       root, 'setup-configured' if configured else 'setup'], root, 'public-bootstrap')
 
 
+def await_admission_idle(active):
+    # Completing the result wakes its caller before the completion task releases
+    # the sole permit. Observe public status; do not replay a rejected operation.
+    return fault.wait_for(lambda: active.call('status')['pending'] == 0, 'bounds admission did not drain')
+
+
 def process_case(root, cp, case):
     root.mkdir(); (root/'bounds-profile.txt').write_text('small\n')
     workers = {}; history = []; expected = []; targets = []; starts = []; receipt = dict(status='FAIL', case=case)
@@ -41,7 +47,8 @@ def process_case(root, cp, case):
         pending = active.send(kind, **values); targets.append(history[-1]['opId'])
         result = pending.result(timeout=35)
         need(result is not None, 'rejected call disconnected'); return result
-    def write(active, values): active.call('addAll', documents=values); expected.extend(values)
+    def write(active, values):
+        await_admission_idle(active); active.call('addAll', documents=values); expected.extend(values)
     try:
         bootstrap(root, cp); start('node-1')
         if case == 'no-quorum-start':
@@ -49,7 +56,9 @@ def process_case(root, cp, case):
             denied(workers['node-1'], 'addAll', documents=docs(90)); denied(workers['node-1'], 'read')
         start('node-2'); start('node-3'); node, active = fault.leader(workers)
         for tag in (10, 11): write(active, docs(tag))
+        await_admission_idle(active)
         need(active.call('read')['documents'] == expected, 'seed read')
+        await_admission_idle(active)
         if case.startswith('pending-'):
             cut = 'READ_CAPTURED' if case == 'pending-read' else 'ACCEPT_AFTER_FORCE'
             fault.replace(root/(node+'-arm.txt'), cut+'\npause\n')
@@ -65,10 +74,10 @@ def process_case(root, cp, case):
         elif case == 'payload-limit': denied(active, 'addAll', documents=[dict(id=90, value='x'*100000)])
         elif case == 'bulk-limit': denied(active, 'addAll', documents=docs(90, 5))
         elif case == 'document-limit': denied(active, 'addAll', documents=docs(90, 3))
-        node, active = protocol.read_after_recovery(workers, expected)
-        write(active, docs(30)); node, active = protocol.read_after_recovery(workers, expected)
+        node, active = protocol.read_after_recovery(workers, expected, before_read=await_admission_idle)
+        write(active, docs(30)); node, active = protocol.read_after_recovery(workers, expected, before_read=await_admission_idle)
         workers.pop(node).stop(); receipt['retained'] = recovery.archive(root, node)
-        start(node, 2); node, active = protocol.read_after_recovery(workers, expected)
+        start(node, 2); node, active = protocol.read_after_recovery(workers, expected, before_read=await_admission_idle)
         receipt.update(expected=expected, targets=targets, finalLeader=node)
     except BaseException as error: receipt['failure'] = str(error); raise
     finally:
@@ -85,12 +94,16 @@ def process_case(root, cp, case):
         receipt['history'] = public_history.check(history)
         receipt['physical'] = physical.physical(root, history, traces)
         receipt['bounds'] = evidence.bounds(root, history, traces, case, targets)
+        receipt['admission'] = evidence.sequential_admission(history, traces, case, targets)
         receipt['negatives'] = physical.negatives(root, history)
         args = [history, traces, case, targets]
         receipt['negatives'] += evidence.negatives(evidence.rejection_history, args, [
             ('changed-rejection', lambda a: next(v for v in a[0] if v['opId'] == a[3][0]).update(outcome='SUCCESS')),
             ('missing-worker-rejection', lambda a: [rows.__setitem__(slice(None), [r for r in rows if r['event'] != 'CLIENT_FAILURE']) for rows in a[1].values()]),
             ('missing-resumed-write', lambda a: a[0].__setitem__(slice(None), [v for v in a[0] if not (v['kind'] == 'addAll' and v['outcome'] == 'SUCCESS')]))])
+        receipt['negatives'] += evidence.negatives(evidence.sequential_admission, args, [
+            ('missing-idle-observation', lambda a: [rows.__setitem__(slice(None), [r for r in rows if r.get('kind') != 'status']) for rows in a[1].values()]),
+            ('occupied-admission', lambda a: [r.update(pending=1) for rows in a[1].values() for r in rows if r.get('kind') == 'status'])])
         receipt['status'] = 'PASS'
     except BaseException as error: receipt['failure'] = str(error); raise
     finally: save(root/'receipt.json', receipt)

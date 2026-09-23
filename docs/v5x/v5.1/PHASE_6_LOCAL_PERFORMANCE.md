@@ -220,3 +220,11 @@ adds a bounded alternate-peer opportunity after failed activation, with determin
 regressions. It changes the candidate runtime artifact, so the original performance
 hashes and PR #217 CI do not qualify that new artifact. Full 6A acceptance and the
 separate 6B cloud-parameter freeze await correction validation and protected CI.
+
+
+PR #218 merged the runtime correction at `84990b3fa6d5007b90427c95f376473c8db48bd9`.
+PR CI `35894824934` passed all nineteen jobs; master CI `35896844608` passed the
+performance lane but failed the earlier public bounds gate in the admission lane.
+The [bounds driver correction](PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission)
+addresses response-versus-permit-release ordering without changing the runtime
+artifact. The skipped resource step and failed master run do not qualify full 6A.

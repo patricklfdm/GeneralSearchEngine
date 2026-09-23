@@ -4,8 +4,11 @@
 PR #216. The [local runtime](PHASE_6_LOCAL_PERFORMANCE.md) merged through PR #217,
 master `e3efda820beef9efcd6f6f06e8af71006c3b85ce`, with exact-master full CI
 `35889987294`. The [resource recovery follow-up](PHASE_4_RESOURCE_LIMITS.md#recovery-scheduling-after-the-phase-6a-resource-rerun)
-changes the runtime again; full 6A protected acceptance and cloud qualification
-remain pending on the corrected artifact.
+merged through PR #218 at `84990b3fa6d5007b90427c95f376473c8db48bd9`. PR CI
+`35894824934` passed all nineteen jobs. Master CI `35896844608` failed the earlier
+[public bounds driver](PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission);
+its resource step was skipped. Full 6A protected acceptance and cloud qualification
+remain pending on corrected-source full CI.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 

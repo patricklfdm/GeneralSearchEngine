@@ -21,11 +21,12 @@ CUTS = {'basis': 'WIRE_BEFORE_RESPONSE_WRITE_BASIS_CHUNK:continuation',
 READ_REJECTIONS = ('NOT_LEADER', 'NOT_READY', 'QUORUM_UNAVAILABLE', 'STALE_EPOCH', 'DEADLINE_EXCEEDED')
 
 
-def read_after_recovery(workers, expected):
+def read_after_recovery(workers, expected, *, before_read=None):
     # LEADER_READY is a role hint; every read still needs its own quorum barrier.
     # Keep all attempts in Worker.history and bound recovery without replaying writes.
     for _ in range(4):
         node, active = fault.leader(workers)
+        if before_read is not None: before_read(active)
         result = active.send('read').result(timeout=35)
         need(result is not None, 'public protocol read disconnected')
         if result['outcome'] == 'SUCCESS':

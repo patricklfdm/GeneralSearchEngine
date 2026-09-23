@@ -34,8 +34,11 @@ measurement gate and bounded automatic SIGKILL/rejoin history. PR #217 merged at
 `e3efda820beef9efcd6f6f06e8af71006c3b85ce`, exact-master full CI `35889987294`
 (all nineteen jobs passed). The separately retained local resource-recovery failure
 has a [scheduling correction candidate](v5.1/PHASE_4_RESOURCE_LIMITS.md#recovery-scheduling-after-the-phase-6a-resource-rerun).
-Review corrected-runtime resource/performance evidence and exact-source full CI
-before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md). Then enter 6B;
+PR #218 merged that correction at `84990b3fa6d5007b90427c95f376473c8db48bd9`.
+Its PR CI `35894824934` passed; master CI `35896844608` failed the earlier public
+bounds gate on a [single-permit driver race](v5.1/PHASE_4_PUBLIC_BOUNDS.md#post-pr-218-correction-observe-released-admission),
+so the resource step was skipped. Review the corrected driver and exact-source
+full CI before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md). Then enter 6B;
 cloud parameters need separate qualification and paid execution remains user-triggered.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
