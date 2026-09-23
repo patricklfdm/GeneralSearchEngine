@@ -50,16 +50,37 @@ class V50NetworkHardeningTest {
         }
     }
 
-    @Test
-    void retryExhaustionCannotPublishAndRecoveryRemovesOnlyUnprovenTail() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void retryExhaustionCannotPublishAndRecoveryRemovesOnlyUnprovenTail(boolean delayedActivation) throws Exception {
         var armed = new AtomicBoolean(); var attempts = List.of(new AtomicInteger(), new AtomicInteger(), new AtomicInteger());
+        var activationEntered = new CountDownLatch(1); var releaseActivation = new CountDownLatch(1);
+        var delayedAfterArming = new AtomicBoolean();
+        var requestBytes = new ConcurrentHashMap<Integer, String>();
         try (var group = new Group(temporary, bounds(1500, 8), ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
-            if (local != 0 && armed.get() && barrier.equals("BEFORE_RESPONSE_WRITE") && request.get("type").equals("APPEND")) {
-                attempts.get(local).incrementAndGet(); throw new IOException("all append ACKs disconnected");
+            if (local != 0 && barrier.equals("BEFORE_RESPONSE_WRITE") && request.get("type").equals("APPEND")) {
+                var entry = appendEntry(request);
+                if (delayedActivation && local == 2 && entry.index() == 1 && entry.operation().equals("NO_OP")) {
+                    activationEntered.countDown();
+                    try { if (!releaseActivation.await(5, TimeUnit.SECONDS)) throw new IOException("activation release missing"); }
+                    catch (InterruptedException error) { Thread.currentThread().interrupt(); throw new IOException(error); }
+                    delayedAfterArming.set(armed.get());
+                }
+                // Activation needs only one remote ACK; the other NO_OP can
+                // finish after arming. Exhaust this ADD exchange, not that old one.
+                if (armed.get() && entry.index() == 2 && entry.operation().equals("ADD")) {
+                    String digest = sha256(ReplicaWire.encode(request, BOUNDS.maxFrameBytes()));
+                    String previous = requestBytes.putIfAbsent(local, digest);
+                    if (previous != null) assertEquals(previous, digest, "retry changed request identity or bytes");
+                    attempts.get(local).incrementAndGet(); throw new IOException("all target ADD ACKs disconnected");
+                }
             }
         })) {
             group.leader().activate().get(10, TimeUnit.SECONDS); armed.set(true);
+            if (delayedActivation) assertTrue(activationEntered.await(5, TimeUnit.SECONDS));
+            releaseActivation.countDown();
             V50LeaderPathTest.rejected(ReplicationException.Reason.QUORUM_UNAVAILABLE, group.add(new Document(1, "must remain hidden")));
+            if (delayedActivation) assertTrue(delayedAfterArming.get(), "exercise activation ACK after the fault was armed");
             assertEquals(0, group.leader().status().applicationSequence());
             assertNull(group.leader().read(engine -> engine.get(1)));
             for (int i : List.of(1, 2)) assertEquals(BOUNDS.maxRetryAttempts() + 1, attempts.get(i).get());
@@ -146,6 +167,11 @@ class V50NetworkHardeningTest {
             }
             assertEquals(before, group.nodes.get(1).status());
         }
+    }
+
+    static ReplicaEntry appendEntry(Map<String, Object> request) throws IOException {
+        return ReplicaEntry.decode(decodeRecord(Base64.getDecoder().decode(
+                ReplicaWire.string(ReplicaWire.object(request.get("payload")), "entry")), ENTRY, BOUNDS.maxFrameBytes()));
     }
 
     static Map<String, Object> raw(int port, Map<String, Object> request) throws IOException {

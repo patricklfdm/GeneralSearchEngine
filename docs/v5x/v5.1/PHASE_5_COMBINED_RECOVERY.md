@@ -171,3 +171,56 @@ SLA or eliminate every possible scheduling or storage delay.
   Local evidence/source hashes and original-failure analysis are retained under
   `target/v51-hardening-recovery-race/validation-summary.json` and
   `failure-analysis.json`. No paid cloud work or production/workflow edit.
+
+## Post-PR-221 correction: confirm proof before recording a drained round
+
+PR #221 merged at `af68d8473f9998628e49189a2d8be658b8bfe116`.
+[Master CI 35932225694](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35932225694)
+failed two independent checks. In `partition-accept-kill`, all three rounds executed
+and the complete client history and physical authority checks passed. The stricter
+per-round oracle rejected node 2's resource samples in rounds 2 and 3.
+
+Round 2's sample (generation 2, local order 221) reported `RECOVERING` and
+`provenIndex=23`, but that process's next raw proof appeared at order 267, covering
+index 24. Round 3 likewise sampled generation 3 at order 243 before its proof at
+order 291. Selection/install can advance the runtime's proven counter before the
+activation path emits the proof/publication event required by this per-round gate.
+The driver had stopped waiting as soon as the counter and client queues appeared
+ready. Later proof cannot retroactively qualify an earlier sample.
+
+Phase 5A now waits, within the existing forty-second bound, for both the original
+resource/prefix conditions and a raw PROOF, PUBLISHED or REJOIN_INSTALLED record
+covering the requested floor **before** the selected LIFECYCLE_SAMPLE. Bind all
+records to the current node, PID and process generation. The actual raw sample
+must match the returned diagnostic values. Status alone, a later proof, a previous
+process's proof or a prefix below the floor cannot complete the round.
+
+The independent oracle is unchanged. Rechecking the original downloaded artifact
+still rejects the same two premature samples. No evidence, replica state, sealed
+timing/resource limit, mutation outcome or three-round requirement is rewritten.
+Phase 5B continues using its original shared driver.
+
+Four deterministic regressions cover the reported sample-before-proof schedule,
+missing/late/borrowed proof, both installed/publication snapshot witnesses, lower
+prefixes and non-drained resource counters. The first fails against the old driver.
+Raw failure evidence is retained under `target/v51-master-221-failures/hardening`,
+artifact ID `10781518434`; the receipt and trace hashes are indexed in
+`failure-analysis.json` in that parent directory.
+
+The second failing job was stopped by the inherited
+[V5.0 retry-exhaustion fixture](../v5.0/PHASE_5_HARDENING.md#post-pr-221-follow-up-target-the-add-exchange),
+before candidate-crash scenarios executed. Both fixes need corrected-source full CI
+before Phase 6C proceeds. Neither changes production protocol code.
+
+### Proof-sample correction validation
+
+- Complete Phase 5A gate passed at `target/v51-hardening/run.ziuJpN/evidence`:
+  three scenarios, nine rounds, 78 public calls and 61 rejected evidence mutations.
+- All 353 V5.1 Python tests passed, including four new sample-boundary regressions;
+  the complete V5.0 network hardening Java class passed all fifteen cases.
+- The premature-sample and late-activation regressions both failed before correction.
+  Original failed CI evidence remains unchanged and its premature samples still fail.
+- Documentation contracts, changed local links and whitespace checks passed.
+  Receipts, before/after logs and source hashes are indexed in
+  `target/v51-master-221-failures/validation-summary.json`. Corrected-source protected
+  CI remains required.

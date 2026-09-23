@@ -9,7 +9,11 @@ the [6B cloud contract candidate](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) are pendin
 PR #220 merged these candidates at `717bed8f578019c71ffe3d739deaf067ec0fa8d2`.
 Master CI `35927462738` passed the performance gate but failed Phase 5A's
 [post-restart write assumption](PHASE_5_COMBINED_RECOVERY.md#post-pr-220-correction-a-recovered-read-does-not-lease-leadership).
-Accept the corrected driver and exact-source full CI before proceeding to 6C.
+PR #221 merged the recovery-write correction at `af68d8473f9998628e49189a2d8be658b8bfe116`.
+Master CI `35932225694` then failed the
+[per-round proof sampling boundary](PHASE_5_COMBINED_RECOVERY.md#post-pr-221-correction-confirm-proof-before-recording-a-drained-round)
+and a [V5.0 retry fixture](../v5.0/PHASE_5_HARDENING.md#post-pr-221-follow-up-target-the-add-exchange).
+Accept both corrections and exact-source full CI before proceeding to 6C.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
