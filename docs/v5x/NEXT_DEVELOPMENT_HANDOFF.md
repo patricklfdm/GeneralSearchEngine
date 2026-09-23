@@ -23,9 +23,13 @@ CI `35826641489` (all 19 jobs and 23 V5.1 verification steps passed).
 [Full Phase 5](v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
 `15c8c68011e37370dfcd31ee855f91247c3771d8`, docs-only master CI `35830149418`.
 Its review retains the 23 public/eight internal cases on the unchanged fully tested runtime.
-The current [Phase 6 entry candidate](v5.1/PHASE_6_ENTRY_PLAN.md) and
-[local measurement contract](v5.1/PHASE_6_LOCAL_MEASUREMENT_PLAN.md) specify the next
-implementation batch after entry acceptance. Follow the [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md);
+The [Phase 6 entry](v5.1/PHASE_6_ENTRY_PLAN.md) and
+[local measurement contract](v5.1/PHASE_6_LOCAL_MEASUREMENT_PLAN.md) are accepted through
+PR #215, master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, docs CI `35831892351`.
+The current [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md) implements the
+closed local plan, independent rich prefix decoder and actual published V4.4 parity.
+Next, complete three-mode measured runtime adapters and the small automatic failover
+history under the [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md). Full 6A is still pending;
 cloud parameters need separate qualification and paid execution remains user-triggered.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

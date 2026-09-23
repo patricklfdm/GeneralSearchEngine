@@ -1,0 +1,226 @@
+{
+  "schema": "gse-v51-phase6-plan-v1",
+  "evidenceSchema": "gse-v51-performance-evidence-v1",
+  "execution": "local-public-runtime-only",
+  "preset": "v5.1-phase6-local-smoke-v1",
+  "modes": [
+    "published-v4.4-local",
+    "published-v5.0-configured",
+    "candidate-v5.1-automatic"
+  ],
+  "formats": {
+    "automaticAuthority": [
+      1,
+      2
+    ],
+    "automaticWire": "gse-replication/1.2",
+    "configuredAuthority": [
+      1,
+      1
+    ],
+    "configuredWire": "gse-replication/1.1",
+    "durable": [
+      1,
+      2
+    ],
+    "backup": [
+      1,
+      2
+    ]
+  },
+  "localSmoke": {
+    "seed": 17,
+    "corpusDocuments": 64,
+    "corpusSha256": "1c0ce897a4074c9d8429067ba6a5d6e2d050027502c95fc17add23438a998cb8",
+    "loadBulkElements": 16,
+    "mutationBulkElements": 4,
+    "warmupCycles": 1,
+    "cyclesPerWindow": 2,
+    "windows": [
+      "baseline-a",
+      "instrumented-a",
+      "instrumented-b",
+      "baseline-b"
+    ],
+    "operations": [
+      "ADD",
+      "UPDATE",
+      "REMOVE",
+      "ADD_ALL",
+      "UPDATE_ALL",
+      "REMOVE_ALL",
+      "INDEX_DROP",
+      "INDEX_CREATE",
+      "GET",
+      "QUERY"
+    ],
+    "clientConcurrency": 1,
+    "arrival": "completion-paced-closed-loop",
+    "firstCycle": 0,
+    "encodedKeyBytes": 4
+  },
+  "application": {
+    "schema": "semantic-schema",
+    "codec": "semantic-codec",
+    "codecVersion": 1,
+    "storageIdentity": "performance-store",
+    "planner": "FORCE_SCAN",
+    "snapshot": {
+      "queueCapacity": 31,
+      "maxBatchSize": 16,
+      "maxWaitNanos": 1234567
+    },
+    "maxDocuments": 1024,
+    "maxBulkElements": 16,
+    "maxEncodedKeyBytes": 1024,
+    "maxEncodedDocumentBytes": 4096,
+    "checkpointWalBytes": 33554432,
+    "maxRetainedBytes": 134217728,
+    "maxDerivedStateBytes": 4194304
+  },
+  "replicationBounds": {
+    "maxFrameBytes": 1048576,
+    "maxEntriesPerAppend": 16,
+    "maxInFlightPerPeer": 4,
+    "maxPendingClientOperations": 4,
+    "maxRetryAttempts": 2,
+    "requestTimeoutMillis": 1200,
+    "retryBackoffMillis": 25,
+    "snapshotChunkBytes": 4096,
+    "maxRetainedLogBytes": 67108864,
+    "maxSnapshotStagingBytes": 67108864
+  },
+  "automaticPolicy": {
+    "heartbeatIntervalMillis": 1200,
+    "minElectionTimeoutMillis": 3600,
+    "maxElectionTimeoutMillis": 6000,
+    "operationTimeoutMillis": 9600,
+    "applyTo": "all-three-voters"
+  },
+  "javaMajor": 21,
+  "jvmArguments": [
+    "-Xms64m",
+    "-Xmx512m",
+    "-XX:+UseG1GC",
+    "-XX:ActiveProcessorCount=2"
+  ],
+  "failover": {
+    "initialCalls": [
+      "addAll",
+      "read"
+    ],
+    "concurrentWave": [
+      "addAll",
+      "read",
+      "addAll",
+      "read"
+    ],
+    "progressPairs": 4,
+    "finalReadAttempts": 4,
+    "bulkDocuments": 2,
+    "historyOperationLimit": 24,
+    "historySearchStates": 100000,
+    "fault": "idle-leader-SIGKILL",
+    "rejoin": "same-retained-authority",
+    "availabilityReasons": [
+      "NOT_LEADER",
+      "NOT_READY",
+      "QUORUM_UNAVAILABLE",
+      "STALE_EPOCH",
+      "DEADLINE_EXCEEDED"
+    ]
+  },
+  "budgets": {
+    "stages": [
+      {
+        "name": "preparation",
+        "seconds": 90
+      },
+      {
+        "name": "published-v4.4-local",
+        "seconds": 150
+      },
+      {
+        "name": "published-v5.0-configured",
+        "seconds": 150
+      },
+      {
+        "name": "candidate-v5.1-automatic",
+        "seconds": 150
+      },
+      {
+        "name": "failover",
+        "seconds": 180
+      },
+      {
+        "name": "validation",
+        "seconds": 120
+      },
+      {
+        "name": "cleanup",
+        "seconds": 60
+      }
+    ],
+    "wholeSeconds": 900,
+    "healthyStartupWarmupSeconds": 30,
+    "windowSeconds": 30,
+    "auxiliaryBarriersPerGroup": 8,
+    "activationRecoverySlotsPerGroup": 64,
+    "logicalSlotsPerGroup": 192
+  },
+  "encodingLimits": {
+    "documentBytes": 256,
+    "payloadBytes": 2048,
+    "entryAcceptProofBytes": 16384
+  },
+  "evidenceBounds": {
+    "expandedBytes": 1073741824,
+    "compressedInputBytes": 1073741824,
+    "files": 4000,
+    "memberBytes": 67108864,
+    "responseBytes": 4194304,
+    "tracesAndSamplesBytes": 536870912
+  },
+  "observations": {
+    "sampleIntervalMillis": 1000,
+    "boundarySamples": true,
+    "instrumentedWindows": [
+      "instrumented-a",
+      "instrumented-b"
+    ],
+    "essentialCorrectnessAlwaysOn": true,
+    "outcomes": [
+      "SUCCESS",
+      "NOT_SUBMITTED",
+      "INDETERMINATE",
+      "PENDING",
+      "CANCELLED",
+      "NOT_APPLICABLE",
+      "VALIDATION_FAILURE"
+    ],
+    "percentile": "nearest-rank",
+    "zeroDuration": "retain",
+    "timedOut": "additional-reason"
+  },
+  "publishedControls": {
+    "schema": "gse-v51-published-controls-v1",
+    "v50ReleaseCommit": "e6afb5349c018fe163d4938d7637a4de8854d4ea",
+    "artifacts": [
+      {
+        "artifact": "general-search-engine",
+        "version": "4.4.0",
+        "sha256": "0219af2998e1f6f782443097b8b4b8d792e45da56535b0c45b1c9fff77dd50e5"
+      },
+      {
+        "artifact": "general-search-engine",
+        "version": "5.0.0",
+        "sha256": "cd3a60c158db5f111ebcb9f26b4823ad2dbeb3081f21e80f8af8ca120f2954ac"
+      },
+      {
+        "artifact": "general-search-engine-replication",
+        "version": "5.0.0",
+        "sha256": "66463c3ac6e531616363eaca3ec9d891865ce8b9e54ba0c707c2fde2b1f106ff"
+      }
+    ]
+  }
+}

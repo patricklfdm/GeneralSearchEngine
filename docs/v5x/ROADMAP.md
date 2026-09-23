@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6 entry design; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A model implementation; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -66,9 +66,11 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945` (exact-master CI `35826641489`, all 19 jobs passed).
 [Full Phase 5](v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
 `15c8c68011e37370dfcd31ee855f91247c3771d8` (docs-only master CI `35830149418`;
-unchanged-runtime full CI `35826641489`). The current [Phase 6 entry candidate](v5.1/PHASE_6_ENTRY_PLAN.md)
-specifies local measurements, published controls and subsequent cloud qualification.
-Its [checklist](v5.1/PHASE_6_CHECKLIST.md) keeps design acceptance, implementation and paid execution separate.
+unchanged-runtime full CI `35826641489`). The [Phase 6 entry](v5.1/PHASE_6_ENTRY_PLAN.md)
+is accepted through PR #215 at `243434f6e1dc94422b57997b33eabb3cc1e8f64d`
+(docs-only master CI `35831892351`). The [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md)
+is the current 6A implementation candidate; full three-mode measurements and cloud
+qualification remain pending in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

@@ -6,7 +6,8 @@
 [Master CI 35830149418](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35830149418)
 passed the docs-only path; the unchanged runtime's full CI and original review below
 remain bound to `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`. This closes Phase 5 within
-its finite scope. The separate [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) is now a design candidate.
+its finite scope. The separate [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) was accepted
+through PR #215; its model foundation is the next implementation candidate.
 
 ## Exact source and acceptance chain
 
@@ -161,7 +162,7 @@ arbitrary schedules, indefinite endurance, host power-loss behavior, hostile-net
 safety, throughput/SLA targets, physical scaling or paid-cloud acceptance. Fixed
 three-voter membership, leader-only reads and published V4.4/V5.0 controls remain.
 
-The subsequent [Phase 6 entry candidate](PHASE_6_ENTRY_PLAN.md) follows this accepted handoff:
+The subsequent [accepted Phase 6 entry](PHASE_6_ENTRY_PLAN.md) follows this accepted handoff:
 
 1. Freeze corpus/seed, operation mix, offered rates, measurement windows/repetitions
    and fault schedule; distinguish automatic strong-read NO_OP cost from V5.0 reads.

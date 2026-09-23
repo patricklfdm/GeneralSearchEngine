@@ -48,6 +48,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 5 checklist](v5x/v5.1/PHASE_5_CHECKLIST.md)
 - [V5.1 Phase 6 performance and cloud entry](v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
 - [V5.1 Phase 6A local measurement contract](v5x/v5.1/PHASE_6_LOCAL_MEASUREMENT_PLAN.md)
+- [V5.1 Phase 6A rich model and published-control foundation](v5x/v5.1/PHASE_6_MODEL_FOUNDATION.md)
 - [V5.1 Phase 6 checklist](v5x/v5.1/PHASE_6_CHECKLIST.md)
 - [V5.1 Phase 4 current E01–E12 evidence status](v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)

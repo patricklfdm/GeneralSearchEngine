@@ -37,6 +37,12 @@ Each child starts only after `changes`, checks out source, uses the same pinned
 Temurin Java 21 setup/cache, and runs `./mvnw -f reactor/pom.xml package`, including
 all reactor tests. `--skip-build` gates therefore have local JARs, test classes and
 fresh executed Surefire reports. No child downloads another child's build outputs.
+Phase 6A adds its rich-model/control qualification inside the existing foundation
+command, retained under that command's `rich-workload` subdirectory. It compiles
+against three isolated core JARs and runs only the published V4.4 semantic consumer;
+full performance runtime qualification is still pending. Gate and artifact counts
+below are unchanged.
+
 Shared Python helpers do not share process/evidence state: every gate creates its
 own workspace and compiles its own public consumer/observer when required.
 

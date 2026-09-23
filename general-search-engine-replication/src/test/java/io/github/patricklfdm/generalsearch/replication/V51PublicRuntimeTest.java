@@ -126,7 +126,8 @@ class V51PublicRuntimeTest {
             barrier(leader,()->assertTrue(leader.explain(request,2).isPresent()));barrier(leader,leader::metrics);barrier(leader,()->assertEquals(9,leader.currentSequence()));
             assertSame(TEXT,leader.textField("value"));assertSame(ID,leader.field("id",Integer.class));
             var business=new IllegalArgumentException("query sentinel");assertSame(business,assertThrows(IllegalArgumentException.class,()->leader.search(d->{throw business;})));
-            Path target=root.resolve("backup");leader.checkpoint().join();assertEquals(9,leader.durabilityMetrics().checkpointSequence());
+            // Background snapshots may still occupy the inactive generation until the durable floor retires it.
+            Path target=root.resolve("backup");V51CheckpointAwait.await(leader::checkpoint);assertEquals(9,leader.durabilityMetrics().checkpointSequence());
             leader.backup(new DurableBackupRequest(target,1<<20)).join();
             var state=rich().readDurableBackup(target,new DurableVerificationConfig<>("fixture-store","fixture-schema",new Codec(),1,1024,65536,10000),1<<20);
             assertEquals(9,state.sequence());assertEquals(List.of(2,4),state.documents().stream().map(Doc::id).toList());
