@@ -5,9 +5,10 @@
 all 19 jobs passed). The original schedule below remains the Batch A record.
 [Batch B combined lifecycle](PHASE_5_COMBINED_LIFECYCLE.md) is accepted through
 PR #213 at `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`, exact-master CI `35826641489`.
-The current [Batch C review](PHASE_5_ACCEPTANCE.md) reconciles both batches and
-resource evidence. The [checklist](PHASE_5_CHECKLIST.md) leaves full Phase 5 protected
-acceptance pending this review's merge; Phase 6/cloud/release stay separate.
+The [Batch C review](PHASE_5_ACCEPTANCE.md) and full Phase 5 were accepted through
+PR #214 at `15c8c68011e37370dfcd31ee855f91247c3771d8`, docs-only CI `35830149418`.
+The [checklist](PHASE_5_CHECKLIST.md) records completion; the separate
+[Phase 6 entry](PHASE_6_ENTRY_PLAN.md) is now a candidate.
 
 ## Accepted starting point
 
@@ -61,8 +62,8 @@ an endurance benchmark or proof about OS-level exhaustion.
   local/CI gates, record protected Phase 5 acceptance and then propose Phase 6 entry.
 
 The linked Batch A/B records retain their original local evidence separately from
-protected acceptance. Batch C's [review](PHASE_5_ACCEPTANCE.md) is now prepared for
-protected acceptance. No API,
+protected acceptance. Batch C's [review](PHASE_5_ACCEPTANCE.md) is accepted through
+PR #214. No API,
 authority-format, membership, follower-read or paid-cloud behavior changes are
 included. If a concrete production fault is found, retain its failing trace and
 make the smallest regression-backed correction within this contract.

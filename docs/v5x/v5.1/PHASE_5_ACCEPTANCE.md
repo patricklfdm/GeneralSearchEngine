@@ -1,8 +1,12 @@
 # V5.1 Phase 5C: hardening acceptance and resource reconciliation
 
-**Status:** evidence reconciliation complete for review; protected acceptance of
-this document is pending. Phase 5A and 5B are accepted. Merging this review closes
-Phase 5 within the finite scope below; Phase 6 requires a separate entry contract.
+**Status:** full Phase 5 accepted through
+[PR #214](https://github.com/patricklfdm/GeneralSearchEngine/pull/214) at
+`15c8c68011e37370dfcd31ee855f91247c3771d8`.
+[Master CI 35830149418](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35830149418)
+passed the docs-only path; the unchanged runtime's full CI and original review below
+remain bound to `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`. This closes Phase 5 within
+its finite scope. The separate [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) is now a design candidate.
 
 ## Exact source and acceptance chain
 
@@ -146,17 +150,18 @@ present replay found no additional failed evidence or required production change
 
 The local foundation output is `target/v51-foundation/run.3qTMEU/evidence`;
 review logs and `docs-validation.json` are under `target/v51-phase5-acceptance/`.
-These checks support this review and do not manufacture acceptance of its future merge.
+These checks supported the review; the subsequent protected acceptance is recorded
+at the top and does not relabel the original runtime measurement source.
 
 ## Acceptance boundary and next entry
 
-Phase 5's finite combined-fault and resource obligations are reconciled. Protected
-acceptance of this document completes that scope. It does not establish exhaustive
+Phase 5's finite combined-fault and resource obligations are reconciled and accepted
+through PR #214. It does not establish exhaustive
 arbitrary schedules, indefinite endurance, host power-loss behavior, hostile-network
 safety, throughput/SLA targets, physical scaling or paid-cloud acceptance. Fixed
 three-voter membership, leader-only reads and published V4.4/V5.0 controls remain.
 
-After this review merges, the next batch should propose a **Phase 6 entry plan**:
+The subsequent [Phase 6 entry candidate](PHASE_6_ENTRY_PLAN.md) follows this accepted handoff:
 
 1. Freeze corpus/seed, operation mix, offered rates, measurement windows/repetitions
    and fault schedule; distinguish automatic strong-read NO_OP cost from V5.0 reads.

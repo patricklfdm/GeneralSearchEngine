@@ -55,9 +55,11 @@ PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `358
 `04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI `35818964327`, all 19 jobs passed).
 [Phase 5B](docs/v5x/v5.1/PHASE_5_COMBINED_LIFECYCLE.md) is accepted through PR #213 at
 `fc1feca4dee6ee346e45d3afb22c4df9b9e0d945` (exact-master CI `35826641489`, all 19 jobs passed).
-[Phase 5C reconciliation](docs/v5x/v5.1/PHASE_5_ACCEPTANCE.md) reviews the seven combined-fault
-cases and supporting resource evidence. Full Phase 5 protected acceptance awaits this
-review's merge; the [checklist](docs/v5x/v5.1/PHASE_5_CHECKLIST.md) keeps Phase 6 design and cloud entry separate.
+[Full Phase 5](docs/v5x/v5.1/PHASE_5_ACCEPTANCE.md) is accepted through PR #214 at
+`15c8c68011e37370dfcd31ee855f91247c3771d8` (docs-only master CI `35830149418`;
+unchanged-runtime full CI `35826641489`). The current [Phase 6 entry candidate](docs/v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
+specifies local measurements, published controls and subsequent cloud qualification.
+Its [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md) keeps design acceptance, implementation and paid execution separate.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
