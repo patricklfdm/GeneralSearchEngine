@@ -28,8 +28,10 @@ The [Phase 6 entry](v5.1/PHASE_6_ENTRY_PLAN.md) and
 PR #215, master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, docs CI `35831892351`.
 The current [rich model foundation](v5.1/PHASE_6_MODEL_FOUNDATION.md) implements the
 closed local plan, independent rich prefix decoder and actual published V4.4 parity.
-Next, complete three-mode measured runtime adapters and the small automatic failover
-history under the [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md). Full 6A is still pending;
+It is accepted through PR #216, master `bcac615aeef93dadcab6636162a86ce2156e5515`, exact-master full CI `35841378072`.
+The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORMANCE.md) adds the three-mode
+measurement gate and bounded automatic SIGKILL/rejoin history. Review its exact-source
+full CI before accepting 6A under the [checklist](v5.1/PHASE_6_CHECKLIST.md);
 cloud parameters need separate qualification and paid execution remains user-triggered.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

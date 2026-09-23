@@ -227,8 +227,8 @@ Required negative families, including mutations with recomputed outer checksums:
 
 Materialize the plan/schema under V5.1, implement both local automatic groups and
 both published controls, exercise the independent negatives and integrate a bounded
-`verify-v51-phase6-performance.sh` gate with failure uploads. That filename is a
-planned deliverable, not an existing command. Report exact JDK/source/artifact hashes,
+`verify-v51-phase6-performance.sh` gate with failure uploads. The [runtime candidate](PHASE_6_LOCAL_PERFORMANCE.md) now supplies this command;
+its protected acceptance is tracked separately from this contract. Report exact JDK/source/artifact hashes,
 all failed schedules and observed duration/resource peaks; keep test assets out of
 production JARs. Preserve existing V5.0 plans and public regression gates.
 

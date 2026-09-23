@@ -149,7 +149,7 @@ class V51AutomaticStoreTest {
         }
     }
     @Test void ambiguousWriteOrForceFailureStopsAllFurtherAuthorityUse() throws Exception {
-        for (String cut : List.of("PROMISE_BEFORE_WRITE", "PROMISE_WRITE_CHUNK", "PROMISE_AFTER_WRITE", "PROMISE_AFTER_FORCE", "PROMISE_BEFORE_ACK")) {
+        for (String cut : List.of("PROMISE_BEFORE_WRITE", "PROMISE_WRITE_CHUNK", "PROMISE_AFTER_WRITE", "PROMISE_BEFORE_FORCE", "PROMISE_AFTER_FORCE", "PROMISE_BEFORE_ACK")) {
             byte[] original = Files.readAllBytes(node.resolve("promises.gsr"));
             try (var store = AutomaticStore.open(node, manifest, "node-1", ReplicationBounds.defaults(), new AutomaticStore.Faults() {
                 @Override public void at(String stage) throws IOException { if (stage.equals(cut)) throw new IOException("injected " + stage); }

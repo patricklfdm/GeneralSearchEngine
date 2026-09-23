@@ -440,6 +440,7 @@ final class AutomaticStore implements AutoCloseable {
                 }
                 faults.at(name + "_AFTER_WRITE");
             }
+            faults.at(name + "_BEFORE_FORCE");
             channel.force(true); faults.at(name + "_AFTER_FORCE");
             faults.at(name + "_BEFORE_ACK");
             if (bytes != null) retainedBytes += bytes.length;

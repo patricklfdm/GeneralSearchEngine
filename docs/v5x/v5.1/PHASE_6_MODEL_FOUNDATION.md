@@ -1,6 +1,6 @@
 # V5.1 Phase 6A: rich model and published control foundation
 
-**Status:** implementation candidate, awaiting protected full CI and review.
+**Status:** accepted through PR #216, master `bcac615aeef93dadcab6636162a86ce2156e5515`, exact-master full CI `35841378072`.
 The [Phase 6 entry](PHASE_6_ENTRY_PLAN.md) was accepted through PR #215 at
 `243434f6e1dc94422b57997b33eabb3cc1e8f64d`; its master CI `35831892351` was
 correctly documentation-only. Full unchanged-runtime evidence remains Phase 5's
@@ -179,9 +179,10 @@ five seconds; actual CI scheduling and JDK timings are separate observations.
   `target/v51-performance-foundation/dev-1/receipt.json` and `control.stderr`.
   It is not a passing measurement or a discarded failed performance schedule.
 
-Production/runtime code and old protocol/history validators are unchanged. Local
-checks used existing packaged candidate artifacts; exact-source protected full CI
-for this implementation candidate is still required.
+At the model-foundation boundary, production/runtime code and old protocol/history
+validators were unchanged. Protected full CI for this foundation passed in
+`35841378072`; the subsequent [runtime candidate](PHASE_6_LOCAL_PERFORMANCE.md) has
+its own local validation and protected acceptance boundary.
 
 ## Next 6A implementation
 

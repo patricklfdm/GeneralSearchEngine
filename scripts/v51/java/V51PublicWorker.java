@@ -240,8 +240,15 @@ public final class V51PublicWorker {
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
         if(Files.exists(root.resolve("lifecycle-evidence")))io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.diagnostics=V51PublicWorker::queues;
-        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")))
-            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
+        if(args.length>2&&args[2].equals("performance-small")) {
+            var method=Class.forName("io.github.patricklfdm.generalsearch.replication.V51PerformanceObserver").getMethod("diagnostics",Object.class);
+            io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.diagnostics=engine->{
+                try {@SuppressWarnings("unchecked") var value=(Map<String,Object>)method.invoke(null,engine);return value;}
+                catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
+            };
+        }
+        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||args[2].equals("performance-small")))
+            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("performance-small")?"V51SmallPerformanceConsumer":args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);
     }
 }

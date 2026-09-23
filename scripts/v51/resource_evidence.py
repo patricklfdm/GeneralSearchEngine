@@ -200,4 +200,8 @@ def internal_claim(result,report,request,total):
             need(result['afterStatus']['promiseCount']==report['promiseCount'] and result['afterStatus']['promisedEpoch']==report['promisedEpoch'],'exact retry changed promise')
         delta={k:result['eventsAfter'].get(k,0)-result['eventsBefore'].get(k,0) for k in set(result['eventsAfter'])|set(result['eventsBefore'])}
         delta={k:v for k,v in delta.items() if v}
-        need(delta==({'PROMISE_AFTER_FORCE':1,'PROMISE_BEFORE_ACK':1} if case in ('promise-count','retained-bytes') else {}),'rejection wrote/deleted authority')
+        # These two fixtures reject a new promise, then retry the exact durable
+        # promise. Retry re-forces without appending; require the full force pair
+        # and ACK observation, while still rejecting every write/delete event.
+        retry={'PROMISE_BEFORE_FORCE':1,'PROMISE_AFTER_FORCE':1,'PROMISE_BEFORE_ACK':1}
+        need(delta==(retry if case in ('promise-count','retained-bytes') else {}),'rejection wrote/deleted authority or retry force evidence differs')

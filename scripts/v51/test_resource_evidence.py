@@ -48,12 +48,53 @@ class ResourceEvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'wrote/deleted'):e.internal_claim(changed,{},dict(index=1000001),0)
         changed=copy.deepcopy(row);changed['rejection']['reason']='STORAGE_FAILURE'
         with self.assertRaisesRegex(ValueError,'misclassified'):e.internal_claim(changed,{},dict(index=1000001),0)
-    def test_exact_retry_may_reforce_but_never_append(self):
+    def promise_retry(self,case):
         report=dict(promiseCount=10000,promisedEpoch=29996)
-        row=dict(case='promise-count',limit=10000,rejection=dict(reason='CAPACITY_EXCEEDED'),afterStatus=report,eventsBefore={},eventsAfter=dict(PROMISE_AFTER_FORCE=1,PROMISE_BEFORE_ACK=1))
-        e.internal_claim(row,report,dict(epoch=29999),0)
-        row['eventsAfter']['PROMISE_AFTER_WRITE']=1
-        with self.assertRaisesRegex(ValueError,'wrote/deleted'):e.internal_claim(row,report,dict(epoch=29999),0)
+        # Keep pre-existing events: only the rejected-operation/retry delta counts.
+        before=dict(PROMISE_BEFORE_WRITE=4,PROMISE_AFTER_WRITE=4,PROMISE_BEFORE_FORCE=4,
+                    PROMISE_AFTER_FORCE=4,PROMISE_BEFORE_ACK=4)
+        after=dict(before,PROMISE_BEFORE_FORCE=5,PROMISE_AFTER_FORCE=5,PROMISE_BEFORE_ACK=5)
+        row=dict(case=case,limit=10000 if case=='promise-count' else 800,
+                 rejection=dict(reason='CAPACITY_EXCEEDED'),afterStatus=report,
+                 eventsBefore=before,eventsAfter=after)
+        return row,report,dict(epoch=29999,bytes=100),800
+
+    def test_exact_retry_may_reforce_but_never_append(self):
+        for case in ('promise-count','retained-bytes'):
+            with self.subTest(case=case):
+                row,report,request,total=self.promise_retry(case)
+                e.internal_claim(row,report,request,total)
+                row['eventsAfter']['PROMISE_AFTER_WRITE']+=1
+                with self.assertRaisesRegex(ValueError,'wrote/deleted'):
+                    e.internal_claim(row,report,request,total)
+
+    def test_exact_retry_requires_one_before_force_after_force_and_ack(self):
+        for case in ('promise-count','retained-bytes'):
+            for event in ('PROMISE_BEFORE_FORCE','PROMISE_AFTER_FORCE','PROMISE_BEFORE_ACK'):
+                for delta in (0,2):
+                    row,report,request,total=self.promise_retry(case)
+                    row['eventsAfter'][event]=row['eventsBefore'][event]+delta
+                    with self.subTest(case=case,event=event,delta=delta),self.assertRaisesRegex(ValueError,'retry force'):
+                        e.internal_claim(row,report,request,total)
+
+    def test_exact_retry_still_rejects_unrelated_force_write_or_cleanup(self):
+        for case in ('promise-count','retained-bytes'):
+            for event in ('ACCEPT_BEFORE_FORCE','PROOF_BEFORE_FORCE','PROMISE_BEFORE_WRITE','DELETE_AFTER_ROOT_TRUNCATE'):
+                row,report,request,total=self.promise_retry(case)
+                row['eventsAfter'][event]=row['eventsAfter'].get(event,0)+1
+                with self.subTest(case=case,event=event),self.assertRaisesRegex(ValueError,'wrote/deleted'):
+                    e.internal_claim(row,report,request,total)
+
+    def test_force_observation_is_not_ignored_for_nonretry_rejections(self):
+        for case,limit,request,total in (
+                ('entry-count',1000000,dict(index=1000001),0),
+                ('ancestry-count',1000000,dict(count=1000001),0),
+                ('transfer-staging',128<<10,dict(imageBytes=128<<10,receivedBytes=0),20000)):
+            row=dict(case=case,limit=limit,rejection=dict(reason='CAPACITY_EXCEEDED'),eventsBefore={},eventsAfter={})
+            e.internal_claim(row,{},request,total)
+            row['eventsAfter']['PROMISE_BEFORE_FORCE']=1
+            with self.subTest(case=case),self.assertRaisesRegex(ValueError,'wrote/deleted'):
+                e.internal_claim(row,{},request,total)
 
 class SnapshotOfferEvidenceTest(unittest.TestCase):
     def pair(self,size=32769):

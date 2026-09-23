@@ -74,8 +74,15 @@ public final class V51RichWorkload {
         }
         out.flush(); return bytes.toByteArray();
     }
+    private static void await(java.util.concurrent.CompletableFuture<Void> future, java.util.concurrent.atomic.AtomicLong completion) {
+        future.whenComplete((value,error)->completion.set(System.nanoTime())).join();
+    }
     public static Map<String,Object> operation(DurableSearchEngine<Integer,Doc> engine, Plan plan,
             String window, int cycle, String operation, int ordinal) throws IOException {
+        return operation(engine,plan,window,cycle,operation,ordinal,false);
+    }
+    public static Map<String,Object> operation(DurableSearchEngine<Integer,Doc> engine, Plan plan,
+            String window, int cycle, String operation, int ordinal, boolean measured) throws IOException {
         AdmissionJson.require(OPERATIONS.contains(operation), "workload operation");
         int count = operation.endsWith("_ALL") ? plan.number("mutationBulkElements") : 1;
         var keys = new ArrayList<Integer>(); var docs = new ArrayList<Doc>();
@@ -93,22 +100,36 @@ public final class V51RichWorkload {
         // These diagnostics do not issue currentSequence(), which is a strong read in automatic mode.
         row.put("beforeSequence", engine.durabilityMetrics().currentSequence());
         Object answer = null;
-        switch (operation) {
-            case "ADD" -> engine.add(docs.getFirst()).join();
-            case "UPDATE" -> engine.update(docs.getFirst()).join();
-            case "REMOVE" -> engine.remove(keys.getFirst()).join();
-            case "ADD_ALL" -> engine.addAll(docs).join();
-            case "UPDATE_ALL" -> engine.updateAll(docs).join();
-            case "REMOVE_ALL" -> engine.removeAll(keys).join();
-            case "INDEX_DROP" -> engine.dropIndex("category").join();
-            case "INDEX_CREATE" -> engine.createIndex(IndexDefinition.equality(CATEGORY)).join();
+        var completed = new java.util.concurrent.atomic.AtomicLong(Long.MIN_VALUE);
+        long started = System.nanoTime();
+        try { switch (operation) {
+            case "ADD" -> await(engine.add(docs.getFirst()), completed);
+            case "UPDATE" -> await(engine.update(docs.getFirst()), completed);
+            case "REMOVE" -> await(engine.remove(keys.getFirst()), completed);
+            case "ADD_ALL" -> await(engine.addAll(docs), completed);
+            case "UPDATE_ALL" -> await(engine.updateAll(docs), completed);
+            case "REMOVE_ALL" -> await(engine.removeAll(keys), completed);
+            case "INDEX_DROP" -> await(engine.dropIndex("category"), completed);
+            case "INDEX_CREATE" -> await(engine.createIndex(IndexDefinition.equality(CATEGORY)), completed);
             case "GET" -> answer = engine.get(keys.getFirst()).toString();
             case "QUERY" -> answer = engine.search(Query.and(Query.eq(CATEGORY, "guide"), Query.term(TEXT, "java")))
                     .stream().map(Doc::id).toList();
             default -> throw new IllegalArgumentException(operation);
         }
+        } catch (RuntimeException error) {
+            if (!measured) throw error;
+            Throwable cause = error;
+            while (cause instanceof java.util.concurrent.CompletionException && cause.getCause() != null) cause = cause.getCause();
+            row.put("failure", cause.toString());
+            row.put("outcome", "VALIDATION_FAILURE");
+            try {row.put("outcome",cause.getClass().getMethod("outcome").invoke(cause).toString());row.put("reasonCode",cause.getClass().getMethod("reason").invoke(cause).toString());}
+            catch(ReflectiveOperationException ignored){/* Published core errors have no replication classification. */}
+            row.put("timedOut",cause instanceof java.util.concurrent.TimeoutException || "DEADLINE_EXCEEDED".equals(row.get("reasonCode")));
+        } finally {
+            if (measured) { row.put("apiStartNanos", started); row.put("apiEndNanos", completed.get()==Long.MIN_VALUE?System.nanoTime():completed.get()); }
+        }
         row.put("afterSequence", engine.durabilityMetrics().currentSequence());
-        row.put("answer", answer); row.put("answerSha256", digest(answer)); row.put("outcome", "SUCCESS");
+        row.put("answer", answer); row.put("answerSha256", digest(answer)); row.putIfAbsent("outcome", "SUCCESS");
         return row;
     }
 }

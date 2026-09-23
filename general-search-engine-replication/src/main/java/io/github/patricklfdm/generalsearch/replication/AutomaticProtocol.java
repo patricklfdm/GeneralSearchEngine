@@ -45,6 +45,7 @@ final class AutomaticProtocol implements AutoCloseable {
     private final Record manifest;
     private final String local;
     private final List<String> peers;
+    private final java.util.function.BiConsumer<String,Map<String,Object>> observer;
     private final ReplicationBounds bounds;
     private final AutomaticLeadershipPolicy policy;
     private final LongSupplier randomness;
@@ -67,6 +68,11 @@ final class AutomaticProtocol implements AutoCloseable {
             campaignDeadline=Long.MAX_VALUE,heartbeatSequence,progress,lastHeartbeat,lastStage,lastProgress;
 
     AutomaticProtocol(AutomaticStore store,LongSupplier randomness,Supplier<UUID> incarnations) {
+        this(store,randomness,incarnations,null);
+    }
+    AutomaticProtocol(AutomaticStore store,LongSupplier randomness,Supplier<UUID> incarnations,
+            java.util.function.BiConsumer<String,Map<String,Object>> observer) {
+        this.observer=observer;
         this.store=Objects.requireNonNull(store);this.randomness=Objects.requireNonNull(randomness);
         this.incarnations=Objects.requireNonNull(incarnations);manifest=store.manifest();bounds=store.bounds();
         policy=store.leadershipPolicy();local=text(store.status(),"node");
@@ -93,6 +99,7 @@ final class AutomaticProtocol implements AutoCloseable {
     private void armElection() {
         long width=(long)policy.maxElectionTimeoutMillis()-policy.minElectionTimeoutMillis()+1;
         electionAt=after(policy.minElectionTimeoutMillis()+Math.floorMod(randomness.getAsLong(),width));
+        if(observer!=null)observer.accept("ELECTION_TIMER_ARMED",Map.of("epoch",epoch(fence)));
     }
     synchronized List<Action> drain() {var result=List.copyOf(actions);actions.clear();return result;}
     synchronized Record promise() {return durablePromise;}
@@ -174,6 +181,7 @@ final class AutomaticProtocol implements AutoCloseable {
             campaign=decode(encode("PROMISE",Map.of("manifestDigest",manifest.digest(),"epoch",value,"proposer",local,"incarnation",incarnation)),"PROMISE");
             fence=campaign;maxEpoch=value;state=CANDIDATE;progress=1;campaignDeadline=after(policy.operationTimeoutMillis());
             electionAt=Long.MAX_VALUE;heartbeatAt=after(policy.heartbeatIntervalMillis());
+            if(observer!=null)observer.accept("CAMPAIGN_BEGIN",Map.of("ballot",b64(campaign.bytes())));
             Record expected=campaign;
             withImage(()->{
                 if(!same(campaign,expected))return;
@@ -286,6 +294,7 @@ final class AutomaticProtocol implements AutoCloseable {
                     need(response.sender().equals(basis.record().value().get("node")),"basis responder binding");
                     capacity((long)ownBasis.image().encoded().bytes().length+basis.image().encoded().bytes().length<=bounds.maxSnapshotStagingBytes(),"prepare quorum image bound");
                     selection=store.select(List.of(ownBasis,basis));quorumPeer=response.sender();
+                    if(observer!=null)observer.accept("PROMISE_QUORUM",Map.of("selected",b64(selection.record().bytes())));
                     exchanges.entrySet().removeIf(e->e.getValue().message.kind()==Kind.PREPARE);
                     if(!adopt(selection)) {abandon(CAPACITY_EXCEEDED);return;}
                     state=RECOVERING;progress();
