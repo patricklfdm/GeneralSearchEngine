@@ -1,8 +1,11 @@
 # V5.1 Phase 5B: quarantine, pressure and recovery lifecycle
 
-**Status:** complete four-case local gate passed on accepted Batch A source
-`04d12316bd6971ac477cfcb08c5073b2252ecf2a` plus this working-tree implementation.
-Protected Batch B acceptance and Phase 5C remain pending; full Phase 5 and Phase 6
+**Status:** Batch B accepted through PR #213 at master
+`fc1feca4dee6ee346e45d3afb22c4df9b9e0d945`,
+[exact-master CI 35826641489](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35826641489),
+all 19 jobs passed. The original local record below remains bound to its Batch A
+base plus working-tree implementation. [Phase 5C](PHASE_5_ACCEPTANCE.md) reconciles
+the exact-master evidence; full Phase 5 protected acceptance and Phase 6 entry
 remain separate. See the [checklist](PHASE_5_CHECKLIST.md).
 
 ## Fixed scenarios (before execution)
@@ -103,5 +106,9 @@ freshness-guard refusal is under `run.kHXxgv/evidence`. The corrected targeted
 ACCEPT run under `dev-torn-accept-v2` passed before the final full matrix. None of
 these development attempts is relabelled as complete qualification.
 
-Protected PR/master CI must still accept this batch. Phase 5C must reconcile the
-complete hardening matrix and bounds before full Phase 5 acceptance or Phase 6 entry.
+The protected acceptance at the top supersedes this original pending Batch B record.
+PR #213 also corrected the inherited post-crash concurrent-wave driver; its
+[classified, bounded progress rule](PHASE_4_PUBLIC_FAULTS.md) preserves every
+intermediate outcome and never replays an uncertain write. The exact-master
+[Phase 5C review](PHASE_5_ACCEPTANCE.md) covers that correction and the complete
+hardening/resource evidence before full Phase 5 acceptance or Phase 6 entry.
