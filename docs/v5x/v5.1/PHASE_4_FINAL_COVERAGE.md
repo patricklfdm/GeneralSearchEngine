@@ -1,9 +1,9 @@
 # V5.1 Phase 4P: final coverage reconciliation
 
-**Status:** local qualification passed. Batches A–O are
-accepted through PR #207, master `1a043615ec4a8de5b7f110d999c5f7268e5e165c`,
-[exact-master CI 35794875603](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35794875603).
-Protected Batch P and full Phase 4 acceptance remain pending.
+**Status:** Batch P and full Phase 4 accepted through PR #208, master
+`b0d586f32b01f59aadfa940d7f778a8a2b5ea078`,
+[exact-master CI 35802660895](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35802660895)
+(all 13 jobs passed).
 
 This reconciles the accepted [E01–E12 matrix](TESTING_AND_EVIDENCE.md#scenario-matrix).
 It adds missing witnesses without changing the protocol, public API, resource limits,
@@ -114,12 +114,14 @@ of every core builder or query factory.
 | Valid old clients / formats | Existing external API compatibility lane and hash-pinned published controls; original 1.0/1.1 fixture suites | Separate compatibility/control lane, unchanged |
 | Absent-target bootstrap; partial decision / ambiguous cleanup | A process halt/kill/resume and deletion interruption; `cleanupRejectsUnknownMembersLiveOwnersAndAmbiguousDecision`, `partialCommitRowIsNotCleanupAuthorityButExactResumeCanCompleteIt` | External lifecycle plus internal public offline API fixtures |
 
-## Acceptance still required
+## Protected acceptance and handoff
 
-After this batch's local gates pass, the protected full CI on the submitted source
-must pass. Record the resulting merge SHA and exact-master run, review all E-row
-layer boundaries above, then make an explicit Phase 4 acceptance/Phase 5 entry
-record. A locally generated receipt or this coverage table cannot approve itself.
+PR #208 merged the final coverage at `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`. The exact-master
+push CI `35802660895` passed all 13 jobs, including Required and the full public
+lifecycle, protocol/reclamation and foundation/admission lanes. The final heartbeat
+and disk-loss gate executed successfully. This closes the named Phase 4 coverage
+with the explicit public/internal boundaries above; it does not prove all possible
+fault schedules. The user subsequently entered [Phase 5A](PHASE_5_ENTRY_PLAN.md).
 
 ## Local validation
 

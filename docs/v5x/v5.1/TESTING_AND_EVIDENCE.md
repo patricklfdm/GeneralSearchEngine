@@ -61,6 +61,12 @@ Phase 4N is accepted through PR #206, exact-master CI `35779031221`.
 [Phase 4O](PHASE_4_LIFECYCLE_HARDENING.md) adds five public pinned-recovery,
 partial-I/O and repeated-timeout cases, with read-only internal counter samples and
 explicit independent rejection of the deliberately damaged minority authority.
+Phase 4O is accepted through PR #207, exact-master CI `35794875603`.
+[Phase 4P and full Phase 4](PHASE_4_FINAL_COVERAGE.md) are accepted through PR #208,
+master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895`.
+[Phase 5A](PHASE_5_COMBINED_RECOVERY.md) adds three rounds per combined-fault case,
+retained process/archive identity and bounded resource accounting; full Phase 5
+acceptance remains open.
 
 ## Independent foundation before production
 
@@ -138,7 +144,7 @@ success is never reported as completion of the implementation column.
 The [Phase 4 final coverage record](PHASE_4_FINAL_COVERAGE.md) maps these accepted
 rows to exact gates, internal fixtures and public methods, including crossed
 heartbeats, unavailable authority and verified-cut import into a new group.
-It records layer boundaries and pending protected acceptance without changing this matrix.
+It records the accepted layer boundaries without changing this matrix.
 
 ## Process and public-consumer requirements
 

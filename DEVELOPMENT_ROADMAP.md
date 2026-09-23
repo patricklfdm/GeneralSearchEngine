@@ -49,9 +49,11 @@ at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
 at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
 [Phase 4O](docs/v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md) is accepted through PR #207,
 master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
-[Phase 4P](docs/v5x/v5.1/PHASE_4_FINAL_COVERAGE.md) adds locally qualified crossed
-heartbeats, lost-authority/new-group recovery and the final method/scenario/format
-map. Protected full Phase 4 acceptance remains pending.
+[Phase 4P and full Phase 4](docs/v5x/v5.1/PHASE_4_FINAL_COVERAGE.md) are accepted through
+PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`).
+The user entered [Phase 5A](docs/v5x/v5.1/PHASE_5_ENTRY_PLAN.md): combined partition, held
+acknowledgement and crash faults plus three retained whole-group restarts.
+[Hardening progress](docs/v5x/v5.1/PHASE_5_CHECKLIST.md) remains separate from full Phase 5 acceptance.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

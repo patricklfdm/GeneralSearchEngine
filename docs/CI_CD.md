@@ -399,3 +399,13 @@ The always-uploaded `v51-public-final-coverage-${{ github.sha }}` artifact retai
 `target/v51-final-coverage`, including failed attempts. All eleven required full-CI
 lanes, timeouts and docs-only routing stay unchanged. See the
 [final coverage record](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md).
+
+### V5.1 Phase 5A combined recovery
+
+The `v51-public-lifecycle` lane adds
+`scripts/verify-v51-phase5-hardening.sh --skip-build` after Phase 4 final coverage.
+Three combined-fault cases each keep the same group and disks across three rounds.
+The gate checks the private snapshot-rebuild regression prerequisite and public
+history/force/process/archive/resource evidence. The always-uploaded
+`v51-hardening-${{ github.sha }}` artifact retains `target/v51-hardening`, including
+failed rounds. The eleven full-CI required lanes and docs-only behavior are unchanged.

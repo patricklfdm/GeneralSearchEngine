@@ -12,12 +12,14 @@ on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 its [checklist](v5.1/PHASE_0_CHECKLIST.md) records current review/acceptance state.
 The integration record below retains the original boundary and validation history.
 
-**Current implementation handoff:** V5.1 Phase 4O is accepted through PR #207 at
-`1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
-[Phase 4P](v5.1/PHASE_4_FINAL_COVERAGE.md) supplies the final crossed-heartbeat and
-lost-authority/new-group witnesses plus method/scenario/compatibility reconciliation.
-Follow the [checklist](v5.1/PHASE_4_CHECKLIST.md), local evidence and protected final
-CI before making full Phase 4 acceptance. Phase 5/cloud/publication remain separate.
+**Current implementation handoff:** full V5.1 Phase 4 is accepted through PR #208 at
+`b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`, all 13 jobs passed).
+The [final Phase 4 review](v5.1/PHASE_4_FINAL_COVERAGE.md) preserves the E01–E12
+public/internal evidence boundaries. The user entered
+[Phase 5A combined recovery](v5.1/PHASE_5_ENTRY_PLAN.md); follow its fixed schedules,
+[implementation record](v5.1/PHASE_5_COMBINED_RECOVERY.md) and
+[checklist](v5.1/PHASE_5_CHECKLIST.md). Phase 5B/C and full acceptance remain open;
+Phase 6/cloud/publication remain separate.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

@@ -1,11 +1,10 @@
 # V5.1 Phase 4 current evidence status
 
-**Status:** Batches A–O accepted through PR #207 at master
-`1a043615ec4a8de5b7f110d999c5f7268e5e165c`, exact-master CI `35794875603`.
-[Batch P](PHASE_4_FINAL_COVERAGE.md) adds final public witnesses and the complete
-method/scenario/compatibility reconciliation; protected Phase 4 acceptance is pending.
-This is a coverage review, not a replacement for the accepted
-[scenario matrix](TESTING_AND_EVIDENCE.md#scenario-matrix) or a Phase 5 entry decision.
+**Status:** Batches A–P and full Phase 4 accepted through PR #208 at master
+`b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895` (13/13 jobs).
+[Final reconciliation](PHASE_4_FINAL_COVERAGE.md) maps the complete named public
+coverage and internal evidence boundaries without replacing the accepted
+[scenario matrix](TESTING_AND_EVIDENCE.md#scenario-matrix).
 The older Batch C coverage table remains its historical gap record.
 
 ## Reading the map
@@ -31,12 +30,12 @@ that distinction for impractically large public exhaustion schedules.
 | E11 resources | H payload/application/admission/no-quorum limits; K outbound/inbound reservations and slow force; L public retained/staging budgets plus internal fixed counters; M internal 32/16 mailbox boundaries and public completion admission; O three queued-timeout waves and three real network-timeout rounds with bounded samples and balanced reservations. | Mailbox saturation remains internal; O samples are finite, not arbitrary stalled-control accumulation, endurance or OS exhaustion. |
 | E12 compatibility/admission | A bootstrap/resume/cleanup; H mode/configuration/wire rejection; existing compatibility lanes and published controls. | [Bidirectional compatibility map](PHASE_4_FINAL_COVERAGE.md#compatibility-directions); P explicit decoder checks supplement H public rejection. Ambiguous cleanup remains an internal public-API fixture. |
 
-## Acceptance remaining
+## Accepted handoff
 
-1. Run Batch P and the affected shared-oracle/semantic regressions on the final source.
-2. Obtain protected full CI and record the merge SHA / exact-master run.
-3. Review the final E01–E12 layer boundaries and make the explicit Phase 4
-   acceptance decision before planning Phase 5. A batch merge alone is not that decision.
+The final source passed the local gates, protected PR CI and exact-master push CI.
+The E01–E12 layer boundaries above are retained at Phase 4 acceptance. The user
+entered [Phase 5A](PHASE_5_ENTRY_PLAN.md); combined faults and repeated recovery
+extend the evidence without reopening the accepted API/protocol contract.
 
 The accepted charter, V5.0 authority/release evidence, future follower reads,
 membership changes and paid-cloud authorization are unaffected.

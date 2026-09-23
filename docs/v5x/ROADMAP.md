@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4A–O accepted; Phase 4P locally qualified; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5A locally qualified; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -58,9 +58,11 @@ at `39332feb71f877d3cbd976631e8a26a9cf2f607c` (exact-master CI `35753082195`).
 at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
 [Phase 4O](v5.1/PHASE_4_LIFECYCLE_HARDENING.md) is accepted through PR #207,
 master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
-[Phase 4P](v5.1/PHASE_4_FINAL_COVERAGE.md) adds locally qualified crossed
-heartbeats, lost-authority/new-group recovery and the final method/scenario/format
-map. Protected full Phase 4 acceptance remains pending.
+[Phase 4P and full Phase 4](v5.1/PHASE_4_FINAL_COVERAGE.md) are accepted through
+PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`).
+The user entered [Phase 5A](v5.1/PHASE_5_ENTRY_PLAN.md): combined partition, held
+acknowledgement and crash faults plus three retained whole-group restarts.
+[Hardening progress](v5.1/PHASE_5_CHECKLIST.md) remains separate from full Phase 5 acceptance.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.
