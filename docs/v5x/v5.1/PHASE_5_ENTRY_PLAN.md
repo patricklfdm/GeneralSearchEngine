@@ -35,7 +35,10 @@ Fixtures keep the already admitted backpressure profile: four pending public cal
 and recovers but its sealed election timer is 600000–601200 ms. The other two use
 3600–6000 ms election timers. The test injects schedule events, not a production
 leader-selection mechanism. Pauses are bounded at 60 seconds, recovery reads have
-the existing four-attempt bound, and no write is silently retried.
+the existing four-attempt bound, and no write is silently retried. The
+[post-PR-220 recovery correction](PHASE_5_COMBINED_RECOVERY.md#post-pr-220-correction-a-recovered-read-does-not-lease-leadership)
+permits at most three explicitly recorded fresh writes after a restart; distinct
+keys and independent uncertain-outcome checks preserve every attempt.
 
 The whole history is bounded at 48 attempted operations / 100000 search states;
 the independent linearizability search fails if inconclusive. All physical chosen

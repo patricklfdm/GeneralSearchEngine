@@ -100,6 +100,48 @@ def sample(traces, observed, *, after=0, expected=None, manifest=None):
             need(proven and max(proven)>=indices[0], 'rejoined voter lacks proven round prefix')
 
 
+def recovery_writes(row, history, initial):
+    """Independently account for every recovery call, including chosen uncertainty."""
+    attempts=row['recoveryWrites'];calls={h['opId']:h for h in history}
+    need(1<=len(attempts)<=3 and len(calls)==len(history), 'recovery write attempt bound')
+    need(row['beginNanos']<row['recoveryBeginNanos']<row['endNanos'], 'recovery interval')
+    need(row['recoveredRead']==attempts[-1]['read'] and row['resumedWrite']==attempts[-1]['write'],
+         'recovery success identity')
+    final=calls[row['resumedWrite']]
+    phase=[h for h in history if row['recoveryBeginNanos']<h['startNanos']<=final['startNanos']]
+    expected=list(initial);uncertain=[];cursor=0;end=row['recoveryBeginNanos']
+    reasons={'NOT_LEADER','NOT_READY','QUORUM_UNAVAILABLE','STALE_EPOCH','DEADLINE_EXCEEDED'}
+    for ordinal,attempt in enumerate(attempts):
+        for read_attempt in range(4):
+            need(cursor<len(phase), 'missing recovery read')
+            read=phase[cursor];cursor+=1
+            need(read['kind']=='read' and end<read['startNanos']<read['endNanos']<row['endNanos'], 'recovery read order')
+            end=read['endNanos']
+            if read['outcome']=='SUCCESS':break
+            need(read['outcome']=='NOT_APPLICABLE' and read.get('reasonCode') in reasons, 'unexpected recovery read refusal')
+        else:raise ValueError('recovery read attempt bound')
+        need(read['opId']==attempt['read'] and
+             (read['documents']==expected or uncertain and read['documents']==expected+uncertain), 'recovery read projection')
+        expected=list(read['documents'])
+        need(cursor<len(phase), 'missing recovery write')
+        write=phase[cursor];cursor+=1
+        tag=row['number']*100+40+2*ordinal
+        docs=[dict(id=tag+i,value=f'tag-{tag+i}-'+'x'*512) for i in (0,1)]
+        need(write['opId']==attempt['write'] and write['kind']=='addAll' and write['documents']==docs and
+             all(write[k]==read[k] for k in ('node','pid','generation')) and
+             end<write['startNanos']<write['endNanos']<row['endNanos'], 'replayed/mismatched recovery write')
+        end=write['endNanos']
+        if ordinal==len(attempts)-1:
+            need(write['outcome']=='SUCCESS', 'recovery lacks successful fresh write');expected.extend(docs)
+        else:
+            need(write['outcome']=='NOT_SUBMITTED' and write.get('reasonCode') in reasons or
+                 write['outcome']=='INDETERMINATE' and write.get('reasonCode') in
+                 {'QUORUM_UNAVAILABLE','STALE_EPOCH','DEADLINE_EXCEEDED'}, 'unexpected recovery write refusal')
+            uncertain=docs if write['outcome']=='INDETERMINATE' else []
+    need(cursor==len(phase), 'undeclared recovery calls')
+    need(expected==row['expected'], 'recovery final projection')
+
+
 def validate(root, traces, history, receipt, starts, stops):
     root=Path(root); schedule=rounds(receipt); identities=processes(traces,starts,stops)
     manifest=sealed_schedule(root,'node-3'); calls={h['opId']:h for h in history}
@@ -130,6 +172,8 @@ def validate(root, traces, history, receipt, starts, stops):
         before=operation(row,'beforeRead','read'); recovered=operation(row,'recoveredRead','read')
         write=operation(row,'resumedWrite','addAll'); final=operation(row,'finalRead','read')
         if previous: need(before['documents']==previous, 'previous round acknowledged prefix lost')
+        initial=before['documents'] if receipt['case']=='whole-group-restart' else calls[row['majorityAfterWriteRead']]['documents']
+        recovery_writes(row,history,initial)
         need(recovered['endNanos']<write['startNanos']<write['endNanos']<final['startNanos']
              and final['documents']==row['expected'], 'recovered write/read cut changed')
         previous=row['expected']; sample(traces,row['drained'],after=final['endNanos'],expected=previous,manifest=manifest)
@@ -194,7 +238,7 @@ def validate(root, traces, history, receipt, starts, stops):
 
 
 def negatives(root,traces,history,receipt,starts,stops):
-    names=['missing-round','reordered-rounds','false-generation','overlapping-owner','borrowed-archive','missing-sample','missing-follower-proof','leaked-timer','lost-prior-prefix']
+    names=['missing-round','reordered-rounds','false-generation','overlapping-owner','borrowed-archive','missing-sample','missing-follower-proof','leaked-timer','lost-prior-prefix','missing-recovery-attempt','replayed-recovery-key','late-recovery-start','false-recovery-projection']
     names+=['false-minority-success'] if receipt['case']=='whole-group-restart' else ['missing-held-force','delivered-ack','false-held-success']
     result=[]
     for name in names:
@@ -212,6 +256,10 @@ def negatives(root,traces,history,receipt,starts,stops):
             value=r['rounds'][-1]['drained']['node-3'];value['status']['sample']['deadlinesQueue']=1
             next(x for x in t['node-3'] if x['event']=='LIFECYCLE_SAMPLE' and x['opId']==value['status']['opId'])['sample']['deadlinesQueue']=1
         elif name=='lost-prior-prefix': next(op for op in h if op['opId']==r['rounds'][1]['beforeRead'])['documents']=[]
+        elif name=='missing-recovery-attempt': r['rounds'][0]['recoveryWrites'].pop()
+        elif name=='replayed-recovery-key': next(op for op in h if op['opId']==r['rounds'][0]['resumedWrite'])['documents'][0]['id']=1400
+        elif name=='late-recovery-start': r['rounds'][0]['recoveryBeginNanos']=next(op for op in h if op['opId']==r['rounds'][0]['recoveredRead'])['endNanos']
+        elif name=='false-recovery-projection': r['rounds'][0]['expected']=[]
         elif name=='false-minority-success': next(op for op in h if op['opId']==r['rounds'][0]['denied'][0])['outcome']='SUCCESS'
         elif name=='missing-held-force':
             pause=r['rounds'][0]['pause']; node=r['rounds'][0]['oldLeader']

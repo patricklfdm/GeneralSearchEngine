@@ -51,8 +51,58 @@ class RepeatedGroup(final.Group):
         super().save(); save(self.root/'worker-stops.json',self.stops)
 
 
+class RecoveryGroup(RepeatedGroup):
+    """Phase 5A client schedule; shared lifecycle groups keep their original driver."""
+    def dispatch(self, worker, kind, **values):
+        need(len(self.history)<48, 'hardening history dispatch bound')
+        return worker.send(kind,**values)
+    def read(self, workers=None, *, uncertain=()):
+        # A strong read decides only this cut. It cannot lease the next write's epoch.
+        workers=self.workers if workers is None else workers
+        for _ in range(4):
+            node,active=fault.leader(workers)
+            result=self.dispatch(active,'read').result(timeout=35)
+            need(result is not None and result.get('kind')=='read', 'hardening read disconnected/mismatched')
+            if result['outcome']=='SUCCESS':
+                observed=result['documents']
+                need(observed==self.expected or uncertain and observed==self.expected+list(uncertain),
+                     'hardening recovery projection changed')
+                self.expected=list(observed)
+                return node,active
+            need(result['outcome']=='NOT_APPLICABLE' and result.get('reasonCode') in protocol.READ_REJECTIONS,
+                 'unexpected hardening read failure: '+str(result))
+        raise ValueError('hardening read exhausted four attempts: '+str(result))
+    def write(self, worker, tag):
+        docs=[dict(id=tag+i,value=f'tag-{tag+i}-'+'x'*512) for i in (0,1)]
+        result=self.dispatch(worker,'addAll',documents=docs).result(timeout=35)
+        need(result is not None and result['outcome']=='SUCCESS', 'public call failed: '+str(result))
+        self.expected.extend(docs);return self.history[-1]['opId']
+
+
+def resume(group, row, tag):
+    # Each attempt is a NEW mutation. Preserve failed outcomes and resolve a
+    # potentially chosen bulk via the next fresh read plus independent evidence.
+    row['recoveryBeginNanos']=time.monotonic_ns()
+    attempts=row['recoveryWrites']=[];uncertain=[]
+    for attempt in range(3):
+        _,service=group.read(uncertain=uncertain);read_id=group.history[-1]['opId']
+        docs=[dict(id=tag+2*attempt+i,value=f'tag-{tag+2*attempt+i}-'+'x'*512) for i in (0,1)]
+        pending=group.dispatch(service,'addAll',documents=docs)
+        write_id=group.history[-1]['opId'];attempts.append(dict(read=read_id,write=write_id))
+        result=pending.result(timeout=35)
+        need(result is not None and result.get('kind')=='addAll' and result.get('opId')==write_id,
+             'hardening recovery write disconnected/mismatched')
+        if result['outcome']=='SUCCESS':
+            group.expected.extend(docs);row.update(recoveredRead=read_id,resumedWrite=write_id);return
+        need(result['outcome']=='NOT_SUBMITTED' and result.get('reasonCode') in q.RECOVERY_REASONS or
+             result['outcome']=='INDETERMINATE' and result.get('reasonCode') in q.UNCERTAIN_RECOVERY_REASONS,
+             'unexpected hardening recovery write failure: '+str(result))
+        uncertain=docs if result['outcome']=='INDETERMINATE' else []
+    raise ValueError('hardening recovery exhausted three fresh writes: '+str(result))
+
+
 def scenario(root, cp, case):
-    root.mkdir(); (root/'archives').mkdir(); group=RepeatedGroup(root,cp)
+    root.mkdir(); (root/'archives').mkdir(); group=RecoveryGroup(root,cp)
     receipt=dict(status='FAIL',case=case,publicRuntime=True,rounds=[])
     for marker in ('promise-evidence','selection-evidence','pressure-evidence','lifecycle-evidence'): (root/marker).touch()
     (root/'bounds-profile.txt').write_text('backpressure\n'); (root/'chunk-bytes.txt').write_text('4096\n')
@@ -72,7 +122,7 @@ def scenario(root, cp, case):
                 prior=max((r['order'] for r in fault.rows(root,old) if r['pid']==active.proc.pid),default=0)
                 fault.replace(root/(old+'-arm.txt'),CUTS[case]+'\npause\n')
                 tag=number*100; docs=[dict(id=tag+i,value=f'chosen-{tag+i}-'+'x'*512) for i in (0,1)]
-                pending=active.send('addAll',documents=docs); row['uncertainWrite']=group.history[-1]['opId']
+                pending=group.dispatch(active,'addAll',documents=docs); row['uncertainWrite']=group.history[-1]['opId']
                 row['pause']=fault.wait_for(lambda: next((r for r in fault.rows(root,old) if r['pid']==active.proc.pid
                     and r['order']>prior and r['event']=='CUT_REACHED'),None),'combined acknowledgement pause absent')
                 need(row['pause']['cut']==CUTS[case], 'wrong acknowledgement cut')
@@ -91,15 +141,14 @@ def scenario(root, cp, case):
                     if node!=old: row['stops'].append(group.stop(node,number))
                 row['minorityNanos']=time.monotonic_ns(); row['denied']=[]
                 for kind,values in [('read',{}),('addAll',dict(documents=[dict(id=900+number,value='must-not-appear')]))]:
-                    outcome=active.send(kind,**values).result(timeout=35)
+                    outcome=group.dispatch(active,kind,**values).result(timeout=35)
                     need(outcome and outcome['outcome']==('NOT_APPLICABLE' if kind=='read' else 'NOT_SUBMITTED'),
                          'minority outcome: '+str(outcome))
                     row['denied'].append(group.history[-1]['opId'])
                 row['stops'].append(group.stop(old,number)); row['allStoppedNanos']=time.monotonic_ns()
                 order=protocol.NODES[number-1:]+protocol.NODES[:number-1]
                 for node in order: group.start(node)
-            _,service=group.read(); row['recoveredRead']=group.history[-1]['opId']
-            row['resumedWrite']=group.write(service,number*100+40)
+            resume(group,row,number*100+40)
             _,service=group.read(); row['finalRead']=group.history[-1]['opId']; row['expected']=list(group.expected)
             row['drained']=group.drained(service.call('status')['appliedIndex']); row['endNanos']=time.monotonic_ns()
         receipt['expected']=group.expected
