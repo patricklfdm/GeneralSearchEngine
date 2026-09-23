@@ -38,6 +38,8 @@ public final class PublicLifecycleConsumer {
                     var status=engine.leadershipStatus();result.put("state",status.state().name());result.put("epoch",status.promisedEpoch());
                     result.put("appliedIndex",status.appliedIndex());result.put("provenIndex",status.provenIndex());
                     result.put("sequence",status.applicationSequence());result.put("pending",status.pendingOperations());
+                    var sample=diagnostics.apply(engine);
+                    if(!sample.isEmpty()){observer.accept("LIFECYCLE_SAMPLE",Map.of("opId",id,"sample",sample));result.put("sample",sample);}
                 }
                 case "addAll" -> {
                     var docs=((List<Map<String,Object>>)command.get("documents")).stream().map(d->new Doc(((Number)d.get("id")).intValue(),(String)d.get("value"))).toList();

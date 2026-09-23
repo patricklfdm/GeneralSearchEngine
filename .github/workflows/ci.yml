@@ -226,6 +226,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 quarantine pressure and recovery lifecycle combinations
+        run: scripts/verify-v51-phase5-combined-lifecycle.sh --skip-build
+
+      - name: Retain V5.1 combined lifecycle evidence including failed schedules
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-combined-lifecycle-${{ github.sha }}
+          path: target/v51-combined-lifecycle
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-promise-crashes:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 promise crashes

@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5A locally qualified; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5A accepted; Phase 5B in progress; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -63,8 +63,10 @@ at `3f5b0b25b6484bf6ddc062dd25527bee0ddaedb4` (exact-master CI `35779031221`).
 master `1a043615ec4a8de5b7f110d999c5f7268e5e165c` (exact-master CI `35794875603`).
 [Phase 4P and full Phase 4](v5.1/PHASE_4_FINAL_COVERAGE.md) are accepted through
 PR #208, master `b0d586f32b01f59aadfa940d7f778a8a2b5ea078` (exact-master CI `35802660895`).
-The user entered [Phase 5A](v5.1/PHASE_5_ENTRY_PLAN.md): combined partition, held
-acknowledgement and crash faults plus three retained whole-group restarts.
+[Phase 5A](v5.1/PHASE_5_COMBINED_RECOVERY.md) is accepted at master
+`04d12316bd6971ac477cfcb08c5073b2252ecf2a` (exact-master CI `35818964327`, all 19 jobs passed).
+The user entered [Phase 5B](v5.1/PHASE_5_COMBINED_LIFECYCLE.md): quarantine with
+pressure/retained recovery, and cancellation/close across a recovery cut.
 [Hardening progress](v5.1/PHASE_5_CHECKLIST.md) remains separate from full Phase 5 acceptance.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain

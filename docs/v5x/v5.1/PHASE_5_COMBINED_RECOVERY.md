@@ -1,8 +1,10 @@
 # V5.1 Phase 5A: combined faults and repeated retained recovery
 
-**Status:** Batch A implemented and locally qualified on Phase 4 accepted
-source `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`. Protected Batch A acceptance and
-full Phase 5 acceptance remain open. See the [fixed entry plan](PHASE_5_ENTRY_PLAN.md)
+**Status:** Batch A accepted at master `04d12316bd6971ac477cfcb08c5073b2252ecf2a`,
+[exact-master CI 35818964327](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35818964327),
+all 19 jobs passed. PR #209 supplied Batch A; PRs #210–#212 corrected the inherited
+CI/test issues encountered before this exact-master pass. Full Phase 5 acceptance
+remains open. The local record below retains its original Phase 4 source. See the [fixed entry plan](PHASE_5_ENTRY_PLAN.md)
 and [checklist](PHASE_5_CHECKLIST.md).
 
 ## Public execution and independent evidence
@@ -94,5 +96,5 @@ updates only record these results. All failed development attempts remain separa
 Summary: `target/v51-hardening/validation-summary.json`; logs: `reactor.log`,
 `python-final.log`, `foundation.log`, `ci-tests.log`, `qualification.log` in that
 same parent directory. CI uploads `target/v51-hardening` as
-`v51-hardening-${{ github.sha }}` even on failure. Protected Batch A acceptance
-and remaining Phase 5B/C work still require their own recorded evidence.
+`v51-hardening-${{ github.sha }}` even on failure. The acceptance record above supersedes the original pending
+Batch A status; remaining Phase 5B/C work requires its own recorded evidence.

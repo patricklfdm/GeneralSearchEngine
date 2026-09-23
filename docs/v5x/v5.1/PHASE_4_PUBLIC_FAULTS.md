@@ -175,3 +175,70 @@ Follow-up replication JAR SHA-256:
 The earlier full fault-matrix, qualification and foundation receipts retain their
 original JAR identities. This is targeted follow-up validation; the acceptance
 update above records the subsequent protected merge and exact-master CI.
+
+## Post-crash concurrent service CI follow-up
+
+PR #213 [CI 35822480859](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35822480859)
+failed in `kill-accept_before_write`, after the old leader (node 1) was killed and
+the surviving node 2 exposed `LEADER_READY`. Raw records show the node 2/node 3
+activation at epoch 6 and index 9, then a local ACCEPT for the next public bulk.
+The first post-crash concurrent write returned `INDETERMINATE` / `QUORUM_UNAVAILABLE`
+in about 328 ms; the peer did not observe its ACCEPT. There was no intervening
+higher promise. Background source transfer and heartbeat responses arrived after
+the rejection. The original trace lacks per-reservation accounting, so it does not
+prove the exact local transport contention path. It does establish that the driver
+incorrectly required four immediate successes from a cached role hint during recovery.
+
+The shared public-qualification driver now requires a complete successful four-call
+wave within at most **three fresh waves** after the crash. It reselects the observed
+leader before each wave and generates new, unique bulk keys for every mutation.
+All four calls are submitted before collecting any response; every result, including
+partial success, rejection and uncertainty, remains in the same client history and
+in `recoveryWaves`. The stopped leader remains absent until all four calls in one
+wave actually succeed. Neither the interrupted write nor an indeterminate wave
+mutation is replayed; no full scenario is retried into a PASS.
+
+Only classified availability results can lead to another fresh wave: reads must
+be `NOT_APPLICABLE`; mutations must be `NOT_SUBMITTED`, or `INDETERMINATE` with
+`QUORUM_UNAVAILABLE`, `STALE_EPOCH` or `DEADLINE_EXCEEDED`. Proven pre-submission
+and read refusals also allow `NOT_LEADER` / `NOT_READY`. Missing responses, malformed
+outcomes, storage/integrity failures, explicit capacity errors, closed handles and
+unknown errors fail. Persistent unavailability fails after the third wave.
+
+This permits at most 22 attempted application calls per crash case, inside the
+unchanged 24-call / 100000-state oracle limit. Both independent oracles still check
+every attempted mutation and read, including eventual inclusion of uncertain values,
+no effect from `NOT_SUBMITTED`, exact read barriers and preservation of acknowledged
+bulks. Initial healthy traffic and the final retained-restart read remain strict.
+The sixteen mutation boundaries and the three fencing cases remain unchanged;
+production runtime, transport limits, deadlines and retries are unchanged.
+
+Ten driver regressions cover the observed CI response sequence, fresh payloads,
+complete concurrent submission/collection, leader reselection, three-wave exhaustion,
+strict failure classifications, missing responses and independent history rejection
+of lost acknowledged data. Both affected gate scripts run those tests.
+The downloaded original failing evidence is retained under
+`target/v51-fault-wave/ci-evidence/run.Uas3B4/evidence/kill-accept_before_write`.
+
+Local validation of this follow-up on `5c896b966e7ac0e31de2081eaeb25ff571ced720`
+plus the driver changes:
+
+- Complete 19-case fault matrix passed at
+  `target/v51-public-faults/run.LTzXvR/evidence`, including the failing SIGKILL boundary.
+- All six qualification crash cases and the V4.4 semantic/backup comparison passed
+  at `target/v51-public-qualification/run.AWaevq/evidence`.
+- All 267 V5.1 Python tests and 19 CI classifier/topology tests passed. Both complete
+  gates recorded source inventories matching the final driver and test scripts.
+- A separate three-JVM pressure probe held actual per-peer transport reservations.
+  Its first wave returned `INDETERMINATE`, `NOT_APPLICABLE`, `NOT_SUBMITTED`,
+  `NOT_APPLICABLE`; its second fresh wave returned four successes. All 13 calls,
+  raw response bindings, unique mutation keys and balanced transport accounting
+  passed the bounded client-history/resource checks. This probe has no retained
+  restart, so it is not credited as a four-process physical qualification; that
+  independent oracle passed in both complete gates above. The original probe's
+  incomplete-manifest and four-process-prerequisite validation errors are retained
+  alongside the correctly scoped validation of the same unmodified history.
+
+Summary and logs: `target/v51-fault-wave/validation-summary.json`, `faults.log`,
+`qualification.log`, `python-tests.log`, `ci-tests.log`, and
+`pressure-probe-final-validation.log`. Protected PR/master acceptance remains pending.
