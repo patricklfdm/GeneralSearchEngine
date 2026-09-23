@@ -309,3 +309,11 @@ after the Phase 4O gate, with always-retained `v51-public-final-coverage` eviden
 The migration table above remains the historical original-step audit. This new
 gate uses the lane's existing reactor artifacts; the eleven-lane Required result
 and dependency graph are unchanged. See [the final map](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md).
+
+## Phase 5A addition
+
+`v51-public-lifecycle` adds `verify-v51-phase5-hardening.sh --skip-build` after
+Phase 4 final coverage, with always-retained `v51-hardening` evidence. Its three
+cases execute nine consecutive recovery rounds in total. The lane's reactor build
+runs the five snapshot-rebuild regressions required by this gate. This extends the
+lane without changing dependencies, its 60-minute timeout or Required aggregation.

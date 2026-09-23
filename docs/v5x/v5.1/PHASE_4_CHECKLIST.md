@@ -1,7 +1,7 @@
 # V5.1 Phase 4 checklist
 
-**Status:** Batches A–O accepted. Batch P final coverage passed locally;
-protected Batch P and complete Phase 4 acceptance remain open.
+**Status:** Batches A–P and full Phase 4 accepted through PR #208, master
+`b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895` (13/13 jobs).
 
 - [x] Phase 3 accepted: PR #191, master `263c488fa3d1b0f78ff8a4a4454d7b3b7ff0bfab`, CI `35542143840`.
 - [x] User entered `feat/v5.1-phase4-bootstrap` for the [Phase 4 plan](PHASE_4_ENTRY_PLAN.md).
@@ -77,5 +77,8 @@ protected Batch P and complete Phase 4 acceptance remain open.
   `1a043615ec4a8de5b7f110d999c5f7268e5e165c`, exact-master CI `35794875603`.
 - [x] [Batch P](PHASE_4_FINAL_COVERAGE.md): delayed heartbeats, lost authority/new group,
   full API/compatibility reconciliation and local gates.
-- [ ] Protected Batch P / final Phase 4 acceptance.
-- [ ] Complete external public runtime matrix and protected Phase 4 acceptance.
+- [x] Protected Batch P acceptance: PR #208, master
+  `b0d586f32b01f59aadfa940d7f778a8a2b5ea078`, exact-master CI `35802660895`.
+- [x] Complete external public runtime matrix and protected Phase 4 acceptance;
+  [E01–E12 layer boundaries](PHASE_4_FINAL_COVERAGE.md#e01e12-disposition) reviewed.
+- [x] User entered [Phase 5A](PHASE_5_ENTRY_PLAN.md) after the merge and exact-master CI review.

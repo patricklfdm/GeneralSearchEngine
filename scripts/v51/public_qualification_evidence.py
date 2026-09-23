@@ -11,7 +11,7 @@ def traces_at(root):
             for i in (1, 2, 3)}
 
 
-def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=None):
+def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=None, process_generations=None):
     traces = traces if traces is not None else traces_at(root)
     result = authority.validate(root, traces, rejected_tails=rejected_tails, retired_voters=retired_voters)
     manifest_bytes = (Path(root) / 'node-1/manifest.gsr').read_bytes()
@@ -23,12 +23,16 @@ def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=
             need(row['node'] == node and row['groupId'] == manifest['groupId'] and
                  row['manifestDigest'] == manifest_bytes[16:48].hex(), 'trace authority identity')
             process = row['pid'], row['generation']
-            need(row['generation'] in (1, 2) and processes.setdefault((node, row['pid']), process) == process, 'process generation changed')
+            need((row['generation'] in (1, 2) if process_generations is None else
+                  process_generations.get((node, row['pid'])) == row['generation'])
+                 and processes.setdefault((node, row['pid']), process) == process, 'process generation changed')
             if row['event'] == 'FORCE' and row['kind'] == 'ACCEPT':
                 vote = authority.f.inspect(authority.raw(row['record']), 'ACCEPT')
                 entry = authority.f.inspect(authority.raw(vote['entry']), 'ENTRY')
                 digest = vote['entryDigest']; entries[digest] = entry
                 voters.setdefault((vote['epoch'], vote['incarnation'], digest), set()).add(node)
+    if process_generations is not None:
+        need(set(processes) == set(process_generations), 'missing declared process generation')
     chosen = {digest: entries[digest] for (_, _, digest), nodes in voters.items() if len(nodes) >= 2}
     attempts = {op['opId']: op for op in history}
     need(len(attempts) == len(history), 'duplicate client operation')
@@ -118,7 +122,7 @@ def physical(root, history, traces=None, *, rejected_tails=None, retired_voters=
                 capturedReads=len(captured_reads), attemptedOperations=len(history))
 
 
-def negatives(root, history, initial_documents=None, *, rejected_tails=None, retired_voters=None):
+def negatives(root, history, initial_documents=None, *, rejected_tails=None, retired_voters=None, process_generations=None, max_operations=24):
     original = traces_at(root); cases = []
     target = next(op for op in reversed(history) if op['kind'] == 'read' and op['outcome'] == 'SUCCESS')
     for name, docs in [('stale-read', []), ('partial-atomic-bulk', target['documents'][1:]),
@@ -129,8 +133,8 @@ def negatives(root, history, initial_documents=None, *, rejected_tails=None, ret
             for row in rows:
                 if row.get('opId') == target['opId'] and row['event'] == 'CLIENT_SUCCESS': row['documents'] = docs
         rejected = []
-        for label, verify in [('client-history', lambda: public_history.check(changed, initial_documents=initial_documents)),
-                              ('chosen-and-captured-bytes', lambda: physical(root, changed, traces, rejected_tails=rejected_tails, retired_voters=retired_voters))]:
+        for label, verify in [('client-history', lambda: public_history.check(changed, initial_documents=initial_documents, max_operations=max_operations)),
+                              ('chosen-and-captured-bytes', lambda: physical(root, changed, traces, rejected_tails=rejected_tails, retired_voters=retired_voters, process_generations=process_generations))]:
             try: verify()
             except ValueError as error: rejected.append(dict(checker=label, reason=str(error)))
             else: raise ValueError(name + ' admitted by ' + label)
@@ -151,7 +155,7 @@ def negatives(root, history, initial_documents=None, *, rejected_tails=None, ret
                 own['order'] = counters[own['pid']]
         else:
             traces = {n: [r for r in rows if r['event'] != 'FORCE' or r['kind'] != 'PROOF'] for n, rows in traces.items()}
-        try: physical(root, history, traces, rejected_tails=rejected_tails, retired_voters=retired_voters)
+        try: physical(root, history, traces, rejected_tails=rejected_tails, retired_voters=retired_voters, process_generations=process_generations)
         except ValueError as error: cases.append(dict(case=name, rejected=[dict(checker='chosen-and-captured-bytes', reason=str(error))]))
         else: raise ValueError(name + ' admitted')
     return cases

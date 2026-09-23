@@ -150,6 +150,8 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
             count = in.readInt();
             require(count >= 0 && count <= configuration.maxDocuments() && count <= in.available() / 8,
                     CAPACITY_EXCEEDED, "snapshot document count exceeds bound");
+            // Reconstruction is private; each internal bulk must fit both admitted bounds.
+            int batchLimit = Math.min(configuration.maxBulkElements(), captured.config().maxBatchSize());
             var batch = new ArrayList<T>();
             for (int i = 0; i < count; i++) {
                 byte[] key = ReplicaSnapshot.blob(in, configuration.maxEncodedKeyBytes());
@@ -158,7 +160,7 @@ final class ReplicaApplication<K, T> implements AutoCloseable {
                 require(Arrays.equals(key, canonicalKey(schema.idOf(document))) && Arrays.equals(bytes, canonicalDocument(document)),
                         INTEGRITY_FAILURE, "snapshot codec/key mismatch");
                 batch.add(document);
-                if (batch.size() == configuration.maxBulkElements() || i == count - 1) {
+                if (batch.size() == batchLimit || i == count - 1) {
                     rebuilt.published.get().slot().engine.addAll(batch).join(); rebuilt.working.engine.addAll(batch).join(); batch.clear();
                 }
             }

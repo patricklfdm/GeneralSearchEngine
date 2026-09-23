@@ -6,7 +6,7 @@ from . import runtime_evidence as a
 from .storage_harness import need
 
 
-def reservations(rows, decode, maximum_frame):
+def reservations(rows, decode, maximum_frame, *, terminated_pids=()):
     live={}; seen=set(); peaks=dict(inbound=0,outbound=0,bytes=0); rejected=[]
     for row in rows:
         if row['event']!='TRANSPORT':continue
@@ -32,9 +32,10 @@ def reservations(rows, decode, maximum_frame):
         need(inbound<=8 and len(outbound)<=4 and all(sum(v['peer']==p for v in outbound)<=2 for p in {v['peer'] for v in outbound}),'transport admission bound exceeded')
         need(queued<=maximum_frame*4 and all(v['bytes']<=maximum_frame for v in outbound),'transport byte bound exceeded')
         peaks={k:max(peaks[k],v) for k,v in dict(inbound=inbound,outbound=len(outbound),bytes=queued).items()}
-    need(not live,'transport reservations leaked after public close')
+    need(all(v['pid'] in terminated_pids for v in live.values()),'transport reservations leaked after public close')
+    abandoned={pid:sum(v['pid']==pid for v in live.values()) for pid in terminated_pids}
     need(seen,'missing actual transport accounting')
-    return dict(peaks=peaks,rejected=rejected,reservations=len(seen))
+    return dict(peaks=peaks,rejected=rejected,reservations=len(seen),abandonedAtProcessExit=abandoned)
 
 
 def delayed_force(rows,cut,kind,timeout_millis):
