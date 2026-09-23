@@ -28,7 +28,7 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the eleven full CI gates. Pull requests compare merge-base to PR head, so a final docs
+the seventeen full CI gates. Pull requests compare merge-base to PR head, so a final docs
 commit cannot hide earlier code changes. Master pushes compare the event's `before`
 and `after` commits, including every commit in the push. Renames include both paths;
 there is no changed-file API pagination limit.
@@ -36,7 +36,7 @@ there is no changed-file API pagination limit.
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
 only change-detection tests,
-the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the eleven
+the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the seventeen
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
 workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
@@ -44,8 +44,8 @@ full CI too. Manual dispatch always runs full CI; missing history, an empty diff
 an unreadable event conservatively selects full CI.
 
 The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all eleven
-full gates to succeed, or all eleven to be intentionally skipped for a verified
+is always reported. It requires successful change detection and either all seventeen
+full gates to succeed, or all seventeen to be intentionally skipped for a verified
 documentation-only change. Failed/cancelled detection and unexpected skipped tests
 cannot pass. This follows GitHub's distinction between
 [skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
@@ -53,39 +53,49 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs eleven independent gates after
+For build inputs or manual dispatch, the workflow runs seventeen independent gates after
 `changes`, each with its own runner workspace:
 
 1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
    then performs the full clean Maven reactor package, including core, replication,
    processor and example tests. Its display name remains compatible with V5.0 cloud preflight.
-2. `v51-foundation-admission` runs V5.1 Phase 1–3, public bounds/admission, promise crashes and bootstrap.
-3. `v51-public-lifecycle` runs public runtime, concurrent qualification, faults, recovery/lifecycle and transport pressure.
-4. `v51-protocol-reclamation` runs public protocol faults, candidate election crashes and interrupted reclamation.
-5. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
-6. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
-   Each V5 lane builds and tests its own reactor and retains its own evidence.
-7. `v4-regression` (`V4 regression`) compiles its own core and test harnesses, then
-   retains the V4.0–V4.4 chain, specialized JMH rebuilds and closed-line conditions.
-8. `soak-examples` (`Soak and examples`) runs the JMH instrumentation contract tests,
-   reduced stabilization/JFR end-to-end checks and travel example. These commands
-   build their own prerequisites.
-9. `Compatibility` runs the frozen source/reflection fixture, compares the public API
-   with published baselines through 4.4.0 from an isolated Maven repository,
-   and compiles all five independent V1–V5 consumers.
-10. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
+2. `v51-foundation` runs Phase 1–3 model/storage/protocol/runtime/rejoin gates.
+3. `v51-admission-resources` runs public bounds, bootstrap and resource exhaustion.
+4. `v51-promise-crashes` runs public promise force and reply crash boundaries.
+5. `v51-public-reads-faults` runs public runtime, concurrent histories and partition/read/mutation faults.
+6. `v51-public-recovery-pressure` runs public recovery, transport pressure, backpressure and final heartbeat/disk-loss coverage.
+7. `v51-public-hardening` runs lifecycle hardening and Phase 5 combined/repeated recovery.
+8. `v51-protocol-selection` runs public protocol and selection/recovery schedules.
+9. `v51-candidate-crashes` runs candidate election crashes.
+10. `v51-reclamation` runs interrupted two-source reclamation.
+11. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
+12. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
+    Each V5 lane builds and tests its own reactor and retains its own evidence.
+13. `v4-regression` (`V4 regression`) compiles its own core and test harnesses, then
+    retains the V4.0–V4.4 chain, specialized JMH rebuilds and closed-line conditions.
+14. `soak-examples` (`Soak and examples`) runs the JMH instrumentation contract tests,
+    reduced stabilization/JFR end-to-end checks and travel example. These commands
+    build their own prerequisites.
+15. `Compatibility` runs the frozen source/reflection fixture, compares the public API
+    with published baselines through 4.4.0 from an isolated Maven repository,
+    and compiles all five independent V1–V5 consumers.
+16. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
     skipped; checks all nine V5 JARs, Manifest versions, and processor service isolation;
     then reproduces the nine JARs and three POMs in two clean workspaces under the
     digest-pinned canonical image and matches the frozen candidate hashes. Historical
     two-artifact releases keep their six-JAR checks.
-11. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
+17. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
     workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
     It receives no OIDC permission or cloud Environment and creates no paid resource.
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
-record build prerequisites, artifact ownership and the scheduling-only change.
+record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
+includes measured estimates and the accompanying test-only catch-up budget correction.
 Maven execution inside each job remains serial. There is no cross-job `target/`
-sharing, and every lane is required for full CI.
+sharing, and every lane is required for full CI. Each of the nine V5.1 jobs also
+uploads `**/target/surefire-reports/**` with `always()` and a unique
+`<job-id>-java-tests-${{ github.sha }}` artifact name, retaining failed builds for
+fourteen days. Regression timeouts remain 60 minutes.
 
 The stable required status check is:
 
@@ -361,51 +371,51 @@ attestations. These are additive controls and do not replace the required correc
 compatibility, signing, or reproducibility gates.
 
 V5.1 Phase 4L additionally runs internal resource limits and public minority-budget
-isolation in `v51-foundation-admission`, retaining `v51-resources` on failure as well
+isolation in `v51-admission-resources`, retaining `v51-resources` on failure as well
 as success. This does not add a required job or change docs-only routing.
 
 V5.1 Phase 4M runs separate internal mailbox boundaries and public callback/deadline
-scenarios in `v51-public-lifecycle`, retaining `v51-backpressure` on every outcome.
+scenarios in `v51-public-recovery-pressure`, retaining `v51-backpressure` on every outcome.
 Existing required lanes and documentation-only routing remain unchanged.
 
 ### V5.1 Phase 4N selection qualification
 
-`v51-protocol-reclamation` additionally runs
+`v51-protocol-selection` runs
 `scripts/verify-v51-phase4-public-selection.sh --skip-build`: six public JVM/TCP
 selection/recovery cases plus independent evidence checks. It always uploads
 `target/v51-public-selection` as `v51-public-selection-${{ github.sha }}` for
-fourteen days. This uses the lane's existing reactor build; the eleven required
+fourteen days. This uses the lane's existing reactor build; the seventeen required
 lanes, prior gates/uploads, documentation routing and cloud workflows are unchanged.
 See [the scope and evidence record](v5x/v5.1/PHASE_4_PUBLIC_SELECTION.md).
 
 ### V5.1 Phase 4O lifecycle hardening
 
-`v51-public-lifecycle` additionally runs
+`v51-public-hardening` runs
 `scripts/verify-v51-phase4-lifecycle-hardening.sh --skip-build`: five public JVM/TCP
 scenarios for pinned reconstruction, partial writes and repeated timeouts, with
 independent history/physical checks and negative variants. It always uploads
 `target/v51-lifecycle-hardening` as `v51-lifecycle-hardening-${{ github.sha }}` for
-fourteen days. The existing eleven required lanes, all prior gates/uploads and
+fourteen days. The existing seventeen required lanes, all prior gates/uploads and
 documentation-only routing are preserved. See [the evidence record](v5x/v5.1/PHASE_4_LIFECYCLE_HARDENING.md).
 
 ### V5.1 Phase 4P final coverage
 
-The existing `v51-public-lifecycle` lane runs
+The `v51-public-recovery-pressure` lane runs
 `scripts/verify-v51-phase4-final-coverage.sh --skip-build` after its reactor build
-and earlier lifecycle gates. Four public process cases bind delayed heartbeat
+and recovery/pressure gates. Four public process cases bind delayed heartbeat
 fencing and lost-authority/new-group recovery to independent raw evidence and a
 published V4.4 restore control. `V51VersionBoundaryTest` runs in reactor tests.
 The always-uploaded `v51-public-final-coverage-${{ github.sha }}` artifact retains
-`target/v51-final-coverage`, including failed attempts. All eleven required full-CI
+`target/v51-final-coverage`, including failed attempts. All seventeen required full-CI
 lanes, timeouts and docs-only routing stay unchanged. See the
 [final coverage record](v5x/v5.1/PHASE_4_FINAL_COVERAGE.md).
 
 ### V5.1 Phase 5A combined recovery
 
-The `v51-public-lifecycle` lane adds
-`scripts/verify-v51-phase5-hardening.sh --skip-build` after Phase 4 final coverage.
+The `v51-public-hardening` lane runs
+`scripts/verify-v51-phase5-hardening.sh --skip-build` after lifecycle hardening.
 Three combined-fault cases each keep the same group and disks across three rounds.
 The gate checks the private snapshot-rebuild regression prerequisite and public
 history/force/process/archive/resource evidence. The always-uploaded
 `v51-hardening-${{ github.sha }}` artifact retains `target/v51-hardening`, including
-failed rounds. The eleven full-CI required lanes and docs-only behavior are unchanged.
+failed rounds. The seventeen full-CI required lanes and docs-only behavior are unchanged.

@@ -106,11 +106,19 @@ class V50ReadyTest {
     }
 
     private static long catchUpWhenAdmitted(Group group, ReplicationNodeId peer, Runnable onBackpressure) throws Exception {
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        long admissionDeadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+        var follower = group.nodes.stream().filter(node -> node.status().localNodeId().equals(peer)).findFirst().orElseThrow();
+        long missing = Math.max(0, group.leader().status().commitIndex() - follower.status().commitIndex());
+        long batches = (missing + group.bounds.maxEntriesPerAppend() - 1) / group.bounds.maxEntriesPerAppend();
+        // Admission must recover promptly, but an admitted catch-up is many sequential RPCs.
+        // The lost-APPEND seed needs 75 four-entry batches, each with its own 1200 ms deadline.
+        // Keep a finite completion budget derived from that work, including control exchanges.
+        long completionMillis = 10_000L + (batches + 6) * group.bounds.requestTimeoutMillis()
+                * (group.bounds.maxRetryAttempts() + 1L);
+        long completionDeadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(completionMillis);
         while (true) {
-            long remaining = deadline - System.nanoTime();
-            assertTrue(remaining > 0, "catch-up admission did not recover within the test deadline");
-            try { return group.leader().catchUp(peer).get(remaining, TimeUnit.NANOSECONDS); }
+            assertTrue(System.nanoTime() < admissionDeadline, "catch-up admission did not recover within the test deadline");
+            try { return group.leader().catchUp(peer).get(completionDeadline - System.nanoTime(), TimeUnit.NANOSECONDS); }
             catch (ExecutionException error) {
                 // Quorum completion does not drain the unavailable peer's asynchronous
                 // requests. Only admission backpressure is expected here; READY, replay,
@@ -131,6 +139,7 @@ class V50ReadyTest {
         var lostRequest = new AtomicReference<String>();
         var droppedAttempts = new AtomicInteger();
         var peerRejections = new ConcurrentHashMap<String, String>();
+        var survivorBatches = new AtomicInteger();
         int history = materialization.equals("published") ? 300 : 20;
         long prefix = history + 2, target = prefix + 10;
         var defaults = BOUNDS;
@@ -140,6 +149,9 @@ class V50ReadyTest {
         var group = new Group(temporary, bounds, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
             if (local == 0 && barrier.equals("AFTER_RESPONSE_READ") && "REJECT".equals(response.get("type")))
                 peerRejections.put(request.get("recipient") + " " + request.get("type"), response.get("payload").toString());
+            if (local == 0 && barrier.equals("AFTER_RESPONSE_READ") && request.get("recipient").equals("node-2")
+                    && request.get("type").equals("COMMIT_ADVANCE") && "COMMIT_ADVANCE".equals(response.get("type"))
+                    && "batch".equals(ReplicaWire.object(request.get("payload")).get("action"))) survivorBatches.incrementAndGet();
             // Lose one whole exchange, including its retry. The other follower still
             // supplies quorum, so a successful seed does not imply node-2 caught up.
             if (local == 0 && seedStarted.get() && barrier.equals("BEFORE_REQUEST_WRITE")
@@ -188,7 +200,10 @@ class V50ReadyTest {
             // Seed writes need only one remote ACK. The future survivor may have
             // missed an APPEND or PROOF while node-3 supplied quorum; waiting alone
             // cannot repair that gap. Recover it before removing the current quorum.
+            long missingSeedEntries = prefix - group.nodes.get(1).status().commitIndex();
             assertEquals(prefix, catchUpWhenAdmitted(group, group.manifest.members().get(1).nodeId(), () -> { }));
+            if (lostMessage.equals("APPEND")) assertEquals((missingSeedEntries + 3) / 4, survivorBatches.get(),
+                    "the lost seed must recover the full prefix in actual four-entry batches");
             var survivor = group.nodes.get(1).status();
             assertEquals(ReplicaState.READY, survivor.state());
             assertEquals(prefix, survivor.lastLogIndex());
