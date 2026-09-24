@@ -4,8 +4,8 @@
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
 `35920225478` passed all nineteen jobs and all 24 V5.1 verification steps, including
 public bounds, resources and local performance. The [6A acceptance record](PHASE_6_LOCAL_ACCEPTANCE.md)
-reconciles original evidence and downloaded replay. Its final protected review and
-the [6B cloud contract candidate](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) are pending.
+reconciles original evidence and downloaded replay. Its final review and the [6B cloud contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md)
+were subsequently accepted through PR #222 as recorded below.
 PR #220 merged these candidates at `717bed8f578019c71ffe3d739deaf067ec0fa8d2`.
 Master CI `35927462738` passed the performance gate but failed Phase 5A's
 [post-restart write assumption](PHASE_5_COMBINED_RECOVERY.md#post-pr-220-correction-a-recovered-read-does-not-lease-leadership).
@@ -13,7 +13,10 @@ PR #221 merged the recovery-write correction at `af68d8473f9998628e49189a2d8be65
 Master CI `35932225694` then failed the
 [per-round proof sampling boundary](PHASE_5_COMBINED_RECOVERY.md#post-pr-221-correction-confirm-proof-before-recording-a-drained-round)
 and a [V5.0 retry fixture](../v5.0/PHASE_5_HARDENING.md#post-pr-221-follow-up-target-the-add-exchange).
-Accept both corrections and exact-source full CI before proceeding to 6C.
+PR #222 accepted both corrections at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`.
+Exact-master CI `35937300754` passed all nineteen jobs and 24 V5.1 verification steps.
+6A/6B are accepted. [6C remote control foundation](PHASE_6_REMOTE_FOUNDATION.md)
+is the current implementation candidate; full 6C qualification remains open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -26,16 +29,20 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6A model candidate: 90-call published V4.4 semantic execution, actual backup/checkpoint/reopen checks and three isolated core compilations.
 - [x] Protected acceptance of the [model foundation](PHASE_6_MODEL_FOUNDATION.md): PR #216, master `bcac615aeef93dadcab6636162a86ce2156e5515`, exact-master full CI `35841378072`.
 - [x] 6A implementation candidate: materialized plan/schema and isolated external published-control/candidate probes.
-- [x] 6A local candidate: all three healthy modes and bounded concurrent failover/rejoin history pass; protected acceptance remains pending.
+- [x] 6A local implementation: all three healthy modes and bounded concurrent failover/rejoin history pass.
 - [x] PR #217 runtime implementation merged; exact-master CI `35889987294` passed all nineteen jobs.
 - [x] Resource recovery follow-up: corrected-runtime resource/performance gates passed exact-master CI `35920225478`.
 - [x] 6A runtime: physical/semantic/timing/resource negatives, relevant regressions and exact-source full CI pass at PR #219.
 - [x] 6A review candidate: original downloaded performance evidence independently revalidated; receipt/source/member identities retained.
-- [ ] Protected acceptance of the final 6A review and portable evidence replay correction.
+- [x] Protected acceptance of final 6A review and portable replay: PR #222, exact-master CI `35937300754`.
 - [x] 6B candidate: trace-backed local calibration and synthetic full-slot encoding retained, with cloud execution explicitly absent.
 - [x] 6B candidate: closed cloud plan, three rich tapes, fifteen cells, exact allocations, evidence ceilings and numerical completion criteria.
-- [ ] 6B: protected acceptance of the workload hash and calibration; full rich concurrency/remote schedule execution remains a 6C prerequisite.
-- [ ] 6C: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
+- [x] 6B: workload hash/calibration accepted through PR #222; full rich concurrency/remote schedule execution remains a 6C prerequisite.
+- [x] 6C1 implementation candidate: durable command claims, fixed-arrival executor, disjoint time accounting and bounded binary evidence parts.
+- [x] 6C1 local control qualification: real lost-response/duplicate/SIGKILL/cancel processes, complete synthetic tapes and independently checked collection.
+- [ ] 6C1 protected acceptance and exact-source CI; control-only receipts do not qualify a GSE workload.
+- [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
+- [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.
 - [ ] 6D: experiment and failure-drill independently valid, with failures/costs retained.

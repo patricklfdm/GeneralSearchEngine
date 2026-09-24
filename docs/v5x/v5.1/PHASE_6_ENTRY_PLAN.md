@@ -4,8 +4,12 @@
 master `243434f6e1dc94422b57997b33eabb3cc1e8f64d`, documentation-only master CI
 `35831892351`. The [rich model foundation](PHASE_6_MODEL_FOUNDATION.md) is the first
 6A implementation candidate. The [6A review](PHASE_6_LOCAL_ACCEPTANCE.md) now reconciles the full local gate through
-PR #219; the [6B workload contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) is a closed
-review candidate. Entry acceptance does not authorize paid execution.
+PR #219; the [6B workload contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) is accepted
+through PR #222 with full master CI `35937300754`.
+The [6C1 remote foundation](PHASE_6_REMOTE_FOUNDATION.md) starts remote implementation;
+6C2 integrates the actual JVM workloads and 6C3 owns cloud orchestration/admission.
+These review boundaries do not change the ordered 6C exit requirements or authorize
+paid execution.
 
 **Starting master:** `15c8c68011e37370dfcd31ee855f91247c3771d8`.
 [PR #214](https://github.com/patricklfdm/GeneralSearchEngine/pull/214) accepted
