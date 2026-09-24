@@ -505,3 +505,40 @@ bootstrap/cleanup/replacement crash boundaries and all three published V4 source
 formats with semantic round trips. These checks use the corrected production JAR.
 The original 6B runner gate passed in `target/v50-cloud-local/run.AxVTlS`, including
 its fake failure matrix and the volume-layout public-runtime/published-control probe.
+
+## Later CI fixture follow-up: bounded history seeding
+
+PR #225 CI [35976525669](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35976525669)
+failed in three jobs: V5.1 frozen fault workloads, V5.1 public reads and faults,
+and Release artifacts. All three failed prerequisite `V50ReadyTest` history setup,
+with either a follower-publication timeout or `no valid remote voter for APPEND`.
+The release job retained node-3 at applied index 299 while the leader and node-2
+were at 302; node-3 rejected subsequent APPEND/COMMIT_PROOF with
+`CONFLICTING_HISTORY`. The logs establish a missing prefix, but do not identify
+which earlier exchange first failed.
+
+A seed write's client completion needs only one remote voter. Issuing 300 writes
+without waiting for the other required follower can fill its asynchronous queue;
+a dropped exchange leaves a gap that waiting at the end cannot repair. The fixture
+now waits for each required follower's published index after the initial ADD and
+each UPDATE. Activation requires both followers. Incremental recovery requires
+node-3 during seeding and retains the intentional node-2 APPEND/COMMIT_PROOF loss
+schedules and explicit node-2 recovery before isolation.
+
+Two regression schedules hold a real TCP COMMIT_PROOF response on node-3's sender
+while node-2 supplies quorum. The publication wait releases that response before
+more seed writes accumulate. The schedules cover both one- and two-follower
+prerequisites and require observed lag and the complete uncheckpointed history.
+The 300/20-entry histories, ten-entry recovery tail, three bounded recovery batches,
+replay counters, private/missing materialization and next-quorum-write assertions
+remain in place. No production runtime, timeout, capacity, workflow or Maven retry
+policy changes are involved. Test assertion failures remain ineligible for the
+infrastructure retry.
+
+Local validation under pinned Temurin 21.0.12+8 passed all 15 READY cases. Moving
+only the publication barrier back to the end of the seed made both held-response
+regressions fail with publication timeouts; restoring per-write publication passed
+both again, alongside 54 leader/recovery/network/pressure cases. The failed
+counterfactual and successful reports are retained under
+`target/ci-failures-35976525669`, with hashes in `validation-summary.json`.
+The full reactor and corrected-source protected CI remain to be run by CI.
