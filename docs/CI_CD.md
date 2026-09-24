@@ -35,7 +35,7 @@ there is no changed-file API pagination limit.
 
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
-only change-detection tests,
+only change-detection/required-gate and Maven retry helper tests,
 the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the nineteen
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
@@ -101,6 +101,12 @@ sharing, and every lane is required for full CI. Each of the eleven V5.1 jobs al
 uploads `**/target/surefire-reports/**` with `always()` and a unique
 `<job-id>-java-tests-${{ github.sha }}` artifact name, retaining failed builds for
 fourteen days. Regression timeouts remain 60 minutes.
+
+Ordinary prerequisite Maven builds use the [bounded infrastructure retry](CI_MAVEN_INFRA_RETRY.md):
+at most two attempts with a fifteen-second backoff, only for explicit remote-transfer
+HTTP/network failures before any tests start. Compilation, test, contract and integrity
+failures take precedence. Every attempt's complete log is retained outside `target/`
+and uploaded even after recovery. Compatibility, release and phase gates stay single-attempt.
 
 The stable required status check is:
 

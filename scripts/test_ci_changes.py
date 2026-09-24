@@ -216,7 +216,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 continue
             with self.subTest(job=name):
                 body = self.jobs[name]
-                build = "        run: ./mvnw -f reactor/pom.xml package\n"
+                build = "        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package\n"
                 self.assertEqual(1, body.count(build))
                 self.assertLess(body.index(build), body.index("run: scripts/verify-v51-"))
                 reports = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
@@ -224,6 +224,32 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertEqual(1, len(reports))
                 self.assertIn("if: ${{ always() }}", reports[0])
                 self.assertIn("name: " + name + "-java-tests-${{ github.sha }}", reports[0])
+
+    def test_infra_retry_only_wraps_reviewed_builds_and_retains_all_attempts(self):
+        from scripts.maven_infra_retry import COMMANDS
+        expected = {name for name in FULL_GATES if name.startswith(("v51-", "v50-"))}
+        expected.update(("reactor-core", "v4-regression"))
+        found = set()
+        count = 0
+        for name, body in self.jobs.items():
+            commands = re.findall(r"^        run: scripts/run-maven-with-infra-retry.sh (.+)$", body, re.MULTILINE)
+            if commands:
+                found.add(name); count += len(commands)
+                for command in commands:
+                    self.assertIn(tuple(command.split()), COMMANDS)
+                self.assertEqual(2 if name == "v4-regression" else 1, len(commands))
+                uploads = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
+                           if "path: ${{ runner.temp }}/gse-maven-infra-retry" in step]
+                self.assertEqual(1, len(uploads), name)
+                self.assertIn("if: ${{ always() }}", uploads[0])
+                self.assertIn("name: maven-infra-" + name + "-${{ github.sha }}", uploads[0])
+                self.assertIn("retention-days: 14", uploads[0])
+            self.assertNotRegex(body, r"run-maven-with-infra-retry.sh .*scripts/verify-")
+        self.assertEqual(expected, found)
+        self.assertEqual(16, count)
+        self.assertIn("scripts.test_maven_infra_retry", self.jobs["changes"])
+        for name in ("soak-examples", "compatibility", "release-artifacts", "cloud-runner-tests"):
+            self.assertNotIn("run-maven-with-infra-retry.sh", self.jobs[name])
 
     def test_cloud_preflight_keeps_its_existing_ci_identifiers(self):
         self.assertIn("    name: Reactor tests\n", self.jobs["reactor-core"])

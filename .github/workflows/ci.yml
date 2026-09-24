@@ -30,8 +30,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Test change detection and required-gate decisions
-        run: python3 -m unittest scripts.test_ci_changes
+      - name: Test change detection, required gates and Maven infrastructure retries
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry
 
       - name: Classify the complete change set
         id: scope
@@ -69,7 +69,16 @@ jobs:
         run: scripts/verify-v50-phase0-contract.sh
 
       - name: Test the reactor
-        run: ./mvnw -f reactor/pom.xml clean package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml clean package
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-reactor-core-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
 
   v51-foundation:
     # Independent reactor build: local JARs, test classes and executed test reports.
@@ -91,7 +100,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -172,6 +181,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-foundation-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-remote-rich:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 full rich workload (no GCP)
@@ -192,7 +210,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -212,6 +230,15 @@ jobs:
         with:
           name: v51-remote-rich-${{ github.sha }}
           path: target/v51-remote-rich
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-remote-rich-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
 
@@ -235,7 +262,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -255,6 +282,15 @@ jobs:
         with:
           name: v51-remote-faults-${{ github.sha }}
           path: target/v51-remote-faults
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-remote-faults-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
 
@@ -278,7 +314,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -336,6 +372,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-admission-resources-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-promise-crashes:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 promise crashes
@@ -356,7 +401,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -376,6 +421,15 @@ jobs:
         with:
           name: v51-public-promises-${{ github.sha }}
           path: target/v51-public-promises
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-promise-crashes-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
 
@@ -399,7 +453,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -446,6 +500,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-public-reads-faults-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-public-recovery-pressure:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 public recovery and pressure
@@ -466,7 +529,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -525,6 +588,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-public-recovery-pressure-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-public-hardening:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 public hardening
@@ -545,7 +617,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -580,6 +652,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-public-hardening-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-protocol-selection:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 protocol and selection
@@ -600,7 +681,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -635,6 +716,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-protocol-selection-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-candidate-crashes:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 candidate crashes
@@ -655,7 +745,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -675,6 +765,15 @@ jobs:
         with:
           name: v51-public-candidates-${{ github.sha }}
           path: target/v51-public-candidates
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-candidate-crashes-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
 
@@ -698,7 +797,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Retain lane Java test reports including build failures
         if: ${{ always() }}
@@ -718,6 +817,15 @@ jobs:
         with:
           name: v51-public-reclamation-${{ github.sha }}
           path: target/v51-public-reclamation
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-reclamation-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
 
@@ -741,7 +849,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Verify V5.0 public-admission declarations and independent 1.1 bytes
         run: scripts/verify-v50-public-admission-foundation.sh --skip-build
@@ -818,6 +926,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v50-authority-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v50-recovery-workload:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.0 recovery and workload
@@ -838,7 +955,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build lane artifacts and execute prerequisite Java tests
-        run: ./mvnw -f reactor/pom.xml package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
 
       - name: Verify V5.0 Phase 6A public performance probe and independent evidence
         run: scripts/verify-v50-phase6-performance.sh --skip-build
@@ -912,6 +1029,15 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v50-recovery-workload-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
   v4-regression:
     # Preserve the in-lane JMH rebuild order and final non-JMH restoration.
     name: V4 regression
@@ -932,7 +1058,7 @@ jobs:
           cache-dependency-path: '**/pom.xml'
 
       - name: Build core and compile the historical process harnesses
-        run: ./mvnw -DskipTests package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -DskipTests package
 
       - name: Exercise the V4 crash-harness and fake-cloud foundation
         run: scripts/verify-v40-phase1-foundation.sh --skip-build
@@ -1036,7 +1162,7 @@ jobs:
           fi
 
       - name: Restore the closed-surface non-JMH artifact
-        run: ./mvnw -q clean -DskipTests package
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -q clean -DskipTests package
 
       - name: Exercise V4.4 stabilization and no-GCP readiness
         run: |
@@ -1045,6 +1171,15 @@ jobs:
           else
             echo "V4.4 Phase 5 gate: SKIP (closed published line)"
           fi
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v4-regression-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
 
   soak-examples:
     # The JMH test, soak script and travel script each build their own inputs.

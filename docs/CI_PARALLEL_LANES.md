@@ -33,6 +33,11 @@ changes
 
 ## Build prerequisites and isolation
 
+Ordinary builds below now run through the [bounded Maven infrastructure helper](CI_MAVEN_INFRA_RETRY.md).
+It preserves the underlying command and permits one retry only for classified remote
+transfer failures before test execution. Phase gates and specialized builds keep their
+original single-attempt behavior; all attempt logs are uploaded independently.
+
 | Job | Local prerequisites | Timeout |
 | --- | --- | --- |
 | `reactor-core` | Existing `./mvnw -f reactor/pom.xml clean package`, with all reactor tests | 30 minutes |

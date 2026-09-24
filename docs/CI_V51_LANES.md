@@ -35,6 +35,11 @@ still determine the overall workflow duration.
 
 ## Gate and artifact ownership
 
+Ordinary builds below now run through the [bounded Maven infrastructure helper](CI_MAVEN_INFRA_RETRY.md).
+It preserves the underlying command and permits one retry only for classified remote
+transfer failures before test execution. Phase gates and specialized builds keep their
+original single-attempt behavior; all attempt logs are uploaded independently.
+
 Each child starts only after `changes`, checks out source, uses the same pinned
 Temurin Java 21 setup/cache, and runs `./mvnw -f reactor/pom.xml package`, including
 all reactor tests. `--skip-build` gates therefore have local JARs, test classes and
