@@ -161,9 +161,9 @@ final class AutomaticRecords {
         }
         need(value instanceof String, "string scalar"); String s = (String) value;
         switch (name) {
-            case "hash" -> need(s.matches("[0-9a-f]{64}"), "hash");
+            case "hash" -> need(hexHash(s), "hash");
             case "uuid" -> need(UUID.fromString(s).toString().equals(s), "canonical UUID");
-            case "id", "node" -> need(s.matches("[a-z0-9][a-z0-9._-]{0," + (name.equals("node") ? 63 : 127) + "}"), "identity");
+            case "id", "node" -> need(identity(s, name.equals("node") ? 64 : 128), "identity");
             case "text", "relative" -> {
                 need(!s.isEmpty() && s.getBytes(StandardCharsets.UTF_8).length <= 4096 && s.indexOf('\0') < 0, "text bound");
                 need(StandardCharsets.UTF_8.newEncoder().canEncode(s), "invalid Unicode text");
@@ -177,6 +177,23 @@ final class AutomaticRecords {
                 if (name.startsWith("frame:")) decode(raw, name.substring(6), depth + 1);
             }
         }
+    }
+    private static boolean hexHash(String value) {
+        if (value.length() != 64) return false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!(c >= '0' && c <= '9' || c >= 'a' && c <= 'f')) return false;
+        }
+        return true;
+    }
+    private static boolean alphaNumeric(char c) { return c >= 'a' && c <= 'z' || c >= '0' && c <= '9'; }
+    private static boolean identity(String value, int maximum) {
+        if (value.isEmpty() || value.length() > maximum || !alphaNumeric(value.charAt(0))) return false;
+        for (int i = 1; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!alphaNumeric(c) && c != '.' && c != '_' && c != '-') return false;
+        }
+        return true;
     }
     private static long integer(Object value) { need(value instanceof Long || value instanceof Integer, "integer required"); return ((Number) value).longValue(); }
     private static boolean equalScalar(Object a, Object b) {

@@ -36,7 +36,7 @@ def inventory(root):
         m.need(name != INDEX, 'reserved evidence inventory name')
         size = path.stat().st_size
         total += size
-        if name.endswith(('.jsonl', '.log')):
+        if name.endswith(('.jsonl', '.jsonl.gz', '.log')):
             traces += size
         m.need(size <= LIMITS['memberBytes'] and total <= LIMITS['expandedBytes'] and
                traces <= LIMITS['traceBytes'] and len(result) < LIMITS['files']-1, 'evidence file/byte budget')
@@ -214,7 +214,7 @@ def unpack(parts_root, target, binding_sha256):
                 safe_name(item.name)
                 m.need(item.isfile() and item.name not in actual and len(actual) < LIMITS['files'], 'duplicate/non-file/too many archive members')
                 total += item.size
-                if item.name.endswith(('.jsonl', '.log')):
+                if item.name.endswith(('.jsonl', '.jsonl.gz', '.log')):
                     traces += item.size
                 m.need(0 <= item.size <= LIMITS['memberBytes'] and total <= LIMITS['expandedBytes'] and traces <= LIMITS['traceBytes'], 'expanded evidence budget')
                 destination = target / item.name

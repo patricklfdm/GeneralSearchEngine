@@ -52,6 +52,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final Map<Long,CompletableFuture<AutomaticProtocol.Message>> incoming=new HashMap<>();
     private final Map<Long,CompletableFuture<Long>> requests=new HashMap<>();
     private final Thread control;
+    private Maintenance<?> pendingMaintenance;
     private volatile AutomaticProtocol.View view;
     private volatile Record promise;
     private volatile Throwable failure;
@@ -99,7 +100,10 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             promise=protocol.promise();view=protocol.view();
             refresh();
             listening=new AutomaticTransport(manifest,local,bounds,this::handle,transportEvents);transport=listening;
-            rejoin=new AutomaticRejoin(store,protocol,this::controlled,this::send,this::now,this::id,events);
+            rejoin=new AutomaticRejoin(store,protocol,new AutomaticRejoin.Control(){
+                public <R> R call(Callable<R> action)throws Exception{return controlled(action);}
+                public <R> R maintain(Callable<R> action)throws Exception{return maintained(action);}
+            },this::send,this::now,this::id,events);
             control=Thread.ofPlatform().daemon().name("gse-automatic-control-"+local).unstarted(this::loop);
             inputs.add(()->protocol.start(now()));control.start();
         } catch(RuntimeException|Error error) {
@@ -175,11 +179,35 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         var answer=new CompletableFuture<R>();enqueue(()->{try{answer.complete(task.call());}catch(Throwable error){answer.completeExceptionally(error);}});
         return answer.get(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);
     }
+    private static final class Maintenance<R> implements Runnable {
+        final Callable<R> action;final CompletableFuture<R> answer=new CompletableFuture<>();
+        final java.util.concurrent.atomic.AtomicInteger state=new java.util.concurrent.atomic.AtomicInteger();
+        Maintenance(Callable<R> action){this.action=action;}
+        void cancelBeforeStart(){if(state.compareAndSet(0,2))answer.cancel(false);}
+        public void run(){if(!state.compareAndSet(0,1)||answer.isDone())return;try{answer.complete(action.call());}catch(Throwable error){answer.completeExceptionally(error);}}
+    }
+    private <R> R maintained(Callable<R> task) throws Exception {
+        var work=new Maintenance<R>(()->{if(closing)throw outcome(CLOSED,NOT_APPLICABLE);return task.call();});
+        enqueue(work);
+        try{return work.answer.get(bounds.requestTimeoutMillis(),TimeUnit.MILLISECONDS);}
+        finally{work.cancelBeforeStart();} // Already admitted durable I/O finishes; expired queued work cannot begin.
+    }
     private void loop() {
         while(!terminated)try {
             for(int i=0;i<16;i++){Runnable task=completions.poll();if(task==null)break;task.run();flush();}
-            Runnable task=inputs.poll(20,TimeUnit.MILLISECONDS);if(task!=null)task.run();
+            if(pendingMaintenance!=null&&pendingMaintenance.answer.isDone())pendingMaintenance=null;
+            Runnable task=inputs.poll(20,TimeUnit.MILLISECONDS);
+            if(task instanceof Maintenance<?> work) {
+                // One maintenance worker can leave at most one deferred control action.
+                if(pendingMaintenance!=null)work.answer.completeExceptionally(outcome(CAPACITY_EXCEEDED,NOT_APPLICABLE));
+                else pendingMaintenance=work;
+            } else if(task!=null)task.run();
             if(!closing) {protocol.tick(now());rejoin.tick();}flush();
+            // Finish admitted foreground pipelines, including private encoding and publication,
+            // before starting another background disk operation. Network/control work stays live.
+            if(pendingMaintenance!=null&&submission.availablePermits()==1&&inputs.isEmpty()&&completions.isEmpty()) {
+                var work=pendingMaintenance;pendingMaintenance=null;work.run();
+            }
         }catch(InterruptedException error){if(!terminated){failure=error;closing=true;}}
         catch(Throwable error){failure=error;closing=true;try{protocol.quiesce();flush();}catch(Throwable ignored){}}
     }
@@ -250,8 +278,21 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         }
     }
 
+    // Process-local diagnostic identity only: never encoded into authority or wire.
+    private final java.util.concurrent.atomic.AtomicLong observedReads=new java.util.concurrent.atomic.AtomicLong();
+    long observeReadInvocation() {
+        if(events==Events.NONE)return 0;
+        long id=observedReads.incrementAndGet();
+        try {events.at("PUBLIC_READ_INVOKE",Map.of("readId",id));}
+        catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
+        return id;
+    }
+
     record Captured<R>(CompletableFuture<Void> begun,CompletableFuture<R> result) { }
     <R> Captured<R> capture(long epoch,long index,long deadline,Function<AutomaticApplication<K,T>,R> action) {
+        return capture(epoch,index,deadline,action,0);
+    }
+    <R> Captured<R> capture(long epoch,long index,long deadline,Function<AutomaticApplication<K,T>,R> action,long readId) {
         var begun=new CompletableFuture<Void>();var result=new CompletableFuture<R>();
         try { applicationTask(()->{
             try {
@@ -260,7 +301,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 events.at("READ_BEFORE_CAPTURE",Map.of("epoch",epoch,"index",index));
                 // Validate at the capture point, not against a possibly older diagnostic cache.
                 // The application worker keeps this view alive; no query callback runs under the protocol monitor.
-                var cut=Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence());
+                var cut=readId==0?Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence()):
+                        Map.<String,Object>of("epoch",epoch,"index",index,"sequence",application.sequence(),"readId",readId);
                 synchronized(protocol) {
                     // Lock contention or a test pause may outlive the initial check.
                     if(closing||result.isCancelled())throw outcome(CLOSED,NOT_APPLICABLE);
@@ -425,7 +467,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     @Override public synchronized void close() {
         if(terminated)return;closing=true;
         var stop=new CompletableFuture<Void>();complete(()->{
-            try {rejoin.stop();protocol.quiesce();flush();Runnable queued;while((queued=inputs.poll())!=null){queued.run();flush();}stop.complete(null);}
+            try {rejoin.stop();protocol.quiesce();flush();
+                if(pendingMaintenance!=null){pendingMaintenance.answer.completeExceptionally(outcome(CLOSED,NOT_APPLICABLE));pendingMaintenance=null;}
+                Runnable queued;while((queued=inputs.poll())!=null){queued.run();flush();}stop.complete(null);}
             catch(Throwable error){stop.completeExceptionally(error);}
         });
         try {

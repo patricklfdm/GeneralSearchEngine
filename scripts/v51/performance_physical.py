@@ -7,16 +7,18 @@ need = m.need
 raw = projection.raw
 
 
-def automatic(root, calls, traces, *, evidence_location=None):
+def automatic(root, calls, traces, *, evidence_location=None, cloud_calls=None):
     root = Path(root)
     manifest_bytes = (root / 'node-1/manifest.gsr').read_bytes()
     votes = {n: [raw(r['record']) for r in rows if r['event'] == 'FORCE' and r['kind'] == 'ACCEPT'] for n, rows in traces.items()}
-    projected = projection.project(manifest_bytes, (root / 'node-1/genesis.gsr').read_bytes(), votes)
+    maximum_slots = 512 if cloud_calls is not None else 192
+    project = projection.project_cloud if cloud_calls is not None else projection.project
+    projected = project(manifest_bytes, (root / 'node-1/genesis.gsr').read_bytes(), votes)
     manifest = projected['manifest']
     need(set(traces) == {'node-1', 'node-2', 'node-3'}, 'rich voter coverage')
     inspect = evidence_location.inspect if evidence_location is not None else storage.inspect
     reports = {node: inspect(root / node, 64 << 20, 1 << 20) for node in traces}
-    need(0 < len(projected['chosen']) <= 192, 'automatic slot ceiling')
+    need(0 < len(projected['chosen']) <= maximum_slots, 'automatic slot ceiling')
     need(all(r['provenThrough'] >= max(projected['chosen']) for r in reports.values()), 'voter missing final durable cut')
     replies, descriptors, parts, selections = set(), {}, {}, {}
     for node, rows in traces.items():
@@ -68,6 +70,10 @@ def automatic(root, calls, traces, *, evidence_location=None):
         reservation_ids = set()
         for row in rows:
             event = row['event']
+            if cloud_calls is not None and event in ('CLIENT_INVOKE','CLIENT_RESULT','PUBLIC_READ_INVOKE',
+                                                       'READ_CAPTURE_VALIDATED','READ_CAPTURED','READ_RELEASED'):
+                cloud_calls.event(node,row,projected,published,own_votes,promise)
+                continue
             if event == 'TRANSPORT':
                 transition, identity = row['transition'], row['reservation']
                 if transition.endswith('_ADMITTED'):
@@ -173,9 +179,13 @@ def automatic(root, calls, traces, *, evidence_location=None):
         for index, digest in projected['chosen'].items():
             if report['provenThrough'] >= index:
                 need(report['acceptedDigests'][index-1] == digest, 'retained rich prefix changed')
-    need(successes == set(expected) and len(mutations) == 72 and len(read_barriers) == 19, 'rich schedule/auxiliary barrier accounting')
+    if cloud_calls is None:
+        need(successes == set(expected) and len(mutations) == 72 and len(read_barriers) == 19, 'rich schedule/auxiliary barrier accounting')
+    else:
+        cloud_calls.finish()
+        mutations,read_barriers=cloud_calls.mutations,cloud_calls.read_barriers
     need(all(entry['operation'] == 9 or digest in mutations for digest, entry in projected['entries'].items()), 'extra application mutation')
-    need(len(projected['chosen']) - 72 - len(read_barriers) <= 64, 'activation recovery NO_OP allowance')
+    need(len(projected['chosen']) - len(mutations) - len(read_barriers) <= 64, 'activation recovery NO_OP allowance')
     return dict(status='PASS', chosen=len(projected['chosen']), mutations=len(mutations), readBarriers=len(read_barriers),
                 publications=publications, finalSequence=projected['states'][max(projected['chosen'])].sequence,
                 retained={n:dict(provenIndex=r['provenThrough'], bytes=sum(v['size'] for v in storage.inventory(root/n).values())) for n,r in reports.items()})

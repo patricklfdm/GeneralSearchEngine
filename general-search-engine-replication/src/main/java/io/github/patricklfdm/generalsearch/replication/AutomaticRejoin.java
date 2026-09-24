@@ -8,7 +8,10 @@ import java.util.function.LongSupplier;
 
 /** One bounded maintenance pipeline. All authority and lease mutations use the control dispatcher. */
 final class AutomaticRejoin implements AutoCloseable {
-    interface Control { <R> R call(Callable<R> action) throws Exception; }
+    interface Control {
+        <R> R call(Callable<R> action) throws Exception;
+        default <R> R maintain(Callable<R> action) throws Exception {return call(action);}
+    }
     interface Sender { Map<String,Object> send(Map<String,Object> request) throws Exception; }
     private record Lease(String requestId,String id,Record ballot,String peer,long deadline,byte[] bytes,boolean delivered) { }
     private record Transfer(String id,Record ballot,String peer,long deadline,long length,String digest) { }
@@ -42,7 +45,7 @@ final class AutomaticRejoin implements AutoCloseable {
     private String offerTrace;
     private long offerSequence;
     private boolean running,closed;
-    private String cleaned;
+    private String cleaned,cleanedGeneration;
     private long next;
     private volatile Throwable lastFailure;
     private volatile Throwable lastRejected;
@@ -79,7 +82,7 @@ final class AutomaticRejoin implements AutoCloseable {
         return response;
     }
     private void cycle() throws Exception {
-        Cut cut=control.call(()->{
+        Cut cut=control.maintain(()->{
             Record snapshot=protocol.maintenanceSnapshot();
             if(snapshot==null)return null;
             // A new checkpoint never consumes the last recovery generation slot blindly.
@@ -89,20 +92,33 @@ final class AutomaticRejoin implements AutoCloseable {
         if(cut!=null)for(String peer:nodes(manifest.value()))if(!peer.equals(local)) {
             try{catchup(cut,peer);}catch(Exception error){lastFailure=error;}
         }
-        var own=control.call(()->{
+        var own=control.maintain(()->{
             if(!protocol.maintenanceCurrent(protocol.promise()))return null;
-            var source=store.currentSource();return source==null?null:store.recoverySource();
+            var source=store.currentSource();
+            // A completed floor/cleanup remains sufficient for this immutable generation.
+            // New journal suffixes do not change its snapshot or require another source download.
+            // Still read/verify current authority; a new generation or new controller must run again.
+            return source==null||source.seal().digest().equals(cleanedGeneration)?null:store.recoverySource();
         });
         if(own==null)return;
         Record ballot=control.call(protocol::promise);
         for(String peer:nodes(manifest.value()))if(!peer.equals(local))try {
             var remote=fetchSource(ballot,peer,own);
-            control.call(()->{
+            control.maintain(()->{
                 current(ballot);var active=store.currentSource();
                 need(active!=null&&active.seal().digest().equals(own.seal().digest()),"local source changed during recovery exchange");
                 String identity=own.seal().digest()+remote.seal().digest();if(identity.equals(cleaned))return null;
-                store.establishRecoveryFloor(List.of(own,remote));store.cleanup();
-                cleaned=identity;
+                store.establishRecoveryFloor(List.of(own,remote));
+                return null;
+            });
+            // Both operations retain their existing durable ordering. Yield between them so
+            // queued client/protocol work can run, then recheck authority before any deletion.
+            control.maintain(()->{
+                current(ballot);var active=store.currentSource();
+                need(active!=null&&active.seal().digest().equals(own.seal().digest()),"local source changed before recovery cleanup");
+                String identity=own.seal().digest()+remote.seal().digest();if(identity.equals(cleaned))return null;
+                store.cleanup();
+                cleaned=identity;cleanedGeneration=own.seal().digest();
                 events.at("RECOVERY_FLOOR",Map.of("local",packetValue(own),"remote",packetValue(remote),"index",(long)AutomaticRecovery.index(own.snapshot())));
                 return null;
             });

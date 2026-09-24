@@ -179,16 +179,21 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
         });
     }
     private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action) {
+        return capture(until,action,0);
+    }
+    private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action,long readId) {
         var value=available(true,NOT_APPLICABLE);long epoch=value.status().promisedEpoch();
         var barrier=value.submit(9,app->new byte[0]);long cut;
         try {cut=await(barrier,until,NOT_APPLICABLE);}catch(RuntimeException error){barrier.cancel(false);throw error;}
-        var captured=value.capture(epoch,cut,until,action);
+        var captured=value.capture(epoch,cut,until,action,readId);
         try {await(captured.begun(),until,NOT_APPLICABLE);}catch(RuntimeException error){captured.result().cancel(false);throw error;}
         // The deadline bounds admission/barrier/capture. An active user query is cooperative.
         return join(captured.result());
     }
     private <R> R strong(Function<AutomaticApplication<K,T>,R> action) {
-        context(NOT_APPLICABLE);return join(enqueue(false,true,until->capture(until,action)));
+        context(NOT_APPLICABLE);
+        var runtime=node;long readId=runtime==null?0:runtime.observeReadInvocation();
+        return join(enqueue(false,true,until->capture(until,action,readId)));
     }
     @Override public CompletableFuture<Void> add(T document) { return mutate("ADD", app -> app.documents("ADD", List.of(document))); }
     @Override public CompletableFuture<Void> update(T document) { return mutate("UPDATE", app -> app.documents("UPDATE", List.of(document))); }

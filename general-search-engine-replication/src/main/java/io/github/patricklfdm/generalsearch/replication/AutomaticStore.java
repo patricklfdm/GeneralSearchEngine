@@ -203,6 +203,14 @@ final class AutomaticStore implements AutoCloseable {
         recoveryIo(()->{need(selected!=null&&selected.record().value().get("ballot").equals(AutomaticRecovery.ballotOf(promise)),"no current recovery selection");install(selected.snapshot(),selected.record());return null;});
     }
     synchronized void checkpoint(byte[] application) { recoveryIo(()->{install(snapshot(application),null);return null;}); }
+    synchronized void resumeInitialCheckpoint(byte[] application) {
+        recoveryIo(()->{
+            if(recovery.current()!=null||!Files.exists(directory.resolve("generation-a")))return null;
+            var image=snapshot(application);Record tail=acceptedThrough()>provenThrough()?acceptance(acceptedThrough()):null;
+            if(recovery.initialCheckpointResumable(image,tail))install(image,null);
+            return null;
+        });
+    }
     // Expected maintenance pressure is checked before entering the ambiguous-I/O path.
     synchronized boolean generationAvailable(Record snapshot) {
         usable();

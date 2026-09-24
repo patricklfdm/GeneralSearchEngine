@@ -214,14 +214,37 @@ final class AutomaticRecoveryFiles {
         var source=Source.read(files,manifest);Path dir=root.resolve("transfer/witness").resolve(requester);
         saveSource(dir,source,"WITNESS");sync(dir);faults.at("WITNESS_BEFORE_ACK");faults.at("SOURCE_BEFORE_ACK");return source;
     }
-    Source install(Record snapshot,Record localTail,Record selected) throws IOException {
-        Source current=current();String target=current==null||current.selector.value().get("generation").equals("generation-b")?"generation-a":"generation-b";
-        Path dir=root.resolve(target);var files=new java.util.TreeMap<String,byte[]>();files.put("snapshot.gsr",snapshot.bytes());
+    private java.util.TreeMap<String,byte[]> generationFiles(Record snapshot,Record localTail) {
+        var files=new java.util.TreeMap<String,byte[]>();files.put("snapshot.gsr",snapshot.bytes());
         byte[] accepts=encode("JOURNAL",Map.of("manifestDigest",manifest.digest(),"node",node,"recordKind",24));
         if(localTail!=null){var combined=new byte[accepts.length+localTail.bytes().length];System.arraycopy(accepts,0,combined,0,accepts.length);System.arraycopy(localTail.bytes(),0,combined,accepts.length,localTail.bytes().length);accepts=combined;}
         files.put("accepted.gsr",accepts);files.put("proofs.gsr",encode("JOURNAL",Map.of("manifestDigest",manifest.digest(),"node",node,"recordKind",6)));
+        return files;
+    }
+    private Record generationSeal(Record snapshot,Record selected,Map<String,byte[]> files) {
         var value=new LinkedHashMap<String,Object>();value.put("manifestDigest",manifest.digest());value.put("node",node);value.put("snapshotDigest",snapshot.digest());value.put("prefixIndex",(long)AutomaticRecovery.index(snapshot));value.put("selectedDigest",selected==null?null:selected.digest());value.put("files",files.entrySet().stream().map(e->AutomaticRecovery.file(e.getKey(),e.getValue())).toList());
-        Record seal=decode(encode("GENERATION",value),"GENERATION");
+        return decode(encode("GENERATION",value),"GENERATION");
+    }
+    boolean initialCheckpointResumable(Record snapshot,Record localTail) throws IOException {
+        // The root journals remain authority until the first selector is published.
+        // Resume only bytes derived from that exact reconstructed root prefix.
+        if(current()!=null||!Files.isDirectory(root.resolve("generation-a"),LinkOption.NOFOLLOW_LINKS)
+                ||Files.exists(root.resolve("transfer/retiring")))return false;
+        var files=generationFiles(snapshot,localTail);
+        files.put("generation.gsr",generationSeal(snapshot,null,files).bytes());
+        for(var e:files.entrySet()) {
+            Path path=root.resolve("generation-a").resolve(e.getKey());
+            if(Files.exists(path)) {
+                byte[] raw=bytes(path);
+                if(raw.length>e.getValue().length||!Arrays.equals(raw,Arrays.copyOf(e.getValue(),raw.length)))return false;
+            }
+        }
+        return true;
+    }
+    Source install(Record snapshot,Record localTail,Record selected) throws IOException {
+        Source current=current();String target=current==null||current.selector.value().get("generation").equals("generation-b")?"generation-a":"generation-b";
+        Path dir=root.resolve(target);var files=generationFiles(snapshot,localTail);
+        Record seal=generationSeal(snapshot,selected,files);
         Path sealPath=dir.resolve("generation.gsr"); boolean complete=false;
         if(Files.exists(sealPath)) {
             byte[] old=bytes(sealPath);

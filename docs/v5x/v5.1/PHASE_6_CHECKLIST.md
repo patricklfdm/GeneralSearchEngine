@@ -15,8 +15,11 @@ Master CI `35932225694` then failed the
 and a [V5.0 retry fixture](../v5.0/PHASE_5_HARDENING.md#post-pr-221-follow-up-target-the-add-exchange).
 PR #222 accepted both corrections at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`.
 Exact-master CI `35937300754` passed all nineteen jobs and 24 V5.1 verification steps.
-6A/6B are accepted. [6C remote control foundation](PHASE_6_REMOTE_FOUNDATION.md)
-is the current implementation candidate; full 6C qualification remains open.
+6A/6B are accepted. [6C1 remote control foundation](PHASE_6_REMOTE_FOUNDATION.md)
+was accepted through PR #223, master `833da4947266b4edfbee2a0e6fe10055ed3be00c`;
+exact-master CI `35942555519` passed all nineteen jobs and 25 V5.1 verification steps.
+[6C2A rich JVM integration](PHASE_6_REMOTE_RICH.md) is the current candidate;
+full 6C qualification remains open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -40,7 +43,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6B: workload hash/calibration accepted through PR #222; full rich concurrency/remote schedule execution remains a 6C prerequisite.
 - [x] 6C1 implementation candidate: durable command claims, fixed-arrival executor, disjoint time accounting and bounded binary evidence parts.
 - [x] 6C1 local control qualification: real lost-response/duplicate/SIGKILL/cancel processes, complete synthetic tapes and independently checked collection.
-- [ ] 6C1 protected acceptance and exact-source CI; control-only receipts do not qualify a GSE workload.
+- [x] 6C1 protected acceptance: PR #223, exact-master CI `35942555519`; control-only receipts do not qualify a GSE workload.
+- [x] 6C2A implementation candidate: persistent JVM lanes, full frozen rich tapes, concurrent captured-cut oracle and portable binary replay.
+- [ ] 6C2A protected acceptance and exact-source CI.
 - [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
