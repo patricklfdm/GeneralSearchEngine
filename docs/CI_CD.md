@@ -53,8 +53,10 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs nineteen independent gates after
-`changes`, each with its own runner workspace:
+For build inputs or manual dispatch, the workflow runs twenty required gates,
+each with its own runner workspace.
+The V5.1 behavioral lanes depend on their dedicated verification build; other
+domains start after `changes`:
 
 1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
    then performs the full clean Maven reactor package, including core, replication,
@@ -70,7 +72,7 @@ For build inputs or manual dispatch, the workflow runs nineteen independent gate
 10. `v51-reclamation` runs interrupted two-source reclamation.
 11. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
 12. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
-    Each V5 lane builds and tests its own reactor and retains its own evidence.
+    Both V5.0 lanes retain their independent reactor builds/tests and execution evidence.
 13. `v4-regression` (`V4 regression`) compiles its own core and test harnesses, then
     retains the V4.0–V4.4 chain, specialized JMH rebuilds and closed-line conditions.
 14. `soak-examples` (`Soak and examples`) runs the JMH instrumentation contract tests,
@@ -92,15 +94,19 @@ For build inputs or manual dispatch, the workflow runs nineteen independent gate
     independent captured-cut checks and portable binary replay without GCP.
 19. `v51-remote-faults` runs twelve frozen fault cells, independent history/physical
     checks and relocated binary replay without GCP.
+20. `v51-verification-build` builds and tests the dedicated V5.1 verification inputs.
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
 record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
 includes measured estimates and the accompanying test-only catch-up budget correction.
-Maven execution inside each job remains serial. There is no cross-job `target/`
-sharing, and every lane is required for full CI. Each of the eleven V5.1 jobs also
-uploads `**/target/surefire-reports/**` with `always()` and a unique
-`<job-id>-java-tests-${{ github.sha }}` artifact name, retaining failed builds for
-fourteen days. Regression timeouts remain 60 minutes.
+The [V5.1 verification build domain](CI_V51_BUILD_DOMAIN.md) adds the twentieth
+gate, `v51-verification-build`: a dedicated clean reactor package/tests whose exact-source
+JARs, replication test classes and executed reports are restored by the eleven V5.1
+behavioral lanes. These lanes keep isolated workspaces and all original verification
+commands/evidence. The producer always retains all reactor Java reports and Maven
+attempts; each consumer retains its restore provenance. All artifacts last fourteen
+days. Maven remains serial within each build, the independent clean/release/compatibility
+builds remain separate, and regression timeouts remain 60 minutes.
 
 Ordinary prerequisite Maven builds use the [bounded infrastructure retry](CI_MAVEN_INFRA_RETRY.md):
 at most two attempts with a fifteen-second backoff, only for explicit remote-transfer

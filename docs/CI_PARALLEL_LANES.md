@@ -1,10 +1,13 @@
 # CI parallel lanes: dependency audit and migration map
 
-The workflow now has nineteen independent full CI jobs. Each depends only on
-`changes`; `required` waits for all nineteen plus change classification. The
-[V5.1 three-way split](CI_V51_LANES.md) records the latest measured partition,
-complete V5.1 gate ownership and the test-budget correction. See
-[CI/CD operations](CI_CD.md) for triggers and branch protection.
+This audit and migration map record the architecture **before** V5.1 build
+sharing: nineteen independent full-CI jobs after `changes`. The current
+[V5.1 verification build domain](CI_V51_BUILD_DOMAIN.md) replaces eleven repeated
+prerequisite builds with one producer and exact-source restores, adding a twentieth
+required gate. The graph and prerequisite table below are historical; the original
+verification/upload migration map remains useful for checking preserved coverage.
+See [V5.1 lane ownership](CI_V51_LANES.md) and [CI/CD operations](CI_CD.md) for
+current ownership, triggers and branch protection.
 
 ```text
 changes

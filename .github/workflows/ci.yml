@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle
 
       - name: Classify the complete change set
         id: scope
@@ -80,13 +80,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  v51-foundation:
-    # Independent reactor build: local JARs, test classes and executed test reports.
-    name: V5.1 foundation and runtime
+  v51-verification-build:
+    # Dedicated verification domain; the independent clean/release gates stay separate.
+    name: V5.1 verification build
     needs: changes
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -99,15 +99,96 @@ jobs:
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Record verification build inputs before clean
+        run: >-
+          python3 -m scripts.ci_v51_bundle prepare --source "$GITHUB_SHA"
+          --state "$RUNNER_TEMP/v51-build/state.json"
+          --receipt "$RUNNER_TEMP/v51-build/prepare.json"
 
-      - name: Retain lane Java test reports including build failures
+      - name: Build verification artifacts and execute all prerequisite Java tests
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml clean package
+
+      - name: Create exact-source V5.1 verification bundle
+        run: >-
+          python3 -m scripts.ci_v51_bundle create --source "$GITHUB_SHA"
+          --state "$RUNNER_TEMP/v51-build/state.json" --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/create.json"
+
+      - name: Publish V5.1 verification inputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: |
+            target/ci-v51-build/build.tar.gz
+            target/ci-v51-build/manifest.json
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+      - name: Retain all Java test reports including build failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-foundation-java-tests-${{ github.sha }}
+          name: v51-verification-build-java-tests-${{ github.sha }}
           path: '**/target/surefire-reports/**'
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain build provenance including bundle failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-verification-build-receipts-${{ github.sha }}
+          path: ${{ runner.temp }}/v51-build
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain every Maven infrastructure attempt including recovered failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: maven-infra-v51-verification-build-${{ github.sha }}
+          path: ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
+  v51-foundation:
+    # Isolated execution using verified inputs from the V5.1 build domain.
+    name: V5.1 foundation and runtime
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
+
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-foundation-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -181,19 +262,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-foundation-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-remote-rich:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 full rich workload (no GCP)
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -206,18 +279,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-remote-rich-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -233,19 +315,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-remote-rich-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-remote-faults:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 frozen fault workloads (no GCP)
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -258,18 +332,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-faults-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-remote-faults-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -285,19 +368,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-remote-faults-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-admission-resources:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 admission and resources
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -310,18 +385,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-admission-resources-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-admission-resources-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -372,19 +456,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-admission-resources-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-promise-crashes:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 promise crashes
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -397,18 +473,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-promise-crashes-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-promise-crashes-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -424,19 +509,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-promise-crashes-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-public-reads-faults:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 public reads and faults
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -449,18 +526,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-public-reads-faults-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-public-reads-faults-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -500,19 +586,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-public-reads-faults-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-public-recovery-pressure:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 public recovery and pressure
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -525,18 +603,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-public-recovery-pressure-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-public-recovery-pressure-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -588,19 +675,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-public-recovery-pressure-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-public-hardening:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 public hardening
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -613,18 +692,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-public-hardening-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-public-hardening-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -652,19 +740,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-public-hardening-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-protocol-selection:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 protocol and selection
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -677,18 +757,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-protocol-selection-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-protocol-selection-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -716,19 +805,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-protocol-selection-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-candidate-crashes:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 candidate crashes
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -741,18 +822,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-candidate-crashes-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-candidate-crashes-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -768,19 +858,11 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-candidate-crashes-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v51-reclamation:
-    # Independent reactor build: local JARs, test classes and executed test reports.
+    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 reclamation
-    needs: changes
+    needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -793,18 +875,27 @@ jobs:
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-          cache: maven
-          cache-dependency-path: '**/pom.xml'
 
-      - name: Build lane artifacts and execute prerequisite Java tests
-        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
 
-      - name: Retain lane Java test reports including build failures
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-reclamation-java-tests-${{ github.sha }}
-          path: '**/target/surefire-reports/**'
+          name: v51-reclamation-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
 
@@ -820,14 +911,6 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Retain every Maven infrastructure attempt including recovered failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: maven-infra-v51-reclamation-${{ github.sha }}
-          path: ${{ runner.temp }}/gse-maven-infra-retry
-          if-no-files-found: warn
-          retention-days: 14
 
   v50-authority:
     # Independent reactor build: local JARs, test classes and executed test reports.
@@ -1556,6 +1639,7 @@ jobs:
     needs:
       - changes
       - reactor-core
+      - v51-verification-build
       - v51-foundation
       - v51-remote-rich
       - v51-remote-faults
@@ -1581,6 +1665,7 @@ jobs:
         env:
           CHANGES_RESULT: ${{ needs.changes.result }}
           RUN_FULL_CI: ${{ needs.changes.outputs.run_full_ci }}
+          V51_BUILD_RESULT: ${{ needs.v51-verification-build.result }}
           REACTOR_RESULT: ${{ needs.reactor-core.result }}
           V51_FOUNDATION_RESULT: ${{ needs.v51-foundation.result }}
           V51_REMOTE_RICH_RESULT: ${{ needs.v51-remote-rich.result }}
@@ -1607,7 +1692,7 @@ jobs:
             false) expected=skipped ;;
             *) echo "Invalid change-scope result" >&2; exit 1 ;;
           esac
-          for result in "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
+          for result in "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
             "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
             "$V51_RECLAMATION_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \

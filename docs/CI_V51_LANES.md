@@ -4,10 +4,12 @@ The three V5.1 regression jobs now each have three independently required childr
 This refactor preserves every verification command and every evidence upload.
 A later [Phase 6C2A rich-workload lane](v5x/v5.1/PHASE_6_REMOTE_RICH.md) is independently
 required. The [6C2B fault lane](v5x/v5.1/PHASE_6_REMOTE_FAULTS.md) adds a separate
-required twelve-cell qualification. Full CI now has nineteen required jobs plus Change scope and Required
-(twenty-one jobs in total). Docs-only CI continues to skip Maven.
+required twelve-cell qualification. The subsequent
+[verification build domain](CI_V51_BUILD_DOMAIN.md) centralizes
+V5.1 prerequisite compilation/tests. Full CI now has twenty required gates plus
+Change scope and Required (twenty-two jobs total). Docs-only CI continues to skip Maven.
 
-## Measured partition
+## Historical partition measurements
 
 Timing source: [successful PR CI 35807126940](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35807126940).
 The original foundation/admission, protocol/reclamation and public lifecycle jobs
@@ -40,10 +42,12 @@ It preserves the underlying command and permits one retry only for classified re
 transfer failures before test execution. Phase gates and specialized builds keep their
 original single-attempt behavior; all attempt logs are uploaded independently.
 
-Each child starts only after `changes`, checks out source, uses the same pinned
-Temurin Java 21 setup/cache, and runs `./mvnw -f reactor/pom.xml package`, including
-all reactor tests. `--skip-build` gates therefore have local JARs, test classes and
-fresh executed Surefire reports. No child downloads another child's build outputs.
+Each V5.1 behavioral child now waits for `changes` and `v51-verification-build`,
+checks out the same source and uses the same pinned Temurin Java 21. It downloads
+and validates the dedicated build bundle before its unchanged `--skip-build`
+gates. Main JARs, replication test classes and executed Surefire reports come from
+that one clean build; execution state/evidence remain private to each child.
+The historical repeated-build estimates above describe the original split.
 Phase 6A adds its rich-model/control qualification inside the existing foundation
 command, retained under that command's `rich-workload` subdirectory. It compiles
 against three isolated core JARs and runs only the published V4.4 semantic consumer;
