@@ -205,3 +205,21 @@ exact negative results passed in 154.751 seconds; combined evidence budgets also
 passed. Receipt: `target/v51-rich-negative-replay/repaired-aggregate/receipt.json`.
 This is an offline validation of the existing hosted execution, not a new workload
 run or corrected-source protected CI. The latter remains required.
+
+
+## Protected acceptance through PR #227
+
+PR #227 merged at `2db90846606547325c2f35a466813c622cc1ffac`.
+[Exact-master CI 36064320654](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36064320654)
+passed all 26 expanded jobs on its first attempt, including the shared build,
+prepared inputs, all three whole-cell shards, the independent aggregate and
+Required. This closes the CI partition and portable-negative-replay migration.
+The shared build took 301 seconds; rich inputs 23 seconds; automatic healthy,
+published controls and automatic concurrent took 456, 561 and 567 seconds;
+the aggregate took 229 seconds. These are observed job durations, not an SLA.
+
+The earlier PR run 36048504448 failed automatic healthy when an operation exceeded
+its frozen arrival spacing, then passed on rerun. That diagnostic remains retained
+at `target/v51-rich-healthy-ci/diagnosis.json`. A passing rerun and this master run
+do not establish a timing root cause or erase the original failed attempt. No
+measurement retry or relaxed timing rule was added.

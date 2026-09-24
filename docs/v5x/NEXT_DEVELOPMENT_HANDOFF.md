@@ -58,11 +58,16 @@ with control-only local qualification. PR #223 accepted it at
 `833da4947266b4edfbee2a0e6fe10055ed3be00c`, exact-master CI `35942555519`
 (nineteen jobs and 25 V5.1 verification steps passed). PR #224 accepted
 [6C2A rich workloads](v5.1/PHASE_6_REMOTE_RICH.md), exact-master CI `35961961431`
-(twenty jobs, 26 V5.1 gates). The current [6C2B fault candidate](v5.1/PHASE_6_REMOTE_FAULTS.md)
-implements the twelve fault cells and the explicitly approved two document-size
-exceptions. Review its complete fault evidence and exact-source CI, then complete
-512-slot basis/wire/transfer/re-proposal/pin and two-generation retention checks.
-That full-size boundary remains open; these small fault histories cannot close it.
+(twenty jobs, 26 V5.1 gates). PR #225 accepted the
+[6C2B fault workloads](v5.1/PHASE_6_REMOTE_FAULTS.md) and the two approved document-size
+exceptions: master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI
+`35989431966` (all 21 jobs). PR #227 closed [rich CI sharding](../CI_V51_RICH_SHARDS.md)
+on master `2db90846606547325c2f35a466813c622cc1ffac`, CI `36064320654` (all 26 jobs).
+The current [512-slot component candidate](v5.1/PHASE_6_FULL_SIZE.md) supplies actual
+forced votes, complete TCP basis/snapshot chunks, same-slot reproposal and pinned
+application-view/two-generation cleanup. Review its protected CI, then integrate
+this boundary with the automatic public runtime/guest lifecycle before closing
+6C2. Component orchestration does not qualify election or whole-transfer deadlines.
 The source-bound V5.1 runner/admission/configuration and provider failures remain
 6C3. Paid execution remains
 user-triggered after fresh exact-request confirmation.

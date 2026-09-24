@@ -248,6 +248,9 @@ The IMAGE is below one-quarter staging admission (16 MiB). This is encoding anal
 not proof of actual two-generation retention, compaction, transport metadata or peak
 heap. Full-size bootstrap/basis/wire/transfer/re-proposal/pin/retention qualification
 remains a hard 6C gate, using the same plan before a cloud prepare is enabled.
+The [actual 512-slot component candidate](PHASE_6_FULL_SIZE.md) now supplements
+this historical encoding analysis; its separate scope and remaining public-runtime
+integration are recorded explicitly. It does not change this frozen plan.
 
 A member retains at most 8 GiB expanded / 2 GiB compressed, 6 GiB traces/samples,
 16000 files, 32-MiB members, 4-MiB command responses, 128-MiB trace output per node
