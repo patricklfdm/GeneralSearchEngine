@@ -1169,6 +1169,18 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Verify V5.1 remote command, scheduler and binary evidence foundation
+        run: scripts/verify-v51-phase6-remote-foundation.sh
+
+      - name: Retain V5.1 remote control qualification including failed attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-foundation-${{ github.sha }}
+          path: target/v51-remote-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Check cloud shell syntax
         run: |
           bash -n run-cloud-benchmark.sh

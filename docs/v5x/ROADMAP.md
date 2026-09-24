@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A review and 6B cloud contract; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A/6B accepted; Phase 6C remote foundation; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
@@ -74,8 +74,11 @@ full CI `35841378072`). The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORM
 and corrections passed full master CI `35920225478` through PR #219. The
 [6A review](v5.1/PHASE_6_LOCAL_ACCEPTANCE.md) reconciles original measurements;
 the [6B cloud workload contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) adds a
-closed fifteen-cell plan and trace-backed local calibration. Protected review,
-remote implementation and cloud qualification remain pending in the
+closed fifteen-cell plan and trace-backed local calibration. Both are accepted
+through PR #222 at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, full master CI
+`35937300754`. The [6C1 remote foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) is the
+current implementation candidate. Actual workload integration, full remote/cloud
+qualification and paid admission remain pending in the
 [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

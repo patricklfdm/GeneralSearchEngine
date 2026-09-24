@@ -351,3 +351,14 @@ This is a bounded local three-mode/SIGKILL qualification, with no provider acces
 The seventeen required job identities, docs-only decision and other verification
 commands are unchanged; the original migration table above remains historical.
 See [current V5.1 gate ownership](CI_V51_LANES.md).
+
+## V5.1 Phase 6C1 follow-up
+
+`cloud-runner-tests` now executes `scripts/verify-v51-phase6-remote-foundation.sh`
+and always retains `target/v51-remote-foundation` as
+`v51-remote-foundation-${{ github.sha }}` for fourteen days. It uses Python only,
+with a 120-second subprocess backstop and no GCP credentials. The local gate checks
+command receipts, scheduler accounting and binary collection; it does not qualify
+GSE rich concurrency or enable a paid runner. The foundation discovery also runs
+its unit regressions. Required identities, docs-only behavior and the job's existing
+five-minute ceiling remain unchanged. The original migration map is historical.

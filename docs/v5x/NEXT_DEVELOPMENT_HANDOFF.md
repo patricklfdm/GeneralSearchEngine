@@ -49,9 +49,15 @@ master CI `35927462738` failed an inherited
 PR #221 merged that correction at `af68d8473f9998628e49189a2d8be658b8bfe116`.
 Master CI `35932225694` exposed a separate
 [proof-sample boundary and inherited retry fixture](v5.1/PHASE_5_COMBINED_RECOVERY.md#post-pr-221-correction-confirm-proof-before-recording-a-drained-round).
-Review both corrections and obtain protected acceptance under the
-[checklist](v5.1/PHASE_6_CHECKLIST.md), then implement 6C's scheduler/remote adapter,
-full-size qualification and distinct V5.1 runner/admission. Paid execution remains
+PR #222 accepted both corrections at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`;
+exact-master CI `35937300754` passed all nineteen jobs and 24 V5.1 verification steps.
+6A/6B are accepted under the [checklist](v5.1/PHASE_6_CHECKLIST.md).
+The [6C1 remote control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) now implements
+persistent command claims, fixed arrivals, time accounting and binary collection,
+with control-only local qualification. Review/accept that boundary, then connect
+the persistent JVM/rich read-cut adapter and all fault cells (6C2), and the separate
+source-bound V5.1 cloud runner/admission/configuration (6C3). The existing single-caller
+6A physical oracle cannot silently qualify concurrent rich reads. Paid execution remains
 user-triggered after fresh exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

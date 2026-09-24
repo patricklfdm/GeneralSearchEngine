@@ -1,10 +1,14 @@
 # V5.1 Phase 6B cloud workload contract
 
-**Status:** closed review candidate. The [plan](phase6-cloud-workload-plan.json)
-and [local calibration](phase6-cloud-calibration.json) accompany the
-[6A acceptance record](PHASE_6_LOCAL_ACCEPTANCE.md). Protected acceptance is pending.
-This contract generates schedules and checks arithmetic; it does not run or admit
-cloud workloads. The existing fake planner remains a separate implementation.
+**Status:** accepted through PR #222, master
+`33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, exact-master CI `35937300754`
+(all nineteen jobs and 24 V5.1 verification steps passed). The
+[plan](phase6-cloud-workload-plan.json), [local calibration](phase6-cloud-calibration.json)
+and [6A acceptance](PHASE_6_LOCAL_ACCEPTANCE.md) retain their original bytes and
+measurement identities. The plan's frozen `review-candidate` field is historical;
+acceptance is recorded here without changing its digest. This contract itself does
+not run or admit cloud workloads. The [6C remote foundation](PHASE_6_REMOTE_FOUNDATION.md)
+is an implementation candidate, with full workload/remote admission still pending.
 
 Canonical JSON SHA-256:
 `bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a`.

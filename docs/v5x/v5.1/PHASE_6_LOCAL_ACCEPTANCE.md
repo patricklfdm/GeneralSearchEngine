@@ -1,11 +1,13 @@
 # V5.1 Phase 6A local measurement review
 
-**Status:** 6A acceptance record proposed on master
-`54e203eeca6c087b7ba03954d546c7682e8338f2` (PR #219). The runtime and original
-measurement gate passed protected full CI. This PR supplies the final evidence
-reconciliation and portable offline replay correction; its protected review is
-still required. Phase 6B's workload contract is a separate candidate, and paid
-execution remains outside this record.
+**Status:** accepted through PR #222, master
+`33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, exact-master
+[CI 35937300754](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35937300754).
+All nineteen jobs and 24 V5.1 verification steps passed, including the portable
+replay correction and inherited hardening/retry fixture corrections. The original
+measurement/calibration source below remains PR #219; it is not relabelled as
+PR #222. The [6B contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) is also accepted;
+paid execution requires the remaining 6C/6D gates.
 
 ## Exact source and gates
 
@@ -113,8 +115,9 @@ behavior, cloud capacity or indefinite recovery guarantees.
   The foundation gate discovers the new cloud-contract and artifact tests; the
   performance gate also explicitly runs the relocated-artifact regressions.
 - Documentation contracts, changed local links, shell syntax and whitespace passed.
-  No production Java or workflow changed. This candidate's protected CI remains
-  required; the master CI above describes its exact earlier source.
+  No production Java or workflow changed in that review candidate. Its protected
+  acceptance is now recorded above at PR #222; original measurements remain bound
+  to the earlier PR #219 source.
 
 Local validation receipts and file hashes are indexed in
 `target/v51-phase6-cloud-contract/validation-summary.json`.
