@@ -6,8 +6,10 @@ A later [Phase 6C2A rich-workload lane](v5x/v5.1/PHASE_6_REMOTE_RICH.md) is inde
 required. The [6C2B fault lane](v5x/v5.1/PHASE_6_REMOTE_FAULTS.md) adds a separate
 required twelve-cell qualification. The subsequent
 [verification build domain](CI_V51_BUILD_DOMAIN.md) centralizes
-V5.1 prerequisite compilation/tests. Full CI now has twenty required gates plus
-Change scope and Required (twenty-two jobs total). Docs-only CI continues to skip Maven.
+V5.1 prerequisite compilation/tests. The subsequent [rich partition](CI_V51_RICH_SHARDS.md) adds prepared inputs and a
+three-child matrix feeding the original rich aggregate. Full CI has twenty-two
+required job IDs plus Change scope and Required (twenty-six executed jobs when
+the matrix expands). Docs-only CI continues to skip Maven.
 
 ## Historical partition measurements
 
@@ -72,7 +74,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase3-runtime.sh` | `v51-foundation` | `target/v51-runtime` |
 | `phase3-rejoin.sh` | `v51-foundation` | `target/v51-rejoin` |
 | `phase6-performance.sh` | `v51-foundation` | `target/v51-performance` |
-| `phase6-remote-rich.sh` | `v51-remote-rich` | `target/v51-remote-rich` |
+| Complete rich qualification (serial `phase6-remote-rich.sh` remains local) | `v51-remote-rich-inputs` → three `v51-remote-rich-shards` children → `v51-remote-rich` | `target/v51-remote-rich` plus per-shard diagnostics |
 | `phase6-remote-faults.sh` | `v51-remote-faults` | `target/v51-remote-faults` |
 | `phase4-public-bounds.sh` | `v51-admission-resources` | `target/v51-public-bounds` |
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
@@ -93,13 +95,14 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase4-public-candidates.sh` | `v51-candidate-crashes` | `target/v51-public-candidates` |
 | `phase4-public-reclamation.sh` | `v51-reclamation` | `target/v51-public-reclamation` |
 
-Each child additionally always uploads `**/target/surefire-reports/**` as
-`<job-id>-java-tests-${{ github.sha }}`, for fourteen days. These nine unique artifacts
-include XML reports, failure details and JVM dump files when available, even if the
-initial package fails and no process gate runs. All 47 workflow artifact names are
-unique. No failed or cancelled child can pass Required. The actual Required shell
-is tested with failure/cancellation/unexpected-skip cases for all nineteen children,
-and all nineteen intentional skips are required for a verified docs-only run.
+The shared producer always uploads reactor Surefire reports, while consumers retain
+source/build restore receipts and their own gate diagnostics for fourteen days.
+Rich preparation and each matrix child have separate portable handoff and raw
+failure artifacts; the aggregate retains all three portable inputs for replay.
+Every artifact name is unique after matrix expansion. No failed or cancelled child
+can pass Required. The actual Required shell is tested with failures, cancellation
+and unexpected skips for all twenty-two required job IDs; docs-only runs require
+all twenty-two results to be intentionally skipped.
 
 ## Build failure and fix
 

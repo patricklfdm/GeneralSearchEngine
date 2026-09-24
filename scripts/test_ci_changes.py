@@ -21,6 +21,8 @@ FULL_GATES = {
     "v51-verification-build": "V51_BUILD_RESULT",
     "v51-foundation": "V51_FOUNDATION_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
+    "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
+    "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
     "v51-remote-faults": "V51_REMOTE_FAULTS_RESULT",
     "v51-admission-resources": "V51_ADMISSION_RESOURCES_RESULT",
     "v51-promise-crashes": "V51_PROMISE_CRASHES_RESULT",
@@ -147,6 +149,14 @@ class RequiredGateTest(unittest.TestCase):
                 outcomes[name] = "failure" if name == "v51-verification-build" else "skipped"
         self.assertNotEqual(0, self.result(results=list(outcomes.values())))
 
+    def test_rich_matrix_failure_and_skipped_aggregate_fail_required(self):
+        outcomes = {name: "success" for name in FULL_GATES}
+        outcomes["v51-remote-rich-shards"] = "failure"
+        outcomes["v51-remote-rich"] = "skipped"
+        self.assertNotEqual(0, self.result(results=list(outcomes.values())))
+        outcomes["v51-remote-rich-shards"] = "cancelled"
+        self.assertNotEqual(0, self.result(results=list(outcomes.values())))
+
     def test_docs_lane_requires_exact_skips(self):
         for index in range(len(FULL_GATES)):
             for outcome in ("success", "failure", "cancelled", ""):
@@ -180,6 +190,10 @@ class WorkflowTopologyTest(unittest.TestCase):
             with self.subTest(job=name):
                 body = self.jobs[name]
                 needs = "[changes, v51-verification-build]" if name.startswith("v51-") and name != "v51-verification-build" else "changes"
+                if name == "v51-remote-rich-shards":
+                    needs = "[changes, v51-verification-build, v51-remote-rich-inputs]"
+                elif name == "v51-remote-rich":
+                    needs = "[changes, v51-verification-build, v51-remote-rich-inputs, v51-remote-rich-shards]"
                 self.assertEqual([needs], re.findall(r"^    needs: (.+)$", body, re.MULTILINE))
                 self.assertIn("    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}\n", body)
                 self.assertNotIn("continue-on-error:", body)
@@ -199,11 +213,11 @@ class WorkflowTopologyTest(unittest.TestCase):
             "phase4-public-runtime", "phase4-public-qualification", "phase4-public-faults",
             "phase4-public-recovery", "phase4-public-pressure", "phase4-backpressure", "phase4-final-coverage",
             "phase4-lifecycle-hardening", "phase5-hardening", "phase5-combined-lifecycle", "phase4-public-protocol",
-            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-rich", "phase6-remote-faults",
+            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-faults",
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-") or name == "v51-verification-build":
+            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards"):
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE)
@@ -240,7 +254,11 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("uses: actions/download-artifact@", body)
                 self.assertIn("name: v51-verification-build-${{ github.sha }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
-                self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index("run: scripts/verify-v51-"))
+                verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
+                self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
+                if name in ("v51-remote-rich-inputs", "v51-remote-rich-shards"):
+                    self.assertIn("${{ runner.temp }}/v51-build/restore.json", body)
+                    continue
                 receipts = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
                             if "name: " + name + "-build-inputs-${{ github.sha }}" in step]
                 self.assertEqual(1, len(receipts))
@@ -248,6 +266,26 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("retention-days: 14", receipts[0])
         self.assertIn(command, self.jobs["reactor-core"])
         self.assertIn("scripts.test_ci_v51_bundle", self.jobs["changes"])
+
+    def test_rich_matrix_and_complete_aggregate_are_required(self):
+        shard = self.jobs["v51-remote-rich-shards"]
+        self.assertIn("fail-fast: false", shard)
+        self.assertIn("shard: [published-controls, automatic-healthy, automatic-concurrent]", shard)
+        self.assertNotIn("continue-on-error", shard)
+        self.assertIn('run: scripts/verify-v51-phase6-remote-rich-shard.sh "$RICH_SHARD"', shard)
+        self.assertIn("name: v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}", shard)
+        aggregate = self.jobs["v51-remote-rich"]
+        for name in ("published-controls", "automatic-healthy", "automatic-concurrent"):
+            self.assertIn("name: v51-remote-rich-shard-" + name + "-${{ github.sha }}", aggregate)
+            self.assertIn("path: target/v51-remote-rich/inputs/" + name, aggregate)
+        self.assertIn("scripts.v51.remote_rich_shards aggregate", aggregate)
+        self.assertIn("name: v51-remote-rich-${{ github.sha }}", aggregate)
+        self.assertIn("path: target/v51-remote-rich", aggregate)
+        self.assertIn("scripts.v51.remote_rich_shards prepare", self.jobs["v51-remote-rich-inputs"])
+        # The full serial entry point remains available for local diagnosis.
+        script = (ROOT / "scripts/verify-v51-phase6-remote-rich.sh").read_text()
+        self.assertIn("scripts.v51.remote_rich_qualification", script)
+        self.assertIn("2400s", script)
 
     def test_infra_retry_only_wraps_reviewed_builds_and_retains_all_attempts(self):
         from scripts.maven_infra_retry import COMMANDS
