@@ -20,6 +20,7 @@ FULL_GATES = {
     "reactor-core": "REACTOR_RESULT",
     "v51-foundation": "V51_FOUNDATION_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
+    "v51-remote-faults": "V51_REMOTE_FAULTS_RESULT",
     "v51-admission-resources": "V51_ADMISSION_RESOURCES_RESULT",
     "v51-promise-crashes": "V51_PROMISE_CRASHES_RESULT",
     "v51-public-reads-faults": "V51_PUBLIC_READS_FAULTS_RESULT",
@@ -189,7 +190,7 @@ class WorkflowTopologyTest(unittest.TestCase):
             "phase4-public-runtime", "phase4-public-qualification", "phase4-public-faults",
             "phase4-public-recovery", "phase4-public-pressure", "phase4-backpressure", "phase4-final-coverage",
             "phase4-lifecycle-hardening", "phase5-hardening", "phase5-combined-lifecycle", "phase4-public-protocol",
-            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-rich",
+            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-rich", "phase6-remote-faults",
         }
         found = []
         for name in FULL_GATES:

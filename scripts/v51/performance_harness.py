@@ -157,7 +157,7 @@ def compile_adapters(run, control_directory):
     names = {
         'published-v4.4-local': ['V51MeasuredLocal', 'V51CloudLocal', 'V51CloudJournalCheck'],
         'published-v5.0-configured': ['V51MeasuredConfigured', 'V51ConfiguredObserver', 'V51CloudConfigured'],
-        'candidate-v5.1-automatic': ['PublicRuntimeConsumer', 'V51PublicWorker', 'V51MeasuredAutomatic', 'V51PerformanceObserver', 'V51SmallPerformanceConsumer', 'V51CloudAutomatic']}
+        'candidate-v5.1-automatic': ['PublicRuntimeConsumer', 'V51PublicWorker', 'V51MeasuredAutomatic', 'V51PerformanceObserver', 'V51SmallPerformanceConsumer', 'V51CloudAutomatic', 'V51RemoteFaultConsumer']}
     result = {}
     retained = run.root / 'artifacts'
     retained.mkdir()

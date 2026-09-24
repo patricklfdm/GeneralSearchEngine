@@ -265,7 +265,8 @@
       "schedule": "Hold a real continuation after the first 4096-byte snapshot chunk; kill the recipient; restart from its unchanged partial transfer and rejoin.",
       "historyCallsMaximum": 24,
       "progressPairsMaximum": 4,
-      "finalReadAttemptsMaximum": 4
+      "finalReadAttemptsMaximum": 4,
+      "maxEncodedDocumentBytes": 4100
     },
     {
       "name": "entry-chosen",
@@ -319,7 +320,8 @@
       "schedule": "Seal node 3 retained budget at 128 KiB; catch up seeds, isolate it, add two two-document 20000-byte-value bulks on healthy majority, heal, observe real capacity refusal; restart bounded voter then leader and verify healthy service.",
       "historyCallsMaximum": 24,
       "progressPairsMaximum": 4,
-      "finalReadAttemptsMaximum": 4
+      "finalReadAttemptsMaximum": 4,
+      "maxEncodedDocumentBytes": 20004
     }
   ],
   "faultProgram": {

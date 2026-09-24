@@ -54,6 +54,17 @@ class CloudContractTest(unittest.TestCase):
             value=copy.deepcopy(self.plan);change(value)
             with self.subTest(value=value),self.assertRaises(ValueError):c.audit(value)
 
+    def test_amendment_preserves_all_other_frozen_bytes_and_historical_calibration(self):
+        previous=copy.deepcopy(self.plan)
+        for cell in previous['cells']:
+            if cell['name'] in ('interrupted-transfer','minority-capacity'):cell.pop('maxEncodedDocumentBytes')
+        self.assertEqual(c.PRE_AMENDMENT_SHA256,m.sha(m.canonical(previous)))
+        amendment=m.strict_json(c.PLAN.with_name('phase6-cloud-workload-amendment.json').read_bytes())
+        self.assertEqual(c.PLAN_SHA256,amendment['planSha256'])
+        self.assertEqual(c.PRE_AMENDMENT_SHA256,amendment['previousPlanSha256'])
+        self.assertEqual(m.sha(c.PLAN.with_name('phase6-cloud-calibration.json').read_bytes()),amendment['previousCalibrationSha256'])
+        self.assertFalse(amendment['otherLimitsChanged']);self.assertFalse(amendment['richSchedulesChanged'])
+
     def test_static_projection_is_not_a_concurrent_linearizability_receipt(self):
         r=c.validate(self.plan)
         self.assertEqual('cloud-workload-contract-only',r['execution']);self.assertFalse(r['paidAdmission'])
@@ -62,8 +73,8 @@ class CloudContractTest(unittest.TestCase):
 
     def test_retained_calibration_matches_the_exact_proposal_and_claims_no_cloud_run(self):
         value=m.strict_json(c.PLAN.with_name('phase6-cloud-calibration.json').read_bytes())
-        self.assertEqual(c.PLAN_SHA256,value['planSha256'])
-        self.assertEqual(c.validate(self.plan),value['arithmetic'])
+        self.assertEqual(c.PRE_AMENDMENT_SHA256,value['planSha256'])
+        self.assertEqual(dict(c.validate(self.plan),planSha256=c.PRE_AMENDMENT_SHA256),value['arithmetic'])
         self.assertFalse(value['cloudExecution']);self.assertFalse(value['cloudScheduleExecuted']);self.assertFalse(value['paidAdmission'])
         self.assertFalse(value['encodings']['fullRuntimeRetentionQualified'])
         self.assertEqual(512,value['encodings']['slots'])

@@ -134,7 +134,13 @@ public final class V51PublicWorker {
     public static void main(String[] args) throws Exception {
         Path root=Path.of(args[0]).toAbsolutePath();String local="node-"+args[1];
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
-        var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest);
+        var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest) {
+            @Override void append(byte[] line) throws IOException {
+                if(args.length>2&&args[2].equals("remote-fault")&&(line.length>4<<20||Files.exists(path)&&Files.size(path)+line.length>32L<<20))
+                    throw new IOException("remote fault trace member bound");
+                super.append(line);
+            }
+        };
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
         Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;
             var hooks=new AutomaticStore.Faults(){
@@ -153,6 +159,11 @@ public final class V51PublicWorker {
                     catch(IOException error){throw new UncheckedIOException(error);}
                 }
                 public void at(String event) throws IOException {
+                    if((event.equals("ACCEPT_BEFORE_FORCE")||event.equals("PROOF_BEFORE_FORCE"))&&Files.exists(root.resolve(local+"-slow-force"))) {
+                        trace.write("SLOW_FORCE_BEGIN",Map.of("kind",event.split("_")[0],"delayMillis",1500));
+                        try {Thread.sleep(1500);}catch(InterruptedException error){Thread.currentThread().interrupt();throw new IOException(error);}
+                        trace.write("SLOW_FORCE_END",Map.of("kind",event.split("_")[0],"delayMillis",1500));
+                    }
                     Path partial=root.resolve(local+"-partial-write.txt");
                     if(Files.exists(partial)) {
                         String kind=Files.readString(partial).trim();
@@ -240,15 +251,15 @@ public final class V51PublicWorker {
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
         if(Files.exists(root.resolve("lifecycle-evidence")))io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.diagnostics=V51PublicWorker::queues;
-        if(args.length>2&&args[2].equals("performance-small")) {
-            var method=Class.forName("io.github.patricklfdm.generalsearch.replication.V51PerformanceObserver").getMethod("diagnostics",Object.class);
+        if(args.length>2&&(args[2].equals("performance-small")||args[2].equals("remote-fault"))) {
+            var method=Class.forName("io.github.patricklfdm.generalsearch.replication.V51PerformanceObserver").getMethod(args[2].equals("remote-fault")?"diagnosticsIncludingQuarantine":"diagnostics",Object.class);
             io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.diagnostics=engine->{
                 try {@SuppressWarnings("unchecked") var value=(Map<String,Object>)method.invoke(null,engine);return value;}
                 catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             };
         }
-        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||args[2].equals("performance-small")))
-            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("performance-small")?"V51SmallPerformanceConsumer":args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
+        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||(args[2].equals("performance-small")||args[2].equals("remote-fault"))))
+            Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("remote-fault")?"V51RemoteFaultConsumer":args[2].equals("performance-small")?"V51SmallPerformanceConsumer":args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);
     }
 }

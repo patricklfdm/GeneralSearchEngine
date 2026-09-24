@@ -1,7 +1,7 @@
 # CI parallel lanes: dependency audit and migration map
 
-The workflow now has eighteen independent full CI jobs. Each depends only on
-`changes`; `required` waits for all eighteen plus change classification. The
+The workflow now has nineteen independent full CI jobs. Each depends only on
+`changes`; `required` waits for all nineteen plus change classification. The
 [V5.1 three-way split](CI_V51_LANES.md) records the latest measured partition,
 complete V5.1 gate ownership and the test-budget correction. See
 [CI/CD operations](CI_CD.md) for triggers and branch protection.
@@ -11,6 +11,7 @@ changes
   ├── reactor-core (display name: Reactor tests)
   ├── v51-foundation
   ├── v51-remote-rich
+  ├── v51-remote-faults
   ├── v51-admission-resources
   ├── v51-promise-crashes
   ├── v51-public-reads-faults
@@ -26,7 +27,7 @@ changes
   ├── compatibility
   ├── release-artifacts
   └── cloud-runner-tests
-            ↓ all eighteen results + changes
+            ↓ all nineteen results + changes
          Required
 ```
 
@@ -37,6 +38,7 @@ changes
 | `reactor-core` | Existing `./mvnw -f reactor/pom.xml clean package`, with all reactor tests | 30 minutes |
 | `v51-foundation` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v51-remote-rich` | Same reactor package/tests; full 1080-second frozen JVM tapes and binary replay | 60 minutes |
+| `v51-remote-faults` | Same reactor package/tests; twelve frozen fault cells, independent evidence and relocated replay | 60 minutes |
 | `v51-admission-resources` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v51-promise-crashes` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v51-public-reads-faults` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
@@ -371,8 +373,8 @@ The additional `v51-remote-rich` lane owns
 `scripts/verify-v51-phase6-remote-rich.sh --skip-build`, an independent reactor
 package/test and always-uploaded Java reports plus `target/v51-remote-rich`.
 Both artifacts use unique job names and fourteen-day retention. Its original
-frozen windows require at least eighteen minutes; adding a separate lane avoids
+frozen windows require at least nineteen minutes; adding a separate lane avoids
 serializing those windows behind the existing foundation gates. It has no GCP
-permission or environment. `Required` now checks eighteen full lanes, including
+permission or environment. `Required` now checks nineteen full lanes, including
 this lane's intentional skip for documentation-only changes. Existing commands
 and historical migration rows are preserved.

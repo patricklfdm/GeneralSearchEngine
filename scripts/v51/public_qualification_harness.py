@@ -42,7 +42,7 @@ class Worker:
                         record.update(endNanos=now, outcome=result['outcome'])
                         if 'reason' in result: record['reason'] = result['reason']
                         if 'reasonCode' in result: record['reasonCode'] = result['reasonCode']
-                        if self.consumer in ('lifecycle', 'performance-small'): record['response'] = result
+                        if self.consumer in ('lifecycle', 'performance-small', 'remote-fault'): record['response'] = result
                         if result['kind'] == 'read' and result['outcome'] == 'SUCCESS': record['documents'] = result['documents']
                     future.set_result(result)
         finally:
