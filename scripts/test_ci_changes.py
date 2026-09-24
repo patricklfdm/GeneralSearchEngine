@@ -18,6 +18,7 @@ PUSH = {"before": BASE, "after": HEAD}
 PR = {"pull_request": {"base": {"sha": BASE}, "head": {"sha": HEAD}}}
 FULL_GATES = {
     "reactor-core": "REACTOR_RESULT",
+    "v51-verification-build": "V51_BUILD_RESULT",
     "v51-foundation": "V51_FOUNDATION_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
     "v51-remote-faults": "V51_REMOTE_FAULTS_RESULT",
@@ -139,6 +140,13 @@ class RequiredGateTest(unittest.TestCase):
                 with self.subTest(index=index, outcome=outcome):
                     self.assertNotEqual(0, self.result(results=results))
 
+    def test_failed_shared_build_and_skipped_dependents_cannot_pass(self):
+        outcomes = {name: "success" for name in FULL_GATES}
+        for name in outcomes:
+            if name.startswith("v51-"):
+                outcomes[name] = "failure" if name == "v51-verification-build" else "skipped"
+        self.assertNotEqual(0, self.result(results=list(outcomes.values())))
+
     def test_docs_lane_requires_exact_skips(self):
         for index in range(len(FULL_GATES)):
             for outcome in ("success", "failure", "cancelled", ""):
@@ -166,12 +174,13 @@ class WorkflowTopologyTest(unittest.TestCase):
         parts = re.split(r"^  ([\w-]+):\n", workflow, flags=re.MULTILINE)
         cls.jobs = dict(zip(parts[1::2], parts[2::2]))
 
-    def test_full_lanes_start_independently_and_skip_for_docs(self):
+    def test_build_domains_and_lanes_skip_for_docs(self):
         self.assertEqual(set(FULL_GATES) | {"changes", "required"}, set(self.jobs))
         for name in FULL_GATES:
             with self.subTest(job=name):
                 body = self.jobs[name]
-                self.assertEqual(["changes"], re.findall(r"^    needs: (.+)$", body, re.MULTILINE))
+                needs = "[changes, v51-verification-build]" if name.startswith("v51-") and name != "v51-verification-build" else "changes"
+                self.assertEqual([needs], re.findall(r"^    needs: (.+)$", body, re.MULTILINE))
                 self.assertIn("    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}\n", body)
                 self.assertNotIn("continue-on-error:", body)
 
@@ -194,7 +203,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-"):
+            if not name.startswith("v51-") or name == "v51-verification-build":
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE)
@@ -210,24 +219,39 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("          retention-days: 14\n", own[0])
         self.assertCountEqual(expected, found)
 
-    def test_v51_lanes_execute_local_tests_and_retain_build_failures(self):
+    def test_v51_build_executes_tests_and_consumers_restore_exact_inputs(self):
+        build = self.jobs["v51-verification-build"]
+        command = "run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml clean package"
+        self.assertEqual(1, build.count(command))
+        self.assertLess(build.index("scripts.ci_v51_bundle prepare"), build.index(command))
+        self.assertLess(build.index(command), build.index("scripts.ci_v51_bundle create"))
+        self.assertIn("path: '**/target/surefire-reports/**'", build)
+        self.assertIn("name: v51-verification-build-${{ github.sha }}", build)
+        for step in re.split(r"^      - ", build, flags=re.MULTILINE):
+            if "path: '**/target/surefire-reports/**'" in step or "path: ${{ runner.temp }}/" in step:
+                self.assertIn("if: ${{ always() }}", step)
         for name in FULL_GATES:
-            if not name.startswith("v51-"):
+            if not name.startswith("v51-") or name == "v51-verification-build":
                 continue
             with self.subTest(job=name):
                 body = self.jobs[name]
-                build = "        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml package\n"
-                self.assertEqual(1, body.count(build))
-                self.assertLess(body.index(build), body.index("run: scripts/verify-v51-"))
-                reports = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
-                           if "path: '**/target/surefire-reports/**'" in step]
-                self.assertEqual(1, len(reports))
-                self.assertIn("if: ${{ always() }}", reports[0])
-                self.assertIn("name: " + name + "-java-tests-${{ github.sha }}", reports[0])
+                self.assertNotIn("./mvnw", body)
+                self.assertNotIn("cache: maven", body)
+                self.assertIn("uses: actions/download-artifact@", body)
+                self.assertIn("name: v51-verification-build-${{ github.sha }}", body)
+                self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
+                self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index("run: scripts/verify-v51-"))
+                receipts = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
+                            if "name: " + name + "-build-inputs-${{ github.sha }}" in step]
+                self.assertEqual(1, len(receipts))
+                self.assertIn("if: ${{ always() }}", receipts[0])
+                self.assertIn("retention-days: 14", receipts[0])
+        self.assertIn(command, self.jobs["reactor-core"])
+        self.assertIn("scripts.test_ci_v51_bundle", self.jobs["changes"])
 
     def test_infra_retry_only_wraps_reviewed_builds_and_retains_all_attempts(self):
         from scripts.maven_infra_retry import COMMANDS
-        expected = {name for name in FULL_GATES if name.startswith(("v51-", "v50-"))}
+        expected = {"v51-verification-build", "v50-authority", "v50-recovery-workload"}
         expected.update(("reactor-core", "v4-regression"))
         found = set()
         count = 0
@@ -246,7 +270,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("retention-days: 14", uploads[0])
             self.assertNotRegex(body, r"run-maven-with-infra-retry.sh .*scripts/verify-")
         self.assertEqual(expected, found)
-        self.assertEqual(16, count)
+        self.assertEqual(6, count)
         self.assertIn("scripts.test_maven_infra_retry", self.jobs["changes"])
         for name in ("soak-examples", "compatibility", "release-artifacts", "cloud-runner-tests"):
             self.assertNotIn("run-maven-with-infra-retry.sh", self.jobs[name])

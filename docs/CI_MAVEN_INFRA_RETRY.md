@@ -67,16 +67,19 @@ scripts/run-maven-with-infra-retry.sh ./mvnw -DskipTests package
 scripts/run-maven-with-infra-retry.sh ./mvnw -q clean -DskipTests package
 ```
 
-The four shapes cover **16 steps in 15 jobs**:
+The four shapes cover **6 steps in 5 jobs**:
 
 | Jobs | Wrapped steps |
 | --- | --- |
 | `reactor-core` | Clean reactor package |
-| All eleven `v51-*` jobs and both `v50-*` jobs | Each job's prerequisite reactor package |
+| `v51-verification-build` | Dedicated clean reactor package for all eleven V5.1 verification consumers |
+| Both `v50-*` jobs | Each job's independent prerequisite reactor package |
 | `v4-regression` | Initial core/harness package; final non-JMH clean package |
 
-All arguments, test selection, build order, gate dependencies and job timeouts are
-preserved. Python 3 from the Ubuntu runner is the only extra execution dependency.
+Retry classification and approved command shapes are unchanged. V5.1 build sharing
+is described in the [verification build domain](CI_V51_BUILD_DOMAIN.md); behavior
+gates do not invoke this helper or retry correctness failures. Python 3 from the
+Ubuntu runner is the only extra execution dependency.
 The independent helper/topology tests run in `changes`, including docs-only CI.
 
 Each invocation writes `attempt-1.log`, optionally `attempt-2.log`, and
