@@ -19,19 +19,95 @@ class V51RecoveryExchangeTest {
         final AutomaticProtocol protocol=new AutomaticProtocol(store,()->0L,UUID::randomUUID);
         final AtomicLong time=new AtomicLong(),ids=new AtomicLong();
         final UUID trace=UUID.randomUUID();
+        final java.util.concurrent.atomic.AtomicReference<AutomaticRejoin.Sender> sender=new java.util.concurrent.atomic.AtomicReference<>(r->{throw new AssertionError("unexpected network");});
+        final java.util.concurrent.atomic.AtomicReference<Runnable> afterControl=new java.util.concurrent.atomic.AtomicReference<>(()->{});
         final AutomaticRejoin exchange;
         Fixture() throws Exception {
             byte[] application=unbase(decode(Files.readAllBytes(root.resolve("node-2/genesis.gsr")),"GENESIS").value().get("application"));
             protocol.start(0);var action=(AutomaticProtocol.Reconstruct)protocol.drain().getFirst();protocol.reconstructed(action.id(),application,null,0);
             protocol.receive(new AutomaticProtocol.Message(1,AutomaticProtocol.Kind.PREPARE,"node-1","node-2",ballot,false,true,null,null),0);protocol.drain();
             store.checkpoint(application);
-            exchange=new AutomaticRejoin(store,protocol,new AutomaticRejoin.Control(){public <R> R call(Callable<R> action)throws Exception{return action.call();}},r->{throw new AssertionError("unexpected network");},time::get,ids::incrementAndGet,AutomaticRuntime.Events.NONE);
+            exchange=new AutomaticRejoin(store,protocol,new AutomaticRejoin.Control(){public <R> R call(Callable<R> action)throws Exception{R result=action.call();afterControl.get().run();return result;}},r->sender.get().send(r),time::get,ids::incrementAndGet,AutomaticRuntime.Events.NONE);
         }
         Map<String,Object> call(String type,Map<String,Object> payload) throws Exception {
             return exchange.handle(AutomaticWire.message(m,ballot,"node-1","node-2",type,trace,ids.incrementAndGet(),payload));
         }
         Map<String,Object> offer(String id) {return Map.of("transferId",id,"response",false,"index",0L,"sourceBytes",0L,"sourceDigest",sha(new byte[0]));}
         @Override public void close() throws Exception {exchange.stop();exchange.close();protocol.close();}
+    }
+    private static void cycle(AutomaticRejoin exchange) throws Exception {
+        var method=AutomaticRejoin.class.getDeclaredMethod("cycle");method.setAccessible(true);
+        try {method.invoke(exchange);}catch(java.lang.reflect.InvocationTargetException error) {
+            if(error.getCause() instanceof Exception cause)throw cause;
+            throw (Error)error.getCause();
+        }
+    }
+    private static Map<String,Object> sourceReply(Map<String,Object> request,AutomaticRecoveryFiles.Source source) {
+        byte[] bytes=canonical(AutomaticRejoin.packetValue(source));var p=object(request.get("payload"));
+        if(request.get("type").equals("SOURCE_OFFER")) {
+            var answer=new LinkedHashMap<>(p);answer.put("response",true);answer.put("sourceBytes",(long)bytes.length);answer.put("sourceDigest",sha(bytes));
+            return AutomaticWire.reply(request,"SOURCE_OFFER",answer);
+        }
+        assertEquals("SOURCE_CHUNK",request.get("type"));int offset=Math.toIntExact(number(p,"offset"));
+        byte[] chunk=Arrays.copyOfRange(bytes,offset,Math.min(bytes.length,offset+Math.toIntExact(number(p,"maxChunkBytes"))));
+        var answer=new LinkedHashMap<>(p);answer.put("action","DATA");answer.put("chunkBytes",(long)chunk.length);answer.put("chunk",b64(chunk));answer.put("chunkDigest",sha(chunk));
+        return AutomaticWire.reply(request,"SOURCE_CHUNK",answer);
+    }
+    @Test void completedFloorDoesNotRefetchSourcesUntilTheLocalGenerationChanges() throws Exception {
+        try(var f=new Fixture();var peer=AutomaticStore.open(root.resolve("node-1"),f.manifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+            byte[] application=unbase(decode(Files.readAllBytes(root.resolve("node-1/genesis.gsr")),"GENESIS").value().get("application"));
+            peer.checkpoint(application);peer.promise(f.ballot.bytes());var source=new java.util.concurrent.atomic.AtomicReference<>(peer.recoverySource());
+            var requests=new java.util.concurrent.atomic.AtomicInteger();
+            f.sender.set(request->{requests.incrementAndGet();return sourceReply(request,source.get());});
+            cycle(f.exchange);int first=requests.get();assertTrue(first>0);
+            byte[] floor=Files.readAllBytes(root.resolve("node-2/recovery-floor.gsr"));
+            byte[] entry=entry(f.manifest,1,null,9,new byte[0]);
+            for(var store:List.of(peer,f.store)){store.accept(accept(f.manifest,entry,2));store.prove(proof(f.manifest,entry,2));}
+            source.set(peer.recoverySource());
+            cycle(f.exchange);cycle(f.exchange);
+            assertEquals(first,requests.get(),"the same cleaned generation must not download another recovery source");
+            assertArrayEquals(floor,Files.readAllBytes(root.resolve("node-2/recovery-floor.gsr")));
+            assertArrayEquals(entry,f.store.acceptedEntry(1));assertEquals(1,f.store.status().get("provenThrough"));
+            peer.checkpoint(application);f.store.checkpoint(application);source.set(peer.recoverySource());
+            cycle(f.exchange);assertTrue(requests.get()>first);
+            assertEquals(1L,number(decode(Files.readAllBytes(root.resolve("node-2/recovery-floor.gsr")),"FLOOR").value(),"index"));
+            int second=requests.get();cycle(f.exchange);assertEquals(second,requests.get());
+            // A fresh controller has no completion memory and must establish its own successful cycle.
+            try(var fresh=new AutomaticRejoin(f.store,f.protocol,new AutomaticRejoin.Control(){public <R> R call(Callable<R> action)throws Exception{return action.call();}},
+                    r->f.sender.get().send(r),f.time::get,f.ids::incrementAndGet,AutomaticRuntime.Events.NONE)) {
+                cycle(fresh);assertTrue(requests.get()>second);fresh.stop();
+            }
+            // Current bytes are still re-read and verified even when no network exchange is needed.
+            Path current=root.resolve("node-2/"+text(f.store.currentSource().selector().value(),"generation")+"/snapshot.gsr");
+            byte[] corrupt=Files.readAllBytes(current);corrupt[corrupt.length-1]^=1;Files.write(current,corrupt);
+            assertThrows(AutomaticReplicationException.class,()->cycle(f.exchange));
+        }
+    }
+    @Test void floorAndCleanupYieldToControlWorkAndRecheckFencing() throws Exception {
+        for(boolean fence:List.of(false,true)) {
+            // Each case owns a fresh authority directory, not a copy of a live voter.
+            Path previous=root;root=previous.resolve(fence?"fenced":"progress");Files.createDirectory(root);
+            try(var f=new Fixture();var peer=AutomaticStore.open(root.resolve("node-1"),f.manifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+                byte[] application=unbase(decode(Files.readAllBytes(root.resolve("node-1/genesis.gsr")),"GENESIS").value().get("application"));
+                peer.checkpoint(application);peer.promise(f.ballot.bytes());
+                byte[] first=entry(f.manifest,1,null,9,new byte[0]),second=entry(f.manifest,2,first,9,new byte[0]);
+                for(var store:List.of(peer,f.store)){store.accept(accept(f.manifest,first,2));store.prove(proof(f.manifest,first,2));store.checkpoint(application);}
+                var source=peer.recoverySource();f.sender.set(request->sourceReply(request,source));
+                Path inactive=root.resolve("node-2/generation-a"),floor=root.resolve("node-2/recovery-floor.gsr");
+                var yielded=new java.util.concurrent.atomic.AtomicBoolean();
+                f.afterControl.set(()->{
+                    if(!Files.exists(floor)||!Files.exists(inactive)||!yielded.compareAndSet(false,true))return;
+                    if(fence)f.protocol.observePromise(decode(promise(f.manifest,5),"PROMISE"));
+                    else {f.store.accept(accept(f.manifest,second,2));f.store.prove(proof(f.manifest,second,2));}
+                });
+                cycle(f.exchange);
+                assertTrue(yielded.get(),"control work must run between durable floor publication and cleanup");
+                assertEquals(fence,Files.exists(inactive),"a fenced exchange must not continue deletion");
+                assertFalse(f.store.quarantined());
+                if(fence)assertFalse(f.protocol.maintenanceCurrent(f.ballot));
+                else {assertEquals(2,f.store.status().get("provenThrough"));assertArrayEquals(second,f.store.acceptedEntry(2));}
+            } finally {root=previous;}
+        }
     }
     @Test void sourceRetryIsImmutableAndOriginalLifetimeCannotBeExtended() throws Exception {
         try(var f=new Fixture()) {

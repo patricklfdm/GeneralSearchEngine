@@ -12,7 +12,18 @@ import java.util.TreeMap;
 
 /** The Phase 1 canonical ASCII JSON subset; bounded before encoding/recursive descent. */
 final class ReplicaJson {
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
     private ReplicaJson() { }
+
+    private static boolean letter(char c) { return c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z'; }
+    static boolean key(String value) {
+        if (value.isEmpty() || !letter(value.charAt(0))) return false;
+        for (int i = 1; i < value.length(); i++) {
+            char c = value.charAt(i);
+            if (!letter(c) && !(c >= '0' && c <= '9') && c != '_') return false;
+        }
+        return true;
+    }
 
     static byte[] encode(Object value, int maximum) {
         var output = new StringBuilder();
@@ -41,7 +52,7 @@ final class ReplicaJson {
             require(map.size() <= remaining[0], CAPACITY_EXCEEDED, "JSON member count exceeds bound");
             var sorted = new TreeMap<String, Object>();
             for (var entry : map.entrySet()) {
-                require(entry.getKey() instanceof String key && key.matches("[A-Za-z][A-Za-z0-9_]*"),
+                require(entry.getKey() instanceof String key && key(key),
                         PROTOCOL_MISMATCH, "invalid JSON object key");
                 sorted.put((String) entry.getKey(), entry.getValue());
             }
@@ -68,22 +79,34 @@ final class ReplicaJson {
 
     private static void quote(String value, StringBuilder out, int max) {
         put(out, "\"", max);
+        int run = 0;
         for (int i = 0; i < value.length(); i++) {
             char c = value.charAt(i);
-            String escaped = switch (c) {
-                case '"' -> "\\\"";
-                case '\\' -> "\\\\";
-                case '\b' -> "\\b";
-                case '\f' -> "\\f";
-                case '\n' -> "\\n";
-                case '\r' -> "\\r";
-                case '\t' -> "\\t";
-                default -> c < 32 || c >= 127 ? String.format(java.util.Locale.ROOT, "\\u%04x", (int) c)
-                        : String.valueOf(c);
-            };
-            put(out, escaped, max);
+            if (c >= 32 && c < 127 && c != '\"' && c != '\\') continue;
+            put(out, value, run, i, max);
+            switch (c) {
+                case '\"' -> put(out, "\\\"", max);
+                case '\\' -> put(out, "\\\\", max);
+                case '\b' -> put(out, "\\b", max);
+                case '\f' -> put(out, "\\f", max);
+                case '\n' -> put(out, "\\n", max);
+                case '\r' -> put(out, "\\r", max);
+                case '\t' -> put(out, "\\t", max);
+                default -> {
+                    require(6 <= max - out.length(), CAPACITY_EXCEEDED, "JSON exceeds frame bound");
+                    out.append('\\').append('u').append(HEX[c >>> 12]).append(HEX[(c >>> 8) & 15])
+                            .append(HEX[(c >>> 4) & 15]).append(HEX[c & 15]);
+                }
+            }
+            run = i + 1;
         }
+        put(out, value, run, value.length(), max);
         put(out, "\"", max);
+    }
+
+    private static void put(StringBuilder out, String value, int start, int end, int max) {
+        require(end - start <= max - out.length(), CAPACITY_EXCEEDED, "JSON exceeds frame bound");
+        out.append(value, start, end);
     }
 
     private static void put(StringBuilder out, String value, int max) {
@@ -115,7 +138,7 @@ final class ReplicaJson {
                 do {
                     expect('"');
                     String key = string();
-                    require(key.matches("[A-Za-z][A-Za-z0-9_]*") && !map.containsKey(key),
+                    require(key(key) && !map.containsKey(key),
                             PROTOCOL_MISMATCH, "invalid/duplicate JSON key");
                     expect(':');
                     map.put(key, value(depth + 1));

@@ -2,8 +2,9 @@
 
 The three V5.1 regression jobs now each have three independently required children.
 This refactor preserves every verification command and every evidence upload.
-The full CI has seventeen required jobs plus Change scope and Required (nineteen
-jobs in total). Docs-only CI continues to skip Maven.
+A later [Phase 6C2A rich-workload lane](v5x/v5.1/PHASE_6_REMOTE_RICH.md) is independently
+required. Full CI now has eighteen required jobs plus Change scope and Required
+(twenty jobs in total). Docs-only CI continues to skip Maven.
 
 ## Measured partition
 
@@ -61,6 +62,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase3-runtime.sh` | `v51-foundation` | `target/v51-runtime` |
 | `phase3-rejoin.sh` | `v51-foundation` | `target/v51-rejoin` |
 | `phase6-performance.sh` | `v51-foundation` | `target/v51-performance` |
+| `phase6-remote-rich.sh` | `v51-remote-rich` | `target/v51-remote-rich` |
 | `phase4-public-bounds.sh` | `v51-admission-resources` | `target/v51-public-bounds` |
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
 | `phase4-bootstrap.sh` | `v51-admission-resources` | `target/v51-bootstrap` |
@@ -85,8 +87,8 @@ Each child additionally always uploads `**/target/surefire-reports/**` as
 include XML reports, failure details and JVM dump files when available, even if the
 initial package fails and no process gate runs. All 47 workflow artifact names are
 unique. No failed or cancelled child can pass Required. The actual Required shell
-is tested with failure/cancellation/unexpected-skip cases for all seventeen children,
-and all seventeen intentional skips are required for a verified docs-only run.
+is tested with failure/cancellation/unexpected-skip cases for all eighteen children,
+and all eighteen intentional skips are required for a verified docs-only run.
 
 ## Build failure and fix
 

@@ -8,7 +8,7 @@ def validate(spec, events, result):
     m.need(spec['schema'] == 'gse-v51-guest-window-v1' and spec['workloadSha256'] == contract.PLAN_SHA256, 'schedule workload identity')
     expected = [dict(r, ordinal=i, payload=r['payload'].hex()) for i,r in enumerate(
         contract.program(plan,spec['cell'],spec['preset']),1) if r['window']==spec['window']]
-    m.need(expected and spec['calls'] == expected, 'changed frozen arrival tape')
+    m.need(expected and m.canonical(spec['calls']) == m.canonical(expected), 'changed frozen arrival tape')
     name = spec['window']
     if spec['cell'] == 'healthy':
         warmup = plan['healthy']['warmupCalls'] if spec['preset']=='canonical' else plan['presets']['experiment']['healthyWarmupCalls']

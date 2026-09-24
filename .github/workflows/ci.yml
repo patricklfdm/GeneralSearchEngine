@@ -172,6 +172,49 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  v51-remote-rich:
+    # Independent reactor build: local JARs, test classes and executed test reports.
+    name: V5.1 full rich workload (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+          cache: maven
+          cache-dependency-path: '**/pom.xml'
+
+      - name: Build lane artifacts and execute prerequisite Java tests
+        run: ./mvnw -f reactor/pom.xml package
+
+      - name: Retain lane Java test reports including build failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-java-tests-${{ github.sha }}
+          path: '**/target/surefire-reports/**'
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 full frozen rich workload and concurrent read cuts
+        run: scripts/verify-v51-phase6-remote-rich.sh --skip-build
+
+      - name: Retain V5.1 full rich JVM evidence and binary replay
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-${{ github.sha }}
+          path: target/v51-remote-rich
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-admission-resources:
     # Independent reactor build: local JARs, test classes and executed test reports.
     name: V5.1 admission and resources
@@ -1336,6 +1379,7 @@ jobs:
       - changes
       - reactor-core
       - v51-foundation
+      - v51-remote-rich
       - v51-admission-resources
       - v51-promise-crashes
       - v51-public-reads-faults
@@ -1360,6 +1404,7 @@ jobs:
           RUN_FULL_CI: ${{ needs.changes.outputs.run_full_ci }}
           REACTOR_RESULT: ${{ needs.reactor-core.result }}
           V51_FOUNDATION_RESULT: ${{ needs.v51-foundation.result }}
+          V51_REMOTE_RICH_RESULT: ${{ needs.v51-remote-rich.result }}
           V51_ADMISSION_RESOURCES_RESULT: ${{ needs.v51-admission-resources.result }}
           V51_PROMISE_CRASHES_RESULT: ${{ needs.v51-promise-crashes.result }}
           V51_PUBLIC_READS_FAULTS_RESULT: ${{ needs.v51-public-reads-faults.result }}
@@ -1382,7 +1427,7 @@ jobs:
             false) expected=skipped ;;
             *) echo "Invalid change-scope result" >&2; exit 1 ;;
           esac
-          for result in "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
+          for result in "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
             "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
             "$V51_RECLAMATION_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \

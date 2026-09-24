@@ -32,6 +32,34 @@ class V51AutomaticRuntimeTest {
             assertEquals(cut,leader.view().provenIndex());assertEquals(doc,leader.inspectLocal(e->e.get(1)).get(5,TimeUnit.SECONDS));
         }
     }
+    private static <R> R control(AutomaticRuntime<?,?> runtime,String method,java.util.concurrent.Callable<R> action) throws Exception {
+        var call=AutomaticRuntime.class.getDeclaredMethod(method,java.util.concurrent.Callable.class);call.setAccessible(true);
+        try {@SuppressWarnings("unchecked") R result=(R)call.invoke(runtime,action);return result;}
+        catch(java.lang.reflect.InvocationTargetException error) {
+            if(error.getCause() instanceof Exception cause)throw cause;throw (Error)error.getCause();
+        }
+    }
+    @Test void maintenanceWaitsForForegroundAndExpiredWorkCannotExecuteLater() throws Exception {
+        try(var group=new V51RuntimeFixture(root)) {
+            var leader=group.leader();var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
+            // Isolate dispatcher admission from the fixture's own background producer.
+            var field=AutomaticRuntime.class.getDeclaredField("rejoin");field.setAccessible(true);
+            var rejoin=(AutomaticRejoin)field.get(leader);control(leader,"controlled",()->{rejoin.stop();return null;});rejoin.close();
+            var calls=new java.util.concurrent.atomic.AtomicInteger();
+            var pending=leader.submit(1,app->{entered.countDown();try{release.await();}catch(InterruptedException e){throw new IllegalStateException(e);}
+                return app.documents("ADD",List.of(new Document(14,"foreground")));});
+            assertTrue(entered.await(5,TimeUnit.SECONDS));
+            try {
+                assertThrows(java.util.concurrent.TimeoutException.class,()->control(leader,"maintained",calls::incrementAndGet));
+                assertEquals(0,calls.get(),"maintenance must not start during an admitted foreground operation");
+                assertEquals("responsive",control(leader,"controlled",()->"responsive"));
+            } finally {release.countDown();}
+            pending.get(20,TimeUnit.SECONDS);
+            assertEquals(1,control(leader,"maintained",calls::incrementAndGet));
+            assertEquals(1,calls.get(),"expired maintenance must be cancelled before a later control turn");
+            assertEquals("foreground",leader.inspectLocal(e->e.get(14).value()).get(5,TimeUnit.SECONDS));
+        }
+    }
     @Test void slowPrivatePreparationKeepsOwnershipUntilCloseCanFinish() throws Exception {
         try(var group=new V51RuntimeFixture(root)) {
             var leader=group.leader();String name=group.name(leader);var entered=new CountDownLatch(1);var release=new CountDownLatch(1);

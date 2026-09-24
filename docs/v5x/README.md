@@ -77,8 +77,12 @@ full CI `35841378072`). The [local runtime candidate](v5.1/PHASE_6_LOCAL_PERFORM
 and corrections passed full master CI `35920225478` through PR #219. The
 [6A review](v5.1/PHASE_6_LOCAL_ACCEPTANCE.md) reconciles original measurements;
 the [6B cloud workload contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) adds a
-closed fifteen-cell plan and trace-backed local calibration. Protected review,
-remote implementation and cloud qualification remain pending in the
+closed fifteen-cell plan and trace-backed local calibration. 6A/6B were accepted
+through PR #222. The [6C1 control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md)
+was accepted through PR #223, exact-master CI `35942555519` (nineteen jobs,
+25 V5.1 gates). [6C2A rich JVM integration](v5.1/PHASE_6_REMOTE_RICH.md)
+is the current candidate. Remaining fault/retention qualification and cloud work
+are tracked in the
 [checklist](v5.1/PHASE_6_CHECKLIST.md).
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain

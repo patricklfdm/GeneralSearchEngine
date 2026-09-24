@@ -149,15 +149,15 @@ def compile_adapters(run, control_directory):
     java = ROOT / 'scripts/v51/java'
     source = ROOT / 'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission'
     common = [source / (n + '.java') for n in ('AdmissionJson', 'AdmissionSemanticModel', 'PerformanceTelemetry')]
-    common += [java / (n + '.java') for n in ('V51RichWorkload', 'V51Measurement')]
+    common += [java / (n + '.java') for n in ('V51RichWorkload', 'V51Measurement', 'V51CloudCommands', 'V51CloudJournal')]
     jars = {
         'published-v4.4-local': [control_directory / 'general-search-engine-4.4.0.jar'],
         'published-v5.0-configured': [control_directory / 'general-search-engine-5.0.0.jar', control_directory / 'general-search-engine-replication-5.0.0.jar'],
         'candidate-v5.1-automatic': [CORE, REPLICATION]}
     names = {
-        'published-v4.4-local': ['V51MeasuredLocal'],
-        'published-v5.0-configured': ['V51MeasuredConfigured', 'V51ConfiguredObserver'],
-        'candidate-v5.1-automatic': ['PublicRuntimeConsumer', 'V51PublicWorker', 'V51MeasuredAutomatic', 'V51PerformanceObserver', 'V51SmallPerformanceConsumer']}
+        'published-v4.4-local': ['V51MeasuredLocal', 'V51CloudLocal', 'V51CloudJournalCheck'],
+        'published-v5.0-configured': ['V51MeasuredConfigured', 'V51ConfiguredObserver', 'V51CloudConfigured'],
+        'candidate-v5.1-automatic': ['PublicRuntimeConsumer', 'V51PublicWorker', 'V51MeasuredAutomatic', 'V51PerformanceObserver', 'V51SmallPerformanceConsumer', 'V51CloudAutomatic']}
     result = {}
     retained = run.root / 'artifacts'
     retained.mkdir()

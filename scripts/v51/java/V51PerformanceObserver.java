@@ -57,9 +57,22 @@ public final class V51PerformanceObserver {
                         }
                     }
                 }
-                return Map.of("pinsBytes",pinned,"stagingBytes",staging,"authorityDiskBytes",disk,"transferDiskBytes",transfer);
+                return Map.of("pinsBytes",pinned,"stagingBytes",staging,"authorityDiskBytes",disk,"transferDiskBytes",transfer,"maintenancePending",field(runtime,"pendingMaintenance")==null?0:1);
             };
-            @SuppressWarnings("unchecked") var counts=terminated?inspect.call():(Map<String,Object>)method.invoke(runtime,inspect);
+            Map<String,Object> counts;
+            if(terminated)counts=inspect.call();
+            else if(V51Measurement.cloudMode) {
+                // Full guest traces can delay a diagnostic behind real protocol work.
+                // Bound this read-only observation by the existing operation budget;
+                // it neither changes an RPC deadline nor submits an engine operation.
+                var answer=new CompletableFuture<Map<String,Object>>();
+                var enqueue=runtime.getClass().getDeclaredMethod("enqueue",Runnable.class);enqueue.setAccessible(true);
+                enqueue.invoke(runtime,(Runnable)()->{try{answer.complete(inspect.call());}catch(Throwable e){answer.completeExceptionally(e);}});
+                counts=answer.get(9600,TimeUnit.MILLISECONDS);
+            } else {
+                @SuppressWarnings("unchecked") var observed=(Map<String,Object>)method.invoke(runtime,inspect);
+                counts=observed;
+            }
             result.putAll(counts);return result;
         }catch(Exception error){throw new IllegalStateException("read-only diagnostic failed",error);}
     }
@@ -72,6 +85,11 @@ public final class V51PerformanceObserver {
                 super.append(line);
             }
         };
+        install(root,node,manifest,trace::write);
+        try { V51MeasuredAutomatic.main(args); }
+        finally {AutomaticRuntimeHooks.CURRENT.remove();}
+    }
+    public static void install(Path root,String node,AutomaticRecords.Record manifest,AutomaticRuntime.Events trace) {
         var starts=ThreadLocal.withInitial(HashMap<String,Long>::new);
         var faults=new AutomaticStore.Faults() {
             public void at(String event) throws IOException {
@@ -82,7 +100,7 @@ public final class V51PerformanceObserver {
                         var value=new LinkedHashMap<String,Object>();value.put("kind",kind);value.put("record",b64(last(root.resolve(node),kind)));
                         value.put("window",V51Measurement.window);
                         if(V51Measurement.detailed&&start!=null){value.put("forceStartNanos",start);value.put("forceEndNanos",end);}
-                        trace.write("FORCE",value);
+                        trace.at("FORCE",value);
                     }
                 }
             }
@@ -93,18 +111,17 @@ public final class V51PerformanceObserver {
                 try {
                     long id=0;if(event.endsWith("_ADMITTED")){id=serial.incrementAndGet();reservations.put(token,id);}
                     if(event.endsWith("_RELEASED")){Long old=reservations.remove(token);if(old==null)throw new IOException("reservation release without admit");id=old;}
-                    trace.write("TRANSPORT",Map.of("transition",event,"reservation",id,"bytes",bytes,"window",V51Measurement.window));
+                    trace.at("TRANSPORT",Map.of("transition",event,"reservation",id,"bytes",bytes,"window",V51Measurement.window));
                 }catch(IOException e){throw new UncheckedIOException(e);}
             }
             public void at(String event,Map<String,Object> request,Map<String,Object> response) throws IOException {
-                if(event.equals("BEFORE_REQUEST_WRITE"))trace.write("REQUEST",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20)),"window",V51Measurement.window));
+                if(event.equals("BEFORE_REQUEST_WRITE"))trace.at("REQUEST",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20)),"window",V51Measurement.window));
                 if(event.equals("BEFORE_RESPONSE_WRITE")||event.equals("AFTER_RESPONSE_READ"))
-                    trace.write(event.equals("BEFORE_RESPONSE_WRITE")?"REPLY":"RECEIVED",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20)),"frame",b64(AutomaticWire.encode(response,manifest,1<<20))));
+                    trace.at(event.equals("BEFORE_RESPONSE_WRITE")?"REPLY":"RECEIVED",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20)),"frame",b64(AutomaticWire.encode(response,manifest,1<<20))));
             }
-        },trace::write));
-        V51Measurement.observer=(name,row)->{try{trace.write(name,row);}catch(IOException e){throw new UncheckedIOException(e);}};
+        },trace));
+        V51Measurement.observer=(name,row)->{try{trace.at(name,row);}catch(IOException e){throw new UncheckedIOException(e);}};
         V51Measurement.diagnostics=V51PerformanceObserver::diagnostics;
-        try { V51MeasuredAutomatic.main(args); }
-        finally {AutomaticRuntimeHooks.CURRENT.remove();}
     }
+
 }

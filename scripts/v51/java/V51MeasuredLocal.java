@@ -14,6 +14,13 @@ public final class V51MeasuredLocal {
             }
             return;
         }
+        if(args[1].equals("reopen")) {
+            try(var engine=V51RichWorkload.builder().buildDurable(V51RichWorkload.storage(root.resolve("store")))) {
+                V51Measurement.print(Map.of("sequence",engine.durabilityMetrics().currentSequence(),"indexCount",engine.metrics().registeredIndexCount(),
+                        "documents",engine.search(d->true).stream().map(d->List.of(d.id(),d.title(),d.category(),d.price(),d.body())).toList()));
+            }
+            return;
+        }
         if(args[1].equals("restore")) {
             var storage=V51RichWorkload.storage(root.resolve("restored"));V51RichWorkload.builder().restoreDurableBackup(source,storage);
             try(var engine=V51RichWorkload.builder().buildDurable(storage)) {

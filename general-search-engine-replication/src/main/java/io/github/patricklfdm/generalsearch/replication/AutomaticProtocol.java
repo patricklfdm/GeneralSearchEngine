@@ -139,7 +139,7 @@ final class AutomaticProtocol implements AutoCloseable {
     }
     synchronized void start(long time) {
         clock(time);room();need(state==STOPPED,"protocol already started");state=STARTING;
-        withImage(()->{state=FOLLOWER;armElection();});
+        withImage(()->{store.resumeInitialCheckpoint(image);state=FOLLOWER;armElection();});
     }
     private void withImage(Runnable continuation) {
         imageContinuation=continuation;

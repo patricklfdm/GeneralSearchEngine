@@ -181,6 +181,52 @@ class V51AutomaticRecoveryTest {
         try(var a=open(1)){commit(a,value(1));a.checkpoint(new byte[]{1});}
         Files.delete(root.resolve("node-1/generation-a/snapshot.gsr"));assertThrows(AutomaticReplicationException.class,()->open(1));
     }
+    @ParameterizedTest @ValueSource(strings={"GENERATION_ACCEPTED_WRITE_CHUNK","GENERATION_ACCEPTED_AFTER_FORCE","GENERATION_PROOFS_WRITE_CHUNK","GENERATION_SNAPSHOT_WRITE_CHUNK","GENERATION_SNAPSHOT_AFTER_FORCE","GENERATION_SEAL_WRITE_CHUNK","GENERATION_SEAL_AFTER_FORCE","SELECTOR_AFTER_FORCE"})
+    void startupResumesOnlyTheExactInitialCheckpoint(String cut) throws Exception {
+        for(boolean restored:List.of(false,true)) {
+            Path scenario=Files.createDirectory(root.resolve(cut+"-"+restored));byte[] localManifest=setup(scenario);
+            byte[] first=entry(localManifest,1,null,1,new byte[]{1});
+            byte[] tail=entry(localManifest,2,first,1,new byte[]{2});
+            var fault=new AutomaticStore.Faults() {
+                public int maximumWriteBytes(){return cut.endsWith("_WRITE_CHUNK")?7:Integer.MAX_VALUE;}
+                public void at(String event)throws java.io.IOException {if(event.equals(cut))throw new java.io.IOException("cut "+cut);}
+            };
+            try(var store=AutomaticStore.open(scenario.resolve("node-1"),localManifest,"node-1",ReplicationBounds.defaults(),fault)) {
+                store.promise(promise(localManifest,2));store.accept(accept(localManifest,first,2));store.prove(proof(localManifest,first,2));
+                store.accept(accept(localManifest,tail,2));
+                assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{1}));
+            }
+            byte[] promises=Files.readAllBytes(scenario.resolve("node-1/promises.gsr"));
+            try(var store=AutomaticStore.open(scenario.resolve("node-1"),localManifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+                assertNull(store.currentSource());var protocol=new AutomaticProtocol(store,()->0,java.util.UUID::randomUUID);
+                if(restored)protocol.restored(new byte[]{1});
+                protocol.start(0);
+                if(!restored) {
+                    var rebuild=(AutomaticProtocol.Reconstruct)protocol.drain().getFirst();
+                    protocol.reconstructed(rebuild.id(),new byte[]{1},null,0);
+                }
+                assertEquals(AutomaticReplicationState.FOLLOWER,protocol.view().state());
+                assertNotNull(store.currentSource(),"unpublished first checkpoint must not pin the recovery slot forever");
+                assertEquals(1,AutomaticRecovery.index(store.currentSource().snapshot()));
+                assertArrayEquals(tail,store.acceptedEntry(2));
+                assertArrayEquals(promises,Files.readAllBytes(scenario.resolve("node-1/promises.gsr")));
+                assertFalse(Files.exists(scenario.resolve("node-1/recovery-floor.gsr")),"resumption cannot authorize retirement");
+            }
+        }
+    }
+    @Test void startupDoesNotRewriteAnUnrelatedUnpublishedSnapshot() throws Exception {
+        try(var store=open(1,fail("GENERATION_SNAPSHOT_AFTER_FORCE"))) {
+            commit(store,value(1));assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{1}));
+        }
+        Path path=root.resolve("node-1/generation-a/snapshot.gsr");byte[] before=Files.readAllBytes(path);
+        try(var store=open(1)) {
+            var protocol=new AutomaticProtocol(store,()->0,java.util.UUID::randomUUID);
+            protocol.restored(new byte[]{2});protocol.start(0);
+            assertNull(store.currentSource());assertArrayEquals(before,Files.readAllBytes(path));
+            assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{2}));
+            assertArrayEquals(before,Files.readAllBytes(path));
+        }
+    }
     @Test void selectorPublicationChoosesCompleteOldOrNewAuthority() {
         try(var a=open(1,fail("SELECTOR_AFTER_FORCE"))){commit(a,value(1));assertThrows(AutomaticReplicationException.class,()->a.checkpoint(new byte[]{1}));}
         try(var a=open(1)){assertEquals(1,a.status().get("provenThrough"));assertArrayEquals(value(1),a.acceptedEntry(1));a.checkpoint(new byte[]{1});}

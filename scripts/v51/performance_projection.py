@@ -13,6 +13,17 @@ def raw(value):
 
 
 def project(manifest_bytes, genesis_bytes, votes, *, maximum_slots=192):
+    fmt.need(1 <= maximum_slots <= 192, 'rich voters/slot bound')
+    return _project(manifest_bytes, genesis_bytes, votes, maximum_slots)
+
+
+def project_cloud(manifest_bytes, genesis_bytes, votes):
+    from . import cloud_workload_contract
+    cloud_workload_contract.load()  # Reject changed or unsealed cloud limits.
+    return _project(manifest_bytes, genesis_bytes, votes, 512)
+
+
+def _project(manifest_bytes, genesis_bytes, votes, maximum_slots):
     manifest = dict(fmt.inspect(manifest_bytes, 'MANIFEST'), digest=manifest_bytes[16:48].hex())
     genesis = fmt.contextual_frame(genesis_bytes, 'GENESIS', manifest)
     nodes = {m['node'] for m in manifest['members']}
@@ -20,7 +31,7 @@ def project(manifest_bytes, genesis_bytes, votes, *, maximum_slots=192):
              all(manifest[k] == genesis[k] for k in ('groupId', 'historyId', 'baseSequence', 'schemaDigest', 'indexesDigest')),
              'rich genesis/manifest binding')
     fmt.need(manifest['codecId'] == 'semantic-codec' and manifest['codecVersion'] == 1, 'rich codec identity')
-    fmt.need(set(votes) == nodes and 1 <= maximum_slots <= 192, 'rich voters/slot bound')
+    fmt.need(set(votes) == nodes, 'rich voters/slot bound')
     state = model.application(raw(genesis['application']), genesis['baseSequence'])
     expected_initial = model.State({i: model.document(i, 0) for i in range(1, 65)})
     fmt.need(genesis['source'] == 'VERIFIED_V44_BACKUP' and genesis['sourceDigest'] is not None and

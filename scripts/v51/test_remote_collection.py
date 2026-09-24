@@ -39,6 +39,12 @@ class RemoteCollectionTest(unittest.TestCase):
         self.assertEqual(2,result['files'])
         self.assertEqual((self.raw/'data/authority.bin').read_bytes(),(self.root/'unpacked/data/authority.bin').read_bytes())
 
+    def test_gzip_observations_still_count_against_trace_budget(self):
+        (self.raw/'trace.jsonl').unlink()
+        encoded=gzip.compress(b'{"order":1}\n');(self.raw/'trace.jsonl.gz').write_bytes(encoded)
+        with patch.dict(c.LIMITS,traceBytes=len(encoded)-1):
+            with self.assertRaisesRegex(ValueError,'budget'):c.inventory(self.raw)
+
     def test_actual_incompressible_stream_crosses_eight_mib_part_boundary(self):
         (self.raw/'random.bin').write_bytes(os.urandom((8<<20)+1024))
         manifest = self.pack()

@@ -13,6 +13,8 @@ import java.util.function.*;
 
 /** Common-core command and sampling adapter. No replication declarations on the control classpath. */
 public final class V51Measurement implements AutoCloseable {
+    public static volatile boolean cloudMode;
+    public static final ThreadLocal<String> callId=new ThreadLocal<>();
     public static volatile String window="startup";
     public static volatile boolean detailed;
     public static BiConsumer<String,Map<String,Object>> observer=(name,row)->{};
@@ -35,6 +37,7 @@ public final class V51Measurement implements AutoCloseable {
         sampler.scheduleAtFixedRate(()->{try{sample("periodic");}catch(Throwable error){sampleFailure=error;}},1,1,TimeUnit.SECONDS);
     }
     public static synchronized void append(Path path,Object value) throws IOException {
+        if(cloudMode){V51CloudJournal.append(path,value);return;}
         byte[] bytes=(AdmissionJson.canonical(value)+"\n").getBytes(StandardCharsets.UTF_8);
         if(bytes.length>4<<20||Files.exists(path)&&Files.size(path)+bytes.length>64L<<20)throw new IOException("measurement member bound");
         Files.write(path,bytes,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
@@ -62,6 +65,7 @@ public final class V51Measurement implements AutoCloseable {
         result.put("observedClockResolutionNanos",resolution);return result;
     }
     private synchronized void sample(String boundary) throws Exception {
+        long samplingStart=System.nanoTime();
         var values=new LinkedHashMap<>(PerformanceTelemetry.resources());
         values.put("threads",ManagementFactory.getThreadMXBean().getThreadCount());
         values.put("status",adapter.status());values.put("queues",diagnostics.apply(engine));
@@ -69,44 +73,56 @@ public final class V51Measurement implements AutoCloseable {
         values.put("boundary",boundary);values.put("window",window);values.put("order",++sampleOrder);
         values.put("node",node);values.put("mode",mode);values.put("pid",ProcessHandle.current().pid());values.put("localNanos",System.nanoTime());
         values.put("networkIo","unsupported: Linux network counters are namespace-wide, not per-process");
+        if(cloudMode)values.put("samplingStartNanos",samplingStart);
+        if(cloudMode)values.put("evidenceWriter",V51CloudJournal.observation());
         append(root.resolve(node+"-samples.jsonl"),values);
     }
     @SuppressWarnings("unchecked") public void loop() throws Exception {
+        if(cloudMode){V51CloudCommands.loop(this);return;}
         try(var input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))) {
             String line;
             while((line=input.readLine())!=null) {
                 if(line.length()>4<<20)throw new IOException("command size");
-                if(sampleFailure!=null)throw new IllegalStateException("resource sampler failed",sampleFailure);
-                var request=(Map<String,Object>)AdmissionJson.parse(line);String command=(String)request.get("command");
-                var result=new LinkedHashMap<String,Object>();result.put("opId",request.get("opId"));result.put("command",command);
-                result.put("pid",ProcessHandle.current().pid());result.put("node",node);result.put("mode",mode);
-                result.put("workerStartNanos",System.nanoTime());
-                observer.accept("CLIENT_INVOKE",request);
-                try {
-                    switch(command) {
-                        case "configure" -> {sample("window-end");window=(String)request.get("window");detailed=window.startsWith("instrumented");sample("window-start");}
-                        case "call" -> result.put("call",V51RichWorkload.operation(engine,plan,(String)request.get("window"),
-                                number(request,"cycle"),(String)request.get("operation"),number(request,"ordinal"),true));
-                        case "status" -> result.put("status",adapter.status());
-                        case "checkpoint" -> engine.checkpoint().get(15,TimeUnit.SECONDS);
-                        case "backup" -> result.put("sequence",engine.backup(new DurableBackupRequest(root.resolve("export"),16L<<20)).get(15,TimeUnit.SECONDS).sequence());
-                        case "close" -> {stopSampler();sample("pre-close");engine.close();sample("closed");}
-                        default -> adapter.command(command,request);
-                    }
-                    result.put("outcome","SUCCESS");
-                } catch(Exception error) {
-                    Throwable cause=error;
-                    while((cause instanceof ExecutionException||cause instanceof CompletionException)&&cause.getCause()!=null)cause=cause.getCause();
-                    result.put("outcome","VALIDATION_FAILURE");result.put("failure",cause.toString());
-                    try {result.put("outcome",cause.getClass().getMethod("outcome").invoke(cause).toString());result.put("reasonCode",cause.getClass().getMethod("reason").invoke(cause).toString());}
-                    catch(ReflectiveOperationException ignored){/* A core business failure has no replication outcome. */}
-                }
-                result.put("workerEndNanos",System.nanoTime());
-                observer.accept("CLIENT_RESULT",result);append(root.resolve(node+"-results.jsonl"),result);print(result);
-                if(command.equals("close"))break;
+                var request=(Map<String,Object>)AdmissionJson.parse(line);
+                var result=execute(request);
+                if(request.get("command").equals("close"))break;
                 if(!result.get("outcome").equals("SUCCESS"))throw new IllegalStateException("measurement command failed");
             }
         }
+    }
+    public Map<String,Object> execute(Map<String,Object> request) throws Exception {
+        if(sampleFailure!=null)throw new IllegalStateException("resource sampler failed",sampleFailure);
+        String command=(String)request.get("command");
+        var result=new LinkedHashMap<String,Object>();result.put("opId",request.get("opId"));result.put("command",command);
+        result.put("pid",ProcessHandle.current().pid());result.put("node",node);result.put("mode",mode);
+        result.put("workerStartNanos",System.nanoTime());
+        callId.set((String)request.get("opId"));
+        try {
+            observer.accept("CLIENT_INVOKE",request);
+            try {
+                switch(command) {
+                    case "configure" -> {sample("window-end");window=(String)request.get("window");detailed=window.startsWith("instrumented");sample("window-start");}
+                    case "call" -> result.put("call",cloudMode?V51CloudCommands.operation(engine,request):
+                            V51RichWorkload.operation(engine,plan,(String)request.get("window"),number(request,"cycle"),
+                                    (String)request.get("operation"),number(request,"ordinal"),true));
+                    case "status" -> result.put("status",adapter.status());
+                    case "checkpoint" -> engine.checkpoint().get(15,TimeUnit.SECONDS);
+                    case "backup" -> result.put("sequence",engine.backup(new DurableBackupRequest(root.resolve("export"),16L<<20)).get(15,TimeUnit.SECONDS).sequence());
+                    case "close" -> {stopSampler();sample("pre-close");engine.close();sample("closed");}
+                    default -> adapter.command(command,request);
+                }
+                result.put("outcome","SUCCESS");
+            } catch(Exception error) {
+                Throwable cause=error;
+                while((cause instanceof ExecutionException||cause instanceof CompletionException)&&cause.getCause()!=null)cause=cause.getCause();
+                result.put("outcome","VALIDATION_FAILURE");result.put("failure",cause.toString());
+                try {result.put("outcome",cause.getClass().getMethod("outcome").invoke(cause).toString());result.put("reasonCode",cause.getClass().getMethod("reason").invoke(cause).toString());}
+                catch(ReflectiveOperationException ignored){/* A core business failure has no replication outcome. */}
+            }
+            result.put("workerEndNanos",System.nanoTime());
+            observer.accept("CLIENT_RESULT",result);append(root.resolve(node+"-results.jsonl"),result);print(result);
+            return result;
+        } finally {callId.remove();}
     }
     public static int number(Map<String,Object> map,String key){return Math.toIntExact(((Number)map.get(key)).longValue());}
     private void stopSampler() throws Exception {

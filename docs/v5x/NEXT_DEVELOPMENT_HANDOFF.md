@@ -54,8 +54,12 @@ exact-master CI `35937300754` passed all nineteen jobs and 24 V5.1 verification 
 6A/6B are accepted under the [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [6C1 remote control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) now implements
 persistent command claims, fixed arrivals, time accounting and binary collection,
-with control-only local qualification. Review/accept that boundary, then connect
-the persistent JVM/rich read-cut adapter and all fault cells (6C2), and the separate
+with control-only local qualification. PR #223 accepted it at
+`833da4947266b4edfbee2a0e6fe10055ed3be00c`, exact-master CI `35942555519`
+(nineteen jobs and 25 V5.1 verification steps passed). The current
+[6C2A candidate](v5.1/PHASE_6_REMOTE_RICH.md) integrates full rich JVM tapes and
+concurrent captured cuts. Review that boundary, then complete all twelve fault
+cells/full retention limits (remaining 6C2), and the separate
 source-bound V5.1 cloud runner/admission/configuration (6C3). The existing single-caller
 6A physical oracle cannot silently qualify concurrent rich reads. Paid execution remains
 user-triggered after fresh exact-request confirmation.

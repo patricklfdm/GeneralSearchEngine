@@ -83,6 +83,10 @@ def process(root, mode, node, adapter, admitted):
             need(result['workerStartNanos'] <= row['apiStartNanos'] <= row['apiEndNanos'] <= result['workerEndNanos'], 'API interval outside worker interval')
     need(actual_results[-1]['command'] == 'close', 'missing orderly close result')
     samples = lines(root / (node + '-samples.jsonl'))
+    return record, resources(samples, mode, node, record, ['warmup', *admitted['localSmoke']['windows']])
+
+
+def resources(samples, mode, node, record, windows):
     need(samples and samples[0]['boundary'] == 'start' and samples[-1]['boundary'] == 'closed', 'resource lifecycle boundaries')
     need([r['order'] for r in samples] == list(range(1,len(samples)+1)), 'missing/reordered sample')
     need(all(a['localNanos'] <= b['localNanos'] for a,b in zip(samples,samples[1:])), 'sample clock reversal')
@@ -108,9 +112,9 @@ def process(root, mode, node, adapter, admitted):
     # this is a sampling observation, not a claim about an unsampled hard peak.
     duration = samples[-1]['localNanos'] - samples[0]['localNanos']
     need(sum(r['boundary'] == 'periodic' for r in samples) >= max(0, duration//1_000_000_000 - 1), 'missing required periodic resource samples')
-    for window in ['warmup', *admitted['localSmoke']['windows']]:
+    for window in windows:
         need(sum(r['boundary'] == 'window-start' and r['window'] == window for r in samples) == 1, 'missing window boundary sample')
-    return record, dict(samples=len(samples), sampledRssPeakBytes=max(r['VmRSSBytes'] for r in samples),
+    return dict(samples=len(samples), sampledRssPeakBytes=max(r['VmRSSBytes'] for r in samples),
                         heapPeakBytes=max(r['heapUsedBytes'] for r in samples))
 
 
@@ -127,9 +131,9 @@ def trace_identity(rows, record):
         need(all('forceStartNanos' in r for r in forced), 'missing instrumented force timing')
 
 
-def configured_physical(root, calls, traces):
+def configured_physical(root, calls, traces, *, final_sequence=76):
     reports = {node:configured.inspect(root/node) for node in traces}
-    need(all(r['sequence'] == 76 for r in reports.values()), 'configured retained sequence')
+    need(all(r['sequence'] == final_sequence for r in reports.values()), 'configured retained sequence')
     need(len({tuple(r['anchors']) for r in reports.values()}) == 1, 'configured retained prefix mismatch')
     # Actual force records, not just self-reported durable receipt hashes.
     from scripts.v50 import admission_format as fmt
@@ -162,7 +166,7 @@ def configured_physical(root, calls, traces):
         else:
             need(op == 9 and not payload,'unexpected configured auxiliary entry')
     expected=[(model.OP_IDS[c['operation']],c['payloadSha256']) for c in calls if c['operation'] in model.OP_IDS]
-    need(mutations == expected and state.sequence == 76,'configured mutation projection')
+    need(mutations == expected and state.sequence == final_sequence,'configured mutation projection')
     # Published V5.0 does not use automatic read NO_OPs.
     need(len(anchors)-len(mutations) <= 2,'configured control relabelled automatic barriers')
     genesis_bytes=(root/'node-1/genesis.gsr').read_bytes()
@@ -281,7 +285,7 @@ def artifacts(root,mode,adapter,pinned,source_inventory):
         with zipfile.ZipFile(path) as archive:
             names+=archive.namelist()
     need(not(set(adapter['classes'])&set(names)),'adapter shadows production class')
-    need(not any('/V51Measured' in n or '/V51PerformanceObserver' in n or '/V51Measurement' in n or '/V51SmallPerformance' in n for n in names),'measurement assets packaged into production')
+    need(not any('/V51Measured' in n or '/V51PerformanceObserver' in n or '/V51Measurement' in n or '/V51SmallPerformance' in n or '/V51Cloud' in n for n in names),'measurement assets packaged into production')
 
 
 def physical_trace_values(root):

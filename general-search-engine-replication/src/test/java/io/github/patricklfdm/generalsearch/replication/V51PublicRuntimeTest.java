@@ -262,4 +262,59 @@ class V51PublicRuntimeTest {
         }
     }
 
+    @Test void concurrentPublicReadsKeepTheirInvocationIdentityThroughCaptureAndRelease() throws Exception {
+        var caller=new ThreadLocal<String>();
+        var owners=new ConcurrentHashMap<Long,String>();
+        var cuts=new ConcurrentHashMap<Long,List<Map<String,Object>>>();
+        AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(AutomaticStore.Faults.NONE,(a,b,c)->{},(event,value)->{
+            if(event.equals("PUBLIC_READ_INVOKE")) {
+                assertNotNull(caller.get());assertNull(owners.put((Long)value.get("readId"),caller.get()));
+            }
+            if(Set.of("READ_CAPTURE_VALIDATED","READ_CAPTURED","READ_RELEASED").contains(event)) {
+                assertTrue(owners.containsKey((Long)value.get("readId")));
+                cuts.computeIfAbsent((Long)value.get("readId"),ignored->Collections.synchronizedList(new ArrayList<>())).add(new LinkedHashMap<>(value));
+            }
+        }));
+        try(var group=new Group(builder(),null,true)) {
+            var leader=group.leader();leader.add(new Doc(1,"shared")).get(15,TimeUnit.SECONDS);
+            var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
+            try(var clients=Executors.newFixedThreadPool(2)) {
+                var query=clients.submit(()->{caller.set("query");try{return leader.search(doc->{entered.countDown();latch(release);return true;});}finally{caller.remove();}});
+                latch(entered);
+                var get=clients.submit(()->{caller.set("get");try{return leader.get(1);}finally{caller.remove();}});
+                try {
+                    long until=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+                    while(owners.size()<2&&System.nanoTime()<until)Thread.sleep(5);
+                    assertEquals(2,owners.size());assertFalse(get.isDone());
+                } finally {release.countDown();}
+                assertEquals(List.of(new Doc(1,"shared")),query.get(15,TimeUnit.SECONDS));
+                assertEquals(new Doc(1,"shared"),get.get(15,TimeUnit.SECONDS));
+            }
+            assertEquals(Set.of("get","query"),new HashSet<>(owners.values()));
+            assertEquals(2,cuts.size());var indexes=new HashSet<Object>();
+            for(var entry:cuts.entrySet()) {
+                assertEquals(3,entry.getValue().size());
+                assertTrue(entry.getValue().stream().allMatch(entry.getValue().getFirst()::equals));
+                assertEquals(entry.getKey(),entry.getValue().getFirst().get("readId"));
+                assertEquals(1L,entry.getValue().getFirst().get("sequence"));
+                indexes.add(entry.getValue().getFirst().get("index"));
+            }
+            assertEquals(2,indexes.size());
+        }
+    }
+
+    @Test void failedReadObservationBeforeAdmissionCannotLeakAPermitOrCreateABarrier() throws Exception {
+        var reject=new java.util.concurrent.atomic.AtomicBoolean(true);
+        AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(AutomaticStore.Faults.NONE,(a,b,c)->{},(event,value)->{
+            if(event.equals("PUBLIC_READ_INVOKE")&&reject.getAndSet(false))throw new java.io.IOException("observer failed");
+        }));
+        try(var group=new Group(builder(),null,true)) {
+            var leader=group.leader();leader.add(new Doc(1,"shared")).get(15,TimeUnit.SECONDS);
+            long before=leader.leadershipStatus().provenIndex();
+            assertThrows(java.io.UncheckedIOException.class,()->leader.get(1));
+            assertEquals(before,leader.leadershipStatus().provenIndex());
+            for(int i=0;i<5;i++)assertEquals(new Doc(1,"shared"),leader.get(1));
+        }
+    }
+
 }

@@ -53,6 +53,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6A local measurement acceptance review](v5x/v5.1/PHASE_6_LOCAL_ACCEPTANCE.md)
 - [V5.1 Phase 6B cloud workload contract and calibration](v5x/v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md)
 - [V5.1 Phase 6C remote control foundation](v5x/v5.1/PHASE_6_REMOTE_FOUNDATION.md)
+- [V5.1 Phase 6C2A full rich JVM workload and concurrent cuts](v5x/v5.1/PHASE_6_REMOTE_RICH.md)
 - [V5.1 Phase 6 checklist](v5x/v5.1/PHASE_6_CHECKLIST.md)
 - [V5.1 Phase 4 current E01–E12 evidence status](v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)

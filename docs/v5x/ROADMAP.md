@@ -76,9 +76,11 @@ and corrections passed full master CI `35920225478` through PR #219. The
 the [6B cloud workload contract](v5.1/PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) adds a
 closed fifteen-cell plan and trace-backed local calibration. Both are accepted
 through PR #222 at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, full master CI
-`35937300754`. The [6C1 remote foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) is the
-current implementation candidate. Actual workload integration, full remote/cloud
-qualification and paid admission remain pending in the
+`35937300754`. The [6C1 remote foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) was accepted through
+PR #223, exact-master CI `35942555519` (nineteen jobs, 25 V5.1 gates).
+[6C2A rich JVM integration](v5.1/PHASE_6_REMOTE_RICH.md) is the current candidate.
+The twelve fault cells, full retention boundaries, remote/cloud qualification
+and paid admission remain pending in the
 [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

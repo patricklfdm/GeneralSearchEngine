@@ -1,7 +1,7 @@
 # CI parallel lanes: dependency audit and migration map
 
-The workflow now has seventeen independent full CI jobs. Each depends only on
-`changes`; `required` waits for all seventeen plus change classification. The
+The workflow now has eighteen independent full CI jobs. Each depends only on
+`changes`; `required` waits for all eighteen plus change classification. The
 [V5.1 three-way split](CI_V51_LANES.md) records the latest measured partition,
 complete V5.1 gate ownership and the test-budget correction. See
 [CI/CD operations](CI_CD.md) for triggers and branch protection.
@@ -10,6 +10,7 @@ complete V5.1 gate ownership and the test-budget correction. See
 changes
   ├── reactor-core (display name: Reactor tests)
   ├── v51-foundation
+  ├── v51-remote-rich
   ├── v51-admission-resources
   ├── v51-promise-crashes
   ├── v51-public-reads-faults
@@ -25,7 +26,7 @@ changes
   ├── compatibility
   ├── release-artifacts
   └── cloud-runner-tests
-            ↓ all seventeen results + changes
+            ↓ all eighteen results + changes
          Required
 ```
 
@@ -35,6 +36,7 @@ changes
 | --- | --- | --- |
 | `reactor-core` | Existing `./mvnw -f reactor/pom.xml clean package`, with all reactor tests | 30 minutes |
 | `v51-foundation` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
+| `v51-remote-rich` | Same reactor package/tests; full 1080-second frozen JVM tapes and binary replay | 60 minutes |
 | `v51-admission-resources` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v51-promise-crashes` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
 | `v51-public-reads-faults` | `./mvnw -f reactor/pom.xml package`, including tests | 60 minutes |
@@ -362,3 +364,15 @@ command receipts, scheduler accounting and binary collection; it does not qualif
 GSE rich concurrency or enable a paid runner. The foundation discovery also runs
 its unit regressions. Required identities, docs-only behavior and the job's existing
 five-minute ceiling remain unchanged. The original migration map is historical.
+
+## V5.1 Phase 6C2A follow-up
+
+The additional `v51-remote-rich` lane owns
+`scripts/verify-v51-phase6-remote-rich.sh --skip-build`, an independent reactor
+package/test and always-uploaded Java reports plus `target/v51-remote-rich`.
+Both artifacts use unique job names and fourteen-day retention. Its original
+frozen windows require at least eighteen minutes; adding a separate lane avoids
+serializing those windows behind the existing foundation gates. It has no GCP
+permission or environment. `Required` now checks eighteen full lanes, including
+this lane's intentional skip for documentation-only changes. Existing commands
+and historical migration rows are preserved.

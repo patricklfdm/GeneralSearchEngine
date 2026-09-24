@@ -1,10 +1,12 @@
 # V5.1 Phase 6C1 remote control foundation
 
-**Status:** implementation candidate on master
-`33aa89bf8a6b4b0587fa6a127e481d73671a60ec`. Protected acceptance is pending.
+**Status:** accepted through PR #223 at master
+`833da4947266b4edfbee2a0e6fe10055ed3be00c`. Exact-master CI
+[35942555519](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35942555519)
+passed all nineteen jobs and 25 V5.1 verification steps.
 [6A](PHASE_6_LOCAL_ACCEPTANCE.md) and [6B](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md)
 are accepted through PR #222, exact-master CI `35937300754`: nineteen successful
-jobs and 24 successful V5.1 verification steps. That CI does not test this new batch.
+jobs and 24 successful V5.1 verification steps. That earlier CI preceded the 6C1 implementation.
 
 The frozen workload hash remains
 `bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a`.
@@ -17,8 +19,8 @@ It supplies no paid workflow, provider credentials or V5.1 cloud admission.
 
 | Boundary | Implementation and required evidence |
 | --- | --- |
-| 6C1, this batch | Durable command ownership, original-deadline query after lost replies, fixed arrivals, disjoint time accounting, binary evidence collection; real subprocess crash/cancel and deterministic scheduler negatives. |
-| 6C2, next | Connect persistent guest JVM commands to all three immutable control/candidate classpaths; execute complete healthy/read-heavy/sustained tapes and twelve fault cells; independently bind concurrent rich reads to actual captured cuts; full-size slots, basis/transfer, pin and two-generation retention checks. |
+| 6C1, accepted | Durable command ownership, original-deadline query after lost replies, fixed arrivals, disjoint time accounting, binary evidence collection; real subprocess crash/cancel and deterministic scheduler negatives. |
+| 6C2, in progress | Connect persistent guest JVM commands to all three immutable control/candidate classpaths; execute complete healthy/read-heavy/sustained tapes and twelve fault cells; independently bind concurrent rich reads to actual captured cuts; full-size slots, basis/transfer, pin and two-generation retention checks. |
 | 6C3 | Own prepare/run/collect/validate/cleanup; same-path fake provisioning/SSH/upload/credential/deletion failures; source-bound runner/workflow/WIF/environment/price/cleanup identities and fresh configuration review. |
 
 These are implementation review boundaries within the existing
@@ -147,7 +149,9 @@ cloud runtime. Separate tests exercise actual four-thread callbacks, the real
 8 MiB part boundary with incompressible data, and rejection at budget/identity/
 archive/cancellation/deadline boundaries.
 
-Protected CI for this batch and the full 6C2/6C3 exits remain required. Published
+The following [6C2A rich-workload candidate](PHASE_6_REMOTE_RICH.md) connects the
+three real JVM modes and concurrent read oracle. Its protected CI and the full
+6C2/6C3 exits remain required. Published
 controls, production Java, V5.0 cloud workflows, workload parameters, cost ledgers
 and manually triggered paid execution are unchanged.
 

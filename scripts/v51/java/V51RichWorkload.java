@@ -94,6 +94,12 @@ public final class V51RichWorkload {
                 if (operation.startsWith("ADD") || operation.startsWith("UPDATE")) docs.add(document(key, cycle + 1, plan.number("seed")));
             }
         }
+        return operation(engine, window, cycle, operation, ordinal, measured, keys, docs);
+    }
+    public static Map<String,Object> operation(DurableSearchEngine<Integer,Doc> engine,
+            String window, int cycle, String operation, int ordinal, boolean measured,
+            List<Integer> keys, List<Doc> docs) throws IOException {
+        AdmissionJson.require(OPERATIONS.contains(operation), "workload operation");
         var row = new LinkedHashMap<String,Object>();
         row.put("ordinal", ordinal); row.put("window", window); row.put("cycle", cycle); row.put("operation", operation);
         row.put("keys", keys); row.put("payloadSha256", hash(payload(operation, keys, docs)));
