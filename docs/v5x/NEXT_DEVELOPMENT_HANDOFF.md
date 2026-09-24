@@ -46,7 +46,10 @@ is a closed candidate with local calibration, synthetic full-slot encoding and
 fifteen canonical cells. PR #220 merged at `717bed8f578019c71ffe3d739deaf067ec0fa8d2`;
 master CI `35927462738` failed an inherited
 [Phase 5A recovery-write assumption](v5.1/PHASE_5_COMBINED_RECOVERY.md#post-pr-220-correction-a-recovered-read-does-not-lease-leadership).
-Review that driver correction and obtain protected acceptance under the
+PR #221 merged that correction at `af68d8473f9998628e49189a2d8be658b8bfe116`.
+Master CI `35932225694` exposed a separate
+[proof-sample boundary and inherited retry fixture](v5.1/PHASE_5_COMBINED_RECOVERY.md#post-pr-221-correction-confirm-proof-before-recording-a-drained-round).
+Review both corrections and obtain protected acceptance under the
 [checklist](v5.1/PHASE_6_CHECKLIST.md), then implement 6C's scheduler/remote adapter,
 full-size qualification and distinct V5.1 runner/admission. Paid execution remains
 user-triggered after fresh exact-request confirmation.

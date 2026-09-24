@@ -3,7 +3,7 @@ from concurrent.futures import Future
 import copy
 from pathlib import Path
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 from . import hardening_harness as h, hardening_evidence as e, public_history
 
 
@@ -136,3 +136,60 @@ class ResumeTest(unittest.TestCase):
         with self.assertRaises(ValueError):e.recovery_writes(row,history,[])
         row,history=self.recovery_receipt();row['recoveryWrites']*=2
         with self.assertRaisesRegex(ValueError,'attempt bound'):e.recovery_writes(row,history,[])
+
+
+class RecoveryDrainTest(unittest.TestCase):
+    def setUp(self):
+        import base64
+        from .fixtures import generate
+        frames,_,_=generate()
+        self.proof=base64.b64encode(frames['PROOF']).decode()
+        self.snapshot=base64.b64encode(frames['SNAPSHOT']).decode()
+        self.group=h.RecoveryGroup(Path('/unused'),'unused')
+        self.worker=Mock(generation=2);self.worker.proc.pid=11
+        self.group.workers={'node-1':self.worker}
+        self.status=dict(pending=0,provenIndex=1,state='RECOVERING',
+                         sample=dict(admissionAvailable=4,orderedQueue=0,deadlinesQueue=0))
+
+    def sample(self, order, op):
+        return dict(event='LIFECYCLE_SAMPLE',opId=op,order=order,pid=11,generation=2,node='node-1',sample=self.status['sample'])
+
+    def force(self, order=11, **fields):
+        return dict(dict(event='FORCE',kind='PROOF',record=self.proof,order=order,pid=11,generation=2,node='node-1'),**fields)
+
+    def drain(self, rows, statuses=None, floor=1):
+        self.worker.call.side_effect=statuses or [dict(self.status,opId='s1'),dict(self.status,opId='s2')]
+        def wait(test, message):
+            for _ in range(2):
+                result=test()
+                if result:return result
+            raise ValueError(message)
+        with patch.object(h.fault,'rows',return_value=rows),patch.object(h.fault,'wait_for',side_effect=wait):
+            return self.group.drained(floor)
+
+    def test_selected_status_cannot_finish_round_before_its_raw_proof(self):
+        result=self.drain([self.sample(10,'s1'),self.force(11),self.sample(12,'s2')])
+        self.assertEqual(2,self.worker.call.call_count)
+        self.assertEqual('s2',result['node-1']['status']['opId'])
+
+    def test_status_alone_or_later_previous_process_proof_cannot_qualify(self):
+        for proof in (None,self.force(13),self.force(9,pid=10),self.force(9,generation=1),self.force(9,node='node-2')):
+            rows=[self.sample(10,'s1'),self.sample(12,'s2')]+([] if proof is None else [proof])
+            with self.subTest(proof=proof),self.assertRaises(ValueError):self.drain(rows)
+
+    def test_both_installed_and_published_snapshots_are_accepted_before_sample(self):
+        for event in ('REJOIN_INSTALLED','PUBLISHED'):
+            row=dict(event=event,snapshot=self.snapshot,order=9,pid=11,generation=2,node='node-1')
+            with self.subTest(event=event):
+                result=self.drain([row,self.sample(10,'s1')])
+                self.assertEqual('s1',result['node-1']['status']['opId'])
+
+    def test_proof_must_cover_requested_floor_and_resources_must_be_drained(self):
+        with self.assertRaises(ValueError):
+            self.drain([self.force(9),self.sample(10,'s1'),self.sample(12,'s2')],
+                       statuses=[dict(self.status,provenIndex=2,opId='s1'),dict(self.status,provenIndex=2,opId='s2')],floor=2)
+        for fields in (dict(pending=1),dict(sample=dict(self.status['sample'],admissionAvailable=3)),
+                       dict(sample=dict(self.status['sample'],orderedQueue=1)),dict(sample=dict(self.status['sample'],deadlinesQueue=1))):
+            with self.subTest(fields=fields),self.assertRaises(ValueError):
+                self.drain([self.force(9),self.sample(10,'s1'),self.sample(12,'s2')],
+                           statuses=[dict(self.status,opId='s1',**fields),dict(self.status,opId='s2',**fields)])

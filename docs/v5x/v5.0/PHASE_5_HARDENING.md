@@ -150,3 +150,31 @@ admission. This candidate hardens the existing internal runtime and does not cla
 those missing public flows were tested. Automatic background catch-up, membership
 changes, election, hostile-network security, performance, kernel/device power loss,
 paid cloud and signed publication remain outside this result.
+
+## Post-PR-221 follow-up: target the ADD exchange
+
+V5.1 master CI `35932225694`, source
+`af68d8473f9998628e49189a2d8be658b8bfe116`, failed
+`V50NetworkHardeningTest.retryExhaustionCannotPublishAndRecoveryRemovesOnlyUnprovenTail`
+in the candidate-crashes job's build step: expected two APPEND responses, counted
+four. This prevented the later candidate-crash gate from starting.
+
+Activation returns after a remote quorum, so another follower's activation NO_OP
+can still be in flight when the test arms its fault. The fixture previously dropped
+and counted every subsequent APPEND response. If the old activation response
+arrived late, its two attempts were added to the target ADD's two attempts.
+
+The fixture now decodes the APPEND entry and limits this fault to the intended ADD
+at index 2. It still requires exactly `maxRetryAttempts + 1` attempts per follower,
+checks the same complete request bytes on every retry (including correlation
+identity), verifies that the failed write was never published, and checks that
+reactivation discards only its unproven tail before accepting a fresh document.
+Production transport retries, deadlines and recovery behavior are unchanged.
+
+The test runs both the ordinary schedule and a deterministic schedule that holds
+node 3's activation NO_OP response until after the fault is armed. With the original
+broad filter, that delayed schedule reproduces the exact `expected 2, got 4` failure.
+Both schedules and all fifteen cases in the complete network hardening test class
+pass with the corrected filter. Original CI reports and before/after logs remain
+under `target/v51-master-221-failures`; this fixture correction does not alter the
+historical V5.0 release evidence or authorize cloud execution.

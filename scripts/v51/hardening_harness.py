@@ -53,6 +53,33 @@ class RepeatedGroup(final.Group):
 
 class RecoveryGroup(RepeatedGroup):
     """Phase 5A client schedule; shared lifecycle groups keep their original driver."""
+    def drained(self, floor):
+        # Election selection can advance public provenIndex before activation emits
+        # this process's raw proof. Retain a sample only after its physical witness.
+        result={}
+        for node,worker in self.workers.items():
+            def confirmed():
+                status=worker.call('status')
+                if not (status['pending']==0 and status['provenIndex']>=floor and
+                        status['sample']['admissionAvailable']==4 and
+                        status['sample']['orderedQueue']==status['sample']['deadlinesQueue']==0):return None
+                rows=[r for r in fault.rows(self.root,node) if r['node']==node and
+                      r['pid']==worker.proc.pid and r['generation']==worker.generation]
+                samples=[r for r in rows if r['event']=='LIFECYCLE_SAMPLE' and r.get('opId')==status['opId']]
+                need(len(samples)==1 and samples[0]['sample']==status['sample'], 'unbound recovery resource sample')
+                for record in rows:
+                    if record['order']>=samples[0]['order']:continue
+                    if record['event']=='FORCE' and record.get('kind')=='PROOF':
+                        through=final.storage.f.inspect(final.storage.raw(record['record']),'PROOF')['index']
+                    elif record['event'] in ('PUBLISHED','REJOIN_INSTALLED'):
+                        through=len(final.storage.f.inspect(final.storage.raw(record['snapshot']),'SNAPSHOT')['anchors'])
+                    else:continue
+                    if through>=floor:return status
+                return None
+            status=fault.wait_for(confirmed, 'post-recovery proof/resource sample not confirmed')
+            result[node]=dict(node=node,pid=worker.proc.pid,generation=worker.generation,
+                             observedNanos=time.monotonic_ns(),status=status)
+        return result
     def dispatch(self, worker, kind, **values):
         need(len(self.history)<48, 'hardening history dispatch bound')
         return worker.send(kind,**values)
