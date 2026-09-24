@@ -72,7 +72,12 @@ public final class V50CloudWorkloadWorker {
                     CloudWorkloadTelemetry.record("ledger",Map.of("type",type,"frame",key,"request",request));
                 }
             }
-            if(outgoing && (mode.equals("block-all")||mode.equals("block-node-3")&&request.get("recipient").equals("node-3"))) {
+            // The local timeout fixture must recover through an explicit batch:
+            // ordinary queued replication cannot overtake it when the network heals.
+            boolean blockedPeer=request.get("recipient").equals("node-3") &&
+                    (mode.equals("block-node-3") || mode.equals("block-live-node-3") &&
+                            (type.equals("APPEND") || type.equals("COMMIT_PROOF")));
+            if(outgoing && (mode.equals("block-all")||blockedPeer)) {
                 CloudWorkloadTelemetry.record("faults",Map.of("action","disconnect","type",type,"recipient",request.get("recipient")));
                 throw new IOException("owned test network isolation");
             }

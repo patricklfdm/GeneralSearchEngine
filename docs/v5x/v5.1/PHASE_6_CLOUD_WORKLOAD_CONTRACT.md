@@ -1,19 +1,38 @@
 # V5.1 Phase 6B cloud workload contract
 
-**Status:** accepted through PR #222, master
-`33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, exact-master CI `35937300754`
-(all nineteen jobs and 24 V5.1 verification steps passed). The
-[plan](phase6-cloud-workload-plan.json), [local calibration](phase6-cloud-calibration.json)
-and [6A acceptance](PHASE_6_LOCAL_ACCEPTANCE.md) retain their original bytes and
-measurement identities. The plan's frozen `review-candidate` field is historical;
-acceptance is recorded here without changing its digest. This contract itself does
-not run or admit cloud workloads. The [6C remote foundation](PHASE_6_REMOTE_FOUNDATION.md)
-is an implementation candidate, with full workload/remote admission still pending.
+**Status:** original contract accepted through PR #222, master
+`33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, exact-master CI `35937300754`.
+The original calibration and measurement identities remain unchanged. During 6C2B
+implementation the user explicitly approved the two document-size exceptions below.
+This amendment requires protected acceptance of the new source and plan. It supplies
+no paid admission.
 
-Canonical JSON SHA-256:
+Original canonical JSON SHA-256:
 `bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a`.
-Any parameter change requires a new reviewed hash, updated documentation and
-relevant calibration. Reusing a label cannot qualify changed semantics or resources.
+Amended canonical JSON SHA-256:
+`f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7`.
+The [amendment record](phase6-cloud-workload-amendment.json) binds both hashes and
+the unchanged [historical calibration](phase6-cloud-calibration.json).
+Removing exactly the two added cell fields reconstructs the original pinned plan;
+a regression checks that no other frozen value changed.
+
+### Approved fault-document amendment
+
+The two-field codec stores a four-byte integer key before the UTF-8 value. The
+already specified 4096-byte and 20000-byte values therefore need these exact limits:
+
+| Fault cell | Value bytes | Encoded document limit |
+| --- | ---: | ---: |
+| interrupted-transfer | 4096 | 4100 |
+| minority-capacity | 20000 | 20004 |
+
+Only these two cells override `application.maxEncodedDocumentBytes=4096`. Both
+bounds apply consistently to all three voters within that cell; only node 3 in
+minority-capacity retains the separately frozen 128-KiB replication budget. Rich
+schedules, public call counts, other application/replication bounds, timers and
+cost/time allocations are unchanged. The historical calibration is not relabelled
+as execution of this amendment. Current arithmetic and real fault qualification
+bind the new hash; exact-source CI also reruns the unchanged rich tapes.
 
 ## Calibration and workload scope
 
@@ -217,7 +236,7 @@ overrun. No nominal window consumes its entire cell ceiling without control room
 Application and common replication bounds inherit the admitted 6A values exactly:
 1024 live documents, bulk 16, application retained 128 MiB, replication retained
 and staging 64 MiB each, frame 1 MiB, four in-flight requests per peer, four pending
-public calls, two retries, 4096-byte chunks. Only the explicit minority bound differs.
+public calls, two retries, 4096-byte chunks. The explicit minority retained bound and the two approved per-cell encoded-document limits differ.
 Logical slots are capped at 512 per group, including at most eight auxiliary read
 barriers and 64 activation/recovery NO_OP slots. Largest normal schedule:
 `260 + 8 + 64 = 332`, below 512. Re-proposals still consume bytes/force observations;

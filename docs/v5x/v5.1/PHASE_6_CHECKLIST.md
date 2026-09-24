@@ -18,8 +18,10 @@ Exact-master CI `35937300754` passed all nineteen jobs and 24 V5.1 verification 
 6A/6B are accepted. [6C1 remote control foundation](PHASE_6_REMOTE_FOUNDATION.md)
 was accepted through PR #223, master `833da4947266b4edfbee2a0e6fe10055ed3be00c`;
 exact-master CI `35942555519` passed all nineteen jobs and 25 V5.1 verification steps.
-[6C2A rich JVM integration](PHASE_6_REMOTE_RICH.md) is the current candidate;
-full 6C qualification remains open.
+[6C2A rich JVM integration](PHASE_6_REMOTE_RICH.md) was accepted through PR #224,
+master `28cd5edc0a63fd82a9c01dad028623acc529c9f2`, exact-master CI `35961961431`
+(twenty jobs, 26 V5.1 gates). The [6C2B fault candidate](PHASE_6_REMOTE_FAULTS.md)
+is the current review boundary; full 6C qualification remains open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -45,7 +47,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C1 local control qualification: real lost-response/duplicate/SIGKILL/cancel processes, complete synthetic tapes and independently checked collection.
 - [x] 6C1 protected acceptance: PR #223, exact-master CI `35942555519`; control-only receipts do not qualify a GSE workload.
 - [x] 6C2A implementation candidate: persistent JVM lanes, full frozen rich tapes, concurrent captured-cut oracle and portable binary replay.
-- [ ] 6C2A protected acceptance and exact-source CI.
+- [x] 6C2A protected acceptance: PR #224, exact-master CI `35961961431`.
+- [x] 6C2B fault implementation: twelve frozen public JVM schedules, bounded history/physical/resource validation and binary replay.
+- [ ] 6C2B fault-document amendment and fault qualification protected acceptance.
+- [ ] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
 - [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.

@@ -1,0 +1,24 @@
+{
+  "schema": "gse-v51-fault-document-amendment-v1",
+  "previousPlanSha256": "bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a",
+  "planSha256": "f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7",
+  "authorization": "User explicitly approved exact encoded-document limits for these two frozen fault cells.",
+  "changes": [
+    {
+      "cell": "interrupted-transfer",
+      "field": "maxEncodedDocumentBytes",
+      "valueBytes": 4096,
+      "encodedBytes": 4100
+    },
+    {
+      "cell": "minority-capacity",
+      "field": "maxEncodedDocumentBytes",
+      "valueBytes": 20000,
+      "encodedBytes": 20004
+    }
+  ],
+  "previousCalibrationSha256": "a5b2890899b00da97d4b712bfe1cbf77d95ebf75aa5e288412281a2cdbf4ee5a",
+  "richSchedulesChanged": false,
+  "otherLimitsChanged": false,
+  "paidAdmission": false
+}

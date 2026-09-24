@@ -44,3 +44,6 @@ __pycache__/
 
 ### GitHub Actions Google authentication ###
 gha-creds-*.json
+
+### GitHub Artifacts ###
+artifact-report/

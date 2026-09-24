@@ -28,15 +28,15 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the eighteen full CI gates. Pull requests compare merge-base to PR head, so a final docs
+the nineteen full CI gates. Pull requests compare merge-base to PR head, so a final docs
 commit cannot hide earlier code changes. Master pushes compare the event's `before`
 and `after` commits, including every commit in the push. Renames include both paths;
 there is no changed-file API pagination limit.
 
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
-only change-detection tests,
-the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the eighteen
+only change-detection/required-gate and Maven retry helper tests,
+the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the nineteen
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
 workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
@@ -44,8 +44,8 @@ full CI too. Manual dispatch always runs full CI; missing history, an empty diff
 an unreadable event conservatively selects full CI.
 
 The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all eighteen
-full gates to succeed, or all eighteen to be intentionally skipped for a verified
+is always reported. It requires successful change detection and either all nineteen
+full gates to succeed, or all nineteen to be intentionally skipped for a verified
 documentation-only change. Failed/cancelled detection and unexpected skipped tests
 cannot pass. This follows GitHub's distinction between
 [skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
@@ -53,7 +53,7 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs eighteen independent gates after
+For build inputs or manual dispatch, the workflow runs nineteen independent gates after
 `changes`, each with its own runner workspace:
 
 1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
@@ -90,15 +90,23 @@ For build inputs or manual dispatch, the workflow runs eighteen independent gate
 
 18. `v51-remote-rich` runs the full frozen three-mode/concurrent rich workload,
     independent captured-cut checks and portable binary replay without GCP.
+19. `v51-remote-faults` runs twelve frozen fault cells, independent history/physical
+    checks and relocated binary replay without GCP.
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
 record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
 includes measured estimates and the accompanying test-only catch-up budget correction.
 Maven execution inside each job remains serial. There is no cross-job `target/`
-sharing, and every lane is required for full CI. Each of the ten V5.1 jobs also
+sharing, and every lane is required for full CI. Each of the eleven V5.1 jobs also
 uploads `**/target/surefire-reports/**` with `always()` and a unique
 `<job-id>-java-tests-${{ github.sha }}` artifact name, retaining failed builds for
 fourteen days. Regression timeouts remain 60 minutes.
+
+Ordinary prerequisite Maven builds use the [bounded infrastructure retry](CI_MAVEN_INFRA_RETRY.md):
+at most two attempts with a fifteen-second backoff, only for explicit remote-transfer
+HTTP/network failures before any tests start. Compilation, test, contract and integrity
+failures take precedence. Every attempt's complete log is retained outside `target/`
+and uploaded even after recovery. Compatibility, release and phase gates stay single-attempt.
 
 The stable required status check is:
 

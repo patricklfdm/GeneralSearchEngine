@@ -8,7 +8,7 @@ passed all nineteen jobs and 25 V5.1 verification steps.
 are accepted through PR #222, exact-master CI `35937300754`: nineteen successful
 jobs and 24 successful V5.1 verification steps. That earlier CI preceded the 6C1 implementation.
 
-The frozen workload hash remains
+This accepted 6C1 receipt used the original workload hash
 `bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a`.
 This batch implements reusable guest/control components and qualifies their
 failure behavior. Its receipt explicitly says `local-remote-control-only`,
@@ -149,8 +149,8 @@ cloud runtime. Separate tests exercise actual four-thread callbacks, the real
 8 MiB part boundary with incompressible data, and rejection at budget/identity/
 archive/cancellation/deadline boundaries.
 
-The following [6C2A rich-workload candidate](PHASE_6_REMOTE_RICH.md) connects the
-three real JVM modes and concurrent read oracle. Its protected CI and the full
+The accepted [6C2A rich workload](PHASE_6_REMOTE_RICH.md) connects the
+three real JVM modes and concurrent read oracle. PR #224 passed exact-master CI `35961961431`. The full
 6C2/6C3 exits remain required. Published
 controls, production Java, V5.0 cloud workflows, workload parameters, cost ledgers
 and manually triggered paid execution are unchanged.

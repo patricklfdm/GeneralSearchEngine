@@ -5,7 +5,8 @@ import struct
 from . import performance_model as m, performance_plan as local
 
 PLAN=Path(__file__).resolve().parents[2]/'docs/v5x/v5.1/phase6-cloud-workload-plan.json'
-PLAN_SHA256='bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a'
+PRE_AMENDMENT_SHA256='bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a'
+PLAN_SHA256='f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7'
 
 
 def load(path=PLAN):
@@ -98,6 +99,7 @@ def audit(value):
     m.need(value['sustained']['seconds']*1000//value['sustained']['burstPeriodMillis']%len(value['sustained']['operationsByLane'])==0,'unfinished mutation lane')
     results={cell:projection(value,cell) for cell in names[:3]};results['experiment-healthy']=projection(value,'healthy','experiment')
     m.need([(results[k]['calls'],results[k]['mutations'],results[k]['reads']) for k in results]==[(260,208,52),(120,30,90),(180,108,72),(90,72,18)],'workload counts')
+    m.need({c['name']:c['maxEncodedDocumentBytes'] for c in cells if 'maxEncodedDocumentBytes' in c}=={'interrupted-transfer':4100,'minority-capacity':20004},'fault document exceptions')
     f=value['faultProgram'];m.need(max(r['calls'] for r in results.values())+f['auxiliaryBarriersMaximum']+f['campaignSlotsMaximum']<=f['logicalSlotsMaximum']==512,'logical slot budget')
     m.need(all(c['historyCallsMaximum']<=f['historyMaximum']==24 for c in cells[3:]),'bounded fault histories')
     env=value['environment'];m.need(env['voters']==3 and env['voters']*env['vcpusPerVm']==24 and env['voters']*(env['bootDiskGiB']+env['dataDiskGiB'])==450,'cloud topology')

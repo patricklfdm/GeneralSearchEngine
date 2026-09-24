@@ -43,7 +43,7 @@ def documents_command(data):
     f.need(offset==len(data),'command trailing data');return values
 
 
-def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None):
+def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True):
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
     nodes={row['node'] for row in manifest['members']};rejected_tails=rejected_tails or {}
@@ -78,7 +78,7 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
                 voters=accepted.setdefault((vote['epoch'],vote['incarnation'],entry['index'],digest),set());voters.add(node)
                 if len(voters)>=2:
                     f.need(entry['index'] not in chosen or chosen[entry['index']]==digest,'conflicting chosen value');chosen[entry['index']]=digest
-    f.need(len(pids)>=4,'three runtime JVMs and retained-disk restart required')
+    f.need(len(pids)>=(4 if require_restart else 3),'three runtime JVMs and retained-disk restart required' if require_restart else 'three concurrent runtime JVMs required')
     for selected in selections.values():
         bases=[]
         for binding in selected['bases']:

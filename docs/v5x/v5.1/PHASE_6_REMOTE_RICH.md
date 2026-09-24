@@ -1,21 +1,21 @@
 # V5.1 Phase 6C2A: full rich JVM workload and concurrent cuts
 
-**Status:** implementation candidate based on PR #223, master
-`833da4947266b4edfbee2a0e6fe10055ed3be00c`. The preceding
-[6C1 foundation](PHASE_6_REMOTE_FOUNDATION.md) passed exact-master CI
-[35942555519](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35942555519)
-with nineteen successful jobs and 25 successful V5.1 verification steps.
-That result does not qualify these new adapters or diagnostic hooks.
+**Status:** accepted through PR #224, master
+`28cd5edc0a63fd82a9c01dad028623acc529c9f2`. Exact-master CI
+[35961961431](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35961961431)
+passed all twenty jobs and 26 V5.1 verification steps. The acceptance describes
+the original 6B plan; the later [fault-document amendment](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md#approved-fault-document-amendment)
+changes two fault-cell limits and requires its own protected CI.
 
 This is the rich-workload part of 6C2. Its receipt says
 `local-guest-rich-workload-only`, `paidCloud=false`, and
-`fullRemoteQualification=false`. The twelve frozen fault cells, complete 512-slot
-retention/transfer/pinning boundaries, and 6C3 provider integration remain open.
+`fullRemoteQualification=false`. The twelve frozen fault cells are the [6C2B candidate](PHASE_6_REMOTE_FAULTS.md).
+Complete 512-slot retention/transfer/pinning boundaries and 6C3 provider integration remain open.
 Full 6C acceptance still requires those results and protected exact-source CI.
 
 ## Complete frozen tapes
 
-The [6B plan](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) retains SHA-256
+The accepted original [6B plan](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) had SHA-256
 `bee0b38ae20611a0d36259e554c5d03b1e1ebd87fc71ab648b3848681854754a`.
 The gate runs all of the following on fresh stores:
 

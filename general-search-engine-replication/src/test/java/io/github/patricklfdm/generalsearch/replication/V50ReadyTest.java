@@ -131,6 +131,77 @@ class V50ReadyTest {
         }
     }
 
+    private static void seedUpdates(Group group, int history, int... followers) throws Exception {
+        seedUpdates(group, history, () -> { }, followers);
+    }
+
+    private static void seedUpdates(Group group, int history, Runnable onWaiting, int... followers) throws Exception {
+        awaitSeedPublication(group, onWaiting, followers);
+        for (int i = 0; i < history; i++) {
+            group.leader().submit("UPDATE",
+                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
+                    .get(10, TimeUnit.SECONDS);
+            // A client ACK needs only one follower. Bound the fixture's outstanding
+            // seed work before another write can queue behind a slower required voter.
+            // Recovery/checkpointing here would erase the history this test measures.
+            awaitSeedPublication(group, onWaiting, followers);
+        }
+    }
+
+    private static void awaitSeedPublication(Group group, Runnable onWaiting, int... followers) throws Exception {
+        long boundary = group.leader().status().commitIndex();
+        await(() -> {
+            for (int follower : followers) {
+                if (group.nodes.get(follower).status().appliedIndex() != boundary) {
+                    onWaiting.run();
+                    return false;
+                }
+            }
+            return true;
+        });
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void historySeedWaitsForRequiredVotersBeforeQueuingMoreWrites(boolean bothFollowers) throws Exception {
+        var holdResponse = new AtomicBoolean();
+        var responseHeld = new CountDownLatch(1);
+        var releaseResponse = new CountDownLatch(1);
+        var waiting = new AtomicInteger();
+        var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE, local -> (barrier, request, response) -> {
+            if (local == 0 && barrier.equals("AFTER_RESPONSE_READ") && request.get("recipient").equals("node-3")
+                    && request.get("type").equals("COMMIT_PROOF")
+                    && Long.valueOf(2).equals(ReplicaWire.object(response.get("payload")).get("index"))
+                    && holdResponse.compareAndSet(true, false)) {
+                responseHeld.countDown();
+                try {
+                    if (!releaseResponse.await(10, TimeUnit.SECONDS)) throw new java.io.IOException("seed response release missing");
+                } catch (InterruptedException error) {
+                    Thread.currentThread().interrupt(); throw new java.io.IOException(error);
+                }
+            }
+        });
+        try {
+            group.leader().activate().get(10, TimeUnit.SECONDS);
+            holdResponse.set(true);
+            group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
+            assertTrue(responseHeld.await(5, TimeUnit.SECONDS));
+            // node-3 has published the ADD but its sender still owns the ACK slot.
+            // node-2 can acknowledge many more writes; waiting only after the whole
+            // seed would overflow node-3's queue and leave a non-repairing log gap.
+            int history = 4 * BOUNDS.maxInFlightPerPeer();
+            seedUpdates(group, history, () -> {
+                waiting.incrementAndGet();
+                releaseResponse.countDown();
+            }, bothFollowers ? new int[] {1, 2} : new int[] {2});
+            assertTrue(waiting.get() > 0, "fixture must observe the held follower falling behind");
+            assertEquals(history + 2, group.nodes.get(2).status().appliedIndex());
+            assertEquals(new Document(1, "update-" + (history - 1)), group.applications.get(2).read(engine -> engine.get(1)));
+            for (var node : group.nodes) assertEquals(0, node.durabilityMetrics().checkpointSequence(),
+                    "seed pacing must preserve the full retained history");
+        } finally { releaseResponse.countDown(); group.close(); }
+    }
+
     @ParameterizedTest
     @CsvSource({"published,none", "private,none", "missing,none", "published,APPEND", "published,COMMIT_PROOF"})
     void incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix(String materialization, String lostMessage) throws Exception {
@@ -188,9 +259,8 @@ class V50ReadyTest {
             group.leader().activate().get(10, TimeUnit.SECONDS);
             group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
             seedStarted.set(true);
-            for (int i = 0; i < history; i++) group.leader().submit("UPDATE",
-                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
-                    .get(10, TimeUnit.SECONDS);
+            // node-2 is deliberately allowed to miss the selected seed exchange.
+            seedUpdates(group, history, 2);
             await(() -> app.appliedIndex() == prefix);
             if (!lostMessage.equals("none")) {
                 assertTrue(droppedAttempts.get() > 0, "fixture did not lose the selected seed exchange");
@@ -282,9 +352,7 @@ class V50ReadyTest {
         try (var group = new Group(temporary, BOUNDS, ReplicaNode.Events.NONE)) {
             group.leader().activate().get(10, TimeUnit.SECONDS);
             group.add(new Document(1, "initial")).get(10, TimeUnit.SECONDS);
-            for (int i = 0; i < history; i++) group.leader().submit("UPDATE",
-                    group.applications.getFirst().documents("UPDATE", List.of(new Document(1, "update-" + i))))
-                    .get(10, TimeUnit.SECONDS);
+            seedUpdates(group, history, 1, 2);
             long boundary = group.leader().status().commitIndex(), epoch = group.leader().status().activeEpoch();
             await(() -> group.nodes.get(1).status().appliedIndex() == boundary && group.nodes.get(2).status().appliedIndex() == boundary);
             group.leader().close();

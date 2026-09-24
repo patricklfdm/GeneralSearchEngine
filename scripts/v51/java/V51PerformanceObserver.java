@@ -21,7 +21,10 @@ public final class V51PerformanceObserver {
         int offset=0,last=0;while(offset<bytes.length){last=offset;offset+=HEADER+ByteBuffer.wrap(bytes,offset+12,4).getInt();}
         return Arrays.copyOfRange(bytes,last,offset);
     }
-    public static Map<String,Object> diagnostics(Object engine) {
+    public static Map<String,Object> diagnostics(Object engine) { return diagnostics(engine,false); }
+    /** A quarantined but owned voter still has a live control loop until public close. */
+    public static Map<String,Object> diagnosticsIncludingQuarantine(Object engine) { return diagnostics(engine,true); }
+    private static Map<String,Object> diagnostics(Object engine,boolean observeQuarantine) {
         try {
             var result=new LinkedHashMap<String,Object>();
             Object runtime=field(engine,"node");Object transport=field(runtime,"transport");
@@ -67,7 +70,19 @@ public final class V51PerformanceObserver {
                 // it neither changes an RPC deadline nor submits an engine operation.
                 var answer=new CompletableFuture<Map<String,Object>>();
                 var enqueue=runtime.getClass().getDeclaredMethod("enqueue",Runnable.class);enqueue.setAccessible(true);
-                enqueue.invoke(runtime,(Runnable)()->{try{answer.complete(inspect.call());}catch(Throwable e){answer.completeExceptionally(e);}});
+                Runnable observation=()->{try{answer.complete(inspect.call());}catch(Throwable e){answer.completeExceptionally(e);}};
+                try {enqueue.invoke(runtime,observation);}
+                catch(java.lang.reflect.InvocationTargetException error) {
+                    if(!observeQuarantine||!(error.getCause() instanceof AutomaticReplicationException problem)
+                            ||problem.reason()!=AutomaticReplicationException.Reason.CLOSED)throw error;
+                    if((boolean)field(runtime,"terminated"))answer.complete(inspect.call());
+                    else {
+                        // Test observation only: the closing loop still drains inputs. Do not
+                        // bypass rejection for an engine operation or alter its stored failure.
+                        @SuppressWarnings("unchecked") var inputs=(BlockingQueue<Runnable>)field(runtime,"inputs");
+                        if(!(boolean)field(runtime,"closing")||!inputs.offer(observation))throw error;
+                    }
+                }
                 counts=answer.get(9600,TimeUnit.MILLISECONDS);
             } else {
                 @SuppressWarnings("unchecked") var observed=(Map<String,Object>)method.invoke(runtime,inspect);

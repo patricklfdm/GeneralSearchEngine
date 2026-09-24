@@ -56,12 +56,15 @@ The [6C1 remote control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md) now imple
 persistent command claims, fixed arrivals, time accounting and binary collection,
 with control-only local qualification. PR #223 accepted it at
 `833da4947266b4edfbee2a0e6fe10055ed3be00c`, exact-master CI `35942555519`
-(nineteen jobs and 25 V5.1 verification steps passed). The current
-[6C2A candidate](v5.1/PHASE_6_REMOTE_RICH.md) integrates full rich JVM tapes and
-concurrent captured cuts. Review that boundary, then complete all twelve fault
-cells/full retention limits (remaining 6C2), and the separate
-source-bound V5.1 cloud runner/admission/configuration (6C3). The existing single-caller
-6A physical oracle cannot silently qualify concurrent rich reads. Paid execution remains
+(nineteen jobs and 25 V5.1 verification steps passed). PR #224 accepted
+[6C2A rich workloads](v5.1/PHASE_6_REMOTE_RICH.md), exact-master CI `35961961431`
+(twenty jobs, 26 V5.1 gates). The current [6C2B fault candidate](v5.1/PHASE_6_REMOTE_FAULTS.md)
+implements the twelve fault cells and the explicitly approved two document-size
+exceptions. Review its complete fault evidence and exact-source CI, then complete
+512-slot basis/wire/transfer/re-proposal/pin and two-generation retention checks.
+That full-size boundary remains open; these small fault histories cannot close it.
+The source-bound V5.1 runner/admission/configuration and provider failures remain
+6C3. Paid execution remains
 user-triggered after fresh exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

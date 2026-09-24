@@ -25,19 +25,52 @@ class V51AutomaticRejoinTest {
         }
         fail("rejoin/floor did not converge: "+group.nodes.entrySet().stream().map(e->e.getKey()+":"+e.getValue().view()+" recovery="+e.getValue().lastRecoveryFailure()+" rejected="+e.getValue().lastRecoveryRejection()).toList());
     }
+    private static void diagnose(V51RuntimeFixture group,String phase,Throwable failure) {
+        // Capture before close retires the runtimes. Keep the original exception and
+        // bound wire output; acceptance/snapshot payloads can contain large documents.
+        var wire=List.copyOf(group.wire);
+        var recent=wire.stream().skip(Math.max(0,wire.size()-32)).map(V51AutomaticRejoinTest::wireSummary).toList();
+        var rejects=wire.stream().filter(w->w.get("type").equals("REJECT")).toList();
+        var recentRejects=rejects.stream().skip(Math.max(0,rejects.size()-12)).map(V51AutomaticRejoinTest::wireSummary).toList();
+        failure.addSuppressed(new IllegalStateException("rejoin phase="+phase+"; states="+
+                group.nodes.entrySet().stream().map(e->e.getKey()+":"+e.getValue().view()+" failure="+e.getValue().failure()).toList()+
+                "; recent wire="+recent+"; recent rejections="+recentRejects));
+        group.nodes.forEach((name,runtime)->{
+            if(runtime.lastExchangeFailure()!=null)failure.addSuppressed(new IllegalStateException(name+" last exchange failure",runtime.lastExchangeFailure()));
+            if(runtime.lastRecoveryFailure()!=null)failure.addSuppressed(new IllegalStateException(name+" last recovery failure",runtime.lastRecoveryFailure()));
+            if(runtime.lastRecoveryRejection()!=null)failure.addSuppressed(new IllegalStateException(name+" last recovery rejection",runtime.lastRecoveryRejection()));
+        });
+    }
+    private static String wireSummary(Map<String,Object> wire) {
+        return wire.get("sender")+">"+wire.get("recipient")+" "+wire.get("type")+" epoch="+wire.get("epoch")+
+                " trace="+wire.get("traceId")+" sequence="+wire.get("eventSequence")+
+                (wire.get("type").equals("REJECT")?" payload="+wire.get("payload"):"");
+    }
     @Test void repeatedThreeVoterCatchupReclaimsSlotsAndRetainedPeerCanLead() throws Exception {
         try(var group=new V51RuntimeFixture(root)) {
-            var leader=group.leader();String first=group.name(leader);
-            for(int i=1;i<=4;i++) {
-                long cut=leader.submit(1,app->app.documents("ADD",List.of(new Document((int)app.sequence()+1,"large-".repeat(1800))))).get(20,TimeUnit.SECONDS);
+            String phase="initial leader election";
+            try {
+                var leader=group.leader();String first=group.name(leader);
+                for(int i=1;i<=4;i++) {
+                    phase="large write "+i+" leader="+group.name(leader)+" before="+leader.view();
+                    long cut=leader.submit(1,app->app.documents("ADD",List.of(new Document((int)app.sequence()+1,"large-".repeat(1800))))).get(20,TimeUnit.SECONDS);
+                    phase="large write "+i+" floor convergence at "+cut;
+                    converged(group,cut);
+                }
+                phase="retained leader election after stopping "+first;
+                group.stop(first);leader=group.leader();
+                assertEquals(4,leader.inspectLocal(e->e.search(d->true).size()).get(5,TimeUnit.SECONDS));
+                phase="retained node reopen "+first;
+                group.open(Integer.parseInt(first.substring(5)));assertNotEquals(AutomaticReplicationState.LEADER_READY,group.nodes.get(first).view().state());
+                phase="post-rejoin write leader="+group.name(leader)+" before="+leader.view();
+                long cut=leader.submit(1,app->app.documents("ADD",List.of(new Document(99,"after-rejoin")))).get(20,TimeUnit.SECONDS);
+                phase="post-rejoin floor convergence at "+cut;
                 converged(group,cut);
+                assertTrue(group.wire.stream().anyMatch(w->w.get("type").equals("SOURCE_CHUNK")));
+            } catch(Exception | AssertionError failure) {
+                diagnose(group,phase,failure);
+                throw failure;
             }
-            group.stop(first);leader=group.leader();
-            assertEquals(4,leader.inspectLocal(e->e.search(d->true).size()).get(5,TimeUnit.SECONDS));
-            group.open(Integer.parseInt(first.substring(5)));assertNotEquals(AutomaticReplicationState.LEADER_READY,group.nodes.get(first).view().state());
-            long cut=leader.submit(1,app->app.documents("ADD",List.of(new Document(99,"after-rejoin")))).get(20,TimeUnit.SECONDS);
-            converged(group,cut);
-            assertTrue(group.wire.stream().anyMatch(w->w.get("type").equals("SOURCE_CHUNK")));
         }
         for(int i=1;i<=3;i++) {
             Path node=root.resolve("node-"+i);var manifest=Files.readAllBytes(node.resolve("manifest.gsr"));

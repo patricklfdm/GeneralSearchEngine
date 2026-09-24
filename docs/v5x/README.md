@@ -81,9 +81,11 @@ closed fifteen-cell plan and trace-backed local calibration. 6A/6B were accepted
 through PR #222. The [6C1 control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md)
 was accepted through PR #223, exact-master CI `35942555519` (nineteen jobs,
 25 V5.1 gates). [6C2A rich JVM integration](v5.1/PHASE_6_REMOTE_RICH.md)
-is the current candidate. Remaining fault/retention qualification and cloud work
-are tracked in the
-[checklist](v5.1/PHASE_6_CHECKLIST.md).
+was accepted through PR #224, exact-master CI `35961961431` (twenty jobs,
+26 V5.1 gates). The [6C2B fault candidate](v5.1/PHASE_6_REMOTE_FAULTS.md)
+adds the twelve fault programs and two explicitly approved document-size exceptions.
+Full-size retention qualification, protected acceptance and 6C3/cloud work remain
+open in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the
