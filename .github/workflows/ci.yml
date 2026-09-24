@@ -263,11 +263,68 @@ jobs:
           retention-days: 14
 
 
-  v51-remote-rich:
-    # Isolated execution using verified inputs from the V5.1 build domain.
-    name: V5.1 full rich workload (no GCP)
+  v51-remote-rich-inputs:
+    name: V5.1 rich workload inputs (no GCP)
     needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
+
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+      - name: Prepare one immutable source for all rich cells
+        run: >-
+          timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.remote_rich_shards prepare
+          target/v51-remote-rich-inputs --source "$GITHUB_SHA"
+          --build-manifest target/ci-v51-build/manifest.json
+
+      - name: Retain prepared rich inputs including failed receipts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-inputs-${{ github.sha }}
+          path: target/v51-remote-rich-inputs/handoff
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
+      - name: Retain rich input preparation diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-inputs-diagnostics-${{ github.sha }}
+          path: |
+            target/v51-remote-rich-inputs/raw
+            ${{ runner.temp }}/v51-build/restore.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  v51-remote-rich-shards:
+    name: V5.1 rich workload (${{ matrix.shard }}, no GCP)
+    needs: [changes, v51-verification-build, v51-remote-rich-inputs]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [published-controls, automatic-healthy, automatic-concurrent]
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -291,8 +348,101 @@ jobs:
           python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
           --bundle target/ci-v51-build
           --receipt "$RUNNER_TEMP/v51-build/restore.json"
+      - name: Download the exact prepared rich source
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-remote-rich-inputs-${{ github.sha }}
+          path: ${{ runner.temp }}/v51-rich-inputs
 
-      - name: Retain restored build provenance including failures
+      - name: Verify complete frozen cells in this rich shard
+        env:
+          RICH_SHARD: ${{ matrix.shard }}
+          V51_RICH_INPUTS: ${{ runner.temp }}/v51-rich-inputs
+        run: scripts/verify-v51-phase6-remote-rich-shard.sh "$RICH_SHARD"
+
+      - name: Retain partial rich evidence and portable replay
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}
+          path: target/v51-remote-rich-shard/${{ matrix.shard }}/handoff
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
+      - name: Retain raw rich shard diagnostics including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-${{ matrix.shard }}-diagnostics-${{ github.sha }}
+          path: |
+            target/v51-remote-rich-shard/${{ matrix.shard }}/raw
+            ${{ runner.temp }}/v51-build/restore.json
+          if-no-files-found: warn
+          retention-days: 14
+
+  v51-remote-rich:
+    name: V5.1 full rich workload (no GCP)
+    needs: [changes, v51-verification-build, v51-remote-rich-inputs, v51-remote-rich-shards]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
+
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+      - name: Download published-controls rich evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-remote-rich-shard-published-controls-${{ github.sha }}
+          path: target/v51-remote-rich/inputs/published-controls
+
+      - name: Download automatic-healthy rich evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-remote-rich-shard-automatic-healthy-${{ github.sha }}
+          path: target/v51-remote-rich/inputs/automatic-healthy
+
+      - name: Download automatic-concurrent rich evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-remote-rich-shard-automatic-concurrent-${{ github.sha }}
+          path: target/v51-remote-rich/inputs/automatic-concurrent
+
+      - name: Verify complete rich coverage and replay every shard independently
+        run: >-
+          timeout --signal=TERM --kill-after=5s 1200s python3 -m scripts.v51.remote_rich_shards aggregate
+          target/v51-remote-rich/aggregate --source "$GITHUB_SHA"
+          --build-manifest target/ci-v51-build/manifest.json --inputs target/v51-remote-rich/inputs
+
+      - name: Retain full rich qualification with all portable shard inputs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-rich-${{ github.sha }}
+          path: target/v51-remote-rich
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 0
+
+      - name: Retain aggregate build provenance including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -302,19 +452,6 @@ jobs:
             target/ci-v51-build/manifest.json
           if-no-files-found: warn
           retention-days: 14
-
-      - name: Verify V5.1 full frozen rich workload and concurrent read cuts
-        run: scripts/verify-v51-phase6-remote-rich.sh --skip-build
-
-      - name: Retain V5.1 full rich JVM evidence and binary replay
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-remote-rich-${{ github.sha }}
-          path: target/v51-remote-rich
-          if-no-files-found: warn
-          retention-days: 14
-
 
   v51-remote-faults:
     # Isolated execution using verified inputs from the V5.1 build domain.
@@ -1642,6 +1779,8 @@ jobs:
       - v51-verification-build
       - v51-foundation
       - v51-remote-rich
+      - v51-remote-rich-inputs
+      - v51-remote-rich-shards
       - v51-remote-faults
       - v51-admission-resources
       - v51-promise-crashes
@@ -1668,6 +1807,8 @@ jobs:
           V51_BUILD_RESULT: ${{ needs.v51-verification-build.result }}
           REACTOR_RESULT: ${{ needs.reactor-core.result }}
           V51_FOUNDATION_RESULT: ${{ needs.v51-foundation.result }}
+          V51_RICH_INPUTS_RESULT: ${{ needs.v51-remote-rich-inputs.result }}
+          V51_RICH_SHARDS_RESULT: ${{ needs.v51-remote-rich-shards.result }}
           V51_REMOTE_RICH_RESULT: ${{ needs.v51-remote-rich.result }}
           V51_REMOTE_FAULTS_RESULT: ${{ needs.v51-remote-faults.result }}
           V51_ADMISSION_RESOURCES_RESULT: ${{ needs.v51-admission-resources.result }}
@@ -1692,7 +1833,7 @@ jobs:
             false) expected=skipped ;;
             *) echo "Invalid change-scope result" >&2; exit 1 ;;
           esac
-          for result in "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
+          for result in "$V51_RICH_INPUTS_RESULT" "$V51_RICH_SHARDS_RESULT" "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
             "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
             "$V51_RECLAMATION_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \

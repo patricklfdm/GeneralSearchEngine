@@ -53,10 +53,11 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs twenty required gates,
+For build inputs or manual dispatch, the workflow runs twenty-two required job IDs,
 each with its own runner workspace.
-The V5.1 behavioral lanes depend on their dedicated verification build; other
-domains start after `changes`:
+The V5.1 behavioral lanes depend on their dedicated verification build. Rich
+workload execution additionally uses prepared inputs, three matrix children and a
+complete aggregate. Other domains start after `changes`:
 
 1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
    then performs the full clean Maven reactor package, including core, replication,
@@ -90,19 +91,22 @@ domains start after `changes`:
     workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
     It receives no OIDC permission or cloud Environment and creates no paid resource.
 
-18. `v51-remote-rich` runs the full frozen three-mode/concurrent rich workload,
-    independent captured-cut checks and portable binary replay without GCP.
+18. `v51-remote-rich` independently validates all five frozen rich cells from three
+    matrix outputs with shared evidence budgets and portable binary replay, without GCP.
 19. `v51-remote-faults` runs twelve frozen fault cells, independent history/physical
     checks and relocated binary replay without GCP.
 20. `v51-verification-build` builds and tests the dedicated V5.1 verification inputs.
+21. `v51-remote-rich-inputs` prepares one immutable source backup for all rich cells.
+22. `v51-remote-rich-shards` executes three complete-cell matrix children; see the
+    [partition and full-acceptance contract](CI_V51_RICH_SHARDS.md).
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
 record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
 includes measured estimates and the accompanying test-only catch-up budget correction.
 The [V5.1 verification build domain](CI_V51_BUILD_DOMAIN.md) adds the twentieth
-gate, `v51-verification-build`: a dedicated clean reactor package/tests whose exact-source
-JARs, replication test classes and executed reports are restored by the eleven V5.1
-behavioral lanes. These lanes keep isolated workspaces and all original verification
+gate in its original migration, `v51-verification-build`: a dedicated clean reactor package/tests whose exact-source
+JARs, replication test classes and executed reports are restored by the V5.1
+behavioral lanes, including rich preparation, matrix children and aggregate. These lanes keep isolated workspaces and all original verification
 commands/evidence. The producer always retains all reactor Java reports and Maven
 attempts; each consumer retains its restore provenance. All artifacts last fourteen
 days. Maven remains serial within each build, the independent clean/release/compatibility

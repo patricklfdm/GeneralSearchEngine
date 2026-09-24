@@ -12,7 +12,7 @@ This document integrates the root refactor request. Do not share a universal
 workspace, treat Maven caches as build evidence, weaken test prerequisites, reduce
 frozen workloads, or change release/reproducibility/paid-cloud acceptance.
 
-## Dependency audit
+## First-migration dependency audit
 
 | Domain/job | Prerequisite and decision |
 | --- | --- |
@@ -40,7 +40,9 @@ flowchart TD
   lanes --> required
 ```
 
-Docs-only classification skips all twenty full-CI gates. `Required` still runs and
+In that first migration, docs-only classification skipped all twenty full-CI gates.
+The [second migration](CI_V51_RICH_SHARDS.md) adds prepared-input and matrix results
+to the required set. `Required` still runs and
 requires exactly `skipped` for those gates. For full CI a producer failure skips
 its consumers and fails `Required`; it cannot become a successful empty run.
 The protected-check name, workflow triggers, permissions and concurrency stay unchanged.
@@ -88,7 +90,7 @@ JAR/XML bytes are unchanged. The per-lane always-uploaded restore receipt record
 source, Java, manifest/archive hashes, file count, byte counts, time and the rebased
 timestamp. No mtime guard or evidence validator is removed.
 
-## Rich-workload sharding: deferred second migration
+## Rich-workload sharding: second migration
 
 The five complete cells are independently runnable: each owns its ports, process
 group, leader/bootstrap, trace/command history and final shutdown/restore. They
@@ -96,7 +98,7 @@ share only an immutable prepared source, frozen plans, adapter identities and
 published controls. A healthy cell's warmup and all measurement windows must run
 continuously with the same state/processes; never split those windows across jobs.
 
-A prospective three-shard layout is:
+The three-shard layout is:
 
 | Shard | Complete cells | Frozen window time |
 | --- | --- | ---: |
@@ -104,7 +106,8 @@ A prospective three-shard layout is:
 | Automatic healthy | Automatic V5.1 healthy | 260 s (including warmup) |
 | Automatic concurrent | Automatic read-heavy + sustained | 300 s |
 
-Before enabling it, implement partial-shard receipts that cannot claim full
+The [second migration implementation](CI_V51_RICH_SHARDS.md) follows these boundaries.
+It implements partial-shard receipts that cannot claim full
 qualification, unique SHA/shard artifacts, fail-fast disabled, and a required
 aggregate validator. The aggregate must reconstruct exactly the original five
 cells/order; require common source inventory, plans, JAR/class hashes and control
@@ -116,16 +119,16 @@ three jobs without aggregation is insufficient.
 
 Keep the 1080 seconds of total frozen windows, per-cell deadlines, workload rates,
 counts, durability/history oracles and cleanup ownership unchanged. The theoretical
-window-only critical path becomes 520 seconds, at the cost of three preparations
-and artifact aggregation. This is a follow-up estimate, not this batch's result.
+window-only critical path becomes 520 seconds, at the cost of one shared source preparation, per-shard adapter preparation
+and artifact aggregation. This is a window-only estimate; hosted measurements of the second migration remain pending.
 
 ## Measurement and acceptance
 
 Baseline: successful master [CI 35989431966](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35989431966),
 source `22328ed4dc358e0adc7fde1399528295ebf8d2a3`. Measurements and local restore
 receipts are retained under `target/ci-v51-build-refactor/` during development.
-A subsequent protected CI run must supply hosted after-measurements before making
-wall-clock or cost claims. Track queue time, producer build/test time, upload,
+Protected master CI 36002482606 passed after the first migration; its measurements
+are recorded in [the second migration](CI_V51_RICH_SHARDS.md). Track queue time, producer build/test time, upload,
 consumer download/restore, gate time and total runner minutes separately.
 
 Local acceptance checks cover bundle corruption/provenance/layout/freshness,
@@ -143,9 +146,9 @@ its own fresh execution evidence. No cloud qualification or release status chang
 | V5.1 prerequisite reactor builds with tests | 11 | 1 |
 | Direct ordinary reactor package steps (including independent core and V5.0) | 14 | 4 |
 | Wrapped ordinary Maven steps, including two V4 steps | 16 | 6 |
-| V5.1 repeated build time | 3253 s total; 257–316 s each | One build, to be measured in hosted CI |
-| Full workflow sum of job execution times | 11080 s (184.7 runner minutes; excludes queueing) | Hosted measurement pending |
-| Longest V5.1 job: remote-rich | 1734 s (28m54s), including 301 s build | Producer + transfer + same full workload; hosted measurement pending |
+| V5.1 repeated build time | 3253 s total; 257–316 s each | One build; 317 s Maven in CI 36002482606 |
+| Full workflow sum of job execution times | 11080 s (184.7 runner minutes; excludes queueing) | 8147 s (135.8 runner minutes) |
+| Longest V5.1 job: remote-rich | 1734 s (28m54s), including 301 s build | 331 s producer; rich job 1293 s, including 1266 s qualification |
 
 Using the observed mean build of 295.7 seconds, deduplicating ten builds saves
 about **49.3 runner minutes before artifact/setup overhead**. This is an estimate,
@@ -236,3 +239,10 @@ The result, portable receipt, original failure and log/hash index are retained a
 used by these runs match the final code; later changes only add tests/documentation.
 This migration does not add automatic correctness retries or claim to fix workload
 timing variability. Local concurrent-lane timings are not hosted runner measurements.
+
+## Subsequent protected CI and rich sharding
+
+PR #226 passed exact-master CI `36002482606` at
+`0d8b18d6215be01e731afc4fae73894991ac64b3`. All producer/consumer restores and gates
+passed. See [measured build results and rich-shard migration](CI_V51_RICH_SHARDS.md)
+for the next topology; the earlier migration record above is retained.

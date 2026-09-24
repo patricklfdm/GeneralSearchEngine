@@ -4,6 +4,7 @@ from contextlib import contextmanager
 import json
 from pathlib import Path
 import signal
+import shutil
 import subprocess
 import sys
 import threading
@@ -15,7 +16,7 @@ from . import remote_schedule_evidence,performance_semantics as semantic
 from .storage_inspector import inventory
 from .remote_jvm import Worker
 
-MODES=('published-v4.4-local','published-v5.0-configured','candidate-v5.1-automatic')
+from .remote_rich_plan import MODES, CELLS
 MAINS=dict(zip(MODES,('admission.V51CloudLocal','replication.V51CloudConfigured','replication.V51CloudAutomatic')))
 
 
@@ -117,7 +118,9 @@ def run_cell(run,root,mode,adapter,source,cell,preset):
                 calls=len(rows),binding=owner)
 
 
-def run(output,preset='canonical',only=None):
+def run(output,preset='canonical',only=None,*,selected=None,source_seed=None):
+    m.need(selected is None or (only is None and tuple(selected)==tuple(c for c in CELLS if c in selected)),
+           'invalid rich cell selection')
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     runner=Run(root,local.load())
     base.save(root/'plan.json',runner.plan);base.save(root/'cloud-plan.json',contract.load())
@@ -138,10 +141,14 @@ def run(output,preset='canonical',only=None):
                                        root/'writer-checks'/kind,kind),'writer-'+kind)
                 receipt['evidenceWriterChecks'].append(m.strict_json(checked))
             source=root/'source'
-            runner.process(runner.java(receipt['adapters'][MODES[0]]['cp'],'admission.V51CloudLocal',root,'prepare',root/'plan.json',source),'prepare-source')
+            if source_seed is None:
+                runner.process(runner.java(receipt['adapters'][MODES[0]]['cp'],'admission.V51CloudLocal',root,'prepare',root/'plan.json',source),'prepare-source')
+            else:
+                # The caller has validated the portable input and its source/build binding.
+                shutil.copytree(source_seed,source)
             receipt['sourceBackup']=semantic.source_backup(source,m.initial(runner.plan))
             base.save(root/'source-before.json',inventory(source))
-        for cell,mode in [('healthy',v) for v in MODES]+[('read-heavy',MODES[2]),('sustained',MODES[2])]:
+        for cell,mode in CELLS if selected is None else selected:
             label=cell+'-'+mode
             if only and only!=label:continue
             seconds=300 if cell=='healthy' else 180 if cell=='read-heavy' else 240

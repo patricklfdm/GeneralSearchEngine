@@ -195,4 +195,76 @@ class SegmentedEvidenceTest(unittest.TestCase):
             with self.assertRaises(ValueError):evidence.lines(root,'trace')
 
 
+class NegativeReplayLocationTest(unittest.TestCase):
+    """Synthetic history isolates relocation and original-before-mutation checks."""
+    def setUp(self):
+        import json
+        from . import fixtures, remote_collection
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name)/'download';self.root.mkdir()
+        self.original=Path('/unavailable-rich-negative-run/raw')
+        self.cell='read-heavy-candidate-v5.1-automatic'
+        self.directory=self.root/self.cell;self.directory.mkdir()
+        frames,wires,_=fixtures.generate()
+        for node in ('node-1','node-2','node-3'):
+            authority=self.directory/node;authority.mkdir();(authority/'manifest.gsr').write_bytes(frames['MANIFEST'])
+        self.calls=[dict(node='node-1',opId='read',operation='GET',outcome='SUCCESS')]
+        self.traces={'node-1':[
+            dict(event='PUBLIC_READ_INVOKE',opId='read',readId=1),
+            dict(event='READ_CAPTURED',readId=1,sequence=4),
+            dict(event='READ_RELEASED',readId=1,index=2),
+            dict(event='FORCE',kind='PROOF'),
+            dict(event='RECEIVED',frame=fixtures.B64(wires['COMMIT_PROOF_ACK'])),
+            dict(event='CLIENT_RESULT',opId='read',call=self.calls[0])],
+            'node-2':[dict(event='START')],'node-3':[dict(event='START')]}
+        (self.directory/'calls.json').write_text(json.dumps(self.calls))
+        for node,rows in self.traces.items():
+            (self.directory/(node+'-trace.jsonl')).write_text(''.join(json.dumps(row)+'\n' for row in rows))
+        (self.root/'execution.json').write_text(json.dumps(dict(adapters={
+            'candidate':dict(artifacts=[dict(path=str(self.original/'artifacts/candidate.jar'))])})))
+        (self.root/remote_collection.INDEX).write_bytes(m.canonical(remote_collection.inventory(self.root)))
+
+    def audit(self,directory,calls,traces,*,evidence_location=None,cloud_calls=None):
+        from . import storage_inspector as storage
+        inspect=evidence_location.inspect if evidence_location else storage.inspect
+        for node in traces:inspect(directory/node)
+        if calls!=self.calls or traces!=self.traces:raise ValueError('synthetic changed history')
+
+    def sealed(self,directory,maximum_bytes,maximum_frame,admitted_path):
+        m.need(admitted_path==self.original/self.cell/Path(directory).name,'copied/stale seal path')
+        return {}
+
+    def test_relocated_negatives_use_original_sealed_paths_for_baseline_and_mutations(self):
+        from unittest.mock import patch
+        from . import remote_rich_negatives as negatives, storage_inspector as storage
+        with patch.object(storage,'_inspect',side_effect=self.sealed) as inspect, \
+                patch.object(negatives.physical,'automatic',side_effect=self.audit) as audit:
+            result=negatives.verify(self.root)
+        self.assertEqual(11,audit.call_count)
+        self.assertEqual(33,inspect.call_count)
+        self.assertEqual(10,len(result))
+        self.assertEqual({'synthetic changed history'},{row['reason'] for row in result})
+        self.assertEqual({'REJECTED'},{row['status'] for row in result})
+
+    def test_bad_original_cannot_be_counted_as_ten_successful_rejections(self):
+        from unittest.mock import patch
+        from . import remote_rich_negatives as negatives
+        with patch.object(negatives.physical,'automatic',side_effect=ValueError('invalid original authority')) as audit:
+            with self.assertRaisesRegex(ValueError,'invalid original authority'):negatives.verify(self.root)
+        self.assertEqual(1,audit.call_count)
+
+    def test_relocated_negatives_reject_missing_or_changed_inventory_before_mutations(self):
+        from unittest.mock import patch
+        from . import remote_rich_negatives as negatives, remote_collection
+        index=self.root/remote_collection.INDEX;original=index.read_bytes();index.unlink()
+        with patch.object(negatives.physical,'automatic') as audit:
+            with self.assertRaises((ValueError,FileNotFoundError)):negatives.verify(self.root)
+            audit.assert_not_called()
+        index.write_bytes(original)
+        (self.directory/'node-1/manifest.gsr').write_bytes(b'changed')
+        with patch.object(negatives.physical,'automatic') as audit:
+            with self.assertRaisesRegex(ValueError,'relocated rich inventory differs'):negatives.verify(self.root)
+            audit.assert_not_called()
+
+
 if __name__=='__main__':unittest.main()

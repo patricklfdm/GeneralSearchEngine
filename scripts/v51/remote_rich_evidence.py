@@ -9,6 +9,7 @@ from . import performance_evidence as old,performance_physical as physical,perfo
 from . import remote_schedule_evidence as scheduling,remote_command as command
 from .remote_rich_physical import Calls
 from .remote_trace import Decoder
+from .remote_rich_plan import CELLS, SHARDS, MODES
 from . import performance_artifacts as artifacts, storage_inspector as storage, remote_collection
 
 
@@ -22,6 +23,12 @@ class EvidenceLocation(artifacts.EvidenceLocation):
             actual={p:dict(bytes=v['size'],sha256=v['sha256']) for p,v in storage.inventory(self.root).items() if p!=remote_collection.INDEX}
             m.need(self.index==actual,'relocated rich inventory differs')
 
+
+def evidence_location(root,execution):
+    original_roots={artifacts.recorded_path(a['path']).parent.parent
+                    for adapter in execution['adapters'].values() for a in adapter['artifacts']}
+    m.need(len(original_roots)==1,'mixed rich evidence roots')
+    return EvidenceLocation(root,next(iter(original_roots)))
 
 
 def lines(root,name,budget=None):
@@ -190,7 +197,14 @@ def cell(root,row,adapter,preset,location=None,budget=None):
                 finalBackup=backup,latency=distributions,measurements=measurements)
 
 
-def validate(root):
+def coverage(root,execution,expected):
+    m.need(tuple((v['cell'],v['mode']) for v in execution['cells'])==tuple(expected),
+           'incomplete three-mode/concurrent rich coverage')
+    present={name+'-'+mode for name,mode in CELLS if (root/(name+'-'+mode)).exists()}
+    m.need(present=={name+'-'+mode for name,mode in expected},'unexpected rich cell directory')
+
+
+def header(root,expected=CELLS):
     root=Path(root).resolve();execution=old.read(root/'execution.json')
     m.need(execution['status']=='EXECUTED' and not execution['cleanupErrors'] and execution['paidCloud'] is False and
            execution['execution']=='local-guest-rich-workload-only','rich execution receipt')
@@ -204,20 +218,63 @@ def validate(root):
     source_inventory=old.read(root/'source-inventory.json')
     m.need(m.sha((root/'source-inventory.json').read_bytes())==execution['sourceInventorySha256'],'source inventory binding')
     pinned={a['artifact']+'-'+a['version']+'.jar':a['sha256'] for a in plan.load()['publishedControls']['artifacts']}
-    original_roots={artifacts.recorded_path(a['path']).parent.parent for adapter in execution['adapters'].values() for a in adapter['artifacts']}
-    m.need(len(original_roots)==1,'mixed rich evidence roots')
-    location=EvidenceLocation(root,next(iter(original_roots)))
+    location=evidence_location(root,execution)
     for mode,adapter in execution['adapters'].items():old.artifacts(root,mode,adapter,pinned,source_inventory)
     m.need(storage.inventory(root/'source')==old.read(root/'source-before.json')==old.read(root/'source-after.json'),'rich source changed')
     semantic.source_backup(root/'source',m.initial(plan.load()))
-    expected=[('healthy',mode) for mode in contract.load()['healthy']['modeOrder']]+[('read-heavy','candidate-v5.1-automatic'),('sustained','candidate-v5.1-automatic')]
-    m.need([(v['cell'],v['mode']) for v in execution['cells']]==expected,'incomplete three-mode/concurrent rich coverage')
-    results=[];budget=[contract.load()['evidence']['traceBytes']]
+    coverage(root,execution,expected)
+    return execution,location
+
+
+def validate_rows(root,execution,location,budget):
+    results=[]
     for row in execution['cells']:
         m.need(row['binding']['source']==execution['source'] and row['binding']['bundleSha256']==m.sha(m.canonical(execution['adapters'][row['mode']])),'cell source/adapter binding')
         result=cell(root,row,execution['adapters'][row['mode']],execution['preset'],location,budget);results.append(result)
         print(json.dumps(dict(cell=row['cell'],mode=row['mode'],status='PASS')),flush=True)
+    return results
+
+
+def validate(root):
+    root=Path(root).resolve();execution,location=header(root)
+    results=validate_rows(root,execution,location,[contract.load()['evidence']['traceBytes']])
     return dict(status='PASS',execution='local-guest-rich-workload-only',paidCloud=False,fullRemoteQualification=False,cells=results)
+
+
+def validate_partial(root,shard):
+    m.need(shard in SHARDS,'unknown rich shard')
+    root=Path(root).resolve();execution,location=header(root,SHARDS[shard])
+    m.need(execution['preset']=='canonical','shard must retain canonical windows')
+    results=validate_rows(root,execution,location,[contract.load()['evidence']['traceBytes']])
+    return dict(status='PARTIAL',shard=shard,paidCloud=False,fullRemoteQualification=False,cells=results)
+
+
+def common_identity(root,execution):
+    """Compare byte identities, never cross-host PIDs/paths/monotonic clocks."""
+    root=Path(root)
+    m.need(set(execution['adapters'])==set(MODES),'rich adapter mode coverage')
+    return dict(source=execution['source'],sourceInventorySha256=execution['sourceInventorySha256'],
+                plans={name:m.sha((root/name).read_bytes()) for name in ('plan.json','cloud-plan.json')},
+                seed=storage.inventory(root/'source'),
+                adapters={mode:dict(artifacts={Path(a['path']).name:a['sha256'] for a in adapter['artifacts']},
+                                    classes=adapter['classes'],sources=adapter['sources'])
+                          for mode,adapter in execution['adapters'].items()})
+
+
+def validate_group(roots):
+    m.need(set(roots)==set(SHARDS),'missing or extra rich shard')
+    checked={name:header(roots[name],SHARDS[name]) for name in SHARDS}
+    identities=[common_identity(roots[name],checked[name][0]) for name in SHARDS]
+    m.need(all(i==identities[0] for i in identities),'mixed rich shard source/seed/artifact identity')
+    m.need(all(e['preset']=='canonical' for e,_ in checked.values()),'shard must retain canonical windows')
+    # One shared expansion budget, exactly as in the original serial validation.
+    budget=[contract.load()['evidence']['traceBytes']];results=[]
+    for name in SHARDS:
+        execution,location=checked[name]
+        results.extend(validate_rows(Path(roots[name]),execution,location,budget))
+    m.need(tuple((r['cell'],r['mode']) for r in results)==CELLS,'aggregate rich coverage/order')
+    return dict(status='PASS',execution='local-guest-rich-workload-only',paidCloud=False,
+                fullRemoteQualification=False,cells=results)
 
 
 if __name__=='__main__':
