@@ -19,6 +19,7 @@ from .cloud_collection import ARCHIVE_LIMIT, archive_parts, extract_parts
 from .cloud_remote_contract import schedule, measurement_seconds
 from .cloud_remote_guest import Guest, SCHEMA, EXECUTION, alive
 from .cloud_remote_probe import RemoteProbe, RemoteWorker, collection_member
+from .cloud_remote_local import QualificationProbe
 from .cloud_remote_evidence import provenance, timings, validate_raw, validate_bundle, validate_set
 from .cloud_workload_plan import PLAN, PLAN_SHA256
 from .cloud_workload_io import inventory, pack, sha_file, unpack
@@ -284,6 +285,95 @@ class RemoteTests(unittest.TestCase):
         with patch('scripts.v50.cloud_remote_probe.time.monotonic',return_value=100),self.assertRaisesRegex(ValueError,'deadline'):
             probe.catchup(3)
         probe.command.assert_not_called()
+
+    def test_local_timeout_fixture_holds_live_replication_until_explicit_catchup(self):
+        probe=QualificationProbe.__new__(QualificationProbe)
+        probe.cells=[dict(name='unavailable')];probe.qualification=True
+        events=[];probe.workers={3:Mock()}
+        probe.command=lambda name,**kw:events.append(('leader',name,kw))
+        def follower(name,**kw):
+            events.append(('follower',name,kw));return dict(status=dict(commitIndex=10))
+        probe.workers[3].command=follower
+        probe.update=lambda:events.append(('update',))
+        def catchup(node):
+            # The same queued-retry ordering that bypassed AFTER_CATCHUP_BATCH in CI
+            # must still see a live-replication block when public catchUp begins.
+            leader_modes=[e[2]['mode'] for e in events if e[:2]==('leader','fault')]
+            self.assertEqual(leader_modes,['block-node-3','block-live-node-3'])
+            events.append(('catchup',node));return dict(accepted=True)
+        probe.catchup=catchup
+        with patch.object(RemoteProbe,'catchup',return_value=dict(accepted=True)) as baseline:
+            result=probe.fault_cell('unavailable')
+        baseline.assert_called_once_with(3)
+        self.assertTrue(result['recovered']['accepted'])
+        self.assertEqual(events.count(('update',)),2)
+        self.assertIn(('catchup',3),events)
+
+    def test_local_timeout_fixture_requires_clean_baseline_before_isolation(self):
+        probe=QualificationProbe.__new__(QualificationProbe)
+        with patch.object(RemoteProbe,'catchup',side_effect=ValueError('unresolved baseline')), \
+             patch.object(RemoteProbe,'fault_cell') as fault, \
+             self.assertRaisesRegex(ValueError,'unresolved baseline'):
+            probe.fault_cell('unavailable')
+        fault.assert_not_called()
+        with patch.object(RemoteProbe,'catchup') as baseline, \
+             patch.object(RemoteProbe,'fault_cell',return_value='unchanged') as fault:
+            self.assertEqual(probe.fault_cell('slow'),'unchanged')
+        baseline.assert_not_called();fault.assert_called_once_with('slow')
+
+    def test_other_cells_and_remote_probe_keep_normal_heal(self):
+        for kind,cells in ((RemoteProbe,[]),(QualificationProbe,[]),
+                           (QualificationProbe,[dict(name='incremental')])):
+            probe=kind.__new__(kind);probe.cells=cells;probe.command=Mock();probe.workers={3:Mock()}
+            probe.heal_for_catchup(3)
+            probe.command.assert_called_once_with('fault',mode='none')
+            probe.workers[3].command.assert_called_once_with('fault',mode='none')
+
+    def local_timeout_probe(self):
+        probe=QualificationProbe.__new__(QualificationProbe)
+        probe.cells=[dict(name='unavailable')];probe.root=self.root/'runtime'
+        probe.workers={1:Mock(),3:Mock()};probe.workers[1].receipt=dict(exchanges=[])
+        probe.workers[3].command.return_value=dict(status=dict(state='READY',commitIndex=1131,appliedIndex=1131))
+        return probe
+
+    def test_local_timeout_fixture_requires_real_timeout_and_recovery(self):
+        probe=self.local_timeout_probe();success=dict(command='catchup',accepted=True,verifiedIndex=1131)
+        def recovered(node):
+            probe.workers[3].command.assert_called_once_with('fault',mode='delay-catchup-once')
+            probe.workers[1].command.assert_not_called()
+            probe.workers[1].receipt['exchanges']=[dict(request=dict(command='catchup'),response=r)
+                for r in (self.catchup_failure(),success)]
+            return success
+        with patch.object(RemoteProbe,'catchup',side_effect=recovered):
+            self.assertEqual(probe.catchup(3),success)
+        probe.workers[1].command.assert_called_once_with('fault',mode='none')
+        receipt=json.loads((self.root/'catchup-timeout-regression.json').read_text())
+        self.assertEqual(receipt['status'],'PASS');self.assertEqual(len(receipt['responses']),2)
+
+    def test_original_capacity_then_success_trace_still_cannot_pass_timeout_fixture(self):
+        probe=self.local_timeout_probe();success=dict(command='catchup',accepted=True,verifiedIndex=1131)
+        def recovered(node):
+            probe.workers[1].receipt['exchanges']=[dict(request=dict(command='catchup'),response=r)
+                for r in (self.catchup_failure('CAPACITY_EXCEEDED'),success)]
+            return success
+        with patch.object(RemoteProbe,'catchup',side_effect=recovered), \
+             self.assertRaisesRegex(ValueError,'did not exercise a real public timeout'):
+            probe.catchup(3)
+        self.assertFalse((self.root/'catchup-timeout-regression.json').exists())
+        probe.workers[1].command.assert_called_once_with('fault',mode='none')
+
+    def test_local_timeout_fixture_clears_both_faults_after_failure(self):
+        for clear_failure in (False,True):
+            probe=self.local_timeout_probe()
+            if clear_failure:
+                def follower(name,**kw):
+                    if kw['mode']=='none':raise ValueError('follower cleanup failed')
+                probe.workers[3].command.side_effect=follower
+            with patch.object(RemoteProbe,'catchup',side_effect=ValueError('catchup failed')), \
+                 self.assertRaisesRegex(ValueError,'failed'):
+                probe.catchup(3)
+            self.assertEqual(probe.workers[3].command.call_args.kwargs['mode'],'none')
+            probe.workers[1].command.assert_called_once_with('fault',mode='none')
 
     def test_remote_wait_budget_is_not_sent_to_the_guest(self):
         worker=RemoteWorker.__new__(RemoteWorker);worker.receipt={};worker.path=self.root/'member.json'

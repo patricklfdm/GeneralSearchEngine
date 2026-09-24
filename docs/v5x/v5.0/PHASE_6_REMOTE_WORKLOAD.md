@@ -352,6 +352,31 @@ the paid fault schedule is unchanged. The receipt is
 `runner/catchup-timeout-regression.json`. This regression reproduces the previous
 controller failure before the retry correction.
 
+### Deterministic local timeout injection
+
+[PR #225 CI run 35972493308](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35972493308/job/107545241058)
+passed Maven and the preceding workload gates, then rejected the local timeout
+fixture. Its original catch-up responses were `CAPACITY_EXCEEDED` followed by
+success at index 67. Healing had released queued ordinary APPEND/COMMIT_PROOF
+traffic, which could close the follower's gap before explicit recovery. The
+`AFTER_CATCHUP_BATCH` delay then never ran; this was a missed test injection,
+not an observed failed recovery or an infrastructure-download failure.
+
+The local `unavailable` fixture now establishes a public READY baseline before
+isolating the follower. During explicit catch-up it blocks only ordinary APPEND
+and COMMIT_PROOF to node 3, while recovery activation, batch and READY requests
+remain available. This preserves the actual two-write gap until the delayed
+batch executes, including when ordinary retries were already queued. Both fault
+modes are cleared on success or failure. The default remote controller retains its
+original full-heal behavior, so the paid scenario schedule is unchanged.
+
+The gate still requires a real public `QUORUM_UNAVAILABLE` with a writable leader,
+then successful public catch-up and the exact READY/applied/commit boundary. The
+original capacity-then-success trace remains insufficient. The baseline and all
+catch-up attempts consume the existing cell/run deadlines and twenty-attempt
+bound per catch-up operation; neither RPC timeouts nor verification requirements are relaxed. No CI
+retry is applied to this correctness gate.
+
 ### First workload catch-up failure
 
 [Run 35200890419](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35200890419)

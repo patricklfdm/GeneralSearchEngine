@@ -247,6 +247,10 @@ class RemoteProbe:
     def update(self):
         self.revision += 1; return self.command('update', id=5, revision=self.revision)
 
+    def heal_for_catchup(self, node):
+        self.command('fault', mode='none')
+        self.workers[node].command('fault', mode='none')
+
     def catchup(self, node):
         # A peer can finish a durable recovery batch after its RPC caller times out.
         # Resume through public catchUp only while the leader remains writable;
@@ -317,7 +321,7 @@ class RemoteProbe:
                 elif slow: time.sleep(.3)
             during=self.workers[3].command('status')['status']
             checkpoint=self.command('checkpoint') if name=='snapshot' else None
-            self.command('fault',mode='none'); self.workers[3].command('fault',mode='none')
+            self.heal_for_catchup(3)
             if name=='snapshot': self.workers[3].command('fault',mode='lose-snapshot-ack')
             recovered=self.catchup(3);self.workers[3].command('fault',mode='none')
             if not slow: require(before['commitIndex']==during['commitIndex'],'isolated follower advanced')

@@ -43,12 +43,30 @@ class LocalBackend(PresetFake):
 
 class QualificationProbe(RemoteProbe):
     """Exercise a real timed-out catch-up only in the no-GCP qualification lane."""
+    def fault_cell(self, name):
+        if name == 'unavailable':
+            # Drain the preceding workload to a public READY boundary before making
+            # the two-write gap; an old partial tail would select snapshot recovery.
+            super().catchup(3)
+        return super().fault_cell(name)
+
+    def heal_for_catchup(self, node):
+        if not self.cells or self.cells[-1]['name'] != 'unavailable':
+            return super().heal_for_catchup(node)
+        require(node == 3, 'local timeout fixture requires node-3')
+        # Keep queued live APPEND/COMMIT_PROOF retries from filling the gap first.
+        # Recovery activation/batch/READY traffic can pass while this fault is held.
+        self.command('fault', mode='block-live-node-3')
+        self.workers[node].command('fault', mode='none')
+
     def catchup(self, node):
         if not self.cells or self.cells[-1]['name'] != 'unavailable': return super().catchup(node)
         leader=self.workers[1]; first=len(leader.receipt['exchanges'])
         self.workers[node].command('fault',mode='delay-catchup-once')
         try: result=super().catchup(node)
-        finally: self.workers[node].command('fault',mode='none')
+        finally:
+            try: self.workers[node].command('fault',mode='none')
+            finally: leader.command('fault',mode='none')
         responses=[e['response'] for e in leader.receipt['exchanges'][first:] if e['request']['command']=='catchup']
         require(any(r['accepted'] is False and r['reason']=='QUORUM_UNAVAILABLE' and r['status']['writeQuorum'] for r in responses),
                 'catchup timeout regression did not exercise a real public timeout')
