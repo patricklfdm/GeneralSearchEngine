@@ -226,3 +226,35 @@ These local receipts were followed by protected acceptance in
 [Exact-master CI 35542143840](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35542143840)
 passed all six jobs and executed the rejoin gate. Phase 3, including kinds 25–27,
 is accepted; PR #190's failed result remains historical evidence.
+
+## Open CI investigation: prerequisite rejoin write failure
+
+PR #225 CI [35981034338](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35981034338/job/107572767108)
+failed the admission/resources lane during its prerequisite reactor tests. The
+`repeatedThreeVoterCatchupReclaimsSlotsAndRetainedPeerCanLead` case returned
+`QUORUM_UNAVAILABLE` from a large-document write inside its four-write loop.
+The admission/resources scripts had not started. All 15 `V50ReadyTest` cases passed
+in this job, including the preceding history-seeding correction.
+
+The retained CI report contains no underlying exchange error, rejected peer reply,
+write ordinal or node state. It cannot distinguish local admission pressure,
+request timeout or a peer rejection. Five local executions and three executions
+restricted to two CPUs passed under pinned Temurin 21.0.12+8. These are finite
+non-reproductions, not evidence that the original failure is fixed.
+
+The test now attaches the failure phase and pre-write leader view, all live-node
+views, up to 32 recent wire records and 12 recent rejection records, and the last
+exchange/recovery/rejection exceptions before closing the runtimes. Wire summaries
+retain correlation fields and rejection reasons without large application payloads.
+The original exception is rethrown; no assertion, write, recovery step, deadline,
+capacity, retry budget or production behavior changes. Last-error fields can be
+historical observations and must be correlated with the recorded phase and wire
+records before assigning causality. The root cause remains open.
+
+Downloaded CI logs/reports and local diagnostic logs remain under
+`target/ci-failures-35981034338`.
+
+The final diagnostic-only change passed all 17 rejoin, recovery-exchange and
+transport tests, the documentation contract and whitespace checks. Report/log
+hashes are recorded in `target/ci-failures-35981034338/validation-summary.json`.
+Protected CI has not yet executed this diagnostic change.
