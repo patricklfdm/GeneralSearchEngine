@@ -20,8 +20,12 @@ was accepted through PR #223, master `833da4947266b4edfbee2a0e6fe10055ed3be00c`;
 exact-master CI `35942555519` passed all nineteen jobs and 25 V5.1 verification steps.
 [6C2A rich JVM integration](PHASE_6_REMOTE_RICH.md) was accepted through PR #224,
 master `28cd5edc0a63fd82a9c01dad028623acc529c9f2`, exact-master CI `35961961431`
-(twenty jobs, 26 V5.1 gates). The [6C2B fault candidate](PHASE_6_REMOTE_FAULTS.md)
-is the current review boundary; full 6C qualification remains open.
+(twenty jobs, 26 V5.1 gates). The [6C2B fault workloads](PHASE_6_REMOTE_FAULTS.md) were accepted through PR #225,
+master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI `35989431966`
+(all 21 jobs). PR #227 closed [rich CI sharding](../../CI_V51_RICH_SHARDS.md) at
+`2db90846606547325c2f35a466813c622cc1ffac`, exact-master CI `36064320654` (all 26 jobs).
+The [512-slot component candidate](PHASE_6_FULL_SIZE.md) is the current review
+boundary; public-runtime integration and full 6C qualification remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -49,7 +53,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C2A implementation candidate: persistent JVM lanes, full frozen rich tapes, concurrent captured-cut oracle and portable binary replay.
 - [x] 6C2A protected acceptance: PR #224, exact-master CI `35961961431`.
 - [x] 6C2B fault implementation: twelve frozen public JVM schedules, bounded history/physical/resource validation and binary replay.
-- [ ] 6C2B fault-document amendment and fault qualification protected acceptance.
+- [x] 6C2B fault-document amendment and fault qualification protected acceptance: PR #225, exact-master CI `35989431966`.
+- [x] 6C2 full-size component implementation candidate: 512 forced slots, real TCP chunks, same-slot reproposal, pinned application view and two generations.
 - [ ] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
 - [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

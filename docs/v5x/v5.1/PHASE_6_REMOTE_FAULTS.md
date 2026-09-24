@@ -1,10 +1,10 @@
 # V5.1 Phase 6C2B: frozen fault JVM workloads
 
-**Status:** implementation candidate after PR #224. The accepted
-[6C2A rich workloads](PHASE_6_REMOTE_RICH.md) passed exact-master CI
-[35961961431](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35961961431)
-at `28cd5edc0a63fd82a9c01dad028623acc529c9f2` (twenty jobs, 26 V5.1 gates).
-This batch needs its own protected acceptance and exact-source CI.
+**Status:** accepted through PR #225 at master
+`22328ed4dc358e0adc7fde1399528295ebf8d2a3`.
+[Exact-master CI 35989431966](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/35989431966)
+passed all 21 jobs, including this twelve-cell gate and Required. This accepts the
+fault-document amendment and local fault qualification; full 6C remains open.
 
 The [approved document-size amendment](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md#approved-fault-document-amendment)
 adds only encoded-document ceilings of 4100 bytes for interrupted-transfer and
@@ -24,7 +24,8 @@ and all attempted public calls. These are local guest-path observations; they
 supply neither GCP network performance nor a failover SLA.
 
 The separate 512-slot full-size basis/wire/transfer/re-proposal/pinning and
-**two-generation retention** boundary remains open. Small fault histories and the
+**two-generation retention** boundary now has a separate [component candidate](PHASE_6_FULL_SIZE.md).
+Protected acceptance and public-runtime integration remain open. Small fault histories and the
 older synthetic encoding calculation cannot close it. The 6C3 provider adapter,
 source-bound identity/configuration review and remote failure matrix also remain
 open. Full 6C and paid preparation stay blocked on those exits.
@@ -142,7 +143,7 @@ All 431 V5.1 Python tests and 27 CI/toolchain fixture tests passed. Workflow YAM
 all 120 shell blocks and documentation checks passed. External Java adapters were
 compiled and executed against the packaged PR #224 runtime artifacts; production
 Java is unchanged. This batch did not rerun the complete Maven reactor locally.
-The new lane must build and test its own reactor in protected CI before acceptance.
+The candidate subsequently passed protected CI as recorded above.
 
 ### Commands
 
@@ -152,8 +153,8 @@ scripts/verify-v51-phase6-remote-faults.sh
 scripts/verify-v51-phase6-remote-faults.sh --skip-build
 ```
 
-The independent `V5.1 frozen fault workloads (no GCP)` job has its own reactor
-build and tests, a sixty-minute job backstop and always-uploaded fourteen-day
+The independent `V5.1 frozen fault workloads (no GCP)` job now restores the [shared verification build](../../CI_V51_BUILD_DOMAIN.md),
+has a sixty-minute job backstop and always-uploaded fourteen-day
 local evidence under `target/v51-remote-faults`. `Required` includes this lane;
 documentation-only changes preserve the existing skips. Paid retention remains
 a separate thirty-day requirement. Commit, push, PR and cloud dispatch remain

@@ -76,6 +76,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | `phase6-performance.sh` | `v51-foundation` | `target/v51-performance` |
 | Complete rich qualification (serial `phase6-remote-rich.sh` remains local) | `v51-remote-rich-inputs` → three `v51-remote-rich-shards` children → `v51-remote-rich` | `target/v51-remote-rich` plus per-shard diagnostics |
 | `phase6-remote-faults.sh` | `v51-remote-faults` | `target/v51-remote-faults` |
+| `phase6-full-size.sh` | `v51-reclamation` | `target/v51-full-size` |
 | `phase4-public-bounds.sh` | `v51-admission-resources` | `target/v51-public-bounds` |
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
 | `phase4-bootstrap.sh` | `v51-admission-resources` | `target/v51-bootstrap` |
@@ -155,3 +156,12 @@ The independent reactor build already supplies every required JAR; no job depend
 is added. Exact-master CI `35818964327` measured this lane at 9m28s versus 12m18s
 for public hardening, so the new gate uses the shorter lane. Actual added CI time
 remains to be measured. Seventeen required full-CI jobs and docs-only behavior remain.
+
+## Full-size component boundary addition
+
+The [512-slot component gate](v5x/v5.1/PHASE_6_FULL_SIZE.md) runs after public
+reclamation in the existing `v51-reclamation` job using the restored build.
+It adds one verification/upload pair, no job or prerequisite build. Required and
+docs-only behavior remain unchanged. Its local controller has a 600-second outer
+backstop and retains failed evidence; production frame/chunk/request limits remain
+frozen. It does not rerun measured rich windows or claim public election timing.

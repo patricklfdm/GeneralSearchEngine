@@ -80,10 +80,13 @@ through PR #222 at `33aa89bf8a6b4b0587fa6a127e481d73671a60ec`, full master CI
 PR #223, exact-master CI `35942555519` (nineteen jobs, 25 V5.1 gates).
 [6C2A rich JVM integration](v5.1/PHASE_6_REMOTE_RICH.md)
 was accepted through PR #224, exact-master CI `35961961431` (twenty jobs,
-26 V5.1 gates). The [6C2B fault candidate](v5.1/PHASE_6_REMOTE_FAULTS.md)
-adds the twelve fault programs and two explicitly approved document-size exceptions.
-Full-size retention qualification, protected acceptance and 6C3/cloud work remain
-open in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
+26 V5.1 gates). [6C2B fault workloads](v5.1/PHASE_6_REMOTE_FAULTS.md) and the two
+approved document-size exceptions were accepted through PR #225, exact-master CI
+`35989431966` (all 21 jobs). PR #227 closed rich CI sharding, exact-master CI
+`36064320654` (all 26 jobs). The [512-slot component candidate](v5.1/PHASE_6_FULL_SIZE.md)
+adds actual storage/TCP/reproposal/pin/retention evidence. Its protected acceptance,
+public runtime integration and 6C3/cloud work remain open in the
+[checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.
