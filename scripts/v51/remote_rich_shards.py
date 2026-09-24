@@ -83,6 +83,8 @@ def retain(root,output,kind,shard,source,manifest_sha):
         if kind=='shard':
             result=evidence.validate_partial(replay_root,shard)
             m.need(result==read(root/'validation.json'),'relocated rich shard validation changed')
+            rejected=negatives.verify(replay_root) if shard=='automatic-concurrent' else []
+            m.need(rejected==read(root/'negatives.json'),'relocated rich shard negative qualification changed')
     return dict(schema=SCHEMA,status='PREPARED' if kind=='inputs' else 'PARTIAL',kind=kind,shard=shard,
                 source=source,buildManifestSha256=manifest_sha,seedBindingSha256=provenance['seedBindingSha256'],
                 bindingSha256=digest,identity=identity,collection=retained,parts=len(parts['parts']),
@@ -181,11 +183,11 @@ def aggregate(output,manifest,source,inputs):
             # with one shared decoded-trace budget and the original cell order.
             result=evidence.validate_group(roots);save(output/'validation.json',result)
             rejected=negatives.verify(roots['automatic-concurrent'])
+            save(output/'negatives.json',rejected)
             for name,root in roots.items():
                 expected=rejected if name=='automatic-concurrent' else []
                 m.need(read(root/'negatives.json')==expected and receipts[name]['negativeCases']==len(expected),
                        'rich shard negative qualification')
-            save(output/'negatives.json',rejected)
             receipt.update(status='PASS',source=source,buildManifestSha256=manifest_sha,seedBindingSha256=next(iter(seeds)),
                            calls=sum(c['calls'] for c in result['cells']),negativeCases=len(rejected),budgets=totals,
                            shards={name:dict(bindingSha256=r['bindingSha256'],

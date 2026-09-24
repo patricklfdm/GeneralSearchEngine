@@ -24,6 +24,12 @@ class EvidenceLocation(artifacts.EvidenceLocation):
             m.need(self.index==actual,'relocated rich inventory differs')
 
 
+def evidence_location(root,execution):
+    original_roots={artifacts.recorded_path(a['path']).parent.parent
+                    for adapter in execution['adapters'].values() for a in adapter['artifacts']}
+    m.need(len(original_roots)==1,'mixed rich evidence roots')
+    return EvidenceLocation(root,next(iter(original_roots)))
+
 
 def lines(root,name,budget=None):
     base=Path(root)/(name+'.jsonl')
@@ -212,9 +218,7 @@ def header(root,expected=CELLS):
     source_inventory=old.read(root/'source-inventory.json')
     m.need(m.sha((root/'source-inventory.json').read_bytes())==execution['sourceInventorySha256'],'source inventory binding')
     pinned={a['artifact']+'-'+a['version']+'.jar':a['sha256'] for a in plan.load()['publishedControls']['artifacts']}
-    original_roots={artifacts.recorded_path(a['path']).parent.parent for adapter in execution['adapters'].values() for a in adapter['artifacts']}
-    m.need(len(original_roots)==1,'mixed rich evidence roots')
-    location=EvidenceLocation(root,next(iter(original_roots)))
+    location=evidence_location(root,execution)
     for mode,adapter in execution['adapters'].items():old.artifacts(root,mode,adapter,pinned,source_inventory)
     m.need(storage.inventory(root/'source')==old.read(root/'source-before.json')==old.read(root/'source-after.json'),'rich source changed')
     semantic.source_backup(root/'source',m.initial(plan.load()))

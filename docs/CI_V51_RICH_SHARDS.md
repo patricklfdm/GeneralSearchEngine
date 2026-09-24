@@ -64,6 +64,8 @@ continues to reject partial evidence.
 receipt and hash-bound binary parts, with source/build/scope/seed identities checked
 on unpack. Raw diagnostics and build restore receipts are uploaded with `always()`;
 failed or interrupted runs cannot manufacture a complete portable handoff.
+The concurrent shard also reruns its negative qualification after packing/unpacking
+and requires the same case, status and rejection reason before returning `PARTIAL`.
 
 The existing `v51-remote-rich` ID/display name now denotes the aggregate. It explicitly
 downloads each of the three exact-SHA artifact names from the same run and:
@@ -81,6 +83,11 @@ downloads each of the three exact-SHA artifact names from the same run and:
    expansion budget during complete validation.
 5. Runs every original physical/history/read/resource/restore validator again on
    relocated bytes and independently reruns all ten read-heavy evidence negatives.
+   The original history must first pass the physical oracle. Both the original and
+   altered histories use the same inventory-verified evidence location, inspecting
+   retained bytes against their recorded sealed authority paths. Each rejection
+   reason must match the producer's result exactly; aggregate diagnostics are saved
+   before comparison, including on failure.
 
 Only that complete replay returns `PASS`. `paidCloud` and `fullRemoteQualification`
 remain false, as in the original local-only gate. Full CI requires input preparation,
@@ -172,3 +179,29 @@ that reply before failure. These observations narrow the failure to readiness an
 exchange timing but do not establish the underlying cause or justify extending
 the frozen timing limits. Original traces were interrupted during failure cleanup;
 they are diagnostic evidence, not a passing physical history.
+
+### Hosted negative replay correction
+
+[PR CI 36043850713](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36043850713)
+ran all three shards successfully at merge source
+`39d42e242181e9f25a91e94a27ae5828d4adc443`. The aggregate passed all five physical
+cells, then failed its exact negative-result comparison; `Required` also failed.
+The negative driver omitted the evidence location already used by normal replay.
+After download, all ten mutations were therefore rejected prematurely with
+`copied/stale seal path`, rather than their intended history error. This is a
+validator relocation defect; this failure does not establish a runtime timing bug.
+
+The correction shares the existing evidence-location constructor, validates the
+original before mutations, and checks negative portability in the producing shard.
+Inventory/authority admission and exact aggregate rejection comparison remain in
+force. Three regression tests fail against the original driver and pass with the
+correction, covering relocated authority, invalid originals and missing/altered
+inventories. All 446 V5.1 Python tests pass.
+
+The repaired aggregate replayed the unchanged CI artifact with source/build
+binding checked against a detached, unmodified checkout of that exact merge SHA
+and the pinned Temurin 21.0.12+8 toolchain. All five cells, 1080 calls and ten
+exact negative results passed in 154.751 seconds; combined evidence budgets also
+passed. Receipt: `target/v51-rich-negative-replay/repaired-aggregate/receipt.json`.
+This is an offline validation of the existing hosted execution, not a new workload
+run or corrected-source protected CI. The latter remains required.
