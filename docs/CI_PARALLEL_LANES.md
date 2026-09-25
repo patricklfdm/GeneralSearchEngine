@@ -386,3 +386,15 @@ serializing those windows behind the existing foundation gates. It has no GCP
 permission or environment. `Required` now checks nineteen full lanes, including
 this lane's intentional skip for documentation-only changes. Existing commands
 and historical migration rows are preserved.
+
+
+### Phase 6C2 full-size runtime qualification
+
+PR #228's component boundary passed exact-master CI `36072038218`. The existing
+required `v51-reclamation` job additionally owns
+`verify-v51-phase6-full-size-runtime.sh --skip-build` and the always-retained
+`v51-full-size-runtime-${{ github.sha }}` artifact. It uses the verified shared
+build and preserves the same 26 required jobs and docs-only behavior. The new
+public 512-slot gate has its own 1200-second local backstop including portable
+positive/negative replay; its actual additional hosted duration remains to be
+measured by protected CI. See the [runtime boundary](v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md).

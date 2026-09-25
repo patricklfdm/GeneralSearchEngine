@@ -1,7 +1,9 @@
 # V5.1 Phase 6C2: actual 512-slot component boundaries
 
-**Status:** implementation candidate on the accepted PR #227 runtime. Protected
-CI and integration with the public automatic runtime/guest lifecycle remain open.
+**Status:** component gate accepted through PR #228 at
+`3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`.
+The [public runtime integration](PHASE_6_FULL_SIZE_RUNTIME.md) is the next candidate;
+combined 6C2 protected acceptance remains open.
 This is an additional boundary gate under the [6B contract](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md),
 not a replacement for the [rich tapes](PHASE_6_REMOTE_RICH.md) or
 [twelve public fault cells](PHASE_6_REMOTE_FAULTS.md).
@@ -104,8 +106,8 @@ retained authority at an archived cut. These are observations, not new limits.
 All 450 V5.1 Python tests and 23 CI topology tests passed. The external driver
 compiled and ran against the packaged candidate; production Java/POM files are
 unchanged, and this batch did not repeat the complete Maven reactor locally.
-Protected CI must still build/test the candidate and execute the new required
-step. Original failed development workspaces remain under
+That component step subsequently passed protected exact-master CI `36072038218`.
+The new public-runtime integration requires its own protected acceptance. Original failed development workspaces remain under
 `target/v51-full-size-boundaries` and `target/v51-full-size`.
 
 ## Commands and CI ownership

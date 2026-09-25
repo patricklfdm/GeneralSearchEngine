@@ -24,8 +24,10 @@ master `28cd5edc0a63fd82a9c01dad028623acc529c9f2`, exact-master CI `35961961431`
 master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI `35989431966`
 (all 21 jobs). PR #227 closed [rich CI sharding](../../CI_V51_RICH_SHARDS.md) at
 `2db90846606547325c2f35a466813c622cc1ffac`, exact-master CI `36064320654` (all 26 jobs).
-The [512-slot component candidate](PHASE_6_FULL_SIZE.md) is the current review
-boundary; public-runtime integration and full 6C qualification remain open.
+The [512-slot component gate](PHASE_6_FULL_SIZE.md) was accepted through PR #228,
+master `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`.
+[Public 512-slot runtime integration](PHASE_6_FULL_SIZE_RUNTIME.md) is the current
+review candidate; protected full-size acceptance and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -55,6 +57,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C2B fault implementation: twelve frozen public JVM schedules, bounded history/physical/resource validation and binary replay.
 - [x] 6C2B fault-document amendment and fault qualification protected acceptance: PR #225, exact-master CI `35989431966`.
 - [x] 6C2 full-size component implementation candidate: 512 forced slots, real TCP chunks, same-slot reproposal, pinned application view and two generations.
+- [x] 6C2 component protected acceptance: PR #228, exact-master CI `36072038218`.
+- [x] 6C2 public 512-slot runtime implementation candidate (local gate passed; protected CI pending): public recovery/pinned read, complete transfer and terminal full-basis selection.
 - [ ] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
 - [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

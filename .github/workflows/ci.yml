@@ -1060,6 +1060,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Verify V5.1 public automatic 512-slot runtime boundary
+        run: scripts/verify-v51-phase6-full-size-runtime.sh --skip-build
+
+      - name: Retain V5.1 full-size runtime evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-full-size-runtime-${{ github.sha }}
+          path: target/v51-full-size-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
 
   v50-authority:
     # Independent reactor build: local JARs, test classes and executed test reports.
