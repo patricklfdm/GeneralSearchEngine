@@ -26,8 +26,11 @@ master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI `35989431966`
 `2db90846606547325c2f35a466813c622cc1ffac`, exact-master CI `36064320654` (all 26 jobs).
 The [512-slot component gate](PHASE_6_FULL_SIZE.md) was accepted through PR #228,
 master `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`.
-[Public 512-slot runtime integration](PHASE_6_FULL_SIZE_RUNTIME.md) is the current
-review candidate; protected full-size acceptance and full 6C remain open.
+[Public 512-slot runtime integration](PHASE_6_FULL_SIZE_RUNTIME.md) was accepted
+through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
+`36094121631` (all 27 jobs). 6C2 is closed. The
+[6C3A owned control implementation](PHASE_6_CLOUD_CONTROL.md) is the current candidate;
+provider/remote integration, configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -58,9 +61,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C2B fault-document amendment and fault qualification protected acceptance: PR #225, exact-master CI `35989431966`.
 - [x] 6C2 full-size component implementation candidate: 512 forced slots, real TCP chunks, same-slot reproposal, pinned application view and two generations.
 - [x] 6C2 component protected acceptance: PR #228, exact-master CI `36072038218`.
-- [x] 6C2 public 512-slot runtime implementation candidate (local gate passed; protected CI pending): public recovery/pinned read, complete transfer and terminal full-basis selection.
-- [ ] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
-- [ ] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
+- [x] 6C2 public 512-slot runtime accepted through PR #229 (exact-master CI `36094121631`): public recovery/pinned read, complete transfer and terminal full-basis selection.
+- [x] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
+- [x] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
+- [x] 6C3A implementation candidate: source-bound control admission, append-only budget/sequence, exclusive lease, original-command polling, exact-ID cleanup and retained no-GCP failures.
+- [ ] 6C3A protected acceptance of the control-only gate.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.

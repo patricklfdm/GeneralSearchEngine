@@ -65,12 +65,15 @@ exceptions: master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI
 on master `2db90846606547325c2f35a466813c622cc1ffac`, CI `36064320654` (all 26 jobs).
 The [512-slot component gate](v5.1/PHASE_6_FULL_SIZE.md) was accepted through
 PR #228 at `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`.
-The current [public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) adds
-three public JVMs, automatic same-slot recovery, a pinned public view, complete
-512-slot rejoin and terminal complete-basis selection under unchanged deadlines.
-Review its independent evidence and protected CI before closing full-size 6C2.
-The source-bound V5.1 runner/admission/configuration and provider failures remain
-6C3. Paid execution remains
+The [public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) was accepted
+through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
+`36094121631` (all 27 jobs), closing full-size 6C2 under unchanged deadlines.
+The current [6C3A cloud control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) adds
+source-bound synthetic admission, append-only sequence/budget history, exclusive
+resource ownership, original-command polling and shared finally/manual/scheduled
+cleanup, qualified without GCP. Next integrate the actual bundle/remote provider,
+trusted preflight, separate workflows and configuration; the control-only receipt
+cannot authorize cloud work. Paid execution remains
 user-triggered after fresh exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

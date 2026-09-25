@@ -405,3 +405,16 @@ with Change scope, Required and matrix expansion); docs-only behavior is preserv
 The public gate retains its 1200-second local backstop, including portable
 positive/negative replay. Revised-source protected CI and hosted split timings
 remain pending. See the [runtime boundary](v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md).
+
+
+### Phase 6C3A cloud control qualification
+
+PR #229's split and corrected full-size runtime passed exact-master CI
+`36094121631` (all 27 jobs). The additional
+`verify-v51-phase6-cloud-control.sh` gate runs in the existing `cloud-runner-tests`
+job and always retains `v51-cloud-control-${{ github.sha }}` for fourteen days.
+It uses only Python/local diagnostic command receipts and in-memory adapters;
+no Java build, GCP credentials, environment or OIDC permission is added. Its
+120-second backstop remains inside the existing five-minute cloud job ceiling.
+The 23 Required identities, docs-only skips and shared verification build are
+unchanged. See the [scope and remaining provider work](v5x/v5.1/PHASE_6_CLOUD_CONTROL.md).

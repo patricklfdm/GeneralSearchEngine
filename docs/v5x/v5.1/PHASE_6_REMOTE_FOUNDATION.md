@@ -20,8 +20,8 @@ It supplies no paid workflow, provider credentials or V5.1 cloud admission.
 | Boundary | Implementation and required evidence |
 | --- | --- |
 | 6C1, accepted | Durable command ownership, original-deadline query after lost replies, fixed arrivals, disjoint time accounting, binary evidence collection; real subprocess crash/cancel and deterministic scheduler negatives. |
-| 6C2, in progress | Connect persistent guest JVM commands to all three immutable control/candidate classpaths; execute complete healthy/read-heavy/sustained tapes and twelve fault cells; independently bind concurrent rich reads to actual captured cuts; full-size slots, basis/transfer, pin and two-generation retention checks. |
-| 6C3 | Own prepare/run/collect/validate/cleanup; same-path fake provisioning/SSH/upload/credential/deletion failures; source-bound runner/workflow/WIF/environment/price/cleanup identities and fresh configuration review. |
+| 6C2, accepted through PR #229 / exact-master CI `36094121631` | Connect persistent guest JVM commands to all three immutable control/candidate classpaths; execute complete healthy/read-heavy/sustained tapes and twelve fault cells; independently bind concurrent rich reads to actual captured cuts; full-size slots, basis/transfer, pin and two-generation retention checks. |
+| 6C3, [control candidate](PHASE_6_CLOUD_CONTROL.md) | Own prepare/run/collect/validate/cleanup; same-path fake provisioning/SSH/upload/credential/deletion failures; source-bound runner/workflow/WIF/environment/price/cleanup identities and fresh configuration review. |
 
 These are implementation review boundaries within the existing
 [6C exit](PHASE_6_ENTRY_PLAN.md#ordered-delivery). Full Phase 6C stays unchecked

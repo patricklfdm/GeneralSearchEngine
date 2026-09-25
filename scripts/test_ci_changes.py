@@ -234,6 +234,18 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("          retention-days: 14\n", own[0])
         self.assertCountEqual(expected, found)
 
+    def test_cloud_control_gate_has_retained_evidence_without_cloud_permissions(self):
+        body = self.jobs["cloud-runner-tests"]
+        self.assertEqual(1, body.count("run: scripts/verify-v51-phase6-cloud-control.sh"))
+        self.assertNotIn("id-token: write", body)
+        self.assertNotIn("google-github-actions", body)
+        self.assertNotIn("environment:", body)
+        upload = next(step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
+                      if "name: v51-cloud-control-${{ github.sha }}" in step)
+        self.assertIn("if: ${{ always() }}", upload)
+        self.assertIn("path: target/v51-cloud-control", upload)
+        self.assertIn("retention-days: 14", upload)
+
     def test_reclamation_and_full_size_runtime_run_independently(self):
         # The public runtime prepares its own source/cluster; it must not wait
         # for component or reclamation evidence from another consumer workspace.
