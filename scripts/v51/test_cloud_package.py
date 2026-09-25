@@ -1,10 +1,13 @@
 import io
 import json
+import shutil
+import subprocess
+import sys
 from pathlib import Path
 import tarfile
 import tempfile
 import unittest
-from . import cloud_package as p
+from . import cloud_package as p, cloud_bundle as bundle
 
 
 def save(path, value): path.write_text(json.dumps(value))
@@ -90,6 +93,21 @@ class PackageTest(unittest.TestCase):
                 path = self.root.parent/f'bad-{i}.tar.gz'; digest = archive(path, entries)
                 with self.assertRaises(ValueError): p.unpack(path, self.root.parent/f'unpack-{i}', digest, 'a'*40)
         self.assertFalse((self.root.parent/'escape').exists())
+    def test_standalone_service_import_keeps_authenticated_payload_immutable(self):
+        (self.root/'guest.py').write_bytes(Path(p.__file__).read_bytes())
+        for name in bundle.GUEST_INPUTS:
+            target=self.root/'source-inputs'/name;target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(bundle.ROOT/name,target)
+        folder=self.root/'source-inputs/scripts/v51'
+        self.value['files']=p.inventory(self.root);save(self.root/'manifest.json',self.value)
+        result=subprocess.run([sys.executable,'-I',str(self.root/'guest.py'),'service','--help'],capture_output=True,check=True,text=True)
+        self.assertIn('start,serve,query,submit,cancel,shutdown,ready,part',result.stdout)
+        p.verify(self.root)
+        self.assertEqual(list(self.root.rglob('__pycache__')),[])
+        (folder/'cloud_guest.py').write_text('raise RuntimeError("must not run")\n')
+        result=subprocess.run([sys.executable,'-I',str(self.root/'guest.py'),'service','--help'],capture_output=True,text=True)
+        self.assertNotEqual(result.returncode,0);self.assertIn('package inventory changed',result.stderr)
+        self.assertNotIn('must not run',result.stderr)
     def test_duplicate_json_keys_rejected(self):
         (self.root/'manifest.json').write_bytes(b'{"schema":1,"schema":2}')
         with self.assertRaisesRegex(ValueError, 'duplicate'): p.verify(self.root)

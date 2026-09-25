@@ -212,6 +212,20 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Qualify packaged V5.1 persistent guest services without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification
+          target/v51-guest-service --bundle target/v51-guest-package --source "$GITHUB_SHA"
+
+      - name: Retain V5.1 guest lifecycle, receipts and binary collection
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-guest-service-${{ github.sha }}
+          path: target/v51-guest-service
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build
 

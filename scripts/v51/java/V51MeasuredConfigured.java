@@ -6,8 +6,8 @@ import java.util.*;
 
 public final class V51MeasuredConfigured {
     public static List<ReplicationGroupConfig<Integer,AdmissionSemanticModel.Doc>> configs(Path root) throws Exception {
-        var ports=Files.readAllLines(root.resolve("ports.txt"));var members=new ArrayList<ReplicationMember>();
-        for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(ports.get(i)))));
+        var ports=Files.readAllLines(root.resolve("ports.txt"));var hosts=V51GuestEndpoints.hosts(root);var members=new ArrayList<ReplicationMember>();
+        for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint(hosts.get(i),Integer.parseInt(ports.get(i)))));
         var bounds=new ReplicationBounds(1<<20,16,4,4,2,1200,25,4096,64L<<20,64L<<20);
         return members.stream().map(m->new ReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString(Files.exists(root.resolve("group-id.txt"))?read(root.resolve("group-id.txt")):"51000000-0000-0000-0000-000000000006")),
                 "phase6-local-v1",m.nodeId(),members.getFirst().nodeId(),members,root.resolve(m.nodeId().value()),

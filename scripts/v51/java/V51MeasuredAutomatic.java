@@ -7,8 +7,8 @@ import java.util.concurrent.TimeUnit;
 
 public final class V51MeasuredAutomatic {
     public static List<AutomaticReplicationGroupConfig<Integer,AdmissionSemanticModel.Doc>> configs(Path root) throws Exception {
-        var ports=Files.readAllLines(root.resolve("ports.txt"));var members=new ArrayList<ReplicationMember>();
-        for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(ports.get(i)))));
+        var ports=Files.readAllLines(root.resolve("ports.txt"));var hosts=V51GuestEndpoints.hosts(root);var members=new ArrayList<ReplicationMember>();
+        for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint(hosts.get(i),Integer.parseInt(ports.get(i)))));
         var bounds=new ReplicationBounds(1<<20,16,4,4,2,1200,25,4096,64L<<20,64L<<20);
         var policy=new AutomaticLeadershipPolicy(1200,3600,6000,9600);
         var group=new ReplicationGroupId(UUID.fromString(Files.readString(root.resolve("group-id.txt")).trim()));

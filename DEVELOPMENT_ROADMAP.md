@@ -75,8 +75,10 @@ exact-master CI `36094121631` (all 27 jobs). The current
 [accepted 6C3A control](docs/v5x/v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies cloud
 ownership/admission/cleanup without GCP; remaining provider and cloud work is tracked in the
 [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
-[6C3B guest/provider candidate](docs/v5x/v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
-packaging and offline HTTP adapter qualification; paid execution stays disabled.
+[accepted 6C3B guest/provider gate](docs/v5x/v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
+packaging and offline HTTP adapter qualification (PR #231, master CI `36113872308`).
+The [6C3C1 guest candidate](docs/v5x/v5.1/PHASE_6_GUEST_SERVICE.md) connects persistent
+JVMs, command receipts and binary transport locally. Full remote admission remains open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

@@ -1,10 +1,19 @@
 # V5.1 Phase 6C3B: guest package and provider request adapters
 
-**Status:** implementation candidate on master
+**Original candidate:** implementation on master
 `2db3ebb645907eaa8b02fa849302c35accb03ff4`, following PR #230. Its
 [exact-master CI 36105310891](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36105310891)
 accepted the [6C3A control-only gate](PHASE_6_CLOUD_CONTROL.md).
 This batch requires its own protected CI. Full 6C and paid admission remain open.
+
+## Protected acceptance through PR #231
+
+PR #231 merged at `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`.
+[Exact-master CI 36113872308](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36113872308)
+passed, including the guest build/relocation step, offline provider gate and Required
+result. This accepts 6C3B's declared offline boundary. The next
+[6C3C1 candidate](PHASE_6_GUEST_SERVICE.md) connects persistent guest JVMs,
+command receipts and binary transport; full remote and paid admission remain open.
 
 ## Scope and execution boundaries
 
