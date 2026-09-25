@@ -124,12 +124,15 @@ def command(root, mode, check=False, args=()):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] == 'service':
+    if len(sys.argv) > 1 and sys.argv[1] in ('service', 'bootstrap'):
         base = Path(__file__).resolve().parent; verify(base)
         # Imports must not add __pycache__ files to the authenticated payload.
         sys.dont_write_bytecode = True
         sys.path.insert(0, str(base/'source-inputs'))
-        from scripts.v51.cloud_guest import main
+        if sys.argv[1] == 'service':
+            from scripts.v51.cloud_guest import main
+        else:
+            from scripts.v51.guest_bootstrap import main
         main(base, sys.argv[2:]); sys.exit(0)
     p = argparse.ArgumentParser(); p.add_argument('action', choices=('verify', 'check', 'launch')); p.add_argument('--mode', choices=MODES)
     p.add_argument('args', nargs='*'); a = p.parse_args(); root = Path(__file__).resolve().parent

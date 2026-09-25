@@ -34,19 +34,24 @@ def integer(value, minimum=0, maximum=(1 << 63)-1):
     return value
 
 
-def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first'):
+def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None):
     result = dict(schema='gse-v51-cloud-request-v1', suite=SUITE, execution=EXECUTION, paidCloud=False,
                   source=source, bundleSha256=bundle, configurationSha256=configuration,
                   workloadSha256=workload.PLAN_SHA256, sequence=sequence, attempt=attempt,
                   order=order, member=member, createdAt=now)
+    if guest_access_sha256 is not None:
+        result.update(schema='gse-v51-cloud-request-v2', guestAccessSha256=guest_access_sha256)
     validate_request(result)
     return result
 
 
 def validate_request(value):
-    m.need(type(value) is dict and set(value) == REQUEST_FIELDS, 'cloud request fields')
+    m.need(type(value) is dict, 'cloud request type')
+    version = value.get('schema'); extra = {'guestAccessSha256'} if version == 'gse-v51-cloud-request-v2' else set()
+    m.need(version in ('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2') and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
+    if extra: digest(value['guestAccessSha256'])
     m.need((value['schema'], value['suite'], value['execution'], value['paidCloud']) ==
-           ('gse-v51-cloud-request-v1', SUITE, EXECUTION, False) and value['paidCloud'] is False,
+           (version, SUITE, EXECUTION, False) and value['paidCloud'] is False,
            'V5.1 control-only request')
     for key, length in (('source', 40), ('bundleSha256', 64), ('configurationSha256', 64),
                         ('sequence', 32), ('attempt', 32)):

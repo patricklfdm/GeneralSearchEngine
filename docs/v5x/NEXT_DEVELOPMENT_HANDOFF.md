@@ -73,12 +73,15 @@ master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI `36105310891`
 Its first PR attempt's Maven transport and burst timing failures remain recorded;
 the successful rerun does not establish a timing root cause. The [6C3B guest/provider gate](v5.1/PHASE_6_CLOUD_PROVIDER.md) is accepted through
 PR #231, master `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`, CI `36113872308`.
-The current [6C3C1 guest candidate](v5.1/PHASE_6_GUEST_SERVICE.md) adds persistent
-packaged JVMs, explicit private endpoints, receipt-only reconnect and stopped
-binary evidence transfer, qualified through real local processes. Next complete
-cross-host bootstrap, SSH/data-mount setup, full remote faults/oracles, then trusted
-preflight and separate workflows/configuration. Live SSH/provider writes remain
-disabled; paid experiments remain user-triggered after exact-request confirmation.
+The [6C3C1 guest slice](v5.1/PHASE_6_GUEST_SERVICE.md) is accepted through PR #232,
+master `2183dafa618238f0b824fc0a3b3d42624ce24782`, exact-master CI `36124423253`
+(all 27 jobs). Its initial rich timing failure remains recorded; the rerun does not
+establish a timing cause. The [6C3C2 bootstrap candidate](v5.1/PHASE_6_GUEST_BOOTSTRAP.md)
+adds exact-path per-node distribution, independent mount-view qualification,
+attempt SSH metadata/host-key checks and pure volume planning. Next finish actual
+SSH/data-mount execution, full remote faults/oracles, then trusted preflight and
+separate workflows/configuration. Live SSH/provider writes remain disabled;
+paid experiments remain user-triggered after exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

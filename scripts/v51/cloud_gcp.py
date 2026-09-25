@@ -86,9 +86,16 @@ class Store:
 
 
 class Compute:
-    def __init__(self, configuration, req, api, *, sleep=time.sleep):
+    def __init__(self, configuration, req, api, *, guest_access=None, sleep=time.sleep):
         m.need(config(configuration) == req['configurationSha256'], 'provider request configuration digest')
         a.validate_request(req)
+        self.guest_access = deepcopy(guest_access)
+        if req['schema'] == 'gse-v51-cloud-request-v2':
+            from .guest_setup import access
+            access(self.guest_access)
+            m.need(self.guest_access['attempt'] == req['attempt'] and
+                   m.sha(m.canonical(self.guest_access)) == req['guestAccessSha256'], 'provider SSH attempt/digest mismatch')
+        else: m.need(guest_access is None, 'SSH access requires bound request')
         self.config, self.req, self.api, self.sleep = deepcopy(configuration), deepcopy(req), api, sleep
         self.execution = a.EXECUTION if api.offline else 'unqualified-v51-gcp-provider'
         self.base = 'https://compute.googleapis.com/compute/v1/projects/'+configuration['project']
@@ -135,6 +142,9 @@ class Compute:
                     scheduling=dict(provisioningModel='STANDARD', automaticRestart=False,
                         maxRunDuration=dict(seconds='5400'), instanceTerminationAction='DELETE'),
                     metadata=dict(items=[dict(key='block-project-ssh-keys', value='TRUE'), dict(key='enable-oslogin', value='FALSE')]))
+        if spec['kind'] == 'instance' and self.guest_access is not None:
+            from .guest_setup import metadata
+            value['metadata']['items'] = metadata(self.guest_access)
         return value
 
     def inspect(self, spec, value):
@@ -156,6 +166,9 @@ class Compute:
             m.need(len(value['disks']) == 2 and {link(d['source']) for d in value['disks']} == set(wanted) and
                    all(all(d[k] == wanted[link(d['source'])][k] for k in ('autoDelete', 'boot', 'mode', 'type', 'deviceName'))
                        for d in value['disks']), 'attached disk scope/automatic deletion')
+            items = value.get('metadata', {}).get('items', [])
+            m.need(len(items) == len(expected['metadata']['items']) and
+                   {v['key']: v['value'] for v in items} == {v['key']: v['value'] for v in expected['metadata']['items']}, 'instance guest access metadata')
             m.need(value['tags']['items'] == [spec['owner']] and
                    all(value['scheduling'].get(k) == v for k, v in expected['scheduling'].items()), 'instance tags/lifetime')
         if spec['kind'] != 'firewall':
@@ -170,6 +183,17 @@ class Compute:
         result = self.inspect(spec, value)
         if identity is not None: m.need(result['id'] == identity, 'numeric resource lookup changed')
         return result
+
+    def guest_host_key(self, spec, identity):
+        from .guest_setup import host_key
+        m.need(spec['kind'] == 'instance' and self.guest_access is not None, 'unprepared guest access')
+        deadline = self.api.clock()+30
+        before = self.describe(spec, identity=identity, deadline=deadline)
+        m.need(before is not None, 'host-key instance absent')
+        response = self.api.call('GET', self.url(spec)+'/getGuestAttributes?queryPath=hostkeys%2F', deadline=deadline, maximum=65536)
+        after = self.describe(spec, identity=identity, deadline=deadline)
+        m.need(before == after, 'host-key instance replaced')
+        return dict(instanceId=identity, publicKey=host_key(response))
 
     def decode_operation(self, spec, op, action='insert', identity=None):
         m.need(op['clientOperationId'] == self.operation_id(spec, action, identity) and op['operationType'] == action and

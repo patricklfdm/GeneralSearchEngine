@@ -110,16 +110,28 @@ class Service:
     def handler(self, name, payload, checkpoint):
         self.ack.set(); checkpoint(); m.need(not self.shutting_down, 'guest shutting down')
         if name == 'prepare-cell':
-            m.need(not payload and self.node == 'node-1' and self.jvm is None, 'guest prepare role/state')
+            m.need((not payload or payload == {'distribute': True}) and self.node == 'node-1' and self.jvm is None, 'guest prepare role/state')
             for file, text in [('hosts.txt', '\n'.join(self.config['hosts'])+'\n'),
                                ('ports.txt', '\n'.join(map(str, self.config['ports']))+'\n'), ('group-id.txt', self.config['groupId']+'\n')]:
                 with (self.cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
             self.oneshot('seed', self.java(package.MODES[0], self.cell, 'prepare', self.plan, self.cell/'source'))
-            if self.config['mode'] != package.MODES[0]:
+            if self.config['mode'] != package.MODES[0] and not payload:
                 self.oneshot('bootstrap', self.java(self.config['mode'], self.cell, 'setup', self.plan, self.cell/'source'))
+            if payload:
+                from copy import deepcopy
+                from . import guest_bootstrap
+                output = self.root/'bootstrap'; output.mkdir()
+                exports = []
+                for n in range(1, 2 if self.config['mode'] == package.MODES[0] else 4):
+                    config = deepcopy(self.config); config['binding']['node'] = 'node-'+str(n)
+                    exports.append(guest_bootstrap.export(self.cell, output/config['binding']['node'], config))
+                return dict(prepared=True, bootstrap=exports)
             return dict(prepared=True)
         if name == 'start-voter':
             m.need(not payload and self.jvm is None, 'guest voter already started/payload')
+            from . import guest_bootstrap
+            if (self.cell/guest_bootstrap.CLAIM).exists() or (self.cell/guest_bootstrap.READY).exists() or (self.cell/'.bootstrap-install').exists():
+                guest_bootstrap.check_ready(self.cell, self.config, sealed=True)
             local = self.config['mode'] == package.MODES[0]
             m.need(not local or self.node == 'node-1', 'local control belongs to node 1')
             # Every host must use the identical sealed absolute cell path and endpoint bytes.
