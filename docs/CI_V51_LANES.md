@@ -7,8 +7,8 @@ required. The [6C2B fault lane](v5x/v5.1/PHASE_6_REMOTE_FAULTS.md) adds a separa
 required twelve-cell qualification. The subsequent
 [verification build domain](CI_V51_BUILD_DOMAIN.md) centralizes
 V5.1 prerequisite compilation/tests. The subsequent [rich partition](CI_V51_RICH_SHARDS.md) adds prepared inputs and a
-three-child matrix feeding the original rich aggregate. Full CI has twenty-two
-required job IDs plus Change scope and Required (twenty-six executed jobs when
+three-child matrix feeding the original rich aggregate. Full CI has twenty-three
+required job IDs plus Change scope and Required (twenty-seven executed jobs when
 the matrix expands). Docs-only CI continues to skip Maven.
 
 ## Historical partition measurements
@@ -77,6 +77,7 @@ job/step identifiers, paid workflows and release jobs keep their prior wiring.
 | Complete rich qualification (serial `phase6-remote-rich.sh` remains local) | `v51-remote-rich-inputs` → three `v51-remote-rich-shards` children → `v51-remote-rich` | `target/v51-remote-rich` plus per-shard diagnostics |
 | `phase6-remote-faults.sh` | `v51-remote-faults` | `target/v51-remote-faults` |
 | `phase6-full-size.sh` | `v51-reclamation` | `target/v51-full-size` |
+| `phase6-full-size-runtime.sh` | `v51-full-size-runtime` | `target/v51-full-size-runtime` |
 | `phase4-public-bounds.sh` | `v51-admission-resources` | `target/v51-public-bounds` |
 | `phase4-public-promises.sh` | `v51-promise-crashes` | `target/v51-public-promises` |
 | `phase4-bootstrap.sh` | `v51-admission-resources` | `target/v51-bootstrap` |
@@ -102,8 +103,8 @@ Rich preparation and each matrix child have separate portable handoff and raw
 failure artifacts; the aggregate retains all three portable inputs for replay.
 Every artifact name is unique after matrix expansion. No failed or cancelled child
 can pass Required. The actual Required shell is tested with failures, cancellation
-and unexpected skips for all twenty-two required job IDs; docs-only runs require
-all twenty-two results to be intentionally skipped.
+and unexpected skips for all twenty-three required job IDs; docs-only runs require
+all twenty-three results to be intentionally skipped.
 
 ## Build failure and fix
 
@@ -165,3 +166,47 @@ It adds one verification/upload pair, no job or prerequisite build. Required and
 docs-only behavior remain unchanged. Its local controller has a 600-second outer
 backstop and retains failed evidence; production frame/chunk/request limits remain
 frozen. It does not rerun measured rich windows or claim public election timing.
+
+
+## Reclamation and full-size runtime split
+
+[PR #229 CI 36078101942](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36078101942)
+passed all 26 executed jobs before this split. Its
+[reclamation job](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36078101942/job/107894980246)
+took **27m42s**, determining the workflow's 33m05s span from Change scope start
+to Required completion. The V5.1 shared build took 5m07s.
+
+| Existing verification step | Measured time | Owner after split |
+| --- | ---: | --- |
+| Public two-source floors and interrupted reclamation | 6m28s | `v51-reclamation` |
+| Actual 512-slot component boundaries | 3m08s | `v51-reclamation` |
+| Public automatic 512-slot runtime, including portable replay | 17m46s | `v51-full-size-runtime` |
+
+Both jobs depend only on `changes` and `v51-verification-build`; neither waits for
+the other. Each gate creates its own source backup, processes and evidence. The
+runtime imports common helpers but consumes no preceding gate's output. Both
+consumers restore the same source-bound build, with no additional Maven build.
+The two reclamation steps keep their order. The complete runtime gate and its
+positive/negative portable replay stay together, unchanged.
+
+Including setup and uploads, the measured steps suggest roughly 10 minutes for
+reclamation and 18 minutes for the runtime lane. Removing 9m41s of serialized
+verification/uploads suggests a total near **23–24 minutes** with comparable
+runner scheduling. This is an estimate; it does not reduce test work or promise
+lower runner minutes. Hosted timing for the revised topology is pending.
+
+Both jobs retain 60-minute timeouts; the runtime command's 1200-second backstop
+and all workload limits remain unchanged. Existing evidence names/paths and
+fourteen-day retention are preserved. The additional build restore receipt is
+`v51-full-size-runtime-build-inputs-${{ github.sha }}`. Required checks both results,
+including failure/cancellation/unexpected-skip rejection and intentional docs-only
+skips. Full CI now expands 23 required job IDs into 27 executed jobs including
+Change scope, Required and the three-child rich matrix. The successful prior PR
+run does not establish corrected-source or master acceptance after this change.
+
+Local validation of the split passed 47 CI/topology/build-bundle/toolchain tests,
+all 130 workflow shell blocks, 71 unique artifact names after matrix expansion,
+and the documentation contract/changed local links. Structural comparison with
+the preceding workflow confirms unchanged triggers, permissions, concurrency,
+unrelated jobs and all relocated verification/evidence steps. Receipts and API
+timings are retained under `target/ci-v51-reclamation-split/`.

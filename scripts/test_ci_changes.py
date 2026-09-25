@@ -32,6 +32,7 @@ FULL_GATES = {
     "v51-protocol-selection": "V51_PROTOCOL_SELECTION_RESULT",
     "v51-candidate-crashes": "V51_CANDIDATE_CRASHES_RESULT",
     "v51-reclamation": "V51_RECLAMATION_RESULT",
+    "v51-full-size-runtime": "V51_FULL_SIZE_RUNTIME_RESULT",
     "v50-authority": "V50_AUTHORITY_RESULT",
     "v50-recovery-workload": "V50_RECOVERY_RESULT",
     "v4-regression": "V4_RESULT",
@@ -213,7 +214,7 @@ class WorkflowTopologyTest(unittest.TestCase):
             "phase4-public-runtime", "phase4-public-qualification", "phase4-public-faults",
             "phase4-public-recovery", "phase4-public-pressure", "phase4-backpressure", "phase4-final-coverage",
             "phase4-lifecycle-hardening", "phase5-hardening", "phase5-combined-lifecycle", "phase4-public-protocol",
-            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-faults", "phase6-full-size",
+            "phase4-public-selection", "phase4-public-candidates", "phase4-public-reclamation", "phase6-performance", "phase6-remote-faults", "phase6-full-size", "phase6-full-size-runtime",
         }
         found = []
         for name in FULL_GATES:
@@ -232,6 +233,22 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertRegex(own[0], r"if: (?:\$\{\{ )?always\(\)")
                 self.assertIn("          retention-days: 14\n", own[0])
         self.assertCountEqual(expected, found)
+
+    def test_reclamation_and_full_size_runtime_run_independently(self):
+        # The public runtime prepares its own source/cluster; it must not wait
+        # for component or reclamation evidence from another consumer workspace.
+        expected = {
+            "v51-reclamation": ["phase4-public-reclamation", "phase6-full-size"],
+            "v51-full-size-runtime": ["phase6-full-size-runtime"],
+        }
+        for name, gates in expected.items():
+            with self.subTest(job=name):
+                body = self.jobs[name]
+                self.assertEqual(["[changes, v51-verification-build]"],
+                                 re.findall(r"^    needs: (.+)$", body, re.MULTILINE))
+                self.assertEqual(gates, re.findall(
+                    r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE))
+                self.assertIn("    timeout-minutes: 60\n", body)
 
     def test_v51_build_executes_tests_and_consumers_restore_exact_inputs(self):
         build = self.jobs["v51-verification-build"]

@@ -63,11 +63,12 @@ with control-only local qualification. PR #223 accepted it at
 exceptions: master `22328ed4dc358e0adc7fde1399528295ebf8d2a3`, exact-master CI
 `35989431966` (all 21 jobs). PR #227 closed [rich CI sharding](../CI_V51_RICH_SHARDS.md)
 on master `2db90846606547325c2f35a466813c622cc1ffac`, CI `36064320654` (all 26 jobs).
-The current [512-slot component candidate](v5.1/PHASE_6_FULL_SIZE.md) supplies actual
-forced votes, complete TCP basis/snapshot chunks, same-slot reproposal and pinned
-application-view/two-generation cleanup. Review its protected CI, then integrate
-this boundary with the automatic public runtime/guest lifecycle before closing
-6C2. Component orchestration does not qualify election or whole-transfer deadlines.
+The [512-slot component gate](v5.1/PHASE_6_FULL_SIZE.md) was accepted through
+PR #228 at `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`.
+The current [public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) adds
+three public JVMs, automatic same-slot recovery, a pinned public view, complete
+512-slot rejoin and terminal complete-basis selection under unchanged deadlines.
+Review its independent evidence and protected CI before closing full-size 6C2.
 The source-bound V5.1 runner/admission/configuration and provider failures remain
 6C3. Paid execution remains
 user-triggered after fresh exact-request confirmation.

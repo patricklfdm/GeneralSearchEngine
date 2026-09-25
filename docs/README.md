@@ -56,6 +56,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C2A full rich JVM workload and concurrent cuts](v5x/v5.1/PHASE_6_REMOTE_RICH.md)
 - [V5.1 Phase 6C2B frozen fault JVM workloads](v5x/v5.1/PHASE_6_REMOTE_FAULTS.md)
 - [V5.1 Phase 6C2 full-size component boundaries](v5x/v5.1/PHASE_6_FULL_SIZE.md)
+- [V5.1 Phase 6C2 public full-size runtime integration](v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md)
 - [V5.1 Phase 6 checklist](v5x/v5.1/PHASE_6_CHECKLIST.md)
 - [V5.1 Phase 4 current E01–E12 evidence status](v5x/v5.1/PHASE_4_EVIDENCE_STATUS.md)
 - [V5.1 Phase 4 checklist](v5x/v5.1/PHASE_4_CHECKLIST.md)

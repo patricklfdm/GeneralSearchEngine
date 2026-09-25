@@ -28,7 +28,7 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the nineteen full CI gates. Pull requests compare merge-base to PR head, so a final docs
+the twenty-three full CI gates. Pull requests compare merge-base to PR head, so a final docs
 commit cannot hide earlier code changes. Master pushes compare the event's `before`
 and `after` commits, including every commit in the push. Renames include both paths;
 there is no changed-file API pagination limit.
@@ -36,7 +36,7 @@ there is no changed-file API pagination limit.
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
 only change-detection/required-gate and Maven retry helper tests,
-the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the nineteen
+the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the twenty-three
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
 workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
@@ -44,8 +44,8 @@ full CI too. Manual dispatch always runs full CI; missing history, an empty diff
 an unreadable event conservatively selects full CI.
 
 The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all nineteen
-full gates to succeed, or all nineteen to be intentionally skipped for a verified
+is always reported. It requires successful change detection and either all twenty-three
+full gates to succeed, or all twenty-three to be intentionally skipped for a verified
 documentation-only change. Failed/cancelled detection and unexpected skipped tests
 cannot pass. This follows GitHub's distinction between
 [skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
@@ -53,7 +53,7 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs twenty-two required job IDs,
+For build inputs or manual dispatch, the workflow runs twenty-three required job IDs,
 each with its own runner workspace.
 The V5.1 behavioral lanes depend on their dedicated verification build. Rich
 workload execution additionally uses prepared inputs, three matrix children and a
@@ -70,7 +70,7 @@ complete aggregate. Other domains start after `changes`:
 7. `v51-public-hardening` runs lifecycle hardening and Phase 5 combined/repeated recovery.
 8. `v51-protocol-selection` runs public protocol and selection/recovery schedules.
 9. `v51-candidate-crashes` runs candidate election crashes.
-10. `v51-reclamation` runs interrupted two-source reclamation.
+10. `v51-reclamation` runs interrupted two-source reclamation and the 512-slot component boundary.
 11. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
 12. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
     Both V5.0 lanes retain their independent reactor builds/tests and execution evidence.
@@ -99,6 +99,9 @@ complete aggregate. Other domains start after `changes`:
 21. `v51-remote-rich-inputs` prepares one immutable source backup for all rich cells.
 22. `v51-remote-rich-shards` executes three complete-cell matrix children; see the
     [partition and full-acceptance contract](CI_V51_RICH_SHARDS.md).
+23. `v51-full-size-runtime` runs the complete public 512-slot runtime gate and its
+    positive/negative portable replay, in parallel with reclamation using the same
+    verified build. See the [measured split](CI_V51_LANES.md#reclamation-and-full-size-runtime-split).
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
 record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
