@@ -86,6 +86,72 @@ class FullSizeRuntimeTest(unittest.TestCase):
             with self.subTest(change=change),patch.object(e.fmt,'contextual_frame',side_effect=lambda data,*_:e.m.strict_json(data)):
                 with self.assertRaisesRegex(ValueError,'wrong cut/pair'):e.follower_stop(runtime,traces,{})
 
+    def recovery_sample(self):
+        # Actual encoded frames: capture at slot 2/epoch 2, then a forced slot-3
+        # proof in epoch 5 while the captured node remains the other voter.
+        from . import format_encoder as enc
+        fixture=fixtures.generate(e.plan.load(),program=[cloud.call('UPDATE',[1],0),cloud.call('UPDATE',[2],0)])
+        ballot=dict(epoch=5,proposer='node-1',incarnation='22222222-2222-2222-2222-222222222222')
+        for votes in fixture['votes'].values():
+            vote=e.fmt.inspect(votes[-1],'ACCEPT');vote.update(ballot);votes[-1]=enc.encode('ACCEPT',vote)
+        proof=e.fmt.inspect(fixture['proofs'][-1],'PROOF');proof.update(ballot)
+        for receipt in proof['receipts']:
+            receipt['digest']=fixtures.fixtures.fixture_receipt('ACCEPT_ACK',proof['manifestDigest'],receipt['voter'],
+                proof['epoch'],proof['proposer'],proof['incarnation'],proof['index'],proof['entryDigest'])
+        encoded=enc.encode('PROOF',proof)
+        snapshot=e.fmt.inspect(fixture['snapshots'][-1],'SNAPSHOT');snapshot['terminalProof']=base64.b64encode(encoded).decode()
+        row=dict(node='node-2',event='FORCE',kind='PROOF',localNanos=30,record=base64.b64encode(encoded).decode(),
+                 snapshot=base64.b64encode(enc.encode('SNAPSHOT',snapshot)).decode())
+        projected=e.projection.project_cloud(fixture['manifest'],fixture['genesis'],fixture['votes'])
+        capture=dict(node='node-2',index=2,sequence=projected['states'][2].sequence,epoch=2)
+        return row,capture,dict(localNanos=20),projected
+
+    def test_released_follower_recovers_from_exact_forced_quorum_proof(self):
+        row,capture,release,projected=self.recovery_sample()
+        self.assertEqual(dict(node='node-2',event='FORCED_PROOF',index=3,sequence=6),
+                         e.released_recovery([row],capture,release,projected))
+        # Both earlier recovery paths remain valid under the same prefix oracle.
+        for event in ('REJOIN_INSTALLED','PUBLISHED'):
+            owner='node-1' if event=='PUBLISHED' else 'node-2'
+            result=e.released_recovery([dict(row,event=event,node=owner)],dict(capture,node=owner),release,projected)
+            self.assertEqual((event,3,6),(result['event'],result['index'],result['sequence']))
+
+    def test_released_recovery_rejects_wrong_owner_time_or_no_new_application_state(self):
+        row,capture,release,projected=self.recovery_sample()
+        for changed in (dict(node='node-1'),dict(localNanos=20),dict(localNanos=19),dict(event='RECONSTRUCT_END')):
+            with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'did not recover newer prefix'):
+                e.released_recovery([dict(row,**changed)],capture,release,projected)
+        for changed in (dict(index=3),dict(sequence=6),dict(epoch=5)):
+            with self.subTest(capture=changed),self.assertRaisesRegex(ValueError,'did not recover newer prefix'):
+                e.released_recovery([row],dict(capture,**changed),release,projected)
+        with self.assertRaisesRegex(ValueError,'did not recover newer prefix'):
+            e.released_recovery([],capture,release,projected)
+        with self.assertRaisesRegex(ValueError,'did not recover newer prefix'):
+            e.released_recovery([dict(row,node='node-3')],dict(capture,node='node-3'),release,projected)
+
+    def test_released_recovery_requires_exact_ballot_votes_and_chosen_digest(self):
+        row,capture,release,projected=self.recovery_sample()
+        proof=e.fmt.inspect(e.raw(row['record']),'PROOF')
+        identity=tuple(proof[k] for k in ('epoch','proposer','incarnation','index','entryDigest'))
+        for variant in ('missing-ballot','missing-voter','different-chosen'):
+            changed=copy.deepcopy(projected)
+            if variant=='missing-ballot':del changed['accepted'][identity]
+            elif variant=='missing-voter':changed['accepted'][identity].remove('node-2')
+            else:changed['chosen'][3]='0'*64
+            with self.subTest(variant=variant),self.assertRaisesRegex(ValueError,'proof lacks exact chosen votes'):
+                e.released_recovery([row],capture,release,changed)
+
+    def test_released_recovery_rejects_corrupt_frames_and_unprojected_snapshots(self):
+        from . import format_encoder as enc
+        row,capture,release,projected=self.recovery_sample()
+        damaged=bytearray(e.raw(row['record']));damaged[-1]^=1
+        with self.assertRaises(ValueError):
+            e.released_recovery([dict(row,record=base64.b64encode(damaged).decode())],capture,release,projected)
+        snapshot=e.fmt.inspect(e.raw(row['snapshot']),'SNAPSHOT');snapshot['applicationSequence']+=1
+        changed=dict(row,event='REJOIN_INSTALLED',snapshot=base64.b64encode(enc.encode('SNAPSHOT',snapshot)).decode())
+        with self.assertRaisesRegex(ValueError,'application sequence'):
+            e.released_recovery([changed],capture,release,projected)
+
     def sample(self):
         program=[cloud.call('UPDATE',[1],0),cloud.call('GET',[1],0),cloud.call('UPDATE',[2],0)]
         fixture=fixtures.generate(e.plan.load(),program=program)

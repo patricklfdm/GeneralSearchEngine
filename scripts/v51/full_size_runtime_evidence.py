@@ -188,6 +188,28 @@ def follower_stop(runtime,traces,manifest):
          {r['voter'] for r in proof['receipts']}==pair,'full runtime follower stop at wrong cut/pair')
 
 
+def released_recovery(rows,capture,release,projected):
+    """Require newer durable authority; a follower need not publish a leader view."""
+    for row in rows:
+        if row['node']!=capture['node'] or row['localNanos']<=release['localNanos']:continue
+        event=row['event']
+        if event in ('REJOIN_INSTALLED','PUBLISHED'):
+            encoded=raw(row['snapshot']);snapshot=fmt.contextual_frame(encoded,'SNAPSHOT',projected['manifest'])
+            state=projection.snapshot(projected,encoded);index=len(snapshot['anchors'])
+        elif event=='FORCE' and row['kind']=='PROOF':
+            proof=fmt.contextual_frame(raw(row['record']),'PROOF',projected['manifest']);index=proof['index']
+            identity=tuple(proof[k] for k in ('epoch','proposer','incarnation','index','entryDigest'))
+            voters={r['voter'] for r in proof['receipts']}
+            need(projected['chosen'].get(index)==proof['entryDigest'] and
+                 voters<=projected['accepted'].get(identity,set()),'full runtime recovery proof lacks exact chosen votes')
+            if capture['node'] not in voters or proof['epoch']<=capture['epoch']:continue
+            state=projected['states'][index];event='FORCED_PROOF'
+        else:continue
+        if index>capture['index'] and state.sequence>capture['sequence']:
+            return dict(node=capture['node'],event=event,index=index,sequence=state.sequence)
+    raise ValueError('full runtime released voter did not recover newer prefix')
+
+
 def facts(root,runtime,history,traces,location):
     calls=Calls(history,runtime)
     result=physical.automatic(root/'group',history,traces,evidence_location=location,cloud_calls=calls)
@@ -202,8 +224,7 @@ def facts(root,runtime,history,traces,location):
     rows=traces[node];inside=lambda r:capture['localNanos']<r['localNanos']<release['localNanos']
     need(any(r['event']=='FORCE' and r['kind']=='PROMISE' and inside(r) and fmt.inspect(raw(r['record']),'PROMISE')['epoch']>capture['epoch'] for r in rows),
          'full runtime pin without higher promise')
-    need(any(r['event'] in ('REJOIN_INSTALLED','PUBLISHED') and release['localNanos']<r['localNanos'] and fmt.inspect(raw(r['snapshot']),'SNAPSHOT')['applicationSequence']>capture['sequence'] for r in rows),
-         'full runtime released voter did not recover newer generation')
+    recovered=released_recovery(rows,capture,release,projected)
     need(any(r['event']=='PUBLISHED' and inside(r) and fmt.inspect(raw(r['snapshot']),'SNAPSHOT')['applicationSequence']>capture['sequence']
              for r in traces[runtime['pinMajorityLeader']]),'full runtime pin without majority progress')
     final=[c for c in calls.captures.values() if c['opId']==runtime['finalReadOpId']]
@@ -249,7 +270,8 @@ def facts(root,runtime,history,traces,location):
     need(len(campaigns)==1,'full runtime terminal campaign identity')
     campaign_duration=selections[0]['localNanos']-campaigns[0]['localNanos']
     need(0<campaign_duration<=9_600_000_000,'full runtime terminal campaign deadline')
-    result.update(reproposalSlot=481,pinnedIndex=capture['index'],fullTransfer=transfer(traces,manifest,runtime['fullTransferNode']),
+    result.update(reproposalSlot=481,pinnedIndex=capture['index'],releasedRecovery=recovered,
+                  fullTransfer=transfer(traces,manifest,runtime['fullTransferNode']),
                   terminalBasisBytes=len(image),terminalPrepareNanos=duration,terminalCampaignNanos=campaign_duration)
     return result
 

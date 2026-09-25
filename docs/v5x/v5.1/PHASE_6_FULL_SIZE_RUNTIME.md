@@ -26,8 +26,10 @@ remaining in the frozen revision-0–9 rich corpus.
    the limit and hold its application view while isolating its node. The other
    two voters must elect, read and update through the public API. Heal the
    partition, observe the higher promise, then release the held read. Its answer
-   must still equal its original captured prefix. After release, the node must recover the newer prefix by automatic rejoin or
-   reactivation; either role is valid.
+   must still equal its original captured prefix. After release, the node must
+   recover a newer durable prefix through snapshot rejoin, reactivation or normal
+   ACCEPT/PROOF replication as a selected follower. A follower need not publish a
+   new leader application view; public strong reads still require current leadership.
 3. Advance to slot 500 and inspect the current leader's durably selected pair.
    Verify that its public status still reports the same READY epoch and cut, then
    stop the third voter outside that pair. Advance to 511 and perform the final
@@ -49,7 +51,7 @@ The application executor owns a captured public view. Reconstruction queued on
 that executor can finish only after the read releases it. An initial development
 schedule incorrectly waited for rejoin before releasing that view; its retained
 failure demonstrated the queue ordering. The corrected schedule verifies fencing
-and newer majority progress while held, then public recovery after release. The separate
+and newer majority progress while held, then durable recovery after release. The separate
 component gate still verifies disk reclamation while its application view is
 held. These checks do not add a concurrent-public-install guarantee.
 
@@ -61,6 +63,12 @@ retained authority using the existing physical validator. Every public operation
 is bound to its original process, invocation and result. The follower stop is
 bound to its owned process lifetime, the leader's original selection event and
 its slot-500 publication/proof; stopping either selected voter is rejected.
+After a held read releases, a local forced PROOF can also establish recovery:
+its exact ballot/entry must have the observed receipt voters, its digest must be
+chosen, its index and projected application sequence must advance past the capture,
+and the captured node must be a receipt voter in a higher epoch. The force must
+occur on that node after release. Snapshot and publication paths retain full
+projection validation. Status counters or reconstruction events alone do not qualify.
 Each successful read
 requires its own post-invocation NO_OP, validated capture, unchanged release and
 exact projected answer. The deliberately disconnected write is the only operation
@@ -190,3 +198,40 @@ The unchanged Compatibility API command also passed in an isolated checkout of
 `e62252b97ccfb639e76ea9dbb40803060554aa25` with a fresh Maven repository: 549 Java
 tests and thirteen published API comparisons, in 1m24s. These local results do not
 establish recovery of GitHub's download path or replace corrected-source CI.
+
+
+## Released follower proof-path correction
+
+[PR CI 36085625089](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36085625089/job/107917839944)
+completed the runtime schedule and all three durable prefixes reached 512. Its
+validator rejected `full runtime released voter did not recover newer generation`:
+node-3 released its captured slot-485 view, then became node-2's selected follower
+in epoch 15. It forced newer commit proofs while its public applied index remained
+485. It had neither another leader publication nor a snapshot-install event, both
+of which the original predicate incorrectly required for recovery.
+
+The validator now also accepts the original forced-proof path under the exact
+vote/entry/time/sequence checks above, and reports `releasedRecovery` with the
+observed path and cut. It preserves the old captured answer, fencing, majority
+progress, final retained cuts, terminal selection, full snapshot transfer and all
+eleven existing evidence negatives. The controller, public workload, production
+runtime and time/resource limits are unchanged. The original failed artifact is
+retained under `target/v51-full-size-release-fix/failed-runtime`.
+
+
+Validation reused that unchanged hosted execution. The original validator reproduced
+the failure in 16.514 seconds after binary collection/unpack. The corrected replay
+passed complete physical/history validation and all eleven exact negatives in
+183.994 seconds, with all 319 original members unchanged. The retained proof path
+is node-3, slot 489, application sequence 485 after the slot-485/sequence-484 capture.
+All three final durable cuts remain 512, the full transfer took 0.791 seconds and
+terminal PREPARE took 0.850 seconds. The replay receipt is
+`target/v51-full-size-release-fix/replay-receipt.json`; the original CI run remains
+failed and corrected-source CI is still required.
+
+All 468 V5.1 Python tests pass, including eighteen full-size unit tests. New cases
+cover forced-proof recovery and both previous paths, wrong voter/time/epoch/cut,
+missing exact-ballot votes, changed chosen digests, corrupt proof frames and
+unprojected snapshots. This batch changes validation only; no JVM workload was
+rerun or paid resource created. The existing [passive recovery boundary](PHASE_3_REJOIN.md)
+continues to prohibit public follower reads.
