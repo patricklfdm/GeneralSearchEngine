@@ -192,6 +192,26 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Build and relocate the V5.1 guest package without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 240s python3 -m scripts.v51.cloud_bundle
+          target/v51-guest-package --source "$GITHUB_SHA"
+          --build-manifest target/ci-v51-build/manifest.json
+
+      - name: Retain V5.1 guest package provenance and startup checks
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-guest-package-${{ github.sha }}
+          path: |
+            target/v51-guest-package/guest.tar.gz
+            target/v51-guest-package/receipt.json
+            target/v51-guest-package/failure.json
+            target/v51-guest-package/package/manifest.json
+            target/v51-guest-package/build
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build
 
@@ -1689,6 +1709,18 @@ jobs:
 
       - name: Verify V5.1 cloud ownership and admission without GCP
         run: scripts/verify-v51-phase6-cloud-control.sh
+
+      - name: Qualify V5.1 provider HTTP adapters without network access
+        run: scripts/verify-v51-phase6-cloud-provider.sh
+
+      - name: Retain V5.1 provider request and failure qualification
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-cloud-provider-${{ github.sha }}
+          path: target/v51-cloud-provider
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Retain V5.1 cloud control qualification including failures
         if: ${{ always() }}

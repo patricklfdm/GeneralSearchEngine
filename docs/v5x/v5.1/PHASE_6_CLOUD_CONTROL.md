@@ -1,12 +1,24 @@
 # V5.1 Phase 6C3A: owned cloud control and failure qualification
 
-**Status:** implementation candidate on master
+**Original candidate:** implementation on master
 `57622552e02addfae991642786e1a87a0633fb43` after PR #229. Exact-master
 [CI 36094121631](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36094121631)
 passed all 27 executed jobs, accepting the corrected
 [public 512-slot runtime](PHASE_6_FULL_SIZE_RUNTIME.md) and closing 6C2 alongside
 its accepted rich, fault and component gates. This controller requires its own
 protected CI. Full 6C and paid admission remain open.
+
+## Protected acceptance through PR #230
+
+PR #230 merged at `2db3ebb645907eaa8b02fa849302c35accb03ff4`.
+[Exact-master CI 36105310891](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36105310891)
+passed, accepting this control-only gate. PR CI `36097309507` attempt 1 retains
+its Maven Central connection reset and rich concurrent burst timing failure;
+attempt 2 passed. The failed burst's four successful calls spanned 114.764635 ms,
+above the frozen 10-ms bound. Rerun success does not establish a scheduler root
+cause or waive that bound. The next
+[6C3B candidate](PHASE_6_CLOUD_PROVIDER.md) packages the guest runtime and qualifies
+provider request semantics offline; paid and full remote qualification remain open.
 
 ## Implemented boundary
 

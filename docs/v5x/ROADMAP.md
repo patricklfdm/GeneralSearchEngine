@@ -88,10 +88,12 @@ was accepted through PR #228, exact-master CI `36072038218`. The
 [public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) was accepted through
 PR #229, master `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 `36094121631` (27 successful jobs), closing 6C2. The
-[6C3A cloud control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) starts the owned
+[accepted 6C3A cloud control](v5.1/PHASE_6_CLOUD_CONTROL.md) starts the owned
 runner and no-GCP failure qualification. Actual provider/remote integration,
 configuration and cloud work remain open in the
-[checklist](v5.1/PHASE_6_CHECKLIST.md).
+[checklist](v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
+[6C3B guest/provider candidate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
+packaging and offline HTTP adapter qualification; paid execution stays disabled.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

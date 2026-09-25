@@ -29,8 +29,11 @@ master `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038218`
 [Public 512-slot runtime integration](PHASE_6_FULL_SIZE_RUNTIME.md) was accepted
 through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 `36094121631` (all 27 jobs). 6C2 is closed. The
-[6C3A owned control implementation](PHASE_6_CLOUD_CONTROL.md) is the current candidate;
-provider/remote integration, configuration and full 6C remain open.
+[6C3A owned control implementation](PHASE_6_CLOUD_CONTROL.md) is accepted through
+PR #230, master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI
+`36105310891`. The [6C3B guest/provider candidate](PHASE_6_CLOUD_PROVIDER.md) adds
+relocatable build inputs and offline HTTP qualification. Remote integration,
+configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -65,7 +68,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C2 full-size boundary: 512 actual slots, full basis/wire/transfer/re-proposal/pin and two-generation retention.
 - [x] 6C2: persistent JVM adapter, full rich concurrent cut validation, twelve fault cells and full-size retention qualification.
 - [x] 6C3A implementation candidate: source-bound control admission, append-only budget/sequence, exclusive lease, original-command polling, exact-ID cleanup and retained no-GCP failures.
-- [ ] 6C3A protected acceptance of the control-only gate.
+- [x] 6C3A protected acceptance of the control-only gate through PR #230 / exact-master CI `36105310891`.
+- [x] 6C3B implementation candidate: source/build-bound guest package and generation/operation/ID-bound HTTP adapters, with live mutations disabled.
+- [ ] 6C3B protected acceptance of packaging and offline provider qualification.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.

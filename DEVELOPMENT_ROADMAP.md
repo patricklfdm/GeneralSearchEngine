@@ -72,9 +72,11 @@ was accepted through PR #223, exact-master CI `35942555519` (nineteen jobs,
 [public full-size runtime](docs/v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) qualification
 is accepted through PR #229, master `57622552e02addfae991642786e1a87a0633fb43`,
 exact-master CI `36094121631` (all 27 jobs). The current
-[6C3A control candidate](docs/v5x/v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies cloud
+[accepted 6C3A control](docs/v5x/v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies cloud
 ownership/admission/cleanup without GCP; remaining provider and cloud work is tracked in the
-[checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md).
+[checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
+[6C3B guest/provider candidate](docs/v5x/v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
+packaging and offline HTTP adapter qualification; paid execution stays disabled.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed
