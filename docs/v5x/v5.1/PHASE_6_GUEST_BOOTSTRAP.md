@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C2: exact-path bootstrap and startup preparation
 
-**Status:** implementation candidate based on master
-`2183dafa618238f0b824fc0a3b3d42624ce24782`. The preceding
-[guest service slice](PHASE_6_GUEST_SERVICE.md) is accepted through PR #232 and
-exact-master CI `36124423253` (all 27 jobs). This candidate needs protected CI.
-Full 6C3C and paid admission remain open.
+**Status:** accepted through PR #233, master
+`d27da43086406384ab41cab6704541015aa0a1bf`, exact-master CI `36149275698`
+(all 27 jobs, including isolated bootstrap). The preceding
+[guest service slice](PHASE_6_GUEST_SERVICE.md) was accepted through PR #232 and
+CI `36124423253`. The following [owned startup slice](PHASE_6_GUEST_STARTUP.md)
+is an implementation candidate. Full 6C3C and paid admission remain open.
 
 ## Source distribution and local public bootstrap
 
@@ -112,8 +113,9 @@ mounted, nonempty and size failures. They do not claim actual block-device testi
 
 ## Remaining integration
 
-Next wire trusted live access/volume producers and bounded execution to the owned
-controller, then complete remote failure cells, combined multi-guest evidence
+The [owned startup candidate](PHASE_6_GUEST_STARTUP.md) adds provider fact reads,
+Linux observation parsing and a one-shot offline startup path in the controller.
+Real SSH/privileged delivery remains open, followed by remote failure cells, combined multi-guest evidence
 budgets and independent physical/history replay. Afterwards integrate trusted
 image/IAM/quota/retention/GitHub/pricing observations, V5.1 WIF/environment and the
 separate runner/manual/scheduled cleanup workflows. Provider mutations and live

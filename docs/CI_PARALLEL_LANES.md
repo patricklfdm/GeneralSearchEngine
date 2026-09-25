@@ -418,3 +418,15 @@ no Java build, GCP credentials, environment or OIDC permission is added. Its
 120-second backstop remains inside the existing five-minute cloud job ceiling.
 The 23 Required identities, docs-only skips and shared verification build are
 unchanged. See the [scope and remaining provider work](v5x/v5.1/PHASE_6_CLOUD_CONTROL.md).
+
+
+### Phase 6C3C3 owned startup qualification
+
+The existing `verify-v51-phase6-cloud-provider.sh` gate additionally runs guest
+access/startup regressions and nine retained HTTP/block-model startup cases under
+a separate 120-second backstop. Its existing `v51-cloud-provider` artifact always
+retains these receipts alongside provider evidence. The Cloud runner (no GCP)
+job, Required identities, docs-only behavior and five-minute job ceiling remain
+unchanged. This adds Python and local SSH key generation only; it performs no SSH
+connection, block-device write, Java build or cloud access. See the
+[startup scope](v5x/v5.1/PHASE_6_GUEST_STARTUP.md).

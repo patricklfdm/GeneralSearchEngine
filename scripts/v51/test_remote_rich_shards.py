@@ -127,6 +127,25 @@ class HandoffTest(unittest.TestCase):
         (self.folder/'receipt.json').unlink()
         with self.assertRaisesRegex(ValueError,'metadata'):shards.unpack_input(self.folder,self.root/'out','shard','automatic-healthy',self.source,self.manifest)
 
+    def test_handoff_diagnostics_identify_failed_status_before_binary_replay(self):
+        self.receipt['status']='FAIL';self.receipt.pop('source');self.save()
+        with patch.object(collection,'unpack') as unpack:
+            with self.assertRaisesRegex(ValueError,'handoff') as caught:
+                shards.unpack_input(self.folder,self.root/'out','shard','automatic-healthy',self.source,self.manifest)
+            details=json.loads(str(caught.exception).split(': ',1)[1])
+            self.assertEqual({'expected':'PARTIAL','actual':'FAIL'},details['status'])
+            self.assertEqual({'expected':self.source,'actual':'<missing>'},details['source'])
+            unpack.assert_not_called()
+
+    def test_handoff_flags_require_boolean_false_not_zero_or_missing(self):
+        for value in (0,None,'false'):
+            with self.subTest(value=value):
+                self.receipt['paidCloud']=value;self.save()
+                with patch.object(collection,'unpack') as unpack:
+                    with self.assertRaisesRegex(ValueError,'paidCloud'):
+                        shards.unpack_input(self.folder,self.root/'out','shard','automatic-healthy',self.source,self.manifest)
+                    unpack.assert_not_called()
+
     def test_real_portable_parts_require_matching_binding_and_preserved_identity(self):
         raw=self.root/'raw';raw.mkdir();shards.save(raw/'execution.json',{'state':'synthetic'})
         shards.save(raw/'provenance.json',{'test':True})

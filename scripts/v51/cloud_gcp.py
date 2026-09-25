@@ -5,6 +5,7 @@ so the accepted control runner rejects them independently of HTTP mutation guard
 """
 from copy import deepcopy
 import re
+import ipaddress
 import time
 import urllib.parse
 import uuid
@@ -176,7 +177,7 @@ class Compute:
         return dict(spec=deepcopy(spec), id=value['id'])
 
     def describe(self, spec, *, identity=None, deadline=None):
-        try: value = self.api.call('GET', self.url(spec, identity), deadline=deadline or self.api.clock()+30)
+        try: value = self.api.call('GET', self.url(spec, identity), deadline=deadline if deadline is not None else self.api.clock()+30)
         except ApiError as error:
             if error.status == 404: return None
             raise
@@ -184,16 +185,57 @@ class Compute:
         if identity is not None: m.need(result['id'] == identity, 'numeric resource lookup changed')
         return result
 
-    def guest_host_key(self, spec, identity):
+    def guest_host_key(self, spec, identity, *, deadline=None):
         from .guest_setup import host_key
         m.need(spec['kind'] == 'instance' and self.guest_access is not None, 'unprepared guest access')
-        deadline = self.api.clock()+30
+        deadline = min(deadline, self.api.clock()+30) if deadline is not None else self.api.clock()+30
         before = self.describe(spec, identity=identity, deadline=deadline)
         m.need(before is not None, 'host-key instance absent')
         response = self.api.call('GET', self.url(spec)+'/getGuestAttributes?queryPath=hostkeys%2F', deadline=deadline, maximum=65536)
         after = self.describe(spec, identity=identity, deadline=deadline)
         m.need(before == after, 'host-key instance replaced')
         return dict(instanceId=identity, publicKey=host_key(response))
+
+    def guest_facts(self, lease, node, *, deadline):
+        """Read exact retained IDs, including both sides of each disk attachment.
+
+        Read twice under the caller's original deadline. Names identify intent;
+        only IDs from the retained create operations identify this generation.
+        """
+        a.validate_lease(lease)
+        m.need(lease['request'] == self.req and self.guest_access is not None, 'guest lease/request access')
+        m.need(type(node) is int and node in (1, 2, 3), 'guest node')
+        rows = [r for r in lease['resources'] if r['spec']['kind'] in ('disk', 'instance') and r['spec']['node'] == node]
+        m.need(len(rows) == 3 and all(r['attempted'] and r['id'] is not None for r in rows), 'guest retained resource IDs')
+        for row in rows: numeric(row['id'])
+        instance = next(r for r in rows if r['spec']['kind'] == 'instance')
+        disks = [r for r in rows if r['spec']['kind'] == 'disk']
+        def sample():
+            observed = {}
+            for row in rows:
+                m.need(self.api.clock() < deadline, 'guest facts deadline')
+                value = self.api.call('GET', self.url(row['spec'], row['id']), deadline=deadline)
+                checked = self.inspect(row['spec'], value)
+                m.need(checked['id'] == row['id'], 'guest numeric resource changed')
+                observed[row['spec']['name']] = value
+            vm = observed[instance['spec']['name']]
+            m.need(vm['status'] == 'RUNNING', 'guest instance not running')
+            address = vm['networkInterfaces'][0]['networkIP']
+            ip = ipaddress.IPv4Address(address)
+            m.need(any(ip in ipaddress.ip_network(net) for net in ('10.0.0.0/8', '172.16.0.0/12', '192.168.0.0/16')), 'guest private address')
+            for row in disks:
+                disk = observed[row['spec']['name']]
+                m.need(disk['status'] == 'READY' and
+                       [link(v) for v in disk.get('users', [])] == [self.url(instance['spec'])], 'guest disk attachment/status')
+            data = next(r for r in disks if r['spec']['purpose'] == 'data')
+            boot = next(r for r in disks if r['spec']['purpose'] == 'boot')
+            return dict(schema='gse-v51-guest-facts-v1', requestSha256=a.validate_request(self.req),
+                guestAccessSha256=self.req['guestAccessSha256'], project=self.config['project'], zone=self.config['zone'],
+                instance=instance['spec']['name'], privateIp=address, bootDiskId=boot['id'],
+                provider=dict(instanceId=instance['id'], diskId=data['id'], node=node, sizeGiB=data['spec']['sizeGiB'], attempt=self.req['attempt']))
+        first = sample()
+        m.need(first == sample() and self.api.clock() < deadline, 'guest facts changed/late')
+        return first
 
     def decode_operation(self, spec, op, action='insert', identity=None):
         m.need(op['clientOperationId'] == self.operation_id(spec, action, identity) and op['operationType'] == action and

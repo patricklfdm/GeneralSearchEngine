@@ -92,12 +92,14 @@ def finalize(store, lease, completion):
 
 
 class Runner:
-    def __init__(self, store, provider, probe, output, *, clock=time.monotonic_ns, wall=time.time):
+    def __init__(self, store, provider, probe, output, *, clock=time.monotonic_ns, wall=time.time, startup=None):
         adapters(store, provider)
         m.need(probe.execution == a.EXECUTION, 'unqualified workload adapter')
         self.store, self.provider, self.probe = store, provider, probe
         self.output, self.clock, self.wall = Path(output), clock, wall
         self.generation = None
+        if startup is not None: m.need(startup.execution == a.EXECUTION, 'unqualified startup adapter')
+        self.startup = startup
 
     def persist(self):
         a.validate_lease(self.lease)
@@ -129,6 +131,8 @@ class Runner:
                     m.need(observed['spec'] == spec, 'created resource identity')
                     row['id'] = observed['id']
                     self.persist()
+                if self.startup is not None:
+                    result['guestStartup'] = self.startup.prepare(req, deepcopy(self.lease), deadline)
                 self.probe.prepare(req, deadline)
             plan = a.workload.load()
             preset = 'failureDrill' if req['member'] == 'failure-drill' else ('canonical' if req['member'].startswith('canonical-') else 'experiment')
@@ -144,6 +148,9 @@ class Runner:
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('stop', error))
                 try:
                     with budget.stage('validation-retention') as deadline:
+                        if self.startup is not None:
+                            for name, data in self.startup.retention_files():
+                                retain(self.store, a.PREFIX+'attempts/'+sha+'/startup/'+name, data)
                         result['evidence'] = self.probe.collect_validate(self.output, deadline)
                         # This is only diagnostic control evidence, never engine acceptance.
                         m.need(result['evidence']['execution'] == a.EXECUTION and

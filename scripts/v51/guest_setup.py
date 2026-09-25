@@ -31,6 +31,18 @@ def generate(directory, attempt):
     return result  # Never return private key bytes or include them in an evidence bundle.
 
 
+def check_private_key(path, value):
+    """Verify the owned key corresponds to this request's public access descriptor."""
+    access(value); path = Path(path)
+    c.directory(path.parent)
+    m.need(path.is_absolute() and path.is_file() and not path.is_symlink() and
+           path.stat().st_uid == os.getuid() and path.stat().st_mode & 0o077 == 0 and
+           path.stat().st_size <= 4096, 'SSH owned private key')
+    result = subprocess.run(['ssh-keygen', '-y', '-P', '', '-f', str(path)], stdin=subprocess.DEVNULL,
+                            capture_output=True, check=True, timeout=10)
+    m.need(ed25519(result.stdout.decode().strip()) == value['publicKey'], 'SSH private/public key mismatch')
+
+
 def metadata(value):
     access(value)
     return [dict(key='block-project-ssh-keys', value='TRUE'), dict(key='enable-oslogin', value='FALSE'),

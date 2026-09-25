@@ -76,10 +76,12 @@ PR #231, master `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`, CI `36113872308`.
 The [6C3C1 guest slice](v5.1/PHASE_6_GUEST_SERVICE.md) is accepted through PR #232,
 master `2183dafa618238f0b824fc0a3b3d42624ce24782`, exact-master CI `36124423253`
 (all 27 jobs). Its initial rich timing failure remains recorded; the rerun does not
-establish a timing cause. The [6C3C2 bootstrap candidate](v5.1/PHASE_6_GUEST_BOOTSTRAP.md)
-adds exact-path per-node distribution, independent mount-view qualification,
-attempt SSH metadata/host-key checks and pure volume planning. Next finish actual
-SSH/data-mount execution, full remote faults/oracles, then trusted preflight and
+establish a timing cause. The [6C3C2 bootstrap slice](v5.1/PHASE_6_GUEST_BOOTSTRAP.md)
+is accepted through PR #233, master `d27da43086406384ab41cab6704541015aa0a1bf`,
+CI `36149275698` (27 jobs). The [6C3C3 owned startup candidate](v5.1/PHASE_6_GUEST_STARTUP.md)
+adds exact-ID observations, disk checks, forced one-shot startup claims and retained
+no-GCP lifecycle failures. Next deliver/qualify the privileged helper and pinned SSH,
+connect volume readiness to packaged services, finish remote faults/oracles, then trusted preflight and
 separate workflows/configuration. Live SSH/provider writes remain disabled;
 paid experiments remain user-triggered after exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
