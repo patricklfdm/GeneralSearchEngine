@@ -223,3 +223,50 @@ its frozen arrival spacing, then passed on rerun. That diagnostic remains retain
 at `target/v51-rich-healthy-ci/diagnosis.json`. A passing rerun and this master run
 do not establish a timing root cause or erase the original failed attempt. No
 measurement retry or relaxed timing rule was added.
+
+## PR #234: bind handoffs to producer artifact IDs across reruns
+
+[Run 36157214722](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36157214722)
+used merge source `6184cd9dc33a83a837b769ef228befd31b82968d`.
+Its second attempt passed all three workload shards, but the aggregate downloaded
+an earlier `automatic-concurrent` failure by the shared artifact name:
+
+| Producer attempt | Artifact ID | Bytes | Receipt |
+| --- | --- | --- | --- |
+| First, 16:05:27 UTC | `10874707395` | 2788 | FAIL; receipt only |
+| Rerun, 16:23:50 UTC | `10874484600` | 83539781 | PARTIAL; 300 calls, ten negatives |
+
+The aggregate log explicitly records downloading `10874707395`, then rejects
+`incomplete/stale/wrong rich handoff`. The newer artifact's numeric ID is smaller;
+neither the largest ID nor a shared name identifies the intended producer.
+The original failure receipt and both immutable archives remain retained locally
+under `target/v51-rich-handoff-review`. The successful archive matches its uploaded
+SHA-256 and its complete binary inventory/collection binding replays unchanged.
+This is artifact verification, not a new workload or a complete aggregate replay.
+The first attempt's frozen-window failure remains a separate observation; the
+successful rerun does not establish its timing cause.
+
+The correction adds `-attempt-${{ github.run_attempt }}` to the shared verification
+build, rich preparation, shard and aggregate artifacts and their associated
+producer diagnostics. No old artifact is overwritten or deleted. Build/input
+producers expose their upload step's exact `artifact-id` through job outputs;
+the matrix exposes a distinct, conditional output for each shard. Every V5.1
+build consumer, rich shard and rich aggregate downloads those producer IDs, with
+`merge-multiple: true` preserving the existing destination directory layout.
+A missing output becomes an explicitly invalid ID and fails before downloading;
+it cannot turn into an unfiltered download-all.
+
+Using producer outputs permits a failed-only rerun to retain successful producers
+from earlier attempts. Consumers do not invent an artifact name using their own
+attempt. Unique names also avoid the pinned downloader's `latest: true` list
+collapsing same-name artifacts before its ID filter. This uses the supported
+[artifact-ID input](https://github.com/actions/download-artifact/tree/d3f86a106a0bac45b974a628896c90dbdf5c8093#download-artifacts-by-id)
+and [distinct matrix outputs](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#using-job-outputs-in-a-matrix-job).
+
+The existing source/build/seed, exact receipt status, physical/history, negative
+and combined-budget checks remain mandatory. Header rejection now records the
+specific mismatched fields, retaining strict Boolean flags and required fields.
+No workload is retried automatically, and no timing or acceptance threshold changes.
+Required identities, dependencies and docs-only behavior are unchanged. Corrected
+workflow protected CI remains required; this does not retroactively pass the
+failed aggregate or alter the accepted PR #227 record above.

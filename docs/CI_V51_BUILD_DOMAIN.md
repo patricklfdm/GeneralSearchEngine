@@ -246,3 +246,14 @@ PR #226 passed exact-master CI `36002482606` at
 `0d8b18d6215be01e731afc4fae73894991ac64b3`. All producer/consumer restores and gates
 passed. See [measured build results and rich-shard migration](CI_V51_RICH_SHARDS.md)
 for the next topology; the earlier migration record above is retained.
+
+## Producer artifact identity on reruns
+
+The [PR #234 rich handoff correction](CI_V51_RICH_SHARDS.md#pr-234-bind-handoffs-to-producer-artifact-ids-across-reruns)
+also covers the shared build. Its artifact and producer diagnostics include the
+producer's run attempt. All consumers download the exact artifact ID returned by
+`v51-verification-build`; they do not select by a reusable name or derive a name
+from their own attempt. Missing producer output fails before download. The original
+manifest/source/toolchain/prerequisite validation still runs after extraction;
+this transport correction adds no build reuse across workflow runs and no Maven
+or workload retry. Earlier failed artifacts remain retained.

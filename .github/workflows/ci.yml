@@ -87,6 +87,8 @@ jobs:
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      artifact_id: ${{ steps.handoff.outputs.artifact-id }}
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -115,9 +117,10 @@ jobs:
           --receipt "$RUNNER_TEMP/v51-build/create.json"
 
       - name: Publish V5.1 verification inputs
+        id: handoff
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          name: v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: |
             target/ci-v51-build/build.tar.gz
             target/ci-v51-build/manifest.json
@@ -129,7 +132,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-verification-build-java-tests-${{ github.sha }}
+          name: v51-verification-build-java-tests-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: '**/target/surefire-reports/**'
           if-no-files-found: warn
           retention-days: 14
@@ -138,7 +141,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-verification-build-receipts-${{ github.sha }}
+          name: v51-verification-build-receipts-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/v51-build
           if-no-files-found: warn
           retention-days: 14
@@ -147,7 +150,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: maven-infra-v51-verification-build-${{ github.sha }}
+          name: maven-infra-v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: ${{ runner.temp }}/gse-maven-infra-retry
           if-no-files-found: warn
           retention-days: 14
@@ -172,7 +175,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -318,6 +322,8 @@ jobs:
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      artifact_id: ${{ steps.handoff.outputs.artifact-id }}
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
@@ -331,7 +337,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -346,10 +353,11 @@ jobs:
           --build-manifest target/ci-v51-build/manifest.json
 
       - name: Retain prepared rich inputs including failed receipts
+        id: handoff
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-inputs-${{ github.sha }}
+          name: v51-remote-rich-inputs-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: target/v51-remote-rich-inputs/handoff
           if-no-files-found: warn
           retention-days: 14
@@ -359,7 +367,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-inputs-diagnostics-${{ github.sha }}
+          name: v51-remote-rich-inputs-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: |
             target/v51-remote-rich-inputs/raw
             ${{ runner.temp }}/v51-build/restore.json
@@ -370,6 +378,10 @@ jobs:
     name: V5.1 rich workload (${{ matrix.shard }}, no GCP)
     needs: [changes, v51-verification-build, v51-remote-rich-inputs]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    outputs:
+      published_controls: ${{ matrix.shard == 'published-controls' && steps.handoff.outputs.artifact-id || '' }}
+      automatic_healthy: ${{ matrix.shard == 'automatic-healthy' && steps.handoff.outputs.artifact-id || '' }}
+      automatic_concurrent: ${{ matrix.shard == 'automatic-concurrent' && steps.handoff.outputs.artifact-id || '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -389,7 +401,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -400,7 +413,8 @@ jobs:
       - name: Download the exact prepared rich source
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-remote-rich-inputs-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-remote-rich-inputs.outputs.artifact_id || 'missing-rich-inputs-artifact' }}
+          merge-multiple: true
           path: ${{ runner.temp }}/v51-rich-inputs
 
       - name: Verify complete frozen cells in this rich shard
@@ -410,10 +424,11 @@ jobs:
         run: scripts/verify-v51-phase6-remote-rich-shard.sh "$RICH_SHARD"
 
       - name: Retain partial rich evidence and portable replay
+        id: handoff
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}
+          name: v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: target/v51-remote-rich-shard/${{ matrix.shard }}/handoff
           if-no-files-found: warn
           retention-days: 14
@@ -423,7 +438,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-${{ matrix.shard }}-diagnostics-${{ github.sha }}
+          name: v51-remote-rich-${{ matrix.shard }}-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: |
             target/v51-remote-rich-shard/${{ matrix.shard }}/raw
             ${{ runner.temp }}/v51-build/restore.json
@@ -449,7 +464,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -460,19 +476,22 @@ jobs:
       - name: Download published-controls rich evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-remote-rich-shard-published-controls-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-remote-rich-shards.outputs.published_controls || 'missing-rich-shard-artifact' }}
+          merge-multiple: true
           path: target/v51-remote-rich/inputs/published-controls
 
       - name: Download automatic-healthy rich evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-remote-rich-shard-automatic-healthy-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-remote-rich-shards.outputs.automatic_healthy || 'missing-rich-shard-artifact' }}
+          merge-multiple: true
           path: target/v51-remote-rich/inputs/automatic-healthy
 
       - name: Download automatic-concurrent rich evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-remote-rich-shard-automatic-concurrent-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-remote-rich-shards.outputs.automatic_concurrent || 'missing-rich-shard-artifact' }}
+          merge-multiple: true
           path: target/v51-remote-rich/inputs/automatic-concurrent
 
       - name: Verify complete rich coverage and replay every shard independently
@@ -485,7 +504,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-${{ github.sha }}
+          name: v51-remote-rich-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: target/v51-remote-rich
           if-no-files-found: warn
           retention-days: 14
@@ -495,7 +514,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-rich-build-inputs-${{ github.sha }}
+          name: v51-remote-rich-build-inputs-${{ github.sha }}-attempt-${{ github.run_attempt }}
           path: |
             ${{ runner.temp }}/v51-build/restore.json
             target/ci-v51-build/manifest.json
@@ -522,7 +541,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -575,7 +595,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -663,7 +684,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -716,7 +738,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -793,7 +816,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -882,7 +906,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -947,7 +972,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -1012,7 +1038,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -1065,7 +1092,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs
@@ -1130,7 +1158,8 @@ jobs:
       - name: Download this run's exact-source verification inputs
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          name: v51-verification-build-${{ github.sha }}
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
           path: target/ci-v51-build
 
       - name: Validate and restore V5.1 verification inputs

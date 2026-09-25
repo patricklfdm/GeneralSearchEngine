@@ -94,10 +94,12 @@ def retain(root,output,kind,shard,source,manifest_sha):
 def unpack_input(folder,target,kind,shard,source,manifest_sha):
     m.need(folder.is_dir() and not folder.is_symlink(),'rich handoff directory')
     receipt=read(folder/'receipt.json')
-    m.need(receipt['schema']==SCHEMA and receipt['status']==('PREPARED' if kind=='inputs' else 'PARTIAL') and
-           receipt['kind']==kind and receipt['shard']==shard and receipt['source']==source and
-           receipt['buildManifestSha256']==manifest_sha and receipt['paidCloud'] is False and
-           receipt['fullRemoteQualification'] is False,'incomplete/stale/wrong rich handoff')
+    expected=dict(schema=SCHEMA,status='PREPARED' if kind=='inputs' else 'PARTIAL',kind=kind,shard=shard,
+                  source=source,buildManifestSha256=manifest_sha,paidCloud=False,fullRemoteQualification=False)
+    m.need(type(receipt) is dict,'incomplete/stale/wrong rich handoff: receipt object required')
+    differences={key:dict(expected=value,actual=receipt.get(key,'<missing>')) for key,value in expected.items()
+                 if key not in receipt or type(receipt[key]) is not type(value) or receipt[key]!=value}
+    m.need(not differences,'incomplete/stale/wrong rich handoff: '+m.canonical(differences).decode())
     digest=receipt['bindingSha256']
     retained=collection.unpack(folder/'parts',target,digest)
     m.need(retained==receipt['collection'] and binding(target)==digest,'rich handoff binary binding')

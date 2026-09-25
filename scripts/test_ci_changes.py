@@ -281,7 +281,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertNotIn("./mvnw", body)
                 self.assertNotIn("cache: maven", body)
                 self.assertIn("uses: actions/download-artifact@", body)
-                self.assertIn("name: v51-verification-build-${{ github.sha }}", body)
+                self.assertIn("artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
                 verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
                 self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
@@ -296,6 +296,38 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn(command, self.jobs["reactor-core"])
         self.assertIn("scripts.test_ci_v51_bundle", self.jobs["changes"])
 
+    def test_rerun_handoffs_use_producer_ids_and_preserve_every_attempt(self):
+        # Never derive a handoff from the consumer attempt: a failed-only rerun
+        # legitimately consumes successful producers from earlier attempts.
+        for name in ("v51-verification-build", "v51-remote-rich-inputs", "v51-remote-rich-shards"):
+            body = self.jobs[name]
+            uploads = [v for v in re.split(r"^      - ", body, flags=re.MULTILINE)
+                       if "uses: actions/upload-artifact@" in v]
+            for step in uploads:
+                with self.subTest(producer=name, step=step.splitlines()[0]):
+                    self.assertIn("-attempt-${{ github.run_attempt }}", step)
+                    self.assertNotIn("overwrite: true", step)
+            self.assertEqual(1, body.count("        id: handoff\n"))
+            if name != "v51-remote-rich-shards":
+                self.assertIn("artifact_id: ${{ steps.handoff.outputs.artifact-id }}", body)
+        matrix = self.jobs["v51-remote-rich-shards"]
+        for shard in ("published-controls", "automatic-healthy", "automatic-concurrent"):
+            self.assertIn(shard.replace("-", "_") + ": ${{ matrix.shard == '" + shard +
+                          "' && steps.handoff.outputs.artifact-id || '' }}", matrix)
+        downloads = []
+        for name, body in self.jobs.items():
+            if not name.startswith("v51-"): continue
+            for step in re.split(r"^      - ", body, flags=re.MULTILINE):
+                if "uses: actions/download-artifact@" in step:
+                    downloads.append(step)
+                    self.assertIn("artifact-ids: ${{ needs.", step)
+                    self.assertRegex(step, r"artifact-ids: .* \|\| 'missing-[a-z-]+' }}")
+                    self.assertIn("merge-multiple: true", step)
+                    self.assertNotIn("          name:", step)
+                    self.assertNotIn("github.run_attempt", step)
+                    self.assertNotIn("          pattern:", step)
+        self.assertGreater(len(downloads), 15)
+
     def test_rich_matrix_and_complete_aggregate_are_required(self):
         shard = self.jobs["v51-remote-rich-shards"]
         self.assertIn("fail-fast: false", shard)
@@ -305,7 +337,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn("name: v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}", shard)
         aggregate = self.jobs["v51-remote-rich"]
         for name in ("published-controls", "automatic-healthy", "automatic-concurrent"):
-            self.assertIn("name: v51-remote-rich-shard-" + name + "-${{ github.sha }}", aggregate)
+            self.assertIn("artifact-ids: ${{ needs.v51-remote-rich-shards.outputs." + name.replace("-", "_") + " || 'missing-rich-shard-artifact' }}", aggregate)
             self.assertIn("path: target/v51-remote-rich/inputs/" + name, aggregate)
         self.assertIn("scripts.v51.remote_rich_shards aggregate", aggregate)
         self.assertIn("name: v51-remote-rich-${{ github.sha }}", aggregate)
