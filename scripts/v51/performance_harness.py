@@ -149,7 +149,7 @@ def compile_adapters(run, control_directory):
     java = ROOT / 'scripts/v51/java'
     source = ROOT / 'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission'
     common = [source / (n + '.java') for n in ('AdmissionJson', 'AdmissionSemanticModel', 'PerformanceTelemetry')]
-    common += [java / (n + '.java') for n in ('V51RichWorkload', 'V51Measurement', 'V51CloudCommands', 'V51CloudJournal')]
+    common += [java / (n + '.java') for n in ('V51RichWorkload', 'V51Measurement', 'V51CloudCommands', 'V51CloudJournal', 'V51GuestEndpoints')]
     jars = {
         'published-v4.4-local': [control_directory / 'general-search-engine-4.4.0.jar'],
         'published-v5.0-configured': [control_directory / 'general-search-engine-5.0.0.jar', control_directory / 'general-search-engine-replication-5.0.0.jar'],

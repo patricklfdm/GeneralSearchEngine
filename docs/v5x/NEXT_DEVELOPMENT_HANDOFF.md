@@ -71,12 +71,14 @@ through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 [6C3A cloud control](v5.1/PHASE_6_CLOUD_CONTROL.md) is accepted through PR #230,
 master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI `36105310891`.
 Its first PR attempt's Maven transport and burst timing failures remain recorded;
-the successful rerun does not establish a timing root cause. The current
-[6C3B guest/provider candidate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds five-JAR,
-three-mode jlink packaging and offline generation/operation/ID-bound HTTP adapters.
-Next wire persistent JVMs/commands across real hosts and implement trusted preflight,
-separate workflows and configuration. Real provider mutations remain disabled;
-paid execution remains user-triggered after fresh exact-request confirmation.
+the successful rerun does not establish a timing root cause. The [6C3B guest/provider gate](v5.1/PHASE_6_CLOUD_PROVIDER.md) is accepted through
+PR #231, master `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`, CI `36113872308`.
+The current [6C3C1 guest candidate](v5.1/PHASE_6_GUEST_SERVICE.md) adds persistent
+packaged JVMs, explicit private endpoints, receipt-only reconnect and stopped
+binary evidence transfer, qualified through real local processes. Next complete
+cross-host bootstrap, SSH/data-mount setup, full remote faults/oracles, then trusted
+preflight and separate workflows/configuration. Live SSH/provider writes remain
+disabled; paid experiments remain user-triggered after exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

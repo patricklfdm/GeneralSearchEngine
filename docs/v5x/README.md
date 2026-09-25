@@ -90,8 +90,10 @@ accepted through PR #225. PR #229 accepted the
 [accepted 6C3A control](v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies ownership,
 admission and cleanup decisions without GCP. Actual cloud integration remains
 open in the [checklist](v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
-[6C3B guest/provider candidate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
-packaging and offline HTTP adapter qualification; paid execution stays disabled.
+[accepted 6C3B guest/provider gate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
+packaging and offline HTTP adapter qualification (PR #231, master CI `36113872308`).
+The [6C3C1 guest candidate](v5.1/PHASE_6_GUEST_SERVICE.md) connects persistent
+JVMs, command receipts and binary transport locally. Full remote admission remains open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

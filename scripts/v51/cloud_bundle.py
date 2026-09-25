@@ -13,6 +13,11 @@ from . import cloud_package as package, cloud_workload_contract as workload, con
 from . import performance_harness as base, performance_model as m, performance_plan as local
 
 ROOT = base.ROOT
+GUEST_INPUTS = ('scripts/v51/__init__.py',
+    *('scripts/v51/'+module+'.py' for module in ('cloud_guest', 'guest_jvm', 'cloud_package',
+       'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
+       'cloud_workload_contract', 'performance_model', 'performance_plan')),
+    'docs/v5x/v5.1/phase6-plan.json', 'docs/v5x/v5.1/phase6-cloud-workload-plan.json')
 
 
 def create(output, manifest, source, control_directory):
@@ -56,6 +61,10 @@ def create(output, manifest, source, control_directory):
     shutil.copyfile(workload.PLAN, root/'workload.json')
     shutil.copyfile(ROOT/'docs/v5x/v5.1/published-controls.json', root/'published-controls.json')
     shutil.copyfile(ROOT/'scripts/v51/cloud_package.py', root/'guest.py')
+    # Guest dependencies are an explicit closed set, including the two frozen plans.
+    for name in GUEST_INPUTS:
+        target = root/'source-inputs'/name; target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(ROOT/name, target)
     modes = {mode: dict(jars=[str(Path(r['path']).relative_to(root)) for r in adapter['artifacts']],
                        classes='classes-'+mode, main=package.MAINS[mode]) for mode, adapter in adapters.items()}
     value = dict(schema=package.SCHEMA, source=source, buildBinding=identity, buildManifestSha256=m.sha(manifest.read_bytes()),

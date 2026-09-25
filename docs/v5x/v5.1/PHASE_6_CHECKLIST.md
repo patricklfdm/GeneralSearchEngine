@@ -31,8 +31,10 @@ through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 `36094121631` (all 27 jobs). 6C2 is closed. The
 [6C3A owned control implementation](PHASE_6_CLOUD_CONTROL.md) is accepted through
 PR #230, master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI
-`36105310891`. The [6C3B guest/provider candidate](PHASE_6_CLOUD_PROVIDER.md) adds
-relocatable build inputs and offline HTTP qualification. Remote integration,
+`36105310891`. The [6C3B guest/provider gate](PHASE_6_CLOUD_PROVIDER.md) is accepted through
+PR #231, master `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`, CI `36113872308`.
+The [6C3C1 guest candidate](PHASE_6_GUEST_SERVICE.md) adds persistent JVMs,
+closed command transport and stopped binary collection. Remote integration,
 configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
@@ -70,7 +72,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3A implementation candidate: source-bound control admission, append-only budget/sequence, exclusive lease, original-command polling, exact-ID cleanup and retained no-GCP failures.
 - [x] 6C3A protected acceptance of the control-only gate through PR #230 / exact-master CI `36105310891`.
 - [x] 6C3B implementation candidate: source/build-bound guest package and generation/operation/ID-bound HTTP adapters, with live mutations disabled.
-- [ ] 6C3B protected acceptance of packaging and offline provider qualification.
+- [x] 6C3B protected acceptance through PR #231 / exact-master CI `36113872308`.
+- [x] 6C3C1 implementation candidate: packaged persistent guest, explicit endpoints, receipt-only reconnect and binary transport qualification.
+- [ ] 6C3C1 protected acceptance of the local guest/transport slice.
+- [ ] Remaining 6C3C: cross-host bootstrap, owned guest SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.
