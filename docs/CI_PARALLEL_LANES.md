@@ -390,11 +390,18 @@ and historical migration rows are preserved.
 
 ### Phase 6C2 full-size runtime qualification
 
-PR #228's component boundary passed exact-master CI `36072038218`. The existing
-required `v51-reclamation` job additionally owns
-`verify-v51-phase6-full-size-runtime.sh --skip-build` and the always-retained
-`v51-full-size-runtime-${{ github.sha }}` artifact. It uses the verified shared
-build and preserves the same 26 required jobs and docs-only behavior. The new
-public 512-slot gate has its own 1200-second local backstop including portable
-positive/negative replay; its actual additional hosted duration remains to be
-measured by protected CI. See the [runtime boundary](v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md).
+PR #228's component boundary passed exact-master CI `36072038218`. PR #229's
+[successful CI 36078101942](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36078101942)
+measured the combined reclamation job at 27m42s, including 17m46s for the public
+512-slot runtime. The [measured split](CI_V51_LANES.md#reclamation-and-full-size-runtime-split)
+keeps public reclamation and the component gate in `v51-reclamation`, while the
+new required `v51-full-size-runtime` job owns the unchanged
+`verify-v51-phase6-full-size-runtime.sh --skip-build` command and always-retained
+`v51-full-size-runtime-${{ github.sha }}` evidence.
+
+Both consumers restore the verified shared build and run independently. There is
+no additional Maven build. Full CI now has 23 required job IDs (27 executed jobs
+with Change scope, Required and matrix expansion); docs-only behavior is preserved.
+The public gate retains its 1200-second local backstop, including portable
+positive/negative replay. Revised-source protected CI and hosted split timings
+remain pending. See the [runtime boundary](v5x/v5.1/PHASE_6_FULL_SIZE_RUNTIME.md).

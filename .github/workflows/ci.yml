@@ -1060,6 +1060,47 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+
+  v51-full-size-runtime:
+    # Isolated execution using verified inputs from the V5.1 build domain.
+    name: V5.1 full-size runtime
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-verification-build-${{ github.sha }}
+          path: target/ci-v51-build
+
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-full-size-runtime-build-inputs-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 public automatic 512-slot runtime boundary
         run: scripts/verify-v51-phase6-full-size-runtime.sh --skip-build
 
@@ -1814,6 +1855,7 @@ jobs:
       - v51-protocol-selection
       - v51-candidate-crashes
       - v51-reclamation
+      - v51-full-size-runtime
       - v50-authority
       - v50-recovery-workload
       - v4-regression
@@ -1843,6 +1885,7 @@ jobs:
           V51_PROTOCOL_SELECTION_RESULT: ${{ needs.v51-protocol-selection.result }}
           V51_CANDIDATE_CRASHES_RESULT: ${{ needs.v51-candidate-crashes.result }}
           V51_RECLAMATION_RESULT: ${{ needs.v51-reclamation.result }}
+          V51_FULL_SIZE_RUNTIME_RESULT: ${{ needs.v51-full-size-runtime.result }}
           V50_AUTHORITY_RESULT: ${{ needs.v50-authority.result }}
           V50_RECOVERY_RESULT: ${{ needs.v50-recovery-workload.result }}
           V4_RESULT: ${{ needs.v4-regression.result }}
@@ -1860,7 +1903,7 @@ jobs:
           for result in "$V51_RICH_INPUTS_RESULT" "$V51_RICH_SHARDS_RESULT" "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
             "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
-            "$V51_RECLAMATION_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \
+            "$V51_RECLAMATION_RESULT" "$V51_FULL_SIZE_RUNTIME_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \
             "$V4_RESULT" "$SOAK_RESULT" "$COMPATIBILITY_RESULT" \
             "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT"; do
             test "$result" = "$expected"

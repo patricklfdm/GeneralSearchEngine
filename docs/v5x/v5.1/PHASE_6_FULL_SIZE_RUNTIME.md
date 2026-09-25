@@ -99,9 +99,14 @@ scripts/verify-v51-phase6-full-size-runtime.sh --skip-build
 python3 -m scripts.v51.full_size_runtime_evidence PATH_TO_RAW_EVIDENCE
 ```
 
-The existing required `v51-reclamation` job runs this gate after the component
-gate, using the verified shared build, and always uploads
-`target/v51-full-size-runtime` for fourteen days. It adds no CI lane or Maven build.
+The required `v51-full-size-runtime` job runs this complete gate in parallel with
+`v51-reclamation`, which retains the component gate. Both restore the same verified
+build; no Maven build is added. The runtime job always uploads
+`target/v51-full-size-runtime` and its build provenance for fourteen days.
+[PR #229 CI 36078101942](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36078101942)
+passed before the split, measuring this command at 17m46s. The
+[CI split record](../../CI_V51_LANES.md#reclamation-and-full-size-runtime-split)
+describes the new scheduling; revised-source CI and master acceptance remain open.
 The local process schedule has a 600-second control backstop; the complete command
 has a 1200-second backstop including compilation and independent portable replay.
 These are local qualification budgets, not amended production/cloud deadlines.
