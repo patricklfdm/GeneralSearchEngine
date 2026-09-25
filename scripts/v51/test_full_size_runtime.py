@@ -1,5 +1,6 @@
 """Adversarial public-history tests. Synthetic records are not execution evidence."""
 import base64
+import copy
 from pathlib import Path
 import tempfile
 import unittest
@@ -18,6 +19,72 @@ class FullSizeRuntimeTest(unittest.TestCase):
         self.assertEqual(511,len(set(observed)))
         for ordinal in (0,512):
             with self.assertRaises(ValueError):mutation(ordinal)
+
+    def test_stop_target_preserves_every_possible_selected_majority(self):
+        from .full_size_runtime import spare_follower, NODES
+        for leader in NODES:
+            for peer in NODES:
+                if peer==leader:continue
+                selected=dict(ballot=dict(epoch=13,proposer=leader),bases=[dict(node=n) for n in sorted((leader,peer))])
+                with self.subTest(leader=leader,peer=peer):
+                    stopped=spare_follower(leader,dict(state='LEADER_READY',epoch=13,provenIndex=500),selected)
+                    self.assertEqual(set(NODES)-{leader,peer},{stopped})
+        # Hosted failure: node-3 was using node-1; the ordinal-based choice killed node-1.
+        self.assertEqual('node-2',spare_follower('node-3',dict(state='LEADER_READY',epoch=13,provenIndex=500),
+            dict(ballot=dict(epoch=13,proposer='node-3'),bases=[dict(node='node-1'),dict(node='node-3')])))
+
+    def test_stop_target_rejects_stale_leader_cut_and_invalid_pairs(self):
+        from .full_size_runtime import spare_follower
+        state=dict(state='LEADER_READY',epoch=13,provenIndex=500)
+        selected=dict(ballot=dict(epoch=13,proposer='node-3'),bases=[dict(node='node-1'),dict(node='node-3')])
+        for changed in (dict(state='FOLLOWER'),dict(epoch=14),dict(provenIndex=499),dict(provenIndex=501)):
+            with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'current slot-500 leader'):
+                spare_follower('node-3',dict(state,**changed),selected)
+        for pair in (['node-1','node-2'],['node-3','node-3'],['node-3','node-4'],['node-3']):
+            with self.subTest(pair=pair),self.assertRaisesRegex(ValueError,'selected pair'):
+                spare_follower('node-3',state,dict(selected,bases=[dict(node=n) for n in pair]))
+        with self.assertRaisesRegex(ValueError,'current slot-500 leader'):
+            spare_follower('node-3',state,dict(selected,ballot=dict(epoch=13,proposer='node-1')))
+
+    def stop_sample(self):
+        # Codec stand-ins isolate stop-to-original-selection/publication binding.
+        encode=lambda v:base64.b64encode(e.m.canonical(v)).decode()
+        ballot=dict(epoch=13,proposer='node-3',incarnation='ballot')
+        selected=encode(dict(ballot=ballot,bases=[dict(node='node-1'),dict(node='node-3')]))
+        proof=encode(dict(ballot,index=500,receipts=[dict(voter='node-1'),dict(voter='node-3')]))
+        snapshot=encode(dict(anchors=[None]*500,terminalProof=proof))
+        runtime=dict(fullTransferNode='node-2',followerStop=dict(leader='node-3',leaderGeneration=1,
+            generation=2,selected=selected,beforeNanos=30),
+            processes=[dict(node='node-2',generation=2,startNanos=1,endNanos=40,exitCode=0)])
+        traces={'node-3':[dict(event='PROMISE_QUORUM',generation=1,localNanos=10,selected=selected),
+                          dict(event='PUBLISHED',generation=1,localNanos=20,snapshot=snapshot)]}
+        return runtime,traces
+
+    def test_stop_evidence_binds_original_selection_publication_and_lifetime(self):
+        runtime,traces=self.stop_sample()
+        with patch.object(e.fmt,'contextual_frame',side_effect=lambda data,*_:e.m.strict_json(data)):
+            e.follower_stop(runtime,traces,{})
+            for field,value,reason in [('fullTransferNode','node-1','stopped selected voter')]:
+                with self.assertRaisesRegex(ValueError,reason):e.follower_stop(dict(runtime,**{field:value}),traces,{})
+            for field,value,reason in [('generation',1,'stop lifetime'),('beforeNanos',41,'stop lifetime'),
+                                      ('leaderGeneration',2,'stop selection')]:
+                changed=copy.deepcopy(runtime);changed['followerStop'][field]=value
+                with self.subTest(field=field),self.assertRaisesRegex(ValueError,reason):e.follower_stop(changed,traces,{})
+            for event,reason in [('PROMISE_QUORUM','stop selection'),('PUBLISHED','stop publication')]:
+                changed=copy.deepcopy(traces);changed['node-3']=[r for r in changed['node-3'] if r['event']!=event]
+                with self.subTest(event=event),self.assertRaisesRegex(ValueError,reason):e.follower_stop(runtime,changed,{})
+
+    def test_stop_evidence_rejects_wrong_publication_cut_or_vote_pair(self):
+        for change in ('cut','pair','epoch'):
+            runtime,traces=self.stop_sample();row=traces['node-3'][-1]
+            snapshot=e.m.strict_json(e.raw(row['snapshot']));proof=e.m.strict_json(e.raw(snapshot['terminalProof']))
+            if change=='cut':snapshot['anchors'].pop();proof['index']=499
+            elif change=='pair':proof['receipts'][0]['voter']='node-2'
+            else:proof['epoch']=12
+            snapshot['terminalProof']=base64.b64encode(e.m.canonical(proof)).decode()
+            row['snapshot']=base64.b64encode(e.m.canonical(snapshot)).decode()
+            with self.subTest(change=change),patch.object(e.fmt,'contextual_frame',side_effect=lambda data,*_:e.m.strict_json(data)):
+                with self.assertRaisesRegex(ValueError,'wrong cut/pair'):e.follower_stop(runtime,traces,{})
 
     def sample(self):
         program=[cloud.call('UPDATE',[1],0),cloud.call('GET',[1],0),cloud.call('UPDATE',[2],0)]

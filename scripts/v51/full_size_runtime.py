@@ -1,5 +1,6 @@
 """Owned public JVM integration for the frozen 512-slot boundary. No paid execution."""
 import argparse
+import base64
 from pathlib import Path
 import queue
 import signal
@@ -9,7 +10,7 @@ import threading
 import time
 import tempfile
 from . import performance_harness as h, performance_model as m, performance_plan as plan, performance_semantics as semantic
-from . import public_qualification_harness as q, remote_collection as collection, storage_inspector as storage
+from . import public_qualification_harness as q, remote_collection as collection, storage_inspector as storage, format_inspector as fmt
 
 NODES=('node-1','node-2','node-3')
 
@@ -36,6 +37,16 @@ class Worker(q.Worker):
 def mutation(ordinal):
     m.need(1<=ordinal<=511,'full-size public mutation bound')
     return dict(key=1+(ordinal-1)%64,revision=1+(ordinal-1)//64)
+
+
+def spare_follower(leader,state,selected):
+    """Observe the current pair to target a lagging-third-voter fault, not quorum loss."""
+    ballot=selected['ballot'];pair=[b['node'] for b in selected['bases']]
+    m.need(leader in NODES and state['state']=='LEADER_READY' and state['provenIndex']==500 and
+           ballot['proposer']==leader and ballot['epoch']==state['epoch'],'full-size stop requires current slot-500 leader')
+    m.need(len(pair)==2 and len(set(pair))==2 and leader in pair and set(pair)<=set(NODES),
+           'full-size stop requires selected pair')
+    return next(n for n in NODES if n not in pair)
 
 
 def replace(path,value):
@@ -116,7 +127,13 @@ def execute(root,cp,flags):
         wait(lambda:workers[active].call('status')['provenIndex']>=majority_cut,'released voter did not regain majority prefix')
         stable_read();wait(lambda:converged(max(s['provenIndex'] for s in status().values())),'post-pin convergence')
         active,w=fill(500)
-        lagging=next(n for n in NODES if n!=active);stop(lagging);receipt['fullTransferNode']=lagging
+        state=w.call('status');selected=(root/active/'selected.gsr').read_bytes()
+        lagging=spare_follower(active,state,fmt.inspect(selected,'SELECTED'))
+        fresh=w.call('status')
+        m.need(all(fresh[k]==state[k] for k in ('state','epoch','provenIndex')),'full-size stop leader changed')
+        receipt['followerStop']=dict(leader=active,leaderGeneration=w.generation,
+            generation=workers[lagging].generation,selected=base64.b64encode(selected).decode(),beforeNanos=time.monotonic_ns())
+        stop(lagging);receipt['fullTransferNode']=lagging
         active,w=fill(511);last=w.call('read');receipt['finalReadOpId']=last['opId']
         wait(lambda:w.call('status')['provenIndex']==512,'final public read did not reach 512',10)
         wait(lambda:sum((root/active/g).is_dir() for g in ('generation-a','generation-b'))<=1,'checkpoint awaits durable floor cleanup')

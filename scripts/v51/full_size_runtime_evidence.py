@@ -166,10 +166,33 @@ def transfer(traces,manifest,node):
     need(completed,'full runtime missing complete 512 transfer');return completed[0]
 
 
+def follower_stop(runtime,traces,manifest):
+    """Bind the fault target to the original slot-500 publication and selected pair."""
+    stop=runtime['followerStop'];leader=stop['leader'];node=runtime['fullTransferNode']
+    selected=fmt.contextual_frame(raw(stop['selected']),'SELECTED',manifest)
+    pair={b['node'] for b in selected['bases']}
+    need(leader==selected['ballot']['proposer'] and leader in pair and len(pair)==2 and
+         node in NODES and node not in pair and pair|{node}==set(NODES),'full runtime stopped selected voter')
+    processes=[p for p in runtime['processes'] if p['node']==node and p['generation']==stop['generation']]
+    need(len(processes)==1 and processes[0]['exitCode']==0 and
+         processes[0]['startNanos']<stop['beforeNanos']<processes[0]['endNanos'],'full runtime follower stop lifetime')
+    rows=[r for r in traces[leader] if r['generation']==stop['leaderGeneration'] and r['localNanos']<stop['beforeNanos']]
+    selections=[r for r in rows if r['event']=='PROMISE_QUORUM']
+    need(selections and selections[-1]['selected']==stop['selected'],'full runtime follower stop selection')
+    publications=[r for r in rows if r['event']=='PUBLISHED']
+    need(publications,'full runtime follower stop publication')
+    snapshot=fmt.contextual_frame(raw(publications[-1]['snapshot']),'SNAPSHOT',manifest)
+    proof=fmt.contextual_frame(raw(snapshot['terminalProof']),'PROOF',manifest)
+    need(len(snapshot['anchors'])==proof['index']==500 and
+         {k:proof[k] for k in ('epoch','proposer','incarnation')}==selected['ballot'] and
+         {r['voter'] for r in proof['receipts']}==pair,'full runtime follower stop at wrong cut/pair')
+
+
 def facts(root,runtime,history,traces,location):
     calls=Calls(history,runtime)
     result=physical.automatic(root/'group',history,traces,evidence_location=location,cloud_calls=calls)
     projected=calls.projected;manifest=projected['manifest']
+    follower_stop(runtime,traces,manifest)
     need(result['chosen']==512 and all(v['provenIndex']==512 for v in result['retained'].values()),'full runtime 512-slot coverage')
     entry=projected['entries'][calls.active[runtime['uncertainOpId']]['digest']]
     epochs={identity[0] for identity,voters in projected['accepted'].items() if identity[4]==calls.active[runtime['uncertainOpId']]['digest'] and len(voters)>=2}

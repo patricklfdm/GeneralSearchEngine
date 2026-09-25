@@ -28,7 +28,9 @@ remaining in the frozen revision-0–9 rich corpus.
    partition, observe the higher promise, then release the held read. Its answer
    must still equal its original captured prefix. After release, the node must recover the newer prefix by automatic rejoin or
    reactivation; either role is valid.
-3. Advance to slot 500, stop one follower, advance to 511 and perform the final
+3. Advance to slot 500 and inspect the current leader's durably selected pair.
+   Verify that its public status still reports the same READY epoch and cut, then
+   stop the third voter outside that pair. Advance to 511 and perform the final
    public read at slot 512. Checkpoint, restart the retained follower, and require
    a complete production snapshot transfer and convergence of all durable cuts
    to exactly 512. Actual observations must also include two distinct retained
@@ -56,7 +58,10 @@ held. These checks do not add a concurrent-public-install guarantee.
 The oracle projects rich state from original forced acceptance bytes and checks
 proofs, exact remote owners/receipts, selected bases, publication and sealed
 retained authority using the existing physical validator. Every public operation
-is bound to its original process, invocation and result. Each successful read
+is bound to its original process, invocation and result. The follower stop is
+bound to its owned process lifetime, the leader's original selection event and
+its slot-500 publication/proof; stopping either selected voter is rejected.
+Each successful read
 requires its own post-invocation NO_OP, validated capture, unchanged release and
 exact projected answer. The deliberately disconnected write is the only operation
 allowed without a result. Known conservative recovery-read refusals stay in the
@@ -143,3 +148,45 @@ reactivation is legal. An independent replay also rejected per-call increasing
 revisions outside the frozen corpus; revisions now increase per 64-document
 round, with all 511 possible updates checked. The invalid/cancelled runs do not
 contribute to the successful receipt.
+
+
+## Slot-500 follower-stop correction
+
+[PR CI 36082534323](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36082534323/job/107908819094)
+failed after reaching slot 500. The retained original selection at epoch 13 paired
+leader node-3 with node-1. The controller chose the first non-leader by node order,
+stopped node-1, then immediately required the next update to succeed. That update
+returned `INDETERMINATE / QUORUM_UNAVAILABLE`. The trace retains node-1's actual
+slot-500 ACCEPT/PROOF acknowledgements, its clean close, and the failed next call.
+This was an invalid assumption that either follower could be removed without
+interrupting the selected pair.
+
+The controller now observes the existing selection and stops the remaining third
+voter. It never changes the production selection or retries the mutation. The
+independent validator ties this choice to the original selection, public slot-500
+proof and owned stop lifetime. Stale epochs, changed leadership/cuts and invalid
+pairs fail the controller before it injects the stop. All later writes, the full
+512-slot transfer, terminal selection and existing eleven evidence negatives
+remain required under the original limits.
+
+The same run's [Compatibility failure](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36082534323/job/107907411928)
+occurred while Maven Central returned HTTP 403 for the enforcer plugin POM, before
+API comparison. Compatibility commands and checks remain unchanged. Local failure
+diagnosis and validation are retained under `target/v51-full-size-ci-fix/`; corrected
+source still requires protected CI and master acceptance.
+
+
+Correction validation passed all 464 V5.1 Python tests, including fourteen full-size
+unit tests. Replacing the new choice with the original ordinal rule fails four
+assertions across the possible selected pairs. The complete gate at
+`target/v51-full-size-runtime/run.YA7Iti/evidence` passed its independent validator,
+eleven exact negatives, six-part collection and relocated positive/negative replay.
+The observed pair was again node-3/node-1, and node-2 was stopped. All five processes
+were reaped after a 422.302-second owned execution; 502 updates, six read barriers,
+slot-481 reproposal and all three durable cuts at 512 passed. Full transfer took
+0.934 seconds and terminal PREPARE took 0.851 seconds under the original limits.
+
+The unchanged Compatibility API command also passed in an isolated checkout of
+`e62252b97ccfb639e76ea9dbb40803060554aa25` with a fresh Maven repository: 549 Java
+tests and thirteen published API comparisons, in 1m24s. These local results do not
+establish recovery of GitHub's download path or replace corrected-source CI.
