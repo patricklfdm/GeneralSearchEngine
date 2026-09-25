@@ -85,8 +85,12 @@ approved document-size exceptions were accepted through PR #225, exact-master CI
 `35989431966` (all 21 jobs). PR #227 closed rich CI sharding, exact-master CI
 `36064320654` (all 26 jobs). The [512-slot component gate](v5.1/PHASE_6_FULL_SIZE.md)
 was accepted through PR #228, exact-master CI `36072038218`. The
-[public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) is the current
-candidate; full-size protected acceptance and 6C3/cloud work remain open in the
+[public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) was accepted through
+PR #229, master `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
+`36094121631` (27 successful jobs), closing 6C2. The
+[6C3A cloud control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) starts the owned
+runner and no-GCP failure qualification. Actual provider/remote integration,
+configuration and cloud work remain open in the
 [checklist](v5.1/PHASE_6_CHECKLIST.md).
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

@@ -1,7 +1,9 @@
 # V5.1 Phase 6C2: public 512-slot runtime integration
 
-**Status:** implementation candidate on PR #228's accepted runtime. Local
-qualification is recorded below; protected acceptance remains open. The
+**Status:** accepted through PR #229, master
+`57622552e02addfae991642786e1a87a0633fb43`. Exact-master
+[CI 36094121631](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36094121631)
+passed all 27 jobs including the corrected full-size runtime gate. The
 [component gate](PHASE_6_FULL_SIZE.md), [rich workload gates](PHASE_6_REMOTE_RICH.md)
 and [twelve fault cells](PHASE_6_REMOTE_FAULTS.md) remain required.
 
@@ -235,3 +237,15 @@ missing exact-ballot votes, changed chosen digests, corrupt proof frames and
 unprojected snapshots. This batch changes validation only; no JVM workload was
 rerun or paid resource created. The existing [passive recovery boundary](PHASE_3_REJOIN.md)
 continues to prohibit public follower reads.
+
+
+## Protected acceptance after both corrections
+
+PR #229 merged at `57622552e02addfae991642786e1a87a0633fb43`. Exact-master CI
+`36094121631` passed all 27 executed jobs, including Compatibility, reclamation,
+the independent full-size runtime job and Required. This accepts both controller
+and evidence corrections on the same source. Earlier failed runs above remain
+failures; their later replay is distinct from this successful hosted execution.
+Together with the accepted rich, twelve-fault and component gates, this closes
+6C2. The [6C3A control implementation](PHASE_6_CLOUD_CONTROL.md) is a separate
+candidate; provider/remote admission and paid execution remain open.

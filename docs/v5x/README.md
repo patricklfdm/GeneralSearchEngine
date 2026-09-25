@@ -82,9 +82,13 @@ through PR #222. The [6C1 control foundation](v5.1/PHASE_6_REMOTE_FOUNDATION.md)
 was accepted through PR #223, exact-master CI `35942555519` (nineteen jobs,
 25 V5.1 gates). [6C2A rich JVM integration](v5.1/PHASE_6_REMOTE_RICH.md)
 was accepted through PR #224, exact-master CI `35961961431` (twenty jobs,
-26 V5.1 gates). The [6C2B fault candidate](v5.1/PHASE_6_REMOTE_FAULTS.md)
-adds the twelve fault programs and two explicitly approved document-size exceptions.
-Full-size retention qualification, protected acceptance and 6C3/cloud work remain
+26 V5.1 gates). The twelve [6C2B faults](v5.1/PHASE_6_REMOTE_FAULTS.md) were
+accepted through PR #225. PR #229 accepted the
+[full-size runtime](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) at master
+`57622552e02addfae991642786e1a87a0633fb43`, exact-master CI `36094121631`
+(all 27 jobs), closing 6C2. The current
+[6C3A control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies ownership,
+admission and cleanup decisions without GCP. Actual cloud integration remains
 open in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
