@@ -102,6 +102,8 @@ class PackageTest(unittest.TestCase):
         self.value['files']=p.inventory(self.root);save(self.root/'manifest.json',self.value)
         result=subprocess.run([sys.executable,'-I',str(self.root/'guest.py'),'service','--help'],capture_output=True,check=True,text=True)
         self.assertIn('start,serve,query,submit,cancel,shutdown,ready,part',result.stdout)
+        bootstrap=subprocess.run([sys.executable,'-I',str(self.root/'guest.py'),'bootstrap','--help'],capture_output=True,check=True,text=True)
+        self.assertIn('prepare,install,seal',bootstrap.stdout)
         p.verify(self.root)
         self.assertEqual(list(self.root.rglob('__pycache__')),[])
         (folder/'cloud_guest.py').write_text('raise RuntimeError("must not run")\n')

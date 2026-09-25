@@ -14,7 +14,7 @@ from . import cloud_package as package, cloud_guest as guest, guest_transport as
 from . import remote_command as command, remote_collection as collection, remote_schedule as schedule, performance_model as m
 
 
-def run(output, bundle, source):
+def run(output, bundle, source, *, isolated=False, allow_sudo=False):
     root, bundle = Path(output).resolve(), Path(bundle).resolve(); root.mkdir(parents=True, exist_ok=False)
     packaged = bundle/'package'; manifest = package.verify(packaged, source)
     m.need(manifest['buildBinding'] == build.binding(Path(__file__).resolve().parents[2], source), 'guest qualification checkout/build mismatch')
@@ -25,7 +25,7 @@ def run(output, bundle, source):
     m.need(ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0, 'guest qualification subreaper')
     results, services = [], []; deadline = time.monotonic()+840
     receipt = dict(schema='gse-v51-guest-qualification-v1', status='FAIL', execution=guest.EXECUTION,
-        source=source, buildBinding=manifest['buildBinding'], bundleSha256=packed['archiveSha256'],
+        filesystem='independent-mount-views' if isolated else 'shared-local', source=source, buildBinding=manifest['buildBinding'], bundleSha256=packed['archiveSha256'],
         paidCloud=False, fullRemoteQualification=False, engineWorkloadExecuted=True, cases=results)
     def execute(client, name, payload, lost=False):
         value = command.request(client.config['binding'], uuid.uuid4().hex, name, payload)
@@ -46,12 +46,19 @@ def run(output, bundle, source):
                 hosts = ['127.0.0.2', '127.0.0.3', '127.0.0.4']; ports = []
                 for sock, host in zip(sockets, hosts): sock.bind((host, 0)); ports.append(sock.getsockname()[1])
                 group, attempt, clients = str(uuid.uuid4()), uuid.uuid4().hex, []
+                configs = []
                 for n in range(1, 2 if mode == package.MODES[0] else 4):
                     cfg = dict(schema='gse-v51-guest-service-v1', execution=guest.EXECUTION,
                         binding=command.binding(source, packed['archiveSha256'], attempt, 'node-'+str(n)),
                         packageManifestSha256=m.sha((packaged/'manifest.json').read_bytes()), root=str(cell), mode=mode,
                         hosts=hosts, ports=ports, groupId=group)
-                    client = transport.Local(packaged, cfg); started = client.start(min(deadline, time.monotonic()+30))
+                    configs.append(cfg)
+                if isolated:
+                    from . import guest_isolation
+                    views = guest_isolation.Views(root/'views'/mode, cell, allow_sudo)
+                    guest_isolation.prepare(views, packaged, configs, min(deadline, time.monotonic()+120))
+                for cfg in configs:
+                    client = views.client(packaged, cfg) if isolated else transport.Local(packaged, cfg); started = client.start(min(deadline, time.monotonic()+30))
                     m.need(started['state'] == 'LAUNCHED', 'guest startup claim'); services.append((client, started['pid']))
                     until = min(deadline, time.monotonic()+30)
                     while True:
@@ -60,8 +67,9 @@ def run(output, bundle, source):
                             m.need(observed['ready']['pid'] == started['pid'] and observed['ready']['configSha256'] == m.sha(m.canonical(cfg)), 'guest ready identity'); break
                         m.need(time.monotonic() < until, 'guest service startup timeout'); time.sleep(.05)
                     clients.append(client)
-                _, answer, _ = execute(clients[0], 'prepare-cell', {})
-                m.need(answer['state'] == 'SUCCEEDED', 'guest prepare: '+str(answer))
+                if not isolated:
+                    _, answer, _ = execute(clients[0], 'prepare-cell', {})
+                    m.need(answer['state'] == 'SUCCEEDED', 'guest prepare: '+str(answer))
             finally:
                 for sock in sockets: sock.close()
             for client in clients:
@@ -155,8 +163,8 @@ def run(output, bundle, source):
 
 
 if __name__ == '__main__':
-    p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True)
+    p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--isolated',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true')
     a=p.parse_args()
     def terminate(*_): raise TimeoutError('guest qualification terminated')
     signal.signal(signal.SIGTERM, terminate)
-    run(a.output,a.bundle,a.source)
+    run(a.output,a.bundle,a.source,isolated=a.isolated,allow_sudo=a.allow_sudo_namespace)

@@ -1,11 +1,18 @@
 # V5.1 Phase 6C3C1: persistent guest and transport integration
 
-**Status:** implementation candidate on master
-`5b101a6e73a83ef9091ea369997f4d01e6ca4c26`. PR #231 and
-[exact-master CI 36113872308](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36113872308)
-accepted the [6C3B package/provider gate](PHASE_6_CLOUD_PROVIDER.md), including both
-new executed steps. This candidate requires its own protected CI.
-Full 6C3C, trusted cloud configuration and paid admission remain open.
+**Status:** 6C3C1 accepted through PR #232, master
+`2183dafa618238f0b824fc0a3b3d42624ce24782`,
+[exact-master CI 36124423253](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36124423253)
+(all 27 jobs passed, including the persistent guest gate).
+[6C3C2 bootstrap/startup preparation](PHASE_6_GUEST_BOOTSTRAP.md) is the next
+implementation candidate. Full 6C3C, trusted cloud configuration and paid admission
+remain open.
+
+The first PR #232 rich automatic-healthy attempt, run `36120650925`, failed after
+an INDEX_CREATE succeeded in 1290 ms and the next frozen arrival found its lane
+busy. The rerun and exact-master pass do not identify the host/I/O timing cause.
+No measured call retry or deadline relaxation was introduced. The original failure
+is retained locally under `target/ci-review-36120650925/`.
 
 ## Implemented integration
 
@@ -53,8 +60,9 @@ Closed service commands prepare a V4.4 source and per-mode bootstrap, start the
 assigned voter, inspect status, activate only the configured V5.0 leader, execute
 an existing frozen window, stop the voter and collect its stopped evidence. They
 do not accept arbitrary executables, Java main classes or shell programs.
-The three hosts must ultimately receive bootstrap bytes at the **same sealed
-absolute cell path**. This batch's qualification uses distinct TCP loopback hosts
+The three hosts must use their configured absolute cell paths. Bootstrap seals
+also bind parent filesystem identity, so [6C3C2](PHASE_6_GUEST_BOOTSTRAP.md) imports
+one source backup and seals initial authority locally on each receiving host. This batch's qualification uses distinct TCP loopback hosts
 and per-voter stores on one filesystem; it does not prove bootstrap transfer across
 independent VM filesystems. Source distribution, data-mount verification and the
 remaining fault orchestration are the next integration boundary.
@@ -118,13 +126,13 @@ Receipts state `execution=local-guest-service-only`, `engineWorkloadExecuted=tru
 `paidCloud=false`, `fullRemoteQualification=false`. They qualify this transport and
 lifecycle slice, not three actual VMs, an SSH host-key bootstrap, every failure cell,
 a public failover SLA or the complete physical/history semantics. Local results
-are retained at `target/v51-guest-review/`; protected acceptance remains pending.
+are retained at `target/v51-guest-review/`; the exact-master run above accepts this slice.
 
 ## Next batch
 
-Complete 6C3C with exact-path bootstrap distribution, attempt-specific SSH access,
-owned data-mount setup, remote fault wiring and independent complete evidence
-validation. Then integrate trusted image/IAM/quota/retention/GitHub/pricing
+Continue with [6C3C2 bootstrap and startup preparation](PHASE_6_GUEST_BOOTSTRAP.md),
+then complete actual guest data-mount execution, remote fault wiring and independent
+complete evidence validation. Then integrate trusted image/IAM/quota/retention/GitHub/pricing
 observations, V5.1 WIF/environment configuration and separate runner/manual/scheduled
 cleanup workflows. Real provider mutations remain disabled. Paid experiments remain
 manually triggered by the user after exact-request confirmation.

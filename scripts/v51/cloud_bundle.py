@@ -14,7 +14,7 @@ from . import performance_harness as base, performance_model as m, performance_p
 
 ROOT = base.ROOT
 GUEST_INPUTS = ('scripts/v51/__init__.py',
-    *('scripts/v51/'+module+'.py' for module in ('cloud_guest', 'guest_jvm', 'cloud_package',
+    *('scripts/v51/'+module+'.py' for module in ('cloud_guest', 'guest_jvm', 'guest_bootstrap', 'cloud_package',
        'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
        'cloud_workload_contract', 'performance_model', 'performance_plan')),
     'docs/v5x/v5.1/phase6-plan.json', 'docs/v5x/v5.1/phase6-cloud-workload-plan.json')

@@ -217,6 +217,21 @@ jobs:
           timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification
           target/v51-guest-service --bundle target/v51-guest-package --source "$GITHUB_SHA"
 
+      - name: Qualify V5.1 exact-path bootstrap in independent filesystems without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification
+          target/v51-guest-bootstrap --bundle target/v51-guest-package --source "$GITHUB_SHA"
+          --isolated --allow-sudo-namespace
+
+      - name: Retain V5.1 distributed bootstrap and isolated guest evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-guest-bootstrap-${{ github.sha }}
+          path: target/v51-guest-bootstrap
+          if-no-files-found: warn
+          retention-days: 7
+
       - name: Retain V5.1 guest lifecycle, receipts and binary collection
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -827,7 +842,7 @@ jobs:
 
       - name: Retain V5.1 mailbox and public callback evidence including failed cases
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: v51-backpressure-${{ github.sha }}
           path: target/v51-backpressure

@@ -33,8 +33,10 @@ through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 PR #230, master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI
 `36105310891`. The [6C3B guest/provider gate](PHASE_6_CLOUD_PROVIDER.md) is accepted through
 PR #231, master `5b101a6e73a83ef9091ea369997f4d01e6ca4c26`, CI `36113872308`.
-The [6C3C1 guest candidate](PHASE_6_GUEST_SERVICE.md) adds persistent JVMs,
-closed command transport and stopped binary collection. Remote integration,
+The [6C3C1 guest slice](PHASE_6_GUEST_SERVICE.md) is accepted through PR #232,
+master `2183dafa618238f0b824fc0a3b3d42624ce24782`, CI `36124423253` (27 jobs).
+The [6C3C2 bootstrap/startup candidate](PHASE_6_GUEST_BOOTSTRAP.md) adds exact-path
+distribution with isolated guest qualification, attempt SSH keys and volume planning. Remote integration,
 configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
@@ -74,8 +76,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3B implementation candidate: source/build-bound guest package and generation/operation/ID-bound HTTP adapters, with live mutations disabled.
 - [x] 6C3B protected acceptance through PR #231 / exact-master CI `36113872308`.
 - [x] 6C3C1 implementation candidate: packaged persistent guest, explicit endpoints, receipt-only reconnect and binary transport qualification.
-- [ ] 6C3C1 protected acceptance of the local guest/transport slice.
-- [ ] Remaining 6C3C: cross-host bootstrap, owned guest SSH/mount setup, complete remote faults and evidence validation.
+- [x] 6C3C1 protected acceptance: PR #232, exact-master CI `36124423253`.
+- [x] 6C3C2 implementation candidate: exact-path bootstrap, independent mount views, SSH access/host-key binding and offline volume planning.
+- [ ] 6C3C2 protected acceptance.
+- [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.
