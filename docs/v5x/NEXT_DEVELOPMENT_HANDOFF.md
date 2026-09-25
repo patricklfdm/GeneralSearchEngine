@@ -68,13 +68,15 @@ PR #228 at `3c3d9d19c8aa1d24aa88f971c983235bd186033d`, exact-master CI `36072038
 The [public runtime integration](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) was accepted
 through PR #229 at `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI
 `36094121631` (all 27 jobs), closing full-size 6C2 under unchanged deadlines.
-The current [6C3A cloud control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) adds
-source-bound synthetic admission, append-only sequence/budget history, exclusive
-resource ownership, original-command polling and shared finally/manual/scheduled
-cleanup, qualified without GCP. Next integrate the actual bundle/remote provider,
-trusted preflight, separate workflows and configuration; the control-only receipt
-cannot authorize cloud work. Paid execution remains
-user-triggered after fresh exact-request confirmation.
+[6C3A cloud control](v5.1/PHASE_6_CLOUD_CONTROL.md) is accepted through PR #230,
+master `2db3ebb645907eaa8b02fa849302c35accb03ff4`, exact-master CI `36105310891`.
+Its first PR attempt's Maven transport and burst timing failures remain recorded;
+the successful rerun does not establish a timing root cause. The current
+[6C3B guest/provider candidate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds five-JAR,
+three-mode jlink packaging and offline generation/operation/ID-bound HTTP adapters.
+Next wire persistent JVMs/commands across real hosts and implement trusted preflight,
+separate workflows and configuration. Real provider mutations remain disabled;
+paid execution remains user-triggered after fresh exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

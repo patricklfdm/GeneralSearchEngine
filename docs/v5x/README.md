@@ -87,9 +87,11 @@ accepted through PR #225. PR #229 accepted the
 [full-size runtime](v5.1/PHASE_6_FULL_SIZE_RUNTIME.md) at master
 `57622552e02addfae991642786e1a87a0633fb43`, exact-master CI `36094121631`
 (all 27 jobs), closing 6C2. The current
-[6C3A control candidate](v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies ownership,
+[accepted 6C3A control](v5.1/PHASE_6_CLOUD_CONTROL.md) qualifies ownership,
 admission and cleanup decisions without GCP. Actual cloud integration remains
-open in the [checklist](v5.1/PHASE_6_CHECKLIST.md).
+open in the [checklist](v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
+[6C3B guest/provider candidate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
+packaging and offline HTTP adapter qualification; paid execution stays disabled.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the
