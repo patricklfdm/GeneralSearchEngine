@@ -1739,7 +1739,7 @@ jobs:
       - name: Verify V5.1 cloud ownership and admission without GCP
         run: scripts/verify-v51-phase6-cloud-control.sh
 
-      - name: Qualify V5.1 provider HTTP adapters without network access
+      - name: Qualify V5.1 provider adapters and owned guest startup without GCP
         run: scripts/verify-v51-phase6-cloud-provider.sh
 
       - name: Retain V5.1 provider request and failure qualification
