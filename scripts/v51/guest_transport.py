@@ -11,8 +11,9 @@ import time
 from . import cloud_guest as guest, performance_model as m, remote_command as c
 
 
-def process(args, data, deadline, maximum=c.RESPONSE_BYTES):
-    m.need(isinstance(data, bytes) and len(data) <= c.REQUEST_BYTES and time.monotonic() < deadline, 'guest transport request/deadline')
+def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES):
+    m.need(type(request_maximum) is int and 0 < request_maximum <= 1 << 20 and
+           isinstance(data, bytes) and len(data) <= request_maximum and time.monotonic() < deadline, 'guest transport request/deadline')
     proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
     out, err, cursor = bytearray(), bytearray(), 0
     succeeded = False
@@ -28,7 +29,11 @@ def process(args, data, deadline, maximum=c.RESPONSE_BYTES):
                 events = selector.select(min(left, .5))
                 for key, _ in events:
                     if key.data == 'input':
-                        cursor += os.write(key.fileobj.fileno(), data[cursor:cursor+16384])
+                        try: cursor += os.write(key.fileobj.fileno(), data[cursor:cursor+16384])
+                        except BrokenPipeError:
+                            # Drain bounded stderr so an authentication rejection remains
+                            # distinguishable from an unexplained connection failure.
+                            selector.unregister(key.fileobj); key.fileobj.close(); continue
                         if cursor == len(data): selector.unregister(key.fileobj); key.fileobj.close()
                     else:
                         chunk = os.read(key.fileobj.fileno(), 65536)
@@ -36,7 +41,8 @@ def process(args, data, deadline, maximum=c.RESPONSE_BYTES):
                         target = out if key.data == 'output' else err; target.extend(chunk)
                         m.need(len(target) <= (maximum if target is out else 65536), 'guest transport response/diagnostic bound')
             proc.wait(timeout=max(.001, deadline-time.monotonic()))
-            if proc.returncode: raise ConnectionError('guest transport failed; inspect retained guest receipts: '+err.decode(errors='replace')[-1500:])
+            if proc.returncode or cursor != len(data):
+                raise ConnectionError('guest transport failed; inspect retained guest receipts: '+err.decode(errors='replace')[-1500:])
             m.need(time.monotonic() <= deadline, 'late guest transport result')
             succeeded = True
             return bytes(out)
@@ -84,6 +90,8 @@ def ssh_args(target, remote):
     proxy = shlex.join(['gcloud', 'compute', 'start-iap-tunnel', target['instance'], '22', '--listen-on-stdin',
                         '--project='+target['project'], '--zone='+target['zone'], '--verbosity=error'])
     return ['ssh', '-F', '/dev/null', '-T', '-i', str(key), '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes',
+            '-o', 'IdentityAgent=none', '-o', 'HostKeyAlgorithms=ssh-ed25519', '-o', 'UpdateHostKeys=no',
+            '-o', 'ForwardAgent=no', '-o', 'ClearAllForwardings=yes', '-o', 'ControlMaster=no', '-o', 'ControlPath=none',
             '-o', 'StrictHostKeyChecking=yes', '-o', 'UserKnownHostsFile='+str(known), '-o', 'GlobalKnownHostsFile=/dev/null',
             '-o', 'HostKeyAlias='+alias, '-o', 'ConnectTimeout=10', '-o', 'ServerAliveInterval=15', '-o', 'ServerAliveCountMax=2',
             '-o', 'ProxyCommand='+proxy, target['user']+'@'+target['instance'], shlex.join(remote)]

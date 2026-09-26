@@ -11,13 +11,10 @@ import tempfile
 from scripts import ci_v51_bundle as build
 from . import cloud_package as package, cloud_workload_contract as workload, controls
 from . import performance_harness as base, performance_model as m, performance_plan as local
+from . import guest_delivery as delivery, guest_delivery_receiver as helper
 
 ROOT = base.ROOT
-GUEST_INPUTS = ('scripts/v51/__init__.py',
-    *('scripts/v51/'+module+'.py' for module in ('cloud_guest', 'guest_jvm', 'guest_bootstrap', 'cloud_package',
-       'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
-       'cloud_workload_contract', 'performance_model', 'performance_plan')),
-    'docs/v5x/v5.1/phase6-plan.json', 'docs/v5x/v5.1/phase6-cloud-workload-plan.json')
+GUEST_INPUTS = (*helper.INPUTS, 'scripts/v51/guest_helper.py')
 
 
 def create(output, manifest, source, control_directory):
@@ -65,6 +62,7 @@ def create(output, manifest, source, control_directory):
     for name in GUEST_INPUTS:
         target = root/'source-inputs'/name; target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(ROOT/name, target)
+    (root/'startup-helper.json').write_bytes(delivery.pack(root/'source-inputs', source))
     modes = {mode: dict(jars=[str(Path(r['path']).relative_to(root)) for r in adapter['artifacts']],
                        classes='classes-'+mode, main=package.MAINS[mode]) for mode, adapter in adapters.items()}
     value = dict(schema=package.SCHEMA, source=source, buildBinding=identity, buildManifestSha256=m.sha(manifest.read_bytes()),

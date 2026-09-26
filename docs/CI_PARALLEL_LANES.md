@@ -430,3 +430,18 @@ job, Required identities, docs-only behavior and five-minute job ceiling remain
 unchanged. This adds Python and local SSH key generation only; it performs no SSH
 connection, block-device write, Java build or cloud access. See the
 [startup scope](v5x/v5.1/PHASE_6_GUEST_STARTUP.md).
+
+### Phase 6C3C4 loopback SSH delivery qualification
+
+The existing provider gate now includes authenticated helper installation and
+receipt tests plus a real loopback OpenSSH qualification with its own 120-second
+backstop. CI installs the server dependency only when missing and prepares the
+standard runtime directory. This job has a ten-minute ceiling (previously five)
+to include dependency setup and all three bounded qualifications; measured workload
+limits are unchanged. The daemon runs as the job user, with ephemeral keys
+outside the retained provider artifact. The existing provider artifact retains all
+eight positive/negative SSH scenarios and failed installations. The guest package
+gate includes the closed helper payload and dependencies in its existing exact-build
+inventory. Job dependencies, Required coverage, measurement thresholds and paid
+cloud permissions are unchanged. See
+[the delivery contract](v5x/v5.1/PHASE_6_GUEST_DELIVERY.md).

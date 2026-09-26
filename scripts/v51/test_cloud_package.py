@@ -7,7 +7,7 @@ from pathlib import Path
 import tarfile
 import tempfile
 import unittest
-from . import cloud_package as p, cloud_bundle as bundle
+from . import cloud_package as p, cloud_bundle as bundle, guest_delivery as delivery, guest_delivery_receiver as helper
 
 
 def save(path, value): path.write_text(json.dumps(value))
@@ -98,6 +98,11 @@ class PackageTest(unittest.TestCase):
         for name in bundle.GUEST_INPUTS:
             target=self.root/'source-inputs'/name;target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(bundle.ROOT/name,target)
+        raw=delivery.pack(self.root/'source-inputs','a'*40)
+        (self.root/'startup-helper.json').write_bytes(raw)
+        value=json.loads(raw)
+        self.assertEqual(set(value['files']),helper.NAMES)
+        self.assertIn('scripts/v51/guest_volume.py',value['files'])
         folder=self.root/'source-inputs/scripts/v51'
         self.value['files']=p.inventory(self.root);save(self.root/'manifest.json',self.value)
         result=subprocess.run([sys.executable,'-I',str(self.root/'guest.py'),'service','--help'],capture_output=True,check=True,text=True)

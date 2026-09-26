@@ -97,9 +97,12 @@ packaging and offline HTTP adapter qualification (PR #231, master CI `3611387230
 The [6C3C1 guest slice](v5.1/PHASE_6_GUEST_SERVICE.md) is accepted through PR #232
 and master CI `36124423253` (27 jobs). The [6C3C2 bootstrap slice](v5.1/PHASE_6_GUEST_BOOTSTRAP.md)
 is accepted through PR #233, exact-master CI `36149275698` (27 jobs).
-The [6C3C3 owned startup candidate](v5.1/PHASE_6_GUEST_STARTUP.md) adds exact-ID facts,
-Linux disk observations and once-only offline startup/cleanup qualification.
-Real SSH/privileged delivery and full remote admission remain open.
+The [6C3C3 owned startup slice](v5.1/PHASE_6_GUEST_STARTUP.md) is accepted through
+PR #234, exact-master CI 36185893530 attempt 2 (27 jobs); its initial concurrent
+arrival-spread failure remains retained. The
+[6C3C4 helper delivery candidate](v5.1/PHASE_6_GUEST_DELIVERY.md) adds authenticated
+helper packaging and real loopback SSH installation/query qualification.
+Cross-host deadlines, cloud SSH/privileged delivery and full remote admission remain open.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.
