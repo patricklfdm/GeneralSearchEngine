@@ -461,3 +461,12 @@ controller cases). It tests real root file ownership with fixture NSS/metadata;
 it does not claim IAP or actual cloud sudo execution. The existing provider
 artifact, ten-minute Cloud runner ceiling, Required identities and docs-only skips
 are preserved. See [the root-admission contract](v5x/v5.1/PHASE_6_ROOT_ADMISSION.md).
+
+Provider evidence is now packaged under `always()` as
+`target/v51-cloud-provider.tar.gz` before upload. The artifact name and retention
+remain unchanged. The packer preserves fixture symlinks without following them and
+publishes only a complete archive. This prevents the uploader from traversing the
+root negative case's `/var` link into host files, the artifact-only failure observed
+in PR #237 CI `36274635097`. Downloaded artifacts contain the tarball with the full
+original provider tree, including case receipts, partial installations and link
+metadata; no failed cases are filtered out.

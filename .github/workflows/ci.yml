@@ -1779,12 +1779,19 @@ jobs:
       - name: Qualify V5.1 provider adapters and owned guest startup without GCP
         run: scripts/verify-v51-phase6-cloud-provider.sh --allow-sudo-namespace
 
+      - name: Package V5.1 provider evidence without following fixture symlinks
+        if: ${{ always() }}
+        run: |
+          if [[ -d target/v51-cloud-provider ]]; then
+            python3 -m scripts.v51.provider_artifacts target/v51-cloud-provider target/v51-cloud-provider.tar.gz
+          fi
+
       - name: Retain V5.1 provider request and failure qualification
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: v51-cloud-provider-${{ github.sha }}
-          path: target/v51-cloud-provider
+          path: target/v51-cloud-provider.tar.gz
           if-no-files-found: warn
           retention-days: 14
 

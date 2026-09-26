@@ -78,6 +78,21 @@ Startup's diagnostic allowlist grows from 34 to 37 files by adding one closed
 evidence. Controller source hashes, dirty status, case receipts, transport failures
 and original deadline tickets are retained by the existing provider artifact.
 
+Provider evidence is uploaded as `v51-cloud-provider.tar.gz` inside that artifact.
+Packing preserves symlinks as link metadata and never follows their targets; the
+original fixture tree remains unchanged. This matters for the negative case whose
+helper parent points to `/var`: after the chroot exits, a recursive artifact glob
+would interpret that link against the runner host. Packing also runs after a failed
+qualification; only a complete archive is published at the upload path.
+
+PR #237 CI `36274635097` (merge source
+`08d988d52b56aef10c6928e763e74afc1a0ad542`) completed the entire provider/root/SSH
+qualification successfully, then failed artifact upload with `EACCES` while following
+that fixture link into the runner's `/var/cache/apparmor`. The correction changes
+evidence packaging, not root admission or workload logic. Corrected-source protected
+CI and retained evidence remain required; a successful test step alone is not full
+job acceptance.
+
 ```bash
 python3.11 -m unittest scripts.v51.test_guest_root_admission scripts.v51.test_guest_root
 scripts/verify-v51-phase6-cloud-provider.sh
