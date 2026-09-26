@@ -89,7 +89,7 @@ class Server:
 
 
 def run(output):
-    output = Path(output).absolute(); output.mkdir(parents=True, exist_ok=False)
+    output = Path(output).absolute(); output.mkdir(parents=True, exist_ok=False, mode=0o700)
     cases = []; source = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
     raw = d.pack(ROOT, source); (output/'helper.json').write_bytes(raw)
     receipt = dict(schema='gse-v51-ssh-delivery-qualification-v1', status='FAIL', source=source,

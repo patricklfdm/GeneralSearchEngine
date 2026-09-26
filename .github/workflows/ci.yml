@@ -1777,7 +1777,7 @@ jobs:
           sudo install -d -o root -g root -m 0755 /run/sshd
 
       - name: Qualify V5.1 provider adapters and owned guest startup without GCP
-        run: scripts/verify-v51-phase6-cloud-provider.sh
+        run: scripts/verify-v51-phase6-cloud-provider.sh --allow-sudo-namespace
 
       - name: Retain V5.1 provider request and failure qualification
         if: ${{ always() }}
