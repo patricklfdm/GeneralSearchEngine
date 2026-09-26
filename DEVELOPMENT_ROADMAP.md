@@ -77,8 +77,14 @@ ownership/admission/cleanup without GCP; remaining provider and cloud work is tr
 [checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
 [accepted 6C3B guest/provider gate](docs/v5x/v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
 packaging and offline HTTP adapter qualification (PR #231, master CI `36113872308`).
-The [6C3C1 guest candidate](docs/v5x/v5.1/PHASE_6_GUEST_SERVICE.md) connects persistent
-JVMs, command receipts and binary transport locally. Full remote admission remains open.
+The [6C3C1 guest service](docs/v5x/v5.1/PHASE_6_GUEST_SERVICE.md),
+[6C3C2 bootstrap](docs/v5x/v5.1/PHASE_6_GUEST_BOOTSTRAP.md),
+[6C3C3 startup](docs/v5x/v5.1/PHASE_6_GUEST_STARTUP.md) and
+[6C3C4 helper delivery](docs/v5x/v5.1/PHASE_6_GUEST_DELIVERY.md) are accepted through
+PRs #232–#235. Latest accepted master is `d40d7d8be1320a3e989ab551536715f4e47795be`,
+exact-master CI `36206334728` attempt 1 (all 27 jobs). The
+[6C3C5 deadline candidate](docs/v5x/v5.1/PHASE_6_GUEST_DEADLINES.md) begins the next
+guest integration boundary. Full 6C and paid admission remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

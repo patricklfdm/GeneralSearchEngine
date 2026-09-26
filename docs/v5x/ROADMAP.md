@@ -100,9 +100,11 @@ is accepted through PR #233, exact-master CI `36149275698` (27 jobs).
 The [6C3C3 owned startup slice](v5.1/PHASE_6_GUEST_STARTUP.md) is accepted through
 PR #234, exact-master CI 36185893530 attempt 2 (27 jobs); its initial concurrent
 arrival-spread failure remains retained. The
-[6C3C4 helper delivery candidate](v5.1/PHASE_6_GUEST_DELIVERY.md) adds authenticated
-helper packaging and real loopback SSH installation/query qualification.
-Cross-host deadlines, cloud SSH/privileged delivery and full remote admission remain open.
+[6C3C4 helper delivery slice](v5.1/PHASE_6_GUEST_DELIVERY.md) is accepted through
+PR #235 at `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master CI `36206334728`
+attempt 1 (27 jobs). The [6C3C5 deadline candidate](v5.1/PHASE_6_GUEST_DEADLINES.md)
+starts cross-host deadline qualification. Cloud SSH/privileged delivery, mounted
+service integration and full remote admission remain open.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

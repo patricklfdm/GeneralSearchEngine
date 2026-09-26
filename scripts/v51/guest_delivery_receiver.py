@@ -15,6 +15,7 @@ import sys
 import time
 
 MAX_BYTES = 512 << 10
+MAX_DEADLINE_NANOS = 600 * 10**9
 MODULES = ('cloud_guest', 'guest_jvm', 'guest_bootstrap', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
@@ -54,6 +55,49 @@ def descriptor(value):
         need(isinstance(value[name], str) and re.fullmatch('[0-9a-f]{64}', value[name]), 'delivery digest')
     need(type(value['payloadBytes']) is int and 0 < value['payloadBytes'] <= MAX_BYTES, 'delivery payload bound')
     return value
+
+
+def boot_identity():
+    # A new Linux boot must never reuse a mapping from the previous monotonic epoch.
+    value = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+    need(re.fullmatch(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}', value), 'delivery boot identity')
+    return value
+
+
+def clock_sample(value, nonce):
+    need(isinstance(nonce, str) and re.fullmatch('[0-9a-f]{32}', nonce), 'delivery clock nonce')
+    return dict(schema='gse-v51-helper-clock-v1', requestSha256=sha(canonical(descriptor(value))),
+                nonce=nonce, bootId=boot_identity(), sampledNanos=time.monotonic_ns())
+
+
+def validate_sample(sample, value, nonce):
+    need(type(sample) is dict and set(sample) == {'schema', 'requestSha256', 'nonce', 'bootId', 'sampledNanos'} and
+         sample['schema'] == 'gse-v51-helper-clock-v1' and sample['requestSha256'] == sha(canonical(descriptor(value))) and
+         isinstance(nonce, str) and re.fullmatch('[0-9a-f]{32}', nonce) and sample['nonce'] == nonce,
+         'delivery clock identity')
+    need(isinstance(sample['bootId'], str) and
+         re.fullmatch(r'[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}', sample['bootId']) and
+         type(sample['sampledNanos']) is int and 0 <= sample['sampledNanos'] < 2**63, 'delivery clock sample')
+    return sample
+
+
+def validate_budget(budget, value):
+    need(type(budget) is dict and set(budget) == {'schema', 'sample', 'expiresNanos'} and
+         budget['schema'] == 'gse-v51-helper-deadline-v1' and type(budget['sample']) is dict,
+         'delivery deadline fields')
+    sample = validate_sample(budget['sample'], value, budget['sample'].get('nonce'))
+    need(type(budget['expiresNanos']) is int and
+         0 < budget['expiresNanos'] - sample['sampledNanos'] <= MAX_DEADLINE_NANOS,
+         'delivery deadline duration')
+    return budget
+
+
+def guest_deadline(budget, value):
+    validate_budget(budget, value)
+    need(budget['sample']['bootId'] == boot_identity(), 'delivery guest rebooted')
+    need(budget['sample']['sampledNanos'] <= time.monotonic_ns() < budget['expiresNanos'],
+         'delivery guest deadline expired or clock moved backwards')
+    return budget['expiresNanos'] / 10**9
 
 
 def owned(path, uid, directory=False):
@@ -147,10 +191,15 @@ def envelope(value, state, **fields):
                 paidCloud=False, realBlockDeviceWritten=False, fullRemoteQualification=False, **fields)
 
 
-def query(parent, value, uid):
+def query(parent, value, uid, *, budget=None):
     descriptor(value); root = location(parent, value, uid)
+    if budget is not None: guest_deadline(budget, value)
     if not root.exists() and not root.is_symlink(): return envelope(value, 'NOT_FOUND')
     owned(root, uid, True)
+    if budget is not None:
+        if not (root/'deadline.json').exists() and not (root/'deadline.json').is_symlink():
+            return envelope(value, 'UNCERTAIN')
+        need(decode(read(root/'deadline.json', uid)) == budget, 'delivery deadline changed')
     if not (root/'request.json').exists() and not (root/'request.json').is_symlink(): return envelope(value, 'UNCERTAIN')
     need(decode(read(root/'request.json', uid)) == value, 'delivery request identity')
     if not (root/'receipt.json').exists() and not (root/'receipt.json').is_symlink(): return envelope(value, 'UNCERTAIN')
@@ -160,11 +209,13 @@ def query(parent, value, uid):
     return answer
 
 
-def install(parent, value, uid, stream, deadline):
+def install(parent, value, uid, stream, deadline, *, budget=None):
     descriptor(value); root = location(parent, value, uid)
+    if budget is not None: need(guest_deadline(budget, value) == deadline, 'delivery deadline mismatch')
     need(time.monotonic() < deadline, 'delivery original deadline')
-    if root.exists() or root.is_symlink(): return query(parent, value, uid)
+    if root.exists() or root.is_symlink(): return query(parent, value, uid, budget=budget)
     root.mkdir(mode=0o700); sync(root.parent)  # Consumed before reading bytes.
+    if budget is not None: publish(root/'deadline.json', budget)
     publish(root/'request.json', value)
     try:
         raw = stream.read(value['payloadBytes']+1)
@@ -187,12 +238,16 @@ def install(parent, value, uid, stream, deadline):
 
 def main():
     # Trusted source is sent via python -I -c; no installed module imports here.
-    action, parent, encoded, uid, expires = sys.argv[1:]
+    action, parent, encoded, uid, token = sys.argv[1:]
     value = descriptor(decode(base64.b64decode(encoded, validate=True))); uid = int(uid)
-    deadline = float(expires); need(0 < deadline-time.monotonic() <= 600, 'delivery remaining deadline')
-    if action == 'install': answer = install(parent, value, uid, sys.stdin.buffer, deadline)
+    if action == 'clock':
+        location(parent, value, uid)  # Read-only, before any consumed installation.
+        print(canonical(clock_sample(value, token)).decode(), flush=True); return
+    budget = validate_budget(decode(base64.b64decode(token, validate=True)), value)
+    deadline = guest_deadline(budget, value)
+    if action == 'install': answer = install(parent, value, uid, sys.stdin.buffer, deadline, budget=budget)
     elif action in ('query', 'check'):
-        answer = query(parent, value, uid)
+        answer = query(parent, value, uid, budget=budget)
         if action == 'check':
             need(answer['state'] == 'SUCCEEDED', 'delivery helper unavailable')
             root = location(parent, value, uid)
@@ -200,10 +255,10 @@ def main():
                                     capture_output=True, timeout=max(.001, deadline-time.monotonic()), check=True)
             need(len(result.stdout) <= 4096 and len(result.stderr) <= 4096 and
                  decode(result.stdout) == dict(status='PASS', nativeWritesEnabled=False), 'delivery helper check')
-            need(query(parent, value, uid) == answer, 'delivery helper changed after check')
+            need(query(parent, value, uid, budget=budget) == answer, 'delivery helper changed after check')
     else: raise ValueError('delivery action')
-    need(time.monotonic() < deadline, 'delivery original deadline')
-    print(canonical(answer).decode(), flush=True)
+    guest_deadline(budget, value)
+    print(canonical(dict(schema='gse-v51-helper-transport-v1', deadlineSha256=sha(canonical(budget)), receipt=answer)).decode(), flush=True)
 
 
 if __name__ == '__main__': main()

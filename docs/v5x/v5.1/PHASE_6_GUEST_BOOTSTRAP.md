@@ -6,7 +6,9 @@
 [guest service slice](PHASE_6_GUEST_SERVICE.md) was accepted through PR #232 and
 CI `36124423253`. The following [owned startup slice](PHASE_6_GUEST_STARTUP.md)
 was accepted through PR #234 / master CI 36185893530 attempt 2. The subsequent
-[helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is a candidate. Full 6C3C and paid admission remain open.
+[helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is accepted through PR #235 /
+master CI `36206334728`. The [deadline candidate](PHASE_6_GUEST_DEADLINES.md) follows it.
+Full 6C3C and paid admission remain open.
 
 ## Source distribution and local public bootstrap
 
@@ -114,7 +116,7 @@ mounted, nonempty and size failures. They do not claim actual block-device testi
 
 ## Remaining integration
 
-The [owned startup candidate](PHASE_6_GUEST_STARTUP.md) adds provider fact reads,
+The [accepted owned startup slice](PHASE_6_GUEST_STARTUP.md) adds provider fact reads,
 Linux observation parsing and a one-shot offline startup path in the controller.
 Real SSH/privileged delivery remains open, followed by remote failure cells, combined multi-guest evidence
 budgets and independent physical/history replay. Afterwards integrate trusted

@@ -6,7 +6,7 @@ if [[ $# -ne 0 ]]; then
   echo "usage: $0" >&2
   exit 2
 fi
-python3 -m unittest scripts.v51.test_cloud_provider scripts.v51.test_cloud_package scripts.v51.test_guest_setup scripts.v51.test_guest_startup scripts.v51.test_guest_delivery
+python3 -m unittest scripts.v51.test_cloud_provider scripts.v51.test_cloud_package scripts.v51.test_guest_setup scripts.v51.test_guest_startup scripts.v51.test_guest_delivery scripts.v51.test_guest_deadline
 mkdir -p target/v51-cloud-provider
 work_dir=$(mktemp -d "$root/target/v51-cloud-provider/run.XXXXXX")
 echo "v51ProviderEvidence=$work_dir/evidence"

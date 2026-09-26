@@ -68,11 +68,18 @@ class Server:
             except subprocess.TimeoutExpired:
                 os.killpg(self.process.pid, signal.SIGKILL); self.process.wait(timeout=5)
         if self.log is not None: self.log.close()
-    def endpoint(self, parent):
+    def endpoint(self, parent, *, clock_offset_nanos=0):
         server = self
         class Loopback(d.Endpoint):
             offline = True
             def argv(self, remote):
+                if clock_offset_nanos:
+                    # Qualification-only independent epoch, with native Linux boot
+                    # identity and unchanged clock rate. No application timer changes.
+                    prefix = ('import time\n_original_ns = time.monotonic_ns\n_original = time.monotonic\n'
+                              'time.monotonic_ns = lambda: _original_ns() + '+str(clock_offset_nanos)+'\n'
+                              'time.monotonic = lambda: _original() + '+repr(clock_offset_nanos/10**9)+'\n')
+                    remote = [*remote[:3], prefix+remote[3], *remote[4:]]
                 argv = ssh_args(self.target, remote)
                 argv = [v if not v.startswith('ProxyCommand=') else 'ProxyCommand=none' for v in argv]
                 return [*argv[:-2], '-o', 'Hostname=127.0.0.1', '-p', str(server.port), *argv[-2:]]
@@ -106,6 +113,22 @@ def run(output):
             m.need(good.exchange('check', value, b'', deadline) == answer, 'installed helper import/check')
             m.need(good.exchange('query', value, b'', deadline) == answer, 'SSH original receipt')
             cases.append(dict(case='success', status='PASS', files=answer['inventory']['files']))
+            root = r.location(good.parent,value,os.getuid()); (root/'files/helper.py').write_text('raise RuntimeError("must not execute")\n')
+            try: good.exchange('check', value, b'', deadline)
+            except ConnectionError as error:
+                m.need('delivery installed bytes changed' in str(error), 'changed-helper failure had another cause: '+str(error))
+            else: raise ValueError('altered installed helper accepted')
+            cases.append(dict(case='changed-installed-helper', status='PASS'))
+            for name, offset in (('future-clock-epoch', 10**15), ('earlier-clock-epoch', -time.monotonic_ns()//2)):
+                parent = output/name; parent.mkdir(mode=0o700)
+                shifted = server.endpoint(parent, clock_offset_nanos=offset); until = time.monotonic()+30
+                shifted_answer = d.deliver(shifted, value, raw, until)
+                m.need(shifted_answer['state'] == 'SUCCEEDED' and
+                       shifted.exchange('query', value, b'', until) == shifted_answer, 'SSH independent clock epoch')
+                try: shifted.exchange('query', value, b'', until+1)
+                except ValueError as error: m.need('changed' in str(error), 'deadline refusal reason')
+                else: raise ValueError('SSH controller deadline renewed')
+                cases.append(dict(case=name, status='PASS', clockOffsetNanos=offset, deadline=shifted.budget))
             lost = endpoint('lost-reply'); counts = dict(install=0, query=0)
             class Lost:
                 offline = True
@@ -118,9 +141,10 @@ def run(output):
                    counts == dict(install=1, query=1), 'SSH reconnect replayed install')
             cases.append(dict(case='lost-reply', status='PASS', **counts))
             broken = endpoint('truncated')
-            answer = broken.exchange('install', value, raw[:-1], time.monotonic()+30)
+            broken_deadline = time.monotonic()+30
+            answer = broken.exchange('install', value, raw[:-1], broken_deadline)
             m.need(answer['state'] == 'FAILED', 'truncated SSH delivery accepted')
-            m.need(broken.exchange('install', value, raw, time.monotonic()+30) == answer, 'partial install retried')
+            m.need(broken.exchange('install', value, raw, broken_deadline) == answer, 'partial install retried')
             cases.append(dict(case='truncated-no-reinstall', status='PASS'))
             wrong = endpoint('wrong-host-key')
             pin = Path(private)/'wrong-known'; setup.pin(pin, '123', server.access['publicKey'])
@@ -144,12 +168,6 @@ def run(output):
             answer = altered.exchange('install', value, bad, time.monotonic()+30)
             m.need(answer['state'] == 'FAILED' and not (r.location(altered.parent,value,os.getuid())/'files').exists(), 'altered payload executed')
             cases.append(dict(case='altered-payload', status='PASS'))
-            root = r.location(good.parent,value,os.getuid()); (root/'files/helper.py').write_text('raise RuntimeError("must not execute")\n')
-            try: good.exchange('check', value, b'', time.monotonic()+15)
-            except ConnectionError as error:
-                m.need('delivery installed bytes changed' in str(error), 'changed-helper failure had another cause: '+str(error))
-            else: raise ValueError('altered installed helper accepted')
-            cases.append(dict(case='changed-installed-helper', status='PASS'))
             expired = endpoint('expired')
             try: d.deliver(expired,value,raw,time.monotonic()-1)
             except ValueError: pass
