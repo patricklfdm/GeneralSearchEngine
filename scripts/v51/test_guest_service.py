@@ -70,6 +70,10 @@ class GuestServiceTest(unittest.TestCase):
             t.process([sys.executable,'-c','print("x"*1000)'],b'',time.monotonic()+5,maximum=100)
         with self.assertRaises(TimeoutError):
             t.process([sys.executable,'-c','import time;time.sleep(5)'],b'',time.monotonic()+.1)
+    def test_early_rejection_drains_stderr_without_accepting_partial_input(self):
+        code='import os,sys;os.close(0);sys.stderr.write("host-key-rejected\\n");sys.exit(7)'
+        with self.assertRaisesRegex(ConnectionError,'host-key-rejected'):
+            t.process([sys.executable,'-c',code],b'x'*(512<<10),time.monotonic()+5,request_maximum=512<<10)
     def target(self):
         key=self.root/'key';key.write_text('fixture');key.chmod(0o600)
         known=self.root/'known';known.write_text('gse-v51-123 ssh-ed25519 AQID\n');known.chmod(0o600)

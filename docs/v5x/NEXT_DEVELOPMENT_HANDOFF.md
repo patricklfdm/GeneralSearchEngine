@@ -78,12 +78,18 @@ master `2183dafa618238f0b824fc0a3b3d42624ce24782`, exact-master CI `36124423253`
 (all 27 jobs). Its initial rich timing failure remains recorded; the rerun does not
 establish a timing cause. The [6C3C2 bootstrap slice](v5.1/PHASE_6_GUEST_BOOTSTRAP.md)
 is accepted through PR #233, master `d27da43086406384ab41cab6704541015aa0a1bf`,
-CI `36149275698` (27 jobs). The [6C3C3 owned startup candidate](v5.1/PHASE_6_GUEST_STARTUP.md)
-adds exact-ID observations, disk checks, forced one-shot startup claims and retained
-no-GCP lifecycle failures. Next deliver/qualify the privileged helper and pinned SSH,
-connect volume readiness to packaged services, finish remote faults/oracles, then trusted preflight and
-separate workflows/configuration. Live SSH/provider writes remain disabled;
-paid experiments remain user-triggered after exact-request confirmation.
+CI `36149275698` (27 jobs). The [6C3C3 owned startup slice](v5.1/PHASE_6_GUEST_STARTUP.md)
+is accepted through PR #234, master `79344fca6b447a3e77205be36d3d16e597d4bc23`,
+exact-master CI `36185893530`, attempt 2 (all 27 jobs). Its first concurrent
+measurement's 63.021587 ms burst spread remains a retained failure; no timing
+cause is established by the successful rerun.
+The [6C3C4 helper delivery candidate](v5.1/PHASE_6_GUEST_DELIVERY.md) adds a closed,
+digest-authenticated helper payload, consumed installation claims and real
+loopback OpenSSH receipt-query qualification. Native cloud SSH, cross-host
+deadline translation, root admission and disk writes remain closed. Next connect
+privileged delivery and volume readiness to packaged services under the owned
+controller, finish remote faults/oracles, then trusted preflight and separate
+workflows/configuration. Paid experiments remain user-triggered after exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

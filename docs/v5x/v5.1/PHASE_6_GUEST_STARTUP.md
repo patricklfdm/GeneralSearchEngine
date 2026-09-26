@@ -1,11 +1,12 @@
 # V5.1 Phase 6C3C3: owned guest startup qualification
 
-**Status:** implementation candidate based on master
-`d27da43086406384ab41cab6704541015aa0a1bf`. The preceding
-[distributed bootstrap slice](PHASE_6_GUEST_BOOTSTRAP.md) is accepted through
-PR #233 and exact-master CI `36149275698` (27 successful jobs). This candidate
-still requires corrected-source protected CI. Full remote qualification and paid
-admission remain open.
+**Status:** accepted through PR #234, master
+`79344fca6b447a3e77205be36d3d16e597d4bc23`, exact-master CI
+[`36185893530`, attempt 2](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36185893530)
+(all 27 jobs). Attempt 1's concurrent arrival spread exceeded the frozen 10 ms
+limit (63.021587 ms in one burst, with 120 successful callbacks). That failed
+measurement remains retained; the rerun establishes this execution's acceptance,
+not a scheduling root cause. Full remote qualification and paid admission remain open.
 
 ## Provider facts and access
 
@@ -128,8 +129,9 @@ Prior JVM/bootstrap qualification remains separate evidence.
 
 Deliver and verify the privileged helper on the pinned guest, implement and qualify
 actual pinned SSH delivery/receipt queries under the owned controller, and connect
-volume readiness to package/source distribution and persistent services. The new
-volume module is not yet included in the deployable guest package. Keep real SSH
+volume readiness to package/source distribution and persistent services. The subsequent [helper delivery candidate](PHASE_6_GUEST_DELIVERY.md) includes the
+volume module in the source-bound package and qualifies authenticated loopback SSH
+installation and original receipt queries. Keep real SSH
 and provider mutations closed until these pieces and paid admission are integrated.
 Then finish distributed failure cells, combined evidence budgets, full independent
 physical/history replay, trusted preflight/configuration and separate V5.1

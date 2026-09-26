@@ -5,7 +5,8 @@
 (all 27 jobs, including isolated bootstrap). The preceding
 [guest service slice](PHASE_6_GUEST_SERVICE.md) was accepted through PR #232 and
 CI `36124423253`. The following [owned startup slice](PHASE_6_GUEST_STARTUP.md)
-is an implementation candidate. Full 6C3C and paid admission remain open.
+was accepted through PR #234 / master CI 36185893530 attempt 2. The subsequent
+[helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is a candidate. Full 6C3C and paid admission remain open.
 
 ## Source distribution and local public bootstrap
 
