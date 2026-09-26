@@ -102,9 +102,12 @@ PR #234, exact-master CI 36185893530 attempt 2 (27 jobs); its initial concurrent
 arrival-spread failure remains retained. The
 [6C3C4 helper delivery slice](v5.1/PHASE_6_GUEST_DELIVERY.md) is accepted through
 PR #235 at `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master CI `36206334728`
-attempt 1 (27 jobs). The [6C3C5 deadline candidate](v5.1/PHASE_6_GUEST_DEADLINES.md)
-starts cross-host deadline qualification. Cloud SSH/privileged delivery, mounted
-service integration and full remote admission remain open.
+attempt 1 (27 jobs). The [6C3C5 deadline slice](v5.1/PHASE_6_GUEST_DEADLINES.md)
+is accepted through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`,
+exact-master CI `36212673545` attempt 2 (27 jobs). The
+[6C3C6 root-admission candidate](v5.1/PHASE_6_ROOT_ADMISSION.md) adds root-owned
+helper delivery and isolated root/controller qualification. Protected acceptance,
+mounted service integration and full remote admission remain open.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).
 No implementation, version bump, paid run or release is authorized by these files.

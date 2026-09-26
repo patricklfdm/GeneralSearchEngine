@@ -42,9 +42,11 @@ CI `36185893530` attempt 2 (27 jobs), adds numeric-ID facts,
 Linux observations, one-shot modeled disk setup and retained cleanup/accounting.
 The [helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is accepted through PR #235,
 master `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master CI `36206334728`
-attempt 1 (27 successful jobs). The [6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md)
-adds boot-bound cross-host deadline translation; its protected acceptance is open.
-Cloud SSH/privileged delivery, configuration and full 6C remain open.
+attempt 1 (27 successful jobs). The [6C3C5 deadline slice](PHASE_6_GUEST_DEADLINES.md)
+is accepted through PR #236 / exact-master CI `36212673545` attempt 2 (27 jobs).
+The [6C3C6 root-admission candidate](PHASE_6_ROOT_ADMISSION.md) adds root-owned
+helper delivery and isolated root/controller qualification. Protected acceptance,
+mounted cloud services, configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -91,7 +93,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C4 implementation candidate: [authenticated helper delivery](PHASE_6_GUEST_DELIVERY.md), consumed claims and real loopback SSH receipt queries.
 - [x] 6C3C4 protected acceptance: PR #235, exact-master CI `36206334728` attempt 1, all 27 jobs.
 - [x] 6C3C5 implementation candidate: guest-clock deadline mapping, boot identity and retained non-renewing installation budgets.
-- [ ] 6C3C5 Linux SSH qualification and corrected-source protected acceptance.
+- [x] 6C3C5 Linux SSH qualification and protected acceptance: PR #236, exact-master CI `36212673545` attempt 2.
+- [x] 6C3C6 implementation candidate: trusted root receiver, consumed admission/deadline claim, verified helper self-check and isolated root/controller qualification.
+- [ ] 6C3C6 protected CI and exact-master acceptance.
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.

@@ -65,6 +65,7 @@ class Prepare:
         if self.root.is_dir():
             allowed = {'claim.json', 'facts.json', 'host-pins.json', 'receipt.json'} | {f'node-{node}/{name}.json'
                 for node in (1, 2, 3) for name in ('claim', 'before', 'plan', 'after', 'receipt', *('intent-'+str(i) for i in range(5)))}
+            allowed |= {f'root-node-{node}.json' for node in (1, 2, 3)}
             paths = sorted(self.root.rglob('*.json'))
             m.need(len(paths) <= len(allowed), 'startup retention inventory')
             for path in paths:

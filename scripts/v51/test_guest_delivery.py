@@ -32,6 +32,19 @@ class DeliveryTest(unittest.TestCase):
         self.assertEqual(r.query(self.parent,self.value,os.getuid()),answer)
         self.assertEqual(self.install(b'not another upload'),answer)
         self.assertEqual(before,{p:p.stat().st_mtime_ns for p in self.path.rglob('*')})
+    def test_every_payload_directory_is_private_independent_of_umask(self):
+        for mask in (0, 0o002, 0o022, 0o077):
+            with self.subTest(umask=oct(mask)):
+                parent=self.parent/str(mask);parent.mkdir(mode=0o700)
+                previous=os.umask(mask)
+                try:
+                    answer=r.install(parent,self.value,os.getuid(),io.BytesIO(self.raw),time.monotonic()+5)
+                finally:os.umask(previous)
+                self.assertEqual(answer['state'],'SUCCEEDED',answer)
+                path=r.location(parent,self.value,os.getuid())
+                self.assertEqual(r.query(parent,self.value,os.getuid()),answer)
+                for directory in (path/'files',*(p for p in (path/'files').rglob('*') if p.is_dir())):
+                    self.assertEqual(directory.stat().st_mode & 0o777,0o700,str(directory))
     def test_truncation_and_trailing_bytes_consume_without_executing(self):
         for raw in (self.raw[:-1],self.raw+b' '):
             with self.subTest(length=len(raw)):

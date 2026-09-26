@@ -9,8 +9,8 @@ SSH qualification and packaged guest gates. The preceding
 CI `36185893530` attempt 2, with its original failed measurement retained.
 
 The sections below describe the accepted 6C3C4 scope. The subsequent
-[6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md) replaces the shared-clock
-transport assumption; its local checks do not extend this historical acceptance.
+[accepted 6C3C5 deadline slice](PHASE_6_GUEST_DEADLINES.md) replaces the shared-clock
+transport assumption and records its own exact-source protected acceptance.
 
 ## Package and authenticated receiver
 

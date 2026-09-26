@@ -445,3 +445,19 @@ gate includes the closed helper payload and dependencies in its existing exact-b
 inventory. Job dependencies, Required coverage, measurement thresholds and paid
 cloud permissions are unchanged. See
 [the delivery contract](v5x/v5.1/PHASE_6_GUEST_DELIVERY.md).
+
+### Phase 6C3C6 isolated root admission
+
+The provider gate now accepts `--allow-sudo-namespace`, passed explicitly by CI.
+It first tries an unprivileged user/mount namespace; the explicit flag permits a
+noninteractive sudo namespace fallback on hosted runners that disallow user
+namespaces. All system binds are recursively read-only inside the private
+namespace. Only the qualification's private chroot is writable. No host account,
+SSH configuration, host mount table or block device is changed.
+
+The same gate retains six modeled root-admission lifecycle cases and an additional
+120-second isolated-root qualification (eleven receiver cases and three owned
+controller cases). It tests real root file ownership with fixture NSS/metadata;
+it does not claim IAP or actual cloud sudo execution. The existing provider
+artifact, ten-minute Cloud runner ceiling, Required identities and docs-only skips
+are preserved. See [the root-admission contract](v5x/v5.1/PHASE_6_ROOT_ADMISSION.md).
