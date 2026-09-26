@@ -40,7 +40,10 @@ master `d27da43086406384ab41cab6704541015aa0a1bf`, CI `36149275698` (27 jobs).
 The [6C3C3 owned startup slice](PHASE_6_GUEST_STARTUP.md), accepted through PR #234 /
 CI `36185893530` attempt 2 (27 jobs), adds numeric-ID facts,
 Linux observations, one-shot modeled disk setup and retained cleanup/accounting.
-The [helper delivery candidate](PHASE_6_GUEST_DELIVERY.md) adds real loopback SSH.
+The [helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is accepted through PR #235,
+master `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master CI `36206334728`
+attempt 1 (27 successful jobs). The [6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md)
+adds boot-bound cross-host deadline translation; its protected acceptance is open.
 Cloud SSH/privileged delivery, configuration and full 6C remain open.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
@@ -86,7 +89,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C3 implementation candidate: owned facts/host pins, disk observations and once-only offline startup qualification.
 - [x] 6C3C3 protected acceptance: PR #234, exact-master CI `36185893530` attempt 2; the initial arrival-spread failure remains retained.
 - [x] 6C3C4 implementation candidate: [authenticated helper delivery](PHASE_6_GUEST_DELIVERY.md), consumed claims and real loopback SSH receipt queries.
-- [ ] 6C3C4 protected acceptance.
+- [x] 6C3C4 protected acceptance: PR #235, exact-master CI `36206334728` attempt 1, all 27 jobs.
+- [x] 6C3C5 implementation candidate: guest-clock deadline mapping, boot identity and retained non-renewing installation budgets.
+- [ ] 6C3C5 Linux SSH qualification and corrected-source protected acceptance.
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.

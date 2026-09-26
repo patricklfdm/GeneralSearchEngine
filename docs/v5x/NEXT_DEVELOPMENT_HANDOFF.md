@@ -83,10 +83,15 @@ is accepted through PR #234, master `79344fca6b447a3e77205be36d3d16e597d4bc23`,
 exact-master CI `36185893530`, attempt 2 (all 27 jobs). Its first concurrent
 measurement's 63.021587 ms burst spread remains a retained failure; no timing
 cause is established by the successful rerun.
-The [6C3C4 helper delivery candidate](v5.1/PHASE_6_GUEST_DELIVERY.md) adds a closed,
-digest-authenticated helper payload, consumed installation claims and real
-loopback OpenSSH receipt-query qualification. Native cloud SSH, cross-host
-deadline translation, root admission and disk writes remain closed. Next connect
+The [6C3C4 helper delivery slice](v5.1/PHASE_6_GUEST_DELIVERY.md) is accepted through
+PR #235, master `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master CI
+`36206334728` attempt 1 (all 27 jobs). It adds a closed, digest-authenticated helper
+payload, consumed installation claims and real loopback OpenSSH receipt queries.
+The [6C3C5 deadline candidate](v5.1/PHASE_6_GUEST_DEADLINES.md) begins the next
+unfinished boundary with boot-bound guest-clock translation and non-renewing
+receipt queries. Its Mac reconstruction records the unchanged remote master and
+local environment limitations; corrected-source Linux/protected CI remains required.
+Native cloud SSH, root admission and disk writes remain closed. Next connect
 privileged delivery and volume readiness to packaged services under the owned
 controller, finish remote faults/oracles, then trusted preflight and separate
 workflows/configuration. Paid experiments remain user-triggered after exact-request confirmation.

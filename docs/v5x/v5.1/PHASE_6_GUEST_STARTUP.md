@@ -129,7 +129,7 @@ Prior JVM/bootstrap qualification remains separate evidence.
 
 Deliver and verify the privileged helper on the pinned guest, implement and qualify
 actual pinned SSH delivery/receipt queries under the owned controller, and connect
-volume readiness to package/source distribution and persistent services. The subsequent [helper delivery candidate](PHASE_6_GUEST_DELIVERY.md) includes the
+volume readiness to package/source distribution and persistent services. The subsequent [accepted helper delivery slice](PHASE_6_GUEST_DELIVERY.md) includes the
 volume module in the source-bound package and qualifies authenticated loopback SSH
 installation and original receipt queries. Keep real SSH
 and provider mutations closed until these pieces and paid admission are integrated.

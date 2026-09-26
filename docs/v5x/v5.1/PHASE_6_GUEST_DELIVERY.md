@@ -1,9 +1,16 @@
 # V5.1 Phase 6C3C4: authenticated helper delivery
 
-**Status:** implementation candidate on master
-79344fca6b447a3e77205be36d3d16e597d4bc23. The preceding
-[owned startup slice](PHASE_6_GUEST_STARTUP.md) passed PR #234 and exact-master
-CI 36185893530 attempt 2 (27 jobs). This candidate needs its own protected CI.
+**Status:** accepted through [PR #235](https://github.com/patricklfdm/GeneralSearchEngine/pull/235),
+master `d40d7d8be1320a3e989ab551536715f4e47795be`. PR CI `36204539682` and
+[exact-master CI `36206334728`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36206334728)
+passed; master attempt 1 executed all 27 jobs successfully, including the provider
+SSH qualification and packaged guest gates. The preceding
+[owned startup slice](PHASE_6_GUEST_STARTUP.md) remains accepted through PR #234 /
+CI `36185893530` attempt 2, with its original failed measurement retained.
+
+The sections below describe the accepted 6C3C4 scope. The subsequent
+[6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md) replaces the shared-clock
+transport assumption; its local checks do not extend this historical acceptance.
 
 ## Package and authenticated receiver
 

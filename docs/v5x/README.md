@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A review and 6B cloud contract; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C4, 6C3C5 candidate; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -92,8 +92,14 @@ admission and cleanup decisions without GCP. Actual cloud integration remains
 open in the [checklist](v5.1/PHASE_6_CHECKLIST.md). PR #230 passed exact-master CI `36105310891`. The
 [accepted 6C3B guest/provider gate](v5.1/PHASE_6_CLOUD_PROVIDER.md) adds source-bound
 packaging and offline HTTP adapter qualification (PR #231, master CI `36113872308`).
-The [6C3C1 guest candidate](v5.1/PHASE_6_GUEST_SERVICE.md) connects persistent
-JVMs, command receipts and binary transport locally. Full remote admission remains open.
+The [6C3C1 guest service](v5.1/PHASE_6_GUEST_SERVICE.md),
+[6C3C2 bootstrap](v5.1/PHASE_6_GUEST_BOOTSTRAP.md),
+[6C3C3 startup](v5.1/PHASE_6_GUEST_STARTUP.md) and
+[6C3C4 helper delivery](v5.1/PHASE_6_GUEST_DELIVERY.md) are accepted through PRs
+#232–#235. Current master is `d40d7d8be1320a3e989ab551536715f4e47795be`, exact-master
+CI `36206334728` attempt 1 (all 27 jobs). The next
+[6C3C5 deadline candidate](v5.1/PHASE_6_GUEST_DEADLINES.md) handles independent guest
+clock epochs. Full 6C, privileged cloud startup and paid admission remain open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

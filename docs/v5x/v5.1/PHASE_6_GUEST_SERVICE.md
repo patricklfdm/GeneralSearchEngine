@@ -4,9 +4,11 @@
 `2183dafa618238f0b824fc0a3b3d42624ce24782`,
 [exact-master CI 36124423253](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36124423253)
 (all 27 jobs passed, including the persistent guest gate).
-[6C3C2 bootstrap/startup preparation](PHASE_6_GUEST_BOOTSTRAP.md) is the next
-implementation candidate. Full 6C3C, trusted cloud configuration and paid admission
-remain open.
+[6C3C2 bootstrap/startup preparation](PHASE_6_GUEST_BOOTSTRAP.md),
+[6C3C3 owned startup](PHASE_6_GUEST_STARTUP.md) and
+[6C3C4 helper delivery](PHASE_6_GUEST_DELIVERY.md) were subsequently accepted through
+PRs #233–#235. The [6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md) follows them.
+Full 6C3C, trusted cloud configuration and paid admission remain open.
 
 The first PR #232 rich automatic-healthy attempt, run `36120650925`, failed after
 an INDEX_CREATE succeeded in 1290 ms and the next frozen arrival found its lane
