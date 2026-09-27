@@ -7,7 +7,9 @@
 [6C3C2 bootstrap/startup preparation](PHASE_6_GUEST_BOOTSTRAP.md),
 [6C3C3 owned startup](PHASE_6_GUEST_STARTUP.md) and
 [6C3C4 helper delivery](PHASE_6_GUEST_DELIVERY.md) were subsequently accepted through
-PRs #233–#235. The [6C3C5 deadline candidate](PHASE_6_GUEST_DEADLINES.md) follows them.
+PRs #233–#235. The [6C3C5 deadline](PHASE_6_GUEST_DEADLINES.md) and
+[6C3C6 root admission](PHASE_6_ROOT_ADMISSION.md) slices are accepted through PRs
+#236–#237. The [6C3C7 package/service candidate](PHASE_6_PACKAGE_DELIVERY.md) follows them.
 Full 6C3C, trusted cloud configuration and paid admission remain open.
 
 The first PR #232 rich automatic-healthy attempt, run `36120650925`, failed after

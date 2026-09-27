@@ -91,12 +91,14 @@ The [6C3C5 deadline slice](v5.1/PHASE_6_GUEST_DEADLINES.md) is accepted through
 PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`, exact-master CI
 `36212673545` attempt 2 (all 27 jobs). Its initial HTTP 403 and healthy warmup
 lane-occupancy failure remain recorded; the rerun does not establish a timing cause.
-The [6C3C6 root-admission candidate](v5.1/PHASE_6_ROOT_ADMISSION.md) adds a trusted
-sudo receiver, root-owned claims/verified helper bytes, and isolated root/controller
-qualification. Protected acceptance is pending; native cloud execution and block
-writes remain closed. Next connect complete package transfer and mounted-volume
-readiness to persistent packaged services under the owned
-controller, finish remote faults/oracles, then trusted preflight and separate
+The [6C3C6 root-admission slice](v5.1/PHASE_6_ROOT_ADMISSION.md) is accepted through
+PR #237, master `de3264cb41e594e10e641748d1cdd75fe7c3a8ad`, exact-master CI
+`36281785824` attempt 1 (all 27 jobs). The original upload failure is retained.
+The [6C3C7 package/service candidate](v5.1/PHASE_6_PACKAGE_DELIVERY.md) connects
+bounded complete-package transfer and persistent services over real loopback SSH.
+Protected acceptance is pending; native cloud execution and block writes remain
+closed. Next connect mounted-volume readiness and service admission under the owned
+controller, finish distributed faults/oracles, then trusted preflight and separate
 workflows/configuration. Paid experiments remain user-triggered after exact-request confirmation.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

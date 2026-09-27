@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C5, 6C3C6 root-admission candidate awaiting protected acceptance; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C6, 6C3C7 package/service candidate awaiting protected acceptance; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -99,9 +99,11 @@ The [6C3C1 guest service](v5.1/PHASE_6_GUEST_SERVICE.md),
 #232–#235. The [6C3C5 deadline slice](v5.1/PHASE_6_GUEST_DEADLINES.md) is accepted
 through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`, exact-master
 CI `36212673545` attempt 2 (all 27 jobs). The
-[6C3C6 root-admission candidate](v5.1/PHASE_6_ROOT_ADMISSION.md) covers root-owned
-helper delivery and isolated root/controller qualification. Protected acceptance,
-full 6C, mounted cloud services and paid admission remain open.
+[6C3C6 root-admission slice](v5.1/PHASE_6_ROOT_ADMISSION.md) is accepted through
+PR #237 / master CI `36281785824` attempt 1 (27 jobs). The
+[6C3C7 package/service candidate](v5.1/PHASE_6_PACKAGE_DELIVERY.md) adds bounded
+complete-package transfer and persistent services over loopback SSH. Its protected
+acceptance, full 6C, mounted cloud services and paid admission remain open.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

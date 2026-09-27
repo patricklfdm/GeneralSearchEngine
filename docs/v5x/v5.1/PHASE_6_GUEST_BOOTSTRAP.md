@@ -7,7 +7,9 @@
 CI `36124423253`. The following [owned startup slice](PHASE_6_GUEST_STARTUP.md)
 was accepted through PR #234 / master CI 36185893530 attempt 2. The subsequent
 [helper delivery slice](PHASE_6_GUEST_DELIVERY.md) is accepted through PR #235 /
-master CI `36206334728`. The [deadline candidate](PHASE_6_GUEST_DEADLINES.md) follows it.
+master CI `36206334728`. The [deadline](PHASE_6_GUEST_DEADLINES.md) and
+[root admission](PHASE_6_ROOT_ADMISSION.md) slices are accepted through PRs #236–#237.
+The [package/service candidate](PHASE_6_PACKAGE_DELIVERY.md) follows them.
 Full 6C3C and paid admission remain open.
 
 ## Source distribution and local public bootstrap
