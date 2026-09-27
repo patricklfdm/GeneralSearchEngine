@@ -81,10 +81,12 @@ The [6C3C1 guest service](docs/v5x/v5.1/PHASE_6_GUEST_SERVICE.md),
 [6C3C2 bootstrap](docs/v5x/v5.1/PHASE_6_GUEST_BOOTSTRAP.md),
 [6C3C3 startup](docs/v5x/v5.1/PHASE_6_GUEST_STARTUP.md) and
 [6C3C4 helper delivery](docs/v5x/v5.1/PHASE_6_GUEST_DELIVERY.md) are accepted through
-PRs #232–#235. Latest accepted master is `d40d7d8be1320a3e989ab551536715f4e47795be`,
-exact-master CI `36206334728` attempt 1 (all 27 jobs). The
-[6C3C5 deadline candidate](docs/v5x/v5.1/PHASE_6_GUEST_DEADLINES.md) begins the next
-guest integration boundary. Full 6C and paid admission remain open.
+PRs #232–#235. The [6C3C5 deadline slice](docs/v5x/v5.1/PHASE_6_GUEST_DEADLINES.md)
+is accepted through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`,
+exact-master CI `36212673545` attempt 2 (all 27 jobs). Initial failures remain
+recorded. The [6C3C6 root-admission candidate](docs/v5x/v5.1/PHASE_6_ROOT_ADMISSION.md)
+adds root-owned helper delivery and isolated root/controller qualification; protected
+acceptance, full 6C and paid admission remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

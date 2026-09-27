@@ -224,7 +224,15 @@ def install(parent, value, uid, stream, deadline, *, budget=None):
         (root/'files').mkdir(mode=0o700); sync(root)
         for name, data in sorted(files.items()):
             need(time.monotonic() < deadline, 'delivery original deadline')
-            path = root/'files'/name; path.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
+            # mkdir(parents=True) applies mode only to the last directory. Build
+            # each closed component explicitly so umask=0002 cannot create 0775
+            # intermediates that our ownership check correctly rejects.
+            parent = root/'files'
+            for component in Path(name).parts[:-1]:
+                parent = parent/component
+                try: parent.mkdir(mode=0o700)
+                except FileExistsError: owned(parent, uid, True)
+            path = root/'files'/name
             write(path, data)
         for path in sorted((root/'files').rglob('*'), reverse=True):
             if path.is_dir(): sync(path)

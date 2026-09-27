@@ -1,10 +1,16 @@
 # V5.1 Phase 6C3C5: guest-clock helper deadlines
 
-**Status:** implementation candidate based on accepted master
-`d40d7d8be1320a3e989ab551536715f4e47795be`. Local Mac checks are distinct from
-Linux qualification and corrected-source protected CI, which remain required.
-This is the deadline prerequisite for privileged guest integration, not completion
-of all remaining 6C3C work.
+**Status:** accepted through [PR #236](https://github.com/patricklfdm/GeneralSearchEngine/pull/236),
+master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`. PR CI `36208912812` passed;
+[exact-master CI `36212673545`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36212673545)
+attempt 2 is successful with all 27 jobs. Linux qualification includes ten real
+loopback SSH scenarios. Full 6C3C/6C and paid admission remain open.
+
+Attempt 1 retains two failures: published-control download HTTP 403 and healthy
+warmup `LANE_BUSY` after a successful UPDATE_ALL took 1.884 seconds inside the Java
+API. The next one-second arrival could not dispatch. The successful rerun does
+not identify or fix that timing cause. The Mac reconstruction below records the
+historical entry and local qualification separately from this protected acceptance.
 
 ## Reconstructed entry and governing contracts
 
@@ -16,7 +22,7 @@ passed. [Exact-master CI `36206334728`](https://github.com/patricklfdm/GeneralSe
 attempt 1 passed all 27 jobs, including OpenSSH delivery, guest packaging,
 persistent services, isolated bootstrap and Required. No newer master was observed.
 
-Latest accepted slice is therefore **6C3C4**. 6A/6B, 6C1, full 6C2, 6C3A/B and
+At that reconstruction, the latest accepted slice was **6C3C4**. 6A/6B, 6C1, full 6C2, 6C3A/B and
 6C3C1–C4 are closed at their recorded boundaries. Full 6C3C/6C, 6D paid execution,
 6E registration and full Phase 6 acceptance remain open. No V5.1 cloud baseline
 or Phase 7 entry follows from #235.
@@ -115,14 +121,15 @@ not qualified by changing process identity rules or skipping a gate.
 
 Local logs and source hashes are retained under `target/mac-handoff-review/`.
 The updated portable suite (74 original, 12 deadline, 26 classifier tests) passed
-all 112 tests. Full Linux provider/OpenSSH and package qualification, then protected
-CI for this changed source, remain pending. No Maven/runtime measurement or paid
-cloud execution is claimed by this candidate.
+all 112 tests. Full Linux provider/OpenSSH, package qualification and protected CI
+were pending at that Mac handoff and are now covered by the acceptance above.
+These Mac tests do not themselves qualify a Maven/runtime measurement or paid run.
 
 ## Next integration boundary
 
-After deadline qualification, connect root-owned helper admission and delivery,
-complete source/build package transfer and mounted-volume readiness to persistent
+The [6C3C6 root-admission candidate](PHASE_6_ROOT_ADMISSION.md) implements root-owned
+helper delivery and isolated qualification, pending protected acceptance.
+Next connect complete source/build package transfer and mounted-volume readiness to persistent
 services under the owned controller. Then finish distributed failure cells,
 combined evidence bounds and independent physical/history replay, trusted
 preflight/configuration and separate V5.1 runner/cleanup workflows. The existing
