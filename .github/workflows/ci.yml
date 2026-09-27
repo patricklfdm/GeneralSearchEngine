@@ -221,6 +221,29 @@ jobs:
           timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification
           target/v51-guest-service --bundle target/v51-guest-package --source "$GITHUB_SHA"
 
+      - name: Prepare OpenSSH for the complete guest package qualification
+        run: |
+          if [[ ! -x /usr/sbin/sshd ]]; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends openssh-server
+          fi
+          sudo install -d -o root -g root -m 0755 /run/sshd
+
+      - name: Qualify V5.1 SSH package delivery and persistent services without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_package_qualification
+          target/v51-guest-delivery --bundle target/v51-guest-package --source "$GITHUB_SHA"
+
+      - name: Retain V5.1 complete package delivery and SSH service evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-guest-delivery-${{ github.sha }}
+          path: target/v51-guest-delivery
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 1
+
       - name: Qualify V5.1 exact-path bootstrap in independent filesystems without GCP
         run: >-
           timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification

@@ -1,0 +1,122 @@
+"""Complete guest package delivery over bounded pinned connections; no cloud admission."""
+import base64
+from copy import deepcopy
+import math
+import hashlib
+from pathlib import Path
+import secrets
+import time
+from . import cloud_package as package, guest_package_receiver as receiver, guest_delivery_receiver as r
+from . import guest_transport as transport, performance_model as m
+
+
+def describe(archive, manifest, binding, provider, access_sha):
+    archive = Path(archive); size = archive.stat().st_size
+    m.need(archive.is_file() and not archive.is_symlink() and 0 < size <= package.MAX_BYTES, 'package source archive')
+    parts = []; digest = hashlib.sha256()
+    with archive.open('rb') as stream:
+        while raw := stream.read(receiver.PART_BYTES):
+            parts.append(dict(index=len(parts), bytes=len(raw), sha256=m.sha(raw))); digest.update(raw)
+    m.need(binding['bundleSha256'] == digest.hexdigest() and manifest['source'] == binding['source'] and
+           m.sha(m.canonical(package.read(archive.parent/'package/workload.json'))) == binding['workloadSha256'] and
+           binding['attempt'] == provider['attempt'] and binding['node'] == 'node-'+str(provider['node']), 'package source/provider binding')
+    return receiver.descriptor(dict(schema='gse-v51-package-transfer-v1', binding=deepcopy(binding),
+        instanceId=provider['instanceId'], diskId=provider['diskId'], guestAccessSha256=access_sha, archiveBytes=size,
+        manifestSha256=m.sha((archive.parent/'package/manifest.json').read_bytes()),
+        buildManifestSha256=manifest['buildManifestSha256'], parts=parts))
+
+
+def trusted_source():
+    modules = {v.__name__.rsplit('.',1)[1]:Path(v.__file__).read_text() for v in (r, package, receiver)}
+    return ("import sys,types\np=types.ModuleType('trusted');p.__path__=[];sys.modules['trusted']=p\n"
+        "for name,source in "+repr(modules)+".items():\n"
+        " q=types.ModuleType('trusted.'+name);q.__package__='trusted';sys.modules[q.__name__]=q\n"
+        " exec(compile(source,'<trusted-package-'+name+'>','exec'),q.__dict__)\n"
+        "sys.modules['trusted.guest_package_receiver'].main()\n")
+
+
+class Endpoint:
+    offline = False
+    def __init__(self, target, parent, value):
+        receiver.descriptor(value); m.need(target['instanceId'] == value['instanceId'], 'package pinned instance')
+        self.target, self.parent, self.value = target, str(parent), deepcopy(value)
+        self.deadline = self.budget = None; self.started = False
+        self.calls = []; self.failures = []
+    def argv(self, remote): return transport.ssh_args(self.target, remote)
+    def call(self, action, data, deadline, token, index=None):
+        m.need(len(self.calls) < 4096, 'package connection count bound')
+        self.calls.append(dict(action=action, index=index))
+        remote = ['python3', '-I', '-c', trusted_source(), action, self.parent,
+                  base64.b64encode(m.canonical(self.value)).decode(), token, *([] if index is None else [str(index)])]
+        try:
+            raw = transport.process(self.argv(remote), data, deadline, maximum=4096, request_maximum=receiver.PART_BYTES)
+            return m.strict_json(raw)
+        except Exception as error:
+            if len(self.failures) < 8: self.failures.append(dict(action=action, type=type(error).__name__, message=str(error)[:1500]))
+            raise
+    def exchange(self, action, data, deadline, index=None):
+        m.need(self.offline is True, 'live package delivery disabled pending paid admission')
+        m.need(action in ('begin','part','query','finish') and isinstance(data,bytes) and
+               (action == 'part' or data == b''), 'package transfer input')
+        now = time.monotonic(); m.need(type(deadline) in (int,float) and math.isfinite(deadline) and 0 < deadline-now <= 600, 'package original deadline')
+        if not self.started:
+            self.started = True; self.deadline = deadline; nonce = secrets.token_hex(16)
+            try: sample = self.call('clock', b'', deadline, nonce)
+            except (ConnectionError, TimeoutError) as error:
+                raise ValueError('package clock unavailable; no delivery admitted: '+str(error)) from error
+            r.validate_sample(sample, receiver.identity(self.value), nonce)
+            remaining = math.floor((deadline-time.monotonic())*10**9)
+            self.budget = r.validate_budget(dict(schema='gse-v51-helper-deadline-v1', sample=sample,
+                expiresNanos=sample['sampledNanos']+remaining), receiver.identity(self.value))
+        m.need(self.budget is not None and deadline == self.deadline, 'package clock/deadline cannot renew')
+        answer = self.call(action, data, deadline, base64.b64encode(m.canonical(self.budget)).decode(), index)
+        m.need(type(answer) is dict and set(answer) == {'schema','deadlineSha256','receipt'} and
+               answer['schema'] == 'gse-v51-package-transport-v1' and answer['deadlineSha256'] == m.sha(m.canonical(self.budget)) and
+               time.monotonic() < deadline, 'package transport identity/deadline')
+        return answer['receipt']
+
+    def client(self, config):
+        m.need(self.offline is True and config['binding'] == self.value['binding'] and
+               config['packageManifestSha256'] == self.value['manifestSha256'], 'delivered client binding/scope')
+        endpoint = self
+        class Client(transport.Local):
+            def args(self, action, *tail):
+                remote = ['python3', '-I', '-c', trusted_source(), 'service', endpoint.parent,
+                    base64.b64encode(m.canonical(endpoint.value)).decode(), base64.b64encode(m.canonical(config)).decode(), action, *tail]
+                return endpoint.argv(remote)
+        base = Path(self.parent)/(self.value['binding']['attempt']+'-'+self.value['binding']['node'])/'package'
+        return Client(base, config)
+
+
+def deliver(endpoint, archive, deadline):
+    value = receiver.descriptor(endpoint.value)
+    m.need(endpoint.offline is True, 'live package delivery disabled pending paid admission')
+    def observe(action, data=b'', index=None):
+        answer = None
+        try: answer = endpoint.exchange(action, data, deadline, index)
+        except (ConnectionError, TimeoutError): pass
+        while True:
+            if answer is not None:
+                count = answer.get('completedParts'); state = answer.get('state')
+                m.need(type(count) is int and 0 <= count <= len(value['parts']) and state in
+                       ('RECEIVING','READY','SUCCEEDED','FAILED','NOT_FOUND','UNCERTAIN') and
+                       all(answer.get(k) == v for k,v in receiver.envelope(value,state,count).items()) and
+                       answer.get('paidCloud') is False and answer.get('fullRemoteQualification') is False, 'package receipt identity')
+                if state not in ('NOT_FOUND','UNCERTAIN'): return answer
+            left = deadline-time.monotonic(); m.need(left > 0, 'package unresolved; no replay')
+            time.sleep(min(.05,left))
+            try: answer = endpoint.exchange('query', b'', deadline)
+            except (ConnectionError, TimeoutError): answer = None
+    answer = observe('begin'); m.need(answer['state'] == 'RECEIVING' and answer['completedParts'] == 0, 'package destination already consumed')
+    with Path(archive).open('rb') as stream:
+        for part in value['parts']:
+            raw = stream.read(part['bytes'])
+            m.need(len(raw) == part['bytes'] and m.sha(raw) == part['sha256'], 'controller package bytes changed')
+            answer = observe('part', raw, part['index'])
+            m.need(answer['state'] in ('RECEIVING','READY') and answer['completedParts'] == part['index']+1,
+                   'package part failed: '+str(answer))
+        m.need(stream.read(1) == b'', 'controller package trailing bytes')
+    answer = observe('finish'); m.need(answer['state'] == 'SUCCEEDED', 'package installation failed: '+str(answer))
+    expected = str(Path(endpoint.parent)/(value['binding']['attempt']+'-'+value['binding']['node'])/'package')
+    m.need(answer['installed']['package'] == expected and answer['installed']['manifestSha256'] == value['manifestSha256'], 'package installed path/manifest')
+    return answer

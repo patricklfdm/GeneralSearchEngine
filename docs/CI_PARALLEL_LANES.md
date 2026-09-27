@@ -448,6 +448,8 @@ cloud permissions are unchanged. See
 
 ### Phase 6C3C6 isolated root admission
 
+Accepted through PR #237 / exact-master CI `36281785824` attempt 1, all 27 jobs.
+
 The provider gate now accepts `--allow-sudo-namespace`, passed explicitly by CI.
 It first tries an unprivileged user/mount namespace; the explicit flag permits a
 noninteractive sudo namespace fallback on hosted runners that disallow user
@@ -470,3 +472,23 @@ root negative case's `/var` link into host files, the artifact-only failure obse
 in PR #237 CI `36274635097`. Downloaded artifacts contain the tarball with the full
 original provider tree, including case receipts, partial installations and link
 metadata; no failed cases are filtered out.
+
+### Phase 6C3C7 complete package and SSH service integration
+
+The foundation lane adds `guest_package_qualification` with a 900-second outer
+limit, three modes, seven distinct service installations, thirty warmup calls,
+lost command reply, collection checks and process shutdown. Seven complete packages
+travel over actual loopback SSH in bounded 1 MiB parts; each transfer loses one
+part response and the installation response, then queries without repeating writes.
+All service control and binary collection also use SSH from verified installations
+on a shared local filesystem. Independent mount-view bootstrap remains a separate
+unchanged gate; its namespace UID mapping is not mixed with SSH-user admission.
+
+The lane prepares OpenSSH using the same conditional install and `/run/sshd`
+directory setup as the existing provider job. Private test keys are ephemeral and
+excluded from artifacts. The new `v51-guest-delivery` artifact contains delivery
+claims/parts/receipts, SSH diagnostics, and service evidence under `services/`, with
+seven-day retention and compression level 1. The original bootstrap artifact,
+plain guest-service gate, same-run build identity,
+Required jobs, docs-only decisions, workflow permissions and paid-cloud behavior
+remain unchanged. See [the integration contract](v5x/v5.1/PHASE_6_PACKAGE_DELIVERY.md).

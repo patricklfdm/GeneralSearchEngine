@@ -14,8 +14,9 @@ from . import cloud_package as package, cloud_guest as guest, guest_transport as
 from . import remote_command as command, remote_collection as collection, remote_schedule as schedule, performance_model as m
 
 
-def run(output, bundle, source, *, isolated=False, allow_sudo=False):
-    root, bundle = Path(output).resolve(), Path(bundle).resolve(); root.mkdir(parents=True, exist_ok=False)
+def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None):
+    m.need(not (isolated and delivery), 'SSH service and mount-view qualification are separate gates')
+    root, bundle = Path(output).resolve(), Path(bundle).resolve(); root.mkdir(parents=True, exist_ok=False, mode=0o700)
     packaged = bundle/'package'; manifest = package.verify(packaged, source)
     m.need(manifest['buildBinding'] == build.binding(Path(__file__).resolve().parents[2], source), 'guest qualification checkout/build mismatch')
     packed = package.read(bundle/'receipt.json')
@@ -53,12 +54,16 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False):
                         packageManifestSha256=m.sha((packaged/'manifest.json').read_bytes()), root=str(cell), mode=mode,
                         hosts=hosts, ports=ports, groupId=group)
                     configs.append(cfg)
+                packages = {cfg['binding']['node']: delivery.install(cfg, min(deadline,time.monotonic()+120)) if delivery else packaged for cfg in configs}
+                views = None
                 if isolated:
                     from . import guest_isolation
                     views = guest_isolation.Views(root/'views'/mode, cell, allow_sudo)
                     guest_isolation.prepare(views, packaged, configs, min(deadline, time.monotonic()+120))
                 for cfg in configs:
-                    client = views.client(packaged, cfg) if isolated else transport.Local(packaged, cfg); started = client.start(min(deadline, time.monotonic()+30))
+                    base = packages[cfg['binding']['node']]
+                    client = delivery.client(cfg) if delivery else (views.client(base, cfg) if isolated else transport.Local(base, cfg))
+                    started = client.start(min(deadline, time.monotonic()+30))
                     m.need(started['state'] == 'LAUNCHED', 'guest startup claim'); services.append((client, started['pid']))
                     until = min(deadline, time.monotonic()+30)
                     while True:

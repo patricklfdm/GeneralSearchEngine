@@ -84,9 +84,11 @@ The [6C3C1 guest service](docs/v5x/v5.1/PHASE_6_GUEST_SERVICE.md),
 PRs #232–#235. The [6C3C5 deadline slice](docs/v5x/v5.1/PHASE_6_GUEST_DEADLINES.md)
 is accepted through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`,
 exact-master CI `36212673545` attempt 2 (all 27 jobs). Initial failures remain
-recorded. The [6C3C6 root-admission candidate](docs/v5x/v5.1/PHASE_6_ROOT_ADMISSION.md)
-adds root-owned helper delivery and isolated root/controller qualification; protected
-acceptance, full 6C and paid admission remain open.
+recorded. The [6C3C6 root-admission slice](docs/v5x/v5.1/PHASE_6_ROOT_ADMISSION.md)
+is accepted through PR #237 / master CI `36281785824` attempt 1 (27 jobs).
+The [6C3C7 package/service candidate](docs/v5x/v5.1/PHASE_6_PACKAGE_DELIVERY.md)
+connects complete package transfer and persistent services over loopback SSH;
+its protected acceptance, full 6C and paid admission remain open.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

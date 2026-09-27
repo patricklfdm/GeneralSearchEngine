@@ -1,8 +1,9 @@
 # V5.1 Phase 6C3C6 — root helper admission
 
-**Status:** implementation candidate on accepted 6C3C5 master
-`3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`. Protected CI and exact-master acceptance
-remain pending. This does not close full 6C3C/6C or paid admission.
+**Status:** accepted through PR #237, master
+`de3264cb41e594e10e641748d1cdd75fe7c3a8ad`, exact-master CI `36281785824`
+attempt 1 (all 27 jobs successful, including evidence packing/upload).
+This does not close full 6C3C/6C or paid admission.
 
 ## Controller and root boundary
 
@@ -62,7 +63,8 @@ operations and the helper subprocess are real; account and cloud metadata are
 explicit fixtures. Local qualification uses mapped namespace root, without host
 sudo. Hosted CI may use the explicitly authorized sudo namespace fallback, returning
 only its private fixture tree to the original owner after unmounting the binds.
-That fallback still requires hosted validation. Host accounts, SSH configuration,
+The exact-master job passed; its selected namespace backend is not inferred from
+the job result alone. Host accounts, SSH configuration,
 mount table and disks are untouched. This is qualification tooling, not a sandbox
 for hostile code, and it is excluded from the deployable helper inventory.
 
@@ -90,8 +92,9 @@ PR #237 CI `36274635097` (merge source
 qualification successfully, then failed artifact upload with `EACCES` while following
 that fixture link into the runner's `/var/cache/apparmor`. The correction changes
 evidence packaging, not root admission or workload logic. Corrected-source protected
-CI and retained evidence remain required; a successful test step alone is not full
-job acceptance.
+CI `36281785824` subsequently passed the entire job, including packing and upload.
+The original failed upload remains recorded; a successful test step alone is not
+full job acceptance.
 
 ```bash
 python3.11 -m unittest scripts.v51.test_guest_root_admission scripts.v51.test_guest_root
@@ -111,8 +114,9 @@ not alter the process-wide umask.
 
 ## Remaining Phase 6 work
 
-After protected acceptance, connect complete source/build package transfer and
-mounted-volume persistent services, finish distributed faults/oracles and evidence
+The [6C3C7 candidate](PHASE_6_PACKAGE_DELIVERY.md) connects complete source/build
+package transfer and persistent services over loopback SSH. Mounted cloud startup,
+distributed faults/oracles and evidence
 budgets, then integrate trusted preflight and separate V5.1 workflows. Paid runs
 retain exact-request confirmation and user-owned triggering. Java/POM versions,
 frozen workloads, measurement retries and cloud admission are unchanged.
