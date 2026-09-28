@@ -11,7 +11,7 @@ import time
 from . import cloud_guest as guest, performance_model as m, remote_command as c
 
 
-def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES):
+def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES, retain_partial=False):
     m.need(type(request_maximum) is int and 0 < request_maximum <= 1 << 20 and
            isinstance(data, bytes) and len(data) <= request_maximum and time.monotonic() < deadline, 'guest transport request/deadline')
     proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
@@ -46,6 +46,9 @@ def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c
             m.need(time.monotonic() <= deadline, 'late guest transport result')
             succeeded = True
             return bytes(out)
+    except (ConnectionError,TimeoutError) as error:
+        if retain_partial: error.partial_output=bytes(out)
+        raise
     finally:
         if not succeeded:
             try: os.killpg(proc.pid, signal.SIGKILL)

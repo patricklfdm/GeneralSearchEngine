@@ -1,10 +1,13 @@
 # V5.1 Phase 6C3C11 — bounded initial-source transfer
 
-**Status:** implementation candidate based on accepted PR #241, master
-`87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master CI
-[36388477710](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36388477710)
-attempt 1 (all 27 jobs). This source requires its own protected Linux qualification
-and exact-master acceptance. Full 6C and paid admission remain open.
+**Status:** accepted through PR #242, master
+`41bee83b675bdd903d335fc9f1e0cc62cb350429`, exact-master CI
+[36395914043](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36395914043)
+attempt 1 (all 27 jobs). The complete three-receiver owned gate passed, including
+binary source delivery, producer-path removal, public bootstrap, idle service
+shutdown and modeled cleanup. The follow-up
+[source-producer extension](PHASE_6_SOURCE_PRODUCER.md) is a separate candidate.
+Full 6C and paid admission remain open.
 
 ## Transfer boundary
 
@@ -13,7 +16,9 @@ can now use [binary delivery](../../../scripts/v51/guest_source_delivery.py) aft
 all three packages are authenticated and before any receiver import. The producer
 still runs through the explicit `qualification-shared-source-paths` adapter. Its
 preparation and controller access to its export remain local qualification;
-producer-side remote command admission/download and native IAP remain future work.
+At this acceptance boundary, producer-side remote command admission/download
+remained open; the [producer candidate](PHASE_6_SOURCE_PRODUCER.md) now addresses
+that boundary. Native IAP remains future work.
 The new receiver does not use those producer paths.
 
 The controller splits each existing bootstrap archive part into at most 1 MiB

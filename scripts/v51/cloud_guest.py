@@ -107,14 +107,18 @@ class Service:
                 if proc.poll() is None: proc.kill(); proc.wait(timeout=5)
         m.need(proc.returncode == 0, 'guest setup process failed: '+label)
 
+    def prepare_source(self):
+        m.need(self.node == 'node-1' and self.jvm is None and not self.shutting_down, 'guest source role/state')
+        for file, text in [('hosts.txt', '\n'.join(self.config['hosts'])+'\n'),
+                           ('ports.txt', '\n'.join(map(str, self.config['ports']))+'\n'), ('group-id.txt', self.config['groupId']+'\n')]:
+            with (self.cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
+        self.oneshot('seed', self.java(package.MODES[0], self.cell, 'prepare', self.plan, self.cell/'source'))
+
     def handler(self, name, payload, checkpoint):
         self.ack.set(); checkpoint(); m.need(not self.shutting_down, 'guest shutting down')
         if name == 'prepare-cell':
             m.need((not payload or payload == {'distribute': True}) and self.node == 'node-1' and self.jvm is None, 'guest prepare role/state')
-            for file, text in [('hosts.txt', '\n'.join(self.config['hosts'])+'\n'),
-                               ('ports.txt', '\n'.join(map(str, self.config['ports']))+'\n'), ('group-id.txt', self.config['groupId']+'\n')]:
-                with (self.cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
-            self.oneshot('seed', self.java(package.MODES[0], self.cell, 'prepare', self.plan, self.cell/'source'))
+            self.prepare_source()
             if self.config['mode'] != package.MODES[0] and not payload:
                 self.oneshot('bootstrap', self.java(self.config['mode'], self.cell, 'setup', self.plan, self.cell/'source'))
             if payload:

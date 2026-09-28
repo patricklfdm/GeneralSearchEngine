@@ -239,6 +239,30 @@ def source_transfer(parent, value, budget, tail, stream):
         deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
 
 
+def producer(parent,value,budget,tail):
+    base=installed(parent,value)
+    r.need(read(base.parent/'deadline.json')==budget,'producer original package deadline changed')
+    r.need(len(tail) in (2,3,4) and tail[0] in ('prepare','query','manifest','chunk') and len(tail[1])<=90000,
+           'producer arguments')
+    action=tail[0]
+    r.need(len(tail)==(4 if action=='chunk' else 3 if action=='manifest' else 2),'producer action arguments')
+    request=r.decode(base64.b64decode(tail[1],validate=True));config=request['configs'][0]
+    r.need(value['binding']['node']=='node-1' and config['binding']==value['binding'] and
+           config['packageManifestSha256']==value['manifestSha256'] and config['root']==str(Path(parent)/config['mode']),
+           'producer installed configuration binding')
+    sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
+    from scripts.v51 import guest_source_producer as source
+    source.validate(request);check=lambda:r.guest_deadline(budget,identity(value));deadline=check()
+    if action=='prepare':answer=source.prepare(base,request,deadline,check)
+    elif action=='query':answer=source.query(base,request,check)
+    elif action=='manifest':answer=source.observe(base,request,tail[2],check)
+    else:answer=source.chunk(base,request,tail[2],int(tail[3]),check)
+    check()
+    if action=='chunk':return answer
+    return dict(schema='gse-v51-package-producer-v1',action=action,requestSha256=r.sha(r.canonical(request)),
+        deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
+
+
 def main():
     action, parent, encoded, token, *tail = sys.argv[1:]
     r.need(len(encoded) <= 131072 and len(token) <= 4096, 'package transfer envelope bound')
@@ -253,6 +277,9 @@ def main():
     def expired(*_): raise TimeoutError('package original deadline')
     signal.signal(signal.SIGALRM, expired); signal.setitimer(signal.ITIMER_REAL, max(.001, deadline-time.monotonic()))
     try:
+        if action=='producer':
+            answer=producer(parent,value,budget,tail)
+            sys.stdout.buffer.write(answer if isinstance(answer,bytes) else r.canonical(answer)+b'\n');sys.stdout.buffer.flush();return
         if action == 'source':
             print(r.canonical(source_transfer(parent,value,budget,tail,sys.stdin.buffer)).decode(),flush=True); return
         if action == 'bootstrap':
