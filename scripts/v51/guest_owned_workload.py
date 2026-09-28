@@ -124,7 +124,9 @@ class Probe:
                 c.write_once(download/'parts.json',manifest)
                 for part in manifest['parts']:
                     raw=client.part(part['name'],part['bytes'],end)
-                    collection.receive_part(download,part,(raw,))
+                    # Archive parts can be 8 MiB; receiver input blocks are at
+                    # most 1 MiB. Preserve the original part length and digest.
+                    collection.receive_part(download,part,(raw[p:p+(1<<20)] for p in range(0,len(raw),1<<20)))
                     m.need(self.clock()<end,'owned collection deadline')
                 replay=self.root/('replay-node-'+str(node));collection.unpack(download,replay,binding)
                 controller=dict(config=cfg,packageRoot=str(client.base),active=self.active is not None and node==self.active[0],

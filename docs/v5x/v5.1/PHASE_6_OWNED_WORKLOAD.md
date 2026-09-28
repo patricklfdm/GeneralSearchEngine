@@ -82,6 +82,32 @@ windows, passive coverage, reply loss, scope restrictions, failed collection and
 cleanup/accounting. Validation receipts are retained under
 `target/v51-owned-workload`; corrected-source protected CI remains required.
 
+### CI collection boundary correction
+
+PR CI [36451894683](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36451894683),
+attempt 2, executed all five owned healthy windows in 113.595 seconds and completed
+cleanup within budget. All three member collections then failed with
+`binary block limit`: the owned adapter supplied each downloaded archive part as
+one receiver block. Archive parts allow 8 MiB; the receiver accepts blocks no larger
+than 1 MiB. This is a deterministic adapter error for a part larger than 1 MiB.
+The earlier standalone SSH collector already split its input into bounded blocks;
+that separate qualification did not cover this owned-path boundary.
+
+The adapter now splits the downloaded bytes into blocks of at most 1 MiB, retaining
+the original part length, digest, partial-file and archive limits. Three new owned
+collector regressions exercise full 8 MiB parts plus tails through the independent
+validator, then verify that truncation and corruption remain failures, retain their
+partial bytes and do not skip validation of the remaining members or retry reads.
+All three regressions fail on the original collector; 74 related tests pass after
+the correction.
+
+Offline replay through the corrected collector of this CI attempt's unchanged
+retained archives passes all three members and 90 original calls. It consumes only
+original stop/collection receipts and immutable parts; no JVM or window is rerun.
+The original failed receipts remain intact. Replay receipts and hashes are under
+`target/v51-owned-workload-ci-fix`; this is diagnostic replay, not corrected-source
+protected acceptance, which remains required.
+
 Next integrate the remaining owned modes/cells and physical/backup evidence, then
 trusted preflight and separate V5.1 cloud configuration/workflows. Paid runs still
 require exact-request confirmation and manual triggering by the user.

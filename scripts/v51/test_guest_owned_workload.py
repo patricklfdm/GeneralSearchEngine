@@ -1,13 +1,16 @@
 """Owned workload lifecycle tests; synthetic replies are not engine evidence."""
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
+import os
 import tempfile
 import unittest
 from . import cloud_authority as a, cloud_fake as fake, cloud_runner as runner, cloud_package as package
 from . import guest_owned_workload as w, remote_command as c, remote_schedule as schedule, performance_model as m
 from .test_guest_service import config
 from .test_cloud_package import fixture as package_fixture
+from .test_guest_healthy_evidence import HealthyFixture
+from . import remote_collection as collection
 
 
 class Client:
@@ -100,6 +103,70 @@ class OwnedWorkloadTest(unittest.TestCase):
         self.probe.stop();result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
         self.assertEqual(result['status'],'FAIL');self.assertEqual([n for n,_,_ in self.probe.started],[1,2])
         self.assertTrue(self.probe.clients[1][1].closed);self.assertFalse(self.probe.clients[2][1].calls)
+
+
+class OwnedCollectionTest(unittest.TestCase):
+    """Exercise the actual owned collector and independent validator together."""
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.clock=fake.Clock();req,_,_=fake.fixture()
+        services=SimpleNamespace(offline=True,mode=package.MODES[2],bootstrap=object(),provider=SimpleNamespace(req=req))
+        self.probe=w.Probe(services,self.root/'probe',clock=self.clock.seconds,sleep=self.clock.sleep)
+        self.fixtures={};self.fault=None;self.original_parts={}
+        # Incompressible valid stderr gives a full 8 MiB part and a short tail.
+        # Small warmup collections did not exercise the owned adapter's boundary.
+        payload=os.urandom((8<<20)+1024)
+        for node in (1,2,3):
+            f=HealthyFixture(self.root/f'raw-{node}',active=node==1,node=f'node-{node}')
+            f.files[f.node+'-stderr.log']=payload;f.render();(f.root/collection.INDEX).unlink()
+            parts=self.root/f'parts-{node}'
+            manifest=collection.pack(f.root,parts,m.sha(m.canonical(f.config['binding'])))
+            self.assertEqual(manifest['parts'][0]['bytes'],8<<20);self.assertEqual(len(manifest['parts']),2)
+            f.transcript[-1]['receipt']['result']=manifest
+            self.fixtures[node]=f;self.original_parts[node]=parts
+            client=SimpleNamespace(config=f.config,base=f.base,part=Mock(side_effect=self.download(node)))
+            self.probe.clients.append((node,client,f.config))
+            self.probe.transcripts[node]=list(f.transcript[:-2])
+        self.probe.manifest=self.fixtures[1].manifest;self.probe.started=list(self.probe.clients)
+        self.probe.active=self.probe.clients[0];self.probe.cells=['healthy'];self.probe.engineWorkloadExecuted=True
+        self.probe.stop()
+    def download(self,node):
+        def read(name,maximum,deadline):
+            raw=(self.original_parts[node]/name).read_bytes();self.assertEqual(len(raw),maximum)
+            if node==1 and self.fault=='truncated':return raw[:-1]
+            if node==1 and self.fault=='corrupt':return bytes([raw[0]^1])+raw[1:]
+            return raw
+        return read
+    def collect(self):
+        def received(member,name,payload,deadline):
+            f=self.fixtures[member[0]];row=f.transcript[-2 if name=='stop-voter' else -1]
+            self.assertEqual(row['request']['command'],name);self.assertEqual(row['request']['payload'],payload)
+            self.probe.transcripts[member[0]].append(row);return row['receipt']
+        with patch.object(self.probe,'succeeded',side_effect=received):
+            return self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+    def test_full_size_parts_and_tail_replay_all_members_without_retries(self):
+        result=self.collect();self.assertEqual(result['status'],'PASS',result['errors'])
+        self.assertEqual([r['calls'] for r in result['members']],[90,0,0])
+        for node,client,_ in self.probe.clients:
+            self.assertEqual(client.part.call_count,2)
+            downloaded=self.probe.raw/f'node-{node}'/'parts'
+            for original in self.original_parts[node].glob('*.bin'):
+                self.assertEqual((downloaded/original.name).read_bytes(),original.read_bytes())
+            self.assertFalse(list(downloaded.glob('*.partial')))
+    def test_truncated_large_part_remains_failed_partial_and_other_members_are_checked(self):
+        self.fault='truncated';result=self.collect()
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),2)
+        self.assertEqual(result['errors'],[dict(node=1,phase='collection-validation',message='part incomplete/hash mismatch')])
+        folder=self.probe.raw/'node-1/parts';self.assertFalse((folder/'part-0000.bin').exists())
+        self.assertEqual((folder/'part-0000.bin.partial').stat().st_size,(8<<20)-1)
+        self.assertEqual(self.probe.clients[0][1].part.call_count,1)
+    def test_corrupt_large_part_is_not_retried_or_published(self):
+        self.fault='corrupt';result=self.collect()
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),2)
+        self.assertEqual(result['errors'][0]['message'],'part incomplete/hash mismatch')
+        folder=self.probe.raw/'node-1/parts';self.assertFalse((folder/'part-0000.bin').exists())
+        self.assertEqual((folder/'part-0000.bin.partial').stat().st_size,8<<20)
+        self.assertEqual(self.probe.clients[0][1].part.call_count,1)
 
 
 class RunnerWorkloadTest(unittest.TestCase):

@@ -11,9 +11,10 @@ from .test_guest_service import config
 
 
 class Fixture:
-    def __init__(self, root, mode=package.MODES[2], active=True):
+    def __init__(self, root, mode=package.MODES[2], active=True, node=None):
         self.root, self.active = root, active; self.config = config(root/'remote-cell'); self.config['mode'] = mode
         if not active: self.config['binding']['node'] = 'node-2'
+        if node is not None: self.config['binding']['node'] = node
         self.node = 'local' if mode == package.MODES[0] else self.config['binding']['node']
         self.base = '/remote/verified-package'; env = contract.load()['environment']
         jars = ['artifacts/core.jar'] if self.node == 'local' else ['artifacts/core.jar','artifacts/replication.jar']
