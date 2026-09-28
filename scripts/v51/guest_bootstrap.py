@@ -9,6 +9,7 @@ from copy import deepcopy
 import os
 from pathlib import Path
 import sys
+import time
 from . import performance_model as m, remote_command as c, remote_collection as parts
 from . import cloud_package as package
 
@@ -126,11 +127,14 @@ def check_ready(root, config, *, sealed=False):
     return value
 
 
-def seal(base, config):
+def seal(base, config, *, deadline=None):
     from .cloud_guest import Service
     root = c.directory(config['root']); value = check_ready(root, config)
     c.write_once(root/LOCAL_CLAIM, dict(config=config, seedSha256=m.sha(m.canonical(value))))
     service = Service(base, config); files = {}
+    if deadline is not None:
+        m.need(time.monotonic() < deadline <= service.deadline, 'bootstrap seal deadline')
+        service.deadline = deadline
     identity = dict(sourceSha256=m.sha(m.canonical({k:v for k,v in value['files'].items() if k.startswith('source/')})))
     if config['mode'] != package.MODES[0]:
         service.oneshot('local-bootstrap', service.java(config['mode'], root, 'setup', service.plan, root/'source'))
@@ -157,17 +161,43 @@ def group_identity(rows, configs):
     return rows[0]['identity']
 
 
+def observe(config, phase, digest=None):
+    """Read original claims only. Absence or uncertainty never permits a replay."""
+    from .cloud_guest import validate
+    validate(config); m.need(phase in ('install','seal'), 'bootstrap observation phase')
+    root = Path(config['root'])
+    if not root.exists() and not root.is_symlink(): return dict(state='NOT_FOUND')
+    c.directory(root)
+    if not (root/CLAIM).exists() or not (root/READY).exists(): return dict(state='UNCERTAIN')
+    claim = c.read(root/CLAIM)
+    m.need(claim == dict(descriptorSha256=digest,config=config), 'bootstrap observation identity')
+    local = root/LOCAL_CLAIM
+    if local.exists() or local.is_symlink():
+        m.need(c.read(local) == dict(config=config,seedSha256=digest), 'bootstrap observed local claim')
+        if not (root/LOCAL_READY).exists(): return dict(state='UNCERTAIN')
+        value = check_ready(root,config,sealed=True)
+    else: value = check_ready(root,config)
+    if phase == 'install':
+        return dict(state='SUCCEEDED',result=dict(status='PASS',node=config['binding']['node'],descriptorSha256=digest,files=len(value['files'])))
+    if not local.exists(): return dict(state='NOT_FOUND')
+    return dict(state='SUCCEEDED',result=dict(status='PASS',node=config['binding']['node'],identity=c.read(root/LOCAL_READY)['identity']))
+
+
 def main(base, argv):
     from .cloud_guest import Service
-    p = argparse.ArgumentParser(); p.add_argument('action', choices=('prepare', 'install', 'seal')); p.add_argument('--input'); p.add_argument('--digest'); a = p.parse_args(argv)
+    p = argparse.ArgumentParser(); p.add_argument('action', choices=('prepare', 'install', 'seal')); p.add_argument('--input'); p.add_argument('--digest')
+    p.add_argument('--deadline',type=float); a = p.parse_args(argv)
     config = m.strict_json(sys.stdin.buffer.read(c.REQUEST_BYTES+1))
     package.verify(base, config['binding']['source'])
     m.need(m.sha((base/'manifest.json').read_bytes()) == config['packageManifestSha256'], 'bootstrap package binding')
     if a.action == 'prepare':
         service = Service(base, config)
+        if a.deadline is not None:
+            m.need(time.monotonic() < a.deadline <= service.deadline, 'bootstrap preparation deadline')
+            service.deadline = a.deadline
         value = c.request(config['binding'], m.sha(m.canonical(config))[:32], 'prepare-cell', dict(distribute=True))
         answer = service.store.execute(value, service.handler)
         m.need(answer['state'] == 'SUCCEEDED', 'bootstrap producer failed: '+str(answer))
     elif a.action == 'install': answer = install(Path(a.input), a.digest, config)
-    else: answer = seal(base, config)
+    else: answer = seal(base, config,deadline=a.deadline)
     print(m.canonical(answer).decode(), flush=True)

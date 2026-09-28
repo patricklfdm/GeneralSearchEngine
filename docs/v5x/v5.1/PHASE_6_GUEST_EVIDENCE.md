@@ -1,9 +1,15 @@
 # V5.1 Phase 6C3C9 — independent guest warmup evidence
 
-**Status:** implementation candidate based on accepted PR #239 master
-`1feeb2f1941367ef29cbb1cdabd3cead6715ebb8`, exact-master CI `36370271323`
-attempt 2 (all 27 jobs). This candidate requires its own protected Linux
-qualification and exact-master acceptance.
+**Status:** accepted through PR #240, master
+`0ef49cb8f5f6c793b9fe03db4b4069dd04e059ac`.
+[Exact-master CI 36378226619](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36378226619)
+attempt 1 passed all 27 jobs. PR CI `36375225877` attempt 1 also passed. The
+foundation log records all nine mode results and 21 member validations across the
+plain packaged, complete-package SSH and isolated-mount gates. Each gate retains
+its original thirty warmup calls. These are logical warmup/resource checks, not
+full cells or physical history acceptance.
+The following [owned bootstrap candidate](PHASE_6_OWNED_BOOTSTRAP.md) continues the
+local admission bridge; it requires its own qualification and acceptance.
 
 ## Cut point and scope
 

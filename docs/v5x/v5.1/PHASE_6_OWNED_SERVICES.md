@@ -98,9 +98,12 @@ python3.11 -m scripts.v51.guest_owned_qualification target/owned-services \
   --bundle target/v51-guest-package --source "$(git rev-parse HEAD)"
 ```
 
-The [6C3C9 guest evidence candidate](PHASE_6_GUEST_EVIDENCE.md) first adds independent
-warmup replay to the separate existing guest gates. Next connect distributed
-workload execution, faults and independent physical evidence validation to the
-owned service set. Native mounted cloud execution, trusted
-preflight, V5.1 workflow/configuration qualification and separately confirmed,
-user-triggered paid experiments remain subsequent work.
+The [6C3C9 guest evidence slice](PHASE_6_GUEST_EVIDENCE.md), merged through
+PR #240, adds independent warmup replay to the separate existing guest gates.
+The following [6C3C10 candidate](PHASE_6_OWNED_BOOTSTRAP.md) adds optional initial
+bootstrap before owned service admission, using shared qualification source paths
+and real SSH controls. The accepted default idle gate above is unchanged. Complete
+source transport, owned workload execution, faults and physical evidence remain
+open. Native mounted cloud execution, trusted preflight, V5.1 workflow/configuration
+qualification and separately confirmed, user-triggered paid experiments remain
+subsequent work.

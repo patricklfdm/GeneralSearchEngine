@@ -504,7 +504,9 @@ existing three-mode SSH/JVM and isolated bootstrap gates remain unchanged.
 `v51-owned-services-${sha}` retains complete diagnostics for seven days at
 compression level 1. No job or Required-result dependency changes.
 
-### Phase 6C3C9 independent guest evidence candidate
+### Phase 6C3C9 independent guest evidence
+
+Accepted through PR #240 / master CI `36378226619` attempt 1 (all 27 jobs).
 
 The existing packaged guest, complete-package SSH and isolated-mount gates now
 independently replay their seven downloaded member collections against retained
@@ -516,4 +518,28 @@ retain `package-manifest.json`, `controller-node-N.json` and `validation-node-N.
 The foundation test discovery includes the new portable adversarial replay tests.
 No additional Java build, job, workload retry or timing allowance is introduced.
 The owned idle gate remains unchanged. See the
-[candidate contract](v5x/v5.1/PHASE_6_GUEST_EVIDENCE.md).
+[accepted contract](v5x/v5.1/PHASE_6_GUEST_EVIDENCE.md).
+
+### Phase 6C3C10 owned bootstrap candidate
+
+The foundation lane adds a second owned qualification with `--bootstrap` and
+the same exact-source package. Its 720-second outer guard contains the original
+600-second preparation budget, public bootstrap and idle-service lifecycle. Source
+preparation and three local public bootstrap JVMs execute; no timed workload JVM
+or measured cell executes. Three receivers use independent mount views and real
+loopback SSH install/seal/query controls. Source parts use explicitly shared local
+paths, so this does not qualify binary cloud source transport.
+
+CI explicitly supplies `--allow-sudo-namespace` to preserve native UIDs for the
+authenticated package receiver's ancestor checks. The helper makes mounts private
+and drops back to the original user. No host mount or block device is changed.
+Completed install/seal replies are discarded once; the gate requires original
+receipt queries with no repeated mutations. Group manifest/genesis/source checks
+precede all service launches. Preparation failures retain claims and still enter
+the owned cleanup/accounting path.
+
+`v51-owned-bootstrap-${sha}` retains producer and receiver backings, package
+provenance, local seals, SSH diagnostics and controller records for seven days at
+compression level 1. Private keys are excluded. The original idle gate, job graph,
+Required dependencies, measured windows and paid workflows remain unchanged. See
+the [candidate contract](v5x/v5.1/PHASE_6_OWNED_BOOTSTRAP.md).
