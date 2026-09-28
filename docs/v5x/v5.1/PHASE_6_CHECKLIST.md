@@ -50,12 +50,17 @@ PR #237 / exact-master CI `36281785824` attempt 1 (27 jobs).
 PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
 `36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
 recorded; its successful rerun does not establish a timing cause. The
-[6C3C8 owned-service candidate](PHASE_6_OWNED_SERVICES.md) connects fresh
-mount readiness, complete package delivery and idle service admission under the
-owned lifecycle. Protected acceptance is pending. Next connect distributed
-workloads, faults and independent evidence, then trusted preflight and separate
-V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
-experiments require separate exact-request confirmation and user triggering.
+[6C3C8 owned services](PHASE_6_OWNED_SERVICES.md) is accepted through
+PR #239, master `1feeb2f1941367ef29cbb1cdabd3cead6715ebb8`, exact-master CI
+`36370271323` attempt 2 (all 27 jobs). Attempt 1's automatic-healthy lane-busy
+failure remains recorded; the rerun does not establish its cause. The
+[6C3C9 guest evidence candidate](PHASE_6_GUEST_EVIDENCE.md) adds independent
+warmup request/result and logical-answer replay to the existing guest gates;
+protected acceptance is pending. Owned services still stop at idle admission.
+Next connect distributed source/workload execution, complete windows, faults and
+physical evidence, then trusted preflight and separate V5.1 configuration/workflows.
+Native cloud writes and full 6C remain open; paid experiments require separate
+exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -108,7 +113,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C7 implementation candidate: bounded complete-package transfer, consumed claims and delivered persistent services over SSH.
 - [x] 6C3C7 protected acceptance: PR #238, exact-master CI `36302498537` attempt 2 (27 jobs).
 - [x] 6C3C8 implementation candidate: fresh mount/service admission and owned stop/retention/cleanup integration, qualified offline and through loopback SSH.
-- [ ] 6C3C8 protected CI and exact-master acceptance.
+- [x] 6C3C8 protected acceptance: PR #239, exact-master CI `36370271323` attempt 2 (27 jobs); initial automatic-healthy failure retained.
+- [x] 6C3C9 implementation candidate: [independent guest warmup evidence](PHASE_6_GUEST_EVIDENCE.md), controller/JVM/scheduler binding and logical/resource replay.
+- [ ] 6C3C9 protected Linux qualification and exact-master acceptance.
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.

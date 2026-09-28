@@ -1,9 +1,16 @@
 # V5.1 Phase 6C3C8 — owned startup and idle service admission
 
-**Status:** implementation candidate on accepted PR #238 master
-`ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI `36302498537`
-attempt 2 (27 jobs). This candidate still requires protected qualification.
+**Status:** accepted through PR #239, master
+`1feeb2f1941367ef29cbb1cdabd3cead6715ebb8`,
+[exact-master CI 36370271323](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36370271323)
+attempt 2 (all 27 jobs, including the owned idle service gate).
 Full 6C, native cloud execution, block writes and paid admission remain open.
+
+Attempt 1 failed the inherited automatic-healthy rich gate: ordinal 4 succeeded
+in approximately 1014 ms, then ordinal 5 was `NOT_DISPATCHED` with `LANE_BUSY`.
+The aggregate was skipped and Required failed. The owned idle service step passed
+in that attempt. These failures remain part of run `36370271323`; its successful
+rerun does not identify the timing cause or authorize retries/threshold changes.
 
 ## Owned preparation order
 
@@ -91,7 +98,9 @@ python3.11 -m scripts.v51.guest_owned_qualification target/owned-services \
   --bundle target/v51-guest-package --source "$(git rev-parse HEAD)"
 ```
 
-Next connect distributed workload execution, faults and independent evidence
-validation to the owned service set. Native mounted cloud execution, trusted
+The [6C3C9 guest evidence candidate](PHASE_6_GUEST_EVIDENCE.md) first adds independent
+warmup replay to the separate existing guest gates. Next connect distributed
+workload execution, faults and independent physical evidence validation to the
+owned service set. Native mounted cloud execution, trusted
 preflight, V5.1 workflow/configuration qualification and separately confirmed,
 user-triggered paid experiments remain subsequent work.

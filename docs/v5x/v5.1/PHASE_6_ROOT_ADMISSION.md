@@ -114,7 +114,8 @@ not alter the process-wide umask.
 
 ## Remaining Phase 6 work
 
-The [6C3C7 candidate](PHASE_6_PACKAGE_DELIVERY.md) connects complete source/build
+The [6C3C7 slice](PHASE_6_PACKAGE_DELIVERY.md), subsequently accepted through
+PR #238, connects complete source/build
 package transfer and persistent services over loopback SSH. Mounted cloud startup,
 distributed faults/oracles and evidence
 budgets, then integrate trusted preflight and separate V5.1 workflows. Paid runs

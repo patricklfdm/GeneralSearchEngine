@@ -5,7 +5,9 @@
 attempt 2 (all 27 jobs). Attempt 1 failed the inherited automatic-healthy rich
 workload gate and skipped its aggregate; that failure remains retained. The
 successful rerun does not establish its root cause. Full 6C and paid admission
-remain open. The [owned-startup candidate](PHASE_6_OWNED_SERVICES.md) follows this slice.
+remain open. [Owned startup](PHASE_6_OWNED_SERVICES.md) was subsequently accepted
+through PR #239. The [guest evidence candidate](PHASE_6_GUEST_EVIDENCE.md) adds
+independent warmup replay to this slice's existing SSH qualification.
 
 ## Delivery contract
 
