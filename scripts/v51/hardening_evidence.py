@@ -142,6 +142,35 @@ def recovery_writes(row, history, initial):
     need(expected==row['expected'], 'recovery final projection')
 
 
+def partition_drop(traces, row, starts, stops, wire):
+    """Observe the owned partition from either endpoint, in this process round.
+
+    A paused old leader need not issue another request before it is killed. The
+    surviving candidate's blocked PREPARE is equally a real use of the partition
+    filter. These JVMs and the controller share one host's monotonic clock.
+    """
+    begin=row['partitionNanos']; end=row['stops'][0]['startNanos']; old=row['oldLeader']
+    need(row['pause']['localNanos']<begin<end, 'invalid partition witness interval')
+    ended={s['pid']:s['startNanos'] for s in stops}
+    active={(s['node'],s['pid']):s['generation'] for s in starts
+            if s['readyNanos']<begin and ended.get(s['pid'],end)>=end}
+    need(active.get((old,row['oldPid']))==row['oldGeneration'], 'partition owner not live')
+    for node,rows in traces.items():
+        for record in rows:
+            if (record['event']!='NETWORK_DROP' or not begin<record['localNanos']<end
+                    or record.get('barrier') not in ('BEFORE_REQUEST_WRITE','AFTER_RESPONSE_READ')
+                    or 'rule' in record):continue
+            request=wire(record['request'])
+            if (record['node']!=node or request['sender']!=node
+                    or active.get((node,record['pid']))!=record['generation']
+                    or request['sender']==request['recipient']
+                    or not {request['sender'],request['recipient']}<=NODES
+                    or old not in (request['sender'],request['recipient'])):continue
+            return dict(round=row['number'],sender=request['sender'],recipient=request['recipient'],
+                        **{k:record[k] for k in ('node','pid','generation','order','localNanos','barrier')})
+    raise ValueError('missing in-round partition drop')
+
+
 def validate(root, traces, history, receipt, starts, stops):
     root=Path(root); schedule=rounds(receipt); identities=processes(traces,starts,stops)
     manifest=sealed_schedule(root,'node-3'); calls={h['opId']:h for h in history}
@@ -167,7 +196,7 @@ def validate(root, traces, history, receipt, starts, stops):
     dead={s['pid'] for s in stops if s['exitCode']==-9}
     wire=lambda encoded:a.f.wire(a.raw(encoded),manifest)
     accounting={node:reservations(rows,wire,1<<20,terminated_pids=dead&{r['pid'] for r in rows}) for node,rows in traces.items()}
-    previous=[]; held_indices=[]
+    previous=[]; held_indices=[]; partition_drops=[]
     for row in schedule:
         before=operation(row,'beforeRead','read'); recovered=operation(row,'recoveredRead','read')
         write=operation(row,'resumedWrite','addAll'); final=operation(row,'finalRead','read')
@@ -212,8 +241,7 @@ def validate(root, traces, history, receipt, starts, stops):
              and row['partitionNanos']<majority['startNanos']<majority['endNanos']<advanced['startNanos']
              and advanced['endNanos']<after_write['startNanos']<after_write['endNanos']<stop['startNanos']
              and stop['archivedNanos']<row['healNanos']<recovered['startNanos'], 'fault overlap or majority progress missing')
-        need(any(r['event']=='NETWORK_DROP' and (w:=wire(r['request']))['sender']==old and w['recipient']!=old
-                 for r in own if r['order']>pause['order']), 'old leader was not actually isolated')
+        partition_drops.append(partition_drop(traces,row,starts,stops,wire))
         need(all(d in majority['documents'] and d in final['documents'] for d in held['documents']), 'chosen uncertain bulk lost')
         votes=[]
         for node,rows in traces.items():
@@ -234,12 +262,14 @@ def validate(root, traces, history, receipt, starts, stops):
                  and a.frame(snapshot['terminalProof'],'PROOF',manifest)['epoch']>req['epoch'] for r in traces[row['newLeader']]
                  if r['event']=='PUBLISHED' and len(a.frame(r['snapshot'],'SNAPSHOT',manifest)['anchors'])>=entry['index']), 'no higher-epoch publication of held entry')
     need(previous==receipt['expected'], 'final hardening projection mismatch')
-    return dict(status='PASS',rounds=3,processes=len(starts),archivedDisks=len(stops),heldIndices=held_indices,transport=accounting)
+    return dict(status='PASS',rounds=3,processes=len(starts),archivedDisks=len(stops),heldIndices=held_indices,
+                partitionDrops=partition_drops,transport=accounting)
 
 
 def negatives(root,traces,history,receipt,starts,stops):
     names=['missing-round','reordered-rounds','false-generation','overlapping-owner','borrowed-archive','missing-sample','missing-follower-proof','leaked-timer','lost-prior-prefix','missing-recovery-attempt','replayed-recovery-key','late-recovery-start','false-recovery-projection']
-    names+=['false-minority-success'] if receipt['case']=='whole-group-restart' else ['missing-held-force','delivered-ack','false-held-success']
+    isolation_cases=('missing-isolation','out-of-round-isolation','rule-only-isolation')
+    names+=['false-minority-success'] if receipt['case']=='whole-group-restart' else ['missing-held-force','delivered-ack','false-held-success',*isolation_cases]
     result=[]
     for name in names:
         t=copy.deepcopy(traces); h=copy.deepcopy(history); r=copy.deepcopy(receipt); s=copy.deepcopy(starts); z=copy.deepcopy(stops)
@@ -268,8 +298,18 @@ def negatives(root,traces,history,receipt,starts,stops):
         elif name=='delivered-ack':
             pause=r['rounds'][0]['pause']; node=r['rounds'][0]['oldLeader']
             row=next(x for x in t[node] if x['pid']==pause['pid'] and x['order']>pause['order']);row.update(event='CUT_RELEASED')
+        elif name in isolation_cases:
+            window=r['rounds'][0]
+            for rows in t.values():
+                for x in rows:
+                    if x['event']!='NETWORK_DROP' or not window['partitionNanos']<x['localNanos']<window['stops'][0]['startNanos']:continue
+                    if name=='missing-isolation':x['event']='UNOBSERVED_DROP'
+                    elif name=='out-of-round-isolation':x['localNanos']=window['partitionNanos']-1
+                    else:x['rule']='unrelated network-rules.txt filter'
         else: next(op for op in h if op['opId']==r['rounds'][0]['uncertainWrite'])['outcome']='SUCCESS'
         try: validate(root,t,h,r,s,z)
-        except ValueError as error: result.append(dict(case=name,status='REJECTED',reason=str(error)))
+        except ValueError as error:
+            if name in isolation_cases:need(str(error)=='missing in-round partition drop', 'unrelated isolation rejection: '+str(error))
+            result.append(dict(case=name,status='REJECTED',reason=str(error)))
         else: raise ValueError('hardening oracle admitted '+name)
     return result

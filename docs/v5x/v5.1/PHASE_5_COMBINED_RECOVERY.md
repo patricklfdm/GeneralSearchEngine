@@ -33,6 +33,17 @@ all three current processes must retain a raw proof or installed recovery prefix
 through the final acknowledged bulk. Followers are checked for retained authority;
 only ready leaders publish query views.
 
+Each partition round must also contain a real `NETWORK_DROP` from the owned
+partition filter. Either endpoint may observe that drop: the paused old leader
+need not initiate another exchange before SIGKILL. The decoded request must cross
+the old leader's boundary and match the sender's trace, PID and generation. Its
+timestamp must fall strictly after partition installation and before SIGKILL
+begins, with both the old owner and recording sender alive for that interval.
+All processes in this local gate share the controller's monotonic clock. Only
+`BEFORE_REQUEST_WRITE` and `AFTER_RESPONSE_READ` partition drops qualify; separate
+`network-rules.txt` drops, other-round records and majority-only traffic do not.
+The oracle retains one bound witness per round in `partitionDrops`.
+
 Read-only resource observations must match raw per-process trace rows. Each round
 ends with zero pending work, queued deadlines and ordered work and all four public
 admission permits available. Transport admission and release records are counted
@@ -224,3 +235,47 @@ before Phase 6C proceeds. Neither changes production protocol code.
   Receipts, before/after logs and source hashes are indexed in
   `target/v51-master-221-failures/validation-summary.json`. Corrected-source protected
   CI remains required.
+
+## Partition witness correction after CI 36400900510
+
+[PR CI 36400900510](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36400900510/job/108860067197)
+tested merge source `e724a0f0e367f6a7ced20b271823d74889e478a1`. All three
+`partition-accept-kill` rounds completed, and its client-history and physical
+authority checks passed. The round oracle rejected round 2 because it searched
+only the old leader's outgoing drops. That paused node (`node-2`, PID 4353,
+generation 1) emitted none. The live peer (`node-1`, PID 4562, generation 2)
+recorded eighteen real blocked requests to it during the same partition.
+
+The validator now accepts a partition-filter witness from either request sender,
+using the interval and process bindings above. This corrects the assumption that
+the paused process must produce more traffic. It adds no workload retries or
+waiting, and keeps the bidirectional partition rules, held ACK, majority service,
+chosen-value preservation, crash/restart and three-round requirements. Production
+runtime Java and sealed timing/resource limits are unchanged.
+
+The original failed artifact remains intact under
+`target/ci-36400900510/hardening`; its ID is `10960492360`. Before correction,
+read-only replay reproduced `old leader was not actually isolated`. Review logs,
+replay receipts and input hashes are retained in `target/v51-hardening-isolation`.
+Twelve deterministic regressions cover both directions, both partition barriers,
+absent/unrelated drops, time boundaries, retired/future/incorrect processes,
+foreign/corrupt wire bytes and other network filters. Each live partition case
+also rejects three new evidence mutations: missing, out-of-round and rule-only
+partition drops.
+
+The same CI run's independent automatic-healthy shard stopped during warmup with
+`EXECUTOR_LATE`: the fourth call was not dispatched after a 264.84 ms delay exceeded
+the frozen 250 ms bound. Its first three calls succeeded. That scheduling result
+does not identify the source of the delay; this correction leaves its workload
+and dispatch limits unchanged. Corrected-source protected CI remains required.
+
+Validation for this correction:
+
+- All 53 focused hardening/pressure tests passed, including the twelve new tests.
+- Read-only replay passed all three retained CI cases and 52 hardening negatives;
+  the original failed receipt/history/trace hashes are unchanged.
+- The complete live gate passed at `target/v51-hardening/run.yclp0u/evidence`:
+  three cases, nine rounds and 67 rejected evidence variants, with the original
+  public history, physical authority, process and resource checks enabled.
+- The 68-document contract and whitespace checks passed. The receipt/hash index is
+  `target/v51-hardening-isolation/validation-summary.json`.
