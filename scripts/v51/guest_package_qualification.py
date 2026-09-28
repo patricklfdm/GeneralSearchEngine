@@ -48,7 +48,7 @@ class Delivery:
         return endpoint.client(config)
 
 
-def run(output,bundle,source,*,healthy=False,physical=False):
+def run(output,bundle,source,*,healthy=False,physical=False,backup=False):
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700)
     receipt=dict(schema='gse-v51-package-service-qualification-v1',status='FAIL',source=source,
         execution='loopback-openssh-package-services',realSshExecuted=True,engineWorkloadExecuted=True,
@@ -58,9 +58,11 @@ def run(output,bundle,source,*,healthy=False,physical=False):
         # Use the existing private-key location outside the uploaded evidence tree.
         with tempfile.TemporaryDirectory(prefix='gse-v51-package-keys-',dir=Path(__file__).resolve().parents[2]/'target') as private, Server(private,root) as server:
             delivery=Delivery(root/'deliveries',bundle,server); receipt['tools']=server.versions; receipt['deliveries']=delivery.receipts
-            result=q.run(root/'services',bundle,source,delivery=delivery,healthy=healthy,physical=physical)
+            result=q.run(root/'services',bundle,source,delivery=delivery,healthy=healthy,physical=physical,backup=backup)
             m.need(result['status']=='PASS' and len(delivery.receipts)==7,'delivered service member set')
-            receipt.update(status='PASS',healthyWindows=healthy,physicalHistoryQualified=physical,calls=sum(v['calls'] for v in result['cases']),modes=len(result['cases']),warmupCalls=sum(v['warmupCalls'] for v in result['cases']),cleanupErrors=result['cleanupErrors'])
+            receipt.update(status='PASS',healthyWindows=healthy,physicalHistoryQualified=physical,
+                backupRestoreQualified=any(v.get('physical') and v['physical'].get('backupRestoreQualified') for v in result['cases']),
+                calls=sum(v['calls'] for v in result['cases']),modes=len(result['cases']),warmupCalls=sum(v['warmupCalls'] for v in result['cases']),cleanupErrors=result['cleanupErrors'])
     except BaseException as error:
         receipt['failure']=dict(type=type(error).__name__,message=str(error)[:3000]); raise
     finally: c.write_once(root/'receipt.json',receipt)
@@ -69,8 +71,8 @@ def run(output,bundle,source,*,healthy=False,physical=False):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--healthy',action='store_true')
-    p.add_argument('--physical',action='store_true')
+    p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
     a=p.parse_args()
     def terminate(*_): raise TimeoutError('package qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
-    run(a.output,a.bundle,a.source,healthy=a.healthy,physical=a.physical)
+    run(a.output,a.bundle,a.source,healthy=a.healthy,physical=a.physical,backup=a.backup)

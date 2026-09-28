@@ -173,7 +173,7 @@ class RunnerWorkloadTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
         self.clock=fake.Clock();self.store=fake.Store();self.provider=fake.Provider(self.store)
-        self.probe=Mock(execution=a.EXECUTION,scope=w.SCOPE,services=object(),engineWorkloadExecuted=True,require_physical=False)
+        self.probe=Mock(execution=a.EXECUTION,scope=w.SCOPE,services=object(),engineWorkloadExecuted=True,require_physical=False,require_backup=False)
         self.startup=Mock(execution=a.EXECUTION,services=self.probe.services)
         self.startup.prepare.return_value=dict(status='PASS')
         self.startup.retention_files.return_value=[];self.probe.retention_files.return_value=[('fixture.bin',b'fixture')]
@@ -196,6 +196,11 @@ class RunnerWorkloadTest(unittest.TestCase):
         self.assertEqual(a.inspect_ledger(self.store.get(a.LEDGER)[1])[0],1_000_000)
     def test_physical_scope_cannot_accept_logical_only_evidence(self):
         self.probe.require_physical=True
+        result=self.run_case();self.assertEqual(result['status'],'FAIL');self.assertIn('evidenceSha256',result)
+        self.assertFalse(self.provider.objects);self.startup.stop.assert_called_once()
+    def test_backup_scope_cannot_accept_physical_only_evidence(self):
+        self.probe.require_physical=True;self.probe.require_backup=True
+        self.probe.collect_validate.return_value['physicalHistoryQualified']=True
         result=self.run_case();self.assertEqual(result['status'],'FAIL');self.assertIn('evidenceSha256',result)
         self.assertFalse(self.provider.objects);self.startup.stop.assert_called_once()
     def test_collection_exception_still_stops_services_cleans_resources_and_holds_lease(self):

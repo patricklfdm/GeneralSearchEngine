@@ -188,7 +188,9 @@ class Runner:
                         if self.qualification:
                             m.need(evidence['status']=='PASS' and evidence['cells']==['healthy'] and
                                    evidence['engineWorkloadExecuted'] is True and
-                                   evidence['physicalHistoryQualified'] is self.probe.require_physical,'owned workload qualification failed')
+                                   evidence['physicalHistoryQualified'] is self.probe.require_physical and
+                                   (not getattr(self.probe,'require_backup',False) or evidence.get('backupRestoreQualified') is True),
+                                   'owned workload qualification failed')
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('retention', error))
                 try:
                     with budget.stage('cleanup') as deadline:

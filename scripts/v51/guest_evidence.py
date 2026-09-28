@@ -31,7 +31,7 @@ def retained(root, manifest, owner):
     return set(index)
 
 
-def commands(root, config, transcript, *, physical=False):
+def commands(root, config, transcript, *, physical=False, backup=False):
     m.need(type(transcript) is list and 2 <= len(transcript) <= 2000, 'guest controller transcript bound')
     store = c.CommandStore(root/'store', config['binding'])
     rows, identifiers, process, previous = [], set(), None, 0
@@ -58,7 +58,8 @@ def commands(root, config, transcript, *, physical=False):
         rows.append((request, receipt))
     # The in-progress collect command is deliberately excluded from its own archive.
     last_request, last = rows[-1]
-    m.need(last_request['command'] == 'collect' and m.canonical(last_request['payload']) == m.canonical({'physical':True} if physical else {}) and last['state'] == 'SUCCEEDED',
+    collection_payload=dict(physical=True,backup=True) if backup else ({'physical':True} if physical else {})
+    m.need(last_request['command'] == 'collect' and m.canonical(last_request['payload']) == m.canonical(collection_payload) and last['state'] == 'SUCCEEDED',
            'guest final collection receipt')
     wanted = identifiers - {last_request['commandId']}
     m.need({p.name for p in (root/'store/commands').iterdir()} == wanted, 'guest retained command coverage')
@@ -118,7 +119,7 @@ def process(root, config, manifest, base, rows, service):
     return node, record, start, stop
 
 
-def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False, physical=False):
+def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False, physical=False, backup=False):
     """Validate one downloaded member against independently retained controller inputs."""
     root = c.directory(root); guest.validate(config); m.need(type(active) is bool and type(healthy) is bool, 'guest issuer/scope flag')
     m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == 'node-1' and active, 'guest local issuer role')
@@ -128,7 +129,9 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     m.need(type(transcript) is list and transcript, 'guest controller transcript absent')
     names = retained(root,transcript[-1]['receipt']['result'],config['binding'])
     m.need(type(physical) is bool and (not physical or healthy and config['mode']==package.MODES[2]), 'guest physical scope')
-    rows, service = commands(root,config,transcript,physical=physical)
+    m.need(type(backup) is bool and (not backup or physical and active), 'guest backup scope')
+    rows, service = commands(root,config,transcript,physical=physical,backup=backup)
+    m.need(backup or all(q['command'] not in ('backup','restore-backup') for q,_ in rows), 'guest unrequested backup/restore')
     node, record, started, stopped = process(root,config,manifest,package_root,rows,service)
     windows = [(q,r) for q,r in rows if q['command'] == 'window']
     specs = schedule.windows('healthy','experiment')[:None if healthy else 1]
@@ -203,6 +206,11 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
             m.need(call['answer'] == answer and call['answerSha256'] == m.sha(m.canonical(answer)) and
                    call['afterSequence'] == state.sequence, 'guest healthy logical answer/sequence')
             mapped.add(op)
+    backup_files={};backup_result=None
+    if backup:
+        from . import guest_backup_evidence
+        op,backup_files,backup_result=guest_backup_evidence.validate(root,config,package_root,manifest,rows,exchanges,state,stopped)
+        m.need(op not in mapped,'guest duplicate backup mapping');mapped.add(op)
     m.need(mapped == set(results), 'guest unaccounted JVM command')
     samples = rich.lines(root,node+'-samples',budget)
     for sample in samples:
@@ -230,9 +238,12 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
         prefix='authority/'+node+'/'
         authority=guest_authority.inventory(root/'authority'/node)
         allowed|={prefix+n for n in authority}
+    if backup:
+        allowed|={'backup/export/'+n for n in backup_files}
+        allowed|={'backup/'+n for n in ('backup-claim.json','backup-result.json','restore-claim.json','restore-result.json','restore.stdout','restore.stderr')}
     m.need(names == allowed | journals, 'guest collection closed inventory')
     return dict(status='PASS',execution='guest-healthy-evidence-only' if healthy else 'guest-warmup-evidence-only',node=node,mode=config['mode'],calls=len(calls),
-        logicalSemanticsQualified=True,physicalHistoryQualified=False,paidCloud=False,fullRemoteQualification=False,
+        logicalSemanticsQualified=True,physicalHistoryQualified=False,backupRestore=backup_result,paidCloud=False,fullRemoteQualification=False,
         configSha256=m.sha(m.canonical(config)),collectionSha256=m.sha(m.canonical(rows[-1][1]['result'])),
         resources=resources,journals=dict(results=len(originals),samples=len(samples),trace=len(traces)))
 
@@ -242,6 +253,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('replay',type=Path); parser.add_argument('--controller',type=Path,required=True)
     parser.add_argument('--manifest',type=Path,required=True); parser.add_argument('--healthy',action='store_true'); parser.add_argument('--physical',action='store_true')
+    parser.add_argument('--backup',action='store_true')
     args = parser.parse_args(); controller = c.read(args.controller)
     print(m.canonical(validate(args.replay,controller['config'],args.manifest.read_bytes(),controller['packageRoot'],
-        controller['transcript'],active=controller['active'],healthy=args.healthy,physical=args.physical)).decode())
+        controller['transcript'],active=controller['active'],healthy=args.healthy,physical=args.physical,backup=args.backup)).decode())

@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C14 — owned healthy physical evidence
 
-**Status:** implementation candidate after PR #244, master
-`71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
-[36462747697](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36462747697)
-attempt 1 (27 successful jobs). This extension requires its own protected Linux
-qualification and exact-master acceptance.
+**Status:** accepted through [PR #245](https://github.com/patricklfdm/GeneralSearchEngine/pull/245),
+master `d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`, exact-master CI
+[36486236193](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36486236193)
+attempt 1 (27 successful jobs). The foundation/runtime job
+`109145734146` passed the owned healthy physical gate on this exact source.
+This accepts only the bounded scope below; full 6C remains open.
 
 ## Collection and original identity
 
@@ -72,10 +73,12 @@ only for the automatic cell. Its shared local filesystem does not replace the
 protected three-view gate. Synthetic tests separately cover owner/path/inventory
 binding, changed seals, live capture rejection, exact auxiliary scope and failed
 physical admission. Retain local validation under
-`target/v51-owned-physical-evidence`; corrected-source protected acceptance remains
-required regardless of local results.
+`target/v51-owned-physical-evidence`; local results never replace protected
+exact-master acceptance.
 
-Next connect owned backup/restore, other modes and faults, then trusted preflight
+The next [6C3C15 candidate](PHASE_6_OWNED_BACKUP.md) explicitly adds backup/restore;
+the accepted C14 zero-backup scope above remains available and unchanged.
+Then connect other modes and faults, followed by trusted preflight
 and separate V5.1 cloud configuration/workflows. Native cloud identity, IAP, paid
 admission and complete preset qualification remain open. The user still confirms
 and triggers paid runs manually.

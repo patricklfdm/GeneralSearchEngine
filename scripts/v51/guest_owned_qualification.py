@@ -28,7 +28,8 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False):
+    m.need(not backup or physical,'backup requires physical evidence')
     m.need(not physical or workload,'physical evidence requires owned workload')
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     m.need(not producer_source or source_transfer,'producer requires source transfer qualification')
@@ -111,7 +112,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                         def lose_window(value,end):
                             workload_submits.append(dict(node=config['binding']['node'],request=value))
                             answer=submit(value,end)
-                            if value['command']=='window':
+                            if value['command']=='window' or backup and value['command'] in ('backup','restore-backup'):
                                 lost_windows.append(value['commandId'])
                                 raise ConnectionError('discarded original workload submission reply')
                             return answer
@@ -160,17 +161,22 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe, SCOPE
-            probe=Probe(services,root/'probe',physical=physical) if workload else cloud_fake.Probe(root/'probe',clock)
+            probe=Probe(services,root/'probe',physical=physical,backup=backup) if workload else cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
                 qualification=SCOPE if workload else None).run(req,pre,approval)
             if workload:
                 receipt.update(execution=SCOPE,engineWorkloadExecuted=result['engineWorkloadExecuted'],
+                    backupRestoreQualified=result.get('evidence',{}).get('backupRestoreQualified',False),
                     physicalHistoryQualified=result.get('evidence',{}).get('physicalHistoryQualified',False),networkMapping='qualification-loopback',workload=result.get('evidence'))
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
             if workload:
                 requests=[v['request'] for v in workload_submits]
-                m.need(len(lost_windows)==5 and len({q['commandId'] for q in requests})==len(requests),
+                m.need(len(lost_windows)==(7 if backup else 5) and len({q['commandId'] for q in requests})==len(requests),
                        'owned workload submission replay/cardinality')
+                for command in ('backup','restore-backup'):
+                    submitted=[v for v in workload_submits if v['request']['command']==command]
+                    m.need(len(submitted)==int(backup) and (not backup or submitted[0]['node']=='node-'+str(probe.active[0])),
+                           'owned backup/restore submission owner/cardinality')
                 c.write_once(root/'workload-submissions.json',workload_submits)
                 receipt['workloadSubmitReplyLosses']=len(lost_windows)
             m.need(len(services.clients)==3 and all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
@@ -241,9 +247,9 @@ if __name__=='__main__':
     p.add_argument('--source-transfer',action='store_true')
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
-    p.add_argument('--physical',action='store_true')
+    p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup)
