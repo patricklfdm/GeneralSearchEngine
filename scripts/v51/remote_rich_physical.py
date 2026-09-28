@@ -3,7 +3,9 @@ from . import performance_model as m, performance_projection as projection, form
 
 
 class Calls:
-    def __init__(self,calls):
+    def __init__(self,calls,*,auxiliary_backups=1):
+        m.need(type(auxiliary_backups) is int and auxiliary_backups in (0,1),'auxiliary backup scope')
+        self.auxiliary_backups=auxiliary_backups
         self.expected={c['opId']:c for c in calls}
         m.need(len(self.expected)==len(calls),'duplicate rich operation ID')
         self.active={};self.invocations={};self.captures={};self.validations={};self.call_reads={}
@@ -96,5 +98,5 @@ class Calls:
         m.need(not self.active and self.successes==set(self.expected),'missing/unfinished cloud client calls')
         reads=sum(c['operation'] not in m.OP_IDS for c in self.expected.values())
         mutations=len(self.expected)-reads
-        m.need(len(self.mutations)==mutations and len(self.read_barriers)==reads+1 and len(self.call_reads)==reads,'cloud read/mutation/auxiliary accounting')
-        m.need(len(self.captures)==reads+1 and all(v['released'] for v in self.captures.values()),'unreleased cloud captures')
+        m.need(len(self.mutations)==mutations and len(self.read_barriers)==reads+self.auxiliary_backups and len(self.call_reads)==reads,'cloud read/mutation/auxiliary accounting')
+        m.need(len(self.captures)==reads+self.auxiliary_backups and all(v['released'] for v in self.captures.values()),'unreleased cloud captures')

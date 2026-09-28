@@ -180,14 +180,15 @@ class Runner:
                         m.need(evidence['execution']==a.EXECUTION and
                                (evidence['engineWorkloadExecuted'] is False if self.qualification is None else
                                 evidence['scope']==self.qualification and evidence['paidCloud'] is False and
-                                evidence['fullRemoteQualification'] is False and evidence['physicalHistoryQualified'] is False and
+                                evidence['fullRemoteQualification'] is False and type(evidence['physicalHistoryQualified']) is bool and
                                 evidence['engineWorkloadExecuted'] is result['engineWorkloadExecuted']), 'probe evidence scope')
                         for name, data in self.probe.retention_files():
                             retain(self.store, a.PREFIX+'attempts/'+sha+'/parts/'+name, data)
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
                         if self.qualification:
                             m.need(evidence['status']=='PASS' and evidence['cells']==['healthy'] and
-                                   evidence['engineWorkloadExecuted'] is True,'owned workload qualification failed')
+                                   evidence['engineWorkloadExecuted'] is True and
+                                   evidence['physicalHistoryQualified'] is self.probe.require_physical,'owned workload qualification failed')
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('retention', error))
                 try:
                     with budget.stage('cleanup') as deadline:

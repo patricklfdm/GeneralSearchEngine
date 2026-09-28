@@ -16,7 +16,7 @@ import time
 
 MAX_BYTES = 512 << 10
 MAX_DEADLINE_NANOS = 600 * 10**9
-MODULES = ('cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'cloud_package',
+MODULES = ('cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
            'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver')

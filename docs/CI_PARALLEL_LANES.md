@@ -591,3 +591,16 @@ job graph remain. Provider/block observations are still modeled; physical histor
 and full remote qualification remain false. See the
 [owned workload scope](v5x/v5.1/PHASE_6_OWNED_WORKLOAD.md). This candidate needs its
 own protected CI; it does not accept a complete experiment or enable paid runs.
+
+
+### Phase 6C3C14 owned physical evidence candidate
+
+PR #244 is accepted at master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`,
+exact-master CI `36462747697` attempt 1 (27 jobs). The existing owned-bootstrap
+step adds `--physical` to `--workload`: collect only each stopped voter's authority,
+independently replay the three sealed authorities and original causal/read traces,
+and require ten exact negative results. Original archive parts remain portable.
+The 720-second outer bound, 300-second healthy mode ceiling, frozen windows,
+27-job Required graph and artifact retention remain unchanged. This qualifies one
+automatic healthy cell; full remote and paid flags stay false. See
+[physical evidence scope](v5x/v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md).

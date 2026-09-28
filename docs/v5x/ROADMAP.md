@@ -129,11 +129,13 @@ through PR #242, master `41bee83b675bdd903d335fc9f1e0cc62cb350429`, exact-master
 `eb56fa6d2565770bd8aac7f76e484834f563a0f3`, exact-master CI `36407418156`
 attempt 1 (all 27 jobs). Its original hardening and warmup timing failures remain
 recorded; the successful run does not establish a timing cause. The
-[6C3C13 owned healthy candidate](v5.1/PHASE_6_OWNED_WORKLOAD.md) connects admitted services to
-one complete automatic experiment healthy tape (90 calls), stopped binary
-collection, independent logical replay and owned retention/cleanup. Next qualify
-this slice, then connect other modes, faults and physical evidence, followed by
-trusted preflight and separate V5.1 configuration/workflows.
+[6C3C13 owned healthy tape](v5.1/PHASE_6_OWNED_WORKLOAD.md) is accepted through
+PR #244, master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
+`36462747697` attempt 1 (all 27 jobs). The original large-part collection failure
+and diagnostic replay remain recorded. The [6C3C14 physical evidence candidate](v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
+adds each stopped voter's own authority and joint force/publication/read replay for
+the same 90-call healthy tape. Next qualify this slice, then connect backup/restore,
+other modes and faults, followed by trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

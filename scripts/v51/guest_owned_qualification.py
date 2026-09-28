@@ -28,7 +28,8 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False):
+    m.need(not physical or workload,'physical evidence requires owned workload')
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     m.need(not producer_source or source_transfer,'producer requires source transfer qualification')
     m.need(not workload or producer_source,'owned workload requires authenticated source preparation')
@@ -159,12 +160,12 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe, SCOPE
-            probe=Probe(services,root/'probe') if workload else cloud_fake.Probe(root/'probe',clock)
+            probe=Probe(services,root/'probe',physical=physical) if workload else cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
                 qualification=SCOPE if workload else None).run(req,pre,approval)
             if workload:
                 receipt.update(execution=SCOPE,engineWorkloadExecuted=result['engineWorkloadExecuted'],
-                    physicalHistoryQualified=False,networkMapping='qualification-loopback',workload=result.get('evidence'))
+                    physicalHistoryQualified=result.get('evidence',{}).get('physicalHistoryQualified',False),networkMapping='qualification-loopback',workload=result.get('evidence'))
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
             if workload:
                 requests=[v['request'] for v in workload_submits]
@@ -240,8 +241,9 @@ if __name__=='__main__':
     p.add_argument('--source-transfer',action='store_true')
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
+    p.add_argument('--physical',action='store_true')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical)

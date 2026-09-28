@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C13 — owned automatic healthy workload
 
-**Status:** implementation candidate after PR #243, master
-`eb56fa6d2565770bd8aac7f76e484834f563a0f3`, exact-master CI
-[36407418156](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36407418156)
-attempt 1 (27 successful jobs). This extension requires its own protected Linux
-qualification and exact-master acceptance. Native cloud writes and full 6C remain open.
+**Status:** accepted through PR #244, master
+`71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
+[36462747697](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36462747697)
+attempt 1 (all 27 jobs). Its original failed large-part collection and diagnostic
+replay below remain recorded. [Physical history](PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
+is a separate candidate; native cloud writes and full 6C remain open.
 
 ## Scope and lifecycle
 
@@ -80,7 +81,7 @@ transport, scheduler and validator but cannot substitute for the owned three-vie
 CI gate. Synthetic regressions cover later-window corruption, missing/reordered
 windows, passive coverage, reply loss, scope restrictions, failed collection and
 cleanup/accounting. Validation receipts are retained under
-`target/v51-owned-workload`; corrected-source protected CI remains required.
+`target/v51-owned-workload`; corrected-source protected CI is recorded above.
 
 ### CI collection boundary correction
 
@@ -106,7 +107,7 @@ retained archives passes all three members and 90 original calls. It consumes on
 original stop/collection receipts and immutable parts; no JVM or window is rerun.
 The original failed receipts remain intact. Replay receipts and hashes are under
 `target/v51-owned-workload-ci-fix`; this is diagnostic replay, not corrected-source
-protected acceptance, which remains required.
+protected acceptance, which is recorded above.
 
 Next integrate the remaining owned modes/cells and physical/backup evidence, then
 trusted preflight and separate V5.1 cloud configuration/workflows. Paid runs still

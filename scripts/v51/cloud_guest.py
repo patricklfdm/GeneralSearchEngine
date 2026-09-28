@@ -180,8 +180,10 @@ class Service:
             m.need(set(payload) == {'forced'} and type(payload['forced']) is bool and self.jvm is not None, 'guest stop state')
             self.jvm.stop(payload['forced']); return dict(stopped=True)
         if name == 'collect':
-            m.need(not payload and (self.jvm is None or self.jvm.closed), 'guest collection requires stopped JVM')
-            # Only this guest's closed receipts and JVM streams, never a neighbour's authority.
+            m.need(self.jvm is None or self.jvm.closed, 'guest collection requires stopped JVM')
+            physical=payload=={'physical':True}
+            m.need(payload=={} or physical and type(payload['physical']) is bool and self.jvm is not None and
+                   self.config['mode']==package.MODES[2], 'guest collection scope')
             import shutil
             raw = self.root/'collection'; raw.mkdir()
             shutil.copytree(self.root/'store', raw/'store', ignore=shutil.ignore_patterns(self.current['commandId'], 'executor.lock'))
@@ -195,6 +197,9 @@ class Service:
                     m.need(source.is_file() and not source.is_symlink(), 'guest journal type')
                     shutil.copyfile(source, raw/source.name)
             for window in sorted(self.root.glob('window-*')): shutil.copytree(window, raw/window.name)
+            if physical:
+                from . import guest_authority
+                guest_authority.capture(self.cell,self.node,raw/'authority'/self.node)
             parts = collection.pack(raw, self.root/'parts', m.sha(m.canonical(self.config['binding'])))
             return parts
         raise ValueError('unimplemented guest command')
