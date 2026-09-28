@@ -118,9 +118,9 @@ def process(root, config, manifest, base, rows, service):
     return node, record, start, stop
 
 
-def validate(root, config, manifest_bytes, package_root, transcript, *, active):
+def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False):
     """Validate one downloaded member against independently retained controller inputs."""
-    root = c.directory(root); guest.validate(config); m.need(type(active) is bool, 'guest issuer flag')
+    root = c.directory(root); guest.validate(config); m.need(type(active) is bool and type(healthy) is bool, 'guest issuer/scope flag')
     m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == 'node-1' and active, 'guest local issuer role')
     manifest = m.strict_json(manifest_bytes)
     m.need(m.sha(manifest_bytes) == config['packageManifestSha256'] and manifest['source'] == config['binding']['source'],
@@ -130,7 +130,8 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active):
     rows, service = commands(root,config,transcript)
     node, record, started, stopped = process(root,config,manifest,package_root,rows,service)
     windows = [(q,r) for q,r in rows if q['command'] == 'window']
-    m.need(len(windows) == int(active), 'guest warmup issuer coverage')
+    specs = schedule.windows('healthy','experiment')[:None if healthy else 1]
+    m.need(len(windows) == len(specs)*int(active), 'guest warmup/healthy issuer coverage')
     m.need(sum(q['command'] == 'collect' for q,_ in rows) == 1+int(active), 'guest live collection negative coverage')
     budget = [contract.load()['evidence']['perNodePerCellTraceBytes']]
     exchanges = c.read(root/(node+'-exchanges.json'))
@@ -148,35 +149,44 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active):
                0 <= response['workerStartNanos'] <= response['workerEndNanos'], 'guest exchange timing')
     m.need(exchanges[-1]['request']['command'] == originals[-1]['command'] == 'close' and
            stopped['startedNanos'] <= exchanges[-1]['startNanos'], 'guest final close response')
-    mapped = {exchanges[-1]['request']['opId']}
+    mapped = {exchanges[-1]['request']['opId']}; passive_windows=[]
     for request, receipt in rows:
         if request['command'] == 'fault':
             answer = receipt['result']; op = answer['opId']
-            m.need(request['payload'] in ({'action':'status'},{'action':'activate'}) and results.get(op) == answer and
+            configuration = healthy and not active and request['payload'] in [dict(action='configure',window=s['window']) for s in specs]
+            m.need((request['payload'] in ({'action':'status'},{'action':'activate'}) or configuration) and results.get(op) == answer and
                    answer['command'] == request['payload']['action'] and op not in mapped, 'guest control/JVM binding')
             if answer['command'] == 'activate':
                 m.need(config['mode'] == package.MODES[1] and node == 'node-1', 'guest activation role')
             exchange = next(e for e in exchanges if e['request']['opId'] == op)
             m.need(receipt['startedNanos'] <= exchange['startNanos'] <= exchange['endNanos'] <= receipt['endedNanos'], 'guest control interval')
+            if configuration:
+                m.need(exchange['request']==dict(command='configure',opId=op,window=request['payload']['window']), 'guest passive configuration')
+                passive_windows.append(request['payload']['window'])
             mapped.add(op)
+    m.need(passive_windows == ([s['window'] for s in specs] if healthy and not active else []), 'guest passive window coverage')
     calls = [e for e in exchanges if e['request']['command'] == 'call']
     state = m.initial(plan.load())
-    if active:
-        request, receipt = windows[0]; folder = root/'window-healthy-warmup'
-        m.need(request['payload'] == dict(cell='healthy',preset='experiment',window='warmup'), 'guest warmup scope')
+    m.need(len(calls)==sum(len(s['calls']) for s in specs)*int(active), 'guest frozen call coverage')
+    configured = [e for e in exchanges if e['request']['command'] == 'configure']
+    m.need(len(configured)==len(specs) if active or healthy else not configured, 'guest window configuration coverage')
+    for expected_spec,(request,receipt) in zip(specs,windows):
+        name=expected_spec['window']; folder = root/('window-healthy-'+name)
+        m.need(request['payload'] == dict(cell='healthy',preset='experiment',window=name), 'guest warmup scope')
         spec = c.read(folder/'spec.json'); result = c.read(folder/'result.json')
-        m.need(m.canonical(spec) == m.canonical(schedule.windows('healthy','experiment')[0]), 'guest frozen warmup changed')
+        m.need(m.canonical(spec) == m.canonical(expected_spec), 'guest frozen warmup changed')
         validation = scheduling.validate(spec,rich.lines(folder,'arrivals',budget),result)
-        m.need(validation['status'] == 'PASS' and receipt['result'] == dict(window='warmup',calls=len(spec['calls']),validation=validation),
+        m.need(validation['status'] == 'PASS' and receipt['result'] == dict(window=name,calls=len(spec['calls']),validation=validation),
                'guest warmup receipt differs')
         m.need(receipt['startedNanos'] <= result['startedNanos'] < result['endedNanos'] <= receipt['endedNanos'], 'guest warmup command interval')
-        configured = [e for e in exchanges if e['request']['command'] == 'configure']
-        m.need(len(configured) == 1 and configured[0]['request'] == dict(command='configure',opId=configured[0]['request']['opId'],window='warmup') and
+        configured = [e for e in exchanges if e['request']['command'] == 'configure' and e['request'].get('window')==name]
+        m.need(len(configured) == 1 and configured[0]['request'] == dict(command='configure',opId=configured[0]['request']['opId'],window=name) and
                receipt['startedNanos'] <= configured[0]['startNanos'] <= configured[0]['endNanos'] <= result['startedNanos'], 'guest warmup configuration')
         mapped.add(configured[0]['request']['opId'])
-        m.need(len(calls) == len(spec['calls']), 'guest frozen call coverage')
+        window_calls=[e for e in calls if e['request'].get('window')==name]
+        m.need(len(window_calls) == len(spec['calls']), 'guest frozen call coverage')
         arrivals = {r['ordinal']:r for r in result['calls']}
-        for expected, exchange in zip(spec['calls'],calls):
+        for expected, exchange in zip(spec['calls'],window_calls):
             op = exchange['request']['opId']; response = exchange['response']; call = response['call']; arrival = arrivals[expected['ordinal']]
             m.need(exchange['request'] == dict(expected,command='call',opId=op) and op not in mapped, 'guest frozen JVM request')
             m.need(arrival['result'] == dict(outcome='SUCCESS',opId=op,resultSha256=m.sha(m.canonical(response))) and
@@ -202,8 +212,8 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active):
         if config['mode'] == package.MODES[2]:
             pending = sample['queues']['maintenancePending']
             m.need(type(pending) is int and pending in (0,1) and (sample['boundary'] != 'closed' or pending == 0), 'guest maintenance drain')
-    resources = old.resources(samples,config['mode'],node,record,['warmup'] if active else [])
-    m.need(sum(s['boundary'] == 'window-start' for s in samples) == int(active), 'guest extra resource window')
+    resources = old.resources(samples,config['mode'],node,record,[s['window'] for s in specs] if active or healthy else [])
+    m.need(sum(s['boundary'] == 'window-start' for s in samples) == (len(specs) if active or healthy else 0), 'guest extra resource window')
     traces = []
     if node != 'local':
         traces = rich.lines(root,node+'-trace',budget)
@@ -212,10 +222,10 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active):
             m.need(all(r['groupId'] == config['groupId'] and r['generation'] == 1 for r in traces), 'guest trace group/generation')
     allowed = {node+'-'+s for s in ('jvm.json','exchanges.json','stop.json','stderr.log')} | {'store/binding.json'}
     allowed |= {f'store/commands/{q["commandId"]}/{n}.json' for q,_ in rows[:-1] for n in ('request','started','terminal')}
-    if active: allowed |= {'window-healthy-warmup/'+n for n in ('spec.json','result.json','arrivals.jsonl')}
+    if active: allowed |= {'window-healthy-'+s['window']+'/'+n for s in specs for n in ('spec.json','result.json','arrivals.jsonl')}
     journals = {n for n in names if re.fullmatch(re.escape(node)+r'-(results|samples'+('' if node == 'local' else '|trace')+r')(-part[0-9]{4})?\.jsonl\.gz',n)}
     m.need(names == allowed | journals, 'guest collection closed inventory')
-    return dict(status='PASS',execution='guest-warmup-evidence-only',node=node,mode=config['mode'],calls=len(calls),
+    return dict(status='PASS',execution='guest-healthy-evidence-only' if healthy else 'guest-warmup-evidence-only',node=node,mode=config['mode'],calls=len(calls),
         logicalSemanticsQualified=True,physicalHistoryQualified=False,paidCloud=False,fullRemoteQualification=False,
         configSha256=m.sha(m.canonical(config)),collectionSha256=m.sha(m.canonical(rows[-1][1]['result'])),
         resources=resources,journals=dict(results=len(originals),samples=len(samples),trace=len(traces)))
@@ -225,7 +235,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('replay',type=Path); parser.add_argument('--controller',type=Path,required=True)
-    parser.add_argument('--manifest',type=Path,required=True)
+    parser.add_argument('--manifest',type=Path,required=True); parser.add_argument('--healthy',action='store_true')
     args = parser.parse_args(); controller = c.read(args.controller)
     print(m.canonical(validate(args.replay,controller['config'],args.manifest.read_bytes(),controller['packageRoot'],
-        controller['transcript'],active=controller['active'])).decode())
+        controller['transcript'],active=controller['active'],healthy=args.healthy)).decode())

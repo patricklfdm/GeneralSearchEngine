@@ -1,11 +1,17 @@
 # V5.1 Phase 6C3C12 — authenticated source producer and download
 
-**Status:** implementation candidate based on PR #242, master
-`41bee83b675bdd903d335fc9f1e0cc62cb350429`. Its exact-master CI
-[36395914043](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36395914043)
-attempt 1 passed all 27 jobs, including three-receiver owned bootstrap with binary
-source delivery. This producer extension requires its own protected qualification
-and exact-master acceptance. Native cloud writes and full Phase 6C remain open.
+**Status:** accepted through PR #243, master
+`eb56fa6d2565770bd8aac7f76e484834f563a0f3`. Exact-master CI
+[36407418156](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36407418156)
+attempt 1 passed all 27 jobs, including three-receiver owned bootstrap with source
+production and binary delivery. Native cloud writes and full Phase 6C remain open.
+The [owned healthy extension](PHASE_6_OWNED_WORKLOAD.md) is a separate candidate.
+
+PR #243 also accepted the public hardening partition-evidence correction: either
+endpoint may observe the partition drop, with original process, direction, cut
+and filter provenance checked. CI `36400900510`'s original hardening failure and
+automatic-healthy warmup `EXECUTOR_LATE` observation remain retained; the passing
+exact-master run does not establish a timing root cause.
 
 ## Production and download boundary
 

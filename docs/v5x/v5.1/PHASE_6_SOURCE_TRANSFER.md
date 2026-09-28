@@ -6,7 +6,7 @@
 attempt 1 (all 27 jobs). The complete three-receiver owned gate passed, including
 binary source delivery, producer-path removal, public bootstrap, idle service
 shutdown and modeled cleanup. The follow-up
-[source-producer extension](PHASE_6_SOURCE_PRODUCER.md) is a separate candidate.
+[source-producer extension](PHASE_6_SOURCE_PRODUCER.md) is accepted through PR #243.
 Full 6C and paid admission remain open.
 
 ## Transfer boundary
@@ -17,7 +17,7 @@ all three packages are authenticated and before any receiver import. The produce
 still runs through the explicit `qualification-shared-source-paths` adapter. Its
 preparation and controller access to its export remain local qualification;
 At this acceptance boundary, producer-side remote command admission/download
-remained open; the [producer candidate](PHASE_6_SOURCE_PRODUCER.md) now addresses
+remained open; the [accepted producer](PHASE_6_SOURCE_PRODUCER.md) now addresses
 that boundary. Native IAP remains future work.
 The new receiver does not use those producer paths.
 

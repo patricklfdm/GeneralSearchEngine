@@ -1,7 +1,7 @@
 """Owned startup with modeled volumes and actual SSH-delivered idle services.
 
-Cloud facts/accounts/block operations remain explicit fixtures. No JVM workload,
-IAP, privileged disk write or paid resource is exercised by this gate.
+Cloud facts/accounts/block operations remain explicit fixtures. --workload adds
+one automatic healthy tape; IAP, physical disks and paid resources remain closed.
 """
 import argparse
 import ctypes
@@ -28,9 +28,10 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False):
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     m.need(not producer_source or source_transfer,'producer requires source transfer qualification')
+    m.need(not workload or producer_source,'owned workload requires authenticated source preparation')
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700,exist_ok=False)
     bundle=Path(bundle).resolve(); manifest=package.verify(bundle/'package',source)
     m.need(manifest['buildBinding']==build.binding(ROOT,source),'owned qualification checkout/build mismatch')
@@ -42,7 +43,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
         execution='owned-model-loopback-ssh-idle-services',realSshExecuted=True,engineWorkloadExecuted=False,
         providerIdentity='modeled-fixtures',volumeObservations='offline-block-model',filesystem='shared-local',
         realBlockDeviceWritten=False,paidCloud=False,fullRemoteQualification=False)
-    services=None; endpoints=[]; views=None
+    services=None; endpoints=[]; views=None; workload_submits=[]; lost_windows=[]
     try:
         with tempfile.TemporaryDirectory(prefix='gse-v51-owned-keys-',dir=ROOT/'target') as private, Server(private,root) as server:
             req,pre,approval,_,http,store,old,_=guest_startup_fake.fixture(Path(private)/'owner')
@@ -103,7 +104,18 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     cl=original_client(config); start=cl.start; shutdown=cl.shutdown
                     def lost_start(end): start(end); raise ConnectionError('discarded launch reply')
                     def lost_stop(end): shutdown(end); raise ConnectionError('discarded shutdown reply')
-                    cl.start=lost_start; cl.shutdown=lost_stop; return cl
+                    cl.start=lost_start; cl.shutdown=lost_stop
+                    if workload:
+                        submit=cl.submit
+                        def lose_window(value,end):
+                            workload_submits.append(dict(node=config['binding']['node'],request=value))
+                            answer=submit(value,end)
+                            if value['command']=='window':
+                                lost_windows.append(value['commandId'])
+                                raise ConnectionError('discarded original workload submission reply')
+                            return answer
+                        cl.submit=lose_window
+                    return cl
                 ep.client=client
                 original_bootstrap=ep.bootstrap
                 def lost_bootstrap(action,request,end):
@@ -143,11 +155,23 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                         error.partial_output=answer[:len(answer)//2];raise error
                     return answer
                 ep.producer=lose_producer;return ep
-            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,bootstrap=admitted_bootstrap)
+            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,bootstrap=admitted_bootstrap,
+                qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
-            probe=cloud_fake.Probe(root/'probe',clock)
-            result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup).run(req,pre,approval)
+            from .guest_owned_workload import Probe, SCOPE
+            probe=Probe(services,root/'probe') if workload else cloud_fake.Probe(root/'probe',clock)
+            result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
+                qualification=SCOPE if workload else None).run(req,pre,approval)
+            if workload:
+                receipt.update(execution=SCOPE,engineWorkloadExecuted=result['engineWorkloadExecuted'],
+                    physicalHistoryQualified=False,networkMapping='qualification-loopback',workload=result.get('evidence'))
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
+            if workload:
+                requests=[v['request'] for v in workload_submits]
+                m.need(len(lost_windows)==5 and len({q['commandId'] for q in requests})==len(requests),
+                       'owned workload submission replay/cardinality')
+                c.write_once(root/'workload-submissions.json',workload_submits)
+                receipt['workloadSubmitReplyLosses']=len(lost_windows)
             m.need(len(services.clients)==3 and all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
@@ -179,7 +203,8 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 m.need(counts==dict(prepare=1,query=2,manifest=3,chunk=expected+3) and record['readFailures']==3,'producer original operation/read cardinality')
                 receipt['producerCalls']=counts
             receipt.update(status='PASS',tools=server.versions,packages=rows,services=len(services.clients),
-                modeledControlCells=result['evidence']['cells'],retainedObjects=len(http.objects),
+                qualifiedCells=result['evidence']['cells'] if workload else [],
+                modeledControlCells=[] if workload else result['evidence']['cells'],retainedObjects=len(http.objects),
                 reservedCostMicrousd=a.inspect_ledger(store.get(a.LEDGER)[1])[0],leaseReleased=result['leaseReleased'])
     except BaseException as error:
         receipt['failure']=dict(type=type(error).__name__,message=str(error)[:3000]); raise
@@ -214,8 +239,9 @@ if __name__=='__main__':
     p.add_argument('--bootstrap',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true')
     p.add_argument('--source-transfer',action='store_true')
     p.add_argument('--producer-source',action='store_true')
+    p.add_argument('--workload',action='store_true')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload)

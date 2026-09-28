@@ -20,7 +20,7 @@ SOURCE_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('t
 class Services:
     offline = True
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None):
+                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         self.mode, self.clock, self.sleep = mode, clock, sleep
@@ -28,6 +28,8 @@ class Services:
         m.need(set(self.mounts) == {1,2,3} and all(isinstance(p,str) and Path(p).is_absolute() and
                str(Path(p)) == p and '..' not in Path(p).parts for p in self.mounts.values()), 'owned service mount paths')
         self.mapping = 'qualification-local-paths' if qualification_mounts is not None else 'guest-mount-paths'
+        m.need(qualification_hosts is None or qualification_hosts==['127.0.0.2','127.0.0.3','127.0.0.4'], 'owned qualification host mapping')
+        self.hosts=deepcopy(qualification_hosts)
         m.need(bootstrap is None or bootstrap.offline is True, 'live owned bootstrap disabled')
         self.bootstrap=bootstrap; self.clients = []; self.root = None
 
@@ -51,13 +53,14 @@ class Services:
                 m.need(target['instanceId'] == desc['instanceId'] and target['user'] == self.provider.guest_access['user'], 'owned service SSH target')
                 cfg = dict(schema='gse-v51-guest-service-v1', execution=guest.EXECUTION, binding=binding,
                     packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+self.mode, mode=self.mode,
-                    hosts=[v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
+                    hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
                 guest.validate(cfg)
                 endpoint = self.factory(target,self.mounts[node],desc)
                 m.need(endpoint.offline is True and endpoint.value == desc and endpoint.target == target and
                        endpoint.parent == self.mounts[node], 'owned service endpoint binding/scope')
                 configs.append(cfg); descriptors.append(desc); endpoints.append(endpoint)
             c.write_once(self.root/'plan.json',dict(requestSha256=sha,mountMapping=self.mapping,
+                networkMapping='qualification-loopback' if self.hosts else 'provider-private-addresses',
                 configs=configs,descriptors=descriptors,startupSha256=[m.sha(m.canonical(v)) for v in startup]))
             def check(index, phase):
                 m.need(self.clock() < deadline, 'owned service original deadline')

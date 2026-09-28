@@ -577,3 +577,17 @@ exports, interrupted download prefixes and bounded read diagnostics. No job,
 Required dependency, timed window, timeout, build, upload policy or paid workflow
 changes. The unprivileged single-receiver source gate accepts the same option for
 local qualification. See [the producer contract](v5x/v5.1/PHASE_6_SOURCE_PRODUCER.md).
+
+### Phase 6C3C13 owned automatic healthy candidate
+
+PR #243's producer/bootstrap is accepted at master
+`eb56fa6d2565770bd8aac7f76e484834f563a0f3`, exact-master CI `36407418156`
+attempt 1 (all 27 jobs). The same required owned-bootstrap step now adds
+`--workload`: one automatic experiment healthy tape (90 calls), five discarded
+submit replies with original-ID query recovery, stopped collection, independent
+logical replay and owned cleanup/retention. All three native-UID mount views,
+source/package negatives, the 720-second outer bound, artifact name and Required
+job graph remain. Provider/block observations are still modeled; physical history
+and full remote qualification remain false. See the
+[owned workload scope](v5x/v5.1/PHASE_6_OWNED_WORKLOAD.md). This candidate needs its
+own protected CI; it does not accept a complete experiment or enable paid runs.
