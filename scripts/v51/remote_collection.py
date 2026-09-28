@@ -190,7 +190,7 @@ class PartsReader:
             self.current.close()
 
 
-def unpack(parts_root, target, binding_sha256):
+def unpack(parts_root, target, binding_sha256, *, expected_members=None):
     parts_root = directory(parts_root)
     manifest = read(parts_root / 'parts.json')
     validate_manifest(manifest, binding_sha256)
@@ -213,6 +213,12 @@ def unpack(parts_root, target, binding_sha256):
             for item in archive:
                 safe_name(item.name)
                 m.need(item.isfile() and item.name not in actual and len(actual) < LIMITS['files'], 'duplicate/non-file/too many archive members')
+                if expected_members is not None:
+                    # Bootstrap supplies its independently bound six-file inventory.
+                    # Reject an expanded member before writing, not after extraction.
+                    m.need(item.name == INDEX and item.size <= LIMITS['responseBytes'] or
+                           item.name in expected_members and item.size == expected_members[item.name]['bytes'],
+                           'archive differs from expected member bounds')
                 total += item.size
                 if item.name.endswith(('.jsonl', '.jsonl.gz', '.log')):
                     traces += item.size
@@ -234,4 +240,5 @@ def unpack(parts_root, target, binding_sha256):
     m.need(INDEX in actual and actual[INDEX]['bytes'] <= LIMITS['responseBytes'] and
            actual.pop(INDEX)['sha256'] == manifest['memberIndexSha256'], 'evidence member index')
     m.need(read(target / INDEX) == actual, 'evidence inventory differs')
+    if expected_members is not None: m.need(actual == expected_members, 'archive expected inventory differs')
     return dict(status='PASS', files=len(actual), expandedBytes=total, compressedBytes=manifest['compressedBytes'])

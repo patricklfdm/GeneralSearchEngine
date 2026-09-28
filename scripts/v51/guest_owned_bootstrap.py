@@ -15,9 +15,11 @@ FILES = {'plan.json','source.json','receipt.json'} | {f'node-{n}-{phase}.json' f
 
 class Bootstrap:
     offline = True
-    def __init__(self, source, *, clock=time.monotonic, sleep=time.sleep):
+    def __init__(self, source, *, clock=time.monotonic, sleep=time.sleep, delivery=None):
         m.need(source.offline is True and source.scope == 'qualification-shared-source-paths', 'native bootstrap source delivery disabled')
         self.source,self.clock,self.sleep = source,clock,sleep; self.root=None
+        m.need(delivery is None or delivery.offline is True,'native source transfer disabled')
+        self.delivery=delivery
 
     def prepare(self, req, configs, endpoints, output, deadline, *, recheck):
         m.need(self.root is None and len(configs) == len(endpoints) == 3, 'owned bootstrap consumed/topology')
@@ -30,9 +32,11 @@ class Bootstrap:
                    cfg['binding']['attempt'] == req['attempt'], 'owned bootstrap exact group/package binding')
         self.root=Path(output); self.root.mkdir(mode=0o700); c.sync_directory(self.root.parent)
         result=dict(schema='gse-v51-owned-bootstrap-v1',status='FAIL',requestSha256=a.validate_request(req),
-            sourceTransport=self.source.scope,publicBootstrapVerified=False,engineWorkloadExecuted=False,
+            sourceTransport=self.delivery.scope if self.delivery is not None else self.source.scope,
+            sourcePreparation=self.source.scope,publicBootstrapVerified=False,engineWorkloadExecuted=False,
             paidCloud=False,fullRemoteQualification=False,members=[])
-        c.write_once(self.root/'plan.json',dict(configs=configs,requestSha256=result['requestSha256'],sourceTransport=self.source.scope))
+        c.write_once(self.root/'plan.json',dict(configs=configs,requestSha256=result['requestSha256'],
+            sourceTransport=result['sourceTransport'],sourcePreparation=self.source.scope))
         def check(i,phase):
             m.need(self.clock()<deadline,'owned bootstrap original deadline'); recheck(i,phase)
             m.need(self.clock()<deadline,'owned bootstrap original deadline')
@@ -78,6 +82,12 @@ class Bootstrap:
                 files.append(value['files']); requests.append(dict(config=cfg,folder=str(folder),descriptorSha256=row['descriptorSha256']))
             m.need(all(v==files[0] for v in files),'owned bootstrap source/topology disagreement')
             c.write_once(self.root/'source.json',dict(exports=exports,files=files[0]),maximum=262144)
+            if self.delivery is not None:
+                for i,request in enumerate(requests):
+                    check(i,'transfer')
+                    requests[i]=self.delivery.deliver(request['folder'],request['descriptorSha256'],configs[i],endpoints[i],
+                        deadline,self.root/f'node-{i+1}-transfer')
+                    check(i,'transferred')
             for i,request in enumerate(requests):
                 check(i,'install'); once(i,'install',request); check(i,'seeded')
             for i,request in enumerate(requests):
@@ -99,5 +109,8 @@ class Bootstrap:
         allowed=FILES | {f'node-{n}-{p}-intent.json' for n in (1,2,3) for p in ('install','seal')}
         c.directory(self.root)
         for path in sorted(self.root.iterdir()):
+            if self.delivery is not None and path.name in {f'node-{n}-transfer' for n in (1,2,3)}:
+                for name,raw in self.delivery.retention_files(path):yield 'bootstrap/'+path.name+'/'+name,raw
+                continue
             m.need(path.name in allowed and path.is_file() and not path.is_symlink() and path.stat().st_size<=262144,'owned bootstrap retention inventory')
             yield 'bootstrap/'+path.name,path.read_bytes()

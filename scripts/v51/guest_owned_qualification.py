@@ -28,7 +28,8 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False):
+    m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700,exist_ok=False)
     bundle=Path(bundle).resolve(); manifest=package.verify(bundle/'package',source)
     m.need(manifest['buildBinding']==build.binding(ROOT,source),'owned qualification checkout/build mismatch')
@@ -67,9 +68,11 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
                 views=Views(root/'mount-views',mount,allow_sudo,preserve_uid=True)
                 mounts={n:str(mount) for n in (1,2,3)}
                 source_adapter=ViewSource(views,bundle/'package')
-                admitted_bootstrap=Bootstrap(source_adapter)
+                from .guest_source_delivery import Delivery
+                admitted_bootstrap=Bootstrap(source_adapter,delivery=Delivery() if source_transfer else None)
                 receipt.update(execution='owned-model-loopback-ssh-local-bootstrap',filesystem='independent-mount-views',
-                    sourceTransport=source_adapter.scope,sudoNamespace=views.sudo)
+                    sourcePreparation=source_adapter.scope,sourceTransport=admitted_bootstrap.delivery.scope if source_transfer else source_adapter.scope,
+                    sudoNamespace=views.sudo,producerPathsHidden=False)
             else:
                 mounts={n:str(root/f'mount-{n}') for n in (1,2,3)}
                 for path in mounts.values(): Path(path).mkdir(mode=0o700)
@@ -102,10 +105,26 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
                 ep.client=client
                 original_bootstrap=ep.bootstrap
                 def lost_bootstrap(action,request,end):
+                    if source_transfer and not receipt['producerPathsHidden']:
+                        # All three deliveries must finish before the first import.
+                        for n in (1,2,3):
+                            record=c.read(root/f'startup/services/bootstrap/node-{n}-transfer/receipt.json')
+                            m.need(record['status']=='PASS','source transfer barrier')
+                        producer=views.root/'producer'/guest.validate(request['config']).relative_to(views.cell)
+                        (producer/'bootstrap').rename(producer/'hidden-bootstrap-exports')
+                        m.need(not (producer/'bootstrap').exists(),'producer export path remained visible')
+                        receipt['producerPathsHidden']=True
                     answer=original_bootstrap(action,request,end)
                     if action in ('install','seal'): raise ConnectionError('discarded completed bootstrap reply')
                     return answer
-                ep.bootstrap=lost_bootstrap; return ep
+                ep.bootstrap=lost_bootstrap
+                original_source=ep.source; source_lost=set()
+                def lose_source(action,request,data,end,index=None):
+                    answer=original_source(action,request,data,end,index)
+                    if (action in ('begin','finish') or action=='chunk' and index==0) and action not in source_lost:
+                        source_lost.add(action);raise ConnectionError('discarded completed source reply')
+                    return answer
+                ep.source=lose_source;return ep
             services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,bootstrap=admitted_bootstrap)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             probe=cloud_fake.Probe(root/'probe',clock)
@@ -121,6 +140,11 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
                     for phase in ('install','seal'):
                         m.need(sum(v['action']=='bootstrap-'+phase for v in ep.calls)==1 and
                                sum(v['action']=='bootstrap-query-'+phase for v in ep.calls)==2,'owned bootstrap write/query cardinality')
+                if source_transfer:
+                    n=ep.value['binding']['node'];record=c.read(root/f'startup/services/bootstrap/{n}-transfer/descriptor.json')
+                    counts={k:sum(v['action']=='source-'+k for v in ep.calls) for k in ('begin','chunk','finish','query')}
+                    m.need(counts==dict(begin=1,chunk=len(record['chunks']),finish=1,query=4),'owned source write/query cardinality')
+                    rows[-1]['sourceCalls']=counts
             if bootstrap:
                 from . import guest_bootstrap as boot
                 completed=c.read(root/'startup/services/bootstrap/receipt.json')
@@ -164,7 +188,8 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True)
     p.add_argument('--bootstrap',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true')
+    p.add_argument('--source-transfer',action='store_true')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace)
+    run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,source_transfer=args.source_transfer)

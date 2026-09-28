@@ -1,10 +1,12 @@
 # V5.1 Phase 6C3C10 — owned bootstrap before service admission
 
-**Status:** implementation candidate based on accepted PR #240, master
-`0ef49cb8f5f6c793b9fe03db4b4069dd04e059ac`. The preceding
-[guest evidence slice](PHASE_6_GUEST_EVIDENCE.md) passed exact-master CI
-`36378226619` attempt 1 (all 27 jobs). This candidate requires its own protected Linux
-qualification and exact-master acceptance. No full 6C or paid admission is claimed.
+**Status:** accepted through PR #241, master
+`87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master CI
+[36388477710](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36388477710)
+attempt 1 (all 27 jobs). This accepts the original shared-path owned bootstrap
+slice. The follow-up [bounded source transfer](PHASE_6_SOURCE_TRANSFER.md) is a
+separate candidate requiring its own qualification. No full 6C or paid admission
+is claimed.
 
 PR #241's first CI run [36384429085](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36384429085)
 failed the owned bootstrap step on merge source
@@ -22,7 +24,9 @@ mode and absence of symlinks on every connection. Existing directories and claim
 are never chmodded or replaced. Portable regressions reproduce the old receiver
 rejection under umasks `0022` and `0002`, then verify admission, unchanged reconnect
 claims and rejection of permission drift or links. Receiver admission, timing
-limits and workload calls remain unchanged. Fresh Linux CI is still required.
+limits and workload calls remain unchanged. The corrected source passed the exact-master
+Linux gate above, including three matching bootstrap identities, reaped services,
+modeled cleanup, verified retention and lease release.
 
 ## Cut point and preparation order
 
@@ -77,8 +81,9 @@ the existing runner, including when bootstrap prevents every service launch.
 ## Qualification and evidence boundaries
 
 The adapter is explicitly `qualification-shared-source-paths`. Source parts are
-read from retained local paths outside the mounted guest cell. Their binary cloud
-transport is **not implemented**. Install/seal/query control does travel over
+read from retained local paths outside the mounted guest cell. At this accepted slice, binary transport was not implemented; the
+[source-transfer candidate](PHASE_6_SOURCE_TRANSFER.md) adds bounded receiver
+delivery while preserving the producer qualification boundary. Install/seal/query control does travel over
 real pinned loopback SSH through the complete-package receiver. Provider and block
 observations remain fixtures. Native SSH/IAP, provider mutations and paid admission
 remain disabled.
@@ -123,8 +128,8 @@ python3 -m scripts.v51.guest_owned_qualification target/v51-owned-bootstrap \
 Portable tests explicitly model Linux boot/process identity, package contents and
 controller/provider state. They exercise real package/import checks, consumed
 claims, lost replies, disagreement, deadlines and cleanup, but do not qualify
-actual SSH, mount namespaces or Java bootstrap on macOS. Fresh Linux evidence is
-required before acceptance; historical runs are not relabelled as this candidate.
+actual SSH, mount namespaces or Java bootstrap on macOS. The exact-master Linux acceptance above is separate from portable fixture results;
+historical failed evidence remains retained.
 
 Next implement native bounded source transfer and connect complete owned workload
 windows, faults and independent physical history/backup/restore validation. The

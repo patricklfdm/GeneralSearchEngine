@@ -87,7 +87,7 @@ def install(folder, digest, config):
     # directory of writes). Leave it on every failure, including power loss.
     stage = root/'.bootstrap-install'; stage.mkdir(mode=0o700); c.sync_directory(root)
     c.write_once(root/CLAIM, dict(descriptorSha256=digest, config=config))
-    parts.unpack(folder/'parts', stage/'raw', m.sha(m.canonical(config)))
+    parts.unpack(folder/'parts', stage/'raw', m.sha(m.canonical(config)), expected_members=value['files'])
     raw = stage/'raw'; index = c.read(raw/parts.INDEX)
     m.need(index == value['files'], 'bootstrap installed inventory differs')
     (raw/parts.INDEX).unlink(); topology(raw, config)
