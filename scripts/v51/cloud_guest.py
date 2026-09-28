@@ -96,6 +96,7 @@ class Service:
     def java(self, mode, *args): return package.command(self.base, mode, args=list(map(str, args)))
 
     def oneshot(self, label, args):
+        started=time.monotonic_ns()
         with (self.root/(label+'.stdout')).open('xb') as out, (self.root/(label+'.stderr')).open('xb') as err:
             proc = subprocess.Popen(args, stdout=out, stderr=err)
             try:
@@ -106,6 +107,7 @@ class Service:
             finally:
                 if proc.poll() is None: proc.kill(); proc.wait(timeout=5)
         m.need(proc.returncode == 0, 'guest setup process failed: '+label)
+        return dict(args=args,pid=proc.pid,exitCode=proc.returncode,startedNanos=started,endedNanos=time.monotonic_ns())
 
     def prepare_source(self):
         m.need(self.node == 'node-1' and self.jvm is None and not self.shutting_down, 'guest source role/state')
@@ -179,10 +181,15 @@ class Service:
         if name == 'stop-voter':
             m.need(set(payload) == {'forced'} and type(payload['forced']) is bool and self.jvm is not None, 'guest stop state')
             self.jvm.stop(payload['forced']); return dict(stopped=True)
+        if name in ('backup','restore-backup'):
+            from . import guest_backup
+            m.need(payload=={}, 'guest backup payload')
+            return guest_backup.create(self) if name=='backup' else guest_backup.restore(self)
         if name == 'collect':
             m.need(self.jvm is None or self.jvm.closed, 'guest collection requires stopped JVM')
-            physical=payload=={'physical':True}
-            m.need(payload=={} or physical and type(payload['physical']) is bool and self.jvm is not None and
+            backup=payload=={'physical':True,'backup':True}
+            physical=payload=={'physical':True} or backup
+            m.need(payload=={} or physical and type(payload['physical']) is bool and (not backup or type(payload['backup']) is bool) and self.jvm is not None and
                    self.config['mode']==package.MODES[2], 'guest collection scope')
             import shutil
             raw = self.root/'collection'; raw.mkdir()
@@ -200,6 +207,9 @@ class Service:
             if physical:
                 from . import guest_authority
                 guest_authority.capture(self.cell,self.node,raw/'authority'/self.node)
+            if backup:
+                from . import guest_backup
+                guest_backup.capture(self,raw/'backup')
             parts = collection.pack(raw, self.root/'parts', m.sha(m.canonical(self.config['binding'])))
             return parts
         raise ValueError('unimplemented guest command')

@@ -119,10 +119,14 @@ recorded; the successful run does not establish a timing cause. The
 [6C3C13 owned healthy tape](v5.1/PHASE_6_OWNED_WORKLOAD.md) is accepted through
 PR #244, master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
 `36462747697` attempt 1 (all 27 jobs). The original large-part collection failure
-and diagnostic replay remain recorded. The [6C3C14 physical evidence candidate](v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
-adds each stopped voter's own authority and joint force/publication/read replay for
-the same 90-call healthy tape. Next qualify this slice, then connect backup/restore,
-other modes and faults, followed by trusted preflight and separate V5.1 workflows.
+and diagnostic replay remain recorded. The [6C3C14 physical evidence](v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
+is accepted through PR #245, master `d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`,
+exact-master CI `36486236193` attempt 1 (all 27 jobs). It qualifies each stopped
+voter's own authority and joint force/publication/read replay for the 90-call tape.
+The [6C3C15 backup/restore candidate](v5.1/PHASE_6_OWNED_BACKUP.md) adds one
+post-tape backup, independent byte decoding and a separate published V4.4 restore.
+Next qualify this slice, then connect other modes and faults, followed by trusted
+preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

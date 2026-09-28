@@ -12,7 +12,7 @@ import stat
 import time
 from . import cloud_workload_contract as contract, performance_model as m
 
-COMMANDS = frozenset(('prepare-cell', 'start-voter', 'window', 'fault', 'stop-voter', 'collect'))
+COMMANDS = frozenset(('prepare-cell', 'start-voter', 'window', 'fault', 'backup', 'restore-backup', 'stop-voter', 'collect'))
 RESPONSE_BYTES = 4 << 20
 REQUEST_BYTES = 64 << 10
 

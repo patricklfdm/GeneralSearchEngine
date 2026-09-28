@@ -46,7 +46,8 @@ class Location:
         return storage._inspect(directory,maximum_bytes,maximum_frame,self.original/node)
 
 
-def validate(members, manifest_bytes):
+def validate(members, manifest_bytes, *, backup=False):
+    m.need(type(backup) is bool, 'guest physical backup scope')
     m.need(type(members) is list and len(members)==3, 'guest physical member count')
     configs=[v['controller']['config'] for v in members]
     nodes=[cfg['binding']['node'] for cfg in configs]
@@ -62,7 +63,7 @@ def validate(members, manifest_bytes):
         for member,cfg,node in zip(members,configs,nodes):
             replay=c.directory(member['root']); controller=member['controller']
             reports.append(guest.validate(replay,cfg,manifest_bytes,controller['packageRoot'],controller['transcript'],
-                active=controller['active'],healthy=True,physical=True))
+                active=controller['active'],healthy=True,physical=True,backup=backup and controller['active']))
             budget=[contract.load()['evidence']['perNodePerCellTraceBytes']]
             results=rich.lines(replay,node+'-results',budget)
             rich.lines(replay,node+'-samples',budget)
@@ -79,14 +80,20 @@ def validate(members, manifest_bytes):
             bindings[node]=(m.sha(raw),m.sha(genesis))
         m.need(len(set(bindings.values()))==1, 'guest physical manifest/genesis agreement')
         m.need(len(calls)==90, 'guest physical healthy call count')
+        if backup:
+            from .guest_backup_evidence import trace_binding
+            issuer=next(v for v in members if v['controller']['active'])
+            response=c.read(Path(issuer['root'])/'backup/backup-result.json')['response']
+            trace_binding(traces,issuer['controller']['config']['binding']['node'],response)
         location=Location(root,configs[0]['root'],indexes)
         result=physical.automatic(root,calls,traces,evidence_location=location,
-            cloud_calls=history.Calls(calls,auxiliary_backups=0))
+            cloud_calls=history.Calls(calls,auxiliary_backups=int(backup)))
         from . import remote_rich_negatives
-        negatives=remote_rich_negatives.verify_observations(root,calls,traces,location,auxiliary_backups=0)
+        negatives=remote_rich_negatives.verify_observations(root,calls,traces,location,auxiliary_backups=int(backup))
         m.need(negatives==[dict(case=name,status='REJECTED',reason=reason) for name,reason in NEGATIVES.items()],
                'guest physical negative qualification')
     return dict(status='PASS',execution='guest-automatic-healthy-physical-evidence-only',physicalHistoryQualified=True,
+        backupRestoreQualified=backup,backupRestore=next((v['backupRestore'] for v in reports if v.get('backupRestore')),None),
         paidCloud=False,fullRemoteQualification=False,calls=len(calls),physical=result,members=reports,negatives=negatives,
         source=configs[0]['binding']['source'],bundleSha256=configs[0]['binding']['bundleSha256'],
         manifestSha256=bindings['node-1'][0],genesisSha256=bindings['node-1'][1])
@@ -95,10 +102,10 @@ def validate(members, manifest_bytes):
 if __name__=='__main__':
     import argparse
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('input',type=Path)
-    p.add_argument('--output',type=Path,required=True);a=p.parse_args()
+    p.add_argument('--output',type=Path,required=True);p.add_argument('--backup',action='store_true');a=p.parse_args()
     # Each relative member root is resolved from this replay descriptor, so the
     # whole downloaded set remains portable without rewriting original configs.
     spec=c.read(a.input)
     members=[dict(root=a.input.parent/v['root'],controller=c.read(a.input.parent/v['controller'])) for v in spec['members']]
-    result=validate(members,(a.input.parent/spec['manifest']).read_bytes());c.write_once(a.output,result)
+    result=validate(members,(a.input.parent/spec['manifest']).read_bytes(),backup=a.backup);c.write_once(a.output,result)
     print(m.canonical(result).decode())

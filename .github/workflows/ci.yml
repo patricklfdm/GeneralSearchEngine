@@ -259,11 +259,11 @@ jobs:
           retention-days: 7
           compression-level: 1
 
-      - name: Qualify V5.1 owned healthy windows and physical history without GCP
+      - name: Qualify V5.1 owned healthy history and backup restore without GCP
         run: >-
           timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
           target/v51-owned-bootstrap --bundle target/v51-guest-package --source "$GITHUB_SHA"
-          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload --physical
+          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload --physical --backup
 
       - name: Retain V5.1 owned bootstrap and consumed claims
         if: always()

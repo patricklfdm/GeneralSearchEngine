@@ -578,7 +578,7 @@ Required dependency, timed window, timeout, build, upload policy or paid workflo
 changes. The unprivileged single-receiver source gate accepts the same option for
 local qualification. See [the producer contract](v5x/v5.1/PHASE_6_SOURCE_PRODUCER.md).
 
-### Phase 6C3C13 owned automatic healthy candidate
+### Phase 6C3C13 owned automatic healthy workload
 
 PR #243's producer/bootstrap is accepted at master
 `eb56fa6d2565770bd8aac7f76e484834f563a0f3`, exact-master CI `36407418156`
@@ -589,11 +589,13 @@ logical replay and owned cleanup/retention. All three native-UID mount views,
 source/package negatives, the 720-second outer bound, artifact name and Required
 job graph remain. Provider/block observations are still modeled; physical history
 and full remote qualification remain false. See the
-[owned workload scope](v5x/v5.1/PHASE_6_OWNED_WORKLOAD.md). This candidate needs its
-own protected CI; it does not accept a complete experiment or enable paid runs.
+[owned workload scope](v5x/v5.1/PHASE_6_OWNED_WORKLOAD.md). PR #244 accepted this
+bounded slice at master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
+`36462747697` attempt 1 (27 jobs). It does not accept a complete experiment or
+enable paid runs; the original collection failure remains recorded.
 
 
-### Phase 6C3C14 owned physical evidence candidate
+### Phase 6C3C14 owned physical evidence
 
 PR #244 is accepted at master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`,
 exact-master CI `36462747697` attempt 1 (27 jobs). The existing owned-bootstrap
@@ -604,3 +606,17 @@ The 720-second outer bound, 300-second healthy mode ceiling, frozen windows,
 27-job Required graph and artifact retention remain unchanged. This qualifies one
 automatic healthy cell; full remote and paid flags stay false. See
 [physical evidence scope](v5x/v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md).
+
+PR #245 accepted this slice at master `d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`,
+exact-master CI `36486236193` attempt 1 (27 successful jobs).
+
+### Phase 6C3C15 owned backup/restore candidate
+
+The same owned-bootstrap step adds `--backup`: issue one post-tape backup,
+observe the final durable cut, stop all voters and restore once through the
+package's published V4.4 entry. Independently decode exported bytes, verify
+restored state and bind the original backup response to its physical read barrier.
+Discarded submission replies for both new commands must only trigger receipt
+queries. The existing 90 calls, deadlines, Required graph and retention remain
+unchanged. Synthetic local tests are not protected Linux acceptance; see the
+[backup/restore scope](v5x/v5.1/PHASE_6_OWNED_BACKUP.md).

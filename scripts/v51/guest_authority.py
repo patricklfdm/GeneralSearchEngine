@@ -7,7 +7,7 @@ MAX_BYTES = 64 << 20
 MAX_PATHS = 4096
 
 
-def inventory(root):
+def inventory(root, *, allow_empty=False):
     root=c.directory(root); count=total=0
     for path in root.rglob('*'):
         count+=1
@@ -16,7 +16,7 @@ def inventory(root):
             total+=path.stat().st_size
             m.need(total<=MAX_BYTES, 'guest authority byte bound')
     value=parts.inventory(root)
-    m.need(value, 'guest authority empty')
+    m.need(value or allow_empty, 'guest authority empty')
     return value
 
 
