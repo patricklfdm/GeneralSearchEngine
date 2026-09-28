@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C8, 6C3C9 guest-evidence candidate awaiting protected acceptance; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C9; 6C3C10 owned-bootstrap candidate; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -109,11 +109,17 @@ recorded; its successful rerun does not establish a timing cause. The
 PR #239, master `1feeb2f1941367ef29cbb1cdabd3cead6715ebb8`, exact-master CI
 `36370271323` attempt 2 (all 27 jobs). Attempt 1's automatic-healthy lane-busy
 failure remains recorded; the rerun does not establish its cause. The
-[6C3C9 guest evidence candidate](v5.1/PHASE_6_GUEST_EVIDENCE.md) adds independent
-warmup request/result and logical-answer replay to the existing guest gates;
-protected acceptance is pending. Owned services still stop at idle admission.
-Next connect distributed source/workload execution, complete windows, faults and
-physical evidence, then trusted preflight and separate V5.1 configuration/workflows.
+[6C3C9 guest evidence](v5.1/PHASE_6_GUEST_EVIDENCE.md) is accepted through PR #240,
+master `0ef49cb8f5f6c793b9fe03db4b4069dd04e059ac`, exact-master CI `36378226619`
+attempt 1 (all 27 jobs). It independently validates the existing guest warmups;
+complete owned workload execution remains open.
+The [6C3C10 owned bootstrap candidate](v5.1/PHASE_6_OWNED_BOOTSTRAP.md) connects
+local initial-source import and public bootstrap to owned admission before any
+service launch, with original deadlines and read-only recovery of lost replies.
+Its source files use explicit qualification-only shared paths; native binary
+source transport and owned workload cells remain unfinished. Next qualify this
+slice, then complete source transport, windows, faults and physical evidence,
+followed by trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

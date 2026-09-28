@@ -13,12 +13,13 @@ from . import guest_package_delivery as delivery, guest_volume as volume, perfor
 PHASES = ('initial', 'delivery', 'delivered', 'launch', 'ready', 'final')
 FILES = {'plan.json', 'receipt.json', 'stop.json', 'stop-claim.json'} | {
     f'node-{n}-{kind}.json' for n in (1,2,3) for kind in ('package','launch','ready',*('check-'+p for p in PHASES))}
+BOOTSTRAP_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('bootstrap','install','seeded','seal','sealed')}
 
 
 class Services:
     offline = True
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, clock=time.monotonic, sleep=time.sleep):
+                 qualification_mounts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         self.mode, self.clock, self.sleep = mode, clock, sleep
@@ -26,7 +27,8 @@ class Services:
         m.need(set(self.mounts) == {1,2,3} and all(isinstance(p,str) and Path(p).is_absolute() and
                str(Path(p)) == p and '..' not in Path(p).parts for p in self.mounts.values()), 'owned service mount paths')
         self.mapping = 'qualification-local-paths' if qualification_mounts is not None else 'guest-mount-paths'
-        self.clients = []; self.root = None
+        m.need(bootstrap is None or bootstrap.offline is True, 'live owned bootstrap disabled')
+        self.bootstrap=bootstrap; self.clients = []; self.root = None
 
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
         m.need(req == self.provider.req and len(facts) == len(targets) == len(startup) == 3 and
@@ -74,6 +76,10 @@ class Services:
                     record.update(deadline=endpoint.budget,calls=endpoint.calls,failures=endpoint.failures)
                     c.write_once(self.root/f'node-{i+1}-package.json',record,maximum=262144)
             for i in range(3): check(i,'delivered')
+            if self.bootstrap is not None:
+                result['bootstrap']=self.bootstrap.prepare(req,configs,endpoints,self.root/'bootstrap',deadline,recheck=check)
+                m.need(result['bootstrap']['status']=='PASS' and result['bootstrap']['publicBootstrapVerified'] is True,
+                       'owned bootstrap group not verified')
             for i, (endpoint,cfg) in enumerate(zip(endpoints,configs)):
                 check(i,'launch'); client=endpoint.client(cfg)
                 m.need(client.config == cfg, 'owned service client binding')
@@ -136,6 +142,11 @@ class Services:
     def retention_files(self):
         if self.root is None: return
         c.directory(self.root)
+        allowed=FILES | (BOOTSTRAP_FILES if self.bootstrap is not None else set())
         for path in sorted(self.root.iterdir()):
-            m.need(path.name in FILES and path.is_file() and not path.is_symlink() and path.stat().st_size<=262144,'owned service retention inventory')
+            if path.name=='bootstrap' and self.bootstrap is not None:
+                c.directory(path)
+                for name,raw in self.bootstrap.retention_files(): yield 'services/'+name,raw
+                continue
+            m.need(path.name in allowed and path.is_file() and not path.is_symlink() and path.stat().st_size<=262144,'owned service retention inventory')
             yield 'services/'+path.name,path.read_bytes()

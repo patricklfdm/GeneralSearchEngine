@@ -87,6 +87,23 @@ class Endpoint:
         base = Path(self.parent)/(self.value['binding']['attempt']+'-'+self.value['binding']['node'])/'package'
         return Client(base, config)
 
+    def bootstrap(self, action, request, deadline):
+        m.need(self.offline is True and self.budget is not None and deadline == self.deadline and
+               time.monotonic() < deadline, 'bootstrap original package deadline/scope')
+        m.need(action in ('install','seal','query-install','query-seal') and len(self.calls) < 4096, 'bootstrap controller action/bound')
+        self.calls.append(dict(action='bootstrap-'+action,index=None))
+        remote = ['python3','-I','-c',trusted_source(),'bootstrap',self.parent,
+            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
+            action,base64.b64encode(m.canonical(request)).decode()]
+        raw = transport.process(self.argv(remote),b'',deadline,maximum=262144)
+        answer = m.strict_json(raw)
+        m.need(set(answer) == {'schema','action','requestSha256','deadlineSha256','receipt'} and
+               answer['schema'] == 'gse-v51-package-bootstrap-v1' and answer['action'] == action and
+               answer['requestSha256'] == m.sha(m.canonical(request)) and
+               answer['deadlineSha256'] == m.sha(m.canonical(self.budget)) and time.monotonic() < deadline,
+               'bootstrap transport identity/deadline')
+        return answer['receipt']
+
 
 def deliver(endpoint, archive, deadline):
     value = receiver.descriptor(endpoint.value)

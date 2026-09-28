@@ -7,6 +7,7 @@ namespace before dropping back to the original user; no host mount is modified.
 import argparse
 import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 if __name__ != '__main__':
@@ -14,18 +15,22 @@ if __name__ != '__main__':
 
 
 class Views:
-    def __init__(self, root, cell, allow_sudo=False):
+    def __init__(self, root, cell, allow_sudo=False, *, preserve_uid=False):
         self.root, self.cell = Path(root), Path(cell); self.root.mkdir(parents=True)
         self.parent_namespace = os.readlink('/proc/self/ns/mnt')
         self.prefix = ['unshare', '--user', '--map-root-user', '--mount', '--propagation', 'private']
         probe = subprocess.run([*self.prefix, 'true'], capture_output=True, timeout=10)
-        self.sudo = probe.returncode != 0
-        m.need(not self.sudo or allow_sudo, 'user mount namespace unavailable; explicit CI sudo option required: '+probe.stderr.decode()[-500:])
+        self.sudo = preserve_uid or probe.returncode != 0
+        m.need(not self.sudo or allow_sudo, 'native UID or mount namespace requires explicit CI sudo option: '+probe.stderr.decode()[-500:])
         if self.sudo:
             self.prefix = ['sudo', '-n', 'unshare', '--mount', '--propagation', 'private']
             subprocess.run([*self.prefix, 'true'], check=True, timeout=10)
     def args(self, name, command):
-        backing = self.root/name; backing.mkdir(exist_ok=True)
+        # The bind exposes the backing inode's mode, covering the cell's mode.
+        # Create it private and reject drift on reconnect; never repair claims.
+        backing = self.root/name; backing.mkdir(mode=0o700,exist_ok=True)
+        info = c.directory(backing).stat()
+        m.need(info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700, 'namespace backing must be private and owned')
         return [*self.prefix, sys.executable, str(Path(__file__).resolve()), str(backing), str(self.cell),
                 self.parent_namespace, str(os.getuid()) if self.sudo else '0', str(os.getgid()) if self.sudo else '0',
                 *command]

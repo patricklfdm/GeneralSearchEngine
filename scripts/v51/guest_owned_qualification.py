@@ -8,6 +8,7 @@ import ctypes
 import os
 from pathlib import Path
 import signal
+import sys
 import tempfile
 import time
 from copy import deepcopy
@@ -27,7 +28,7 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False):
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700,exist_ok=False)
     bundle=Path(bundle).resolve(); manifest=package.verify(bundle/'package',source)
     m.need(manifest['buildBinding']==build.binding(ROOT,source),'owned qualification checkout/build mismatch')
@@ -39,7 +40,7 @@ def run(output, bundle, source):
         execution='owned-model-loopback-ssh-idle-services',realSshExecuted=True,engineWorkloadExecuted=False,
         providerIdentity='modeled-fixtures',volumeObservations='offline-block-model',filesystem='shared-local',
         realBlockDeviceWritten=False,paidCloud=False,fullRemoteQualification=False)
-    services=None; endpoints=[]
+    services=None; endpoints=[]; views=None
     try:
         with tempfile.TemporaryDirectory(prefix='gse-v51-owned-keys-',dir=ROOT/'target') as private, Server(private,root) as server:
             req,pre,approval,_,http,store,old,_=guest_startup_fake.fixture(Path(private)/'owner')
@@ -56,14 +57,31 @@ def run(output, bundle, source):
                     return http.reply(dict(queryPath='hostkeys/',queryValue=dict(items=[dict(namespace='hostkeys',key='ssh-ed25519',value=server.host['publicKey'].split()[1])])))
                 return original(method,path,query,body)
             http.hook=hook
-            mounts={n:str(root/f'mount-{n}') for n in (1,2,3)}
-            for path in mounts.values(): Path(path).mkdir(mode=0o700)
+            if bootstrap:
+                from .guest_isolation import Views
+                from .guest_bootstrap_source import ViewSource
+                from .guest_owned_bootstrap import Bootstrap
+                mount=root/'guest-mount'; mount.mkdir(mode=0o700)
+                # The package receiver authenticates ancestor ownership. Keep
+                # native UIDs; a user namespace would map root-owned ancestors away.
+                views=Views(root/'mount-views',mount,allow_sudo,preserve_uid=True)
+                mounts={n:str(mount) for n in (1,2,3)}
+                source_adapter=ViewSource(views,bundle/'package')
+                admitted_bootstrap=Bootstrap(source_adapter)
+                receipt.update(execution='owned-model-loopback-ssh-local-bootstrap',filesystem='independent-mount-views',
+                    sourceTransport=source_adapter.scope,sudoNamespace=views.sudo)
+            else:
+                mounts={n:str(root/f'mount-{n}') for n in (1,2,3)}
+                for path in mounts.values(): Path(path).mkdir(mode=0o700)
+                admitted_bootstrap=None
             class Loopback(delivery.Endpoint):
                 offline=True
                 def argv(self,remote):
                     # Keep the provider/access descriptor; only route the offline
                     # transport to this ephemeral daemon and existing local account.
                     target=deepcopy(self.target); target['user']=server.user
+                    if views is not None:
+                        remote=views.args(self.value['binding']['node'],[sys.executable,*remote[1:]])
                     argv=ssh_args(target,remote)
                     argv=[v if not v.startswith('ProxyCommand=') else 'ProxyCommand=none' for v in argv]
                     return [*argv[:-2],'-o','Hostname=127.0.0.1','-p',str(server.port),*argv[-2:]]
@@ -81,8 +99,14 @@ def run(output, bundle, source):
                     def lost_start(end): start(end); raise ConnectionError('discarded launch reply')
                     def lost_stop(end): shutdown(end); raise ConnectionError('discarded shutdown reply')
                     cl.start=lost_start; cl.shutdown=lost_stop; return cl
-                ep.client=client; return ep
-            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts)
+                ep.client=client
+                original_bootstrap=ep.bootstrap
+                def lost_bootstrap(action,request,end):
+                    answer=original_bootstrap(action,request,end)
+                    if action in ('install','seal'): raise ConnectionError('discarded completed bootstrap reply')
+                    return answer
+                ep.bootstrap=lost_bootstrap; return ep
+            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,bootstrap=admitted_bootstrap)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             probe=cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup).run(req,pre,approval)
@@ -93,6 +117,19 @@ def run(output, bundle, source):
                 counts={key:sum(v['action']==key for v in ep.calls) for key in ('clock','begin','part','finish','query')}
                 m.need(counts==dict(clock=1,begin=1,part=len(ep.value['parts']),finish=1,query=2),'owned package write/query cardinality')
                 rows.append(dict(node=ep.value['binding']['node'],archiveBytes=ep.value['archiveBytes'],calls=counts))
+                if bootstrap:
+                    for phase in ('install','seal'):
+                        m.need(sum(v['action']=='bootstrap-'+phase for v in ep.calls)==1 and
+                               sum(v['action']=='bootstrap-query-'+phase for v in ep.calls)==2,'owned bootstrap write/query cardinality')
+            if bootstrap:
+                from . import guest_bootstrap as boot
+                completed=c.read(root/'startup/services/bootstrap/receipt.json')
+                m.need(completed['status']=='PASS' and len(completed['members'])==3,'owned local bootstrap completion')
+                for node,_,cfg in services.clients:
+                    cell=views.root/('node-'+str(node))/Path(cfg['root']).relative_to(views.cell)
+                    m.need((cell/boot.LOCAL_READY).is_file() and all(not (cell/('node-'+str(other))).exists() for other in (1,2,3) if other!=node),
+                           'owned bootstrap live neighbour storage')
+                receipt['bootstrap']=completed
             receipt.update(status='PASS',tools=server.versions,packages=rows,services=len(services.clients),
                 modeledControlCells=result['evidence']['cells'],retainedObjects=len(http.objects),
                 reservedCostMicrousd=a.inspect_ledger(store.get(a.LEDGER)[1])[0],leaseReleased=result['leaseReleased'])
@@ -106,6 +143,7 @@ def run(output, bundle, source):
             for node,client,cfg in services.clients:
                 try:
                     path=guest.validate(cfg)/'ready.json'
+                    if views is not None: path=views.root/('node-'+str(node))/path.relative_to(views.cell)
                     if not path.exists(): raise ValueError('no observed PID for attempted service; inspect startup evidence')
                     state=c.read(path)
                     m.need(state['configSha256']==m.sha(m.canonical(cfg)),'owned reap identity')
@@ -125,7 +163,8 @@ def run(output, bundle, source):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True)
+    p.add_argument('--bootstrap',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
-    run(args.output,args.bundle,args.source)
+    run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace)
