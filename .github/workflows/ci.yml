@@ -234,6 +234,21 @@ jobs:
           timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_package_qualification
           target/v51-guest-delivery --bundle target/v51-guest-package --source "$GITHUB_SHA"
 
+      - name: Qualify V5.1 owned startup and idle SSH services without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
+          target/v51-owned-services --bundle target/v51-guest-package --source "$GITHUB_SHA"
+
+      - name: Retain V5.1 owned startup and idle service evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-owned-services-${{ github.sha }}
+          path: target/v51-owned-services
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 1
+
       - name: Retain V5.1 complete package delivery and SSH service evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

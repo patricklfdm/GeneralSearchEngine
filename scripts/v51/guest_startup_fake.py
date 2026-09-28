@@ -74,6 +74,11 @@ class Transport:
         self.blocks.append(block)
         return v.prepare(output, facts['provider'], target['user'], block, deadline, recheck=recheck)
 
+    def readiness(self, facts, target, output, deadline):
+        matches = [block for block in self.blocks if block.provider == facts['provider']]
+        m.need(len(matches) == 1, 'model volume identity')
+        return v.readiness(output, facts['provider'], target['user'], matches[0], deadline)
+
 
 def fixture(private, fault=None):
     req, pre, approval, clock, http, store, old = f.fixture()

@@ -75,3 +75,6 @@ class Transport:
             record.update(deadline=endpoint.budget, observations=endpoint.observations, transportFailures=endpoint.failures)
             c.write_once(Path(output).with_name('root-'+Path(output).name+'.json'), record, maximum=262144)
         return self.volume.prepare(facts, target, output, deadline, recheck=recheck)
+
+    def readiness(self, facts, target, output, deadline):
+        return self.volume.readiness(facts, target, output, deadline)

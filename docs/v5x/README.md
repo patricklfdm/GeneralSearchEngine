@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C6, 6C3C7 package/service candidate awaiting protected acceptance; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C7, 6C3C8 owned-service candidate awaiting protected acceptance; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -101,9 +101,16 @@ through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`, exact-master
 CI `36212673545` attempt 2 (all 27 jobs). The
 [6C3C6 root-admission slice](v5.1/PHASE_6_ROOT_ADMISSION.md) is accepted through
 PR #237 / master CI `36281785824` attempt 1 (27 jobs). The
-[6C3C7 package/service candidate](v5.1/PHASE_6_PACKAGE_DELIVERY.md) adds bounded
-complete-package transfer and persistent services over loopback SSH. Its protected
-acceptance, full 6C, mounted cloud services and paid admission remain open.
+[6C3C7 package/services](v5.1/PHASE_6_PACKAGE_DELIVERY.md) is accepted through
+PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
+`36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
+recorded; its successful rerun does not establish a timing cause. The
+[6C3C8 owned-service candidate](v5.1/PHASE_6_OWNED_SERVICES.md) connects fresh
+mount readiness, complete package delivery and idle service admission under the
+owned lifecycle. Protected acceptance is pending. Next connect distributed
+workloads, faults and independent evidence, then trusted preflight and separate
+V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
+experiments require separate exact-request confirmation and user triggering.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

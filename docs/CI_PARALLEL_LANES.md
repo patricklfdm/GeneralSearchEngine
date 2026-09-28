@@ -492,3 +492,14 @@ seven-day retention and compression level 1. The original bootstrap artifact,
 plain guest-service gate, same-run build identity,
 Required jobs, docs-only decisions, workflow permissions and paid-cloud behavior
 remain unchanged. See [the integration contract](v5x/v5.1/PHASE_6_PACKAGE_DELIVERY.md).
+
+### Phase 6C3C8 owned startup and idle service admission
+
+The foundation lane reuses its exact-source complete guest package for
+`guest_owned_qualification`, with a 720-second outer guard. It couples modeled
+provider/block state to real loopback SSH, three delivered packages and three
+idle services, then verifies stop, retention, cleanup and charged completion.
+No workload JVM or paid cloud operation runs in this additional gate. The
+existing three-mode SSH/JVM and isolated bootstrap gates remain unchanged.
+`v51-owned-services-${sha}` retains complete diagnostics for seven days at
+compression level 1. No job or Required-result dependency changes.

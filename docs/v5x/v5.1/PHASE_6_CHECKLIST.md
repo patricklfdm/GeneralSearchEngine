@@ -46,9 +46,16 @@ attempt 1 (27 successful jobs). The [6C3C5 deadline slice](PHASE_6_GUEST_DEADLIN
 is accepted through PR #236 / exact-master CI `36212673545` attempt 2 (27 jobs).
 The [6C3C6 root-admission slice](PHASE_6_ROOT_ADMISSION.md) is accepted through
 PR #237 / exact-master CI `36281785824` attempt 1 (27 jobs).
-The [6C3C7 package/service candidate](PHASE_6_PACKAGE_DELIVERY.md) adds complete
-package transfer and persistent services over loopback SSH. Its protected acceptance,
-mounted cloud services, configuration and full 6C remain open.
+[6C3C7 package/services](PHASE_6_PACKAGE_DELIVERY.md) is accepted through
+PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
+`36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
+recorded; its successful rerun does not establish a timing cause. The
+[6C3C8 owned-service candidate](PHASE_6_OWNED_SERVICES.md) connects fresh
+mount readiness, complete package delivery and idle service admission under the
+owned lifecycle. Protected acceptance is pending. Next connect distributed
+workloads, faults and independent evidence, then trusted preflight and separate
+V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
+experiments require separate exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
 
@@ -99,7 +106,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C6 implementation candidate: trusted root receiver, consumed admission/deadline claim, verified helper self-check and isolated root/controller qualification.
 - [x] 6C3C6 protected CI and exact-master acceptance: PR #237, master `de3264cb41e594e10e641748d1cdd75fe7c3a8ad`, CI `36281785824` attempt 1.
 - [x] 6C3C7 implementation candidate: bounded complete-package transfer, consumed claims and delivered persistent services over SSH.
-- [ ] 6C3C7 protected CI and exact-master acceptance.
+- [x] 6C3C7 protected acceptance: PR #238, exact-master CI `36302498537` attempt 2 (27 jobs).
+- [x] 6C3C8 implementation candidate: fresh mount/service admission and owned stop/retention/cleanup integration, qualified offline and through loopback SSH.
+- [ ] 6C3C8 protected CI and exact-master acceptance.
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
