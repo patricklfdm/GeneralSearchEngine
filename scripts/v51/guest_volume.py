@@ -188,3 +188,19 @@ def prepare(root, provider, user, backend, deadline, *, recheck):
     finally:
         c.write_once(root/'receipt.json', result)
     return result
+
+
+def readiness(root, provider, user, backend, deadline):
+    """Reobserve a completed mount without issuing any initialization command."""
+    root = Path(root); c.directory(root)
+    m.need(c.read(root/'claim.json') == dict(provider=provider, user=user), 'volume readiness claim')
+    receipt = c.read(root/'receipt.json')
+    m.need(receipt['schema'] == 'gse-v51-volume-startup-v1' and receipt['status'] == 'PASS' and
+           receipt['paidCloud'] is False and receipt['provider'] == provider, 'volume readiness receipt')
+    before = c.read(root/'before.json'); after = c.read(root/'after.json')
+    m.need(mounted(after, provider, user, backend, before) == receipt['volume'], 'volume retained mount changed')
+    raw = observe(backend, provider, deadline)
+    current = mounted(raw, provider, user, backend, before)
+    m.need(current == receipt['volume'], 'volume readiness identity changed')
+    return dict(schema='gse-v51-volume-readiness-v1', provider=provider, volume=current,
+                startupSha256=m.sha(m.canonical(receipt)), observation=raw)

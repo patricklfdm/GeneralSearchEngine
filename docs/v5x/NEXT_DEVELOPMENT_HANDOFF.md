@@ -94,12 +94,16 @@ lane-occupancy failure remain recorded; the rerun does not establish a timing ca
 The [6C3C6 root-admission slice](v5.1/PHASE_6_ROOT_ADMISSION.md) is accepted through
 PR #237, master `de3264cb41e594e10e641748d1cdd75fe7c3a8ad`, exact-master CI
 `36281785824` attempt 1 (all 27 jobs). The original upload failure is retained.
-The [6C3C7 package/service candidate](v5.1/PHASE_6_PACKAGE_DELIVERY.md) connects
-bounded complete-package transfer and persistent services over real loopback SSH.
-Protected acceptance is pending; native cloud execution and block writes remain
-closed. Next connect mounted-volume readiness and service admission under the owned
-controller, finish distributed faults/oracles, then trusted preflight and separate
-workflows/configuration. Paid experiments remain user-triggered after exact-request confirmation.
+[6C3C7 package/services](v5.1/PHASE_6_PACKAGE_DELIVERY.md) is accepted through
+PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
+`36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
+recorded; its successful rerun does not establish a timing cause. The
+[6C3C8 owned-service candidate](v5.1/PHASE_6_OWNED_SERVICES.md) connects fresh
+mount readiness, complete package delivery and idle service admission under the
+owned lifecycle. Protected acceptance is pending. Next connect distributed
+workloads, faults and independent evidence, then trusted preflight and separate
+V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
+experiments require separate exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
 ## Self-contained development map

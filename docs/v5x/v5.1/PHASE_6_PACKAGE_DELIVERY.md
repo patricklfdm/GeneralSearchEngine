@@ -1,8 +1,11 @@
 # V5.1 Phase 6C3C7 — complete package delivery and persistent services
 
-**Status:** implementation candidate on accepted PR #237 master
-`de3264cb41e594e10e641748d1cdd75fe7c3a8ad` (CI `36281785824`, all 27 jobs).
-Protected acceptance remains pending. Full 6C and paid admission remain open.
+**Status:** accepted through PR #238, master
+`ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI `36302498537`
+attempt 2 (all 27 jobs). Attempt 1 failed the inherited automatic-healthy rich
+workload gate and skipped its aggregate; that failure remains retained. The
+successful rerun does not establish its root cause. Full 6C and paid admission
+remain open. The [owned-startup candidate](PHASE_6_OWNED_SERVICES.md) follows this slice.
 
 ## Delivery contract
 

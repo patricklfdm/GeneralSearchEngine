@@ -86,9 +86,16 @@ is accepted through PR #236, master `3cf47ac19a71c24fdc1e10689c646c8bbceb0a53`,
 exact-master CI `36212673545` attempt 2 (all 27 jobs). Initial failures remain
 recorded. The [6C3C6 root-admission slice](docs/v5x/v5.1/PHASE_6_ROOT_ADMISSION.md)
 is accepted through PR #237 / master CI `36281785824` attempt 1 (27 jobs).
-The [6C3C7 package/service candidate](docs/v5x/v5.1/PHASE_6_PACKAGE_DELIVERY.md)
-connects complete package transfer and persistent services over loopback SSH;
-its protected acceptance, full 6C and paid admission remain open.
+[6C3C7 package/services](docs/v5x/v5.1/PHASE_6_PACKAGE_DELIVERY.md) is accepted through
+PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
+`36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
+recorded; its successful rerun does not establish a timing cause. The
+[6C3C8 owned-service candidate](docs/v5x/v5.1/PHASE_6_OWNED_SERVICES.md) connects fresh
+mount readiness, complete package delivery and idle service admission under the
+owned lifecycle. Protected acceptance is pending. Next connect distributed
+workloads, faults and independent evidence, then trusted preflight and separate
+V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
+experiments require separate exact-request confirmation and user triggering.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and
 [next-development addendum](docs/v5x/NEXT_DEVELOPMENT_ADDENDUM.md) contain proposed

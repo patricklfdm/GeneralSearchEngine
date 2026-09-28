@@ -8,11 +8,14 @@ from .guest_transport import ssh_args
 class Prepare:
     execution = a.EXECUTION
 
-    def __init__(self, provider, transport, key, output):
+    def __init__(self, provider, transport, key, output, *, services=None):
         m.need(provider.api.offline is True and transport.offline is True, 'live guest startup disabled')
         m.need(provider.guest_access is not None, 'startup needs request-bound access')
         self.provider, self.transport, self.key, self.root = provider, transport, Path(key).absolute(), Path(output)
         check_private_key(self.key, provider.guest_access)
+        if services is not None:
+            m.need(services.offline is True and services.provider is provider, 'live/mismatched owned services disabled')
+        self.services = services
 
     def prepare(self, req, lease, deadline):
         m.need(req == self.provider.req and lease['request'] == req, 'startup request mismatch')
@@ -52,6 +55,16 @@ class Prepare:
                 result['guests'].append(guest)
             m.need([self.provider.guest_facts(lease, node, deadline=seconds) for node in (1, 2, 3)] == facts,
                    'startup final provider drift')
+            if self.services is not None:
+                def recheck_service(node):
+                    m.need(self.provider.guest_facts(lease, node, deadline=seconds) == facts[node-1], 'service provider drift')
+                    spec = next(r['spec'] for r in lease['resources'] if r['spec']['kind'] == 'instance' and r['spec']['node'] == node)
+                    host = self.provider.guest_host_key(spec, facts[node-1]['provider']['instanceId'], deadline=seconds)
+                    m.need(dict(node=node, **host) == pins[node-1], 'service host pin drift')
+                def readiness(node):
+                    return self.transport.readiness(facts[node-1], targets[node-1], self.root/('node-'+str(node)), seconds)
+                result['services'] = self.services.prepare(req, facts, targets, result['guests'], self.root/'services', seconds,
+                    recheck=recheck_service, readiness=readiness)
             result['status'] = 'PASS'
         except (Exception, KeyboardInterrupt) as error:
             result.update(status='FAIL', failure=dict(type=type(error).__name__, message=str(error)[:2000]))
@@ -60,6 +73,9 @@ class Prepare:
             c.write_once(self.root/'receipt.json', result)
         return result
 
+    def stop(self, deadline):
+        if self.services is not None: return self.services.stop(deadline/10**9)
+
     def retention_files(self):
         # Only closed generated diagnostics. Private SSH key material is elsewhere.
         if self.root.is_dir():
@@ -67,9 +83,13 @@ class Prepare:
                 for node in (1, 2, 3) for name in ('claim', 'before', 'plan', 'after', 'receipt', *('intent-'+str(i) for i in range(5)))}
             allowed |= {f'root-node-{node}.json' for node in (1, 2, 3)}
             paths = sorted(self.root.rglob('*.json'))
+            if self.services is not None:
+                paths = [p for p in paths if 'services' not in p.relative_to(self.root).parts[:1]]
             m.need(len(paths) <= len(allowed), 'startup retention inventory')
             for path in paths:
                 c.directory(path.parent)
                 name = path.relative_to(self.root).as_posix()
                 m.need(name in allowed and path.is_file() and not path.is_symlink() and path.stat().st_size <= 262144, 'startup retention file')
                 yield name, path.read_bytes()
+            if self.services is not None:
+                yield from self.services.retention_files()

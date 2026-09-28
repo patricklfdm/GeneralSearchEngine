@@ -114,6 +114,26 @@ class VolumeTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.prepare()
         self.assertTrue((self.root/'volume/after.json').exists())
         self.assertEqual(c.read(self.root/'volume/receipt.json')['status'], 'FAIL')
+    def test_readiness_is_read_only_and_rejects_replacement_uuid(self):
+        self.prepare(); count=len(self.block.commands)
+        observed=v.readiness(self.root/'volume',self.provider,self.user,self.block,601)
+        self.assertEqual(observed['volume']['uuid'],'12345678-1234-1234-1234-123456789abc')
+        self.assertTrue(all(cmd[0] in ('curl','readlink','lsblk','findmnt','wipefs') for cmd in self.block.commands[count:]))
+        original=self.block.blocks
+        def changed():
+            raw=original(); raw['blockdevices'][2]['uuid']='aaaaaaaa-1234-1234-1234-123456789abc'; return raw
+        self.block.blocks=changed
+        with self.assertRaisesRegex(ValueError,'readiness identity'):
+            v.readiness(self.root/'volume',self.provider,self.user,self.block,601)
+        self.assertEqual(self.block.formats,1)
+    def test_readiness_rejects_changed_retained_identity_and_missing_claim(self):
+        self.prepare(); path=self.root/'volume/receipt.json'; receipt=c.read(path)
+        receipt['volume']['uuid']='aaaaaaaa-1234-1234-1234-123456789abc'; path.write_bytes(m.canonical(receipt))
+        with self.assertRaisesRegex(ValueError,'retained mount'):
+            v.readiness(self.root/'volume',self.provider,self.user,self.block,601)
+        (self.root/'volume/claim.json').unlink()
+        with self.assertRaises((ValueError,FileNotFoundError)):
+            v.readiness(self.root/'volume',self.provider,self.user,self.block,601)
 
 
 class StartupTest(unittest.TestCase):

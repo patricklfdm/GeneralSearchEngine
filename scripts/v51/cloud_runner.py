@@ -146,12 +146,25 @@ class Runner:
                 # Stop, collection and cleanup are each attempted even after another fails.
                 try: self.probe.stop()
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('stop', error))
+                startup_stopped = False
+                def stop_startup(deadline):
+                    nonlocal startup_stopped
+                    startup_stopped = True
+                    if self.startup is not None:
+                        try: self.startup.stop(deadline)
+                        except (Exception, KeyboardInterrupt) as error:
+                            result['errors'].append(failure('guest-stop', error))
+                def retain_startup():
+                    if self.startup is not None:
+                        for name, data in self.startup.retention_files():
+                            retain(self.store, a.PREFIX+'attempts/'+sha+'/startup/'+name, data)
                 try:
                     with budget.stage('validation-retention') as deadline:
-                        if self.startup is not None:
-                            for name, data in self.startup.retention_files():
-                                retain(self.store, a.PREFIX+'attempts/'+sha+'/startup/'+name, data)
-                        result['evidence'] = self.probe.collect_validate(self.output, deadline)
+                        try:
+                            result['evidence'] = self.probe.collect_validate(self.output, deadline)
+                        finally:
+                            stop_startup(deadline)
+                            retain_startup()
                         # This is only diagnostic control evidence, never engine acceptance.
                         m.need(result['evidence']['execution'] == a.EXECUTION and
                                result['evidence']['engineWorkloadExecuted'] is False, 'probe evidence scope')
@@ -160,7 +173,11 @@ class Runner:
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('retention', error))
                 try:
-                    with budget.stage('cleanup'):
+                    with budget.stage('cleanup') as deadline:
+                        if not startup_stopped:
+                            stop_startup(deadline)
+                            try: retain_startup()
+                            except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('startup-retention', error))
                         result['cleanup'] = cleanup(self.provider, self.lease, self.persist)
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('cleanup', error))
                 result['budget'] = budget.finish()
