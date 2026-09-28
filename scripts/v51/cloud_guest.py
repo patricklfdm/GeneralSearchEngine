@@ -148,6 +148,10 @@ class Service:
             return self.jvm.ready
         if name == 'fault':
             # Only lifecycle control in this batch; no arbitrary argv or mutation replay.
+            if payload.get('action')=='configure':
+                m.need(self.jvm is not None and set(payload)=={'action','window'} and
+                       payload['window'] in [s['window'] for s in schedule.windows('healthy','experiment')], 'guest configure window')
+                return self.jvm.command('configure',window=payload['window'])
             m.need(self.jvm is not None and set(payload) == {'action'} and payload['action'] in ('status', 'activate'), 'guest control action')
             m.need(payload['action'] != 'activate' or self.config['mode'] == package.MODES[1] and self.node == 'node-1', 'configured activation role')
             return self.jvm.command(payload['action'])

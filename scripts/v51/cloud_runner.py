@@ -92,7 +92,8 @@ def finalize(store, lease, completion):
 
 
 class Runner:
-    def __init__(self, store, provider, probe, output, *, clock=time.monotonic_ns, wall=time.time, startup=None):
+    def __init__(self, store, provider, probe, output, *, clock=time.monotonic_ns, wall=time.time, startup=None,
+                 qualification=None):
         adapters(store, provider)
         m.need(probe.execution == a.EXECUTION, 'unqualified workload adapter')
         self.store, self.provider, self.probe = store, provider, probe
@@ -100,6 +101,13 @@ class Runner:
         self.generation = None
         if startup is not None: m.need(startup.execution == a.EXECUTION, 'unqualified startup adapter')
         self.startup = startup
+        from .guest_owned_workload import SCOPE
+        m.need((qualification is None and getattr(probe,'scope',None)!=SCOPE) or
+               qualification==SCOPE and getattr(probe,'scope',None)==SCOPE and
+               getattr(probe,'services',None) is not None and startup is not None and
+               getattr(startup,'services',None) is probe.services,
+               'owned workload qualification scope/startup')
+        self.qualification=qualification
 
     def persist(self):
         a.validate_lease(self.lease)
@@ -107,12 +115,14 @@ class Runner:
 
     def run(self, req, preflight, approval):
         sha = a.admit(req, preflight, approval, int(self.wall()))
+        m.need(self.qualification is None or req['member']=='experiment', 'owned qualification is not a full preset')
         self.output.mkdir(parents=True, exist_ok=False)
         self.lease = a.lease(req, int(self.wall()))
         result = dict(schema='gse-v51-control-completion-v1', execution=a.EXECUTION, paidCloud=False,
                       engineWorkloadExecuted=False, fullRemoteQualification=False, requestSha256=sha,
                       errors=[], status='RUNNING', cleanup=None, retention='INCOMPLETE', leaseReleased=False)
         budget = Budget(clock=self.clock)
+        if self.qualification: result['qualificationScope']=self.qualification
         try:
             # A pre-existing lease, even expired, blocks allocation until reconciled.
             stored = self.store.get(a.LEDGER)
@@ -136,7 +146,7 @@ class Runner:
                 self.probe.prepare(req, deadline)
             plan = a.workload.load()
             preset = 'failureDrill' if req['member'] == 'failure-drill' else ('canonical' if req['member'].startswith('canonical-') else 'experiment')
-            for cell in plan['presets'][preset]['cells']:
+            for cell in (['healthy'] if self.qualification else plan['presets'][preset]['cells']):
                 with budget.stage(cell) as deadline:
                     self.probe.cell(cell, deadline)
         except (Exception, KeyboardInterrupt) as error:
@@ -146,6 +156,7 @@ class Runner:
                 # Stop, collection and cleanup are each attempted even after another fails.
                 try: self.probe.stop()
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('stop', error))
+                if self.qualification: result['engineWorkloadExecuted']=self.probe.engineWorkloadExecuted
                 startup_stopped = False
                 def stop_startup(deadline):
                     nonlocal startup_stopped
@@ -165,12 +176,18 @@ class Runner:
                         finally:
                             stop_startup(deadline)
                             retain_startup()
-                        # This is only diagnostic control evidence, never engine acceptance.
-                        m.need(result['evidence']['execution'] == a.EXECUTION and
-                               result['evidence']['engineWorkloadExecuted'] is False, 'probe evidence scope')
+                        evidence=result['evidence']
+                        m.need(evidence['execution']==a.EXECUTION and
+                               (evidence['engineWorkloadExecuted'] is False if self.qualification is None else
+                                evidence['scope']==self.qualification and evidence['paidCloud'] is False and
+                                evidence['fullRemoteQualification'] is False and evidence['physicalHistoryQualified'] is False and
+                                evidence['engineWorkloadExecuted'] is result['engineWorkloadExecuted']), 'probe evidence scope')
                         for name, data in self.probe.retention_files():
                             retain(self.store, a.PREFIX+'attempts/'+sha+'/parts/'+name, data)
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
+                        if self.qualification:
+                            m.need(evidence['status']=='PASS' and evidence['cells']==['healthy'] and
+                                   evidence['engineWorkloadExecuted'] is True,'owned workload qualification failed')
                 except (Exception, KeyboardInterrupt) as error: result['errors'].append(failure('retention', error))
                 try:
                     with budget.stage('cleanup') as deadline:

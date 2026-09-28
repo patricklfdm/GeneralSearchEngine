@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C11; 6C3C12 source-producer candidate; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C12; 6C3C13 owned healthy candidate; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -119,12 +119,15 @@ through PR #241, master `87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master
 failure remains recorded. The [6C3C11 source transfer](v5.1/PHASE_6_SOURCE_TRANSFER.md) is accepted
 through PR #242, master `41bee83b675bdd903d335fc9f1e0cc62cb350429`, exact-master CI
 `36395914043` attempt 1 (all 27 jobs). The
-[6C3C12 source-producer candidate](v5.1/PHASE_6_SOURCE_PRODUCER.md) adds
-once-only preparation and verified archive download through node-1's authenticated
-package endpoint. It removes direct controller access to producer paths while
-preserving original deadlines and separating mutation queries from immutable read
-retries. Next qualify this slice, then connect owned windows, faults and physical
-evidence, followed by trusted preflight and separate V5.1 configuration/workflows.
+[6C3C12 source producer](v5.1/PHASE_6_SOURCE_PRODUCER.md) is accepted through PR #243, master
+`eb56fa6d2565770bd8aac7f76e484834f563a0f3`, exact-master CI `36407418156`
+attempt 1 (all 27 jobs). Its original hardening and warmup timing failures remain
+recorded; the successful run does not establish a timing cause. The
+[6C3C13 owned healthy candidate](v5.1/PHASE_6_OWNED_WORKLOAD.md) connects admitted services to
+one complete automatic experiment healthy tape (90 calls), stopped binary
+collection, independent logical replay and owned retention/cleanup. Next qualify
+this slice, then connect other modes, faults and physical evidence, followed by
+trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

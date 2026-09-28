@@ -8,6 +8,7 @@ import threading
 import time
 import unittest
 import uuid
+from unittest.mock import Mock
 from . import cloud_guest as g, guest_transport as t, remote_command as c
 
 
@@ -33,6 +34,13 @@ class GuestServiceTest(unittest.TestCase):
         obj.store = c.CommandStore(self.root/'commands', obj.config['binding'], create=True)
         obj.active, obj.answer, obj.ack = None, None, threading.Event(); obj.shutting_down = False
         return obj
+    def test_passive_configure_accepts_only_frozen_healthy_window_and_closed_payload(self):
+        obj=self.service();obj.jvm=Mock()
+        obj.handler('fault',dict(action='configure',window='warmup'),lambda:None)
+        obj.jvm.command.assert_called_once_with('configure',window='warmup')
+        for payload in (dict(action='configure',window='unknown'),dict(action='configure',window='warmup',extra=True)):
+            with self.assertRaisesRegex(ValueError,'configure window'):obj.handler('fault',payload,lambda:None)
+        self.assertEqual(obj.jvm.command.call_count,1)
     def test_duplicate_and_busy_never_enter_handler_twice(self):
         obj=self.service(); release=threading.Event(); calls=[]
         def handler(name,payload,checkpoint): obj.ack.set(); calls.append(name); release.wait(5); return {'done':True}

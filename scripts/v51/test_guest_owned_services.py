@@ -93,6 +93,14 @@ class OwnedServiceTest(unittest.TestCase):
         self.assertIn('services/stop.json',retained); self.assertEqual(len([v for v in retained if '-check-' in v]),18)
         self.assertTrue(all(b.formats==1 for b in self.transport.blocks))
         self.assertFalse(result['engineWorkloadExecuted'])
+    def test_qualification_network_mapping_is_closed_and_retained_separately(self):
+        for hosts in (['10.0.0.1','10.0.0.2','10.0.0.3'],['127.0.0.1']*3):
+            with self.assertRaisesRegex(ValueError,'host mapping'):
+                owned.Services(self.provider,self.archive,self.endpoint,qualification_hosts=hosts)
+        self.services.hosts=['127.0.0.2','127.0.0.3','127.0.0.4']
+        result=self.run_owned();self.assertEqual(result['status'],'PASS',result['errors'])
+        plan=c.read(self.services.root/'plan.json');self.assertEqual(plan['networkMapping'],'qualification-loopback')
+        self.assertTrue(all(cfg['hosts']==self.services.hosts for cfg in plan['configs']))
     def test_lost_transfer_responses_query_without_replaying_writes(self):
         self.fault='lost-transfer'; result=self.run_owned(); self.assertEqual(result['status'],'PASS',result['errors'])
         for endpoint in self.endpoints:

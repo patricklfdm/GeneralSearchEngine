@@ -13,7 +13,7 @@ from . import remote_command as command, remote_collection as collection, remote
 from . import guest_evidence
 
 
-def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None):
+def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None, healthy=False):
     m.need(not (isolated and delivery), 'SSH service and mount-view qualification are separate gates')
     root, bundle = Path(output).resolve(), Path(bundle).resolve(); root.mkdir(parents=True, exist_ok=False, mode=0o700)
     packaged = bundle/'package'; manifest = package.verify(packaged, source)
@@ -99,10 +99,17 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                         m.need(answer['state'] == 'SUCCEEDED', 'automatic guest status')
                         if answer['result']['status']['state'] == 'LEADER_READY': active = client; break
                     m.need(time.monotonic() < until, 'automatic guest startup deadline')
-            value, answer, counts = execute(active, 'window', dict(cell='healthy', preset='experiment', window='warmup'), lost=True)
-            m.need(answer['state'] == 'SUCCEEDED' and counts['submits'] == 1 and counts['queries'] > 0, 'guest lost-reply window: '+str(answer))
-            expected = len(schedule.windows('healthy', 'experiment')[0]['calls'])
-            m.need(answer['result']['calls'] == expected, 'guest frozen warmup count')
+            specs=schedule.windows('healthy','experiment')[:None if healthy else 1]
+            for spec in specs:
+                if healthy:
+                    for client in clients:
+                        if client is not active:
+                            _,configured,_=execute(client,'fault',dict(action='configure',window=spec['window']))
+                            m.need(configured['state']=='SUCCEEDED','guest passive configure')
+                value, answer, counts = execute(active, 'window', dict(cell='healthy', preset='experiment', window=spec['window']), lost=True)
+                m.need(answer['state'] == 'SUCCEEDED' and counts['submits'] == 1 and counts['queries'] > 0, 'guest lost-reply window: '+str(answer))
+                m.need(answer['result']['calls'] == len(spec['calls']), 'guest frozen window count')
+            expected = len(specs[0]['calls'])
             _, bad, _ = execute(active, 'collect', {})
             m.need(bad['state'] == 'FAILED' and 'stopped JVM' in bad['error']['message'], 'live JVM collection accepted')
             for client in clients:
@@ -133,10 +140,11 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                     transcript=transcripts[m.sha(m.canonical(client.config))])
                 command.write_once(cell/('controller-'+client.config['binding']['node']+'.json'),controller)
                 validated = guest_evidence.validate(replay,client.config,manifest_bytes,client.base,
-                    controller['transcript'],active=controller['active'])
+                    controller['transcript'],active=controller['active'],healthy=healthy)
                 command.write_once(cell/('validation-'+client.config['binding']['node']+'.json'),validated)
                 members.append(dict(node=node,calls=validated['calls'],journals=validated['journals'],collection=checked,validation=validated))
-            row = dict(mode=mode, status='PASS', warmupCalls=expected, transport=counts, members=members)
+            row = dict(mode=mode, status='PASS', warmupCalls=expected, healthyWindows=healthy,
+                calls=sum(len(s['calls']) for s in specs),transport=counts, members=members)
             results.append(row); print(m.canonical(row).decode(), flush=True)
         receipt['status'] = 'PASS'
     except BaseException as error:
@@ -165,8 +173,8 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
 
 
 if __name__ == '__main__':
-    p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--isolated',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true')
+    p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--isolated',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true');p.add_argument('--healthy',action='store_true')
     a=p.parse_args()
     def terminate(*_): raise TimeoutError('guest qualification terminated')
     signal.signal(signal.SIGTERM, terminate)
-    run(a.output,a.bundle,a.source,isolated=a.isolated,allow_sudo=a.allow_sudo_namespace)
+    run(a.output,a.bundle,a.source,isolated=a.isolated,allow_sudo=a.allow_sudo_namespace,healthy=a.healthy)
