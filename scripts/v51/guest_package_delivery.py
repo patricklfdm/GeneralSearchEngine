@@ -125,6 +125,30 @@ class Endpoint:
                'source transport identity/deadline')
         return answer['receipt']
 
+    def producer(self,action,request,deadline,*,node=None,index=None):
+        m.need(self.offline is True and self.budget is not None and deadline==self.deadline and
+               time.monotonic()<deadline,'producer original package deadline/scope')
+        m.need(action in ('prepare','query','manifest','chunk') and len(self.calls)<4096 and
+               (node in ('node-1','node-2','node-3') if action in ('manifest','chunk') else node is None) and
+               (type(index) is int and 0<=index<65 if action=='chunk' else index is None),'producer controller action/bound')
+        from . import guest_source_producer as source
+        source.validate(request)
+        self.calls.append(dict(action='producer-'+action,node=node,index=index))
+        remote=['python3','-I','-c',trusted_source(),'producer',self.parent,
+            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
+            action,base64.b64encode(m.canonical(request)).decode(),*([node] if node is not None else []),
+            *([str(index)] if index is not None else [])]
+        raw=transport.process(self.argv(remote),b'',deadline,maximum=receiver.PART_BYTES if action=='chunk' else 131072,
+                              retain_partial=action=='chunk')
+        m.need(time.monotonic()<deadline,'producer late response')
+        if action=='chunk':return raw
+        answer=m.strict_json(raw)
+        m.need(set(answer)=={'schema','action','requestSha256','deadlineSha256','receipt'} and
+               answer['schema']=='gse-v51-package-producer-v1' and answer['action']==action and
+               answer['requestSha256']==m.sha(m.canonical(request)) and answer['deadlineSha256']==m.sha(m.canonical(self.budget)),
+               'producer transport identity')
+        return answer['receipt']
+
 
 def deliver(endpoint, archive, deadline):
     value = receiver.descriptor(endpoint.value)

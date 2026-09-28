@@ -61,12 +61,15 @@ complete owned workload execution remains open.
 The [6C3C10 owned bootstrap](PHASE_6_OWNED_BOOTSTRAP.md) is accepted
 through PR #241, master `87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master CI
 `36388477710` attempt 1 (all 27 jobs). The original non-private mount-backing
-failure remains recorded. The [6C3C11 source-transfer candidate](PHASE_6_SOURCE_TRANSFER.md)
-adds bounded binary delivery into authenticated packages, with receiver-local
-imports, original deadlines and query-only recovery. Producer preparation/access
-remains an explicit local qualification adapter. Next qualify this slice, then
-connect producer transport, owned windows, faults and physical evidence, followed
-by trusted preflight and separate V5.1 configuration/workflows.
+failure remains recorded. The [6C3C11 source transfer](PHASE_6_SOURCE_TRANSFER.md) is accepted
+through PR #242, master `41bee83b675bdd903d335fc9f1e0cc62cb350429`, exact-master CI
+`36395914043` attempt 1 (all 27 jobs). The
+[6C3C12 source-producer candidate](PHASE_6_SOURCE_PRODUCER.md) adds
+once-only preparation and verified archive download through node-1's authenticated
+package endpoint. It removes direct controller access to producer paths while
+preserving original deadlines and separating mutation queries from immutable read
+retries. Next qualify this slice, then connect owned windows, faults and physical
+evidence, followed by trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -127,7 +130,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C10 implementation candidate: [owned initial bootstrap](PHASE_6_OWNED_BOOTSTRAP.md) before service admission, using shared local source paths and SSH controls.
 - [x] 6C3C10 protected Linux qualification and exact-master acceptance: PR #241, CI `36388477710` attempt 1.
 - [x] 6C3C11 implementation candidate: [bounded source transfer](PHASE_6_SOURCE_TRANSFER.md), receiver-local import and consumed chunk claims.
-- [ ] 6C3C11 protected Linux qualification and exact-master acceptance.
+- [x] 6C3C11 protected Linux qualification and exact-master acceptance: PR #242, CI `36395914043` attempt 1.
+- [x] 6C3C12 implementation candidate: [authenticated producer and download](PHASE_6_SOURCE_PRODUCER.md), one preparation and bounded immutable reads.
+- [ ] 6C3C12 protected Linux qualification and exact-master acceptance.
 - [ ] Native binary source transport and complete owned engine workload cells.
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

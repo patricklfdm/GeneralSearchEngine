@@ -263,7 +263,7 @@ jobs:
         run: >-
           timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
           target/v51-owned-bootstrap --bundle target/v51-guest-package --source "$GITHUB_SHA"
-          --bootstrap --source-transfer --allow-sudo-namespace
+          --bootstrap --source-transfer --producer-source --allow-sudo-namespace
 
       - name: Retain V5.1 owned bootstrap and consumed claims
         if: always()

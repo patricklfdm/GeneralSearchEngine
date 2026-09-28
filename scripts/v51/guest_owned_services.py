@@ -145,6 +145,8 @@ class Services:
         c.directory(self.root)
         allowed=FILES | (BOOTSTRAP_FILES if self.bootstrap is not None else set())
         if self.bootstrap is not None and getattr(self.bootstrap,'delivery',None) is not None:allowed |= SOURCE_FILES
+        if self.bootstrap is not None and getattr(getattr(self.bootstrap,'source',None),'scope',None)=='authenticated-producer-download':
+            allowed |= {'node-1-check-produced.json'}
         for path in sorted(self.root.iterdir()):
             if path.name=='bootstrap' and self.bootstrap is not None:
                 c.directory(path)

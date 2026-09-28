@@ -544,7 +544,7 @@ compression level 1. Private keys are excluded. The original idle gate, job grap
 Required dependencies, measured windows and paid workflows remain unchanged. See
 the [accepted contract](v5x/v5.1/PHASE_6_OWNED_BOOTSTRAP.md).
 
-### Phase 6C3C11 bounded source transfer candidate
+### Phase 6C3C11 bounded source transfer (accepted PR #242)
 
 The existing owned-bootstrap step adds `--source-transfer`. The same 720-second
 outer guard and 600-second original preparation deadline now cover binary source
@@ -561,3 +561,19 @@ workflow permission, workload window or paid-cloud execution is introduced.
 The standalone one-receiver SSH gate is available for unprivileged local
 qualification; it does not substitute for the owned three-receiver CI gate.
 See [the source transfer contract](v5x/v5.1/PHASE_6_SOURCE_TRANSFER.md).
+
+### Phase 6C3C12 authenticated source producer candidate
+
+The existing owned-bootstrap command adds `--producer-source`. Preparation and
+export download now enter node-1's installed package over the same pinned SSH
+endpoint; the controller reads only its verified download cache. The gate loses
+one completed prepare response and interrupts one chunk per member. It requires
+one preparation, two queries, three manifests and three extra immutable chunk
+reads, then hides producer exports before receiver transfer. All prior receiver,
+bootstrap, independent-mount, service and cleanup checks remain required.
+
+The same owned-bootstrap artifact additionally retains producer claims, cached
+exports, interrupted download prefixes and bounded read diagnostics. No job,
+Required dependency, timed window, timeout, build, upload policy or paid workflow
+changes. The unprivileged single-receiver source gate accepts the same option for
+local qualification. See [the producer contract](v5x/v5.1/PHASE_6_SOURCE_PRODUCER.md).

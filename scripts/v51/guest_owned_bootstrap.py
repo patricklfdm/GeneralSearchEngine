@@ -16,7 +16,8 @@ FILES = {'plan.json','source.json','receipt.json'} | {f'node-{n}-{phase}.json' f
 class Bootstrap:
     offline = True
     def __init__(self, source, *, clock=time.monotonic, sleep=time.sleep, delivery=None):
-        m.need(source.offline is True and source.scope == 'qualification-shared-source-paths', 'native bootstrap source delivery disabled')
+        m.need(source.offline is True and source.scope in ('qualification-shared-source-paths','authenticated-producer-download'), 'native bootstrap source delivery disabled')
+        m.need(source.scope!='authenticated-producer-download' or delivery is not None,'producer requires receiver binary delivery')
         self.source,self.clock,self.sleep = source,clock,sleep; self.root=None
         m.need(delivery is None or delivery.offline is True,'native source transfer disabled')
         self.delivery=delivery
@@ -73,7 +74,10 @@ class Bootstrap:
             finally: c.write_once(self.root/f'node-{i+1}-{phase}.json',record,maximum=262144)
         try:
             for i in range(3): check(i,'bootstrap')
-            exports=self.source.prepare(configs,deadline)
+            if self.source.scope=='authenticated-producer-download':
+                exports=self.source.prepare(configs,deadline,endpoint=endpoints[0],output=self.root/'producer')
+                check(0,'produced')
+            else:exports=self.source.prepare(configs,deadline)
             m.need(len(exports)==3 and [v['node'] for v in exports]==[v['binding']['node'] for v in configs], 'owned bootstrap source members')
             requests=[]; files=[]
             for cfg,row in zip(configs,exports):
@@ -109,6 +113,9 @@ class Bootstrap:
         allowed=FILES | {f'node-{n}-{p}-intent.json' for n in (1,2,3) for p in ('install','seal')}
         c.directory(self.root)
         for path in sorted(self.root.iterdir()):
+            if path.name=='producer' and self.source.scope=='authenticated-producer-download':
+                for name,raw in self.source.retention_files():yield 'bootstrap/producer/'+name,raw
+                continue
             if self.delivery is not None and path.name in {f'node-{n}-transfer' for n in (1,2,3)}:
                 for name,raw in self.delivery.retention_files(path):yield 'bootstrap/'+path.name+'/'+name,raw
                 continue

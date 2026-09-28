@@ -40,10 +40,15 @@ def topology(root, config):
         m.need(path.is_file() and not path.is_symlink() and path.read_bytes() == text.encode(), 'bootstrap topology differs')
 
 
-def export(root, target, config):
+def export(root, target, config, *, producer_config=None):
     from .cloud_guest import validate
     validate(config); root, target = c.directory(root), Path(target)
-    m.need(str(root) == config['root'], 'bootstrap sealed path')
+    if producer_config is None:
+        m.need(str(root) == config['root'], 'bootstrap sealed path')
+    else:
+        validate(producer_config)
+        normalized=deepcopy(config);normalized['root']=str(root);normalized['binding']['node']='node-1'
+        m.need(normalized==producer_config,'bootstrap producer/source configuration binding')
     m.need(not list(root.glob('*-jvm.json')) and not list(root.glob('*-results*')) and not (root/'store').exists(), 'bootstrap already used')
     topology(root, config)
     # Only a verified immutable source backup crosses hosts. Public bootstrap

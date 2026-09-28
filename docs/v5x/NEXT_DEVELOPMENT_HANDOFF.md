@@ -109,12 +109,15 @@ complete owned workload execution remains open.
 The [6C3C10 owned bootstrap](v5.1/PHASE_6_OWNED_BOOTSTRAP.md) is accepted
 through PR #241, master `87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master CI
 `36388477710` attempt 1 (all 27 jobs). The original non-private mount-backing
-failure remains recorded. The [6C3C11 source-transfer candidate](v5.1/PHASE_6_SOURCE_TRANSFER.md)
-adds bounded binary delivery into authenticated packages, with receiver-local
-imports, original deadlines and query-only recovery. Producer preparation/access
-remains an explicit local qualification adapter. Next qualify this slice, then
-connect producer transport, owned windows, faults and physical evidence, followed
-by trusted preflight and separate V5.1 configuration/workflows.
+failure remains recorded. The [6C3C11 source transfer](v5.1/PHASE_6_SOURCE_TRANSFER.md) is accepted
+through PR #242, master `41bee83b675bdd903d335fc9f1e0cc62cb350429`, exact-master CI
+`36395914043` attempt 1 (all 27 jobs). The
+[6C3C12 source-producer candidate](v5.1/PHASE_6_SOURCE_PRODUCER.md) adds
+once-only preparation and verified archive download through node-1's authenticated
+package endpoint. It removes direct controller access to producer paths while
+preserving original deadlines and separating mutation queries from immutable read
+retries. Next qualify this slice, then connect owned windows, faults and physical
+evidence, followed by trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
