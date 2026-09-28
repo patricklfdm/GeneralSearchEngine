@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C7, 6C3C8 owned-service candidate awaiting protected acceptance; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C8, 6C3C9 guest-evidence candidate awaiting protected acceptance; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -105,12 +105,17 @@ PR #237 / master CI `36281785824` attempt 1 (27 jobs). The
 PR #238, master `ef7562bc60a0a15ab4202367c5e286fe6250cbdb`, exact-master CI
 `36302498537` attempt 2 (all 27 jobs). The initial rich healthy failure remains
 recorded; its successful rerun does not establish a timing cause. The
-[6C3C8 owned-service candidate](v5.1/PHASE_6_OWNED_SERVICES.md) connects fresh
-mount readiness, complete package delivery and idle service admission under the
-owned lifecycle. Protected acceptance is pending. Next connect distributed
-workloads, faults and independent evidence, then trusted preflight and separate
-V5.1 configuration/workflows. Native cloud writes and full 6C remain open; paid
-experiments require separate exact-request confirmation and user triggering.
+[6C3C8 owned services](v5.1/PHASE_6_OWNED_SERVICES.md) is accepted through
+PR #239, master `1feeb2f1941367ef29cbb1cdabd3cead6715ebb8`, exact-master CI
+`36370271323` attempt 2 (all 27 jobs). Attempt 1's automatic-healthy lane-busy
+failure remains recorded; the rerun does not establish its cause. The
+[6C3C9 guest evidence candidate](v5.1/PHASE_6_GUEST_EVIDENCE.md) adds independent
+warmup request/result and logical-answer replay to the existing guest gates;
+protected acceptance is pending. Owned services still stop at idle admission.
+Next connect distributed source/workload execution, complete windows, faults and
+physical evidence, then trusted preflight and separate V5.1 configuration/workflows.
+Native cloud writes and full 6C remain open; paid experiments require separate
+exact-request confirmation and user triggering.
 
 The accepted [V5 charter](DEVELOPMENT_CHARTER.md) and V5.0 records below remain
 unchanged. V4.4 is the inherited search/storage reference; published V5.0 is the

@@ -9,7 +9,10 @@
 [6C3C4 helper delivery](PHASE_6_GUEST_DELIVERY.md) were subsequently accepted through
 PRs #233–#235. The [6C3C5 deadline](PHASE_6_GUEST_DEADLINES.md) and
 [6C3C6 root admission](PHASE_6_ROOT_ADMISSION.md) slices are accepted through PRs
-#236–#237. The [6C3C7 package/service candidate](PHASE_6_PACKAGE_DELIVERY.md) follows them.
+#236–#237. [6C3C7 package/services](PHASE_6_PACKAGE_DELIVERY.md) and
+[6C3C8 owned services](PHASE_6_OWNED_SERVICES.md) were accepted through PRs #238–#239.
+The [6C3C9 guest evidence candidate](PHASE_6_GUEST_EVIDENCE.md) adds independent
+warmup replay to the previously accepted guest gate described below.
 Full 6C3C, trusted cloud configuration and paid admission remain open.
 
 The first PR #232 rich automatic-healthy attempt, run `36120650925`, failed after

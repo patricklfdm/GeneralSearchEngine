@@ -1,8 +1,6 @@
 """Actual packaged CLI/guest/JVM qualification on one host, never cloud acceptance."""
 import argparse
 import ctypes
-import gzip
-import json
 import os
 from pathlib import Path
 import socket
@@ -12,6 +10,7 @@ import uuid
 from scripts import ci_v51_bundle as build
 from . import cloud_package as package, cloud_guest as guest, guest_transport as transport
 from . import remote_command as command, remote_collection as collection, remote_schedule as schedule, performance_model as m
+from . import guest_evidence
 
 
 def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None):
@@ -22,14 +21,20 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
     packed = package.read(bundle/'receipt.json')
     m.need(packed['status'] == 'PASS' and packed['source'] == source and
            m.sha((bundle/'guest.tar.gz').read_bytes()) == packed['archiveSha256'], 'guest qualified package receipt')
+    manifest_bytes = (packaged/'manifest.json').read_bytes()
+    (root/'package-manifest.json').write_bytes(manifest_bytes)
     # Reap detached services after their short-lived launch CLI exits.
     m.need(ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0, 'guest qualification subreaper')
-    results, services = [], []; deadline = time.monotonic()+840
+    results, services, transcripts = [], [], {}; deadline = time.monotonic()+840
     receipt = dict(schema='gse-v51-guest-qualification-v1', status='FAIL', execution=guest.EXECUTION,
         filesystem='independent-mount-views' if isolated else 'shared-local', source=source, buildBinding=manifest['buildBinding'], bundleSha256=packed['archiveSha256'],
         paidCloud=False, fullRemoteQualification=False, engineWorkloadExecuted=True, cases=results)
     def execute(client, name, payload, lost=False):
         value = command.request(client.config['binding'], uuid.uuid4().hex, name, payload)
+        until = min(deadline,time.monotonic()+120)
+        identity = m.sha(m.canonical(client.config))
+        retained = root/'controller'/identity/value['commandId']; retained.mkdir(parents=True,mode=0o700)
+        command.write_once(retained/'request.json',dict(config=client.config,request=value))
         class Drop:
             submits, queries = 0, 0
             def submit(self, request, end):
@@ -38,7 +43,9 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                 return answer
             def query(self, request, end): self.queries += 1; return client.query(request, end)
         connection = Drop()
-        result = command.submit_and_observe(connection, value, min(deadline, time.monotonic()+120))
+        result = command.submit_and_observe(connection, value, until)
+        command.write_once(retained/'receipt.json',result)
+        transcripts.setdefault(identity,[]).append(dict(request=value,receipt=result))
         return value, result, dict(submits=connection.submits, queries=connection.queries)
     try:
         for mode in package.MODES:
@@ -122,23 +129,13 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                 replay = cell/('replay-'+client.config['binding']['node'])
                 checked = collection.unpack(download, replay, binding)
                 node = 'local' if mode == package.MODES[0] else client.config['binding']['node']
-                exchanges = command.read(replay/(node+'-exchanges.json'))
-                calls = [r for r in exchanges if r['request']['command'] == 'call']
-                m.need(len(calls) == (expected if client is active else 0) and all(r['outcome'] == 'SUCCESS' for r in calls), 'guest actual call count/outcomes')
-                journals = {}
-                for kind in ('results', 'samples') if mode == package.MODES[0] else ('results', 'samples', 'trace'):
-                    paths = sorted(replay.glob(node+'-'+kind+'*.jsonl.gz'))
-                    m.need(paths, 'missing closed guest journal: '+kind)
-                    # Consume gzip trailers and JSON rows; complete semantic and physical
-                    # replay remains the later full integration gate.
-                    count = 0
-                    for path in paths:
-                        with gzip.open(path, 'rb') as stream:
-                            for line in stream: m.strict_json(line); count += 1
-                    journals[kind] = count; m.need(count > 0, 'empty guest journal: '+kind)
-                stopped = command.read(replay/(node+'-stop.json'))
-                m.need(stopped['readerReaped'] and stopped['exitCode'] == 0 and not stopped['forced'], 'guest shutdown evidence')
-                members.append(dict(node=node, calls=len(calls), journals=journals, collection=checked))
+                controller = dict(config=client.config,packageRoot=str(client.base),active=client is active,
+                    transcript=transcripts[m.sha(m.canonical(client.config))])
+                command.write_once(cell/('controller-'+client.config['binding']['node']+'.json'),controller)
+                validated = guest_evidence.validate(replay,client.config,manifest_bytes,client.base,
+                    controller['transcript'],active=controller['active'])
+                command.write_once(cell/('validation-'+client.config['binding']['node']+'.json'),validated)
+                members.append(dict(node=node,calls=validated['calls'],journals=validated['journals'],collection=checked,validation=validated))
             row = dict(mode=mode, status='PASS', warmupCalls=expected, transport=counts, members=members)
             results.append(row); print(m.canonical(row).decode(), flush=True)
         receipt['status'] = 'PASS'

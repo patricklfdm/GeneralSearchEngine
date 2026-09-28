@@ -503,3 +503,17 @@ No workload JVM or paid cloud operation runs in this additional gate. The
 existing three-mode SSH/JVM and isolated bootstrap gates remain unchanged.
 `v51-owned-services-${sha}` retains complete diagnostics for seven days at
 compression level 1. No job or Required-result dependency changes.
+
+### Phase 6C3C9 independent guest evidence candidate
+
+The existing packaged guest, complete-package SSH and isolated-mount gates now
+independently replay their seven downloaded member collections against retained
+controller transcripts and package-manifest bytes. Each three-mode gate still
+executes only its original thirty warmup calls. Replay checks logical answers,
+the frozen arrival/JVM request/result chain, process identity and resource bounds;
+it does not claim complete cells or physical history. The existing artifacts also
+retain `package-manifest.json`, `controller-node-N.json` and `validation-node-N.json`.
+The foundation test discovery includes the new portable adversarial replay tests.
+No additional Java build, job, workload retry or timing allowance is introduced.
+The owned idle gate remains unchanged. See the
+[candidate contract](v5x/v5.1/PHASE_6_GUEST_EVIDENCE.md).
