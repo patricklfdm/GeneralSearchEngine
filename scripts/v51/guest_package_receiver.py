@@ -191,7 +191,8 @@ def bootstrap(parent, value, budget, tail):
     action, encoded = tail
     r.need(len(encoded) <= 65536, 'bootstrap request bound')
     request = r.decode(base64.b64decode(encoded,validate=True))
-    r.need(set(request) == {'config','folder','descriptorSha256'}, 'bootstrap request fields')
+    transferred = set(request) == {'config','sourceTransferSha256','descriptorSha256'}
+    r.need(transferred or set(request) == {'config','folder','descriptorSha256'}, 'bootstrap request fields')
     config = request['config']
     r.need(config['binding'] == value['binding'] and config['packageManifestSha256'] == value['manifestSha256'] and
            config['root'] == str(Path(parent)/config['mode']), 'bootstrap installed configuration binding')
@@ -199,17 +200,42 @@ def bootstrap(parent, value, budget, tail):
     from scripts.v51 import guest_bootstrap as boot, cloud_guest as guest
     guest.validate(config); deadline = r.guest_deadline(budget,identity(value))
     digest = request['descriptorSha256']
+    if transferred:
+        from scripts.v51 import guest_source_transfer as source
+        folder = source.received(base,config,digest,lambda:r.guest_deadline(budget,identity(value)))
+        r.need(r.sha(r.canonical(source.read(folder.parent/'request.json'))) == request['sourceTransferSha256'],
+               'bootstrap transferred source identity')
+    else: folder = Path(request['folder'])
     if action.startswith('query-'): answer = boot.observe(config,action[6:],digest)
     elif action == 'install':
         # The exclusive cell mkdir consumes even a crash before bootstrap's claim.
         root = Path(config['root']); r.owned(root.parent,os.getuid(),True)
         root.mkdir(mode=0o700); r.sync(root.parent)
-        answer = dict(state='SUCCEEDED',result=boot.install(Path(request['folder']),digest,config))
+        answer = dict(state='SUCCEEDED',result=boot.install(folder,digest,config))
     else:
         r.need(boot.observe(config,'install',digest)['state'] == 'SUCCEEDED', 'bootstrap seed not ready')
         answer = dict(state='SUCCEEDED',result=boot.seal(base,config,deadline=deadline))
     r.guest_deadline(budget,identity(value))
     return dict(schema='gse-v51-package-bootstrap-v1',action=action,requestSha256=r.sha(r.canonical(request)),
+        deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
+
+
+def source_transfer(parent, value, budget, tail, stream):
+    base=installed(parent,value)
+    r.need(read(base.parent/'deadline.json')==budget,'source original package deadline changed')
+    r.need(len(tail) in (2,3) and tail[0] in ('begin','chunk','finish','query') and
+           (len(tail)==3)==(tail[0]=='chunk') and len(tail[1])<=90000,'source transfer arguments')
+    action=tail[0];request=r.decode(base64.b64decode(tail[1],validate=True));config=request['config']
+    r.need(config['binding']==value['binding'] and config['packageManifestSha256']==value['manifestSha256'] and
+           config['root']==str(Path(parent)/config['mode']),'source installed configuration binding')
+    sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
+    from scripts.v51 import guest_source_transfer as source
+    check=lambda:r.guest_deadline(budget,identity(value))
+    check();source.validate(request)
+    if action=='chunk': answer=source.put(base,request,int(tail[2]),stream,check)
+    else: answer=getattr(source,action)(base,request,check)
+    check()
+    return dict(schema='gse-v51-package-source-v1',action=action,requestSha256=r.sha(r.canonical(request)),
         deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
 
 
@@ -227,6 +253,8 @@ def main():
     def expired(*_): raise TimeoutError('package original deadline')
     signal.signal(signal.SIGALRM, expired); signal.setitimer(signal.ITIMER_REAL, max(.001, deadline-time.monotonic()))
     try:
+        if action == 'source':
+            print(r.canonical(source_transfer(parent,value,budget,tail,sys.stdin.buffer)).decode(),flush=True); return
         if action == 'bootstrap':
             print(r.canonical(bootstrap(parent,value,budget,tail)).decode(),flush=True); return
         r.need(action == 'part' and len(tail) == 1 or action in ('begin','query','finish') and not tail, 'package transfer action')

@@ -520,7 +520,7 @@ No additional Java build, job, workload retry or timing allowance is introduced.
 The owned idle gate remains unchanged. See the
 [accepted contract](v5x/v5.1/PHASE_6_GUEST_EVIDENCE.md).
 
-### Phase 6C3C10 owned bootstrap candidate
+### Phase 6C3C10 owned bootstrap (accepted PR #241)
 
 The foundation lane adds a second owned qualification with `--bootstrap` and
 the same exact-source package. Its 720-second outer guard contains the original
@@ -542,4 +542,22 @@ the owned cleanup/accounting path.
 provenance, local seals, SSH diagnostics and controller records for seven days at
 compression level 1. Private keys are excluded. The original idle gate, job graph,
 Required dependencies, measured windows and paid workflows remain unchanged. See
-the [candidate contract](v5x/v5.1/PHASE_6_OWNED_BOOTSTRAP.md).
+the [accepted contract](v5x/v5.1/PHASE_6_OWNED_BOOTSTRAP.md).
+
+### Phase 6C3C11 bounded source transfer candidate
+
+The existing owned-bootstrap step adds `--source-transfer`. The same 720-second
+outer guard and 600-second original preparation deadline now cover binary source
+chunks over authenticated loopback SSH. Each receiver is checked for an unused
+source destination; lost begin, first-chunk and finish replies require three
+queries with no mutation replay. All three transfers complete, then the producer
+export paths are removed before the first import. Existing independent mount,
+public bootstrap, idle-service, cleanup and accounting checks remain required.
+
+The existing `v51-owned-bootstrap-${sha}` artifact also retains source descriptors,
+chunk/finish claims and bytes, intent/query records and six extra fresh-check
+files. Its retention/compression settings are unchanged. No new job, build,
+workflow permission, workload window or paid-cloud execution is introduced.
+The standalone one-receiver SSH gate is available for unprivileged local
+qualification; it does not substitute for the owned three-receiver CI gate.
+See [the source transfer contract](v5x/v5.1/PHASE_6_SOURCE_TRANSFER.md).

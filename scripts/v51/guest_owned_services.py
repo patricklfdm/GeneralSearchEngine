@@ -14,6 +14,7 @@ PHASES = ('initial', 'delivery', 'delivered', 'launch', 'ready', 'final')
 FILES = {'plan.json', 'receipt.json', 'stop.json', 'stop-claim.json'} | {
     f'node-{n}-{kind}.json' for n in (1,2,3) for kind in ('package','launch','ready',*('check-'+p for p in PHASES))}
 BOOTSTRAP_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('bootstrap','install','seeded','seal','sealed')}
+SOURCE_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('transfer','transferred')}
 
 
 class Services:
@@ -143,6 +144,7 @@ class Services:
         if self.root is None: return
         c.directory(self.root)
         allowed=FILES | (BOOTSTRAP_FILES if self.bootstrap is not None else set())
+        if self.bootstrap is not None and getattr(self.bootstrap,'delivery',None) is not None:allowed |= SOURCE_FILES
         for path in sorted(self.root.iterdir()):
             if path.name=='bootstrap' and self.bootstrap is not None:
                 c.directory(path)

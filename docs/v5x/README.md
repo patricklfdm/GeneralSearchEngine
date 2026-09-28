@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C9; 6C3C10 owned-bootstrap candidate; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C10; 6C3C11 source-transfer candidate; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -113,13 +113,15 @@ failure remains recorded; the rerun does not establish its cause. The
 master `0ef49cb8f5f6c793b9fe03db4b4069dd04e059ac`, exact-master CI `36378226619`
 attempt 1 (all 27 jobs). It independently validates the existing guest warmups;
 complete owned workload execution remains open.
-The [6C3C10 owned bootstrap candidate](v5.1/PHASE_6_OWNED_BOOTSTRAP.md) connects
-local initial-source import and public bootstrap to owned admission before any
-service launch, with original deadlines and read-only recovery of lost replies.
-Its source files use explicit qualification-only shared paths; native binary
-source transport and owned workload cells remain unfinished. Next qualify this
-slice, then complete source transport, windows, faults and physical evidence,
-followed by trusted preflight and separate V5.1 configuration/workflows.
+The [6C3C10 owned bootstrap](v5.1/PHASE_6_OWNED_BOOTSTRAP.md) is accepted
+through PR #241, master `87e0cdda3f38dbadce149e54eb1cc45f0f634e28`, exact-master CI
+`36388477710` attempt 1 (all 27 jobs). The original non-private mount-backing
+failure remains recorded. The [6C3C11 source-transfer candidate](v5.1/PHASE_6_SOURCE_TRANSFER.md)
+adds bounded binary delivery into authenticated packages, with receiver-local
+imports, original deadlines and query-only recovery. Producer preparation/access
+remains an explicit local qualification adapter. Next qualify this slice, then
+connect producer transport, owned windows, faults and physical evidence, followed
+by trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

@@ -104,6 +104,27 @@ class Endpoint:
                'bootstrap transport identity/deadline')
         return answer['receipt']
 
+    def source(self, action, request, data, deadline, index=None):
+        m.need(self.offline is True and self.budget is not None and deadline==self.deadline and
+               time.monotonic()<deadline,'source original package deadline/scope')
+        m.need(action in ('begin','chunk','finish','query') and len(self.calls)<4096 and
+               isinstance(data,bytes) and len(data)<=receiver.PART_BYTES and (action=='chunk' or data==b'') and
+               (type(index) is int if action=='chunk' else index is None),'source controller action/bound')
+        from . import guest_source_transfer as source
+        source.validate(request)
+        self.calls.append(dict(action='source-'+action,index=index))
+        remote=['python3','-I','-c',trusted_source(),'source',self.parent,
+            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
+            action,base64.b64encode(m.canonical(request)).decode(),*([str(index)] if index is not None else [])]
+        raw=transport.process(self.argv(remote),data,deadline,maximum=65536,request_maximum=receiver.PART_BYTES)
+        answer=m.strict_json(raw)
+        m.need(set(answer)=={'schema','action','requestSha256','deadlineSha256','receipt'} and
+               answer['schema']=='gse-v51-package-source-v1' and answer['action']==action and
+               answer['requestSha256']==m.sha(m.canonical(request)) and
+               answer['deadlineSha256']==m.sha(m.canonical(self.budget)) and time.monotonic()<deadline,
+               'source transport identity/deadline')
+        return answer['receipt']
+
 
 def deliver(endpoint, archive, deadline):
     value = receiver.descriptor(endpoint.value)
