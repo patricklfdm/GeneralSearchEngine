@@ -10,6 +10,10 @@ def verify(root):
     location=evidence.evidence_location(root,evidence.old.read(root/'execution.json'))
     calls=evidence.old.read(directory/'calls.json')
     traces={n:evidence.lines(directory,n+'-trace') for n in ('node-1','node-2','node-3')}
+    return verify_observations(directory,calls,traces,location)
+
+
+def verify_observations(directory,calls,traces,location,*,auxiliary_backups=1):
     manifest_bytes=(directory/'node-1/manifest.gsr').read_bytes()
     manifest=dict(physical.f.inspect(manifest_bytes,'MANIFEST'),digest=manifest_bytes[16:48].hex())
     active=calls[0]['node'];read=next(c for c in calls if c['operation']=='GET')
@@ -18,7 +22,7 @@ def verify(root):
            'missing-release','resealed-answer','missing-leader-proof','missing-proof-ack','failed-original-call')
     # An invalid original must fail qualification, not make every mutation appear
     # correctly rejected (for example because copied authority has a new path).
-    physical.automatic(directory,calls,traces,evidence_location=location,cloud_calls=Calls(calls))
+    physical.automatic(directory,calls,traces,evidence_location=location,cloud_calls=Calls(calls,auxiliary_backups=auxiliary_backups))
     results=[]
     for case in cases:
         observed=copy.deepcopy(calls);changed={n:list(rows) for n,rows in traces.items()}
@@ -46,7 +50,7 @@ def verify(root):
             call=next(c for c in observed if c['opId']==caller)
             if case=='resealed-answer':call.update(answer='wrong captured document',answerSha256=m.sha(m.canonical('wrong captured document')))
             else:call['outcome']='INDETERMINATE'
-        try:physical.automatic(directory,observed,changed,evidence_location=location,cloud_calls=Calls(observed))
+        try:physical.automatic(directory,observed,changed,evidence_location=location,cloud_calls=Calls(observed,auxiliary_backups=auxiliary_backups))
         except (ValueError,KeyError) as error:results.append(dict(case=case,status='REJECTED',reason=str(error)))
         else:raise ValueError('accepted invalid concurrent evidence: '+case)
     return results

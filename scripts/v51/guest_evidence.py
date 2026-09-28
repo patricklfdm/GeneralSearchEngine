@@ -31,7 +31,7 @@ def retained(root, manifest, owner):
     return set(index)
 
 
-def commands(root, config, transcript):
+def commands(root, config, transcript, *, physical=False):
     m.need(type(transcript) is list and 2 <= len(transcript) <= 2000, 'guest controller transcript bound')
     store = c.CommandStore(root/'store', config['binding'])
     rows, identifiers, process, previous = [], set(), None, 0
@@ -58,7 +58,7 @@ def commands(root, config, transcript):
         rows.append((request, receipt))
     # The in-progress collect command is deliberately excluded from its own archive.
     last_request, last = rows[-1]
-    m.need(last_request['command'] == 'collect' and last_request['payload'] == {} and last['state'] == 'SUCCEEDED',
+    m.need(last_request['command'] == 'collect' and m.canonical(last_request['payload']) == m.canonical({'physical':True} if physical else {}) and last['state'] == 'SUCCEEDED',
            'guest final collection receipt')
     wanted = identifiers - {last_request['commandId']}
     m.need({p.name for p in (root/'store/commands').iterdir()} == wanted, 'guest retained command coverage')
@@ -118,7 +118,7 @@ def process(root, config, manifest, base, rows, service):
     return node, record, start, stop
 
 
-def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False):
+def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False, physical=False):
     """Validate one downloaded member against independently retained controller inputs."""
     root = c.directory(root); guest.validate(config); m.need(type(active) is bool and type(healthy) is bool, 'guest issuer/scope flag')
     m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == 'node-1' and active, 'guest local issuer role')
@@ -127,7 +127,8 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
            'guest evidence package binding')
     m.need(type(transcript) is list and transcript, 'guest controller transcript absent')
     names = retained(root,transcript[-1]['receipt']['result'],config['binding'])
-    rows, service = commands(root,config,transcript)
+    m.need(type(physical) is bool and (not physical or healthy and config['mode']==package.MODES[2]), 'guest physical scope')
+    rows, service = commands(root,config,transcript,physical=physical)
     node, record, started, stopped = process(root,config,manifest,package_root,rows,service)
     windows = [(q,r) for q,r in rows if q['command'] == 'window']
     specs = schedule.windows('healthy','experiment')[:None if healthy else 1]
@@ -224,6 +225,11 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     allowed |= {f'store/commands/{q["commandId"]}/{n}.json' for q,_ in rows[:-1] for n in ('request','started','terminal')}
     if active: allowed |= {'window-healthy-'+s['window']+'/'+n for s in specs for n in ('spec.json','result.json','arrivals.jsonl')}
     journals = {n for n in names if re.fullmatch(re.escape(node)+r'-(results|samples'+('' if node == 'local' else '|trace')+r')(-part[0-9]{4})?\.jsonl\.gz',n)}
+    if physical:
+        from . import guest_authority
+        prefix='authority/'+node+'/'
+        authority=guest_authority.inventory(root/'authority'/node)
+        allowed|={prefix+n for n in authority}
     m.need(names == allowed | journals, 'guest collection closed inventory')
     return dict(status='PASS',execution='guest-healthy-evidence-only' if healthy else 'guest-warmup-evidence-only',node=node,mode=config['mode'],calls=len(calls),
         logicalSemanticsQualified=True,physicalHistoryQualified=False,paidCloud=False,fullRemoteQualification=False,
@@ -235,7 +241,7 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('replay',type=Path); parser.add_argument('--controller',type=Path,required=True)
-    parser.add_argument('--manifest',type=Path,required=True); parser.add_argument('--healthy',action='store_true')
+    parser.add_argument('--manifest',type=Path,required=True); parser.add_argument('--healthy',action='store_true'); parser.add_argument('--physical',action='store_true')
     args = parser.parse_args(); controller = c.read(args.controller)
     print(m.canonical(validate(args.replay,controller['config'],args.manifest.read_bytes(),controller['packageRoot'],
-        controller['transcript'],active=controller['active'],healthy=args.healthy)).decode())
+        controller['transcript'],active=controller['active'],healthy=args.healthy,physical=args.physical)).decode())

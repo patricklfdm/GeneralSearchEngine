@@ -1,7 +1,7 @@
 """One complete automatic experiment healthy tape on already admitted services.
 
-Offline qualification only: provider/block facts remain fixtures. Logical replay
-is required; physical history, other modes/faults and paid acceptance stay open.
+Offline qualification only: provider/block facts remain fixtures. Physical replay
+is explicit; other modes/faults and paid acceptance stay open.
 """
 from pathlib import Path
 import os
@@ -17,7 +17,7 @@ SCOPE='owned-automatic-healthy-experiment'
 class Probe:
     execution=a.EXECUTION
     scope=SCOPE
-    def __init__(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
+    def __init__(self, services, output, *, physical=False, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline is True and services.mode==package.MODES[2] and services.bootstrap is not None,
                'owned workload requires offline automatic bootstrap')
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
@@ -25,6 +25,7 @@ class Probe:
         self.clients=[];self.started=[];self.transcripts={};self.active=None;self.cells=[]
         self.attempted=False;self.engineWorkloadExecuted=False;self.stopped=False;self.prepared=False
         self.command_count=0;self.stop_attempted=set()
+        m.need(type(physical) is bool,'owned physical scope');self.require_physical=physical
         self.binding=m.sha(m.canonical(dict(scope=SCOPE,requestSha256=a.validate_request(services.provider.req))))
 
     def execute(self, member, name, payload, deadline):
@@ -94,6 +95,10 @@ class Probe:
             negative=self.execute(self.active,'collect',{},end)
             m.need(negative['state']=='FAILED' and negative['error']==dict(type='ValueError',message='guest collection requires stopped JVM'),
                    'owned live collection negative')
+            if self.require_physical:
+                from .guest_physical_evidence import converge
+                converge(self.clients,self.active,lambda member,until:self.succeeded(member,'fault',dict(action='status'),until)['result']['status'],
+                         end,clock=self.clock,sleep=self.sleep)
             self.cells.append(name);record['status']='EXECUTED'
         finally:
             record['endedNanos']=int(self.clock()*10**9)
@@ -107,7 +112,7 @@ class Probe:
 
     def collect_validate(self, output, deadline):
         m.need(self.stopped,'owned workload collection before stop')
-        end=deadline/10**9;errors=[];members=[]
+        end=deadline/10**9;errors=[];members=[];physical_members=[];physical=None
         for member in self.started:
             try:
                 m.need(member[0] not in self.stop_attempted,'owned voter stop consumed')
@@ -117,7 +122,7 @@ class Probe:
         for member in self.started:
             node,client,cfg=member
             try:
-                receipt=self.succeeded(member,'collect',{},end);manifest=receipt['result']
+                receipt=self.succeeded(member,'collect',{'physical':True} if self.require_physical else {},end);manifest=receipt['result']
                 binding=m.sha(m.canonical(cfg['binding']));collection.validate_manifest(manifest,binding)
                 folder=self.raw/('node-'+str(node));folder.mkdir(mode=0o700)
                 download=folder/'parts';download.mkdir(mode=0o700)
@@ -132,13 +137,20 @@ class Probe:
                 controller=dict(config=cfg,packageRoot=str(client.base),active=self.active is not None and node==self.active[0],
                                 transcript=self.transcripts[node])
                 c.write_once(folder/'controller.json',controller)
-                validated=guest_evidence.validate(replay,cfg,self.manifest,client.base,controller['transcript'],active=controller['active'],healthy=True)
+                validated=guest_evidence.validate(replay,cfg,self.manifest,client.base,controller['transcript'],active=controller['active'],healthy=True,physical=self.require_physical)
                 c.write_once(folder/'validation.json',validated);members.append(validated)
+                physical_members.append(dict(root=replay,controller=controller))
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))
+        if self.require_physical:
+            try:
+                from . import guest_physical_evidence
+                physical=guest_physical_evidence.validate(physical_members,self.manifest)
+                c.write_once(self.raw/'physical.json',physical)
+            except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='physical-validation',message=str(error)[:2000]))
         m.need(self.clock()<end,'owned validation deadline')
         valid=(self.cells==['healthy'] and len(members)==3 and sum(v['calls'] for v in members)==90 and not errors)
         result=dict(status='PASS' if valid else 'FAIL',execution=a.EXECUTION,scope=SCOPE,paidCloud=False,
-            engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=False,
+            engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,
             cells=list(self.cells),members=members,errors=errors)
         c.write_once(self.raw/'validation.json',result);return result
 

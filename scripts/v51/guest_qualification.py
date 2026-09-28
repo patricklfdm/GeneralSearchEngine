@@ -13,7 +13,8 @@ from . import remote_command as command, remote_collection as collection, remote
 from . import guest_evidence
 
 
-def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None, healthy=False):
+def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None, healthy=False, physical=False):
+    m.need(not physical or healthy,'physical evidence requires healthy scope')
     m.need(not (isolated and delivery), 'SSH service and mount-view qualification are separate gates')
     root, bundle = Path(output).resolve(), Path(bundle).resolve(); root.mkdir(parents=True, exist_ok=False, mode=0o700)
     packaged = bundle/'package'; manifest = package.verify(packaged, source)
@@ -29,9 +30,9 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
     receipt = dict(schema='gse-v51-guest-qualification-v1', status='FAIL', execution=guest.EXECUTION,
         filesystem='independent-mount-views' if isolated else 'shared-local', source=source, buildBinding=manifest['buildBinding'], bundleSha256=packed['archiveSha256'],
         paidCloud=False, fullRemoteQualification=False, engineWorkloadExecuted=True, cases=results)
-    def execute(client, name, payload, lost=False):
+    def execute(client, name, payload, lost=False, until=None):
         value = command.request(client.config['binding'], uuid.uuid4().hex, name, payload)
-        until = min(deadline,time.monotonic()+120)
+        until = min(deadline,time.monotonic()+120,until if until is not None else deadline)
         identity = m.sha(m.canonical(client.config))
         retained = root/'controller'/identity/value['commandId']; retained.mkdir(parents=True,mode=0o700)
         command.write_once(retained/'request.json',dict(config=client.config,request=value))
@@ -112,13 +113,21 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
             expected = len(specs[0]['calls'])
             _, bad, _ = execute(active, 'collect', {})
             m.need(bad['state'] == 'FAILED' and 'stopped JVM' in bad['error']['message'], 'live JVM collection accepted')
+            physical_mode=physical and mode==package.MODES[2]
+            if physical_mode:
+                from . import guest_physical_evidence
+                def status(client,end):
+                    _,answer,_=execute(client,'fault',dict(action='status'),until=end)
+                    m.need(answer['state']=='SUCCEEDED','guest final status command')
+                    return answer['result']['status']
+                guest_physical_evidence.converge(clients,active,status,deadline)
             for client in clients:
                 _, stopped, _ = execute(client, 'stop-voter', dict(forced=False))
                 m.need(stopped['state'] == 'SUCCEEDED', 'guest clean stop: '+str(stopped))
             old = active.submit(value, min(deadline, time.monotonic()+20)); m.need(old == answer, 'terminal command was replayed')
-            members = []
+            members = []; physical_members=[]
             for client in clients:
-                _, collected, _ = execute(client, 'collect', {})
+                _, collected, _ = execute(client, 'collect', {'physical':True} if physical_mode else {})
                 m.need(collected['state'] == 'SUCCEEDED', 'guest collection: '+str(collected))
                 parts = collected['result']; binding = m.sha(m.canonical(client.config['binding']))
                 collection.validate_manifest(parts, binding)
@@ -140,11 +149,16 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                     transcript=transcripts[m.sha(m.canonical(client.config))])
                 command.write_once(cell/('controller-'+client.config['binding']['node']+'.json'),controller)
                 validated = guest_evidence.validate(replay,client.config,manifest_bytes,client.base,
-                    controller['transcript'],active=controller['active'],healthy=healthy)
+                    controller['transcript'],active=controller['active'],healthy=healthy,physical=physical_mode)
                 command.write_once(cell/('validation-'+client.config['binding']['node']+'.json'),validated)
                 members.append(dict(node=node,calls=validated['calls'],journals=validated['journals'],collection=checked,validation=validated))
+                physical_members.append(dict(root=replay,controller=controller))
+            physical_result=None
+            if physical_mode:
+                physical_result=guest_physical_evidence.validate(physical_members,manifest_bytes)
+                command.write_once(cell/'physical.json',physical_result)
             row = dict(mode=mode, status='PASS', warmupCalls=expected, healthyWindows=healthy,
-                calls=sum(len(s['calls']) for s in specs),transport=counts, members=members)
+                calls=sum(len(s['calls']) for s in specs),transport=counts, members=members,physical=physical_result)
             results.append(row); print(m.canonical(row).decode(), flush=True)
         receipt['status'] = 'PASS'
     except BaseException as error:
