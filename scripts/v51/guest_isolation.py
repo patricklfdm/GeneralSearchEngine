@@ -7,6 +7,7 @@ namespace before dropping back to the original user; no host mount is modified.
 import argparse
 import os
 from pathlib import Path
+import stat
 import subprocess
 import sys
 if __name__ != '__main__':
@@ -25,7 +26,11 @@ class Views:
             self.prefix = ['sudo', '-n', 'unshare', '--mount', '--propagation', 'private']
             subprocess.run([*self.prefix, 'true'], check=True, timeout=10)
     def args(self, name, command):
-        backing = self.root/name; backing.mkdir(exist_ok=True)
+        # The bind exposes the backing inode's mode, covering the cell's mode.
+        # Create it private and reject drift on reconnect; never repair claims.
+        backing = self.root/name; backing.mkdir(mode=0o700,exist_ok=True)
+        info = c.directory(backing).stat()
+        m.need(info.st_uid == os.getuid() and stat.S_IMODE(info.st_mode) == 0o700, 'namespace backing must be private and owned')
         return [*self.prefix, sys.executable, str(Path(__file__).resolve()), str(backing), str(self.cell),
                 self.parent_namespace, str(os.getuid()) if self.sudo else '0', str(os.getgid()) if self.sudo else '0',
                 *command]

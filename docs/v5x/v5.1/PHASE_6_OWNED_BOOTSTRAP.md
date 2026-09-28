@@ -6,6 +6,24 @@
 `36378226619` attempt 1 (all 27 jobs). This candidate requires its own protected Linux
 qualification and exact-master acceptance. No full 6C or paid admission is claimed.
 
+PR #241's first CI run [36384429085](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36384429085)
+failed the owned bootstrap step on merge source
+`4e3d91651ef7221237adeb8d92ad15bbbdd4ebd6` (PR head `704ea1e`). The backing
+directory used default mkdir permissions, so the bind covered the private cell
+with a non-private directory. The receiver rejected the first package clock
+request with `delivery private parent`; no package or bootstrap mutation was
+admitted. Original artifact `10953898421` retains the failure, successful modeled
+cleanup, verified retention and released lease. Required failed as a consequence;
+the other 25 jobs passed. This is a qualification implementation defect, not a
+workload timing failure or a reason to retry the unchanged source.
+
+The correction creates each backing directory with `0700` and checks ownership,
+mode and absence of symlinks on every connection. Existing directories and claims
+are never chmodded or replaced. Portable regressions reproduce the old receiver
+rejection under umasks `0022` and `0002`, then verify admission, unchanged reconnect
+claims and rejection of permission drift or links. Receiver admission, timing
+limits and workload calls remain unchanged. Fresh Linux CI is still required.
+
 ## Cut point and preparation order
 
 [Owned services](PHASE_6_OWNED_SERVICES.md) previously connected owned resource and
