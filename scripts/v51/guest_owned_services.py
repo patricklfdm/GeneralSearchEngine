@@ -23,7 +23,7 @@ class Services:
                  qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
-        m.need(fault_cell is None or fault_cell in ('leader-loss','no-quorum') and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
+        m.need(fault_cell is None or fault_cell in ('leader-loss','maintenance','no-quorum') and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
         self.fault_cell=fault_cell
         self.mode, self.clock, self.sleep = mode, clock, sleep
         self.mounts = deepcopy(qualification_mounts) if qualification_mounts is not None else {n:volume.MOUNT for n in (1,2,3)}

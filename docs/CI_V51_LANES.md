@@ -7,8 +7,8 @@ required. The [6C2B fault lane](v5x/v5.1/PHASE_6_REMOTE_FAULTS.md) adds a separa
 required twelve-cell qualification. The subsequent
 [verification build domain](CI_V51_BUILD_DOMAIN.md) centralizes
 V5.1 prerequisite compilation/tests. The subsequent [rich partition](CI_V51_RICH_SHARDS.md) adds prepared inputs and a
-three-child matrix feeding the original rich aggregate. Full CI has twenty-three
-required job IDs plus Change scope and Required (twenty-seven executed jobs when
+three-child matrix feeding the original rich aggregate. Full CI has twenty-five
+required job IDs plus Change scope and Required (twenty-nine executed jobs when
 the matrix expands). Docs-only CI continues to skip Maven.
 
 ## Historical partition measurements
@@ -103,8 +103,8 @@ Rich preparation and each matrix child have separate portable handoff and raw
 failure artifacts; the aggregate retains all three portable inputs for replay.
 Every artifact name is unique after matrix expansion. No failed or cancelled child
 can pass Required. The actual Required shell is tested with failures, cancellation
-and unexpected skips for all twenty-three required job IDs; docs-only runs require
-all twenty-three results to be intentionally skipped.
+and unexpected skips for all twenty-five required job IDs; docs-only runs require
+all twenty-five results to be intentionally skipped.
 
 ## Build failure and fix
 
@@ -200,7 +200,7 @@ and all workload limits remain unchanged. Existing evidence names/paths and
 fourteen-day retention are preserved. The additional build restore receipt is
 `v51-full-size-runtime-build-inputs-${{ github.sha }}`. Required checks both results,
 including failure/cancellation/unexpected-skip rejection and intentional docs-only
-skips. Full CI now expands 23 required job IDs into 27 executed jobs including
+skips. Full CI now expands 25 required job IDs into 29 executed jobs including
 Change scope, Required and the three-child rich matrix. The successful prior PR
 run does not establish corrected-source or master acceptance after this change.
 
@@ -210,3 +210,6 @@ and the documentation contract/changed local links. Structural comparison with
 the preceding workflow confirms unchanged triggers, permissions, concurrency,
 unrelated jobs and all relocated verification/evidence steps. Receipts and API
 timings are retained under `target/ci-v51-reclamation-split/`.
+
+The [foundation/guest partition](CI_V51_FOUNDATION_LANES.md) now separates local
+foundation/runtime, guest services/faults and the complete owned experiment.

@@ -20,6 +20,8 @@ FULL_GATES = {
     "reactor-core": "REACTOR_RESULT",
     "v51-verification-build": "V51_BUILD_RESULT",
     "v51-foundation": "V51_FOUNDATION_RESULT",
+    "v51-guest-services": "V51_GUEST_SERVICES_RESULT",
+    "v51-owned-experiment": "V51_OWNED_EXPERIMENT_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
     "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
     "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
@@ -218,7 +220,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards"):
+            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment"):
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE)
@@ -233,6 +235,28 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertRegex(own[0], r"if: (?:\$\{\{ )?always\(\)")
                 self.assertIn("          retention-days: 14\n", own[0])
         self.assertCountEqual(expected, found)
+
+    def test_owned_lanes_preserve_local_package_dependencies_and_complete_coverage(self):
+        foundation=self.jobs["v51-foundation"]
+        self.assertNotIn("scripts.v51.guest_",foundation)
+        service=self.jobs["v51-guest-services"];experiment=self.jobs["v51-owned-experiment"]
+        for body in (service,experiment):
+            self.assertIn("needs: [changes, v51-verification-build]",body)
+            self.assertIn("timeout-minutes: 60",body)
+            self.assertEqual(1,body.count("python3 -m scripts.v51.cloud_bundle"))
+            self.assertLess(body.index("scripts.v51.cloud_bundle"),body.index("Prepare OpenSSH"))
+            self.assertLess(body.index("Prepare OpenSSH"),body.index("scripts.v51.guest_owned_qualification"))
+        for path in ("v51-guest-package","v51-guest-service","v51-guest-delivery","v51-owned-services","v51-owned-faults","v51-guest-bootstrap"):
+            self.assertIn("name: "+path+"-${{ github.sha }}",service)
+        self.assertEqual(service.count("python3 -m scripts.v51.guest_qualification"),2)
+        self.assertEqual(service.count("python3 -m scripts.v51.guest_owned_qualification"),2)
+        self.assertIn("--faults --allow-sudo-namespace",service)
+        self.assertIn("--experiment --allow-sudo-namespace",experiment)
+        self.assertIn("target/v51-owned-experiment --bundle target/v51-experiment-package",experiment)
+        self.assertNotIn("--three-mode",experiment) # Superset runs the same original healthy probe.
+        for body in (service,experiment):
+            for step in re.split(r"^      - ",body,flags=re.MULTILINE):
+                if "uses: actions/upload-artifact@" in step:self.assertRegex(step,r"if: (?:\$\{\{ )?always\(\)")
 
     def test_cloud_control_gate_has_retained_evidence_without_cloud_permissions(self):
         body = self.jobs["cloud-runner-tests"]
@@ -284,6 +308,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
                 verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
+                if name in ("v51-guest-services", "v51-owned-experiment"): verifier = "scripts.v51.cloud_bundle"
                 self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
                 if name in ("v51-remote-rich-inputs", "v51-remote-rich-shards"):
                     self.assertIn("${{ runner.temp }}/v51-build/restore.json", body)

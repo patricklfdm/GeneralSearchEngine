@@ -1,8 +1,8 @@
 # V5.1 Phase 6C3C20 — owned experiment fault cells
 
-**Status:** implementation candidate on accepted PR #250 / master
-`2f8da1d96a1080a4c8f29d89d71b984e10722b58`. Protected native-UID Linux
-qualification and exact-master acceptance of this slice remain pending.
+**Status:** accepted through PR #251, master
+`49845530b0dd42db5b721219e92d36d8ced005a2`, exact-master CI
+`36551903980` attempt 1. Its native-UID qualification passed.
 
 ## Scope
 
@@ -18,7 +18,8 @@ add one closed `faultCell` field; only these two automatic cells are admitted.
 The [frozen experiment](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) has four cells:
 healthy (all three modes), leader-loss, maintenance and no-quorum. This gate
 qualifies the two specified fault cells separately from the accepted healthy gate.
-Owned maintenance and the final four-cell assembly remain open. Neither this
+The subsequent [C21 candidate](PHASE_6_OWNED_EXPERIMENT.md) adds maintenance and
+the four-cell assembly; corrected-source protected qualification remains open. Neither this
 receipt nor the earlier healthy receipt claims a complete experiment, full remote
 qualification, real block devices, native IAP or paid admission.
 
@@ -73,7 +74,7 @@ unmodified evidence must pass before any rejection can count.
 
 ## Qualification
 
-The required foundation/runtime lane runs:
+The required guest services/faults lane (foundation/runtime in accepted PR #251) runs:
 
 ```bash
 python3 -m scripts.v51.guest_owned_qualification target/v51-owned-faults \

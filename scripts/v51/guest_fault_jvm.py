@@ -25,13 +25,17 @@ class Jvm(Pipes):
             self.proc.kill();self.proc.wait(timeout=5);self.streams_close();raise
         self.reader=threading.Thread(target=self.read,name='fault-'+self.prefix,daemon=True);self.reader.start()
 
-    def command(self, kind, **values):
+    def submit(self, kind, **values):
         with self.lock:
             m.need(self.failed is None and not self.closed and len(self.rows)<2000,'fault JVM unavailable/command bound')
             request=dict(kind=kind,opId=f'{self.prefix}-{len(self.rows)+1}',**values)
             row=dict(request=request,startNanos=time.monotonic_ns(),outcome='PENDING');self.rows.append(row)
             future=Future();self.pending[request['opId']]=future
             self.proc.stdin.write(m.canonical(request)+b'\n');self.proc.stdin.flush()
+        return row,future
+
+    def finish(self, pending):
+        row,future=pending;request=row['request']
         try:
             response=future.result(timeout=max(.001,min(15,self.deadline-time.monotonic())))
             m.need(all(response.get(k)==v for k,v in request.items()),'fault JVM response identity/payload')
@@ -39,6 +43,8 @@ class Jvm(Pipes):
             return dict(identity=self.identity,response=response)
         except BaseException as error:
             row.update(endNanos=time.monotonic_ns(),failure=dict(type=type(error).__name__,message=str(error)[:2000]));raise
+
+    def command(self, kind, **values):return self.finish(self.submit(kind,**values))
 
     def stop(self, forced=False):
         if self.closed:return

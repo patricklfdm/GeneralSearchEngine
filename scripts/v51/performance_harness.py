@@ -155,7 +155,7 @@ def compile_adapters(run, control_directory):
         'published-v5.0-configured': [control_directory / 'general-search-engine-5.0.0.jar', control_directory / 'general-search-engine-replication-5.0.0.jar'],
         'candidate-v5.1-automatic': [CORE, REPLICATION]}
     names = {
-        'published-v4.4-local': ['V51MeasuredLocal', 'V51CloudLocal', 'V51CloudJournalCheck'],
+        'published-v4.4-local': ['V51MeasuredLocal', 'V51CloudLocal', 'V51CloudJournalCheck', 'V51OwnedFaultRestore'],
         'published-v5.0-configured': ['V51MeasuredConfigured', 'V51ConfiguredObserver', 'V51CloudConfigured'],
         'candidate-v5.1-automatic': ['PublicRuntimeConsumer', 'V51PublicWorker', 'V51MeasuredAutomatic', 'V51PerformanceObserver', 'V51SmallPerformanceConsumer', 'V51CloudAutomatic', 'V51RemoteFaultConsumer']}
     result = {}

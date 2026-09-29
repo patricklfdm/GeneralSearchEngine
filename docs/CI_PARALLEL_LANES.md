@@ -703,3 +703,8 @@ outer guard. The existing build package is reused. The original preparation,
 The always-run `v51-owned-faults-${sha}` artifact retains commands, crash authority,
 complete binary downloads and independent rejection results for fourteen days.
 No new job, Required dependency, measurement retry or paid workflow is introduced.
+
+The later [foundation/guest partition](CI_V51_FOUNDATION_LANES.md) moves the
+owned guest steps out of foundation and requires the complete experiment.
+Its 2026-09-29 measurement and artifact ownership supersede that part of the
+historical migration map above.

@@ -12,10 +12,10 @@ from . import test_guest_owned_workload as common
 
 
 class ScopeTest(unittest.TestCase):
-    def test_fault_service_accepts_only_two_automatic_cells(self):
+    def test_fault_service_accepts_only_declared_automatic_cells(self):
         good=config(Path('/tmp/fault-qualification'))
         for case in service.CASES:cloud_guest.validate(dict(good,faultCell=case))
-        for change in ({'faultCell':'maintenance'},{'faultCell':'leader-loss','mode':'published-v5.0-configured'},
+        for change in ({'faultCell':'slow-follower'},{'faultCell':'leader-loss','mode':'published-v5.0-configured'},
                        {'faultCell':'leader-loss','duration':30}):
             with self.assertRaises(ValueError):cloud_guest.validate(dict(good,**change))
     def test_closed_runner_scope_and_exact_two_cells(self):
@@ -163,7 +163,7 @@ class EvidenceTest(unittest.TestCase):
         evidence.logical_bounds(history,{'node-1':trace[:65],'node-2':trace[:65]},65)
         with self.assertRaisesRegex(ValueError,'barrier ceiling'):evidence.logical_bounds(history,{'node-1':trace},66)
         with self.assertRaisesRegex(ValueError,'slot bound'):evidence.logical_bounds(history,{},513)
-        with self.assertRaisesRegex(ValueError,'barrier ceiling'):evidence.logical_bounds([dict(kind='backup')],{},1)
+        with self.assertRaisesRegex(ValueError,'barrier ceiling'):evidence.logical_bounds([dict(kind='backup')]*9,{},1)
     def test_remote_pid_collisions_do_not_hide_processes_or_manufacture_restart(self):
         from . import storage_fixture as fixture, runtime_evidence as runtime
         with tempfile.TemporaryDirectory() as temp:

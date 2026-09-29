@@ -5,7 +5,7 @@ import time
 from . import cloud_authority as a, cloud_package as package, remote_command as c, performance_model as m
 from . import guest_owned_services as owned, guest_owned_three_mode as shared, guest_owned_workload as healthy
 from . import guest_package_delivery as delivery, remote_collection as parts
-from .guest_fault_service import CASES
+from .guest_fault_service import QUICK_CASES as CASES
 from .remote_faults import documents, availability
 
 MODE='experiment-faults'
@@ -14,6 +14,7 @@ SCOPE='owned-experiment-leader-loss-no-quorum'
 
 class Services(shared.Services):
     mode=MODE
+    cases=CASES
     def retention_files(self):
         for name,data in super().retention_files():
             yield ('fault-services.json' if name=='three-mode-services.json' else name),data
@@ -22,7 +23,7 @@ class Services(shared.Services):
         self.root=Path(output);self.root.mkdir(mode=0o700)
         result=dict(status='FAIL',requestSha256=a.validate_request(req),cells=[])
         try:
-            for case in CASES:
+            for case in self.cases:
                 group=owned.Services(self.provider,self.archive,self.pool.endpoint,fault_cell=case,deliver=self.pool.deliver,
                     clock=self.clock,sleep=self.sleep,**self.options)
                 self.groups[case]=group
@@ -39,7 +40,7 @@ class Cell:
         self.services=services;self.raw=Path(root);self.raw.mkdir(mode=0o700)
         self.clients=services.clients;self.case=case;self.clock=clock;self.sleep=sleep;self.command_count=0;self.transcripts={}
         self.running={};self.stopped=set();self.history=[];self.progress_count=0;self.final_count=0;self.attempted=False
-        self.record=dict(case=case,status='FAIL',seconds=120,events=[],progress=[],finalReads=[],rejoins=[],cleanupErrors=[])
+        self.record=dict(case=case,status='FAIL',seconds=240 if case=='maintenance' else 120,events=[],progress=[],finalReads=[],rejoins=[],cleanupErrors=[])
     def parallel(self, fn, members=None):
         with ThreadPoolExecutor(max_workers=3) as pool:
             futures=[pool.submit(fn,v) for v in (self.clients if members is None else members)]
@@ -74,10 +75,10 @@ class Cell:
             if result:return result
             self.sleep(.05)
         raise ValueError(label)
-    def leader(self, deadline):
+    def leader(self, deadline, exclude=()):
         def choose():
             for node in self.running:
-                if node not in self.stopped and self.status(node,deadline)['state']=='LEADER_READY':return node
+                if node not in self.stopped and node not in exclude and self.status(node,deadline)['state']=='LEADER_READY':return node
         return self.wait(choose,deadline,'owned fault activation deadline')
     def call(self, node, kind, **values):
         m.need(len(self.history)<24,'owned fault operation cap')
@@ -90,9 +91,9 @@ class Cell:
         for key in ('documents','reason','reasonCode'):
             if key in response:record[key]=response[key]
         availability(response,kind);return response
-    def progress(self, deadline):
+    def progress(self, deadline, exclude=()):
         while self.progress_count<4:
-            tag=100+10*self.progress_count;self.progress_count+=1;node=self.leader(deadline)
+            tag=100+10*self.progress_count;self.progress_count+=1;node=self.leader(deadline,exclude)
             row=dict(node=node,tag=tag,startNanos=int(self.clock()*10**9));self.record['progress'].append(row)
             row['write']=self.call(node,'addAll',documents=documents(tag));row['read']=self.call(node,'read')
             row['endNanos']=int(self.clock()*10**9);m.need(self.clock()<=deadline,'owned fault progress deadline')
@@ -106,7 +107,7 @@ class Cell:
         self.record['rejoins'].append(dict(node=node,through=through,startNanos=int(start*1e9),endNanos=int(self.clock()*1e9),observed=observed))
     def run(self, deadline):
         m.need(not self.attempted,'owned fault cell consumed');self.attempted=True
-        self.end=min(deadline/1e9,self.clock()+120);self.record['startNanos']=int(self.clock()*1e9)
+        self.end=min(deadline/1e9,self.clock()+self.record['seconds']);self.record['startNanos']=int(self.clock()*1e9)
         healer=None
         try:
             self.parallel(self.start);leader=self.leader(min(self.end,self.clock()+30))
@@ -118,6 +119,8 @@ class Cell:
             if self.case=='leader-loss':
                 self.stop_node(leader,True);active=self.progress(progress_end);through=self.status(active)['provenIndex']
                 self.start(self.member(leader),True);self.rejoin(leader,through)
+            elif self.case=='maintenance':
+                self.maintenance(leader,progress_end)
             else:
                 import threading
                 self.parallel(lambda member:self.succeeded(member,'fault',dict(action='isolate'),self.end))
@@ -149,9 +152,39 @@ class Cell:
                     try:self.stop_node(node)
                     except BaseException as error:self.record['cleanupErrors'].append(str(error))
             self.parallel(stop)
+            if self.case=='maintenance' and self.record['status']=='EXECUTED' and not self.record['cleanupErrors']:
+                try:self.record['restore']=self.succeeded(self.member(self.backup_node),'restore-backup',{},self.end)['result']
+                except BaseException as error:self.record['cleanupErrors'].append('restore: '+str(error))
             self.record['endNanos']=int(self.clock()*1e9)
             c.write_once(self.raw/'receipt.json',self.record);c.write_once(self.raw/'history.json',self.history)
         m.need(not self.record['cleanupErrors'] and self.clock()<=self.end,'owned fault close/budget failed')
+    def maintenance(self, leader, progress_end):
+        intent=f'call-{len(self.history)+1:02d}'
+        h=dict(kind='read',intentId=intent,node=leader,startNanos=int(self.clock()*1e9),endNanos=None,outcome='PENDING')
+        self.history.append(h)
+        member=self.member(leader)
+        pending=self.succeeded(member,'fault',dict(action='pin',intentId=intent),self.end)['result']
+        identity=pending['identity'];h.update(opId=pending['opId'],pid=identity['pid'],generation=identity['generation'])
+        def state():return self.succeeded(member,'fault',dict(action='pin-state'),self.end)['result']
+        self.record['cut']=self.wait(lambda:state()['cut'],progress_end,'owned maintenance pin not reached')
+        self.parallel(lambda peer:self.succeeded(peer,'fault',dict(action='isolate',node=leader),self.end))
+        active=self.progress(progress_end,exclude=(leader,));through=self.status(active)['provenIndex']
+        self.parallel(lambda peer:self.succeeded(peer,'fault',dict(action='heal'),self.end))
+        def installed():
+            value=state();return value if value['installed'] else None
+        observed=self.wait(installed,progress_end,'owned maintenance pin did not cross rejoin')
+        m.need(observed['pending'],'owned maintenance pin completed early')
+        self.event('release-pin',node=leader)
+        released=self.succeeded(member,'fault',dict(action='release-pin'),self.end)['result']['response']
+        h.update(endNanos=int(self.clock()*1e9),outcome=released['outcome'],response=released,documents=released.get('documents'))
+        m.need(released['outcome']=='SUCCESS' and released['documents']==self.record['seedRead']['documents'],'owned maintenance captured view changed')
+        self.record['pinnedRead']=released;self.rejoin(leader,through)
+        self.wait(lambda:state()['unpinned'],self.end,'owned maintenance pin still retained')
+        self.backup_node=self.leader(self.end)
+        for kind in ('checkpoint','backup'):
+            result=self.call(self.backup_node,kind);m.need(result['outcome']=='SUCCESS','owned maintenance failed: '+kind)
+            self.record[kind]=result
+
     def collect(self, deadline):
         errors=[]
         for node,client,cfg in self.clients:
@@ -169,35 +202,46 @@ class Cell:
 
 
 class Probe:
-    execution=a.EXECUTION;scope=SCOPE;mode=MODE;require_physical=True;require_backup=False
+    execution=a.EXECUTION;scope=SCOPE;mode=MODE;cases=CASES;require_physical=True;require_backup=False
     def __init__(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
-        m.need(services.offline and services.mode==MODE,'owned fault services scope')
+        m.need(services.offline and services.mode==self.mode,'owned fault services scope')
         self.services=services;self.root=Path(output);self.root.mkdir(mode=0o700,parents=True);self.raw=self.root/'raw';self.raw.mkdir()
         self.clock=clock;self.sleep=sleep;self.cells=[];self.programs={};self.stopped=False
-        self.binding=m.sha(m.canonical(dict(scope=SCOPE,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=a.validate_request(services.provider.req))))
     @property
     def engineWorkloadExecuted(self):return any(v.attempted for v in self.programs.values())
     def prepare(self, req, deadline):
-        m.need(not self.programs and req==self.services.provider.req and req['member']=='experiment' and list(self.services.groups)==list(CASES),'owned fault preparation scope/order')
-        c.write_once(self.raw/'plan.json',dict(scope=SCOPE,request=req))
+        m.need(not self.programs and req==self.services.provider.req and req['member']=='experiment' and list(self.services.groups)==list(self.cases),'owned fault preparation scope/order')
+        c.write_once(self.raw/'plan.json',dict(scope=self.scope,request=req))
         for case,group in self.services.groups.items():
             program=Cell(group,self.raw/case,case,clock=self.clock,sleep=self.sleep);self.programs[case]=program;program.prepare(req,deadline/1e9)
     def cell(self, name, deadline):
-        m.need(len(self.cells)<len(CASES) and name==CASES[len(self.cells)],'owned fault cell order')
+        m.need(len(self.cells)<len(self.cases) and name==self.cases[len(self.cells)],'owned fault cell order')
         self.programs[name].run(deadline);self.cells.append(name)
     def stop(self):self.stopped=True
     def collect_validate(self, output, deadline):
         m.need(self.stopped,'owned fault collection before stop');errors=[]
         for name,program in self.programs.items():errors.extend(dict(case=name,**v) for v in program.collect(deadline/1e9))
-        result=dict(status='FAIL',scope=SCOPE,mode=MODE,execution=a.EXECUTION,paidCloud=False,fullRemoteQualification=False,
+        result=dict(status='FAIL',scope=self.scope,mode=self.mode,execution=a.EXECUTION,paidCloud=False,fullRemoteQualification=False,
             engineWorkloadExecuted=self.engineWorkloadExecuted,physicalHistoryQualified=False,cells=self.cells,errors=errors)
         try:
             from .guest_fault_evidence import validate
-            result['aggregate']=validate(self.raw,self.root/'replay')
-            m.need(not errors and self.cells==list(CASES) and self.clock()<deadline/1e9,'owned fault incomplete/deadline')
+            result['aggregate']=validate(self.raw,self.root/'replay',cases=self.cases,scope=self.scope)
+            m.need(not errors and self.cells==list(self.cases) and self.clock()<deadline/1e9,'owned fault incomplete/deadline')
             result.update(status='PASS',physicalHistoryQualified=True)
         except BaseException as error:errors.append(dict(phase='validation',message=str(error)[:2000]))
         c.write_once(self.raw/'validation.json',result,maximum=262144);return result
     def retention_files(self):
         parts.pack(self.raw,self.root/'retained',self.binding)
         for path in sorted((self.root/'retained').iterdir()):yield path.name,path.read_bytes()
+
+
+class MaintenanceServices(Services):
+    mode='experiment-maintenance'
+    cases=('maintenance',)
+
+
+class MaintenanceProbe(Probe):
+    mode=MaintenanceServices.mode
+    scope='owned-maintenance-experiment'
+    cases=MaintenanceServices.cases

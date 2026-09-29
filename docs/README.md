@@ -74,7 +74,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C3C16 accepted owned configured healthy control](v5x/v5.1/PHASE_6_OWNED_CONFIGURED.md)
 - [V5.1 Phase 6C3C18 configured physical/backup evidence](v5x/v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
 - [V5.1 Phase 6C3C19 owned three-mode healthy integration](v5x/v5.1/PHASE_6_OWNED_THREE_MODE.md)
-- [V5.1 Phase 6C3C20 owned experiment fault candidate](v5x/v5.1/PHASE_6_OWNED_EXPERIMENT_FAULTS.md)
+- [V5.1 Phase 6C3C20 owned experiment fault qualification](v5x/v5.1/PHASE_6_OWNED_EXPERIMENT_FAULTS.md)
 - [V5.1 Phase 6C3C17 accepted owned V4.4 healthy control](v5x/v5.1/PHASE_6_OWNED_V44.md)
 - [V5.1 Phase 6C3C15 owned backup/restore](v5x/v5.1/PHASE_6_OWNED_BACKUP.md)
 - [V5.1 Phase 6C3C14 owned physical evidence](v5x/v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
@@ -483,3 +483,6 @@ remote V3/V4 consumers, production deployment `6388475724`, GitHub Release
 Raw JMH JSON, soak logs, compiled classes, generated reports, and release artifacts
 belong under `target/`. They are disposable validation output and are not repository
 documentation.
+
+- [V5.1 Phase 6C3C21 owned complete experiment](v5x/v5.1/PHASE_6_OWNED_EXPERIMENT.md)
+- [V5.1 foundation/guest CI partition](CI_V51_FOUNDATION_LANES.md)

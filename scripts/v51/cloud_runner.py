@@ -104,8 +104,9 @@ class Runner:
         from .guest_owned_workload import SCOPES as singles
         from .guest_owned_three_mode import MODE, SCOPE
         from . import guest_owned_faults as faults
-        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE}
-        self.qualification_cells=list(faults.CASES) if qualification==faults.SCOPE else ['healthy']
+        from . import guest_owned_experiment as experiment
+        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope}
+        self.qualification_cells=(list(experiment.CELLS) if qualification==experiment.SCOPE else ['maintenance'] if qualification==faults.MaintenanceProbe.scope else list(faults.CASES) if qualification==faults.SCOPE else ['healthy'])
         m.need((qualification is None and getattr(probe,'scope',None) not in SCOPES.values()) or
                qualification in SCOPES.values() and getattr(probe,'scope',None)==qualification and
                SCOPES.get(getattr(probe,'mode',None))==qualification and
