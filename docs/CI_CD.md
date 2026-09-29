@@ -28,7 +28,7 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the twenty-three full CI gates. Pull requests compare merge-base to PR head, so a final docs
+the twenty-five full CI gates. Pull requests compare merge-base to PR head, so a final docs
 commit cannot hide earlier code changes. Master pushes compare the event's `before`
 and `after` commits, including every commit in the push. Renames include both paths;
 there is no changed-file API pagination limit.
@@ -36,7 +36,7 @@ there is no changed-file API pagination limit.
 Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
 `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
 only change-detection/required-gate and Maven retry helper tests,
-the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the twenty-three
+the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the twenty-five
 full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
 checksums) remain build inputs. Source/resources in every module, POMs, scripts,
 workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
@@ -44,8 +44,8 @@ full CI too. Manual dispatch always runs full CI; missing history, an empty diff
 an unreadable event conservatively selects full CI.
 
 The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all twenty-three
-full gates to succeed, or all twenty-three to be intentionally skipped for a verified
+is always reported. It requires successful change detection and either all twenty-five
+full gates to succeed, or all twenty-five to be intentionally skipped for a verified
 documentation-only change. Failed/cancelled detection and unexpected skipped tests
 cannot pass. This follows GitHub's distinction between
 [skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
@@ -53,7 +53,7 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs twenty-three required job IDs,
+For build inputs or manual dispatch, the workflow runs twenty-five required job IDs,
 each with its own runner workspace.
 The V5.1 behavioral lanes depend on their dedicated verification build. Rich
 workload execution additionally uses prepared inputs, three matrix children and a
@@ -102,6 +102,8 @@ complete aggregate. Other domains start after `changes`:
 23. `v51-full-size-runtime` runs the complete public 512-slot runtime gate and its
     positive/negative portable replay, in parallel with reclamation using the same
     verified build. See the [measured split](CI_V51_LANES.md#reclamation-and-full-size-runtime-split).
+24. `v51-guest-services` runs package, service, delivery, idle, two-fault and isolated bootstrap qualification.
+25. `v51-owned-experiment` runs the complete owned four-cell experiment, including all three healthy modes.
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
 record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
@@ -443,3 +445,6 @@ The gate checks the private snapshot-rebuild regression prerequisite and public
 history/force/process/archive/resource evidence. The always-uploaded
 `v51-hardening-${{ github.sha }}` artifact retains `target/v51-hardening`, including
 failed rounds. The seventeen full-CI required lanes and docs-only behavior are unchanged.
+
+The [foundation/guest partition](CI_V51_FOUNDATION_LANES.md) now separates local
+foundation/runtime, guest services/faults and the complete owned experiment.

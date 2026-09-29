@@ -142,12 +142,14 @@ was accepted through PR #250, master `2f8da1d96a1080a4c8f29d89d71b984e10722b58`,
 exact-master CI `36534342886` attempt 2 (all 27 jobs). Attempt 1's healthy lane
 occupancy and concurrent burst-spread failures remain retained; a successful
 rerun does not establish their scheduling cause.
-The [6C3C20 owned experiment fault candidate](v5.1/PHASE_6_OWNED_EXPERIMENT_FAULTS.md)
+The [6C3C20 owned experiment fault qualification](v5.1/PHASE_6_OWNED_EXPERIMENT_FAULTS.md)
 adds separate fresh two-field leader-loss and no-quorum groups using the same
 owned lifecycle, authenticated services and independent physical/history replay.
-Protected native-UID qualification and exact-master acceptance remain pending.
-Next qualify this slice, then add owned maintenance and combine the complete
-four-cell experiment; trusted preflight and separate V5.1 workflows follow.
+It was accepted through PR #251, master `49845530b0dd42db5b721219e92d36d8ced005a2`,
+exact-master CI `36551903980` attempt 1 (all 27 jobs).
+The 6C3C21 implementation candidate adds owned maintenance and the complete
+four-cell experiment. Corrected-source protected qualification remains pending;
+trusted preflight and separate V5.1 workflows follow.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

@@ -7,7 +7,7 @@ from . import cloud_authority as a, cloud_package as package, cloud_guest as gue
 from . import guest_authority, storage_inspector as storage, format_inspector as f
 from . import public_qualification_evidence as physical, public_history, remote_fault_evidence as faults
 from . import cloud_workload_contract as contract, performance_plan as plan
-from .guest_fault_service import CASES, RULES
+from .guest_fault_service import CASES, QUICK_CASES, RULES
 
 
 def package_binding(manifest, req):
@@ -23,7 +23,7 @@ def logical_bounds(history, traces, chosen):
             if row['event']=='FORCE' and row['kind']=='ACCEPT':
                 vote=f.inspect(faults.a.raw(row['record']),'ACCEPT');entry=f.inspect(faults.a.raw(vote['entry']),'ENTRY')
                 if entry['operation']==9:noops.add(vote['entryDigest'])
-    m.need(len(noops)-sum(h['kind']=='read' for h in history)<=64 and all(h['kind'] in ('read','addAll') for h in history),
+    m.need(len(noops)-sum(h['kind'] in ('read','backup') for h in history)<=64 and sum(h['kind']=='backup' for h in history)<=8 and all(h['kind'] in ('read','addAll','checkpoint','backup') for h in history),
            'owned fault activation/auxiliary barrier ceiling')
 
 
@@ -103,7 +103,7 @@ def member(root, cfg, manifest, base, transcript, traces):
             for event in ('CLIENT_INVOKE','CLIENT_SUCCESS' if row['outcome']=='SUCCESS' else 'CLIENT_FAILURE'):
                 witnesses=[r for r in own if r['event']==event and r.get('opId')==opid]
                 m.need(len(witnesses)==1 and all(witnesses[0].get(k)==v for k,v in (request if event=='CLIENT_INVOKE' else response).items()),'owned fault exchange trace binding')
-        commands=[r for q,r in rows if q['command']=='fault' and q['payload'].get('action') in ('status','call') and r['result']['identity']==identity]
+        commands=[r for q,r in rows if q['command']=='fault' and q['payload'].get('action') in ('status','call','release-pin') and r['result']['identity']==identity]
         m.need(len(commands)==len(original) and {r['result']['response']['opId'] for r in commands}=={r['request']['opId'] for r in original},'owned fault original exchange coverage')
         for r in commands:
             row=exchanges[r['result']['response']['opId']]
@@ -115,12 +115,12 @@ def member(root, cfg, manifest, base, transcript, traces):
 def replay_case(raw, scratch, req, budgets):
     record=c.read(raw/'receipt.json');history=c.read(raw/'history.json');case=record['case'];source=c.read(raw/'plan.json')
     m.need(case in CASES and source['request']==req and source['case']==case and source['scope']=='owned-experiment-leader-loss-no-quorum' and
-           record['status']=='EXECUTED' and record['seconds']==120 and not record['cleanupErrors'] and
-           0<record['endNanos']-record['startNanos']<=120*10**9,'owned fault case completion/budget')
+           record['status']=='EXECUTED' and record['seconds']==(240 if case=='maintenance' else 120) and not record['cleanupErrors'] and
+           0<record['endNanos']-record['startNanos']<=record['seconds']*10**9,'owned fault case completion/budget')
     m.need(len(source['configs'])==3 and [v['binding']['node'] for v in source['configs']]==list(faults.NODES),'owned fault members')
     manifest_raw=(raw/'package-manifest.json').read_bytes();manifest=m.strict_json(manifest_raw)
     package_binding(manifest,req)
-    joint=scratch/'joint';joint.mkdir(parents=True);traces={};configs={};indexes={};processes={};rows={};observations={};collections={};allcalls={}
+    joint=scratch/'joint';joint.mkdir(parents=True);traces={};configs={};indexes={};processes={};rows={};observations={};collections={};allcalls={};bases={}
     group=str(uuid.uuid5(uuid.NAMESPACE_URL,a.validate_request(req)+':'+case))
     for cfg in source['configs']:
         guest.validate(cfg);node=cfg['binding']['node'];configs[node]=cfg
@@ -141,6 +141,7 @@ def replay_case(raw, scratch, req, budgets):
         raw_trace=tracefile.read_bytes();m.need(raw_trace.endswith(b'\n') and all(len(line)<=4<<20 for line in raw_trace.splitlines()),'owned fault complete trace lines')
         traces[node]=[m.strict_json(line) for line in raw_trace.splitlines()]
         m.need(all(r['node']==node and type(r['pid']) is int and type(r['localNanos']) is int for r in traces[node]),'owned fault trace owner')
+        bases[node]=Path(ctl['packageRoot'])
         rows[node],pids,exchanges=member(replay,cfg,manifest,Path(ctl['packageRoot']),ctl['transcript'],traces[node]);processes.update(pids)
         previous=0
         for q,r in rows[node]:
@@ -150,9 +151,14 @@ def replay_case(raw, scratch, req, budgets):
             observations[q['commandId']]=obs
             if q['command'] not in ('prepare-cell','collect'):
                 m.need(record['startNanos']<=obs['startNanos']<=obs['endNanos']<=record['endNanos'],'owned fault command outside cell')
-            if q['command']=='fault' and q['payload'].get('action')=='call':
+            if q['command']=='fault' and q['payload'].get('action') in ('call','release-pin'):
                 response=r['result']['response'];opid=response['opId'];m.need(opid not in allcalls,'owned fault duplicate public ID')
-                allcalls[opid]=(q,r,obs)
+                if q['payload']['action']=='release-pin':
+                    pinq,pinr=next((qq,rr) for qq,rr in rows[node] if qq['command']=='fault' and qq['payload'].get('action')=='pin')
+                    m.need(pinr['result']['opId']==opid and pinr['result']['identity']==r['result']['identity'],'owned pin original identity')
+                    obs=dict(startNanos=observations[pinq['commandId']]['startNanos'],endNanos=obs['endNanos'])
+                    allcalls[opid]=(pinq,r,obs)
+                else:allcalls[opid]=(q,r,obs)
         m.need({p.name for p in (raw/'commands'/node[-1]).iterdir()}=={q['commandId'] for q,_ in rows[node]},'owned fault controller command coverage')
     m.need(len({(cfg['groupId'],tuple(cfg['hosts']),tuple(cfg['ports'])) for cfg in configs.values()})==1,'owned fault topology disagreement')
     m.need(len({(m.sha((joint/n/'manifest.gsr').read_bytes()),m.sha((joint/n/'genesis.gsr').read_bytes())) for n in configs})==1,'owned fault genesis disagreement')
@@ -169,12 +175,20 @@ def replay_case(raw, scratch, req, budgets):
         q,r,obs=allcalls[h['opId']];response=r['result']['response'];identity=r['result']['identity']
         m.need(h['response']==response and h['outcome']==response['outcome'] and h['node']==identity['node'] and
                h['pid']==identity['pid'] and h['generation']==identity['generation'] and h['intentId']==q['payload']['intentId'] and
-               h['kind']==q['payload']['kind'] and h['startNanos']<=obs['startNanos']<=obs['endNanos']<=h['endNanos'],'owned fault public response binding')
+               h['kind']==q['payload'].get('kind','read') and h['startNanos']<=obs['startNanos']<=obs['endNanos']<=h['endNanos'],'owned fault public response binding')
         if 'documents' in response:m.need(h['documents']==response['documents'],'owned fault history documents changed')
     location=Location(joint,configs,indexes)
-    result=check_case(record,history,traces,joint,location,processes,rows,observations,collections)
+    def maintenance(rr,hh,tt,rrows):
+        from . import guest_maintenance_evidence as maintenance
+        return maintenance.check(rr,hh,tt,rrows,observations,collections,configs,bases,manifest)
+    result=check_case(record,history,traces,joint,location,processes,rows,observations,collections,maintenance)
+    if case=='maintenance':
+        from .guest_maintenance_evidence import replay
+        evidence=maintenance(record,history,traces,rows)
+        result['backupRestore']=replay(**evidence,output=scratch/'backup-replay')
     negatives=[]
     variants=('missing-kill-or-isolation','wrong-refusal-or-rejoin','late-progress','stale-read','missing-proof','missing-invocation')
+    if case=='maintenance':variants+=('missing-pin-install','missing-release','missing-unpin','changed-pinned-view')
     for name in variants:
         rr,hh,tt=deepcopy(record),deepcopy(history),deepcopy(traces)
         rrows=deepcopy(rows)
@@ -184,19 +198,23 @@ def replay_case(raw, scratch, req, budgets):
                     if q['command']=='stop-voter' and q['payload'].get('forced'):q['payload']['forced']=False
                     if q['command']=='fault' and q['payload'].get('action')=='isolate':q['payload']['action']='status'
         elif name=='wrong-refusal-or-rejoin':
-            if case=='leader-loss':rr['rejoins']=[]
+            if case in ('leader-loss','maintenance'):rr['rejoins']=[]
             else:rr['refusals']=[]
         elif name=='late-progress':rr['progress'][0]['endNanos']=rr['faultStartNanos']+61*10**9
         elif name=='stale-read':hh[-1]['documents']=[]
         elif name=='missing-proof':tt={n:[v for v in seq if not(v['event']=='FORCE' and v['kind']=='PROOF')] for n,seq in tt.items()}
+        elif name=='missing-pin-install':tt={n:[v for v in seq if v['event']!='REJOIN_INSTALLED'] for n,seq in tt.items()}
+        elif name=='missing-release':tt={n:[v for v in seq if v['event']!='CUT_RELEASED'] for n,seq in tt.items()}
+        elif name=='missing-unpin':tt={n:[v for v in seq if not(v['event']=='PERFORMANCE_SAMPLE' and v['queues']['pinsBytes']==0)] for n,seq in tt.items()}
+        elif name=='changed-pinned-view':rr['pinnedRead']['documents']=[]
         else:tt={n:[v for v in seq if not(v['event']=='CLIENT_INVOKE' and v.get('opId')==hh[-1]['opId'])] for n,seq in tt.items()}
-        try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections)
+        try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections,maintenance)
         except ValueError as error:negatives.append(dict(case=name,status='REJECTED',reason=str(error)))
         else:raise ValueError('owned fault negative admitted: '+name)
     return dict(case=case,status='PASS',calls=len(history),result=result,negatives=negatives)
 
 
-def check_case(record, history, traces, root, location, processes, rows, obs, collections):
+def check_case(record, history, traces, root, location, processes, rows, obs, collections, maintenance=None):
     faults.schedule(history,record)
     requests=[v for v in record['events'] if v['event']=='fault-request']
     m.need(len(requests)==1 and requests[0]['node']==record['seedLeader'] and requests[0]['controllerNanos']==record['faultStartNanos'] and
@@ -219,6 +237,9 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
         for name in ('manifest.gsr','node.gsr','genesis.gsr','bootstrap-seal.gsr','bootstrap-prepared.gsr'):
             m.need((crash/name).read_bytes()==(root/leader/name).read_bytes(),'owned fault restart changed authority identity')
         m.need(len(record['rejoins'])==1 and record['rejoins'][0]['node']==leader and restart['endNanos']<=record['rejoins'][0]['startNanos'],'owned fault missing retained rejoin')
+    elif case=='maintenance':
+        m.need(not kills and len(processes)==3,'owned maintenance unexpected crash')
+        maintenance(record,history,traces,rows)
     else:
         m.need(not kills and len(processes)==3,'owned fault unexpected crash')
         ready=[v for v in record['events'] if v['event']=='isolated-all'];heal=[v for v in record['events'] if v['event']=='heal-request']
@@ -252,17 +273,18 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
         m.need(0<=join['endNanos']-join['startNanos']<=60*10**9 and join['observed']['provenIndex']>=join['through'] and
                location.inspect(root/join['node'])['provenThrough']>=join['through'],'owned fault durable rejoin')
     m.need(all(join['endNanos']<=history[-1]['startNanos'] for join in record['rejoins']),'owned fault final read before rejoin')
-    proof=physical.physical(root,history,traces,process_generations=processes,evidence_location=location,require_restart=case=='leader-loss')
+    logical=[h for h in history if h['kind'] in ('read','addAll')]
+    proof=physical.physical(root,logical,traces,process_generations=processes,evidence_location=location,require_restart=case=='leader-loss')
     logical_bounds(history,traces,proof['chosen'])
-    return dict(history=public_history.check(history),physical=proof,seedEpoch=capture['epoch'])
+    return dict(history=public_history.check(logical),physical=proof,seedEpoch=capture['epoch'])
 
 
-def validate(raw, scratch):
+def validate(raw, scratch, *, cases=QUICK_CASES, scope='owned-experiment-leader-loss-no-quorum'):
     raw=Path(raw);scratch=Path(scratch);scratch.mkdir(parents=True,exist_ok=False)
     request=c.read(raw/'plan.json');req=request['request'];a.validate_request(req)
-    m.need(request['scope']=='owned-experiment-leader-loss-no-quorum' and req['member']=='experiment','owned fault aggregate scope')
+    m.need((tuple(cases),scope) in ((QUICK_CASES,'owned-experiment-leader-loss-no-quorum'),(('maintenance',),'owned-maintenance-experiment')) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
     parts.inventory(raw);results=[];last=None;budgets={k:0 for k in ('compressedBytes','expandedBytes','files','traceBytes')}
-    for case in CASES:
+    for case in cases:
         cell=raw/case
         if last is not None:m.need(last<=c.read(cell/'receipt.json')['startNanos'],'owned fault overlapping cells')
         results.append(replay_case(cell,scratch/case,req,budgets));last=c.read(cell/'receipt.json')['endNanos']
