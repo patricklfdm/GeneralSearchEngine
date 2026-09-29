@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C15 — owned healthy backup and restore
 
-**Status:** implementation candidate based on accepted PR #245, master
-`d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`, exact-master CI
-[36486236193](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36486236193)
-attempt 1 (27 successful jobs). This extension requires its own protected Linux
-qualification and exact-master acceptance. No paid cloud execution is authorized.
+**Status:** accepted through [PR #246](https://github.com/patricklfdm/GeneralSearchEngine/pull/246),
+master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
+[36498232963](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36498232963)
+attempt 1 (27 successful jobs). Foundation/runtime job `109184259601` passed the
+owned Linux healthy history and backup/restore gate. This accepts only the bounded
+automatic scope below; full Phase 6 and paid cloud admission remain open.
 
 ## Scope and contracts
 
@@ -90,6 +91,7 @@ fixtures explicitly label their synthetic OS metadata. No Linux gate was run her
 For optional Linux shared-filesystem qualification, use
 `guest_package_qualification --healthy --physical --backup`; only the automatic
 cell qualifies backup/physical history. This does not replace the owned three-view
-gate. Next obtain exact-source protected acceptance, then connect other modes and
-fault cells, trusted preflight and separate V5.1 workflows. Complete cloud preset,
+gate. The next [configured healthy candidate](PHASE_6_OWNED_CONFIGURED.md) connects
+the published V5.0 control. Remaining owned modes/evidence and fault cells, trusted
+preflight and separate V5.1 workflows still require qualification. Complete cloud preset,
 native IAP/source transport and Phase 6 acceptance remain open.

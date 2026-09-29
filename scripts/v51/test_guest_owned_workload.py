@@ -107,17 +107,18 @@ class OwnedWorkloadTest(unittest.TestCase):
 
 class OwnedCollectionTest(unittest.TestCase):
     """Exercise the actual owned collector and independent validator together."""
+    mode=package.MODES[2]
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
         self.clock=fake.Clock();req,_,_=fake.fixture()
-        services=SimpleNamespace(offline=True,mode=package.MODES[2],bootstrap=object(),provider=SimpleNamespace(req=req))
+        services=SimpleNamespace(offline=True,mode=self.mode,bootstrap=object(),provider=SimpleNamespace(req=req))
         self.probe=w.Probe(services,self.root/'probe',clock=self.clock.seconds,sleep=self.clock.sleep)
         self.fixtures={};self.fault=None;self.original_parts={}
         # Incompressible valid stderr gives a full 8 MiB part and a short tail.
         # Small warmup collections did not exercise the owned adapter's boundary.
         payload=os.urandom((8<<20)+1024)
         for node in (1,2,3):
-            f=HealthyFixture(self.root/f'raw-{node}',active=node==1,node=f'node-{node}')
+            f=HealthyFixture(self.root/f'raw-{node}',mode=self.mode,active=node==1,node=f'node-{node}')
             f.files[f.node+'-stderr.log']=payload;f.render();(f.root/collection.INDEX).unlink()
             parts=self.root/f'parts-{node}'
             manifest=collection.pack(f.root,parts,m.sha(m.canonical(f.config['binding'])))
@@ -173,21 +174,21 @@ class RunnerWorkloadTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
         self.clock=fake.Clock();self.store=fake.Store();self.provider=fake.Provider(self.store)
-        self.probe=Mock(execution=a.EXECUTION,scope=w.SCOPE,services=object(),engineWorkloadExecuted=True,require_physical=False,require_backup=False)
+        self.probe=Mock(execution=a.EXECUTION,scope=w.SCOPE,mode=package.MODES[2],services=object(),engineWorkloadExecuted=True,require_physical=False,require_backup=False)
         self.startup=Mock(execution=a.EXECUTION,services=self.probe.services)
         self.startup.prepare.return_value=dict(status='PASS')
         self.startup.retention_files.return_value=[];self.probe.retention_files.return_value=[('fixture.bin',b'fixture')]
-        self.probe.collect_validate.return_value=dict(status='PASS',execution=a.EXECUTION,scope=w.SCOPE,paidCloud=False,
+        self.probe.collect_validate.return_value=dict(status='PASS',execution=a.EXECUTION,scope=w.SCOPE,mode=package.MODES[2],paidCloud=False,
             engineWorkloadExecuted=True,fullRemoteQualification=False,physicalHistoryQualified=False,cells=['healthy'])
     def run_case(self,**kwargs):
         req,pre,app=fake.fixture(**kwargs)
         return runner.Runner(self.store,self.provider,self.probe,self.root/'run',clock=self.clock.nanos,
-            wall=self.clock.wall,startup=self.startup,qualification=w.SCOPE).run(req,pre,app)
+            wall=self.clock.wall,startup=self.startup,qualification=self.probe.scope).run(req,pre,app)
     def test_partial_scope_runs_only_healthy_and_preserves_cleanup_and_charge(self):
         result=self.run_case();self.assertEqual(result['status'],'PASS',result['errors'])
         self.assertEqual(self.probe.cell.call_count,1);self.assertEqual(self.probe.cell.call_args.args[0],'healthy')
         self.assertTrue(result['engineWorkloadExecuted']);self.assertFalse(result['fullRemoteQualification'])
-        self.assertEqual(result['qualificationScope'],w.SCOPE);self.assertFalse(self.provider.objects)
+        self.assertEqual(result['qualificationScope'],self.probe.scope);self.assertFalse(self.provider.objects)
         self.assertTrue(result['leaseReleased']);self.assertEqual(a.inspect_ledger(self.store.get(a.LEDGER)[1])[0],1_000_000)
     def test_failed_collected_evidence_retained_before_failed_completion(self):
         self.probe.collect_validate.return_value['status']='FAIL'

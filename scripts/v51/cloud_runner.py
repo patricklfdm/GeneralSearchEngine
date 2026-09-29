@@ -101,9 +101,10 @@ class Runner:
         self.generation = None
         if startup is not None: m.need(startup.execution == a.EXECUTION, 'unqualified startup adapter')
         self.startup = startup
-        from .guest_owned_workload import SCOPE
-        m.need((qualification is None and getattr(probe,'scope',None)!=SCOPE) or
-               qualification==SCOPE and getattr(probe,'scope',None)==SCOPE and
+        from .guest_owned_workload import SCOPES
+        m.need((qualification is None and getattr(probe,'scope',None) not in SCOPES.values()) or
+               qualification in SCOPES.values() and getattr(probe,'scope',None)==qualification and
+               SCOPES.get(getattr(probe,'mode',None))==qualification and
                getattr(probe,'services',None) is not None and startup is not None and
                getattr(startup,'services',None) is probe.services,
                'owned workload qualification scope/startup')
@@ -180,6 +181,7 @@ class Runner:
                         m.need(evidence['execution']==a.EXECUTION and
                                (evidence['engineWorkloadExecuted'] is False if self.qualification is None else
                                 evidence['scope']==self.qualification and evidence['paidCloud'] is False and
+                                evidence['mode']==self.probe.mode and
                                 evidence['fullRemoteQualification'] is False and type(evidence['physicalHistoryQualified']) is bool and
                                 evidence['engineWorkloadExecuted'] is result['engineWorkloadExecuted']), 'probe evidence scope')
                         for name, data in self.probe.retention_files():

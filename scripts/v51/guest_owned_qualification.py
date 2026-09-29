@@ -1,7 +1,7 @@
 """Owned startup with modeled volumes and actual SSH-delivered idle services.
 
 Cloud facts/accounts/block operations remain explicit fixtures. --workload adds
-one automatic healthy tape; IAP, physical disks and paid resources remain closed.
+one selected replicated healthy tape; IAP, physical disks and paid resources remain closed.
 """
 import argparse
 import ctypes
@@ -28,7 +28,9 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2]):
+    m.need(mode in package.MODES[1:] and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
+    m.need(not physical or mode==package.MODES[2],'owned physical evidence requires automatic mode')
     m.need(not backup or physical,'backup requires physical evidence')
     m.need(not physical or workload,'physical evidence requires owned workload')
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
@@ -41,11 +43,11 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
     m.need(packed['status']=='PASS' and packed['source']==source and
            m.sha((bundle/'guest.tar.gz').read_bytes())==packed['archiveSha256'],'owned qualified package receipt')
     m.need(ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0,'owned qualification subreaper')
-    receipt=dict(schema='gse-v51-owned-service-qualification-v1',status='FAIL',source=source,
+    receipt=dict(schema='gse-v51-owned-service-qualification-v1',status='FAIL',source=source,mode=mode,
         execution='owned-model-loopback-ssh-idle-services',realSshExecuted=True,engineWorkloadExecuted=False,
         providerIdentity='modeled-fixtures',volumeObservations='offline-block-model',filesystem='shared-local',
         realBlockDeviceWritten=False,paidCloud=False,fullRemoteQualification=False)
-    services=None; endpoints=[]; views=None; workload_submits=[]; lost_windows=[]
+    services=None; endpoints=[]; views=None; workload_submits=[]; lost_submissions=[]
     try:
         with tempfile.TemporaryDirectory(prefix='gse-v51-owned-keys-',dir=ROOT/'target') as private, Server(private,root) as server:
             req,pre,approval,_,http,store,old,_=guest_startup_fake.fixture(Path(private)/'owner')
@@ -109,14 +111,15 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     cl.start=lost_start; cl.shutdown=lost_stop
                     if workload:
                         submit=cl.submit
-                        def lose_window(value,end):
+                        def lose_workload_reply(value,end):
                             workload_submits.append(dict(node=config['binding']['node'],request=value))
                             answer=submit(value,end)
-                            if value['command']=='window' or backup and value['command'] in ('backup','restore-backup'):
-                                lost_windows.append(value['commandId'])
+                            activate=(mode==package.MODES[1] and value['command']=='fault' and value['payload']==dict(action='activate'))
+                            if value['command']=='window' or activate or backup and value['command'] in ('backup','restore-backup'):
+                                lost_submissions.append(value['commandId'])
                                 raise ConnectionError('discarded original workload submission reply')
                             return answer
-                        cl.submit=lose_window
+                        cl.submit=lose_workload_reply
                     return cl
                 ep.client=client
                 original_bootstrap=ep.bootstrap
@@ -157,28 +160,31 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                         error.partial_output=answer[:len(answer)//2];raise error
                     return answer
                 ep.producer=lose_producer;return ep
-            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,bootstrap=admitted_bootstrap,
+            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,mode=mode,qualification_mounts=mounts,bootstrap=admitted_bootstrap,
                 qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
-            from .guest_owned_workload import Probe, SCOPE
+            from .guest_owned_workload import Probe
             probe=Probe(services,root/'probe',physical=physical,backup=backup) if workload else cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
-                qualification=SCOPE if workload else None).run(req,pre,approval)
+                qualification=probe.scope if workload else None).run(req,pre,approval)
             if workload:
-                receipt.update(execution=SCOPE,engineWorkloadExecuted=result['engineWorkloadExecuted'],
+                receipt.update(execution=probe.scope,engineWorkloadExecuted=result['engineWorkloadExecuted'],
                     backupRestoreQualified=result.get('evidence',{}).get('backupRestoreQualified',False),
                     physicalHistoryQualified=result.get('evidence',{}).get('physicalHistoryQualified',False),networkMapping='qualification-loopback',workload=result.get('evidence'))
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
             if workload:
                 requests=[v['request'] for v in workload_submits]
-                m.need(len(lost_windows)==(7 if backup else 5) and len({q['commandId'] for q in requests})==len(requests),
+                m.need(len(lost_submissions)==5+2*int(backup)+int(mode==package.MODES[1]) and len({q['commandId'] for q in requests})==len(requests),
                        'owned workload submission replay/cardinality')
+                activations=[v for v in workload_submits if v['request']['command']=='fault' and v['request']['payload']==dict(action='activate')]
+                m.need(len(activations)==int(mode==package.MODES[1]) and
+                       (not activations or activations[0]['node']=='node-1'), 'owned configured activation owner/cardinality')
                 for command in ('backup','restore-backup'):
                     submitted=[v for v in workload_submits if v['request']['command']==command]
                     m.need(len(submitted)==int(backup) and (not backup or submitted[0]['node']=='node-'+str(probe.active[0])),
                            'owned backup/restore submission owner/cardinality')
                 c.write_once(root/'workload-submissions.json',workload_submits)
-                receipt['workloadSubmitReplyLosses']=len(lost_windows)
+                receipt['workloadSubmitReplyLosses']=len(lost_submissions)
             m.need(len(services.clients)==3 and all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
@@ -248,8 +254,9 @@ if __name__=='__main__':
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
+    p.add_argument('--mode',choices=package.MODES[1:],default=package.MODES[2])
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode)
