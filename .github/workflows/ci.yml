@@ -275,6 +275,22 @@ jobs:
           retention-days: 7
           compression-level: 1
 
+      - name: Qualify V5.1 owned leader loss and no-quorum without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 1440s python3 -m scripts.v51.guest_owned_qualification
+          target/v51-owned-faults --bundle target/v51-guest-package --source "$GITHUB_SHA"
+          --faults --allow-sudo-namespace
+
+      - name: Retain V5.1 owned fault receipts and original authority
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-owned-faults-${{ github.sha }}
+          path: target/v51-owned-faults
+          if-no-files-found: warn
+          retention-days: 14
+          compression-level: 1
+
       - name: Qualify V5.1 exact-path bootstrap in independent filesystems without GCP
         run: >-
           timeout --signal=TERM --kill-after=5s 900s python3 -m scripts.v51.guest_qualification
