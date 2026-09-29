@@ -114,10 +114,14 @@ PR #244, master `71ca5d9e52139815a5bd4dfddf330c4d0d9fe800`, exact-master CI
 [6C3C14 physical evidence](docs/v5x/v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md) is accepted
 through PR #245, master `d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`, exact-master
 CI `36486236193` attempt 1 (27 jobs). The
-[6C3C15 backup/restore candidate](docs/v5x/v5.1/PHASE_6_OWNED_BACKUP.md) adds one
-post-tape backup, independent byte decoding and a separate published V4.4 restore.
-Next qualify this slice, then connect other modes and faults, followed by trusted
-preflight and separate V5.1 configuration/workflows.
+[6C3C15 backup/restore](docs/v5x/v5.1/PHASE_6_OWNED_BACKUP.md) is accepted through
+PR #246, master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
+`36498232963` attempt 1 (all 27 jobs), including the owned Linux backup/restore gate.
+The [6C3C16 configured healthy candidate](docs/v5x/v5.1/PHASE_6_OWNED_CONFIGURED.md)
+connects the admitted published V5.0 services to one node-1 activation, the frozen
+90-call tape and independent logical replay. Next qualify this bounded slice,
+then connect the remaining published V4.4 owned control, configured physical/backup
+evidence and fault cells, followed by trusted preflight and separate V5.1 configuration/workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 V5.2-V5.4 remain future work.

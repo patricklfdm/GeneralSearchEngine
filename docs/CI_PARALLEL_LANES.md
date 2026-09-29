@@ -610,7 +610,7 @@ automatic healthy cell; full remote and paid flags stay false. See
 PR #245 accepted this slice at master `d07fe8a5ca27e28ebf1b20c157337ed0f078ea5e`,
 exact-master CI `36486236193` attempt 1 (27 successful jobs).
 
-### Phase 6C3C15 owned backup/restore candidate
+### Phase 6C3C15 owned backup/restore
 
 The same owned-bootstrap step adds `--backup`: issue one post-tape backup,
 observe the final durable cut, stop all voters and restore once through the
@@ -620,3 +620,20 @@ Discarded submission replies for both new commands must only trigger receipt
 queries. The existing 90 calls, deadlines, Required graph and retention remain
 unchanged. Synthetic local tests are not protected Linux acceptance; see the
 [backup/restore scope](v5x/v5.1/PHASE_6_OWNED_BACKUP.md).
+
+PR #246 accepted this slice at master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`,
+exact-master CI `36498232963` attempt 1 (27 successful jobs), including the Linux
+owned backup/restore gate.
+
+### Phase 6C3C16 owned configured healthy candidate
+
+The foundation/runtime lane adds a separate 720-second invocation with
+`--mode published-v5.0-configured --workload` and the same authenticated
+producer/transfer/bootstrap options. It activates node-1 once, runs all 90 frozen
+calls, collects stopped evidence and independently validates logical semantics.
+Activation and all five window submission replies are discarded; only queries
+of the original IDs recover them. The automatic physical/backup gate remains
+unchanged. Always retain the new `v51-owned-configured-${{ github.sha }}` artifact;
+the Required graph, mode deadlines and paid restrictions are unchanged. See the
+[configured control scope](v5x/v5.1/PHASE_6_OWNED_CONFIGURED.md) for qualification
+limits and remaining physical/full-preset work.

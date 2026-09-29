@@ -1,7 +1,7 @@
-"""One complete automatic experiment healthy tape on already admitted services.
+"""One complete replicated experiment healthy tape on already admitted services.
 
 Offline qualification only: provider/block facts remain fixtures. Physical replay
-is explicit; other modes/faults and paid acceptance stay open.
+is automatic-only; local control/faults and paid acceptance stay open.
 """
 from pathlib import Path
 import os
@@ -12,22 +12,25 @@ from . import remote_command as c, remote_collection as collection, remote_sched
 from . import guest_evidence
 
 SCOPE='owned-automatic-healthy-experiment'
+CONFIGURED_SCOPE='owned-configured-healthy-experiment'
+SCOPES={package.MODES[1]:CONFIGURED_SCOPE,package.MODES[2]:SCOPE}
 
 
 class Probe:
     execution=a.EXECUTION
     scope=SCOPE
     def __init__(self, services, output, *, physical=False, backup=False, clock=time.monotonic, sleep=time.sleep):
-        m.need(services.offline is True and services.mode==package.MODES[2] and services.bootstrap is not None,
-               'owned workload requires offline automatic bootstrap')
+        m.need(services.offline is True and services.mode in SCOPES and services.bootstrap is not None,
+               'owned workload requires offline replicated bootstrap')
+        self.mode=services.mode;self.scope=SCOPES[self.mode]
+        m.need(type(physical) is bool and (not physical or self.mode==package.MODES[2]),'owned physical scope');self.require_physical=physical
+        m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
         self.root.mkdir(parents=True,mode=0o700); self.raw=self.root/'raw';self.raw.mkdir(mode=0o700)
         self.clients=[];self.started=[];self.transcripts={};self.active=None;self.cells=[]
         self.attempted=False;self.engineWorkloadExecuted=False;self.stopped=False;self.prepared=False
         self.command_count=0;self.stop_attempted=set()
-        m.need(type(physical) is bool,'owned physical scope');self.require_physical=physical
-        m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
-        self.binding=m.sha(m.canonical(dict(scope=SCOPE,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=a.validate_request(services.provider.req))))
 
     def execute(self, member, name, payload, deadline):
         node,client,cfg=member
@@ -60,11 +63,11 @@ class Probe:
         self.manifest=(self.services.archive.parent/'package/manifest.json').read_bytes()
         package.verify(self.services.archive.parent/'package',req['source'])
         for (node,client,cfg),member in zip(self.clients,complete['members']):
-            m.need(client.config==cfg and cfg['mode']==package.MODES[2] and
+            m.need(client.config==cfg and cfg['mode']==self.mode and
                    cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node)) and
                    m.sha(self.manifest)==cfg['packageManifestSha256'] and member['node']==node and
                    member['configSha256']==m.sha(m.canonical(cfg)), 'owned workload client identity')
-        c.write_once(self.raw/'plan.json',dict(scope=SCOPE,request=req,configs=[cfg for _,_,cfg in self.clients]))
+        c.write_once(self.raw/'plan.json',dict(scope=self.scope,mode=self.mode,request=req,configs=[cfg for _,_,cfg in self.clients]))
         with (self.raw/'package-manifest.json').open('xb') as out:
             out.write(self.manifest);out.flush();os.fsync(out.fileno())
         c.sync_directory(self.raw)
@@ -74,12 +77,15 @@ class Probe:
     def cell(self, name, deadline):
         m.need(self.prepared and not self.attempted and name=='healthy','owned workload cell consumed/scope')
         self.attempted=True;end=min(deadline/10**9,self.clock()+300)
-        record=dict(scope=SCOPE,status='FAIL',startedNanos=int(self.clock()*10**9),windows=[])
+        record=dict(scope=self.scope,mode=self.mode,status='FAIL',startedNanos=int(self.clock()*10**9),windows=[])
         try:
             for member in self.clients:
                 self.started.append(member);self.engineWorkloadExecuted=True
                 self.succeeded(member,'start-voter',{},end)
             activation=min(end,self.clock()+30)
+            if self.mode==package.MODES[1]:
+                self.active=self.clients[0]
+                self.succeeded(self.active,'fault',dict(action='activate'),activation)
             while self.active is None:
                 for member in self.clients:
                     answer=self.succeeded(member,'fault',dict(action='status'),activation)
@@ -156,7 +162,7 @@ class Probe:
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='physical-validation',message=str(error)[:2000]))
         m.need(self.clock()<end,'owned validation deadline')
         valid=(self.cells==['healthy'] and len(members)==3 and sum(v['calls'] for v in members)==90 and not errors)
-        result=dict(status='PASS' if valid else 'FAIL',execution=a.EXECUTION,scope=SCOPE,paidCloud=False,
+        result=dict(status='PASS' if valid else 'FAIL',execution=a.EXECUTION,scope=self.scope,mode=self.mode,paidCloud=False,
             engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,
             backupRestoreQualified=physical is not None and physical.get('backupRestoreQualified',False),
             cells=list(self.cells),members=members,errors=errors)

@@ -136,6 +136,11 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     windows = [(q,r) for q,r in rows if q['command'] == 'window']
     specs = schedule.windows('healthy','experiment')[:None if healthy else 1]
     m.need(len(windows) == len(specs)*int(active), 'guest warmup/healthy issuer coverage')
+    activations=[r for q,r in rows if q['command']=='fault' and q['payload']==dict(action='activate')]
+    configured=config['mode']==package.MODES[1]
+    m.need(len(activations)==int(configured and active) and
+           (not configured or not active or node=='node-1' and activations[0]['endedNanos']<=windows[0][1]['startedNanos']),
+           'guest configured activation role/coverage/order')
     m.need(sum(q['command'] == 'collect' for q,_ in rows) == 1+int(active), 'guest live collection negative coverage')
     budget = [contract.load()['evidence']['perNodePerCellTraceBytes']]
     exchanges = c.read(root/(node+'-exchanges.json'))
@@ -163,9 +168,11 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
             if answer['command'] == 'activate':
                 m.need(config['mode'] == package.MODES[1] and node == 'node-1', 'guest activation role')
             exchange = next(e for e in exchanges if e['request']['opId'] == op)
+            wanted=dict(command=answer['command'],opId=op)
+            if configuration:wanted['window']=request['payload']['window']
+            m.need(exchange['request']==wanted, 'guest control JVM request')
             m.need(receipt['startedNanos'] <= exchange['startNanos'] <= exchange['endNanos'] <= receipt['endedNanos'], 'guest control interval')
             if configuration:
-                m.need(exchange['request']==dict(command='configure',opId=op,window=request['payload']['window']), 'guest passive configuration')
                 passive_windows.append(request['payload']['window'])
             mapped.add(op)
     m.need(passive_windows == ([s['window'] for s in specs] if healthy and not active else []), 'guest passive window coverage')

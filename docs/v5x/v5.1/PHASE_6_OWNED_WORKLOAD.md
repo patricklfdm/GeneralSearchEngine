@@ -5,7 +5,8 @@
 [36462747697](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36462747697)
 attempt 1 (all 27 jobs). Its original failed large-part collection and diagnostic
 replay below remain recorded. [Physical history](PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
-is a separate candidate; native cloud writes and full 6C remain open.
+is accepted through PR #245, followed by [automatic backup/restore](PHASE_6_OWNED_BACKUP.md)
+through PR #246; native cloud writes and full 6C remain open.
 
 ## Scope and lifecycle
 
@@ -109,6 +110,8 @@ The original failed receipts remain intact. Replay receipts and hashes are under
 `target/v51-owned-workload-ci-fix`; this is diagnostic replay, not corrected-source
 protected acceptance, which is recorded above.
 
-Next integrate the remaining owned modes/cells and physical/backup evidence, then
+The [configured healthy candidate](PHASE_6_OWNED_CONFIGURED.md) extends the owned
+path to the published V5.0 control. Then integrate remaining owned modes/cells and
+configured physical/backup evidence, followed by
 trusted preflight and separate V5.1 cloud configuration/workflows. Paid runs still
 require exact-request confirmation and manual triggering by the user.
