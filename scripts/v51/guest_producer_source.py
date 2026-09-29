@@ -65,7 +65,7 @@ class RemoteSource:
                 try:answer=call('query')
                 except (ConnectionError,TimeoutError):answer=None
             summaries=answer.get('exports')
-            m.need(type(summaries) is list and len(summaries)==3,'producer export count')
+            m.need(type(summaries) is list and len(summaries)==len(configs),'producer export count')
             for i,row in enumerate(summaries):
                 m.need(set(row)=={'node','descriptorSha256','transferSha256'} and row['node']=='node-'+str(i+1) and
                        all(isinstance(row[k],str) and re.fullmatch('[0-9a-f]{64}',row[k]) for k in ('descriptorSha256','transferSha256')),

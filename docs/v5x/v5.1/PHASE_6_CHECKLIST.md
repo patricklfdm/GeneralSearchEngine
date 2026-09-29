@@ -78,11 +78,14 @@ voter's own authority and joint force/publication/read replay for the 90-call ta
 The [6C3C15 backup/restore](PHASE_6_OWNED_BACKUP.md) is accepted through
 PR #246, master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
 `36498232963` attempt 1 (all 27 jobs), including the owned Linux backup/restore gate.
-The [6C3C16 configured healthy candidate](PHASE_6_OWNED_CONFIGURED.md)
-connects the admitted published V5.0 services to one node-1 activation, the frozen
-90-call tape and independent logical replay. Next qualify this bounded slice,
-then connect the remaining published V4.4 owned control, configured physical/backup
-evidence and fault cells, followed by trusted preflight and separate V5.1 workflows.
+The [6C3C16 configured healthy control](PHASE_6_OWNED_CONFIGURED.md) is accepted
+through PR #247, master `dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
+`36505526404` attempt 1 (all 27 jobs), including the configured Linux workload gate.
+The [6C3C17 published V4.4 healthy candidate](PHASE_6_OWNED_V44.md) connects
+one admitted node-1 service to authenticated source preparation, the frozen 90-call
+tape and independent logical replay. Next qualify this bounded slice, then connect
+configured physical/backup evidence, complete three-mode preset integration and
+owned fault cells, followed by trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -153,8 +156,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C15 implementation candidate: [owned healthy backup/restore](PHASE_6_OWNED_BACKUP.md), original auxiliary barrier, independent bytes and separate published V4.4 restore.
 - [x] 6C3C15 protected acceptance: PR #246 / CI `36498232963` attempt 1 (27 jobs).
 - [x] 6C3C16 implementation candidate: [owned configured healthy tape](PHASE_6_OWNED_CONFIGURED.md), once-only node-1 activation and independently replayed 90-call published V5.0 control.
-- [ ] 6C3C16 protected Linux qualification and exact-master acceptance.
-- [ ] Remaining owned healthy controls: published V4.4 lifecycle, configured physical/backup evidence and complete three-mode preset integration.
+- [x] 6C3C16 protected acceptance: PR #247 / CI `36505526404` attempt 1 (27 jobs).
+- [x] 6C3C17 implementation candidate: [owned V4.4 healthy tape](PHASE_6_OWNED_V44.md), one authenticated source/issuer and independently replayed 90-call published control.
+- [ ] 6C3C17 protected Linux qualification and exact-master acceptance.
+- [ ] Remaining owned healthy controls: configured physical/backup evidence and complete three-mode preset integration.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

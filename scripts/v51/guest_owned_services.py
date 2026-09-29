@@ -47,7 +47,9 @@ class Services:
             m.need(req['guestAccessSha256'] == m.sha(m.canonical(self.provider.guest_access)), 'owned service access binding')
             configs, descriptors, endpoints = [], [], []
             group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+self.mode))
-            for item, target in zip(facts, targets):
+            nodes=package.experiment_nodes(self.mode)
+            for node in nodes:
+                item,target=facts[node-1],targets[node-1]
                 node = item['provider']['node']; binding = c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node))
                 desc = delivery.describe(self.archive,manifest,binding,item['provider'],req['guestAccessSha256'])
                 m.need(target['instanceId'] == desc['instanceId'] and target['user'] == self.provider.guest_access['user'], 'owned service SSH target')
@@ -71,7 +73,7 @@ class Services:
                        observed['startupSha256'] == m.sha(m.canonical(startup[index])), 'owned service mounted readiness')
                 recheck(index+1); m.need(self.clock() < deadline, 'owned service original deadline')
                 c.write_once(self.root/f'node-{index+1}-check-{phase}.json',observed,maximum=262144)
-            for i in range(3): check(i,'initial')
+            for i in range(len(configs)): check(i,'initial')
             for i, endpoint in enumerate(endpoints):
                 check(i,'delivery'); record = dict(descriptor=descriptors[i], status='FAIL')
                 try:
@@ -79,7 +81,7 @@ class Services:
                 finally:
                     record.update(deadline=endpoint.budget,calls=endpoint.calls,failures=endpoint.failures)
                     c.write_once(self.root/f'node-{i+1}-package.json',record,maximum=262144)
-            for i in range(3): check(i,'delivered')
+            for i in range(len(configs)): check(i,'delivered')
             if self.bootstrap is not None:
                 result['bootstrap']=self.bootstrap.prepare(req,configs,endpoints,self.root/'bootstrap',deadline,recheck=check)
                 m.need(result['bootstrap']['status']=='PASS' and result['bootstrap']['publicBootstrapVerified'] is True,
@@ -108,7 +110,7 @@ class Services:
                     self.sleep(min(.05,max(0,deadline-self.clock())))
                 check(i,'ready'); c.write_once(self.root/f'node-{i+1}-ready.json',answer)
                 result['members'].append(dict(node=i+1,configSha256=intent['configSha256'],pid=ready['pid']))
-            for i in range(3): check(i,'final')
+            for i in range(len(configs)): check(i,'final')
             result['status']='PASS'
         except (Exception,KeyboardInterrupt) as error:
             result['failure']=dict(type=type(error).__name__,message=str(error)[:2000]); raise

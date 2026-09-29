@@ -15,10 +15,12 @@ SCHEMA='gse-v51-source-producer-v1'
 def validate(request):
     m.need(type(request) is dict and set(request)=={'schema','configs'} and request['schema']==SCHEMA,'producer request fields')
     configs=request['configs']
-    m.need(type(configs) is list and len(configs)==3,'producer member count')
+    m.need(type(configs) is list and configs,'producer member count')
+    nodes=package.experiment_nodes(configs[0]['mode'])
+    m.need(len(configs)==len(nodes),'producer member count')
     for i,cfg in enumerate(configs):
         guest.validate(cfg);normalized=deepcopy(cfg);normalized['binding']['node']='node-1'
-        m.need(cfg['binding']['node']=='node-'+str(i+1) and normalized==configs[0] and cfg['mode'] in package.MODES[1:],
+        m.need(cfg['binding']['node']=='node-'+str(nodes[i]) and normalized==configs[0],
                'producer exact member configurations')
     m.need(len(m.canonical(request))<=wire.METADATA_BYTES,'producer request bound')
     return configs
@@ -32,7 +34,7 @@ def envelope(request,state,**extra):
 
 
 def retained(base,request,node):
-    m.need(node in ('node-1','node-2','node-3'),'producer selected member')
+    m.need(node in [cfg['binding']['node'] for cfg in request['configs']],'producer selected member')
     cfg=request['configs'][int(node[-1])-1];root=location(base)
     value=read(root/(node+'-descriptor.json'),wire.METADATA_BYTES);wire.validate(value)
     m.need(value['config']==cfg,'producer retained export configuration')

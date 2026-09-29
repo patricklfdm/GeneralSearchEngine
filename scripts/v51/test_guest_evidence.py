@@ -34,10 +34,11 @@ class Fixture:
         for kind,name in zip(('core','replication'),jars): identity.update({kind+'Source':self.base+'/'+name,kind+'Sha256':'a'*64})
         self.transcript=[]; self.exchanges=[]; self.results=[]; self.files={}
         self.control('start-voter',{},dict(status='STARTED',identity=identity),1_000_000_000,1_050_000_000)
-        action='activate' if mode==package.MODES[1] and active else 'status'
-        status = self.exchange(action,{},1_060_000_005,1_060_000_015)
-        if action=='status':status['status'] = dict(state='LEADER_READY' if active else 'FOLLOWER')
-        self.control('fault',{'action':action},status,1_060_000_000,1_070_000_000)
+        if mode!=package.MODES[0]:
+            action='activate' if mode==package.MODES[1] and active else 'status'
+            status = self.exchange(action,{},1_060_000_005,1_060_000_015)
+            if action=='status':status['status'] = dict(state='LEADER_READY' if active else 'FOLLOWER')
+            self.control('fault',{'action':action},status,1_060_000_000,1_070_000_000)
         self.events=[]; self.spec=schedule.windows('healthy','experiment')[0]
         self.state=m.initial(plan.load())
         if active:

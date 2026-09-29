@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C16 — owned published V5.0 configured healthy control
 
-**Status:** implementation candidate based on accepted PR #246, master
-`2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
-[36498232963](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36498232963)
-attempt 1 (all 27 jobs). This slice requires its own protected Linux qualification
-and exact-master acceptance; it does not complete the experiment preset.
+**Status:** accepted through PR #247 at master
+`dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
+[36505526404](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36505526404)
+attempt 1 (all 27 jobs), including the owned configured Linux workload gate.
+This slice does not complete the experiment preset. Its implementation was based
+on accepted PR #246 / master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`.
 
 ## Scope and governing contracts
 
@@ -94,8 +95,9 @@ assertion and Mac-only Runner failures remain in the review directory. Both the
 accepted master Runner and this candidate fail on the same absent `/proc` path
 without modeling; no production deadline or process check was relaxed.
 
-Next qualify this slice, then connect the published V4.4 owned healthy path,
-configured physical/backup evidence and fault cells. Complete experiment/preset
+The next [published V4.4 owned healthy candidate](PHASE_6_OWNED_V44.md) connects
+the single experiment issuer. Configured physical/backup evidence and fault cells
+remain open. Complete experiment/preset
 or native IAP admission, trusted preflight and V5.1 cloud workflows remain open.
 Paid execution continues to require its separate exact-request confirmation and
 user-triggered dispatch.

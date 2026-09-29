@@ -1,7 +1,7 @@
 """Owned startup with modeled volumes and actual SSH-delivered idle services.
 
 Cloud facts/accounts/block operations remain explicit fixtures. --workload adds
-one selected replicated healthy tape; IAP, physical disks and paid resources remain closed.
+one selected healthy tape; IAP, physical disks and paid resources remain closed.
 """
 import argparse
 import ctypes
@@ -29,13 +29,14 @@ class Clock:
 
 
 def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2]):
-    m.need(mode in package.MODES[1:] and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
+    m.need(mode in package.MODES and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
     m.need(not physical or mode==package.MODES[2],'owned physical evidence requires automatic mode')
     m.need(not backup or physical,'backup requires physical evidence')
     m.need(not physical or workload,'physical evidence requires owned workload')
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     m.need(not producer_source or source_transfer,'producer requires source transfer qualification')
     m.need(not workload or producer_source,'owned workload requires authenticated source preparation')
+    nodes=package.experiment_nodes(mode)
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700,exist_ok=False)
     bundle=Path(bundle).resolve(); manifest=package.verify(bundle/'package',source)
     m.need(manifest['buildBinding']==build.binding(ROOT,source),'owned qualification checkout/build mismatch')
@@ -125,8 +126,8 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 original_bootstrap=ep.bootstrap
                 def lost_bootstrap(action,request,end):
                     if source_transfer and not producer_source and not receipt['producerPathsHidden']:
-                        # All three deliveries must finish before the first import.
-                        for n in (1,2,3):
+                        # Every selected delivery must finish before the first import.
+                        for n in nodes:
                             record=c.read(root/f'startup/services/bootstrap/node-{n}-transfer/receipt.json')
                             m.need(record['status']=='PASS','source transfer barrier')
                         producer=views.root/'producer'/guest.validate(request['config']).relative_to(views.cell)
@@ -141,7 +142,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 def lose_source(action,request,data,end,index=None):
                     if producer_source and not receipt['producerPathsHidden']:
                         record=c.read(root/'startup/services/bootstrap/producer/receipt.json')
-                        m.need(record['status']=='PASS' and len(record['exports'])==3,'producer download barrier')
+                        m.need(record['status']=='PASS' and len(record['exports'])==len(nodes),'producer download barrier')
                         first=endpoints[0].value
                         producer=views.root/'node-1'/(first['binding']['attempt']+'-node-1')/'source-producer'
                         (producer/'exports').rename(producer/'hidden-exports')
@@ -185,7 +186,11 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                            'owned backup/restore submission owner/cardinality')
                 c.write_once(root/'workload-submissions.json',workload_submits)
                 receipt['workloadSubmitReplyLosses']=len(lost_submissions)
-            m.need(len(services.clients)==3 and all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
+                if mode==package.MODES[0]:
+                    m.need(all(v['node']=='node-1' and v['request']['command']!='fault' for v in workload_submits),
+                           'owned local single issuer/no replication control')
+            m.need([n for n,_,_ in services.clients]==list(nodes) and len(endpoints)==len(nodes) and
+                   all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
                 counts={key:sum(v['action']==key for v in ep.calls) for key in ('clock','begin','part','finish','query')}
@@ -203,17 +208,22 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             if bootstrap:
                 from . import guest_bootstrap as boot
                 completed=c.read(root/'startup/services/bootstrap/receipt.json')
-                m.need(completed['status']=='PASS' and len(completed['members'])==3,'owned local bootstrap completion')
+                m.need(completed['status']=='PASS' and len(completed['members'])==len(nodes),'owned local bootstrap completion')
                 for node,_,cfg in services.clients:
                     cell=views.root/('node-'+str(node))/Path(cfg['root']).relative_to(views.cell)
                     m.need((cell/boot.LOCAL_READY).is_file() and all(not (cell/('node-'+str(other))).exists() for other in (1,2,3) if other!=node),
                            'owned bootstrap live neighbour storage')
+                    if mode==package.MODES[0]:
+                        m.need(not any((cell/('node-'+str(n))).exists() for n in (1,2,3)), 'owned local replication storage')
+                if mode==package.MODES[0]:
+                    m.need(all(not (views.root/('node-'+str(n))/mode).exists() for n in (2,3)), 'owned local idle neighbours')
                 receipt['bootstrap']=completed
             if producer_source:
                 record=c.read(root/'startup/services/bootstrap/producer/receipt.json')
-                expected=sum(len(c.read(root/f'startup/services/bootstrap/producer/node-{n}-descriptor.json')['chunks']) for n in (1,2,3))
+                expected=sum(len(c.read(root/f'startup/services/bootstrap/producer/node-{n}-descriptor.json')['chunks']) for n in nodes)
                 counts={k:sum(v['action']=='producer-'+k for v in endpoints[0].calls) for k in ('prepare','query','manifest','chunk')}
-                m.need(counts==dict(prepare=1,query=2,manifest=3,chunk=expected+3) and record['readFailures']==3,'producer original operation/read cardinality')
+                m.need(counts==dict(prepare=1,query=2,manifest=len(nodes),chunk=expected+len(nodes)) and
+                       record['readFailures']==len(nodes),'producer original operation/read cardinality')
                 receipt['producerCalls']=counts
             receipt.update(status='PASS',tools=server.versions,packages=rows,services=len(services.clients),
                 qualifiedCells=result['evidence']['cells'] if workload else [],
@@ -254,7 +264,7 @@ if __name__=='__main__':
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
-    p.add_argument('--mode',choices=package.MODES[1:],default=package.MODES[2])
+    p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
