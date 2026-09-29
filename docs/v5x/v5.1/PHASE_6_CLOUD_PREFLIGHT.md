@@ -1,9 +1,20 @@
 # V5.1 Phase 6C3C22 — source and provider preflight
 
-**Status:** implementation candidate after PR #252. The accepted complete owned
+**Original candidate:** implementation after PR #252. The accepted complete owned
 experiment ran on master `471a36eea31f6e7cd5cbbdf4cd963f352fb29059`,
 [CI 36566870122](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36566870122)
-attempt 1, all 29 jobs successful. This batch requires its own protected CI.
+attempt 1, all 29 jobs successful. Corrected-source acceptance is recorded below.
+
+## Protected and live observation acceptance
+
+Corrected PR #254 master `0b22b671d39074fe019571dd90178b648a91cb38` passed
+[CI 36635538287](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36635538287)
+attempt 1 (29 jobs) and [preflight 36643330675](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36643330675)
+(all seven checks). The observer identities/environment and Private Google Access
+were separately authorized, applied and read back. This records read-only
+integration; observations still expire and effective inherited IAM, native cleanup
+and paid admission remain open. The next candidate stages
+[disabled runner and cleanup identities](PHASE_6_CLOUD_IDENTITIES.md).
 
 ## Manual entry points
 
@@ -118,8 +129,8 @@ can be granted project metadata reads, bucket metadata and GET of only the two
 V5.1 control objects. No instance/disk/firewall mutation or storage create/delete
 permission is proposed. See Google's [deployment pipeline federation guide](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines).
 
-These identities are proposed, not asserted to exist. Configuration and application
-need separate review: IAM bindings are additive and the generator cannot attest
+The generator itself only proposes identities; their observed application is recorded
+above. Configuration and application need separate review: IAM bindings are additive and the generator cannot attest
 inherited grants. Create-only commands stop when a named resource exists. Read
 back WIF/IAM and configure the GitHub environment for master plus approval before
 using the observer. No cloud configuration was applied by this implementation.
@@ -137,7 +148,7 @@ expired receipts, nonfinite quotas, stale/foreign lease/ledger, retained failed
 charges, premature deletion and isolated observer proposals. Both manual entry
 points remain subject to corrected-source protected CI.
 
-Next: review/apply and independently inspect observer WIF/IAM/environment; qualify
+Next: complete inherited IAM review; stage isolated runner/cleanup identities and qualify
 V5.1 native cloud setup, runner/cleanup identities and shared real reconciliation;
 wire remaining frozen failure-drill/canonical cells and provider faults. Only then
 can fresh cleanup, pricing, exact-request confirmation and user-triggered paid

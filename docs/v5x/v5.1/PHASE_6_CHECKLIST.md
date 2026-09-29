@@ -102,9 +102,14 @@ exact-master CI `36551903980` attempt 1 (all 27 jobs).
 The 6C3C21 owned maintenance and complete four-cell experiment was accepted
 through PR #252, master `471a36eea31f6e7cd5cbbdf4cd963f352fb29059`, exact-master
 CI `36566870122` attempt 1 (all 29 jobs). Its three CI lanes completed in 8m11s,
-9m37s and 17m02s. The 6C3C22 candidate adds separate manual foundation and read-only
-preflight workflows, exact-source/attempt CI checks, provider observations and an
-offline observer identity proposal. Native IAM/cleanup and paid admission remain open.
+9m37s and 17m02s. The 6C3C22 source/provider preflight passed corrected master
+`0b22b671d39074fe019571dd90178b648a91cb38` (PR #254), CI `36635538287` attempt 1
+(all 29 jobs), and live read-only preflight `36643330675` (all seven checks).
+The observer and subnet configuration were separately authorized and read back;
+organization/folder effective IAM remains unverified. The 6C3C23 candidate adds
+disabled runner/scheduled/manual-cleanup identity proposals, explicit configuration
+audits and offline permission-drift qualification. Native IAM/cleanup activation
+and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -188,7 +193,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C21 protected complete experiment qualification and exact-master acceptance: PR #252 / CI `36566870122` attempt 1 (29 jobs).
 - [x] Complete owned experiment preset: healthy, leader-loss, maintenance and no-quorum in one execution.
 - [x] 6C3C22 implementation candidate: [source/provider observations and independent manual workflows](PHASE_6_CLOUD_PREFLIGHT.md).
-- [ ] 6C3C22 corrected-source protected CI; observer WIF/IAM/environment applied and independently inspected.
+- [x] 6C3C22 corrected-source protected CI and read-only provider qualification: PR #254 / CI `36635538287`, preflight `36643330675`.
+- [x] Observer WIF/IAM/environment and Private Google Access configured with authorization; explicit settings read back.
+- [ ] Effective organization/folder IAM review (parent policy read remains unavailable).
+- [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
+- [ ] 6C3C23 corrected-source protected CI, separately authorized staging/application and native identity activation review.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

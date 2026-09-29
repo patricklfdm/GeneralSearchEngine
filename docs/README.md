@@ -78,6 +78,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C3C21 owned complete experiment](v5x/v5.1/PHASE_6_OWNED_EXPERIMENT.md)
 - [V5.1 foundation/guest CI partition](CI_V51_FOUNDATION_LANES.md)
 - [V5.1 Phase 6C3C22 source/provider preflight and manual workflows](v5x/v5.1/PHASE_6_CLOUD_PREFLIGHT.md)
+- [V5.1 Phase 6C3C23 disabled runner/cleanup identity staging](v5x/v5.1/PHASE_6_CLOUD_IDENTITIES.md)
 - [V5.1 Phase 6C3C17 accepted owned V4.4 healthy control](v5x/v5.1/PHASE_6_OWNED_V44.md)
 - [V5.1 Phase 6C3C15 owned backup/restore](v5x/v5.1/PHASE_6_OWNED_BACKUP.md)
 - [V5.1 Phase 6C3C14 owned physical evidence](v5x/v5.1/PHASE_6_OWNED_PHYSICAL_EVIDENCE.md)
