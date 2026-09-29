@@ -693,3 +693,13 @@ shutdown checks remain active. The preliminary owned idle-service gate and
 independent filesystem-bootstrap gate remain separate. Required jobs, docs-only
 outcomes and paid-cloud behavior are unchanged. Corrected-source protected CI
 and exact-master acceptance remain pending.
+
+### Phase 6C3C20 owned experiment faults
+
+The foundation/runtime lane additionally executes the [two owned fault cells](v5x/v5.1/PHASE_6_OWNED_EXPERIMENT_FAULTS.md)
+with `guest_owned_qualification --faults --allow-sudo-namespace` and a 1440-second
+outer guard. The existing build package is reused. The original preparation,
+120-second cell, validation and cleanup budgets remain enforced internally.
+The always-run `v51-owned-faults-${sha}` artifact retains commands, crash authority,
+complete binary downloads and independent rejection results for fourteen days.
+No new job, Required dependency, measurement retry or paid workflow is introduced.

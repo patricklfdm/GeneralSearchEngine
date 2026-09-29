@@ -61,7 +61,7 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
     entries={};accepted={};chosen={};reply_frames=set();pids=set();basis_bytes={};parts={};selections={}
     for node,rows in traces.items():
         for row in rows:
-            pids.add(row['pid'])
+            pids.add((node,row['pid']))
             if row['event']=='REPLY':reply_frames.add(storage.sha(raw(row['frame'])))
             if row['event'] in ('REPLY','RECEIVED'):
                 message=f.wire(raw(row['frame']),manifest);payload=message['payload']

@@ -103,7 +103,9 @@ class Runner:
         self.startup = startup
         from .guest_owned_workload import SCOPES as singles
         from .guest_owned_three_mode import MODE, SCOPE
-        SCOPES={**singles,MODE:SCOPE}
+        from . import guest_owned_faults as faults
+        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE}
+        self.qualification_cells=list(faults.CASES) if qualification==faults.SCOPE else ['healthy']
         m.need((qualification is None and getattr(probe,'scope',None) not in SCOPES.values()) or
                qualification in SCOPES.values() and getattr(probe,'scope',None)==qualification and
                SCOPES.get(getattr(probe,'mode',None))==qualification and
@@ -149,7 +151,7 @@ class Runner:
                 self.probe.prepare(req, deadline)
             plan = a.workload.load()
             preset = 'failureDrill' if req['member'] == 'failure-drill' else ('canonical' if req['member'].startswith('canonical-') else 'experiment')
-            for cell in (['healthy'] if self.qualification else plan['presets'][preset]['cells']):
+            for cell in (self.qualification_cells if self.qualification else plan['presets'][preset]['cells']):
                 with budget.stage(cell) as deadline:
                     self.probe.cell(cell, deadline)
         except (Exception, KeyboardInterrupt) as error:
@@ -190,7 +192,7 @@ class Runner:
                             retain(self.store, a.PREFIX+'attempts/'+sha+'/parts/'+name, data)
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
                         if self.qualification:
-                            m.need(evidence['status']=='PASS' and evidence['cells']==['healthy'] and
+                            m.need(evidence['status']=='PASS' and evidence['cells']==self.qualification_cells and
                                    evidence['engineWorkloadExecuted'] is True and
                                    evidence['physicalHistoryQualified'] is self.probe.require_physical and
                                    (not getattr(self.probe,'require_backup',False) or evidence.get('backupRestoreQualified') is True),

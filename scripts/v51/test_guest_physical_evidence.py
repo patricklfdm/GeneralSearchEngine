@@ -65,7 +65,7 @@ class AuthorityTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'group/config binding'):e.validate(members,value.manifest)
             oracle.assert_not_called()
     def test_live_voter_never_enters_physical_capture(self):
-        obj=guest.Service.__new__(guest.Service);obj.jvm=Mock(closed=False);obj.ack=Mock();obj.shutting_down=False
+        obj=guest.Service.__new__(guest.Service);obj.config={};obj.jvm=Mock(closed=False);obj.ack=Mock();obj.shutting_down=False
         with patch.object(a,'capture') as capture:
             with self.assertRaisesRegex(ValueError,'stopped JVM'):obj.handler('collect',{'physical':True},lambda:None)
             capture.assert_not_called()

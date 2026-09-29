@@ -20,9 +20,11 @@ SOURCE_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('t
 class Services:
     offline = True
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver):
+                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
+        m.need(fault_cell is None or fault_cell in ('leader-loss','no-quorum') and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
+        self.fault_cell=fault_cell
         self.mode, self.clock, self.sleep = mode, clock, sleep
         self.mounts = deepcopy(qualification_mounts) if qualification_mounts is not None else {n:volume.MOUNT for n in (1,2,3)}
         m.need(set(self.mounts) == {1,2,3} and all(isinstance(p,str) and Path(p).is_absolute() and
@@ -47,7 +49,7 @@ class Services:
             manifest = package.verify(self.archive.parent/'package', req['source'])
             m.need(req['guestAccessSha256'] == m.sha(m.canonical(self.provider.guest_access)), 'owned service access binding')
             configs, descriptors, endpoints = [], [], []
-            group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+self.mode))
+            group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+(self.fault_cell or self.mode)))
             nodes=package.experiment_nodes(self.mode)
             for node in nodes:
                 item,target=facts[node-1],targets[node-1]
@@ -55,8 +57,9 @@ class Services:
                 desc = delivery.describe(self.archive,manifest,binding,item['provider'],req['guestAccessSha256'])
                 m.need(target['instanceId'] == desc['instanceId'] and target['user'] == self.provider.guest_access['user'], 'owned service SSH target')
                 cfg = dict(schema='gse-v51-guest-service-v1', execution=guest.EXECUTION, binding=binding,
-                    packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+self.mode, mode=self.mode,
+                    packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+(self.fault_cell or self.mode), mode=self.mode,
                     hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
+                if self.fault_cell:cfg['faultCell']=self.fault_cell
                 guest.validate(cfg)
                 endpoint = self.factory(target,self.mounts[node],desc)
                 m.need(endpoint.offline is True and endpoint.value == desc and endpoint.target == target and

@@ -7,7 +7,10 @@ import hashlib
 import json
 from pathlib import Path
 import struct
-from .storage_harness import need, save
+from .performance_model import need
+
+
+def save(path, value): path.write_text(json.dumps(value, sort_keys=True, indent=2) + '\n')
 
 
 def live_rows(root, node):

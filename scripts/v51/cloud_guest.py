@@ -21,8 +21,10 @@ FIELDS = {'schema', 'execution', 'binding', 'packageManifestSha256', 'root', 'mo
 
 
 def validate(config):
-    m.need(type(config) is dict and set(config) == FIELDS and config['schema'] == 'gse-v51-guest-service-v1' and
+    m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}) and config['schema'] == 'gse-v51-guest-service-v1' and
            config['execution'] == EXECUTION, 'guest service configuration scope')
+    if 'faultCell' in config:
+        m.need(config['faultCell'] in ('leader-loss','no-quorum') and config['mode']==package.MODES[2], 'guest fault cell/mode')
     c.validate_binding(config['binding'])
     m.need(re.fullmatch('[0-9a-f]{64}', config['packageManifestSha256']) and config['mode'] in package.MODES, 'guest package/mode')
     root = Path(config['root']); m.need(root.is_absolute() and str(root) == config['root'] and '..' not in root.parts, 'guest root')
@@ -118,6 +120,10 @@ class Service:
 
     def handler(self, name, payload, checkpoint):
         self.ack.set(); checkpoint(); m.need(not self.shutting_down, 'guest shutting down')
+        if 'faultCell' in self.config:
+            from .guest_fault_service import Handler
+            if not hasattr(self,'fault_handler'):self.fault_handler=Handler(self)
+            return self.fault_handler.handle(name,payload,checkpoint)
         if name == 'prepare-cell':
             m.need((not payload or payload == {'distribute': True}) and self.node == 'node-1' and self.jvm is None, 'guest prepare role/state')
             self.prepare_source()
@@ -255,6 +261,9 @@ class Service:
             finally:
                 self.shutting_down = True
                 if self.active is not None: self.active.join(timeout=15)
+                if hasattr(self,'fault_handler'):
+                    try:self.fault_handler.heal()
+                    except BaseException as failure:error=error or failure
                 if self.jvm is not None and not self.jvm.closed:
                     try: self.jvm.stop(forced=True)
                     except BaseException as failure: error = error or failure

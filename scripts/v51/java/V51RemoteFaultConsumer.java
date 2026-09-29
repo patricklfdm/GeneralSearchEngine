@@ -20,14 +20,17 @@ public final class V51RemoteFaultConsumer {
         String cell=Files.readString(root.resolve("cell.txt")).trim();
         int documentBytes=cell.equals("interrupted-transfer")?4100:cell.equals("minority-capacity")?20004:4096;
         var group=new ReplicationGroupId(UUID.fromString(Files.readString(root.resolve("group-id.txt")).trim()));
-        return configs(root).stream().map(c->new AutomaticReplicationGroupConfig<>(group,"phase6-fault-v1",c.localNodeId(),c.members(),
-                c.replicaDirectory(),io.github.patricklfdm.generalsearch.durability.DurableStorageConfig.builder(c.materialization().directory(),new Codec())
+        var hosts=V51GuestEndpoints.hosts(root);
+        var endpoints=new ArrayList<ReplicationMember>();var ports=Files.readAllLines(root.resolve("ports.txt"));
+        for(int i=0;i<3;i++)endpoints.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint(hosts.get(i),Integer.parseInt(ports.get(i)))));
+        return endpoints.stream().map(member->new AutomaticReplicationGroupConfig<>(group,"phase6-fault-v1",member.nodeId(),endpoints,
+                root.resolve(member.nodeId().value()),io.github.patricklfdm.generalsearch.durability.DurableStorageConfig.builder(root.resolve("app-"+member.nodeId().value()),new Codec())
                     .format(new io.github.patricklfdm.generalsearch.durability.DurableStorageFormat("gse-durable",1,2))
                     .storageIdentity("public-runtime-store").schemaIdentity("public-runtime-schema")
                     .maxDocuments(1024).maxBulkElements(16).maxEncodedKeyBytes(1024).maxEncodedDocumentBytes(documentBytes)
                     .checkpointWalBytes(32L<<20).maxRetainedBytes(128L<<20).maxDerivedStateBytes(4L<<20).build(),
                 new ReplicationBounds(1<<20,16,4,4,2,1200,25,4096,
-                    cell.equals("minority-capacity")&&c.localNodeId().value().equals("node-3")?128L<<10:64L<<20,64L<<20),
+                    cell.equals("minority-capacity")&&member.nodeId().value().equals("node-3")?128L<<10:64L<<20,64L<<20),
                 new AutomaticLeadershipPolicy(1200,3600,6000,9600))).toList();
     }
     private static Map<String,Object> configuration(AutomaticReplicationGroupConfig<Integer,Doc> c) throws Exception {

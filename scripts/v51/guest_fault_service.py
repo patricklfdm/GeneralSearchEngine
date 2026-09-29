@@ -1,0 +1,118 @@
+"""Closed fault controls in one authenticated, independently bootstrapped guest.
+
+Only EMPTY two-field groups, leader SIGKILL/reopen and bounded network isolation
+are supported. No request supplies executable code, paths, durations or rules.
+"""
+import os
+from pathlib import Path
+import re
+import shutil
+import threading
+import time
+from . import cloud_package as package, remote_command as c, remote_collection as parts, performance_model as m
+from . import guest_authority as authority
+from .guest_fault_jvm import Jvm
+
+CASES=('leader-loss','no-quorum')
+RULES=[f'node-{a} node-{b} BEFORE_REQUEST_WRITE *' for a in (1,2,3) for b in (1,2,3) if a!=b]
+
+
+def argv(base, config, action, generation=1):
+    command=package.command(base,package.MODES[2])
+    command[-1]=package.PACKAGE+('admission.V51RemoteFaultConsumer' if action=='setup' else 'replication.V51PublicWorker')
+    return command+[config['root'],'setup'] if action=='setup' else command+[config['root'],config['binding']['node'][-1],'remote-fault',str(generation)]
+
+
+class Handler:
+    def __init__(self, service):
+        self.s=service;self.case=service.config['faultCell'];self.generation=0;self.isolated=False;self.healed=False
+        self.lock=threading.RLock();self.timer=None;self.isolation=None
+    def rules(self, rows):
+        path=self.s.cell/'network-rules.txt';temporary=path.with_suffix('.tmp')
+        temporary.write_text('\n'.join(rows)+'\n');os.replace(temporary,path)
+    def heal(self, watchdog=False):
+        with self.lock:
+            if not self.isolated or self.healed:return
+            self.rules([]);self.healed=True
+            self.isolation.update(healedNanos=time.monotonic_ns(),watchdog=watchdog)
+            c.write_once(self.s.cell/'isolation.json',self.isolation)
+            if self.timer is not None:self.timer.cancel()
+    def handle(self, name, payload, checkpoint):
+        s=self.s;root=s.cell;node=s.node;cfg=s.config
+        m.need(self.case in CASES,'fault scope')
+        if name=='prepare-cell':
+            m.need(payload=={} and s.jvm is None,'fault preparation payload/state')
+            c.write_once(root/'fault-prepare-claim.json',cfg)
+            for file,text in [('hosts.txt','\n'.join(cfg['hosts'])+'\n'),('ports.txt','\n'.join(map(str,cfg['ports']))+'\n'),
+                              ('group-id.txt',cfg['groupId']+'\n'),('cell.txt',self.case+'\n')]:
+                with (root/file).open('x') as out:out.write(text)
+            for name in ('phase6-plan.json','phase6-cloud-workload-plan.json'):
+                shutil.copyfile(s.base/'source-inputs/docs/v5x/v5.1'/name,root/('plan.json' if name=='phase6-plan.json' else 'cloud-plan.json'))
+            operation=s.oneshot('empty-bootstrap',argv(s.base,cfg,'setup'))
+            # Each guest creates its own public filesystem seals; unstarted sibling
+            # outputs never become live authority and never cross machines.
+            unstarted=s.root/'unstarted-bootstrap';unstarted.mkdir()
+            for other in ('node-1','node-2','node-3','operation'):
+                if other!=node:os.rename(root/other,unstarted/other)
+            files=authority.inventory(root/node)
+            result=dict(source='EMPTY',node=node,groupId=cfg['groupId'],files=files,
+                manifestSha256=m.sha((root/node/'manifest.gsr').read_bytes()),genesisSha256=m.sha((root/node/'genesis.gsr').read_bytes()),operation=operation)
+            c.write_once(root/'fault-prepared.json',result);return result
+        if name=='start-voter':
+            m.need(payload=={} and self.generation==0 and s.jvm is None,'fault first start consumed')
+            prepared=c.read(root/'fault-prepared.json')
+            m.need(c.read(root/'fault-prepare-claim.json')==cfg and authority.inventory(root/node)==prepared['files'],'fault bootstrap changed')
+            self.generation=1
+            s.jvm=Jvm(argv(s.base,cfg,'start',1),root,node,1,s.deadline);return s.jvm.ready
+        if name=='fault':
+            action=payload.get('action')
+            if action=='restart':
+                m.need(payload=={'action':'restart'} and self.case=='leader-loss' and self.generation==1 and s.jvm.closed and s.jvm.proc.returncode==-9,'fault retained restart state')
+                archive=root/'crash'/node
+                m.need(authority.inventory(archive)==authority.inventory(root/node),'fault retained restart authority changed')
+                self.generation=2;s.jvm=Jvm(argv(s.base,cfg,'start',2),root,node,2,s.deadline);return s.jvm.ready
+            m.need(s.jvm is not None and not s.jvm.closed,'fault live voter required')
+            if action=='status':
+                m.need(payload=={'action':'status'},'fault status payload');return s.jvm.command('status')
+            if action=='call':
+                kind=payload.get('kind');extra={'documents'} if kind=='addAll' else set()
+                m.need(kind in ('addAll','read') and set(payload)=={'action','kind','intentId'}|extra and
+                       re.fullmatch('call-(0[1-9]|1[0-9]|2[0-4])',payload['intentId']), 'fault public call payload')
+                if kind=='addAll':
+                    docs=payload['documents'];m.need(type(docs) is list and len(docs)==2 and all(set(d)=={'id','value'} and type(d['id']) is int and type(d['value']) is str and len(d['value'].encode())==64 for d in docs),'fault two-field bulk')
+                claims=root/'calls';claims.mkdir(exist_ok=True)
+                c.write_once(claims/(payload['intentId']+'.json'),payload)
+                return s.jvm.command(kind,**{k:v for k,v in payload.items() if k not in ('action','kind')})
+            if action=='isolate':
+                m.need(payload=={'action':'isolate'} and self.case=='no-quorum' and not self.isolated,'fault isolation consumed/scope')
+                with self.lock:
+                    self.isolated=True;self.rules(RULES)
+                    self.isolation=dict(appliedNanos=time.monotonic_ns(),rules=RULES)
+                    # Independent emergency release. Triggering it FAILS validation;
+                    # it is never accepted in lieu of the controller's 15s hold.
+                    self.timer=threading.Timer(17,lambda:self.heal(True));self.timer.daemon=True;self.timer.start()
+                    return dict(self.isolation)
+            if action=='heal':
+                m.need(payload=={'action':'heal'} and self.isolated,'fault heal scope');self.heal();return c.read(root/'isolation.json')
+            raise ValueError('unsupported owned fault action')
+        if name=='stop-voter':
+            m.need(set(payload)=={'forced'} and type(payload['forced']) is bool and s.jvm is not None and not s.jvm.closed,'fault stop state')
+            m.need(not payload['forced'] or self.case=='leader-loss' and self.generation==1,'fault kill scope')
+            s.jvm.stop(payload['forced'])
+            if payload['forced']:
+                (root/'crash').mkdir();authority.capture(root,node,root/'crash'/node)
+                c.write_once(root/'crash/inventory.json',authority.inventory(root/node))
+            return c.read(root/(s.jvm.prefix+'-stop.json'))
+        if name=='collect':
+            m.need(payload=={'physical':True} and s.jvm is not None and s.jvm.closed,'fault stopped collection scope')
+            m.need(not self.isolated or self.healed,'fault still isolated')
+            raw=s.root/'collection';raw.mkdir()
+            shutil.copytree(s.root/'store',raw/'store',ignore=shutil.ignore_patterns(s.current['commandId'],'executor.lock'))
+            for path in root.iterdir():
+                if path.name in ('agents','app-'+node) or path.name in ('node-1','node-2','node-3'):continue
+                m.need(not path.is_symlink(),'fault collection symlink')
+                if path.is_dir():shutil.copytree(path,raw/path.name)
+                else:shutil.copyfile(path,raw/path.name)
+            authority.capture(root,node,raw/'authority'/node)
+            return parts.pack(raw,s.root/'parts',m.sha(m.canonical(cfg['binding'])))
+        raise ValueError('unsupported owned fault command')

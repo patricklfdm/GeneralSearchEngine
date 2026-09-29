@@ -1,9 +1,11 @@
 # V5.1 Phase 6C3C19 — one owned three-mode healthy execution
 
-**Status:** implementation candidate on accepted PR #249 / master
-`7273f00ce8f291797c2d74cd9d830b4f993aaceb`. The previous configured slice passed
-exact-master CI `36523283002` attempt 2 (27 jobs). This integration needs its own
-protected native-UID Linux qualification and exact-master acceptance.
+**Status:** accepted through PR #250 at master
+`2f8da1d96a1080a4c8f29d89d71b984e10722b58`. Exact-master
+[CI 36534342886](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36534342886)
+attempt 2 passed all 27 jobs, including the native-UID three-mode qualification.
+Attempt 1 failed the separate rich healthy/concurrent timing gates. Original
+failed inputs remain retained; rerun success does not identify their cause.
 
 ## One request, one immutable source
 

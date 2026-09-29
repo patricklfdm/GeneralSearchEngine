@@ -28,7 +28,9 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False):
+    m.need(not fault_local or faults, 'shared local fault scope')
+    m.need(not faults or not any((three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)) and mode==package.MODES[2], 'fault qualification has its own scope')
     m.need(not three_mode or bootstrap and source_transfer and producer_source and workload and physical and backup,
            'three-mode qualification requires complete bootstrap/history/backup')
     m.need(mode in package.MODES and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
@@ -67,7 +69,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     return http.reply(dict(queryPath='hostkeys/',queryValue=dict(items=[dict(namespace='hostkeys',key='ssh-ed25519',value=server.host['publicKey'].split()[1])])))
                 return original(method,path,query,body)
             http.hook=hook
-            if bootstrap:
+            if bootstrap or faults and not fault_local:
                 from .guest_isolation import Views
                 from .guest_bootstrap_source import ViewSource
                 from .guest_owned_bootstrap import Bootstrap
@@ -112,13 +114,13 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     def lost_start(end): start(end); raise ConnectionError('discarded launch reply')
                     def lost_stop(end): shutdown(end); raise ConnectionError('discarded shutdown reply')
                     cl.start=lost_start; cl.shutdown=lost_stop
-                    if workload:
+                    if workload or faults:
                         submit=cl.submit
                         def lose_workload_reply(value,end):
                             workload_submits.append(dict(mode=config['mode'],node=config['binding']['node'],request=value))
                             answer=submit(value,end)
                             activate=(config['mode']==package.MODES[1] and value['command']=='fault' and value['payload']==dict(action='activate'))
-                            if value['command']=='window' or activate or backup and value['command'] in ('backup','restore-backup'):
+                            if faults or value['command']=='window' or activate or backup and value['command'] in ('backup','restore-backup'):
                                 lost_submissions.append(value['commandId'])
                                 raise ConnectionError('discarded original workload submission reply')
                             return answer
@@ -166,21 +168,28 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     return answer
                 ep.producer=lose_producer;return ep
             from . import guest_owned_three_mode as batch
-            service_type=batch.Services if three_mode else owned.Services
-            options={} if three_mode else dict(mode=mode,bootstrap=admitted_bootstrap)
+            from . import guest_owned_faults as fault_batch
+            service_type=fault_batch.Services if faults else batch.Services if three_mode else owned.Services
+            options={} if three_mode or faults else dict(mode=mode,bootstrap=admitted_bootstrap)
             services=service_type(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,
-                qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None,**options)
+                qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload or faults else None,**options)
+            if faults:receipt.update(mode=fault_batch.MODE,sourcePreparation='per-guest-public-empty-bootstrap')
             if three_mode:receipt.update(mode=batch.MODE,sourcePreparation='authenticated-shared-source')
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe
-            probe=(batch.Probe(services,root/'probe') if three_mode else Probe(services,root/'probe',physical=physical,backup=backup)) if workload else cloud_fake.Probe(root/'probe',clock)
+            probe=fault_batch.Probe(services,root/'probe') if faults else (batch.Probe(services,root/'probe') if three_mode else Probe(services,root/'probe',physical=physical,backup=backup)) if workload else cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
-                qualification=probe.scope if workload else None).run(req,pre,approval)
-            if workload:
+                qualification=probe.scope if workload or faults else None).run(req,pre,approval)
+            if workload or faults:
                 receipt.update(execution=probe.scope,engineWorkloadExecuted=result['engineWorkloadExecuted'],
                     backupRestoreQualified=result.get('evidence',{}).get('backupRestoreQualified',False),
                     physicalHistoryQualified=result.get('evidence',{}).get('physicalHistoryQualified',False),networkMapping='qualification-loopback',workload=result.get('evidence'))
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
+            if faults:
+                requests=[v['request'] for v in workload_submits]
+                m.need(len(requests)==len(lost_submissions)==len({r['commandId'] for r in requests}), 'fault command replay/lost reply coverage')
+                c.write_once(root/'workload-submissions.json',workload_submits)
+                receipt['workloadSubmitReplyLosses']=len(lost_submissions)
             if workload:
                 requests=[v['request'] for v in workload_submits]
                 m.need(len(lost_submissions)==(20 if three_mode else 5+2*int(backup)+int(mode==package.MODES[1])) and len({q['commandId'] for q in requests})==len(requests),
@@ -199,7 +208,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     local=[v for v in workload_submits if v['mode']==package.MODES[0]]
                     m.need(all(v['node']=='node-1' and v['request']['command']!='fault' for v in local),
                            'owned local single issuer/no replication control')
-            m.need([n for n,_,_ in services.clients]==([1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
+            m.need([n for n,_,_ in services.clients]==([1,2,3,1,2,3] if faults else [1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
                    all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
@@ -232,6 +241,13 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 if mode==package.MODES[0] or three_mode:
                     m.need(all(not (views.root/('node-'+str(n))/package.MODES[0]).exists() for n in (2,3)), 'owned local idle neighbours')
                 receipt['bootstrap']=completed
+            if faults:
+                for node,_,cfg in services.clients:
+                    cell=Path(cfg['root'])
+                    if views is not None:cell=views.root/('node-'+str(node))/cell.relative_to(views.cell)
+                    m.need((cell/('node-'+str(node))/'bootstrap-seal.gsr').is_file() and
+                           all(not (cell/('node-'+str(other))).exists() for other in (1,2,3) if other!=node),
+                           'owned fault live neighbour storage')
             if producer_source:
                 producer_root=(root/'startup/services'/package.MODES[0]/'bootstrap/producer/original') if three_mode else root/'startup/services/bootstrap/producer'
                 record=c.read(producer_root/'receipt.json');producer_nodes=(1,) if three_mode else nodes
@@ -241,8 +257,8 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                        record['readFailures']==len(producer_nodes),'producer original operation/read cardinality')
                 receipt['producerCalls']=counts
             receipt.update(status='PASS',tools=server.versions,packages=rows,services=len(services.clients),
-                qualifiedCells=result['evidence']['cells'] if workload else [],
-                modeledControlCells=[] if workload else result['evidence']['cells'],retainedObjects=len(http.objects),
+                qualifiedCells=result['evidence']['cells'] if workload or faults else [],
+                modeledControlCells=[] if workload or faults else result['evidence']['cells'],retainedObjects=len(http.objects),
                 reservedCostMicrousd=a.inspect_ledger(store.get(a.LEDGER)[1])[0],leaseReleased=result['leaseReleased'])
     except BaseException as error:
         receipt['failure']=dict(type=type(error).__name__,message=str(error)[:3000]); raise
@@ -279,10 +295,10 @@ if __name__=='__main__':
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
-    p.add_argument('--three-mode',action='store_true')
+    p.add_argument('--three-mode',action='store_true');p.add_argument('--faults',action='store_true');p.add_argument('--fault-local',action='store_true',help='Fault JVM/SSH qualification in separate local paths; no mount-isolation claim')
     p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local)
