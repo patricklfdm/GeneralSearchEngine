@@ -259,52 +259,18 @@ jobs:
           retention-days: 7
           compression-level: 1
 
-      - name: Qualify V5.1 owned healthy history and backup restore without GCP
+      - name: Qualify V5.1 owned three-mode healthy history and backup restore without GCP
         run: >-
-          timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
-          target/v51-owned-bootstrap --bundle target/v51-guest-package --source "$GITHUB_SHA"
-          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload --physical --backup
+          timeout --signal=TERM --kill-after=5s 2160s python3 -m scripts.v51.guest_owned_qualification
+          target/v51-owned-three-mode --bundle target/v51-guest-package --source "$GITHUB_SHA"
+          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload --physical --backup --three-mode
 
-      - name: Retain V5.1 owned bootstrap and consumed claims
+      - name: Retain V5.1 owned three-mode workload and consumed claims
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-owned-bootstrap-${{ github.sha }}
-          path: target/v51-owned-bootstrap
-          if-no-files-found: warn
-          retention-days: 7
-          compression-level: 1
-
-      - name: Qualify V5.1 owned configured healthy history and backup restore without GCP
-        run: >-
-          timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
-          target/v51-owned-configured --bundle target/v51-guest-package --source "$GITHUB_SHA"
-          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload
-          --mode published-v5.0-configured --physical --backup
-
-      - name: Retain V5.1 owned configured workload and consumed claims
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-owned-configured-${{ github.sha }}
-          path: target/v51-owned-configured
-          if-no-files-found: warn
-          retention-days: 7
-          compression-level: 1
-
-      - name: Qualify V5.1 owned published V4.4 healthy workload without GCP
-        run: >-
-          timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
-          target/v51-owned-v44 --bundle target/v51-guest-package --source "$GITHUB_SHA"
-          --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload
-          --mode published-v4.4-local
-
-      - name: Retain V5.1 owned V4.4 workload and consumed claims
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v51-owned-v44-${{ github.sha }}
-          path: target/v51-owned-v44
+          name: v51-owned-three-mode-${{ github.sha }}
+          path: target/v51-owned-three-mode
           if-no-files-found: warn
           retention-days: 7
           compression-level: 1

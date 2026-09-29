@@ -39,6 +39,19 @@ class SourceTransferTest(unittest.TestCase):
         return self.call('finish')
     def request(self):
         return dict(config=self.fixture.cfg,descriptorSha256=self.digest,sourceTransferSha256=m.sha(m.canonical(self.value)))
+    def test_mode_scoped_claim_does_not_replace_an_uncertain_previous_mode(self):
+        self.call('begin');first=wire.location(self.base,self.value['config'])
+        (first/'chunk-0000').mkdir(mode=0o700)
+        self.assertEqual(self.call('query')['state'],'UNCERTAIN')
+        second=deepcopy(self.value);cfg=second['config'];cfg['mode']='published-v4.4-local'
+        cfg['root']=str(Path(cfg['root']).parent/cfg['mode']);second['bootstrap']['config']=cfg
+        second['parts']['bindingSha256']=m.sha(m.canonical(cfg))
+        second['bootstrap']['partsSha256']=m.sha(m.canonical(second['parts']))
+        self.assertEqual(self.call('begin',value=second)['state'],'RECEIVING')
+        self.assertNotEqual(first,wire.location(self.base,cfg))
+        self.assertEqual(self.call('query')['state'],'UNCERTAIN')
+        self.assertEqual(c.read(first/'request.json'),self.value)
+
     def test_binary_install_needs_no_producer_path(self):
         final=self.send();self.assertEqual(final['state'],'SUCCEEDED')
         self.assertEqual(self.call('query'),final)
@@ -53,7 +66,7 @@ class SourceTransferTest(unittest.TestCase):
         self.assertEqual(wire.put(self.base,self.value,1,Unreadable(),lambda:None)['completedChunks'],0)
         self.call('chunk',self.chunk(row),0)
         self.assertEqual(wire.put(self.base,self.value,0,Unreadable(),lambda:None)['completedChunks'],1)
-        (wire.location(self.base)/'chunk-0001').mkdir(mode=0o700)
+        (wire.location(self.base,self.value['config'])/'chunk-0001').mkdir(mode=0o700)
         self.assertEqual(wire.put(self.base,self.value,1,Unreadable(),lambda:None)['state'],'UNCERTAIN')
         self.assertFalse(self.fixture.root.exists())
     def test_truncated_chunk_is_failed_consumed_and_does_not_import(self):
@@ -64,7 +77,7 @@ class SourceTransferTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'not complete'):self.fixture.call('install',self.request())
         self.assertFalse(self.fixture.root.exists())
     def test_source_stage_and_assembled_part_drift_cannot_reuse_success(self):
-        self.send();root=wire.location(self.base);path=root/'export/parts'/self.value['parts']['parts'][0]['name']
+        self.send();root=wire.location(self.base,self.value['config']);path=root/'export/parts'/self.value['parts']['parts'][0]['name']
         path.write_bytes(b'changed')
         with self.assertRaisesRegex(ValueError,'assembled part changed'):self.call('query')
         with self.assertRaises(ValueError):self.fixture.call('install',self.request())
@@ -75,18 +88,18 @@ class SourceTransferTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'boot changed'):self.call('begin')
         (self.base/'padding').write_bytes(b'changed')
         with self.assertRaises(ValueError):self.call('begin')
-        self.assertFalse(wire.location(self.base).exists())
+        self.assertFalse(wire.location(self.base,self.value['config']).exists())
     def test_wrong_config_or_digest_and_symlink_reject_before_import(self):
         self.send()
         wrong=dict(self.request(),sourceTransferSha256='0'*64)
         with self.assertRaisesRegex(ValueError,'identity'):self.fixture.call('install',wrong)
         wrong=deepcopy(self.value);wrong['config']['root']='/different'
         with self.assertRaises(ValueError):self.call('query',value=wrong)
-        stage=wire.location(self.base);original=stage/'request.json';original.rename(stage/'original.json');original.symlink_to(stage/'original.json')
+        stage=wire.location(self.base,self.value['config']);original=stage/'request.json';original.rename(stage/'original.json');original.symlink_to(stage/'original.json')
         with self.assertRaises(ValueError):self.call('query')
         self.assertFalse(self.fixture.root.exists())
     def test_receipt_identity_drift_is_rejected(self):
-        self.send();path=wire.location(self.base)/'finish/receipt.json';value=c.read(path);value['requestSha256']='0'*64;path.write_bytes(m.canonical(value))
+        self.send();path=wire.location(self.base,self.value['config'])/'finish/receipt.json';value=c.read(path);value['requestSha256']='0'*64;path.write_bytes(m.canonical(value))
         with self.assertRaisesRegex(ValueError,'identity'):self.call('query')
     def test_forged_expanded_digest_cannot_finish_or_start_import(self):
         self.value['bootstrap']['files']['hosts.txt']['sha256']='0'*64
@@ -110,7 +123,7 @@ class SourceTransferTest(unittest.TestCase):
             lambda v:v['chunks'][0].update(bytes=2<<20),lambda v:v['chunks'][0].update(sha256='bad')):
             value=deepcopy(self.value);mutate(value)
             with self.assertRaises(ValueError):wire.validate(value)
-        self.assertFalse(wire.location(self.base).exists())
+        self.assertFalse(wire.location(self.base,self.value['config']).exists())
     def endpoint(self,*,uncertain=False):
         test=self;calls=[]
         class Endpoint:

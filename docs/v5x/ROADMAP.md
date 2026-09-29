@@ -146,10 +146,16 @@ The [6C3C17 published V4.4 healthy control](v5.1/PHASE_6_OWNED_V44.md) is accept
 through PR #248, master `b6c055df306e9e8dbb155924fa4a834fe751e786`, exact-master CI
 `36514227052` attempt 2 (all 27 jobs). Attempt 1's V5.0 prerequisite-build failure
 remains recorded; retry success does not establish its cause.
-The [6C3C18 configured physical/backup candidate](v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
-connects retained 1.1 authority, original calls and independently restored backup
-bytes. Next qualify this slice, then complete three-mode preset integration and
-owned fault cells, followed by trusted preflight and separate V5.1 workflows.
+The [6C3C18 configured physical/backup evidence](v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
+was accepted through PR #249, master `7273f00ce8f291797c2d74cd9d830b4f993aaceb`,
+exact-master CI `36523283002` attempt 2 (all 27 jobs). Attempt 1's automatic-healthy
+rich shard failure remains recorded; retry success does not establish its cause.
+The [6C3C19 three-mode owned healthy candidate](v5.1/PHASE_6_OWNED_THREE_MODE.md)
+combines one reservation/topology, one authenticated immutable source, seven
+services, ordered 270-call execution, voter-close barriers and independent joint
+replay. Its native-UID Linux gate and exact-master acceptance remain pending.
+Next qualify this slice, then integrate owned experiment fault cells, followed by
+trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
