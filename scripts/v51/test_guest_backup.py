@@ -37,8 +37,8 @@ def payloads(state):
 
 
 class BackupFixture(HealthyFixture):
-    def __init__(self,root):
-        super().__init__(root)
+    def __init__(self,root,**kwargs):
+        super().__init__(root,**kwargs)
         manifest=m.strict_json(self.manifest)
         manifest['modes'][package.MODES[0]]=dict(jars=['artifacts/published.jar'],classes='classes-'+package.MODES[0],main=package.MAINS[package.MODES[0]])
         manifest['files'].append(dict(path='artifacts/published.jar',sha256='b'*64))
@@ -151,7 +151,7 @@ class BackupLifecycleTest(unittest.TestCase):
         (self.service.root/'window-healthy-warmup/result.json').unlink()
         with self.assertRaises(FileNotFoundError):backup.create(self.service)
         self.service.jvm.command.assert_not_called()
-        with self.assertRaisesRegex(ValueError,'stopped automatic'):backup.restore(self.service)
+        with self.assertRaisesRegex(ValueError,'stopped replicated'):backup.restore(self.service)
     def test_changed_export_prevents_restore(self):
         backup.create(self.service);self.service.jvm.closed=True
         (self.service.cell/'export'/backup.bootstrap.SOURCE[0]).write_bytes(b'changed')

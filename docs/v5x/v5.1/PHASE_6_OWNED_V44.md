@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C17 — owned published V4.4 healthy control
 
-**Status:** implementation candidate based on accepted PR #247, master
-`dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
-[36505526404](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36505526404)
-attempt 1 (all 27 jobs). This slice requires its own protected Linux qualification
-and exact-master acceptance; it does not complete the experiment preset.
+**Status:** accepted through PR #248, master
+`b6c055df306e9e8dbb155924fa4a834fe751e786`, exact-master CI
+[36514227052](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36514227052)
+attempt 2 (all 27 jobs), including protected owned Linux gates. Attempt 1's V5.0
+prerequisite-build failure remains recorded; retry success does not explain its
+cause. This slice does not complete the experiment preset.
 
 ## Scope and governing contracts
 
@@ -89,7 +90,7 @@ Mac checks do not establish Linux mount/JVM qualification. Initial Mac temporary
 directory and missing-`/proc` fixture failures are retained; resolved temporary
 paths and explicitly synthetic process metadata do not weaken live checks.
 
-Next qualify this bounded slice, then connect configured physical/backup evidence,
+The next [configured physical/backup candidate](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md) connects those evidence layers, before
 complete three-mode preset integration and owned fault cells. Native cloud IAP,
 trusted preflight and separate V5.1 workflows remain open. Paid execution continues
 to require its separate exact-request confirmation and user-triggered dispatch.

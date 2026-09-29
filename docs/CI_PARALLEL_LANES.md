@@ -653,3 +653,19 @@ queries. No election, activation or backup command is submitted. Source identity
 has no replication authority fields. Always retain `v51-owned-v44-${{ github.sha }}`;
 the automatic/configured gates, Required graph, deadlines and cost reservation
 remain unchanged. See the [V4.4 control scope](v5x/v5.1/PHASE_6_OWNED_V44.md).
+
+
+### Phase 6C3C18 configured physical/backup candidate
+
+PR #248 accepted the preceding V4.4 slice at master
+`b6c055df306e9e8dbb155924fa4a834fe751e786`, exact-master CI `36514227052`
+attempt 2 (27 successful jobs). Attempt 1's V5.0 prerequisite-build failure
+remains recorded without inferring a cause from retry success.
+
+The existing owned configured step adds `--physical --backup` within its unchanged
+720-second limit. It retains stopped 1.1 authority, independently qualifies actual
+forces/quorums/publications/original calls, and restores one final backup in a
+separate published V4.4 JVM. Ten physical negatives require exact reasons.
+Activation, all five windows, backup and restore use original-ID queries after
+lost replies. Artifact names, job graph, Required results and paid restrictions
+remain unchanged. See the [configured physical scope](v5x/v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md).

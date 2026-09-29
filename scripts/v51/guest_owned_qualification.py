@@ -30,7 +30,7 @@ class Clock:
 
 def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2]):
     m.need(mode in package.MODES and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
-    m.need(not physical or mode==package.MODES[2],'owned physical evidence requires automatic mode')
+    m.need(not physical or mode in package.MODES[1:],'owned physical evidence requires replicated mode')
     m.need(not backup or physical,'backup requires physical evidence')
     m.need(not physical or workload,'physical evidence requires owned workload')
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')

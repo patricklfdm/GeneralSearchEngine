@@ -190,7 +190,7 @@ class Service:
             backup=payload=={'physical':True,'backup':True}
             physical=payload=={'physical':True} or backup
             m.need(payload=={} or physical and type(payload['physical']) is bool and (not backup or type(payload['backup']) is bool) and self.jvm is not None and
-                   self.config['mode']==package.MODES[2], 'guest collection scope')
+                   self.config['mode'] in package.MODES[1:], 'guest collection scope')
             import shutil
             raw = self.root/'collection'; raw.mkdir()
             shutil.copytree(self.root/'store', raw/'store', ignore=shutil.ignore_patterns(self.current['commandId'], 'executor.lock'))
