@@ -78,6 +78,37 @@ class PreflightTest(unittest.TestCase):
     def test_changed_or_deprecated_image_blocks(self):
         for change in ({'id':'1'},{'status':'PENDING'},{'architecture':'ARM64'},{'deprecated':{'state':'DEPRECATED'}}):
             self.setUp();self.provider['observations']['image'].update(change);self.blocked('image')
+    def test_compute_resource_id_is_distinct_from_project_number(self):
+        project=self.provider['observations']['project']
+        project.update(id='5021569533786003310',name=self.cfg['provider']['project'])
+        for host in ('compute.googleapis.com','www.googleapis.com'):
+            with self.subTest(host=host):
+                project['selfLink']='https://'+host+'/compute/v1/projects/'+project['name']
+                self.assertNotEqual(project['id'],self.cfg['projectNumber'])
+                self.assertEqual(self.evaluate()['status'],'OBSERVATIONS_READY')
+    def test_compute_project_name_and_self_link_must_match(self):
+        base='https://compute.googleapis.com/compute/v1/projects/'+self.cfg['provider']['project']
+        for change in ({'name':'other-project'},{'selfLink':base+'-other'},
+                       {'selfLink':base.replace('compute.googleapis.com','example.com')},
+                       {'selfLink':None}):
+            with self.subTest(change=change):
+                self.setUp()
+                self.provider['observations']['project'].update(id=self.cfg['projectNumber'],selfLink=base)
+                self.provider['observations']['project'].update(change)
+                self.blocked('topology')
+        self.setUp();self.provider['observations']['project'].pop('selfLink',None);self.blocked('topology')
+    def test_compute_resource_id_must_still_be_numeric(self):
+        for value in ('', 'invalid', True, None):
+            with self.subTest(value=value):
+                self.setUp();self.provider['observations']['project']['id']=value;self.blocked('topology')
+    def test_bucket_project_number_binding_remains_required(self):
+        self.provider['observations']['bucket']['projectNumber']='123456789'
+        self.blocked('storagePolicy')
+    def test_disabled_private_google_access_remains_actionable(self):
+        self.provider['observations']['subnetwork']['privateIpGoogleAccess']=False
+        result=self.blocked('topology')
+        self.assertIn('Private Google Access',result['checks']['topology']['reason'])
+        self.assertIn('us-west4/default',result['checks']['topology']['reason'])
     def test_nan_bool_missing_and_duplicate_quota_rejected(self):
         for change in ({'limit':float('nan')},{'usage':True},{'limit':23}):
             self.setUp();self.provider['observations']['region']['quotas'][0].update(change);self.blocked('quota')

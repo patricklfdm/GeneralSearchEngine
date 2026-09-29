@@ -101,13 +101,18 @@ def check_provider(cfg, evidence):
         return dict(name=v['name'], id=v['id'])
     check('image', image)
     def topology():
-        m.need(o['project']['name'] == p['project'] and str(o['project']['id']) == cfg['projectNumber'], 'project identity')
+        base = 'https://compute.googleapis.com/compute/v1/projects/'+p['project']
+        project = o['project']
+        # Compute's resource ID is not the Cloud project number. Bind its name/link;
+        # the bucket response independently binds the configured project number.
+        gcp.numeric(project['id'])
+        m.need(project['name'] == p['project'] and gcp.link(project['selfLink']) == base, 'project identity')
         m.need(o['zone']['name'] == p['zone'] and o['zone']['status'] == 'UP', 'zone identity/status')
         m.need(o['machine']['name'] == p['machineType'] and o['machine']['guestCpus'] == 8 and o['machine']['memoryMb'] == 32768, 'machine shape')
-        base = 'https://compute.googleapis.com/compute/v1/projects/'+p['project']
         subnet = o['subnetwork']
         m.need(subnet['name'] == p['subnetwork'] and gcp.link(subnet['network']) == base+'/global/networks/'+p['network'] and
-               gcp.link(subnet['region']) == base+'/regions/'+p['region'] and subnet['privateIpGoogleAccess'] is True, 'private subnet/provider access')
+               gcp.link(subnet['region']) == base+'/regions/'+p['region'], 'subnet identity')
+        m.need(subnet['privateIpGoogleAccess'] is True, 'Private Google Access disabled on subnet '+p['region']+'/'+p['subnetwork'])
         return dict(voters=3, vcpus=24, diskGiB=450)
     check('topology', topology)
     def capacity():

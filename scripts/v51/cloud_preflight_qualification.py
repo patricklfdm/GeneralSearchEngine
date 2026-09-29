@@ -24,7 +24,7 @@ def fixture():
     def quotas(values):return [dict(metric=k, limit=v, usage=0) for k,v in values.items()]
     base = 'https://compute.googleapis.com/compute/v1/projects/'+v['project']
     raw = dict(principal=cfg['observerServiceAccount'],
-        project=dict(name=v['project'],id=cfg['projectNumber'],quotas=quotas({'CPUS_ALL_REGIONS':24,'FIREWALLS':4})),
+        project=dict(name=v['project'],id='5021569533786003310',selfLink=base,quotas=quotas({'CPUS_ALL_REGIONS':24,'FIREWALLS':4})),
         region=dict(name=v['region'],quotas=quotas({'N2_CPUS':24,'CPUS':24,'SSD_TOTAL_GB':450})),
         zone=dict(name=v['zone'],status='UP'),machine=dict(name=v['machineType'],guestCpus=8,memoryMb=32768),
         image=dict(name=v['imageName'],id=v['imageId'],status='READY',architecture='X86_64'),
@@ -72,6 +72,9 @@ def run(output):
         'skipped-ci':lambda g,v:g['observations']['jobs'][0].update(conclusion='skipped'),
         'different-attempt':lambda g,v:g['observations']['jobs'][0].update(run_attempt=1),
         'master-moved':lambda g,v:g['observations'].update(masterAfter='b'*40),
+        'foreign-compute-project':lambda g,v:v['observations']['project'].update(selfLink='https://compute.googleapis.com/compute/v1/projects/other-project'),
+        'foreign-bucket-project':lambda g,v:v['observations']['bucket'].update(projectNumber='123456789'),
+        'private-access-disabled':lambda g,v:v['observations']['subnetwork'].update(privateIpGoogleAccess=False),
         'changed-image':lambda g,v:v['observations']['image'].update(id='1'),
         'insufficient-quota':lambda g,v:v['observations']['region']['quotas'][0].update(usage=1),
         'foreign-observer':lambda g,v:v['observations'].update(principal='other'),

@@ -78,6 +78,30 @@ synthetic authority preflight, and `cloud_authority.admit` rejects it. Missing
 authentication still yields a retained BLOCKED report and summary when checkout
 and dispatch identity verification completed.
 
+## First live observation and identity correction
+
+[Preflight 36631676728](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36631676728)
+ran on PR #253 master `739e1e7fb75f007af37aa78cb7d62105977ef682` after the
+operator-authorized observer setup. Authentication, all provider GETs, exact-source
+CI (29 jobs), image, quota, storage policy and control state checks succeeded.
+The report blocked on `topology: project identity`.
+
+The checker incorrectly compared Compute Project `id` (`5021569533786003310`)
+with the Cloud project number (`266952534277`). The [Compute Project API](https://docs.cloud.google.com/compute/docs/reference/rest/v1/projects)
+defines this as a Compute resource identifier; `name` identifies the project.
+The correction validates a numeric resource ID and exact project name/self-link,
+accepting Google's two Compute URL hosts through the existing link normalization.
+The bucket's independent `projectNumber` check remains required. Fixtures now use
+distinct identifiers; foreign names/links and bucket project numbers still block.
+
+The same retained response also reports `privateIpGoogleAccess=false` on
+`us-west4/default`. Corrected replay must still block on that real configuration
+requirement, with an explicit Private Google Access diagnostic. Enabling this
+shared subnet setting needs separate operator authorization from observer setup;
+it is not an observer permission change. See [Private Google Access configuration](https://docs.cloud.google.com/vpc/docs/configure-private-google-access).
+Historical replay does not refresh observations or authorize a cloud experiment.
+Corrected-source protected CI and a fresh user-triggered preflight remain required.
+
 ## Observer configuration proposal
 
 ```bash
@@ -107,7 +131,7 @@ scripts/verify-v51-phase6-cloud-preflight.sh
 ```
 
 The offline gate retains real adapter GET requests, source/job observations and
-ten rejected mutations. Unit regressions additionally cover every job/attempt,
+thirteen rejected mutations. Unit regressions additionally cover every job/attempt,
 missing/duplicate jobs, rerun/readback races, source/config drift, missing auth,
 expired receipts, nonfinite quotas, stale/foreign lease/ledger, retained failed
 charges, premature deletion and isolated observer proposals. Both manual entry
