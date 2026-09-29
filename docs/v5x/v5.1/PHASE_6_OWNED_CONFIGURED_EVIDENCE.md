@@ -1,11 +1,12 @@
 # V5.1 Phase 6C3C18 — owned configured physical evidence and backup
 
-**Status:** implementation candidate on PR #248 / master
-`b6c055df306e9e8dbb155924fa4a834fe751e786`. The earlier V4.4 logical slice passed
-exact-master CI [36514227052](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36514227052)
-attempt 2, all 27 jobs. Attempt 1's V5.0 prerequisite-build failure remains recorded;
-the successful retry does not establish its cause. This slice requires its own
-protected Linux qualification and exact-master acceptance.
+**Status:** accepted through PR #249 / master
+`7273f00ce8f291797c2d74cd9d830b4f993aaceb`, exact-master CI
+[36523283002](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36523283002)
+attempt 2, all 27 jobs, including the owned configured history/backup step.
+Attempt 1's automatic-healthy rich shard failure remains recorded; retry success
+does not establish its cause. The subsequent unified healthy integration is
+tracked separately in [6C3C19](PHASE_6_OWNED_THREE_MODE.md).
 
 ## Execution boundary
 
@@ -70,7 +71,7 @@ graph, artifact name, upload policy or Required dependencies. It exercises origi
 activation/window/backup/restore reply loss through authenticated SSH and three
 native-UID mount views. Portable local SSH replay is useful but does not establish
 that protected filesystem isolation. Local receipts and retained failure logs live
-under `target/v51-configured-evidence`; corrected-source protected CI remains required.
+under `target/v51-configured-evidence`; protected acceptance is recorded above.
 
 No Java runtime, POM, published artifact pin or frozen workload parameter changes.
 Provider/account/block observations remain modeled. `fullRemoteQualification=false`

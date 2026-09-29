@@ -28,7 +28,9 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2]):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False):
+    m.need(not three_mode or bootstrap and source_transfer and producer_source and workload and physical and backup,
+           'three-mode qualification requires complete bootstrap/history/backup')
     m.need(mode in package.MODES and (mode==package.MODES[2] or workload),'owned qualification mode/scope')
     m.need(not physical or mode in package.MODES[1:],'owned physical evidence requires replicated mode')
     m.need(not backup or physical,'backup requires physical evidence')
@@ -113,9 +115,9 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     if workload:
                         submit=cl.submit
                         def lose_workload_reply(value,end):
-                            workload_submits.append(dict(node=config['binding']['node'],request=value))
+                            workload_submits.append(dict(mode=config['mode'],node=config['binding']['node'],request=value))
                             answer=submit(value,end)
-                            activate=(mode==package.MODES[1] and value['command']=='fault' and value['payload']==dict(action='activate'))
+                            activate=(config['mode']==package.MODES[1] and value['command']=='fault' and value['payload']==dict(action='activate'))
                             if value['command']=='window' or activate or backup and value['command'] in ('backup','restore-backup'):
                                 lost_submissions.append(value['commandId'])
                                 raise ConnectionError('discarded original workload submission reply')
@@ -141,15 +143,17 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 original_source=ep.source; source_lost=set()
                 def lose_source(action,request,data,end,index=None):
                     if producer_source and not receipt['producerPathsHidden']:
-                        record=c.read(root/'startup/services/bootstrap/producer/receipt.json')
-                        m.need(record['status']=='PASS' and len(record['exports'])==len(nodes),'producer download barrier')
+                        producer_root=(root/'startup/services'/package.MODES[0]/'bootstrap/producer/original') if three_mode else root/'startup/services/bootstrap/producer'
+                        record=c.read(producer_root/'receipt.json')
+                        m.need(record['status']=='PASS' and len(record['exports'])==(1 if three_mode else len(nodes)),'producer download barrier')
                         first=endpoints[0].value
                         producer=views.root/'node-1'/(first['binding']['attempt']+'-node-1')/'source-producer'
                         (producer/'exports').rename(producer/'hidden-exports')
                         receipt['producerPathsHidden']=True
                     answer=original_source(action,request,data,end,index)
-                    if (action in ('begin','finish') or action=='chunk' and index==0) and action not in source_lost:
-                        source_lost.add(action);raise ConnectionError('discarded completed source reply')
+                    key=(request['config']['mode'],action)
+                    if (action in ('begin','finish') or action=='chunk' and index==0) and key not in source_lost:
+                        source_lost.add(key);raise ConnectionError('discarded completed source reply')
                     return answer
                 ep.source=lose_source
                 original_producer=ep.producer;read_lost=set()
@@ -161,11 +165,15 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                         error.partial_output=answer[:len(answer)//2];raise error
                     return answer
                 ep.producer=lose_producer;return ep
-            services=owned.Services(provider,bundle/'guest.tar.gz',endpoint,mode=mode,qualification_mounts=mounts,bootstrap=admitted_bootstrap,
-                qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None)
+            from . import guest_owned_three_mode as batch
+            service_type=batch.Services if three_mode else owned.Services
+            options={} if three_mode else dict(mode=mode,bootstrap=admitted_bootstrap)
+            services=service_type(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,
+                qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload else None,**options)
+            if three_mode:receipt.update(mode=batch.MODE,sourcePreparation='authenticated-shared-source')
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe
-            probe=Probe(services,root/'probe',physical=physical,backup=backup) if workload else cloud_fake.Probe(root/'probe',clock)
+            probe=(batch.Probe(services,root/'probe') if three_mode else Probe(services,root/'probe',physical=physical,backup=backup)) if workload else cloud_fake.Probe(root/'probe',clock)
             result=cloud_runner.Runner(store,provider,probe,root/'controller',clock=clock.nanos,wall=clock.wall,startup=startup,
                 qualification=probe.scope if workload else None).run(req,pre,approval)
             if workload:
@@ -175,55 +183,62 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
             if workload:
                 requests=[v['request'] for v in workload_submits]
-                m.need(len(lost_submissions)==5+2*int(backup)+int(mode==package.MODES[1]) and len({q['commandId'] for q in requests})==len(requests),
+                m.need(len(lost_submissions)==(20 if three_mode else 5+2*int(backup)+int(mode==package.MODES[1])) and len({q['commandId'] for q in requests})==len(requests),
                        'owned workload submission replay/cardinality')
                 activations=[v for v in workload_submits if v['request']['command']=='fault' and v['request']['payload']==dict(action='activate')]
-                m.need(len(activations)==int(mode==package.MODES[1]) and
+                m.need(len(activations)==(1 if three_mode else int(mode==package.MODES[1])) and
                        (not activations or activations[0]['node']=='node-1'), 'owned configured activation owner/cardinality')
                 for command in ('backup','restore-backup'):
                     submitted=[v for v in workload_submits if v['request']['command']==command]
-                    m.need(len(submitted)==int(backup) and (not backup or submitted[0]['node']=='node-'+str(probe.active[0])),
+                    m.need(len(submitted)==(2 if three_mode else int(backup)) and
+                           all(v['node']=='node-'+str((probe.probes[v['mode']] if three_mode else probe).active[0]) for v in submitted),
                            'owned backup/restore submission owner/cardinality')
                 c.write_once(root/'workload-submissions.json',workload_submits)
                 receipt['workloadSubmitReplyLosses']=len(lost_submissions)
-                if mode==package.MODES[0]:
-                    m.need(all(v['node']=='node-1' and v['request']['command']!='fault' for v in workload_submits),
+                if mode==package.MODES[0] or three_mode:
+                    local=[v for v in workload_submits if v['mode']==package.MODES[0]]
+                    m.need(all(v['node']=='node-1' and v['request']['command']!='fault' for v in local),
                            'owned local single issuer/no replication control')
-            m.need([n for n,_,_ in services.clients]==list(nodes) and len(endpoints)==len(nodes) and
+            m.need([n for n,_,_ in services.clients]==([1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
                    all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
                 counts={key:sum(v['action']==key for v in ep.calls) for key in ('clock','begin','part','finish','query')}
                 m.need(counts==dict(clock=1,begin=1,part=len(ep.value['parts']),finish=1,query=2),'owned package write/query cardinality')
                 rows.append(dict(node=ep.value['binding']['node'],archiveBytes=ep.value['archiveBytes'],calls=counts))
+                uses=(3 if ep.value['binding']['node']=='node-1' else 2) if three_mode else 1
                 if bootstrap:
                     for phase in ('install','seal'):
-                        m.need(sum(v['action']=='bootstrap-'+phase for v in ep.calls)==1 and
-                               sum(v['action']=='bootstrap-query-'+phase for v in ep.calls)==2,'owned bootstrap write/query cardinality')
+                        m.need(sum(v['action']=='bootstrap-'+phase for v in ep.calls)==uses and
+                               sum(v['action']=='bootstrap-query-'+phase for v in ep.calls)==2*uses,'owned bootstrap write/query cardinality')
                 if source_transfer:
-                    n=ep.value['binding']['node'];record=c.read(root/f'startup/services/bootstrap/{n}-transfer/descriptor.json')
+                    n=ep.value['binding']['node']
+                    folders=[g.root/'bootstrap' for g in services.groups.values() if n in ['node-'+str(i) for i,_,_ in g.clients]] if three_mode else [root/'startup/services/bootstrap']
+                    chunks=sum(len(c.read(f/(n+'-transfer/descriptor.json'))['chunks']) for f in folders)
                     counts={k:sum(v['action']=='source-'+k for v in ep.calls) for k in ('begin','chunk','finish','query')}
-                    m.need(counts==dict(begin=1,chunk=len(record['chunks']),finish=1,query=4),'owned source write/query cardinality')
+                    m.need(counts==dict(begin=uses,chunk=chunks,finish=uses,query=4*uses),'owned source write/query cardinality')
                     rows[-1]['sourceCalls']=counts
             if bootstrap:
                 from . import guest_bootstrap as boot
-                completed=c.read(root/'startup/services/bootstrap/receipt.json')
-                m.need(completed['status']=='PASS' and len(completed['members'])==len(nodes),'owned local bootstrap completion')
+                groups=list(services.groups.values()) if three_mode else [services]
+                completed=[c.read(g.root/'bootstrap/receipt.json') for g in groups]
+                m.need(all(v['status']=='PASS' and len(v['members'])==len(g.clients) for v,g in zip(completed,groups)),'owned local bootstrap completion')
                 for node,_,cfg in services.clients:
                     cell=views.root/('node-'+str(node))/Path(cfg['root']).relative_to(views.cell)
                     m.need((cell/boot.LOCAL_READY).is_file() and all(not (cell/('node-'+str(other))).exists() for other in (1,2,3) if other!=node),
                            'owned bootstrap live neighbour storage')
-                    if mode==package.MODES[0]:
+                    if cfg['mode']==package.MODES[0]:
                         m.need(not any((cell/('node-'+str(n))).exists() for n in (1,2,3)), 'owned local replication storage')
-                if mode==package.MODES[0]:
-                    m.need(all(not (views.root/('node-'+str(n))/mode).exists() for n in (2,3)), 'owned local idle neighbours')
+                if mode==package.MODES[0] or three_mode:
+                    m.need(all(not (views.root/('node-'+str(n))/package.MODES[0]).exists() for n in (2,3)), 'owned local idle neighbours')
                 receipt['bootstrap']=completed
             if producer_source:
-                record=c.read(root/'startup/services/bootstrap/producer/receipt.json')
-                expected=sum(len(c.read(root/f'startup/services/bootstrap/producer/node-{n}-descriptor.json')['chunks']) for n in nodes)
+                producer_root=(root/'startup/services'/package.MODES[0]/'bootstrap/producer/original') if three_mode else root/'startup/services/bootstrap/producer'
+                record=c.read(producer_root/'receipt.json');producer_nodes=(1,) if three_mode else nodes
+                expected=sum(len(c.read(producer_root/f'node-{n}-descriptor.json')['chunks']) for n in producer_nodes)
                 counts={k:sum(v['action']=='producer-'+k for v in endpoints[0].calls) for k in ('prepare','query','manifest','chunk')}
-                m.need(counts==dict(prepare=1,query=2,manifest=len(nodes),chunk=expected+len(nodes)) and
-                       record['readFailures']==len(nodes),'producer original operation/read cardinality')
+                m.need(counts==dict(prepare=1,query=2,manifest=len(producer_nodes),chunk=expected+len(producer_nodes)) and
+                       record['readFailures']==len(producer_nodes),'producer original operation/read cardinality')
                 receipt['producerCalls']=counts
             receipt.update(status='PASS',tools=server.versions,packages=rows,services=len(services.clients),
                 qualifiedCells=result['evidence']['cells'] if workload else [],
@@ -264,9 +279,10 @@ if __name__=='__main__':
     p.add_argument('--producer-source',action='store_true')
     p.add_argument('--workload',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
+    p.add_argument('--three-mode',action='store_true')
     p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode)

@@ -62,7 +62,9 @@ def describe(folder, digest, config):
     return validate(dict(schema=SCHEMA,config=config,bootstrap=seed,parts=manifest,chunks=chunks))
 
 
-def location(base): return Path(base).parent/'source-transfer'
+def location(base,config):
+    guest.validate(config)
+    return Path(base).parent/('source-transfer-'+config['mode'])
 def read(path, maximum=METADATA_BYTES): return files.decode(files.read(path,os.getuid(),maximum))
 def exists(path): return path.exists() or path.is_symlink()
 def envelope(value,state,count=0,**extra):
@@ -95,7 +97,7 @@ def check_archive(folder,value):
 
 
 def query(base,value,check):
-    validate(value);check();root=location(base)
+    validate(value);check();root=location(base,value['config'])
     if not exists(root):return envelope(value,'NOT_FOUND')
     files.owned(root,os.getuid(),True)
     if not exists(root/'request.json'):return envelope(value,'UNCERTAIN')
@@ -131,7 +133,7 @@ def query(base,value,check):
 def begin(base,value,check):
     answer=query(base,value,check)
     if answer['state']!='NOT_FOUND':return answer
-    root=location(base)
+    root=location(base,value['config'])
     try:root.mkdir(mode=0o700)
     except FileExistsError:return query(base,value,check)
     files.sync(root.parent);files.publish(root/'request.json',value);return query(base,value,check)
@@ -141,7 +143,7 @@ def put(base,value,index,stream,check):
     m.need(type(index) is int and 0<=index<len(value['chunks']),'source chunk index')
     answer=query(base,value,check)
     if answer['state']!='RECEIVING' or answer['completedChunks']!=index:return answer
-    root=location(base);folder=root/('chunk-%04d'%index);chunk=value['chunks'][index]
+    root=location(base,value['config']);folder=root/('chunk-%04d'%index);chunk=value['chunks'][index]
     try:folder.mkdir(mode=0o700)
     except FileExistsError:return query(base,value,check)
     files.sync(root)
@@ -156,7 +158,7 @@ def put(base,value,index,stream,check):
 def finish(base,value,check):
     answer=query(base,value,check)
     if answer['state']!='READY':return answer
-    root=location(base)
+    root=location(base,value['config'])
     try:(root/'finish').mkdir(mode=0o700)
     except FileExistsError:return query(base,value,check)
     files.sync(root)
@@ -179,7 +181,7 @@ def finish(base,value,check):
 
 
 def received(base,config,digest,check):
-    root=location(base);value=read(root/'request.json')
+    root=location(base,config);value=read(root/'request.json')
     m.need(value['config']==config and m.sha(m.canonical(value['bootstrap']))==digest,'source installed request identity')
     m.need(query(base,value,check)['state']=='SUCCEEDED','source transfer not complete')
     return root/'export'

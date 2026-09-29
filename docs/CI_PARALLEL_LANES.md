@@ -669,3 +669,27 @@ separate published V4.4 JVM. Ten physical negatives require exact reasons.
 Activation, all five windows, backup and restore use original-ID queries after
 lost replies. Artifact names, job graph, Required results and paid restrictions
 remain unchanged. See the [configured physical scope](v5x/v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md).
+
+### Phase 6C3C19 unified owned healthy candidate
+
+C18 was accepted by PR #249 / master `7273f00ce8f291797c2d74cd9d830b4f993aaceb`,
+CI `36523283002` attempt 2 (27 jobs). Attempt 1's automatic-healthy rich shard
+failure is retained; its cause is not inferred from retry success.
+
+The [three-mode integration](v5x/v5.1/PHASE_6_OWNED_THREE_MODE.md) replaces the
+three owned healthy commands (automatic, configured, V4.4) in foundation/runtime
+with one `guest_owned_qualification --three-mode` invocation. Its 2160-second
+outer bound equals the previous three 720-second bounds combined. One original
+600-second preparation, 900-second healthy category, 300-second per-mode ceiling
+including close, and 600-second validation/retention stage now govern the whole
+set. No measured window or workload retry changes.
+
+The single always-run `v51-owned-three-mode-${sha}` artifact replaces
+`v51-owned-bootstrap-${sha}`, `v51-owned-configured-${sha}` and
+`v51-owned-v44-${sha}` for these gates. It contains all seven guest backings,
+per-mode consumed claims, shared source, original raw collections and aggregate
+replay. Original reply-loss, physical/history negatives, backup/restore and clean
+shutdown checks remain active. The preliminary owned idle-service gate and
+independent filesystem-bootstrap gate remain separate. Required jobs, docs-only
+outcomes and paid-cloud behavior are unchanged. Corrected-source protected CI
+and exact-master acceptance remain pending.

@@ -31,7 +31,7 @@ class Probe:
         self.root.mkdir(parents=True,mode=0o700); self.raw=self.root/'raw';self.raw.mkdir(mode=0o700)
         self.clients=[];self.started=[];self.transcripts={};self.active=None;self.cells=[]
         self.attempted=False;self.engineWorkloadExecuted=False;self.stopped=False;self.prepared=False
-        self.command_count=0;self.stop_attempted=set()
+        self.command_count=0;self.stop_attempted=set();self.stop_errors=[]
         self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=a.validate_request(services.provider.req))))
 
     def execute(self, member, name, payload, deadline):
@@ -41,6 +41,7 @@ class Probe:
         request=c.request(cfg['binding'],uuid.uuid4().hex,name,payload)
         folder=self.raw/'commands'/str(node)/request['commandId'];folder.mkdir(parents=True,mode=0o700)
         c.write_once(folder/'request.json',dict(config=cfg,request=request))
+        start=int(self.clock()*10**9)
         try:
             receipt=c.submit_and_observe(client,request,deadline,clock=self.clock,sleep=self.sleep)
             c.write_once(folder/'receipt.json',receipt)
@@ -48,6 +49,8 @@ class Probe:
             return receipt
         except (Exception,KeyboardInterrupt) as error:
             c.write_once(folder/'failure.json',dict(type=type(error).__name__,message=str(error)[:2000]));raise
+        finally:
+            c.write_once(folder/'observation.json',dict(startNanos=start,endNanos=int(self.clock()*10**9)))
 
     def succeeded(self, member, name, payload, deadline):
         result=self.execute(member,name,payload,deadline)
@@ -122,15 +125,19 @@ class Probe:
         # Close the JVMs under Runner's validation-retention deadline below.
         self.stopped=True
 
+    def close_voters(self, deadline):
+        # Reuse the original result, including failure. Never retry a stop mutation.
+        for member in self.started:
+            if member[0] in self.stop_attempted:continue
+            self.stop_attempted.add(member[0])
+            try:self.succeeded(member,'stop-voter',dict(forced=False),deadline)
+            except (Exception,KeyboardInterrupt) as error:
+                self.stop_errors.append(dict(node=member[0],phase='stop',message=str(error)[:2000]))
+        return list(self.stop_errors)
+
     def collect_validate(self, output, deadline):
         m.need(self.stopped,'owned workload collection before stop')
-        end=deadline/10**9;errors=[];members=[];physical_members=[];physical=None
-        for member in self.started:
-            try:
-                m.need(member[0] not in self.stop_attempted,'owned voter stop consumed')
-                self.stop_attempted.add(member[0])
-                self.succeeded(member,'stop-voter',dict(forced=False),end)
-            except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=member[0],phase='stop',message=str(error)[:2000]))
+        end=deadline/10**9;errors=list(self.close_voters(end));members=[];physical_members=[];physical=None
         if self.require_backup and self.active is not None and self.cells==['healthy'] and not errors:
             try:self.succeeded(self.active,'restore-backup',{},end)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=self.active[0],phase='restore',message=str(error)[:2000]))

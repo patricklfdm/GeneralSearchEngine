@@ -20,7 +20,7 @@ SOURCE_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('t
 class Services:
     offline = True
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None):
+                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         self.mode, self.clock, self.sleep = mode, clock, sleep
@@ -31,6 +31,7 @@ class Services:
         m.need(qualification_hosts is None or qualification_hosts==['127.0.0.2','127.0.0.3','127.0.0.4'], 'owned qualification host mapping')
         self.hosts=deepcopy(qualification_hosts)
         m.need(bootstrap is None or bootstrap.offline is True, 'live owned bootstrap disabled')
+        self.deliver=deliver
         self.bootstrap=bootstrap; self.clients = []; self.root = None
 
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
@@ -77,7 +78,7 @@ class Services:
             for i, endpoint in enumerate(endpoints):
                 check(i,'delivery'); record = dict(descriptor=descriptors[i], status='FAIL')
                 try:
-                    record['receipt'] = delivery.deliver(endpoint,self.archive,deadline); record['status']='PASS'
+                    record['receipt'] = self.deliver(endpoint,self.archive,deadline); record['status']='PASS'
                 finally:
                     record.update(deadline=endpoint.budget,calls=endpoint.calls,failures=endpoint.failures)
                     c.write_once(self.root/f'node-{i+1}-package.json',record,maximum=262144)
@@ -150,7 +151,7 @@ class Services:
         c.directory(self.root)
         allowed=FILES | (BOOTSTRAP_FILES if self.bootstrap is not None else set())
         if self.bootstrap is not None and getattr(self.bootstrap,'delivery',None) is not None:allowed |= SOURCE_FILES
-        if self.bootstrap is not None and getattr(getattr(self.bootstrap,'source',None),'scope',None)=='authenticated-producer-download':
+        if self.bootstrap is not None and getattr(getattr(self.bootstrap,'source',None),'scope',None) in ('authenticated-producer-download','authenticated-shared-source'):
             allowed |= {'node-1-check-produced.json'}
         for path in sorted(self.root.iterdir()):
             if path.name=='bootstrap' and self.bootstrap is not None:

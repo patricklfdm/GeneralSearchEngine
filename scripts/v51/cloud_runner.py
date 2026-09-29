@@ -101,7 +101,9 @@ class Runner:
         self.generation = None
         if startup is not None: m.need(startup.execution == a.EXECUTION, 'unqualified startup adapter')
         self.startup = startup
-        from .guest_owned_workload import SCOPES
+        from .guest_owned_workload import SCOPES as singles
+        from .guest_owned_three_mode import MODE, SCOPE
+        SCOPES={**singles,MODE:SCOPE}
         m.need((qualification is None and getattr(probe,'scope',None) not in SCOPES.values()) or
                qualification in SCOPES.values() and getattr(probe,'scope',None)==qualification and
                SCOPES.get(getattr(probe,'mode',None))==qualification and

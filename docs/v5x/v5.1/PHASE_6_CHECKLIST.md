@@ -85,10 +85,16 @@ The [6C3C17 published V4.4 healthy control](PHASE_6_OWNED_V44.md) is accepted
 through PR #248, master `b6c055df306e9e8dbb155924fa4a834fe751e786`, exact-master CI
 `36514227052` attempt 2 (all 27 jobs). Attempt 1's V5.0 prerequisite-build failure
 remains recorded; retry success does not establish its cause.
-The [6C3C18 configured physical/backup candidate](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
-connects retained 1.1 authority, original calls and independently restored backup
-bytes. Next qualify this slice, then complete three-mode preset integration and
-owned fault cells, followed by trusted preflight and separate V5.1 workflows.
+The [6C3C18 configured physical/backup evidence](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
+was accepted through PR #249, master `7273f00ce8f291797c2d74cd9d830b4f993aaceb`,
+exact-master CI `36523283002` attempt 2 (all 27 jobs). Attempt 1's automatic-healthy
+rich shard failure remains recorded; retry success does not establish its cause.
+The [6C3C19 three-mode owned healthy candidate](PHASE_6_OWNED_THREE_MODE.md)
+combines one reservation/topology, one authenticated immutable source, seven
+services, ordered 270-call execution, voter-close barriers and independent joint
+replay. Its native-UID Linux gate and exact-master acceptance remain pending.
+Next qualify this slice, then integrate owned experiment fault cells, followed by
+trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -163,8 +169,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C17 implementation candidate: [owned V4.4 healthy tape](PHASE_6_OWNED_V44.md), one authenticated source/issuer and independently replayed 90-call published control.
 - [x] 6C3C17 protected acceptance: PR #248 / CI `36514227052` attempt 2 (27 jobs).
 - [x] 6C3C18 implementation candidate: [configured physical/backup evidence](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md).
-- [ ] 6C3C18 protected Linux qualification and exact-master acceptance.
-- [ ] Remaining owned healthy controls: complete three-mode preset integration.
+- [x] 6C3C18 protected acceptance: PR #249 / CI `36523283002` attempt 2 (27 jobs).
+- [x] 6C3C19 implementation candidate: [one-lease three-mode healthy integration](PHASE_6_OWNED_THREE_MODE.md).
+- [ ] 6C3C19 protected Linux qualification and exact-master acceptance.
+- [ ] Complete owned experiment preset, including leader-loss and no-quorum fault cells.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
