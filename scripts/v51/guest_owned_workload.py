@@ -1,7 +1,7 @@
 """One complete experiment healthy tape on already admitted services.
 
 Offline qualification only: provider/block facts remain fixtures. Physical replay
-is automatic-only; faults and paid acceptance stay open.
+supports both replicated modes; faults and paid acceptance stay open.
 """
 from pathlib import Path
 import os
@@ -25,7 +25,7 @@ class Probe:
                'owned workload requires offline mode/bootstrap')
         self.mode=services.mode;self.scope=SCOPES[self.mode]
         self.nodes=package.experiment_nodes(self.mode)
-        m.need(type(physical) is bool and (not physical or self.mode==package.MODES[2]),'owned physical scope');self.require_physical=physical
+        m.need(type(physical) is bool and (not physical or self.mode in package.MODES[1:]),'owned physical scope');self.require_physical=physical
         m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
         self.root.mkdir(parents=True,mode=0o700); self.raw=self.root/'raw';self.raw.mkdir(mode=0o700)
@@ -110,7 +110,7 @@ class Probe:
                 if self.require_backup:self.succeeded(self.active,'backup',{},end)
                 from .guest_physical_evidence import converge
                 converge(self.clients,self.active,lambda member,until:self.succeeded(member,'fault',dict(action='status'),until)['result']['status'],
-                         end,clock=self.clock,sleep=self.sleep)
+                         end,mode=self.mode,clock=self.clock,sleep=self.sleep)
             self.cells.append(name);record['status']='EXECUTED'
         finally:
             record['endedNanos']=int(self.clock()*10**9)

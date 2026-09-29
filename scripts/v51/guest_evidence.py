@@ -128,7 +128,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
            'guest evidence package binding')
     m.need(type(transcript) is list and transcript, 'guest controller transcript absent')
     names = retained(root,transcript[-1]['receipt']['result'],config['binding'])
-    m.need(type(physical) is bool and (not physical or healthy and config['mode']==package.MODES[2]), 'guest physical scope')
+    m.need(type(physical) is bool and (not physical or healthy and config['mode'] in package.MODES[1:]), 'guest physical scope')
     m.need(type(backup) is bool and (not backup or physical and active), 'guest backup scope')
     rows, service = commands(root,config,transcript,physical=physical,backup=backup)
     m.need(backup or all(q['command'] not in ('backup','restore-backup') for q,_ in rows), 'guest unrequested backup/restore')

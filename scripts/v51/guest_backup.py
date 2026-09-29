@@ -11,8 +11,8 @@ def exported(cell):
 
 
 def create(service):
-    m.need(service.config['mode']==package.MODES[2] and service.jvm is not None and not service.jvm.closed,
-           'guest backup requires live automatic voter')
+    m.need(service.config['mode'] in package.MODES[1:] and service.jvm is not None and not service.jvm.closed,
+           'guest backup requires live replicated voter')
     # A new command ID cannot repeat the backup, including after a lost result.
     for spec in schedule.windows('healthy','experiment'):
         value=c.read(service.root/('window-healthy-'+spec['window'])/'result.json')
@@ -27,8 +27,8 @@ def create(service):
 
 
 def restore(service):
-    m.need(service.config['mode']==package.MODES[2] and service.jvm is not None and service.jvm.closed,
-           'guest restore requires stopped automatic voter')
+    m.need(service.config['mode'] in package.MODES[1:] and service.jvm is not None and service.jvm.closed,
+           'guest restore requires stopped replicated voter')
     backup=c.read(service.root/'backup-result.json')
     m.need(c.read(service.root/'backup-claim.json')==dict(config=service.config) and
            exported(service.cell)==backup['files'], 'guest restore backup changed')

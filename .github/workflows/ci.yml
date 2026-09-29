@@ -275,12 +275,12 @@ jobs:
           retention-days: 7
           compression-level: 1
 
-      - name: Qualify V5.1 owned published V5.0 configured healthy workload without GCP
+      - name: Qualify V5.1 owned configured healthy history and backup restore without GCP
         run: >-
           timeout --signal=TERM --kill-after=5s 720s python3 -m scripts.v51.guest_owned_qualification
           target/v51-owned-configured --bundle target/v51-guest-package --source "$GITHUB_SHA"
           --bootstrap --source-transfer --producer-source --allow-sudo-namespace --workload
-          --mode published-v5.0-configured
+          --mode published-v5.0-configured --physical --backup
 
       - name: Retain V5.1 owned configured workload and consumed claims
         if: always()

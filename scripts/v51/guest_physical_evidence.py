@@ -1,4 +1,4 @@
-"""Joint immutable evidence inspection for three automatic healthy guests.
+"""Joint immutable evidence inspection for three replicated healthy guests.
 
 No authority is opened by a JVM. Original sealed paths are checked from the
 controller configs while retained bytes are inspected at their download location.
@@ -20,11 +20,13 @@ NEGATIVES = dict(zip(('missing-invocation','borrowed-invocation','unknown-read-i
      'publish before own force and remote proof acknowledgement','unsuccessful cloud API call')))
 
 
-def converge(members, active, status, deadline, *, clock=time.monotonic, sleep=time.sleep):
+def converge(members, active, status, deadline, *, mode=package.MODES[2], clock=time.monotonic, sleep=time.sleep):
     """Observe durability only; never issue a read, mutation, activation or replay."""
     end=min(deadline,clock()+30)
+    m.need(mode in package.MODES[1:], 'guest final replicated mode')
     leader=status(active,end)
-    m.need(leader['state']=='LEADER_READY' and leader['provenIndex']>0, 'guest final leader status')
+    expected='READY' if mode==package.MODES[1] else 'LEADER_READY'
+    m.need(leader['state']==expected and leader['provenIndex']>0, 'guest final leader status')
     target=leader['provenIndex']; pending=list(members)
     while pending:
         member=pending[0]; value=status(member,end)
@@ -53,9 +55,10 @@ def validate(members, manifest_bytes, *, backup=False):
     nodes=[cfg['binding']['node'] for cfg in configs]
     m.need(set(nodes)=={'node-1','node-2','node-3'}, 'guest physical member identities')
     common=lambda cfg:dict(cfg,binding={k:v for k,v in cfg['binding'].items() if k!='node'})
-    m.need(all(common(cfg)==common(configs[0]) and cfg['mode']==package.MODES[2] for cfg in configs), 'guest physical group/config binding')
+    mode=configs[0]['mode']
+    m.need(mode in package.MODES[1:] and all(common(cfg)==common(configs[0]) for cfg in configs), 'guest physical group/config binding')
     m.need(sum(v['controller']['active'] is True for v in members)==1, 'guest physical issuer coverage')
-    reports=[];calls=[];traces={};indexes={};bindings={}
+    reports=[];calls=[];traces={};indexes={};bindings={};exchanges={}
     # The same existing per-member decoded limit is shared across logical and
     # physical streams within each pass. No cross-machine timestamps are ordered.
     with tempfile.TemporaryDirectory(prefix='gse-v51-guest-physical-') as scratch:
@@ -68,15 +71,20 @@ def validate(members, manifest_bytes, *, backup=False):
             results=rich.lines(replay,node+'-results',budget)
             rich.lines(replay,node+'-samples',budget)
             traces[node]=rich.lines(replay,node+'-trace',budget)
+            exchanges[node]=c.read(replay/(node+'-exchanges.json'))
             calls.extend(dict(row['call'],opId=row['opId'],node=node,pid=row['pid']) for row in results if row['command']=='call')
             index=c.read(replay/parts.INDEX);prefix='authority/'+node+'/'
             indexes[node]={n[len(prefix):]:v for n,v in index.items() if n.startswith(prefix)}
             authority.capture(replay/'authority',node,root/node)
             raw=(root/node/'manifest.gsr').read_bytes(); genesis=(root/node/'genesis.gsr').read_bytes()
-            manifest=f.inspect(raw,'MANIFEST')
-            m.need(manifest['groupId']==cfg['groupId'] and manifest['members']==[
-                dict(node='node-'+str(i+1),host=host,port=port) for i,(host,port) in enumerate(zip(cfg['hosts'],cfg['ports']))],
-                'guest physical manifest topology')
+            if mode==package.MODES[1]:
+                from . import guest_configured_evidence
+                guest_configured_evidence.member(root/node,cfg)
+            else:
+                manifest=f.inspect(raw,'MANIFEST')
+                m.need(manifest['groupId']==cfg['groupId'] and manifest['members']==[
+                    dict(node='node-'+str(i+1),host=host,port=port) for i,(host,port) in enumerate(zip(cfg['hosts'],cfg['ports']))],
+                    'guest physical manifest topology')
             bindings[node]=(m.sha(raw),m.sha(genesis))
         m.need(len(set(bindings.values()))==1, 'guest physical manifest/genesis agreement')
         m.need(len(calls)==90, 'guest physical healthy call count')
@@ -85,14 +93,18 @@ def validate(members, manifest_bytes, *, backup=False):
             issuer=next(v for v in members if v['controller']['active'])
             response=c.read(Path(issuer['root'])/'backup/backup-result.json')['response']
             trace_binding(traces,issuer['controller']['config']['binding']['node'],response)
-        location=Location(root,configs[0]['root'],indexes)
-        result=physical.automatic(root,calls,traces,evidence_location=location,
-            cloud_calls=history.Calls(calls,auxiliary_backups=int(backup)))
-        from . import remote_rich_negatives
-        negatives=remote_rich_negatives.verify_observations(root,calls,traces,location,auxiliary_backups=int(backup))
-        m.need(negatives==[dict(case=name,status='REJECTED',reason=reason) for name,reason in NEGATIVES.items()],
-               'guest physical negative qualification')
-    return dict(status='PASS',execution='guest-automatic-healthy-physical-evidence-only',physicalHistoryQualified=True,
+        if mode==package.MODES[1]:
+            result,negatives=guest_configured_evidence.qualify(root,calls,traces,exchanges)
+        else:
+            location=Location(root,configs[0]['root'],indexes)
+            result=physical.automatic(root,calls,traces,evidence_location=location,
+                cloud_calls=history.Calls(calls,auxiliary_backups=int(backup)))
+            from . import remote_rich_negatives
+            negatives=remote_rich_negatives.verify_observations(root,calls,traces,location,auxiliary_backups=int(backup))
+            m.need(negatives==[dict(case=name,status='REJECTED',reason=reason) for name,reason in NEGATIVES.items()],
+                   'guest physical negative qualification')
+    execution='guest-'+('configured' if mode==package.MODES[1] else 'automatic')+'-healthy-physical-evidence-only'
+    return dict(status='PASS',execution=execution,physicalHistoryQualified=True,
         backupRestoreQualified=backup,backupRestore=next((v['backupRestore'] for v in reports if v.get('backupRestore')),None),
         paidCloud=False,fullRemoteQualification=False,calls=len(calls),physical=result,members=reports,negatives=negatives,
         source=configs[0]['binding']['source'],bundleSha256=configs[0]['binding']['bundleSha256'],

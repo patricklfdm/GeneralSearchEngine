@@ -85,10 +85,12 @@ class ConfiguredLifecycleTest(unittest.TestCase):
         self.fixture.prepare_fixture();self.probe.clients[1][2]['mode']=package.MODES[2]
         with self.assertRaisesRegex(ValueError,'client identity'):
             self.probe.prepare(self.fixture.req,self.fixture.clock.nanos()+600*10**9)
-    def test_configured_mode_cannot_request_automatic_physical_or_backup_scope(self):
-        for args in (dict(physical=True),dict(backup=True),dict(physical=True,backup=True)):
-            with self.assertRaisesRegex(ValueError,'scope'):
-                w.Probe(self.fixture.services,self.fixture.root/'invalid',**args)
+    def test_configured_physical_scope_allows_optional_backup(self):
+        for i,args in enumerate((dict(physical=True),dict(physical=True,backup=True))):
+            probe=w.Probe(self.fixture.services,self.fixture.root/str(i),**args)
+            self.assertEqual(probe.scope,w.CONFIGURED_SCOPE);self.assertTrue(probe.require_physical)
+        with self.assertRaisesRegex(ValueError,'scope'):
+            w.Probe(self.fixture.services,self.fixture.root/'invalid',backup=True)
         self.assertFalse((self.fixture.root/'invalid').exists())
 
 

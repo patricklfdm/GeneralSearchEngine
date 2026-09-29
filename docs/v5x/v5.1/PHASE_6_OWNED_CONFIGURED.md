@@ -64,8 +64,8 @@ accounted for. All three stopped members and exactly 90 calls are required.
 
 `physicalHistoryQualified=false`, `backupRestoreQualified=false`,
 `fullRemoteQualification=false` and `paidCloud=false` remain explicit for this
-scope. Requesting automatic physical/backup validation for configured mode fails
-before setup. The accepted automatic joint history/backup gate still runs
+original logical-only scope. The [C18 physical/backup candidate](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
+now adds explicit configured validation flags. The accepted automatic joint history/backup gate still runs
 separately and cannot be substituted by this logical control result.
 
 ## Qualification and remaining work
@@ -95,9 +95,9 @@ assertion and Mac-only Runner failures remain in the review directory. Both the
 accepted master Runner and this candidate fail on the same absent `/proc` path
 without modeling; no production deadline or process check was relaxed.
 
-The next [published V4.4 owned healthy candidate](PHASE_6_OWNED_V44.md) connects
-the single experiment issuer. Configured physical/backup evidence and fault cells
-remain open. Complete experiment/preset
+The accepted [published V4.4 owned healthy control](PHASE_6_OWNED_V44.md) connects
+the single experiment issuer. The [configured physical/backup candidate](PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
+still requires protected acceptance. Fault cells and complete experiment/preset
 or native IAP admission, trusted preflight and V5.1 cloud workflows remain open.
 Paid execution continues to require its separate exact-request confirmation and
 user-triggered dispatch.

@@ -114,7 +114,7 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
             expected = len(specs[0]['calls'])
             _, bad, _ = execute(active, 'collect', {})
             m.need(bad['state'] == 'FAILED' and 'stopped JVM' in bad['error']['message'], 'live JVM collection accepted')
-            physical_mode=physical and mode==package.MODES[2]
+            physical_mode=physical and mode in package.MODES[1:]
             if physical_mode:
                 if backup:
                     _,backed,_=execute(active,'backup',{},lost=True)
@@ -124,7 +124,7 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                     _,answer,_=execute(client,'fault',dict(action='status'),until=end)
                     m.need(answer['state']=='SUCCEEDED','guest final status command')
                     return answer['result']['status']
-                guest_physical_evidence.converge(clients,active,status,deadline)
+                guest_physical_evidence.converge(clients,active,status,deadline,mode=mode)
             for client in clients:
                 _, stopped, _ = execute(client, 'stop-voter', dict(forced=False))
                 m.need(stopped['state'] == 'SUCCEEDED', 'guest clean stop: '+str(stopped))

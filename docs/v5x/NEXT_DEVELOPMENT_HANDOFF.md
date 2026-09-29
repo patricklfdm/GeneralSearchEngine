@@ -129,10 +129,13 @@ PR #246, master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
 The [6C3C16 configured healthy control](v5.1/PHASE_6_OWNED_CONFIGURED.md) is accepted
 through PR #247, master `dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
 `36505526404` attempt 1 (all 27 jobs), including the configured Linux workload gate.
-The [6C3C17 published V4.4 healthy candidate](v5.1/PHASE_6_OWNED_V44.md) connects
-one admitted node-1 service to authenticated source preparation, the frozen 90-call
-tape and independent logical replay. Next qualify this bounded slice, then connect
-configured physical/backup evidence, complete three-mode preset integration and
+The [6C3C17 published V4.4 healthy control](v5.1/PHASE_6_OWNED_V44.md) is accepted
+through PR #248, master `b6c055df306e9e8dbb155924fa4a834fe751e786`, exact-master CI
+`36514227052` attempt 2 (all 27 jobs). Attempt 1's V5.0 prerequisite-build failure
+remains recorded; retry success does not establish its cause.
+The [6C3C18 configured physical/backup candidate](v5.1/PHASE_6_OWNED_CONFIGURED_EVIDENCE.md)
+connects retained 1.1 authority, original calls and independently restored backup
+bytes. Next qualify this slice, then complete three-mode preset integration and
 owned fault cells, followed by trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
