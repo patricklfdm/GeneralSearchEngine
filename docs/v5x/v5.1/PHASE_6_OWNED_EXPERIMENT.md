@@ -1,9 +1,11 @@
 # V5.1 Phase 6C3C21 — owned complete experiment
 
-**Status:** implementation candidate on accepted PR #251, master
-`49845530b0dd42db5b721219e92d36d8ced005a2`, exact-master CI
-[36551903980](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36551903980)
-attempt 1. Corrected-source protected qualification remains required.
+**Status:** accepted through PR #252 on master
+`471a36eea31f6e7cd5cbbdf4cd963f352fb29059`,
+[exact-master CI 36566870122](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36566870122)
+attempt 1, all 29 jobs passed. Complete native-UID/mount experiment qualification
+passed in 16m04s; the job including setup/upload took 17m02s. This is no-GCP owned
+workload acceptance, not native cloud or paid admission.
 
 ## Scope and order
 
@@ -76,6 +78,7 @@ paths across receivers; separate local directories are deliberately rejected. Al
 and shutdown replies stay enabled in the complete experiment qualification.
 
 The [CI partition](../../CI_V51_FOUNDATION_LANES.md) makes this aggregate an
-independent required lane. Protected CI must establish the final source's full
-native-UID result and actual timing. Next: trusted preflight and separate V5.1
-workflows; cloud runs still require exact-request confirmation and user triggering.
+independent required lane. The accepted CI establishes this source's full native-UID result and timing.
+The [next candidate](PHASE_6_CLOUD_PREFLIGHT.md) adds read-only source/provider
+observations and separate V5.1 manual workflows. Cloud runs still require
+exact-request confirmation and user triggering.

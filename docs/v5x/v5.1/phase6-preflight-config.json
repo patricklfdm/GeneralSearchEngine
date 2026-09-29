@@ -1,0 +1,21 @@
+{
+  "schema": "gse-v51-preflight-config-v1",
+  "provider": {
+    "schema": "gse-v51-provider-config-v1",
+    "project": "gse-benchmark",
+    "bucket": "gse-benchmark-evidence-266952534277",
+    "network": "default",
+    "subnetwork": "default",
+    "region": "us-west4",
+    "port": 19151,
+    "zone": "us-west4-a",
+    "imageProject": "ubuntu-os-cloud",
+    "imageName": "ubuntu-2404-noble-amd64-v20260918",
+    "imageId": "763874002631433611",
+    "machineType": "n2-standard-8",
+    "diskType": "pd-balanced"
+  },
+  "projectNumber": "266952534277",
+  "observerServiceAccount": "gse-v51-observer@gse-benchmark.iam.gserviceaccount.com",
+  "observerWifProvider": "projects/266952534277/locations/global/workloadIdentityPools/gse-v51-observer/providers/github"
+}

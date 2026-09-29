@@ -1,0 +1,82 @@
+# Observation-only stage. No prepared run, paid execution or cleanup is exposed.
+name: V5.1 Read-only Preflight
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v51-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  observations:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: v51-cloud-benchmark
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Require dedicated protected master dispatch
+        env:
+          TRUSTED_REF: ${{ github.ref }}
+          TRUSTED_EVENT: ${{ github.event_name }}
+          TRUSTED_WORKFLOW: ${{ github.workflow_ref }}
+        run: |
+          test "$TRUSTED_REF" = refs/heads/master
+          test "$TRUSTED_EVENT" = workflow_dispatch
+          test "$TRUSTED_WORKFLOW" = patricklfdm/GeneralSearchEngine/.github/workflows/v51-replication-evidence.yml@refs/heads/master
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Verify observer dispatch identity
+        id: observer
+        run: python -m scripts.v51.cloud_preflight identity --source "$GITHUB_SHA" --output target/v51-preflight
+
+      - name: Collect exact-source CI and owned experiment status
+        run: python -m scripts.v51.cloud_preflight github --source "$GITHUB_SHA" --output target/v51-preflight
+
+      - name: Authenticate dedicated read-only observer
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ steps.observer.outputs.provider }}
+          service_account: ${{ steps.observer.outputs.serviceAccount }}
+          create_credentials_file: true
+          export_environment_variables: true
+
+      - name: Install pinned Cloud CLI
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
+
+      - name: Collect bounded provider GET observations
+        run: python -m scripts.v51.cloud_preflight provider --source "$GITHUB_SHA" --output target/v51-preflight
+
+      - name: Report all readiness checks and remaining admission requirements
+        if: ${{ always() && steps.observer.outcome == 'success' }}
+        run: |
+          python -m scripts.v51.cloud_preflight report --source "$GITHUB_SHA" \
+            --output target/v51-preflight --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain observations including blocked admission
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-preflight
+          if-no-files-found: warn
+          retention-days: 14

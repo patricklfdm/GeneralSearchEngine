@@ -99,9 +99,12 @@ adds separate fresh two-field leader-loss and no-quorum groups using the same
 owned lifecycle, authenticated services and independent physical/history replay.
 It was accepted through PR #251, master `49845530b0dd42db5b721219e92d36d8ced005a2`,
 exact-master CI `36551903980` attempt 1 (all 27 jobs).
-The 6C3C21 implementation candidate adds owned maintenance and the complete
-four-cell experiment. Corrected-source protected qualification remains pending;
-trusted preflight and separate V5.1 workflows follow.
+The 6C3C21 owned maintenance and complete four-cell experiment was accepted
+through PR #252, master `471a36eea31f6e7cd5cbbdf4cd963f352fb29059`, exact-master
+CI `36566870122` attempt 1 (all 29 jobs). Its three CI lanes completed in 8m11s,
+9m37s and 17m02s. The 6C3C22 candidate adds separate manual foundation and read-only
+preflight workflows, exact-source/attempt CI checks, provider observations and an
+offline observer identity proposal. Native IAM/cleanup and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -182,8 +185,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C20 implementation candidate: [owned leader-loss and no-quorum](PHASE_6_OWNED_EXPERIMENT_FAULTS.md).
 - [x] 6C3C20 protected native-UID qualification and exact-master acceptance (PR #251, CI `36551903980`).
 - [x] 6C3C21 implementation candidate: [owned complete experiment](PHASE_6_OWNED_EXPERIMENT.md).
-- [ ] 6C3C21 protected complete experiment qualification and exact-master acceptance.
-- [ ] Complete owned experiment preset: healthy, leader-loss, maintenance and no-quorum in one execution.
+- [x] 6C3C21 protected complete experiment qualification and exact-master acceptance: PR #252 / CI `36566870122` attempt 1 (29 jobs).
+- [x] Complete owned experiment preset: healthy, leader-loss, maintenance and no-quorum in one execution.
+- [x] 6C3C22 implementation candidate: [source/provider observations and independent manual workflows](PHASE_6_CLOUD_PREFLIGHT.md).
+- [ ] 6C3C22 corrected-source protected CI; observer WIF/IAM/environment applied and independently inspected.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.

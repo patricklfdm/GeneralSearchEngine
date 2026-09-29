@@ -1945,6 +1945,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+      - name: Qualify V5.1 exact-source and read-only preflight without GCP
+        run: scripts/verify-v51-phase6-cloud-preflight.sh
+
+      - name: Retain V5.1 preflight observations and rejection cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-cloud-preflight-${{ github.sha }}
+          path: target/v51-cloud-preflight
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Verify V5.1 cloud ownership and admission without GCP
         run: scripts/verify-v51-phase6-cloud-control.sh
 

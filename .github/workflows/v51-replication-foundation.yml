@@ -1,0 +1,64 @@
+name: V5.1 Replication Foundation (No GCP)
+
+on:
+  workflow_dispatch:
+    inputs:
+      execution:
+        description: Offline plan or control failure qualification
+        required: true
+        default: plan
+        type: choice
+        options: [plan, fake]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: v51-foundation-${{ github.run_id }}-${{ github.run_attempt }}
+  cancel-in-progress: false
+
+jobs:
+  foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Require protected master dispatch
+        env:
+          TRUSTED_REF: ${{ github.ref }}
+          TRUSTED_EVENT: ${{ github.event_name }}
+          TRUSTED_REPOSITORY: ${{ github.repository }}
+        run: |
+          test "$TRUSTED_REF" = refs/heads/master
+          test "$TRUSTED_EVENT" = workflow_dispatch
+          test "$TRUSTED_REPOSITORY" = patricklfdm/GeneralSearchEngine
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Qualify read-only preflight without credentials
+        run: scripts/verify-v51-phase6-cloud-preflight.sh
+
+      - name: Produce offline plan and optional control qualification
+        env:
+          EXECUTION: ${{ inputs.execution }}
+        run: |
+          python -m scripts.v51.cloud_preflight foundation --source "$GITHUB_SHA" \
+            --execution "$EXECUTION" --output target/v51-foundation \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain foundation and preflight qualification
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-foundation-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            target/v51-foundation
+            target/v51-cloud-preflight
+          if-no-files-found: warn
+          retention-days: 14

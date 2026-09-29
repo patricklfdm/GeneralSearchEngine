@@ -35,3 +35,11 @@ These estimates exclude queue delays and cache/runner variation. Full experiment
 work increases scope, so the next protected CI must measure the actual critical
 path. No throughput threshold, retry, production runtime or paid-cloud change is
 part of this CI partition.
+
+## Accepted timing
+
+PR #252 / [master CI 36566870122](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36566870122)
+attempt 1 passed all 29 jobs. Foundation/runtime took 8m11s, guest services/faults
+9m37s and complete owned experiment 17m02s. The full experiment step took 16m04s.
+These are one hosted run's durations, including new maintenance/fault coverage;
+queue delay and other lanes still determine overall workflow completion.
