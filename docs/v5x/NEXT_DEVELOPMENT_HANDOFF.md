@@ -147,9 +147,12 @@ adds separate fresh two-field leader-loss and no-quorum groups using the same
 owned lifecycle, authenticated services and independent physical/history replay.
 It was accepted through PR #251, master `49845530b0dd42db5b721219e92d36d8ced005a2`,
 exact-master CI `36551903980` attempt 1 (all 27 jobs).
-The 6C3C21 implementation candidate adds owned maintenance and the complete
-four-cell experiment. Corrected-source protected qualification remains pending;
-trusted preflight and separate V5.1 workflows follow.
+The 6C3C21 owned maintenance and complete four-cell experiment was accepted
+through PR #252, master `471a36eea31f6e7cd5cbbdf4cd963f352fb29059`, exact-master
+CI `36566870122` attempt 1 (all 29 jobs). Its three CI lanes completed in 8m11s,
+9m37s and 17m02s. The 6C3C22 candidate adds separate manual foundation and read-only
+preflight workflows, exact-source/attempt CI checks, provider observations and an
+offline observer identity proposal. Native IAM/cleanup and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

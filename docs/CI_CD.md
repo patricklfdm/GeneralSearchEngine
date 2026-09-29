@@ -448,3 +448,12 @@ failed rounds. The seventeen full-CI required lanes and docs-only behavior are u
 
 The [foundation/guest partition](CI_V51_FOUNDATION_LANES.md) now separates local
 foundation/runtime, guest services/faults and the complete owned experiment.
+
+### V5.1 observation workflows
+
+The [V5.1 preflight candidate](v5x/v5.1/PHASE_6_CLOUD_PREFLIGHT.md) adds a manual
+no-GCP foundation and a separate manual read-only preflight. The latter checks
+exact-master CI at a single attempt and reads provider metadata plus V5.1 control
+objects through a proposed dedicated observer. No paid execution or cleanup is
+exposed. `Cloud runner (no GCP)` runs the short offline preflight qualification
+and retains `v51-cloud-preflight-${{ github.sha }}`; existing lanes stay unchanged.
