@@ -20,6 +20,12 @@ def need(value, message):
     if not value: raise ValueError(message)
 
 
+def experiment_nodes(mode):
+    """Frozen experiment placement; canonical host rotation is not admitted here."""
+    need(mode in MODES, 'package experiment mode')
+    return (1,) if mode == MODES[0] else (1,2,3)
+
+
 def sha(data): return hashlib.sha256(data).hexdigest()
 
 

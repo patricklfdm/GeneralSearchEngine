@@ -49,7 +49,8 @@ class BootstrapTest(unittest.TestCase):
                 if phase=='install':result=dict(status='PASS',node=ep.node,descriptorSha256=request['descriptorSha256'],files=6)
                 else:
                     files=c.read(Path(request['folder'])/'bootstrap.json')['files']
-                    identity=dict(sourceSha256=m.sha(m.canonical({k:v for k,v in files.items() if k.startswith('source/')})),manifestSha256='a'*64,genesisSha256='b'*64)
+                    identity=dict(sourceSha256=m.sha(m.canonical({k:v for k,v in files.items() if k.startswith('source/')})))
+                    if request['config']['mode']!=owned.package.MODES[0]:identity.update(manifestSha256='a'*64,genesisSha256='b'*64)
                     if test.fault=='wrong-genesis' and ep.node=='node-2':identity['genesisSha256']='c'*64
                     if test.fault=='wrong-source':identity['sourceSha256']='c'*64
                     result=dict(status='PASS',node=ep.node,identity=identity)

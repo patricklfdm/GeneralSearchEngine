@@ -91,7 +91,9 @@ fixtures explicitly label their synthetic OS metadata. No Linux gate was run her
 For optional Linux shared-filesystem qualification, use
 `guest_package_qualification --healthy --physical --backup`; only the automatic
 cell qualifies backup/physical history. This does not replace the owned three-view
-gate. The next [configured healthy candidate](PHASE_6_OWNED_CONFIGURED.md) connects
-the published V5.0 control. Remaining owned modes/evidence and fault cells, trusted
+gate. The [configured healthy control](PHASE_6_OWNED_CONFIGURED.md) is accepted
+through PR #247 / exact-master CI `36505526404` attempt 1. The next
+[V4.4 healthy candidate](PHASE_6_OWNED_V44.md) connects the single experiment issuer.
+Remaining owned evidence and fault cells, trusted
 preflight and separate V5.1 workflows still require qualification. Complete cloud preset,
 native IAP/source transport and Phase 6 acceptance remain open.

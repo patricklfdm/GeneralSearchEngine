@@ -23,9 +23,9 @@ class Bootstrap:
         self.delivery=delivery
 
     def prepare(self, req, configs, endpoints, output, deadline, *, recheck):
-        m.need(self.root is None and len(configs) == len(endpoints) == 3, 'owned bootstrap consumed/topology')
-        m.need([v['binding']['node'] for v in configs] == ['node-1','node-2','node-3'] and
-               configs[0]['mode'] in package.MODES[1:], 'owned bootstrap replicated member set')
+        m.need(self.root is None and configs and len(configs) == len(endpoints), 'owned bootstrap consumed/topology')
+        nodes=package.experiment_nodes(configs[0]['mode'])
+        m.need([v['binding']['node'] for v in configs] == ['node-'+str(n) for n in nodes], 'owned bootstrap mode/member set')
         for cfg,ep in zip(configs,endpoints):
             guest.validate(cfg); normalized=deepcopy(cfg); normalized['binding']['node']='node-1'
             m.need(normalized == configs[0] and ep.offline is True and ep.value['binding'] == cfg['binding'] and
@@ -73,12 +73,12 @@ class Bootstrap:
                 record['failure']=dict(type=type(error).__name__,message=str(error)[:2000]); raise
             finally: c.write_once(self.root/f'node-{i+1}-{phase}.json',record,maximum=262144)
         try:
-            for i in range(3): check(i,'bootstrap')
+            for i in range(len(configs)): check(i,'bootstrap')
             if self.source.scope=='authenticated-producer-download':
                 exports=self.source.prepare(configs,deadline,endpoint=endpoints[0],output=self.root/'producer')
                 check(0,'produced')
             else:exports=self.source.prepare(configs,deadline)
-            m.need(len(exports)==3 and [v['node'] for v in exports]==[v['binding']['node'] for v in configs], 'owned bootstrap source members')
+            m.need(len(exports)==len(configs) and [v['node'] for v in exports]==[v['binding']['node'] for v in configs], 'owned bootstrap source members')
             requests=[]; files=[]
             for cfg,row in zip(configs,exports):
                 m.need(set(row)=={'node','folder','descriptorSha256'},'owned bootstrap source fields')
@@ -98,7 +98,8 @@ class Bootstrap:
                 check(i,'seal'); row=once(i,'seal',request); result['members'].append(row); check(i,'sealed')
             result['identity']=b.group_identity(result['members'],configs)
             identity=result['identity']
-            m.need(set(identity)=={'sourceSha256','manifestSha256','genesisSha256'} and
+            expected={'sourceSha256'} if configs[0]['mode']==package.MODES[0] else {'sourceSha256','manifestSha256','genesisSha256'}
+            m.need(set(identity)==expected and
                    all(isinstance(v,str) and re.fullmatch('[0-9a-f]{64}',v) for v in identity.values()) and
                    identity['sourceSha256']==m.sha(m.canonical({k:v for k,v in files[0].items() if k.startswith('source/')})),
                    'owned bootstrap sealed source identity')

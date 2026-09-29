@@ -139,11 +139,14 @@ voter's own authority and joint force/publication/read replay for the 90-call ta
 The [6C3C15 backup/restore](v5.1/PHASE_6_OWNED_BACKUP.md) is accepted through
 PR #246, master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
 `36498232963` attempt 1 (all 27 jobs), including the owned Linux backup/restore gate.
-The [6C3C16 configured healthy candidate](v5.1/PHASE_6_OWNED_CONFIGURED.md)
-connects the admitted published V5.0 services to one node-1 activation, the frozen
-90-call tape and independent logical replay. Next qualify this bounded slice,
-then connect the remaining published V4.4 owned control, configured physical/backup
-evidence and fault cells, followed by trusted preflight and separate V5.1 workflows.
+The [6C3C16 configured healthy control](v5.1/PHASE_6_OWNED_CONFIGURED.md) is accepted
+through PR #247, master `dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
+`36505526404` attempt 1 (all 27 jobs), including the configured Linux workload gate.
+The [6C3C17 published V4.4 healthy candidate](v5.1/PHASE_6_OWNED_V44.md) connects
+one admitted node-1 service to authenticated source preparation, the frozen 90-call
+tape and independent logical replay. Next qualify this bounded slice, then connect
+configured physical/backup evidence, complete three-mode preset integration and
+owned fault cells, followed by trusted preflight and separate V5.1 workflows.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

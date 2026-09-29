@@ -110,8 +110,10 @@ The original failed receipts remain intact. Replay receipts and hashes are under
 `target/v51-owned-workload-ci-fix`; this is diagnostic replay, not corrected-source
 protected acceptance, which is recorded above.
 
-The [configured healthy candidate](PHASE_6_OWNED_CONFIGURED.md) extends the owned
-path to the published V5.0 control. Then integrate remaining owned modes/cells and
+The [configured healthy control](PHASE_6_OWNED_CONFIGURED.md) is accepted through
+PR #247 / exact-master CI `36505526404` attempt 1. The next
+[V4.4 healthy candidate](PHASE_6_OWNED_V44.md) connects the single experiment issuer.
+Then integrate remaining owned cells and
 configured physical/backup evidence, followed by
 trusted preflight and separate V5.1 cloud configuration/workflows. Paid runs still
 require exact-request confirmation and manual triggering by the user.

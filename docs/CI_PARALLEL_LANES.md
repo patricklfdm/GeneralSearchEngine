@@ -625,7 +625,7 @@ PR #246 accepted this slice at master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`
 exact-master CI `36498232963` attempt 1 (27 successful jobs), including the Linux
 owned backup/restore gate.
 
-### Phase 6C3C16 owned configured healthy candidate
+### Phase 6C3C16 owned configured healthy control
 
 The foundation/runtime lane adds a separate 720-second invocation with
 `--mode published-v5.0-configured --workload` and the same authenticated
@@ -637,3 +637,19 @@ unchanged. Always retain the new `v51-owned-configured-${{ github.sha }}` artifa
 the Required graph, mode deadlines and paid restrictions are unchanged. See the
 [configured control scope](v5x/v5.1/PHASE_6_OWNED_CONFIGURED.md) for qualification
 limits and remaining physical/full-preset work.
+
+PR #247 accepted this slice at master `dfae45670330ffe2a3974982bcc020c534861309`,
+exact-master CI `36505526404` attempt 1 (27 successful jobs), including the Linux
+owned configured workload gate.
+
+### Phase 6C3C17 owned V4.4 healthy candidate
+
+The foundation/runtime lane adds a separate 720-second invocation with
+`--mode published-v4.4-local --workload` and authenticated producer, transfer and
+bootstrap options. Within the unchanged three-resource topology, only node-1 gets
+an owned package, source import, service and V4.4 JVM. One source export and all
+90 frozen calls are validated; five lost window submission replies use original-ID
+queries. No election, activation or backup command is submitted. Source identity
+has no replication authority fields. Always retain `v51-owned-v44-${{ github.sha }}`;
+the automatic/configured gates, Required graph, deadlines and cost reservation
+remain unchanged. See the [V4.4 control scope](v5x/v5.1/PHASE_6_OWNED_V44.md).

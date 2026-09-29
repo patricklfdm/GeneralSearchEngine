@@ -78,7 +78,7 @@ class OwnedWorkloadTest(unittest.TestCase):
         self.assertEqual(len(cl.calls),1)
         self.assertEqual(len(list((self.probe.raw/'commands/1').glob('*/failure.json'))),1)
     def test_live_wrong_mode_or_missing_bootstrap_rejected(self):
-        for key,value in [('offline',False),('mode',package.MODES[0]),('bootstrap',None)]:
+        for key,value in [('offline',False),('mode','unknown'),('bootstrap',None)]:
             with self.subTest(key=key),self.assertRaises(ValueError):
                 w.Probe(SimpleNamespace(**dict(vars(self.services),**{key:value})),self.root/'reject')
     def prepare_fixture(self):
@@ -117,7 +117,7 @@ class OwnedCollectionTest(unittest.TestCase):
         # Incompressible valid stderr gives a full 8 MiB part and a short tail.
         # Small warmup collections did not exercise the owned adapter's boundary.
         payload=os.urandom((8<<20)+1024)
-        for node in (1,2,3):
+        for node in package.experiment_nodes(self.mode):
             f=HealthyFixture(self.root/f'raw-{node}',mode=self.mode,active=node==1,node=f'node-{node}')
             f.files[f.node+'-stderr.log']=payload;f.render();(f.root/collection.INDEX).unlink()
             parts=self.root/f'parts-{node}'
@@ -147,7 +147,7 @@ class OwnedCollectionTest(unittest.TestCase):
             return self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
     def test_full_size_parts_and_tail_replay_all_members_without_retries(self):
         result=self.collect();self.assertEqual(result['status'],'PASS',result['errors'])
-        self.assertEqual([r['calls'] for r in result['members']],[90,0,0])
+        self.assertEqual([r['calls'] for r in result['members']],[90]+[0]*(len(self.probe.nodes)-1))
         for node,client,_ in self.probe.clients:
             self.assertEqual(client.part.call_count,2)
             downloaded=self.probe.raw/f'node-{node}'/'parts'
@@ -156,14 +156,14 @@ class OwnedCollectionTest(unittest.TestCase):
             self.assertFalse(list(downloaded.glob('*.partial')))
     def test_truncated_large_part_remains_failed_partial_and_other_members_are_checked(self):
         self.fault='truncated';result=self.collect()
-        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),2)
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),len(self.probe.nodes)-1)
         self.assertEqual(result['errors'],[dict(node=1,phase='collection-validation',message='part incomplete/hash mismatch')])
         folder=self.probe.raw/'node-1/parts';self.assertFalse((folder/'part-0000.bin').exists())
         self.assertEqual((folder/'part-0000.bin.partial').stat().st_size,(8<<20)-1)
         self.assertEqual(self.probe.clients[0][1].part.call_count,1)
     def test_corrupt_large_part_is_not_retried_or_published(self):
         self.fault='corrupt';result=self.collect()
-        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),2)
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(len(result['members']),len(self.probe.nodes)-1)
         self.assertEqual(result['errors'][0]['message'],'part incomplete/hash mismatch')
         folder=self.probe.raw/'node-1/parts';self.assertFalse((folder/'part-0000.bin').exists())
         self.assertEqual((folder/'part-0000.bin.partial').stat().st_size,8<<20)

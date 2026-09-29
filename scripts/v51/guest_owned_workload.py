@@ -1,7 +1,7 @@
-"""One complete replicated experiment healthy tape on already admitted services.
+"""One complete experiment healthy tape on already admitted services.
 
 Offline qualification only: provider/block facts remain fixtures. Physical replay
-is automatic-only; local control/faults and paid acceptance stay open.
+is automatic-only; faults and paid acceptance stay open.
 """
 from pathlib import Path
 import os
@@ -13,7 +13,8 @@ from . import guest_evidence
 
 SCOPE='owned-automatic-healthy-experiment'
 CONFIGURED_SCOPE='owned-configured-healthy-experiment'
-SCOPES={package.MODES[1]:CONFIGURED_SCOPE,package.MODES[2]:SCOPE}
+LOCAL_SCOPE='owned-v44-healthy-experiment'
+SCOPES={package.MODES[0]:LOCAL_SCOPE,package.MODES[1]:CONFIGURED_SCOPE,package.MODES[2]:SCOPE}
 
 
 class Probe:
@@ -21,8 +22,9 @@ class Probe:
     scope=SCOPE
     def __init__(self, services, output, *, physical=False, backup=False, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline is True and services.mode in SCOPES and services.bootstrap is not None,
-               'owned workload requires offline replicated bootstrap')
+               'owned workload requires offline mode/bootstrap')
         self.mode=services.mode;self.scope=SCOPES[self.mode]
+        self.nodes=package.experiment_nodes(self.mode)
         m.need(type(physical) is bool and (not physical or self.mode==package.MODES[2]),'owned physical scope');self.require_physical=physical
         m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
@@ -59,7 +61,8 @@ class Probe:
                complete['bootstrap']['status']=='PASS' and complete['bootstrap']['publicBootstrapVerified'] is True,
                'owned workload before admitted services/bootstrap')
         self.clients=list(self.services.clients)
-        m.need([n for n,_,_ in self.clients]==[1,2,3] and len(complete['members'])==3,'owned workload member set')
+        m.need([n for n,_,_ in self.clients]==list(self.nodes) and
+               [row['node'] for row in complete['members']]==list(self.nodes),'owned workload member set')
         self.manifest=(self.services.archive.parent/'package/manifest.json').read_bytes()
         package.verify(self.services.archive.parent/'package',req['source'])
         for (node,client,cfg),member in zip(self.clients,complete['members']):
@@ -83,6 +86,7 @@ class Probe:
                 self.started.append(member);self.engineWorkloadExecuted=True
                 self.succeeded(member,'start-voter',{},end)
             activation=min(end,self.clock()+30)
+            if self.mode==package.MODES[0]:self.active=self.clients[0]
             if self.mode==package.MODES[1]:
                 self.active=self.clients[0]
                 self.succeeded(self.active,'fault',dict(action='activate'),activation)
@@ -161,7 +165,8 @@ class Probe:
                 c.write_once(self.raw/'physical.json',physical)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='physical-validation',message=str(error)[:2000]))
         m.need(self.clock()<end,'owned validation deadline')
-        valid=(self.cells==['healthy'] and len(members)==3 and sum(v['calls'] for v in members)==90 and not errors)
+        valid=(self.cells==['healthy'] and [n for n,_,_ in self.started]==list(self.nodes) and
+               len(members)==len(self.nodes) and sum(v['calls'] for v in members)==90 and not errors)
         result=dict(status='PASS' if valid else 'FAIL',execution=a.EXECUTION,scope=self.scope,mode=self.mode,paidCloud=False,
             engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,
             backupRestoreQualified=physical is not None and physical.get('backupRestoreQualified',False),
