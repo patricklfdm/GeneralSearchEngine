@@ -163,9 +163,14 @@ exact-master CI `36551903980` attempt 1 (all 27 jobs).
 The 6C3C21 owned maintenance and complete four-cell experiment was accepted
 through PR #252, master `471a36eea31f6e7cd5cbbdf4cd963f352fb29059`, exact-master
 CI `36566870122` attempt 1 (all 29 jobs). Its three CI lanes completed in 8m11s,
-9m37s and 17m02s. The 6C3C22 candidate adds separate manual foundation and read-only
-preflight workflows, exact-source/attempt CI checks, provider observations and an
-offline observer identity proposal. Native IAM/cleanup and paid admission remain open.
+9m37s and 17m02s. The 6C3C22 source/provider preflight passed corrected master
+`0b22b671d39074fe019571dd90178b648a91cb38` (PR #254), CI `36635538287` attempt 1
+(all 29 jobs), and live read-only preflight `36643330675` (all seven checks).
+The observer and subnet configuration were separately authorized and read back;
+organization/folder effective IAM remains unverified. The 6C3C23 candidate adds
+disabled runner/scheduled/manual-cleanup identity proposals, explicit configuration
+audits and offline permission-drift qualification. Native IAM/cleanup activation
+and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
