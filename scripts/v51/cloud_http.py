@@ -1,10 +1,18 @@
 """Bounded provider HTTP with renewable credentials. Live mutations remain disabled."""
+from dataclasses import dataclass, field
+import math
 import subprocess
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 from . import performance_model as m
+
+
+@dataclass(frozen=True)
+class AccessToken:
+    value: str = field(repr=False)
+    usable_until: float
 
 
 class ApiError(RuntimeError):
@@ -60,9 +68,15 @@ class Api:
             remaining = deadline-self.clock()
             m.need(remaining > 0, 'provider original deadline')
             if self.token is None or self.clock() >= self.expires:
-                self.token = self.tokens(min(30, remaining))
-                m.need(isinstance(self.token, str) and self.token and not any(c.isspace() for c in self.token), 'provider credential shape')
-                self.expires = self.clock()+2400
+                credential_value = self.tokens(min(30, remaining))
+                if isinstance(credential_value, AccessToken):
+                    usable = credential_value.usable_until
+                    m.need(type(usable) in (int,float) and math.isfinite(usable) and usable > self.clock(), 'provider credential expired')
+                    token, expires = credential_value.value, min(usable, self.clock()+2400)
+                else:
+                    token, expires = credential_value, self.clock()+2400
+                m.need(isinstance(token, str) and token and all(33 <= ord(c) <= 126 for c in token), 'provider credential shape')
+                self.token, self.expires = token, expires
             remaining = deadline-self.clock()
             m.need(remaining > 0, 'provider original deadline')
             headers = {'Authorization': 'Bearer '+self.token,

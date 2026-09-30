@@ -163,10 +163,12 @@ exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 native record form
 and closed cleanup HTTP policy were accepted through PR #257, master
 `133b05e5cc02560877a74902911b21efacf2ba4c`, exact-master CI `36664035569` attempt 2
 (29 jobs). Attempt 1's automatic-healthy warmup `LANE_BUSY` remains recorded;
-retry success does not establish its latency cause. The 6C3C26 candidate adds
-bound manual/scheduled cleanup entries, inactive workflow proposals and 28
-fresh-process offline entry cases. Native IAM/cleanup activation and paid admission
-remain open.
+retry success does not establish its latency cause. The 6C3C26 bound cleanup entries were accepted through corrected-source PR #259,
+master `a25ecba2121526e4cef4d41ee1a90f1e1f64259e`, exact-master CI `36679824140`
+attempt 1 (29 jobs). PR #258's inherited timeout-oracle failure remains recorded.
+The 6C3C27 candidate adds exact-entry OIDC/STS/account credential exchange,
+expiry-aware refresh and 28 additional fresh-process offline entry cases.
+Native IAM/cleanup activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

@@ -1,14 +1,14 @@
 # V5.1 Phase 6C3C26 — bound cleanup entries and inactive workflow proposals
 
-**Status:** implementation candidate on PR #257 master
-`133b05e5cc02560877a74902911b21efacf2ba4c`. Its
-[CI 36664035569](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36664035569)
-passed on attempt 2. This accepts the preceding
-[native authority and HTTP policy](PHASE_6_NATIVE_CLEANUP.md), not this candidate
-or live cleanup. Attempt 1's automatic-healthy warmup retained nine successful
-calls; GET 9 took 1.134 seconds, so arrival 10 encountered `LANE_BUSY`. A successful
-rerun does not establish the latency's cause. Corrected-source protected CI is
-required for this batch.
+**Status:** accepted through PR #258 and corrected-source PR #259, master
+`a25ecba2121526e4cef4d41ee1a90f1e1f64259e`, exact-master
+[CI 36679824140](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36679824140)
+attempt 1 (all 29 jobs). PR #258 master CI `36670188539` failed the inherited
+lifecycle exchange-timeout oracle; the
+[actual-deadline correction](PHASE_4_LIFECYCLE_HARDENING.md#post-pr-258-correction-observe-the-actual-request-deadline)
+retains that failed evidence. This acceptance covers offline entries, not live
+cleanup. The next [credential exchange integration](PHASE_6_CLEANUP_CREDENTIALS.md)
+is a separate candidate.
 
 ## Entry binding
 

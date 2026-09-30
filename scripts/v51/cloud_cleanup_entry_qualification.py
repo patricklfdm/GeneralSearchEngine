@@ -31,16 +31,26 @@ def fixture(configuration, trigger):
     return dict(configuration=cfg, env=env, observation=observation, trigger=trigger, source=SOURCE, checkout=SOURCE)
 
 
-def replay(state, invocation, output, now):
-    _, http, api, _ = q.restore(state)
-    value = e.execute(invocation['configuration'], invocation['env'], invocation['observation'], api, output,
-                      trigger=invocation['trigger'], source=invocation['source'], checkout=invocation['checkout'], now=now)
+def replay(state, invocation, output, now, *, integrated=False):
+    clock, http, api, _ = q.restore(state)
+    arguments = dict(trigger=invocation['trigger'], source=invocation['source'], checkout=invocation['checkout'], now=now)
+    if integrated:
+        from . import cloud_cleanup_auth_fake as auth
+        binding = e.identity(invocation['configuration'], invocation['env'], **{k:arguments[k] for k in ('trigger','source','checkout')})
+        env, descriptor = auth.inputs(binding, invocation['env'])
+        issuer, provider = auth.Issuer(binding, clock), auth.Provider(http)
+        value = e.execute_integrated(invocation['configuration'], env, invocation['observation'], descriptor,
+            provider, issuer, output, clock=clock.seconds, wall=clock.wall, **arguments)
+        write_once(Path(output)/'credential-exchange.json', dict(stages=issuer.calls, providerCalls=provider.authorized_calls,
+            execution='offline-credential-http', identityAuthenticated=False, effectiveIamQualified=False))
+    else:
+        value = e.execute(invocation['configuration'], invocation['env'], invocation['observation'], api, output, **arguments)
     write_once(Path(output)/'http.json', http.requests)
     write_once(Path(output)/'state.json', q.snapshot(http))
     return value
 
 
-def qualify(output):
+def qualify(output, *, integrated=False):
     output = Path(output); output.mkdir(parents=True, exist_ok=False); rows = []
     workflows.write(output/'workflow-proposal', read(p.CONFIG))
     for case in q.CASES:
@@ -52,6 +62,7 @@ def qualify(output):
             write_once(root/'input.json', state); write_once(root/'invocation.json', invocation)
             command = [sys.executable, '-m', 'scripts.v51.cloud_cleanup_entry_qualification', 'offline-replay',
                        str(root/'input.json'), str(root/'invocation.json'), str(root/'replay'), '--now', str(now)]
+            if integrated: command.append('--integrated')
             done = subprocess.run(command, capture_output=True, timeout=30)
             (root/'stdout').write_bytes(done.stdout); (root/'stderr').write_bytes(done.stderr)
             m.need(done.returncode == 0, 'bound cleanup process failed: '+case+'-'+trigger)
@@ -62,6 +73,10 @@ def qualify(output):
                    'bound cleanup outcome/identity')
             m.need(all(result[key] is False for key in ('identityAuthenticated', 'activationAllowed', 'paidCloud', 'cleanupReady', 'fullRemoteQualification')),
                    'offline entry claimed native readiness')
+            if integrated:
+                exchange = read(root/'replay/credential-exchange.json')
+                m.need([r['stage'] for r in exchange['stages']] == ['oidc','sts','impersonation'] and
+                       exchange['providerCalls'] == len(calls) and not exchange['identityAuthenticated'], 'credential integration evidence')
             compute = [row for row in calls if row['path'].startswith('/compute/')]
             m.need(all(row['method'] != 'POST' for row in compute), 'entry allocated resources')
             m.need(all(row['path'].rsplit('/', 1)[-1].isdecimal() for row in compute if row['method'] == 'DELETE'),
@@ -83,7 +98,7 @@ def qualify(output):
                    source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                    dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], text=True)),
                    inputs={p.name:m.sha(p.read_bytes()) for p in sorted(Path(__file__).parent.glob('cloud_*.py'))},
-                   paidCloud=False, cleanupReady=False, fullRemoteQualification=False, cases=rows)
+                   integratedCredentials=integrated, paidCloud=False, cleanupReady=False, fullRemoteQualification=False, cases=rows)
     write_once(output/'receipt.json', receipt)
     return receipt
 
@@ -93,6 +108,7 @@ if __name__ == '__main__':
     check = sub.add_parser('qualify'); check.add_argument('output', type=Path)
     child = sub.add_parser('offline-replay'); child.add_argument('state', type=Path); child.add_argument('invocation', type=Path)
     child.add_argument('output', type=Path); child.add_argument('--now', type=int, required=True)
+    check.add_argument('--integrated', action='store_true'); child.add_argument('--integrated', action='store_true')
     args = parser.parse_args()
-    result = qualify(args.output) if args.command == 'qualify' else replay(read(args.state), read(args.invocation), args.output, args.now)
+    result = qualify(args.output, integrated=args.integrated) if args.command == 'qualify' else replay(read(args.state), read(args.invocation), args.output, args.now, integrated=args.integrated)
     print(m.canonical(dict(status=result['status'], execution=result['execution'], paidCloud=False)).decode())

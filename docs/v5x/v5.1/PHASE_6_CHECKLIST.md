@@ -213,7 +213,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
 - [x] 6C3C25 protected acceptance: PR #257 / CI `36664035569`, attempt 2, all 29 jobs.
 - [x] 6C3C26 implementation candidate: [bound cleanup entries and inactive workflow proposals](PHASE_6_CLEANUP_ENTRIES.md), both entries through shared native reconciliation.
-- [ ] 6C3C26 corrected-source protected CI.
+- [x] 6C3C26 corrected-source protected acceptance: PR #259 / CI `36679824140`, attempt 1, all 29 jobs.
+- [x] 6C3C27 implementation candidate: [bound cleanup credential exchange](PHASE_6_CLEANUP_CREDENTIALS.md), exact identity, expiry-aware refresh and integrated offline reconciliation.
+- [ ] 6C3C27 corrected-source protected CI.
 - [ ] Native provider/cleanup transport, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
