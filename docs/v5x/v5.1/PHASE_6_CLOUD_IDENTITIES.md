@@ -1,11 +1,12 @@
 # V5.1 Phase 6C3C23 — disabled runner and cleanup identity staging
 
-**Status:** implementation candidate on PR #254 master
-`0b22b671d39074fe019571dd90178b648a91cb38`. That source passed
-[CI 36635538287](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36635538287)
-attempt 1, all 29 jobs, and [read-only preflight 36643330675](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36643330675).
-All seven observation checks passed after the separately authorized observer setup
-and Private Google Access change. These observations have a 900-second lifetime;
+**Status:** accepted through PR #255, master
+`41b567b7cb96d36157a4434b02268b746492edfd`, with all 29 jobs passing
+[CI 36648030423](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36648030423).
+This accepts disabled staging code and audits, not application or activation.
+The preceding [read-only preflight 36643330675](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36643330675)
+passed all seven observations after the separately authorized observer setup and
+Private Google Access change. These observations have a 900-second lifetime;
 the historical success records integration, not current paid admission. Effective
 organization/folder IAM remains unverified.
 
@@ -144,3 +145,7 @@ and scheduled cleanup entry points; then separately review activation and collec
 fresh exact-source cleanup evidence. Remaining failure-drill/canonical cells,
 retention, pricing and exact-request confirmation still precede user-triggered
 paid experiments. Neither staged configuration nor observer success closes 6C.
+
+The next [retained cleanup reconstruction candidate](PHASE_6_CLOUD_CLEANUP.md)
+provides independent process recovery through the same HTTP adapters and shared
+reconciler. It retains the native activation boundary described above.

@@ -137,6 +137,12 @@ class Runner:
             self.generation = self.store.put(a.LEASE, self.lease, 0)
             self.store.put(a.LEDGER, reservation, version)
             with budget.stage('preparation') as deadline:
+                # Publish the public reconstruction inputs before any create
+                # intent. An independent watchdog cannot use runner memory/keys.
+                context = getattr(self.provider, 'cleanup_context', None)
+                if context is not None:
+                    from .cloud_cleanup import retain_context
+                    retain_context(self.store, req, context())
                 for row in self.lease['resources']:
                     m.need(self.clock() < deadline, 'provisioning deadline')
                     spec = row['spec']
@@ -227,8 +233,12 @@ class Runner:
         return result
 
 
-def reconcile(store, provider, output, *, trigger, now):
-    adapters(store, provider)
+def reconcile(store, provider, output, *, trigger, now, provider_factory=None):
+    m.need(store.execution == a.EXECUTION, 'unqualified cleanup store; paid execution disabled')
+    if provider_factory is None:
+        adapters(store, provider)
+    else:
+        m.need(provider is None and callable(provider_factory), 'cleanup provider factory')
     m.need(trigger in ('schedule', 'manual'), 'cleanup trigger')
     a.integer(now, 1)
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
@@ -241,6 +251,17 @@ def reconcile(store, provider, output, *, trigger, now):
         if now < lease['expiresAt']+lease['graceSeconds']:
             result = dict(status='WAITING', activeLease=True, trigger=trigger, execution=a.EXECUTION)
         else:
+            if provider_factory is not None and any(row['attempted'] for row in lease['resources']):
+                try:
+                    provider = provider_factory(deepcopy(lease))
+                    adapters(store, provider)
+                except (Exception, KeyboardInterrupt) as error:
+                    result = dict(status='FAIL', trigger=trigger, execution=a.EXECUTION,
+                                  leaseReleased=False, failure=failure('reconstruction', error))
+                    write_once(output/'receipt.json', result)
+                    return result
+            # A lease lost before its first create intent needs no provider or
+            # SSH descriptor. The same terminal ledger/retention path still runs.
             def persist():
                 nonlocal generation
                 generation = store.put(a.LEASE, lease, generation)
