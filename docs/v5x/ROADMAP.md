@@ -190,10 +190,14 @@ records the authorized 2026-09-30 application: 45 commands, 33 independent audit
 reads and `STAGED_MATCH`, with all three identities/pools/providers disabled and
 unrelated configuration preserved. Effective inherited IAM, native cleanup
 activation and paid admission remain open.
-The [6C3C28 network cleanup implementation](v5.1/PHASE_6_CLEANUP_NETWORK.md) is a
-candidate: cleanup-only HTTPS/credential execution and the formal command share
-the existing reconciliation, with fresh-process loopback TLS failure evidence.
-Corrected-source CI and real-provider activation qualification remain pending.
+The [6C3C28 network cleanup implementation](v5.1/PHASE_6_CLEANUP_NETWORK.md) is
+accepted through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`,
+CI `36706204243` with 29 final successful jobs after failed-job rerun (attempt 2).
+The original public-fault failure is retained; retry success is not a timing fix.
+The [6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is a
+candidate: runnable workflow proposals outside .github, exact enable/disable plans
+and read-only state checks. Corrected-source CI, inherited IAM review and actual
+provider/activation qualification remain open; all three identities stay disabled.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

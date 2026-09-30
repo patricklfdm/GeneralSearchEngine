@@ -219,7 +219,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C27 corrected-source protected acceptance: PR #261 / CI `36695145198`, attempt 1, all 29 jobs.
 - [x] [Disabled identity configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md): authorized staging applied/read back; inherited IAM and native activation remain open.
 - [x] 6C3C28 implementation candidate: [scoped cleanup network API and formal entry](PHASE_6_CLEANUP_NETWORK.md), shared reconciliation and loopback TLS failure qualification.
-- [ ] 6C3C28 corrected-source protected CI acceptance.
+- [x] 6C3C28 protected acceptance: PR #263 / CI `36706204243`, final 29 jobs successful after failed-job rerun (attempt 2); original public-fault failure retained.
+- [x] 6C3C29 implementation candidate: [cleanup deployment review package and readback](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md); no workflow deployment or identity enablement.
+- [ ] 6C3C29 corrected-source protected CI acceptance.
 - [ ] Real-provider cleanup, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.

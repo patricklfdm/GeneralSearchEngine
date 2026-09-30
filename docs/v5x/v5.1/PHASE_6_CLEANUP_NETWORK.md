@@ -1,10 +1,16 @@
 # V5.1 Phase 6C3C28 — scoped cleanup network transport and entry
 
-**Status:** implementation candidate on top of PR #262, master
-`569582e7a3df9847d7525f566ba9e4f5088cddbd`. Corrected-source protected CI is
-pending. The [disabled identity staging](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
-remains complete; no account, pool or provider is enabled by this change.
-No workflow is deployed or dispatched, and no GCP resource is touched.
+**Status:** implementation accepted through PR #263, master
+`e8a349096383a092b47c4ac6774dd3c8f9b12684`.
+[CI 36706204243](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36706204243)
+completed successfully after failed-job rerun (attempt 2); its final view has all
+29 jobs successful, combining retained attempt-1 results and rerun results.
+This is not an all-jobs-same-attempt paid-admission receipt.
+The original public-fault failure remains retained: a strict read after restart
+returned `QUORUM_UNAVAILABLE` while a peer was installing recovery state. The
+unchanged-source rerun passed; it does not establish or fix the latency cause.
+The [disabled identity staging](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md) remains
+complete. Real-provider qualification and separately approved activation are open.
 
 ## One cleanup policy, separate network execution
 
@@ -125,9 +131,10 @@ lease, budget and request timing parameters are unchanged.
 
 ## Next boundary
 
-After corrected-source CI, prepare the exact cleanup workflow/identity activation
-review, including the unresolved inherited IAM observations and real-provider
-qualification/failure evidence. Keep the runner disabled while transitioning the
+The [6C3C29 deployment review](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) prepares the
+exact workflow bytes, staged enable/disable commands and readback. Unresolved
+inherited IAM observations and real-provider qualification/failure evidence remain
+activation prerequisites. Keep the runner disabled while transitioning the
 observer workflow path. Live cleanup activation remains separately authorized.
 Fresh manual **or** scheduled cleanup evidence then contributes to admission;
 remaining native workload integration, pricing and exact-request confirmation
