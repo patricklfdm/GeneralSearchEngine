@@ -6,7 +6,7 @@ if [[ $# -ne 0 ]]; then
   echo "usage: $0" >&2
   exit 2
 fi
-python3 -m unittest scripts.v51.test_cloud_preflight scripts.v51.test_cloud_identity_setup scripts.v51.test_cloud_cleanup_deployment
+python3 -m unittest scripts.v51.test_cloud_preflight scripts.v51.test_cloud_identity_setup scripts.v51.test_cloud_cleanup_deployment scripts.v51.test_cloud_cleanup_observation
 mkdir -p target/v51-cloud-preflight
 work_dir=$(mktemp -d "$root/target/v51-cloud-preflight/run.XXXXXX")
 timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_preflight_qualification "$work_dir/evidence"

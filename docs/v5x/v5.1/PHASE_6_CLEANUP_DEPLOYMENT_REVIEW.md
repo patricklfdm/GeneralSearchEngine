@@ -1,10 +1,16 @@
 # V5.1 Phase 6C3C29 — cleanup deployment review and readback
 
-**Status:** implementation candidate after PR #263, master
-`e8a349096383a092b47c4ac6774dd3c8f9b12684`. Protected CI for this change is pending.
-The preceding [scoped network entry](PHASE_6_CLEANUP_NETWORK.md) is accepted.
+**Status:** accepted through PR #264 and the outer CI timeout correction in
+PR #265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`.
+[CI 36756473536](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36756473536)
+passed all 29 jobs on attempt 1, including Cloud runner in 9m26s. The exact-source,
+exact-attempt checker also accepted the owned-experiment gate. The original PR
+and master 10-minute cancellations and master read-heavy burst-spread failure
+remain retained; later success does not establish that burst delay's cause.
 No cleanup workflow is installed, no identity is enabled and no cloud cleanup or
-paid workload is executed by this batch.
+paid workload is executed by this acceptance. The
+[next independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md) prepares real
+provider observations without replacing effective IAM or activation approval.
 
 ## Concrete review package
 
@@ -152,7 +158,6 @@ CI executes no cloud readback or enable command.
 scripts/verify-v51-phase6-cloud-preflight.sh
 ```
 
-Protected acceptance of this change, inherited IAM review, approved deployment,
-real credential/provider qualification and native cleanup readiness are still
-required. Nothing here substitutes for remaining native workload integration,
+Inherited IAM review, approved deployment, real credential/provider qualification
+and native cleanup readiness are still required. Nothing here substitutes for remaining native workload integration,
 pricing, exact-request confirmation or Phase 6 acceptance.

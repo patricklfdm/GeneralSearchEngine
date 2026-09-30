@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C28 scoped cleanup network entry; native activation pending; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C29 cleanup deployment review; native activation pending; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -152,7 +152,11 @@ through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`, CI
 the original public-fault failure retained. The
 [6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) adds separate
 runnable workflow proposals, exact enable/disable plans and read-only state checks.
-Its protected CI and real-provider activation qualification remain pending.
+It is accepted through PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`,
+CI `36756473536` attempt 1 (29 jobs). The
+[6C3C30 independent state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md) is the next
+implementation candidate; inherited IAM, actual cleanup activation and provider
+qualification remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

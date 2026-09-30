@@ -194,10 +194,13 @@ The [6C3C28 network cleanup implementation](v5.1/PHASE_6_CLEANUP_NETWORK.md) is
 accepted through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`,
 CI `36706204243` with 29 final successful jobs after failed-job rerun (attempt 2).
 The original public-fault failure is retained; retry success is not a timing fix.
-The [6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is a
-candidate: runnable workflow proposals outside .github, exact enable/disable plans
-and read-only state checks. Corrected-source CI, inherited IAM review and actual
-provider/activation qualification remain open; all three identities stay disabled.
+The [6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is accepted
+through PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`, exact-master
+CI `36756473536` attempt 1 (29 jobs). Original timeout and burst-spread failures
+remain retained. The [6C3C30 state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md)
+candidate adds GET-only native control/resource snapshots and independent
+comparison with an exact completed cleanup run. Inherited IAM review, deployed
+cleanup identities/workflows and real provider qualification remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
