@@ -180,12 +180,12 @@ def summary(value):
     for label, key in (('Active lease', 'activeLease'), ('Lease released', 'leaseReleased')):
         if key in result: rows.append((label, result[key]))
     for label, key in (('Credential exchange completed', 'credentialExchangeCompleted'),
-                       ('Effective IAM qualified', 'effectiveIamQualified')):
+                       ('Comprehensive IAM audit established', 'effectiveIamQualified')):
         if key in value: rows.append((label, value[key]))
     rows += [('Live activation allowed', False), ('Cleanup readiness established', False), ('Paid cloud executed', False)]
     return ('# V5.1 cleanup entry\n\n| Parameter | Value |\n| --- | --- |\n'+
             ''.join('| '+cell(k)+' | '+cell(v)+' |\n' for k,v in rows)+
-            '\n'+cell(value.get('reason', 'Cleanup result alone does not establish activation, effective IAM or paid readiness.'
+            '\n'+cell(value.get('reason', 'Cleanup result alone does not establish actual-identity permission qualification, activation or paid readiness; comprehensive ancestor-policy audit is not required.'
                 if value['execution'] == 'gcp-native-cleanup-entry' else
                 'Offline qualification only; context matching is not authentication.'))+'\n')
 

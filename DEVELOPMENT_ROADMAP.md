@@ -128,8 +128,17 @@ attempt 1 (all 29 jobs). The [Phase 6 checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST
 records each intermediate acceptance. The subsequent
 [disabled identity configuration](docs/v5x/v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
-All three identities/pools/providers remain disabled. Effective inherited IAM,
-native credential/cleanup activation and remaining remote integration are next.
+All three identities/pools/providers remain disabled. Subsequent scoped cleanup
+network integration and deployment review are accepted through 6C3C29. The
+[6C3C30 independent state review](docs/v5x/v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md)
+and outbound-admission correction are accepted through PR #266/#267, master
+`9243bc31dc3727a132b50740430426b3512fc5c8`, exact-master CI `36785256345`
+attempt 1 (all 29 jobs). The original failed run remains retained. Actual
+workflow-identity permission checks, real cleanup qualification/activation and
+remaining remote integration are next. The operator authorized a
+[bounded IAM review amendment](docs/v5x/v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
+ancestor-policy reads are optional and unassessed; required access, forbidden-action
+probes and explicit role/trust review remain mandatory, without extra privileges.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 V5.2-V5.4 remain future work.

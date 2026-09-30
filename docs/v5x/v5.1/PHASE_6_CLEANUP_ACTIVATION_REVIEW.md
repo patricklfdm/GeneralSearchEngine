@@ -55,8 +55,10 @@ These residual privileges must be explicit in the application approval.
   accounts and no `allUsers`/`allAuthenticatedUsers` binding. The project deny
   policy listing was empty. These observations cover only the queried resources.
 - Organization allow-policy and deny-policy reads both failed for lack of
-  permission. Effective inherited IAM remains **unqualified**. A successful
-  project read or disabled-staging audit cannot substitute for that review.
+  permission. Inherited IAM remains **unassessed**; the later operator-authorized
+  [scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
+  makes these reads optional. A successful project read or disabled-staging audit
+  still cannot establish actual-identity permission or real cleanup qualification.
 
 The retained read-only receipt and provider observations are under
 `target/v51-cleanup-activation-review/identity-absence/` and `provider-review/`.
@@ -141,8 +143,10 @@ runnable proposal, exact enable/disable plan and configuration readback; the
 original inactive review package remains unchanged. The original offline guards
 stay in place: changing a label or removing one stop does not open the general
 provider's POST/DELETE path. Real signature authentication,
-provider operation/ID semantics, effective IAM and failure evidence remain to be
-established before separately approved cleanup activation. Cleanup must not depend
+provider operation/ID semantics, actual-identity required/forbidden permissions
+and failure evidence remain to be qualified for cleanup readiness. Deployment and
+activation still require separate approval; ancestor-policy reads are optional
+under the scope amendment. Cleanup must not depend
 on green paid-workload CI, and must preserve failed charges and older-source
 retained ownership records.
 

@@ -109,16 +109,21 @@ The observer and subnet configuration were separately authorized and read back;
 organization/folder effective IAM remains unverified. The 6C3C23 disabled identity
 proposal/audits were accepted through PR #255, master
 `41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
-New identities remain unapplied. The 6C3C24 retained cleanup reconstruction was
+That acceptance covered the proposal; later authorized staging is recorded below.
+The 6C3C24 retained cleanup reconstruction was
 accepted through PR #256, master `2ea9dbbfbf2821afc859663c87925a0e1d93322c`,
 exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 native record formats
 and closed cleanup HTTP policy were accepted through PR #257, master
 `133b05e5cc02560877a74902911b21efacf2ba4c`, exact-master CI `36664035569` attempt 2
 (29 jobs). Attempt 1's automatic-healthy warmup `LANE_BUSY` remains recorded;
-retry success does not establish its latency cause. The 6C3C26 candidate adds
-bound manual/scheduled cleanup entries, inactive workflow proposals and 28
-fresh-process offline entry cases. Native IAM/cleanup activation and paid admission
-remain open.
+retry success does not establish its latency cause. Subsequent cleanup entries,
+credentials, scoped network integration and deployment/state review are accepted
+through 6C3C30: corrected master `9243bc31dc3727a132b50740430426b3512fc5c8`,
+CI `36785256345` attempt 1, all 29 jobs. The checklist below retains each acceptance.
+Disabled identity staging was separately authorized and completed. The operator
+subsequently authorized the [bounded IAM review scope](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
+ancestor reads are optional; actual-identity permission and real cleanup
+qualification, activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -204,7 +209,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C22 implementation candidate: [source/provider observations and independent manual workflows](PHASE_6_CLOUD_PREFLIGHT.md).
 - [x] 6C3C22 corrected-source protected CI and read-only provider qualification: PR #254 / CI `36635538287`, preflight `36643330675`.
 - [x] Observer WIF/IAM/environment and Private Google Access configured with authorization; explicit settings read back.
-- [ ] Effective organization/folder IAM review (parent policy read remains unavailable).
+- [x] Operator-authorized [IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30): ancestor policy reads are optional; unavailable inheritance stays unassessed, with no additional privileges.
+- [ ] Corrected-source protected CI for the IAM scope amendment and generated review guidance.
+- [ ] Actual observer/runner/manual/scheduled identity required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
 - [x] Separately authorized disabled identity application and exact readback on 2026-09-30: 45 commands, 33 audit reads, `STAGED_MATCH`; all identities remain disabled.
@@ -217,13 +224,13 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C26 corrected-source protected acceptance: PR #259 / CI `36679824140`, attempt 1, all 29 jobs.
 - [x] 6C3C27 implementation candidate: [bound cleanup credential exchange](PHASE_6_CLEANUP_CREDENTIALS.md), exact identity, expiry-aware refresh and integrated offline reconciliation.
 - [x] 6C3C27 corrected-source protected acceptance: PR #261 / CI `36695145198`, attempt 1, all 29 jobs.
-- [x] [Disabled identity configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md): authorized staging applied/read back; inherited IAM and native activation remain open.
+- [x] [Disabled identity configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md): authorized staging applied/read back; inherited IAM is unassessed, and actual-identity permission qualification and native activation remain open.
 - [x] 6C3C28 implementation candidate: [scoped cleanup network API and formal entry](PHASE_6_CLEANUP_NETWORK.md), shared reconciliation and loopback TLS failure qualification.
 - [x] 6C3C28 protected acceptance: PR #263 / CI `36706204243`, final 29 jobs successful after failed-job rerun (attempt 2); original public-fault failure retained.
 - [x] 6C3C29 implementation candidate: [cleanup deployment review package and readback](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md); no workflow deployment or identity enablement.
 - [x] 6C3C29 corrected-source protected acceptance: PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`, CI `36756473536` attempt 1, all 29 jobs.
 - [x] 6C3C30 implementation candidate: [read-only native cleanup observations and independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md); no live cleanup or readiness claim.
-- [ ] 6C3C30 corrected-source protected CI acceptance: PR #266 merged; master CI `36774917431` failed [local outbound admission](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission); runtime correction pending validation.
+- [x] 6C3C30 corrected-source protected CI acceptance: PR #266/#267, master `9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1, all 29 jobs; original [local outbound admission failure and correction](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission) retained.
 - [ ] Real-provider cleanup, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.

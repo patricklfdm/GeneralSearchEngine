@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C29 cleanup deployment review; native activation pending; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C30 independent cleanup state review; native activation pending; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -144,8 +144,9 @@ attempt 1 (all 29 jobs). The [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md)
 records each intermediate acceptance. The subsequent
 [disabled identity configuration](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
-All three identities/pools/providers remain disabled. Effective inherited IAM,
-native credential/cleanup activation and remaining remote integration remain open.
+All three identities/pools/providers remain disabled. Actual-identity permission
+qualification, native credential/cleanup activation and remaining remote integration
+remain open. Inherited IAM is unassessed under the later scope amendment below.
 The [6C3C28 scoped network entry](v5.1/PHASE_6_CLEANUP_NETWORK.md) is accepted
 through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`, CI
 `36706204243`: 29 final successful jobs after failed-job rerun (attempt 2), with
@@ -154,9 +155,14 @@ the original public-fault failure retained. The
 runnable workflow proposals, exact enable/disable plans and read-only state checks.
 It is accepted through PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`,
 CI `36756473536` attempt 1 (29 jobs). The
-[6C3C30 independent state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md) is the next
-implementation candidate; inherited IAM, actual cleanup activation and provider
-qualification remain open.
+[6C3C30 independent state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md) is accepted
+through PR #266/#267, corrected master `9243bc31dc3727a132b50740430426b3512fc5c8`,
+CI `36785256345` attempt 1 (all 29 jobs). The original outbound-admission failure
+and its correction remain recorded. The operator-authorized
+[IAM scope amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
+makes ancestor-policy reads optional without adding permissions. Actual-identity
+required/forbidden checks, cleanup activation and provider qualification remain
+open; the amendment's protected CI is pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 
