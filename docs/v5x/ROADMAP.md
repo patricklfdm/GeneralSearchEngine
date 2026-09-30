@@ -172,10 +172,14 @@ proposal/audits were accepted through PR #255, master
 `41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
 New identities remain unapplied. The 6C3C24 retained cleanup reconstruction was
 accepted through PR #256, master `2ea9dbbfbf2821afc859663c87925a0e1d93322c`,
-exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 candidate adds separate
-native record formats and a closed cleanup HTTP policy, qualified through the
-same offline adapters and shared reconciliation algorithm. Native IAM/cleanup
-activation and paid admission remain open.
+exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 native record formats
+and closed cleanup HTTP policy were accepted through PR #257, master
+`133b05e5cc02560877a74902911b21efacf2ba4c`, exact-master CI `36664035569` attempt 2
+(29 jobs). Attempt 1's automatic-healthy warmup `LANE_BUSY` remains recorded;
+retry success does not establish its latency cause. The 6C3C26 candidate adds
+bound manual/scheduled cleanup entries, inactive workflow proposals and 28
+fresh-process offline entry cases. Native IAM/cleanup activation and paid admission
+remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

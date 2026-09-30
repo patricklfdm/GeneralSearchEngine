@@ -1,11 +1,12 @@
 # V5.1 Phase 6C3C25 — native authority formats and cleanup HTTP policy
 
-**Status:** implementation candidate on PR #256 master
-`2ea9dbbfbf2821afc859663c87925a0e1d93322c`. Its
-[CI 36655860450](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36655860450)
-passed all 29 jobs on attempt 1. This accepts the preceding
-[retained reconstruction](PHASE_6_CLOUD_CLEANUP.md), not this candidate or native
-activation. Corrected-source protected CI remains required.
+**Status:** accepted through PR #257, master
+`133b05e5cc02560877a74902911b21efacf2ba4c`, with all 29 jobs passing
+[CI 36664035569](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36664035569)
+on attempt 2. This accepts native formats and offline HTTP policy qualification,
+not native activation. Attempt 1's automatic-healthy warmup failed when successful
+GET 9 took 1.134 seconds and arrival 10 encountered `LANE_BUSY`. Its diagnostics
+remain retained; a successful rerun does not establish the latency's cause.
 
 ## Separate record domains, shared invariants
 
@@ -122,3 +123,7 @@ activation. Native provider acceptance, operation-history availability, effectiv
 IAM and actual cleanup readiness require fresh evidence. Source delivery, remaining
 workload cells, pricing and exact-request approval still precede user-triggered
 paid experiments. Full Phase 6C remains open.
+
+The next [bound cleanup entries candidate](PHASE_6_CLEANUP_ENTRIES.md) adds exact
+workflow/run context checks and inactive manual/scheduled proposals; live transport
+and credentials remain closed.
