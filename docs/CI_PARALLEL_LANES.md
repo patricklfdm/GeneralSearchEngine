@@ -61,7 +61,17 @@ original single-attempt behavior; all attempt logs are uploaded independently.
 | `soak-examples` | Its first Maven JMH test compiles its inputs; the soak script packages JMH and travel script compiles the example reactor | 30 minutes |
 | `compatibility` | Unchanged independent build | 20 minutes |
 | `release-artifacts` | Unchanged independent build | 30 minutes |
-| `cloud-runner-tests` | Unchanged shell/Python checks | 5 minutes |
+| `cloud-runner-tests` | Shell/Python gates, including V5.1 preflight and provider/TLS/guest qualification | 60 minutes |
+
+The Cloud runner limit was subsequently raised from 10 to 60 minutes after
+[PR CI 36742860716](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36742860716)
+attempt 1 and [master CI 36746953697](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36746953697)
+were cancelled at the job ceiling. PR attempt 2 completed in 9m29s; in the master
+run, preflight took 81 seconds and provider qualification took 460 seconds before
+the remaining historical checks. These are whole-job observations, not a workload
+performance guarantee. Only the outer job ceiling changes; individual subprocess
+and frozen workload deadlines, verification commands and required results remain
+unchanged. The separate automatic-concurrent failure is not fixed by this limit.
 
 The regression timeouts retain headroom from the old 60-minute job. They are
 limits, not expected durations. Workload sizes, Maven test selection and Surefire
