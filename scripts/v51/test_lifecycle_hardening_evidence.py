@@ -46,6 +46,40 @@ class LifecycleHardeningEvidenceTest(unittest.TestCase):
             values=self.order(); values[-1].update(change)
             with self.subTest(change=change), self.assertRaises(ValueError): e.rebuild_order(*values)
 
+    def exchange(self):
+        admitted=dict(pid=10,generation=1,reservation=7,order=2,localNanos=1_000_049_319,
+                      requestStartedNanos=1_000_000_000,requestDeadlineNanos=2_200_000_000)
+        released=dict(pid=10,generation=1,reservation=7,order=3,localNanos=2_200_000_000)
+        return admitted,released
+
+    def test_timeout_uses_actual_deadline_despite_delayed_admission_log(self):
+        e.exchange_timeout(*self.exchange(),1_200_000_000)
+
+    def test_observer_can_resume_after_deadline_without_restarting_timer(self):
+        admitted,released=self.exchange();admitted['localNanos']=released['localNanos']=2_300_000_000
+        e.exchange_timeout(admitted,released,1_200_000_000)
+
+    def test_early_release_is_rejected_even_by_one_nanosecond(self):
+        admitted,released=self.exchange();released['localNanos']-=1
+        with self.assertRaises(ValueError):e.exchange_timeout(admitted,released,1_200_000_000)
+
+    def test_missing_noninteger_and_changed_deadline_cannot_qualify_timeout(self):
+        for key in ('requestStartedNanos','requestDeadlineNanos'):
+            for value in (None,True,'1000000000'):
+                admitted,released=self.exchange();released['localNanos']=3_000_000_000
+                if value is None:del admitted[key]
+                else:admitted[key]=value
+                with self.subTest(key=key,value=value),self.assertRaises(ValueError):e.exchange_timeout(admitted,released,1_200_000_000)
+        admitted,released=self.exchange();admitted['requestDeadlineNanos']+=1;released['localNanos']=3_000_000_000
+        with self.assertRaises(ValueError):e.exchange_timeout(admitted,released,1_200_000_000)
+
+    def test_borrowed_or_reordered_reservation_cannot_qualify_timeout(self):
+        for change in (dict(pid=11),dict(generation=2),dict(reservation=8),dict(order=1)):
+            admitted,released=self.exchange();released.update(localNanos=3_000_000_000,**change)
+            with self.subTest(change=change),self.assertRaises(ValueError):e.exchange_timeout(admitted,released,1_200_000_000)
+        admitted,released=self.exchange();admitted['localNanos']=admitted['requestStartedNanos']-1
+        with self.assertRaises(ValueError):e.exchange_timeout(admitted,released,1_200_000_000)
+
     def torn(self,kind='ACCEPT'):
         temp=tempfile.TemporaryDirectory(); self.addCleanup(temp.cleanup); root=Path(temp.name); frames=fixture.create(root)
         directory=root/'node-1'; name='accepted.gsr' if kind=='ACCEPT' else 'proofs.gsr'; path=directory/name

@@ -27,6 +27,18 @@ def rebuild_order(held, installed, queued, query_released, view_released, begin,
     need(queued['id'] == begin['id'] == end['id'] and queued['index'] == begin['index'] == end['index'], 'rebuild work identity changed')
 
 
+def exchange_timeout(admitted, released, timeout_nanos):
+    # localNanos is sampled after observer locking/encoding. It is not the
+    # request timer's origin, which precedes that observation by an unbounded gap.
+    started, deadline = admitted.get('requestStartedNanos'), admitted.get('requestDeadlineNanos')
+    need(type(started) is int and type(deadline) is int and deadline-started == timeout_nanos,
+         'missing or changed actual request deadline')
+    need(all(admitted[k] == released[k] for k in ('pid', 'generation', 'reservation')) and
+         admitted['order'] < released['order'] and
+         started <= admitted['localNanos'] <= released['localNanos'], 'timeout reservation identity/order')
+    need(released['localNanos'] >= deadline, 'request released before actual deadline')
+
+
 def validate(root, traces, history, receipt):
     root = Path(root); case = receipt['case']; need(case in CASES, 'unknown lifecycle case')
     manifest = sealed_schedule(root, 'node-3'); leader = receipt['leader']; calls = {op['opId']:op for op in history}
@@ -147,8 +159,8 @@ def validate(root, traces, history, receipt):
                  and released['request'] == held['request'], 'timeout reservation not released')
             admitted = [r for r in traces[leader] if r['event'] == 'TRANSPORT' and r['transition'] == 'OUTBOUND_ADMITTED'
                         and r['pid'] == released['pid'] and r['reservation'] == released['reservation']]
-            need(len(admitted) == 1 and previous < admitted[0]['order'] < released['order']
-                 and released['localNanos']-admitted[0]['localNanos'] >= 1200_000_000, 'request did not time out within actual reservation')
+            need(len(admitted) == 1 and previous < admitted[0]['order'] < released['order'], 'timeout reservation order')
+            exchange_timeout(admitted[0], released, 1200_000_000)
             sample = sampled(cycle['sample']); need(sample['order'] > released['order'], 'queue sample predates timeout')
             op = calls[cycle['write']]; need(op['node'] == leader and op['outcome'] == 'SUCCESS', 'majority did not serve after timeout')
             previous = released['order']
@@ -172,6 +184,21 @@ def negatives(root, traces, history, receipt):
         try: validate(root, altered, history, receipt)
         except ValueError as error: result.append(dict(case=name, status='REJECTED', reason=str(error)))
         else: raise ValueError('lifecycle oracle admitted '+name)
+    if case == 'exchange-timeouts':
+        for name in ('missing-request-deadline', 'changed-request-deadline', 'release-before-request-deadline'):
+            altered, changed = copy.deepcopy(traces), copy.deepcopy(receipt)
+            release = changed['rounds'][0]['released']
+            own = [r for r in altered[changed['leader']] if r['event'] == 'TRANSPORT' and
+                   r['pid'] == release['pid'] and r['reservation'] == release['reservation']]
+            admitted = next(r for r in own if r['transition'] == 'OUTBOUND_ADMITTED')
+            if name == 'missing-request-deadline': admitted.pop('requestDeadlineNanos')
+            elif name == 'changed-request-deadline': admitted['requestDeadlineNanos'] += 1
+            else:
+                release['localNanos'] = admitted['requestDeadlineNanos']-1
+                next(r for r in own if r['transition'] == 'OUTBOUND_RELEASED')['localNanos'] = release['localNanos']
+            try: validate(root, altered, history, changed)
+            except ValueError as error: result.append(dict(case=name, status='REJECTED', reason=str(error)))
+            else: raise ValueError('lifecycle oracle admitted '+name)
     altered = copy.deepcopy(receipt); altered['expected'] = []
     try: validate(root, traces, history, altered)
     except ValueError as error: result.append(dict(case='changed-final-projection', status='REJECTED', reason=str(error)))

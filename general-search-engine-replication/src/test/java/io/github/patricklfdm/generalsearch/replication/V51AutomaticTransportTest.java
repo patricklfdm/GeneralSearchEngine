@@ -131,6 +131,35 @@ class V51AutomaticTransportTest {
             second.get(3,TimeUnit.SECONDS);
         }finally{firstRelease.countDown();secondRelease.countDown();}
     }
+    @Test void admissionObservationDoesNotRestartTheOriginalRequestDeadline() throws Exception {
+        var times=new java.util.concurrent.atomic.AtomicLongArray(4);
+        var admissions=new java.util.concurrent.atomic.AtomicInteger();
+        var releases=new java.util.concurrent.atomic.AtomicInteger();
+        AutomaticTransport.Events observer=new AutomaticTransport.Events() {
+            public void at(String barrier,Map<String,Object> request,Map<String,Object> response) { }
+            public void outboundAdmitted(Map<String,Object> request,Object token,int bytes,long started,long deadline) {
+                times.set(0,started);times.set(1,deadline);
+                // Deliberately stall observation until this exact deadline has
+                // elapsed. No network request should then be sent or timer reset.
+                long remaining;
+                while((remaining=deadline-System.nanoTime())>0)
+                    java.util.concurrent.locks.LockSupport.parkNanos(remaining);
+                times.set(2,System.nanoTime());
+                AutomaticTransport.Events.super.outboundAdmitted(request,token,bytes,started,deadline);
+            }
+            public void accounting(String event,Map<String,Object> request,Object token,int bytes) {
+                if(event.equals("OUTBOUND_ADMITTED"))admissions.incrementAndGet();
+                if(event.equals("OUTBOUND_RELEASED")){times.set(3,System.nanoTime());releases.incrementAndGet();}
+            }
+        };
+        try(var pair=new Pair(observer)) {
+            var error=assertThrows(ExecutionException.class,()->pair.sender.exchange("node-2",pair.request()).get(3,TimeUnit.SECONDS));
+            assertEquals(ReplicationException.Reason.QUORUM_UNAVAILABLE,((ReplicationException)error.getCause()).reason());
+            assertEquals(TimeUnit.MILLISECONDS.toNanos(V51RuntimeFixture.BOUNDS.requestTimeoutMillis()),times.get(1)-times.get(0));
+            assertTrue(times.get(2)>=times.get(1));assertTrue(times.get(3)>=times.get(2));
+            assertEquals(1,admissions.get());assertEquals(1,releases.get());assertEquals(0,pair.handled.get());
+        }
+    }
     static void assertCapacity(CompletableFuture<?> future) {
         var failure=assertThrows(ExecutionException.class,()->future.get(1,TimeUnit.SECONDS));
         assertEquals(ReplicationException.Reason.CAPACITY_EXCEEDED,((ReplicationException)failure.getCause()).reason());

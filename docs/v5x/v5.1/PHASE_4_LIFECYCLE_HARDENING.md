@@ -180,3 +180,52 @@ Exact-master CI `35794875603` passed all 13 jobs, including the public lifecycle
 lane and V5.0 recovery/workload. This supersedes the pending-CI statements in the
 historical local records above. The [final coverage batch](PHASE_4_FINAL_COVERAGE.md)
 continues the remaining Phase 4 reconciliation; no Phase 5/cloud work is implied.
+
+## Post-PR #258 correction: observe the actual request deadline
+
+Master [CI 36670188539](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36670188539/job/109744566540)
+on `5a4ffb37169d62028fc4732c7f37dc0a0e6e88c9` failed only the public hardening
+lane (plus its Required result). The `exchange-timeouts` scenario completed its
+public operations and restart; both the 14-call independent history and physical
+validation passed. The subsequent timeout oracle rejected round 3. Its observed
+admission-to-release intervals were 1200.908236, 1200.971354 and **1199.950681 ms**.
+The other four lifecycle cases passed. This is separate from the preceding
+native cleanup entry changes, which did not change this runtime or fixture.
+
+`AutomaticTransport` fixes the request deadline before invoking admission
+accounting. The observer then acquires locks, encodes the request and samples
+`localNanos` while recording `OUTBOUND_ADMITTED`. That later log timestamp is not
+the timer origin. Requiring 1200 ms after it can reject a request that correctly
+expired at its original deadline. The final observed interval missed that invalid
+lower bound by 49,319 ns. The old trace does not retain the actual deadline, so its
+original failure stays retained; it is not retroactively accepted or assigned a
+GitHub scheduling cause.
+
+The correction adds an internal `outboundAdmitted` observer callback containing
+`requestStartedNanos` and `requestDeadlineNanos`, taken from the same unchanged
+clock sample and deadline passed to the sender. Its default delegates once to the
+existing accounting callback, preserving reservation tokens and legacy observers.
+There is no additional wire field or public API. The request timer, queue/retry
+budget, 1200-ms sealed limit and release behavior are unchanged; the replication
+JAR changes only to expose the actual timing witness.
+
+The public observer records these fields on the existing admission event. The
+oracle checks the exact sealed deadline interval, matching process/generation/
+reservation, event order, and release at or after that deadline. It does not add
+an epsilon or relax the frozen timeout. Missing/altered deadline fields and even
+one-nanosecond early release remain rejected. Existing authority/history, restart,
+queue accounting, held-response and post-timeout service checks remain enabled.
+
+A deterministic Java regression stalls the admission observer until the actual
+deadline has elapsed: the sender must expire in its queue without sending a request,
+restart of the timer or reservation leak. Five Python tests cover delayed admission
+logging, logging after expiry, early release, malformed deadlines and borrowed
+reservations. Three additional retained evidence mutations remove/change the
+deadline or move release before it. Original failing regression logs and CI
+artifacts are retained under `target/v51-hardening-ci-36670188539`.
+
+Local validation passed the complete reactor (900 tests, four existing skips),
+29 lifecycle/pressure evidence tests, and all five fresh-JVM lifecycle cases with
+57 rejected evidence mutations. Results are retained in that directory's
+`validation-summary.json` and PR description. Corrected-source protected
+qualification remains required.
