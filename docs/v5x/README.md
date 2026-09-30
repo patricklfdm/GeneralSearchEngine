@@ -145,7 +145,10 @@ records each intermediate acceptance. The subsequent
 [disabled identity configuration](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
 All three identities/pools/providers remain disabled. Effective inherited IAM,
-native credential/cleanup activation and remaining remote integration are next.
+native credential/cleanup activation and remaining remote integration remain open.
+The [6C3C28 network cleanup candidate](v5.1/PHASE_6_CLEANUP_NETWORK.md) now supplies
+the scoped HTTPS API and formal entry with loopback TLS qualification; protected
+CI and real-provider activation qualification remain pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

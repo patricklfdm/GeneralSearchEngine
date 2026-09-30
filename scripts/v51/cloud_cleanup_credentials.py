@@ -1,4 +1,4 @@
-"""Bound GitHub WIF exchange for cleanup. Live activation is still closed.
+"""Bound GitHub WIF exchange for cleanup; deployment/identity activation is separate.
 
 Consumes only the pinned auth action's external-account descriptor. No ambient
 ADC, gcloud account, service-account key or caller-selected impersonation target.
@@ -85,12 +85,10 @@ def claims(token, binding, now):
     return value
 
 
-class Credentials:
-    def __init__(self, binding, env, value, *, transport=None, clock=time.monotonic, wall=time.time):
-        self.transport = transport if transport is not None else http.Network()
-        # This batch qualifies the entire exchange offline. No env/CLI flag opens
-        # the network; deployment and effective-IAM review are separate work.
-        m.need(self.transport.offline is True, 'native cleanup credentials not activated')
+class _Exchange:
+    def __init__(self, binding, env, value, *, transport, clock=time.monotonic, wall=time.time):
+        self.transport = transport
+        self.exchanges = 0
         self.binding = deepcopy(binding)
         self.value = descriptor(binding, env, value)
         self.clock, self.wall = clock, wall
@@ -129,6 +127,26 @@ class Credentials:
             m.need(isinstance(expires,str) and expires.endswith('Z'), 'cleanup token expiry')
             remaining = datetime.fromisoformat(expires[:-1]+'+00:00').timestamp()-self.wall()
             m.need(60 < remaining <= 3600, 'cleanup token lifetime')
-            return http.AccessToken(bearer(result['accessToken']), self.clock()+remaining-60)
+            token = http.AccessToken(bearer(result['accessToken']), self.clock()+remaining-60)
+            self.exchanges += 1
+            return token
         except Exception:
             raise ValueError('cleanup credential exchange rejected') from None
+
+
+class Credentials(_Exchange):
+    """Preserved offline entry: passing a live transport still fails closed."""
+    def __init__(self, binding, env, value, *, transport=None, clock=time.monotonic, wall=time.time):
+        transport = transport if transport is not None else http.Network()
+        m.need(transport.offline is True, 'native cleanup credentials not activated')
+        super().__init__(binding, env, value, transport=transport, clock=clock, wall=wall)
+
+
+class NetworkCredentials(_Exchange):
+    """Fixed network exchange used only by the scoped native cleanup entry.
+
+    No caller-selected transport, token supplier, account or endpoint override.
+    Descriptor/claim checks and Google STS/impersonation remain shared.
+    """
+    def __init__(self, binding, env, value):
+        super().__init__(binding, env, value, transport=http.Network())

@@ -218,7 +218,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C27 implementation candidate: [bound cleanup credential exchange](PHASE_6_CLEANUP_CREDENTIALS.md), exact identity, expiry-aware refresh and integrated offline reconciliation.
 - [x] 6C3C27 corrected-source protected acceptance: PR #261 / CI `36695145198`, attempt 1, all 29 jobs.
 - [x] [Disabled identity configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md): authorized staging applied/read back; inherited IAM and native activation remain open.
-- [ ] Native provider/cleanup transport, identity and activation qualification.
+- [x] 6C3C28 implementation candidate: [scoped cleanup network API and formal entry](PHASE_6_CLEANUP_NETWORK.md), shared reconciliation and loopback TLS failure qualification.
+- [ ] 6C3C28 corrected-source protected CI acceptance.
+- [ ] Real-provider cleanup, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
