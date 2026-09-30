@@ -170,7 +170,8 @@ The observer and subnet configuration were separately authorized and read back;
 organization/folder effective IAM remains unverified. The 6C3C23 disabled identity
 proposal/audits were accepted through PR #255, master
 `41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
-New identities remain unapplied. The 6C3C24 retained cleanup reconstruction was
+That acceptance covered the proposal; later authorized staging is recorded below.
+The 6C3C24 retained cleanup reconstruction was
 accepted through PR #256, master `2ea9dbbfbf2821afc859663c87925a0e1d93322c`,
 exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 native record formats
 and closed cleanup HTTP policy were accepted through PR #257, master
@@ -179,9 +180,16 @@ and closed cleanup HTTP policy were accepted through PR #257, master
 retry success does not establish its latency cause. The 6C3C26 bound cleanup entries were accepted through corrected-source PR #259,
 master `a25ecba2121526e4cef4d41ee1a90f1e1f64259e`, exact-master CI `36679824140`
 attempt 1 (29 jobs). PR #258's inherited timeout-oracle failure remains recorded.
-The 6C3C27 candidate adds exact-entry OIDC/STS/account credential exchange,
-expiry-aware refresh and 28 additional fresh-process offline entry cases.
-Native IAM/cleanup activation and paid admission remain open.
+The [6C3C27 credential integration](v5.1/PHASE_6_CLEANUP_CREDENTIALS.md) was accepted
+through PR #261, master `27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`, exact-master
+CI `36695145198` attempt 1 (29 jobs). PR #260's combined-lifecycle failure and its
+Phase 5B correction remain recorded. This accepts exact-entry OIDC/STS/account
+exchange, expiry-aware refresh and offline reconciliation.
+The [disabled configuration and activation review](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
+records the authorized 2026-09-30 application: 45 commands, 33 independent audit
+reads and `STAGED_MATCH`, with all three identities/pools/providers disabled and
+unrelated configuration preserved. Effective inherited IAM, native cleanup
+activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

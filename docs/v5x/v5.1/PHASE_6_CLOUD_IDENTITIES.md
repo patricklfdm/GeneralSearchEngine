@@ -149,3 +149,23 @@ paid experiments. Neither staged configuration nor observer success closes 6C.
 The next [retained cleanup reconstruction candidate](PHASE_6_CLOUD_CLEANUP.md)
 provides independent process recovery through the same HTTP adapters and shared
 reconciler. It retains the native activation boundary described above.
+
+
+## Authorized disabled staging after PR #261
+
+On 2026-09-30, the operator separately authorized the existing exact configuration
+package reviewed against master `27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`.
+The [application and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
+records all 45 commands, the fresh absence check, independent `STAGED_MATCH`
+readback and preservation of unrelated project/bucket/identity/environment state.
+All three service accounts, pools and providers remain disabled, with no user
+keys. The manual cleanup account's initial post-disable read did not yet show
+`disabled`; execution stopped before grants and resumed only after another read
+confirmed disabled state and no bindings. No mutation was replayed.
+
+This supersedes the original unapplied-proposal status above. It does not enable
+native authentication, deploy cleanup workflows, establish effective inherited
+IAM or authorize paid execution. Organization allow/deny policy reads remain
+unavailable. Continue with cleanup-only native credential/transport qualification
+and the separately reviewed activation boundary; keep the future runner disabled
+while the observer occupies its workflow path and environment.
