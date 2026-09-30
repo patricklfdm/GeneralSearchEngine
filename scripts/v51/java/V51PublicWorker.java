@@ -39,13 +39,17 @@ public final class V51PublicWorker {
         final Path root;final Trace trace;final AutomaticRecords.Record manifest;
         final Map<Object,Long> reservations=new IdentityHashMap<>();long serial,holds;
         Pressure(Path root,Trace trace,AutomaticRecords.Record manifest){this.root=root;this.trace=trace;this.manifest=manifest;}
-        synchronized void accounting(String event,Map<String,Object> request,Object token,int bytes) {
+        void accounting(String event,Map<String,Object> request,Object token,int bytes) {
+            accounting(event,request,token,bytes,null,null);
+        }
+        synchronized void accounting(String event,Map<String,Object> request,Object token,int bytes,Long started,Long deadline) {
             try {
                 long id=0;
                 if(event.endsWith("_ADMITTED")){id=++serial;if(reservations.put(token,id)!=null)throw new IOException("duplicate reservation");}
                 if(event.endsWith("_RELEASED")){Long found=reservations.remove(token);if(found==null)throw new IOException("unmatched reservation release");id=found;}
                 var row=new LinkedHashMap<String,Object>();row.put("transition",event);row.put("reservation",id);row.put("bytes",bytes);
                 if(!request.isEmpty())row.put("request",b64(AutomaticWire.encode(request,manifest,1<<20)));
+                if(started!=null){row.put("requestStartedNanos",started);row.put("requestDeadlineNanos",deadline);}
                 trace.write("TRANSPORT",row);
             }catch(IOException e){throw new UncheckedIOException(e);}
         }
@@ -197,6 +201,9 @@ public final class V51PublicWorker {
             };
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(hooks,new AutomaticTransport.Events(){
             public void accounting(String event,Map<String,Object> request,Object token,int bytes){if(pressure!=null)pressure.accounting(event,request,token,bytes);}
+            public void outboundAdmitted(Map<String,Object> request,Object token,int bytes,long started,long deadline) {
+                if(pressure!=null)pressure.accounting("OUTBOUND_ADMITTED",request,token,bytes,started,deadline);
+            }
             public void at(String barrier,Map<String,Object> request,Map<String,Object> response) throws IOException {
                 if(pressure!=null)pressure.hold(barrier,request);
                 Path rules=root.resolve("network-rules.txt");

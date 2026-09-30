@@ -28,6 +28,11 @@ final class AutomaticTransport implements AutoCloseable {
         void at(String barrier, Map<String, Object> request, Map<String, Object> response) throws IOException;
         /** Internal observation only. The token identifies one reservation, including exact-request retries. */
         default void accounting(String event, Map<String,Object> request, Object token, int bytes) { }
+        /** Observe the exact existing outbound timer, before any observer encoding or I/O. */
+        default void outboundAdmitted(Map<String,Object> request, Object token, int bytes,
+                                      long startedNanos, long deadlineNanos) {
+            accounting("OUTBOUND_ADMITTED", request, token, bytes);
+        }
     }
     private final AutomaticRecords.Record manifest;
     private final String local;
@@ -112,10 +117,11 @@ final class AutomaticTransport implements AutoCloseable {
             queuedBytes.addAndGet(-bytes.length); capacity.release();
             return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "outbound byte budget exhausted"));
         }
-        long deadline = deadline();
+        long startedNanos = System.nanoTime();
+        long deadline = startedNanos + TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
         Map<String, Object> expected = java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(request));
         try {
-            events.accounting("OUTBOUND_ADMITTED",expected,result,bytes.length);
+            events.outboundAdmitted(expected,result,bytes.length,startedNanos,deadline);
             senders.get(peer).execute(() -> {
                 try {
                     Map<String,Object> response;
