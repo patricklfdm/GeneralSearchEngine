@@ -1,11 +1,11 @@
 # V5.1 Phase 6C3C24 — retained cleanup reconstruction
 
-**Status:** implementation candidate on PR #255 master
-`41b567b7cb96d36157a4434b02268b746492edfd`. That exact source passed
-[CI 36648030423](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36648030423),
-all 29 jobs. The preceding [identity proposal and audits](PHASE_6_CLOUD_IDENTITIES.md)
-are accepted as disabled staging code; new identities have not been applied or
-activated. Corrected-source protected CI remains required for this batch.
+**Status:** accepted through PR #256, master
+`2ea9dbbfbf2821afc859663c87925a0e1d93322c`, with all 29 jobs passing
+[CI 36655860450](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36655860450)
+on attempt 1. This acceptance covers offline retained reconstruction. The
+preceding [disabled identity proposals](PHASE_6_CLOUD_IDENTITIES.md) remain
+unapplied; native activation is separately pending.
 
 ## Problem and change
 
@@ -102,3 +102,7 @@ provider reconciliation and SSH/mount delivery; then implement and review the
 separate scheduled/manual cleanup workflows and activation. Fresh exact-source
 cleanup evidence and all remaining admission checks precede user-triggered paid
 experiments. This batch does not close Phase 6C or authorize cloud allocation.
+
+The next [native authority and HTTP policy candidate](PHASE_6_NATIVE_CLEANUP.md)
+shares these reconciliation invariants while requiring distinct native records.
+It remains offline-only and does not activate provider mutations.

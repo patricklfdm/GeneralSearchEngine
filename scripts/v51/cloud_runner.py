@@ -12,8 +12,8 @@ from .remote_budget import Budget
 from .remote_command import write_once
 
 
-def adapters(store, provider):
-    m.need(store.execution == provider.execution == a.EXECUTION, 'unqualified cloud adapter; paid execution disabled')
+def adapters(store, provider, *, authority=a):
+    m.need(store.execution == provider.execution == authority.ADAPTER_EXECUTION, 'unqualified cloud adapter; paid execution disabled')
 
 
 def failure(phase, error):
@@ -32,9 +32,9 @@ def retain(store, key, value):
     return m.sha(value if isinstance(value, bytes) else m.canonical(value))
 
 
-def cleanup(provider, lease, persist):
+def cleanup(provider, lease, persist, *, authority=a):
     """One shared cleanup path for finally, schedule and manual reconciliation."""
-    a.validate_lease(lease)
+    authority.validate_lease(lease)
     errors, checks = [], []
     rows = sorted(lease['resources'], key=lambda r: {'instance': 0, 'disk': 1, 'firewall': 2}[r['spec']['kind']])
     resolved = {}
@@ -74,18 +74,18 @@ def cleanup(provider, lease, persist):
                 checks=checks, errors=errors, leftovers=[r['name'] for r in checks if not r['absent']])
 
 
-def finalize(store, lease, completion):
+def finalize(store, lease, completion, *, authority=a):
     """Retention precedes the append-only terminal event and lease release."""
-    req = lease['request']; sha = a.validate_request(req)
+    req = lease['request']; sha = authority.validate_request(req)
     key = a.PREFIX+'attempts/'+sha+'/completion.json'
     retain(store, key, completion)
     current = store.get(a.LEDGER)
     if current is not None:
         generation, ledger = current
-        _, attempts = a.inspect_ledger(ledger)
+        _, attempts = authority.inspect_ledger(ledger)
         if sha in attempts:
             if attempts[sha]['status'] == 'PENDING':
-                store.put(a.LEDGER, a.finish(ledger, req, completion), generation)
+                store.put(a.LEDGER, authority.finish(ledger, req, completion), generation)
             else:
                 m.need(any(r.get('completionSha256') == m.sha(m.canonical(completion)) and
                            r['requestSha256'] == sha for r in ledger['entries']), 'terminal completion changed')
@@ -233,10 +233,10 @@ class Runner:
         return result
 
 
-def reconcile(store, provider, output, *, trigger, now, provider_factory=None):
-    m.need(store.execution == a.EXECUTION, 'unqualified cleanup store; paid execution disabled')
+def reconcile(store, provider, output, *, trigger, now, provider_factory=None, authority=a, on_expired=None):
+    m.need(store.execution == authority.ADAPTER_EXECUTION, 'unqualified cleanup store; paid execution disabled')
     if provider_factory is None:
-        adapters(store, provider)
+        adapters(store, provider, authority=authority)
     else:
         m.need(provider is None and callable(provider_factory), 'cleanup provider factory')
     m.need(trigger in ('schedule', 'manual'), 'cleanup trigger')
@@ -244,19 +244,21 @@ def reconcile(store, provider, output, *, trigger, now, provider_factory=None):
     output = Path(output); output.mkdir(parents=True, exist_ok=False)
     current = store.get(a.LEASE)
     if current is None:
-        result = dict(status='PASS', activeLease=False, trigger=trigger, execution=a.EXECUTION)
+        result = dict(status='PASS', activeLease=False, trigger=trigger, execution=authority.ADAPTER_EXECUTION)
     else:
         generation, lease = current
-        a.validate_lease(lease)
+        authority.validate_lease(lease)
         if now < lease['expiresAt']+lease['graceSeconds']:
-            result = dict(status='WAITING', activeLease=True, trigger=trigger, execution=a.EXECUTION)
+            result = dict(status='WAITING', activeLease=True, trigger=trigger, execution=authority.ADAPTER_EXECUTION)
         else:
-            if provider_factory is not None and any(row['attempted'] for row in lease['resources']):
+            if provider_factory is not None or on_expired is not None:
                 try:
-                    provider = provider_factory(deepcopy(lease))
-                    adapters(store, provider)
+                    if on_expired is not None: on_expired(deepcopy(lease), generation)
+                    if provider_factory is not None and any(row['attempted'] for row in lease['resources']):
+                        provider = provider_factory(deepcopy(lease))
+                        adapters(store, provider, authority=authority)
                 except (Exception, KeyboardInterrupt) as error:
-                    result = dict(status='FAIL', trigger=trigger, execution=a.EXECUTION,
+                    result = dict(status='FAIL', trigger=trigger, execution=authority.ADAPTER_EXECUTION,
                                   leaseReleased=False, failure=failure('reconstruction', error))
                     write_once(output/'receipt.json', result)
                     return result
@@ -265,21 +267,21 @@ def reconcile(store, provider, output, *, trigger, now, provider_factory=None):
             def persist():
                 nonlocal generation
                 generation = store.put(a.LEASE, lease, generation)
-            outcome = cleanup(provider, lease, persist)
-            sha = a.validate_request(lease['request'])
-            result = dict(status='FAIL', trigger=trigger, execution=a.EXECUTION, cleanup=outcome, leaseReleased=False)
+            outcome = cleanup(provider, lease, persist, authority=authority)
+            sha = authority.validate_request(lease['request'])
+            result = dict(status='FAIL', trigger=trigger, execution=authority.ADAPTER_EXECUTION, cleanup=outcome, leaseReleased=False)
             try:
                 # Preserve a previous completion if upload succeeded but read-back or
                 # finalization was interrupted. Otherwise retain an explicit failed attempt.
                 key = a.PREFIX+'attempts/'+sha+'/completion.json'
                 old = store.get(key)
-                completion = old[1] if old else dict(schema='gse-v51-control-completion-v1',
-                    execution=a.EXECUTION, requestSha256=sha, status='FAIL', paidCloud=False,
+                completion = old[1] if old else dict(schema=authority.COMPLETION_SCHEMA,
+                    execution=authority.EXECUTION, requestSha256=sha, status='FAIL', paidCloud=authority.PAID_CLOUD,
                     engineWorkloadExecuted=False, fullRemoteQualification=False, reason='expired interrupted owner')
-                m.need(completion['requestSha256'] == sha and completion['execution'] == a.EXECUTION,
+                m.need(completion['requestSha256'] == sha and completion['execution'] == authority.EXECUTION,
                        'reconciled completion identity')
                 retain(store, a.PREFIX+'attempts/'+sha+f'/cleanup-{generation}.json', result)
-                finalize(store, lease, completion)
+                finalize(store, lease, completion, authority=authority)
                 if outcome['status'] == 'PASS':
                     store.delete(a.LEASE, generation)
                     result.update(status='PASS', leaseReleased=True)

@@ -109,10 +109,12 @@ The observer and subnet configuration were separately authorized and read back;
 organization/folder effective IAM remains unverified. The 6C3C23 disabled identity
 proposal/audits were accepted through PR #255, master
 `41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
-New identities remain unapplied. The 6C3C24 candidate retains request-bound cleanup
-context before allocation and reconstructs the shared expired reconciler in fresh
-processes through offline HTTP adapters. Native IAM/cleanup activation and paid
-admission remain open.
+New identities remain unapplied. The 6C3C24 retained cleanup reconstruction was
+accepted through PR #256, master `2ea9dbbfbf2821afc859663c87925a0e1d93322c`,
+exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 candidate adds separate
+native record formats and a closed cleanup HTTP policy, qualified through the
+same offline adapters and shared reconciliation algorithm. Native IAM/cleanup
+activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -203,7 +205,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
 - [ ] Separately authorized disabled identity application and native activation review.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
-- [ ] 6C3C24 corrected-source protected CI and native provider/cleanup qualification.
+- [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
+- [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
+- [ ] 6C3C25 corrected-source protected CI and native provider/cleanup activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
