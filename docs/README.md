@@ -84,6 +84,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C3C26 bound cleanup entries and inactive workflow proposals](v5x/v5.1/PHASE_6_CLEANUP_ENTRIES.md)
 - [V5.1 Phase 6C3C27 cleanup credential exchange integration](v5x/v5.1/PHASE_6_CLEANUP_CREDENTIALS.md)
 - [V5.1 Phase 6C3C28 scoped cleanup network transport and TLS qualification](v5x/v5.1/PHASE_6_CLEANUP_NETWORK.md)
+- [V5.1 Phase 6C3C29 cleanup workflow deployment review and state readback](v5x/v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md)
 - [V5.1 disabled cleanup configuration and activation review](v5x/v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 - [V5.1 Phase 6C3C17 accepted owned V4.4 healthy control](v5x/v5.1/PHASE_6_OWNED_V44.md)
 - [V5.1 Phase 6C3C15 owned backup/restore](v5x/v5.1/PHASE_6_OWNED_BACKUP.md)

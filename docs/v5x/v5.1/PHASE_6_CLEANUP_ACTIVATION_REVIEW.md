@@ -132,11 +132,15 @@ identities and one advisory concurrency group. Numeric repository/owner claims
 remain part of trust, consistent with Google's
 [deployment federation guidance](https://docs.cloud.google.com/iam/docs/workload-identity-federation-with-deployment-pipelines).
 
-After staged readback, the [6C3C28 implementation candidate](PHASE_6_CLEANUP_NETWORK.md)
+After staged readback, the [accepted 6C3C28 implementation](PHASE_6_CLEANUP_NETWORK.md)
 adds a cleanup-only network credential/transport path through the existing policy
-and reconciler, with loopback TLS qualification. Corrected-source protected CI
-remains pending. The original offline guards stay in place: changing a label or
-removing one stop does not open the general provider's POST/DELETE path. Real signature authentication,
+and reconciler, with loopback TLS qualification. PR #263 / master CI
+`36706204243` has 29 final successful job results after failed-job rerun. The
+[6C3C29 deployment review](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) supplies a separate
+runnable proposal, exact enable/disable plan and configuration readback; the
+original inactive review package remains unchanged. The original offline guards
+stay in place: changing a label or removing one stop does not open the general
+provider's POST/DELETE path. Real signature authentication,
 provider operation/ID semantics, effective IAM and failure evidence remain to be
 established before separately approved cleanup activation. Cleanup must not depend
 on green paid-workload CI, and must preserve failed charges and older-source

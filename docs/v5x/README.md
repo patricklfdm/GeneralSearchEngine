@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C27 offline cleanup credentials; native activation pending; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C28 scoped cleanup network entry; native activation pending; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -146,9 +146,13 @@ records each intermediate acceptance. The subsequent
 was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
 All three identities/pools/providers remain disabled. Effective inherited IAM,
 native credential/cleanup activation and remaining remote integration remain open.
-The [6C3C28 network cleanup candidate](v5.1/PHASE_6_CLEANUP_NETWORK.md) now supplies
-the scoped HTTPS API and formal entry with loopback TLS qualification; protected
-CI and real-provider activation qualification remain pending.
+The [6C3C28 scoped network entry](v5.1/PHASE_6_CLEANUP_NETWORK.md) is accepted
+through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`, CI
+`36706204243`: 29 final successful jobs after failed-job rerun (attempt 2), with
+the original public-fault failure retained. The
+[6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) adds separate
+runnable workflow proposals, exact enable/disable plans and read-only state checks.
+Its protected CI and real-provider activation qualification remain pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 
