@@ -1,4 +1,4 @@
-"""V5.1 GCS/Compute request adapters; fake HTTP qualification, live reads only.
+"""V5.1 GCS/Compute request adapters; offline HTTP qualification, live reads only.
 
 No paid runner is exposed here. Real adapters have an unqualified execution tag,
 so the accepted control runner rejects them independently of HTTP mutation guards.
@@ -38,11 +38,18 @@ def link(value):
     return value.replace('https://www.googleapis.com/compute/v1/', 'https://compute.googleapis.com/compute/v1/')
 
 
+def adapter_execution(api, authority):
+    from . import cloud_native_authority as native
+    m.need(authority is a or authority is native, 'provider authority domain')
+    return authority.ADAPTER_EXECUTION if api.offline else 'unqualified-v51-gcp-provider'
+
+
 class Store:
-    def __init__(self, configuration, api):
+    def __init__(self, configuration, api, *, authority=a):
         config(configuration)
         self.bucket, self.api = configuration['bucket'], api
-        self.execution = a.EXECUTION if api.offline else 'unqualified-v51-gcp-provider'
+        self.authority = authority
+        self.execution = adapter_execution(api, authority)
         self.base = 'https://storage.googleapis.com/storage/v1/b/'+self.bucket+'/o/'
 
     def url(self, key):
@@ -87,24 +94,25 @@ class Store:
 
 
 class Compute:
-    def __init__(self, configuration, req, api, *, guest_access=None, sleep=time.sleep):
+    def __init__(self, configuration, req, api, *, guest_access=None, sleep=time.sleep, authority=a):
         m.need(config(configuration) == req['configurationSha256'], 'provider request configuration digest')
-        a.validate_request(req)
+        authority.validate_request(req)
         self.guest_access = deepcopy(guest_access)
-        if req['schema'] == 'gse-v51-cloud-request-v2':
+        if 'guestAccessSha256' in req:
             from .guest_setup import access
             access(self.guest_access)
             m.need(self.guest_access['attempt'] == req['attempt'] and
                    m.sha(m.canonical(self.guest_access)) == req['guestAccessSha256'], 'provider SSH attempt/digest mismatch')
         else: m.need(guest_access is None, 'SSH access requires bound request')
         self.config, self.req, self.api, self.sleep = deepcopy(configuration), deepcopy(req), api, sleep
-        self.execution = a.EXECUTION if api.offline else 'unqualified-v51-gcp-provider'
+        self.authority = authority
+        self.execution = adapter_execution(api, authority)
         self.base = 'https://compute.googleapis.com/compute/v1/projects/'+configuration['project']
-        self.inventory = a.resources(req)
+        self.inventory = authority.resources(req)
 
     def cleanup_context(self):
         from .cloud_cleanup import context
-        return context(self.config, self.req, self.guest_access)
+        return context(self.config, self.req, self.guest_access, authority=self.authority)
 
     def scope(self, spec):
         m.need(spec in self.inventory, 'provider closed resource inventory')
@@ -120,7 +128,7 @@ class Compute:
         return str(uuid.UUID(hex=digest[:32]))
 
     def description(self, spec):
-        return m.canonical(dict(suite=a.SUITE, requestSha256=a.validate_request(self.req), specSha256=m.sha(m.canonical(spec)))).decode()
+        return m.canonical(dict(suite=a.SUITE, requestSha256=self.authority.validate_request(self.req), specSha256=m.sha(m.canonical(spec)))).decode()
 
     def body(self, spec):
         p = self.config; self.scope(spec)
@@ -206,7 +214,7 @@ class Compute:
         Read twice under the caller's original deadline. Names identify intent;
         only IDs from the retained create operations identify this generation.
         """
-        a.validate_lease(lease)
+        self.authority.validate_lease(lease)
         m.need(lease['request'] == self.req and self.guest_access is not None, 'guest lease/request access')
         m.need(type(node) is int and node in (1, 2, 3), 'guest node')
         rows = [r for r in lease['resources'] if r['spec']['kind'] in ('disk', 'instance') and r['spec']['node'] == node]
@@ -233,7 +241,7 @@ class Compute:
                        [link(v) for v in disk.get('users', [])] == [self.url(instance['spec'])], 'guest disk attachment/status')
             data = next(r for r in disks if r['spec']['purpose'] == 'data')
             boot = next(r for r in disks if r['spec']['purpose'] == 'boot')
-            return dict(schema='gse-v51-guest-facts-v1', requestSha256=a.validate_request(self.req),
+            return dict(schema='gse-v51-guest-facts-v1', requestSha256=self.authority.validate_request(self.req),
                 guestAccessSha256=self.req['guestAccessSha256'], project=self.config['project'], zone=self.config['zone'],
                 instance=instance['spec']['name'], privateIp=address, bootDiskId=boot['id'],
                 provider=dict(instanceId=instance['id'], diskId=data['id'], node=node, sizeGiB=data['spec']['sizeGiB'], attempt=self.req['attempt']))

@@ -7,6 +7,7 @@ import subprocess
 import sys
 from . import cloud_authority as a, cloud_cleanup as c, cloud_fake, cloud_gcp as g, cloud_http_fake as f, performance_model as m
 from .cloud_http import Api
+from . import cloud_native_authority as n, cloud_native_cleanup as native_cleanup
 from .remote_command import write_once
 
 SCHEMA = 'gse-v51-offline-cleanup-state-v1'
@@ -34,17 +35,24 @@ def restore(value):
     return clock, http, api, g.Store(value['configuration'], api)
 
 
-def interrupted(*, ssh=True, allocate=True):
+def interrupted(*, ssh=True, allocate=True, authority=a):
     req, _, approval, clock, http, store, original = f.fixture()
     guest = dict(attempt=req['attempt'], user='gse-'+req['attempt'][:24], publicKey=KEY) if ssh else None
     if guest is not None:
         req.update(schema='gse-v51-cloud-request-v2', guestAccessSha256=m.sha(m.canonical(guest)))
-    provider = g.Compute(http.configuration, req, original.api, guest_access=guest, sleep=clock.sleep)
-    lease = a.lease(req, clock.wall())
+    if authority is n:
+        # Construct native fixture bytes with their own hashes/operations. This is
+        # not a migration path for retained fake records.
+        req = n.request(req['source'], req['bundleSha256'], req['configurationSha256'],
+                        req['sequence'], req['attempt'], req['member'], now=req['createdAt'],
+                        guest_access_sha256=m.sha(m.canonical(guest)))
+        store = g.Store(http.configuration, original.api, authority=n)
+    provider = g.Compute(http.configuration, req, original.api, guest_access=guest, sleep=clock.sleep, authority=authority)
+    lease = authority.lease(req, clock.wall())
     generation = store.put(a.LEASE, lease, 0)
-    store.put(a.LEDGER, a.reserve(a.empty_ledger(), req, approval), 0)
+    store.put(a.LEDGER, authority.reserve(authority.empty_ledger(), req, approval), 0)
     if allocate:
-        c.retain_context(store, req, provider.cleanup_context())
+        c.retain_context(store, req, provider.cleanup_context(), authority=authority)
         for row in lease['resources']:
             row['attempted'] = True; generation = store.put(a.LEASE, lease, generation)
             row['id'] = provider.create(row['spec'], clock.nanos()+30*10**9)['id']
@@ -58,14 +66,14 @@ def rewrite(http, key, change):
     http.objects[key] = generation+1, m.canonical(value), content
 
 
-def case_state(case):
-    req, lease, http = interrupted(allocate=case != 'empty-reservation')
+def case_state(case, *, authority=a):
+    req, lease, http = interrupted(allocate=case != 'empty-reservation', authority=authority)
     boundary = lease['expiresAt']+lease['graceSeconds']
     now = lease['startedAt'] if case == 'active' else boundary-1 if case == 'grace' else boundary
     trigger = 'schedule' if case == 'expired-schedule' else 'manual'
     if case == 'no-lease': http.objects.clear(); http.resources.clear(); http.operations.clear()
-    elif case == 'missing-context': del http.objects[c.context_key(req)]
-    elif case == 'changed-context': rewrite(http, c.context_key(req), lambda value: value.update(requestSha256='0'*64))
+    elif case == 'missing-context': del http.objects[c.context_key(req, authority=authority)]
+    elif case == 'changed-context': rewrite(http, c.context_key(req, authority=authority), lambda value: value.update(requestSha256='0'*64))
     elif case == 'missing-reservation': del http.objects[a.LEDGER]
     elif case == 'lost-insert-ack': rewrite(http, a.LEASE, lambda value: value['resources'][-1].update(id=None))
     elif case == 'pending-insert': next(iter(http.operations.values())).update(status='RUNNING')
@@ -75,22 +83,25 @@ def case_state(case):
     return snapshot(http), now, trigger
 
 
-def replay(state, output, trigger, now):
+def replay(state, output, trigger, now, *, native=False):
     _, http, api, _ = restore(state)
-    result = c.reconcile(state['configuration'], api, output, trigger=trigger, now=now)
+    cleanup = native_cleanup if native else c
+    result = cleanup.reconcile(state['configuration'], api, output, trigger=trigger, now=now)
     output = Path(output)
     write_once(output/'http.json', http.requests)
     write_once(output/'state.json', snapshot(http))
     return result
 
 
-def qualify(output):
+def qualify(output, *, native=False):
+    authority = n if native else a
     output = Path(output); output.mkdir(parents=True, exist_ok=False); rows = []
     for case in CASES:
-        state, now, trigger = case_state(case)
+        state, now, trigger = case_state(case, authority=authority)
         root = output/case; root.mkdir(); write_once(root/'input.json', state)
         command = [sys.executable, '-m', 'scripts.v51.cloud_cleanup_qualification', 'offline-replay',
                    str(root/'input.json'), str(root/'replay'), '--trigger', trigger, '--now', str(now)]
+        if native: command.append('--native')
         done = subprocess.run(command, capture_output=True, timeout=30)
         (root/'stdout').write_bytes(done.stdout); (root/'stderr').write_bytes(done.stderr)
         m.need(done.returncode == 0, 'fresh-process cleanup replay: '+case)
@@ -107,7 +118,7 @@ def qualify(output):
             m.need(after == state and all(v['method'] == 'GET' for v in calls), 'blocked cleanup mutated authority')
         if case != 'no-lease' and case != 'missing-reservation':
             _, _, _, store = restore(after)
-            total, attempts = a.inspect_ledger(store.get(a.LEDGER)[1])
+            total, attempts = authority.inspect_ledger(store.get(a.LEDGER)[1])
             m.need(total == 1_000_000, 'cleanup lost failed charge')
             if expected == 'PASS':
                 m.need(not after['resources'] and store.get(a.LEASE) is None and
@@ -116,7 +127,8 @@ def qualify(output):
         row = dict(case=case, status='PASS', observed=expected, requests=len(calls),
                    resourceDeletes=sum(v['method'] == 'DELETE' for v in compute))
         rows.append(row); print(m.canonical(row).decode(), flush=True)
-    receipt = dict(schema='gse-v51-cleanup-qualification-v1', status='PASS', execution='offline-provider-cleanup',
+    receipt = dict(schema='gse-v51-native-cleanup-qualification-v1' if native else 'gse-v51-cleanup-qualification-v1',
+                   status='PASS', execution='offline-native-provider-cleanup' if native else 'offline-provider-cleanup',
                    source=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
                    dirty=bool(subprocess.check_output(['git', 'status', '--porcelain'], text=True)),
                    inputs={p.name: m.sha(p.read_bytes()) for p in sorted(Path(__file__).parent.glob('cloud_*.py'))},
@@ -130,6 +142,7 @@ if __name__ == '__main__':
     check = sub.add_parser('qualify'); check.add_argument('output', type=Path)
     child = sub.add_parser('offline-replay'); child.add_argument('state', type=Path); child.add_argument('output', type=Path)
     child.add_argument('--trigger', choices=('schedule', 'manual'), required=True); child.add_argument('--now', type=int, required=True)
+    check.add_argument('--native', action='store_true'); child.add_argument('--native', action='store_true')
     args = parser.parse_args()
-    if args.command == 'qualify': qualify(args.output)
-    else: replay(m.strict_json(args.state.read_bytes()), args.output, args.trigger, args.now)
+    if args.command == 'qualify': qualify(args.output, native=args.native)
+    else: replay(m.strict_json(args.state.read_bytes()), args.output, args.trigger, args.now, native=args.native)

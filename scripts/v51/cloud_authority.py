@@ -9,6 +9,23 @@ from . import cloud_workload_contract as workload, performance_model as m
 from .cloud_plan import SUITE
 
 EXECUTION = 'fake-v51-cloud-control'
+ADAPTER_EXECUTION = EXECUTION
+PAID_CLOUD = False
+COMPLETION_SCHEMA = 'gse-v51-control-completion-v1'
+CONTEXT_SCHEMA = 'gse-v51-cleanup-context-v1'
+
+
+def formats(domain):
+    # Explicit domains, never inferred from untrusted input or converted between.
+    m.need(domain in ('fake', 'native'), 'cloud authority domain')
+    if domain == 'native':
+        return dict(execution='gcp-v51-owned-control', paid=True,
+                    requests=('gse-v51-native-request-v1',), access='gse-v51-native-request-v1',
+                    lease='gse-v51-native-lease-v1', ledger='gse-v51-native-ledger-v1')
+    return dict(execution=EXECUTION, paid=False,
+                requests=('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2'), access='gse-v51-cloud-request-v2',
+                lease='gse-v51-cloud-lease-v1', ledger='gse-v51-cloud-ledger-v1')
+
 PREFIX = 'v5.1-automatic-leadership/control/'
 LEASE = PREFIX + 'active.json'
 LEDGER = PREFIX + 'ledger.json'
@@ -34,25 +51,27 @@ def integer(value, minimum=0, maximum=(1 << 63)-1):
     return value
 
 
-def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None):
-    result = dict(schema='gse-v51-cloud-request-v1', suite=SUITE, execution=EXECUTION, paidCloud=False,
+def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None, domain='fake'):
+    fmt = formats(domain)
+    result = dict(schema=fmt['requests'][0], suite=SUITE, execution=fmt['execution'], paidCloud=fmt['paid'],
                   source=source, bundleSha256=bundle, configurationSha256=configuration,
                   workloadSha256=workload.PLAN_SHA256, sequence=sequence, attempt=attempt,
                   order=order, member=member, createdAt=now)
     if guest_access_sha256 is not None:
-        result.update(schema='gse-v51-cloud-request-v2', guestAccessSha256=guest_access_sha256)
-    validate_request(result)
+        result.update(schema=fmt['access'], guestAccessSha256=guest_access_sha256)
+    validate_request(result, domain=domain)
     return result
 
 
-def validate_request(value):
+def validate_request(value, *, domain='fake'):
+    fmt = formats(domain)
     m.need(type(value) is dict, 'cloud request type')
-    version = value.get('schema'); extra = {'guestAccessSha256'} if version == 'gse-v51-cloud-request-v2' else set()
-    m.need(version in ('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2') and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
+    version = value.get('schema'); extra = {'guestAccessSha256'} if version == fmt['access'] else set()
+    m.need(version in fmt['requests'] and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
     if extra: digest(value['guestAccessSha256'])
     m.need((value['schema'], value['suite'], value['execution'], value['paidCloud']) ==
-           (version, SUITE, EXECUTION, False) and value['paidCloud'] is False,
-           'V5.1 control-only request')
+           (version, SUITE, fmt['execution'], fmt['paid']) and value['paidCloud'] is fmt['paid'],
+           'V5.1 '+domain+' authority request')
     for key, length in (('source', 40), ('bundleSha256', 64), ('configurationSha256', 64),
                         ('sequence', 32), ('attempt', 32)):
         digest(value[key], length)
@@ -101,14 +120,16 @@ def admit(req, preflight, approval, now):
     return sha
 
 
-def empty_ledger():
-    return dict(schema='gse-v51-cloud-ledger-v1', suite=SUITE, execution=EXECUTION, entries=[])
+def empty_ledger(*, domain='fake'):
+    fmt = formats(domain)
+    return dict(schema=fmt['ledger'], suite=SUITE, execution=fmt['execution'], entries=[])
 
 
-def inspect_ledger(value):
+def inspect_ledger(value, *, domain='fake'):
+    fmt = formats(domain)
     m.need(type(value) is dict and set(value) == {'schema', 'suite', 'execution', 'entries'} and
            (value['schema'], value['suite'], value['execution']) ==
-           ('gse-v51-cloud-ledger-v1', SUITE, EXECUTION), 'V5.1 ledger scope')
+           (fmt['ledger'], SUITE, fmt['execution']), 'V5.1 ledger scope')
     m.need(type(value['entries']) is list and len(value['entries']) <= 4096 and
            len(m.canonical(value)) <= 4 << 20, 'ledger bound')
     attempts, sequences, total, ids = {}, {}, 0, set()
@@ -118,7 +139,7 @@ def inspect_ledger(value):
         if row['kind'] == 'RESERVED':
             m.need(set(row) == {'kind', 'requestSha256', 'request', 'maximumCostMicrousd'}, 'reservation fields')
             req = row['request']
-            m.need(validate_request(req) == sha and sha not in attempts and req['attempt'] not in ids,
+            m.need(validate_request(req, domain=domain) == sha and sha not in attempts and req['attempt'] not in ids,
                    'duplicate/changed request')
             m.need(all(a['status'] != 'PENDING' for a in attempts.values()), 'unresolved prior attempt')
             seq = sequences.setdefault(req['sequence'], dict(identity=identity(req), passed=[], blocked=False))
@@ -142,27 +163,27 @@ def inspect_ledger(value):
     return total, attempts
 
 
-def reserve(ledger, req, approval):
+def reserve(ledger, req, approval, *, domain='fake'):
     result = deepcopy(ledger)
-    total, _ = inspect_ledger(result)
+    total, _ = inspect_ledger(result, domain=domain)
     m.need(total == approval['previousCostMicrousd'], 'stale budget observation')
-    result['entries'].append(dict(kind='RESERVED', requestSha256=validate_request(req),
+    result['entries'].append(dict(kind='RESERVED', requestSha256=validate_request(req, domain=domain),
                                   request=deepcopy(req), maximumCostMicrousd=approval['maximumCostMicrousd']))
-    inspect_ledger(result)
+    inspect_ledger(result, domain=domain)
     return result
 
 
-def finish(ledger, req, completion):
-    m.need(completion['requestSha256'] == validate_request(req), 'completion request identity')
+def finish(ledger, req, completion, *, domain='fake'):
+    m.need(completion['requestSha256'] == validate_request(req, domain=domain), 'completion request identity')
     result = deepcopy(ledger)
-    result['entries'].append(dict(kind='FINISHED', requestSha256=validate_request(req),
+    result['entries'].append(dict(kind='FINISHED', requestSha256=validate_request(req, domain=domain),
                                   status=completion['status'], completionSha256=m.sha(m.canonical(completion))))
-    inspect_ledger(result)
+    inspect_ledger(result, domain=domain)
     return result
 
 
-def resources(req):
-    sha = validate_request(req)
+def resources(req, *, domain='fake'):
+    sha = validate_request(req, domain=domain)
     owner = 'gse-v51-' + req['attempt']
     specs = [dict(kind='firewall', name=owner+'-'+name, purpose=name)
              for name in ('peer', 'deny-replication', 'iap', 'deny-ssh')]
@@ -174,17 +195,18 @@ def resources(req):
                  operationId=m.sha(m.canonical([sha, spec['name']]))) for spec in specs]
 
 
-def lease(req, now):
-    validate_request(req); integer(now, req['createdAt'], (1 << 63)-6481)
-    return dict(schema='gse-v51-cloud-lease-v1', suite=SUITE, execution=EXECUTION, request=deepcopy(req),
+def lease(req, now, *, domain='fake'):
+    fmt = formats(domain)
+    validate_request(req, domain=domain); integer(now, req['createdAt'], (1 << 63)-6481)
+    return dict(schema=fmt['lease'], suite=SUITE, execution=fmt['execution'], request=deepcopy(req),
                 startedAt=now, expiresAt=now+5400, graceSeconds=1080,
-                resources=[dict(spec=spec, attempted=False, id=None) for spec in resources(req)])
+                resources=[dict(spec=spec, attempted=False, id=None) for spec in resources(req, domain=domain)])
 
 
-def validate_lease(value):
+def validate_lease(value, *, domain='fake'):
     m.need(type(value) is dict and set(value) == {'schema', 'suite', 'execution', 'request', 'startedAt',
            'expiresAt', 'graceSeconds', 'resources'}, 'lease fields')
-    expected = lease(value['request'], value['startedAt'])
+    expected = lease(value['request'], value['startedAt'], domain=domain)
     m.need(all(value[k] == v for k, v in expected.items() if k != 'resources'), 'lease authority/expiry')
     rows = value['resources']
     m.need(type(rows) is list and len(rows) == len(expected['resources']), 'closed resource inventory')
