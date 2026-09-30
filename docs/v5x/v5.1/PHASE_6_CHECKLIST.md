@@ -207,7 +207,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [ ] Effective organization/folder IAM review (parent policy read remains unavailable).
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
-- [ ] Separately authorized disabled identity application and native activation review.
+- [x] Separately authorized disabled identity application and exact readback on 2026-09-30: 45 commands, 33 audit reads, `STAGED_MATCH`; all identities remain disabled.
+- [ ] Native identity/cleanup activation review and qualification.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
@@ -215,7 +216,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C26 implementation candidate: [bound cleanup entries and inactive workflow proposals](PHASE_6_CLEANUP_ENTRIES.md), both entries through shared native reconciliation.
 - [x] 6C3C26 corrected-source protected acceptance: PR #259 / CI `36679824140`, attempt 1, all 29 jobs.
 - [x] 6C3C27 implementation candidate: [bound cleanup credential exchange](PHASE_6_CLEANUP_CREDENTIALS.md), exact identity, expiry-aware refresh and integrated offline reconciliation.
-- [ ] 6C3C27 corrected-source protected CI.
+- [x] 6C3C27 corrected-source protected acceptance: PR #261 / CI `36695145198`, attempt 1, all 29 jobs.
+- [x] [Disabled identity configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md): authorized staging applied/read back; inherited IAM and native activation remain open.
 - [ ] Native provider/cleanup transport, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.

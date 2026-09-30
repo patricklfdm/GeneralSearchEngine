@@ -116,6 +116,12 @@ hardening/resource evidence accepted through PR #214; Phase 6 remains a separate
 
 ## Post-PR-260 correction: retained promises during the final recovery write
 
+**Protected acceptance:** PR #261, master
+`27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`,
+[CI 36695145198](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36695145198)
+attempt 1, all 29 jobs passed. This supersedes the local pending-CI statements
+below while preserving the original failure and development record.
+
 [Master CI 36687338735](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36687338735/job/109798029294)
 on `ebafd20c0e3e40b584904b9b817344e4fd05a88b` failed
 `cancel-chosen-recovery`; the other three combined lifecycle cases passed.

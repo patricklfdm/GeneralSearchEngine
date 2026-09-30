@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C accepted through 6C3C16; 6C3C17 owned V4.4 healthy candidate; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C27 offline cleanup credentials; native activation pending; V5.2-V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -136,11 +136,16 @@ PR #246, master `2846bbc2758f2336e0ed73dbc45001dfe83d8f6a`, exact-master CI
 The [6C3C16 configured healthy control](v5.1/PHASE_6_OWNED_CONFIGURED.md) is accepted
 through PR #247, master `dfae45670330ffe2a3974982bcc020c534861309`, exact-master CI
 `36505526404` attempt 1 (all 27 jobs), including the configured Linux workload gate.
-The [6C3C17 published V4.4 healthy candidate](v5.1/PHASE_6_OWNED_V44.md) connects
-one admitted node-1 service to authenticated source preparation, the frozen 90-call
-tape and independent logical replay. Next qualify this bounded slice, then connect
-configured physical/backup evidence, complete three-mode preset integration and
-owned fault cells, followed by trusted preflight and separate V5.1 workflows.
+The following owned controls, complete experiment, read-only preflight and offline
+cleanup integration are now accepted through
+[6C3C27](v5.1/PHASE_6_CLEANUP_CREDENTIALS.md), PR #261, master
+`27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`, exact-master CI `36695145198`
+attempt 1 (all 29 jobs). The [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md)
+records each intermediate acceptance. The subsequent
+[disabled identity configuration](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
+was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
+All three identities/pools/providers remain disabled. Effective inherited IAM,
+native credential/cleanup activation and remaining remote integration are next.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

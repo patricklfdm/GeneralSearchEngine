@@ -1,12 +1,17 @@
 # V5.1 Phase 6C3C27 — bound cleanup credential exchange integration
 
-**Status:** implementation candidate on master
-`a25ecba2121526e4cef4d41ee1a90f1e1f64259e` (PR #259).
-[CI 36679824140](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36679824140)
-passed all 29 jobs on attempt 1. This accepts the preceding
-[cleanup entries](PHASE_6_CLEANUP_ENTRIES.md) and the separately documented
-[actual-deadline correction](PHASE_4_LIFECYCLE_HARDENING.md#post-pr-258-correction-observe-the-actual-request-deadline).
-This new batch still requires corrected-source protected CI.
+**Status:** accepted through PR #260 and the Phase 5B driver correction in
+PR #261, master `27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`.
+[Exact-master CI 36695145198](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36695145198)
+passed all 29 jobs on attempt 1. PR #260's
+[master CI 36687338735](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36687338735)
+failed the inherited combined-lifecycle recovery driver; its original evidence
+and [correction](PHASE_5_COMBINED_LIFECYCLE.md#post-pr-260-correction-retained-promises-during-the-final-recovery-write)
+remain recorded. This accepts the offline credential integration, not live IAM,
+cleanup activation or paid admission.
+
+The subsequent [configuration and activation review](PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
+records operator-authorized disabled staging and its successful independent readback.
 
 ## Credential path
 
@@ -96,9 +101,10 @@ requests or output creation. `identityAuthenticated`, `cleanupReady`, `paidCloud
 and `fullRemoteQualification` remain false. Existing inactive workflow proposals
 still stop before auth; no workflow is installed or triggered.
 
-Next: apply/read back the disabled identity proposal with operator authorization,
-review effective IAM and the workflow credential transition, then qualify and
-activate native mutation transport and actual provider reconciliation. Fresh
+Disabled identity staging has now been authorized, applied and independently
+read back as `STAGED_MATCH`; no identity was enabled. Next review effective IAM
+and qualify the cleanup credential/transport transition and actual provider
+reconciliation before separately approved activation. Fresh
 manual **or** scheduled cleanup evidence must precede paid admission. Cleanup
 activation remains independent of paid-workload admission and current green CI;
 source delivery, remaining workload cells, prices and exact-request confirmation
