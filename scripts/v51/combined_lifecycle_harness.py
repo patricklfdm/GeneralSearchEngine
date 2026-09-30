@@ -29,6 +29,13 @@ class Group(repeated.RepeatedGroup):
         return worker
     def rows(self,node,event):return [r for r in fault.rows(self.root,node) if r['event']==event]
     def call_id(self):return self.history[-1]['opId']
+    def dispatch(self, worker, kind, **values):
+        need(len(self.application())<32, 'combined lifecycle application dispatch bound')
+        return worker.send(kind,**values)
+    # The shared read path retains the existing four-read bound. Only resume()
+    # supplies uncertain documents; other phases still require the exact prefix.
+    read = repeated.RecoveryGroup.read
+    write = repeated.RecoveryGroup.write
     def release(self):
         fault.partition(self.root); protocol.network(self.root,[]); fault.replace(self.root/'pressure-rules.txt','')
         (self.root/'pressure-release').touch()
@@ -135,6 +142,12 @@ def lifecycle(group, receipt):
     receipt['restart']=group.stop(old,1); group.start(old)
 
 
+def resume(group, receipt):
+    # Each classified failure remains in history. New keys 80/81, 82/83,
+    # 84/85 are distinct operations, never a replay of an uncertain mutation.
+    repeated.resume(group, receipt, 80)
+
+
 def scenario(root,cp,case):
     root.mkdir(); (root/'archives').mkdir(); group=Group(root,cp); receipt=dict(status='FAIL',case=case,publicRuntime=True)
     for marker in ('promise-evidence','selection-evidence','pressure-evidence','lifecycle-evidence'):(root/marker).touch()
@@ -149,7 +162,7 @@ def scenario(root,cp,case):
         receipt['baseline']=group.drained(receipt['seedIndex'])
         if case.startswith('torn-'):torn(group,receipt)
         else:lifecycle(group,receipt)
-        _,active=group.read(); receipt['recoveredRead']=group.call_id(); receipt['resumedWrite']=group.write(active,80)
+        resume(group, receipt)
         _,active=group.read(); receipt['finalRead']=group.call_id(); receipt['expected']=list(group.expected)
         receipt['drained']=group.drained(active.call('status')['appliedIndex'])
     except BaseException as error:receipt['failure']=str(error);raise

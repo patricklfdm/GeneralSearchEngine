@@ -100,7 +100,7 @@ def sample(traces, observed, *, after=0, expected=None, manifest=None):
             need(proven and max(proven)>=indices[0], 'rejoined voter lacks proven round prefix')
 
 
-def recovery_writes(row, history, initial):
+def recovery_writes(row, history, initial, *, first_tag=None):
     """Independently account for every recovery call, including chosen uncertainty."""
     attempts=row['recoveryWrites'];calls={h['opId']:h for h in history}
     need(1<=len(attempts)<=3 and len(calls)==len(history), 'recovery write attempt bound')
@@ -125,7 +125,7 @@ def recovery_writes(row, history, initial):
         expected=list(read['documents'])
         need(cursor<len(phase), 'missing recovery write')
         write=phase[cursor];cursor+=1
-        tag=row['number']*100+40+2*ordinal
+        tag=(row['number']*100+40 if first_tag is None else first_tag)+2*ordinal
         docs=[dict(id=tag+i,value=f'tag-{tag+i}-'+'x'*512) for i in (0,1)]
         need(write['opId']==attempt['write'] and write['kind']=='addAll' and write['documents']==docs and
              all(write[k]==read[k] for k in ('node','pid','generation')) and
