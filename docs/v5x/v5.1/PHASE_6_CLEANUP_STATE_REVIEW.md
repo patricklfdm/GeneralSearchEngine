@@ -1,7 +1,10 @@
 # V5.1 Phase 6C3C30 — independent cleanup state review
 
-**Status:** implementation candidate based on master
-`5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`; protected CI pending.
+**Status:** merged through PR #266, master
+`3dbaed52da1715fc8922d2f258ec9bbc73bbf99a`; protected acceptance remains pending.
+Master CI `36774917431` passed the cloud runner but failed the local automatic
+performance gate due to [outbound admission contention](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission).
+The subsequent runtime correction requires its own protected validation.
 [6C3C29](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is accepted through PR #264/#265
 and exact-master CI `36756473536`, attempt 1, all 29 jobs. Identity enablement,
 workflow deployment, cleanup execution and paid experiments remain separate.

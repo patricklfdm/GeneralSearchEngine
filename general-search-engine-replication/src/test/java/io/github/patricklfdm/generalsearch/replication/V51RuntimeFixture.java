@@ -50,7 +50,14 @@ final class V51RuntimeFixture implements AutoCloseable {
                 .map(v->new ReplicationMember(new ReplicationNodeId(text(v,"node")),new ReplicationEndpoint(text(v,"host"),(int)number(v,"port")))).toList();
         var config=new AutomaticReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString(text(m.value(),"groupId"))),text(m.value(),"configurationId"),new ReplicationNodeId("node-"+i),members,root.resolve("node-"+i),materialization(i),BOUNDS,POLICY);
         nodes.put("node-"+i,new AutomaticRuntime<>(config,SearchEngine.builder(SCHEMA).indexes(INDEXES).configuration(),manifest,faults,
-                (barrier,request,response)->{network.at(barrier,request,response);if(barrier.equals("AFTER_RESPONSE_READ")) {wire.add(request);wire.add(response);}},events));
+                new AutomaticTransport.Events() {
+                    public void at(String barrier,Map<String,Object> request,Map<String,Object> response) throws java.io.IOException {
+                        network.at(barrier,request,response);if(barrier.equals("AFTER_RESPONSE_READ")){wire.add(request);wire.add(response);}
+                    }
+                    public void accounting(String event,Map<String,Object> request,Object token,int bytes) {
+                        network.accounting(event,request,token,bytes);
+                    }
+                },events));
     }
     AutomaticRuntime<Integer,Document> leader() throws Exception {
         long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(30);

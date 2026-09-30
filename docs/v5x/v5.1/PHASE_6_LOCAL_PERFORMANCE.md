@@ -239,3 +239,59 @@ The [6A review](PHASE_6_LOCAL_ACCEPTANCE.md) retains the original CI artifacts,
 observed measurements and successful independent downloaded replay. The
 [6B candidate](PHASE_6_CLOUD_WORKLOAD_CONTRACT.md) separately freezes cloud workload
 parameters; none of these local measurements is cloud or paid-admission evidence.
+
+
+## PR #266 master failure: unsent outbound admission
+
+Master `3dbaed52da1715fc8922d2f258ec9bbc73bbf99a`,
+[CI 36774917431](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36774917431),
+attempt 1 passed the published V4.4 and V5.0 healthy modes but stopped in automatic
+mode's `baseline-a`, ordinal 18 (`INDEX_CREATE`). The API returned
+`INDETERMINATE / QUORUM_UNAVAILABLE` after 164.923 ms, before the frozen 1200 ms
+request deadline. This was not a build or whole-job timeout.
+
+The retained leader trace shows a source chunk and heartbeat holding both outbound
+reservations to node 1. The foreground ACCEPT (ID 84) was rejected locally three
+times and never reached `BEFORE_REQUEST_WRITE`. These refusals consumed the
+protocol retry budget and abandoned the operation. All 329 members of the retained
+failure inventory matched their sizes and hashes. Raw evidence and decoded
+observations remain at `target/ci-36774917431/`; runner scheduling as the trigger
+is not established by these observations.
+
+The correction distinguishes explicit local transport admission refusal from an
+admitted exchange failure. The former reuses the existing bounded pending record,
+immutable message and original deadline, retrying admission after the existing
+backoff without spending a wire attempt or marking the peer unreachable. Rejection
+by the bounded protocol network executor likewise defers before any send starts.
+This adds no queue or transport reservation and does not replay a client operation.
+
+Only locally tagged refusals from the initial protocol send qualify. A peer's
+capacity rejection, encoding/transport-observer exception, actual network failure or failure
+while fetching a basis after a successful PREPARE remains an ordinary failure.
+Wire retry limits and all resource, timing, quorum, durability, publication and
+workload parameters remain unchanged. Deadline, cancellation, higher-ballot fencing
+and close retire deferred work; late replies cannot revive it.
+
+A deterministic real TCP test holds both existing reservations and requests one
+write. It fails against the original runtime after retry exhaustion; with the
+correction it observes more local refusals than the wire retry allowance, releases
+the reservations, and completes with exactly one ACCEPT request write. Virtual-time
+store/protocol tests cover repeated deferral, backoff, immutable identity, original
+deadline, ordinary retry exhaustion, peer rejection and retirement boundaries.
+Encoding capacity and observer failures remain distinct from admission refusal.
+
+This is a runtime correction candidate; corrected-source protected CI is still
+required. The earlier failed receipt remains failed. Full local validation and
+source/evidence hashes are retained in `target/v51-outbound-admission/`.
+
+Correction validation on local Ubuntu Java `21.0.12.1`: complete reactor package,
+907 tests, zero failures/errors and four existing skips. The 40 admission,
+protocol, transport and runtime tests all pass. The three-mode performance gate
+passed in 59.160 seconds at `target/v51-performance/run.Ku04Bn/evidence`, with
+270 healthy calls, nine SIGKILL/rejoin history calls and thirty evidence negatives.
+The six-case protocol gate and all eight resource cases also pass, at
+`target/v51-protocol/run.w2rKZY/evidence` and `target/v51-resources/run.rOyRml`.
+The three original production sources used by the failing regression match the
+failed CI's source inventory hashes. Receipt/hash index:
+`target/v51-outbound-admission/validation-summary.json`. These local results do
+not replace protected CI on the committed correction.

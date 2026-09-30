@@ -60,6 +60,67 @@ class V51AutomaticRuntimeTest {
             assertEquals("foreground",leader.inspectLocal(e->e.get(14).value()).get(5,TimeUnit.SECONDS));
         }
     }
+    @Test void localTransportContentionDoesNotSpendTheWireRetryBudget() throws Exception {
+        var occupied=new CountDownLatch(2);var release=new CountDownLatch(1);
+        var rejected=new CountDownLatch(4);var written=new java.util.concurrent.atomic.AtomicInteger();
+        var owner=new java.util.concurrent.atomic.AtomicReference<String>();
+        AutomaticTransport.Events observer=new AutomaticTransport.Events() {
+            public void at(String event,java.util.Map<String,Object> request,java.util.Map<String,Object> response) throws java.io.IOException {
+                if(!request.get("sender").equals(owner.get())||!event.equals("BEFORE_REQUEST_WRITE"))return;
+                if(request.get("type").equals("HANDSHAKE"))try {
+                    occupied.countDown();if(!release.await(10,TimeUnit.SECONDS))throw new java.io.IOException("test admission hold expired");
+                }catch(InterruptedException error){Thread.currentThread().interrupt();throw new java.io.IOException(error);}
+                if(request.get("type").equals("ACCEPT"))written.incrementAndGet();
+            }
+            public void accounting(String event,java.util.Map<String,Object> request,Object token,int bytes) {
+                if(event.equals("OUTBOUND_REJECTED")&&request.get("sender").equals(owner.get())&&request.get("type").equals("ACCEPT"))rejected.countDown();
+            }
+        };
+        try(var group=new V51RuntimeFixture(root,true,false)) {
+            for(int i=1;i<=3;i++)group.open(i,AutomaticStore.Faults.NONE,AutomaticRuntime.Events.NONE,observer);
+            var leader=group.leader();owner.set(group.name(leader));
+            // Hold real TCP reservations explicitly. Natural background recovery is
+            // stopped only in this test, so occupancy cannot depend on scheduling.
+            var recoveryField=AutomaticRuntime.class.getDeclaredField("rejoin");recoveryField.setAccessible(true);
+            for(var runtime:group.nodes.values()) {
+                var recovery=(AutomaticRejoin)recoveryField.get(runtime);
+                control(runtime,"controlled",()->{recovery.stop();return null;});recovery.close();
+            }
+            var protocolField=AutomaticRuntime.class.getDeclaredField("protocol");protocolField.setAccessible(true);
+            var peerField=AutomaticProtocol.class.getDeclaredField("quorumPeer");peerField.setAccessible(true);
+            var protocol=(AutomaticProtocol)protocolField.get(leader);
+            String peer=control(leader,"controlled",()->(String)peerField.get(protocol));
+            var transportField=AutomaticRuntime.class.getDeclaredField("transport");transportField.setAccessible(true);
+            var transport=(AutomaticTransport)transportField.get(leader);
+            var manifest=AutomaticRecords.decode(group.manifest,"MANIFEST");
+            var request=AutomaticWire.message(manifest,protocol.promise(),owner.get(),peer,"HANDSHAKE",java.util.UUID.randomUUID(),1000,java.util.Map.of("mode","AUTOMATIC"));
+            var capacityField=AutomaticTransport.class.getDeclaredField("outbound");capacityField.setAccessible(true);
+            @SuppressWarnings("unchecked") var capacities=(java.util.Map<String,java.util.concurrent.Semaphore>)capacityField.get(transport);
+            List<java.util.concurrent.CompletableFuture<java.util.Map<String,Object>>> holders=null;
+            long deadline=System.nanoTime()+TimeUnit.SECONDS.toNanos(5);
+            while(holders==null&&System.nanoTime()<deadline) {
+                holders=control(leader,"controlled",()->{
+                    if(protocol.view().pendingExchanges()!=0||capacities.get(peer).availablePermits()!=2)return null;
+                    return List.of(transport.exchange(peer,request),transport.exchange(peer,request));
+                });
+                if(holders==null)Thread.sleep(5);
+            }
+            assertNotNull(holders,"initial heartbeats must drain before reserving both slots");
+            var first=holders.get(0);var second=holders.get(1);
+            try {
+                assertTrue(occupied.await(5,TimeUnit.SECONDS),()->"held="+occupied.getCount()+" first="+first+" second="+second);written.set(0);
+                var pending=leader.submit(1,app->app.documents("ADD",List.of(new Document(81,"after-capacity"))));
+                assertTrue(rejected.await(5,TimeUnit.SECONDS),"must defer beyond the two wire retries while capacity is held");
+                assertFalse(pending.isDone());assertEquals(0,written.get(),"unadmitted requests cannot reach the wire");
+                assertEquals(AutomaticReplicationState.LEADER_READY,leader.view().state());
+                assertTrue(leader.status().peers().stream().filter(p->p.nodeId().value().equals(peer)).findFirst().orElseThrow().reachable(),
+                        "local capacity must not mark a previously reachable voter unreachable");
+                release.countDown();first.get(3,TimeUnit.SECONDS);second.get(3,TimeUnit.SECONDS);
+                pending.get(5,TimeUnit.SECONDS);assertEquals(1,written.get());
+                assertEquals("after-capacity",leader.inspectLocal(e->e.get(81).value()).get(5,TimeUnit.SECONDS));
+            }finally{release.countDown();}
+        }finally{release.countDown();}
+    }
     @Test void slowPrivatePreparationKeepsOwnershipUntilCloseCanFinish() throws Exception {
         try(var group=new V51RuntimeFixture(root)) {
             var leader=group.leader();String name=group.name(leader);var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
