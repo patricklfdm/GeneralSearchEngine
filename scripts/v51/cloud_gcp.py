@@ -102,6 +102,10 @@ class Compute:
         self.base = 'https://compute.googleapis.com/compute/v1/projects/'+configuration['project']
         self.inventory = a.resources(req)
 
+    def cleanup_context(self):
+        from .cloud_cleanup import context
+        return context(self.config, self.req, self.guest_access)
+
     def scope(self, spec):
         m.need(spec in self.inventory, 'provider closed resource inventory')
         return self.base+('/global' if spec['kind'] == 'firewall' else '/zones/'+self.config['zone'])

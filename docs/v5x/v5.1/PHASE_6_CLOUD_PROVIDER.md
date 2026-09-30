@@ -145,3 +145,10 @@ cleanup workflows, and fresh exact-source qualification remain required before
 paid admission can open. The historical image pin may need a separately reviewed
 refresh if it is no longer available. Cloud experiments remain manually triggered
 by the user after confirmation of the exact prepared request.
+
+### Retained cleanup reconstruction follow-up
+
+The [6C3C24 candidate](PHASE_6_CLOUD_CLEANUP.md) retains public provider/SSH
+reconstruction inputs before the first create intent and qualifies expired
+reconciliation in fresh processes. Its fourteen offline cases use this same
+provider gate and retained artifact. Native mutation guards remain closed.

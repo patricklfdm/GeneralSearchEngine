@@ -154,10 +154,13 @@ CI `36566870122` attempt 1 (all 29 jobs). Its three CI lanes completed in 8m11s,
 `0b22b671d39074fe019571dd90178b648a91cb38` (PR #254), CI `36635538287` attempt 1
 (all 29 jobs), and live read-only preflight `36643330675` (all seven checks).
 The observer and subnet configuration were separately authorized and read back;
-organization/folder effective IAM remains unverified. The 6C3C23 candidate adds
-disabled runner/scheduled/manual-cleanup identity proposals, explicit configuration
-audits and offline permission-drift qualification. Native IAM/cleanup activation
-and paid admission remain open.
+organization/folder effective IAM remains unverified. The 6C3C23 disabled identity
+proposal/audits were accepted through PR #255, master
+`41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
+New identities remain unapplied. The 6C3C24 candidate retains request-bound cleanup
+context before allocation and reconstructs the shared expired reconciler in fresh
+processes through offline HTTP adapters. Native IAM/cleanup activation and paid
+admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
