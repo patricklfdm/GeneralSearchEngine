@@ -8,8 +8,8 @@ from . import hardening_harness as h, hardening_evidence as e, public_history
 
 
 class ResumeTest(unittest.TestCase):
-    def fixture(self, writes, *, chosen=True, reads=None):
-        group=h.RecoveryGroup(Path('/unused'), 'unused'); group.expected=[]
+    def fixture(self, writes, *, chosen=True, reads=None, group_class=h.RecoveryGroup):
+        group=group_class(Path('/unused'), 'unused'); group.expected=[]
         outcomes=iter(writes); actual=[]; responses=iter(reads) if reads is not None else None
         class Worker:
             def send(worker, kind, **values):

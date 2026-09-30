@@ -52,7 +52,7 @@ class RepeatedGroup(final.Group):
 
 
 class RecoveryGroup(RepeatedGroup):
-    """Phase 5A client schedule; shared lifecycle groups keep their original driver."""
+    """Phase 5A proof drain; bounded read/write helpers also serve Phase 5B."""
     def drained(self, floor):
         # Election selection can advance public provenIndex before activation emits
         # this process's raw proof. Retain a sample only after its physical witness.

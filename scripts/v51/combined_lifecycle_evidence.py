@@ -94,6 +94,29 @@ def quarantine(root, traces, history, receipt, manifest):
     return dict(kind=kind,node=target,rejectedStartups=len(probes))
 
 
+def recovery_writes(history, receipt, restarted):
+    """Bind all post-restart recovery attempts to the fixed Phase 5B key tape."""
+    calls={h['opId']:h for h in history}
+    application=[h for h in history if h['kind'] in ('read','addAll')]
+    need(len(calls)==len(history) and len(application)<=32, 'combined recovery history bound')
+    before_key=('duringAfterWriteRead' if receipt['case'].startswith('torn-') else
+                'majorityAfterWriteRead' if receipt['case']=='cancel-chosen-recovery' else 'whileClosingRead')
+    before=calls[receipt[before_key]]; final=calls[receipt['finalRead']]
+    ready=restarted['readyNanos']
+    need(before['kind']=='read' and before['outcome']=='SUCCESS' and before['endNanos']<final['startNanos'] and
+         final['kind']=='read' and final['outcome']=='SUCCESS' and final['documents']==receipt['expected'],
+         'combined recovery prior/final projection')
+    # Torn cases serve the pressure-overlap prefix after the healthy restart;
+    # lifecycle cases establish their prefix before restart. Neither boundary
+    # may hide a subsequent recovery call.
+    begin=max(ready,before['endNanos'])
+    phase=[h for h in application if begin<h['startNanos']<=final['startNanos']]
+    need(phase and begin<receipt['recoveryBeginNanos']<min(h['startNanos'] for h in phase),
+         'combined recovery boundary omits phase calls')
+    row=dict(receipt,beginNanos=begin,endNanos=final['startNanos'])
+    repeated.recovery_writes(row,application,before['documents'],first_tag=80)
+
+
 def validate(root,traces,history,receipt,starts,stops):
     root=Path(root);case=receipt['case']; need(case in CASES,'unknown combined lifecycle case')
     identities=processes(traces,starts,stops); need(len(starts)==4 and len(stops)==(2 if case.startswith('torn-') else 1),'wrong combined process schedule')
@@ -112,6 +135,7 @@ def validate(root,traces,history,receipt,starts,stops):
     restart=receipt['restart'];need(restart in stops and restart['exitCode']==0,'healthy restart was not archived after graceful close')
     repeated.archive(root,restart)
     new=[s for s in starts if s['node']==restart['node'] and s['generation']==2];need(len(new)==1,'missing retained process restart')
+    recovery_writes(history,receipt,new[0])
     recovered=calls[receipt['recoveredRead']];write=calls[receipt['resumedWrite']];final=calls[receipt['finalRead']]
     need(new[0]['readyNanos']<recovered['startNanos']<recovered['endNanos']<write['startNanos']<write['endNanos']<final['startNanos']
          and all(h['outcome']=='SUCCESS' for h in (recovered,write,final)) and final['documents']==receipt['expected'],'missing recovered public service')
@@ -180,7 +204,7 @@ def validate(root,traces,history,receipt,starts,stops):
             need(all(calls[receipt[k]]['kind']=='closeHandle' and calls[receipt[k]]['outcome']=='SUCCESS' and
                      calls[receipt[k]]['startNanos']>held['endNanos'] for k in ('closed','closedAgain')),'close did not finish idempotently after read release')
             detail=dict(installedIndex=len(snapshot['anchors']),oldDocuments=len(held['documents']))
-    return dict(status='PASS',detail=detail,processes=len(identities),accounting={n:dict(peaks=v['peaks'],reservations=v['reservations'],rejections=len(v['rejected'])) for n,v in accounting.items()})
+    return dict(status='PASS',detail=detail,processes=len(identities),recoveryWrites=len(receipt['recoveryWrites']),accounting={n:dict(peaks=v['peaks'],reservations=v['reservations'],rejections=len(v['rejected'])) for n,v in accounting.items()})
 
 
 def negatives(root,traces,history,receipt,starts,stops):
@@ -199,6 +223,12 @@ def negatives(root,traces,history,receipt,starts,stops):
             if row['event']=='TRANSPORT' and row['transition'].endswith('_RELEASED'):rows.remove(row);break
     rejected('missing-transport-release',t=changed)
     changed=copy.deepcopy(history);next(h for h in changed if h['opId']==receipt['finalRead'])['documents']=[];rejected('lost-final-prefix',h=changed)
+    changed=copy.deepcopy(receipt);changed['recoveryWrites'].pop(0);rejected('missing-recovery-attempt',r=changed)
+    changed=copy.deepcopy(history);next(h for h in changed if h['opId']==receipt['resumedWrite'])['documents'][0]['id']=80 if len(receipt['recoveryWrites'])>1 else 82
+    rejected('replayed-or-changed-recovery-key',h=changed)
+    changed=copy.deepcopy(receipt);changed['recoveryBeginNanos']=next(h['endNanos'] for h in history if h['opId']==receipt['recoveredRead'])
+    rejected('late-recovery-boundary',r=changed)
+    changed=copy.deepcopy(receipt);changed['expected']=changed['expected'][:-1];rejected('false-recovery-projection',r=changed)
     if receipt['case'].startswith('torn-'):
         changed=copy.deepcopy(receipt);changed['probes'][0]['outcome']='SUCCESS';rejected('quarantine-admitted',r=changed)
         changed=copy.deepcopy(receipt);changed['partial']['after']=changed['partial']['before'];rejected('missing-real-torn-append',r=changed)

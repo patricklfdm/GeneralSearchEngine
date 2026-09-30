@@ -113,3 +113,72 @@ PR #213 also corrected the inherited post-crash concurrent-wave driver; its
 intermediate outcome and never replays an uncertain write. The exact-master
 [Phase 5C review](PHASE_5_ACCEPTANCE.md) covers that correction and the complete
 hardening/resource evidence accepted through PR #214; Phase 6 remains a separate entry.
+
+## Post-PR-260 correction: retained promises during the final recovery write
+
+[Master CI 36687338735](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36687338735/job/109798029294)
+on `ebafd20c0e3e40b584904b9b817344e4fd05a88b` failed
+`cancel-chosen-recovery`; the other three combined lifecycle cases passed.
+The retained trace shows node 1 complete its epoch-5 strong read, then begin the
+new bulk write. Restarted node 2 returned an epoch-6 retained promise in a
+HEARTBEAT rejection while that write was in progress. Node 1 correctly reported
+`INDETERMINATE / STALE_EPOCH`. The driver still required the first write after the
+read to succeed. A completed read certifies its own cut; it cannot reserve
+leadership for the next operation. PR #260's cleanup credential changes did not
+change this driver or the replication runtime.
+
+The original failed artifact remains under
+`target/v51-combined-lifecycle-ci-36687338735/artifact/run.4jDc7u/evidence/`,
+with the decoded timeline in the adjacent `diagnosis.json`. Its partial public
+history passed independent replay, but that does not qualify the failed scenario.
+
+Phase 5B now uses the existing
+[Phase 5A bounded recovery rule](PHASE_5_COMBINED_RECOVERY.md) for the final
+read/write stage:
+
+- At most three **different** bulks use keys `80/81`, `82/83`, then `84/85`.
+  Each starts after a fresh successful strong read; read acquisition keeps the
+  existing four-attempt bound. Earlier scenario writes still require immediate
+  success. The complete case retains the 32-application-call and 100000-state
+  limits, with a dispatch guard before the bounded read/write helpers send work.
+- Every attempt and its original outcome remain in the public history. Only the
+  existing classified availability refusals can advance to another fresh bulk.
+  An uncertain bulk is never replayed. A subsequent read may observe its entire
+  chosen bulk or its absence; partial, changed or reordered results fail.
+  Integrity, storage, capacity, unknown and disconnected outcomes still fail.
+- The independent validator accounts for every recovery read/write, checks the
+  fixed key tape, process identity, ordering, classified outcomes and exact final
+  projection. For torn cases the recovery boundary follows the pressure-overlap
+  read after restart; for lifecycle cases it follows the retained restart after
+  the majority read. Moving the declared boundary cannot hide a failed attempt.
+  Raw client, physical quorum/proof and complete history checks still apply.
+- Four additional negative variants per case remove a recovery attempt, change
+  or replay its keys, move its boundary, or forge its final projection. The full
+  matrix therefore requires 76 rejected variants, including the original 60.
+
+This correction changes Python qualification and its evidence checks. Sealed
+resource/deadline bounds, fault placement and runtime Java remain unchanged.
+Corrected-source protected CI is still required; local verification does not
+advance Phase 6 cloud admission or acceptance.
+
+Local correction validation:
+
+- Two deterministic regressions reproduce the original immediate-write failure
+  with both chosen and absent uncertain bulks. After the correction all 63 focused
+  tests pass, including 11 new recovery driver/independent-checker tests and the
+  existing Phase 5A helper tests.
+- The complete four-case gate passed at
+  `target/v51-combined-lifecycle/run.qefPcC/evidence/receipt.json`: application
+  counts were 14, 14, 11 and 14 in the scenario order above; all 76 negative
+  variants were rejected. This live matrix completed each final recovery write on
+  its first attempt; the classified-failure paths are exercised deterministically.
+- The reactor was repackaged with tests skipped because this correction changes
+  no Java. Maven kept the identical JAR's old timestamp, so the previous package
+  was retained separately before regeneration; the replication SHA-256 stayed
+  `b289d17088415d9fb1e6589321bd5f47bf9fd612d867d7487f64f10082ffa9d3`.
+  The freshness guard was not relaxed. Both pre-execution freshness refusals
+  remain in the validation logs.
+- Documentation links/contract, shell syntax and whitespace checks pass.
+  Logs, the red/green regression record and validation summary are under
+  `target/v51-combined-lifecycle-recovery/`. Protected CI for the corrected source
+  remains pending.
