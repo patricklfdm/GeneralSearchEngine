@@ -227,5 +227,7 @@ artifacts are retained under `target/v51-hardening-ci-36670188539`.
 Local validation passed the complete reactor (900 tests, four existing skips),
 29 lifecycle/pressure evidence tests, and all five fresh-JVM lifecycle cases with
 57 rejected evidence mutations. Results are retained in that directory's
-`validation-summary.json` and PR description. Corrected-source protected
-qualification remains required.
+`validation-summary.json` and PR description. PR #259 subsequently accepted this
+correction at master `a25ecba2121526e4cef4d41ee1a90f1e1f64259e`, exact-master
+[CI 36679824140](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36679824140)
+attempt 1 (all 29 jobs). The original failure remains retained.

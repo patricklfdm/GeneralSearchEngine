@@ -92,6 +92,24 @@ def execute(cfg, env, observation, api, output, *, trigger, source, checkout, no
     return receipt
 
 
+def execute_integrated(cfg, env, observation, credentials, transport, auth_transport, output, *,
+                       trigger, source, checkout, now, clock, wall):
+    """Same reconciliation, with the bound credential exchange and provider HTTP.
+
+    Both transports must be offline until separately reviewed activation. Context
+    and transport checks precede credentials, network traffic and local output.
+    """
+    from .cloud_cleanup_credentials import Credentials
+    from .cloud_http import Api
+    binding = identity(cfg, env, trigger=trigger, source=source, checkout=checkout)
+    validate_run(binding, observation)
+    m.need(transport.offline is True and auth_transport.offline is True, 'native cleanup activation unavailable')
+    tokens = Credentials(binding, env, credentials, transport=auth_transport, clock=clock, wall=wall)
+    api = Api(transport=transport, tokens=tokens, clock=clock)
+    result = execute(cfg, env, observation, api, output, trigger=trigger, source=source, checkout=checkout, now=now)
+    return result
+
+
 def blocked(output, *, binding=None):
     value = dict(binding or {}, schema=SCHEMA, status='BLOCKED', execution='native-cleanup-not-activated',
                  reason='Native cleanup transport and credential activation are not qualified.',
