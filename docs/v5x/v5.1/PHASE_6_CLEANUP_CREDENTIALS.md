@@ -109,3 +109,13 @@ manual **or** scheduled cleanup evidence must precede paid admission. Cleanup
 activation remains independent of paid-workload admission and current green CI;
 source delivery, remaining workload cells, prices and exact-request confirmation
 still precede user-triggered paid execution. Full Phase 6 remains open.
+
+
+## Subsequent network implementation candidate
+
+[6C3C28](PHASE_6_CLEANUP_NETWORK.md) reuses this exchange in a dedicated network
+cleanup API and formal command. The offline `Credentials`, `execute` and
+`execute_integrated` entry points retain their live-transport guards. The new
+path is qualified over loopback TLS; protected CI and separately reviewed real
+identity/provider activation remain pending. Current workflow proposals and the
+authorized disabled identity configuration are unchanged.

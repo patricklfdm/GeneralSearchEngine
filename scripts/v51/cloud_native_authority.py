@@ -1,13 +1,14 @@
 """Native record formats, sharing invariants with the isolated fake domain.
 
 These records are data, not paid admission. No fake record is migrated/relabelled.
-The paid runner and native HTTP activation remain closed.
+The paid runner remains closed. The network cleanup adapter has a separate tag.
 """
 from functools import wraps
 from . import cloud_authority as a
 
 EXECUTION = 'gcp-v51-owned-control'
 ADAPTER_EXECUTION = 'offline-v51-native-control'
+CLEANUP_EXECUTION = 'gcp-v51-native-cleanup'
 PAID_CLOUD = True  # Original attempt intent; offline replay receipts remain false.
 COMPLETION_SCHEMA = 'gse-v51-native-completion-v1'
 CONTEXT_SCHEMA = 'gse-v51-native-cleanup-context-v1'

@@ -1,7 +1,7 @@
-"""Reconstruct shared expired cleanup from durable HTTP state, offline only.
+"""Reconstruct shared expired cleanup from durable HTTP state.
 
 No original runner, SSH private key, local workspace or caller-supplied request is
-needed. Native credentials and writes remain independently disabled.
+needed. Network writes require the dedicated native cleanup policy API.
 """
 from copy import deepcopy
 from . import cloud_authority as a, cloud_gcp as g, cloud_runner as r, performance_model as m
@@ -50,7 +50,10 @@ def reconcile(configuration, api, output, *, trigger, now, authority=a, on_expir
     The configured bucket is the entry location, not deletion authority. The
     retained lease, charged request, context and original operations bind scope.
     """
-    m.need(api.offline is True, 'native cleanup disabled pending qualification/activation')
+    from .cloud_native_cleanup import NetworkCleanupApi
+    from . import cloud_native_authority as native
+    m.need(api.offline is True or authority is native and type(api) is NetworkCleanupApi,
+           'native cleanup disabled pending qualification/activation')
     g.config(configuration)
     store = g.Store(configuration, api, authority=authority)
 

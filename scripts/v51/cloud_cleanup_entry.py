@@ -1,7 +1,7 @@
-"""Bound native cleanup entry points. Live activation remains unavailable.
+"""Bound offline and network cleanup entries; workflow deployment is separate.
 
-GitHub context checks are not authentication. Only offline HTTP qualification is
-executable here; reviewed WIF/IAM and native transport activation remain separate.
+Only reconcile uses the cleanup-specific network API. Existing offline entries
+and the inactive workflow activation-check retain their independent guards.
 """
 import argparse
 import html
@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import stat
+import time
 from . import cloud_authority as a, cloud_ci as ci, cloud_identity_setup as identities
 from . import cloud_preflight as preflight, cloud_native_cleanup as cleanup, performance_model as m
 from .remote_command import read, write_once
@@ -110,9 +112,54 @@ def execute_integrated(cfg, env, observation, credentials, transport, auth_trans
     return result
 
 
+def credential_file(env):
+    """Read only the auth action's descriptor; no ADC discovery or shell fallback."""
+    try:
+        path = env['GOOGLE_GHA_CREDS_PATH']
+        m.need(isinstance(path, str) and os.path.isabs(path), 'cleanup credential file')
+        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(fd, 'rb') as source:
+            info = os.fstat(source.fileno())
+            m.need(stat.S_ISREG(info.st_mode) and 0 < info.st_size <= 128 << 10, 'cleanup credential file bound')
+            raw = source.read((128 << 10)+1)
+        m.need(len(raw) <= 128 << 10, 'cleanup credential file bound')
+        return m.strict_json(raw)
+    except Exception:
+        raise ValueError('cleanup credential file rejected') from None
+
+
+def execute_network(cfg, env, output, *, trigger, source, checkout):
+    """Fresh GitHub observation, exact auth descriptor, then scoped reconciliation.
+
+    No caller-supplied time, observation, identity, endpoints or resource selector.
+    Enabling/deploying the workflow and interpreting readiness are separate steps.
+    """
+    binding = identity(cfg, env, trigger=trigger, source=source, checkout=checkout)
+    collect_run(binding)
+    output = Path(output); output.mkdir(parents=True, exist_ok=False)
+    write_once(output/'binding.json', binding)
+    now = int(time.time()); api = None
+    receipt = dict(binding, execution='gcp-native-cleanup-entry', status='FAIL', checkedAt=now,
+                   credentialExchangeCompleted=False, effectiveIamQualified=False)
+    phase = 'credentials'
+    try:
+        api = cleanup.NetworkCleanupApi(cfg['provider'], binding, env, credential_file(env))
+        phase = 'reconciliation'
+        result = cleanup.reconcile(cfg['provider'], api, output/'reconciliation', trigger=trigger, now=now)
+        receipt.update(status=result['status'], reconciliation=result)
+    except (Exception, KeyboardInterrupt) as error:
+        receipt['failure'] = dict(phase=phase, type=type(error).__name__)
+    finally:
+        # A completed exchange is narrower than effective-IAM or activation review.
+        receipt['credentialExchangeCompleted'] = api is not None and api.tokens.exchanges > 0
+        write_once(output/'receipt.json', receipt)
+        (output/'summary.md').write_text(summary(receipt))
+    return receipt
+
+
 def blocked(output, *, binding=None):
     value = dict(binding or {}, schema=SCHEMA, status='BLOCKED', execution='native-cleanup-not-activated',
-                 reason='Native cleanup transport and credential activation are not qualified.',
+                 reason='Native cleanup deployment and identity activation are not approved by this command.',
                  identityAuthenticated=False, activationAllowed=False, cleanupReady=False,
                  paidCloud=False, fullRemoteQualification=False)
     output = Path(output); output.mkdir(parents=True, exist_ok=True)
@@ -132,24 +179,47 @@ def summary(value):
     result = value.get('reconciliation', {})
     for label, key in (('Active lease', 'activeLease'), ('Lease released', 'leaseReleased')):
         if key in result: rows.append((label, result[key]))
+    for label, key in (('Credential exchange completed', 'credentialExchangeCompleted'),
+                       ('Effective IAM qualified', 'effectiveIamQualified')):
+        if key in value: rows.append((label, value[key]))
     rows += [('Live activation allowed', False), ('Cleanup readiness established', False), ('Paid cloud executed', False)]
     return ('# V5.1 cleanup entry\n\n| Parameter | Value |\n| --- | --- |\n'+
             ''.join('| '+cell(k)+' | '+cell(v)+' |\n' for k,v in rows)+
-            '\n'+cell(value.get('reason', 'Offline qualification only; context matching is not authentication.'))+'\n')
+            '\n'+cell(value.get('reason', 'Cleanup result alone does not establish activation, effective IAM or paid readiness.'
+                if value['execution'] == 'gcp-native-cleanup-entry' else
+                'Offline qualification only; context matching is not authentication.'))+'\n')
 
 
-def main():
+def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='command', required=True)
     check = sub.add_parser('identity')
     check.add_argument('--trigger', choices=TRIGGERS, required=True)
     check.add_argument('--source', required=True)
     check.add_argument('--output', type=Path, required=True)
+    live = sub.add_parser('reconcile')
+    live.add_argument('--trigger', choices=TRIGGERS, required=True)
+    live.add_argument('--source', required=True)
+    live.add_argument('--output', type=Path, required=True)
     stop = sub.add_parser('activation-check'); stop.add_argument('--output', type=Path, required=True)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     if args.command == 'activation-check':
         binding_path = args.output/'binding.json'
         value = blocked(args.output, binding=read(binding_path) if binding_path.is_file() else None)
+    elif args.command == 'reconcile':
+        try:
+            cfg = read(preflight.CONFIG)
+            checkout = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+            value = execute_network(cfg, os.environ, args.output, trigger=args.trigger, source=args.source, checkout=checkout)
+        except (Exception, KeyboardInterrupt) as error:
+            value = dict(schema=SCHEMA, status='FAIL', execution='gcp-native-cleanup-entry',
+                         failure=dict(phase='entry', type=type(error).__name__), identityAuthenticated=False,
+                         activationAllowed=False, cleanupReady=False, paidCloud=False, fullRemoteQualification=False)
+            # An existing output is never overwritten, including on repeated invocation.
+            if not args.output.exists():
+                args.output.mkdir(parents=True)
+                write_once(args.output/'receipt.json', value)
+                (args.output/'summary.md').write_text(summary(value))
     else:
         cfg = read(preflight.CONFIG)
         checkout = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
@@ -164,7 +234,7 @@ def main():
             for key in ('provider', 'serviceAccount'): output.write(key+'='+value[key]+'\n')
         value = dict(value, status='CONTEXT_MATCH')
     print(m.canonical(value).decode())
-    return 2 if value['status'] == 'BLOCKED' else 0
+    return 0 if value['status'] in ('PASS', 'WAITING', 'CONTEXT_MATCH') else 2
 
 
 if __name__ == '__main__': raise SystemExit(main())

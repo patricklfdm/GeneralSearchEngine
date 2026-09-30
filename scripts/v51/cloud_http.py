@@ -1,4 +1,4 @@
-"""Bounded provider HTTP with renewable credentials. Live mutations remain disabled."""
+"""Bounded provider HTTP with renewable credentials; generic live API is read-only."""
 from dataclasses import dataclass, field
 import math
 import subprocess
@@ -56,12 +56,15 @@ class Api:
     @property
     def offline(self): return self.transport.offline is True
 
+    def authorize(self, method, url, body):
+        m.need(method == 'GET' or self.offline, 'live provider mutation disabled pending paid admission')
+
     def call(self, method, url, body=None, *, deadline, raw=False, maximum=16 << 20):
         parsed = urllib.parse.urlsplit(url)
         m.need(parsed.scheme == 'https' and parsed.netloc in ('compute.googleapis.com', 'storage.googleapis.com') and
                not parsed.fragment and not parsed.username, 'provider endpoint')
         m.need(method in ('GET', 'POST', 'DELETE'), 'provider method')
-        m.need(method == 'GET' or self.offline, 'live provider mutation disabled pending paid admission')
+        self.authorize(method, url, body)
         m.need(type(maximum) is int and 0 < maximum <= 16 << 20, 'provider response bound')
         payload = body if isinstance(body, bytes) else m.canonical(body) if body is not None else None
         for attempt in range(2):

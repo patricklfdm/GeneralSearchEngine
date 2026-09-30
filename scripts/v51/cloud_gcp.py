@@ -1,7 +1,7 @@
-"""V5.1 GCS/Compute request adapters; offline HTTP qualification, live reads only.
+"""V5.1 GCS/Compute adapters; network writes require the cleanup-only policy.
 
-No paid runner is exposed here. Real adapters have an unqualified execution tag,
-so the accepted control runner rejects them independently of HTTP mutation guards.
+No paid runner is exposed here. Generic live adapters remain unqualified; the
+scoped cleanup adapter has its own tag rejected by the paid control runner.
 """
 from copy import deepcopy
 import re
@@ -41,6 +41,8 @@ def link(value):
 def adapter_execution(api, authority):
     from . import cloud_native_authority as native
     m.need(authority is a or authority is native, 'provider authority domain')
+    from .cloud_native_cleanup import NetworkCleanupApi
+    if authority is native and type(api) is NetworkCleanupApi: return native.CLEANUP_EXECUTION
     return authority.ADAPTER_EXECUTION if api.offline else 'unqualified-v51-gcp-provider'
 
 

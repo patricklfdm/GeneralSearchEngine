@@ -1,22 +1,21 @@
-"""Native-format cleanup through a closed HTTP policy; offline qualification only.
+"""Native cleanup policy shared by offline replay and a scoped network API.
 
-There is no activation flag or workflow entry point. Api's live mutation barrier
-remains closed independently of this narrower method/path/body policy.
+The generic API remains read-only on the network. Only NetworkCleanupApi can
+submit cleanup mutations, after the same retained authority checks as replay.
 """
 from copy import deepcopy
 import re
 from urllib.parse import urlsplit, parse_qsl, quote
 from . import cloud_authority as a, cloud_native_authority as n, cloud_cleanup as c
 from . import cloud_gcp as g, performance_model as m
+from . import cloud_http as http
 from .cloud_http import ApiError
 
 
-class CleanupApi:
-    def __init__(self, configuration, api):
-        m.need(api.offline is True, 'native cleanup activation unavailable')
+class _Policy:
+    def initialize(self, configuration):
         g.config(configuration)
-        self.config, self.api = deepcopy(configuration), api
-        self.clock, self.offline = api.clock, True
+        self.config = deepcopy(configuration)
         self.lease = self.provider = self.ledger = self.completion = None
         self.lease_generation = self.observed_lease_generation = self.ledger_generation = None
         self.observed_lease = None
@@ -83,7 +82,7 @@ class CleanupApi:
                            status='FAIL', paidCloud=True, engineWorkloadExecuted=False, fullRemoteQualification=False,
                            reason='expired interrupted owner'), 'cleanup cannot manufacture successful workload evidence')
                 elif key == self.attempt+f'cleanup-{self.lease_generation}.json':
-                    m.need(expected == '0' and type(body) is dict and body.get('execution') == n.ADAPTER_EXECUTION and
+                    m.need(expected == '0' and type(body) is dict and body.get('execution') == self.execution and
                            body.get('trigger') in ('manual', 'schedule') and body.get('leaseReleased') is False and
                            body.get('status') == 'FAIL' and type(body.get('cleanup')) is dict, 'cleanup receipt scope')
                 else: raise ValueError('cleanup upload outside terminal authority')
@@ -138,7 +137,7 @@ class CleanupApi:
                     n.inspect_ledger(value); self.ledger = deepcopy(value); self.ledger_generation = generation
                 elif item == self.attempt+'cleanup-context.json':
                     c.validate_context(value, self.request, authority=n)
-                    self.provider = g.Compute(self.config, self.request, self.api, guest_access=value['guestAccess'], authority=n)
+                    self.provider = g.Compute(self.config, self.request, self, guest_access=value['guestAccess'], authority=n)
                 elif item == self.attempt+'completion.json': self.completion = deepcopy(self.completion_value(value))
         elif kind == 'insert-operation':
             m.need(type(value) is dict and not value.get('nextPageToken') and len(value.get('items', [])) <= 1,
@@ -159,7 +158,7 @@ class CleanupApi:
 
     def call(self, method, url, body=None, **kwargs):
         checked = self.check(method, url, body)
-        try: result = self.api.call(method, url, body, **kwargs)
+        try: result = self.request_http(method, url, body, **kwargs)
         except ApiError as error:
             if error.status == 404 and checked[0] == 'resource' and checked[2] is None:
                 self.absent.add(checked[1]['name'])
@@ -168,7 +167,37 @@ class CleanupApi:
         return result
 
 
+class CleanupApi(_Policy):
+    """Offline facade retained for existing qualification and callers."""
+    execution = n.ADAPTER_EXECUTION
+    def __init__(self, configuration, api):
+        m.need(api.offline is True, 'native cleanup activation unavailable')
+        self.api, self.clock, self.offline = api, api.clock, True
+        self.initialize(configuration)
+
+    def request_http(self, *args, **kwargs): return self.api.call(*args, **kwargs)
+
+
+class NetworkCleanupApi(_Policy, http.Api):
+    """Only the closed cleanup policy can authorize network POST/DELETE.
+
+    Does not accept a transport, arbitrary token supplier or admission boolean.
+    The workflow-bound entry constructs this after fresh context/run validation.
+    """
+    execution = n.CLEANUP_EXECUTION
+    def __init__(self, configuration, binding, env, credentials):
+        from .cloud_cleanup_credentials import NetworkCredentials
+        tokens = NetworkCredentials(binding, env, credentials)
+        http.Api.__init__(self, transport=http.Network(), tokens=tokens)
+        self.initialize(configuration)
+
+    def authorize(self, method, url, body): self.check(method, url, body)
+
+    def request_http(self, *args, **kwargs): return http.Api.call(self, *args, **kwargs)
+
+
 def reconcile(configuration, api, output, *, trigger, now):
-    policy = CleanupApi(configuration, api)
+    policy = api if type(api) is NetworkCleanupApi else CleanupApi(configuration, api)
+    m.need(policy.config == configuration, 'cleanup network configuration binding')
     return c.reconcile(configuration, policy, output, trigger=trigger, now=now, authority=n,
                        on_expired=lambda lease, generation: policy.bind(lease, generation, now=now))
