@@ -31,7 +31,7 @@ final class AutomaticProtocol implements AutoCloseable {
     private static final int MAX_ACTIONS=32;
     private static final class Pending {
         final Message message; final long deadline;
-        int attempts=1; long retryAt=Long.MAX_VALUE;
+        int attempts=1; long retryAt=Long.MAX_VALUE; boolean admissionDeferred;
         Pending(Message message,long deadline) { this.message=message;this.deadline=deadline; }
     }
     private static final class Operation {
@@ -165,7 +165,11 @@ final class AutomaticProtocol implements AutoCloseable {
         for(Pending pending:List.copyOf(exchanges.values())) {
             if(!exchanges.containsKey(pending.message.id()))continue;
             if(now>=pending.deadline) {exchangeFailed(pending.message.id());continue;}
-            if(now>=pending.retryAt) {pending.retryAt=Long.MAX_VALUE;pending.attempts++;emit(new Send(pending.message));}
+            if(now>=pending.retryAt) {
+                pending.retryAt=Long.MAX_VALUE;
+                if(!pending.admissionDeferred)pending.attempts++;
+                pending.admissionDeferred=false;emit(new Send(pending.message));
+            }
         }
         if(campaign!=null&&now>=heartbeatAt) {
             capacity(heartbeatSequence<Long.MAX_VALUE,"heartbeat sequence exhausted");heartbeatSequence++;
@@ -207,6 +211,14 @@ final class AutomaticProtocol implements AutoCloseable {
         clock(time);room();Pending pending=exchanges.get(id);if(pending==null)return;
         if(now>=pending.deadline||pending.attempts>bounds.maxRetryAttempts()) {exchangeFailed(id);return;}
         // Retransmit the exact same immutable request and ID, within the original deadline.
+        pending.retryAt=Math.min(pending.deadline,after(bounds.retryBackoffMillis()));
+    }
+    synchronized void transportDeferred(long id,long time) {
+        clock(time);room();Pending pending=exchanges.get(id);if(pending==null)return;
+        if(now>=pending.deadline) {exchangeFailed(id);return;}
+        // Local capacity consumed neither a wire attempt nor evidence of peer
+        // failure. Keep the same bounded pending record, message and deadline.
+        pending.admissionDeferred=true;
         pending.retryAt=Math.min(pending.deadline,after(bounds.retryBackoffMillis()));
     }
     private void exchangeFailed(long id) {

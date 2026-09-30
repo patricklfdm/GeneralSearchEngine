@@ -223,7 +223,7 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C29 implementation candidate: [cleanup deployment review package and readback](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md); no workflow deployment or identity enablement.
 - [x] 6C3C29 corrected-source protected acceptance: PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`, CI `36756473536` attempt 1, all 29 jobs.
 - [x] 6C3C30 implementation candidate: [read-only native cleanup observations and independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md); no live cleanup or readiness claim.
-- [ ] 6C3C30 corrected-source protected CI acceptance.
+- [ ] 6C3C30 corrected-source protected CI acceptance: PR #266 merged; master CI `36774917431` failed [local outbound admission](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission); runtime correction pending validation.
 - [ ] Real-provider cleanup, identity and activation qualification.
 - [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
 - [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.

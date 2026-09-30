@@ -222,8 +222,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                     if(events!=Events.NONE)events.at("SEND_QUEUED",Map.of("id",message.id(),"peer",message.recipient(),"kind",message.kind().name(),"ballot",b64(message.ballot().bytes())));
                     network.execute(()->{
                     try {var reply=exchange(message);complete(()->{protocol.receive(reply,now());observe(message,reply);});}
+                    catch(AdmissionDeferred error){lastExchangeFailure=error;complete(()->protocol.transportDeferred(message.id(),now()));}
                     catch(Throwable error){lastExchangeFailure=error;complete(()->{protocol.transportFailed(message.id(),now());unreachable(message.recipient());});}
-                });}catch(RejectedExecutionException error){protocol.transportFailed(message.id(),now());}
+                });}catch(RejectedExecutionException error){protocol.transportDeferred(message.id(),now());}
                 catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
             }else if(action instanceof AutomaticProtocol.Reconstruct rebuild) {
                 var cut=Map.<String,Object>of("id",rebuild.id(),"index",rebuild.replay().through(),"sequence",rebuild.replay().sequence());
@@ -360,6 +361,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
         var response=transport.exchange(text(request,"recipient"),request).get(bounds.requestTimeoutMillis()+100L,TimeUnit.MILLISECONDS);
         AutomaticWire.correlated(request,response);return response;
     }
+    private static final class AdmissionDeferred extends Exception {
+        AdmissionDeferred(ExecutionException cause) {super(cause);}
+    }
     private AutomaticProtocol.Message exchange(AutomaticProtocol.Message message) throws Exception {
         var value=new LinkedHashMap<String,Object>();String type;
         switch(message.kind()) {
@@ -378,7 +382,15 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             }
             default -> throw new IllegalStateException();
         }
-        var request=wire(message,type,value);var response=send(request);var payload=object(response.get("payload"));
+        var request=wire(message,type,value);Map<String,Object> response;
+        try {response=send(request);}
+        catch(ExecutionException error) {
+            if(AutomaticTransport.admissionRejected(error))throw new AdmissionDeferred(error);
+            throw error;
+        }
+        // A PREPARE that reached its peer has spent an attempt even if a later
+        // basis download fails admission. Only the initial send can be deferred.
+        var payload=object(response.get("payload"));
         Record promised=message.ballot();boolean accepted=!response.get("type").equals("REJECT");Object decoded;
         if(!accepted) {
             var grant=new LinkedHashMap<>(object(payload.get("promised")));grant.put("manifestDigest",manifest.digest());promised=decode(encode("PROMISE",grant),"PROMISE");decoded=text(payload,"reason");

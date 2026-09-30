@@ -84,8 +84,8 @@ class V51AutomaticTransportTest {
     @Test void observerAndEncodingFailuresDoNotLeakReservations() throws Exception {
         var observer=new Accounting();observer.fail.set(true);
         try(var pair=new Pair(observer)) {
-            assertThrows(ExecutionException.class,()->pair.sender.exchange("node-2",pair.request()).get(3,TimeUnit.SECONDS));
-            assertEquals(0,observer.size());
+            var observed=assertThrows(ExecutionException.class,()->pair.sender.exchange("node-2",pair.request()).get(3,TimeUnit.SECONDS));
+            assertFalse(AutomaticTransport.admissionRejected(observed));assertEquals(0,observer.size());
             var malformed=new HashMap<>(pair.request());malformed.put("unexpected",true);
             assertThrows(ExecutionException.class,()->pair.sender.exchange("node-2",malformed).get(3,TimeUnit.SECONDS));
             assertEquals("HANDSHAKE",pair.sender.exchange("node-2",pair.request()).get(3,TimeUnit.SECONDS).get("type"));
@@ -160,8 +160,19 @@ class V51AutomaticTransportTest {
             assertEquals(1,admissions.get());assertEquals(1,releases.get());assertEquals(0,pair.handled.get());
         }
     }
+    @Test void encodingCapacityIsNotUnsentAdmissionBackpressure() throws Exception {
+        var b=V51RuntimeFixture.BOUNDS;
+        var bounds=new ReplicationBounds(128,b.maxEntriesPerAppend(),b.maxInFlightPerPeer(),b.maxPendingClientOperations(),
+                b.maxRetryAttempts(),b.requestTimeoutMillis(),b.retryBackoffMillis(),b.snapshotChunkBytes(),b.maxRetainedLogBytes(),b.maxSnapshotStagingBytes());
+        try(var pair=new Pair(AutomaticTransport.Events.NONE,AutomaticTransport.Events.NONE,bounds)) {
+            var failure=assertThrows(ExecutionException.class,()->pair.sender.exchange("node-2",pair.request()).get(1,TimeUnit.SECONDS));
+            assertEquals(AutomaticReplicationException.Reason.CAPACITY_EXCEEDED,((AutomaticReplicationException)failure.getCause()).reason());
+            assertFalse(AutomaticTransport.admissionRejected(failure));assertEquals(0,pair.handled.get());
+        }
+    }
     static void assertCapacity(CompletableFuture<?> future) {
         var failure=assertThrows(ExecutionException.class,()->future.get(1,TimeUnit.SECONDS));
         assertEquals(ReplicationException.Reason.CAPACITY_EXCEEDED,((ReplicationException)failure.getCause()).reason());
+        assertTrue(AutomaticTransport.admissionRejected(failure));
     }
 }

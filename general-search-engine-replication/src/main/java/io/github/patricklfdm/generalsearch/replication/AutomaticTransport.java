@@ -34,6 +34,16 @@ final class AutomaticTransport implements AutoCloseable {
             accounting("OUTBOUND_ADMITTED", request, token, bytes);
         }
     }
+    // Only these failures prove that no request was admitted or written. Do not
+    // classify a peer rejection, encoding error or observer failure by reason alone.
+    private static final class AdmissionRejected extends RuntimeException { }
+    private static ReplicationException admissionFailure(String message) {
+        return new ReplicationException(CAPACITY_EXCEEDED,message,new AdmissionRejected());
+    }
+    static boolean admissionRejected(java.util.concurrent.ExecutionException failure) {
+        return failure.getCause() instanceof ReplicationException error
+                && error.reason()==CAPACITY_EXCEEDED && error.getCause() instanceof AdmissionRejected;
+    }
     private final AutomaticRecords.Record manifest;
     private final String local;
     private final ReplicationBounds bounds;
@@ -107,7 +117,7 @@ final class AutomaticTransport implements AutoCloseable {
         if (capacity == null || peer.equals(local)) return CompletableFuture.failedFuture(new ReplicationException(PROTOCOL_MISMATCH, "invalid peer"));
         if (!capacity.tryAcquire()) {
             events.accounting("OUTBOUND_REJECTED",request,null,0);
-            return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "peer in-flight limit reached"));
+            return CompletableFuture.failedFuture(admissionFailure("peer in-flight limit reached"));
         }
         var result = new CompletableFuture<Map<String, Object>>();
         byte[] bytes;
@@ -115,7 +125,7 @@ final class AutomaticTransport implements AutoCloseable {
         catch (RuntimeException error) { capacity.release(); return CompletableFuture.failedFuture(error); }
         if (queuedBytes.addAndGet(bytes.length) > (long) bounds.maxFrameBytes() * 4) {
             queuedBytes.addAndGet(-bytes.length); capacity.release();
-            return CompletableFuture.failedFuture(new ReplicationException(CAPACITY_EXCEEDED, "outbound byte budget exhausted"));
+            return CompletableFuture.failedFuture(admissionFailure("outbound byte budget exhausted"));
         }
         long startedNanos = System.nanoTime();
         long deadline = startedNanos + TimeUnit.MILLISECONDS.toNanos(bounds.requestTimeoutMillis());
