@@ -16,6 +16,63 @@ CUTS = {'higher-ballot-accept': 'WIRE_AFTER_RESPONSE_READ_ACCEPT',
         'epoch-during-basis': 'WIRE_BEFORE_RESPONSE_WRITE_BASIS_CHUNK:continuation'}
 
 
+def read_after_rejoin(workers, expected, observations):
+    # A successful majority read does not incorporate a restarted minority's
+    # higher promise. Coordinate this healed fixture before its one final write;
+    # status is not a service oracle and no uncertain mutation is replayed.
+    need(set(workers) == set(protocol.NODES), 'selection rejoin requires all voters')
+    deadline = time.monotonic() + 40
+
+    def remaining():
+        seconds = deadline - time.monotonic()
+        need(seconds > 0, 'selection rejoin deadline exceeded')
+        return seconds
+
+    def snapshot(phase):
+        statuses = {}
+        for node, worker in workers.items():
+            result = worker.send('status').result(timeout=min(35, remaining()))
+            need(result is not None and result['outcome'] == 'SUCCESS', 'selection rejoin status failed: ' + str(result))
+            statuses[node] = {key: result[key] for key in ('state', 'epoch', 'provenIndex')}
+        observations.append(dict(phase=phase, statuses=statuses))
+        need(all(s['state'] != 'FAILED' for s in statuses.values()), 'selection rejoin voter failed: ' + str(statuses))
+        return statuses
+
+    def leader_at_common_epoch(statuses):
+        leaders = [node for node, s in statuses.items() if s['state'] == 'LEADER_READY']
+        if (len(leaders) != 1 or len({s['epoch'] for s in statuses.values()}) != 1 or
+                any(s['state'] not in ('FOLLOWER', 'LEADER_READY') for s in statuses.values())):
+            return None
+        return leaders[0]
+
+    def ready():
+        statuses = snapshot('before-read'); node = leader_at_common_epoch(statuses)
+        if node is not None and all(s['provenIndex'] >= statuses[node]['provenIndex'] for s in statuses.values()):
+            return node, statuses[node]['epoch']
+        return None
+
+    # Preserve the existing four-read recovery bound and every Worker history row.
+    # Use one deadline across status waits, reads and leader changes.
+    for _ in range(4):
+        node, epoch = fault.wait_for(ready, 'selection rejoin did not converge', seconds=remaining())
+        active = workers[node]
+        result = active.send('read').result(timeout=min(35, remaining()))
+        observations.append(dict(phase='read', node=node, epoch=epoch, result=result))
+        need(result is not None, 'selection rejoin read disconnected')
+        if result['outcome'] != 'SUCCESS':
+            need(result['outcome'] == 'NOT_APPLICABLE' and result.get('reasonCode') in protocol.READ_REJECTIONS,
+                 'unexpected selection rejoin read failure: ' + str(result))
+            continue
+        need(result['documents'] == expected, 'selection rejoin projection changed')
+        after = snapshot('after-read')
+        # A promise can advance while the strong read is in flight. In that case
+        # wait for the new election before dispatching any application mutation.
+        if leader_at_common_epoch(after) == node and after[node]['epoch'] == epoch:
+            remaining()
+            return node, active
+    raise ValueError('selection rejoin did not stabilize after four reads')
+
+
 def scenario(root, cp, case):
     root.mkdir(); workers = {}; history = []; expected = []; starts = []
     receipt = dict(case=case, status='FAIL', publicRuntime=True)
@@ -97,7 +154,9 @@ def scenario(root, cp, case):
             new, active = read()
         receipt['recoveredLeader'] = new
         if old not in workers: start(old, 2)
-        final, active = read(); receipt['laterWrite'] = write(active, 70)
+        receipt['rejoinObservations'] = []
+        final, active = read_after_rejoin(workers, expected, receipt['rejoinObservations'])
+        receipt['laterWrite'] = write(active, 70)
         read(); receipt['finalRead'] = history[-1]['opId']; receipt['expected'] = expected
     except BaseException as error: receipt['failure'] = str(error); raise
     finally:

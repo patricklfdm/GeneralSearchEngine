@@ -114,3 +114,60 @@ an oracle field error: ACCEPT carries an encoded `acceptance`, whose `entry` is
 nested. Its failed receipt remains preserved; the final full gate above uses the
 correct decoder. Runtime outcomes and deadlines were not relaxed. Execution-time
 source inventories precede this final documentation record.
+
+## Retained-restart coordination correction — 2026-09-30
+
+**Status:** local correction; corrected-source protected CI remains required.
+
+Master [CI 36793951268](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36793951268)
+attempt 1, source `e1adb7c7ea028124d104f5ccb05eb7a6d2686431`, failed
+`higher-ballot-proof` at the final `addAll` (`node-1-g1-209`). The original
+artifacts are retained locally under `target/ci-36793951268/selection`.
+Node 2 restarted with its durable epoch-6 promise while node 1 still served the
+epoch-5 majority. That majority completed a strong read, but node 2's subsequent
+heartbeat rejection exposed the higher promise during the final write. Returning
+`INDETERMINATE / STALE_EPOCH` was conservative fencing; the driver had treated a
+successful majority read as completion of the three-voter rejoin.
+
+The final-write preparation now waits for one ready leader, two followers, a
+common promised epoch and every voter's proven prefix reaching the observed
+leader's prefix. It then performs a real strong read and checks the exact expected
+projection. A second status observation must still show the same leader and epoch
+across all three voters. A crossing promise or one of the existing allowed read
+availability rejections returns to bounded election observation. All status
+observations and read responses are retained as `rejoinObservations`; public reads
+also remain in the complete client history.
+
+This coordination uses one 40-second deadline and at most four reads. It does not
+replay the final mutation or accept its failure: the original tagged bulk still
+must succeed once, followed by a successful read. Status is only coordination;
+the unchanged independent history, physical and selection oracles must establish
+the final service and every original fault condition. These finite observations
+do not promise permanent leadership or an unconditional recovery deadline.
+
+The correction is confined to the selection driver and its gate. Production Java,
+wire/storage formats, election/request/operation policies, workload parameters,
+other CI lanes and cloud admission remain unchanged. The same master's separate
+rich healthy failure (`warmup`, query latency followed by `LANE_BUSY`) remains a
+separate timing observation; this change does not claim to resolve it.
+
+Validation records are retained under `target/v51-selection-rejoin`:
+
+- Three regressions replaying the original post-restart read path fail on the
+  epoch-5/epoch-6 interleaving, incomplete prefix catch-up, and a promise crossing
+  the successful read. All pass with the correction.
+- Ten new driver tests cover those races, leader changes, failed voters, projection
+  mismatch, allowed/forbidden read outcomes, four-read exhaustion and a shared
+  deadline. Together with existing selection evidence tests and related recovery
+  helper suites, all 66 Python tests pass.
+- Complete six-case gate passed at
+  `target/v51-public-selection/run.ZSnYVH/evidence/receipt.json`: 24 process
+  identities, 58 public calls and all 66 independent evidence negatives. Every
+  case retained a single successful final tagged write.
+- Reactor packaging passed with Java tests skipped (no Java source changes).
+  The freshly packaged replication JAR is byte-identical to the prior artifact;
+  initial gate invocations stopped at source/JAR timestamp freshness before
+  executing any scenario. Both failed freshness receipts remain retained.
+- Documentation contract (86 documents), 70 changed-document local links, shell
+  syntax and whitespace checks passed. The validation summary and reviewable PR
+  body are under `target/v51-selection-rejoin`.
