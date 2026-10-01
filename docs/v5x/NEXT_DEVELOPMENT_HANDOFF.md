@@ -183,7 +183,12 @@ authorized the [bounded IAM review amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.
 ancestor reads are optional and retained as unassessed; explicit role/trust review,
 actual-identity required/forbidden permission checks and real cleanup qualification
 remain mandatory. Do not request organization privileges or migrate the project
-merely to read ancestor policies. The amendment's protected CI remains pending. No cleanup workflow is deployed, no identity
+merely to read ancestor policies. The amendment merged at
+`e1adb7c7ea028124d104f5ccb05eb7a6d2686431`: PR CI `36791659694` passed, but
+master CI `36793951268` attempt 1 failed on the existing selection driver's
+[retained-restart coordination race](v5.1/PHASE_4_PUBLIC_SELECTION.md#retained-restart-coordination-correction--2026-09-30)
+and a separate rich healthy warmup `LANE_BUSY`. The selection correction has local
+regression coverage; corrected-source protected CI remains pending. No cleanup workflow is deployed, no identity
 is enabled, and real provider qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
