@@ -95,8 +95,14 @@ packages validated; three YAML documents and 14 shell blocks passed syntax check
 Role/grant generators, credentials, reconciliation, inactive proposals, enable/
 disable commands and the main CI workflow match the accepted base. Evidence is
 retained at `target/v51-cloud-preflight/run.x28LzB` and
-`target/v51-identity-permission-probes/validation-summary.json`. No Java or Maven
-change requires a new local reactor build for this batch.
+`target/v51-identity-permission-probes/validation-summary.json`. The permission
+precheck itself changes no Java or Maven configuration.
+
+The same PR's first CI attempt `36808406642` exposed a separate
+[subsequent checkpoint restart defect](PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate)
+in the owned experiment. Its correction now accompanies this batch, with runtime
+regressions and a new reactor validation. The failed hosted evidence is retained;
+permission prechecks did not cause the interrupted-generation recovery failure.
 
 After protected merge, a fresh user-triggered observer preflight can exercise the
 actual read-only path. Cleanup deployment and identity activation still need the

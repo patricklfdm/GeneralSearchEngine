@@ -21,7 +21,7 @@ class V51CheckpointRuntimeTest {
     List<AutomaticReplicationGroupConfig<Integer,Doc>> configs;
     byte[] manifest, application, first;
 
-    private void retained(boolean advance) throws Exception {
+    private void bootstrap() throws Exception {
         configs=V51PublicRuntimeTest.configs(root);
         var request=new AutomaticReplicationBootstrapRequest<>(ReplicationBootstrapSource.EMPTY,null,configs,
                 root.resolve("operation"),1L<<30,1L<<30);
@@ -30,6 +30,9 @@ class V51CheckpointRuntimeTest {
         manifest=Files.readAllBytes(root.resolve("node-1/manifest.gsr"));
         application=unbase(decode(Files.readAllBytes(root.resolve("node-1/genesis.gsr")),"GENESIS").value().get("application"));
         first=entry(manifest,1,null,9,new byte[0]);
+    }
+    private void retained(boolean advance) throws Exception {
+        bootstrap();
         try(var store=open(1)) {
             store.checkpoint(application); // Older generation at genesis.
             store.promise(promise(manifest,2));prove(store,first);
@@ -61,6 +64,35 @@ class V51CheckpointRuntimeTest {
     }
     private void unchanged(Map<Path,byte[]> files) throws Exception {
         for(var file:files.entrySet())assertArrayEquals(file.getValue(),Files.readAllBytes(file.getKey()),file.getKey().toString());
+    }
+    @Test void publicRestartResumesInterruptedCheckpointThenAllowsWitnessedRejoin() throws Exception {
+        bootstrap();
+        try(var store=open(1)) {
+            store.checkpoint(application);store.promise(promise(manifest,2));prove(store,first);
+        }
+        try(var store=AutomaticStore.open(root.resolve("node-1"),manifest,"node-1",V51PublicRuntimeTest.BOUNDS,
+                V51AutomaticRecoveryTest.fail("GENERATION_SNAPSHOT_AFTER_FORCE"))) {
+            assertThrows(AutomaticReplicationException.class,()->store.checkpoint(application));
+        }
+        assertFalse(Files.exists(root.resolve("node-1/generation-b/generation.gsr")));
+        try(var engine=engine()) {
+            assertEquals(1,engine.start().get(15,TimeUnit.SECONDS).appliedIndex());
+            assertTrue(Files.isRegularFile(root.resolve("node-1/generation-b/generation.gsr")),"startup must finish the exact local checkpoint");
+            engine.checkpoint().get(15,TimeUnit.SECONDS);
+            assertNotEquals(AutomaticReplicationState.FAILED,engine.leadershipStatus().state());
+            assertFalse(Files.exists(root.resolve("node-1/recovery-floor.gsr")));
+        }
+        try(var local=open(1);var peer=open(2)) {
+            assertEquals(1,AutomaticRecovery.index(local.currentSource().snapshot()));
+            peer.promise(promise(manifest,2));prove(peer,first);
+            var localSource=local.recoverySource();
+            local.establishRecoveryFloor(List.of(localSource,peer.retainWitness("node-1",localSource.snapshot())));local.cleanup();
+            assertFalse(Files.exists(root.resolve("node-1/generation-a")));
+            prove(peer,entry(manifest,2,first,9,new byte[0]));peer.checkpoint(application);
+            local.installProven(peer.currentSource().snapshot());
+            assertEquals(2,local.status().get("provenThrough"));assertFalse(local.quarantined());
+        }
+        try(var engine=engine()) {assertEquals(2,engine.start().get(15,TimeUnit.SECONDS).appliedIndex());}
     }
     @Test void identicalCheckpointReusesActiveGenerationWithoutQuorumOrRetirement() throws Exception {
         retained(false);var before=generationBytes();

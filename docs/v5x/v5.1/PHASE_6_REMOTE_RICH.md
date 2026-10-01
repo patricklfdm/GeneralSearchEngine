@@ -237,6 +237,11 @@ Deterministic crash checks cover partial writes, forces and selector publication
 retained acceptance/promise preservation and refusal to rewrite conflicting bytes.
 The original failed run remains evidence of the defect, not a passing qualification.
 
+A later owned-experiment failure exposed the same missing resumption after an
+existing selector. The [subsequent checkpoint correction](PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate)
+extends exact-byte startup resumption to either inactive generation; protected
+acceptance of that correction remains pending.
+
 ## Gate and review
 
 ```bash

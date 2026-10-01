@@ -151,7 +151,13 @@ class V51AutomaticRecoveryTest {
             a.establishRecoveryFloor(List.of(a.recoverySource(),b.recoverySource()));
         }
         try(var a=open(1,fail("DELETE_AFTER_FILE"))){assertThrows(AutomaticReplicationException.class,a::cleanup);}
-        try(var a=open(1)){assertEquals(1,a.status().get("provenThrough"));a.cleanup();}
+        try(var a=open(1)){
+            assertEquals(1,a.status().get("provenThrough"));
+            byte[] selector=Files.readAllBytes(root.resolve("node-1/current.gsr"));
+            var protocol=new AutomaticProtocol(a,()->0,java.util.UUID::randomUUID);protocol.restored(new byte[]{1});protocol.start(0);
+            assertArrayEquals(selector,Files.readAllBytes(root.resolve("node-1/current.gsr")),"startup cannot reuse a slot under retirement");
+            a.cleanup();
+        }
         assertFalse(Files.exists(root.resolve("node-1/generation-a")));
         try(var a=open(1)){assertEquals(2L,a.status().get("promisedEpoch"));}
     }
@@ -214,15 +220,69 @@ class V51AutomaticRecoveryTest {
             }
         }
     }
-    @Test void startupDoesNotRewriteAnUnrelatedUnpublishedSnapshot() throws Exception {
+    @ParameterizedTest @ValueSource(strings={"GENERATION_ACCEPTED_WRITE_CHUNK","GENERATION_ACCEPTED_AFTER_FORCE","GENERATION_PROOFS_WRITE_CHUNK","GENERATION_SNAPSHOT_WRITE_CHUNK","GENERATION_SNAPSHOT_AFTER_FORCE","GENERATION_SEAL_WRITE_CHUNK","GENERATION_SEAL_AFTER_FORCE","SELECTOR_AFTER_FORCE"})
+    void startupResumesSubsequentCheckpointInEitherSlot(String cut) throws Exception {
+        for(boolean activeB:List.of(false,true))for(boolean restored:List.of(false,true)) {
+            Path scenario=Files.createDirectory(root.resolve(cut+"-"+activeB+"-"+restored));byte[] localManifest=setup(scenario);
+            Path node=scenario.resolve("node-1");
+            byte[] first=entry(localManifest,1,null,1,new byte[]{1});
+            byte[] second=entry(localManifest,2,first,1,new byte[]{2});
+            byte[] tail=entry(localManifest,3,second,1,new byte[]{3});
+            try(var store=AutomaticStore.open(node,localManifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE);
+                var peer=AutomaticStore.open(scenario.resolve("node-2"),localManifest,"node-2",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+                for(var voter:List.of(store,peer)) {
+                    voter.promise(promise(localManifest,2));voter.accept(accept(localManifest,first,2));voter.prove(proof(localManifest,first,2));
+                    voter.checkpoint(new byte[]{1});
+                }
+                if(activeB) {
+                    store.checkpoint(new byte[]{1});
+                    store.establishRecoveryFloor(List.of(store.recoverySource(),peer.recoverySource()));store.cleanup();
+                }
+                store.accept(accept(localManifest,second,2));store.prove(proof(localManifest,second,2));store.accept(accept(localManifest,tail,2));
+            }
+            var before=new java.util.LinkedHashMap<Path,byte[]>();
+            try(var paths=Files.walk(node)) {
+                for(Path path:paths.filter(Files::isRegularFile).toList())before.put(path,Files.readAllBytes(path));
+            }
+            var fault=new AutomaticStore.Faults() {
+                public int maximumWriteBytes(){return cut.endsWith("_WRITE_CHUNK")?7:Integer.MAX_VALUE;}
+                public void at(String event)throws java.io.IOException {if(event.equals(cut))throw new java.io.IOException("cut "+cut);}
+            };
+            try(var store=AutomaticStore.open(node,localManifest,"node-1",ReplicationBounds.defaults(),fault)) {
+                assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{2}));
+            }
+            try(var store=AutomaticStore.open(node,localManifest,"node-1",ReplicationBounds.defaults(),AutomaticStore.Faults.NONE)) {
+                assertEquals(1,AutomaticRecovery.index(store.currentSource().snapshot()));
+                var protocol=new AutomaticProtocol(store,()->0,java.util.UUID::randomUUID);
+                if(restored)protocol.restored(new byte[]{2});protocol.start(0);
+                if(!restored) {
+                    var rebuild=(AutomaticProtocol.Reconstruct)protocol.drain().getFirst();
+                    protocol.reconstructed(rebuild.id(),new byte[]{2},null,0);
+                }
+                assertEquals(AutomaticReplicationState.FOLLOWER,protocol.view().state());
+                assertEquals(2,AutomaticRecovery.index(store.currentSource().snapshot()),"resume interrupted checkpoint before background recovery");
+                assertEquals(activeB?"generation-a":"generation-b",store.currentSource().selector().value().get("generation"));
+                assertArrayEquals(tail,store.acceptedEntry(3));assertFalse(store.quarantined());
+                for(var file:before.entrySet())if(!file.getKey().equals(node.resolve("current.gsr")))
+                    assertArrayEquals(file.getValue(),Files.readAllBytes(file.getKey()),"resumption must preserve old authority: "+file.getKey());
+                assertEquals(activeB,Files.exists(node.resolve("recovery-floor.gsr")),"resumption cannot authorize retirement");
+            }
+        }
+    }
+    @ParameterizedTest @ValueSource(booleans={false,true})
+    void startupDoesNotRewriteAnUnrelatedUnpublishedSnapshot(boolean subsequent) throws Exception {
+        if(subsequent)try(var store=open(1)){store.checkpoint(genesis);}
         try(var store=open(1,fail("GENERATION_SNAPSHOT_AFTER_FORCE"))) {
             commit(store,value(1));assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{1}));
         }
-        Path path=root.resolve("node-1/generation-a/snapshot.gsr");byte[] before=Files.readAllBytes(path);
+        Path path=root.resolve("node-1/"+(subsequent?"generation-b":"generation-a")+"/snapshot.gsr");byte[] before=Files.readAllBytes(path);
+        byte[] selector=subsequent?Files.readAllBytes(root.resolve("node-1/current.gsr")):null;
         try(var store=open(1)) {
             var protocol=new AutomaticProtocol(store,()->0,java.util.UUID::randomUUID);
             protocol.restored(new byte[]{2});protocol.start(0);
-            assertNull(store.currentSource());assertArrayEquals(before,Files.readAllBytes(path));
+            if(subsequent)assertArrayEquals(selector,Files.readAllBytes(root.resolve("node-1/current.gsr")));
+            else assertNull(store.currentSource());
+            assertFalse(store.quarantined());assertArrayEquals(before,Files.readAllBytes(path));
             assertThrows(AutomaticReplicationException.class,()->store.checkpoint(new byte[]{2}));
             assertArrayEquals(before,Files.readAllBytes(path));
         }

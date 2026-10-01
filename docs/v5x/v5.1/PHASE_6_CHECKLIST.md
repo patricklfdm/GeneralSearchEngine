@@ -125,8 +125,10 @@ subsequently authorized the [bounded IAM review scope](PHASE_6_CLEANUP_STATE_REV
 ancestor reads are optional. The amendment and selection correction are accepted
 through PR #268/#269, master `c209383a510ae785244003b8778e5e193cdaf255`,
 CI `36804323832` attempt 1 (29 jobs). The [6C3C31 permission precheck](PHASE_6_IDENTITY_PERMISSIONS.md)
-is the next implementation candidate; actual-identity permission and real cleanup
-qualification, activation and paid admission remain open.
+is the next implementation candidate. Its first PR CI `36808406642` exposed a
+[subsequent checkpoint restart defect](PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate);
+the correction accompanies this candidate and awaits protected CI. Actual-identity
+permission and real cleanup qualification, activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),

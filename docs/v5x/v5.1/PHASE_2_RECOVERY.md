@@ -96,6 +96,54 @@ floor, this implementation conservatively defers retirement. Root ACCEPT/PROOF l
 are truncated only to their sealed initial headers after the same coverage check;
 root PROMISE and identity files are never truncated or deleted.
 
+## Subsequent checkpoint restart correction (candidate)
+
+PR CI [36808406642](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36808406642),
+owned experiment job `110199051244`, stopped in `leader-loss` after 25.996 seconds
+of its 120-second cell limit. The surviving majority served writes and reads, but
+the restarted node-3 entered `FAILED`. Its selector retained generation-a at cut 4,
+with a proven journal suffix through 5. The inactive generation-b contained the
+exact cut-5 snapshot and journal headers, but no `generation.gsr` completion seal.
+The process had been killed during a subsequent checkpoint. Startup previously
+resumed only the first checkpoint; later recovery attempted to retire the partial
+generation as a complete old source and quarantined the voter on its missing seal.
+
+After reconstructing the locally proven application, startup now checks the slot
+opposite the durable selector (or generation-a before the first selector). Every
+existing snapshot, journal, accepted tail and seal byte must be a prefix of the
+expected local checkpoint. Only an exact match may resume through the existing
+force/seal/selector publication path before entering FOLLOWER. A pending retirement
+prevents resumption. Different checkpoint bytes are preserved; startup does not
+adopt a foreign image, erase an accepted tail or invent a recovery floor. Previous
+generation bytes, promises and existing floors remain intact. Subsequent deletion
+still requires the existing two-voter floor and exact retirement inventory checks.
+
+Eight injected write/force/selector cuts reproduce the defect on the old code.
+The regressions cover both alternating slots and both startup reconstruction paths
+(32 executions), preserving an unresolved local acceptance and old authority bytes.
+A public-engine restart regression also fails on the old code and verifies resumed
+checkpoint, witnessed retirement, longer-prefix installation and another reopen.
+Unrelated partial images, complete older generations and interrupted retirement
+remain covered. The focused recovery/public checkpoint/rejoin/exchange/witness run
+passes all 58 tests. The complete reactor passes 917 tests with four existing skips
+and no failures/errors. The unchanged six-scenario Phase 3 rejoin gate also passes.
+Targeted public `floor_after_force-kill` and `delete_after_file-kill` both pass
+physical/history validation and all 22 evidence negatives; the reclamation evidence
+unit suite passes 12 tests. The complete owned experiment remains for CI because
+this local environment lacks passwordless sudo for its isolated mount views.
+
+Diagnostic replay uses copies of this CI's retained node-1/node-3 data, changing only
+`bootstrap-binding.gsr`, `bootstrap-prepared.gsr` and `bootstrap-seal.gsr` to bind
+local paths. All consensus, checkpoint and floor inputs retain their original bytes.
+The retained original JAR reproduces `INTEGRITY_FAILURE` and quarantine at cleanup;
+the corrected runtime reconstructs the identical cut-5 snapshot, resumes it, obtains
+a witnessed floor from the copied surviving voter, retires the old generation and
+installs its cut-8 snapshot without quarantine. This is storage/protocol diagnosis,
+not a rerun of the complete hosted workload. Original evidence and diagnostic
+outputs remain at `target/ci-36808406642` and `target/v51-checkpoint-resume`.
+Corrected-source protected CI remains required. No storage format, capacity limit,
+measurement deadline or retry policy changes.
+
 ## Bounds and scope
 
 All owned paths are enumerated and bounded; unknown files, symlinks and unsupported

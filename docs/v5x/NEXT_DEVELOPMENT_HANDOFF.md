@@ -193,8 +193,12 @@ CI `36804323832` attempt 1, all 29 jobs. That success does not prove the warmup
 delay's cause. The next [6C3C31 permission precheck candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
 binds observer/runner/manual/scheduled identities to diagnostic project/bucket
 queries, with offline qualification and observer/proposed-cleanup integration.
-Its protected CI and real execution are pending; conditional object/IAP checks
-are still required. No cleanup workflow is deployed, no runner/cleanup identity
+Its first PR CI `36808406642` exposed a
+[subsequent checkpoint restart defect](v5.1/PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate).
+The same PR now resumes exact local checkpoint bytes in either inactive slot,
+preserving floor-authorized retirement; deterministic regressions and retained-data
+replay cover the correction. Protected CI and real permission execution are pending;
+conditional object/IAP checks are still required. No cleanup workflow is deployed, no runner/cleanup identity
 is enabled, and real provider qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
