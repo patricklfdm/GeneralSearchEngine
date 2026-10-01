@@ -122,7 +122,10 @@ through 6C3C30: corrected master `9243bc31dc3727a132b50740430426b3512fc5c8`,
 CI `36785256345` attempt 1, all 29 jobs. The checklist below retains each acceptance.
 Disabled identity staging was separately authorized and completed. The operator
 subsequently authorized the [bounded IAM review scope](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
-ancestor reads are optional; actual-identity permission and real cleanup
+ancestor reads are optional. The amendment and selection correction are accepted
+through PR #268/#269, master `c209383a510ae785244003b8778e5e193cdaf255`,
+CI `36804323832` attempt 1 (29 jobs). The [6C3C31 permission precheck](PHASE_6_IDENTITY_PERMISSIONS.md)
+is the next implementation candidate; actual-identity permission and real cleanup
 qualification, activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
@@ -210,7 +213,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C22 corrected-source protected CI and read-only provider qualification: PR #254 / CI `36635538287`, preflight `36643330675`.
 - [x] Observer WIF/IAM/environment and Private Google Access configured with authorization; explicit settings read back.
 - [x] Operator-authorized [IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30): ancestor policy reads are optional; unavailable inheritance stays unassessed, with no additional privileges.
-- [ ] Corrected-source protected CI for the IAM scope amendment and generated review guidance.
+- [x] Corrected-source protected CI for the IAM scope amendment and generated review guidance: PR #268/#269, CI `36804323832` attempt 1 (29 jobs).
+- [x] 6C3C31 implementation candidate: [bound workflow identity permission prechecks](PHASE_6_IDENTITY_PERMISSIONS.md), four-role offline qualification and observer/proposed-cleanup integration.
+- [ ] 6C3C31 corrected-source protected CI and fresh actual observer precheck.
 - [ ] Actual observer/runner/manual/scheduled identity required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.

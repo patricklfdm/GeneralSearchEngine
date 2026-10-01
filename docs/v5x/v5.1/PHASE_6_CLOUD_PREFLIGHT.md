@@ -22,7 +22,7 @@ under the [bounded review amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admissi
 | Workflow | Execution | Credentials / cloud effects |
 | --- | --- | --- |
 | `V5.1 Replication Foundation (No GCP)` | `plan` or the existing 19-case fake controller qualification | No OIDC/GCP credentials; local artifacts only |
-| `V5.1 Read-only Preflight` | Exact-master GitHub observations and bounded provider GETs | Dedicated observer identity; no cloud writes or cleanup |
+| `V5.1 Read-only Preflight` | Exact-master GitHub observations, bounded provider GETs and project/bucket permission queries | Dedicated observer identity; no cloud writes or cleanup |
 
 Both dispatch only from protected master, check out the exact dispatch SHA, pin
 actions, retain failures, and use distinct V5.1 artifacts. Foundation reports the
@@ -31,6 +31,13 @@ name/ID, quota, bucket policy, previous reserved charge, lease state, freshness,
 per-check blockers and remaining admission requirements. Neither runs Maven or
 repeats a measured workload. The existing CI Cloud runner lane executes the new
 short offline preflight gate; all 29 required jobs and docs-only routing remain.
+
+The [6C3C31 permission precheck candidate](PHASE_6_IDENTITY_PERMISSIONS.md) binds
+the actual observer account and exact run attempt, using fixed read-only queries
+(project POST and bucket GET). Its same-run receipt is required by the report;
+offline, missing, altered or stale results block. The summary shows the account,
+provider, source/attempt, scopes and permission failures. PRECHECK_PASS does not
+establish conditional object permissions or full IAM/cleanup readiness.
 
 The preflight workflow occupies the reserved V5.1 runner path but has **no paid
 run/prepare option**. It does not deploy either reserved cleanup workflow. A fake

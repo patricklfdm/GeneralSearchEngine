@@ -187,8 +187,14 @@ merely to read ancestor policies. The amendment merged at
 `e1adb7c7ea028124d104f5ccb05eb7a6d2686431`: PR CI `36791659694` passed, but
 master CI `36793951268` attempt 1 failed on the existing selection driver's
 [retained-restart coordination race](v5.1/PHASE_4_PUBLIC_SELECTION.md#retained-restart-coordination-correction--2026-09-30)
-and a separate rich healthy warmup `LANE_BUSY`. The selection correction has local
-regression coverage; corrected-source protected CI remains pending. No cleanup workflow is deployed, no identity
+and a separate rich healthy warmup `LANE_BUSY`. PR #269 accepted the selection
+correction and amendment at master `c209383a510ae785244003b8778e5e193cdaf255`,
+CI `36804323832` attempt 1, all 29 jobs. That success does not prove the warmup
+delay's cause. The next [6C3C31 permission precheck candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+binds observer/runner/manual/scheduled identities to diagnostic project/bucket
+queries, with offline qualification and observer/proposed-cleanup integration.
+Its protected CI and real execution are pending; conditional object/IAP checks
+are still required. No cleanup workflow is deployed, no runner/cleanup identity
 is enabled, and real provider qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.

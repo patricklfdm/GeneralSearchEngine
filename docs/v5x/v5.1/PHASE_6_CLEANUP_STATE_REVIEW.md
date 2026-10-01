@@ -129,7 +129,10 @@ injected into a running experiment by this collector.
 
 ## IAM admission scope amendment — 2026-09-30
 
-**Operator-authorized scope change; corrected-source protected CI remains pending.**
+**Operator-authorized scope change; accepted through PR #268/#269**, master
+`c209383a510ae785244003b8778e5e193cdaf255`,
+[CI 36804323832](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36804323832)
+attempt 1, all 29 jobs. Original failed evidence remains retained.
 This amendment supersedes the earlier requirement to read organization/folder
 allow and deny policies before cleanup enablement. It applies to V5.1 only;
 published V5.0 acceptance and evidence remain unchanged. The operator authorized
@@ -177,16 +180,17 @@ flag is not a separate ancestor-read prerequisite. Do not replace it with true,
 change an unavailable read to an empty policy, or interpret the amendment as
 `activationAllowed`, `cleanupReady`, `paidAdmission` or full Phase 6 acceptance.
 The generated preflight report lists this limitation separately from remaining
-required checks. Actual-identity permission probes and real provider qualification
-are still **pending**; this documentation/generator change does not execute them.
+required checks. The next [permission precheck candidate](PHASE_6_IDENTITY_PERMISSIONS.md)
+adds diagnostic project/bucket queries. Actual-identity execution, object-scope
+checks and real provider qualification remain **pending**.
 
 Local validation: 98 focused tests passed. The complete preflight gate passed
 its 80 tests, 13 provider/source negatives and 16 identity negatives, and generated
 and validated the revised deployment review package. Before/after comparison
 confirms unchanged role/grant payloads, 45 staging commands, cleanup enable/disable
 commands and workflow bytes. The previously approved 33-file package is intact.
-Review logs and comparisons are retained in `target/v51-iam-scope/`; protected CI
-on the committed amendment remains required.
+Review logs and comparisons are retained in `target/v51-iam-scope/`; protected
+acceptance of the amendment is recorded above.
 
 ## Current read-only evidence and remaining validation
 

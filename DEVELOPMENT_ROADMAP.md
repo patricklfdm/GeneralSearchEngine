@@ -139,6 +139,11 @@ remaining remote integration are next. The operator authorized a
 [bounded IAM review amendment](docs/v5x/v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
 ancestor-policy reads are optional and unassessed; required access, forbidden-action
 probes and explicit role/trust review remain mandatory, without extra privileges.
+The amendment and selection correction are accepted through PR #268/#269,
+master `c209383a510ae785244003b8778e5e193cdaf255`, CI `36804323832` attempt 1
+(29 jobs). The next [6C3C31 candidate](docs/v5x/v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+adds bound project/bucket permission prechecks and offline qualification; protected
+CI, actual identity execution and conditional object/IAP qualification remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 V5.2-V5.4 remain future work.

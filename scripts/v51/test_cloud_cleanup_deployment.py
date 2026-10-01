@@ -76,7 +76,9 @@ class CleanupDeploymentTest(unittest.TestCase):
         for trigger in ('manual', 'schedule'):
             text = d.render(self.cfg, trigger)
             self.assertLess(text.index('cloud_cleanup_entry identity'), text.index('google-github-actions/auth@'))
-            self.assertLess(text.index('google-github-actions/auth@'), text.index('cloud_cleanup_entry reconcile'))
+            self.assertLess(text.index('google-github-actions/auth@'), text.index('cloud_permissions --role '+trigger))
+            self.assertLess(text.index('cloud_permissions --role '+trigger), text.index('cloud_cleanup_entry reconcile'))
+            self.assertIn('--output target/v51-cleanup/permissions', text)
             self.assertEqual(2, text.count('--trigger '+trigger))
             self.assertIn('id-token: write', text.split('jobs:\n')[1]); self.assertNotIn('id-token:', text.split('jobs:\n')[0])
             for part in ('cleanup_credentials: true', 'target/v51-cleanup/identity', 'target/v51-cleanup/reconciliation',

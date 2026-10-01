@@ -74,6 +74,11 @@ jobs:
           export_environment_variables: true
           cleanup_credentials: true
 
+      - name: Check actual cleanup permissions without cloud mutations
+        run: |
+          python -m scripts.v51.cloud_permissions --role '''+trigger+''' --source "$GITHUB_SHA" \\
+            --output target/v51-cleanup/permissions
+
       - name: Reconcile retained expired lease
         run: |
           python -m scripts.v51.cloud_cleanup_entry reconcile --trigger '''+trigger+''' \\
@@ -82,6 +87,9 @@ jobs:
       - name: Report cleanup result
         if: ${{ always() }}
         run: |
+          if [[ -f target/v51-cleanup/permissions/summary.md ]]; then
+            cat target/v51-cleanup/permissions/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [[ -f target/v51-cleanup/reconciliation/summary.md ]]; then
             cat target/v51-cleanup/reconciliation/summary.md >> "$GITHUB_STEP_SUMMARY"
           else
@@ -151,6 +159,11 @@ stop on failure or ambiguity. The runner stays disabled in every reviewed state.
    Use readback --state manual to check all three identities, trust, roles,
    grants and environments. Scheduled and runner credentials must stay disabled.
 5. The operator dispatches manual cleanup on master and approves its environment.
+   The workflow first runs the bound project/bucket permission precheck. Missing
+   required or returned forbidden permissions block reconciliation. PRECHECK_PASS
+   is diagnostic only: bucket tests cannot establish object-name conditions, and
+   no object testIamPermissions endpoint exists. Object-scope and conditional IAP
+   qualification remain separate; never broaden grants to satisfy a bucket test.
    Retain actual OIDC/STS/impersonation/provider results without secrets. Before
    treating either identity as ready, verify required access and forbidden-action
    probes using that workflow's actual service account. Required permission denial,

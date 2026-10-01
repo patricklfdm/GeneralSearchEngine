@@ -10,6 +10,10 @@ Private Google Access change. These observations have a 900-second lifetime;
 the historical success records integration, not current paid admission. Effective
 organization/folder IAM remains unverified.
 
+The later [workflow permission precheck candidate](PHASE_6_IDENTITY_PERMISSIONS.md)
+uses these exact accounts, trust bindings and existing roles. It adds no grant or
+enablement; project/bucket diagnostic success leaves object/IAP qualification open.
+
 ## Scope
 
 This batch generates a concrete configuration proposal for three new identities

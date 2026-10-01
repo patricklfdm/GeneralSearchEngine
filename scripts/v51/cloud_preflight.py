@@ -229,6 +229,15 @@ def main():
     else:
         inputs = {k:c.read(args.output/(k+'.json')) if (args.output/(k+'.json')).exists() else {} for k in ('github', 'provider')}
         value = evaluate(cfg, args.source, **inputs, now=int(time.time()))
+        from . import cloud_permissions
+        try:
+            binding = cloud_permissions.identity(cfg, os.environ, role='observer', source=args.source, checkout=args.source)
+            check = cloud_permissions.check_saved(cfg, binding, args.output/'permissions', now=int(time.time()))
+        except Exception:
+            check = dict(status='BLOCKED', reason='same-run observer permission precheck missing, stale or blocked')
+        value['checks']['identityPermissionPrecheck'] = check
+        if check['status'] != 'PASS':
+            value['status'] = 'BLOCKED'; value['blockers'].append('identityPermissionPrecheck: '+check['reason'])
         c.write_once(args.output/'preflight.json', value)
         text = summary(value, cfg);(args.output/'summary.md').write_text(text)
         if args.github_step_summary:

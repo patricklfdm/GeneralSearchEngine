@@ -23,6 +23,7 @@ jobs:
       id-token: write
     env:
       GH_TOKEN: ${{ github.token }}
+      PERMISSION_ENVIRONMENT: v51-cloud-benchmark
     steps:
       - name: Require dedicated protected master dispatch
         env:
@@ -66,9 +67,17 @@ jobs:
       - name: Collect bounded provider GET observations
         run: python -m scripts.v51.cloud_preflight provider --source "$GITHUB_SHA" --output target/v51-preflight
 
+      - name: Check actual observer permissions without cloud mutations
+        run: |
+          python -m scripts.v51.cloud_permissions --role observer --source "$GITHUB_SHA" \
+            --output target/v51-preflight/permissions
+
       - name: Report all readiness checks and remaining admission requirements
         if: ${{ always() && steps.observer.outcome == 'success' }}
         run: |
+          if [[ -f target/v51-preflight/permissions/summary.md ]]; then
+            cat target/v51-preflight/permissions/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
           python -m scripts.v51.cloud_preflight report --source "$GITHUB_SHA" \
             --output target/v51-preflight --github-step-summary "$GITHUB_STEP_SUMMARY"
 
