@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 from . import cloud_cleanup_entry as e, cloud_cleanup_entry_qualification as entries
 from . import cloud_cleanup_network_fixture as tls
 from . import cloud_cleanup_qualification as q, cloud_native_authority as n, cloud_native_cleanup as native
@@ -86,6 +86,15 @@ class CleanupNetworkTest(unittest.TestCase):
         for raw in (b'',b'{private-secret',b'x'*((128<<10)+1)):
             path.write_bytes(raw)
             with self.assertRaisesRegex(ValueError,'file rejected'):e.credential_file(dict(GOOGLE_GHA_CREDS_PATH=str(path)))
+
+    def test_runner_route_is_preserved_by_real_https_exchange(self):
+        with tls.Fixture(self.state) as fixture,patch.object(fixture,'reply',wraps=fixture.reply) as reply:
+            token=credentials.NetworkCredentials(fixture.binding,fixture.env,fixture.descriptor)(30)
+            self.assertEqual(auth.ACCOUNT_SECRET,token.value)
+            source=urlsplit(fixture.descriptor['credential_source']['url'])
+            self.assertEqual(('GET',source.netloc,source.path+'?'+source.query),reply.call_args_list[0].args[:3])
+            self.assertEqual(['oidc','sts','impersonation'],[request['stage'] for request in fixture.requests])
+            self.assertFalse(fixture.errors)
 
     def test_cli_tls_reconciles_exact_ids_preserves_charge_and_rejects_output_reuse(self):
         with tls.Fixture(self.state) as fixture:

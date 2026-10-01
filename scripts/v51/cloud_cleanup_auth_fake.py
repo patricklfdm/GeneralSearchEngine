@@ -6,7 +6,10 @@ from urllib.parse import parse_qs, urlsplit, urlencode
 from . import cloud_cleanup_credentials as auth, cloud_ci as ci, performance_model as m
 
 
-OIDC = 'https://pipelines.actions.githubusercontent.com/offline/idtoken?api-version=2.0'
+# Synthetic runner route with repeated slashes and identifiers after /idtoken;
+# keep this in shared qualification so a terminal-suffix assumption cannot hide.
+OIDC = ('https://pipelines.actions.githubusercontent.com/42//idtoken/'
+        '11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222?api-version=2.0')
 SUBJECT_SECRET = 'offline-request-secret'
 FEDERATED_SECRET = 'offline-federated-secret'
 ACCOUNT_SECRET = 'offline-account-secret'

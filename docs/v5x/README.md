@@ -167,9 +167,11 @@ master `c209383a510ae785244003b8778e5e193cdaf255`, CI `36804323832` attempt 1
 (29 jobs). The [6C3C31 permission precheck](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
 and checkpoint restart correction are accepted through PR #270, master
 `13393b528bccd47a2d091ad43f3a1530f0aa6c8b`, CI `36830413171` attempt 1 (29 jobs).
-Actual preflight `36897530651` stopped before permission queries during credential
-initialization. A fixed-code diagnostic candidate awaits protected CI and fresh
-execution; actual permission and object/IAP qualification remain pending.
+PR #271's diagnostics passed CI `36903623343` attempt 2 (29 jobs); actual preflight
+`36929956707` then identified `OIDC_URL_PATH`. The
+[runtime path correction](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#runtime-oidc-path-compatibility)
+awaits protected CI and fresh execution; actual permission and object/IAP
+qualification remain pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

@@ -120,9 +120,9 @@ path is qualified over loopback TLS; protected CI and separately reviewed real
 identity/provider activation remain pending. Current workflow proposals and the
 authorized disabled identity configuration are unchanged.
 
-The [credential initialization diagnostic candidate](PHASE_6_IDENTITY_PERMISSIONS.md#credential-initialization-diagnostics--2026-10-01)
-adds fixed non-secret failure codes to this shared descriptor validator and the
-network entry's file reader, receipt and summary. Both cleanup triggers retain
-the same identity and descriptor checks and stop before reconciliation on failure.
-This does not enable cleanup or resolve the observer's still-unidentified live
-descriptor mismatch.
+The [credential initialization diagnostics](PHASE_6_IDENTITY_PERMISSIONS.md#credential-initialization-diagnostics--2026-10-01),
+accepted in PR #271, identified a terminal `/idtoken` assumption in the shared
+validator. The [runtime path correction](PHASE_6_IDENTITY_PERMISSIONS.md#runtime-oidc-path-compatibility)
+binds the descriptor to the complete opaque runtime path instead. Both cleanup
+triggers retain the domain, identity, audience and exchange checks, and stop
+before reconciliation on mismatch. Live permission qualification remains pending.
