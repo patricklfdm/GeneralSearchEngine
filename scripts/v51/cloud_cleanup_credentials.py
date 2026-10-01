@@ -16,6 +16,63 @@ STS = 'https://sts.googleapis.com/v1/token'
 SCOPE = 'https://www.googleapis.com/auth/cloud-platform'
 JWT = 'urn:ietf:params:oauth:token-type:jwt'
 ACCESS = 'urn:ietf:params:oauth:token-type:access_token'
+DIAGNOSTICS = {
+    'CREDENTIAL_FILE_PATH':'The auth action credential path is missing or not absolute.',
+    'CREDENTIAL_FILE_OPEN':'The credential file cannot be opened without following symlinks.',
+    'CREDENTIAL_FILE_TYPE':'The credential file is not a regular file.',
+    'CREDENTIAL_FILE_SIZE':'The credential file is empty or exceeds the byte limit.',
+    'CREDENTIAL_FILE_READ':'The credential file cannot be read.',
+    'CREDENTIAL_FILE_JSON':'The credential file is not valid strict JSON.',
+    'OIDC_URL_SHAPE':'The runtime OIDC request URL is missing or malformed.',
+    'OIDC_URL_SCHEME':'The runtime OIDC request URL does not use HTTPS.',
+    'OIDC_URL_HOST':'The runtime OIDC host is outside the admitted GitHub domain.',
+    'OIDC_URL_AUTHORITY':'The runtime OIDC URL includes a port, user information or another unsupported authority form.',
+    'OIDC_URL_PATH':'The runtime OIDC path does not end in /idtoken.',
+    'OIDC_URL_FRAGMENT':'The runtime OIDC URL contains a fragment.',
+    'OIDC_URL_QUERY':'The runtime OIDC query is malformed, duplicated or already contains an audience.',
+    'OIDC_REQUEST_TOKEN_SHAPE':'The runtime OIDC request token is missing or malformed.',
+    'DESCRIPTOR_TYPE':'The credential descriptor is not a JSON object.',
+    'DESCRIPTOR_FIELDS':'The credential descriptor has missing or unexpected fields.',
+    'DESCRIPTOR_CREDENTIAL_TYPE':'The credential type does not match external_account.',
+    'DESCRIPTOR_AUDIENCE':'The credential audience does not match the bound WIF provider.',
+    'DESCRIPTOR_SUBJECT_TOKEN_TYPE':'The subject token type does not match JWT.',
+    'DESCRIPTOR_TOKEN_URL':'The token URL does not match the fixed Google STS endpoint.',
+    'DESCRIPTOR_IMPERSONATION_URL':'The impersonation URL does not match the bound service account.',
+    'DESCRIPTOR_SOURCE_FIELDS':'The credential source has missing or unexpected fields or is not an object.',
+    'DESCRIPTOR_SOURCE_URL':'The credential source URL does not match the runtime OIDC endpoint.',
+    'DESCRIPTOR_SOURCE_QUERY':'The credential source query does not match the runtime query and bound audience.',
+    'DESCRIPTOR_SOURCE_AUTHORIZATION':'The credential source header does not match the runtime request token.',
+    'DESCRIPTOR_SOURCE_FORMAT':'The credential source format does not match the pinned auth action.',
+}
+
+
+class CredentialError(ValueError):
+    """Only a code from this closed inventory may reach receipts or summaries."""
+    def __init__(self, reason_code):
+        if type(reason_code) is not str or reason_code not in DIAGNOSTICS:
+            raise ValueError('unknown credential diagnostic code')
+        self.reason_code = reason_code
+        phase = 'file' if reason_code.startswith('CREDENTIAL_FILE_') else 'descriptor'
+        super().__init__('cleanup credential '+phase+' rejected: '+reason_code)
+
+
+def require(value, code):
+    if not value: raise CredentialError(code)
+
+
+def diagnostic(error):
+    code = getattr(error, 'reason_code', None)
+    return {'reasonCode':code} if isinstance(error, CredentialError) and type(code) is str and code in DIAGNOSTICS else {}
+
+
+def failure_rows(failure):
+    if not failure: return []
+    code = failure.get('reasonCode')
+    code = code if type(code) is str and code in DIAGNOSTICS else 'UNCLASSIFIED'
+    phase = failure.get('phase')
+    phase = phase if phase in ('credentials','permissions','github','reconciliation','entry') else 'unknown'
+    return [('Failure phase',phase),('Failure code',code),
+            ('Failure detail',DIAGNOSTICS.get(code,'No classified credential failure was retained.'))]
 
 
 def bearer(value):
@@ -27,34 +84,49 @@ def bearer(value):
 def descriptor(binding, env, value):
     """Accept the exact auth@7c6bc77 descriptor and selected cleanup identity."""
     raw = env.get('ACTIONS_ID_TOKEN_REQUEST_URL', '')
-    parsed = urlsplit(raw)
-    m.need(parsed.scheme == 'https' and parsed.hostname is not None and
-           parsed.hostname.endswith('.actions.githubusercontent.com') and
-           parsed.netloc == parsed.hostname and parsed.path.endswith('/idtoken') and
-           not parsed.fragment, 'cleanup OIDC endpoint')
-    query = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True) if parsed.query else []
-    m.need(len(dict(query)) == len(query) and 'audience' not in dict(query), 'cleanup OIDC query')
+    require(isinstance(raw,str) and raw, 'OIDC_URL_SHAPE')
+    try: parsed = urlsplit(raw)
+    except ValueError: raise CredentialError('OIDC_URL_SHAPE') from None
+    require(parsed.scheme == 'https', 'OIDC_URL_SCHEME')
+    require(parsed.hostname is not None and parsed.hostname.endswith('.actions.githubusercontent.com'), 'OIDC_URL_HOST')
+    require(parsed.netloc == parsed.hostname, 'OIDC_URL_AUTHORITY')
+    require(parsed.path.endswith('/idtoken'), 'OIDC_URL_PATH')
+    require(not parsed.fragment, 'OIDC_URL_FRAGMENT')
+    try: query = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True) if parsed.query else []
+    except ValueError: raise CredentialError('OIDC_URL_QUERY') from None
+    require(len(dict(query)) == len(query) and 'audience' not in dict(query), 'OIDC_URL_QUERY')
     audience = 'https://iam.googleapis.com/'+binding['provider']
     url = parsed._replace(query=urlencode([*query, ('audience', audience)])).geturl()
     # URLSearchParams in the pinned action may encode spaces as '+' too. Compare
     # components/query pairs instead of depending on parameter ordering.
+    try: token = bearer(env.get('ACTIONS_ID_TOKEN_REQUEST_TOKEN'))
+    except ValueError: raise CredentialError('OIDC_REQUEST_TOKEN_SHAPE') from None
     expected = dict(type='external_account', audience='//iam.googleapis.com/'+binding['provider'],
                     subject_token_type=JWT, token_url=STS,
                     service_account_impersonation_url='https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/'+
                         binding['serviceAccount']+':generateAccessToken',
-                    credential_source=dict(url=url, headers={'Authorization':'Bearer '+bearer(env.get('ACTIONS_ID_TOKEN_REQUEST_TOKEN'))},
+                    credential_source=dict(url=url, headers={'Authorization':'Bearer '+token},
                                            format=dict(type='json', subject_token_field_name='value')))
-    m.need(type(value) is dict, 'cleanup credential descriptor')
-    actual = deepcopy(value)
+    require(type(value) is dict, 'DESCRIPTOR_TYPE')
+    require(set(value) == set(expected), 'DESCRIPTOR_FIELDS')
+    for field,code in (
+        ('type','DESCRIPTOR_CREDENTIAL_TYPE'), ('audience','DESCRIPTOR_AUDIENCE'),
+        ('subject_token_type','DESCRIPTOR_SUBJECT_TOKEN_TYPE'), ('token_url','DESCRIPTOR_TOKEN_URL'),
+        ('service_account_impersonation_url','DESCRIPTOR_IMPERSONATION_URL')):
+        require(value[field] == expected[field], code)
+    actual = value['credential_source']; wanted = expected['credential_source']
+    require(type(actual) is dict and set(actual) == set(wanted), 'DESCRIPTOR_SOURCE_FIELDS')
+    require(type(actual['url']) is str, 'DESCRIPTOR_SOURCE_URL')
     try:
-        source = urlsplit(actual['credential_source']['url'])
-        m.need(source._replace(query='') == urlsplit(url)._replace(query='') and
-               sorted(parse_qsl(source.query, keep_blank_values=True, strict_parsing=True)) ==
-               sorted(parse_qsl(urlsplit(url).query, keep_blank_values=True, strict_parsing=True)), 'cleanup credential source')
-        actual['credential_source']['url'] = url
-    except (KeyError, TypeError, AttributeError):
-        raise ValueError('cleanup credential descriptor') from None
-    m.need(actual == expected, 'cleanup credential identity/descriptor mismatch')
+        source = urlsplit(actual['url'])
+    except ValueError: raise CredentialError('DESCRIPTOR_SOURCE_URL') from None
+    require(source._replace(query='') == urlsplit(url)._replace(query=''), 'DESCRIPTOR_SOURCE_URL')
+    try: actual_query = parse_qsl(source.query, keep_blank_values=True, strict_parsing=True)
+    except ValueError: raise CredentialError('DESCRIPTOR_SOURCE_QUERY') from None
+    require(sorted(actual_query) == sorted(parse_qsl(urlsplit(url).query, keep_blank_values=True, strict_parsing=True)),
+            'DESCRIPTOR_SOURCE_QUERY')
+    require(actual['headers'] == wanted['headers'], 'DESCRIPTOR_SOURCE_AUTHORIZATION')
+    require(actual['format'] == wanted['format'], 'DESCRIPTOR_SOURCE_FORMAT')
     return expected
 
 

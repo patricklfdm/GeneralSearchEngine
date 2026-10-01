@@ -206,9 +206,12 @@ remain recorded. The operator-authorized
 [IAM scope amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
 replaces mandatory ancestor-policy reads with a recorded unassessed limitation;
 accepted through PR #268/#269, master `c209383a510ae785244003b8778e5e193cdaf255`,
-CI `36804323832` attempt 1 (29 jobs). The next [6C3C31 candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
-adds project/bucket diagnostic prechecks; its protected CI and real execution
-remain pending. Explicit role/trust review, actual-identity required
+CI `36804323832` attempt 1 (29 jobs). The [6C3C31 permission precheck](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+and checkpoint restart correction are accepted through PR #270, master
+`13393b528bccd47a2d091ad43f3a1530f0aa6c8b`, CI `36830413171` attempt 1 (29 jobs).
+Actual preflight `36897530651` failed during credential initialization, before
+permission queries. A fixed-code diagnostic candidate awaits protected CI and
+fresh execution. Explicit role/trust review, actual-identity required
 and forbidden permission checks, deployed cleanup identities/workflows and real
 provider qualification remain required, without extra organization privileges.
 Native cloud writes and full 6C remain open; paid experiments require separate

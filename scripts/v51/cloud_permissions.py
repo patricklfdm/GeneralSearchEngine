@@ -189,6 +189,7 @@ def summary(value):
     def safe(v): return html.escape(str(v)).replace('|', '&#124;').replace('\n', ' ')
     rows = [('Status',value['status'])]+[(key,value[key]) for key in
             ('role','source','runId','runAttempt','serviceAccount','provider','environment','configurationSha256','execution') if key in value]
+    rows += credentials.failure_rows(value.get('failure'))
     return ('# V5.1 identity permission precheck\n\n| Parameter | Value |\n| --- | --- |\n'+
             ''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)+
             '\n## Queried permissions\n\n| Scope | Result | Missing | Forbidden returned |\n| --- | --- | --- | --- |\n'+
@@ -225,7 +226,7 @@ def run(cfg, env, output, *, role, source, checkout):
         phase = 'github'; entry.collect_run(binding)
         value = evaluate(cfg, binding, observed, now=int(time.time()))
     except (Exception, KeyboardInterrupt) as error:
-        value['failure'] = dict(phase=phase, type=type(error).__name__)
+        value['failure'] = dict(phase=phase, type=type(error).__name__, **credentials.diagnostic(error))
     write_once(output/'receipt.json', value); (output/'summary.md').write_text(summary(value))
     return value
 
@@ -237,7 +238,9 @@ def main():
     args = parser.parse_args()
     value = run(read(p.CONFIG), os.environ, args.output, role=args.role, source=args.source,
                 checkout=subprocess.check_output(['git','rev-parse','HEAD'], cwd=ci.ROOT, text=True).strip())
-    print(m.canonical(dict(status=value['status'], role=args.role, paidAdmission=False)).decode())
+    result = dict(status=value['status'], role=args.role, paidAdmission=False)
+    if 'failure' in value: result['failure'] = value['failure']
+    print(m.canonical(result).decode())
     if value['status'] != 'PRECHECK_PASS': raise SystemExit(2)
 
 
