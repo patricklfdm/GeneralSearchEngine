@@ -27,7 +27,7 @@ DIAGNOSTICS = {
     'OIDC_URL_SCHEME':'The runtime OIDC request URL does not use HTTPS.',
     'OIDC_URL_HOST':'The runtime OIDC host is outside the admitted GitHub domain.',
     'OIDC_URL_AUTHORITY':'The runtime OIDC URL includes a port, user information or another unsupported authority form.',
-    'OIDC_URL_PATH':'The runtime OIDC path does not end in /idtoken.',
+    'OIDC_URL_PATH':'The runtime OIDC URL has no absolute endpoint path.',
     'OIDC_URL_FRAGMENT':'The runtime OIDC URL contains a fragment.',
     'OIDC_URL_QUERY':'The runtime OIDC query is malformed, duplicated or already contains an audience.',
     'OIDC_REQUEST_TOKEN_SHAPE':'The runtime OIDC request token is missing or malformed.',
@@ -90,7 +90,9 @@ def descriptor(binding, env, value):
     require(parsed.scheme == 'https', 'OIDC_URL_SCHEME')
     require(parsed.hostname is not None and parsed.hostname.endswith('.actions.githubusercontent.com'), 'OIDC_URL_HOST')
     require(parsed.netloc == parsed.hostname, 'OIDC_URL_AUTHORITY')
-    require(parsed.path.endswith('/idtoken'), 'OIDC_URL_PATH')
+    # The runner supplies an opaque service route, not a stable /idtoken suffix.
+    # Bind the descriptor to that exact path below, as the pinned auth action does.
+    require(parsed.path.startswith('/') and parsed.path != '/', 'OIDC_URL_PATH')
     require(not parsed.fragment, 'OIDC_URL_FRAGMENT')
     try: query = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True) if parsed.query else []
     except ValueError: raise CredentialError('OIDC_URL_QUERY') from None

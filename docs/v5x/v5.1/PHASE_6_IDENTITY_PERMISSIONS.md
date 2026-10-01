@@ -3,9 +3,12 @@
 **Status:** implementation accepted through PR #270, master
 `13393b528bccd47a2d091ad43f3a1530f0aa6c8b`,
 [CI 36830413171](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36830413171)
-attempt 1, all 29 jobs. Actual observer execution is blocked during credential
-initialization; the [diagnostic correction below](#credential-initialization-diagnostics--2026-10-01)
-is a new candidate and does not establish successful provider permission queries.
+attempt 1, all 29 jobs. Diagnostics were accepted through PR #271, master
+`a65c66e41c7f89f90265b8ce51a9a17acdae1416`,
+[CI 36903623343](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36903623343)
+attempt 2 (29 jobs). Actual preflight now identifies `OIDC_URL_PATH`; the
+[runtime path correction below](#runtime-oidc-path-compatibility)
+is a new candidate. Successful actual permission queries remain required.
 
 ## Scope and API limits
 
@@ -115,7 +118,7 @@ blocked solely on the missing successful same-run permission precheck. This is
 not evidence of a denied IAM permission. The rejected credential component cannot
 be recovered from that receipt; the original credential file was not retained.
 
-The diagnostic candidate adds 26 fixed reason codes for credential-file loading,
+The diagnostic change added 26 fixed reason codes for credential-file loading,
 runtime OIDC URL/token shape and exact external-account descriptor comparisons.
 Permission and cleanup entries retain only a known `reasonCode`, failure phase
 and exception class. CLI output and Actions summaries expose the code; summaries
@@ -123,10 +126,10 @@ add a static explanation. Unknown exceptions remain unclassified. Tokens,
 authorization headers, credential paths, complete URLs, raw descriptor values
 and arbitrary exception messages are never included in these diagnostics.
 
-The existing admitted URL forms, descriptor fields, bound identity, file size
-limit, symlink rejection and exchange rules remain unchanged. In particular, this
-does not speculate about which field failed or accept an additional provider or
-URL form. Initialization failure still stops permission collection and cleanup
+That diagnostic change preserved the admitted URL forms, descriptor fields, bound
+identity, file size limit, symlink rejection and exchange rules. It did not speculate
+about which field failed or accept an additional provider or URL form.
+Initialization failure still stops permission collection and cleanup
 reconciliation. The shared file reader also closes its descriptor if inspection
 fails before a stream takes ownership.
 
@@ -139,9 +142,42 @@ receipt are retained at `target/v51-credential-diagnostics` and
 61 negative fixtures; 53 credential/permission/network tests; 42 related tests
 under Python 3.11; 28 integrated cleanup cases and 64 loopback TLS cases. A
 79-input comparison with the accepted descriptor validator preserved every
-accept/reject result. Corrected-source protected CI and a fresh
-user-triggered observer preflight are required to learn the actual rejected field;
-this diagnostic candidate does not claim to fix the underlying live mismatch.
+accept/reject result. PR #271's protected CI accepted that diagnostic change;
+the fresh observer preflight below identified the rejected component.
+
+## Runtime OIDC path compatibility
+
+[Preflight 36929956707](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36929956707)
+attempt 1, on PR #271 master, stopped before permission queries with
+`credentials / OIDC_URL_PATH`. The validator incorrectly required the runtime URL
+path to end in `/idtoken`. The private route is not the identity contract:
+GitHub's [runner supplies GenerateIdTokenUrl](https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/ScriptHandler.cs),
+the [toolkit consumes that runtime URL](https://github.com/actions/toolkit/blob/main/packages/core/src/oidc-utils.ts),
+and the [pinned Google auth action](https://github.com/google-github-actions/auth/blob/7c6bc770dae815cd3e89ee6cdf493a5fab2cc093/src/client/workload_identity_federation.ts)
+preserves its path when adding the audience. None requires a terminal `/idtoken`.
+The retained failure identifies the suffix assumption; it does not disclose the
+actual runner path, which remains absent from diagnostic evidence.
+
+The correction treats the non-root absolute path as opaque and requires the
+descriptor to match the entire runtime path exactly. Repeated slashes, trailing
+slashes and identifiers are preserved, not normalized away. HTTPS, the admitted
+GitHub domain, no user information/port/fragment, query/audience binding, request
+token, fixed STS/impersonation endpoints and all JWT context/time checks remain
+enforced. A same-host replacement path still fails before any exchange. The
+existing `OIDC_URL_PATH` code now describes a missing endpoint path.
+
+Regression tests cover a legacy terminal route, identifiers after `/idtoken`,
+opaque routes and changed-path rejection. Shared offline fixtures use a synthetic
+nonterminal route, and a loopback TLS regression checks the exact HTTP request
+path through the real client. Tests use synthetic identities only. The original
+failed receipt and local validation are retained at `target/v51-oidc-path`.
+Validation passed: 107 preflight tests and 61 negatives; 44 credential/permission
+tests; 38 credential/network tests under Python 3.11; 28 integrated cleanup cases
+and 64 loopback TLS cases. The two targeted regressions failed on the original
+suffix check and passed with the correction. Sandbox socket restrictions blocked
+the first TLS attempt; the same tests passed with local socket access enabled.
+This candidate requires protected CI and a fresh user-triggered preflight; it
+does not yet establish live permission qualification or require an IAM change.
 
 ## Remaining real-path work
 

@@ -2,7 +2,7 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from . import cloud_cleanup_credentials as c, cloud_cleanup_auth_fake as f
 from . import cloud_cleanup_entry as e, cloud_cleanup_entry_qualification as q, cloud_cleanup_qualification as retained
 from . import cloud_native_authority as n, cloud_fake
@@ -39,6 +39,33 @@ class CleanupCredentialsTest(unittest.TestCase):
         self.assertEqual(self.clock.seconds()+3540, value.usable_until)
         self.assertEqual(['oidc','sts','impersonation'], [v['stage'] for v in self.issuer.calls])
         self.assertNotIn(f.ACCOUNT_SECRET, repr(value))
+
+    def test_runtime_paths_are_opaque_and_preserved_through_exchange(self):
+        # Synthetic routes: neither the toolkit nor pinned auth action requires
+        # /idtoken to be the last segment. Do not infer a private service route.
+        for path in ('/offline/idtoken',
+                     '/42//idtoken/11111111-1111-4111-8111-111111111111/22222222-2222-4222-8222-222222222222',
+                     '/runtime/token/attempt-2', '/runtime/token/attempt-2/'):
+            url='https://pipelines.actions.githubusercontent.com'+path+'?api-version=2.0'
+            with self.subTest(path=path),patch.object(f,'OIDC',url):
+                env,descriptor=f.inputs(self.binding,self.env)
+                send=Mock(wraps=self.issuer.send)
+                transport=Mock(offline=True,send=send)
+                self.assertEqual(f.ACCOUNT_SECRET,self.credentials(descriptor,env,transport)(30).value)
+                self.assertEqual(['GET','POST','POST'],[call.args[0] for call in send.call_args_list])
+                self.assertEqual(descriptor['credential_source']['url'],send.call_args_list[0].args[1])
+
+    def test_changed_runtime_path_is_rejected_before_exchange(self):
+        url='https://pipelines.actions.githubusercontent.com/42//idtoken/runtime/job?api-version=2.0'
+        with patch.object(f,'OIDC',url):env,descriptor=f.inputs(self.binding,self.env)
+        for path in ('/offline/idtoken','/42/idtoken/runtime/job','/42//idtoken/runtime/other-job',
+                     '/42//idtoken/runtime/job/'):
+            bad=deepcopy(descriptor)
+            bad['credential_source']['url']=bad['credential_source']['url'].replace('/42//idtoken/runtime/job',path)
+            with self.subTest(path=path),self.assertRaises(c.CredentialError) as caught:
+                self.credentials(bad,env)
+            self.assertEqual('DESCRIPTOR_SOURCE_URL',caught.exception.reason_code)
+        self.assertFalse(self.issuer.calls)
 
     def test_wrong_descriptor_fields_and_credential_kinds_fail_before_http(self):
         for field, value in [('type','service_account'),('audience','//iam.googleapis.com/wrong'),
