@@ -280,9 +280,14 @@ store/protocol tests cover repeated deferral, backoff, immutable identity, origi
 deadline, ordinary retry exhaustion, peer rejection and retirement boundaries.
 Encoding capacity and observer failures remain distinct from admission refusal.
 
-This is a runtime correction candidate; corrected-source protected CI is still
-required. The earlier failed receipt remains failed. Full local validation and
-source/evidence hashes are retained in `target/v51-outbound-admission/`.
+The correction is accepted through PR #267, master
+`9243bc31dc3727a132b50740430426b3512fc5c8`.
+[Exact-master CI 36785256345](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36785256345)
+passed all 29 jobs on attempt 1, including the foundation/runtime, resource and
+protocol lanes. The earlier failed receipt remains failed. Full local validation
+and source/evidence hashes are retained in `target/v51-outbound-admission/`;
+exact-source CI observations are at `target/v51-c30-acceptance/`.
+This accepts the correction; it does not establish cloud readiness or a latency SLA.
 
 Correction validation on local Ubuntu Java `21.0.12.1`: complete reactor package,
 907 tests, zero failures/errors and four existing skips. The 40 admission,

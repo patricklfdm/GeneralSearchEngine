@@ -10,7 +10,10 @@ remain retained; later success does not establish that burst delay's cause.
 No cleanup workflow is installed, no identity is enabled and no cloud cleanup or
 paid workload is executed by this acceptance. The
 [next independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md) prepares real
-provider observations without replacing effective IAM or activation approval.
+provider observations without replacing actual-identity permission qualification
+or activation approval. The [IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
+makes ancestor-policy reads optional while retaining required configuration,
+permission and cleanup checks. No extra organization privilege is requested.
 
 ## Concrete review package
 
@@ -74,14 +77,19 @@ resource IDs remain deletion authority.
 
 Only after separate operator approval and the review prerequisites:
 
-1. Verify fresh disabled identity readback and effective IAM, including inherited
-   allow/deny policies. Deploy the reviewed workflow bytes with identities disabled.
+1. Verify fresh disabled identity readback, exact explicit roles/grants, WIF trust
+   and environment restrictions. Missing/denied required observations still block;
+   optional organization/folder reads remain an unassessed limitation. Deploy the
+   reviewed workflow bytes with identities disabled.
    A triggered schedule may fail authentication; this does not count as readiness.
 2. Enable **manual** provider, then pool, then service account. Inspect each result,
    stopping on errors or ambiguous responses. Do not blindly retry mutations.
 3. Read back the complete configuration in `manual` state. The runner and scheduled
    account/pool/provider must still be disabled. Have the operator dispatch and
    approve the manual workflow. Preserve actual authentication/provider evidence.
+   Before readiness, qualify required access and forbidden-action probes with the
+   actual workflow account. Required permission denial, inconclusive checks or
+   forbidden access still block. An operator account cannot substitute.
 4. A no-lease `PASS` only qualifies the empty path. Before declaring readiness,
    use a separately reviewed bounded real-provider fixture for active/grace
    `WAITING`, expired cleanup, exact-ID/name-reuse handling, ambiguous operations,
@@ -129,15 +137,18 @@ object; expected-disabled objects must explicitly report true. The original
 `cleanupReady` and `paidAdmission` false. It is neither operator approval nor proof
 of inherited IAM, genuine provider behavior or an operational watchdog.
 
-## Retained live observations and current blocker
+## Retained live observations and revised review boundary
 
 On 2026-09-30, the fresh staged audit passed all 16 groups / 33 reads. All nine
 disable states remained true and the explicit grants/trust/environments matched.
 Project `gse-benchmark` still reported direct organization parent `821373826893`;
 the project deny listing was empty. Reads of the organization allow policy and
-deny-policy list were again denied. **Inherited IAM remains unqualified and blocks
-actual enablement.** An authorized administrator must supply/review the missing
-policies or arrange the necessary read access; this batch grants no permission.
+deny-policy list were again denied. These observations originally blocked
+activation under the earlier review scope. The operator-authorized
+[IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
+now records them as an unassessed limitation without requiring ancestor-policy
+access. Required explicit-policy checks, actual-identity permission probes and
+real cleanup qualification remain prerequisites; no privilege is added.
 
 Local evidence is retained in `target/v51-cleanup-deployment-review/staged/` and
 `inherited-iam/`. Observations describe their timestamps and expire for subsequent
@@ -158,6 +169,8 @@ CI executes no cloud readback or enable command.
 scripts/verify-v51-phase6-cloud-preflight.sh
 ```
 
-Inherited IAM review, approved deployment, real credential/provider qualification
-and native cleanup readiness are still required. Nothing here substitutes for remaining native workload integration,
+Explicit role/binding review, approved deployment, actual-identity required and
+forbidden permission checks, real credential/provider qualification and native
+cleanup readiness are still required. Comprehensive inherited IAM is unassessed
+and is not an admission prerequisite. Nothing here substitutes for remaining native workload integration,
 pricing, exact-request confirmation or Phase 6 acceptance.

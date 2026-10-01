@@ -128,7 +128,9 @@ def write(output, cfg):
         'Existing observer and V5.0 identities/environments are not modified.\n\n'
         '```bash\nset -euo pipefail\n'+'\n'.join(shlex.join(v) for v in commands)+'\n```\n\n'
         'Then run `python3 -m scripts.v51.cloud_identity_audit staged --output <new-directory>` from the repository root. '
-        'STAGED_MATCH verifies only the sampled explicit configuration, not effective inherited IAM or usable credentials. '
+        'STAGED_MATCH verifies only the sampled explicit configuration, not usable credentials or comprehensive least privilege. '
+        'Organization/folder policy reads are optional; unavailable inheritance remains an unassessed limitation. '
+        'Do not add organization privileges. Actual workflow-identity required permissions and forbidden-action probes remain necessary before readiness. '
         'Project Compute grants include project-wide deletion/network policy privileges: resource ownership and exact IDs remain application checks. '
         'Cleanup may replace the exact lease and ledger because shared reconciliation appends a terminal ledger event; it cannot delete attempt evidence '
         'through these explicit bucket grants. No VM creation, workflow dispatch, live reconciliation, paid admission or enablement is performed by this generator.\n')

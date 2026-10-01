@@ -166,6 +166,10 @@ confirmed disabled state and no bindings. No mutation was replayed.
 This supersedes the original unapplied-proposal status above. It does not enable
 native authentication, deploy cleanup workflows, establish effective inherited
 IAM or authorize paid execution. Organization allow/deny policy reads remain
-unavailable. Continue with cleanup-only native credential/transport qualification
+unavailable and are an unassessed limitation under the
+[operator-authorized IAM scope](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30).
+No organization roles or extra permissions are requested. Actual workflow-identity
+required access and forbidden-action probes remain pending. Continue with
+cleanup-only native credential/transport qualification
 and the separately reviewed activation boundary; keep the future runner disabled
 while the observer occupies its workflow path and environment.

@@ -135,11 +135,13 @@ stop on failure or ambiguity. The runner stays disabled in every reviewed state.
 1. Protected CI must accept the implementation and this proposal. Check this
    package against the trusted configuration/source with the validator. Obtain
    separate operator approval for deployment and the exact two cleanup identities.
-2. Collect fresh explicit identity/grant/environment observations. Resolve the
-   inherited IAM review (organization/folder allow and deny, broad principal/group
-   grants, public access, and relevant bucket/account policies). An unreadable
-   policy is an unresolved blocker, not an empty policy. No credential exchange
-   or positive provider call alone proves absence of extra privileges.
+2. Collect fresh explicit identity/grant/environment observations, including
+   exact project/bucket/account bindings and role contents. Missing, denied or
+   mismatched required observations still block this review. Organization/folder
+   policy reads are optional: retain unavailable reads as an unassessed limitation,
+   never as an empty policy. Do not add organization roles or read permissions to
+   the observer, runner or cleanup identities for this review. Credential exchange
+   or positive provider calls alone do not prove absence of extra privileges.
 3. Deploy the exact workflow files in a separately reviewed change while all
    three identities remain disabled. Confirm the protected master bytes and exact
    workflow paths. A schedule may start and fail authentication in this state;
@@ -149,8 +151,12 @@ stop on failure or ambiguity. The runner stays disabled in every reviewed state.
    Use readback --state manual to check all three identities, trust, roles,
    grants and environments. Scheduled and runner credentials must stay disabled.
 5. The operator dispatches manual cleanup on master and approves its environment.
-   Retain actual OIDC/STS/impersonation/provider results without secrets. A no-lease
-   PASS tests the empty path only. Independently qualify active/grace WAITING,
+   Retain actual OIDC/STS/impersonation/provider results without secrets. Before
+   treating either identity as ready, verify required access and forbidden-action
+   probes using that workflow's actual service account. Required permission denial,
+   inconclusive probes or forbidden access block readiness. Never use an operator's
+   own access or another identity's success as proof. A no-lease PASS tests only
+   the empty path. Independently qualify active/grace WAITING,
    expired exact-ID deletion, ownership/operation ambiguity, generation conflicts,
    failure retention and failed charges with a separately reviewed bounded fixture.
    This package does not create a fixture, reserve budget or allocate resources.
@@ -175,6 +181,9 @@ for resources and does not finish a cleanup already in progress.
 ## Evidence boundaries
 
 All package/audit readiness, activation, effective-IAM and paid flags remain false.
+The effectiveIamQualified=false field retains the comprehensive-audit limitation;
+it is not a standalone ancestor-policy-read gate. Actual-identity required and
+forbidden permission checks and real cleanup qualification remain prerequisites.
 A configuration match is not an authorization, authenticated provider test or
 working-watchdog receipt. Runtime PASS/WAITING has the same qualification limit.
 No paid runner path is deployed or enabled. Resource expiry, budgets, ownership,
@@ -248,7 +257,7 @@ def evaluate(cfg, state, value, *, now):
     result['checks']['enableState'] = failure or dict(status='PASS')
     result.update(schema='gse-v51-cleanup-deployment-audit-v1', mode=state, observedDisabled=states,
                   status='CONFIGURATION_MATCH' if all(v['status']=='PASS' for v in result['checks'].values()) else 'BLOCKED',
-                  limitations=['Explicit sampled configuration only; inherited IAM and real-provider qualification remain separate.',
+                  limitations=[preflight.IAM_LIMITATION,
                                'Matching enabled state does not authorize activation or establish cleanup/paid readiness.'])
     return result
 

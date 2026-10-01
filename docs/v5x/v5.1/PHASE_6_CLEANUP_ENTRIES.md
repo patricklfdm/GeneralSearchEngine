@@ -105,7 +105,7 @@ No Java build, timing threshold, workload retry, CI job or paid-cloud parameter 
 ## Next integration
 
 Review/apply the already generated disabled identities under separate operator
-authorization, and qualify effective IAM and the workflow/credential transition.
+authorization, and qualify actual-identity required/forbidden permissions and the workflow/credential transition.
 Wire and qualify native transport plus actual provider reconciliation before
 deploying/enabling these entries. Then retain a fresh exact-source manual **or**
 scheduled cleanup observation for paid admission. Source/workload/retention/price

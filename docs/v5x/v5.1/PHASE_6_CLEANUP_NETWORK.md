@@ -133,7 +133,7 @@ lease, budget and request timing parameters are unchanged.
 
 The [6C3C29 deployment review](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) prepares the
 exact workflow bytes, staged enable/disable commands and readback. Unresolved
-inherited IAM observations and real-provider qualification/failure evidence remain
+actual-identity required/forbidden permission checks and real-provider qualification/failure evidence remain
 activation prerequisites. Keep the runner disabled while transitioning the
 observer workflow path. Live cleanup activation remains separately authorized.
 Fresh manual **or** scheduled cleanup evidence then contributes to admission;

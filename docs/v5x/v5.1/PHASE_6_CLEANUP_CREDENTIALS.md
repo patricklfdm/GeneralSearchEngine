@@ -102,7 +102,7 @@ and `fullRemoteQualification` remain false. Existing inactive workflow proposals
 still stop before auth; no workflow is installed or triggered.
 
 Disabled identity staging has now been authorized, applied and independently
-read back as `STAGED_MATCH`; no identity was enabled. Next review effective IAM
+read back as `STAGED_MATCH`; no identity was enabled. Next review explicit grants and actual-identity required/forbidden permissions
 and qualify the cleanup credential/transport transition and actual provider
 reconciliation before separately approved activation. Fresh
 manual **or** scheduled cleanup evidence must precede paid admission. Cleanup

@@ -188,8 +188,8 @@ exchange, expiry-aware refresh and offline reconciliation.
 The [disabled configuration and activation review](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 records the authorized 2026-09-30 application: 45 commands, 33 independent audit
 reads and `STAGED_MATCH`, with all three identities/pools/providers disabled and
-unrelated configuration preserved. Effective inherited IAM, native cleanup
-activation and paid admission remain open.
+unrelated configuration preserved. Inherited IAM remains unassessed; actual-identity
+permission qualification, native cleanup activation and paid admission remain open.
 The [6C3C28 network cleanup implementation](v5.1/PHASE_6_CLEANUP_NETWORK.md) is
 accepted through PR #263, master `e8a349096383a092b47c4ac6774dd3c8f9b12684`,
 CI `36706204243` with 29 final successful jobs after failed-job rerun (attempt 2).
@@ -198,9 +198,16 @@ The [6C3C29 deployment review](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is acc
 through PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`, exact-master
 CI `36756473536` attempt 1 (29 jobs). Original timeout and burst-spread failures
 remain retained. The [6C3C30 state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md)
-candidate adds GET-only native control/resource snapshots and independent
-comparison with an exact completed cleanup run. Inherited IAM review, deployed
-cleanup identities/workflows and real provider qualification remain open.
+adds GET-only native control/resource snapshots and independent comparison with
+an exact completed cleanup run. It is accepted through PR #266/#267, corrected
+master `9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1
+(all 29 jobs). The original outbound-admission failure and runtime correction
+remain recorded. The operator-authorized
+[IAM scope amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
+replaces mandatory ancestor-policy reads with a recorded unassessed limitation;
+its protected CI is pending. Explicit role/trust review, actual-identity required
+and forbidden permission checks, deployed cleanup identities/workflows and real
+provider qualification remain required, without extra organization privileges.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

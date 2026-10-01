@@ -12,8 +12,9 @@ Corrected PR #254 master `0b22b671d39074fe019571dd90178b648a91cb38` passed
 attempt 1 (29 jobs) and [preflight 36643330675](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36643330675)
 (all seven checks). The observer identities/environment and Private Google Access
 were separately authorized, applied and read back. This records read-only
-integration; observations still expire and effective inherited IAM, native cleanup
-and paid admission remain open. The next candidate stages
+integration; observations still expire and actual-identity permission checks,
+native cleanup and paid admission remain open. Inherited IAM remains unassessed
+under the [bounded review amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30). The next candidate stages
 [disabled runner and cleanup identities](PHASE_6_CLOUD_IDENTITIES.md).
 
 ## Manual entry points
@@ -76,9 +77,11 @@ permits live GET only; no mutation permission switch is added. Collection reads:
 
 The [bucket metadata API](https://docs.cloud.google.com/storage/docs/json_api/v1/buckets)
 defines lifecycle, holds and retention policies. These observations cannot prove
-immutable evidence retention, effective IAM, firewall policy, allocation, image
-availability at future creation time or token identity beyond the observed account.
-Those remain explicit requirements. The historical frozen image is not refreshed
+immutable evidence retention, required/forbidden permissions of each actual
+workflow account, firewall policy, allocation, image availability at future
+creation time or token identity beyond the observed account. Those remain
+explicit requirements. Comprehensive ancestor-policy review is optional and
+unassessed; it is listed as a limitation separately from required checks. The historical frozen image is not refreshed
 silently when unavailable.
 
 Receipts expire no later than 900 seconds after the earliest input observation.
@@ -148,8 +151,9 @@ expired receipts, nonfinite quotas, stale/foreign lease/ledger, retained failed
 charges, premature deletion and isolated observer proposals. Both manual entry
 points remain subject to corrected-source protected CI.
 
-Next: complete inherited IAM review; stage isolated runner/cleanup identities and qualify
-V5.1 native cloud setup, runner/cleanup identities and shared real reconciliation;
+Next: qualify actual workflow-identity required and forbidden permissions, fresh
+explicit role/binding/trust observations, V5.1 native cloud setup and shared real
+reconciliation using the already staged disabled identities;
 wire remaining frozen failure-drill/canonical cells and provider faults. Only then
 can fresh cleanup, pricing, exact-request confirmation and user-triggered paid
 execution open. Neither this batch nor C21 closes all of Phase 6.

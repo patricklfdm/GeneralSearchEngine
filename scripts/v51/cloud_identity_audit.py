@@ -150,7 +150,7 @@ def evaluate(cfg,mode,value,*,now):
                 status=('ABSENCE_REVIEWED' if mode=='absent' else 'STAGED_MATCH') if all(v['status']=='PASS' for v in checks.values()) else 'BLOCKED',
                 checks=checks,observedAt=now,paidAdmission=False,cleanupReady=False,fullRemoteQualification=False,
                 effectiveIamQualified=False,activationAllowed=False,
-                limitations=['Explicit sampled policies only; organization/folder inheritance, deny policies and grants on other resources are not established.',
+                limitations=[p.IAM_LIMITATION,
                              'Disabled staging is not a native provider or cleanup qualification; activation requires separate review.'])
 
 

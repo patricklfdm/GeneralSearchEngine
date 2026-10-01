@@ -157,7 +157,8 @@ The observer and subnet configuration were separately authorized and read back;
 organization/folder effective IAM remains unverified. The 6C3C23 disabled identity
 proposal/audits were accepted through PR #255, master
 `41b567b7cb96d36157a4434b02268b746492edfd`, exact-master CI `36648030423` (29 jobs).
-New identities remain unapplied. The 6C3C24 retained cleanup reconstruction was
+That acceptance covered the proposal; later authorized staging is recorded below.
+The 6C3C24 retained cleanup reconstruction was
 accepted through PR #256, master `2ea9dbbfbf2821afc859663c87925a0e1d93322c`,
 exact-master CI `36655860450` attempt 1 (29 jobs). The 6C3C25 native record formats
 and closed cleanup HTTP policy were accepted through PR #257, master
@@ -166,9 +167,24 @@ and closed cleanup HTTP policy were accepted through PR #257, master
 retry success does not establish its latency cause. The 6C3C26 bound cleanup entries were accepted through corrected-source PR #259,
 master `a25ecba2121526e4cef4d41ee1a90f1e1f64259e`, exact-master CI `36679824140`
 attempt 1 (29 jobs). PR #258's inherited timeout-oracle failure remains recorded.
-The 6C3C27 candidate adds exact-entry OIDC/STS/account credential exchange,
-expiry-aware refresh and 28 additional fresh-process offline entry cases.
-Native IAM/cleanup activation and paid admission remain open.
+The 6C3C27 credential integration is accepted through PR #261, master
+`27d6f7fa23377dbf305a1ac719ac5f8a6e97df9c`, CI `36695145198` attempt 1 (29 jobs).
+The [disabled identity staging](v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md) was
+subsequently authorized and completed: 45 commands and 33 independent reads;
+all three accounts/pools/providers remain disabled. The scoped cleanup network
+entry (6C3C28) and deployment review (6C3C29) are also accepted; their exact CI
+records remain in the [Phase 6 checklist](v5.1/PHASE_6_CHECKLIST.md).
+The [6C3C30 state review](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md) and runtime
+outbound-admission correction are accepted through PR #266/#267, master
+`9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1 (29 jobs).
+The original failed run remains retained. Fresh read-only ancestor inspection
+still cannot read the organization allow/deny policies. The operator subsequently
+authorized the [bounded IAM review amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
+ancestor reads are optional and retained as unassessed; explicit role/trust review,
+actual-identity required/forbidden permission checks and real cleanup qualification
+remain mandatory. Do not request organization privileges or migrate the project
+merely to read ancestor policies. The amendment's protected CI remains pending. No cleanup workflow is deployed, no identity
+is enabled, and real provider qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

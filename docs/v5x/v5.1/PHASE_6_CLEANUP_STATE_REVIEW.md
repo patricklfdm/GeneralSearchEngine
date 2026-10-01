@@ -1,10 +1,11 @@
 # V5.1 Phase 6C3C30 — independent cleanup state review
 
-**Status:** merged through PR #266, master
-`3dbaed52da1715fc8922d2f258ec9bbc73bbf99a`; protected acceptance remains pending.
-Master CI `36774917431` passed the cloud runner but failed the local automatic
-performance gate due to [outbound admission contention](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission).
-The subsequent runtime correction requires its own protected validation.
+**Status:** accepted through PR #266/#267, corrected master
+`9243bc31dc3727a132b50740430426b3512fc5c8`.
+[Exact-master CI 36785256345](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36785256345)
+passed all 29 jobs on attempt 1, including the owned complete experiment gate.
+The original master CI `36774917431` failure remains retained with its
+[outbound admission correction](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission).
 [6C3C29](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md) is accepted through PR #264/#265
 and exact-master CI `36756473536`, attempt 1, all 29 jobs. Identity enablement,
 workflow deployment, cleanup execution and paid experiments remain separate.
@@ -126,37 +127,66 @@ If that evidence is unavailable, retain the uncertainty instead of declaring a
 real deletion or permission-denial case qualified. No destructive negative is
 injected into a running experiment by this collector.
 
-## IAM blocker and administrator review inputs
+## IAM admission scope amendment — 2026-09-30
 
-The project's last observed direct parent is organization `821373826893`. The
-existing project/bucket/identity audit cannot establish inherited permissions:
-[effective allow policies include ancestors](https://docs.cloud.google.com/iam/docs/resource-hierarchy-access-control).
-The current account could not read organization allow/deny policies in the
-retained 2026-09-30 observations. Those denials remain unresolved.
+**Operator-authorized scope change; corrected-source protected CI remains pending.**
+This amendment supersedes the earlier requirement to read organization/folder
+allow and deny policies before cleanup enablement. It applies to V5.1 only;
+published V5.0 acceptance and evidence remain unchanged. The operator authorized
+keeping necessary permissions without enabling unnecessary privileges.
 
-An authorized administrator can retain the following read-only exports, with the
-collection time and current project-parent identity:
+The project remains `gse-benchmark` / `266952534277`, under organization
+`821373826893` (`uci.edu`). The retained organization read denials remain genuine
+observations. Ancestor policies are **UNASSESSED**, not absent or approved.
+Optional authorized ancestor-policy information may inform the review, but its
+absence or read denial alone does not block deployment, qualification or paid
+admission. No account/project migration or organization read/admin role is required
+by this amendment. Existing role contents, grants, identities and enable states
+are unchanged; this is not authorization to deploy or enable cloud identities.
 
-```bash
-gcloud projects describe gse-benchmark --format=json > project.json
-gcloud organizations get-iam-policy 821373826893 --format=json > organization-allow.json
-gcloud iam policies list \
-  --attachment-point=cloudresourcemanager.googleapis.com/organizations/821373826893 \
-  --kind=denypolicies --format=json > organization-deny-index.json
-```
+The bounded review follows the [V5.0 permission-check boundary](../v5.0/PHASE_6_CLOUD_RUNNER.md)
+while independently qualifying the new V5.1 actors and native control objects:
 
-If the deny listing contains policies, fetch each exact returned policy ID with
-[`gcloud iam policies get`](https://docs.cloud.google.com/sdk/gcloud/reference/iam/policies/get)
-on that same attachment point. Check pagination, every listed policy body, parent
-changes and any intermediate folders. An unreadable/partial export is not an
-empty policy. Review the exports together with fresh explicit grants, relevant
-broad-principal/group membership and account/bucket policies. Do not grant Owner,
-Editor or organization write access merely to unblock this review.
+| Requirement | Admission rule |
+| --- | --- |
+| Explicit configuration | Fresh exact project/bucket/account bindings, role permissions, no user keys, WIF repository/ref/workflow/event/environment restrictions and expected enable states must match. Missing/denied required reads or drift still block. |
+| Actual workflow identity | Check required access using the observer, runner or trigger-specific cleanup account actually used by that workflow. An operator's access or another version/trigger's success cannot substitute. Retain identity/source/configuration/time and exact queried scopes with the observations. |
+| Necessary access | Verify the permissions needed for that identity's real path, including Compute operations and GCS access at the relevant object scopes. Missing permissions, provider denial, unavailable or malformed checks block qualification. No broader grant is added to make a check green. |
+| Forbidden access | Cleanup must reject topology creation, guest mutation, IAM changes/key creation and deletion of attempt evidence or objects outside its mutable control scope. Read-only observer probes must reject writes; runner checks preserve its frozen role/scope boundary. Probe without performing destructive forbidden actions. |
+| Real cleanup | Independently qualify active/grace WAITING, expired exact-ID cleanup, generation conflicts, name reuse, ambiguous/lost operations, failure retention and original charges. A successful credential exchange or empty-lease PASS cannot qualify the full path. |
+| Paid readiness | Preserve fresh manual-or-scheduled cleanup evidence, complete remote qualification, exact-source CI, quota/image/network/retention checks, cumulative budget, current pricing, exact-request confirmation and user-triggered execution. |
 
-These exports are inputs for authorized review, not automatic approval. They may
-remain local and need not be committed. If administrator access is unavailable,
-resolve the deployment approach with the operator; this batch neither migrates
-the project nor waives the inherited IAM requirement.
+V5.1 cleanup may create/replace the **exact lease and ledger** and append attempt
+completion/cleanup evidence. Replacing a GCS control object requires create and
+delete permission. Unlike V5.0 cleanup, V5.1 appends a terminal ledger event;
+a blanket denial of ledger replacement would break that required path. Deleting
+attempt evidence stays forbidden. Retained authority, expiry plus grace, original
+operation/numeric IDs, generation conditions, immutable completion and append-only
+ledger validation continue to guard every mutation.
+
+Bounded positive/negative probes establish only the tested identities, permissions,
+resources and observation times. They do not prove absence of every inherited or
+resource-level grant; [allow policies can be inherited](https://docs.cloud.google.com/iam/docs/resource-hierarchy-access-control).
+Keep this limitation visible. If available observations reveal a grant that
+violates a required boundary, it must still be resolved; optional ancestor reads
+are not permission to ignore known violations.
+
+Existing `effectiveIamQualified=false` fields remain false: these configuration,
+entry and state-review receipts do not establish a comprehensive IAM audit. That
+flag is not a separate ancestor-read prerequisite. Do not replace it with true,
+change an unavailable read to an empty policy, or interpret the amendment as
+`activationAllowed`, `cleanupReady`, `paidAdmission` or full Phase 6 acceptance.
+The generated preflight report lists this limitation separately from remaining
+required checks. Actual-identity permission probes and real provider qualification
+are still **pending**; this documentation/generator change does not execute them.
+
+Local validation: 98 focused tests passed. The complete preflight gate passed
+its 80 tests, 13 provider/source negatives and 16 identity negatives, and generated
+and validated the revised deployment review package. Before/after comparison
+confirms unchanged role/grant payloads, 45 staging commands, cleanup enable/disable
+commands and workflow bytes. The previously approved 33-file package is intact.
+Review logs and comparisons are retained in `target/v51-iam-scope/`; protected CI
+on the committed amendment remains required.
 
 ## Current read-only evidence and remaining validation
 
@@ -173,8 +203,21 @@ The preflight gate exercises the new collector/reviewer against offline native
 states, including failures, stale/replaced identities, lost insert acknowledgements,
 ledger changes, generation movement, denied reads and missing resources/operations.
 
-Next: protected CI, resolve the IAM review, then separately authorize the already
-prepared workflow/identity deployment and bounded real-provider fixture. Capture
+After PR #267, the exact-source/attempt checker accepted corrected master
+`9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1, all
+29 jobs and the executed owned-experiment step. The source-bound observations
+and receipt are retained in `target/v51-c30-acceptance/ci-observations.json` and
+`ci-receipt.json`. A fresh read-only project/ancestor inspection still reports the
+same direct organization parent and denied organization allow/deny reads; the
+project deny listing is empty. `iam-reads.json` and its raw outputs retain these
+observations. Fresh `staged/receipt.json` readback returned `CONFIGURATION_MATCH`:
+all nine account/pool/provider disable states remain true, and the explicit
+trust, grants and environments match. No identity or workflow was changed by
+this acceptance review.
+
+Next: refresh explicit configuration review, then separately authorize the
+prepared workflow/identity deployment and bounded real-provider qualification.
+Verify actual-identity required and forbidden permissions before readiness. Capture
 both successful and rejected cases, verify artifact/audit provenance, and establish
 fresh manual or scheduled cleanup readiness before paid admission. The fixture's
 allocation, pricing and exact-request approval remain separate from these reads.

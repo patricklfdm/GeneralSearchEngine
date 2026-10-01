@@ -10,8 +10,11 @@ from . import cloud_authority as a, cloud_ci as ci, cloud_gcp as gcp, cloud_http
 from . import performance_model as m, remote_command as c
 
 CONFIG = ci.ROOT/ci.CONFIG_PATH
-PENDING = ('dedicated observer WIF and effective IAM review',
-           'V5.1 runner/cleanup WIF, IAM and environment qualification',
+IAM_LIMITATION = ('Organization/folder inherited policies are not assessed; reading them is optional and is not an admission prerequisite. '
+                 'This does not establish the absence of broader grants; required workflow-identity permissions and forbidden-action probes remain mandatory.')
+PENDING = ('explicit observer WIF, role/binding and environment review',
+           'V5.1 runner/cleanup WIF, explicit role/binding and environment qualification',
+           'actual observer/runner/cleanup identity required permissions and forbidden-action probes',
            'recent exact-source scheduled or manual V5.1 cleanup with retained PASS reconciliation',
            'native cloud adapter and all preset workload qualification',
            'immutable evidence retention and full sequence price review',
@@ -174,7 +177,7 @@ def evaluate(cfg, source, github, provider, *, now, workflow=None):
                 workloadSha256=a.workload.PLAN_SHA256, observedAt=now, expiresAt=started+900,
                 execution=provider.get('execution', 'read-only-preflight-incomplete'), status='BLOCKED' if blockers else 'OBSERVATIONS_READY',
                 checks=checks, blockers=blockers, paidAdmission=False, paidCloud=False, resourcesCreated=False,
-                fullRemoteQualification=False, pending=list(PENDING))
+                fullRemoteQualification=False, pending=list(PENDING), limitations=[IAM_LIMITATION])
 
 
 def summary(receipt, cfg):
@@ -190,6 +193,7 @@ def summary(receipt, cfg):
     lines.extend(['', '| Check | Result | Detail |', '| --- | --- | --- |'])
     for name, v in receipt['checks'].items():lines.append('| '+safe(name)+' | '+safe(v['status'])+' | '+safe(v.get('reason', v.get('detail')))+' |')
     lines.extend(['', '## Remaining admission requirements', '', *('- '+safe(v) for v in receipt['pending']), ''])
+    lines.extend(['## Review limitations', '', *('- '+safe(v) for v in receipt.get('limitations', [])), ''])
     return '\n'.join(lines)
 
 
