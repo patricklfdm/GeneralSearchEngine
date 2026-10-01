@@ -37,7 +37,11 @@ Extra credential kinds, keys, executable/file sources, delegate accounts, foreig
 accounts/providers and alternate endpoints fail before credential traffic.
 There is no ambient ADC or active-gcloud-account fallback.
 
-The GitHub token request uses the selected provider's audience. Its returned JWT
+The GitHub token request uses the selected provider's audience. The
+[immutable subject correction](PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
+binds its subject to the repository's observed immutable format: exact owner and
+repository names plus numeric IDs and the selected environment. A legacy name-only
+subject is rejected. Its returned JWT
 must match repository name and numeric IDs, master ref, workflow and source SHA,
 manual/scheduled event, environment, run ID/attempt and token validity. These
 [GitHub OIDC claims](https://docs.github.com/en/actions/reference/security/oidc)
@@ -125,4 +129,6 @@ accepted in PR #271, identified a terminal `/idtoken` assumption in the shared
 validator. The [runtime path correction](PHASE_6_IDENTITY_PERMISSIONS.md#runtime-oidc-path-compatibility)
 binds the descriptor to the complete opaque runtime path instead. Both cleanup
 triggers retain the domain, identity, audience and exchange checks, and stop
-before reconciliation on mismatch. Live permission qualification remains pending.
+before reconciliation on mismatch. PR #272 accepted the path correction; the
+subsequent preflight exposed the immutable-subject compatibility defect described
+above. Live permission qualification remains pending.

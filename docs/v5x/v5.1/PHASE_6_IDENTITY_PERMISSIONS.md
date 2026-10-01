@@ -6,9 +6,11 @@
 attempt 1, all 29 jobs. Diagnostics were accepted through PR #271, master
 `a65c66e41c7f89f90265b8ce51a9a17acdae1416`,
 [CI 36903623343](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36903623343)
-attempt 2 (29 jobs). Actual preflight now identifies `OIDC_URL_PATH`; the
-[runtime path correction below](#runtime-oidc-path-compatibility)
-is a new candidate. Successful actual permission queries remain required.
+attempt 2 (29 jobs). PR #272 accepted the runtime path correction at master
+`e763601ef7cc018d901e9b70f77ce8afb2fa0b7d`, CI `36934779388` attempt 2 (29 jobs).
+Actual preflight now passes descriptor initialization but fails during credential
+exchange. The [immutable subject correction below](#immutable-oidc-subject-compatibility)
+is a new candidate; successful actual permission queries remain required.
 
 ## Scope and API limits
 
@@ -176,8 +178,47 @@ tests; 38 credential/network tests under Python 3.11; 28 integrated cleanup case
 and 64 loopback TLS cases. The two targeted regressions failed on the original
 suffix check and passed with the correction. Sandbox socket restrictions blocked
 the first TLS attempt; the same tests passed with local socket access enabled.
-This candidate requires protected CI and a fresh user-triggered preflight; it
-does not yet establish live permission qualification or require an IAM change.
+PR #272 accepted this correction; the fresh preflight below passed the descriptor
+checks. Live permission qualification still remains open.
+
+## Immutable OIDC subject compatibility
+
+[Preflight 36937960812](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36937960812)
+attempt 1, on PR #272 master, passed descriptor initialization. Both permission
+probes then retained `ValueError`, with `credentialExchangeCompleted=false`;
+the existing exchange wrapper hides the failing substage. All seven other
+preflight checks passed. The receipt does not identify an IAM denial or expose
+the actual JWT, and cannot prove there is only one remaining blocker.
+
+A read-only query of the repository's OIDC settings returned `use_default=true`,
+`use_immutable_subject=true` and the subject prefix
+`repo:patricklfdm@147357093/GeneralSearchEngine@1341513206`. The repository was
+created on 2026-08-21. GitHub's [immutable subject documentation](https://docs.github.com/en/actions/reference/security/oidc#immutable-subject-claims)
+specifies this format for repositories created after 2026-07-15. The validator
+still expected the legacy name-only subject, which deterministically rejects a
+token using the observed repository configuration before STS. This establishes a
+compatibility defect consistent with the failed exchange, without retaining a
+live token or inferring provider error text.
+
+The correction builds the exact immutable subject from the pinned owner/repository
+names and numeric IDs, plus the bound environment. It does not accept the legacy
+subject as a fallback. Independent repository/owner ID, issuer, audience,
+workflow/source, event, run/attempt and time checks remain required; Google STS
+still authenticates the signature. Existing WIF proposals bind separate repository
+and workflow claims and map `assertion.sub` directly, so no role, trust condition
+or cloud setting is changed for this correction.
+
+The shared offline issuer now emits the immutable subject. New regressions cover
+all four workflow roles reaching permission queries, and reject legacy subjects,
+changed names, IDs or environment before STS. Both regressions fail with the
+original validator. Repository settings, failed receipts and local qualification
+are retained in `target/v51-immutable-subject` and
+`target/v51-preflight-36937960812`. Validation passed: 46 credential/permission
+tests, 40 credential/network tests on Python 3.11, 107 preflight tests and
+61 negatives, 28 integrated cleanup cases and 64 loopback TLS cases.
+Protected CI and a new user-triggered preflight
+must validate the corrected source; local fixtures do not establish actual IAM
+or successful live credential exchange.
 
 ## Remaining real-path work
 
