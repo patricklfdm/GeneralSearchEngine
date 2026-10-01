@@ -164,9 +164,12 @@ makes ancestor-policy reads optional without adding permissions. Actual-identity
 required/forbidden checks, cleanup activation and provider qualification remain
 open. The amendment and selection correction are accepted through PR #268/#269,
 master `c209383a510ae785244003b8778e5e193cdaf255`, CI `36804323832` attempt 1
-(29 jobs). The next [6C3C31 permission precheck candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
-has four-role offline qualification and observer/proposed-cleanup integration;
-protected CI, actual execution and object/IAP qualification remain pending.
+(29 jobs). The [6C3C31 permission precheck](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+and checkpoint restart correction are accepted through PR #270, master
+`13393b528bccd47a2d091ad43f3a1530f0aa6c8b`, CI `36830413171` attempt 1 (29 jobs).
+Actual preflight `36897530651` stopped before permission queries during credential
+initialization. A fixed-code diagnostic candidate awaits protected CI and fresh
+execution; actual permission and object/IAP qualification remain pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

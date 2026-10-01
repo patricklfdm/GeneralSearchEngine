@@ -1,11 +1,11 @@
 # V5.1 Phase 6C3C31 — workflow identity permission prechecks
 
-**Status:** implementation candidate; corrected-source protected CI and actual
-provider execution remain required. PR #269 accepted the preceding selection
-coordination correction and IAM scope amendment at master
-`c209383a510ae785244003b8778e5e193cdaf255`,
-[CI 36804323832](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36804323832)
-attempt 1, all 29 jobs. That acceptance does not cover this new implementation.
+**Status:** implementation accepted through PR #270, master
+`13393b528bccd47a2d091ad43f3a1530f0aa6c8b`,
+[CI 36830413171](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36830413171)
+attempt 1, all 29 jobs. Actual observer execution is blocked during credential
+initialization; the [diagnostic correction below](#credential-initialization-diagnostics--2026-10-01)
+is a new candidate and does not establish successful provider permission queries.
 
 ## Scope and API limits
 
@@ -88,8 +88,8 @@ malformed responses, secret retention and same-run report/cleanup-step gates.
 Offline receipts explicitly say `offline-permission-probes`; they cannot establish
 real provider permission qualification.
 
-Local validation passed: the complete preflight gate ran 100 tests, 13 provider/
-source negatives, 16 identity negatives and all 32 new permission negatives. The
+Original implementation validation passed: the complete preflight gate ran 100
+tests, 13 provider/source negatives, 16 identity negatives and all 32 new permission negatives. The
 18 new tests also passed under CI's Python 3.11. Generated manual/scheduled review
 packages validated; three YAML documents and 14 shell blocks passed syntax checks.
 Role/grant generators, credentials, reconciliation, inactive proposals, enable/
@@ -100,12 +100,52 @@ precheck itself changes no Java or Maven configuration.
 
 The same PR's first CI attempt `36808406642` exposed a separate
 [subsequent checkpoint restart defect](PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate)
-in the owned experiment. Its correction now accompanies this batch, with runtime
+in the owned experiment. Its correction merged in PR #270, with runtime
 regressions and a new reactor validation. The failed hosted evidence is retained;
 permission prechecks did not cause the interrupted-generation recovery failure.
 
-After protected merge, a fresh user-triggered observer preflight can exercise the
-actual read-only path. Cleanup deployment and identity activation still need the
+## Credential initialization diagnostics — 2026-10-01
+
+The first actual observer preflight on accepted master,
+[run 36897530651](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36897530651)
+attempt 1, authenticated and collected provider observations successfully. Its
+permission entry then stopped with `phase=credentials`, `type=ValueError`, before
+writing permission observations or issuing permission queries. The final report
+blocked solely on the missing successful same-run permission precheck. This is
+not evidence of a denied IAM permission. The rejected credential component cannot
+be recovered from that receipt; the original credential file was not retained.
+
+The diagnostic candidate adds 26 fixed reason codes for credential-file loading,
+runtime OIDC URL/token shape and exact external-account descriptor comparisons.
+Permission and cleanup entries retain only a known `reasonCode`, failure phase
+and exception class. CLI output and Actions summaries expose the code; summaries
+add a static explanation. Unknown exceptions remain unclassified. Tokens,
+authorization headers, credential paths, complete URLs, raw descriptor values
+and arbitrary exception messages are never included in these diagnostics.
+
+The existing admitted URL forms, descriptor fields, bound identity, file size
+limit, symlink rejection and exchange rules remain unchanged. In particular, this
+does not speculate about which field failed or accept an additional provider or
+URL form. Initialization failure still stops permission collection and cleanup
+reconciliation. The shared file reader also closes its descriptor if inspection
+fails before a stream takes ownership.
+
+Regression coverage exercises every code, all four permission identities through
+actual credential initialization, both cleanup triggers, safe receipts/CLI/summary
+output and rejection before network calls or reconciliation. The new suite is
+included in the existing preflight gate. Local evidence and the original failed
+receipt are retained at `target/v51-credential-diagnostics` and
+`target/v51-preflight-36897530651`. Validation passed: 107 preflight tests and
+61 negative fixtures; 53 credential/permission/network tests; 42 related tests
+under Python 3.11; 28 integrated cleanup cases and 64 loopback TLS cases. A
+79-input comparison with the accepted descriptor validator preserved every
+accept/reject result. Corrected-source protected CI and a fresh
+user-triggered observer preflight are required to learn the actual rejected field;
+this diagnostic candidate does not claim to fix the underlying live mismatch.
+
+## Remaining real-path work
+
+Cleanup deployment and identity activation still need the
 [reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). Remaining real-path work
 includes exact lease/ledger read and conditional replacement, immutable attempt
 evidence creation and prohibited deletion/replacement, out-of-scope denial,

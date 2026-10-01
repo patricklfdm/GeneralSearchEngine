@@ -13,6 +13,7 @@ import stat
 import time
 from . import cloud_authority as a, cloud_ci as ci, cloud_identity_setup as identities
 from . import cloud_preflight as preflight, cloud_native_cleanup as cleanup, performance_model as m
+from . import cloud_cleanup_credentials as credentials
 from .remote_command import read, write_once
 
 SCHEMA = 'gse-v51-cleanup-entry-v1'
@@ -114,18 +115,24 @@ def execute_integrated(cfg, env, observation, credentials, transport, auth_trans
 
 def credential_file(env):
     """Read only the auth action's descriptor; no ADC discovery or shell fallback."""
+    path = env.get('GOOGLE_GHA_CREDS_PATH')
+    credentials.require(isinstance(path, str) and os.path.isabs(path), 'CREDENTIAL_FILE_PATH')
+    try: fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    except Exception: raise credentials.CredentialError('CREDENTIAL_FILE_OPEN') from None
     try:
-        path = env['GOOGLE_GHA_CREDS_PATH']
-        m.need(isinstance(path, str) and os.path.isabs(path), 'cleanup credential file')
-        fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        info = os.fstat(fd)
+        credentials.require(stat.S_ISREG(info.st_mode), 'CREDENTIAL_FILE_TYPE')
+        credentials.require(0 < info.st_size <= 128 << 10, 'CREDENTIAL_FILE_SIZE')
         with os.fdopen(fd, 'rb') as source:
-            info = os.fstat(source.fileno())
-            m.need(stat.S_ISREG(info.st_mode) and 0 < info.st_size <= 128 << 10, 'cleanup credential file bound')
+            fd = None  # The stream owns the descriptor from here.
             raw = source.read((128 << 10)+1)
-        m.need(len(raw) <= 128 << 10, 'cleanup credential file bound')
-        return m.strict_json(raw)
-    except Exception:
-        raise ValueError('cleanup credential file rejected') from None
+        credentials.require(len(raw) <= 128 << 10, 'CREDENTIAL_FILE_SIZE')
+    except credentials.CredentialError: raise
+    except Exception: raise credentials.CredentialError('CREDENTIAL_FILE_READ') from None
+    finally:
+        if fd is not None: os.close(fd)
+    try: return m.strict_json(raw)
+    except Exception: raise credentials.CredentialError('CREDENTIAL_FILE_JSON') from None
 
 
 def execute_network(cfg, env, output, *, trigger, source, checkout):
@@ -148,7 +155,7 @@ def execute_network(cfg, env, output, *, trigger, source, checkout):
         result = cleanup.reconcile(cfg['provider'], api, output/'reconciliation', trigger=trigger, now=now)
         receipt.update(status=result['status'], reconciliation=result)
     except (Exception, KeyboardInterrupt) as error:
-        receipt['failure'] = dict(phase=phase, type=type(error).__name__)
+        receipt['failure'] = dict(phase=phase, type=type(error).__name__, **credentials.diagnostic(error))
     finally:
         # A completed exchange is narrower than effective-IAM or activation review.
         receipt['credentialExchangeCompleted'] = api is not None and api.tokens.exchanges > 0
@@ -182,6 +189,7 @@ def summary(value):
     for label, key in (('Credential exchange completed', 'credentialExchangeCompleted'),
                        ('Comprehensive IAM audit established', 'effectiveIamQualified')):
         if key in value: rows.append((label, value[key]))
+    rows += credentials.failure_rows(value.get('failure'))
     rows += [('Live activation allowed', False), ('Cleanup readiness established', False), ('Paid cloud executed', False)]
     return ('# V5.1 cleanup entry\n\n| Parameter | Value |\n| --- | --- |\n'+
             ''.join('| '+cell(k)+' | '+cell(v)+' |\n' for k,v in rows)+

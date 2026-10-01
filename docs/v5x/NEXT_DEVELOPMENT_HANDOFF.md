@@ -190,15 +190,22 @@ master CI `36793951268` attempt 1 failed on the existing selection driver's
 and a separate rich healthy warmup `LANE_BUSY`. PR #269 accepted the selection
 correction and amendment at master `c209383a510ae785244003b8778e5e193cdaf255`,
 CI `36804323832` attempt 1, all 29 jobs. That success does not prove the warmup
-delay's cause. The next [6C3C31 permission precheck candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+delay's cause. The [6C3C31 permission precheck](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
 binds observer/runner/manual/scheduled identities to diagnostic project/bucket
 queries, with offline qualification and observer/proposed-cleanup integration.
 Its first PR CI `36808406642` exposed a
 [subsequent checkpoint restart defect](v5.1/PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate).
-The same PR now resumes exact local checkpoint bytes in either inactive slot,
+The same PR resumes exact local checkpoint bytes in either inactive slot,
 preserving floor-authorized retirement; deterministic regressions and retained-data
-replay cover the correction. Protected CI and real permission execution are pending;
-conditional object/IAP checks are still required. No cleanup workflow is deployed, no runner/cleanup identity
+replay cover the correction. PR #270 accepted both changes at master
+`13393b528bccd47a2d091ad43f3a1530f0aa6c8b`, CI `36830413171` attempt 1 (29 jobs).
+Actual observer preflight `36897530651` failed during credential initialization,
+before permission queries; the exact rejected field is unknown. The
+[diagnostic candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#credential-initialization-diagnostics--2026-10-01)
+retains fixed non-secret reason codes without broadening acceptance. After its
+protected merge, a fresh user-triggered preflight should identify that field.
+Real permission execution and conditional object/IAP checks are still required.
+No cleanup workflow is deployed, no runner/cleanup identity
 is enabled, and real provider qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
