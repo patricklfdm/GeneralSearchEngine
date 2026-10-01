@@ -36,6 +36,7 @@ def fixture(case='expired-manual',trigger='manual',*,retained_status=None,termin
     run=dict(invocation['observation'],status='completed',conclusion='success')
     steps=[dict(name=name,status='completed',conclusion='success') for name in
            ('Bind cleanup entry and exact run attempt','Authenticate exact cleanup identity',
+            'Check actual cleanup permissions without cloud mutations',
             'Reconcile retained expired lease','Retain cleanup diagnostics')]
     job=dict(run_id=binding['runId'],run_attempt=binding['runAttempt'],head_sha=source,name='cleanup',
              status='completed',conclusion='success',started_at=timestamp(now-1),completed_at=timestamp(now+1),steps=steps)
@@ -160,6 +161,15 @@ class CleanupObservationTest(unittest.TestCase):
         for key in ('lease','ledger','context','completion','resources'):
             v=deepcopy(base);v['after'][key]=[1,{}] if key=='completion' else None
             self.assertEqual('BLOCKED',o.review(**v)['status'])
+
+    def test_permission_precheck_step_must_complete_successfully(self):
+        base,_,_=fixture()
+        for conclusion in ('skipped','failure','cancelled','missing'):
+            value=deepcopy(base);steps=value['observed_run']['jobs']['jobs'][0]['steps']
+            step=next(s for s in steps if s['name']=='Check actual cleanup permissions without cloud mutations')
+            if conclusion=='missing':steps.remove(step)
+            else:step['conclusion']=conclusion
+            self.assertEqual('BLOCKED',o.review(**value)['status'])
 
     def test_empty_pass_does_not_hide_pending_ledger_reservation(self):
         values,_,_=fixture('no-lease');reserved,_,_=fixture('active')

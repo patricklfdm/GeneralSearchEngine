@@ -59,6 +59,12 @@ The [pinned auth action definition](https://raw.githubusercontent.com/google-git
 is the credential-file contract; the artifact upload covers only
 `target/v51-cleanup`, not the checkout or credential file.
 
+The [6C3C31 candidate](PHASE_6_IDENTITY_PERMISSIONS.md) inserts a bound permission
+precheck after authentication. Missing required, returned forbidden or unavailable
+project/bucket queries stop the job before reconciliation. PRECHECK_PASS cannot
+establish object-name conditional access; real-path qualification remains required.
+The independent state reviewer also requires the successful precheck step.
+
 The job then invokes the existing `cloud_cleanup_entry reconcile`; it accepts no
 force/resource/age override. Summary and evidence upload run on success or failure.
 The fallback summary does not claim no credentials were acquired when auth might

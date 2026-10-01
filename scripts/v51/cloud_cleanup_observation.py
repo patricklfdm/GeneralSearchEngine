@@ -126,6 +126,7 @@ def check_run(binding, observed):
            job['head_sha']==binding['source'] and job['name']=='cleanup' and
            job['status']=='completed' and job['conclusion']=='success','cleanup job identity/result')
     for name in ('Bind cleanup entry and exact run attempt','Authenticate exact cleanup identity',
+                 'Check actual cleanup permissions without cloud mutations',
                  'Reconcile retained expired lease','Retain cleanup diagnostics'):
         steps=[s for s in job['steps'] if s['name']==name]
         m.need(len(steps)==1 and steps[0]['status']=='completed' and steps[0]['conclusion']=='success',

@@ -117,7 +117,11 @@ source inventories precede this final documentation record.
 
 ## Retained-restart coordination correction — 2026-09-30
 
-**Status:** local correction; corrected-source protected CI remains required.
+**Status:** accepted through PR #269, master
+`c209383a510ae785244003b8778e5e193cdaf255`,
+[CI 36804323832](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36804323832)
+attempt 1, all 29 jobs. The separate rich healthy lane also passed; this does not
+establish the cause of its earlier warmup delay.
 
 Master [CI 36793951268](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36793951268)
 attempt 1, source `e1adb7c7ea028124d104f5ccb05eb7a6d2686431`, failed

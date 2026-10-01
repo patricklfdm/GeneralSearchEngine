@@ -225,15 +225,18 @@ final class AutomaticRecoveryFiles {
         var value=new LinkedHashMap<String,Object>();value.put("manifestDigest",manifest.digest());value.put("node",node);value.put("snapshotDigest",snapshot.digest());value.put("prefixIndex",(long)AutomaticRecovery.index(snapshot));value.put("selectedDigest",selected==null?null:selected.digest());value.put("files",files.entrySet().stream().map(e->AutomaticRecovery.file(e.getKey(),e.getValue())).toList());
         return decode(encode("GENERATION",value),"GENERATION");
     }
-    boolean initialCheckpointResumable(Record snapshot,Record localTail) throws IOException {
-        // The root journals remain authority until the first selector is published.
-        // Resume only bytes derived from that exact reconstructed root prefix.
-        if(current()!=null||!Files.isDirectory(root.resolve("generation-a"),LinkOption.NOFOLLOW_LINKS)
+    boolean checkpointResumable(Record snapshot,Record localTail) throws IOException {
+        // Root journals or the selected generation remain authority until publication.
+        // Resume only the inactive slot's exact reconstructed prefix, never retired bytes.
+        Source current=current();
+        String target=current==null||current.selector.value().get("generation").equals("generation-b")?"generation-a":"generation-b";
+        Path dir=root.resolve(target);
+        if(!Files.isDirectory(dir,LinkOption.NOFOLLOW_LINKS)
                 ||Files.exists(root.resolve("transfer/retiring")))return false;
         var files=generationFiles(snapshot,localTail);
         files.put("generation.gsr",generationSeal(snapshot,null,files).bytes());
         for(var e:files.entrySet()) {
-            Path path=root.resolve("generation-a").resolve(e.getKey());
+            Path path=dir.resolve(e.getKey());
             if(Files.exists(path)) {
                 byte[] raw=bytes(path);
                 if(raw.length>e.getValue().length||!Arrays.equals(raw,Arrays.copyOf(e.getValue(),raw.length)))return false;

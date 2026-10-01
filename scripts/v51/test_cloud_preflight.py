@@ -237,6 +237,12 @@ class WorkflowTest(unittest.TestCase):
         self.assertIn('run: scripts/verify-v51-phase6-cloud-preflight.sh',body)
         self.assertIn('name: v51-cloud-preflight-${{ github.sha }}',body)
         self.assertEqual(len(ci.expected_jobs(text)),29)
+    def test_observer_permissions_run_after_auth_and_before_report(self):
+        text=(ci.ROOT/'.github/workflows/v51-replication-evidence.yml').read_text()
+        self.assertLess(text.index('google-github-actions/auth@'),text.index('cloud_permissions --role observer'))
+        self.assertLess(text.index('cloud_permissions --role observer'),text.index('cloud_preflight report'))
+        self.assertIn('PERMISSION_ENVIRONMENT: v51-cloud-benchmark',text)
+        self.assertIn('cat target/v51-preflight/permissions/summary.md',text)
     def test_report_missing_auth_retains_blocked_receipt_and_summary(self):
         with tempfile.TemporaryDirectory() as tmp:
             sha=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ci.ROOT,text=True).strip()

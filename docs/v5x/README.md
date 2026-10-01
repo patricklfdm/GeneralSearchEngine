@@ -162,7 +162,11 @@ and its correction remain recorded. The operator-authorized
 [IAM scope amendment](v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
 makes ancestor-policy reads optional without adding permissions. Actual-identity
 required/forbidden checks, cleanup activation and provider qualification remain
-open; the amendment's protected CI is pending.
+open. The amendment and selection correction are accepted through PR #268/#269,
+master `c209383a510ae785244003b8778e5e193cdaf255`, CI `36804323832` attempt 1
+(29 jobs). The next [6C3C31 permission precheck candidate](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+has four-role offline qualification and observer/proposed-cleanup integration;
+protected CI, actual execution and object/IAP qualification remain pending.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 
