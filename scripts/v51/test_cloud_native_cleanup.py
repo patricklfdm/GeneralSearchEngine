@@ -150,7 +150,8 @@ class NativeCleanupTest(unittest.TestCase):
         store.put(policy.attempt+'completion.json',completion,0)
         gen,ledger=store.get(n.LEDGER);store.put(n.LEDGER,n.finish(ledger,self.req,completion),gen)
         with self.assertRaises(ValueError):store.delete(n.LEASE,policy.lease_generation)
-        for row in self.lease['resources']:
+        # Match real attachment dependencies when establishing every absence.
+        for row in sorted(self.lease['resources'], key=lambda r: {'instance':0,'disk':1,'firewall':2}[r['spec']['kind']]):
             provider.operation(row['spec']);provider.delete(row['spec'],row['id']);provider.describe(row['spec'])
         store.delete(n.LEASE,policy.lease_generation);self.assertIsNone(store.get(n.LEASE))
 

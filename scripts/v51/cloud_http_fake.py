@@ -60,7 +60,14 @@ class Http:
                 request = query['filter'].split('"')[1]
                 items = [v for v in self.operations.values() if v['clientOperationId'] == request and v['targetLink'].startswith('https://compute.googleapis.com'+path.rsplit('/', 1)[0]+'/')]
                 return self.reply(dict(items=items))
-            return self.reply(self.operations[path.rsplit('/', 1)[1]])
+            op = self.operations[path.rsplit('/', 1)[1]]
+            if op['operationType'] == 'delete' and op['status'] == 'RUNNING' and self.fault == 'async-delete':
+                collection = urlsplit(op['targetLink']).path.rsplit('/', 1)[0]
+                for key, value in list(self.resources.items()):
+                    if key.rsplit('/', 1)[0] == collection and value['id'] == op['targetId']:
+                        del self.resources[key]
+                op['status'] = 'DONE'
+            return self.reply(op)
         collection, identity = path.rsplit('/', 1)
         if method == 'POST':
             self.inserts += 1
@@ -92,9 +99,19 @@ class Http:
         if method == 'GET': return self.reply(value)
         m.need(identity.isdecimal(), 'name-based HTTP deletion forbidden')
         if self.fault == 'delete-denied': return 403, b''
-        del self.resources[key]; self.serial += 1
+        if collection.endswith('/disks') and any(
+                urlsplit(d['source']).path == key
+                for vm in self.resources.values() for d in vm.get('disks', [])):
+            return self.reply(dict(error=dict(message='disk still attached')), 400)
+        asynchronous = self.fault == 'async-delete'
+        if not asynchronous: del self.resources[key]
+        self.serial += 1
+        # Real numeric-ID deletes echo the numeric path for VMs/firewalls, but
+        # the name path for disks. Keep the resource until its operation completes.
+        target = key if collection.endswith('/disks') else path
         op = dict(name='operation-'+str(self.serial), operationType='delete', clientOperationId=query['requestId'],
-                  targetLink='https://compute.googleapis.com'+key, targetId=identity, status='DONE')
+                  targetLink='https://compute.googleapis.com'+target, targetId=identity,
+                  status='RUNNING' if asynchronous else 'DONE')
         self.operations[op['name']] = op
         return self.reply(op)
 

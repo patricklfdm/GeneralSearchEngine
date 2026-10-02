@@ -268,10 +268,18 @@ class Compute:
         return first
 
     def decode_operation(self, spec, op, action='insert', identity=None):
+        targets = {self.url(spec)}
+        if action == 'delete':
+            # Compute may echo the numeric DELETE path for VMs/firewalls and
+            # the resource name for disks. Both must bind this exact generation.
+            numeric(identity)
+            targets.add(self.url(spec, identity))
         m.need(op['clientOperationId'] == self.operation_id(spec, action, identity) and op['operationType'] == action and
-               link(op['targetLink']) == self.url(spec), 'operation request/target binding')
+               link(op['targetLink']) in targets, 'operation request/target binding')
         m.need(isinstance(op['name'], str) and re.fullmatch('[a-zA-Z0-9_-]{1,200}', op['name']), 'operation name')
         m.need(op['status'] in ('PENDING', 'RUNNING', 'DONE'), 'operation status')
+        if action == 'delete' and op.get('targetId') is not None:
+            m.need(op['targetId'] == identity, 'delete operation target ID changed')
         if op['status'] != 'DONE': return dict(spec=deepcopy(spec), state='PENDING', id=None)
         target = op.get('targetId')
         if op.get('error'):

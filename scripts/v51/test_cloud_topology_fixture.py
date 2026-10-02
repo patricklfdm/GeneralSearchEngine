@@ -70,6 +70,47 @@ class TopologyFixtureTest(unittest.TestCase):
                 self.assertEqual('PASS', result['status'], result); self.assertFalse(http.resources)
                 self.assertEqual(position, http.inserts)
 
+    def test_async_numeric_deletes_wait_for_vm_completion_before_disks(self):
+        for trigger in ('manual', 'schedule'):
+            with self.subTest(trigger=trigger):
+                value, clock, http, reader, api = q.fixture()
+                prepared = f.execute(value, api, self.root/trigger/'prepare', now=clock.wall(), sleep=clock.sleep)
+                self.assertEqual('PREPARED', prepared['status'])
+                original = deepcopy(http.resources); events = []; send = http.send
+                http.fault = 'async-delete'
+                def observe(method, url, *args):
+                    response = send(method, url, *args)
+                    path = urlsplit(url).path
+                    if method == 'DELETE' and path.startswith('/compute/') or method == 'GET' and '/operations/operation-' in path:
+                        events.append((method, path, m.strict_json(response[1])))
+                    return response
+                http.send = observe; clock.sleep(6480)
+                result = native.reconcile(api.cfg, reader, self.root/trigger/'cleanup', trigger=trigger, now=clock.wall())
+                self.assertEqual('PASS', result['status'], result)
+                self.assertFalse(http.resources); self.assertTrue(result['leaseReleased'])
+                # Every mutation returns RUNNING, followed by a poll of only
+                # that original operation before the next resource is deleted.
+                self.assertEqual(26, len(events))
+                self.assertEqual(['instances']*3+['disks']*6+['firewalls']*4,
+                                 [path.split('/')[-2] for method, path, _ in events if method == 'DELETE'])
+                self.assertEqual({r['id'] for r in original.values()},
+                                 {path.split('/')[-1] for method, path, _ in events if method == 'DELETE'})
+                for start, end in zip(events[::2], events[1::2]):
+                    self.assertEqual(('DELETE', 'RUNNING', 'GET', 'DONE'), (start[0], start[2]['status'], end[0], end[2]['status']))
+                    self.assertEqual(start[2]['name'], end[1].rsplit('/', 1)[1])
+                    self.assertEqual(start[2]['clientOperationId'], end[2]['clientOperationId'])
+                    self.assertEqual(start[2]['targetId'], end[2]['targetId'])
+                store = g.Store(api.cfg, reader, authority=n)
+                total, attempts = n.inspect_ledger(store.get(n.LEDGER)[1])
+                self.assertEqual(q.PRIOR_COST+f.COST, total)
+                self.assertEqual('FAIL', attempts[n.validate_request(value['request'])]['status'])
+
+    def test_http_double_rejects_attached_disk_before_vm_deletion(self):
+        self.assertEqual('PREPARED', self.prepare()['status'])
+        path, disk = next((path, row) for path, row in self.http.resources.items() if path.endswith('-n1-boot'))
+        status, _ = self.http.compute('DELETE', path.rsplit('/', 1)[0]+'/'+disk['id'], {'requestId':'offline-delete'}, None)
+        self.assertEqual(400, status); self.assertIn(path, self.http.resources)
+
     def test_repeated_prepare_cannot_reallocate_or_overwrite(self):
         self.assertEqual('PREPARED', self.prepare()['status']); original = retained.snapshot(self.http)
         api = f.PreparationApi(self.value, self.clock.wall(), transport=self.http, tokens=lambda _: 'offline-token', clock=self.clock.seconds)
