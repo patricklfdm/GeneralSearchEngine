@@ -11,7 +11,7 @@ from . import cloud_cleanup_qualification as q, cloud_cleanup_entry_qualificatio
 from . import cloud_cleanup_observation as observation, cloud_cleanup as cleanup
 from . import performance_model as m, remote_command as c
 
-CASES = ('full-topology', 'lost-firewall', 'lost-boot', 'lost-instance', 'pending-instance',
+CASES = ('full-topology', 'async-delete', 'lost-firewall', 'lost-boot', 'lost-instance', 'pending-instance',
          'reused-instance', 'delete-denied', 'missing-context', 'generation-conflict',
          'retention-failure', 'image-drift')
 PRIOR_COST = 1_000_000
@@ -67,7 +67,7 @@ def qualify(output, source):
                     resource['status'] = 'TERMINATED'  # Model the provider's timed stop, not a cloud observation.
         if name == 'reused-instance':
             next(r for r in http.resources.values() if 'machineType' in r)['id'] = '999999999'
-        if name == 'delete-denied': http.fault = 'delete-denied'
+        if name in ('delete-denied', 'async-delete'): http.fault = name
         if name == 'missing-context': del http.objects[cleanup.context_key(req, authority=n)]
         if name in ('generation-conflict', 'retention-failure'):
             # Hook exercised in-process below; fresh-process reconstruction is used by all other cases.
@@ -76,7 +76,7 @@ def qualify(output, source):
                     else query.get('name', '').endswith('/completion.json')): return 412, b''
             http.hook = block
         saved = q.snapshot(http); c.write_once(out/'input.json', saved)
-        expected = 'PASS' if name in ('full-topology', 'lost-firewall', 'lost-boot', 'lost-instance') else 'FAIL'
+        expected = 'PASS' if name in ('full-topology', 'async-delete', 'lost-firewall', 'lost-boot', 'lost-instance') else 'FAIL'
         # A rejected boot insert never has an original Compute operation, so the
         # retained intent remains unresolved. Do not fabricate absence authority.
         for trigger in ('manual', 'schedule'):

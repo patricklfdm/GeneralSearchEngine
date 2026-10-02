@@ -2,10 +2,11 @@
 
 **Status:** topology implementation accepted through PR #278 at master
 `3e7e564972be01eb5894977cdc3c05e362bda0c0`, exact-master CI `37000588745`
-attempt 1 (29 successful jobs). A separately authorized live preparation on
-2026-10-02 stopped after its first VM because the provider returns an explicit
-zero fractional duration. The readback correction below is a new candidate;
-the partial allocation and its USD 5 charge remain retained for expired cleanup.
+attempt 1 (29 successful jobs). PR #279 accepted the duration-readback correction
+at `9542f4910da439f31356da30b121ee8ced1af6ba`, exact-master CI `37059101337`
+attempt 1 (29 successful jobs). The failed eleven-resource allocation is now fully
+cleaned up; the deletion-operation correction below remains a candidate awaiting
+protected CI. Its cleanup does not qualify a complete thirteen-resource topology.
 
 ## Purpose and inherited state
 
@@ -59,16 +60,14 @@ budget do not change. The offline HTTP double now returns the explicit zero so
 ordinary creation, interrupted-insert recovery and cleanup exercise real response
 shape rather than echoing the request.
 
-The failed attempt must not resume or recreate resources. Ten IDs are durable in
-the lease; the eleventh is recoverable from its original bound insert operation.
+The failed attempt must not resume or recreate resources. Preparation retained
+ten IDs; cleanup subsequently recovered the eleventh from its bound insert operation.
 The last two VMs were never attempted. Lease start is `2026-10-02T13:00:52Z`,
 expiry `14:30:52Z`, cleanup eligibility **`14:48:52Z`** (Beijing **22:48:52**).
-The ledger remains USD **7 / 200**, including the full failed reservation. Merge
-the corrected-source CI result before using the existing manual entry to clean
-this partial inventory after expiry/grace. Capture a fresh before observation
-from the accepted correction and retain the same collector for its follow-ups.
-Verify absence and provider deletion audits; this eleven-resource cleanup cannot
-qualify the complete thirteen-resource topology.
+The ledger remains USD **7 / 200**, including the full failed reservation. After
+PR #279, the manual runs below reconciled this partial inventory, with independent
+observations on that accepted source and provider deletion audits. This
+eleven-resource cleanup cannot qualify the complete thirteen-resource topology.
 
 Original receipts, HTTP call identities, raw provider response and the original
 blocked observation remain at `target/v51-topology-live-review/`. Local response
@@ -84,8 +83,63 @@ The unchanged retained GCP response passes local replay. The complete preflight
 gate passes 153 unit tests, 61 preflight/identity/permission negatives, eight
 single-disk cases, five fixture/probe chains and 22 topology manual/schedule
 outcomes at `target/v51-cloud-preflight/run.kbXOLH/`. The original preparation
-remains FAIL. These local checks do not replace corrected-source protected CI
-or actual expired cleanup.
+remains FAIL. These local checks were subsequently accepted by PR #279 and
+CI `37059101337`; the actual expired cleanup is recorded below.
+
+## Delete operation target compatibility and cleanup closure — 2026-10-02
+
+Manual cleanup [37062489423](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37062489423)
+passed permission prechecks but failed during reconciliation. GCP accepted VM and
+firewall deletes addressed by exact numeric ID, returning that numeric path in
+`targetLink`. Disk delete operations instead returned the resource-name path.
+The decoder required the name path for every resource, so it rejected the accepted
+VM/firewall operations before polling them. The boot disk delete was then refused
+while its VM was still being deleted: VM delete accepted at `20:46:22Z`, boot
+delete refused at `20:46:24Z`, VM deletion completed at `20:46:26Z`.
+
+Independent observation subsequently found ten resources absent and only the
+50 GiB `n1-boot` disk (ID `3724585123737376166`) present, detached and READY.
+The user started a new manual cleanup
+[37063862494](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37063862494),
+which passed. Before/after review returned `STATE_MATCH / EXPIRED_ABSENCE_CONFIRMED`:
+all eleven attempted identities absent by name and numeric ID, lease released,
+unchanged FAIL completion and append-only ledger. Provider audit binds the final
+disk deletion to the manual cleanup service account. All USD 7 reservations remain;
+the original preparation and first cleanup remain failed historical evidence.
+
+The correction accepts a delete operation's exact name URL or its exact expected
+numeric-ID URL. Request ID, action, project, zone, resource collection and final
+numeric target checks remain mandatory. A supplied `targetId` is also checked
+during PENDING/RUNNING; insertion binding remains unchanged. Waiting continues on
+the original operation with the original 30-second deadline and no mutation replay.
+
+The HTTP double now models the observed per-resource URL forms, rejects deletion
+of an attached disk, and supports asynchronous deletion that keeps resources until
+the operation is polled to DONE. Manual and scheduled offline topology cases
+exercise that path. Unit checks prove VM completion precedes disk deletion, reject
+foreign targets and mismatched in-progress IDs, and retain the original timeout
+when a delete never completes. This changes response handling, not cleanup authority,
+allocation profiles, IAM, workflow triggers, timing limits or budgets.
+
+Original and follow-up evidence is retained under
+`target/v51-topology-live-review/cleanup-37062489423/` and
+`target/v51-topology-live-review/cleanup-37063862494/`. New regression logs and
+unchanged-provider-response replay are under `target/v51-delete-operation-target/`.
+Corrected-source protected CI remains required before another separately reviewed
+and approved full-topology allocation. Runner and scheduled identities remain disabled.
+
+Local correction validation: 38 provider/topology tests passed; four regressions
+first failed against the original decoder. All eleven unchanged retained complete
+provider responses now decode successfully; the original decoder rejects five VM/
+firewall responses. The 106-case cleanup/entry/credential/runner regression run
+exposed one old fixture deleting disks before VMs. That fixture now follows the
+production dependency order; all nineteen native-cleanup tests passed on recheck,
+and the other 87 cases, including loopback TLS, passed the initial run.
+The complete preflight gate passed 155 unit tests, the existing 61 preflight/
+identity/permission negatives, eight single-disk cases, five fixture/probe chains
+and all 24 topology/manual/schedule outcomes at
+`target/v51-cloud-preflight/run.we1sv3/`. No live allocation or cleanup was run
+during this correction.
 
 ## Closed fixture profile
 
@@ -212,10 +266,10 @@ because no engine workload ran; cleanup itself may PASS.
 
 The existing cloud-preflight gate runs the added unit suite and
 [retained qualification](../../../scripts/v51/cloud_topology_qualification.py).
-Eleven cases each cover manual and schedule: complete topology, lost firewall/
+Twelve cases each cover manual and schedule: complete topology, asynchronous deletion, lost firewall/
 boot/instance insert responses, pending instance operation, reused instance name,
 delete denial, missing context, generation conflict, completion-retention failure
-and image drift. The credential-bound fresh-process entries replay nine cases;
+and image drift. The credential-bound fresh-process entries replay ten cases;
 two injected storage-conflict cases use the same native policy in process.
 All outcomes retain previous charges. Correctly blocked cleanup is qualification
 PASS with an underlying FAIL and retained lease, not successful resource cleanup.
@@ -233,7 +287,7 @@ remain open. This batch adds no CI job or Maven build and makes no claim of paid
 workload readiness. User-owned commit/push/PR can proceed on the branch; merge and
 any new cloud allocation are separate steps after the pending reviews.
 
-### Local validation of this candidate
+### Original topology implementation validation (PR #278)
 
 - Complete cloud-preflight gate: 153 unit tests; 61 preflight/identity/permission
   negative cases, eight single-disk cases, five original driver/probe chains and
@@ -254,4 +308,5 @@ Logs and final candidate file hashes are retained under
 `target/v51-topology-dev/`; these include a tuple/list serialization mismatch in
 the new manifest and test-fixture setup errors, corrected before the final gate.
 Those original candidate checks were subsequently accepted by PR #278 and
-CI `37000588745`. Protected CI for the new duration-readback correction remains pending.
+CI `37000588745`. The duration-readback correction passed CI `37059101337`;
+protected CI for the deletion-operation correction remains pending.

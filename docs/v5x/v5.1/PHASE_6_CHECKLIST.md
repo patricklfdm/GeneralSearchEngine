@@ -152,9 +152,13 @@ expired absence and deletion audits; the v2 probes passed after PR #277.
 Neither grace run has a separate post-grace snapshot. PR #278 accepted the
 [complete-topology driver](PHASE_6_CLEANUP_TOPOLOGY.md), CI `37000588745` (29 jobs).
 Its first approved live preparation stopped on GCP's explicit `nanos: 0` duration
-readback after eleven resources. The narrow compatibility correction is pending
-protected CI; first reconcile this partial inventory after the unchanged grace.
-The native ledger retains USD 7 cumulatively. Do not resume that preparation or
+readback after eleven resources. PR #279 accepted the duration correction at
+`9542f4910da439f31356da30b121ee8ced1af6ba`, CI `37059101337` (29 jobs). Cleanup
+`37062489423` then exposed numeric-ID delete-operation URLs; follow-up `37063862494`
+removed the final detached boot disk and passed independent absence, lease-release
+and deletion-audit review. All eleven resources are gone; the deletion-operation
+correction and asynchronous dependency tests await protected CI.
+The native ledger retains USD 7 cumulatively and the FAIL completion. Do not resume that preparation or
 reuse an old probe approval or remove a failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
@@ -272,7 +276,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [ ] Actual manual object permissions, active/grace and expired-resource qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
 - [x] [Complete-topology cleanup candidate](PHASE_6_CLEANUP_TOPOLOGY.md): exact-request preparation, request-bound timed-stop fixture profile, independent preparation review and offline manual/schedule reconstruction; no new cloud allocation.
 - [x] Complete-topology implementation protected acceptance: PR #278, master `3e7e564972be01eb5894977cdc3c05e362bda0c0`, CI `37000588745` attempt 1 (29 jobs).
-- [ ] Duration-readback correction protected acceptance and cleanup of the failed eleven-resource preparation; eligibility `2026-10-02T14:48:52Z`, USD 7 cumulative retained.
+- [x] Duration-readback correction protected acceptance: PR #279, master `9542f4910da439f31356da30b121ee8ced1af6ba`, CI `37059101337` attempt 1 (29 jobs).
+- [x] Failed eleven-resource preparation cleaned up: manual `37063862494`, independent `EXPIRED_ABSENCE_CONFIRMED`, lease released, deletion audit checked and USD 7 retained. Original preparation/first cleanup remain FAIL.
+- [ ] Delete-operation numeric-ID target compatibility and asynchronous dependency correction protected acceptance; complete thirteen-resource qualification still open.
 - [ ] Separately priced/approved actual topology cleanup: all thirteen exact identities, VM/disk/firewall deletion audits and retained charges.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

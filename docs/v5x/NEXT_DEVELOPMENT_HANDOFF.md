@@ -251,12 +251,16 @@ through PR #278, master `3e7e564972be01eb5894977cdc3c05e362bda0c0`, exact-master
 CI `37000588745` attempt 1 (29 jobs). The user subsequently approved its first
 USD 5 allocation. Preparation stopped after four firewalls, six disks and one VM:
 GCP returned `maxRunDuration` with explicit `nanos: 0`, rejected by exact dictionary
-comparison. The narrow response-compatibility correction is pending protected CI.
-The original operation resolves the VM ID; do not resume preparation. Reconcile
-this partial inventory after `2026-10-02T14:48:52Z` using the accepted correction,
-empty manual probe input, fresh independent observations and deletion audits.
-The ledger retains USD 7 cumulatively. Full thirteen-resource qualification still
-needs a fresh reviewed allocation after this attempt is settled.
+comparison. PR #279 accepted the duration correction at
+`9542f4910da439f31356da30b121ee8ced1af6ba`, exact-master CI `37059101337` (29 jobs).
+Manual cleanup `37062489423` exposed a separate numeric-ID `targetLink` decoder
+failure: VM deletion was accepted but not awaited, and boot disk deletion was
+refused while attached. Follow-up `37063862494` passed independent absence,
+lease-release and deletion-audit review; all eleven resources are gone. The ledger
+retains USD 7 and the original FAIL completion. The deletion-operation correction
+and asynchronous dependency regressions are now pending protected CI. Full
+thirteen-resource qualification still needs a fresh reviewed/approved allocation
+after that correction is accepted. Do not resume the failed preparation.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no

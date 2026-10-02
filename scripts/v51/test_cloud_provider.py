@@ -90,6 +90,69 @@ class ProviderTest(unittest.TestCase):
             with self.subTest(key=key), self.assertRaises(ValueError): self.provider.decode_operation(spec, changed)
         self.http.hook = lambda method, path, query, body: self.http.reply(dict(items=[op], nextPageToken='more')) if path.path.endswith('/operations') else None
         with self.assertRaisesRegex(ValueError, 'ambiguous'): self.provider.operation(spec)
+    def delete_operation(self, spec, identity='123456', **changes):
+        return dict(dict(name='operation-delete', operationType='delete',
+                         clientOperationId=self.provider.operation_id(spec, 'delete', identity),
+                         targetLink=self.provider.url(spec, identity), targetId=identity, status='DONE'), **changes)
+
+    def test_delete_operation_accepts_only_bound_name_or_numeric_target(self):
+        for kind in ('instance', 'disk', 'firewall'):
+            spec = next(s for s in a.resources(self.req) if s['kind'] == kind)
+            for target in (self.provider.url(spec), self.provider.url(spec, '123456')):
+                for host in ('https://compute.googleapis.com/compute/v1/', 'https://www.googleapis.com/compute/v1/'):
+                    for status in ('PENDING', 'RUNNING', 'DONE'):
+                        op = self.delete_operation(spec, targetLink=target.replace('https://compute.googleapis.com/compute/v1/', host), status=status)
+                        with self.subTest(kind=kind, target=target, host=host, status=status):
+                            result = self.provider.decode_operation(spec, op, 'delete', '123456')
+                            self.assertEqual('DONE' if status == 'DONE' else 'PENDING', result['state'])
+                            self.assertEqual('123456' if status == 'DONE' else None, result['id'])
+
+    def test_delete_operation_rejects_foreign_scope_identity_and_request_even_when_pending(self):
+        for kind in ('instance', 'disk', 'firewall'):
+            spec = next(s for s in a.resources(self.req) if s['kind'] == kind)
+            target = self.provider.url(spec, '123456')
+            mutations = [('clientOperationId', 'foreign'), ('operationType', 'insert'), ('targetId', '654321'),
+                         ('targetId', 123456), ('targetId', ''), ('targetLink', self.provider.url(spec, '654321')),
+                         ('targetLink', self.provider.url(spec)+'-other'),
+                         ('targetLink', target.replace('/projects/offline-project/', '/projects/other/')),
+                         ('targetLink', target.replace('/'+{'instance':'instances','disk':'disks','firewall':'firewalls'}[kind]+'/', '/images/')),
+                         ('targetLink', target.replace('googleapis.com', 'googleapis.com.evil')),
+                         ('targetLink', target+'?x=1'), ('targetLink', target+'#x'), ('targetLink', target+'/')]
+            if kind != 'firewall': mutations.append(('targetLink', target.replace('/us-west4-a/', '/us-west4-b/')))
+            for status in ('RUNNING', 'DONE'):
+                for key, value in mutations:
+                    op = self.delete_operation(spec, status=status, targetLink=self.provider.url(spec))
+                    op[key] = value
+                    with self.subTest(kind=kind, status=status, key=key, value=value), self.assertRaises(ValueError):
+                        self.provider.decode_operation(spec, op, 'delete', '123456')
+            with self.assertRaises(ValueError): self.provider.decode_operation(spec, self.delete_operation(spec), 'delete')
+
+    def test_numeric_delete_target_does_not_relax_insert_binding_or_final_identity(self):
+        spec = a.resources(self.req)[0]
+        op = self.delete_operation(spec, operationType='insert', clientOperationId=self.provider.operation_id(spec))
+        with self.assertRaises(ValueError): self.provider.decode_operation(spec, op)
+        for status in ('RUNNING', 'DONE'):
+            op = self.delete_operation(spec, status=status); del op['targetId']
+            if status == 'DONE':
+                with self.assertRaises(ValueError): self.provider.decode_operation(spec, op, 'delete', '123456')
+            else: self.assertEqual('PENDING', self.provider.decode_operation(spec, op, 'delete', '123456')['state'])
+        with self.assertRaises(ValueError):
+            self.provider.decode_operation(spec, self.delete_operation(spec, error={'errors': [{'code': 'FAILED'}]}), 'delete', '123456')
+
+    def test_pending_numeric_delete_polls_original_operation_with_same_deadline_without_replay(self):
+        spec, made = self.create(); original = self.http.send; replies = []
+        def send(method, url, *args):
+            if method == 'GET' and url.endswith('/operations/operation-delete'):
+                return self.http.reply(self.delete_operation(spec, made['id'], status='RUNNING'))
+            response = original(method, url, *args)
+            if method == 'DELETE':
+                replies.append(url)
+                return self.http.reply(self.delete_operation(spec, made['id'], status='RUNNING'))
+            return response
+        self.http.send = send; started = self.clock.seconds()
+        with self.assertRaisesRegex(ValueError, 'deadline'):
+            self.provider.delete(spec, made['id'])
+        self.assertEqual(1, len(replies)); self.assertEqual(30, self.clock.seconds()-started)
     def test_private_fixed_topology_and_image_identity(self):
         specs = a.resources(self.req)
         for spec in specs:
