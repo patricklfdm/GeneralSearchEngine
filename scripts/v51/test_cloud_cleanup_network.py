@@ -116,6 +116,28 @@ class CleanupNetworkTest(unittest.TestCase):
             self.assertEqual('entry',read(root/'receipt.json')['failure']['phase'])
             self.assertFalse(fixture.requests)
 
+    def test_topology_profile_reconstructs_over_tls_without_opening_the_runner(self):
+        from . import cloud_topology_qualification as topology, cloud_topology_fixture as driver
+        value,clock,provider,reader,api=topology.fixture()
+        prepared=driver.execute(value,api,self.root/'prepare-topology',now=clock.wall(),sleep=clock.sleep)
+        self.assertEqual('PREPARED',prepared['status'])
+        for resource in provider.resources.values():
+            if 'machineType' in resource:
+                self.assertEqual('STOP',resource['scheduling']['instanceTerminationAction'])
+                resource['status']='TERMINATED'
+        original_ids={resource['id'] for resource in provider.resources.values()}
+        with tls.Fixture(q.snapshot(provider)) as fixture:
+            root=self.root/'topology-cleanup';self.assertEqual(0,fixture.run_cli(root))
+            result=read(root/'receipt.json');self.assertEqual('PASS',result['status'])
+            self.assertFalse(result['cleanupReady']);self.assertFalse(fixture.http.resources)
+            self.assertNotIn(n.LEASE,fixture.http.objects)
+            calls=[r for r in fixture.http.requests if r['method']=='DELETE' and r['path'].startswith('/compute/')]
+            self.assertEqual(original_ids,{r['path'].rsplit('/',1)[1] for r in calls})
+            self.assertEqual(['instances']*3+['disks']*6+['firewalls']*4,[r['path'].split('/')[-2] for r in calls])
+            ledger=e.m.strict_json(fixture.http.objects[n.LEDGER][1])
+            self.assertEqual(topology.PRIOR_COST+driver.COST,n.inspect_ledger(ledger)[0])
+            self.assertFalse(fixture.errors)
+
     def test_credential_expiry_and_original_deadline_remain_enforced_on_network_api(self):
         api=self.network();now=api.clock();api.tokens=Mock(return_value=http.AccessToken('private',now-1))
         api.transport=Mock(offline=False)

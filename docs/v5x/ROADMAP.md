@@ -222,9 +222,14 @@ CI `36951936364` attempt 2 (29 jobs). Manual identity enablement and complete
 readback passed; actual run `36957603644` attempt 1 passed permission and independent
 `NO_LEASE` review. PR #275 accepted the [single-disk preparation and USD 200 ceiling](v5.1/PHASE_6_CLEANUP_FIXTURE.md)
 at master `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2.
-The [fixture/probe driver](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the new candidate;
-protected acceptance, current prices, exact fixture approval and real qualification
-remain pending. Scheduled cleanup and runner activation remain
+The [fixture/probe driver](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md) and generation
+correction are accepted through PR #277 / CI `36986377529` attempt 1. The original
+disk's expired cleanup was independently verified; the newly approved v2 fixture
+passed object and active-state review in run `36989911551`, with grace/expired
+reviews still pending. The [complete-topology cleanup candidate](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)
+adds branch-only preparation/reconstruction qualification before actual VM/disk/
+firewall testing; protected acceptance and exact allocation approval remain open.
+Scheduled cleanup and runner activation remain
 excluded. Required real-path qualification stays open without organization privileges.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.

@@ -231,16 +231,27 @@ active-state `STATE_MATCH / ACTIVE_OR_GRACE`. Neither qualifies object denials o
 actual deletion. Original failed evidence remains retained.
 
 The [generation-bound probe correction](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02)
-is a new candidate: positive retained generations for existing expendable
+was accepted through PR #277 at master `f299b61a2e724ffb45c27a2c9150965d09626655`,
+CI `36986377529` attempt 1 (29 jobs): positive retained generations for existing expendable
 canaries, still only 403 qualifies denial, and v2 request approval prevents
 reinterpreting the original zero-generation scope. The user requested preparing
-the branch/PR while keeping master unchanged through this disk's cleanup.
-Run grace/expired checks with empty `object_probe_request`; grace starts
-`2026-10-02T08:27:28Z`, deletion eligibility starts `2026-10-02T08:45:28Z`.
-Finish independent expired-resource verification before merge. Do not rerun the
-consumed v1 probe, recreate its canary, allocate another disk or reset its ledger.
-After merge, any v2 probe needs fresh exact-request approval; this code task grants
-no additional cloud mutation. Protected CI and live v2 object qualification remain open.
+the branch/PR while keeping master unchanged through the first disk's cleanup.
+That hold was satisfied: expired run `36985944368` passed independent absence,
+terminal ledger and provider deletion-audit review. Grace run `36984397533` was
+WAITING, but a separate post-grace snapshot was not retained before deletion.
+The separately approved v2 request `f1a49e0c223c4a0d99621cb1f861899a9af809100b6796049c022b5713ba3d81`
+then passed all eight object probes and independent `OBJECT_SCOPE_MATCH` / active
+`STATE_MATCH` in run `36989911551`. Its grace starts `2026-10-02T10:52:57Z`,
+deletion eligibility starts `2026-10-02T11:10:57Z`; both later reviews remain open.
+Use empty probe input and the original source/collector for those observations.
+Never repeat a consumed probe, recreate canaries or reset failed charges.
+
+The user authorized the next [complete-topology cleanup batch](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)
+on a development branch, without merging master. It adds a USD 5 proposed request
+for thirteen resources, a separately bound timed-STOP fixture profile and shared
+expired cleanup qualification. No topology or identity change is authorized or
+executed by development. Complete the current v2 evidence and corrected-source CI
+before merge; a later topology needs fresh prices and exact-request approval.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no

@@ -1,12 +1,12 @@
 # V5.1 Phase 6 — single-disk preparation and object probes
 
-**Status:** original driver accepted through PR #276; generation-bound object
-probe correction is a new implementation candidate. The first approved live disk
-is prepared and active-state WAITING is independently verified. Original object
-probes failed on HTTP 412; object permission qualification remains open. This
-correction makes no cloud mutation. Grace/expired cleanup and corrected-source
-protected CI remain pending; keep this PR unmerged until the original disk cleanup
-and independent review complete.
+**Status:** original driver accepted through PR #276; generation-bound correction
+accepted through PR #277 at `f299b61a2e724ffb45c27a2c9150965d09626655`, exact-master
+CI `36986377529` attempt 1 (29 jobs). The first disk was deleted and independently
+reviewed before merge; its original 412 failure remains retained. The separately
+approved v2 fixture passed eight object probes and independent active-state review
+in run `36989911551`; its grace/expired reviews remain pending. The next
+[complete-topology candidate](PHASE_6_CLEANUP_TOPOLOGY.md) is branch-only development.
 
 ## Accepted basis
 
@@ -223,7 +223,7 @@ IAM before generations and missed that ordering. See
 and the [delete API](https://docs.cloud.google.com/storage/docs/json_api/v1/objects/delete).
 This correction uses the retained generation; 412 still cannot qualify denial.
 
-The user requested branch development and PR CI while the original master stays
+At the time of that correction, the user requested branch development and PR CI while the original master stayed
 unchanged. Complete its separate empty-input grace/expired runs and independent
 cleanup review before merging the correction. Do not rerun the consumed v1 probe,
 reset its ledger, replace its objects or use this patch to mutate the active fixture.
@@ -261,10 +261,14 @@ first reproduced the live overwrite 412 on the original probe implementation;
 the same positive-path test passes with the generation correction. Documentation
 contract/local links and whitespace checks pass. Evidence and changed-file hashes
 are indexed at `target/v51-object-probe-generations/validation-summary.json`.
-Corrected-source protected CI and actual v2 object qualification remain required.
+Corrected-source protected CI subsequently passed as recorded above. The live
+v2 object byte/generation comparison passed; full actual cleanup and provider
+provenance qualification remain distinct requirements.
 
-The first approved allocation and active-state observation do not qualify corrected
-v2 object probes, grace/expired resource deletion, retained failure recovery or
-provider audit evidence. A future fixture requires fresh pricing and approval.
+The earlier allocation/active observation alone did not qualify v2 probes or
+grace/expired deletion. The [current follow-up record](PHASE_6_CLEANUP_TOPOLOGY.md#purpose-and-inherited-state)
+separately records the first disk's verified deletion and the second disk's
+active/object results without filling its pending grace/expired boxes.
+A future fixture requires fresh pricing and approval.
 Instance/firewall and scheduled-identity qualification are separate remaining
 work. A successful local receipt cannot authorize cloud execution or close Phase 6.

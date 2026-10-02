@@ -96,9 +96,14 @@ class Store:
 
 
 class Compute:
-    def __init__(self, configuration, req, api, *, guest_access=None, sleep=time.sleep, authority=a):
+    def __init__(self, configuration, req, api, *, guest_access=None, sleep=time.sleep, authority=a, qualification_manifest=None):
         m.need(config(configuration) == req['configurationSha256'], 'provider request configuration digest')
         authority.validate_request(req)
+        self.qualification_manifest = deepcopy(qualification_manifest)
+        if qualification_manifest is not None:
+            from . import cloud_native_authority as native, cloud_topology_contract as topology
+            m.need(authority is native, 'topology fixture requires native authority')
+            topology.validate(qualification_manifest, req, configuration)
         self.guest_access = deepcopy(guest_access)
         if 'guestAccessSha256' in req:
             from .guest_setup import access
@@ -114,7 +119,8 @@ class Compute:
 
     def cleanup_context(self):
         from .cloud_cleanup import context
-        return context(self.config, self.req, self.guest_access, authority=self.authority)
+        return context(self.config, self.req, self.guest_access, authority=self.authority,
+                       qualification_manifest=self.qualification_manifest)
 
     def scope(self, spec):
         m.need(spec in self.inventory, 'provider closed resource inventory')
@@ -160,6 +166,8 @@ class Compute:
         if spec['kind'] == 'instance' and self.guest_access is not None:
             from .guest_setup import metadata
             value['metadata']['items'] = metadata(self.guest_access)
+        if spec['kind'] == 'instance' and self.qualification_manifest is not None:
+            value['scheduling']['instanceTerminationAction'] = 'STOP'
         return value
 
     def inspect(self, spec, value):

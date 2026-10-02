@@ -12,18 +12,28 @@ def context_key(req, *, authority=a):
     return authority.PREFIX+'attempts/'+authority.validate_request(req)+'/cleanup-context.json'
 
 
-def context(configuration, req, guest_access, *, authority=a):
+def context(configuration, req, guest_access, *, authority=a, qualification_manifest=None):
     value = dict(schema=authority.CONTEXT_SCHEMA, execution=authority.EXECUTION, paidCloud=authority.PAID_CLOUD,
                  requestSha256=authority.validate_request(req), configuration=deepcopy(configuration),
                  guestAccess=deepcopy(guest_access))
+    if qualification_manifest is not None:
+        value['schema'] = 'gse-v51-topology-cleanup-context-v1'
+        value['qualificationManifest'] = deepcopy(qualification_manifest)
     validate_context(value, req, authority=authority)
     return value
 
 
 def validate_context(value, req, *, authority=a):
     sha = authority.validate_request(req)
-    m.need(type(value) is dict and set(value) == {'schema', 'execution', 'paidCloud', 'requestSha256',
-           'configuration', 'guestAccess'} and value['schema'] == authority.CONTEXT_SCHEMA and
+    fields = {'schema', 'execution', 'paidCloud', 'requestSha256', 'configuration', 'guestAccess'}
+    schema = authority.CONTEXT_SCHEMA
+    if type(value) is dict and 'qualificationManifest' in value:
+        from . import cloud_native_authority as native, cloud_topology_contract as topology
+        m.need(authority is native, 'topology context native authority')
+        topology.validate(value['qualificationManifest'], req, value['configuration'])
+        fields.add('qualificationManifest')
+        schema = 'gse-v51-topology-cleanup-context-v1'
+    m.need(type(value) is dict and set(value) == fields and value['schema'] == schema and
            value['execution'] == authority.EXECUTION and value['paidCloud'] is authority.PAID_CLOUD and
            value['requestSha256'] == sha, 'cleanup context identity')
     m.need(g.config(value['configuration']) == req['configurationSha256'], 'cleanup context configuration')
@@ -35,6 +45,12 @@ def validate_context(value, req, *, authority=a):
     else:
         m.need(guest is None, 'cleanup context unbound SSH access')
     return value
+
+
+def provider_from_context(value, req, api, *, authority=a):
+    validate_context(value, req, authority=authority)
+    return g.Compute(value['configuration'], req, api, guest_access=value['guestAccess'], authority=authority,
+                     qualification_manifest=value.get('qualificationManifest'))
 
 
 def retain_context(store, req, value, *, authority=a):
@@ -68,6 +84,6 @@ def reconcile(configuration, api, output, *, trigger, now, authority=a, on_expir
         m.need(retained is not None, 'cleanup context missing')
         value = validate_context(retained[1], req, authority=authority)
         m.need(value['configuration'] == configuration, 'cleanup retained configuration')
-        return g.Compute(configuration, req, api, guest_access=value['guestAccess'], authority=authority)
+        return provider_from_context(value, req, api, authority=authority)
 
     return r.reconcile(store, None, output, trigger=trigger, now=now, provider_factory=reconstruct, authority=authority, on_expired=on_expired)
