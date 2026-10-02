@@ -71,10 +71,30 @@ and terminal events. Before any create, the controller verifies the ledger and
 reserves the attempt against its observed generation while owning the lease.
 A raced write or lost acknowledgement cannot authorize any Compute call.
 
-The budget is USD 100 in integer microunits across all attempts, sources and
+The budget is USD 200 in integer microunits across all attempts, sources and
 sequences in this suite. Failed attempts remain fully charged; changing sequence
 cannot reset the ledger. The fixture's USD 1 reservation is an arbitrary test input.
 No pricing, refund or financial estimate is claimed.
+
+### Approved cumulative ceiling amendment — 2026-10-01
+
+The user approved increasing the V5.1 cumulative ceiling from USD 100 to USD 200.
+`MAXIMUM_BUDGET_MICROUSD` in [cloud_plan.py](../../../scripts/v51/cloud_plan.py)
+is the shared operational limit for the planner, admission, fake/native ledger
+validation, preflight and cleanup fixture review. A reservation may bring the
+total to exactly 200,000,000 microunits; one more microunit is rejected. Preflight
+blocks a fully exhausted ledger because no positive new reservation can fit.
+
+The frozen [workload plan](phase6-cloud-workload-plan.json) retains its original
+USD 100 proposal at `sequence.maximumBudgetMicrousd` as historical evidence. That
+field is superseded for operational admission by this amendment. Preserve its
+hash, workload parameters, request identities, calibration and append-only ledger
+records. No ledger migration, refund, deletion or reset is needed. Earlier failed
+charges still count in full, and the single-disk proposal remains USD 1.
+
+This authorization changes the cumulative limit only. Each allocation still uses
+the current balance, reviewed prices, exact-request confirmation and manual
+trigger. The limit is not a provider-enforced spending cap. V5.0 is unchanged.
 
 Both accepted member orders are implemented. Every attempt within a sequence keeps
 source/bundle/configuration/workload/order identities. Only the next unfinished

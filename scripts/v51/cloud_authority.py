@@ -6,7 +6,7 @@ adapter exists. These receipts deliberately cannot authorize a paid execution.
 from copy import deepcopy
 import re
 from . import cloud_workload_contract as workload, performance_model as m
-from .cloud_plan import SUITE
+from .cloud_plan import SUITE, MAXIMUM_BUDGET_MICROUSD
 
 EXECUTION = 'fake-v51-cloud-control'
 ADAPTER_EXECUTION = EXECUTION
@@ -114,9 +114,9 @@ def admit(req, preflight, approval, now):
     m.need(approval['schema'] == 'gse-v51-control-approval-v1' and approval['execution'] == EXECUTION and
            approval['requestSha256'] == sha and approval['preflightSha256'] == m.sha(m.canonical(preflight)) and
            approval['confirmed'] is True, 'exact control approval')
-    cost = integer(approval['maximumCostMicrousd'], 1, 100_000_000)
-    previous = integer(approval['previousCostMicrousd'], 0, 100_000_000)
-    m.need(previous+cost <= 100_000_000, 'aggregate budget ceiling')
+    cost = integer(approval['maximumCostMicrousd'], 1, MAXIMUM_BUDGET_MICROUSD)
+    previous = integer(approval['previousCostMicrousd'], 0, MAXIMUM_BUDGET_MICROUSD)
+    m.need(previous+cost <= MAXIMUM_BUDGET_MICROUSD, 'aggregate budget ceiling')
     return sha
 
 
@@ -146,8 +146,8 @@ def inspect_ledger(value, *, domain='fake'):
             m.need(seq['identity'] == identity(req) and not seq['blocked'], 'sequence changed/failed canonical set')
             order = ORDERS[req['order']]
             m.need(len(seq['passed']) < len(order) and req['member'] == order[len(seq['passed'])], 'sequence order')
-            total += integer(row['maximumCostMicrousd'], 1, 100_000_000)
-            m.need(total <= 100_000_000, 'ledger budget ceiling')
+            total += integer(row['maximumCostMicrousd'], 1, MAXIMUM_BUDGET_MICROUSD)
+            m.need(total <= MAXIMUM_BUDGET_MICROUSD, 'ledger budget ceiling')
             attempts[sha] = dict(request=req, status='PENDING')
             ids.add(req['attempt'])
         else:

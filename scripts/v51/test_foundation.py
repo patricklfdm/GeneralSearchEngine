@@ -10,6 +10,13 @@ class FoundationTest(unittest.TestCase):
         r=cloud_plan.qualify('a'*40);self.assertEqual(3,len(r['plan']['voters']))
         self.assertFalse(r['plan']['paidAdmission']);self.assertEqual([],r['cleanup']['leftovers'])
 
+    def test_default_budget_accepts_remaining_100_dollars_without_resetting_previous_cost(self):
+        plan=cloud_plan.plan('a'*40,now=100,previous_cost_microusd=100_000_000,maximum_cost_microusd=100_000_000)
+        self.assertEqual(200_000_000,plan['budgetMicrousd'])
+        self.assertEqual(100_000_000,plan['previousCostMicrousd'])
+        with self.assertRaisesRegex(ValueError,'cost envelope'):
+            cloud_plan.plan('a'*40,now=100,previous_cost_microusd=100_000_000,maximum_cost_microusd=100_000_001)
+
     def test_budget_and_expiry_are_not_bypassed_by_manual_cleanup(self):
         for kwargs in (dict(maximum_cost_microusd=0),dict(budget_microusd=1),dict(lease_seconds=5401),dict(grace_seconds=1081),dict(previous_cost_microusd=True)):
             with self.assertRaises(ValueError):cloud_plan.plan('a'*40,now=100,**kwargs)

@@ -127,9 +127,18 @@ class PreflightTest(unittest.TestCase):
         self.provider['observations']['ledger']={'error':'denied'};self.blocked('controlState')
     def test_foreign_ledger_and_exhausted_budget(self):
         self.provider['observations']['ledger']=[1,{'schema':'gse-v50-budget-v1','reservations':[]}];self.blocked('controlState')
-        req,_,approval=cloud_fake.fixture(cost=100_000_000)
+        req,_,approval=cloud_fake.fixture(cost=200_000_000)
         ledger=a.finish(a.reserve(a.empty_ledger(),req,approval),req,dict(requestSha256=a.validate_request(req),status='FAIL'))
         self.provider['observations']['ledger']=[1,ledger];self.blocked('controlState')
+    def test_preflight_retains_charges_and_reports_200_dollar_ceiling(self):
+        for cost in (100_000_000,199_999_999):
+            with self.subTest(cost=cost):
+                req,_,approval=cloud_fake.fixture(cost=cost)
+                ledger=a.finish(a.reserve(a.empty_ledger(),req,approval),req,dict(requestSha256=a.validate_request(req),status='FAIL'))
+                self.provider['observations']['ledger']=[1,ledger]
+                result=self.evaluate()['checks']['controlState']
+                self.assertEqual('PASS',result['status'])
+                self.assertEqual(dict(previousCostMicrousd=cost,budgetMicrousd=200_000_000,leaseAbsent=True),result['detail'])
     def test_storage_hold_lock_and_early_deletion_block(self):
         for change in ({'defaultEventBasedHold':True},{'retentionPolicy':{'retentionPeriod':'2592000'}},
                        {'lifecycle':{'rule':[{'action':{'type':'Delete'},'condition':{'age':29}}]}},

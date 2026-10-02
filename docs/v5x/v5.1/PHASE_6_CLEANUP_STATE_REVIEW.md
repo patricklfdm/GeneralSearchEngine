@@ -219,9 +219,15 @@ all nine account/pool/provider disable states remain true, and the explicit
 trust, grants and environments match. No identity or workflow was changed by
 this acceptance review.
 
-Next: refresh explicit configuration review, then separately authorize the
-prepared workflow/identity deployment and bounded real-provider qualification.
-Verify actual-identity required and forbidden permissions before readiness. Capture
-both successful and rejected cases, verify artifact/audit provenance, and establish
-fresh manual or scheduled cleanup readiness before paid admission. The fixture's
-allocation, pricing and exact-request approval remain separate from these reads.
+After PR #274, approved manual-only enablement completed. Actual manual run
+`36957603644` attempt 1 passed credential and project/bucket prechecks on master
+`b0a0173584d499a06abce870f8f0f2e46202c7b9`. Independently collected observations
+bracketed the exact GitHub job and returned `STATE_MATCH / NO_LEASE`, unchanged
+ledger and zero retained cost. Evidence is at `target/v51-manual-cleanup-36957603644/`.
+This supersedes the disabled-manual state above; schedule and runner stay disabled.
+
+Next: [single-disk qualification preparation](PHASE_6_CLEANUP_FIXTURE.md), with
+separately reviewed fixture writes, actual-identity object probes, prices and
+exact request approval. Empty-state validation does not qualify real deletion or
+failure paths. Preserve audit/artifact evidence and original costs; establish
+fresh manual or scheduled readiness before paid admission.

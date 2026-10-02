@@ -55,7 +55,7 @@ class CloudAuthorityTest(unittest.TestCase):
     def test_approval_binds_original_request_and_preflight_no_automatic_price(self):
         for key, value in (('requestSha256', 'f'*64), ('preflightSha256', 'f'*64), ('confirmed', False),
                            ('confirmed', 1), ('maximumCostMicrousd', True), ('previousCostMicrousd', -1),
-                           ('previousCostMicrousd', 100_000_000)):
+                           ('previousCostMicrousd', 200_000_000)):
             app = dict(self.approval, **{key: value})
             with self.subTest(key=key), self.assertRaises(ValueError): a.admit(self.req, self.preflight, app, 10001)
 
@@ -107,10 +107,34 @@ class CloudAuthorityTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'sequence order'): a.reserve(done, req, app)
 
     def test_suite_wide_budget_cannot_reset_with_new_sequence(self):
-        ledger = self.complete(a.reserve(a.empty_ledger(), self.req, dict(self.approval, maximumCostMicrousd=100_000_000)), self.req)
-        req, _, app = fake.fixture(sequence='1'*32, attempt='2'*32, previous=100_000_000)
+        ledger = self.complete(a.reserve(a.empty_ledger(), self.req, dict(self.approval, maximumCostMicrousd=200_000_000)), self.req)
+        req, _, app = fake.fixture(sequence='1'*32, attempt='2'*32, previous=200_000_000)
         with self.assertRaisesRegex(ValueError, 'budget ceiling'): a.reserve(ledger, req, app)
         with self.assertRaises(ValueError): a.inspect_ledger(dict(ledger, suite='v5.0'))
+
+    def test_admission_accepts_200_dollars_but_not_one_microusd_more(self):
+        for previous, cost in ((0,200_000_000),(100_000_000,100_000_000),(199_999_999,1)):
+            req, pre, app = fake.fixture(previous=previous,cost=cost)
+            with self.subTest(previous=previous):
+                self.assertEqual(a.validate_request(req),a.admit(req,pre,app,10001))
+                with self.assertRaises(ValueError):a.admit(req,pre,dict(app,maximumCostMicrousd=cost+1),10001)
+
+    def test_existing_fake_and_native_failed_charges_survive_budget_increase(self):
+        for domain in ('fake','native'):
+            with self.subTest(domain=domain):
+                fmt=a.formats(domain)
+                req=dict(self.req,workloadSha256='f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7')
+                if domain=='native':req.update(schema=fmt['access'],execution=fmt['execution'],paidCloud=True,guestAccessSha256='9'*64)
+                def finish(ledger, request):
+                    return a.finish(ledger,request,dict(requestSha256=a.validate_request(request,domain=domain),status='FAIL'),domain=domain)
+                old=finish(a.reserve(a.empty_ledger(domain=domain),req,dict(previousCostMicrousd=0,maximumCostMicrousd=100_000_000),domain=domain),req)
+                prior=deepcopy(old)
+                second=dict(req,attempt='1'*32,sequence='2'*32)
+                full=finish(a.reserve(old,second,dict(previousCostMicrousd=100_000_000,maximumCostMicrousd=100_000_000),domain=domain),second)
+                self.assertEqual(200_000_000,a.inspect_ledger(full,domain=domain)[0])
+                self.assertEqual(prior,old);self.assertEqual(prior['entries'],full['entries'][:2])
+                with self.assertRaisesRegex(ValueError,'budget ceiling'):
+                    a.reserve(full,dict(second,attempt='3'*32),dict(previousCostMicrousd=200_000_000,maximumCostMicrousd=1),domain=domain)
 
     def test_terminal_event_is_single_append_and_cannot_forge_an_attempt(self):
         ledger = a.reserve(a.empty_ledger(), self.req, self.approval)

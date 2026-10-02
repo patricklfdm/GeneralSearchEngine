@@ -6,6 +6,9 @@ import re
 
 SUITE='v5.1-automatic-leadership-suite-v1'
 SCHEMA='gse-v51-leadership-evidence-v1'
+# Current operational ceiling; the frozen workload keeps its historical proposal
+# and digest so existing requests, evidence and ledger entries remain valid.
+MAXIMUM_BUDGET_MICROUSD=200_000_000
 
 
 def need(value,message):
@@ -13,7 +16,7 @@ def need(value,message):
 
 
 def plan(source,*,now,lease_seconds=5400,grace_seconds=1080,maximum_cost_microusd=5_000_000,
-         previous_cost_microusd=0,budget_microusd=100_000_000):
+         previous_cost_microusd=0,budget_microusd=MAXIMUM_BUDGET_MICROUSD):
     need(re.fullmatch('[0-9a-f]{40}',source),'source identity')
     for value in (now,lease_seconds,grace_seconds,maximum_cost_microusd,previous_cost_microusd,budget_microusd):
         need(type(value) is int and 0<=value<1<<63,'finite integer')

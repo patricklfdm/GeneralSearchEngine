@@ -42,7 +42,7 @@ is supplied. The selected bucket and V5.1 object names remain fixed; unexpected
 records at those names block rather than being relabelled or discarded.
 
 The shared rules retain the 13-resource inventory, 5400-second lease,
-1080-second operation grace, 100 USD cumulative reservation ceiling, sequence
+1080-second operation grace, [200 USD cumulative reservation ceiling](PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01), sequence
 ordering and failed-canonical blocking. The shared reconciler still handles
 manual/scheduled triggers, generation-conditional persistence, immutable evidence,
 terminal ledger updates and lease release. The paid runner's fake admission path

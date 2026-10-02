@@ -266,7 +266,9 @@ observations fail. Unsupported process network counters stay explicitly unsuppor
 
 Retain successful and failed evidence for thirty days. Fresh pricing must cover up
 to ten GiB compressed successful-member storage plus failed attempts and temporary
-objects. The USD 100 aggregate envelope remains a proposal pending current-price,
+objects. The user-approved [USD 200 operational ceiling](PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01)
+supersedes the frozen plan's original USD 100 proposal without changing workload
+hashes or historical records. Allocations still require current-price,
 remaining-budget and exact-request confirmation. Five full leases plus grace reserve
 27 VM-hours and 4050 GiB-hours of disks; these are cost units, not dollar prices.
 
