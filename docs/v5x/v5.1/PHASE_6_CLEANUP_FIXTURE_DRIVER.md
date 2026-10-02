@@ -1,9 +1,12 @@
 # V5.1 Phase 6 — single-disk preparation and object probes
 
-**Status:** implementation candidate; local/offline qualification only. No resource,
-control object, canary or permission change has been made on Google Cloud by this
-batch. Protected CI, current regional pricing, exact fixture approval and actual
-manual runs remain required.
+**Status:** original driver accepted through PR #276; generation-bound object
+probe correction is a new implementation candidate. The first approved live disk
+is prepared and active-state WAITING is independently verified. Original object
+probes failed on HTTP 412; object permission qualification remains open. This
+correction makes no cloud mutation. Grace/expired cleanup and corrected-source
+protected CI remain pending; keep this PR unmerged until the original disk cleanup
+and independent review complete.
 
 ## Accepted basis
 
@@ -11,8 +14,11 @@ PR #275 accepted the [single-disk plan](PHASE_6_CLEANUP_FIXTURE.md) and USD 200
 cumulative ceiling at master `35befc9adf41bf90520099721354632ff429bebf`.
 [CI 36963053297](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36963053297)
 passed all 29 jobs on attempt 2. This does not qualify the new driver or substitute
-for real deletion/conditional object checks. The earlier manual empty-path evidence
-remains historical; its freshness is not extended.
+for real deletion/conditional object checks. PR #276 accepted the original driver
+at master `c23a8f654daab5a4cad4d645c761f82e7a21aa92`; exact-master CI
+[36972787971](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36972787971)
+passed all 29 jobs on attempt 1. The earlier manual empty-path evidence remains
+historical; its freshness is not extended.
 
 ## Components and scope
 
@@ -97,10 +103,28 @@ The canaries have deterministic, non-user-selectable keys:
 Preparation creates the existing/outside objects. The manual identity creates the
 third object once and reads it, reads the existing object, then probes overwrite
 and deletion of the existing object and read/write/deletion of the outside object.
-All negative mutations use `ifGenerationMatch=0`. Only HTTP 403 is the specified
-denial result. HTTP 412, authentication errors, missing objects, throttling and
-service failures are inconclusive; unexpected success stops the run. The tested
-identity cannot choose another bucket, path, control record, resource or body.
+New-object creation uses `ifGenerationMatch=0`. Negative mutations of existing
+canaries use the exact positive generation retained by preparation. Only HTTP 403
+is the specified denial result. HTTP 412, authentication errors, missing objects,
+throttling and service failures are inconclusive; unexpected success stops the
+run. Versions are never refreshed to retry a denied/conflicting mutation. The
+tested identity cannot choose another bucket, path, control record, resource or body.
+
+The two pre-existing objects are **expendable canaries**: if IAM incorrectly grants
+the forbidden action, its exact-version overwrite/delete can actually succeed.
+An overwrite writes the same fixed canary bytes but still creates a new generation;
+a delete can remove the live canary. Both are failures, not evidence of denial.
+The receipt records `UNEXPECTED_SUCCESS` with `httpStatus=null` for an unexpected
+2xx result because the shared API does not return successful status codes; it does
+not invent HTTP 200 for a DELETE that may have returned 204. An uncertain/lost
+response also stops, with no mutation replay or compensating repair.
+
+The v2 fixture request and qualification manifest bind
+`objectProbePolicy=exact-generation-expendable-canaries-v2`; the probe manifest and
+receipt are also v2. This changes the native request/bundle and approval digests.
+The v1 package is rejected before a probe write, even on the same source. Fresh
+exact-byte approval must describe the possible canary mutation. Existing native
+lease, ledger, completion, cleanup context and resource formats are unchanged.
 
 `PROBES_RECORDED` still requires the independent reader to confirm unchanged
 existing/outside bytes and generations, the expected new object, and the unchanged
@@ -112,10 +136,12 @@ principal/operation audit evidence before accepting real-path qualification.
 Probe results are single-use. If the created canary already exists, the entry fails
 before another write; it does not turn a partial first execution into a fresh PASS.
 Use an empty-input manual cleanup to reconcile the existing lease when eligible.
-Retain canaries/context/receipts as evidence for at least thirty days. GitHub's
+Retain surviving canaries and original manifest/baseline/context/receipts as
+evidence for at least thirty days; do not recreate an unexpectedly deleted canary
+or hide its changed generation. GitHub's
 existing artifact retention is fourteen days, so archive the original artifact
-before it expires. This driver does not delete these objects or change bucket
-lifecycle rules.
+before it expires. This driver does not perform evidence-retention cleanup or
+change bucket lifecycle rules.
 
 ## Prices and operator execution
 
@@ -168,22 +194,77 @@ python3 -m scripts.v51.cloud_object_probes review \
   --after target/v51-probe-after/receipt.json --output target/v51-probe-review
 ```
 
+## First live attempt and 412 correction — 2026-10-02
+
+The user approved fixture digest
+`0646019c1d3b0e606be23988b943719b65034239067b0cb2a2885c91269fff33`
+on the accepted PR #276 source. One 100 GiB data disk was created with numeric ID
+`7328168006269463300`, and USD 1 was reserved. The native request is
+`7ca8398ec4f409b7774fe991b22044905a69c1645a33d9a2695162ae787dba35`.
+The lease expires at `2026-10-02T08:27:28Z`; cleanup becomes eligible at
+`2026-10-02T08:45:28Z` after the unchanged 1080-second grace.
+
+[Manual run 36976479227](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36976479227)
+attempt 1 passed authentication, permission precheck and three create/read cases,
+then failed `overwrite-denied`: expected 403, observed 412. Reconciliation was
+skipped. Independent reads confirmed unchanged original object generations/bytes,
+manifest, lease, ledger, context and disk, plus exactly the recorded new canary.
+[Empty-input run 36977401162](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36977401162)
+attempt 1 then returned WAITING. Its independent review is `STATE_MATCH /
+ACTIVE_OR_GRACE`, performed during the active lease; it does not qualify the
+later grace window or actual deletion. The USD 1 charge remains reserved.
+
+The previous probe always sent `ifGenerationMatch=0` against existing objects.
+Google documents that this yields 412 when a live object exists, and that zero
+cannot succeed for non-write operations. The observed response therefore did not
+exercise the intended permission boundary. The original offline model checked
+IAM before generations and missed that ordering. See
+[request preconditions](https://docs.cloud.google.com/storage/docs/request-preconditions)
+and the [delete API](https://docs.cloud.google.com/storage/docs/json_api/v1/objects/delete).
+This correction uses the retained generation; 412 still cannot qualify denial.
+
+The user requested branch development and PR CI while the original master stays
+unchanged. Complete its separate empty-input grace/expired runs and independent
+cleanup review before merging the correction. Do not rerun the consumed v1 probe,
+reset its ledger, replace its objects or use this patch to mutate the active fixture.
+Historical v1 probe artifacts remain FAIL; inspect them with the original source.
+After merge, any new probe execution needs a newly reviewed v2 fixture and explicit
+approval. No new allocation or cloud execution is authorized by this code change.
+
+Evidence is retained locally under `target/v51-single-disk-live-review/`, including
+the failed original artifact, `after-probe-failure/diagnosis.json` and
+`waiting-review-36977401162-verified/review.json`. These local comparisons do not
+establish provider audit provenance or full cleanup readiness.
+
 ## Qualification boundary
 
-The offline HTTP qualification retains three full chains: preparation/probes/
+The offline HTTP qualification retains five full chains: preparation/probes/
 active/grace/expiry, lost insert response followed by original-operation cleanup,
-and inconclusive 412 followed by safe expiry cleanup. It checks one insert, exact
-scope, unchanged protected state and retained FAIL accounting. Unit negatives
-cover malformed/stale packages, write order, conflicts, credential-entry guards,
-probe outcome classification and independent state tampering.
+inconclusive 412, unexpected canary deletion and a lost canary overwrite response,
+each followed by safe expiry cleanup. It checks one insert, exact scope, unchanged
+protected state and retained FAIL accounting. Unit regressions exercise either
+provider check order, each forbidden action being allowed, genuine generation
+drift, uncertain responses, no replay, old approval rejection and independent
+state tampering. These models do not predict every provider response.
 
-Local validation passed the complete preflight gate (131 tests, 61 existing
+Original-driver local validation passed the complete preflight gate (131 tests, 61 existing
 preflight/identity/permission negatives, eight existing single-disk cases and the
 three new chains). The final focused driver suite passed all 15 tests, including
 independent rejection of altered identity/canary records. Receipts and source-file
 hashes are indexed at `target/v51-cleanup-fixture-driver/validation-summary.json`.
 
-Actual regional pricing/approval, operator allocation, workflow credential probes,
-resource deletion, retained failure recovery and provider audit evidence are still
-open. Instance/firewall and scheduled-identity qualification are separate remaining
+Correction validation passed the complete preflight gate: 138 tests, 61 existing
+preflight/identity/permission negatives, eight single-disk cases and all five
+driver/probe/expiry chains. Another 85 cleanup-entry, credential, native-cleanup
+and CI classification regressions passed. The corrected provider-order model
+first reproduced the live overwrite 412 on the original probe implementation;
+the same positive-path test passes with the generation correction. Documentation
+contract/local links and whitespace checks pass. Evidence and changed-file hashes
+are indexed at `target/v51-object-probe-generations/validation-summary.json`.
+Corrected-source protected CI and actual v2 object qualification remain required.
+
+The first approved allocation and active-state observation do not qualify corrected
+v2 object probes, grace/expired resource deletion, retained failure recovery or
+provider audit evidence. A future fixture requires fresh pricing and approval.
+Instance/firewall and scheduled-identity qualification are separate remaining
 work. A successful local receipt cannot authorize cloud execution or close Phase 6.

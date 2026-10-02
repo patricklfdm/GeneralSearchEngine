@@ -20,7 +20,7 @@ CASES=('create','read-created','read-existing','overwrite-denied','delete-denied
 def validate_manifest(value, cfg, sha, source):
     a.digest(sha);a.digest(source,40)
     m.need(type(value) is dict and set(value)=={'schema','request','guestAccess','fixtureSha256','fixtureRequest','baseline'} and
-           value['schema']=='gse-v51-object-probe-manifest-v1','object probe manifest fields')
+           value['schema']==f.PROBE_MANIFEST_SCHEMA,'object probe manifest fields')
     req=value['request'];m.need(n.validate_request(req)==sha and req['source']==source and
            req['configurationSha256']==g.config(cfg['provider']),'object probe source/request/configuration')
     a.digest(value['fixtureSha256'])
@@ -45,8 +45,13 @@ def operations(cfg, manifest):
     req=manifest['request'];keys=f.objects(req);base='https://storage.googleapis.com/storage/v1/b/'+cfg['provider']['bucket']+'/o/'
     upload='https://storage.googleapis.com/upload/storage/v1/b/'+cfg['provider']['bucket']+'/o'
     def get(key):return base+quote(keys[key],safe='')
-    def put(kind):return upload+'?'+urlencode(dict(uploadType='media',name=keys[kind],ifGenerationMatch=0))
-    def delete(kind):return get(kind)+'?'+urlencode(dict(ifGenerationMatch=0))
+    # Only creation targets an absent object. Existing-canary mutations use the
+    # operator-retained generation, so an unchanged canary meets the condition.
+    # A misconfigured grant could mutate these two expendable canaries; the v2
+    # approved request binds that scope. No authority/evidence key is writable.
+    def generation(kind):return 0 if kind=='created' else manifest['baseline'][kind][0]
+    def put(kind):return upload+'?'+urlencode(dict(uploadType='media',name=keys[kind],ifGenerationMatch=generation(kind)))
+    def delete(kind):return get(kind)+'?'+urlencode(dict(ifGenerationMatch=generation(kind)))
     return [('create','POST',put('created'),f.canary(req,'created'),200),
             ('read-created','GET',get('created'),None,200),
             ('read-existing','GET',get('existing'),None,200),
@@ -106,7 +111,7 @@ class NetworkApi(_Policy,h.Api):
 def run(cfg, api, output, *, now):
     m.need(type(api) in (OfflineApi,NetworkApi) and cfg==api.cfg,'object probe client')
     root=Path(output);root.mkdir(parents=True,exist_ok=False)
-    receipt=dict(schema='gse-v51-object-probe-receipt-v1',binding=api.binding,requestSha256=api.sha,
+    receipt=dict(schema='gse-v51-object-probe-receipt-v2',binding=api.binding,requestSha256=api.sha,
                  status='FAIL',startedAt=now,execution='offline-object-probes' if api.offline else 'manual-identity-object-probes',
                  cases=[],**f.BOUNDARY)
     phase='retained-fixture'
@@ -133,9 +138,16 @@ def run(cfg, api, output, *, now):
                     m.need(value is not None and value[1]==f.canary(manifest['request'],kind),'object probe positive read bytes')
                     if kind=='existing':m.need(m.canonical(value)==m.canonical(existing),'object probe existing generation')
                     else:receipt['created']=list(value)
-                else:api.call(method,url,body,deadline=api.deadline,maximum=64<<10)
+                else:
+                    api.call(method,url,body,deadline=api.deadline,maximum=64<<10)
+                    # Api accepts all 2xx responses and does not return their
+                    # status (DELETE typically returns 204). Never invent 200
+                    # or count an unexpected successful mutation as a denial.
+                    if expected==403:status=None
             except h.ApiError as error:status=error.status
-            receipt['cases'].append(dict(case=name,httpStatus=status,expected=expected,status='PASS' if status==expected else 'FAIL'))
+            record=dict(case=name,httpStatus=status,expected=expected,status='PASS' if status==expected else 'FAIL')
+            if status is None:record['outcome']='UNEXPECTED_SUCCESS'
+            receipt['cases'].append(record)
             m.need(status==expected,'object probe inconclusive/unexpected response')
         m.need(store.get(keys['existing'])==existing and store.get(n.LEASE)==lease and store.get(n.LEDGER)==ledger and
                store.get(keys['manifest'])==original,'object probe changed retained state')
@@ -171,7 +183,7 @@ def review(cfg, receipt, after):
     m.need(binding==entry.identity(cfg,env,trigger='manual',source=req['source'],checkout=req['source']),
            'object probe recorded identity drift')
     for value in (receipt['startedAt'],after['startedAt'],after['completedAt'],receipt['manifestGeneration']):a.integer(value,1)
-    m.need(receipt['schema']=='gse-v51-object-probe-receipt-v1' and all(receipt[k] is False for k in f.BOUNDARY) and
+    m.need(receipt['schema']=='gse-v51-object-probe-receipt-v2' and all(receipt[k] is False for k in f.BOUNDARY) and
            receipt['execution'] in ('offline-object-probes','manual-identity-object-probes') and
            receipt['status']=='PROBES_RECORDED' and receipt['requestSha256']==sha and
            after['schema']=='gse-v51-object-probe-observation-v1' and after['requestSha256']==sha and

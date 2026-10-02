@@ -23,6 +23,8 @@ class CleanupFixtureReviewTest(unittest.TestCase):
         self.assertEqual(1_000_000,plan['budget']['proposedReservationMicrousd'])
         self.assertTrue(plan['objectProbes']['realProbeDriverAvailable'])
         self.assertEqual('IMPLEMENTED_NOT_QUALIFIED',plan['objectProbes']['execution'])
+        self.assertEqual('fixed-expendable-canaries-only',plan['objectProbes']['destructiveTarget'])
+        self.assertEqual('ifGenerationMatch=retained-positive-canary-generation',plan['objectProbes']['writeDeletePrecondition'])
         for name in f.BOUNDARY:self.assertIs(plan[name],False)
 
     def test_plan_generation_never_executes_provider_or_git_commands(self):
@@ -36,6 +38,8 @@ class CleanupFixtureReviewTest(unittest.TestCase):
                  lambda v:v['authority'].update(leaseSeconds=60),lambda v:v['authority'].update(backdatingAllowed=True),
                  lambda v:v['authority'].update(completionStatus='PASS'),lambda v:v.update(paidAdmission=True),
                  lambda v:v['budget'].update(priceQualified=True),
+                 lambda v:v['objectProbes'].update(writeDeletePrecondition='ifGenerationMatch=0'),
+                 lambda v:v['objectProbes'].update(destructiveTarget='none'),
                  lambda v:v['objectProbes'].update(writeDeletePrecondition=None,expectedDenial=412)]
         for i,change in enumerate(changes):
             with self.subTest(i=i):
