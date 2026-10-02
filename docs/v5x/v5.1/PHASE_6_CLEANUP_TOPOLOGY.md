@@ -1,9 +1,11 @@
 # V5.1 Phase 6 — complete-topology cleanup qualification
 
-**Status:** implementation candidate on `f299b61a2e724ffb45c27a2c9150965d09626655`
-(PR #277). The user authorized branch development while the second single-disk
-fixture finishes. Keep this change unmerged until that review and protected CI
-complete. No topology has been allocated by this development task.
+**Status:** topology implementation accepted through PR #278 at master
+`3e7e564972be01eb5894977cdc3c05e362bda0c0`, exact-master CI `37000588745`
+attempt 1 (29 successful jobs). A separately authorized live preparation on
+2026-10-02 stopped after its first VM because the provider returns an explicit
+zero fractional duration. The readback correction below is a new candidate;
+the partial allocation and its USD 5 charge remain retained for expired cleanup.
 
 ## Purpose and inherited state
 
@@ -24,10 +26,66 @@ The separately approved second fixture has native request
 Manual run `36989911551` passed all eight object cases; independent observations
 returned `OBJECT_SCOPE_MATCH` and active `STATE_MATCH / ACTIVE_OR_GRACE`.
 Its expiry is `2026-10-02T10:52:57Z` and deletion eligibility is
-`2026-10-02T11:10:57Z`. Grace and expired-state/audit reviews remain pending.
-The native ledger reserves USD 2 cumulatively for the two single-disk attempts;
-the earlier USD 1 failed attempt remains charged. These records do not authorize
-this candidate's larger allocation.
+`2026-10-02T11:10:57Z`. Grace run `36998281162` returned WAITING; expired run
+`36999734150` passed independent absence/terminal-ledger and manual-SA deletion
+audit review. No separate post-grace snapshot was captured before deletion, so
+that coverage remains open. Both single-disk reservations remain charged (USD 2).
+
+## First live topology and duration readback correction — 2026-10-02
+
+The user approved the reviewed thirteen-resource profile, same operator and
+USD 5 reservation. The review freshness window expired before execution; fresh
+read-only observations retained the same source, configuration, resource names,
+attempt/sequence, public key, prices and amount. Both packages and the exact scope
+comparison are retained; the old request was never executed. The executed fixture
+digest is `fff43e62d351b88f61b97f60516c0f9f4f574cd997fc14471d70e76a86af3a43`,
+native request `57c6be206a9528c326114b39fc00de759792412b0e9577a64cc15f7077611b6b`,
+attempt `de6b9671ac2c4a99ae562e04296c417f`.
+
+Preparation retained all four firewalls and six disks. The first VM's original
+insert completed with numeric ID `1865582398806300060`, but readback rejected
+`maxRunDuration={"seconds":"5400","nanos":0}` because the request only contained
+`{"seconds":"5400"}`. The [Compute REST contract](https://docs.cloud.google.com/compute/docs/reference/rest/v1/instances)
+defines integer `nanos` as the fractional-second component. Zero does not extend
+the requested lifetime. This is a provider-response compatibility bug, not a
+timeout or an uncertain workload result. The observer and cleanup use the same
+inspection path and would reject that VM too.
+
+The correction accepts either an omitted fraction or integer zero, keeps exactly
+5400 seconds, and rejects nonzero, malformed or unknown duration fields. STOP for
+the fixture and DELETE for ordinary workloads remain distinct. The outgoing
+request bytes, metadata, ownership, numeric IDs, disk attachments, deadlines and
+budget do not change. The offline HTTP double now returns the explicit zero so
+ordinary creation, interrupted-insert recovery and cleanup exercise real response
+shape rather than echoing the request.
+
+The failed attempt must not resume or recreate resources. Ten IDs are durable in
+the lease; the eleventh is recoverable from its original bound insert operation.
+The last two VMs were never attempted. Lease start is `2026-10-02T13:00:52Z`,
+expiry `14:30:52Z`, cleanup eligibility **`14:48:52Z`** (Beijing **22:48:52**).
+The ledger remains USD **7 / 200**, including the full failed reservation. Merge
+the corrected-source CI result before using the existing manual entry to clean
+this partial inventory after expiry/grace. Capture a fresh before observation
+from the accepted correction and retain the same collector for its follow-ups.
+Verify absence and provider deletion audits; this eleven-resource cleanup cannot
+qualify the complete thirteen-resource topology.
+
+Original receipts, HTTP call identities, raw provider response and the original
+blocked observation remain at `target/v51-topology-live-review/`. Local response
+replay/tests and the PR description are at `target/v51-gcp-duration-readback/`.
+No engine workload, second preparation attempt, direct operator deletion or
+schedule/runner identity activation was performed. A future complete topology
+requires a new reviewed allocation after this attempt is reconciled.
+
+Local validation of the correction: the explicit-zero regression and full
+topology lifecycle both fail on the original decoder; 32 provider/topology and
+85 related cleanup/native-entry/network/runner tests pass after correction.
+The unchanged retained GCP response passes local replay. The complete preflight
+gate passes 153 unit tests, 61 preflight/identity/permission negatives, eight
+single-disk cases, five fixture/probe chains and 22 topology manual/schedule
+outcomes at `target/v51-cloud-preflight/run.kbXOLH/`. The original preparation
+remains FAIL. These local checks do not replace corrected-source protected CI
+or actual expired cleanup.
 
 ## Closed fixture profile
 
@@ -195,4 +253,5 @@ Logs and final candidate file hashes are retained under
 `target/v51-cleanup-topology-review/`. Initial development failures remain under
 `target/v51-topology-dev/`; these include a tuple/list serialization mismatch in
 the new manifest and test-fixture setup errors, corrected before the final gate.
-Corrected-source protected CI remains pending.
+Those original candidate checks were subsequently accepted by PR #278 and
+CI `37000588745`. Protected CI for the new duration-readback correction remains pending.

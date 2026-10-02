@@ -106,6 +106,38 @@ class ProviderTest(unittest.TestCase):
         api = Api(); cfg = f.configuration()
         with self.assertRaisesRegex(ValueError, 'unqualified'):
             cloud_runner.adapters(cloud_gcp.Store(cfg, api), cloud_gcp.Compute(cfg, self.req, api))
+    def test_vm_duration_accepts_explicit_zero_nanos_without_changing_request(self):
+        spec = next(s for s in a.resources(self.req) if s['kind'] == 'instance')
+        expected = self.provider.body(spec)
+        for duration in ({'seconds': '5400'}, {'seconds': '5400', 'nanos': 0}):
+            value = dict(deepcopy(expected), id='123456')
+            value['scheduling']['maxRunDuration'] = duration
+            original = deepcopy(value)
+            with self.subTest(duration=duration):
+                self.assertEqual('123456', self.provider.inspect(spec, value)['id'])
+                self.assertEqual(original, value)
+        self.assertEqual(expected, self.provider.body(spec))
+        self.assertEqual({'seconds': '5400'}, expected['scheduling']['maxRunDuration'])
+
+    def test_vm_duration_and_termination_drift_still_rejected(self):
+        spec = next(s for s in a.resources(self.req) if s['kind'] == 'instance')
+        for duration in ({'seconds': '5401', 'nanos': 0}, {'seconds': '5399', 'nanos': 0},
+                         {'seconds': 5400, 'nanos': 0}, {'seconds': '5400', 'nanos': 1},
+                         {'seconds': '5400', 'nanos': -1}, {'seconds': '5400', 'nanos': False},
+                         {'seconds': '5400', 'nanos': 0.0}, {'seconds': '5400', 'nanos': '0'},
+                         {'seconds': '5400', 'nanos': None}, {'seconds': '5400', 'extra': 0},
+                         {'nanos': 0}, {}, None, '5400'):
+            value = dict(self.provider.body(spec), id='123456')
+            value['scheduling']['maxRunDuration'] = duration
+            with self.subTest(duration=duration), self.assertRaises(ValueError):
+                self.provider.inspect(spec, value)
+        for field, changed in (('automaticRestart', True), ('instanceTerminationAction', 'STOP'),
+                               ('provisioningModel', 'SPOT')):
+            value = dict(self.provider.body(spec), id='123456')
+            value['scheduling']['maxRunDuration']['nanos'] = 0
+            value['scheduling'][field] = changed
+            with self.subTest(field=field), self.assertRaises(ValueError):
+                self.provider.inspect(spec, value)
     def test_http_lifecycle_and_failures(self):
         for fault in (None, 'lost-insert', 'pending-insert', 'delete-denied', 'image-drift'):
             with self.subTest(fault=fault), tempfile.TemporaryDirectory() as temp:

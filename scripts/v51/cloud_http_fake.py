@@ -71,6 +71,9 @@ class Http:
             self.serial += 1; resource_id = str(self.serial)
             value['id'] = resource_id
             if value.get('sourceImage'): value['sourceImageId'] = self.configuration['imageId']
+            if 'machineType' in value:
+                # Compute returns the fractional duration even for whole seconds.
+                value['scheduling']['maxRunDuration'].setdefault('nanos', 0)
             target = path+'/'+value['name']
             m.need(target not in self.resources, 'HTTP duplicate insert')
             op = dict(name='operation-'+str(self.serial), operationType='insert', clientOperationId=query['requestId'],
