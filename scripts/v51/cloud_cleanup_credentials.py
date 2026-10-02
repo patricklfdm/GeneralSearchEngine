@@ -141,9 +141,13 @@ def claims(token, binding, now):
         header, value = decode(parts[0]), decode(parts[1])
         m.need(header['alg'] == 'RS256' and isinstance(header['kid'], str) and header['kid'], 'cleanup JWT header')
         from . import cloud_ci as ci
+        owner, repository = ci.REPOSITORY.split('/')
+        # This repository uses GitHub's immutable subject format. Bind both names
+        # and numeric IDs; do not fall back to the legacy name-only subject.
+        subject = f'repo:{owner}@{ci.OWNER_ID}/{repository}@{ci.REPOSITORY_ID}:environment:'+binding['environment']
         expected = dict(iss='https://token.actions.githubusercontent.com',
                         aud='https://iam.googleapis.com/'+binding['provider'],
-                        sub='repo:'+ci.REPOSITORY+':environment:'+binding['environment'],
+                        sub=subject,
                         repository=ci.REPOSITORY, repository_id=str(ci.REPOSITORY_ID),
                         repository_owner_id=str(ci.OWNER_ID), ref='refs/heads/master',
                         environment=binding['environment'], event_name=binding['event'],

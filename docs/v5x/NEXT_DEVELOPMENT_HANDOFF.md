@@ -201,11 +201,14 @@ replay cover the correction. PR #270 accepted both changes at master
 `13393b528bccd47a2d091ad43f3a1530f0aa6c8b`, CI `36830413171` attempt 1 (29 jobs).
 PR #271 accepted credential diagnostics at master
 `a65c66e41c7f89f90265b8ce51a9a17acdae1416`, CI `36903623343` attempt 2 (29 jobs).
-Actual observer preflight `36929956707` identified `OIDC_URL_PATH`, before
-permission queries. The [runtime path correction](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#runtime-oidc-path-compatibility)
-replaces the terminal `/idtoken` assumption with exact binding to the runner's
-opaque path. After protected merge, trigger a fresh master preflight to exercise
-the corrected code; rerunning an older workflow uses its original source.
+PR #272 accepted the runtime path correction at master
+`e763601ef7cc018d901e9b70f77ce8afb2fa0b7d`, CI `36934779388` attempt 2 (29 jobs).
+Preflight `36937960812` passed descriptor checks but failed credential exchange.
+The repository OIDC API confirms immutable subjects while the validator expected
+the legacy format. The [immutable subject correction](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
+binds the exact names, numeric IDs and environment, with no legacy fallback or
+cloud setting change. After protected merge, trigger a fresh master preflight;
+the old opaque error does not prove this is the only remaining live blocker.
 Real permission execution and conditional object/IAP checks are still required.
 No cleanup workflow is deployed, no runner/cleanup identity
 is enabled, and real provider qualification and paid admission remain open.

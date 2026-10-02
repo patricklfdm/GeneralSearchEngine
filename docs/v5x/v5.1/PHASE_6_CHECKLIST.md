@@ -130,9 +130,11 @@ CI `36830413171` attempt 1 (29 jobs). Its first PR CI `36808406642` exposed a
 [subsequent checkpoint restart defect](PHASE_2_RECOVERY.md#subsequent-checkpoint-restart-correction-candidate);
 that correction is also accepted in PR #270. PR #271 accepted the diagnostic change
 at master `a65c66e41c7f89f90265b8ce51a9a17acdae1416`, CI `36903623343` attempt 2
-(29 jobs). Actual preflight `36929956707` identified `OIDC_URL_PATH` before permission
-queries. The [runtime path correction](PHASE_6_IDENTITY_PERMISSIONS.md#runtime-oidc-path-compatibility)
-removes the terminal-suffix assumption while preserving exact path binding. Actual-identity
+(29 jobs). PR #272 accepted the runtime path correction at master
+`e763601ef7cc018d901e9b70f77ce8afb2fa0b7d`, CI `36934779388` attempt 2 (29 jobs).
+Preflight `36937960812` passed descriptor checks but failed credential exchange;
+the [immutable subject correction](PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
+aligns JWT validation with the observed repository setting. Actual-identity
 permission and real cleanup qualification, activation and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
@@ -224,7 +226,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C31 implementation candidate: [bound workflow identity permission prechecks](PHASE_6_IDENTITY_PERMISSIONS.md), four-role offline qualification and observer/proposed-cleanup integration.
 - [x] 6C3C31 corrected-source protected CI: PR #270 / CI `36830413171` attempt 1 (29 jobs).
 - [x] Credential diagnostics protected acceptance: PR #271 / CI `36903623343` attempt 2 (29 jobs).
-- [ ] 6C3C31 fresh actual observer precheck: run `36929956707` identified `OIDC_URL_PATH`; runtime path correction awaits protected CI and fresh execution.
+- [x] Runtime OIDC path correction accepted: PR #272 / CI `36934779388` attempt 2 (29 jobs).
+- [ ] 6C3C31 fresh actual observer precheck: run `36937960812` failed credential exchange; immutable-subject correction awaits protected CI and fresh execution.
 - [ ] Actual observer/runner/manual/scheduled identity required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.

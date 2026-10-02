@@ -108,6 +108,32 @@ class CleanupCredentialsTest(unittest.TestCase):
             with self.subTest(key=key),self.assertRaises(ValueError):self.credentials()(30)
             self.assertEqual(['oidc'],[v['stage'] for v in self.issuer.calls])
 
+    def test_repository_immutable_subject_reaches_permission_queries_for_every_role(self):
+        from . import cloud_permissions as permissions, cloud_permissions_qualification as fixtures
+        # Repository OIDC API reports use_immutable_subject=true with this prefix.
+        prefix='repo:patricklfdm@147357093/GeneralSearchEngine@1341513206:environment:'
+        for role in permissions.ROLES:
+            cfg,binding,env,descriptor,clock,issuer,provider,client,run=fixtures.fixture(role)
+            issuer.claim_changes['sub']=prefix+binding['environment']
+            with self.subTest(role=role):
+                actual=client.probe('project',clock.seconds()+30)
+                self.assertEqual(client.queries['project']['required'],actual)
+                self.assertEqual(['oidc','sts','impersonation'],[v['stage'] for v in issuer.calls])
+                self.assertEqual(1,len(provider.requests))
+
+    def test_legacy_subject_and_changed_immutable_identity_stop_before_sts(self):
+        suffix=':environment:'+self.binding['environment']
+        for subject in (
+            'repo:patricklfdm/GeneralSearchEngine'+suffix,
+            'repo:patricklfdm@147357094/GeneralSearchEngine@1341513206'+suffix,
+            'repo:patricklfdm@147357093/GeneralSearchEngine@1341513207'+suffix,
+            'repo:other-owner@147357093/GeneralSearchEngine@1341513206'+suffix,
+            'repo:patricklfdm@147357093/OtherRepository@1341513206'+suffix,
+            'repo:patricklfdm@147357093/GeneralSearchEngine@1341513206:environment:other-environment'):
+            self.issuer.calls.clear();self.issuer.claim_changes={'sub':subject}
+            with self.subTest(subject=subject),self.assertRaises(ValueError):self.credentials()(30)
+            self.assertEqual(['oidc'],[v['stage'] for v in self.issuer.calls])
+
     def test_expired_future_noninteger_and_unsigned_tokens_rejected(self):
         for changes in ({'exp':self.clock.wall()},{'nbf':self.clock.wall()+31},
                         {'iat':self.clock.wall()+31},{'exp':True},{'iat':'1'}):

@@ -34,8 +34,9 @@ class Issuer:
 
     def jwt(self):
         b = self.binding; now = self.clock.wall()
+        owner, repository = ci.REPOSITORY.split('/')
         value = dict(iss='https://token.actions.githubusercontent.com', aud='https://iam.googleapis.com/'+b['provider'],
-            sub='repo:'+ci.REPOSITORY+':environment:'+b['environment'], repository=ci.REPOSITORY,
+            sub=f'repo:{owner}@{ci.OWNER_ID}/{repository}@{ci.REPOSITORY_ID}:environment:'+b['environment'], repository=ci.REPOSITORY,
             repository_id=str(ci.REPOSITORY_ID), repository_owner_id=str(ci.OWNER_ID),
             ref='refs/heads/master', environment=b['environment'], event_name=b['event'],
             workflow_ref=ci.REPOSITORY+'/'+b['workflow']+'@refs/heads/master', workflow_sha=b['source'], sha=b['source'],
