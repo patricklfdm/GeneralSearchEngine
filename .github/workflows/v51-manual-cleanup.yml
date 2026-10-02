@@ -1,0 +1,81 @@
+# Deployment review only: generated outside .github/workflows.
+name: V5.1 Manual Cleanup
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v51-native-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: v51-cloud-manual-cleanup
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      CLEANUP_ENVIRONMENT: v51-cloud-manual-cleanup
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Bind cleanup entry and exact run attempt
+        id: identity
+        run: |
+          python -m scripts.v51.cloud_cleanup_entry identity --trigger manual \
+            --source "$GITHUB_SHA" --output target/v51-cleanup/identity
+
+      - name: Authenticate exact cleanup identity
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ steps.identity.outputs.provider }}
+          service_account: ${{ steps.identity.outputs.serviceAccount }}
+          create_credentials_file: true
+          export_environment_variables: true
+          cleanup_credentials: true
+
+      - name: Check actual cleanup permissions without cloud mutations
+        run: |
+          python -m scripts.v51.cloud_permissions --role manual --source "$GITHUB_SHA" \
+            --output target/v51-cleanup/permissions
+
+      - name: Reconcile retained expired lease
+        run: |
+          python -m scripts.v51.cloud_cleanup_entry reconcile --trigger manual \
+            --source "$GITHUB_SHA" --output target/v51-cleanup/reconciliation
+
+      - name: Report cleanup result
+        if: ${{ always() }}
+        run: |
+          if [[ -f target/v51-cleanup/permissions/summary.md ]]; then
+            cat target/v51-cleanup/permissions/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [[ -f target/v51-cleanup/reconciliation/summary.md ]]; then
+            cat target/v51-cleanup/reconciliation/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            printf '%s\n' 'V5.1 cleanup stopped before a reconciliation receipt; inspect entry/auth step results. Cleanup readiness is not established.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Retain cleanup diagnostics
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-cleanup-manual-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-cleanup
+          if-no-files-found: warn
+          retention-days: 14

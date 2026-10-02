@@ -90,6 +90,12 @@ class CleanupDeploymentTest(unittest.TestCase):
                               'credentials_json:', 'setup-gcloud', 'cloud_runner', 'needs:'):
                 self.assertNotIn(forbidden, text)
 
+    def test_installed_manual_entry_matches_reviewed_auth_and_reconciliation(self):
+        # Guard the actual runnable entry as well as the proposal: a workflow-only
+        # edit must not silently bypass the reviewed identity or permission gates.
+        workflow = d.ci.ROOT/'.github/workflows/v51-manual-cleanup.yml'
+        self.assertEqual(d.render(self.cfg, 'manual').encode(), workflow.read_bytes())
+
     def test_commands_only_toggle_two_cleanup_identities_in_safe_order(self):
         plans = d.commands(self.cfg); self.assertEqual({'manual', 'schedule'}, set(plans))
         for key, rows in plans.items():
