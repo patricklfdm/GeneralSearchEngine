@@ -86,7 +86,14 @@ class CleanupDeploymentTest(unittest.TestCase):
                 self.assertIn(part, text)
             self.assertEqual('schedule'==trigger, '    - cron:' in text)
             self.assertEqual('manual'==trigger, '  workflow_dispatch:' in text)
-            for forbidden in ('workflow_call:', 'inputs:', 'activation-check', 'continue-on-error', 'token_format:',
+            self.assertEqual(trigger=='manual','      object_probe_request:' in text)
+            if trigger=='manual':
+                self.assertIn("if: ${{ inputs.object_probe_request != '' }}",text)
+                self.assertLess(text.index('cloud_permissions --role manual'),text.index('cloud_object_probes run'))
+                self.assertLess(text.index('cloud_object_probes run'),text.index('cloud_cleanup_entry reconcile'))
+                self.assertIn('"$OBJECT_PROBE_REQUEST"',text)
+            else:self.assertNotIn('inputs:',text)
+            for forbidden in ('workflow_call:', 'activation-check', 'continue-on-error', 'token_format:',
                               'credentials_json:', 'setup-gcloud', 'cloud_runner', 'needs:'):
                 self.assertNotIn(forbidden, text)
 

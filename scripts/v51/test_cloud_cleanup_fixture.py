@@ -21,7 +21,8 @@ class CleanupFixtureReviewTest(unittest.TestCase):
         self.assertFalse(plan['budget']['priceQualified']);self.assertFalse(plan['budget']['hardProviderSpendingCap'])
         self.assertEqual(200_000_000,plan['budget']['cumulativeCeilingMicrousd'])
         self.assertEqual(1_000_000,plan['budget']['proposedReservationMicrousd'])
-        self.assertFalse(plan['objectProbes']['realProbeDriverAvailable'])
+        self.assertTrue(plan['objectProbes']['realProbeDriverAvailable'])
+        self.assertEqual('IMPLEMENTED_NOT_QUALIFIED',plan['objectProbes']['execution'])
         for name in f.BOUNDARY:self.assertIs(plan[name],False)
 
     def test_plan_generation_never_executes_provider_or_git_commands(self):

@@ -1,8 +1,9 @@
 # V5.1 Phase 6 — single-disk cleanup qualification preparation
 
-**Status:** local review and offline rehearsal candidate. No cloud fixture,
-control-object write, paid experiment or new identity is executed by this batch.
-Protected CI and separately reviewed real-provider preparation remain pending.
+**Status:** review/offline preparation accepted via PR #275, master
+`35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2 (29 jobs).
+The [preparation/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the next local
+candidate. Actual fixture/control writes and real-provider qualification remain pending.
 
 ## Accepted starting point
 
@@ -76,8 +77,9 @@ to clear the ledger, release the lease or delete a resource by name.
 
 The project/bucket diagnostic precheck cannot establish conditional object rights.
 The actual manual identity needs a separately reviewed probe driver operating on
-dedicated canaries. This batch records the design; it does **not** add that driver,
-deploy probe steps or claim these cases passed on Google Cloud.
+dedicated canaries. The [driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md)
+implements the fixed canary sequence and optional manual workflow input. Its
+offline results do not establish these cases on Google Cloud.
 
 | Probe | Required observation |
 | --- | --- |
@@ -109,7 +111,7 @@ was consulted on 2026-10-01. Its rendered default region was us-central1, so thi
 review deliberately does **not** treat that number as a verified us-west4 quote.
 Before requesting allocation approval, retain the current regional SKU/price,
 bounded request/object inventory and overhang estimate. `priceQualified=false`
-and absence of a live preparer/probe driver remain explicit blockers. No additional
+remains explicit; the driver still needs protected acceptance and real execution. No additional
 organization IAM permission or runner enablement is needed merely to prepare this
 review; do not grant either as a shortcut.
 
@@ -137,8 +139,8 @@ completion and earlier charges, and an empty rerun leaves terminal state unchang
 Snapshots, requests and original expected FAIL receipts remain in each case's
 directory. `PASS` on the matrix means the expected behavior was observed offline.
 
-Next implementation: finish the narrowly scoped real fixture preparer and actual
-identity canary probe driver, review regional pricing/exact request/rollback,
-then obtain fixture-specific approval. Real failure-path and instance/firewall
+Next: protect/merge the [driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md),
+review regional pricing and fresh exact request/recovery steps, then obtain
+fixture-specific approval. Real failure-path and instance/firewall
 coverage, scheduled identity qualification and full Phase 6 remain open. Existing
 manual deployment approval does not cover allocation or fixture control writes.

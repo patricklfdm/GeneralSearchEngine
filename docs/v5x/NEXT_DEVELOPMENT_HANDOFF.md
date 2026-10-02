@@ -219,11 +219,14 @@ back; complete manual-state review passed all 17 groups / 33 observations.
 Manual run `36957603644` attempt 1 passed actual credential/permission checks and
 independent `STATE_MATCH / NO_LEASE`, with unchanged zero-cost ledger. The runner
 and schedule stay disabled. Do not repeat enablement or seek the same approval.
-The [single-disk cleanup preparation](v5.1/PHASE_6_CLEANUP_FIXTURE.md) is the new
-candidate: review-only resource/timing/accounting plan and eight offline cases,
-not live allocation. Finish the bounded real preparer and manual-identity canary
-driver, verify regional pricing and exact fresh request bytes, then obtain
-fixture-specific approval. Prior manual approval excludes fixture/control writes.
+PR #275 accepted the [single-disk cleanup preparation](v5.1/PHASE_6_CLEANUP_FIXTURE.md)
+and USD 200 ceiling at master `35befc9adf41bf90520099721354632ff429bebf`,
+CI `36963053297` attempt 2 (29 jobs). The new
+[fixture/probe driver candidate](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md) adds an
+exact-request operator preparer, fixed manual-identity object probes, independent
+state review and optional `object_probe_request` workflow input. After protected
+merge, verify regional prices and fresh request bytes, then obtain fixture-specific
+approval. Prior manual activation approval excludes fixture/control writes.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no

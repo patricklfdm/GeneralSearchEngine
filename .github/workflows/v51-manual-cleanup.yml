@@ -1,8 +1,14 @@
-# Deployment review only: generated outside .github/workflows.
+# Generated cleanup entry; dispatch and environment approval remain manual.
 name: V5.1 Manual Cleanup
 
 on:
   workflow_dispatch:
+    inputs:
+      object_probe_request:
+        description: 'Optional approved single-disk request SHA-256; creates one fixed canary'
+        required: false
+        default: ''
+        type: string
 
 permissions:
   contents: read
@@ -54,6 +60,14 @@ jobs:
           python -m scripts.v51.cloud_permissions --role manual --source "$GITHUB_SHA" \
             --output target/v51-cleanup/permissions
 
+      - name: Probe approved cleanup object scope
+        if: ${{ inputs.object_probe_request != '' }}
+        env:
+          OBJECT_PROBE_REQUEST: ${{ inputs.object_probe_request }}
+        run: |
+          python -m scripts.v51.cloud_object_probes run --request "$OBJECT_PROBE_REQUEST" \
+            --source "$GITHUB_SHA" --output target/v51-cleanup/object-probes
+
       - name: Reconcile retained expired lease
         run: |
           python -m scripts.v51.cloud_cleanup_entry reconcile --trigger manual \
@@ -62,6 +76,9 @@ jobs:
       - name: Report cleanup result
         if: ${{ always() }}
         run: |
+          if [[ -f target/v51-cleanup/object-probes/summary.md ]]; then
+            cat target/v51-cleanup/object-probes/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
           if [[ -f target/v51-cleanup/permissions/summary.md ]]; then
             cat target/v51-cleanup/permissions/summary.md >> "$GITHUB_STEP_SUMMARY"
           fi
