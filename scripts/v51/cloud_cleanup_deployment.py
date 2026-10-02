@@ -24,7 +24,7 @@ def render(cfg, trigger):
     selected = setup.proposal(cfg)['identities'][trigger]
     event = ("  schedule:\n    - cron: '7,22,37,52 * * * *'\n" if trigger == 'schedule' else
              '  workflow_dispatch:\n')
-    return '''# Deployment review only: generated outside .github/workflows.
+    text = '''# Generated cleanup entry; dispatch and environment approval remain manual.
 name: V5.1 '''+('Scheduled' if trigger == 'schedule' else 'Manual')+''' Cleanup
 
 on:
@@ -105,6 +105,35 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 '''
+
+    return probe_steps(text) if trigger=='manual' else text
+
+
+def probe_steps(text):
+    """Add the optional, exact-request canary entry to the manual workflow."""
+    text=text.replace('  workflow_dispatch:\n','''  workflow_dispatch:
+    inputs:
+      object_probe_request:
+        description: 'Optional approved single-disk request SHA-256; creates one fixed canary'
+        required: false
+        default: ''
+        type: string
+''',1)
+    marker='      - name: Reconcile retained expired lease\n'
+    text=text.replace(marker,'''      - name: Probe approved cleanup object scope
+        if: ${{ inputs.object_probe_request != '' }}
+        env:
+          OBJECT_PROBE_REQUEST: ${{ inputs.object_probe_request }}
+        run: |
+          python -m scripts.v51.cloud_object_probes run --request "$OBJECT_PROBE_REQUEST" \\
+            --source "$GITHUB_SHA" --output target/v51-cleanup/object-probes
+
+'''+marker,1)
+    marker='          if [[ -f target/v51-cleanup/permissions/summary.md ]]; then\n'
+    return text.replace(marker,'''          if [[ -f target/v51-cleanup/object-probes/summary.md ]]; then
+            cat target/v51-cleanup/object-probes/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+'''+marker,1)
 
 
 def commands(cfg):

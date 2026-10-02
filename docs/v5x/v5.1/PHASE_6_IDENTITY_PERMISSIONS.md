@@ -238,6 +238,8 @@ Manual deployment, authorized enablement and empty-path validation completed via
 the [reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). The
 [single-disk preparation](PHASE_6_CLEANUP_FIXTURE.md) keeps its real fixture and
 probe driver separate from that approval. Remaining real-path work
+uses the [exact-request driver and optional manual canary probes](PHASE_6_CLEANUP_FIXTURE_DRIVER.md);
+their offline qualification does not establish real object permissions. It
 includes exact lease/ledger read and conditional replacement, immutable attempt
 evidence creation and prohibited deletion/replacement, out-of-scope denial,
 Compute operations, external image access and conditional IAP where applicable.

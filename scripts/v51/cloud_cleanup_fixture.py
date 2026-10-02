@@ -1,4 +1,4 @@
-"""Review-only single-disk cleanup qualification plan. No live writer or dispatcher."""
+"""Review-only single-disk plan; execution uses the separate exact-request driver."""
 import argparse
 from pathlib import Path
 from . import cloud_authority as a, cloud_preflight as p
@@ -31,13 +31,13 @@ def plan(cfg, source):
                 dict(case='grace', elapsedMinimum=5400, elapsedMaximumExclusive=6480, expected='WAITING'),
                 dict(case='expired-disk', elapsedMinimum=6480, expected='PASS',
                      minimumPreviouslyPresentResources=1, attemptedResources=1)],
-        objectProbes=dict(execution='DESIGN_ONLY', identity='manual',
+        objectProbes=dict(execution='IMPLEMENTED_NOT_QUALIFIED', identity='manual',
             cases=['attempt-canary-create-read', 'attempt-canary-overwrite-denied',
                    'attempt-canary-delete-denied', 'outside-canary-read-write-delete-denied'],
             destructiveTarget='none', existingCanaryRequired=True,
             writeDeletePrecondition='ifGenerationMatch=0', expectedDenial=403,
             inconclusiveStatuses=[400, 401, 404, 409, 412, 429, 500, 503],
-            verifyUnchangedGenerationAndBytes=True, realProbeDriverAvailable=False),
+            verifyUnchangedGenerationAndBytes=True, realProbeDriverAvailable=True),
         budget=dict(proposedReservationMicrousd=1_000_000, cumulativeCeilingMicrousd=a.MAXIMUM_BUDGET_MICROUSD,
                     currency='USD', priceQualified=False,
                     regionalPriceRequired='us-west4/pd-balanced', retentionDays=30,
@@ -85,8 +85,9 @@ review after current regional prices and exact request bytes are available.
 
 ## Object permission probes
 
-The separate actual-manual-identity probe driver is not implemented or deployed
-by this review package. Use only dedicated canaries; never completion/context or
+The separate cloud_object_probes driver uses the manual workflow's optional
+object_probe_request input after exact fixture approval. Use dedicated canaries;
+never completion/context or
 other retained evidence as destructive targets. Establish the canary's existence,
 generation and contents, and independently verify they are unchanged afterward.
 Guard overwrite/delete attempts with ifGenerationMatch=0. Only an authenticated
@@ -112,7 +113,10 @@ The local matrix tests native-format records through an offline HTTP model. It
 does not establish Google IAM, real operation behavior, expiry passage or deletion.
 Real name reuse, ambiguous operations, generation conflicts, failure recovery,
 instance/firewall cleanup and scheduled identity coverage remain pending.
-No live writer, probe driver, new role, workflow input or paid runner is added.
+The separate cloud_fixture_driver requires a clean protected source, current
+prices/state/configuration, the reviewed operator and exact fixture confirmation.
+This review package never invokes it or dispatches a workflow. Live execution and
+its evidence remain separate; the paid runner stays closed.
 '''
 
 

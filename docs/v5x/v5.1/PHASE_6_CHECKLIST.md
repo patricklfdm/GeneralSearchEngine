@@ -143,8 +143,10 @@ the exact workflow was accepted through PR #274, master
 `b0a0173584d499a06abce870f8f0f2e46202c7b9`, CI `36951936364` attempt 2 (29 jobs).
 Authorized manual enablement and complete readback passed; actual run `36957603644`
 attempt 1 passed permissions and independent `NO_LEASE` review. The
-[single-disk review/offline preparation](PHASE_6_CLEANUP_FIXTURE.md) is the next
-candidate. Conditional object/IAP, real resource/failure qualification and paid admission remain open.
+[single-disk review/offline preparation](PHASE_6_CLEANUP_FIXTURE.md) and USD 200
+ceiling were accepted through PR #275 / CI `36963053297` attempt 2 (29 jobs).
+The [fixture/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the new candidate.
+Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -250,7 +252,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Actual manual project/bucket permission precheck and independent empty-state review: run `36957603644` attempt 1, `STATE_MATCH / NO_LEASE`, unchanged zero-cost ledger.
 - [x] [Single-disk qualification preparation](PHASE_6_CLEANUP_FIXTURE.md) candidate: bounded review package and eight offline cases; no live fixture writer or probe driver.
 - [x] User-approved [USD 200 cumulative ceiling](PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01) candidate: shared planner/admission/ledger/preflight limit, original charges and workload hashes preserved; exact-allocation approval still required.
-- [ ] Protected acceptance of single-disk preparation, real fixture/probe driver, regional pricing and separate exact-fixture approval.
+- [x] Protected acceptance of single-disk preparation and USD 200 ceiling: PR #275, master `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2.
+- [x] [Fixture/probe driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md): once-only operator preparation, fixed manual canaries, independent state review and optional workflow input; offline qualification only.
+- [ ] Protected acceptance of the driver/workflow change, current regional pricing and separate exact-fixture approval.
 - [ ] Actual manual object permissions, active/grace and expired-resource qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

@@ -178,9 +178,12 @@ The operator [authorized manual cleanup deployment and post-merge enablement](v5
 PR #274 accepted the manual workflow at master `b0a0173584d499a06abce870f8f0f2e46202c7b9`,
 CI `36951936364` attempt 2 (29 jobs). Authorized manual enablement and all 17
 readback groups passed. Manual run `36957603644` attempt 1 passed actual permissions
-and independent `NO_LEASE` state review. The [single-disk cleanup preparation](v5.1/PHASE_6_CLEANUP_FIXTURE.md)
-adds a review-only plan and eight offline cases; live fixture writes, object/IAP
-and resource qualification remain pending. Scheduled and runner identities stay disabled.
+and independent `NO_LEASE` state review. PR #275 accepted the
+[single-disk preparation and USD 200 ceiling](v5.1/PHASE_6_CLEANUP_FIXTURE.md),
+master `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2.
+The [fixture/probe driver](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the new candidate.
+Live fixture writes, object/IAP and resource qualification remain pending.
+Scheduled and runner identities stay disabled.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

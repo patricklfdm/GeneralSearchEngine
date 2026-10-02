@@ -138,6 +138,12 @@ project/bucket queries stop the job before reconciliation. PRECHECK_PASS cannot
 establish object-name conditional access; real-path qualification remains required.
 The independent state reviewer also requires the successful precheck step.
 
+The [single-disk driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) adds the optional
+`object_probe_request` input to the manual entry. Empty input preserves the existing
+path; a reviewed native request digest selects fixed canaries for actual identity
+probes after the permission precheck. These probes do not establish readiness, and
+their live use requires separate fixture approval. Scheduled behavior is unchanged.
+
 The job then invokes the existing `cloud_cleanup_entry reconcile`; it accepts no
 force/resource/age override. Summary and evidence upload run on success or failure.
 The fallback summary does not claim no credentials were acquired when auth might
