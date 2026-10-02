@@ -192,8 +192,16 @@ class Compute:
             items = value.get('metadata', {}).get('items', [])
             m.need(len(items) == len(expected['metadata']['items']) and
                    {v['key']: v['value'] for v in items} == {v['key']: v['value'] for v in expected['metadata']['items']}, 'instance guest access metadata')
+            # Compute may include an explicit integer zero for fractional seconds.
+            # Accept that wire default without accepting any different lifetime.
+            duration = value['scheduling'].get('maxRunDuration')
+            m.need(type(duration) is dict and {'seconds'} <= set(duration) <= {'seconds', 'nanos'} and
+                   duration['seconds'] == expected['scheduling']['maxRunDuration']['seconds'] and
+                   type(duration.get('nanos', 0)) is int and duration.get('nanos', 0) == 0,
+                   'instance max runtime')
             m.need(value['tags']['items'] == [spec['owner']] and
-                   all(value['scheduling'].get(k) == v for k, v in expected['scheduling'].items()), 'instance tags/lifetime')
+                   all(value['scheduling'].get(k) == v for k, v in expected['scheduling'].items()
+                       if k != 'maxRunDuration'), 'instance tags/lifetime')
         if spec['kind'] != 'firewall':
             m.need(all(value['labels'].get(k) == v for k, v in expected['labels'].items()), 'resource labels')
         return dict(spec=deepcopy(spec), id=value['id'])

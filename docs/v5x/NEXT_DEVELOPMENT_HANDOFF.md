@@ -241,17 +241,22 @@ terminal ledger and provider deletion-audit review. Grace run `36984397533` was
 WAITING, but a separate post-grace snapshot was not retained before deletion.
 The separately approved v2 request `f1a49e0c223c4a0d99621cb1f861899a9af809100b6796049c022b5713ba3d81`
 then passed all eight object probes and independent `OBJECT_SCOPE_MATCH` / active
-`STATE_MATCH` in run `36989911551`. Its grace starts `2026-10-02T10:52:57Z`,
-deletion eligibility starts `2026-10-02T11:10:57Z`; both later reviews remain open.
-Use empty probe input and the original source/collector for those observations.
+`STATE_MATCH` in run `36989911551`. Grace `36998281162` returned WAITING;
+expired `36999734150` passed independent absence/terminal-ledger and deletion-audit
+review. A separate post-grace snapshot was not captured before deletion.
 Never repeat a consumed probe, recreate canaries or reset failed charges.
 
-The user authorized the next [complete-topology cleanup batch](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)
-on a development branch, without merging master. It adds a USD 5 proposed request
-for thirteen resources, a separately bound timed-STOP fixture profile and shared
-expired cleanup qualification. No topology or identity change is authorized or
-executed by development. Complete the current v2 evidence and corrected-source CI
-before merge; a later topology needs fresh prices and exact-request approval.
+The [complete-topology cleanup batch](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md) was accepted
+through PR #278, master `3e7e564972be01eb5894977cdc3c05e362bda0c0`, exact-master
+CI `37000588745` attempt 1 (29 jobs). The user subsequently approved its first
+USD 5 allocation. Preparation stopped after four firewalls, six disks and one VM:
+GCP returned `maxRunDuration` with explicit `nanos: 0`, rejected by exact dictionary
+comparison. The narrow response-compatibility correction is pending protected CI.
+The original operation resolves the VM ID; do not resume preparation. Reconcile
+this partial inventory after `2026-10-02T14:48:52Z` using the accepted correction,
+empty manual probe input, fresh independent observations and deletion audits.
+The ledger retains USD 7 cumulatively. Full thirteen-resource qualification still
+needs a fresh reviewed allocation after this attempt is settled.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no
