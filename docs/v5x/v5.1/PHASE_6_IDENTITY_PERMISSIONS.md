@@ -8,9 +8,12 @@ attempt 1, all 29 jobs. Diagnostics were accepted through PR #271, master
 [CI 36903623343](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36903623343)
 attempt 2 (29 jobs). PR #272 accepted the runtime path correction at master
 `e763601ef7cc018d901e9b70f77ce8afb2fa0b7d`, CI `36934779388` attempt 2 (29 jobs).
-Actual preflight now passes descriptor initialization but fails during credential
-exchange. The [immutable subject correction below](#immutable-oidc-subject-compatibility)
-is a new candidate; successful actual permission queries remain required.
+PR #273 accepted the [immutable subject correction](#immutable-oidc-subject-compatibility)
+at master `4cb0280356280aa23d9f6b353d26e69916067e52`, CI `36943901305`
+attempt 1 (29 jobs). [Observer preflight 36945892944](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36945892944)
+attempt 1 passed all eight checks on that source, including actual credential
+exchange and the bound project/bucket permission precheck. Cleanup and runner
+identities, object conditions and real cleanup qualification remain open.
 
 ## Scope and API limits
 
@@ -51,7 +54,7 @@ an authorization decision or an exhaustive privilege audit.
 | --- | --- | --- |
 | Observer | `observations` | Existing manual read-only preflight, after authentication and provider observations |
 | Runner | `run` | Shared CLI available; no paid runner workflow deployed or enabled |
-| Manual cleanup | `cleanup` | Deployment-review proposal, after authentication and before reconciliation |
+| Manual cleanup | `cleanup` | [Authorized workflow candidate](../../../.github/workflows/v51-manual-cleanup.yml), after authentication and before reconciliation |
 | Scheduled cleanup | `cleanup` | Separate deployment-review proposal with the same checks and reconciliation |
 
 The entry binds numeric repository/owner IDs, master source and checkout,
@@ -80,7 +83,8 @@ Cleanup proposals stop before reconciliation on precheck failure, and state
 review requires that exact step to complete successfully. This only checks the
 reviewed workflow path; the precheck is not replacement deletion authority.
 Lease CAS, expiry/grace, ownership, operation identity and exact IDs still govern
-the reconciler. No cleanup workflow is installed by this batch. Existing inactive
+the reconciler. The later [manual deployment](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01)
+copies the reviewed manual entry into the workflow directory. Existing inactive
 proposals, grants and enable/disable commands remain unchanged.
 
 ## Qualification and next work
@@ -216,9 +220,15 @@ are retained in `target/v51-immutable-subject` and
 `target/v51-preflight-36937960812`. Validation passed: 46 credential/permission
 tests, 40 credential/network tests on Python 3.11, 107 preflight tests and
 61 negatives, 28 integrated cleanup cases and 64 loopback TLS cases.
-Protected CI and a new user-triggered preflight
-must validate the corrected source; local fixtures do not establish actual IAM
-or successful live credential exchange.
+PR #273 and exact-master CI `36943901305` attempt 1 accepted the correction.
+The user-triggered preflight `36945892944` attempt 1 then passed all eight checks
+with `credentialExchangeCompleted=true`, project/bucket `PRECHECK_PASS`, no
+missing required permissions and no queried forbidden permissions returned.
+Independent replay of the retained permission receipt passed at its original
+observation time; this does not renew the 900-second validity window. The artifact
+is retained at `target/v51-preflight-36945892944`. It qualifies these observer
+queries, not object conditions, another identity or paid admission. Earlier failed
+receipts remain retained.
 
 ## Remaining real-path work
 

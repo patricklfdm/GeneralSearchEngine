@@ -7,8 +7,10 @@ passed all 29 jobs on attempt 1, including Cloud runner in 9m26s. The exact-sour
 exact-attempt checker also accepted the owned-experiment gate. The original PR
 and master 10-minute cancellations and master read-heavy burst-spread failure
 remain retained; later success does not establish that burst delay's cause.
-No cleanup workflow is installed, no identity is enabled and no cloud cleanup or
-paid workload is executed by this acceptance. The
+That acceptance installed no cleanup workflow, enabled no identity and executed
+no cloud cleanup or paid workload. The later
+[authorized manual deployment](#authorized-manual-deployment--2026-10-01) below
+stages the reviewed manual entry for protected merge. The
 [next independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md) prepares real
 provider observations without replacing actual-identity permission qualification
 or activation approval. The [IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30)
@@ -47,6 +49,74 @@ workflow and recomputing its self-reported hash still fails. Extra/missing files
 and payload symlinks fail. Generation is create-only and rejects `.github` even
 through a symlink. There is no apply, install, enable or dispatch subcommand.
 The previously authorized 33-file disabled/inactive package is not rewritten.
+
+## Authorized manual deployment — 2026-10-01
+
+The operator approved the concrete package reviewed against master
+`4cb0280356280aa23d9f6b353d26e69916067e52` after the actual observer precheck
+passed. This approval covers the manual workflow and, **after protected merge**,
+enablement of the `gse-v51-manual-cleanup` provider, pool and service account.
+Scheduled cleanup deployment/enablement, runner enablement, resource fixtures and
+paid execution are outside this approval. Workflow dispatch and environment
+approval remain operator actions; commit, push, PR and merge also remain operator
+actions. Do not request this same manual enablement approval again unless the
+reviewed scope or required configuration changes.
+
+The [manual workflow](../../../.github/workflows/v51-manual-cleanup.yml) is copied
+byte-for-byte from the reviewed generator output, SHA-256
+`7c349259fa3caf03424cd00618262fa8fb1253e7cfed5200abdf59b5e771ff4b`.
+Its leading review-generation comment is retained as part of those approved
+bytes; the checked-in path is the runnable entry once merged. No scheduled entry
+is installed in this batch. A CI regression compares the actual manual file with
+the reviewed generator, guarding against workflow-only bypass of identity,
+authentication, permission precheck or reconciliation ordering.
+
+Fresh staged readback collected 33 real GCP/GitHub observations and passed all
+17 configuration groups, including all nine disabled bits, exact explicit roles,
+grants and WIF trust, absence of user-managed keys and environment restrictions.
+This records the sampled state; repeat the readback within its 900-second validity
+window immediately before enablement. Local review, observations and approval
+scope are retained under `target/v51-manual-cleanup-review/`. The generator remains
+review-only and has no apply/enable/dispatch command.
+
+Use the general sequence below with these narrower first-batch steps:
+
+1. Merge the manual workflow through protected CI. Confirm actual master contains
+   the reviewed file bytes and accepted cleanup implementation.
+2. Collect fresh `readback --state staged` into a new directory. Configuration
+   drift, missing observations or a partial enable state stops execution.
+3. Execute only `commands.json` → `manual` → `enable`: provider, pool, then service
+   account. Inspect each object's actual state after its single update. A failed
+   or ambiguous response requires inspection before deciding whether to resume.
+4. Collect `readback --state manual`: all three manual objects enabled, all six
+   runner/scheduled objects disabled, and every explicit policy check matching.
+5. Capture independent before-state with `cloud_cleanup_observation capture`.
+   The operator dispatches **V5.1 Manual Cleanup** on master and approves
+   `v51-cloud-manual-cleanup`. After completion, retain the exact attempt artifact,
+   collect after-state and run the existing independent state review. The run's
+   actual permission receipt must also be checked; operator credentials used to
+   observe state cannot establish the workflow account's permissions.
+
+An empty-lease `PASS` qualifies actual credential exchange, the queried
+project/bucket permissions and the lease-read empty path only. `WAITING` preserves
+active/grace leases. Neither result proves resource deletion, object replacement
+and out-of-scope denial, or complete cleanup readiness. Required real-provider
+fixtures and scheduled-identity qualification remain separate next steps.
+
+The existing project-wide Compute deletion and network-policy privileges become
+usable by the manual identity when enabled. IAM does not independently restrict
+them to an attempt's ownership or name prefix; the existing lease, operation and
+exact-ID checks remain necessary. No grant is broadened. GCS conditions retain
+exact control-object replacement and create-only attempt evidence authority;
+failed charges remain recorded. Rollback uses only `manual` → `disable`, account
+first, then provider and pool, followed by a fresh staged readback. Inspect any
+in-progress cleanup and allow for credential revocation propagation.
+
+Current status: local workflow candidate prepared; protected merge, identity
+enablement and actual manual execution remain pending. The 107-test preflight gate
+and 61 negative fixtures passed during review. This batch adds the installed-entry
+regression; local validation does not substitute for the required protected CI or
+real execution.
 
 ## Proposed workflow behavior
 

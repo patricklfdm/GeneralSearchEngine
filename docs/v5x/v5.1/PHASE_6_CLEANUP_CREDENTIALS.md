@@ -131,4 +131,8 @@ binds the descriptor to the complete opaque runtime path instead. Both cleanup
 triggers retain the domain, identity, audience and exchange checks, and stop
 before reconciliation on mismatch. PR #272 accepted the path correction; the
 subsequent preflight exposed the immutable-subject compatibility defect described
-above. Live permission qualification remains pending.
+above. PR #273 accepted that correction, and observer preflight `36945892944`
+passed actual exchange and both permission queries on exact master. The
+[authorized manual deployment](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01)
+will exercise its own identity after protected merge and enablement; observer
+success does not establish cleanup-account or object-level permission qualification.

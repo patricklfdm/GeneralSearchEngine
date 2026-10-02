@@ -171,8 +171,13 @@ PR #271's diagnostics and PR #272's runtime path correction are accepted through
 CI `36934779388` attempt 2 (29 jobs). Preflight `36937960812` passed descriptor
 checks but failed credential exchange. The
 [immutable subject correction](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
-awaits protected CI and fresh execution; actual permission and object/IAP
-qualification remain pending.
+was accepted through PR #273, master `4cb0280356280aa23d9f6b353d26e69916067e52`,
+CI `36943901305` attempt 1 (29 jobs). Observer preflight `36945892944` attempt 1
+passed all eight checks, including actual exchange and project/bucket queries.
+The operator [authorized manual cleanup deployment and post-merge enablement](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01);
+the reviewed manual workflow is a local candidate. Protected merge, actual manual
+execution and object/IAP qualification remain pending; scheduled and runner
+identities stay disabled.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 

@@ -207,11 +207,20 @@ Preflight `36937960812` passed descriptor checks but failed credential exchange.
 The repository OIDC API confirms immutable subjects while the validator expected
 the legacy format. The [immutable subject correction](v5.1/PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
 binds the exact names, numeric IDs and environment, with no legacy fallback or
-cloud setting change. After protected merge, trigger a fresh master preflight;
-the old opaque error does not prove this is the only remaining live blocker.
-Real permission execution and conditional object/IAP checks are still required.
-No cleanup workflow is deployed, no runner/cleanup identity
-is enabled, and real provider qualification and paid admission remain open.
+cloud setting change. PR #273 accepted it at master
+`4cb0280356280aa23d9f6b353d26e69916067e52`, CI `36943901305` attempt 1 (29 jobs).
+Observer preflight `36945892944` attempt 1 passed all eight checks on that source,
+including actual credential exchange and project/bucket permission queries.
+The operator then [authorized manual cleanup deployment and post-merge enablement](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01).
+The exact reviewed manual workflow is now a local candidate. After protected
+merge, verify the workflow bytes, refresh staged readback, enable only manual
+provider/pool/account with inspection after each request, and collect manual-state
+readback. This approval persists; do not ask again for the same reviewed scope.
+The operator triggers and approves the workflow. Bracket its run with independent
+state observations and verify retained permission/reconciliation evidence.
+All identities remain disabled until that sequence reaches enablement. Scheduled
+cleanup and the paid runner are outside this approval. Conditional object/IAP and
+real provider qualification remain open; an empty cleanup PASS is not full readiness.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

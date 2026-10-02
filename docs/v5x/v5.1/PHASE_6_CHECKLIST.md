@@ -134,8 +134,13 @@ at master `a65c66e41c7f89f90265b8ce51a9a17acdae1416`, CI `36903623343` attempt 2
 `e763601ef7cc018d901e9b70f77ce8afb2fa0b7d`, CI `36934779388` attempt 2 (29 jobs).
 Preflight `36937960812` passed descriptor checks but failed credential exchange;
 the [immutable subject correction](PHASE_6_IDENTITY_PERMISSIONS.md#immutable-oidc-subject-compatibility)
-aligns JWT validation with the observed repository setting. Actual-identity
-permission and real cleanup qualification, activation and paid admission remain open.
+aligns JWT validation with the observed repository setting and was accepted in
+PR #273 at master `4cb0280356280aa23d9f6b353d26e69916067e52`, CI `36943901305`
+attempt 1 (29 jobs). Observer preflight `36945892944` attempt 1 passed all eight
+checks, including actual credential exchange and project/bucket permission probes.
+The operator [authorized manual deployment and post-merge enablement](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01);
+the exact reviewed workflow is a local candidate. Cleanup identity execution,
+conditional object/IAP checks and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
@@ -227,12 +232,17 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C31 corrected-source protected CI: PR #270 / CI `36830413171` attempt 1 (29 jobs).
 - [x] Credential diagnostics protected acceptance: PR #271 / CI `36903623343` attempt 2 (29 jobs).
 - [x] Runtime OIDC path correction accepted: PR #272 / CI `36934779388` attempt 2 (29 jobs).
-- [ ] 6C3C31 fresh actual observer precheck: run `36937960812` failed credential exchange; immutable-subject correction awaits protected CI and fresh execution.
+- [x] Immutable OIDC subject correction accepted: PR #273 / CI `36943901305` attempt 1 (29 jobs).
+- [x] 6C3C31 actual observer precheck: run `36945892944` attempt 1, all eight checks PASS; historical evidence does not extend its 900-second freshness.
 - [ ] Actual observer/runner/manual/scheduled identity required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
 - [x] Separately authorized disabled identity application and exact readback on 2026-09-30: 45 commands, 33 audit reads, `STAGED_MATCH`; all identities remain disabled.
 - [ ] Native identity/cleanup activation review and qualification.
+- [x] Operator authorization for the reviewed manual workflow and post-merge manual provider/pool/account enablement; scheduled cleanup and runner excluded.
+- [x] Exact reviewed manual workflow staged locally; 33-read configuration review passed all 17 groups with all identities disabled.
+- [ ] Protected manual-workflow merge, fresh staged/manual readback, authorized enablement and user-triggered manual run.
+- [ ] Actual manual permission and independent state qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
