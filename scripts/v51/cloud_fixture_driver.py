@@ -12,9 +12,12 @@ from . import cloud_authority as a, cloud_native_authority as n, cloud_gcp as g
 from . import cloud_http as h, cloud_preflight as p, cloud_ci as ci
 from . import cloud_cleanup as cleanup, cloud_cleanup_observation as observation
 from . import cloud_cleanup_deployment as deployment, cloud_identity_audit as audit
+from . import cloud_cleanup_fixture as fixture_plan
 from . import performance_model as m, remote_command as c, guest_setup
 
-SCHEMA='gse-v51-single-disk-request-v1'
+SCHEMA='gse-v51-single-disk-request-v2'
+PROBE_MANIFEST_SCHEMA='gse-v51-object-probe-manifest-v2'
+PROBE_POLICY=fixture_plan.PROBE_POLICY
 COST=1_000_000
 BOUNDARY=dict(cleanupReady=False, paidAdmission=False, fullRemoteQualification=False,
               objectPermissionsQualified=False, engineWorkloadExecuted=False)
@@ -66,8 +69,9 @@ def make(cfg, source, operator, public_key, prices, before, *, now, attempt, seq
     m.need(not any(v['status']=='PENDING' for v in attempts.values()) and total+COST<=a.MAXIMUM_BUDGET_MICROUSD,
            'fixture pending attempt/budget')
     estimate=price(prices,now)
-    manifest=dict(schema='gse-v51-single-disk-manifest-v1',source=source,configurationSha256=p.configuration(cfg),
+    manifest=dict(schema='gse-v51-single-disk-manifest-v2',source=source,configurationSha256=p.configuration(cfg),
                   kind='cleanup-qualification',disk=dict(node=1,purpose='data',sizeGiB=100),
+                  objectProbePolicy=PROBE_POLICY,
                   leaseSeconds=5400,graceSeconds=1080,maximumCostMicrousd=COST,pricesSha256=m.sha(m.canonical(prices)))
     guest=dict(attempt=attempt,user='gse-'+attempt[:24],publicKey=public_key);guest_setup.access(guest)
     req=n.request(source,m.sha(m.canonical(manifest)),g.config(cfg['provider']),sequence,attempt,'experiment',
@@ -154,7 +158,7 @@ class _PreparationPolicy:
             if self.stage==7:row['id']=g.numeric(self.created_id)
             return n.LEASE,lease,self.generation
         if self.stage==8:
-            return keys['manifest'],dict(schema='gse-v51-object-probe-manifest-v1',request=self.req,guestAccess=self.value['guestAccess'],
+            return keys['manifest'],dict(schema=PROBE_MANIFEST_SCHEMA,request=self.req,guestAccess=self.value['guestAccess'],
                 fixtureSha256=m.sha(m.canonical(self.value)),fixtureRequest=self.value,baseline=self.baseline),0
         raise ValueError('fixture write order')
     def upload(self, key, body, generation):
@@ -234,7 +238,7 @@ def execute(value, api, output, *, now, sleep=time.sleep):
         phase='disk';row['id']=api.insert(provider,row['spec'])['id']
         phase='retained-id';generation=api.upload(n.LEASE,lease,generation)
         phase='probe-manifest'
-        manifest=dict(schema='gse-v51-object-probe-manifest-v1',request=req,guestAccess=value['guestAccess'],
+        manifest=dict(schema=PROBE_MANIFEST_SCHEMA,request=req,guestAccess=value['guestAccess'],
                       fixtureSha256=receipt['fixtureSha256'],fixtureRequest=value,baseline=baseline)
         api.upload(keys['manifest'],manifest,0)
         receipt.update(status='PREPARED',leaseGeneration=generation,disk=deepcopy(row),probeManifest=manifest,

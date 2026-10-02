@@ -25,20 +25,29 @@ def fixture(source='c'*40):
 
 class ManualTransport:
     offline=True
-    def __init__(self,http,request,denial=403):self.http,self.keys,self.denial=http,f.objects(request),denial
+    def __init__(self,http,request,denial=403,*,preconditions_first=True,allow=()):
+        self.http,self.keys,self.denial=http,f.objects(request),denial
+        self.preconditions_first=preconditions_first;self.allow=set(allow);self.requests=[]
     def send(self,method,url,headers,body,timeout,maximum):
         parsed=urlsplit(url);query=parse_qs(parsed.query)
         key=query['name'][0] if method=='POST' else unquote(parsed.path.split('/o/',1)[-1])
-        # Model permissions before generation checks; the separate 412 test
-        # proves that provider precondition ordering cannot qualify a denial.
-        if key==self.keys['outside'] or key==self.keys['existing'] and method in ('POST','DELETE'):
+        self.requests.append(dict(method=method,key=key,query=query))
+        # The real provider returned 412 before the expected permission denial.
+        # Exercise both orders without applying a mutation during this check.
+        if self.preconditions_first and 'ifGenerationMatch' in query:
+            current=self.http.objects.get(key);generation=current[0] if current else 0
+            supplied=int(query['ifGenerationMatch'][0])
+            if supplied!=generation or supplied==0 and method!='POST':return 412,b''
+        forbidden=key==self.keys['outside'] or key==self.keys['existing'] and method in ('POST','DELETE')
+        if forbidden and (method,key) not in self.allow:
             return self.denial,b''
         return self.http.send(method,url,headers,body,timeout,maximum)
 
 
 def qualify(output, source):
     root=Path(output);root.mkdir(parents=True,exist_ok=False);cases=[]
-    for case in ('prepared-probes-expiry','lost-create-expiry','precondition-inconclusive'):
+    for case in ('prepared-probes-expiry','lost-create-expiry','precondition-inconclusive',
+                 'unexpected-canary-delete','lost-canary-overwrite'):
         out=root/case;out.mkdir();value,clock,http,reader,api,invocation=fixture(source)
         c.write_once(out/'before.json',q.snapshot(http))
         send=http.send
@@ -54,14 +63,31 @@ def qualify(output, source):
         m.need(http.inserts==1 and len(http.resources)==1,'single disk allocation count')
         if case!='lost-create-expiry':
             cfg=value['configuration'];binding=entry.identity(cfg,invocation['env'],trigger='manual',source=source,checkout=source)
-            probe=probes.OfflineApi(cfg,binding,n.validate_request(value['request']),
-                transport=ManualTransport(http,value['request'],412 if case=='precondition-inconclusive' else 403),
-                tokens=lambda _: 'offline-token',clock=clock.seconds)
+            key=f.objects(value['request'])['existing']
+            allow=[('DELETE',key)] if case=='unexpected-canary-delete' else [('POST',key)] if case=='lost-canary-overwrite' else []
+            transport=ManualTransport(http,value['request'],412 if case=='precondition-inconclusive' else 403,allow=allow)
+            if case=='lost-canary-overwrite':
+                original=transport.send
+                def lose_canary(method,url,*args):
+                    result=original(method,url,*args)
+                    if method=='POST' and parse_qs(urlsplit(url).query).get('name')==[key]:raise ConnectionError('offline lost canary response')
+                    return result
+                transport.send=lose_canary
+            protected={k:v for k,v in http.objects.items() if k not in f.objects(value['request']).values()}
+            probe=probes.OfflineApi(cfg,binding,n.validate_request(value['request']),transport=transport,
+                                   tokens=lambda _: 'offline-token',clock=clock.seconds)
             result=probes.run(cfg,probe,out/'probes',now=clock.wall())
+            c.write_once(out/'probe-http.json',transport.requests)
             after=probes.capture(cfg,prepared['probeManifest'],api=reader,wall=clock.wall);c.write_once(out/'objects-after.json',after)
-            m.need(result['status']==('FAIL' if case=='precondition-inconclusive' else 'PROBES_RECORDED'),'probe outcome')
+            m.need(result['status']==('PROBES_RECORDED' if case=='prepared-probes-expiry' else 'FAIL'),'probe outcome')
             if case=='prepared-probes-expiry':c.write_once(out/'object-review.json',probes.review(cfg,result,after))
-            else:m.need(result['cases'][-1]['httpStatus']==412,'precondition masqueraded as permission denial')
+            elif case=='precondition-inconclusive':m.need(result['cases'][-1]['httpStatus']==412,'precondition masqueraded as permission denial')
+            elif case=='unexpected-canary-delete':
+                m.need(key not in http.objects and result['cases'][-1]['outcome']=='UNEXPECTED_SUCCESS','unexpected delete evidence')
+            else:
+                m.need(http.objects[key][0]!=prepared['probeManifest']['baseline']['existing'][0] and
+                       result['failure']==dict(phase='overwrite-denied',type='ConnectionError'),'lost overwrite evidence')
+            m.need(all(http.objects.get(k)==v for k,v in protected.items()),'probe changed control state')
         preserved=q.snapshot(http);c.write_once(out/'prepared-state.json',preserved)
         for elapsed,label in ((0,'active'),(5400,'grace'),(1080,'expired')):
             clock.sleep(elapsed)

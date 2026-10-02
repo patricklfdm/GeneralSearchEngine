@@ -145,7 +145,13 @@ Authorized manual enablement and complete readback passed; actual run `369576036
 attempt 1 passed permissions and independent `NO_LEASE` review. The
 [single-disk review/offline preparation](PHASE_6_CLEANUP_FIXTURE.md) and USD 200
 ceiling were accepted through PR #275 / CI `36963053297` attempt 2 (29 jobs).
-The [fixture/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the new candidate.
+The [fixture/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) was accepted through
+PR #276 / CI `36972787971` attempt 1 (29 jobs). One exactly approved live disk is
+prepared; run `36977401162` passed independent active-state WAITING review.
+Original object probe run `36976479227` failed with 412. The generation-bound v2
+probe correction is a new candidate; keep its PR unmerged until the original
+disk's grace/expired cleanup and independent review finish. Do not reuse its
+v1 probe approval or remove the retained failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
@@ -254,7 +260,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] User-approved [USD 200 cumulative ceiling](PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01) candidate: shared planner/admission/ledger/preflight limit, original charges and workload hashes preserved; exact-allocation approval still required.
 - [x] Protected acceptance of single-disk preparation and USD 200 ceiling: PR #275, master `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2.
 - [x] [Fixture/probe driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md): once-only operator preparation, fixed manual canaries, independent state review and optional workflow input; offline qualification only.
-- [ ] Protected acceptance of the driver/workflow change, current regional pricing and separate exact-fixture approval.
+- [x] Protected acceptance of the original driver/workflow change: PR #276, master `c23a8f654daab5a4cad4d645c761f82e7a21aa92`, CI `36972787971` attempt 1; regional pricing and exact first-fixture approval retained.
+- [x] One approved 100 GiB disk prepared, USD 1 reserved; run `36977401162` independently matches active-state WAITING with unchanged disk/lease/ledger.
+- [ ] Protected acceptance and new exact-request approval for the [v2 object probe correction](PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02). Original `36976479227` 412 evidence stays FAIL. Hold merge until original-fixture expired cleanup review.
 - [ ] Actual manual object permissions, active/grace and expired-resource qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

@@ -3,7 +3,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from unittest.mock import Mock,patch
-from urllib.parse import urlsplit,parse_qs
+from urllib.parse import urlsplit,parse_qs,urlencode
 from . import cloud_fixture_driver as f, cloud_object_probes as probes
 from . import cloud_http as h, cloud_native_authority as n
 from . import cloud_cleanup_entry as entry, cloud_cleanup_qualification as q
@@ -185,7 +185,7 @@ class FixtureDriverTest(unittest.TestCase):
         with self.assertRaises(ValueError):probes.review(self.value['configuration'],damaged,changed_after)
 
     def test_precondition_auth_missing_or_unavailable_is_not_permission_denial(self):
-        for status in (200,400,401,404,409,412,429,500,503):
+        for status in (200,204,400,401,404,409,412,429,500,503):
             with self.subTest(status=status):
                 value,clock,http,reader,api,invocation=fixture();root=self.root/str(status)
                 prepared=f.execute(value,api,root/'prepared',now=clock.wall(),sleep=clock.sleep)
@@ -195,7 +195,8 @@ class FixtureDriverTest(unittest.TestCase):
                     transport=ManualTransport(http,value['request'],status),tokens=lambda _: 'offline-token',clock=clock.seconds)
                 result=probes.run(value['configuration'],probe,root/'probes',now=clock.wall())
                 self.assertEqual('FAIL',result['status']);self.assertEqual('overwrite-denied',result['failure']['phase'])
-                self.assertEqual(status,result['cases'][-1]['httpStatus'])
+                self.assertEqual(None if status in (200,204) else status,result['cases'][-1]['httpStatus'])
+                if status in (200,204):self.assertEqual('UNEXPECTED_SUCCESS',result['cases'][-1]['outcome'])
                 self.assertEqual(1,len(http.resources))
 
     def test_probe_policy_cannot_touch_control_objects_or_unbound_paths(self):
@@ -214,6 +215,147 @@ class FixtureDriverTest(unittest.TestCase):
         self.assertEqual(1,text.count('Reconcile retained expired lease'))
         self.assertIn('concurrency:\n  group: v51-native-cleanup\n  cancel-in-progress: false',text)
         self.assertIn('environment: v51-cloud-manual-cleanup',text)
+
+
+class ObjectProbeGenerationTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+
+    def prepared(self,name,*,preconditions_first=True,allow=()):
+        value,clock,http,reader,api,invocation=fixture();cfg=value['configuration']
+        prepared=f.execute(value,api,self.root/name/'prepared',now=clock.wall(),sleep=clock.sleep)
+        self.assertEqual('PREPARED',prepared['status'])
+        keys=f.objects(value['request'])
+        transport=ManualTransport(http,value['request'],preconditions_first=preconditions_first,
+                                  allow=[(method,keys[kind]) for method,kind in allow])
+        binding=entry.identity(cfg,invocation['env'],trigger='manual',source=invocation['source'],checkout=invocation['checkout'])
+        probe=probes.OfflineApi(cfg,binding,n.validate_request(value['request']),transport=transport,
+                               tokens=lambda _: 'offline-token',clock=clock.seconds)
+        return value,clock,http,reader,prepared,probe
+
+    def test_permission_denials_with_either_provider_check_order(self):
+        for first in (True,False):
+            with self.subTest(preconditions_first=first):
+                value,clock,http,reader,prepared,probe=self.prepared(str(first),preconditions_first=first)
+                result=probes.run(value['configuration'],probe,self.root/str(first)/'probe',now=clock.wall())
+                self.assertEqual('PROBES_RECORDED',result['status'],result)
+                self.assertEqual(list(probes.CASES),[r['case'] for r in result['cases']])
+                after=probes.capture(value['configuration'],prepared['probeManifest'],api=reader,wall=clock.wall)
+                self.assertEqual('OBJECT_SCOPE_MATCH',probes.review(value['configuration'],result,after)['status'])
+
+    def test_each_unexpected_permission_stops_after_one_request_and_only_touches_canaries(self):
+        cases=(('overwrite-denied','POST','existing'),('delete-denied','DELETE','existing'),
+               ('outside-read-denied','GET','outside'),('outside-write-denied','POST','outside'),
+               ('outside-delete-denied','DELETE','outside'))
+        for name,method,kind in cases:
+            with self.subTest(case=name):
+                value,clock,http,reader,prepared,probe=self.prepared(name,allow=[(method,kind)])
+                keys=f.objects(value['request']);original=deepcopy(http.objects);resources=deepcopy(http.resources)
+                result=probes.run(value['configuration'],probe,self.root/name/'probe',now=clock.wall())
+                self.assertEqual('FAIL',result['status']);self.assertEqual(name,result['failure']['phase'])
+                self.assertEqual('UNEXPECTED_SUCCESS',result['cases'][-1]['outcome'])
+                self.assertIsNone(result['cases'][-1]['httpStatus'])
+                self.assertEqual(probes.CASES.index(name)+1,len(result['cases']))
+                self.assertEqual(1,sum(r['method']==method and r['key']==keys[kind] for r in probe.transport.requests))
+                self.assertEqual(resources,http.resources);self.assertEqual(1,http.inserts)
+                for key,old in original.items():
+                    if key==keys[kind] and method!='GET':
+                        if method=='DELETE':self.assertNotIn(key,http.objects)
+                        else:
+                            self.assertNotEqual(old[0],http.objects[key][0]);self.assertEqual(old[1:],http.objects[key][1:])
+                    else:self.assertEqual(old,http.objects[key])
+                self.assertEqual(set(original)|{keys['created']},set(http.objects)|({keys[kind]} if method=='DELETE' else set()))
+                after=probes.capture(value['configuration'],prepared['probeManifest'],api=reader,wall=clock.wall)
+                with self.assertRaises(ValueError):probes.review(value['configuration'],result,after)
+
+    def test_generation_drift_fails_without_refreshing_or_mutating_new_version(self):
+        for kind,phase in (('existing','overwrite-denied'),('outside','outside-write-denied')):
+            with self.subTest(kind=kind):
+                value,clock,http,reader,prepared,probe=self.prepared(kind)
+                key=f.objects(value['request'])[kind];send=probe.transport.send
+                def drift(method,url,*args):
+                    if method=='POST' and parse_qs(urlsplit(url).query).get('name')==[key]:
+                        gen,body,content=http.objects[key];http.objects[key]=(gen+100,body,content)
+                    return send(method,url,*args)
+                probe.transport.send=drift
+                result=probes.run(value['configuration'],probe,self.root/kind/'probe',now=clock.wall())
+                self.assertEqual('FAIL',result['status']);self.assertEqual(phase,result['failure']['phase'])
+                self.assertEqual(412,result['cases'][-1]['httpStatus'])
+                attempts=[r for r in probe.transport.requests if r['method']=='POST' and r['key']==key]
+                self.assertEqual(1,len(attempts))
+                self.assertEqual([str(prepared['probeManifest']['baseline'][kind][0])],attempts[0]['query']['ifGenerationMatch'])
+                self.assertEqual(prepared['probeManifest']['baseline'][kind][0]+100,http.objects[key][0])
+
+    def test_independent_review_rejects_outside_drift_even_if_provider_checks_permissions_first(self):
+        value,clock,http,reader,prepared,probe=self.prepared('outside-drift',preconditions_first=False)
+        key=f.objects(value['request'])['outside'];gen,body,content=http.objects[key]
+        http.objects[key]=(gen+1,body,content)
+        result=probes.run(value['configuration'],probe,self.root/'probe',now=clock.wall())
+        self.assertEqual('PROBES_RECORDED',result['status'])
+        after=probes.capture(value['configuration'],prepared['probeManifest'],api=reader,wall=clock.wall)
+        with self.assertRaisesRegex(ValueError,'independent bytes/generations changed'):
+            probes.review(value['configuration'],result,after)
+
+    def test_lost_mutation_response_retains_failure_and_cannot_be_replayed(self):
+        for method in ('POST','DELETE'):
+            with self.subTest(method=method):
+                value,clock,http,reader,prepared,probe=self.prepared(method,allow=[(method,'existing')])
+                key=f.objects(value['request'])['existing'];send=probe.transport.send
+                def lose(actual,url,*args):
+                    result=send(actual,url,*args)
+                    if actual==method and probe.transport.requests[-1]['key']==key:raise ConnectionError('lost mutation response')
+                    return result
+                probe.transport.send=lose
+                result=probes.run(value['configuration'],probe,self.root/method/'probe',now=clock.wall())
+                self.assertEqual('FAIL',result['status']);self.assertEqual('ConnectionError',result['failure']['type'])
+                self.assertEqual('overwrite-denied' if method=='POST' else 'delete-denied',result['failure']['phase'])
+                self.assertEqual(1,sum(r['method']==method and r['key']==key for r in probe.transport.requests))
+                prior=deepcopy(http.objects)
+                fresh=probes.OfflineApi(value['configuration'],probe.binding,probe.sha,transport=probe.transport,
+                                       tokens=lambda _: 'offline-token',clock=clock.seconds)
+                repeat=probes.run(value['configuration'],fresh,self.root/method/'repeat',now=clock.wall())
+                self.assertEqual('FAIL',repeat['status']);self.assertEqual([],repeat['cases'])
+                self.assertEqual(prior,http.objects);self.assertEqual(1,http.inserts)
+
+    def test_policy_rejects_unapproved_versions_bodies_and_authority_keys(self):
+        value,clock,http,reader,prepared,probe=self.prepared('policy')
+        probe.bind(prepared['probeManifest']);before=deepcopy(http.objects)
+        method,url,body=probes.operations(value['configuration'],prepared['probeManifest'])[3][1:4]
+        base=url.split('?',1)[0];query={k:v[0] for k,v in parse_qs(urlsplit(url).query).items()}
+        mutations=[]
+        for generation in (None,'0',str(int(query['ifGenerationMatch'])+1)):
+            changed=dict(query)
+            if generation is None:changed.pop('ifGenerationMatch')
+            else:changed['ifGenerationMatch']=generation
+            mutations.append((method,base+'?'+urlencode(changed),body))
+        mutations.append((method,url,dict(body,changed=True)))
+        for key in (n.LEASE,n.LEDGER,f.objects(value['request'])['manifest']):
+            mutations.append((method,base+'?'+urlencode(dict(query,name=key)),body))
+        for request in mutations:
+            with self.subTest(request=request):
+                probe.expected=deepcopy(request)
+                with self.assertRaises(ValueError):probe.call(*request,deadline=clock.seconds()+30)
+        self.assertEqual(before,http.objects);self.assertEqual([],probe.transport.requests)
+
+    def test_old_approval_cannot_be_reinterpreted_as_generation_bound_authorization(self):
+        value,clock,http,reader,prepared,probe=self.prepared('legacy')
+        legacy=deepcopy(value);legacy['schema']='gse-v51-single-disk-request-v1'
+        legacy['qualificationManifest']['schema']='gse-v51-single-disk-manifest-v1'
+        legacy['qualificationManifest'].pop('objectProbePolicy')
+        legacy['request']['bundleSha256']=m.sha(m.canonical(legacy['qualificationManifest']))
+        with self.assertRaisesRegex(ValueError,'fixture request drift'):f.validate(legacy,now=clock.wall())
+        for field in ('schema','policy','nested-request'):
+            manifest=deepcopy(prepared['probeManifest'])
+            if field=='schema':manifest['schema']='gse-v51-object-probe-manifest-v1'
+            elif field=='policy':manifest['fixtureRequest']['qualificationManifest']['objectProbePolicy']='generation-zero'
+            else:manifest['fixtureRequest']=legacy;manifest['fixtureSha256']=m.sha(m.canonical(legacy))
+            key=f.objects(value['request'])['manifest'];gen,_,content=http.objects[key]
+            http.objects[key]=(gen,m.canonical(manifest),content);original=deepcopy(http.objects)
+            with self.subTest(field=field):
+                result=probes.run(value['configuration'],probe,self.root/field,now=clock.wall())
+                self.assertEqual('FAIL',result['status']);self.assertEqual([],result['cases'])
+                self.assertEqual(original,http.objects)
+        self.assertFalse(any(r['method']!='GET' for r in probe.transport.requests))
 
 
 if __name__=='__main__':unittest.main()

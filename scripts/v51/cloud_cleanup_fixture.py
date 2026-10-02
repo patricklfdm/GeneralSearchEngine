@@ -4,7 +4,8 @@ from pathlib import Path
 from . import cloud_authority as a, cloud_preflight as p
 from . import cloud_cleanup_deployment as deployment, performance_model as m, remote_command as c
 
-SCHEMA = 'gse-v51-cleanup-fixture-review-v1'
+SCHEMA = 'gse-v51-cleanup-fixture-review-v2'
+PROBE_POLICY = 'exact-generation-expendable-canaries-v2'
 BOUNDARY = dict(applied=False, paidCloud=False, cleanupReady=False, paidAdmission=False,
                 fullRemoteQualification=False, objectPermissionsQualified=False)
 CASES = ('active', 'grace', 'expired-disk', 'lost-insert-response', 'missing-context',
@@ -34,8 +35,9 @@ def plan(cfg, source):
         objectProbes=dict(execution='IMPLEMENTED_NOT_QUALIFIED', identity='manual',
             cases=['attempt-canary-create-read', 'attempt-canary-overwrite-denied',
                    'attempt-canary-delete-denied', 'outside-canary-read-write-delete-denied'],
-            destructiveTarget='none', existingCanaryRequired=True,
-            writeDeletePrecondition='ifGenerationMatch=0', expectedDenial=403,
+            policy=PROBE_POLICY, destructiveTarget='fixed-expendable-canaries-only', existingCanaryRequired=True,
+            createPrecondition='ifGenerationMatch=0',
+            writeDeletePrecondition='ifGenerationMatch=retained-positive-canary-generation', expectedDenial=403,
             inconclusiveStatuses=[400, 401, 404, 409, 412, 429, 500, 503],
             verifyUnchangedGenerationAndBytes=True, realProbeDriverAvailable=True),
         budget=dict(proposedReservationMicrousd=1_000_000, cumulativeCeilingMicrousd=a.MAXIMUM_BUDGET_MICROUSD,
@@ -90,8 +92,13 @@ object_probe_request input after exact fixture approval. Use dedicated canaries;
 never completion/context or
 other retained evidence as destructive targets. Establish the canary's existence,
 generation and contents, and independently verify they are unchanged afterward.
-Guard overwrite/delete attempts with ifGenerationMatch=0. Only an authenticated
-403 can qualify the specified denial; 412 is a precondition result, not IAM proof.
+Only new-object creation uses ifGenerationMatch=0. Overwrite/delete attempts use
+the exact positive generation retained during canary preparation. A wrong IAM
+grant could therefore replace/delete that expendable canary; the v2 fixture
+request binds this policy and needs fresh exact-byte approval. Old v1 approvals
+cannot be reused. No control, completion, context or historical evidence is a
+mutation target. Only an authenticated 403 can qualify the specified denial;
+412 is a precondition result, not IAM proof.
 Unavailable, malformed or other responses block that case. Stop on unexpected
 success; retain all evidence and inspect state. Do not broaden permissions.
 

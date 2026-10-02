@@ -2,8 +2,11 @@
 
 **Status:** review/offline preparation accepted via PR #275, master
 `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2 (29 jobs).
-The [preparation/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) is the next local
-candidate. Actual fixture/control writes and real-provider qualification remain pending.
+The original [preparation/probe driver](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) was
+accepted through PR #276; one exactly approved disk is prepared and active-state
+WAITING independently verified. Its live 412 probe failure motivates the v2
+canary-policy correction below, which remains a new candidate. Object permissions,
+grace/expired deletion and complete real-provider qualification remain open.
 
 ## Accepted starting point
 
@@ -88,15 +91,23 @@ offline results do not establish these cases on Google Cloud.
 | Existing canary outside the V5.1 control prefix | Read/write/delete denial and independently unchanged original object |
 
 Never target real completion, context, historical evidence or arbitrary caller
-paths. Establish dedicated negative canary existence first. Guard overwrite/delete
-with `ifGenerationMatch=0`: an existing live object cannot meet that condition.
+paths. Establish dedicated negative canary existence first. The original v1 plan
+guarded overwrite/delete with `ifGenerationMatch=0`; live run `36976479227` returned
+412 on that impossible precondition. The
+[v2 correction](PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02)
+instead binds overwrite/delete to each canary's retained positive generation.
+Only creation of the new canary uses zero. A wrong IAM grant can then actually
+replace/delete the expendable canary, so the v2 plan/request explicitly records
+that risk and requires fresh approval. Old v1 approvals cannot authorize it.
 The [delete API](https://docs.cloud.google.com/storage/docs/json_api/v1/objects/delete)
 documents the generation guard; [request preconditions](https://docs.cloud.google.com/storage/docs/request-preconditions)
 define mismatch as 412. **412 does not prove IAM denial**. Only an authenticated
 403 with the expected identity/scope and unchanged independent state can qualify
 the specified denial. 400, 401, 404, 409, 412, throttling, unavailable or malformed
-responses are inconclusive. Do not loosen the guard or grants to force a result.
-Unexpected success stops qualification and requires state inspection.
+responses are inconclusive. Do not remove generation guards, refresh a version
+for retry or broaden grants to force a result. Unexpected success stops
+qualification and requires state inspection; original baselines and failed
+evidence remain retained even if the canary changes.
 
 ## Cost review remains required
 
