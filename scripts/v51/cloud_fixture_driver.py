@@ -276,6 +276,15 @@ def network_checks(value, confirmation):
     now=int(time.time());digest=validate(value,now=now);cfg=c.read(p.CONFIG)
     m.need(value['execution']=='operator-single-disk-request' and value['configuration']==cfg and
            confirmation==digest and checkout()==value['request']['source'], 'fixture exact approval/source/configuration')
+    evidence=protected_checks(value)
+    validate(value,now=int(time.time()))
+    return evidence
+
+
+def protected_checks(value):
+    """Shared read-only source/configuration/control checks; not mutation approval."""
+    cfg=c.read(p.CONFIG)
+    m.need(value['configuration']==cfg and checkout()==value['request']['source'], 'fixture source/configuration')
     operator_account(value['operator'])
     source=value['request']['source'];github=ci.collect(source)
     ci.check(github,source,int(time.time()),(ci.ROOT/ci.WORKFLOW).read_text())
@@ -288,7 +297,6 @@ def network_checks(value, confirmation):
     current=observation.capture(cfg,source)
     observation.envelope(cfg,current)
     m.need(current['lease'] is None and m.canonical(current['ledger'])==m.canonical(value['before']['ledger']),'fixture live control changed')
-    now=int(time.time());validate(value,now=now)
     return dict(github=github,manualConfiguration=state,before=current)
 
 

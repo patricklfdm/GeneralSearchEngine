@@ -137,7 +137,7 @@ class _Policy:
                     n.inspect_ledger(value); self.ledger = deepcopy(value); self.ledger_generation = generation
                 elif item == self.attempt+'cleanup-context.json':
                     c.validate_context(value, self.request, authority=n)
-                    self.provider = g.Compute(self.config, self.request, self, guest_access=value['guestAccess'], authority=n)
+                    self.provider = c.provider_from_context(value, self.request, self, authority=n)
                 elif item == self.attempt+'completion.json': self.completion = deepcopy(self.completion_value(value))
         elif kind == 'insert-operation':
             m.need(type(value) is dict and not value.get('nextPageToken') and len(value.get('items', [])) <= 1,

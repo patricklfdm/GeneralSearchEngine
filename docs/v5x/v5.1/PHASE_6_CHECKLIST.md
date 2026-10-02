@@ -262,8 +262,13 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Fixture/probe driver candidate](PHASE_6_CLEANUP_FIXTURE_DRIVER.md): once-only operator preparation, fixed manual canaries, independent state review and optional workflow input; offline qualification only.
 - [x] Protected acceptance of the original driver/workflow change: PR #276, master `c23a8f654daab5a4cad4d645c761f82e7a21aa92`, CI `36972787971` attempt 1; regional pricing and exact first-fixture approval retained.
 - [x] One approved 100 GiB disk prepared, USD 1 reserved; run `36977401162` independently matches active-state WAITING with unchanged disk/lease/ledger.
-- [ ] Protected acceptance and new exact-request approval for the [v2 object probe correction](PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02). Original `36976479227` 412 evidence stays FAIL. Hold merge until original-fixture expired cleanup review.
+- [x] Protected acceptance of the [v2 object probe correction](PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02): PR #277, master `f299b61a2e724ffb45c27a2c9150965d09626655`, CI `36986377529` attempt 1 (29 jobs). Original `36976479227` 412 evidence stays FAIL.
+- [x] Original fixture expired cleanup `36985944368`: independent absence/ledger and provider delete-audit review passed. Its grace run `36984397533` returned WAITING; no independent post-grace snapshot was captured before deletion.
+- [x] New exact-request v2 approval and preparation; run `36989911551` passed all eight object probes and independent `OBJECT_SCOPE_MATCH` / active `STATE_MATCH`. Cumulative reserved cost USD 2; v2 grace/expired qualification pending.
 - [ ] Actual manual object permissions, active/grace and expired-resource qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
+- [x] [Complete-topology cleanup candidate](PHASE_6_CLEANUP_TOPOLOGY.md): exact-request preparation, request-bound timed-stop fixture profile, independent preparation review and offline manual/schedule reconstruction; no new cloud allocation.
+- [ ] Complete-topology corrected-source protected CI and acceptance; hold merge while the current v2 disk's remaining qualification is pending.
+- [ ] Separately priced/approved actual topology cleanup: all thirteen exact identities, VM/disk/firewall deletion audits and retained charges.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

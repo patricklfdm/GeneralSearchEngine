@@ -78,7 +78,7 @@ def capture(cfg, source, *, before=None, api=None, wall=time.time):
             rows=[r for r in authority['resources'] if r['attempted']]
             if rows:
                 context=cleanup.validate_context(item(value['context']),req,authority=n)
-                provider=g.Compute(cfg['provider'],req,api,guest_access=context['guestAccess'],authority=n)
+                provider=cleanup.provider_from_context(context,req,api,authority=n)
                 phase='resource-observation'
                 for row in rows:
                     spec=row['spec'];operation=provider.operation(spec)

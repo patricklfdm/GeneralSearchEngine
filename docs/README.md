@@ -89,6 +89,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C3C31 workflow identity permission prechecks](v5x/v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
 - [V5.1 single-disk cleanup qualification preparation](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE.md)
 - [V5.1 single-disk preparation and object probe driver](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md)
+- [V5.1 complete-topology cleanup qualification candidate](v5x/v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)
 - [V5.1 disabled cleanup configuration and activation review](v5x/v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 - [V5.1 Phase 6C3C17 accepted owned V4.4 healthy control](v5x/v5.1/PHASE_6_OWNED_V44.md)
 - [V5.1 Phase 6C3C15 owned backup/restore](v5x/v5.1/PHASE_6_OWNED_BACKUP.md)
