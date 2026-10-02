@@ -212,15 +212,23 @@ cloud setting change. PR #273 accepted it at master
 Observer preflight `36945892944` attempt 1 passed all eight checks on that source,
 including actual credential exchange and project/bucket permission queries.
 The operator then [authorized manual cleanup deployment and post-merge enablement](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01).
-The exact reviewed manual workflow is now a local candidate. After protected
-merge, verify the workflow bytes, refresh staged readback, enable only manual
-provider/pool/account with inspection after each request, and collect manual-state
-readback. This approval persists; do not ask again for the same reviewed scope.
-The operator triggers and approves the workflow. Bracket its run with independent
-state observations and verify retained permission/reconciliation evidence.
-All identities remain disabled until that sequence reaches enablement. Scheduled
-cleanup and the paid runner are outside this approval. Conditional object/IAP and
-real provider qualification remain open; an empty cleanup PASS is not full readiness.
+PR #274 accepted the exact manual workflow at master
+`b0a0173584d499a06abce870f8f0f2e46202c7b9`, CI `36951936364` attempt 2 (29 jobs).
+All three authorized manual enable requests completed, each independently read
+back; complete manual-state review passed all 17 groups / 33 observations.
+Manual run `36957603644` attempt 1 passed actual credential/permission checks and
+independent `STATE_MATCH / NO_LEASE`, with unchanged zero-cost ledger. The runner
+and schedule stay disabled. Do not repeat enablement or seek the same approval.
+The [single-disk cleanup preparation](v5.1/PHASE_6_CLEANUP_FIXTURE.md) is the new
+candidate: review-only resource/timing/accounting plan and eight offline cases,
+not live allocation. Finish the bounded real preparer and manual-identity canary
+driver, verify regional pricing and exact fresh request bytes, then obtain
+fixture-specific approval. Prior manual approval excludes fixture/control writes.
+The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
+the single-disk proposal stays USD 1 and previous charges remain recorded.
+Keep the 5400+1080-second real wait, existing authority and failed charges; no
+backdating, fake-record upload or ledger reset. Conditional object/IAP and actual
+resource/failure-path qualification remain open; empty PASS is not full readiness.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.

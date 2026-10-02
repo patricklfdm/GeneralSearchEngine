@@ -144,8 +144,8 @@ def check_provider(cfg, evidence):
         if lease is not None:a.validate_lease(entry(lease))
         m.need(lease is None, 'retained lease requires reconciliation; expiry does not authorize reset')
         m.need(not any(v['status'] == 'PENDING' for v in attempts.values()), 'unresolved ledger reservation')
-        m.need(total < 100_000_000, 'suite budget exhausted')
-        return dict(previousCostMicrousd=total, budgetMicrousd=100_000_000, leaseAbsent=True)
+        m.need(total < a.MAXIMUM_BUDGET_MICROUSD, 'suite budget exhausted')
+        return dict(previousCostMicrousd=total, budgetMicrousd=a.MAXIMUM_BUDGET_MICROUSD, leaseAbsent=True)
     check('controlState', control)
     return checks
 

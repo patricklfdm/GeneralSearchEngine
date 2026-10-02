@@ -217,10 +217,13 @@ was accepted through PR #273, master `4cb0280356280aa23d9f6b353d26e69916067e52`,
 CI `36943901305` attempt 1 (29 jobs). Observer preflight `36945892944` attempt 1
 passed all eight checks with actual exchange and project/bucket permission probes.
 The operator [authorized manual cleanup deployment and post-merge enablement](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#authorized-manual-deployment--2026-10-01).
-The exact reviewed manual workflow is staged locally; protected merge and fresh
-configuration readback precede enablement and user-triggered execution. Scheduled
-cleanup and runner activation remain excluded. Required real-path object/IAP and
-cleanup qualification remain open, without extra organization privileges.
+PR #274 accepted the manual workflow at master `b0a0173584d499a06abce870f8f0f2e46202c7b9`,
+CI `36951936364` attempt 2 (29 jobs). Manual identity enablement and complete
+readback passed; actual run `36957603644` attempt 1 passed permission and independent
+`NO_LEASE` review. The [single-disk cleanup preparation](v5.1/PHASE_6_CLEANUP_FIXTURE.md)
+is a new review/offline candidate; its real preparer, object probes, pricing and
+fixture approval remain pending. Scheduled cleanup and runner activation remain
+excluded. Required real-path qualification stays open without organization privileges.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

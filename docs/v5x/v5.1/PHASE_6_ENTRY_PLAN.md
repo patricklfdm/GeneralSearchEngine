@@ -101,7 +101,7 @@ planner; they are not a fresh quota, image, price, budget reservation or paid ap
 | Simultaneous resources | Three voter VMs, 8 vCPU each; three 50-GiB boot plus three 100-GiB data disks: 24 vCPU / 450 GiB peak. Controls run sequentially on these hosts. |
 | Provider selection | Historical reference: Standard `n2-standard-8`, `us-west4-a`, `pd-balanced`, ext4. 6B/6C must resolve and freeze exact supported image/JDK/SKU/network/volume inputs; no floating image or old availability receipt. |
 | Topology lease | At most 5400 seconds plus at most 1080 seconds operation grace. The 6B allocation must include startup, both controls, candidate warmup/cells, control overhead, validation/retention and cleanup; cleanup has an explicit reserve of at least 300 seconds. |
-| Aggregate budget proposal | USD 100 for the new V5.1 sequence, including controls, failed attempts, storage, transfer, retention and cleanup. User confirms a fresh priced request; the V5.0 ledger is not reset, transferred or reused. |
+| Aggregate budget ceiling | [Approved USD 200 cumulative V5.1 limit](PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01), including controls, failed attempts, storage, transfer, retention and cleanup. User confirms a fresh priced request; the V5.0 ledger is not reset, transferred or reused. |
 | Baseline set | One experiment + one failure-drill + three serial fresh canonical topologies. No simultaneous topologies or extra control VMs. |
 | Evidence | 6B freezes maximum expanded/compressed bytes, members, parts, diagnostics, retention duration and total storage cost before implementation admits them. |
 

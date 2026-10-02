@@ -112,11 +112,14 @@ failed charges remain recorded. Rollback uses only `manual` → `disable`, accou
 first, then provider and pool, followed by a fresh staged readback. Inspect any
 in-progress cleanup and allow for credential revocation propagation.
 
-Current status: local workflow candidate prepared; protected merge, identity
-enablement and actual manual execution remain pending. The 107-test preflight gate
-and 61 negative fixtures passed during review. This batch adds the installed-entry
-regression; local validation does not substitute for the required protected CI or
-real execution.
+PR #274 accepted the workflow at master `b0a0173584d499a06abce870f8f0f2e46202c7b9`,
+CI `36951936364` attempt 2, all 29 jobs. Three manual enable requests then completed
+with separate readback; full configuration review passed all 17 groups and all
+unrelated observations matched. Manual run `36957603644` attempt 1 passed actual
+credentials/permissions and independent `STATE_MATCH / NO_LEASE`, with unchanged
+zero-cost ledger. The [single-disk qualification preparation](PHASE_6_CLEANUP_FIXTURE.md)
+records these retained results and the next unapproved fixture boundary. Do not
+repeat enablement. Real object/resource qualification remains open.
 
 ## Proposed workflow behavior
 

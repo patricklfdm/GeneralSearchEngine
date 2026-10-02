@@ -12,8 +12,10 @@ PR #273 accepted the [immutable subject correction](#immutable-oidc-subject-comp
 at master `4cb0280356280aa23d9f6b353d26e69916067e52`, CI `36943901305`
 attempt 1 (29 jobs). [Observer preflight 36945892944](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36945892944)
 attempt 1 passed all eight checks on that source, including actual credential
-exchange and the bound project/bucket permission precheck. Cleanup and runner
-identities, object conditions and real cleanup qualification remain open.
+exchange and the bound project/bucket permission precheck. After PR #274,
+manual run `36957603644` attempt 1 also passed actual exchange and both diagnostic
+queries; independent state review confirmed `NO_LEASE`. Scheduled/runner identity
+checks, object conditions and resource cleanup qualification remain open.
 
 ## Scope and API limits
 
@@ -54,7 +56,7 @@ an authorization decision or an exhaustive privilege audit.
 | --- | --- | --- |
 | Observer | `observations` | Existing manual read-only preflight, after authentication and provider observations |
 | Runner | `run` | Shared CLI available; no paid runner workflow deployed or enabled |
-| Manual cleanup | `cleanup` | [Authorized workflow candidate](../../../.github/workflows/v51-manual-cleanup.yml), after authentication and before reconciliation |
+| Manual cleanup | `cleanup` | [Accepted workflow](../../../.github/workflows/v51-manual-cleanup.yml), after authentication and before reconciliation |
 | Scheduled cleanup | `cleanup` | Separate deployment-review proposal with the same checks and reconciliation |
 
 The entry binds numeric repository/owner IDs, master source and checkout,
@@ -232,8 +234,10 @@ receipts remain retained.
 
 ## Remaining real-path work
 
-Cleanup deployment and identity activation still need the
-[reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). Remaining real-path work
+Manual deployment, authorized enablement and empty-path validation completed via
+the [reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). The
+[single-disk preparation](PHASE_6_CLEANUP_FIXTURE.md) keeps its real fixture and
+probe driver separate from that approval. Remaining real-path work
 includes exact lease/ledger read and conditional replacement, immutable attempt
 evidence creation and prohibited deletion/replacement, out-of-scope denial,
 Compute operations, external image access and conditional IAP where applicable.
