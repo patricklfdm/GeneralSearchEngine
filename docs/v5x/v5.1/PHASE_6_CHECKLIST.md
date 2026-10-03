@@ -298,7 +298,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Separately approved schedule identity enablement and fresh configuration readback: 33 observations / 17 groups; runner disabled and control bytes unchanged.
 - [ ] Optional actual scheduled qualification; record when available, without blocking manual-based development or requiring both triggers.
 - [x] [Manual-first native preflight candidate](PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02): native control formats, shared USD 200 display and exact-attempt recent manual artifact/permission replay.
-- [ ] Protected acceptance and post-merge exact-source manual PASS / read-only preflight for this candidate; no paid admission granted.
+- [x] Manual-first native preflight protected acceptance: PR #282, master `aefaa51753c4294759981fc5feb3b2f132eae04e`, CI `37095187875` attempt 1 (29 jobs). Same-source manual `37105503864` PASS / NO_LEASE and preflight `37105539166` all nine checks PASS; original raw evidence independently replayed.
+- [x] [Runner permission entry candidate](PHASE_6_RUNNER_PREFLIGHT.md): optional same-run observer/raw-artifact gate, fixed permission queries and runner-only enable/readback/rollback package; no cloud changes.
+- [ ] Protected acceptance, separately approved runner enablement/readback and actual runner permission precheck. Default observer-only dispatch and manual-first cleanup remain available.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

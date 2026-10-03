@@ -3,6 +3,12 @@ name: V5.1 Read-only Preflight
 
 on:
   workflow_dispatch:
+    inputs:
+      check_runner_permissions:
+        description: 'Also check the separately enabled runner identity; no resource allocation'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -90,5 +96,75 @@ jobs:
         with:
           name: v51-preflight-${{ github.run_id }}-${{ github.run_attempt }}
           path: target/v51-preflight
+          if-no-files-found: warn
+          retention-days: 14
+
+  run:
+    name: Runner permission precheck (no allocation)
+    needs: observations
+    if: ${{ inputs.check_runner_permissions == true }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: v51-cloud-benchmark
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PERMISSION_ENVIRONMENT: v51-cloud-benchmark
+      RUNNER_PERMISSION_PRECHECK: ${{ inputs.check_runner_permissions }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Download this attempt's observer evidence
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v51-preflight-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-runner-precheck/preflight
+
+      - name: Bind runner identity to fresh same-run observer evidence
+        id: identity
+        run: |
+          python -m scripts.v51.cloud_runner_precheck identity --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --output target/v51-runner-precheck/identity
+
+      - name: Authenticate exact runner identity for permission queries
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          workload_identity_provider: ${{ steps.identity.outputs.provider }}
+          service_account: ${{ steps.identity.outputs.serviceAccount }}
+          create_credentials_file: true
+          export_environment_variables: true
+          cleanup_credentials: true
+
+      - name: Check actual runner permissions without cloud mutations
+        run: |
+          python -m scripts.v51.cloud_permissions --role runner --source "$GITHUB_SHA" \
+            --output target/v51-runner-precheck/permissions
+
+      - name: Report runner permission diagnostics
+        if: ${{ always() }}
+        run: |
+          if [[ -f target/v51-runner-precheck/permissions/summary.md ]]; then
+            cat target/v51-runner-precheck/permissions/summary.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+          python -m scripts.v51.cloud_runner_precheck report --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --output target/v51-runner-precheck \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain runner precheck evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-runner-precheck-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-runner-precheck
           if-no-files-found: warn
           retention-days: 14

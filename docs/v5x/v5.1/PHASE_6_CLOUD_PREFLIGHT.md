@@ -49,10 +49,19 @@ its environment, and then run `V5.1 Read-only Preflight` within two hours of the
 manual PASS. A new source requires a new exact-source cleanup receipt; the
 completed topology runs remain historical qualification evidence.
 
-This candidate opens no paid runner, performs no resource allocation, and changes
-no cleanup deletion authority. Runner identity/permission qualification, native
+PR #282 accepted this amendment at master
+`aefaa51753c4294759981fc5feb3b2f132eae04e`, exact-master CI `37095187875`
+attempt 1 (29 jobs). Manual `37105503864` attempt 1 passed with NO_LEASE;
+preflight `37105539166` attempt 1 passed all nine checks. Its original retained
+raw evidence and nested cleanup artifact independently replayed. The ledger
+retains USD 12 / 200 with no pending reservation or lease. This is historical
+acceptance, not an extension of the 900-second evidence lifetime.
+
+The next [runner permission entry candidate](PHASE_6_RUNNER_PREFLIGHT.md) adds an
+optional job after this observer report, default off, plus a separate runner
+enable/readback/rollback review. Runner identity/permission qualification, native
 workload integration, retention/price review and exact paid approval remain open.
-Its corrected-source protected CI and post-merge live preflight remain pending.
+No paid runner or resource allocation entry is exposed.
 
 ## Manual entry points
 
@@ -60,6 +69,7 @@ Its corrected-source protected CI and post-merge live preflight remain pending.
 | --- | --- | --- |
 | `V5.1 Replication Foundation (No GCP)` | `plan` or the existing 19-case fake controller qualification | No OIDC/GCP credentials; local artifacts only |
 | `V5.1 Read-only Preflight` | Exact-master GitHub observations, bounded provider GETs and project/bucket permission queries | Dedicated observer identity; no cloud writes or cleanup |
+| Optional `check_runner_permissions=true` job | Same-run raw observer replay, then fixed runner project/bucket permission queries | Separately enabled runner identity and existing environment approval; no allocation |
 
 Both dispatch only from protected master, check out the exact dispatch SHA, pin
 actions, retain failures, and use distinct V5.1 artifacts. Foundation reports the
@@ -195,9 +205,9 @@ expired receipts, nonfinite quotas, stale/foreign lease/ledger, retained failed
 charges, premature deletion and isolated observer proposals. Both manual entry
 points remain subject to corrected-source protected CI.
 
-Next: qualify actual workflow-identity required and forbidden permissions, fresh
-explicit role/binding/trust observations, V5.1 native cloud setup and shared real
-reconciliation using the already staged disabled identities;
-wire remaining frozen failure-drill/canonical cells and provider faults. Only then
+Next: review and separately enable the runner for actual workflow-identity
+permission queries, then qualify runner object/resource/IAP access and native
+owned-workload integration. Preserve the accepted manual cleanup path and wire
+remaining frozen failure-drill/canonical cells and provider faults. Only then
 can fresh cleanup, pricing, exact-request confirmation and user-triggered paid
 execution open. Neither this batch nor C21 closes all of Phase 6.

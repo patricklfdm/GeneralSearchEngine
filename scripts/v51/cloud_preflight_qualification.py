@@ -11,8 +11,9 @@ SOURCE = 'a'*40
 NOW = 1800000000
 
 
-def fixture():
-    cfg = c.read(p.CONFIG); v = cfg['provider']; workflow = (ci.ROOT/ci.WORKFLOW).read_text()
+def fixture(cfg=None):
+    cfg = c.read(p.CONFIG) if cfg is None else cfg
+    v = cfg['provider']; workflow = (ci.ROOT/ci.WORKFLOW).read_text()
     def at(seconds):return datetime.fromtimestamp(seconds, timezone.utc).isoformat().replace('+00:00','Z')
     run = dict(id=12, run_attempt=2, head_sha=SOURCE, head_branch='master', event='push', path=ci.WORKFLOW,
                status='completed', conclusion='success', repository=dict(id=ci.REPOSITORY_ID, full_name=ci.REPOSITORY, owner=dict(id=ci.OWNER_ID)))

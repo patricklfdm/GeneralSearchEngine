@@ -15,7 +15,10 @@ attempt 1 passed all eight checks on that source, including actual credential
 exchange and the bound project/bucket permission precheck. After PR #274,
 manual run `36957603644` attempt 1 also passed actual exchange and both diagnostic
 queries; independent state review confirmed `NO_LEASE`. Scheduled/runner identity
-checks, object conditions and resource cleanup qualification remain open.
+checks, object conditions and resource cleanup qualification were still open at
+that point. Subsequent manual object/topology qualification and current observer
+acceptance are recorded in the [runner entry handoff](PHASE_6_RUNNER_PREFLIGHT.md#accepted-starting-point).
+Runner remains disabled; actual scheduled qualification is optional.
 
 ## Scope and API limits
 
@@ -55,9 +58,9 @@ an authorization decision or an exhaustive privilege audit.
 | Role | Job | Entry integration |
 | --- | --- | --- |
 | Observer | `observations` | Existing manual read-only preflight, after authentication and provider observations |
-| Runner | `run` | Shared CLI available; no paid runner workflow deployed or enabled |
+| Runner | `run` | [Optional same-run precheck candidate](PHASE_6_RUNNER_PREFLIGHT.md), default off; separate enablement pending, no paid entry |
 | Manual cleanup | `cleanup` | [Accepted workflow](../../../.github/workflows/v51-manual-cleanup.yml), after authentication and before reconciliation |
-| Scheduled cleanup | `cleanup` | Separate deployment-review proposal with the same checks and reconciliation |
+| Scheduled cleanup | `cleanup` | Accepted separate scheduled workflow with the same checks and reconciliation; actual scheduled qualification optional |
 
 The entry binds numeric repository/owner IDs, master source and checkout,
 workflow path/event/environment, job, run ID/attempt, configuration digest,
@@ -235,16 +238,16 @@ receipts remain retained.
 ## Remaining real-path work
 
 Manual deployment, authorized enablement and empty-path validation completed via
-the [reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). The
-[single-disk preparation](PHASE_6_CLEANUP_FIXTURE.md) keeps its real fixture and
-probe driver separate from that approval. Remaining real-path work
-uses the [exact-request driver and optional manual canary probes](PHASE_6_CLEANUP_FIXTURE_DRIVER.md);
-their offline qualification does not establish real object permissions. It
-includes exact lease/ledger read and conditional replacement, immutable attempt
-evidence creation and prohibited deletion/replacement, out-of-scope denial,
-Compute operations, external image access and conditional IAP where applicable.
+the [reviewed sequence](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md). The separately
+approved [single-disk preparation](PHASE_6_CLEANUP_FIXTURE.md) and
+[v2 manual canary probes](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) subsequently qualified
+the actual manual object's scope; complete-topology active/grace/expired cleanup
+also passed. The accepted results are recorded above, separately from offline
+fixtures. Runner access still requires exact lease/ledger read and conditional
+replacement, immutable attempt evidence creation and prohibited deletion/replacement,
+out-of-scope denial, Compute operations, external image access and conditional IAP.
 V5.1 cleanup must replace both lease and ledger; ledger deletion permission cannot
 be globally forbidden because object replacement needs create and delete.
 
-Real cleanup state/failure qualification, paid admission and complete Phase 6
-remain open. This batch runs no cloud experiment, cleanup or configuration change.
+Remaining provider failure paths, runner qualification, paid admission and complete
+Phase 6 stay open. The runner entry candidate performs no cloud configuration change.
