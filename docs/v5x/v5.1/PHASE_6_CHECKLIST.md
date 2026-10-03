@@ -156,10 +156,15 @@ readback after eleven resources. PR #279 accepted the duration correction at
 `9542f4910da439f31356da30b121ee8ced1af6ba`, CI `37059101337` (29 jobs). Cleanup
 `37062489423` then exposed numeric-ID delete-operation URLs; follow-up `37063862494`
 removed the final detached boot disk and passed independent absence, lease-release
-and deletion-audit review. All eleven resources are gone; the deletion-operation
-correction and asynchronous dependency tests await protected CI.
-The native ledger retains USD 7 cumulatively and the FAIL completion. Do not resume that preparation or
-reuse an old probe approval or remove a failed charge.
+and deletion-audit review. All eleven resources are gone. PR #280 accepted the
+deletion-operation correction and asynchronous dependency tests at
+`e9c85c4631ce75b82fdeec3777361ddbbfe846c0`, CI `37075056038` attempt 1 (29 jobs).
+A separately approved second topology prepared all thirteen resources on that
+source; manual run `37078761266` passed independent active-state review. The
+native ledger retains USD 12 cumulatively and the earlier FAIL completions.
+Grace/expired review is pending. The [scheduled-entry candidate](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
+is prepared on a branch with a merge hold; schedule/runner identities stay disabled.
+Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
@@ -278,8 +283,13 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Complete-topology implementation protected acceptance: PR #278, master `3e7e564972be01eb5894977cdc3c05e362bda0c0`, CI `37000588745` attempt 1 (29 jobs).
 - [x] Duration-readback correction protected acceptance: PR #279, master `9542f4910da439f31356da30b121ee8ced1af6ba`, CI `37059101337` attempt 1 (29 jobs).
 - [x] Failed eleven-resource preparation cleaned up: manual `37063862494`, independent `EXPIRED_ABSENCE_CONFIRMED`, lease released, deletion audit checked and USD 7 retained. Original preparation/first cleanup remain FAIL.
-- [ ] Delete-operation numeric-ID target compatibility and asynchronous dependency correction protected acceptance; complete thirteen-resource qualification still open.
+- [x] Delete-operation numeric-ID target compatibility and asynchronous dependency correction protected acceptance: PR #280 / CI `37075056038` attempt 1 (29 jobs).
+- [x] Second separately approved topology: all thirteen resources PREPARED and independently matched; active manual run `37078761266` returned WAITING with independent STATE_MATCH and USD 12 retained.
+- [ ] Second topology grace WAITING and expired PASS independently reviewed; preserve original collector and provider audits.
 - [ ] Separately priced/approved actual topology cleanup: all thirteen exact identities, VM/disk/firewall deletion audits and retained charges.
+- [x] Scheduled cleanup deployment candidate: exact generated entry, both installed-workflow guards and post-hold operator sequence; identity remains disabled.
+- [ ] Scheduled entry protected merge after the user's two pending master follow-ups and independent review.
+- [ ] Separately approved schedule identity enablement, fresh configuration readback and actual scheduled qualification.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

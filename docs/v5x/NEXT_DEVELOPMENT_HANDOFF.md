@@ -257,10 +257,19 @@ Manual cleanup `37062489423` exposed a separate numeric-ID `targetLink` decoder
 failure: VM deletion was accepted but not awaited, and boot disk deletion was
 refused while attached. Follow-up `37063862494` passed independent absence,
 lease-release and deletion-audit review; all eleven resources are gone. The ledger
-retains USD 7 and the original FAIL completion. The deletion-operation correction
-and asynchronous dependency regressions are now pending protected CI. Full
-thirteen-resource qualification still needs a fresh reviewed/approved allocation
-after that correction is accepted. Do not resume the failed preparation.
+retains USD 7 and the original FAIL completion. PR #280 accepted the deletion-operation
+correction and asynchronous dependency regressions at master
+`e9c85c4631ce75b82fdeec3777361ddbbfe846c0`, CI `37075056038` attempt 1 (29 jobs).
+The user then approved a fresh USD 5 topology allocation: all thirteen resources
+were prepared and independently matched. Manual run `37078761266` passed active
+WAITING and independent STATE_MATCH, with USD 12 cumulatively retained.
+Grace WAITING and expired cleanup/audit review remain pending on that exact source.
+The [scheduled cleanup entry](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
+is prepared on a branch; the user holds merge until reporting the two follow-ups
+and their independent review. Preserve the original collector checkout. Schedule
+and runner identities remain disabled; schedule enablement needs its separate
+review/approval after protected acceptance. Do not resume the failed preparation
+or declare full topology/cleanup readiness from preparation or active WAITING.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no
