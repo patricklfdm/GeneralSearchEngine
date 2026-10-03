@@ -8,7 +8,9 @@ attempt 1 (29 successful jobs). PR #280 accepted the deletion-operation correcti
 at `e9c85c4631ce75b82fdeec3777361ddbbfe846c0`, exact-master CI `37075056038`
 attempt 1 (29 successful jobs). The failed eleven-resource allocation is fully
 cleaned up. The separately approved second allocation prepared all thirteen
-resources and passed active-state review; grace and expired checks remain pending.
+resources and passed independent active/grace WAITING and expired PASS review.
+All thirteen original identities are absent, the lease is released, and USD 12
+remains reserved cumulatively. Completion remains FAIL because no engine workload ran.
 
 ## Purpose and inherited state
 
@@ -128,7 +130,8 @@ Original and follow-up evidence is retained under
 `target/v51-topology-live-review/cleanup-37063862494/`. New regression logs and
 unchanged-provider-response replay are under `target/v51-delete-operation-target/`.
 PR #280 subsequently passed corrected-source protected CI `37075056038` at
-`e9c85c4631ce75b82fdeec3777361ddbbfe846c0`. Runner and scheduled identities remain disabled.
+`e9c85c4631ce75b82fdeec3777361ddbbfe846c0`. Both identities were disabled then;
+the later scheduled enablement is recorded in the deployment review.
 
 Local correction validation: 38 provider/topology tests passed; four regressions
 first failed against the original decoder. All eleven unchanged retained complete
@@ -168,15 +171,27 @@ before-state and `active-37078761266/` downloaded evidence, after-state and revi
 | Lease expires; grace begins | 2026-10-03 01:04:06 | 2026-10-02 18:04:06 PDT |
 | Expired cleanup eligible | 2026-10-03 01:22:06 | 2026-10-02 18:22:06 PDT |
 
-Grace WAITING and expired PASS are still pending, not assumed successful.
-Capture the grace after-state before eligibility, and VM state before expired
-deletion. Verify all thirteen identities absent, lease released, native completion
-and charges retained, and actual manual-identity delete audits. Preserve a detached
-checkout of `e9c85c4` for these read-only observations while developing the
-[scheduled-entry candidate](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
-on a branch. The user requested holding merge until the two follow-ups are
-reported and independently reviewed. No engine workload has run; successful
-cleanup will not turn this fixture into workload PASS or full cleanup readiness.
+Grace run `37084997701` returned WAITING and independently matched unchanged state;
+the after-state was captured at 18:18:08 PDT, before eligibility at 18:22:06.
+Expired run `37086891033` attempt 1 returned PASS and independently matched
+`STATE_MATCH / EXPIRED_ABSENCE_CONFIRMED`. All thirteen original numeric identities
+were checked absent by name and ID; the lease was released and USD 12 retained.
+The original-source collector and evidence are retained in
+`target/v51-topology-v2-review/grace-37084997701/` and
+`target/v51-topology-v2-review/expired-37086891033/`.
+
+Provider audit review matched 26 rows (13 start/end pairs) to the manual cleanup
+service account and original resource IDs. All three VM deletions completed before
+the first disk deletion. The pre-cleanup VMs were already TERMINATED by the timed
+stop but still existed; audits and absence observations establish subsequent
+deletion. The ledger retains four terminal FAIL attempts totaling USD 12; no
+engine workload ran. This closes the full-topology successful manual cleanup
+path, without claiming remaining provider failure paths or full workload readiness.
+
+The user lifted the merge hold; PR #281 merged the scheduled entry at
+`471ffd25787bcd872b1b4d71aed2ea620193eecf`, CI `37087985200` attempt 1 (29 jobs).
+Schedule enablement and the manual-first policy are recorded in the
+[deployment review](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-enablement-and-manual-first-policy--2026-10-02).
 
 ## Closed fixture profile
 
@@ -196,7 +211,9 @@ unchanged thirteen-row native inventory:
 No engine package, guest command, mount, workload, IAM grant, workflow dispatch or
 identity enablement is performed. The exact reviewed public SSH descriptor appears
 in the existing closed metadata shape. No private key is retained in evidence.
-The runner and scheduled identities remain disabled.
+The runner remains disabled. The scheduled identity was subsequently enabled by
+separate authorization; its actual scheduled qualification is optional and does
+not block development when manual cleanup evidence qualifies.
 
 ### Keep VMs present for an actual cleanup deletion
 
@@ -318,11 +335,12 @@ forbidden raw calls, source/approval gates, complete cost arithmetic and indepen
 prepared-state tampering. Existing single-disk and ordinary provider/cleanup tests
 remain required because the optional profile crosses those shared components.
 
-Actual provider qualification, scheduled identity activation, runner permissions,
+Remaining actual provider failure-path qualification, runner permissions,
 real SSH/mount integration and remaining failure-drill/canonical workload wiring
 remain open. This batch adds no CI job or Maven build and makes no claim of paid
 workload readiness. User-owned commit/push/PR can proceed on the branch; merge and
-any new cloud allocation are separate steps after the pending reviews.
+any new cloud allocation are separate steps. Actual scheduled qualification can
+be recorded later and is not a prerequisite for manual-based progression.
 
 ### Original topology implementation validation (PR #278)
 

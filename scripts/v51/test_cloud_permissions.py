@@ -177,11 +177,12 @@ class PermissionPrecheckTest(unittest.TestCase):
 
     def test_observer_report_requires_matching_fresh_network_precheck(self):
         from . import cloud_preflight_qualification as provider_fixture
+        from . import cloud_recent_cleanup
         cfg,github,provider=provider_fixture.fixture()
         self.fixture('observer');observed=self.collect()
         source=self.binding['source'];now=self.clock.wall()
         # The preflight provider/source evaluator has its own full suite. Isolate
-        # the additional same-run permission gate without fabricating cloud readiness.
+        # the same-run observer gate; recent cleanup is independently tested.
         baseline=preflight.evaluate(cfg,provider_fixture.SOURCE,github,provider,now=provider_fixture.NOW)
         for mode,expected in (('missing','BLOCKED'),('offline','BLOCKED'),('other-attempt','BLOCKED'),
                               ('stale','BLOCKED'),('network','OBSERVATIONS_READY')):
@@ -198,6 +199,7 @@ class PermissionPrecheckTest(unittest.TestCase):
                 with patch('sys.argv',argv),patch.dict(preflight.os.environ,self.env,clear=True),\
                      patch.object(preflight.subprocess,'check_output',return_value=source+'\n'),\
                      patch.object(preflight,'evaluate',return_value=deepcopy(baseline)),\
+                     patch.object(cloud_recent_cleanup,'check_saved',return_value=dict(status='PASS',detail=dict(expiresAt=now+100))),\
                      patch.object(preflight.time,'time',return_value=now),contextlib.redirect_stdout(io.StringIO()):
                     if expected=='BLOCKED':
                         with self.assertRaises(SystemExit) as error:preflight.main()

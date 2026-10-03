@@ -263,13 +263,29 @@ correction and asynchronous dependency regressions at master
 The user then approved a fresh USD 5 topology allocation: all thirteen resources
 were prepared and independently matched. Manual run `37078761266` passed active
 WAITING and independent STATE_MATCH, with USD 12 cumulatively retained.
-Grace WAITING and expired cleanup/audit review remain pending on that exact source.
-The [scheduled cleanup entry](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
-is prepared on a branch; the user holds merge until reporting the two follow-ups
-and their independent review. Preserve the original collector checkout. Schedule
-and runner identities remain disabled; schedule enablement needs its separate
-review/approval after protected acceptance. Do not resume the failed preparation
-or declare full topology/cleanup readiness from preparation or active WAITING.
+Grace run `37084997701` independently matched unchanged WAITING state before
+eligibility. Expired run `37086891033` independently matched PASS and all thirteen
+original resource IDs absent, lease released and USD 12 retained. Provider audits
+matched 26 start/end rows to the manual service account, with VM deletion before
+disk deletion. All four cleanup-only attempts retain terminal FAIL; none ran an
+engine workload. Evidence remains under `target/v51-topology-v2-review/`.
+
+PR #281 accepted the [scheduled cleanup entry](v5.1/PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
+at master `471ffd25787bcd872b1b4d71aed2ea620193eecf`, exact-master CI `37087985200`
+attempt 1 (29 jobs). The separately authorized provider/pool/account enablement
+completed; all 33 observations / 17 groups passed. Manual and schedule are enabled,
+runner is disabled, and lease/ledger bytes and generations stayed unchanged.
+Evidence: `target/v51-schedule-activation-review/`. Do not repeat enablement.
+
+**Current operator direction:** manual cleanup is primary; actual schedule runs
+are optional and must not delay development. Preserve the schedule; the user will
+report a run for later qualification. The [native preflight candidate](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02)
+fixes fake-format parsing of the live ledger and the old USD 100 display, and
+collects exact-source recent manual PASS evidence without querying schedule.
+Its protected merge and post-merge manual/preflight remain pending. After that,
+continue concrete runner permission/native workload preparation; paid execution
+and runner enablement retain their separate review and authorization boundaries.
+Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no

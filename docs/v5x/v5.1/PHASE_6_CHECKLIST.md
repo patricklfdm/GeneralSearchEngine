@@ -162,8 +162,14 @@ deletion-operation correction and asynchronous dependency tests at
 A separately approved second topology prepared all thirteen resources on that
 source; manual run `37078761266` passed independent active-state review. The
 native ledger retains USD 12 cumulatively and the earlier FAIL completions.
-Grace/expired review is pending. The [scheduled-entry candidate](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
-is prepared on a branch with a merge hold; schedule/runner identities stay disabled.
+Grace `37084997701` and expired `37086891033` independently matched WAITING/PASS;
+all thirteen resources are absent and manual-identity deletion audits passed.
+PR #281 accepted the scheduled entry at `471ffd25787bcd872b1b4d71aed2ea620193eecf`,
+CI `37087985200` attempt 1 (29 jobs). Separately authorized schedule enablement
+passed all 33 readbacks / 17 groups; runner remains disabled. The operator now
+makes [manual cleanup primary and scheduled qualification optional](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-enablement-and-manual-first-policy--2026-10-02),
+so waiting for a schedule must not block development. The next candidate connects
+native control records and recent manual evidence to the read-only preflight.
 Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
@@ -259,7 +265,7 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Runtime OIDC path correction accepted: PR #272 / CI `36934779388` attempt 2 (29 jobs).
 - [x] Immutable OIDC subject correction accepted: PR #273 / CI `36943901305` attempt 1 (29 jobs).
 - [x] 6C3C31 actual observer precheck: run `36945892944` attempt 1, all eight checks PASS; historical evidence does not extend its 900-second freshness.
-- [ ] Actual observer/runner/manual/scheduled identity required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory.
+- [ ] Actual observer/runner/selected-cleanup required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory. Manual suffices; scheduled qualification is optional.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
 - [x] Separately authorized disabled identity application and exact readback on 2026-09-30: 45 commands, 33 audit reads, `STAGED_MATCH`; all identities remain disabled.
@@ -278,18 +284,21 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Protected acceptance of the [v2 object probe correction](PHASE_6_CLEANUP_FIXTURE_DRIVER.md#first-live-attempt-and-412-correction--2026-10-02): PR #277, master `f299b61a2e724ffb45c27a2c9150965d09626655`, CI `36986377529` attempt 1 (29 jobs). Original `36976479227` 412 evidence stays FAIL.
 - [x] Original fixture expired cleanup `36985944368`: independent absence/ledger and provider delete-audit review passed. Its grace run `36984397533` returned WAITING; no independent post-grace snapshot was captured before deletion.
 - [x] New exact-request v2 approval and preparation; run `36989911551` passed all eight object probes and independent `OBJECT_SCOPE_MATCH` / active `STATE_MATCH`. Grace `36998281162` returned WAITING; expired `36999734150` passed independent absence/ledger and deletion-audit review. Its post-grace independent snapshot remains missing.
-- [ ] Actual manual object permissions, active/grace and expired-resource qualification; no-lease PASS alone cannot qualify deletion or complete cleanup readiness.
+- [x] Actual manual object-scope probes (v2 single disk), and complete-topology active/grace/expired successful-path qualification; remaining provider failure paths and runner permissions stay open.
 - [x] [Complete-topology cleanup candidate](PHASE_6_CLEANUP_TOPOLOGY.md): exact-request preparation, request-bound timed-stop fixture profile, independent preparation review and offline manual/schedule reconstruction; no new cloud allocation.
 - [x] Complete-topology implementation protected acceptance: PR #278, master `3e7e564972be01eb5894977cdc3c05e362bda0c0`, CI `37000588745` attempt 1 (29 jobs).
 - [x] Duration-readback correction protected acceptance: PR #279, master `9542f4910da439f31356da30b121ee8ced1af6ba`, CI `37059101337` attempt 1 (29 jobs).
 - [x] Failed eleven-resource preparation cleaned up: manual `37063862494`, independent `EXPIRED_ABSENCE_CONFIRMED`, lease released, deletion audit checked and USD 7 retained. Original preparation/first cleanup remain FAIL.
 - [x] Delete-operation numeric-ID target compatibility and asynchronous dependency correction protected acceptance: PR #280 / CI `37075056038` attempt 1 (29 jobs).
 - [x] Second separately approved topology: all thirteen resources PREPARED and independently matched; active manual run `37078761266` returned WAITING with independent STATE_MATCH and USD 12 retained.
-- [ ] Second topology grace WAITING and expired PASS independently reviewed; preserve original collector and provider audits.
-- [ ] Separately priced/approved actual topology cleanup: all thirteen exact identities, VM/disk/firewall deletion audits and retained charges.
-- [x] Scheduled cleanup deployment candidate: exact generated entry, both installed-workflow guards and post-hold operator sequence; identity remains disabled.
-- [ ] Scheduled entry protected merge after the user's two pending master follow-ups and independent review.
-- [ ] Separately approved schedule identity enablement, fresh configuration readback and actual scheduled qualification.
+- [x] Second topology grace `37084997701` WAITING and expired `37086891033` PASS independently reviewed; original collector and provider audits retained.
+- [x] Separately approved actual topology cleanup: all thirteen exact identities absent, 26 VM/disk/firewall audit rows matched to manual identity, lease released and USD 12 retained.
+- [x] Scheduled cleanup deployment candidate: exact generated entry, both installed-workflow guards and post-hold operator sequence.
+- [x] Scheduled entry protected merge after both follow-ups: PR #281, master `471ffd25787bcd872b1b4d71aed2ea620193eecf`, CI `37087985200` attempt 1 (29 jobs).
+- [x] Separately approved schedule identity enablement and fresh configuration readback: 33 observations / 17 groups; runner disabled and control bytes unchanged.
+- [ ] Optional actual scheduled qualification; record when available, without blocking manual-based development or requiring both triggers.
+- [x] [Manual-first native preflight candidate](PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02): native control formats, shared USD 200 display and exact-attempt recent manual artifact/permission replay.
+- [ ] Protected acceptance and post-merge exact-source manual PASS / read-only preflight for this candidate; no paid admission granted.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
