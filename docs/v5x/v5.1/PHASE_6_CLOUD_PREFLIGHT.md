@@ -17,6 +17,43 @@ native cleanup and paid admission remain open. Inherited IAM remains unassessed
 under the [bounded review amendment](PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30). The next candidate stages
 [disabled runner and cleanup identities](PHASE_6_CLOUD_IDENTITIES.md).
 
+## Manual-first native preflight amendment — 2026-10-02
+
+The operator no longer requires a scheduled run before continuing development.
+Default preflight collects **manual cleanup only**; scheduler delay or absence is
+not a blocker. The shared authority still accepts either qualifying trigger, and
+the receipt checker can independently validate a selected scheduled run. This
+does not claim that GitHub scheduling is timely or that an unattended watchdog
+has been qualified. The schedule stays enabled; its evidence can be reviewed later.
+
+The report now requires a recent manual PASS for the **same source**, with its
+latest run attempt, actual successful cleanup steps, and retained native receipt.
+`WAITING`, a skipped step, an older success hidden by a newer failure, an expired
+or missing artifact, a different source, or an offline receipt blocks the report.
+Collection uses bounded GitHub GETs, an attempt-named artifact, its GitHub SHA-256
+and source/run metadata, and post-download run/artifact readback. Only required
+bounded JSON members are decoded; archive paths are not extracted. Same-run
+project/bucket permission observations are recomputed at their original timestamp.
+This does not substitute for object-scope, deletion-audit or failure-path qualification.
+
+Cleanup completion must be within 7,200 seconds; collected observations retain
+the 900-second freshness bound. No timestamps, history or charges are reset.
+The summary displays the shared **USD 200** ceiling and prior reserved amount.
+Cloud control observations use explicit **native** ledger/lease formats; fake
+records cannot stand in for cloud state. A retained lease or unresolved
+reservation still blocks, even after expiry.
+
+After protected merge and successful exact-master CI, the operator can run
+`V5.1 Manual Cleanup` on that master with `object_probe_request` empty, approve
+its environment, and then run `V5.1 Read-only Preflight` within two hours of the
+manual PASS. A new source requires a new exact-source cleanup receipt; the
+completed topology runs remain historical qualification evidence.
+
+This candidate opens no paid runner, performs no resource allocation, and changes
+no cleanup deletion authority. Runner identity/permission qualification, native
+workload integration, retention/price review and exact paid approval remain open.
+Its corrected-source protected CI and post-merge live preflight remain pending.
+
 ## Manual entry points
 
 | Workflow | Execution | Credentials / cloud effects |

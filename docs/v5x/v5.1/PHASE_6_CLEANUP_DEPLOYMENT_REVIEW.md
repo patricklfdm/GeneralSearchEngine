@@ -17,6 +17,11 @@ or activation approval. The [IAM scope amendment](PHASE_6_CLEANUP_STATE_REVIEW.m
 makes ancestor-policy reads optional while retaining required configuration,
 permission and cleanup checks. No extra organization privilege is requested.
 
+**Current state:** manual and scheduled cleanup entries are merged and their
+identities enabled; runner remains disabled. Manual topology cleanup is verified.
+The [latest operator amendment](#scheduled-enablement-and-manual-first-policy--2026-10-02)
+makes actual scheduled qualification optional and nonblocking for development.
+
 ## Concrete review package
 
 The [deployment generator](../../../scripts/v51/cloud_cleanup_deployment.py)
@@ -127,8 +132,8 @@ The operator requested branch development and PR preparation while the current
 master topology completes its grace and expired checks. The
 [scheduled entry](../../../.github/workflows/v51-expired-cleanup.yml) now matches
 the deployment generator, including a schedule-specific explanatory comment.
-The manual entry's bytes and behavior are unchanged. Protected acceptance of this
-candidate and schedule identity enablement are still pending.
+The manual entry's bytes and behavior are unchanged. The candidate was subsequently
+accepted through PR #281 and its identity separately enabled, as recorded below.
 
 The entry runs at minute 7/22/37/52, binds `event=schedule`, the exact master
 source and `.github/workflows/v51-expired-cleanup.yml`, and uses the dedicated
@@ -138,7 +143,10 @@ concurrency and the same reconciliation implementation with manual cleanup.
 Installed-file validation now guards both entries; changing a generated schedule
 and recomputing its manifest hash cannot bypass review.
 
-### Merge hold and next operator steps
+### Original merge hold and operator sequence
+
+Steps 1–4 below are completed. Step 5 qualifies the scheduled identity itself and
+is optional for continued development under the later operator amendment.
 
 1. Keep master at `e9c85c4631ce75b82fdeec3777361ddbbfe846c0` through the
    [second topology's](PHASE_6_CLEANUP_TOPOLOGY.md#second-live-topology--2026-10-02)
@@ -172,6 +180,37 @@ No identity, grant, lease, resource, budget or cloud workflow is changed/execute
 by preparing this branch. Merge, enablement and paid workload approval are
 distinct steps. The existing admission rule still accepts a qualifying recent
 manual **or** scheduled receipt; installing this entry does not require both.
+
+## Scheduled enablement and manual-first policy — 2026-10-02
+
+After independent grace and expired review of the second complete topology,
+PR #281 merged at `471ffd25787bcd872b1b4d71aed2ea620193eecf`; exact-master CI
+`37087985200` attempt 1 passed all 29 jobs. The operator separately authorized
+schedule enablement against plan SHA-256
+`6d96b27d7e005cc083cc6cb6fb313cd23c2c27b9c39affb88a9d13b363a7effb`.
+
+Each provider, pool and service-account enable request was issued once. The
+provider's first readback still showed disabled; later GETs resolved propagation
+without replaying the mutation. The original ambiguous receipt and resolution
+remain retained. Complete readback passed all 33 observations / 17 groups:
+only the three scheduled-identity disable bits changed, manual remains enabled,
+runner remains disabled, and native lease/ledger bytes and generations stayed
+unchanged. Evidence: `target/v51-schedule-activation-review/`, including
+`application/receipt.json`, `enabled-readback/` and the evidence index.
+
+The workflow is active, but no actual scheduled run was observed in this review.
+The operator explicitly changed progression policy: **manual cleanup is the
+primary route; a scheduled run is not required and must not block development**.
+Keep the schedule and its exact trust/ownership/expiry restrictions. Review its
+actual identity and results when the user reports a run, without assuming a
+scheduling SLA or claiming scheduled qualification from manual evidence.
+
+The [native preflight candidate](PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02)
+collects recent exact-source manual PASS evidence by default. Resource deletion
+rules, required permissions, retained charges, and separate paid-run approval
+remain in force. Do not re-enable already enabled identities or request the same
+authorization again. Next development targets runner/native workload preparation;
+actual runner enablement and cloud experiments still need their own concrete review.
 
 ## Proposed workflow behavior
 

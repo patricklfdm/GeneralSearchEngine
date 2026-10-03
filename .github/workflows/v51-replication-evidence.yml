@@ -51,6 +51,9 @@ jobs:
       - name: Collect exact-source CI and owned experiment status
         run: python -m scripts.v51.cloud_preflight github --source "$GITHUB_SHA" --output target/v51-preflight
 
+      - name: Collect recent manual cleanup evidence (schedule optional)
+        run: python -m scripts.v51.cloud_preflight cleanup --source "$GITHUB_SHA" --output target/v51-preflight
+
       - name: Authenticate dedicated read-only observer
         uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
         with:

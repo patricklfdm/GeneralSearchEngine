@@ -10,6 +10,12 @@ import unittest
 from unittest.mock import Mock
 from . import cloud_ci as ci, cloud_preflight as p, cloud_preflight_qualification as q
 from . import cloud_authority as a, cloud_fake, cloud_http, performance_model as m
+from . import cloud_native_authority as n
+
+
+def native_fixture(cost=1_000_000):
+    req=n.request('a'*40,'d'*64,'e'*64,'c'*32,'b'*32,'experiment',now=10001,guest_access_sha256='f'*64)
+    return req,None,dict(previousCostMicrousd=0,maximumCostMicrousd=cost)
 
 
 class PreflightTest(unittest.TestCase):
@@ -115,30 +121,33 @@ class PreflightTest(unittest.TestCase):
         self.setUp();rows=self.provider['observations']['region']['quotas'];rows.append(rows[0]);self.blocked('quota')
         self.setUp();self.provider['observations']['region']['quotas'].pop();self.blocked('quota')
     def test_lease_even_expired_never_counts_as_absent(self):
-        req,_,_=cloud_fake.fixture();lease=a.lease(req,req['createdAt'])
+        req,_,_=native_fixture();lease=n.lease(req,req['createdAt'])
         self.provider['observations']['lease']=[8,lease];self.blocked('controlState')
         self.assertLess(lease['expiresAt']+lease['graceSeconds'],q.NOW)
     def test_missing_ledger_does_not_reset_pending_or_failed_attempts(self):
-        req,_,approval=cloud_fake.fixture();ledger=a.reserve(a.empty_ledger(),req,approval)
+        req,_,approval=native_fixture();ledger=n.reserve(n.empty_ledger(),req,approval)
         self.provider['observations']['ledger']=[1,ledger];self.blocked('controlState')
-        ledger=a.finish(ledger,req,dict(requestSha256=a.validate_request(req),status='FAIL'))
+        ledger=n.finish(ledger,req,dict(requestSha256=n.validate_request(req),status='FAIL'))
         self.provider['observations']['ledger']=[2,ledger]
         self.assertEqual(self.evaluate()['checks']['controlState']['detail']['previousCostMicrousd'],1_000_000)
         self.provider['observations']['ledger']={'error':'denied'};self.blocked('controlState')
     def test_foreign_ledger_and_exhausted_budget(self):
         self.provider['observations']['ledger']=[1,{'schema':'gse-v50-budget-v1','reservations':[]}];self.blocked('controlState')
-        req,_,approval=cloud_fake.fixture(cost=200_000_000)
-        ledger=a.finish(a.reserve(a.empty_ledger(),req,approval),req,dict(requestSha256=a.validate_request(req),status='FAIL'))
+        req,_,approval=native_fixture(cost=200_000_000)
+        ledger=n.finish(n.reserve(n.empty_ledger(),req,approval),req,dict(requestSha256=n.validate_request(req),status='FAIL'))
         self.provider['observations']['ledger']=[1,ledger];self.blocked('controlState')
     def test_preflight_retains_charges_and_reports_200_dollar_ceiling(self):
         for cost in (100_000_000,199_999_999):
             with self.subTest(cost=cost):
-                req,_,approval=cloud_fake.fixture(cost=cost)
-                ledger=a.finish(a.reserve(a.empty_ledger(),req,approval),req,dict(requestSha256=a.validate_request(req),status='FAIL'))
+                req,_,approval=native_fixture(cost=cost)
+                ledger=n.finish(n.reserve(n.empty_ledger(),req,approval),req,dict(requestSha256=n.validate_request(req),status='FAIL'))
                 self.provider['observations']['ledger']=[1,ledger]
                 result=self.evaluate()['checks']['controlState']
                 self.assertEqual('PASS',result['status'])
                 self.assertEqual(dict(previousCostMicrousd=cost,budgetMicrousd=200_000_000,leaseAbsent=True),result['detail'])
+    def test_fake_ledger_cannot_replace_native_control_state(self):
+        self.provider['observations']['ledger']=[1,a.empty_ledger()]
+        self.blocked('controlState')
     def test_storage_hold_lock_and_early_deletion_block(self):
         for change in ({'defaultEventBasedHold':True},{'retentionPolicy':{'retentionPeriod':'2592000'}},
                        {'lifecycle':{'rule':[{'action':{'type':'Delete'},'condition':{'age':29}}]}},
@@ -159,7 +168,7 @@ class PreflightTest(unittest.TestCase):
     def test_summary_escapes_dynamic_text_and_shows_bounds(self):
         r=self.evaluate();r['checks']['example']=dict(status='BLOCKED',reason='<script>|\ntext')
         s=p.summary(r,self.cfg);self.assertNotIn('<script>',s);self.assertIn('&#124;',s)
-        for text in ('24 vCPU','450 GiB','paid admission remains closed','100; reservations never reset'):self.assertIn(text,s)
+        for text in ('24 vCPU','450 GiB','paid admission remains closed','200; reservations never reset'):self.assertIn(text,s)
 
 
 class GitHubCollectionTest(unittest.TestCase):

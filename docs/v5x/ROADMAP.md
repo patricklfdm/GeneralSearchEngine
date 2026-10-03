@@ -224,13 +224,19 @@ readback passed; actual run `36957603644` attempt 1 passed permission and indepe
 at master `35befc9adf41bf90520099721354632ff429bebf`, CI `36963053297` attempt 2.
 The [fixture/probe driver](v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md) and generation
 correction are accepted through PR #277 / CI `36986377529` attempt 1. The original
-disk's expired cleanup was independently verified; the newly approved v2 fixture
-passed object and active-state review in run `36989911551`, with grace/expired
-reviews still pending. The [complete-topology cleanup candidate](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)
-adds branch-only preparation/reconstruction qualification before actual VM/disk/
-firewall testing; protected acceptance and exact allocation approval remain open.
-Scheduled cleanup and runner activation remain
-excluded. Required real-path qualification stays open without organization privileges.
+disk's expired cleanup was independently verified; the v2 fixture passed all eight
+object probes, and its later expired cleanup passed independent absence/audit review.
+The [complete-topology implementation](v5.1/PHASE_6_CLEANUP_TOPOLOGY.md) and corrections
+are accepted through PR #280. The second authorized allocation passed active and
+grace WAITING, then expired PASS in run `37086891033`: all thirteen original IDs
+absent, deletion audits matched, lease released, USD 12 cumulatively retained.
+PR #281 / CI `37087985200` accepted the scheduled entry; separate enablement and
+33-observation readback completed. Runner stays disabled. Per the operator's
+[manual-first amendment](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02),
+actual schedule qualification is optional and cannot block further development.
+The current native-preflight candidate fixes ledger format/budget reporting and
+validates recent exact-source manual evidence. Protected acceptance, live preflight,
+runner permissions and remaining native workload integration stay open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

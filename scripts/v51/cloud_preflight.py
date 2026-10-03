@@ -7,15 +7,15 @@ from pathlib import Path
 import subprocess
 import time
 from . import cloud_authority as a, cloud_ci as ci, cloud_gcp as gcp, cloud_http
+from . import cloud_native_authority as native
 from . import performance_model as m, remote_command as c
 
 CONFIG = ci.ROOT/ci.CONFIG_PATH
 IAM_LIMITATION = ('Organization/folder inherited policies are not assessed; reading them is optional and is not an admission prerequisite. '
                  'This does not establish the absence of broader grants; required workflow-identity permissions and forbidden-action probes remain mandatory.')
 PENDING = ('explicit observer WIF, role/binding and environment review',
-           'V5.1 runner/cleanup WIF, explicit role/binding and environment qualification',
-           'actual observer/runner/cleanup identity required permissions and forbidden-action probes',
-           'recent exact-source scheduled or manual V5.1 cleanup with retained PASS reconciliation',
+           'V5.1 runner and selected cleanup identity qualification; schedule is optional',
+           'actual observer/runner/selected-cleanup required permissions and forbidden-action probes',
            'native cloud adapter and all preset workload qualification',
            'immutable evidence retention and full sequence price review',
            'exact-request paid confirmation and user-triggered execution')
@@ -67,7 +67,7 @@ def collect_provider(cfg, *, api=None, who=principal, wall=time.time):
     capture('principal', who)
     for label, url in queries(cfg).items():
         capture(label, lambda url=url: api.call('GET', url, deadline=deadline, maximum=1 << 20))
-    store = gcp.Store(cfg['provider'], api)
+    store = gcp.Store(cfg['provider'], api, authority=native)
     for label, key in (('lease', a.LEASE), ('ledger', a.LEDGER)):
         capture(label, lambda key=key: store.get(key))
     return dict(execution='offline-preflight-fixture' if api.offline else 'read-only-provider-observations',
@@ -140,8 +140,8 @@ def check_provider(cfg, evidence):
         def entry(value):
             m.need(type(value) in (list, tuple) and len(value) == 2, 'control observation unavailable')
             a.integer(value[0], 1); return value[1]
-        total, attempts = a.inspect_ledger(entry(ledger) if ledger is not None else a.empty_ledger())
-        if lease is not None:a.validate_lease(entry(lease))
+        total, attempts = native.inspect_ledger(entry(ledger) if ledger is not None else native.empty_ledger())
+        if lease is not None:native.validate_lease(entry(lease))
         m.need(lease is None, 'retained lease requires reconciliation; expiry does not authorize reset')
         m.need(not any(v['status'] == 'PENDING' for v in attempts.values()), 'unresolved ledger reservation')
         m.need(total < a.MAXIMUM_BUDGET_MICROUSD, 'suite budget exhausted')
@@ -187,7 +187,8 @@ def summary(receipt, cfg):
              '| Parameter | Value |', '| --- | --- |']
     for key, value in [('Source', receipt['source']), ('Project', p['project']), ('Zone', p['zone']), ('Machine', p['machineType']),
                        ('Topology', '3 voters / 24 vCPU / 450 GiB'), ('Image', p['imageName']+' / '+p['imageId']),
-                       ('Bucket', p['bucket']), ('Suite budget (USD)', '100; reservations never reset'),
+                       ('Bucket', p['bucket']), ('Suite budget (USD)', f'{a.MAXIMUM_BUDGET_MICROUSD/1_000_000:g}; reservations never reset'),
+                       ('Cleanup policy', 'Recent manual PASS by default; schedule is optional and does not block development'),
                        ('Observed at / expires (UTC epoch)', f'{receipt["observedAt"]} / {receipt["expiresAt"]}'),
                        ('Execution', receipt['execution'])]:lines.append('| '+safe(key)+' | '+safe(value)+' |')
     lines.extend(['', '| Check | Result | Detail |', '| --- | --- | --- |'])
@@ -198,7 +199,7 @@ def summary(receipt, cfg):
 
 
 def main():
-    p = argparse.ArgumentParser(description=__doc__);p.add_argument('action', choices=('identity', 'github', 'provider', 'report', 'foundation'))
+    p = argparse.ArgumentParser(description=__doc__);p.add_argument('action', choices=('identity', 'github', 'provider', 'cleanup', 'report', 'foundation'))
     p.add_argument('--source', required=True);p.add_argument('--output', type=Path, required=True)
     p.add_argument('--execution', choices=('plan', 'fake'), default='plan');p.add_argument('--github-step-summary', type=Path)
     args = p.parse_args();a.digest(args.source, 40);cfg = c.read(CONFIG);configuration(cfg)
@@ -215,6 +216,9 @@ def main():
                      if args.action == 'github' else collect_provider(cfg))
         except Exception as error:value = dict(source=args.source, startedAt=start, completedAt=int(time.time()), error=type(error).__name__)
         c.write_once(args.output/(args.action+'.json'), value)
+    elif args.action == 'cleanup':
+        from . import cloud_recent_cleanup
+        cloud_recent_cleanup.collect(cfg, args.source, args.output/'cleanup')
     elif args.action == 'foundation':
         from . import cloud_qualification
         value = dict(schema='gse-v51-foundation-workflow-v1', source=args.source, execution='offline-'+args.execution,
@@ -238,6 +242,12 @@ def main():
         value['checks']['identityPermissionPrecheck'] = check
         if check['status'] != 'PASS':
             value['status'] = 'BLOCKED'; value['blockers'].append('identityPermissionPrecheck: '+check['reason'])
+        from . import cloud_recent_cleanup
+        check = cloud_recent_cleanup.check_saved(cfg, args.source, args.output/'cleanup', now=int(time.time()))
+        value['checks']['recentCleanup'] = check
+        if check['status'] != 'PASS':
+            value['status'] = 'BLOCKED'; value['blockers'].append('recentCleanup: '+check['reason'])
+        else:value['expiresAt'] = min(value['expiresAt'], check['detail']['expiresAt'])
         c.write_once(args.output/'preflight.json', value)
         text = summary(value, cfg);(args.output/'summary.md').write_text(text)
         if args.github_step_summary:
