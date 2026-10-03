@@ -4,9 +4,11 @@
 `3e7e564972be01eb5894977cdc3c05e362bda0c0`, exact-master CI `37000588745`
 attempt 1 (29 successful jobs). PR #279 accepted the duration-readback correction
 at `9542f4910da439f31356da30b121ee8ced1af6ba`, exact-master CI `37059101337`
-attempt 1 (29 successful jobs). The failed eleven-resource allocation is now fully
-cleaned up; the deletion-operation correction below remains a candidate awaiting
-protected CI. Its cleanup does not qualify a complete thirteen-resource topology.
+attempt 1 (29 successful jobs). PR #280 accepted the deletion-operation correction
+at `e9c85c4631ce75b82fdeec3777361ddbbfe846c0`, exact-master CI `37075056038`
+attempt 1 (29 successful jobs). The failed eleven-resource allocation is fully
+cleaned up. The separately approved second allocation prepared all thirteen
+resources and passed active-state review; grace and expired checks remain pending.
 
 ## Purpose and inherited state
 
@@ -125,8 +127,8 @@ Original and follow-up evidence is retained under
 `target/v51-topology-live-review/cleanup-37062489423/` and
 `target/v51-topology-live-review/cleanup-37063862494/`. New regression logs and
 unchanged-provider-response replay are under `target/v51-delete-operation-target/`.
-Corrected-source protected CI remains required before another separately reviewed
-and approved full-topology allocation. Runner and scheduled identities remain disabled.
+PR #280 subsequently passed corrected-source protected CI `37075056038` at
+`e9c85c4631ce75b82fdeec3777361ddbbfe846c0`. Runner and scheduled identities remain disabled.
 
 Local correction validation: 38 provider/topology tests passed; four regressions
 first failed against the original decoder. All eleven unchanged retained complete
@@ -140,6 +142,41 @@ identity/permission negatives, eight single-disk cases, five fixture/probe chain
 and all 24 topology/manual/schedule outcomes at
 `target/v51-cloud-preflight/run.we1sv3/`. No live allocation or cleanup was run
 during this correction.
+
+## Second live topology — 2026-10-02
+
+After PR #280 acceptance, the user approved a fresh source/price/configuration
+review and one USD 5 reservation. The fixture digest is
+`7a2370252776e245dbde0a6b2f78910b6f32038ab183b25d17134e64dee08ce7`, native request
+`39479dcbee806f17ee40b483de4a8b5ad5452fd9d78e07f6f5737bbe36ef7711`, attempt
+`b1c42040da52468dbdc6e9c14965df0b`. Preparation ran once on the accepted
+`e9c85c4` source and returned PREPARED for all thirteen original resource IDs.
+Independent GET-only review returned PREPARATION_STATE_MATCH; all three VMs
+were RUNNING at that observation. The ledger preserves the previous USD 7 and
+adds USD 5, for USD 12 total; the new attempt remains PENDING.
+
+Manual run [37078761266](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37078761266)
+attempt 1 passed its actual permission precheck and returned WAITING. Independent
+before/after review returned `STATE_MATCH / ACTIVE_OR_GRACE`: all thirteen exact
+identities, lease and ledger remained unchanged. Evidence is retained under
+`target/v51-topology-v2-review/`, including original approval/preparation, original
+before-state and `active-37078761266/` downloaded evidence, after-state and review.
+
+| Boundary | UTC | America/Los_Angeles |
+| --- | --- | --- |
+| Lease start | 2026-10-02 23:34:06 | 2026-10-02 16:34:06 PDT |
+| Lease expires; grace begins | 2026-10-03 01:04:06 | 2026-10-02 18:04:06 PDT |
+| Expired cleanup eligible | 2026-10-03 01:22:06 | 2026-10-02 18:22:06 PDT |
+
+Grace WAITING and expired PASS are still pending, not assumed successful.
+Capture the grace after-state before eligibility, and VM state before expired
+deletion. Verify all thirteen identities absent, lease released, native completion
+and charges retained, and actual manual-identity delete audits. Preserve a detached
+checkout of `e9c85c4` for these read-only observations while developing the
+[scheduled-entry candidate](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-deployment-candidate--2026-10-02)
+on a branch. The user requested holding merge until the two follow-ups are
+reported and independently reviewed. No engine workload has run; successful
+cleanup will not turn this fixture into workload PASS or full cleanup readiness.
 
 ## Closed fixture profile
 
@@ -309,4 +346,4 @@ Logs and final candidate file hashes are retained under
 the new manifest and test-fixture setup errors, corrected before the final gate.
 Those original candidate checks were subsequently accepted by PR #278 and
 CI `37000588745`. The duration-readback correction passed CI `37059101337`;
-protected CI for the deletion-operation correction remains pending.
+the deletion-operation correction passed CI `37075056038` through PR #280.

@@ -121,6 +121,58 @@ zero-cost ledger. The [single-disk qualification preparation](PHASE_6_CLEANUP_FI
 records these retained results and the next unapproved fixture boundary. Do not
 repeat enablement. Real object/resource qualification remains open.
 
+## Scheduled deployment candidate — 2026-10-02
+
+The operator requested branch development and PR preparation while the current
+master topology completes its grace and expired checks. The
+[scheduled entry](../../../.github/workflows/v51-expired-cleanup.yml) now matches
+the deployment generator, including a schedule-specific explanatory comment.
+The manual entry's bytes and behavior are unchanged. Protected acceptance of this
+candidate and schedule identity enablement are still pending.
+
+The entry runs at minute 7/22/37/52, binds `event=schedule`, the exact master
+source and `.github/workflows/v51-expired-cleanup.yml`, and uses the dedicated
+`v51-cloud-cleanup` environment and `gse-v51-cleanup` identity. It has no manual
+dispatch, object probe or force-delete input. It shares `v51-native-cleanup`
+concurrency and the same reconciliation implementation with manual cleanup.
+Installed-file validation now guards both entries; changing a generated schedule
+and recomputing its manifest hash cannot bypass review.
+
+### Merge hold and next operator steps
+
+1. Keep master at `e9c85c4631ce75b82fdeec3777361ddbbfe846c0` through the
+   [second topology's](PHASE_6_CLEANUP_TOPOLOGY.md#second-live-topology--2026-10-02)
+   remaining observations. Branch CI may run, but merge waits for the user's
+   confirmation and independent review of grace WAITING and expired PASS,
+   including resource absence, retained charges and provider deletion audits.
+   Preserve the original source/collector for both observations. A failing result
+   remains retained and must be diagnosed before treating the hold as satisfied.
+2. After the hold is satisfied and protected CI passes, the user may merge this
+   deployment candidate. The schedule identity remains disabled. A scheduled
+   authentication failure during that interval is expected and is not readiness.
+3. On the accepted master source, regenerate and validate the review package above
+   in a fresh directory, then run `readback --state manual`. Review remaining
+   qualification gaps and the exact schedule-only enable/rollback commands with
+   the user. The earlier manual authorization does not enable this identity.
+4. After separate schedule enablement approval, execute only `commands.json` →
+   `schedule` → `enable`, with individual readback and then `readback --state cleanup`.
+   Leave the runner disabled. An ambiguous update requires inspection before any
+   resumption. Manual enablement must not be repeated.
+5. Retain an actual scheduled run and independently review its before/after state,
+   actual identity/permission receipt and exact run attempt. Manual receipts do
+   not establish the scheduled identity's real-path access. An empty-lease PASS
+   covers the scheduled empty path only; resource deletion/denial qualification
+   and full readiness remain separate. Preserve the original run and attempt
+   identity if investigating or re-running a failure.
+
+Rollback uses only `schedule` → `disable` in account/provider/pool order, followed
+by `readback --state manual`; manual cleanup remains available. As with manual
+rollback, inspect in-progress work and credential propagation separately.
+No identity, grant, lease, resource, budget or cloud workflow is changed/executed
+by preparing this branch. Merge, enablement and paid workload approval are
+distinct steps. The existing admission rule still accepts a qualifying recent
+manual **or** scheduled receipt; installing this entry does not require both.
+
 ## Proposed workflow behavior
 
 Both entries bind exact repository/owner IDs, master source, workflow path, event,

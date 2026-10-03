@@ -24,8 +24,10 @@ def render(cfg, trigger):
     selected = setup.proposal(cfg)['identities'][trigger]
     event = ("  schedule:\n    - cron: '7,22,37,52 * * * *'\n" if trigger == 'schedule' else
              '  workflow_dispatch:\n')
-    text = '''# Generated cleanup entry; dispatch and environment approval remain manual.
-name: V5.1 '''+('Scheduled' if trigger == 'schedule' else 'Manual')+''' Cleanup
+    heading = ('# Generated scheduled cleanup entry; identity enablement requires separate approval.\n'
+               if trigger == 'schedule' else
+               '# Generated cleanup entry; dispatch and environment approval remain manual.\n')
+    text = heading+'''name: V5.1 '''+('Scheduled' if trigger == 'schedule' else 'Manual')+''' Cleanup
 
 on:
 '''+event+'''

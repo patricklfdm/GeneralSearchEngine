@@ -97,11 +97,14 @@ class CleanupDeploymentTest(unittest.TestCase):
                               'credentials_json:', 'setup-gcloud', 'cloud_runner', 'needs:'):
                 self.assertNotIn(forbidden, text)
 
-    def test_installed_manual_entry_matches_reviewed_auth_and_reconciliation(self):
+    def test_installed_entries_match_reviewed_auth_and_reconciliation(self):
         # Guard the actual runnable entry as well as the proposal: a workflow-only
         # edit must not silently bypass the reviewed identity or permission gates.
-        workflow = d.ci.ROOT/'.github/workflows/v51-manual-cleanup.yml'
-        self.assertEqual(d.render(self.cfg, 'manual').encode(), workflow.read_bytes())
+        identities = d.setup.proposal(self.cfg)['identities']
+        for trigger in d.entry.TRIGGERS:
+            with self.subTest(trigger=trigger):
+                workflow = d.ci.ROOT/identities[trigger]['workflow']
+                self.assertEqual(d.render(self.cfg, trigger).encode(), workflow.read_bytes())
 
     def test_commands_only_toggle_two_cleanup_identities_in_safe_order(self):
         plans = d.commands(self.cfg); self.assertEqual({'manual', 'schedule'}, set(plans))
@@ -124,7 +127,7 @@ class CleanupDeploymentTest(unittest.TestCase):
             with self.assertRaises(FileExistsError): d.write(root, self.cfg, self.source)
 
     def test_payload_drift_fails_even_with_rehashed_manifest(self):
-        for name in ('v51-manual-cleanup.yml', 'commands.json', 'REVIEW.md'):
+        for name in ('v51-manual-cleanup.yml', 'v51-expired-cleanup.yml', 'commands.json', 'REVIEW.md'):
             with tempfile.TemporaryDirectory() as temp:
                 root = Path(temp)/'package'; d.write(root, self.cfg, self.source)
                 (root/name).write_bytes((root/name).read_bytes()+b'\n')
