@@ -234,9 +234,14 @@ PR #281 / CI `37087985200` accepted the scheduled entry; separate enablement and
 33-observation readback completed. Runner stays disabled. Per the operator's
 [manual-first amendment](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02),
 actual schedule qualification is optional and cannot block further development.
-The current native-preflight candidate fixes ledger format/budget reporting and
-validates recent exact-source manual evidence. Protected acceptance, live preflight,
-runner permissions and remaining native workload integration stay open.
+PR #282 / CI `37095187875` accepted native ledger/budget reporting and recent
+exact-source manual evidence at `aefaa51753c4294759981fc5feb3b2f132eae04e`.
+Manual `37105503864` PASS / NO_LEASE and preflight `37105539166` all nine checks
+PASS independently replayed; USD 12 / 200 remains charged. The current
+[runner permission entry candidate](v5.1/PHASE_6_RUNNER_PREFLIGHT.md) adds an
+optional same-run precheck and enable/readback/rollback review. Protected
+acceptance, separately authorized runner enablement, actual runner permissions
+and remaining native workload integration stay open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

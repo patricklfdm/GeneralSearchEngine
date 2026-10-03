@@ -140,21 +140,23 @@ def probe_steps(text):
 
 def commands(cfg):
     """Structured operator plans; deliberately no executor or IAM-grant commands."""
-    wanted = setup.proposal(cfg); result = {}
+    return {key: identity_commands(cfg, key) for key in ('manual', 'schedule')}
+
+
+def identity_commands(cfg, key):
+    """One identity's reviewed enable/rollback plan; callers select the scope."""
+    wanted = setup.proposal(cfg); m.need(key in wanted['identities'], 'identity command scope')
     project = '--project='+wanted['project']
-    for key in ('manual', 'schedule'):
-        identity = wanted['identities'][key]
-        account = ['gcloud', 'iam', 'service-accounts']
-        pool = ['gcloud', 'iam', 'workload-identity-pools', 'update', identity['name'],
-                project, '--location=global']
-        provider = ['gcloud', 'iam', 'workload-identity-pools', 'providers', 'update-oidc', 'github',
-                    project, '--location=global', '--workload-identity-pool='+identity['name']]
-        result[key] = dict(
-            enable=[[*provider, '--no-disabled'], [*pool, '--no-disabled'],
-                    [*account, 'enable', identity['serviceAccount'], project]],
-            disable=[[*account, 'disable', identity['serviceAccount'], project],
-                     [*provider, '--disabled'], [*pool, '--disabled']])
-    return result
+    identity = wanted['identities'][key]
+    account = ['gcloud', 'iam', 'service-accounts']
+    pool = ['gcloud', 'iam', 'workload-identity-pools', 'update', identity['name'],
+            project, '--location=global']
+    provider = ['gcloud', 'iam', 'workload-identity-pools', 'providers', 'update-oidc', 'github',
+                project, '--location=global', '--workload-identity-pool='+identity['name']]
+    return dict(enable=[[*provider, '--no-disabled'], [*pool, '--no-disabled'],
+                        [*account, 'enable', identity['serviceAccount'], project]],
+                disable=[[*account, 'disable', identity['serviceAccount'], project],
+                         [*provider, '--disabled'], [*pool, '--disabled']])
 
 
 def review_text(source):

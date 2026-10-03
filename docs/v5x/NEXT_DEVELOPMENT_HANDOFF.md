@@ -279,12 +279,24 @@ Evidence: `target/v51-schedule-activation-review/`. Do not repeat enablement.
 
 **Current operator direction:** manual cleanup is primary; actual schedule runs
 are optional and must not delay development. Preserve the schedule; the user will
-report a run for later qualification. The [native preflight candidate](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02)
+report a run for later qualification. The [native preflight amendment](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02)
 fixes fake-format parsing of the live ledger and the old USD 100 display, and
 collects exact-source recent manual PASS evidence without querying schedule.
-Its protected merge and post-merge manual/preflight remain pending. After that,
-continue concrete runner permission/native workload preparation; paid execution
-and runner enablement retain their separate review and authorization boundaries.
+PR #282 accepted it at master `aefaa51753c4294759981fc5feb3b2f132eae04e`,
+CI `37095187875` attempt 1 (29 jobs). Manual `37105503864` attempt 1 passed
+NO_LEASE; preflight `37105539166` attempt 1 passed all nine checks. Original raw
+evidence and the nested cleanup artifact independently replayed; no freshness
+extension is implied. The ledger still retains USD 12 / 200, no pending attempt
+and no lease.
+
+The current [runner permission entry candidate](v5.1/PHASE_6_RUNNER_PREFLIGHT.md)
+adds an optional job after the original observer, default off. It checks fresh
+same-run/attempt raw evidence before runner authentication, then fixed permission
+queries. A separate review package contains only runner enable/rollback commands
+and explicit-state readback; no changes have been applied. After protected merge,
+regenerate against that source, review disabled state and obtain separate runner
+enablement approval before a user-triggered optional precheck. Native workload
+integration and paid execution remain open. No need to wait for schedule.
 Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.

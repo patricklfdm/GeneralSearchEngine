@@ -198,6 +198,28 @@ def summary(receipt, cfg):
     return '\n'.join(lines)
 
 
+def report(cfg, source, output, env, *, now):
+    """Recompute the complete observation report, also for same-run consumers."""
+    output = Path(output)
+    inputs = {k:c.read(output/(k+'.json')) if (output/(k+'.json')).exists() else {} for k in ('github', 'provider')}
+    value = evaluate(cfg, source, **inputs, now=now)
+    from . import cloud_permissions, cloud_recent_cleanup
+    try:
+        binding = cloud_permissions.identity(cfg, env, role='observer', source=source, checkout=source)
+        check = cloud_permissions.check_saved(cfg, binding, output/'permissions', now=now)
+    except Exception:
+        check = dict(status='BLOCKED', reason='same-run observer permission precheck missing, stale or blocked')
+    value['checks']['identityPermissionPrecheck'] = check
+    if check['status'] != 'PASS':
+        value['status'] = 'BLOCKED'; value['blockers'].append('identityPermissionPrecheck: '+check['reason'])
+    check = cloud_recent_cleanup.check_saved(cfg, source, output/'cleanup', now=now)
+    value['checks']['recentCleanup'] = check
+    if check['status'] != 'PASS':
+        value['status'] = 'BLOCKED'; value['blockers'].append('recentCleanup: '+check['reason'])
+    else:value['expiresAt'] = min(value['expiresAt'], check['detail']['expiresAt'])
+    return value
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__);p.add_argument('action', choices=('identity', 'github', 'provider', 'cleanup', 'report', 'foundation'))
     p.add_argument('--source', required=True);p.add_argument('--output', type=Path, required=True)
@@ -231,23 +253,7 @@ def main():
         if args.github_step_summary:
             with args.github_step_summary.open('a') as f:f.write(text)
     else:
-        inputs = {k:c.read(args.output/(k+'.json')) if (args.output/(k+'.json')).exists() else {} for k in ('github', 'provider')}
-        value = evaluate(cfg, args.source, **inputs, now=int(time.time()))
-        from . import cloud_permissions
-        try:
-            binding = cloud_permissions.identity(cfg, os.environ, role='observer', source=args.source, checkout=args.source)
-            check = cloud_permissions.check_saved(cfg, binding, args.output/'permissions', now=int(time.time()))
-        except Exception:
-            check = dict(status='BLOCKED', reason='same-run observer permission precheck missing, stale or blocked')
-        value['checks']['identityPermissionPrecheck'] = check
-        if check['status'] != 'PASS':
-            value['status'] = 'BLOCKED'; value['blockers'].append('identityPermissionPrecheck: '+check['reason'])
-        from . import cloud_recent_cleanup
-        check = cloud_recent_cleanup.check_saved(cfg, args.source, args.output/'cleanup', now=int(time.time()))
-        value['checks']['recentCleanup'] = check
-        if check['status'] != 'PASS':
-            value['status'] = 'BLOCKED'; value['blockers'].append('recentCleanup: '+check['reason'])
-        else:value['expiresAt'] = min(value['expiresAt'], check['detail']['expiresAt'])
+        value = report(cfg, args.source, args.output, os.environ, now=int(time.time()))
         c.write_once(args.output/'preflight.json', value)
         text = summary(value, cfg);(args.output/'summary.md').write_text(text)
         if args.github_step_summary:
