@@ -174,16 +174,24 @@ the optional Runner precheck; separately authorized enablement and actual
 PRECHECK_PASS in `37252295233` are independently verified. The ledger remains
 USD 12 / 200 with no pending attempt or lease at that observation. PR #284 accepted
 the [native storage protocol](PHASE_6_RUNNER_STORAGE.md) through CI `37261105426`
-(29 jobs). The current [storage entry candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md)
+(29 jobs). The accepted [storage entry](PHASE_6_RUNNER_STORAGE_ENTRY.md)
 adds exact-request operator preparation, optional Runner probes and independent
 state/evidence review. Each stage reserves USD 1 with all prior charges retained;
 PR #285 / CI `37269773248` accepted the entry. Authorized preparation retained
 USD 13 / 200. Native run `37274475579` failed before storage transaction requests
 on CLI class identity; independent state matched with no lease/pending reservation.
-The correction and CI partition await protected acceptance; actual object access remains open.
+PR #286 accepted the correction and CI partition at `b0bc7b4b9e63a40a1d812138d86cb40e7e298e92`,
+CI `37280773489` attempt 1 (36 jobs). Actual Runner `37285400939` and `37290067974`
+each passed eight probes, independent state and original artifact provenance.
+The [live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md) retains the second run's
+seven-of-eight probe audit coverage, missing outside-write audit and restored
+temporary audit configuration. USD 17 / 200 is reserved, with no lease/pending
+attempt at that observation. The [resource integration plan](PHASE_6_RUNNER_RESOURCE_ENTRY.md)
+adds a local fixed-image read candidate, then connects native Compute/IAP and the
+owned experiment without requiring another topology-only allocation by default.
 Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
-Conditional object/IAP, real resource/failure qualification and paid admission remain open.
-Live Runner storage qualification and full 6C remain open; paid experiments require separate
+Retain the audit coverage limitation. Image use/IAP, real resource/failure
+qualification and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 [local measurement contract](PHASE_6_LOCAL_MEASUREMENT_PLAN.md).
@@ -319,7 +327,12 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Exact-request storage entry candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md): operator canary preparation, separately confirmed optional Runner probes, bounded credential/HTTP entry and independent raw evidence/state review; offline validation only.
 - [x] Storage entry protected acceptance: PR #285, exact-master CI `37269773248`, 29 jobs.
 - [x] Separately authorized operator preparation completed and independently matched; USD 13 / 200, no lease/pending reservation. Native Runner `37274475579` failure retained before transaction requests.
-- [ ] CLI module identity correction and Python CI partition protected acceptance; fresh exact-source price/control review, separately authorized preparation/dispatch and actual object-scope qualification with original artifact/provenance review.
+- [x] CLI correction and Python CI partition accepted through PR #286 / CI `37280773489`, all 36 jobs.
+- [x] Separately approved storage runs `37285400939` and `37290067974`: eight actual probes each, original artifact provenance and independent OBJECT_SCOPE_MATCH; USD 17 retained, no lease/pending attempt at observation.
+- [x] Second storage run's provider identity and 32/33 transaction requests matched; seven of eight probe audits observed. Missing outside-write audit explicitly retained; no broad effective-IAM or complete audit claim.
+- [x] Authorized temporary Storage audit configuration restored, independently read back, all grants/logs preserved.
+- [x] Local [Runner image-read candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md): fixed external image GET using bound Runner credentials, sanitized identity receipt, original deadline and independent precheck replay.
+- [ ] Protected acceptance and actual Runner observation of the new image-read check; native resource/image-use/IAP and owned-experiment integration remain open.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

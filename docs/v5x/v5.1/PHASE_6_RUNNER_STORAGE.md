@@ -5,8 +5,9 @@
 [exact-master CI 37261105426](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37261105426)
 passed all 29 jobs. This protocol was qualified with offline HTTP fixtures.
 The subsequent [exact-request storage entry](PHASE_6_RUNNER_STORAGE_ENTRY.md)
-adds native wiring; protected acceptance of that entry and actual Runner object
-qualification remain pending.
+adds native wiring accepted through PR #285/#286. The [live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+records two successful eight-probe runs, independent state/provenance and the
+second run's partial provider audit coverage; complete Phase 6 remains open.
 
 ## Scope and authority
 
@@ -119,10 +120,11 @@ reviewed request and price/retention plan. Operator preparation captures exact
 canary/control generations; the network policy submits original operations once
 and retains failures. Independent post-run reads verify protected object
 bytes/generations, append-only charges, retained evidence and lease absence.
-Actual execution and provenance/audit review remain pending. Existing
-manual-identity disk/topology qualification cannot substitute for that result.
+Actual execution and original provenance/state results are now recorded in the
+[live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md), with the missing provider
+audit kept explicit. Manual-identity qualification is recorded separately.
 
-Actual resource/image/IAP access, native owned-workload integration and provider
+Actual resource/image-use/IAP access, native owned-workload integration and provider
 failure qualification still follow. Paid engine experiments require exact-request
 authorization and user dispatch. Manual cleanup remains the primary prerequisite;
 waiting for schedule does not block development.

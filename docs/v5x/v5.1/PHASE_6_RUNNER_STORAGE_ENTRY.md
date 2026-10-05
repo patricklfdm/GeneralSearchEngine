@@ -1,10 +1,10 @@
 # V5.1 exact-request Runner storage entry
 
-**Status:** PR #285's entry passed protected CI; its first authorized native
-attempt exposed a command-line module identity defect before storage requests.
-The correction and [Python CI partition](../../CI_PYTHON_LANES.md) are local
-candidates awaiting corrected-source protected CI. Actual Runner object-scope
-qualification remains open.
+**Status:** PR #285's entry and PR #286's CLI correction / Python CI partition
+passed protected CI. Two subsequent authorized native executions passed all eight
+storage probes and independent object/control review. The [live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+records original artifact provenance, the second run's partial provider audit
+coverage and USD 17 / 200 retained reservation. Full Phase 6 remains open.
 
 ## Accepted baseline and scope
 
@@ -13,8 +13,8 @@ PR #284 merged at `69fb188b204feab01ffb6d2fdc37e02ab682c36c`.
 passed all 29 jobs. Its [storage transaction](PHASE_6_RUNNER_STORAGE.md) qualified
 conditional control updates, eight object probes and interrupted-owner recovery
 offline. The actual [Runner permission precheck](PHASE_6_RUNNER_PREFLIGHT.md)
-established project/bucket diagnostics; object-name conditions still need actual
-Runner requests and independent observations.
+established project/bucket diagnostics. The subsequent live review above records
+actual Runner object requests and independent observations separately.
 
 This entry performs only GCS storage qualification. Preparation creates two
 expendable, request-bound canaries: an existing object inside the attempt prefix
@@ -43,9 +43,10 @@ ledger with no active lease or pending attempt. The Runner requires that exact
 post-preparation ledger generation and bytes in its same-run raw observer
 evidence. It cannot consume an observer report made before preparation.
 
-The USD 200 cumulative ceiling includes prior failed reservations. With the last
-independently verified USD 12 baseline, successful preparation and probing would
-retain USD 14; this is **reserved budget, not a measured invoice**. Fresh control
+The USD 200 cumulative ceiling includes prior failed reservations. The original
+USD 12 planning baseline implied USD 14 after both stages; the later preparation
+with a failed Runner, followed by two successful executions, now retains USD 17, as
+recorded in the live review. This is **reserved budget, not a measured invoice**. Fresh control
 reads determine the actual starting amount. No reset, refund or failed-record
 removal is provided. A successful storage check cannot satisfy an engine member
 or advance experiment/canonical acceptance.
@@ -212,11 +213,12 @@ The initial tuple/list serialization and synthetic fixture setup failures remain
 retained; plans now round-trip through canonical JSON before hashing/readback.
 Logs, final receipts and source-file hashes are indexed in
 `target/v51-runner-storage-entry/validation-summary.json`. PR #285 subsequently
-passed protected CI for the original entry; corrected-source CI remains required.
+passed protected CI for the original entry; PR #286 subsequently accepted the CLI
+correction, with both actual executions recorded in the live review above.
 
-After protected acceptance, prepare and review one actual storage qualification.
-Actual resource/image/IAP access and native owned-workload/provider failure paths
-remain later steps. Full Phase 6 and paid engine execution remain open.
+Actual resource/image-use/IAP access and native owned-workload/provider failure
+paths follow the [resource integration plan](PHASE_6_RUNNER_RESOURCE_ENTRY.md).
+Full Phase 6 and paid engine execution remain open.
 
 ## Native attempt and CLI correction — 2026-10-05
 
@@ -249,9 +251,10 @@ boundaries: the original code fails before storage; the corrected CLI completes
 eight probes and independent state comparison. A wrong confirmation still rejects
 before mutations. No production transport injection or retry was added.
 
-After corrected-source protected acceptance, review fresh control and prices,
-obtain same-source recent manual evidence and approve a new preparation/probe
-request. Preserve all USD 13 already reserved; do not reuse the expired manifest,
-reset the ledger or silently resume the previous transaction. This development
-batch performs no native cloud operations. Manual remains primary; schedule is
-optional. Full Phase 6 and paid engine acceptance remain open.
+PR #286 and exact-master CI `37280773489` subsequently accepted this correction.
+Fresh approvals produced successful runs `37285400939` and `37290067974`; the
+[live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md) preserves the earlier failure,
+all USD 17 reserved, actual probe results and unresolved audit coverage. Never
+reuse an expired manifest, reset the ledger or resume the previous transaction.
+Manual remains primary; schedule is optional. Full Phase 6 and paid engine
+acceptance remain open.

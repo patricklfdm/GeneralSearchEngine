@@ -24,7 +24,7 @@ class PermissionPrecheckTest(unittest.TestCase):
                 self.fixture(role); value=self.collect(); receipt=self.evaluate(value)
                 self.assertEqual('PRECHECK_PASS',receipt['status']); self.assertEqual('offline-permission-probes',receipt['execution'])
                 self.assertEqual(['oidc','sts','impersonation'],[v['stage'] for v in self.issuer.calls])
-                self.assertEqual(2,len(self.provider.requests)); accounts.add(self.binding['serviceAccount'])
+                self.assertEqual(3 if role == 'runner' else 2,len(self.provider.requests)); accounts.add(self.binding['serviceAccount'])
                 for key in p.BOUNDARY:self.assertIs(receipt[key],False)
         self.assertEqual(4,len(accounts))
 
@@ -55,7 +55,7 @@ class PermissionPrecheckTest(unittest.TestCase):
     def test_read_only_fixed_endpoints_and_existing_grants_are_preserved(self):
         for role in p.ROLES:
             self.fixture(role);plan=p.plan(self.cfg,role)
-            self.assertEqual({'project','bucket'},set(plan))
+            self.assertEqual({'project','bucket','image'} if role == 'runner' else {'project','bucket'},set(plan))
             self.assertEqual('POST',plan['project']['method']);self.assertTrue(plan['project']['url'].endswith(':testIamPermissions'))
             self.assertEqual('GET',plan['bucket']['method']);self.assertIsNone(plan['bucket']['body'])
             self.assertNotIn('/o/',plan['bucket']['url']);self.assertNotIn('storage.objects.create',plan['bucket']['required'])
@@ -79,6 +79,7 @@ class PermissionPrecheckTest(unittest.TestCase):
         for role in p.ROLES:
             self.fixture(role);good=self.collect()
             for name,query in self.client.queries.items():
+                if name == 'image': continue
                 for permission in query['required']+query['forbidden']:
                     bad=deepcopy(good);values=bad['observations'][name]['permissions']
                     if permission in query['required']:values.remove(permission)
@@ -174,6 +175,108 @@ class PermissionPrecheckTest(unittest.TestCase):
         for method,url in (('POST',p.plan(self.cfg,'manual')['project']['url']),('DELETE','https://storage.googleapis.com/test')):
             with self.assertRaises(ValueError):api.call(method,url,deadline=api.clock()+30)
         api.tokens.assert_not_called();api.transport.send.assert_not_called()
+
+    def test_runner_reads_only_the_frozen_external_image_with_bound_token(self):
+        self.fixture('runner'); query = self.client.queries['image']
+        provider = self.cfg['provider']
+        self.assertEqual('GET', query['method']); self.assertIsNone(query['body'])
+        self.assertEqual('https://compute.googleapis.com/compute/v1/projects/'+provider['imageProject']+
+                         '/global/images/'+provider['imageName'], query['url'])
+        self.assertNotIn('testIamPermissions', query['url'])
+        self.assertNotIn('compute.images.list', str(query))
+        self.provider.responses['image'].update(kind='compute#image', deprecated={},
+            selfLink=query['url'].replace('compute.googleapis.com', 'www.googleapis.com'),
+            description='private-provider-description', imageEncryptionKey={'rawKey':'private-key'})
+        observed = self.collect(); result = self.evaluate(observed)
+        self.assertEqual('PRECHECK_PASS', result['status'])
+        self.assertEqual(query['expectedImage'], result['checks']['image']['detail'])
+        self.assertEqual(['project','bucket','image'], [r['scope'] for r in self.provider.requests])
+        self.assertEqual(1, self.client.tokens.exchanges)
+        self.assertNotIn('private-', repr(observed)+p.summary(result))
+        self.assertIn(provider['imageId'], p.summary(result))
+        for key in p.BOUNDARY: self.assertIs(result[key], False)
+
+    def test_image_drift_missing_fields_and_malformed_responses_block(self):
+        self.fixture('runner'); original = deepcopy(self.provider.responses['image'])
+        variants = [None, [], {}, {'error':'secret'}]
+        for key in original:
+            missing = deepcopy(original); del missing[key]; variants.append(missing)
+            variants.append(dict(original, **{key:'secret'}))
+        for extra in ({'deprecated':{'state':'DEPRECATED'}}, {'deprecated':[]},
+                      {'deprecated':False}, {'kind':'storage#bucket'},
+                      {'selfLink':'https://compute.googleapis.com/compute/v1/projects/foreign/global/images/other'}):
+            variants.append(dict(original, **extra))
+        for response in variants:
+            with self.subTest(response=response):
+                self.fixture('runner'); self.provider.responses['image'] = response
+                observed = self.collect(); result = self.evaluate(observed)
+                self.assertEqual('BLOCKED', result['status'])
+                self.assertEqual('PASS', result['checks']['project']['status'])
+                self.assertEqual('PASS', result['checks']['bucket']['status'])
+                self.assertNotIn('secret', repr(observed)+p.summary(result))
+
+    def test_image_endpoint_and_expected_identity_drift_stop_before_credentials(self):
+        for change in ('url','method','body','identity'):
+            with self.subTest(change=change):
+                self.fixture('runner'); query=self.client.queries['image']
+                if change == 'identity': query['expectedImage']['id']='1'
+                else: query[change]={'url':query['url']+'/setIamPolicy','method':'POST','body':{}}[change]
+                with self.assertRaises(ValueError): self.client.probe('image',180)
+                self.assertEqual([],self.issuer.calls); self.assertEqual([],self.provider.requests)
+
+    def test_image_http_errors_and_missing_saved_image_cannot_pass(self):
+        for status in (403,404,429,503):
+            with self.subTest(status=status):
+                self.fixture('runner'); send=self.provider.send
+                def rejected(method,url,*args):
+                    if url == self.client.queries['image']['url']:return status,b'private-provider-error'
+                    return send(method,url,*args)
+                with patch.object(self.provider,'send',side_effect=rejected): observed=self.collect()
+                result=self.evaluate(observed)
+                self.assertEqual('BLOCKED',result['status'])
+                self.assertEqual(status,result['checks']['image']['httpStatus'])
+                self.assertNotIn('private-provider-error',repr(observed))
+        self.fixture('runner'); good=self.collect()
+        for change in ('missing','wrong-image','extra-field','old-plan'):
+            bad=deepcopy(good)
+            if change=='missing':del bad['observations']['image']
+            elif change=='wrong-image':bad['observations']['image']['image']['id']='1'
+            elif change=='extra-field':bad['observations']['image']['image']['unknown']='secret'
+            else:
+                plan=deepcopy(self.client.queries); del plan['image']
+                bad['planSha256']=p.m.sha(p.m.canonical(plan))
+            with self.subTest(change=change): self.assertEqual('BLOCKED',self.evaluate(bad)['status'])
+
+    def test_image_401_refresh_and_late_response_keep_original_deadline(self):
+        self.fixture('runner'); send=self.provider.send; calls=[]
+        def retry(method,url,*args):
+            if url == self.client.queries['image']['url']:
+                calls.append(url)
+                if len(calls)==1:return 401,b''
+            return send(method,url,*args)
+        with patch.object(self.provider,'send',side_effect=retry): observed=self.collect()
+        self.assertEqual('PRECHECK_PASS',self.evaluate(observed)['status'])
+        self.assertEqual(2,len(calls));self.assertEqual(2,self.client.tokens.exchanges)
+        self.fixture('runner');send=self.provider.send
+        def late(method,url,*args):
+            if url == self.client.queries['image']['url']:self.clock.sleep(181)
+            return send(method,url,*args)
+        with patch.object(self.provider,'send',side_effect=late): observed=self.collect()
+        self.assertEqual('BLOCKED',self.evaluate(observed)['status'])
+
+    def test_runner_saved_image_is_replayed_and_all_three_scopes_reported(self):
+        self.fixture('runner'); observed=self.collect()
+        # Exercise network-domain consistency only; synthetic data is not IAM evidence.
+        observed['execution']='workflow-permission-probes'; receipt=self.evaluate(observed)
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp)
+            for name,value in (('binding',self.binding),('observations',observed),('receipt',receipt)):
+                write_once(root/(name+'.json'),value)
+            result=p.check_saved(self.cfg,self.binding,root,now=self.clock.wall())
+            self.assertEqual(['project','bucket','image'],result['detail']['scopes'])
+            observed['observations']['image']['image']['id']='1'
+            (root/'observations.json').write_bytes(p.m.canonical(observed))
+            with self.assertRaises(ValueError):p.check_saved(self.cfg,self.binding,root,now=self.clock.wall())
 
     def test_observer_report_requires_matching_fresh_network_precheck(self):
         from . import cloud_preflight_qualification as provider_fixture

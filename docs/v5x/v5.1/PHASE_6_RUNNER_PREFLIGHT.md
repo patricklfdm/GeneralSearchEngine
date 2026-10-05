@@ -1,8 +1,10 @@
 # V5.1 runner permission entry and activation review
 
 **Status:** accepted through PR #283; separately authorized Runner enablement and
-actual project/bucket permission precheck completed. Object-scope qualification
-and native engine execution remain open.
+actual project/bucket permission precheck completed. Subsequent [storage runs](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+passed eight probes each with independent state/provenance and an explicit audit
+gap. A [frozen-image read](PHASE_6_RUNNER_RESOURCE_ENTRY.md) is the current local
+precheck candidate; native resource/IAP and engine execution remain open.
 
 ## Accepted Runner precheck — 2026-10-04
 
@@ -39,8 +41,9 @@ attempts, no pending reservation. No engine workload or resource allocation ran.
 The [native storage protocol](PHASE_6_RUNNER_STORAGE.md) subsequently passed
 protected CI through PR #284. The [exact-request storage entry
 candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md) adds operator canary preparation,
-Runner network binding and independent review. Actual Runner object permissions
-remain unqualified. Schedule qualification remains optional.
+Runner network binding and independent review. The live storage review above
+records the later actual results without claiming complete provider audit
+coverage or broad effective IAM. Schedule qualification remains optional.
 
 ## Accepted starting point
 
@@ -69,7 +72,7 @@ did not run an engine workload. Schedule timing remains optional, per the
 ## Optional workflow entry
 
 PR #283 added `check_runner_permissions`, default **false**, to the then-named
-`V5.1 Read-only Preflight`. The current storage-entry candidate renames it to
+`V5.1 Read-only Preflight`. The accepted storage entry renamed it to
 `V5.1 Preflight and Storage Qualification`; its original observer job and steps
 remain unchanged. With the precheck input true and both storage inputs empty,
 job `run` waits for `observations`, uses the existing protected
@@ -90,7 +93,8 @@ binding](PHASE_6_IDENTITY_PERMISSIONS.md) still checks the source, repository ID
 workflow, environment, account, job and attempt.
 
 After authentication, the existing fixed permission client performs project and
-bucket `testIamPermissions` queries. The final report rechecks the same run,
+bucket `testIamPermissions` queries; the image-read candidate also GETs the exact
+frozen external image with Runner credentials. The final report rechecks the same run,
 original prerequisites and permission receipt before producing PRECHECK_PASS.
 Failures retain a BLOCKED receipt and summary; summaries show the source,
 account/provider, run/attempt, original preflight digest/expiry and manual run.
@@ -148,7 +152,7 @@ to that protected workflow/environment. Review the whole workflow before the
 separate enablement decision. No trust expansion is proposed in this batch.
 
 PRECHECK_PASS proves only the bound diagnostic queries. Object-name conditional
-access, actual resource/image/IAP access, native owned-workload integration,
+access, actual resource/image-use/IAP access, native owned-workload integration,
 provider failure paths, evidence retention, current prices and exact paid-request
 approval remain separate requirements. For the diagnostic-only receipt, all
 authority flags, including

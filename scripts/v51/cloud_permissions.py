@@ -1,7 +1,8 @@
 """Bound workflow-identity permission prechecks; never mutate cloud resources.
 
-Project/bucket testIamPermissions is diagnostic, not authorization or proof of
-object/IAP conditional access. No organization policy read is required.
+Project/bucket testIamPermissions is diagnostic. Runner also reads the frozen
+external image; this does not prove image use or object/IAP conditional access.
+No organization policy read is required.
 """
 import argparse
 from copy import deepcopy
@@ -32,7 +33,7 @@ BUCKET_FORBIDDEN = ('storage.buckets.delete', 'storage.buckets.update', 'storage
 LIMITATIONS = (p.IAM_LIMITATION,
               'testIamPermissions is diagnostic, not an authorization decision or an exhaustive privilege audit.',
               'Bucket-level results do not establish object-name conditional grants or denials; no object testIamPermissions endpoint is used.',
-              'Resource-level grants, external image access and conditional IAP access require the corresponding real-path qualification.')
+              'Resource-level grants, external image use and conditional IAP access require the corresponding real-path qualification.')
 PENDING = ('exact lease/ledger read and conditional replacement permissions',
            'attempt-evidence creation and forbidden replacement/deletion; out-of-scope object rejection',
            'real resource/operation permissions, conditional IAP where applicable and independent provider evidence')
@@ -80,10 +81,26 @@ def plan(cfg, role):
     project = 'https://cloudresourcemanager.googleapis.com/v1/projects/'+provider['project']+':testIamPermissions'
     bucket = 'https://storage.googleapis.com/storage/v1/b/'+provider['bucket']+'/iam/testPermissions'
     bucket_permissions = sorted(['storage.buckets.get', *BUCKET_FORBIDDEN])
-    return dict(project=dict(method='POST', url=project, body=dict(permissions=sorted(required+forbidden)),
+    queries = dict(project=dict(method='POST', url=project, body=dict(permissions=sorted(required+forbidden)),
                              required=required, forbidden=forbidden),
                 bucket=dict(method='GET', url=bucket+'?'+urlencode({'permissions':bucket_permissions}, doseq=True),
                             body=None, required=['storage.buckets.get'], forbidden=sorted(BUCKET_FORBIDDEN)))
+    if role == 'runner':
+        queries['image'] = dict(method='GET', url=p.queries(cfg)['image'], body=None,
+            expectedImage=dict(name=provider['imageName'], id=provider['imageId'],
+                               status='READY', architecture='X86_64'))
+    return queries
+
+
+def image(response, query):
+    """Retain only the frozen identity fields, never arbitrary provider text."""
+    m.need(type(response) is dict and
+           all(response.get(k) == v for k, v in query['expectedImage'].items()) and
+           response.get('deprecated') in (None, {}) and
+           response.get('kind', 'compute#image') == 'compute#image' and
+           p.gcp.link(response.get('selfLink', query['url'])) == query['url'],
+           'frozen Runner image identity/status/architecture changed')
+    return {k:response[k] for k in query['expectedImage']}
 
 
 def permissions(response, query):
@@ -124,11 +141,12 @@ class _Client:
             m.need(self.clock() <= deadline, 'permission late response')
             if status == 401:
                 self.token = None
-                # Both fixed endpoints are read-only tests, including the CRM POST.
+                # All fixed queries are read-only, including the CRM POST.
                 if attempt == 0: continue
             if status != 200: raise http.ApiError(status, query['method'])
             m.need(type(raw) is bytes and len(raw) <= 64 << 10, 'permission response size')
-            return permissions(m.strict_json(raw), query)
+            response = m.strict_json(raw)
+            return image(response, query) if name == 'image' else permissions(response, query)
 
 
 class OfflineClient(_Client):
@@ -150,7 +168,7 @@ def collect(cfg, binding, client, *, wall=time.time):
     m.need(client.binding == binding and client.queries == plan(cfg, binding['role']), 'permission client scope drift')
     started = int(wall()); deadline = client.clock()+180; observations = {}
     for name in client.queries:
-        try: observations[name] = dict(permissions=client.probe(name, deadline))
+        try: observations[name] = {('image' if name == 'image' else 'permissions'):client.probe(name, deadline)}
         except Exception as error:
             observations[name] = dict(error=type(error).__name__)
             if isinstance(error, http.ApiError): observations[name]['httpStatus'] = error.status
@@ -174,6 +192,11 @@ def evaluate(cfg, binding, value, *, now):
             if 'error' in observed:
                 checks[name] = dict(status='BLOCKED', reason='permission query unavailable', httpStatus=observed.get('httpStatus'))
                 continue
+            if name == 'image':
+                m.need(set(observed) == {'image'} and observed['image'] == image(observed['image'], query),
+                       'Runner image observation fields')
+                checks[name] = dict(status='PASS', detail=observed['image'])
+                continue
             actual = set(permissions(observed, query)); missing = sorted(set(query['required'])-actual)
             forbidden = sorted(set(query['forbidden']) & actual)
             checks[name] = dict(status='BLOCKED' if missing or forbidden else 'PASS',
@@ -187,6 +210,13 @@ def evaluate(cfg, binding, value, *, now):
 
 def summary(value):
     def safe(v): return html.escape(str(v)).replace('|', '&#124;').replace('\n', ' ')
+    image_check = value.get('checks', {}).get('image', {})
+    image_section = ''
+    if value.get('role') == 'runner':
+        image_section = '\n## Frozen image read\n\n'+(
+            ''.join('- '+safe(k)+': '+safe(v)+'\n' for k,v in image_check['detail'].items())
+            if image_check.get('detail') else 'Image observation unavailable; inspect the failed checks.\n')
+        image_section += '\nA successful image read does not prove permission to create a boot disk from it.\n'
     rows = [('Status',value['status'])]+[(key,value[key]) for key in
             ('role','source','runId','runAttempt','serviceAccount','provider','environment','configurationSha256','execution') if key in value]
     rows += credentials.failure_rows(value.get('failure'))
@@ -195,6 +225,7 @@ def summary(value):
             '\n## Queried permissions\n\n| Scope | Result | Missing | Forbidden returned |\n| --- | --- | --- | --- |\n'+
             ''.join('| '+safe(k)+' | '+safe(v['status'])+' | '+safe(v.get('missing',v.get('reason',''))) +
                     ' | '+safe(v.get('forbidden',[]))+' |\n' for k,v in value.get('checks',{}).items())+
+            image_section+
             '\n## Still required\n\n'+''.join('- '+safe(v)+'\n' for v in PENDING)+
             '\n## Limitations\n\n'+''.join('- '+safe(v)+'\n' for v in LIMITATIONS)+
             '\nThis precheck does not authorize activation, cleanup readiness or paid execution.\n')
@@ -209,7 +240,7 @@ def check_saved(cfg, binding, output, *, now):
     result = evaluate(cfg, binding, observed, now=now)
     m.need(result['status'] == 'PRECHECK_PASS' and result['execution'] == 'workflow-permission-probes', 'permission precheck incomplete or offline')
     return dict(status='PASS', detail=dict(serviceAccount=binding['serviceAccount'],
-                scopes=['project','bucket'], objectPermissionsQualified=False))
+                scopes=list(plan(cfg, binding['role'])), objectPermissionsQualified=False))
 
 
 def run(cfg, env, output, *, role, source, checkout):

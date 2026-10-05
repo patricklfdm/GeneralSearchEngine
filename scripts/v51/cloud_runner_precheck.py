@@ -118,7 +118,7 @@ def summary(value):
             ('Failure', value.get('failure','none')), ('Paid admission', False)]
     return '# V5.1 runner permission precheck\n\n| Parameter | Value |\n| --- | --- |\n'+\
         ''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)+\
-        '\nDiagnostic project/bucket queries only. Object conditions, resource/IAP access, native workload integration, retention and exact paid approval remain required. Schedule is optional.\n'
+        '\nDiagnostic project/bucket queries and the frozen external image read. Image use, object conditions, resource/IAP access, native workload integration, retention and exact paid approval remain required. Schedule is optional.\n'
 
 
 def main():

@@ -20,7 +20,8 @@ def permission_files(cfg, env, root, role, now):
     plan=permissions.plan(cfg,role)
     observed=dict(binding,execution='workflow-permission-probes',startedAt=now,completedAt=now,
                   credentialExchangeCompleted=True,planSha256=m.sha(m.canonical(plan)),
-                  observations={k:dict(permissions=v['required']) for k,v in plan.items()})
+                  observations={k:(dict(image=deepcopy(v['expectedImage'])) if k == 'image' else dict(permissions=v['required']))
+                                for k,v in plan.items()})
     root.mkdir()
     for name,value in [('binding',binding),('observations',observed),('receipt',permissions.evaluate(cfg,binding,observed,now=now))]:
         write_once(root/(name+'.json'),value)
