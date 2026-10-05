@@ -1,5 +1,10 @@
 # V5.1 foundation and owned guest CI partition
 
+**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
+Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
+Earlier counts and timings in this document describe their historical migrations.
+
+
 The accepted master [job 109353691714](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36551903980/job/109353691714)
 took **25m47s** on 2026-09-29. Its steps are independent after the existing V5.1
 verification-build handoff, except for guest package and local SSH setup.

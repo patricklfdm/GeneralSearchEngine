@@ -177,7 +177,10 @@ the [native storage protocol](PHASE_6_RUNNER_STORAGE.md) through CI `37261105426
 (29 jobs). The current [storage entry candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md)
 adds exact-request operator preparation, optional Runner probes and independent
 state/evidence review. Each stage reserves USD 1 with all prior charges retained;
-local validation is offline and actual Runner object access remains open.
+PR #285 / CI `37269773248` accepted the entry. Authorized preparation retained
+USD 13 / 200. Native run `37274475579` failed before storage transaction requests
+on CLI class identity; independent state matched with no lease/pending reservation.
+The correction and CI partition await protected acceptance; actual object access remains open.
 Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Live Runner storage qualification and full 6C remain open; paid experiments require separate
@@ -314,7 +317,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Native Runner storage candidate](PHASE_6_RUNNER_STORAGE.md): offline native lease/ledger CAS, immutable evidence and eight object-probe cases; nine lifecycle cases with 48 fresh-process cleanup checks.
 - [x] Native Runner storage protected acceptance: PR #284, master `69fb188b204feab01ffb6d2fdc37e02ab682c36c`, CI `37261105426`, all 29 jobs.
 - [x] [Exact-request storage entry candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md): operator canary preparation, separately confirmed optional Runner probes, bounded credential/HTTP entry and independent raw evidence/state review; offline validation only.
-- [ ] Storage entry protected acceptance, fresh exact-source price/control review, separately authorized preparation/dispatch and actual object-scope qualification with original artifact/provenance review.
+- [x] Storage entry protected acceptance: PR #285, exact-master CI `37269773248`, 29 jobs.
+- [x] Separately authorized operator preparation completed and independently matched; USD 13 / 200, no lease/pending reservation. Native Runner `37274475579` failure retained before transaction requests.
+- [ ] CLI module identity correction and Python CI partition protected acceptance; fresh exact-source price/control review, separately authorized preparation/dispatch and actual object-scope qualification with original artifact/provenance review.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

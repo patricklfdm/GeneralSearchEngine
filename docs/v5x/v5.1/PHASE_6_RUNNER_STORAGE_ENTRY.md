@@ -1,10 +1,10 @@
 # V5.1 exact-request Runner storage entry
 
-**Status:** implementation candidate after PR #284. The accepted offline storage
-protocol now has operator preparation, an explicitly selected native workflow
-entry and independent state review. This batch uses offline HTTP and credential
-fixtures only. Corrected-source protected CI and separately approved live
-qualification remain pending.
+**Status:** PR #285's entry passed protected CI; its first authorized native
+attempt exposed a command-line module identity defect before storage requests.
+The correction and [Python CI partition](../../CI_PYTHON_LANES.md) are local
+candidates awaiting corrected-source protected CI. Actual Runner object-scope
+qualification remains open.
 
 ## Accepted baseline and scope
 
@@ -197,8 +197,9 @@ fixture still covers nine cases and 48 active/grace/expired process checks.
 Entry regressions cover actual constructor wiring through simulated credentials
 and HTTP, raw evidence replay, exact attempts/hashes/expiry, stale generations,
 denied API bypass, workflow drift, independent-state mutations and sanitized
-failure receipts. No cloud is contacted by these tests. CI lane count and reactor
-builds are unchanged. The retained local evidence directory is
+failure receipts. No cloud is contacted by these tests. The original entry batch
+left CI lane count and reactor builds unchanged; the later partition below changes
+Python job ownership. The retained local evidence directory is
 `target/v51-runner-storage-entry/`.
 
 Local validation passed the complete preflight wrapper: 229 unit tests, 61
@@ -210,9 +211,47 @@ all 20 new entry tests also passed under Python 3.11 (18 + two focused additions
 The initial tuple/list serialization and synthetic fixture setup failures remain
 retained; plans now round-trip through canonical JSON before hashing/readback.
 Logs, final receipts and source-file hashes are indexed in
-`target/v51-runner-storage-entry/validation-summary.json`. Protected CI for this
-entry remains required.
+`target/v51-runner-storage-entry/validation-summary.json`. PR #285 subsequently
+passed protected CI for the original entry; corrected-source CI remains required.
 
 After protected acceptance, prepare and review one actual storage qualification.
 Actual resource/image/IAP access and native owned-workload/provider failure paths
 remain later steps. Full Phase 6 and paid engine execution remain open.
+
+## Native attempt and CLI correction — 2026-10-05
+
+PR #285 merged at `0153ff05a8d84868a2b675efaa7233ef4cec6d7f`.
+[Exact-master CI 37269773248](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37269773248)
+passed all 29 jobs. Same-source manual cleanup `37273341280` passed NO_LEASE;
+enabled identity readback passed all 33 observations / 17 groups. The separately
+approved operator preparation then completed once, with independent state match.
+It retained USD 13 / 200, five terminal FAIL records, no pending reservation and no
+lease. The preparation's original expiry `1791183581` is historical and is not
+renewed by the failed Runner or this correction.
+
+[Runner 37274475579](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37274475579)
+passed its observer and Runner PRECHECK_PASS, and exchanged credentials. The
+storage entry failed with `phase=storage`, `type=ValueError`. Its retained
+`storage/http.json` is empty: manifest reads completed, but the storage transaction
+made no requests or new reservation. Independent post-failure readback matched
+the prepared objects, USD 13 / 200, no lease and no pending reservation. Original
+Runner artifact and review are retained at `target/v51-runner-storage-result/`;
+preparation and authorization at `target/v51-runner-storage-live-review/`.
+These observations do not establish the eight actual object permission results.
+
+The workflow invokes `python -m scripts.v51.cloud_runner_storage_entry`. Python
+creates `__main__.NetworkApi`, while the storage policy admits the canonical
+`cloud_runner_storage_entry.NetworkApi` type. Those class objects are distinct.
+Imported-module tests missed this path. The CLI now delegates to canonical
+`main()`, preserving exact type checks and all source, identity, deadline and
+object guards. A fresh-interpreter regression uses only synthetic HTTP/credential
+boundaries: the original code fails before storage; the corrected CLI completes
+eight probes and independent state comparison. A wrong confirmation still rejects
+before mutations. No production transport injection or retry was added.
+
+After corrected-source protected acceptance, review fresh control and prices,
+obtain same-source recent manual evidence and approve a new preparation/probe
+request. Preserve all USD 13 already reserved; do not reuse the expired manifest,
+reset the ledger or silently resume the previous transaction. This development
+batch performs no native cloud operations. Manual remains primary; schedule is
+optional. Full Phase 6 and paid engine acceptance remain open.

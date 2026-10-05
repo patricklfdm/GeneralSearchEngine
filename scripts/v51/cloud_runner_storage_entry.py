@@ -240,4 +240,8 @@ def main():
     if result.get('status')=='FAIL':raise SystemExit(2)
 
 
-if __name__=='__main__':main()
+if __name__=='__main__':
+    # The storage policy admits the canonical NetworkApi type. Running this
+    # module with -m must use that same class, not a second __main__ definition.
+    from .cloud_runner_storage_entry import main as entry_main
+    entry_main()

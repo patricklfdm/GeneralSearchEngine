@@ -249,8 +249,11 @@ through PR #284, master `69fb188b204feab01ffb6d2fdc37e02ab682c36c`, exact-master
 CI `37261105426` (29 jobs). The [storage entry candidate](v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
 adds exact-request operator preparation, optional Runner object probes and
 independent state/raw evidence review. Each stage reserves USD 1 and keeps prior
-charges; all local qualification is offline. Protected entry acceptance, actual
-Runner object permissions and native resource/workload integration remain open.
+charges. PR #285 / exact-master CI `37269773248` accepted the entry. Authorized
+preparation retained USD 13 / 200. Native run `37274475579` failed on CLI class
+identity before transaction requests; independent readback found no lease or pending
+reservation. The CLI correction and Python CI partition await protected acceptance.
+Actual Runner object permissions and native resource/workload integration remain open.
 Live Runner storage qualification and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

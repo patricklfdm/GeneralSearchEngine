@@ -41,6 +41,13 @@ FULL_GATES = {
     "soak-examples": "SOAK_RESULT",
     "compatibility": "COMPATIBILITY_RESULT",
     "release-artifacts": "RELEASE_RESULT",
+    "python-v51-core": "V51_PYTHON_CORE_RESULT",
+    "python-v51-admission": "V51_PYTHON_ADMISSION_RESULT",
+    "python-v51-storage": "V51_PYTHON_STORAGE_RESULT",
+    "cloud-preflight-tests": "CLOUD_PREFLIGHT_RESULT",
+    "cloud-cleanup-fixture-tests": "CLOUD_CLEANUP_FIXTURE_RESULT",
+    "cloud-storage-tests": "CLOUD_STORAGE_RESULT",
+    "cloud-provider-tests": "CLOUD_PROVIDER_RESULT",
     "cloud-runner-tests": "CLOUD_RUNNER_RESULT",
 }
 
@@ -223,7 +230,7 @@ class WorkflowTopologyTest(unittest.TestCase):
             if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment"):
                 continue
             body = self.jobs[name]
-            gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build$", body, re.MULTILINE)
+            gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build(?: --skip-python-tests)?$", body, re.MULTILINE)
             self.assertTrue(gates, name)
             found.extend(gates)
             uploads = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
@@ -269,6 +276,33 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn("if: ${{ always() }}", upload)
         self.assertIn("path: target/v51-cloud-control", upload)
         self.assertIn("retention-days: 14", upload)
+
+    def test_python_partitions_are_required_without_build_or_cloud_dependencies(self):
+        for lane in ('core','admission','storage'):
+            key='python-v51-'+lane;body=self.jobs[key]
+            self.assertIn('needs: changes',body)
+            self.assertIn('python3 -m scripts.ci_v51_python '+lane+' --output target/'+key,body)
+            self.assertIn('name: '+key+'-${{ github.sha }}',body)
+            self.assertIn('if: ${{ always() }}',body)
+            for absent in ('./mvnw','actions/download-artifact','id-token:','google-github-actions'):
+                self.assertNotIn(absent,body)
+        self.assertIn('phase1-foundation.sh --skip-build --skip-python-tests',self.jobs['v51-foundation'])
+        local=(ROOT/'scripts/verify-v51-phase1-foundation.sh').read_text()
+        self.assertIn('skip_python=false',local)
+        self.assertIn('if ! $skip_python; then',local)
+        self.assertIn("-m unittest discover -s scripts/v51 -t . -p 'test_*.py'",local)
+
+    def test_provider_lane_keeps_ssh_preparation_packaging_and_failure_evidence(self):
+        body=self.jobs['cloud-provider-tests']
+        self.assertLess(body.index('Prepare OpenSSH'),body.index('cloud-provider.sh --allow-sudo-namespace'))
+        self.assertLess(body.index('cloud-provider.sh --allow-sudo-namespace'),body.index('scripts.v51.provider_artifacts'))
+        self.assertIn('name: v51-cloud-provider-${{ github.sha }}',body)
+        self.assertIn('path: target/v51-cloud-provider.tar.gz',body)
+        self.assertEqual(2,body.count('if: ${{ always() }}'))
+        self.assertNotIn('cloud-provider.sh',self.jobs['cloud-runner-tests'])
+        for key in ('cloud-provider-tests','cloud-preflight-tests','cloud-cleanup-fixture-tests','cloud-storage-tests'):
+            for absent in ('./mvnw','actions/download-artifact','id-token:','google-github-actions','environment:'):
+                self.assertNotIn(absent,self.jobs[key])
 
     def test_reclamation_and_full_size_runtime_run_independently(self):
         # The public runtime prepares its own source/cluster; it must not wait
