@@ -289,14 +289,19 @@ evidence and the nested cleanup artifact independently replayed; no freshness
 extension is implied. The ledger still retains USD 12 / 200, no pending attempt
 and no lease.
 
-The current [runner permission entry candidate](v5.1/PHASE_6_RUNNER_PREFLIGHT.md)
-adds an optional job after the original observer, default off. It checks fresh
-same-run/attempt raw evidence before runner authentication, then fixed permission
-queries. A separate review package contains only runner enable/rollback commands
-and explicit-state readback; no changes have been applied. After protected merge,
-regenerate against that source, review disabled state and obtain separate runner
-enablement approval before a user-triggered optional precheck. Native workload
-integration and paid execution remain open. No need to wait for schedule.
+The [Runner permission entry](v5.1/PHASE_6_RUNNER_PREFLIGHT.md) is accepted through
+PR #283, master `11a26936096d421fdb14f5b148ecb33ae3d731d1`, CI `37141295482`
+attempt 1 (29 jobs). Separately approved Runner enablement passed 33 observations /
+17 groups; only its provider/pool/account enabled bits changed. Same-source manual
+`37252211351` passed NO_LEASE and preflight `37252295233` passed all nine observer
+checks and actual Runner PRECHECK_PASS. Raw artifacts independently replayed;
+original expiry `1791165298` is not renewed. Ledger remains USD 12 / 200 with no
+pending reservation or lease. The current [native storage candidate](v5.1/PHASE_6_RUNNER_STORAGE.md)
+adds offline conditional lease/ledger operations, immutable object probes and
+fresh-process interrupted-owner cleanup. It does not qualify actual Runner object
+access or open a live execution entry. Next: a source/identity/price-bound live
+storage review and entry, then actual object and native workload integration.
+No need to wait for schedule.
 Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.

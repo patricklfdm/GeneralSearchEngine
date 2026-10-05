@@ -166,10 +166,15 @@ Grace `37084997701` and expired `37086891033` independently matched WAITING/PASS
 all thirteen resources are absent and manual-identity deletion audits passed.
 PR #281 accepted the scheduled entry at `471ffd25787bcd872b1b4d71aed2ea620193eecf`,
 CI `37087985200` attempt 1 (29 jobs). Separately authorized schedule enablement
-passed all 33 readbacks / 17 groups; runner remains disabled. The operator now
+passed all 33 readbacks / 17 groups; Runner was still disabled then. The operator now
 makes [manual cleanup primary and scheduled qualification optional](PHASE_6_CLEANUP_DEPLOYMENT_REVIEW.md#scheduled-enablement-and-manual-first-policy--2026-10-02),
-so waiting for a schedule must not block development. The next candidate connects
-native control records and recent manual evidence to the read-only preflight.
+so waiting for a schedule must not block development. PR #282 subsequently
+accepted native control/recent-manual preflight. PR #283 / CI `37141295482` accepted
+the optional Runner precheck; separately authorized enablement and actual
+PRECHECK_PASS in `37252295233` are independently verified. The ledger remains
+USD 12 / 200 with no pending attempt or lease. The current
+[native storage candidate](PHASE_6_RUNNER_STORAGE.md) qualifies conditional control
+writes and object probes offline; actual Runner object access remains open.
 Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
 Conditional object/IAP, real resource/failure qualification and paid admission remain open.
 Native cloud writes and full 6C remain open; paid experiments require separate
@@ -300,7 +305,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Manual-first native preflight candidate](PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02): native control formats, shared USD 200 display and exact-attempt recent manual artifact/permission replay.
 - [x] Manual-first native preflight protected acceptance: PR #282, master `aefaa51753c4294759981fc5feb3b2f132eae04e`, CI `37095187875` attempt 1 (29 jobs). Same-source manual `37105503864` PASS / NO_LEASE and preflight `37105539166` all nine checks PASS; original raw evidence independently replayed.
 - [x] [Runner permission entry candidate](PHASE_6_RUNNER_PREFLIGHT.md): optional same-run observer/raw-artifact gate, fixed permission queries and runner-only enable/readback/rollback package; no cloud changes.
-- [ ] Protected acceptance, separately approved runner enablement/readback and actual runner permission precheck. Default observer-only dispatch and manual-first cleanup remain available.
+- [x] Runner precheck protected acceptance: PR #283 at `11a26936096d421fdb14f5b148ecb33ae3d731d1`, CI `37141295482` attempt 1, all 29 jobs.
+- [x] Separately approved Runner provider/pool/account enablement, each once, independently verified through 33 observations / 17 groups; other identity/control state unchanged.
+- [x] Same-source manual `37252211351` PASS / NO_LEASE and preflight `37252295233` nine observer checks plus actual Runner PRECHECK_PASS; raw artifacts independently replayed at original timestamps. Project/bucket diagnostics only.
+- [x] [Native Runner storage candidate](PHASE_6_RUNNER_STORAGE.md): offline native lease/ledger CAS, immutable evidence and eight object-probe cases; nine lifecycle cases with 48 fresh-process cleanup checks.
+- [ ] Native Runner storage protected acceptance, exact-source live review/entry and actual object-scope qualification. No paid or object-mutating workflow is opened by the offline candidate.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

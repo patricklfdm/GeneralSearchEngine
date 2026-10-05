@@ -1,7 +1,44 @@
 # V5.1 runner permission entry and activation review
 
-**Status:** implementation candidate after PR #282. Runner enablement and native
-permission qualification remain pending; this change applies no cloud settings.
+**Status:** accepted through PR #283; separately authorized Runner enablement and
+actual project/bucket permission precheck completed. Object-scope qualification
+and native engine execution remain open.
+
+## Accepted Runner precheck — 2026-10-04
+
+PR #283 merged at `11a26936096d421fdb14f5b148ecb33ae3d731d1`.
+[Exact-master CI 37141295482](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37141295482)
+attempt 1 passed all 29 jobs. Separate operator authorization enabled the Runner
+provider, pool and account exactly once each. Independent readback passed all
+33 observations / 17 groups; only those three enabled bits changed. Manual and
+schedule identities, roles, trust, environments and retained control bytes stayed
+unchanged. The application receipt and before/after evidence are retained under
+`target/v51-runner-activation-review/`.
+
+On that source, manual cleanup
+[37252211351](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37252211351)
+attempt 1 passed NO_LEASE. Optional preflight
+[37252295233](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37252295233)
+attempt 1 passed all nine observer checks and produced Runner PRECHECK_PASS.
+The actual `gse-v51-runner` credential exchange completed. Project and bucket
+diagnostics returned all required permissions and none of the selected forbidden
+permissions. The raw observer report, nested manual evidence, exact jobs/steps,
+and Runner report independently replayed at their original timestamps. Embedded
+observer files matched the standalone artifact byte for byte.
+
+| Retained artifact | ID | SHA-256 |
+| --- | --- | --- |
+| Observer | `11321074501` | `2cc9bd64a220597005aa306d00a2fb8dea86e743d72e4ddbf3b31bb76e7eb808` |
+| Runner | `11321601116` | `64b3aaebd8bc7db55448e8f69c58e8afcab4c03366af59570c88ca732228dc81` |
+
+Evidence is indexed under `target/v51-runner-precheck-acceptance/run-37252295233/`.
+The original Runner check time is `1791164455`, expiry `1791165298`; historical
+acceptance does not renew freshness. Before/after state review returned
+STATE_MATCH / NO_LEASE: USD 12 of USD 200, four terminal failed cleanup-only
+attempts, no pending reservation. No engine workload or resource allocation ran.
+The next [native storage candidate](PHASE_6_RUNNER_STORAGE.md) qualifies object
+and conditional-control operations offline; actual Runner object permissions
+remain unqualified. Schedule qualification remains optional.
 
 ## Accepted starting point
 
@@ -20,7 +57,8 @@ The extracted report helper also reproduces that original receipt exactly.
 Evidence is under `target/v51-manual-preflight-acceptance/run-37105539166/`;
 this historical replay does not renew its observation or expiry timestamps.
 
-Manual and scheduled cleanup identities are enabled; runner is disabled. The
+At that earlier starting point, manual and scheduled cleanup identities were
+enabled and Runner was disabled. The
 ledger retains USD 12 of the approved USD 200 ceiling, four terminal failed
 cleanup-only attempts, no pending reservation and no retained lease. Those attempts
 did not run an engine workload. Schedule timing remains optional, per the
@@ -59,15 +97,17 @@ timestamps nor retries a workload to obtain a passing result.
 
 ## Review, readback and rollback
 
-After protected merge, generate the package against the exact merged checkout:
+Runner is already enabled by the separately approved application above. The
+package remains review/rollback tooling; do not reapply the enable commands.
+Against an exact protected merged checkout, current-state review uses:
 
 ```bash
 python3 -m scripts.v51.cloud_runner_review generate \
   --source "$(git rev-parse HEAD)" --output target/v51-runner-review
 python3 -m scripts.v51.cloud_runner_review validate \
   --source "$(git rev-parse HEAD)" --output target/v51-runner-review
-python3 -m scripts.v51.cloud_runner_review readback --state disabled \
-  --source "$(git rev-parse HEAD)" --output target/v51-runner-disabled-readback
+python3 -m scripts.v51.cloud_runner_review readback --state enabled \
+  --source "$(git rev-parse HEAD)" --output target/v51-runner-enabled-readback
 ```
 
 Use new output directories for each review. The generator writes the exact
@@ -84,7 +124,8 @@ ancestor IAM reads remain unassessed and do not require new organization access.
 The earlier cleanup deployment auditor still requires runner disabled in all its
 states; this separate reviewer covers the new runner transition.
 
-Only after separate operator approval may the three runner bits be enabled:
+Any future transition from disabled state still needs a fresh disabled baseline
+and separate operator approval before the three Runner bits can be enabled:
 provider, pool, then service account, with readback after each request. Compare
 fresh enabled observations with the original review; only those bits may change.
 Keep all roles, grants, trust, environments, cleanup state and budget intact.
@@ -116,9 +157,10 @@ replay, stale approval, missing/changed permissions, concurrent rerun, late fina
 readback, explicit enabled/disabled policy states and review-package drift.
 The gate also generates and validates the review package. Shared offline
 credential/HTTP qualification continues to exercise all four permission roles.
-No additional CI lane, Maven build, Java runtime change or cloud execution is
-introduced. Corrected-source protected CI and live runner qualification are still
-required; synthetic fixtures do not establish real provider access.
+No additional CI lane, Maven build or Java runtime change was introduced.
+Protected CI and live project/bucket precheck are now accepted above; synthetic
+fixtures and diagnostic permission queries do not establish actual object,
+resource or engine execution access.
 
 Local complete gate passed: 191 unit tests, 61 source/identity/permission negatives,
 eight single-disk cases, five fixture-driver cases and 24 complete-topology cases.

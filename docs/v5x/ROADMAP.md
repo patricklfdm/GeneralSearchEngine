@@ -231,17 +231,23 @@ are accepted through PR #280. The second authorized allocation passed active and
 grace WAITING, then expired PASS in run `37086891033`: all thirteen original IDs
 absent, deletion audits matched, lease released, USD 12 cumulatively retained.
 PR #281 / CI `37087985200` accepted the scheduled entry; separate enablement and
-33-observation readback completed. Runner stays disabled. Per the operator's
+33-observation readback completed; Runner was still disabled at that point. Per the operator's
 [manual-first amendment](v5.1/PHASE_6_CLOUD_PREFLIGHT.md#manual-first-native-preflight-amendment--2026-10-02),
 actual schedule qualification is optional and cannot block further development.
 PR #282 / CI `37095187875` accepted native ledger/budget reporting and recent
 exact-source manual evidence at `aefaa51753c4294759981fc5feb3b2f132eae04e`.
 Manual `37105503864` PASS / NO_LEASE and preflight `37105539166` all nine checks
-PASS independently replayed; USD 12 / 200 remains charged. The current
-[runner permission entry candidate](v5.1/PHASE_6_RUNNER_PREFLIGHT.md) adds an
-optional same-run precheck and enable/readback/rollback review. Protected
-acceptance, separately authorized runner enablement, actual runner permissions
-and remaining native workload integration stay open.
+PASS independently replayed; USD 12 / 200 remains charged. The
+[Runner permission entry](v5.1/PHASE_6_RUNNER_PREFLIGHT.md) is accepted through
+PR #283 / CI `37141295482` (29 jobs), source `11a26936096d421fdb14f5b148ecb33ae3d731d1`.
+Separately authorized Runner enablement passed 33 observations / 17 groups.
+Manual `37252211351` passed NO_LEASE; preflight `37252295233` passed all nine
+observer checks and actual Runner project/bucket PRECHECK_PASS. Original raw
+evidence independently replayed without renewing freshness; control state stayed
+unchanged. The [native storage candidate](v5.1/PHASE_6_RUNNER_STORAGE.md) adds
+offline lease/ledger CAS, immutable object probes and interruption recovery.
+Protected acceptance of this candidate, a reviewed live storage entry, actual
+object permissions and remaining native workload integration stay open.
 Native cloud writes and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

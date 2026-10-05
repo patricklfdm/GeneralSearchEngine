@@ -17,8 +17,11 @@ manual run `36957603644` attempt 1 also passed actual exchange and both diagnost
 queries; independent state review confirmed `NO_LEASE`. Scheduled/runner identity
 checks, object conditions and resource cleanup qualification were still open at
 that point. Subsequent manual object/topology qualification and current observer
-acceptance are recorded in the [runner entry handoff](PHASE_6_RUNNER_PREFLIGHT.md#accepted-starting-point).
-Runner remains disabled; actual scheduled qualification is optional.
+acceptance are recorded in the [Runner entry handoff](PHASE_6_RUNNER_PREFLIGHT.md).
+After PR #283, Runner enablement and actual project/bucket PRECHECK_PASS in run
+`37252295233` were independently verified. Object permissions remain open; the
+[native storage candidate](PHASE_6_RUNNER_STORAGE.md) is offline qualification.
+Actual scheduled qualification remains optional.
 
 ## Scope and API limits
 
