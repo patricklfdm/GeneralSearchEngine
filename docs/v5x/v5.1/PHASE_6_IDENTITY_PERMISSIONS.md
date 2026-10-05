@@ -254,3 +254,7 @@ be globally forbidden because object replacement needs create and delete.
 
 Remaining provider failure paths, runner qualification, paid admission and complete
 Phase 6 stay open. The runner entry candidate performs no cloud configuration change.
+The [exact-request Runner storage entry](PHASE_6_RUNNER_STORAGE_ENTRY.md) now
+provides operator canary preparation, same-run raw precheck/credential binding and
+independent object/control readback. Its local fixtures do not establish actual
+Runner permissions; live execution and original artifact/audit review remain open.

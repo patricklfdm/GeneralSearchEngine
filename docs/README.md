@@ -89,6 +89,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 6C3C31 workflow identity permission prechecks](v5x/v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
 - [V5.1 optional runner permission entry and activation review](v5x/v5.1/PHASE_6_RUNNER_PREFLIGHT.md)
 - [V5.1 native Runner storage transaction and interruption qualification](v5x/v5.1/PHASE_6_RUNNER_STORAGE.md)
+- [V5.1 exact-request Runner storage entry and independent review](v5x/v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
 - [V5.1 single-disk cleanup qualification preparation](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE.md)
 - [V5.1 single-disk preparation and object probe driver](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md)
 - [V5.1 complete-topology cleanup qualification candidate](v5x/v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)

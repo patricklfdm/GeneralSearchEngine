@@ -1,8 +1,12 @@
 # V5.1 native Runner storage transaction
 
-**Status:** implementation candidate after accepted PR #283 and actual Runner
-permission precheck. This batch executes only offline HTTP fixtures. Protected
-acceptance and an independently reviewed live storage entry remain pending.
+**Status:** accepted through PR #284, master
+`69fb188b204feab01ffb6d2fdc37e02ab682c36c`;
+[exact-master CI 37261105426](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37261105426)
+passed all 29 jobs. This protocol was qualified with offline HTTP fixtures.
+The subsequent [exact-request storage entry](PHASE_6_RUNNER_STORAGE_ENTRY.md)
+adds native wiring; protected acceptance of that entry and actual Runner object
+qualification remain pending.
 
 ## Scope and authority
 
@@ -14,11 +18,13 @@ request, lease, ledger and completion formats. It uses the existing GCS Store an
 the shared expired-owner cleanup, without converting fake records or opening the
 fake engine runner to native adapters.
 
-The constructor accepts offline transports only; the same restriction and closed
-method/path/body checks apply when calling the base HTTP API. There is no network
-adapter, workflow input, cloud configuration change or paid admission in this
-batch. No VM, disk, firewall, SSH command or image lookup occurs. Runner roles,
-trust and the USD 200 cumulative ceiling are unchanged.
+The original offline constructor accepts offline transports only; the same
+restriction and closed method/path/body checks apply through the base HTTP API.
+The subsequent entry shares that policy and admits only its exact network
+constructor after identity, raw precheck and prepared-manifest validation. PR #284
+itself added no network adapter or workflow input. No VM, disk, firewall, SSH
+command or image lookup occurs in either storage entry. Runner roles, trust and
+the USD 200 cumulative ceiling are unchanged.
 
 ## Transaction and evidence
 
@@ -92,7 +98,7 @@ python3 -m scripts.v51.cloud_runner_storage_qualification target/v51-runner-stor
 Use a fresh output directory. The unit suite covers policy bypass attempts,
 stale/contended control generations, rejected/ambiguous probes, immutable evidence,
 readback generation drift, lost-response replay, duplicate requests, budget and
-deadline boundaries. Protected CI remains required for this source.
+deadline boundaries. Protected CI for PR #284 is accepted above.
 
 Local validation passed the existing gate components (208 unit tests, 61
 source/identity/permission negatives, eight single-disk, five driver and 24
@@ -102,18 +108,19 @@ requires the created object to exist. Final focused qualification passed all nin
 storage cases and 48 fresh-process checks; all 20 final regressions passed under
 Python 3.10 and 3.11. Results and hashes are indexed in
 `target/v51-runner-storage/validation-summary.json`. The full wrapper was not
-repeated after that fixture-only correction; corrected-source CI remains pending.
+repeated locally after that fixture-only correction; the corrected-source
+protected CI is now accepted above.
 
 ## Next live integration
 
-The next entry must bind actual Runner identity/credentials, exact source and
-fresh observer/manual evidence to a reviewed request and price/retention plan.
-An operator must capture real canary/control generations; a closed network
-policy must submit original operations once and retain failures. Independent
-post-run reads must verify protected object bytes/generations, append-only
-charges, retained evidence and lease absence. Only actual Runner results may
-qualify object permissions. Existing manual-identity disk/topology qualification
-cannot substitute for that result.
+The [entry candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md) binds actual Runner
+identity/credentials, exact source and fresh observer/manual evidence to a
+reviewed request and price/retention plan. Operator preparation captures exact
+canary/control generations; the network policy submits original operations once
+and retains failures. Independent post-run reads verify protected object
+bytes/generations, append-only charges, retained evidence and lease absence.
+Actual execution and provenance/audit review remain pending. Existing
+manual-identity disk/topology qualification cannot substitute for that result.
 
 Actual resource/image/IAP access, native owned-workload integration and provider
 failure qualification still follow. Paid engine experiments require exact-request
