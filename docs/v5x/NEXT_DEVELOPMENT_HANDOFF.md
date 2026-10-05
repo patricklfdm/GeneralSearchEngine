@@ -306,19 +306,28 @@ charges and releases the preparation lease before the unchanged same-run observe
 PR #285 / exact-master CI `37269773248` accepted the entry. Authorized preparation
 retained USD 13 / 200. Native run `37274475579` failed on the CLI class identity
 check before storage transaction requests; independent readback found unchanged
-prepared state, no lease and no pending reservation. The current CLI correction and
-Python CI partition await protected acceptance. Next: accept corrected-source CI,
-review fresh control/prices and same-source manual evidence, separately approve new
-preparation and user-dispatched probes, then independently review object scope and
-provenance/audits. Old manifest expiry `1791183581` is not renewed; retain USD 13.
-No need to wait for schedule.
+prepared state, no lease and no pending reservation. PR #286 / CI `37280773489`
+attempt 1 accepted the CLI correction and Python CI partition (36 jobs) at
+`b0bc7b4b9e63a40a1d812138d86cb40e7e298e92`. The [live review](v5.1/PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+records two separately authorized successful storage runs `37285400939` and
+`37290067974`: eight probes each, original artifact provenance and independent
+state. USD 17 / 200 remains reserved; no lease/pending attempt at observation.
+The second run's provider audit covers seven of eight probes; outside-write's
+original HTTP 403 and unchanged canary are retained without a matching audit row.
+Temporary Storage audit configuration was restored. Do not spend another run
+solely to fill that gap or require one audit row per HTTP call as a new gate.
+Next: accept the local [Runner frozen-image read](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md),
+then integrate native Compute/IAP with the existing complete owned experiment.
+The resource plan maps reuse, remaining implementation and exact-request approval;
+it does not require another topology-only paid allocation by default. Preserve
+historical receipts and original expiry; no need to wait for schedule.
 Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
 the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no
-backdating, fake-record upload or ledger reset. Conditional object/IAP and actual
-resource/failure-path qualification remain open; empty PASS is not full readiness.
-Live Runner storage qualification and full 6C remain open; paid experiments require separate
+backdating, fake-record upload or ledger reset. Retain the audit coverage limitation.
+Image use/IAP and actual resource/failure-path qualification remain open; empty
+PASS is not full readiness. Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

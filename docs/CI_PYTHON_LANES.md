@@ -1,5 +1,10 @@
 # Python and cloud qualification CI partition
 
+**Accepted:** PR #286, master `b0bc7b4b9e63a40a1d812138d86cb40e7e298e92`,
+[exact-master CI 37280773489](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37280773489)
+attempt 1, all 36 jobs passed. This establishes correctness of the migrated gates;
+the pre-split measurements below are historical, not measured post-split durations.
+
 ## Observed bottlenecks
 
 The four latest full successful runs reviewed for this change were
@@ -85,7 +90,8 @@ The partition adds seven lightweight jobs, not seven reactor builds. Hosted
 scheduling, VM speed and upload overhead still affect total workflow time;
 fifteen minutes is an optimization target, not a new test timeout or SLA. Original
 job and script limits, workload sizes and retry rules remain unchanged. The next
-corrected-source full CI must establish actual per-lane durations.
+full CI measurements should be used to assess actual per-lane durations separately
+from the accepted gate results above.
 
 ## Local validation
 

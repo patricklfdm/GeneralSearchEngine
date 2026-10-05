@@ -11,7 +11,8 @@ class Provider:
     offline = True
     def __init__(self, cfg, role):
         self.queries = p.plan(cfg, role); self.requests = []
-        self.responses = {name:dict(permissions=q['required']) for name,q in self.queries.items()}
+        self.responses = {name:(deepcopy(q['expectedImage']) if name == 'image' else dict(permissions=q['required']))
+                          for name,q in self.queries.items()}
         self.status = 200
 
     def send(self, method, url, headers, body, timeout, maximum):

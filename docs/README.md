@@ -90,6 +90,8 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 optional runner permission entry and activation review](v5x/v5.1/PHASE_6_RUNNER_PREFLIGHT.md)
 - [V5.1 native Runner storage transaction and interruption qualification](v5x/v5.1/PHASE_6_RUNNER_STORAGE.md)
 - [V5.1 exact-request Runner storage entry and independent review](v5x/v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
+- [V5.1 actual Runner storage results and audit coverage](v5x/v5.1/PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+- [V5.1 Runner frozen-image read and native resource integration plan](v5x/v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md)
 - [V5.1 single-disk cleanup qualification preparation](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE.md)
 - [V5.1 single-disk preparation and object probe driver](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md)
 - [V5.1 complete-topology cleanup qualification candidate](v5x/v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)

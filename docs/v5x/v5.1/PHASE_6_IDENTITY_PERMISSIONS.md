@@ -19,8 +19,10 @@ checks, object conditions and resource cleanup qualification were still open at
 that point. Subsequent manual object/topology qualification and current observer
 acceptance are recorded in the [Runner entry handoff](PHASE_6_RUNNER_PREFLIGHT.md).
 After PR #283, Runner enablement and actual project/bucket PRECHECK_PASS in run
-`37252295233` were independently verified. Object permissions remain open; the
-[native storage candidate](PHASE_6_RUNNER_STORAGE.md) is offline qualification.
+`37252295233` were independently verified. The later [live storage review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
+records two eight-probe successes, independent state/provenance and incomplete
+provider audit coverage. The [Runner image-read candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md)
+adds the bound external image GET; actual resource/image use/IAP remains open.
 Actual scheduled qualification remains optional.
 
 ## Scope and API limits
@@ -35,13 +37,15 @@ continues to apply: unavailable ancestor policies remain unassessed.
 | --- | --- | --- | --- |
 | Resource Manager `projects.testIamPermissions` (POST) | Configured project | Existing observer, runner or cleanup Compute role permissions | IAM/key changes, impersonation, external IP/VM service-account attachment, project SSH metadata, bucket creation and topology writes outside that role |
 | Storage `buckets.testIamPermissions` (GET) | Configured evidence bucket | `storage.buckets.get` | Bucket delete/update/IAM changes, object list/create/delete/update at this bucket scope |
+| Runner-only `images.get` (GET, local candidate) | Frozen external image project/name | Exact image ID/name, READY, X86_64, no deprecation | No write or list query; a successful read does not establish image-use permission |
 
 Both official methods require no additional IAM permission merely to query:
 [project API](https://docs.cloud.google.com/resource-manager/reference/rest/v1/projects/testIamPermissions),
 [bucket API](https://docs.cloud.google.com/storage/docs/json_api/v1/buckets/testIamPermissions).
 The POST is a permission query, not a mutation. The generic GET-only HTTP client
 and the cleanup mutation policy remain unchanged; this separate client permits
-only the two generated queries and their exact permission inventories.
+only the generated queries and their exact permission inventories; the Runner
+candidate additionally admits its fixed image GET, described above.
 
 Cloud Storage has no object-level `testIamPermissions` method in its
 [object API](https://docs.cloud.google.com/storage/docs/json_api/v1/objects).
@@ -61,7 +65,7 @@ an authorization decision or an exhaustive privilege audit.
 | Role | Job | Entry integration |
 | --- | --- | --- |
 | Observer | `observations` | Existing manual read-only preflight, after authentication and provider observations |
-| Runner | `run` | [Optional same-run precheck candidate](PHASE_6_RUNNER_PREFLIGHT.md), default off; separate enablement pending, no paid entry |
+| Runner | `run` | [Accepted optional same-run precheck](PHASE_6_RUNNER_PREFLIGHT.md), default off; enablement completed; current image-read extension awaits acceptance |
 | Manual cleanup | `cleanup` | [Accepted workflow](../../../.github/workflows/v51-manual-cleanup.yml), after authentication and before reconciliation |
 | Scheduled cleanup | `cleanup` | Accepted separate scheduled workflow with the same checks and reconciliation; actual scheduled qualification optional |
 
@@ -246,9 +250,10 @@ approved [single-disk preparation](PHASE_6_CLEANUP_FIXTURE.md) and
 [v2 manual canary probes](PHASE_6_CLEANUP_FIXTURE_DRIVER.md) subsequently qualified
 the actual manual object's scope; complete-topology active/grace/expired cleanup
 also passed. The accepted results are recorded above, separately from offline
-fixtures. Runner access still requires exact lease/ledger read and conditional
-replacement, immutable attempt evidence creation and prohibited deletion/replacement,
-out-of-scope denial, Compute operations, external image access and conditional IAP.
+fixtures. Runner's exact lease/ledger read/replacement, immutable attempt evidence
+creation and prohibited replacement/deletion/out-of-scope probes now have actual
+results in the live review above. Compute operations, external image use and
+conditional IAP remain open; one storage denial's provider audit remains missing.
 V5.1 cleanup must replace both lease and ledger; ledger deletion permission cannot
 be globally forbidden because object replacement needs create and delete.
 
@@ -257,4 +262,5 @@ Phase 6 stay open. The runner entry candidate performs no cloud configuration ch
 The [exact-request Runner storage entry](PHASE_6_RUNNER_STORAGE_ENTRY.md) now
 provides operator canary preparation, same-run raw precheck/credential binding and
 independent object/control readback. Its local fixtures do not establish actual
-Runner permissions; live execution and original artifact/audit review remain open.
+Runner permissions. The later live review distinguishes actual probe results,
+verified artifact/state evidence and the audit coverage limit.

@@ -252,9 +252,16 @@ independent state/raw evidence review. Each stage reserves USD 1 and keeps prior
 charges. PR #285 / exact-master CI `37269773248` accepted the entry. Authorized
 preparation retained USD 13 / 200. Native run `37274475579` failed on CLI class
 identity before transaction requests; independent readback found no lease or pending
-reservation. The CLI correction and Python CI partition await protected acceptance.
-Actual Runner object permissions and native resource/workload integration remain open.
-Live Runner storage qualification and full 6C remain open; paid experiments require separate
+reservation. PR #286 / CI `37280773489` attempt 1 accepted the correction and CI
+partition (36 jobs), source `b0bc7b4b9e63a40a1d812138d86cb40e7e298e92`.
+The [live storage review](v5.1/PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md) records runs
+`37285400939` and `37290067974`: 8/8 probes each, independently verified state and
+original artifacts, USD 17 / 200 retained. The second run matched seven of eight
+probe audits; the outside-write audit remains unobserved and temporary audit
+configuration was restored. The [resource integration plan](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md)
+adds a local Runner fixed-image read candidate and maps native Compute/IAP to the
+first owned experiment. Actual native resource/workload integration and full 6C
+remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

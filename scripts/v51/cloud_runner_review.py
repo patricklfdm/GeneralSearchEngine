@@ -171,8 +171,9 @@ future reactivation. Storage preparation/dispatch has its own exact confirmation
    If approval delays exceed evidence freshness, run a new complete dispatch;
    do not rerun only a failed runner job using an earlier attempt's artifacts.
 6. Retain native credential/permission receipts. PRECHECK_PASS covers diagnostic
-   project/bucket permissions only; actual object conditions, resources, IAP,
-   native engine wiring, retention/prices and paid-request approval remain open.
+   project/bucket permissions and the frozen image read only; image use, actual
+   object conditions, resources, IAP, native engine wiring, retention/prices and
+   paid-request approval remain open.
 
 ## Authority boundary and rollback
 
