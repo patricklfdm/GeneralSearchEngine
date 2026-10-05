@@ -1,8 +1,10 @@
 # V5.1 Runner resource and workload integration
 
 **Status:** fixed-image read accepted through PR #287 and actual Runner observation.
-The [ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md) is implemented
-locally with offline HTTP/fresh-process cleanup qualification, pending protected CI.
+The [ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md) is accepted
+through PR #288 / CI `37383808101` attempt 2 (36 successful jobs).
+The [read-only request inspection](PHASE_6_RUNNER_ADMISSION.md) is now a local
+candidate; its protected CI remains pending.
 A paid native Compute/IAP/engine entry is not yet exposed.
 
 ## Starting evidence
@@ -85,8 +87,9 @@ charged active lease for the next stage or the unchanged expired reconciler.
 and failure evidence. Its supplied build/price digests bind inputs; they are not
 an authenticated build, a current price quote or paid user approval.
 
-Next connect the actual Runner admission/credential boundary, IAP and owned
-services. The resource stage deliberately has no network constructor or workflow
+The [request inspection candidate](PHASE_6_RUNNER_ADMISSION.md) now verifies
+original build/package, quote, exact approval, precheck and credentials without
+mutating state. Next connect it to native allocation, IAP and owned services. The resource stage deliberately has no network constructor or workflow
 selection until that integration and its failure qualification are complete.
 
 Implement the actual Runner path using the existing topology and owned workload,
@@ -97,7 +100,7 @@ retention and cleanup so a failure does not get mislabelled as an engine result.
 
 | Surface | Reuse | Remaining native work |
 | --- | --- | --- |
-| Request and control | `cloud_native_authority`, storage CAS and exact-request entry checks | Bind complete source/build/package/workload/prices, current ledger and approval to a native experiment request; reserve once before allocation |
+| Request and control | `cloud_native_authority`, storage CAS and read-only Runner request inspection | Recheck the bound build/package/quote/preflight/control request immediately before native mutation; reserve once before allocation |
 | Compute | `cloud_gcp.Compute`, existing thirteen-resource inventory and durable create intents | Add a closed Runner policy for exact inserts/readback/operation polling; verify image-derived boot disks, ownership, numeric IDs, private interfaces and dependencies |
 | SSH/IAP | Accepted guest bootstrap, source delivery and persistent owned services | Bind tunnels to the retained VM identities and original public key; verify host/guest identity and mount evidence before delivering the source-exact package |
 | Workload | Accepted complete owned experiment and independent physical/history validators | Connect the three actual private guests and published controls; preserve frozen cells, parameters, time budgets and evidence limits |
@@ -158,5 +161,6 @@ contract passed. Evidence and source hashes are retained at
 `target/v51-runner-image-precheck/`; admission evidence is
 `target/v51-cloud-preflight/run.uHXYjh/`. No new cloud run or IAM operation was
 performed. Those image-read checks subsequently passed protected CI and the actual Runner
-observation recorded above. The new resource implementation still requires its
-own protected CI; offline fixtures do not establish Compute/IAP permissions.
+observation recorded above. The ordinary resource implementation subsequently
+passed PR #288 protected CI; its offline fixtures do not establish Compute/IAP
+permissions. The newer request inspection candidate needs its own protected CI.

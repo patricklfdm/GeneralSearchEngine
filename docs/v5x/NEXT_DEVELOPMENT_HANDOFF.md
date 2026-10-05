@@ -321,10 +321,15 @@ PR #287, master `530fe8573ebf25b2ac489175f33b6abc3794da3f`, CI `37341517723`
 (all 36 jobs); manual `37375168508` NO_LEASE and Runner `37375846878`
 project/bucket/image PRECHECK_PASS, independently replayed at original times.
 The [ordinary resource lifecycle](v5.1/PHASE_6_EXPERIMENT_RESOURCES.md) adds shared
-once-only creation and fresh-process expired cleanup qualification locally;
-protected CI is pending. No native network constructor is exposed. Next bind
-actual build/price/preflight approval and credentials, then connect IAP and the
-existing complete owned experiment; preserve the offline/native domain boundary.
+once-only creation and fresh-process expired cleanup qualification, accepted
+through PR #288 at `d1f7b798897b83c51be6d3de53912860005b9f6d`, exact-master CI
+`37383808101` attempt 2 (36 jobs). The rerun does not diagnose its earlier failure.
+The [Runner request inspection candidate](v5.1/PHASE_6_RUNNER_ADMISSION.md) adds
+original artifact, price, exact approval, precheck, ledger and bound credential
+checks in a read-only native constructor, with an offline resource/cleanup chain.
+Its protected CI is pending; no paid allocation workflow is exposed. Next connect
+native creation, IAP and the existing complete owned experiment, preserving the
+offline/native domain boundary and rechecking admission before any mutation.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
 historical receipts and original expiry; no need to wait for schedule.

@@ -1,6 +1,9 @@
 # Ordinary experiment resource lifecycle
 
-**Status:** local implementation and offline qualification; protected CI pending.
+**Status:** accepted through PR #288, master `d1f7b798897b83c51be6d3de53912860005b9f6d`,
+[exact-master CI 37383808101](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37383808101)
+attempt 2, all 36 jobs successful. The rerun does not establish a cause for the
+original failure.
 Native Runner allocation, IAP and engine execution remain closed. This stage
 continues the [accepted image-read and resource plan](PHASE_6_RUNNER_RESOURCE_ENTRY.md).
 
@@ -113,8 +116,10 @@ cloud acceptance. No Maven reactor or cloud experiment was run for this batch.
 
 ## Remaining work
 
-Connect the actual Runner's same-source build/package/prices, fresh preflight,
-exact approval and renewable bound credentials to this lifecycle. Then connect
+The [Runner request inspection candidate](PHASE_6_RUNNER_ADMISSION.md) now binds
+original build/package/prices, fresh preflight, exact approval and renewable
+credentials in a read-only entry. Its own protected qualification is pending.
+Connect that boundary to native allocation, then connect
 IAP identity, guest setup and the complete owned experiment, including the
 independent workload/evidence gates and immediate cleanup/retention path. The
 current offline preparer deliberately exposes no network constructor or workflow

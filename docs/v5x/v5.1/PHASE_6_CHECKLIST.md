@@ -337,8 +337,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [Runner image-read candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md): fixed external image GET using bound Runner credentials, sanitized identity receipt, original deadline and independent precheck replay.
 - [x] Image-read protected acceptance: PR #287, master `530fe8573ebf25b2ac489175f33b6abc3794da3f`, CI `37341517723`, all 36 jobs. Actual Runner `37375846878` project/bucket/image PASS; original evidence independently replayed, no storage/resource work.
 - [x] Local [ordinary experiment resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md): shared once-only creation, durable plan/context/intent/ID records, ordinary DELETE profile and fresh-process cleanup qualification.
-- [ ] Corrected-source protected CI for the resource lifecycle.
-- [ ] Native entry/build/price/approval/credentials, actual image use/IAP and owned-experiment integration.
+- [x] Resource lifecycle protected acceptance: PR #288, master `d1f7b798897b83c51be6d3de53912860005b9f6d`, CI `37383808101` attempt 2 (36 jobs); original failure remains separate.
+- [x] Local [Runner request inspection](PHASE_6_RUNNER_ADMISSION.md): original CI build/package bytes, quote/exact approval, same-run precheck and bound credentials, read-only lease/ledger checks; offline thirteen-resource/cleanup chain.
+- [ ] Corrected-source protected CI for Runner request inspection.
+- [ ] Native allocation entry, actual image use/IAP and complete owned-experiment integration.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
