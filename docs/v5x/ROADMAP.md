@@ -244,11 +244,14 @@ Separately authorized Runner enablement passed 33 observations / 17 groups.
 Manual `37252211351` passed NO_LEASE; preflight `37252295233` passed all nine
 observer checks and actual Runner project/bucket PRECHECK_PASS. Original raw
 evidence independently replayed without renewing freshness; control state stayed
-unchanged. The [native storage candidate](v5.1/PHASE_6_RUNNER_STORAGE.md) adds
-offline lease/ledger CAS, immutable object probes and interruption recovery.
-Protected acceptance of this candidate, a reviewed live storage entry, actual
-object permissions and remaining native workload integration stay open.
-Native cloud writes and full 6C remain open; paid experiments require separate
+unchanged. The [native storage protocol](v5.1/PHASE_6_RUNNER_STORAGE.md) is accepted
+through PR #284, master `69fb188b204feab01ffb6d2fdc37e02ab682c36c`, exact-master
+CI `37261105426` (29 jobs). The [storage entry candidate](v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
+adds exact-request operator preparation, optional Runner object probes and
+independent state/raw evidence review. Each stage reserves USD 1 and keeps prior
+charges; all local qualification is offline. Protected entry acceptance, actual
+Runner object permissions and native resource/workload integration remain open.
+Live Runner storage qualification and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

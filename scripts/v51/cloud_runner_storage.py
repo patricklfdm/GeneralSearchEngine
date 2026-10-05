@@ -1,7 +1,7 @@
-"""Offline native Runner storage transaction; no network or paid entry point.
+"""Native Runner storage policy; the separate entry binds live authorization.
 
 Use the real native formats, generation-bound Store and expired-owner cleanup.
-This qualifies the storage protocol against a provider double, not actual IAM.
+Offline fixtures qualify the protocol; live IAM needs independent entry evidence.
 Every original mutation is consumed before submission, including denied probes.
 """
 from copy import deepcopy
@@ -27,9 +27,10 @@ def canary(req, kind):
     return dict(schema='gse-v51-runner-storage-canary-v1', requestSha256=n.validate_request(req), kind=kind)
 
 
-def report(req):
-    return dict(schema=SCHEMA, execution=EXECUTION, requestSha256=n.validate_request(req), status='PASS',
-                cases=[dict(case=name, status='PASS') for name in CASES], paidCloud=False,
+def report(req, *, native=False):
+    return dict(schema=SCHEMA, execution='runner-identity-storage' if native else EXECUTION,
+                requestSha256=n.validate_request(req), status='PASS',
+                cases=[dict(case=name, status='PASS') for name in CASES], paidCloud=native,
                 objectPermissionsQualified=False, engineWorkloadExecuted=False, fullRemoteQualification=False)
 
 
@@ -40,15 +41,15 @@ def completion(req):
                 reason='storage-only qualification; no engine workload')
 
 
-class OfflineApi(h.Api):
-    """Finite request/body policy. No live transport, token or approval overload.
+class _Policy(h.Api):
+    """Shared finite request/body policy; entry constructors select its domain.
 
     baseline contains independently captured generation/value pairs for ledger
-    and two operator canaries. None means an absent ledger only. It is synthetic
-    input here; a future live entry needs its own reviewed provenance/admission.
+    and two operator canaries. None means an absent ledger only. Live access is
+    restricted to the exact network entry with its bound Runner identity.
     """
-    def __init__(self, cfg, req, baseline, *, maximum_cost, transport, clock):
-        m.need(transport.offline is True, 'Runner storage has no network entry')
+    def initialize(self, cfg, req, baseline, *, maximum_cost, native=False):
+        self.native = native
         sha = n.validate_request(req)
         m.need(g.config(cfg) == req['configurationSha256'], 'Runner storage configuration binding')
         self.cfg, self.req, self.keys = deepcopy(cfg), deepcopy(req), inventory(req)
@@ -71,8 +72,10 @@ class OfflineApi(h.Api):
         self.base = 'https://storage.googleapis.com/storage/v1/b/'+cfg['bucket']+'/o/'
         self.upload = 'https://storage.googleapis.com/upload/storage/v1/b/'+cfg['bucket']+'/o'
         self.sha = sha
-        super().__init__(transport=transport, tokens=lambda timeout: 'offline-token', clock=clock)
-        self.deadline = clock()+self.lease['expiresAt']-self.lease['startedAt']
+        self.deadline = self.clock()+self.lease['expiresAt']-self.lease['startedAt']
+        self.requests = []
+
+    def report(self): return report(self.req, native=self.native)
 
     def url(self, key): return self.base+quote(key, safe='')
 
@@ -88,7 +91,11 @@ class OfflineApi(h.Api):
         return row[0]
 
     def check(self, method, url, body):
-        m.need(self.offline, 'Runner storage has no network entry')
+        m.need(self.offline is (not self.native), 'Runner storage has no network entry for this policy')
+        if self.native:
+            from .cloud_runner_storage_entry import NetworkApi
+            m.need(type(self) is NetworkApi and self.binding['role']=='runner' and
+                   self.binding['source']==self.req['source'], 'bound native Runner policy required')
         parsed = urlsplit(url)
         pairs = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True) if parsed.query else []
         query = dict(pairs)
@@ -157,10 +164,10 @@ class OfflineApi(h.Api):
                 elif key == self.keys['report']:
                     self.retained(self.keys['created'], canary(self.req, 'created'))
                     m.need(self.observed.get(self.keys['existing']) == tuple(self.baseline[self.keys['existing']]) and
-                           self.denied == set(CASES[3:]) and body == report(self.req), 'storage probes incomplete')
+                           self.denied == set(CASES[3:]) and body == self.report(), 'storage probes incomplete')
                     action = 'report'
                 elif key == self.keys['completion']:
-                    self.retained(self.keys['report'], report(self.req))
+                    self.retained(self.keys['report'], self.report())
                     m.need(body == completion(self.req), 'storage cannot accept engine workload'); action = 'complete'
         m.need(action is not None, 'storage operation scope')
         return action, key
@@ -175,12 +182,18 @@ class OfflineApi(h.Api):
     def call(self, method, url, body=None, **kwargs):
         action, key = self.check(method, url, body)
         kwargs['deadline'] = min(kwargs['deadline'], self.deadline)
+        m.need(len(self.requests) < 256, 'storage request inventory bound')
+        record = dict(action=action, method=method, key=key, outcome='UNRESOLVED',
+                      bodySha256=m.sha(m.canonical(body)) if body is not None else None)
+        self.requests.append(record)
         try: value = super().call(method, url, body, **kwargs)
         except h.ApiError as error:
+            record.update(outcome='HTTP_ERROR', httpStatus=error.status)
             if action in CASES[3:] and error.status == 403: self.denied.add(action)
             elif action == 'metadata' and error.status == 404:
                 self.observed[key] = None; self.metadata.pop(key, None)
             raise
+        record['outcome'] = 'SUCCESS'
         m.need(action not in CASES[3:], 'permission probe unexpectedly succeeded: '+action)
         if action == 'media':
             self.observed[key] = self.metadata[key], m.strict_json(value)
@@ -190,8 +203,17 @@ class OfflineApi(h.Api):
         return value
 
 
+class OfflineApi(_Policy):
+    def __init__(self, cfg, req, baseline, *, maximum_cost, transport, clock):
+        m.need(transport.offline is True, 'Runner storage has no network entry')
+        h.Api.__init__(self, transport=transport, tokens=lambda timeout: 'offline-token', clock=clock)
+        self.initialize(cfg, req, baseline, maximum_cost=maximum_cost)
+
+
 def run(api):
-    m.need(type(api) is OfflineApi and api.offline, 'offline Runner storage policy required')
+    from .cloud_runner_storage_entry import NetworkApi
+    m.need(type(api) is OfflineApi and api.offline or type(api) is NetworkApi and not api.offline,
+           'bound Runner storage policy required')
     store = g.Store(api.cfg, api, authority=n)
     m.need(store.get(n.LEASE) is None, 'Runner storage lease occupied')
     ledger = store.get(n.LEDGER)
@@ -210,8 +232,8 @@ def run(api):
         except h.ApiError as error:
             m.need(error.status == 403, 'permission probe inconclusive: HTTP '+str(error.status))
         else: raise ValueError('permission probe was not denied')
-    store.put(api.keys['report'], report(api.req), 0)
+    store.put(api.keys['report'], api.report(), 0)
     store.put(api.keys['completion'], completion(api.req), 0)
     store.put(n.LEDGER, api.terminal, reserved_generation)
     store.delete(n.LEASE, generation)
-    return dict(report(api.req), leaseReleased=True, maximumCostMicrousd=api.reserved['entries'][-1]['maximumCostMicrousd'])
+    return dict(api.report(), leaseReleased=True, maximumCostMicrousd=api.reserved['entries'][-1]['maximumCostMicrousd'])

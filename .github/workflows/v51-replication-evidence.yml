@@ -1,5 +1,5 @@
-# Observation-only stage. No prepared run, paid execution or cleanup is exposed.
-name: V5.1 Read-only Preflight
+# Read-only by default. Storage probes require an exact approved preparation.
+name: V5.1 Preflight and Storage Qualification
 
 on:
   workflow_dispatch:
@@ -9,6 +9,16 @@ on:
         type: boolean
         required: false
         default: false
+      runner_storage_request:
+        description: 'Optional prepared storage plan SHA-256; empty keeps diagnostic-only mode'
+        type: string
+        required: false
+        default: ''
+      runner_storage_confirmation:
+        description: 'Exact prepared manifest SHA-256; confirms a separate USD 1 Runner reservation'
+        type: string
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -100,9 +110,9 @@ jobs:
           retention-days: 14
 
   run:
-    name: Runner permission precheck (no allocation)
+    name: Runner permissions and optional storage qualification
     needs: observations
-    if: ${{ inputs.check_runner_permissions == true }}
+    if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: v51-cloud-benchmark
@@ -114,6 +124,8 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       PERMISSION_ENVIRONMENT: v51-cloud-benchmark
       RUNNER_PERMISSION_PRECHECK: ${{ inputs.check_runner_permissions }}
+      RUNNER_STORAGE_REQUEST: ${{ inputs.runner_storage_request }}
+      RUNNER_STORAGE_CONFIRMATION: ${{ inputs.runner_storage_confirmation }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -123,6 +135,9 @@ jobs:
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.11'
+
+      - name: Validate selected Runner storage inputs before authentication
+        run: python -m scripts.v51.cloud_runner_storage_entry guard --source "$GITHUB_SHA"
 
       - name: Download this attempt's observer evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
@@ -159,6 +174,22 @@ jobs:
           python -m scripts.v51.cloud_runner_precheck report --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --output target/v51-runner-precheck \
             --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Qualify exact approved Runner storage request (no allocation)
+        if: ${{ success() && inputs.runner_storage_request != '' }}
+        run: |
+          python -m scripts.v51.cloud_runner_storage_entry run --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
+            --output target/v51-runner-precheck/storage
+
+      - name: Report Runner storage outcome including failures
+        if: ${{ always() && inputs.runner_storage_request != '' }}
+        run: |
+          if [[ -f target/v51-runner-precheck/storage/summary.md ]]; then
+            cat target/v51-runner-precheck/storage/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Runner storage entry did not start; inspect the binding/precheck failure.' >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Retain runner precheck evidence including failures
         if: ${{ always() }}

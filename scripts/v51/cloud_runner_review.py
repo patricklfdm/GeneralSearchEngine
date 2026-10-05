@@ -15,18 +15,31 @@ from .remote_command import read, write_once
 
 SCHEMA = 'gse-v51-runner-review-v1'
 OBSERVER_WORKFLOW_SHA256 = 'da5dc893a3044f32dc9a21d12e38ca89b4b58a30c7abf9dbe9ff46dd5f5cf59c'
+RUNNER_JOB_NAME = 'Runner permissions and optional storage qualification'
+ORIGINAL_HEADER = '# Observation-only stage. No prepared run, paid execution or cleanup is exposed.\nname: V5.1 Read-only Preflight\n'
+HEADER = '# Read-only by default. Storage probes require an exact approved preparation.\nname: V5.1 Preflight and Storage Qualification\n'
 INPUT = '''    inputs:
       check_runner_permissions:
         description: 'Also check the separately enabled runner identity; no resource allocation'
         type: boolean
         required: false
         default: false
+      runner_storage_request:
+        description: 'Optional prepared storage plan SHA-256; empty keeps diagnostic-only mode'
+        type: string
+        required: false
+        default: ''
+      runner_storage_confirmation:
+        description: 'Exact prepared manifest SHA-256; confirms a separate USD 1 Runner reservation'
+        type: string
+        required: false
+        default: ''
 '''
 JOB = r'''
   run:
-    name: Runner permission precheck (no allocation)
+    name: Runner permissions and optional storage qualification
     needs: observations
-    if: ${{ inputs.check_runner_permissions == true }}
+    if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     environment: v51-cloud-benchmark
@@ -38,6 +51,8 @@ JOB = r'''
       GH_TOKEN: ${{ github.token }}
       PERMISSION_ENVIRONMENT: v51-cloud-benchmark
       RUNNER_PERMISSION_PRECHECK: ${{ inputs.check_runner_permissions }}
+      RUNNER_STORAGE_REQUEST: ${{ inputs.runner_storage_request }}
+      RUNNER_STORAGE_CONFIRMATION: ${{ inputs.runner_storage_confirmation }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -47,6 +62,9 @@ JOB = r'''
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.11'
+
+      - name: Validate selected Runner storage inputs before authentication
+        run: python -m scripts.v51.cloud_runner_storage_entry guard --source "$GITHUB_SHA"
 
       - name: Download this attempt's observer evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
@@ -84,6 +102,22 @@ JOB = r'''
             --preflight target/v51-runner-precheck/preflight --output target/v51-runner-precheck \
             --github-step-summary "$GITHUB_STEP_SUMMARY"
 
+      - name: Qualify exact approved Runner storage request (no allocation)
+        if: ${{ success() && inputs.runner_storage_request != '' }}
+        run: |
+          python -m scripts.v51.cloud_runner_storage_entry run --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
+            --output target/v51-runner-precheck/storage
+
+      - name: Report Runner storage outcome including failures
+        if: ${{ always() && inputs.runner_storage_request != '' }}
+        run: |
+          if [[ -f target/v51-runner-precheck/storage/summary.md ]]; then
+            cat target/v51-runner-precheck/storage/summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo 'Runner storage entry did not start; inspect the binding/precheck failure.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Retain runner precheck evidence including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -98,7 +132,8 @@ JOB = r'''
 def workflow(raw=None):
     raw = (ci.ROOT/a.RUNNER_WORKFLOW).read_text() if raw is None else raw
     m.need(raw.endswith(JOB) and raw.count(INPUT) == 1, 'runner workflow entry drift')
-    base = raw[:-len(JOB)].replace(INPUT, '', 1)
+    m.need(raw.startswith(HEADER), 'runner workflow header drift')
+    base = raw[:-len(JOB)].replace(INPUT, '', 1).replace(HEADER, ORIGINAL_HEADER, 1)
     m.need(m.sha(base.encode()) == OBSERVER_WORKFLOW_SHA256, 'observer workflow drift')
     return raw.encode()
 
@@ -109,6 +144,10 @@ def text(source):
 Review source: `{source}`. Regenerate against the protected merge before approval.
 This package adds an optional diagnostic job at the existing runner workflow,
 environment and trust scope. Default observer-only dispatch remains available.
+Runner enablement was already separately completed after PR #283. For the current
+enabled deployment, use enabled-state readback and do not repeat enable commands.
+The disabled-to-enabled sequence below applies only to a separately reviewed
+future reactivation. Storage preparation/dispatch has its own exact confirmation.
 
 ## Scope and sequence
 
@@ -125,7 +164,7 @@ environment and trust scope. Default observer-only dispatch remains available.
 4. Collect `readback --state enabled`; compare with the original observations.
    Only the three runner enable bits may change. A matching configuration is not
    effective IAM qualification, actual workflow credentials or paid admission.
-5. The operator dispatches V5.1 Read-only Preflight on master with
+5. The operator dispatches V5.1 Preflight and Storage Qualification on master with
    `check_runner_permissions=true` and approves the existing environment gates.
    Its observer job must finish first. The runner job checks the same run/attempt,
    source, complete raw preflight and recent manual artifact before authentication.
@@ -141,9 +180,12 @@ Enabling the runner permits its existing project-wide Compute and conditional
 storage/IAP roles to be assumed by the exact reviewed workflow/environment.
 Observer and runner jobs share those WIF claims; job ID/input selection is a
 workflow control, not an IAM separation. Review the entire protected workflow.
-The fixed diagnostic client offers only project POST / bucket GET permission
-queries. It cannot allocate resources or mutate the ledger. PRECHECK_PASS does
-not authorize future paid execution. No paid runner entry is exposed here.
+The diagnostic mode offers only fixed permission queries. The separately selected
+storage mode requires an exact prepared plan and confirmation digest, performs
+conditional control/canary writes, and reserves USD 1. Operator preparation
+reserves a separate USD 1. Both use terminal FAIL records because no engine
+workload runs. No Compute/IAM operation or paid engine runner is exposed.
+See PHASE_6_RUNNER_STORAGE_ENTRY.md before preparing or selecting this mode.
 
 Rollback commands disable account, provider and pool, preserving manual cleanup
 and schedule state. Inspect each result and collect disabled-state readback;

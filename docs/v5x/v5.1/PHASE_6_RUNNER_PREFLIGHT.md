@@ -36,8 +36,10 @@ The original Runner check time is `1791164455`, expiry `1791165298`; historical
 acceptance does not renew freshness. Before/after state review returned
 STATE_MATCH / NO_LEASE: USD 12 of USD 200, four terminal failed cleanup-only
 attempts, no pending reservation. No engine workload or resource allocation ran.
-The next [native storage candidate](PHASE_6_RUNNER_STORAGE.md) qualifies object
-and conditional-control operations offline; actual Runner object permissions
+The [native storage protocol](PHASE_6_RUNNER_STORAGE.md) subsequently passed
+protected CI through PR #284. The [exact-request storage entry
+candidate](PHASE_6_RUNNER_STORAGE_ENTRY.md) adds operator canary preparation,
+Runner network binding and independent review. Actual Runner object permissions
 remain unqualified. Schedule qualification remains optional.
 
 ## Accepted starting point
@@ -66,11 +68,15 @@ did not run an engine workload. Schedule timing remains optional, per the
 
 ## Optional workflow entry
 
-`V5.1 Read-only Preflight` gains the boolean input `check_runner_permissions`,
-default **false**. Its original observer job and steps remain unchanged. With
-the input true, job `run` waits for `observations`, uses the existing protected
-`v51-cloud-benchmark` environment, and performs runner permission diagnostics.
-There is no paid prepare/run mode or resource allocation command in this workflow.
+PR #283 added `check_runner_permissions`, default **false**, to the then-named
+`V5.1 Read-only Preflight`. The current storage-entry candidate renames it to
+`V5.1 Preflight and Storage Qualification`; its original observer job and steps
+remain unchanged. With the precheck input true and both storage inputs empty,
+job `run` waits for `observations`, uses the existing protected
+`v51-cloud-benchmark` environment, and performs permission diagnostics only.
+The separately confirmed [storage mode](PHASE_6_RUNNER_STORAGE_ENTRY.md) requires
+both prepared hashes and its own budget/expiry checks. There is no resource
+allocation or paid engine run command in this workflow.
 
 Before authentication, the job downloads the artifact named for the same run and
 attempt. The entry verifies the exact current run and successful observer job,
@@ -144,7 +150,8 @@ separate enablement decision. No trust expansion is proposed in this batch.
 PRECHECK_PASS proves only the bound diagnostic queries. Object-name conditional
 access, actual resource/image/IAP access, native owned-workload integration,
 provider failure paths, evidence retention, current prices and exact paid-request
-approval remain separate requirements. All authority flags, including
+approval remain separate requirements. For the diagnostic-only receipt, all
+authority flags, including
 `effectiveIamQualified`, `activationAllowed`, `paidAdmission`, `paidCloud` and
 `fullRemoteQualification`, stay false. Existing manual cleanup qualification
 cannot stand in for runner permissions. Full Phase 6 remains open.

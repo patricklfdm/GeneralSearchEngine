@@ -296,11 +296,17 @@ attempt 1 (29 jobs). Separately approved Runner enablement passed 33 observation
 `37252211351` passed NO_LEASE and preflight `37252295233` passed all nine observer
 checks and actual Runner PRECHECK_PASS. Raw artifacts independently replayed;
 original expiry `1791165298` is not renewed. Ledger remains USD 12 / 200 with no
-pending reservation or lease. The current [native storage candidate](v5.1/PHASE_6_RUNNER_STORAGE.md)
-adds offline conditional lease/ledger operations, immutable object probes and
-fresh-process interrupted-owner cleanup. It does not qualify actual Runner object
-access or open a live execution entry. Next: a source/identity/price-bound live
-storage review and entry, then actual object and native workload integration.
+pending reservation or lease at that observation. The [native storage
+protocol](v5.1/PHASE_6_RUNNER_STORAGE.md) is accepted through PR #284, master
+`69fb188b204feab01ffb6d2fdc37e02ab682c36c`, exact-master CI `37261105426` (29 jobs).
+The current [exact-request storage entry](v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
+adds operator canary preparation, optional Runner probes and independent raw
+evidence/state review. It reserves USD 1 separately for each stage, retains failed
+charges and releases the preparation lease before the unchanged same-run observer.
+Local tests use simulated credentials and HTTP; actual object permission
+qualification remains open. Next: protected merge, fresh exact-source control/
+price review, separate approval of preparation and user-dispatched storage probes,
+then provenance/audit acceptance before native resource/workload integration.
 No need to wait for schedule.
 Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
@@ -308,7 +314,7 @@ the single-disk proposal stays USD 1 and previous charges remain recorded.
 Keep the 5400+1080-second real wait, existing authority and failed charges; no
 backdating, fake-record upload or ledger reset. Conditional object/IAP and actual
 resource/failure-path qualification remain open; empty PASS is not full readiness.
-Native cloud writes and full 6C remain open; paid experiments require separate
+Live Runner storage qualification and full 6C remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 
