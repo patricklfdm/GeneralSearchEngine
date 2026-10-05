@@ -175,7 +175,8 @@ class GitHubCollectionTest(unittest.TestCase):
     def setUp(self):self.cfg,self.g,self.provider=q.fixture();self.data=q.github_api(self.g);self.paths=[]
     def get(self,path):self.paths.append(path);return deepcopy(self.data[path])
     def test_only_exact_attempt_endpoint_with_readback(self):
-        r=ci.collect(q.SOURCE,self.get);self.assertEqual(ci.check(r,q.SOURCE,q.NOW,(ci.ROOT/ci.WORKFLOW).read_text())['jobs'],29)
+        workflow=(ci.ROOT/ci.WORKFLOW).read_text();r=ci.collect(q.SOURCE,self.get)
+        self.assertEqual(ci.check(r,q.SOURCE,q.NOW,workflow)['jobs'],len(ci.expected_jobs(workflow)))
         self.assertEqual(self.paths.count('actions/runs/12'),2);self.assertIn('actions/runs/12/attempts/2/jobs?per_page=100&page=1',self.paths)
     def test_newer_failed_run_is_not_hidden_by_older_success(self):
         key=next(k for k in self.data if '/runs?branch=' in k)
@@ -250,11 +251,17 @@ class WorkflowTest(unittest.TestCase):
             for forbidden in ('cloud_entry','cloud_runner run','gcloud compute','gcloud storage','gh workflow run'):self.assertNotIn(forbidden,body)
         foundation=(ci.ROOT/'.github/workflows/v51-replication-foundation.yml').read_text()
         self.assertNotIn('id-token:',foundation);self.assertNotIn('google-github-actions/auth',foundation)
-    def test_cloud_ci_executes_preflight_without_maven_or_new_job(self):
-        text=(ci.ROOT/ci.WORKFLOW).read_text();body=text.split('\n  cloud-runner-tests:\n')[1].split('\n  required:\n')[0]
-        self.assertIn('run: scripts/verify-v51-phase6-cloud-preflight.sh',body)
-        self.assertIn('name: v51-cloud-preflight-${{ github.sha }}',body)
-        self.assertEqual(len(ci.expected_jobs(text)),29)
+    def test_cloud_ci_requires_each_preflight_lane_without_maven(self):
+        from scripts.test_ci_changes import FULL_GATES
+        text=(ci.ROOT/ci.WORKFLOW).read_text()
+        for key,lane in (('cloud-preflight-tests','admission'),('cloud-cleanup-fixture-tests','cleanup'),('cloud-storage-tests','storage')):
+            # Use the same explicit-job boundary as the CI inventory parser.
+            body=re.split(r'^  [\w-]+:\n',text.split('\n  '+key+':\n')[1],maxsplit=1,flags=re.M)[0]
+            self.assertIn('run: scripts/verify-v51-phase6-cloud-preflight.sh --lane '+lane,body)
+            self.assertNotIn('./mvnw',body);self.assertNotIn('id-token:',body)
+            self.assertIn('needs.'+key+'.result',text)
+        self.assertIn('name: v51-cloud-preflight-${{ github.sha }}',text)
+        self.assertEqual(len(ci.expected_jobs(text)),len(FULL_GATES)+4)
     def test_observer_permissions_run_after_auth_and_before_report(self):
         text=(ci.ROOT/'.github/workflows/v51-replication-evidence.yml').read_text()
         self.assertLess(text.index('google-github-actions/auth@'),text.index('cloud_permissions --role observer'))

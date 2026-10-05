@@ -4,6 +4,8 @@ import tempfile
 import time
 import subprocess
 import sys
+import os
+import textwrap
 import unittest
 from unittest.mock import Mock, patch
 from . import cloud_runner_storage_entry as e, cloud_runner_storage_plan as p, cloud_runner_storage as s
@@ -197,8 +199,8 @@ class StorageEntryTest(unittest.TestCase):
         self.assertNotIn('secret-credential',(self.root/'output/receipt.json').read_text())
         self.assertTrue((self.root/'output/summary.md').is_file())
 
-    def test_network_entry_and_completed_review_with_synthetic_credentials_and_http(self):
-        # Exercise the actual entry/policy; all credential and HTTP I/O is local.
+    def native_fixture(self):
+        # Native bytes remain synthetic temporary unit-test inputs.
         cfg,clock,http,value,api=q.fixture(source=pre.q.SOURCE,now=pre.q.NOW-1,cfg=self.cfg)
         manifest=p.prepare(api,self.root/'canaries',wall=clock.wall)['manifest']
         native_before=deepcopy(value['before']);native_before['execution']='read-only-native-cleanup-observation'
@@ -222,6 +224,10 @@ class StorageEntryTest(unittest.TestCase):
         prior=read(self.root/'receipt.json');prior['prerequisites']=bound['prerequisites']
         (self.root/'receipt.json').write_bytes(m.canonical(prior))
         self.env.update(RUNNER_STORAGE_REQUEST=native_sha,RUNNER_STORAGE_CONFIRMATION=m.sha(m.canonical(native_manifest)))
+        return cfg,clock,backend,native_manifest
+
+    def test_network_entry_and_completed_review_with_synthetic_credentials_and_http(self):
+        cfg,clock,backend,native_manifest=self.native_fixture()
         class Wire:
             offline=False
             def send(self,*args):return backend.send(*args)
@@ -260,6 +266,74 @@ class StorageEntryTest(unittest.TestCase):
             with self.assertRaises((ValueError,KeyError)):e.review(cfg,mutated,after,runs,self.root)
         jobs['jobs'][1]['steps'][0]['conclusion']='skipped'
         with self.assertRaises(ValueError):e.review(cfg,result,after,runs,self.root)
+
+    def test_python_module_cli_runs_the_bound_storage_transaction(self):
+        cfg,clock,backend,manifest=self.native_fixture()
+        write_once(self.root/'cli-fixture.json',dict(configuration=cfg,manifest=manifest,
+            state=cleanup.snapshot(backend),github=self.github,now=self.now,source=pre.q.SOURCE))
+        write_once(self.root/'configuration.json',cfg)
+        hooks=self.root/'hooks';hooks.mkdir()
+        # Python's real -m path runs in a fresh interpreter. Only external I/O
+        # boundaries are replaced; do not replace NetworkApi/run/type guards.
+        (hooks/'sitecustomize.py').write_text(textwrap.dedent('''
+            import atexit, json, os, socket, subprocess, time
+            from pathlib import Path
+            root=Path(os.environ['V51_CLI_TEST_ROOT'])
+            value=json.loads((root/'cli-fixture.json').read_text())
+            time.time=lambda:value['now']
+            from scripts.v51 import cloud_runner_storage_entry as e
+            from scripts.v51 import cloud_runner_storage_entry_qualification as q
+            from scripts.v51 import cloud_cleanup_qualification as cleanup
+            _,http,_,_=cleanup.restore(value['state'])
+            clock=q.cloud_fake.Clock()
+            _,backend=q.runner(value['manifest'],http,clock)
+            e.p.CONFIG=root/'configuration.json'
+            def blocked(*args,**kwargs):
+                raise AssertionError('CLI regression must not contact external services')
+            socket.socket.connect=blocked
+            socket.create_connection=blocked
+            subprocess.run=blocked
+            def checkout(args,**kwargs):
+                if args!=['git','rev-parse','HEAD']:return blocked()
+                return value['source']
+            subprocess.check_output=checkout
+            def get(path):return value['github'][path]
+            jobs=e.precheck.collect_jobs;run=e.entry.collect_run
+            e.precheck.collect_jobs=lambda binding,*args:jobs(binding,get)
+            e.entry.collect_run=lambda binding,*args:run(binding,get)
+            e.entry.credential_file=lambda env:{}
+            class Tokens:
+                exchanges=1
+                def __call__(self,timeout):
+                    return e.h.AccessToken('synthetic-cli-token',time.monotonic()+3600)
+            e.credentials.NetworkCredentials=lambda *args:Tokens()
+            class Wire:
+                offline=False
+                def send(self,*args):return backend.send(*args)
+            e.h.Network=Wire
+            atexit.register(lambda:(root/'cli-after.json').write_bytes(e.m.canonical(cleanup.snapshot(backend))))
+        '''))
+        env=dict(os.environ,**self.env,V51_CLI_TEST_ROOT=str(self.root),
+                 PYTHONPATH=os.pathsep.join((str(hooks),str(e.ci.ROOT))))
+        command=[sys.executable,'-m','scripts.v51.cloud_runner_storage_entry','run',
+            '--source',pre.q.SOURCE,'--preflight',str(self.preflight),'--precheck',str(self.root)]
+        result=subprocess.run([*command,'--output',str(self.root/'cli-output')],env=env,cwd=e.ci.ROOT,
+                              capture_output=True,text=True,timeout=60)
+        receipt=read(self.root/'cli-output/receipt.json')
+        self.assertEqual(0,result.returncode,(receipt.get('status'),receipt.get('failure'),result.stderr))
+        self.assertEqual('PROBES_RECORDED',receipt['status'])
+        self.assertEqual(list(s.CASES),[v['case'] for v in receipt['result']['cases']])
+        _,after,_,_=cleanup.restore(read(self.root/'cli-after.json'))
+        reader=q.independent(after,clock);reader.transport.offline=False
+        captured=e.capture(cfg,manifest,api=reader,wall=lambda:self.now+5)
+        self.assertEqual(14_000_000,e.check_state(cfg,manifest,captured,native=True)['retainedCostMicrousd'])
+        # A fresh process with a changed confirmation must still stop before writes.
+        env['RUNNER_STORAGE_CONFIRMATION']='f'*64
+        failed=subprocess.run([*command,'--output',str(self.root/'cli-rejected')],env=env,cwd=e.ci.ROOT,
+                              capture_output=True,text=True,timeout=60)
+        self.assertEqual(2,failed.returncode,failed.stderr)
+        self.assertEqual(read(self.root/'cli-fixture.json')['state'],read(self.root/'cli-after.json'))
+        self.assertFalse(read(self.root/'cli-rejected/receipt.json')['paidCloud'])
 
     def test_workflow_selects_no_writes_by_default_and_guards_before_auth(self):
         raw=e.workflow.workflow().decode();job=e.workflow.JOB

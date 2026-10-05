@@ -1,5 +1,10 @@
 # V5.1 verification build domain
 
+**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
+Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
+Earlier counts and timings in this document describe their historical migrations.
+
+
 ## Scope and decision
 
 The CI audit found eleven V5.1 jobs repeating the same prerequisite reactor build

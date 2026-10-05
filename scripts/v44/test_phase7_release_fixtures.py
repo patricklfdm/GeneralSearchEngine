@@ -87,7 +87,10 @@ class Phase7ReleaseFixtureTest(unittest.TestCase):
         parts = re.split(r"^  ([\w-]+):\n", workflow.split("\njobs:\n", 1)[1], flags=re.MULTILINE)
         jobs = dict(zip(parts[1::2], parts[2::2]))
         expected_jobs = ({"validate", "publish"} if release else
-                         set(jobs) - {"changes", "required", "cloud-runner-tests"})
+                         set(jobs) - {"changes", "required", "cloud-runner-tests",
+                                      "python-v51-core", "python-v51-admission", "python-v51-storage",
+                                      "cloud-preflight-tests", "cloud-cleanup-fixture-tests",
+                                      "cloud-storage-tests", "cloud-provider-tests"})
         java_jobs = {name for name, body in jobs.items() if "uses: actions/setup-java@" in body}
         self.assertEqual(expected_jobs, java_jobs)
         selector = "21.0.12+8.0.LTS"

@@ -1,5 +1,10 @@
 # V5.1 CI: three jobs split into nine
 
+**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
+Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
+Earlier counts and timings in this document describe their historical migrations.
+
+
 The three V5.1 regression jobs now each have three independently required children.
 This refactor preserves every verification command and every evidence upload.
 A later [Phase 6C2A rich-workload lane](v5x/v5.1/PHASE_6_REMOTE_RICH.md) is independently

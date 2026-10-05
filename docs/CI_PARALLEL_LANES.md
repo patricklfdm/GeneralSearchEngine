@@ -1,5 +1,10 @@
 # CI parallel lanes: dependency audit and migration map
 
+**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
+Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
+Earlier counts and timings in this document describe their historical migrations.
+
+
 This audit and migration map record the architecture **before** V5.1 build
 sharing: nineteen independent full-CI jobs after `changes`. The current
 [V5.1 verification build domain](CI_V51_BUILD_DOMAIN.md) replaces eleven repeated

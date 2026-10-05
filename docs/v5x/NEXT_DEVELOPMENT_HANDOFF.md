@@ -303,10 +303,14 @@ The current [exact-request storage entry](v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md)
 adds operator canary preparation, optional Runner probes and independent raw
 evidence/state review. It reserves USD 1 separately for each stage, retains failed
 charges and releases the preparation lease before the unchanged same-run observer.
-Local tests use simulated credentials and HTTP; actual object permission
-qualification remains open. Next: protected merge, fresh exact-source control/
-price review, separate approval of preparation and user-dispatched storage probes,
-then provenance/audit acceptance before native resource/workload integration.
+PR #285 / exact-master CI `37269773248` accepted the entry. Authorized preparation
+retained USD 13 / 200. Native run `37274475579` failed on the CLI class identity
+check before storage transaction requests; independent readback found unchanged
+prepared state, no lease and no pending reservation. The current CLI correction and
+Python CI partition await protected acceptance. Next: accept corrected-source CI,
+review fresh control/prices and same-source manual evidence, separately approve new
+preparation and user-dispatched probes, then independently review object scope and
+provenance/audits. Old manifest expiry `1791183581` is not renewed; retain USD 13.
 No need to wait for schedule.
 Do not resume failed preparation or remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);

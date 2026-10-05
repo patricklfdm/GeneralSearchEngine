@@ -31,7 +31,7 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python
 
       - name: Classify the complete change set
         id: scope
@@ -197,7 +197,7 @@ jobs:
           retention-days: 14
 
       - name: Verify V5.1 declarations and independent leadership foundation
-        run: scripts/verify-v51-phase1-foundation.sh --skip-build
+        run: scripts/verify-v51-phase1-foundation.sh --skip-build --skip-python-tests
 
       - name: Verify V5.1 ledgers, frozen recovery and real JVM interruption cuts
         run: scripts/verify-v51-phase2-storage.sh --skip-build
@@ -1918,8 +1918,8 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-  cloud-runner-tests:
-    name: Cloud runner (no GCP)
+  python-v51-core:
+    name: V5.1 Python core
     needs: changes
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
     runs-on: ubuntu-latest
@@ -1928,25 +1928,94 @@ jobs:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
 
-      - name: Set up Python 3.11 for Cloud Benchmark V2
+      - name: Set up Python 3.11
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.11'
 
-      - name: Verify V5.1 remote command, scheduler and binary evidence foundation
-        run: scripts/verify-v51-phase6-remote-foundation.sh
+      - name: Run the complete V5.1 Python core partition
+        run: python3 -m scripts.ci_v51_python core --output target/python-v51-core
 
-      - name: Retain V5.1 remote control qualification including failed attempts
+      - name: Retain test counts and per-test timing including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: v51-remote-foundation-${{ github.sha }}
-          path: target/v51-remote-foundation
+          name: python-v51-core-${{ github.sha }}
+          path: target/python-v51-core
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Qualify V5.1 exact-source and read-only preflight without GCP
-        run: scripts/verify-v51-phase6-cloud-preflight.sh
+  python-v51-admission:
+    name: V5.1 Python admission
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Run the complete V5.1 Python admission partition
+        run: python3 -m scripts.ci_v51_python admission --output target/python-v51-admission
+
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v51-admission-${{ github.sha }}
+          path: target/python-v51-admission
+          if-no-files-found: warn
+          retention-days: 14
+
+  python-v51-storage:
+    name: V5.1 Python storage
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Run the complete V5.1 Python storage partition
+        run: python3 -m scripts.ci_v51_python storage --output target/python-v51-storage
+
+      - name: Retain test counts and per-test timing including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: python-v51-storage-${{ github.sha }}
+          path: target/python-v51-storage
+          if-no-files-found: warn
+          retention-days: 14
+
+  cloud-preflight-tests:
+    name: V5.1 cloud preflight (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Qualify V5.1 admission preflight without GCP
+        run: scripts/verify-v51-phase6-cloud-preflight.sh --lane admission
 
       - name: Retain V5.1 preflight observations and rejection cases
         if: ${{ always() }}
@@ -1957,8 +2026,74 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
-      - name: Verify V5.1 cloud ownership and admission without GCP
-        run: scripts/verify-v51-phase6-cloud-control.sh
+  cloud-cleanup-fixture-tests:
+    name: V5.1 cleanup fixtures (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Qualify V5.1 cleanup preflight without GCP
+        run: scripts/verify-v51-phase6-cloud-preflight.sh --lane cleanup
+
+      - name: Retain V5.1 preflight observations and rejection cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-cloud-preflight-cleanup-${{ github.sha }}
+          path: target/v51-cloud-preflight
+          if-no-files-found: warn
+          retention-days: 14
+
+  cloud-storage-tests:
+    name: V5.1 Runner storage (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Qualify V5.1 storage preflight without GCP
+        run: scripts/verify-v51-phase6-cloud-preflight.sh --lane storage
+
+      - name: Retain V5.1 preflight observations and rejection cases
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-cloud-preflight-storage-${{ github.sha }}
+          path: target/v51-cloud-preflight
+          if-no-files-found: warn
+          retention-days: 14
+
+  cloud-provider-tests:
+    name: V5.1 provider adapters (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
 
       - name: Prepare OpenSSH for the loopback delivery qualification
         run: |
@@ -1986,6 +2121,36 @@ jobs:
           path: target/v51-cloud-provider.tar.gz
           if-no-files-found: warn
           retention-days: 14
+
+  cloud-runner-tests:
+    name: Cloud runner (no GCP)
+    needs: changes
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Python 3.11 for Cloud Benchmark V2
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Verify V5.1 remote command, scheduler and binary evidence foundation
+        run: scripts/verify-v51-phase6-remote-foundation.sh
+
+      - name: Retain V5.1 remote control qualification including failed attempts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-remote-foundation-${{ github.sha }}
+          path: target/v51-remote-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Verify V5.1 cloud ownership and admission without GCP
+        run: scripts/verify-v51-phase6-cloud-control.sh
 
       - name: Retain V5.1 cloud control qualification including failures
         if: ${{ always() }}
@@ -2173,6 +2338,13 @@ jobs:
       - soak-examples
       - compatibility
       - release-artifacts
+      - python-v51-core
+      - python-v51-admission
+      - python-v51-storage
+      - cloud-preflight-tests
+      - cloud-cleanup-fixture-tests
+      - cloud-storage-tests
+      - cloud-provider-tests
       - cloud-runner-tests
     runs-on: ubuntu-latest
     timeout-minutes: 2
@@ -2205,6 +2377,13 @@ jobs:
           SOAK_RESULT: ${{ needs.soak-examples.result }}
           COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
           RELEASE_RESULT: ${{ needs.release-artifacts.result }}
+          V51_PYTHON_CORE_RESULT: ${{ needs.python-v51-core.result }}
+          V51_PYTHON_ADMISSION_RESULT: ${{ needs.python-v51-admission.result }}
+          V51_PYTHON_STORAGE_RESULT: ${{ needs.python-v51-storage.result }}
+          CLOUD_PREFLIGHT_RESULT: ${{ needs.cloud-preflight-tests.result }}
+          CLOUD_CLEANUP_FIXTURE_RESULT: ${{ needs.cloud-cleanup-fixture-tests.result }}
+          CLOUD_STORAGE_RESULT: ${{ needs.cloud-storage-tests.result }}
+          CLOUD_PROVIDER_RESULT: ${{ needs.cloud-provider-tests.result }}
           CLOUD_RUNNER_RESULT: ${{ needs.cloud-runner-tests.result }}
         run: |
           test "$CHANGES_RESULT" = success
@@ -2218,6 +2397,13 @@ jobs:
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
             "$V51_RECLAMATION_RESULT" "$V51_FULL_SIZE_RUNTIME_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \
             "$V4_RESULT" "$SOAK_RESULT" "$COMPATIBILITY_RESULT" \
-            "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT"; do
+            "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT" \
+            "$V51_PYTHON_CORE_RESULT" \
+            "$V51_PYTHON_ADMISSION_RESULT" \
+            "$V51_PYTHON_STORAGE_RESULT" \
+            "$CLOUD_PREFLIGHT_RESULT" \
+            "$CLOUD_CLEANUP_FIXTURE_RESULT" \
+            "$CLOUD_STORAGE_RESULT" \
+            "$CLOUD_PROVIDER_RESULT"; do
             test "$result" = "$expected"
           done
