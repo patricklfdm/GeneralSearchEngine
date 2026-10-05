@@ -9,7 +9,6 @@ from pathlib import Path
 import re
 import subprocess
 import time
-from urllib.parse import parse_qsl, urlencode, urlsplit
 import uuid
 from . import cloud_fixture_driver as single, cloud_authority as a
 from . import cloud_native_authority as n, cloud_gcp as g, cloud_http as h
@@ -17,6 +16,7 @@ from . import cloud_cleanup as cleanup, cloud_cleanup_observation as observation
 from . import cloud_preflight as p, cloud_ci as ci, guest_setup
 from . import performance_model as m, remote_command as c
 from . import cloud_topology_contract as contract
+from .cloud_resource_creation import CreationPolicy
 
 SCHEMA = 'gse-v51-topology-fixture-request-v1'
 COST = contract.COST
@@ -104,123 +104,21 @@ def manifest_key(req):
     return n.PREFIX+'attempts/'+n.validate_request(req)+'/topology-fixture.json'
 
 
-class _Policy:
+class _Policy(CreationPolicy):
     def initialize(self, value, now):
         validate(value, now=now)
-        self.value = deepcopy(value); self.req = deepcopy(value['request']); self.cfg = deepcopy(value['configuration']['provider'])
-        self.store = g.Store(self.cfg, self, authority=n)
-        self.keys = {n.LEASE, n.LEDGER, cleanup.context_key(self.req, authority=n), manifest_key(self.req)}
-        self.lease = n.lease(self.req, now); self.generation = 0
-        prior = value['before']['ledger']; self.prior_generation = prior[0] if prior is not None else 0
-        self.reserved = n.reserve(prior[1] if prior is not None else n.empty_ledger(), self.req, value)
-        self.state = 'lease'; self.index = 0; self.created_id = None; self.polls = set()
-        self.armed = None; self.failed = False; self.requests = []
-        self.deadline = self.clock()+PREPARATION_SECONDS
-        self._provider = g.Compute(self.cfg, self.req, self, guest_access=self.value['guestAccess'], authority=n,
-                                   qualification_manifest=self.value['qualificationManifest'])
+        self.value = deepcopy(value)
+        self.initialize_creation(value['configuration']['provider'], value['request'], value['guestAccess'],
+                                 value['before']['ledger'], value, now,
+                                 qualification_manifest=value['qualificationManifest'])
 
-    def provider(self, sleep=None):
-        if sleep is not None: self._provider.sleep = sleep
-        return self._provider
+    def marker_key(self):
+        return manifest_key(self.req)
 
-    def context(self):
-        return self.provider().cleanup_context()
-
-    def write_step(self):
-        if self.state == 'lease': return n.LEASE, deepcopy(self.lease), 0
-        if self.state == 'ledger': return n.LEDGER, self.reserved, self.prior_generation
-        if self.state == 'context':
-            return cleanup.context_key(self.req, authority=n), self.context(), 0
-        if self.state in ('intent', 'identity'):
-            lease = deepcopy(self.lease); row = lease['resources'][self.index]; row['attempted'] = True
-            if self.state == 'identity': row['id'] = g.numeric(self.created_id)
-            return n.LEASE, lease, self.generation
-        if self.state == 'manifest':
-            return manifest_key(self.req), dict(schema='gse-v51-topology-prepared-v1', fixtureRequest=self.value,
-                fixtureSha256=m.sha(m.canonical(self.value)), lease=deepcopy(self.lease), leaseGeneration=self.generation), 0
-        raise ValueError('topology write order')
-
-    def authorize(self, method, url, body):
-        parsed = urlsplit(url); base = parsed._replace(query='').geturl()
-        pairs = parse_qsl(parsed.query, keep_blank_values=True, strict_parsing=True) if parsed.query else []
-        query = dict(pairs); m.need(len(query) == len(pairs), 'topology duplicate query')
-        if method != 'GET':
-            m.need(not self.failed and method == 'POST' and self.armed == (method, url, body), 'topology unexpected mutation')
-            # Recompute scope even if a caller tries to arm an arbitrary request.
-            if self.state == 'insert':
-                provider = self.provider(); spec = self.lease['resources'][self.index]['spec']
-                expected = (provider.url(spec).rsplit('/', 1)[0]+'?'+urlencode(dict(requestId=provider.operation_id(spec))), provider.body(spec))
-            else:
-                key, value, generation = self.write_step()
-                expected = ('https://storage.googleapis.com/upload/storage/v1/b/'+self.cfg['bucket']+'/o?'+
-                    urlencode(dict(uploadType='media', name=key, ifGenerationMatch=generation)), value)
-            m.need((url, body) == expected, 'topology mutation scope/body/generation')
-            self.armed = None
-            return
-        m.need(body is None, 'topology read body')
-        if parsed.netloc == 'storage.googleapis.com':
-            m.need(base in {self.store.url(k) for k in self.keys} and (not query or
-                set(query) == {'alt', 'generation', 'ifGenerationMatch'} and query['alt'] == 'media' and
-                query['generation'] == query['ifGenerationMatch'] and g.numeric(query['generation'])), 'topology object read scope')
-            return
-        provider = self.provider()
-        image = 'https://compute.googleapis.com/compute/v1/projects/'+self.cfg['imageProject']+'/global/images/'+self.cfg['imageName']
-        if base == image and not query: return
-        for row in self.lease['resources']:
-            spec = row['spec']
-            if base == provider.url(spec) and not query: return
-            identities = [row['id']]
-            if self.state == 'insert' and row is self.lease['resources'][self.index]: identities.append(self.created_id)
-            if not query and any(identity is not None and base == provider.url(spec, identity) for identity in identities): return
-            if base == provider.scope(spec)+'/operations' and query == {'filter': 'clientOperationId = "'+provider.operation_id(spec)+'"'}: return
-        m.need(not query and base in self.polls, 'topology compute read scope')
-
-    def call(self, method, url, body=None, **kwargs):
-        kwargs['deadline'] = min(kwargs['deadline'], self.deadline)
-        self.requests.append(dict(method=method, url=url, bodySha256=m.sha(m.canonical(body)) if body is not None else None))
-        result = super().call(method, url, body, **kwargs)
-        if self.state == 'insert' and isinstance(result, dict) and result.get('operationType') == 'insert':
-            provider = self.provider(); spec = self.lease['resources'][self.index]['spec']
-            decoded = provider.decode_operation(spec, result)
-            self.polls.add(provider.scope(spec)+'/operations/'+result['name'])
-            if decoded['state'] == 'DONE': self.created_id = decoded['id']
-        return result
-
-    def upload(self):
-        m.need(not self.failed, 'topology preparation already failed')
-        key, body, generation = self.write_step()
-        url = 'https://storage.googleapis.com/upload/storage/v1/b/'+self.cfg['bucket']+'/o?'+urlencode(
-            dict(uploadType='media', name=key, ifGenerationMatch=generation))
-        self.armed = ('POST', url, deepcopy(body))
-        try: result = self.store.put(key, body, generation)
-        except BaseException:
-            self.failed = True; raise
-        if key == n.LEASE: self.lease = deepcopy(body); self.generation = result
-        if self.state == 'identity':
-            self.index += 1; self.created_id = None; self.polls.clear()
-            self.state = 'manifest' if self.index == len(self.lease['resources']) else 'intent'
-        else: self.state = {'lease': 'ledger', 'ledger': 'context', 'context': 'intent', 'intent': 'insert', 'manifest': 'done'}[self.state]
-
-    def insert(self, sleep=time.sleep):
-        m.need(not self.failed and self.state == 'insert', 'topology insert order')
-        try:
-            m.need(self.store.get(n.LEASE) == (self.generation, self.lease) and
-                   self.store.get(n.LEDGER)[1] == self.reserved and
-                   self.store.get(cleanup.context_key(self.req, authority=n))[1] ==
-                   self.context(), 'topology durable authority changed')
-            provider = self.provider(sleep); spec = self.lease['resources'][self.index]['spec']
-            if spec['kind'] == 'instance':
-                for row in self.lease['resources']:
-                    dep = row['spec']
-                    if dep['kind'] == 'firewall' or dep['kind'] == 'disk' and dep['node'] == spec['node']:
-                        m.need(row['id'] is not None and provider.describe(dep) == dict(spec=dep, id=row['id']), 'topology prerequisite identity changed')
-            url = provider.url(spec).rsplit('/', 1)[0]+'?'+urlencode(dict(requestId=provider.operation_id(spec)))
-            self.armed = ('POST', url, provider.body(spec))
-            result = provider.create(spec, int(self.deadline*10**9))
-            m.need(result['id'] == self.created_id, 'topology created ID mismatch')
-            self.state = 'identity'
-        except BaseException:
-            self.failed = True; raise
+    def marker_value(self):
+        return dict(schema='gse-v51-topology-prepared-v1', fixtureRequest=self.value,
+                    fixtureSha256=m.sha(m.canonical(self.value)), lease=deepcopy(self.lease),
+                    leaseGeneration=self.generation)
 
 
 class PreparationApi(_Policy, h.Api):

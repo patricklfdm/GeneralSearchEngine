@@ -8,7 +8,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 LANES = ('core', 'admission', 'storage')
 STORAGE = frozenset('scripts.v51.test_' + name for name in (
-    'cloud_fixture_driver', 'cloud_topology_fixture',
+    'cloud_fixture_driver', 'cloud_topology_fixture', 'cloud_experiment_resources',
     'cloud_runner_storage', 'cloud_runner_storage_entry'))
 
 

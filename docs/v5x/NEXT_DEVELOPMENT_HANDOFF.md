@@ -316,8 +316,15 @@ The second run's provider audit covers seven of eight probes; outside-write's
 original HTTP 403 and unchanged canary are retained without a matching audit row.
 Temporary Storage audit configuration was restored. Do not spend another run
 solely to fill that gap or require one audit row per HTTP call as a new gate.
-Next: accept the local [Runner frozen-image read](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md),
-then integrate native Compute/IAP with the existing complete owned experiment.
+The [Runner frozen-image read](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md) is accepted:
+PR #287, master `530fe8573ebf25b2ac489175f33b6abc3794da3f`, CI `37341517723`
+(all 36 jobs); manual `37375168508` NO_LEASE and Runner `37375846878`
+project/bucket/image PRECHECK_PASS, independently replayed at original times.
+The [ordinary resource lifecycle](v5.1/PHASE_6_EXPERIMENT_RESOURCES.md) adds shared
+once-only creation and fresh-process expired cleanup qualification locally;
+protected CI is pending. No native network constructor is exposed. Next bind
+actual build/price/preflight approval and credentials, then connect IAP and the
+existing complete owned experiment; preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
 historical receipts and original expiry; no need to wait for schedule.

@@ -187,8 +187,11 @@ The [live review](PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md) retains the second run'
 seven-of-eight probe audit coverage, missing outside-write audit and restored
 temporary audit configuration. USD 17 / 200 is reserved, with no lease/pending
 attempt at that observation. The [resource integration plan](PHASE_6_RUNNER_RESOURCE_ENTRY.md)
-adds a local fixed-image read candidate, then connects native Compute/IAP and the
-owned experiment without requiring another topology-only allocation by default.
+records accepted PR #287 / CI `37341517723` (36 jobs), manual `37375168508`
+NO_LEASE and Runner `37375846878` project/bucket/image PRECHECK_PASS. The
+[ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md) now has local
+HTTP/interrupted cleanup qualification, pending protected CI. Native entry/IAP
+and the owned experiment remain next, without a default paid topology-only run.
 Do not resume a failed preparation, reuse an old probe approval or remove a failed charge.
 Retain the audit coverage limitation. Image use/IAP, real resource/failure
 qualification and full 6C remain open; paid experiments require separate
@@ -332,7 +335,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Second storage run's provider identity and 32/33 transaction requests matched; seven of eight probe audits observed. Missing outside-write audit explicitly retained; no broad effective-IAM or complete audit claim.
 - [x] Authorized temporary Storage audit configuration restored, independently read back, all grants/logs preserved.
 - [x] Local [Runner image-read candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md): fixed external image GET using bound Runner credentials, sanitized identity receipt, original deadline and independent precheck replay.
-- [ ] Protected acceptance and actual Runner observation of the new image-read check; native resource/image-use/IAP and owned-experiment integration remain open.
+- [x] Image-read protected acceptance: PR #287, master `530fe8573ebf25b2ac489175f33b6abc3794da3f`, CI `37341517723`, all 36 jobs. Actual Runner `37375846878` project/bucket/image PASS; original evidence independently replayed, no storage/resource work.
+- [x] Local [ordinary experiment resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md): shared once-only creation, durable plan/context/intent/ID records, ordinary DELETE profile and fresh-process cleanup qualification.
+- [ ] Corrected-source protected CI for the resource lifecycle.
+- [ ] Native entry/build/price/approval/credentials, actual image use/IAP and owned-experiment integration.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
