@@ -259,8 +259,11 @@ The [live storage review](v5.1/PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md) records ru
 original artifacts, USD 17 / 200 retained. The second run matched seven of eight
 probe audits; the outside-write audit remains unobserved and temporary audit
 configuration was restored. The [resource integration plan](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md)
-adds a local Runner fixed-image read candidate and maps native Compute/IAP to the
-first owned experiment. Actual native resource/workload integration and full 6C
+records accepted Runner image reads: PR #287 / CI `37341517723` (36 jobs),
+manual `37375168508` NO_LEASE and Runner `37375846878` PRECHECK_PASS.
+The [ordinary resource lifecycle](v5.1/PHASE_6_EXPERIMENT_RESOURCES.md) is locally
+implemented with shared durable creation and independent interrupted cleanup,
+pending protected CI. Actual native entry/credentials and IAP remain next. Actual native resource/workload integration and full 6C
 remain open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

@@ -77,7 +77,8 @@ class PythonLanesTest(unittest.TestCase):
         parts=[line for lane in ('admission','cleanup','storage') for line in capture(['--lane',lane])]
         self.assertEqual(complete,parts)
         modules=[name for line in parts if line.startswith('python3 -m unittest ') for name in line.split()[3:]]
-        self.assertEqual(13,len(modules))
+        self.assertEqual(14,len(modules))
+        self.assertIn('scripts.v51.test_cloud_experiment_resources', modules)
         self.assertEqual(len(modules),len(set(modules)))
 
     def test_invalid_preflight_lane_is_rejected_before_running_tests(self):

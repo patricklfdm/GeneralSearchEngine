@@ -23,12 +23,13 @@ if [[ "$lane" == all || "$lane" == admission ]]; then
   python3 -m scripts.v51.cloud_runner_review validate --source "$(git rev-parse HEAD)" --output "$work_dir/runner-review"
 fi
 if [[ "$lane" == all || "$lane" == cleanup ]]; then
-  python3 -m unittest scripts.v51.test_cloud_cleanup_fixture scripts.v51.test_cloud_fixture_driver scripts.v51.test_cloud_topology_fixture
+  python3 -m unittest scripts.v51.test_cloud_cleanup_fixture scripts.v51.test_cloud_fixture_driver scripts.v51.test_cloud_topology_fixture scripts.v51.test_cloud_experiment_resources
   python3 -m scripts.v51.cloud_cleanup_fixture generate --source "$(git rev-parse HEAD)" --output "$work_dir/single-disk-review"
   python3 -m scripts.v51.cloud_cleanup_fixture validate --source "$(git rev-parse HEAD)" --output "$work_dir/single-disk-review"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_cleanup_fixture_qualification "$work_dir/single-disk-qualification" --source "$(git rev-parse HEAD)"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_fixture_driver_qualification "$work_dir/fixture-driver" --source "$(git rev-parse HEAD)"
   timeout --signal=TERM --kill-after=5s 240s python3 -m scripts.v51.cloud_topology_qualification "$work_dir/topology-fixture" --source "$(git rev-parse HEAD)"
+  timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v51.cloud_experiment_resource_qualification "$work_dir/experiment-resources" --source "$(git rev-parse HEAD)"
 fi
 if [[ "$lane" == all || "$lane" == storage ]]; then
   python3 -m unittest scripts.v51.test_cloud_runner_storage scripts.v51.test_cloud_runner_storage_entry

@@ -1,8 +1,9 @@
 # V5.1 Runner resource and workload integration
 
-**Status:** next implementation plan; the fixed-image read below is implemented
-locally and awaits protected CI and actual Runner observation. Native Compute/IAP
-and engine execution are not exposed by this batch.
+**Status:** fixed-image read accepted through PR #287 and actual Runner observation.
+The [ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md) is implemented
+locally with offline HTTP/fresh-process cleanup qualification, pending protected CI.
+A paid native Compute/IAP/engine entry is not yet exposed.
 
 ## Starting evidence
 
@@ -19,7 +20,33 @@ The accepted [owned experiment](PHASE_6_OWNED_EXPERIMENT.md) executes real JVMs
 with an offline provider; it is not native cloud evidence. These are complementary
 prerequisites, not interchangeable credentials or execution claims.
 
-## Implemented now: read the frozen image as Runner
+## Accepted Runner image-read evidence
+
+PR #287 at `530fe8573ebf25b2ac489175f33b6abc3794da3f` passed
+[exact-master CI 37341517723](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37341517723),
+attempt 1, all 36 jobs. [Manual cleanup 37375168508](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37375168508)
+passed NO_LEASE. [Runner 37375846878](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37375846878)
+attempt 1 passed the actual project, bucket and image queries with its bound credential.
+The image was `ubuntu-os-cloud/ubuntu-2404-noble-amd64-v20260918`, ID
+`763874002631433611`, READY / X86_64. All nine observer checks replayed;
+eleven observer files matched the Runner's copied inputs byte for byte.
+
+The original Runner artifact `11372275680` (59579 bytes) has SHA-256
+`17f5f334460422aa383bfbdbe6a28a136db13ce3b860a4e6cce2b50525279857`;
+observer artifact `11371152023` (50524 bytes) has SHA-256
+`d6262d5efbc5445cc4202d6eadb210b292c1b51ec0c61ed960be0a00511b9253`.
+Run/attempt/source/job/step identity, original ZIP hashes and unchanged GitHub
+metadata were checked. Retained originals and replay are at
+`target/v51-runner-image-acceptance/run-37375846878/`.
+
+The original checked time `1791235666` and expiry `1791236498` are historical;
+review does not renew admission. The observer's ledger generation and bytes
+match the previous independent storage observation: USD 17 / 200, nine terminal
+attempts, zero pending, no lease. This is the observer's retained state, not a
+new post-Runner cloud snapshot. Both storage transaction steps were skipped;
+no allocation or engine workload was selected. The earlier audit gap remains.
+
+## Read the frozen image as Runner
 
 The existing optional Runner precheck adds one fixed `GET` using the same bound
 Runner credential. The URL is derived from the pinned `imageProject` and
@@ -48,7 +75,19 @@ Use the original source when reproducing historical receipts; never rewrite an
 old receipt or refresh its timestamps. All existing admission/qualification flags
 remain false. The existing admission CI lane covers this change without a new job.
 
-## Next implementation batch: native owned experiment
+## Integration status: resource lifecycle, then native owned experiment
+
+The shared creation state machine now serves the accepted cleanup-only fixture
+and the ordinary experiment resource stage. The latter retains its bound input
+plan before any create intent, uses ordinary DELETE termination, and leaves a
+charged active lease for the next stage or the unchanged expired reconciler.
+[Resource qualification](PHASE_6_EXPERIMENT_RESOURCES.md) describes exact scope
+and failure evidence. Its supplied build/price digests bind inputs; they are not
+an authenticated build, a current price quote or paid user approval.
+
+Next connect the actual Runner admission/credential boundary, IAP and owned
+services. The resource stage deliberately has no network constructor or workflow
+selection until that integration and its failure qualification are complete.
 
 Implement the actual Runner path using the existing topology and owned workload,
 so resource and IAP qualification can be observed during the first approved
@@ -88,9 +127,8 @@ The USD 200 ceiling does not authorize spending the remaining USD 183 automatica
 
 1. Merge the reviewed implementation and sync master. Same-source successful full
    CI and recent manual cleanup remain required; no wait for schedule.
-2. For this batch's read-only check, use the existing optional Runner precheck with
-   both storage inputs empty. Inspect project, bucket and frozen-image results;
-   there is no storage reservation or resource creation in this selection.
+2. The image read is accepted above. No additional read-only or storage run is
+   required just to review the resource implementation.
 3. Continue native integration above; do not repeat the storage write experiment
    merely because this source adds a read diagnostic. The earlier storage results
    remain historical evidence and cannot refresh a later request's control state.
@@ -119,5 +157,6 @@ eleven changed/new documents passed local-link/fence checks and the documentatio
 contract passed. Evidence and source hashes are retained at
 `target/v51-runner-image-precheck/`; admission evidence is
 `target/v51-cloud-preflight/run.uHXYjh/`. No new cloud run or IAM operation was
-performed. Corrected-source protected CI and the live image-read result remain
-pending; these local fixtures do not establish native permissions.
+performed. Those image-read checks subsequently passed protected CI and the actual Runner
+observation recorded above. The new resource implementation still requires its
+own protected CI; offline fixtures do not establish Compute/IAP permissions.
