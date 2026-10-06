@@ -347,13 +347,18 @@ original-lease service sessions, shared source/bootstrap, all four experiment ce
 independent physical/history validation, immutable retention and exact-ID cleanup.
 PR #292 accepted both at master `20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`,
 exact-master CI `37424341468` attempt 1 (all 36 jobs).
-The [manual entry candidate](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) adds explicit
+The [manual entry](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) adds explicit
 prepare/run workflow selections, public original-artifact handoff, exact plan
 confirmation, private environment-key handling and detailed result summaries.
-Default dispatch stays read-only. Next verify this entry's protected CI, then
-separately configure the SSH secret, prepare/review a fresh plan and obtain exact
-approval before the operator triggers a cloud experiment. No cloud run is
-performed by implementing this entry. Standalone native preparation stays PARTIAL.
+PR #293 accepted it at master `dc71dc003bc1d541a065f7d65bd6840da8ec5f06`,
+CI `37434593823` attempt 1 (36 jobs). The secret was configured and unpaid prepare
+`37438942134` passed; approved run `37439476170` failed on host-key HTTP 404 before
+any workload, with incomplete immediate cleanup. The
+[bounded readiness/delete-wait correction](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
+is a local candidate. Next verify expired resource cleanup and corrected-source CI,
+then prepare/review a fresh exact plan before a separately approved operator run.
+The original failure and USD 27 cumulative reservation remain retained. Default
+dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary and original
 600/5400/1080-second preparation/lease/grace limits.
 The resource plan maps reuse, remaining implementation and exact-request approval;

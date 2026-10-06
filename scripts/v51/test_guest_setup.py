@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from . import guest_setup as s, cloud_gcp as g, cloud_http_fake as f, cloud_authority as a, performance_model as m
-from .cloud_http import Api
+from .cloud_http import Api, ApiError
 
 KEY='ssh-ed25519 '+base64.b64encode(b'\x00\x00\x00\x0bssh-ed25519\x00\x00\x00\x20'+bytes(range(32))).decode()
 
@@ -84,5 +84,33 @@ class SetupTest(unittest.TestCase):
         plan=s.volume_plan(provider,observed,user);self.assertFalse(plan['paidCloud']);self.assertNotIn('-F',plan['commands'][0])
         for key,value in [('instanceId','124'),('device','/dev/sda'),('resolved','/dev/sda'),('sizeBytes',1),('mounted',True),('readOnly',True),('signatures',['ext4']),('children',['sdb1']),('targetEmpty',False)]:
             with self.subTest(key=key),self.assertRaises(ValueError):s.volume_plan(provider,dict(observed,**{key:value}),user)
+
+    def test_host_key_404_is_pending_only_after_same_owned_numeric_id_readback(self):
+        for after in ('same', 'absent', 'replaced', 'foreign', 'denied'):
+            provider,spec,value,http=self.provider();calls=[]
+            def respond(method,path,query,body):
+                calls.append(path.path)
+                if path.path.endswith('/getGuestAttributes'):return 404,b''
+                if len(calls)==3:
+                    if after=='absent':return 404,b''
+                    if after=='replaced':return http.reply(dict(value,id='124'))
+                    if after=='foreign':return http.reply(dict(value,description='foreign'))
+                    if after=='denied':return 403,b''
+                return http.reply(value)
+            http.hook=respond
+            with self.subTest(after=after),self.assertRaises((ValueError,ApiError)) as caught:
+                provider.guest_host_key(spec,'123')
+            self.assertEqual(after=='same',isinstance(caught.exception,s.HostKeyPending))
+            self.assertEqual([provider.url(spec,'123').split('compute.googleapis.com')[1],
+                              provider.url(spec).split('compute.googleapis.com')[1]+'/getGuestAttributes',
+                              provider.url(spec,'123').split('compute.googleapis.com')[1]],calls)
+
+    def test_host_key_other_http_errors_are_never_readiness(self):
+        for status in (401,403,429,500):
+            provider,spec,value,http=self.provider()
+            http.hook=lambda method,path,query,body: (status,b'') if path.path.endswith('/getGuestAttributes') else http.reply(value)
+            with self.subTest(status=status),self.assertRaises(ApiError) as caught:
+                provider.guest_host_key(spec,'123')
+            self.assertEqual(status,caught.exception.status)
 
 if __name__=='__main__':unittest.main()

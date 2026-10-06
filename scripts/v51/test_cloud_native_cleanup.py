@@ -2,11 +2,12 @@ from copy import deepcopy
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from urllib.parse import urlencode, quote
 from . import cloud_authority as a, cloud_native_authority as n, cloud_native_cleanup as native
 from . import cloud_cleanup as c, cloud_cleanup_qualification as q, cloud_gcp as g, cloud_runner as r, cloud_fake, performance_model as m
 from .cloud_http import Api
+from .cloud_http_fake import delay_instance_deletes
 
 
 class NativeCleanupTest(unittest.TestCase):
@@ -178,6 +179,24 @@ class NativeCleanupTest(unittest.TestCase):
             total,attempts=n.inspect_ledger(m.strict_json(http.objects[n.LEDGER][1]));self.assertEqual(total,1_000_000)
             self.assertEqual(attempts[n.validate_request(self.req)]['status'],'FAIL')
             outcomes.append([v for v in http.requests if '/compute/' in v['path']])
+        self.assertEqual(outcomes[0],outcomes[1])
+
+    def test_expired_manual_and_schedule_wait_for_slow_deletes_under_shared_budget(self):
+        outcomes=[]
+        for trigger in ('manual','schedule'):
+            clock,http,api,_=q.restore(q.snapshot(self.http))
+            delay_instance_deletes(http,clock,{1:85.5,2:56.5,3:50})
+            started=clock.seconds()
+            with patch.dict(g.Compute.__init__.__kwdefaults__,sleep=clock.sleep):
+                result=native.reconcile(http.configuration,api,self.root/trigger,trigger=trigger,now=self.now)
+            self.assertEqual('PASS',result['status'],result);self.assertTrue(result['leaseReleased'])
+            self.assertFalse(http.resources);self.assertNotIn(n.LEASE,http.objects)
+            self.assertEqual(192,clock.seconds()-started)
+            total,attempts=n.inspect_ledger(m.strict_json(http.objects[n.LEDGER][1]))
+            self.assertEqual(1_000_000,total);self.assertEqual('FAIL',attempts[n.validate_request(self.req)]['status'])
+            deletes=[v for v in http.requests if v['method']=='DELETE' and '/compute/' in v['path']]
+            self.assertEqual(13,len(deletes));self.assertEqual(13,len({v['query']['requestId'] for v in deletes}))
+            outcomes.append(deletes)
         self.assertEqual(outcomes[0],outcomes[1])
 
     def test_native_facade_domain_cannot_be_overridden(self):

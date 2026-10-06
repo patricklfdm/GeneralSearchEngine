@@ -278,10 +278,14 @@ exact-ID cleanup and immutable failure retention.
 The same batch adds [native owned services/workload and evidence integration](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md),
 including original-lease sessions and the complete experiment. PR #292 / CI
 `37424341468` attempt 1 accepted both (36 jobs). The
-[manual entry candidate](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) now supplies default-off
+[manual entry](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) supplies default-off
 prepare/run selections, public original-artifact handoff, exact plan approval and
-private environment-key handling. Its protected CI and separately authorized cloud
-execution remain next. Full 6C remains open; paid experiments require separate
+private environment-key handling. PR #293 / CI `37434593823` attempt 1 accepted it
+(36 jobs). The first approved native run `37439476170` failed before workload at
+host-key readiness, then exposed a short asynchronous-delete wait. The
+[bounded correction](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
+awaits protected CI, verified resource cleanup and a fresh approved experiment.
+Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

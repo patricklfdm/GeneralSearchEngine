@@ -39,6 +39,7 @@ def cleanup(provider, lease, persist, *, authority=a, redact=False):
     authority.validate_lease(lease)
     from . import cloud_native_authority as native
     redact = redact or getattr(provider, 'execution', None) == native.CLEANUP_EXECUTION
+    if provider is not None: provider.begin_cleanup()
     errors, checks = [], []
     rows = sorted(lease['resources'], key=lambda r: {'instance': 0, 'disk': 1, 'firewall': 2}[r['spec']['kind']])
     resolved = {}

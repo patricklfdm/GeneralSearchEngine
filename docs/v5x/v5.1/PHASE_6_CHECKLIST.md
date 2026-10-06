@@ -348,7 +348,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [native owned experiment integration](PHASE_6_NATIVE_OWNED_EXPERIMENT.md): original-lease service sessions, shared source, complete experiment, independent evidence and owner completion/cleanup.
 - [x] Native owner failure cleanup and complete experiment protected acceptance: PR #292, master `20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`, CI `37424341468` attempt 1 (36 jobs).
 - [x] Local [manual native Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md): default-off preparation/run selections, original producing-run artifact handoff, exact plan confirmation, private environment-key handling and detailed summaries.
-- [ ] Protected acceptance of manual entry, separately configured environment SSH secret, exact-request approval and user-triggered cloud experiment.
+- [x] Manual entry protected acceptance: PR #293, master `dc71dc003bc1d541a065f7d65bd6840da8ec5f06`, CI `37434593823` attempt 1 (36 jobs); environment SSH secret configured and unpaid prepare `37438942134` passed.
+- [ ] Successful exact-request native experiment: approved run `37439476170` failed at host-key HTTP 404 before any cell; original failure, USD 27 cumulative reservation and two remaining disks recorded in the [entry review](PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06). Bounded host-key/delete-wait correction awaits protected CI; verify expired cleanup before a fresh approved attempt.
 - [ ] Native allocation entry, actual image use/IAP and complete owned-experiment integration.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

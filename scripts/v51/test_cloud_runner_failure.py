@@ -8,6 +8,7 @@ from urllib.parse import parse_qs, urlsplit
 from . import cloud_runner_failure as f, cloud_runner_resource_qualification as q
 from . import cloud_native_authority as n, cloud_native_cleanup as cleanup, cloud_http as h
 from . import cloud_gcp as g, performance_model as m
+from .cloud_http_fake import delay_instance_deletes
 from .remote_command import read
 
 
@@ -81,6 +82,18 @@ class RunnerFailureTest(unittest.TestCase):
                 result = self.run_failure(fault); self.assert_finished(result)
                 inserts = [v for v in self.mutations() if v['method']=='POST' and v['path'].startswith('/compute/')]
                 self.assertEqual(len(inserts), len({v['query']['requestId'] for v in inserts}))
+
+    def test_slow_vm_deletes_complete_native_owner_recovery_without_detached_disk_leaks(self):
+        def slow(api):
+            delay_instance_deletes(self.input['http'], self.input['clock'], {1:85.5, 2:56.5, 3:50})
+        # Cleanup reconstructs its own provider from retained bytes, with the
+        # same synthetic monotonic clock as creation and credentials.
+        with patch.dict(g.Compute.__init__.__kwdefaults__, sleep=self.input['clock'].sleep):
+            result = self.run_failure(before=slow)
+        self.assert_finished(result)
+        self.assertEqual(192, result['ownerRecovery']['elapsedSeconds'])
+        deletes = [v for v in self.mutations() if v['method']=='DELETE' and v['path'].startswith('/compute/')]
+        self.assertEqual(13, len(deletes)); self.assertEqual(13, len({v['query']['requestId'] for v in deletes}))
 
     def test_lost_ledger_context_or_plan_keeps_charge_and_finishes_failure(self):
         for fault in ('lost-ledger','lost-context','lost-plan'):

@@ -1,13 +1,12 @@
 # V5.1 manual native experiment entry
 
-**Status:** implementation candidate on accepted PR #292, master
-`20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`,
-[CI 37424341468](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37424341468)
-attempt 1 (all 36 jobs passed). That accepts the
-[native owned lifecycle](PHASE_6_NATIVE_OWNED_EXPERIMENT.md) and
-[preparation failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md), not an actual
-GCP workload. This entry still requires its own protected CI and separately
-confirmed, operator-triggered execution. Full Phase 6 remains open.
+**Status:** entry accepted through PR #293, master
+`dc71dc003bc1d541a065f7d65bd6840da8ec5f06`,
+[CI 37434593823](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37434593823)
+attempt 1 (all 36 jobs passed). The first approved native run failed during
+preparation, before any workload cell. The [readiness and cleanup correction](#first-native-run-and-bounded-readiness-correction--2026-10-06)
+is a local candidate requiring protected CI and a fresh approved experiment.
+Full Phase 6 remains open.
 
 ## Workflow selections
 
@@ -78,9 +77,24 @@ performed by this code change. For example, from a private local directory:
 
 ```bash
 ssh-keygen -q -t ed25519 -N '' -C '' -f /private/path/v51-experiment-key
-gh secret set V51_EXPERIMENT_SSH_KEY \
-  --env v51-cloud-benchmark < /private/path/v51-experiment-key
+python3 - <<'PY'
+import json
+import subprocess
+from pathlib import Path
+key = Path('/private/path/v51-experiment-key')
+secret = key.read_text().rstrip('\r\n') + '\n'
+subprocess.run(['gh', 'secret', 'set', '--env-file', '-',
+                '--repo', 'patricklfdm/GeneralSearchEngine',
+                '--env', 'v51-cloud-benchmark'],
+               input='V51_EXPERIMENT_SSH_KEY=' + json.dumps(secret) + '\n',
+               text=True, check=True)
+PY
 ```
+
+The quoted dotenv input preserves the private key's final newline. The installed
+`gh 2.101.0` ordinary stdin secret path removed it during the first operator setup,
+causing OpenSSH to reject the stored key. Do not print the key or put it in a
+command-line argument. Updating the secret does not dispatch a workflow.
 
 Use the same key for preparation and its corresponding run. Do not upload it as
 an artifact, include it in quote JSON, or rotate it during execution. The CLI
@@ -132,6 +146,47 @@ and lease release. Missing results are explicitly not established. A failure
 before/after entering native execution is distinguished; an unexpected native
 exception cannot be reported as proven unpaid. Preparation-failure cleanup is
 reported from its own retained owner-recovery receipt.
+
+## First native run and bounded readiness correction — 2026-10-06
+
+After repairing the secret's final newline, unpaid preparation
+[37438942134](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37438942134)
+passed. The separately confirmed
+[run 37439476170](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37439476170)
+created all thirteen resources, then failed on node 3's `getGuestAttributes`
+host-key GET with HTTP 404. No IAP identity command or workload cell started:
+`engineWorkloadExecuted=false`, zero of four experiment cells completed. The
+original HTTP error body was not retained; delayed guest-agent publication is a
+plausible cause, not an established diagnosis of the provider's 404 semantics.
+
+The correction treats only this host-key endpoint's 404 as pending after a second
+owned numeric-instance-ID read confirms the same instance. The initial readiness
+loop then polls reads under the original preparation deadline. An absent or
+replaced VM, ownership drift, permission denial, malformed/duplicate key or late
+reply still fails. Later pinned-key rechecks remain strict; this does not retry
+guest commands, creation, workload cells or failed paid attempts.
+
+Immediate owner recovery exposed a second issue: each asynchronous delete was
+limited to thirty seconds, although the three actual VM deletes completed in
+85.334, 56.434 and 49.613 seconds. All three VM operations eventually finished
+without provider errors. Independent readback observed only node 3's 50-GiB boot
+and 100-GiB data disks remaining, with no VM users. Disk deletion racing unfinished
+VM detachment is consistent with the trace; the disk API error bodies were not
+retained. See the [shared cleanup correction](PHASE_6_OWNER_FAILURE_CLEANUP.md#asynchronous-delete-wait-correction--2026-10-06).
+
+The failed preparation diagnostics were retained and read back. Its USD 10
+reservation remains charged in the append-only ledger, bringing the cumulative
+reserved total to USD 27 of USD 200 at this observation. The lease was retained;
+manual expiry reconciliation becomes eligible at **2026-10-06 03:46:31 PDT**.
+These are the recorded failure/readback results, not a claim of later cleanup.
+Original evidence and independent observation are retained locally under
+`target/v51-first-native-experiment/run-37439476170/`.
+
+After resource absence and lease release are verified and corrected-source CI
+passes, obtain fresh same-source manual cleanup/preflight, current quote and
+original build/package artifacts, then prepare and review a new exact request.
+The old plan/attempt cannot be resumed. Only the operator triggers the separately
+approved paid run; local tests do not establish native experiment acceptance.
 
 Public preparation artifacts retain 14 days; experiment evidence retains 30 days
 in Actions in addition to the native immutable GCS retention path. Run uploads

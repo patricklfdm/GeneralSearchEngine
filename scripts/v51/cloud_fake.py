@@ -46,6 +46,9 @@ class Provider:
         self.store, self.fault = store, fault
         self.objects, self.operations, self.events = {}, {}, []
 
+    def begin_cleanup(self):
+        pass  # In-memory operations are synchronous and consume no simulated time.
+
     def describe(self, spec):
         return deepcopy(self.objects.get(spec['name']))
 
