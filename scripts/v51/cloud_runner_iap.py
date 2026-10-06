@@ -30,7 +30,7 @@ def _network_probe(api, target, deadline):
     return _network_exchange(api,target,COMMAND,b'',deadline,maximum=64)
 
 
-def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None):
+def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None, retain_partial=False):
     """Ephemeral private token/config; never inherit gcloud credential overrides."""
     m.need(not api.offline and api.clock() < deadline <= api.deadline, 'native IAP deadline/domain')
     credential = (h.AccessToken(api.token,api.expires) if getattr(api,'token',None) is not None and
@@ -50,14 +50,16 @@ def _network_exchange(api, target, remote, data, deadline, *, maximum, request_m
                    CLOUDSDK_CORE_DISABLE_USAGE_REPORTING='true')
         try:
             options = {} if request_maximum is None else dict(request_maximum=request_maximum)
+            if retain_partial: options['retain_partial'] = True
             return transport.process(transport.ssh_args(target, remote, access_token_file=token),
                                      data, deadline, maximum=maximum, env=env, **options)
         except Exception as error:
             # gcloud diagnostics can contain credential paths/headers. Preserve
             # failure class, not raw subprocess output, in ordinary evidence.
-            if isinstance(error, TimeoutError):
-                raise TimeoutError('Runner IAP original deadline') from None
-            raise ConnectionError('Runner IAP identity probe failed') from None
+            safe = (TimeoutError('Runner IAP original deadline') if isinstance(error,TimeoutError)
+                    else ConnectionError('Runner IAP identity probe failed'))
+            if retain_partial and hasattr(error,'partial_output'): safe.partial_output = error.partial_output
+            raise safe from None
 
 
 def probe(api, key, output, *, exchange):

@@ -5,9 +5,9 @@ from . import guest_three_mode_evidence as healthy, guest_fault_evidence as faul
 from .guest_owned_experiment import CELLS, FAULTS, SCOPE
 
 
-def contract(root):
+def contract(root, *, authority=a):
     m.need({p.name for p in root.iterdir()} <= {'plan.json','validation.json',*CELLS,*(cell+'-timeline.json' for cell in CELLS)},'owned experiment extra root input')
-    plan=c.read(root/'plan.json');req=plan['request'];sha=a.validate_request(req);service=plan['services']
+    plan=c.read(root/'plan.json');req=plan['request'];sha=authority.validate_request(req);service=plan['services']
     m.need(plan['scope']==SCOPE and req['member']=='experiment' and service['status']=='PASS' and service['requestSha256']==sha and
            [v['case'] for v in service['cells']]==list(FAULTS) and all(v['receipt']['status']=='PASS' and v['receipt']['requestSha256']==sha for v in service['cells']), 'owned experiment service set')
     hp=c.read(root/'healthy/plan.json')
@@ -35,14 +35,14 @@ def contract(root):
     return req
 
 
-def validate(root, output):
+def validate(root, output, *, authority=a):
     root=c.directory(root);output=Path(output);output.mkdir(mode=0o700,parents=True,exist_ok=False);parts.inventory(root)
-    req=contract(root);healthy_result=healthy.validate(root/'healthy',output/'healthy');budgets=dict(healthy_result['budgets'])
+    req=contract(root,authority=authority);healthy_result=healthy.validate(root/'healthy',output/'healthy',authority=authority);budgets=dict(healthy_result['budgets'])
     reports=[dict(cell='healthy',result=healthy_result)]
-    for cell in FAULTS:reports.append(dict(cell=cell,result=faults.replay_case(root/cell,output/cell,req,budgets)))
+    for cell in FAULTS:reports.append(dict(cell=cell,result=faults.replay_case(root/cell,output/cell,req,budgets,authority=authority)))
     m.need(all(budgets[k]<=parts.LIMITS[k] for k in budgets),'owned experiment combined evidence budget')
     return dict(status='PASS',scope=SCOPE,cells=reports,budgets=budgets,healthyCalls=270,paidCloud=False,
-        fullRemoteQualification=False,ownedExperimentQualified=True,requestSha256=a.validate_request(req))
+        fullRemoteQualification=False,ownedExperimentQualified=True,requestSha256=authority.validate_request(req))
 
 
 if __name__=='__main__':

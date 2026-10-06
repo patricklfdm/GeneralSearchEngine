@@ -336,10 +336,18 @@ fresh-process interruption/expiry-cleanup cases. PR #290 accepted it at master
 `5cf4bf10efb2df7b084ffee7f297877c7a494dee`, CI `37400113526` attempt 2 (36 jobs);
 the rerun does not diagnose the original failure. The local
 [native guest preparation](v5.1/PHASE_6_NATIVE_GUEST_SETUP.md) adds one-shot root
-volume setup and unprivileged exact-package transfer, pending protected CI.
-No paid allocation workflow is exposed. PARTIAL keeps the charged active lease,
-with no engine/full-qualification claim. Next connect existing complete owned
-services/workload, immediate failure cleanup and evidence retention.
+volume setup and unprivileged exact-package transfer. PR #291 accepted it at master
+`70b452348832d6c2803870ae1b3ec74409e43ece`, CI `37411762406` attempt 2 (36 jobs).
+That successful rerun does not establish attempt 1's cause. The local
+[owner failure continuation](v5.1/PHASE_6_OWNER_FAILURE_CLEANUP.md) now connects
+immediate exact-ID cleanup, immutable original diagnostics and append-only FAIL
+completion under the original lease, pending protected CI.
+The same batch adds the [native owned experiment integration](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md):
+original-lease service sessions, shared source/bootstrap, all four experiment cells,
+independent physical/history validation, immutable retention and exact-ID cleanup.
+No paid allocation workflow is exposed. Standalone preparation remains PARTIAL.
+Next verify corrected-source protected CI, then review the inactive workflow
+selection and original artifact/approval handoff before a user-triggered cloud run.
 Preserve the offline/native domain boundary and original
 600/5400/1080-second preparation/lease/grace limits.
 The resource plan maps reuse, remaining implementation and exact-request approval;

@@ -11,8 +11,11 @@ class Delivery:
 
     def deliver(self, folder, digest, config, endpoint, deadline, output):
         m.need(endpoint.offline is True,'native source delivery disabled')
+        return self._deliver(folder,digest,config,endpoint,deadline,output)
+
+    def _deliver(self, folder, digest, config, endpoint, deadline, output):
         root=Path(output);root.mkdir(mode=0o700);c.sync_directory(root.parent)
-        record=dict(status='FAIL',calls=[],sourceTransport=self.scope,paidCloud=False)
+        record=dict(status='FAIL',calls=[],sourceTransport=self.scope,paidCloud=not self.offline)
         try:
             value=wire.describe(folder,digest,config)
             m.need(endpoint.value['binding']==config['binding'] and endpoint.value['manifestSha256']==config['packageManifestSha256'],

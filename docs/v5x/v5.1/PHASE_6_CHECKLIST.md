@@ -343,7 +343,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [native resource/IAP candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate): fresh admission and original-input recheck before CAS, once-only creation, isolated Runner credential and pinned guest identity probes; ten interrupted/expired cleanup cases, PARTIAL only.
 - [x] Native resource/IAP protected acceptance: PR #290, master `5cf4bf10efb2df7b084ffee7f297877c7a494dee`, CI `37400113526` attempt 2 (36 jobs); rerun does not diagnose the original failure.
 - [x] Local [native guest volume/package preparation](PHASE_6_NATIVE_GUEST_SETUP.md): fixed trusted root receiver, one-shot disk setup, unprivileged exact-package transfer and retained failure/cleanup tests under the original preparation deadline; PARTIAL only.
-- [ ] Corrected-source protected CI for native guest volume/package preparation.
+- [x] Native guest volume/package protected acceptance: PR #291, master `70b452348832d6c2803870ae1b3ec74409e43ece`, CI `37411762406` attempt 2 (36 jobs). Rerun success does not diagnose the original failure.
+- [x] Local [native owner failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md): original-invocation authority, shared exact-ID deletion, immutable diagnostic read-back and retained FAIL charge; unresolved cases keep the lease.
+- [x] Local [native owned experiment integration](PHASE_6_NATIVE_OWNED_EXPERIMENT.md): original-lease service sessions, shared source, complete experiment, independent evidence and owner completion/cleanup.
+- [ ] Corrected-source protected CI for native owner failure cleanup and complete experiment integration.
+- [ ] Reviewed manually triggered paid workflow selection and original artifact/approval handoff for the integrated entry.
 - [ ] Native allocation entry, actual image use/IAP and complete owned-experiment integration.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

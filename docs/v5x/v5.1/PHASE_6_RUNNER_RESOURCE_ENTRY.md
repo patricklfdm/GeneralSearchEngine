@@ -10,7 +10,9 @@ attempt 1 (36 successful jobs). Native resource creation and fixed IAP identity
 probes are accepted through PR #290, master `5cf4bf10efb2df7b084ffee7f297877c7a494dee`,
 [CI 37400113526](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37400113526)
 attempt 2 (36 successful jobs). The rerun does not diagnose the original failure.
-The next local candidate is [native guest volume/package preparation](PHASE_6_NATIVE_GUEST_SETUP.md).
+[Native guest volume/package preparation](PHASE_6_NATIVE_GUEST_SETUP.md) is accepted
+through PR #291 / CI `37411762406` attempt 2 (36 jobs). The next local candidate
+is [immediate owner failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
 No paid CLI/workflow selection or native engine entry is exposed.
 
 ## Starting evidence
@@ -111,9 +113,9 @@ retention and cleanup so a failure does not get mislabelled as an engine result.
 | --- | --- | --- |
 | Request and control | `cloud_native_authority`, storage CAS and accepted Runner request inspection | Local native constructor rechecks original inputs before lease CAS; reviewed paid dispatch remains closed |
 | Compute | Shared thirteen-resource creation policy, input/context/intent/ID records | Local native constructor and interruption qualification; actual image use/creation remains to be observed in the approved experiment |
-| SSH/IAP | Accepted fixed identity probe, retained VM IDs, pinned host key and Runner credential | Local native volume/package continuation; protected CI pending, persistent owned services next |
-| Workload | Accepted complete owned experiment and independent physical/history validators | Connect the three actual private guests and published controls; preserve frozen cells, parameters, time budgets and evidence limits |
-| Cleanup | Existing native retained-context reconciler and manual entry | Local fresh-process expiry replay after creation/IAP interruptions; next integrate immediate owned-run failure cleanup and retention |
+| SSH/IAP | Accepted fixed identity probe, retained VM IDs, pinned host key and Runner credential | Accepted native volume/package continuation; native session/services candidate pending protected CI |
+| Workload | Accepted complete owned experiment and independent physical/history validators | Native complete-experiment bridge candidate; actual private guests and pinned controls still need an approved run |
+| Cleanup | Existing native retained-context reconciler and manual entry | Local immediate owner-failure cleanup/retention candidate, with unresolved cases retaining the lease and unchanged expiry replay |
 | Review | Original GitHub artifacts, independent state and provider observations | Retain stage outcomes and audit coverage without claiming missing events were observed; price retention/failure overhang and preserve all failed reservations |
 
 The native path must remain a distinct authority domain. Changing an offline
@@ -196,8 +198,12 @@ and original deadline even when no success reply arrives. Only retained CAS byte
 authorize cleanup. No
 successful ledger completion or refund is synthesized. Active/grace manual
 cleanup still returns WAITING; eligible expiry cleanup removes only original IDs
-and retains the failed reservation. Immediate in-process failure cleanup, durable
-remote evidence retention and complete owned workload remain next-stage work.
+and retains the failed reservation. The separate
+[owner-failure candidate](PHASE_6_OWNER_FAILURE_CLEANUP.md) now adds immediate
+in-process cleanup and durable failure evidence. The same PR adds the separate
+[native complete experiment bridge](PHASE_6_NATIVE_OWNED_EXPERIMENT.md), with shared
+physical/history validation and retention. Protected CI and paid workflow review
+remain open.
 
 The explicit offline twin drives the same entry with synthetic CI archives,
 credential issuer, provider and IAP boundary. Its ten-case qualification covers

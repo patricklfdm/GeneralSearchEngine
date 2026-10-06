@@ -19,7 +19,7 @@ MAX_DEADLINE_NANOS = 600 * 10**9
 MODULES = ('guest_fault_service', 'guest_fault_jvm', 'public_trace', 'cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'guest_backup', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
-           'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver')
+           'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver', 'guest_native_session')
 INPUTS = ('scripts/v51/__init__.py', *('scripts/v51/'+n+'.py' for n in MODULES),
           'docs/v5x/v5.1/phase6-plan.json', 'docs/v5x/v5.1/phase6-cloud-workload-plan.json')
 NAMES = frozenset(('helper.py', 'scripts/__init__.py', *INPUTS))

@@ -36,23 +36,26 @@ class PackagePool:
 
 class Services:
     offline=True
+    authority=a
     mode=MODE
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, clock=time.monotonic, sleep=time.sleep, **options):
         self.provider=provider;self.archive=Path(archive);self.root=None;self.groups={};self.clock=clock;self.sleep=sleep
         self.pool=PackagePool(endpoint_factory);self.options=options
+    def shared_source(self):return guest_shared_source.SharedSource(self.root/'shared-source',clock=self.clock,sleep=self.sleep)
+    def seed(self):return bootstrap.Bootstrap(guest_shared_source.Source(self.source),clock=self.clock,sleep=self.sleep,
+                                            delivery=guest_source_delivery.Delivery())
+    def group(self, **options):return owned.Services(self.provider,self.archive,self.pool.endpoint,deliver=self.pool.deliver,
+        clock=self.clock,sleep=self.sleep,**self.options,**options)
     @property
     def clients(self):return [member for group in self.groups.values() for member in group.clients]
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
         m.need(self.root is None,'three-mode services consumed')
         self.root=Path(output);self.root.mkdir(mode=0o700)
-        self.source=guest_shared_source.SharedSource(self.root/'shared-source',clock=self.clock,sleep=self.sleep)
-        result=dict(status='FAIL',requestSha256=a.validate_request(req),modes=[])
+        self.source=self.shared_source()
+        result=dict(status='FAIL',requestSha256=self.authority.validate_request(req),modes=[])
         try:
             for mode in package.MODES:
-                seed=bootstrap.Bootstrap(guest_shared_source.Source(self.source),clock=self.clock,sleep=self.sleep,
-                                         delivery=guest_source_delivery.Delivery())
-                group=owned.Services(self.provider,self.archive,self.pool.endpoint,mode=mode,bootstrap=seed,
-                    deliver=self.pool.deliver,clock=self.clock,sleep=self.sleep,**self.options)
+                group=self.group(mode=mode,bootstrap=self.seed())
                 self.groups[mode]=group
                 answer=group.prepare(req,facts,targets,startup,self.root/mode,deadline,recheck=recheck,readiness=readiness)
                 result['modes'].append(dict(mode=mode,receipt=answer))
@@ -75,28 +78,33 @@ class Services:
 
 class Probe:
     execution=a.EXECUTION
+    authority=a
+    workload_probe=workload.Probe
     scope=SCOPE
     mode=MODE
     require_physical=True
     require_backup=True
     def __init__(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline is True and services.mode==MODE,'three-mode services scope')
+        self._initialize(services,output,clock=clock,sleep=sleep)
+
+    def _initialize(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
         self.services=services;self.clock=clock;self.sleep=sleep;self.root=Path(output)
         self.root.mkdir(parents=True,mode=0o700);self.raw=self.root/'raw';self.raw.mkdir(mode=0o700)
         self.probes={};self.started=[];self.cells=[];self.prepared=False;self.attempted=False;self.stopped=False
-        self.binding=m.sha(m.canonical(dict(scope=SCOPE,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=SCOPE,requestSha256=self.authority.validate_request(services.provider.req))))
     @property
     def engineWorkloadExecuted(self):return any(p.engineWorkloadExecuted for p in self.probes.values())
     def prepare(self, req, deadline):
         m.need(not self.prepared and list(self.services.groups)==list(package.MODES),'three-mode preparation/order')
         complete=c.read(self.services.root/'receipt.json')
-        m.need(complete['status']=='PASS' and complete['requestSha256']==a.validate_request(req),'three-mode service admission')
+        m.need(complete['status']=='PASS' and complete['requestSha256']==self.authority.validate_request(req),'three-mode service admission')
         c.write_once(self.raw/'plan.json',dict(scope=SCOPE,request=req,services=complete))
         # The common source is retained independently of receiver paths.
         seed=self.services.source.root/'seed/source';(self.raw/'source').mkdir(mode=0o700)
         for name in guest_bootstrap.SOURCE:(self.raw/'source'/name).write_bytes((seed/name).read_bytes())
         for mode,group in self.services.groups.items():
-            probe=workload.Probe(group,self.root/mode,physical=mode in package.MODES[1:],backup=mode in package.MODES[1:],clock=self.clock,sleep=self.sleep)
+            probe=self.workload_probe(group,self.root/mode,physical=mode in package.MODES[1:],backup=mode in package.MODES[1:],clock=self.clock,sleep=self.sleep)
             self.probes[mode]=probe;probe.prepare(req,deadline)
         self.prepared=True
     def cell(self, name, deadline):
@@ -133,13 +141,13 @@ class Probe:
                 destination=self.raw/mode
                 m.need(not destination.exists(),'three-mode raw consumed')
                 probe.raw.rename(destination);probe.raw=destination
-        result=dict(status='FAIL',execution=a.EXECUTION,scope=SCOPE,mode=MODE,paidCloud=False,fullRemoteQualification=False,
+        result=dict(status='FAIL',execution=self.execution,scope=SCOPE,mode=MODE,paidCloud=self.authority.PAID_CLOUD,fullRemoteQualification=False,
             engineWorkloadExecuted=self.engineWorkloadExecuted,physicalHistoryQualified=False,backupRestoreQualified=False,
             cells=list(self.cells),modes=reports,errors=errors)
         try:
             m.need(self.clock()<deadline/10**9,'three-mode validation deadline')
             from .guest_three_mode_evidence import validate
-            result['aggregate']=validate(self.raw,self.root/'aggregate-replay')
+            result['aggregate']=validate(self.raw,self.root/'aggregate-replay',authority=self.authority)
             m.need(not errors and len(reports)==3 and all(v['result']['status']=='PASS' for v in reports),'three-mode collected failures')
             m.need(self.clock()<deadline/10**9,'three-mode validation deadline')
             result.update(status='PASS',physicalHistoryQualified=True,backupRestoreQualified=True)

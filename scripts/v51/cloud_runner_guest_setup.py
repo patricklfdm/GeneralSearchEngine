@@ -2,6 +2,7 @@
 
 No CLI or workflow invokes this yet. Successful preparation is PARTIAL with the
 original active lease/reservation; it cannot stand in for a paid workload result.
+Native preparation failure uses the original owner's bounded cleanup/retention.
 """
 import base64
 from copy import deepcopy
@@ -21,12 +22,12 @@ from . import guest_package_delivery as delivery, guest_package_receiver as rece
 from . import performance_model as m, remote_command as c
 
 
-@lru_cache(maxsize=2)
+@lru_cache(maxsize=3)
 def trusted_source(kind):
-    m.need(kind in ('volume','package'),'native guest receiver kind')
+    m.need(kind in ('volume','package','session'),'native guest receiver kind')
     names = ('performance_model','performance_plan','cloud_workload_contract','remote_command','guest_setup',
              'guest_transport','guest_volume','guest_delivery_receiver','guest_root_policy','guest_root_receiver',
-             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package')
+             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package','guest_native_session')
     modules = {name:(Path(__file__).parent/(name+'.py')).read_text() for name in names}
     encoded = base64.b64encode(zlib.compress(m.canonical(modules))).decode()
     # Preserve dependency order explicitly; canonical JSON sorts its keys.
@@ -126,11 +127,11 @@ def _archive(originals, proof, output):
     return path,manifest
 
 
-def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoint,_PackageEndpoint)):
+def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoint,_PackageEndpoint), continuation=None):
     output = Path(root)/'guest-setup'; output.mkdir()
     m.need(api.state == 'done' and not api.failed and len(guests) == 3 and api.clock() < api.deadline,
            'native guest resource stage/deadline')
-    lease = deepcopy(api.lease); records = []
+    lease = deepcopy(api.lease); records = []; prepared = []
     with tempfile.TemporaryDirectory(prefix='gse-v51-admitted-package-') as temporary:
         archive,manifest = _archive(originals,proof,temporary)
         for node,guest in enumerate(guests,1):
@@ -140,7 +141,7 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
             pin = Path(root)/'iap'/('node-'+str(node)+'.known_hosts'); pin_raw = pin.read_bytes()
             target = dict(project=api.cfg['project'],zone=api.cfg['zone'],instance=row['spec']['name'],instanceId=row['id'],
                 user=api.value['guestAccess']['user'],key=str(Path(key).resolve()),knownHosts=str(pin.resolve()))
-            def recheck():
+            def recheck(row=row,node=node,facts=facts,guest=guest,pin=pin,pin_raw=pin_raw,provider=provider):
                 m.need(api.clock() < api.deadline and api.store.get(n.LEASE) == (api.generation,lease) and
                        api.store.get(n.LEDGER)[1] == api.reserved,'native guest durable authority/deadline')
                 host = provider.guest_host_key(row['spec'],row['id'],deadline=api.deadline)['publicKey']
@@ -167,8 +168,11 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
                 c.write_once(base/'readiness.json',final)
                 records.append(dict(node=node,status='PACKAGE_READY',instanceId=row['id'],diskId=facts['provider']['diskId'],
                     packageManifestSha256=desc['manifestSha256'],startupSha256=desc['nativeVolume']['startupSha256']))
+                prepared.append(dict(endpoint=transfer,disk=disk,installed=installed,facts=facts,
+                    startup=final['startup'],recheck=recheck))
             finally:
                 c.write_once(base/'connections.json',dict(volume=disk.calls,package=transfer.calls if transfer is not None else []))
+        if continuation is not None: continuation(api,archive,prepared)
     return records
 
 

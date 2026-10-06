@@ -77,13 +77,16 @@ class PythonLanesTest(unittest.TestCase):
         parts=[line for lane in ('admission','cleanup','storage') for line in capture(['--lane',lane])]
         self.assertEqual(complete,parts)
         modules=[name for line in parts if line.startswith('python3 -m unittest ') for name in line.split()[3:]]
-        self.assertEqual(19,len(modules))
+        self.assertEqual(22,len(modules))
         self.assertIn('scripts.v51.test_cloud_experiment_resources', modules)
         self.assertIn('scripts.v51.test_cloud_runner_artifacts', modules)
         self.assertIn('scripts.v51.test_cloud_runner_admission', modules)
         self.assertIn('scripts.v51.test_cloud_runner_resources', modules)
         self.assertIn('scripts.v51.test_cloud_runner_iap', modules)
         self.assertIn('scripts.v51.test_cloud_runner_guest_setup', modules)
+        self.assertIn('scripts.v51.test_cloud_runner_failure', modules)
+        self.assertIn('scripts.v51.test_cloud_runner_owned', modules)
+        self.assertIn('scripts.v51.test_guest_native_session', modules)
         self.assertEqual(len(modules),len(set(modules)))
 
     def test_invalid_preflight_lane_is_rejected_before_running_tests(self):

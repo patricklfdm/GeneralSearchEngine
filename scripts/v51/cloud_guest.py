@@ -17,12 +17,13 @@ from . import remote_collection as collection, remote_schedule as schedule, remo
 from .guest_jvm import Jvm
 
 EXECUTION = 'local-guest-service-only'
+NATIVE_EXECUTION = 'native-v51-guest-service'
 FIELDS = {'schema', 'execution', 'binding', 'packageManifestSha256', 'root', 'mode', 'hosts', 'ports', 'groupId'}
 
 
 def validate(config):
     m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}) and config['schema'] == 'gse-v51-guest-service-v1' and
-           config['execution'] == EXECUTION, 'guest service configuration scope')
+           config['execution'] in (EXECUTION,NATIVE_EXECUTION), 'guest service configuration scope')
     if 'faultCell' in config:
         m.need(config['faultCell'] in ('leader-loss','maintenance','no-quorum') and config['mode']==package.MODES[2], 'guest fault cell/mode')
     c.validate_binding(config['binding'])
@@ -61,6 +62,9 @@ def rpc(root, value, seconds=10):
 
 
 def prepared_config(base, config):
+    if config['execution'] == NATIVE_EXECUTION:
+        from .guest_native_session import service_deadline
+        service_deadline(base,config)
     target = validate(config); manifest = package.verify(base, config['binding']['source'])
     m.need(m.sha((base/'manifest.json').read_bytes()) == config['packageManifestSha256'], 'guest package manifest changed')
     root = Path(config['root']); c.directory(root.parent)
@@ -92,6 +96,9 @@ class Service:
         self.store = c.CommandStore(self.root/'store', config['binding'])
         self.cell = Path(config['root']); self.node = config['binding']['node']; self.jvm = None
         self.started = time.monotonic(); self.deadline = self.started+5400
+        if config['execution'] == NATIVE_EXECUTION:
+            from .guest_native_session import service_deadline
+            self.deadline=service_deadline(base,config)
         self.plan = base/'source-inputs/docs/v5x/v5.1/phase6-plan.json'
         self.active = None; self.answer = None; self.ack = threading.Event(); self.shutting_down = False
 

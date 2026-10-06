@@ -25,10 +25,15 @@ class _Policy:
         self.upload = 'https://storage.googleapis.com/upload/storage/v1/b/'+bucket+'/o'
 
     def bind(self, lease, generation, *, now):
+        n.validate_lease(lease)
+        m.need(now >= lease['expiresAt']+lease['graceSeconds'], 'cleanup lease still active/grace')
+        self._bind(lease, generation)
+
+    def _bind(self, lease, generation):
+        """Common retained identity checks; callers supply their own authority."""
         n.validate_lease(lease); a.integer(generation, 1)
         m.need(self.lease is None and self.observed_lease == lease and self.lease_generation == self.observed_lease_generation == generation,
                'cleanup lease observation binding')
-        m.need(now >= lease['expiresAt']+lease['graceSeconds'], 'cleanup lease still active/grace')
         m.need(g.config(self.config) == lease['request']['configurationSha256'], 'native cleanup configuration')
         self.lease = deepcopy(lease)
         self.request = lease['request']; self.sha = n.validate_request(self.request)

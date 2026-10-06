@@ -32,10 +32,10 @@ def source_binding(root, mode, files):
                'three-mode configured source bytes')
 
 
-def validate(root, output):
+def validate(root, output, *, authority=a):
     root=c.directory(root);output=Path(output);output.mkdir(mode=0o700)
     parts.inventory(root)  # Bound raw controller inputs, not just extracted guests.
-    plan=c.read(root/'plan.json');req=plan['request'];sha=a.validate_request(req)
+    plan=c.read(root/'plan.json');req=plan['request'];sha=authority.validate_request(req)
     m.need(plan['scope']==SCOPE and req['member']=='experiment','three-mode replay scope')
     services=plan['services']
     m.need(services['status']=='PASS' and services['requestSha256']==sha and
@@ -96,9 +96,9 @@ def validate(root, output):
             logical.append(guest_evidence.validate(replay,cfg,manifest,controller['packageRoot'],controller['transcript'],
                 active=controller['active'],healthy=True,physical=replicated,backup=replicated and controller['active']))
             if replicated:
-                authority=replay/'authority'/node;source_binding(authority,mode,files)
-                m.need(m.sha((authority/'manifest.gsr').read_bytes())==boot['identity']['manifestSha256'] and
-                       m.sha((authority/'genesis.gsr').read_bytes())==boot['identity']['genesisSha256'],'three-mode admitted authority changed')
+                stored=replay/'authority'/node;source_binding(stored,mode,files)
+                m.need(m.sha((stored/'manifest.gsr').read_bytes())==boot['identity']['manifestSha256'] and
+                       m.sha((stored/'genesis.gsr').read_bytes())==boot['identity']['genesisSha256'],'three-mode admitted authority changed')
             members.append(dict(root=replay,controller=controller))
         m.need({p.name for p in folder.glob('node-*')}==seen,'three-mode extra member')
         m.need(sum(v['calls'] for v in logical)==90,'three-mode frozen calls')

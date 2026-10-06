@@ -15,11 +15,15 @@ FILES = {'plan.json','source.json','receipt.json'} | {f'node-{n}-{phase}.json' f
 
 class Bootstrap:
     offline = True
+    authority = a
     def __init__(self, source, *, clock=time.monotonic, sleep=time.sleep, delivery=None):
         m.need(source.offline is True and source.scope in ('qualification-shared-source-paths','authenticated-producer-download','authenticated-shared-source'), 'native bootstrap source delivery disabled')
+        self._initialize(source,clock=clock,sleep=sleep,delivery=delivery)
+
+    def _initialize(self, source, *, clock=time.monotonic, sleep=time.sleep, delivery=None):
         m.need(source.scope not in ('authenticated-producer-download','authenticated-shared-source') or delivery is not None,'producer requires receiver binary delivery')
         self.source,self.clock,self.sleep = source,clock,sleep; self.root=None
-        m.need(delivery is None or delivery.offline is True,'native source transfer disabled')
+        m.need(delivery is None or delivery.offline is self.offline,'source transfer domain')
         self.delivery=delivery
 
     def prepare(self, req, configs, endpoints, output, deadline, *, recheck):
@@ -28,14 +32,14 @@ class Bootstrap:
         m.need([v['binding']['node'] for v in configs] == ['node-'+str(n) for n in nodes], 'owned bootstrap mode/member set')
         for cfg,ep in zip(configs,endpoints):
             guest.validate(cfg); normalized=deepcopy(cfg); normalized['binding']['node']='node-1'
-            m.need(normalized == configs[0] and ep.offline is True and ep.value['binding'] == cfg['binding'] and
+            m.need(normalized == configs[0] and ep.offline is self.offline and ep.value['binding'] == cfg['binding'] and
                    cfg['binding']['source'] == req['source'] and cfg['binding']['bundleSha256'] == req['bundleSha256'] and
                    cfg['binding']['attempt'] == req['attempt'], 'owned bootstrap exact group/package binding')
         self.root=Path(output); self.root.mkdir(mode=0o700); c.sync_directory(self.root.parent)
-        result=dict(schema='gse-v51-owned-bootstrap-v1',status='FAIL',requestSha256=a.validate_request(req),
+        result=dict(schema='gse-v51-owned-bootstrap-v1',status='FAIL',requestSha256=self.authority.validate_request(req),
             sourceTransport=self.delivery.scope if self.delivery is not None else self.source.scope,
             sourcePreparation=self.source.scope,publicBootstrapVerified=False,engineWorkloadExecuted=False,
-            paidCloud=False,fullRemoteQualification=False,members=[])
+            paidCloud=self.authority.PAID_CLOUD,fullRemoteQualification=False,members=[])
         c.write_once(self.root/'plan.json',dict(configs=configs,requestSha256=result['requestSha256'],
             sourceTransport=result['sourceTransport'],sourcePreparation=self.source.scope))
         def check(i,phase):

@@ -7,7 +7,7 @@ from pathlib import Path
 import secrets
 import time
 from . import cloud_package as package, guest_package_receiver as receiver, guest_delivery_receiver as r
-from . import guest_transport as transport, performance_model as m
+from . import guest_transport as transport, performance_model as m, remote_command as c
 
 
 def describe(archive, manifest, binding, provider, access_sha):
@@ -43,6 +43,11 @@ class Endpoint:
         self.deadline = self.budget = None; self.started = False
         self.calls = []; self.failures = []
     def argv(self, remote): return transport.ssh_args(self.target, remote)
+    def remote(self, action, token, *tail):
+        return ['python3','-I','-c',trusted_source(),action,self.parent,
+                base64.b64encode(m.canonical(self.value)).decode(),token,*tail]
+    def process(self, remote, data, deadline, **options):
+        return transport.process(self.argv(remote),data,deadline,**options)
     def call(self, action, data, deadline, token, index=None):
         m.need(len(self.calls) < 4096, 'package connection count bound')
         self.calls.append(dict(action=action, index=index))
@@ -80,26 +85,37 @@ class Endpoint:
         return answer['receipt']
 
     def client(self, config):
-        m.need(self.offline is True and config['binding'] == self.value['binding'] and
+        m.need(self.offline is True, 'live delivered client disabled')
+        return self._client(config)
+
+    def _client(self, config):
+        m.need(config['binding'] == self.value['binding'] and
                config['packageManifestSha256'] == self.value['manifestSha256'], 'delivered client binding/scope')
         endpoint = self
         class Client(transport.Local):
+            offline=endpoint.offline
             def args(self, action, *tail):
-                remote = ['python3', '-I', '-c', trusted_source(), 'service', endpoint.parent,
-                    base64.b64encode(m.canonical(endpoint.value)).decode(), base64.b64encode(m.canonical(config)).decode(), action, *tail]
+                remote = endpoint.remote('service',base64.b64encode(m.canonical(config)).decode(),action,*tail)
                 return endpoint.argv(remote)
+            def exchange(self, action, value, deadline, *tail, binary=False, maximum=c.RESPONSE_BYTES):
+                remote=endpoint.remote('service',base64.b64encode(m.canonical(config)).decode(),action,*tail)
+                raw=endpoint.process(remote,m.canonical(value) if value is not None else b'',deadline,maximum=maximum)
+                return raw if binary else m.strict_json(raw)
         base = Path(self.parent)/(self.value['binding']['attempt']+'-'+self.value['binding']['node'])/'package'
         return Client(base, config)
 
     def bootstrap(self, action, request, deadline):
-        m.need(self.offline is True and self.budget is not None and deadline == self.deadline and
+        m.need(self.offline is True, 'bootstrap original package deadline/scope')
+        return self._bootstrap(action,request,deadline)
+
+    def _bootstrap(self, action, request, deadline):
+        m.need(self.budget is not None and deadline == self.deadline and
                time.monotonic() < deadline, 'bootstrap original package deadline/scope')
         m.need(action in ('install','seal','query-install','query-seal') and len(self.calls) < 4096, 'bootstrap controller action/bound')
         self.calls.append(dict(action='bootstrap-'+action,index=None))
-        remote = ['python3','-I','-c',trusted_source(),'bootstrap',self.parent,
-            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
-            action,base64.b64encode(m.canonical(request)).decode()]
-        raw = transport.process(self.argv(remote),b'',deadline,maximum=262144)
+        remote = self.remote('bootstrap',base64.b64encode(m.canonical(self.budget)).decode(),
+            action,base64.b64encode(m.canonical(request)).decode())
+        raw = self.process(remote,b'',deadline,maximum=262144)
         answer = m.strict_json(raw)
         m.need(set(answer) == {'schema','action','requestSha256','deadlineSha256','receipt'} and
                answer['schema'] == 'gse-v51-package-bootstrap-v1' and answer['action'] == action and
@@ -109,7 +125,11 @@ class Endpoint:
         return answer['receipt']
 
     def source(self, action, request, data, deadline, index=None):
-        m.need(self.offline is True and self.budget is not None and deadline==self.deadline and
+        m.need(self.offline is True, 'source original package deadline/scope')
+        return self._source(action,request,data,deadline,index)
+
+    def _source(self, action, request, data, deadline, index=None):
+        m.need(self.budget is not None and deadline==self.deadline and
                time.monotonic()<deadline,'source original package deadline/scope')
         m.need(action in ('begin','chunk','finish','query') and len(self.calls)<4096 and
                isinstance(data,bytes) and len(data)<=receiver.PART_BYTES and (action=='chunk' or data==b'') and
@@ -117,10 +137,9 @@ class Endpoint:
         from . import guest_source_transfer as source
         source.validate(request)
         self.calls.append(dict(action='source-'+action,index=index))
-        remote=['python3','-I','-c',trusted_source(),'source',self.parent,
-            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
-            action,base64.b64encode(m.canonical(request)).decode(),*([str(index)] if index is not None else [])]
-        raw=transport.process(self.argv(remote),data,deadline,maximum=65536,request_maximum=receiver.PART_BYTES)
+        remote=self.remote('source',base64.b64encode(m.canonical(self.budget)).decode(),
+            action,base64.b64encode(m.canonical(request)).decode(),*([str(index)] if index is not None else []))
+        raw=self.process(remote,data,deadline,maximum=65536,request_maximum=receiver.PART_BYTES)
         answer=m.strict_json(raw)
         m.need(set(answer)=={'schema','action','requestSha256','deadlineSha256','receipt'} and
                answer['schema']=='gse-v51-package-source-v1' and answer['action']==action and
@@ -130,7 +149,11 @@ class Endpoint:
         return answer['receipt']
 
     def producer(self,action,request,deadline,*,node=None,index=None):
-        m.need(self.offline is True and self.budget is not None and deadline==self.deadline and
+        m.need(self.offline is True, 'producer original package deadline/scope')
+        return self._producer(action,request,deadline,node=node,index=index)
+
+    def _producer(self,action,request,deadline,*,node=None,index=None):
+        m.need(self.budget is not None and deadline==self.deadline and
                time.monotonic()<deadline,'producer original package deadline/scope')
         m.need(action in ('prepare','query','manifest','chunk') and len(self.calls)<4096 and
                (node in ('node-1','node-2','node-3') if action in ('manifest','chunk') else node is None) and
@@ -138,11 +161,10 @@ class Endpoint:
         from . import guest_source_producer as source
         source.validate(request)
         self.calls.append(dict(action='producer-'+action,node=node,index=index))
-        remote=['python3','-I','-c',trusted_source(),'producer',self.parent,
-            base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.budget)).decode(),
+        remote=self.remote('producer',base64.b64encode(m.canonical(self.budget)).decode(),
             action,base64.b64encode(m.canonical(request)).decode(),*([node] if node is not None else []),
-            *([str(index)] if index is not None else [])]
-        raw=transport.process(self.argv(remote),b'',deadline,maximum=receiver.PART_BYTES if action=='chunk' else 131072,
+            *([str(index)] if index is not None else []))
+        raw=self.process(remote,b'',deadline,maximum=receiver.PART_BYTES if action=='chunk' else 131072,
                               retain_partial=action=='chunk')
         m.need(time.monotonic()<deadline,'producer late response')
         if action=='chunk':return raw
