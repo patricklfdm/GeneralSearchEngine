@@ -7,7 +7,10 @@ The [read-only request inspection](PHASE_6_RUNNER_ADMISSION.md) is accepted thro
 PR #289, master `e442e734564cd0cd34b47a29f0ab27401ab9a535`,
 [CI 37392515334](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37392515334)
 attempt 1 (36 successful jobs). Native resource creation and fixed IAP identity
-probes are the current local candidate; their protected CI remains pending.
+probes are accepted through PR #290, master `5cf4bf10efb2df7b084ffee7f297877c7a494dee`,
+[CI 37400113526](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37400113526)
+attempt 2 (36 successful jobs). The rerun does not diagnose the original failure.
+The next local candidate is [native guest volume/package preparation](PHASE_6_NATIVE_GUEST_SETUP.md).
 No paid CLI/workflow selection or native engine entry is exposed.
 
 ## Starting evidence
@@ -108,7 +111,7 @@ retention and cleanup so a failure does not get mislabelled as an engine result.
 | --- | --- | --- |
 | Request and control | `cloud_native_authority`, storage CAS and accepted Runner request inspection | Local native constructor rechecks original inputs before lease CAS; reviewed paid dispatch remains closed |
 | Compute | Shared thirteen-resource creation policy, input/context/intent/ID records | Local native constructor and interruption qualification; actual image use/creation remains to be observed in the approved experiment |
-| SSH/IAP | Fixed identity probe, retained VM IDs, pinned host key and Runner credential | Local probe constructor; next connect volume setup, package delivery and persistent owned services |
+| SSH/IAP | Accepted fixed identity probe, retained VM IDs, pinned host key and Runner credential | Local native volume/package continuation; protected CI pending, persistent owned services next |
 | Workload | Accepted complete owned experiment and independent physical/history validators | Connect the three actual private guests and published controls; preserve frozen cells, parameters, time budgets and evidence limits |
 | Cleanup | Existing native retained-context reconciler and manual entry | Local fresh-process expiry replay after creation/IAP interruptions; next integrate immediate owned-run failure cleanup and retention |
 | Review | Original GitHub artifacts, independent state and provider observations | Retain stage outcomes and audit coverage without claiming missing events were observed; price retention/failure overhang and preserve all failed reservations |
@@ -248,7 +251,7 @@ performed. Those image-read checks subsequently passed protected CI and the actu
 observation recorded above. The ordinary resource implementation subsequently
 passed PR #288 protected CI; its offline fixtures do not establish Compute/IAP
 permissions. Request inspection subsequently passed PR #289 protected CI. The
-native resource/IAP candidate described above needs its own protected acceptance.
+native resource/IAP candidate described above subsequently passed PR #290 protected CI.
 
 For that candidate, Python 3.11 passed the complete focused storage gate, including
 both existing storage matrices and the ten new resource/IAP cases, at
@@ -258,5 +261,5 @@ both existing storage matrices and the ten new resource/IAP cases, at
 95-document contract, 721 changed-document local links, Python/shell syntax and
 whitespace checks passed. The retained index is
 `target/v51-native-resource-entry/validation-summary.json`. These remain local
-offline tests; corrected-source protected CI and actual Compute/IAP observations
-are still required at their respective acceptance stages.
+offline tests. Protected CI is recorded above; actual Compute/IAP observations
+are still required at their cloud acceptance stage.

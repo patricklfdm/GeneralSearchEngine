@@ -27,12 +27,18 @@ def _initial_host_key(api, row):
 
 
 def _network_probe(api, target, deadline):
+    return _network_exchange(api,target,COMMAND,b'',deadline,maximum=64)
+
+
+def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None):
     """Ephemeral private token/config; never inherit gcloud credential overrides."""
     m.need(not api.offline and api.clock() < deadline <= api.deadline, 'native IAP deadline/domain')
-    credential = api.tokens(min(30, deadline-api.clock()))
+    credential = (h.AccessToken(api.token,api.expires) if getattr(api,'token',None) is not None and
+                  api.expires > deadline else api.tokens(min(30, deadline-api.clock())))
     m.need(isinstance(credential, h.AccessToken) and credential.usable_until > deadline and
            isinstance(credential.value, str) and credential.value and
            all(33 <= ord(c) <= 126 for c in credential.value), 'IAP bound token lifetime/shape')
+    api.token, api.expires = credential.value, credential.usable_until
     with tempfile.TemporaryDirectory(prefix='gse-v51-iap-') as temporary:
         root = Path(temporary); token = root/'token'; config = root/'config'; config.mkdir(mode=0o700)
         with os.fdopen(os.open(token, os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW, 0o600), 'w') as stream:
@@ -43,8 +49,9 @@ def _network_probe(api, target, deadline):
         env.update(CLOUDSDK_CONFIG=str(config), CLOUDSDK_CORE_DISABLE_PROMPTS='1',
                    CLOUDSDK_CORE_DISABLE_USAGE_REPORTING='true')
         try:
-            return transport.process(transport.ssh_args(target, COMMAND, access_token_file=token),
-                                     b'', deadline, maximum=64, env=env)
+            options = {} if request_maximum is None else dict(request_maximum=request_maximum)
+            return transport.process(transport.ssh_args(target, remote, access_token_file=token),
+                                     data, deadline, maximum=maximum, env=env, **options)
         except Exception as error:
             # gcloud diagnostics can contain credential paths/headers. Preserve
             # failure class, not raw subprocess output, in ordinary evidence.

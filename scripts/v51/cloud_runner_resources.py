@@ -2,8 +2,9 @@
 
 Internal integration entry only: no CLI or workflow dispatch is installed.
 Success is PARTIAL and leaves a charged lease for the future owned workload or
-independent expiry cleanup. No engine, volume formatting or successful ledger
-completion is performed by this stage.
+independent expiry cleanup. The default entry stops after IAP; the separate fixed
+guest-preparation entry continues under this invocation's original deadline.
+Neither entry performs an engine workload or successful ledger completion.
 """
 from copy import deepcopy
 from pathlib import Path
@@ -43,7 +44,7 @@ class _Api(resources._Policy, h.Api):
         super().authorize(method, url, body)
 
 
-def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline):
+def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None):
     root = Path(root); root.mkdir(parents=True, exist_ok=False)
     start = clock(); deadline = start+admission.workload.load()['budgets']['preparationSeconds']
     api = None; inspected = None; phase = 'admission'
@@ -86,6 +87,11 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         receipt['guests'] = iap.probe(api, key, root/'iap', exchange=exchange)
         m.need(clock() <= deadline, 'Runner preparation late result')
         receipt.update(status='PARTIAL', stage='RESOURCES_AND_IAP_READY')
+        if guest_stage is not None:
+            phase = 'guest-setup'; receipt['status'] = 'FAIL'
+            receipt['guestSetup'] = guest_stage(api,key,root,receipt['guests'])
+            m.need(clock() < deadline, 'Runner guest setup original deadline')
+            receipt.update(status='PARTIAL',stage='GUEST_PACKAGES_READY')
     except (Exception, KeyboardInterrupt) as error:
         if api is not None: api.failed = True
         receipt['failure'] = dict(phase=phase, type=type(error).__name__)
@@ -118,6 +124,10 @@ def _recheck(cfg, env, source, checkout, preflight, precheck_root, value, approv
 
 def prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, approved, artifacts, key, output):
     """No transport/account/clock/probe override. No installed paid caller yet."""
+    return _prepare_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,key,output)
+
+
+def _prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, approved, artifacts, key, output, *, guest_stage=None):
     cfg, env, value, approved = map(deepcopy, (cfg, env, value, approved))
     def inspect():
         return admission.NetworkAdmission(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts)
@@ -125,7 +135,7 @@ def prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, 
         _recheck(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,inspected,
                  get=admission.ci.github, wall=time.time, binding=lambda:admission.build.binding(admission.ci.ROOT,source))
     return _run(output,value,key,inspect,recheck,clock=time.monotonic,wall=time.time,sleep=time.sleep,
-                exchange=iap._network_probe,offline=False)
+                exchange=iap._network_probe,offline=False,guest_stage=guest_stage)
 
 
 def prepare_offline(cfg, env, source, preflight, precheck_root, value, approved, artifacts, key, output, *,

@@ -13,9 +13,11 @@ PART_BYTES = 1 << 20
 
 
 def descriptor(value):
-    r.need(type(value) is dict and set(value) == {'schema', 'binding', 'instanceId', 'diskId', 'guestAccessSha256',
-           'archiveBytes', 'manifestSha256', 'buildManifestSha256', 'parts'}, 'package transfer fields')
-    r.need(value['schema'] == 'gse-v51-package-transfer-v1', 'package transfer schema')
+    native = value.get('schema') == 'gse-v51-native-package-transfer-v1' if type(value) is dict else False
+    fields = {'schema', 'binding', 'instanceId', 'diskId', 'guestAccessSha256',
+              'archiveBytes', 'manifestSha256', 'buildManifestSha256', 'parts'}
+    r.need(type(value) is dict and set(value) == fields | ({'nativeVolume'} if native else set()), 'package transfer fields')
+    r.need(native or value['schema'] == 'gse-v51-package-transfer-v1', 'package transfer schema')
     # Reuse the established binding/identity validators, without changing their
     # helper-payload bound. This descriptor is metadata, not a helper payload.
     identity(value)
@@ -45,6 +47,9 @@ def exists(path): return path.exists() or path.is_symlink()
 
 
 def envelope(value, state, completed=0, **fields):
+    if value['schema'] == 'gse-v51-native-package-transfer-v1':
+        return dict(schema='gse-v51-native-package-transfer-receipt-v1',requestSha256=r.sha(r.canonical(value)),
+                    state=state,completedParts=completed,execution='native-guest-package',fullRemoteQualification=False,**fields)
     return dict(schema='gse-v51-package-transfer-receipt-v1', requestSha256=r.sha(r.canonical(value)), state=state,
                 completedParts=completed, paidCloud=False, fullRemoteQualification=False, **fields)
 
@@ -267,6 +272,7 @@ def main():
     action, parent, encoded, token, *tail = sys.argv[1:]
     r.need(len(encoded) <= 131072 and len(token) <= 4096, 'package transfer envelope bound')
     value = descriptor(r.decode(base64.b64decode(encoded, validate=True)))
+    r.need(value['schema'] == 'gse-v51-package-transfer-v1', 'native package requires admitted receiver')
     if action == 'service':
         service(parent, value, token, tail); return
     if action == 'clock':

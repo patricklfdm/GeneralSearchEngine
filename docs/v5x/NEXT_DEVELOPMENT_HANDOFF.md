@@ -332,11 +332,15 @@ CI `37392515334` attempt 1 (36 jobs). The local
 [native resource/IAP candidate](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
 adds fresh original-input rechecks before lease CAS, thirteen once-only inserts,
 Runner-credential isolation, pinned-host/provider/guest identity probes and ten
-fresh-process interruption/expiry-cleanup cases. Its corrected-source CI remains
-pending; no paid allocation workflow is exposed. PARTIAL keeps the charged active
-lease, with no engine/full-qualification claim. Next connect volume setup, package
-delivery and existing complete owned services/workload, immediate failure cleanup
-and evidence retention. Preserve the offline/native domain boundary and original
+fresh-process interruption/expiry-cleanup cases. PR #290 accepted it at master
+`5cf4bf10efb2df7b084ffee7f297877c7a494dee`, CI `37400113526` attempt 2 (36 jobs);
+the rerun does not diagnose the original failure. The local
+[native guest preparation](v5.1/PHASE_6_NATIVE_GUEST_SETUP.md) adds one-shot root
+volume setup and unprivileged exact-package transfer, pending protected CI.
+No paid allocation workflow is exposed. PARTIAL keeps the charged active lease,
+with no engine/full-qualification claim. Next connect existing complete owned
+services/workload, immediate failure cleanup and evidence retention.
+Preserve the offline/native domain boundary and original
 600/5400/1080-second preparation/lease/grace limits.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
