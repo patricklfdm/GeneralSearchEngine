@@ -181,7 +181,7 @@ class NativePackageTest(unittest.TestCase):
 
 class NativeControllerTest(unittest.TestCase):
     def test_trusted_source_loads_in_isolated_process_without_repo_or_package_import(self):
-        for kind in ('volume','package'):
+        for kind in ('volume','package','session'):
             source=s.trusted_source(kind)
             # Source includes dependencies and a fixed entry. No args must fail
             # at entry parsing, not missing imports or a downloaded verifier.

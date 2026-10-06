@@ -56,11 +56,11 @@ def fixture(root, private, fault=None):
     return f
 
 
-def prepare(f, output):
+def prepare(f, output, *, on_failure=None):
     return r.prepare_offline(f['cfg'],f['env'],q.pq.SOURCE,f['preflight'],f['root'],f['value'],f['approved'],
         f['originals'],f['key'],output,transport=q.auth.Provider(f['http']),issuer=f['issuer'],descriptor=f['descriptor'],
         clock=f['clock'].seconds,wall=f['clock'].wall,sleep=f['clock'].sleep,get=lambda p:deepcopy(f['data'][p]),
-        binding=f['binding'],probe=f['probe'],controls=f['controls'])
+        binding=f['binding'],probe=f['probe'],controls=f['controls'],on_failure=on_failure)
 
 
 def qualify(output):

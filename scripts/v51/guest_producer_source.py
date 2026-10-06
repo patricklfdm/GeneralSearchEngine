@@ -19,12 +19,16 @@ class RemoteSource:
         self.clock,self.sleep=clock,sleep;self.root=None
 
     def prepare(self,configs,deadline,*,endpoint,output):
+        m.need(endpoint.offline is True,'native producer disabled')
+        return self._prepare(configs,deadline,endpoint=endpoint,output=output)
+
+    def _prepare(self,configs,deadline,*,endpoint,output):
         request=dict(schema=producer.SCHEMA,configs=configs);producer.validate(request)
-        m.need(self.root is None and endpoint.offline is True and endpoint.value['binding']==configs[0]['binding'] and
+        m.need(self.root is None and endpoint.offline is self.offline and endpoint.value['binding']==configs[0]['binding'] and
                endpoint.value['manifestSha256']==configs[0]['packageManifestSha256'],'producer controller binding/scope/consumed')
         self.root=Path(output);self.root.mkdir(mode=0o700);c.sync_directory(self.root.parent)
         c.write_once(self.root/'plan.json',request)
-        record=dict(status='FAIL',sourcePreparation=self.scope,paidCloud=False,calls=[],readFailures=0,exports=[])
+        record=dict(status='FAIL',sourcePreparation=self.scope,paidCloud=not self.offline,calls=[],readFailures=0,exports=[])
         def call(action,node=None,index=None):
             m.need(self.clock()<deadline and len(record['calls'])<MAX_CALLS,'producer original deadline/call bound')
             record['calls'].append(dict(action=action,node=node,index=index))

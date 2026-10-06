@@ -180,7 +180,7 @@ class CompleteCoordinatorTest(unittest.TestCase):
         from scripts.v51 import guest_fault_evidence
         with patch.object(evidence,'contract',return_value=self.req),patch.object(evidence.parts,'inventory'),patch.object(evidence.healthy,'validate') as h,patch.object(guest_fault_evidence,'replay_case') as f:
             h.return_value={'budgets':{k:0 for k in ('compressedBytes','expandedBytes','files','traceBytes')}}
-            def cell(raw,scratch,req,budgets):
+            def cell(raw,scratch,req,budgets,*,authority):
                 budgets['traceBytes']+=evidence.parts.LIMITS['traceBytes']//2
                 return {'status':'PASS'}
             f.side_effect=cell

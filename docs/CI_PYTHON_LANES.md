@@ -31,14 +31,14 @@ Other jobs stayed below fifteen minutes in these four runs.
 
 | Job ID | Work | Evidence |
 | --- | --- | --- |
-| `python-v51-core` | All V5.1 Python modules outside the cloud prefix, including guest and protocol tests | `python-v51-core-<sha>` |
-| `python-v51-admission` | Cloud Python modules other than the eight storage modules below | `python-v51-admission-<sha>` |
-| `python-v51-storage` | `test_cloud_fixture_driver`, `test_cloud_topology_fixture`, `test_cloud_runner_storage`, `test_cloud_runner_storage_entry`, `test_cloud_experiment_resources`, `test_cloud_runner_resources`, `test_cloud_runner_iap`, `test_cloud_runner_guest_setup` | `python-v51-storage-<sha>` |
+| `python-v51-core` | All V5.1 Python modules outside the cloud prefix/storage set, including guest and protocol tests | `python-v51-core-<sha>` |
+| `python-v51-admission` | Cloud Python modules other than the explicit storage modules below | `python-v51-admission-<sha>` |
+| `python-v51-storage` | `test_cloud_fixture_driver`, `test_cloud_topology_fixture`, `test_cloud_runner_storage`, `test_cloud_runner_storage_entry`, `test_cloud_experiment_resources`, `test_cloud_runner_resources`, `test_cloud_runner_iap`, `test_cloud_runner_guest_setup`, `test_cloud_runner_failure`, `test_cloud_runner_owned`, `test_guest_native_session` | `python-v51-storage-<sha>` |
 | `v51-foundation` | Existing Phase 1 executable foundation, Phase 2/3 and local performance gates; restore the exact shared build | Original six evidence artifacts and build receipt |
 | `cloud-runner-tests` | Remote command foundation, cloud control, shell checks and all historical V2/V4/V5 runner checks | Original remote foundation and cloud control artifacts |
 | `cloud-preflight-tests` | Preflight, recent manual, identity, permission, cleanup deployment/observation and Runner precheck tests; preflight/identity/permission/request-inspection qualification and generated deployment/Runner review | Original `v51-cloud-preflight-<sha>` |
 | `cloud-cleanup-fixture-tests` | Cleanup fixture, operator driver and topology tests; single-disk review, single-disk/driver/topology and ordinary experiment resource qualification | `v51-cloud-preflight-cleanup-<sha>` |
-| `cloud-storage-tests` | Runner storage, entry, resources, IAP and native guest setup tests; both nine-case storage qualifications and ten-case resource/IAP interruption qualification | `v51-cloud-preflight-storage-<sha>` |
+| `cloud-storage-tests` | Runner storage, entry, resources, IAP, native guest/session, failure recovery and owned experiment tests; both nine-case storage qualifications and ten-case resource/IAP interruption qualification | `v51-cloud-preflight-storage-<sha>` |
 | `cloud-provider-tests` | Original OpenSSH setup, complete provider gate, safe archive packaging and upload | Original `v51-cloud-provider-<sha>` |
 
 `ci_v51_python` partitions every `scripts/v51/test_*.py` module by name. New cloud

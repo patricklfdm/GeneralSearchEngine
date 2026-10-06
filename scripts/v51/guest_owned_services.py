@@ -19,9 +19,16 @@ SOURCE_FILES = {f'node-{n}-check-{phase}.json' for n in (1,2,3) for phase in ('t
 
 class Services:
     offline = True
+    authority = a
+    service_execution = guest.EXECUTION
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
                  qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
+        self._initialize(provider,archive,endpoint_factory,mode=mode,qualification_mounts=qualification_mounts,
+            qualification_hosts=qualification_hosts,clock=clock,sleep=sleep,bootstrap=bootstrap,deliver=deliver,fault_cell=fault_cell)
+
+    def _initialize(self, provider, archive, endpoint_factory, *, mode=package.MODES[2], qualification_mounts=None,
+                    qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         m.need(fault_cell is None or fault_cell in ('leader-loss','maintenance','no-quorum') and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
         self.fault_cell=fault_cell
@@ -32,19 +39,22 @@ class Services:
         self.mapping = 'qualification-local-paths' if qualification_mounts is not None else 'guest-mount-paths'
         m.need(qualification_hosts is None or qualification_hosts==['127.0.0.2','127.0.0.3','127.0.0.4'], 'owned qualification host mapping')
         self.hosts=deepcopy(qualification_hosts)
-        m.need(bootstrap is None or bootstrap.offline is True, 'live owned bootstrap disabled')
+        m.need(bootstrap is None or bootstrap.offline is self.offline, 'owned bootstrap domain')
         self.deliver=deliver
         self.bootstrap=bootstrap; self.clients = []; self.root = None
+
+    def descriptor(self, manifest, binding, provider, access_sha):
+        return delivery.describe(self.archive,manifest,binding,provider,access_sha)
 
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
         m.need(req == self.provider.req and len(facts) == len(targets) == len(startup) == 3 and
                [v['provider']['node'] for v in facts] == [1,2,3], 'owned service topology')
         m.need(self.root is None, 'owned service preparation consumed')
         self.root = Path(output); self.root.mkdir(mode=0o700); c.sync_directory(self.root.parent)
-        sha = a.validate_request(req)
+        sha = self.authority.validate_request(req)
         result = dict(schema='gse-v51-owned-services-v1', status='FAIL', requestSha256=sha,
-            execution=a.EXECUTION, paidCloud=False, engineWorkloadExecuted=False, fullRemoteQualification=False,
-            mountMapping=self.mapping, volumeObservations='offline-block-model', members=[])
+            execution=self.authority.EXECUTION, paidCloud=self.authority.PAID_CLOUD, engineWorkloadExecuted=False, fullRemoteQualification=False,
+            mountMapping=self.mapping, volumeObservations='offline-block-model' if self.offline else 'native-linux-observations', members=[])
         try:
             manifest = package.verify(self.archive.parent/'package', req['source'])
             m.need(req['guestAccessSha256'] == m.sha(m.canonical(self.provider.guest_access)), 'owned service access binding')
@@ -54,15 +64,15 @@ class Services:
             for node in nodes:
                 item,target=facts[node-1],targets[node-1]
                 node = item['provider']['node']; binding = c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node))
-                desc = delivery.describe(self.archive,manifest,binding,item['provider'],req['guestAccessSha256'])
+                desc = self.descriptor(manifest,binding,item['provider'],req['guestAccessSha256'])
                 m.need(target['instanceId'] == desc['instanceId'] and target['user'] == self.provider.guest_access['user'], 'owned service SSH target')
-                cfg = dict(schema='gse-v51-guest-service-v1', execution=guest.EXECUTION, binding=binding,
+                cfg = dict(schema='gse-v51-guest-service-v1', execution=self.service_execution, binding=binding,
                     packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+(self.fault_cell or self.mode), mode=self.mode,
                     hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
                 if self.fault_cell:cfg['faultCell']=self.fault_cell
                 guest.validate(cfg)
                 endpoint = self.factory(target,self.mounts[node],desc)
-                m.need(endpoint.offline is True and endpoint.value == desc and endpoint.target == target and
+                m.need(endpoint.offline is self.offline and endpoint.value == desc and endpoint.target == target and
                        endpoint.parent == self.mounts[node], 'owned service endpoint binding/scope')
                 configs.append(cfg); descriptors.append(desc); endpoints.append(endpoint)
             c.write_once(self.root/'plan.json',dict(requestSha256=sha,mountMapping=self.mapping,
@@ -72,7 +82,7 @@ class Services:
                 m.need(self.clock() < deadline, 'owned service original deadline')
                 recheck(index+1)
                 observed = readiness(index+1)
-                m.need(observed['schema'] == 'gse-v51-volume-readiness-v1' and observed['provider'] == facts[index]['provider'] and
+                m.need(observed['schema'] == ('gse-v51-volume-readiness-v1' if self.offline else 'gse-v51-native-volume-readiness-v1') and observed['provider'] == facts[index]['provider'] and
                        observed['volume'] == startup[index]['volume'] and
                        observed['startupSha256'] == m.sha(m.canonical(startup[index])), 'owned service mounted readiness')
                 recheck(index+1); m.need(self.clock() < deadline, 'owned service original deadline')
@@ -145,7 +155,7 @@ class Services:
                     self.sleep(min(.05,max(0,end-self.clock())))
             except (Exception,KeyboardInterrupt) as error:
                 row['failure']=dict(type=type(error).__name__,message=str(error)[:2000]); errors.append(row['failure'])
-        result=dict(status='FAIL' if errors else 'PASS',members=rows,errors=errors,paidCloud=False)
+        result=dict(status='FAIL' if errors else 'PASS',members=rows,errors=errors,paidCloud=self.authority.PAID_CLOUD)
         c.write_once(path,result,maximum=262144)
         m.need(not errors,'owned service stop failed'); return result
 

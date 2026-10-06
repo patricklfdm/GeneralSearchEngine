@@ -19,10 +19,14 @@ SCOPES={package.MODES[0]:LOCAL_SCOPE,package.MODES[1]:CONFIGURED_SCOPE,package.M
 
 class Probe:
     execution=a.EXECUTION
+    authority=a
     scope=SCOPE
     def __init__(self, services, output, *, physical=False, backup=False, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline is True and services.mode in SCOPES and services.bootstrap is not None,
                'owned workload requires offline mode/bootstrap')
+        self._initialize(services,output,physical=physical,backup=backup,clock=clock,sleep=sleep)
+
+    def _initialize(self, services, output, *, physical=False, backup=False, clock=time.monotonic, sleep=time.sleep):
         self.mode=services.mode;self.scope=SCOPES[self.mode]
         self.nodes=package.experiment_nodes(self.mode)
         m.need(type(physical) is bool and (not physical or self.mode in package.MODES[1:]),'owned physical scope');self.require_physical=physical
@@ -32,7 +36,7 @@ class Probe:
         self.clients=[];self.started=[];self.transcripts={};self.active=None;self.cells=[]
         self.attempted=False;self.engineWorkloadExecuted=False;self.stopped=False;self.prepared=False
         self.command_count=0;self.stop_attempted=set();self.stop_errors=[]
-        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=self.authority.validate_request(services.provider.req))))
 
     def execute(self, member, name, payload, deadline):
         node,client,cfg=member
@@ -60,7 +64,7 @@ class Probe:
     def prepare(self, req, deadline):
         m.need(not self.prepared and req==self.services.provider.req and req['member']=='experiment', 'owned workload request/scope')
         complete=c.read(self.services.root/'receipt.json')
-        m.need(complete['status']=='PASS' and complete['requestSha256']==a.validate_request(req) and
+        m.need(complete['status']=='PASS' and complete['requestSha256']==self.authority.validate_request(req) and
                complete['bootstrap']['status']=='PASS' and complete['bootstrap']['publicBootstrapVerified'] is True,
                'owned workload before admitted services/bootstrap')
         self.clients=list(self.services.clients)
@@ -174,7 +178,7 @@ class Probe:
         m.need(self.clock()<end,'owned validation deadline')
         valid=(self.cells==['healthy'] and [n for n,_,_ in self.started]==list(self.nodes) and
                len(members)==len(self.nodes) and sum(v['calls'] for v in members)==90 and not errors)
-        result=dict(status='PASS' if valid else 'FAIL',execution=a.EXECUTION,scope=self.scope,mode=self.mode,paidCloud=False,
+        result=dict(status='PASS' if valid else 'FAIL',execution=self.execution,scope=self.scope,mode=self.mode,paidCloud=self.authority.PAID_CLOUD,
             engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,
             backupRestoreQualified=physical is not None and physical.get('backupRestoreQualified',False),
             cells=list(self.cells),members=members,errors=errors)

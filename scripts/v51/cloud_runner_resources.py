@@ -2,7 +2,8 @@
 
 Internal integration entry only: no CLI or workflow dispatch is installed.
 Success is PARTIAL and leaves a charged lease for the future owned workload or
-independent expiry cleanup. The default entry stops after IAP; the separate fixed
+independent expiry cleanup. Native failure enters immediate owner recovery.
+The default entry stops after IAP; the separate fixed
 guest-preparation entry continues under this invocation's original deadline.
 Neither entry performs an engine workload or successful ledger completion.
 """
@@ -26,6 +27,10 @@ class _Api(resources._Policy, h.Api):
         self.initialize(inspected.result['resourcePlan'], now)
         self.deadline = min(self.deadline, deadline)
         self.gate_open = False
+        self.owner_deadline = self.clock()+admission.workload.load()['budgets']['leaseSeconds']
+        self.last_lease_write = None
+        self.failure_claimed = False
+        self.owner_claimed = False
 
     def marker_value(self):
         return dict(super().marker_value(), execution='offline-runner-resources' if self.offline else 'native-runner-resources',
@@ -33,7 +38,7 @@ class _Api(resources._Policy, h.Api):
 
     def authorize(self, method, url, body):
         # Enforced even for a direct call through h.Api.call.
-        m.need(self.clock() < self.deadline and not self.failed, 'Runner resource original deadline/failed stage')
+        m.need(self.clock() < self.deadline and not self.failed and not self.owner_claimed, 'Runner resource original deadline/failed stage')
         if method != 'GET': m.need(self.gate_open, 'Runner mutation admission gate closed')
         if method == 'GET' and self.state == 'done':
             parsed = urlsplit(url); pairs = parse_qsl(parsed.query, strict_parsing=True) if parsed.query else []
@@ -42,9 +47,12 @@ class _Api(resources._Policy, h.Api):
                 m.need(body is None and pairs == [('queryPath','hostkeys/')], 'Runner host-key read scope')
                 return
         super().authorize(method, url, body)
+        if method == 'POST' and self.state in ('lease', 'intent', 'identity'):
+            # Before transport: a lost CAS response is still our original write.
+            self.last_lease_write = deepcopy(self.write_step())
 
 
-def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None):
+def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None, on_failure=None):
     root = Path(root); root.mkdir(parents=True, exist_ok=False)
     start = clock(); deadline = start+admission.workload.load()['budgets']['preparationSeconds']
     api = None; inspected = None; phase = 'admission'
@@ -97,17 +105,26 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         receipt['failure'] = dict(phase=phase, type=type(error).__name__)
         if isinstance(error, h.ApiError): receipt['failure']['httpStatus'] = error.status
     finally:
-        if inspected is not None: write_once(root/'admission-http.json', inspected.api.requests)
-        if api is not None:
-            write_once(root/'http.json', api.requests)
-            # A local snapshot is diagnostic; only retained CAS bytes authorize cleanup.
-            write_once(root/'lease-observation.json', dict(generation=api.generation, lease=api.lease))
-            known = sum(row['id'] is not None for row in api.lease['resources'])
-            unresolved = sum(row['attempted'] and row['id'] is None for row in api.lease['resources'])
-            receipt.update(confirmedResourceCount=known, unresolvedIntentCount=unresolved,
-                           resourcesCreated=True if known else None if unresolved else False)
-        receipt['elapsedSeconds'] = max(0, clock()-start)
-        write_once(root/'receipt.json', receipt)
+        try:
+            if inspected is not None: write_once(root/'admission-http.json', inspected.api.requests)
+            if api is not None:
+                write_once(root/'http.json', api.requests)
+                # A local snapshot is diagnostic; only retained CAS bytes authorize cleanup.
+                write_once(root/'lease-observation.json', dict(generation=api.generation, lease=api.lease))
+                known = sum(row['id'] is not None for row in api.lease['resources'])
+                unresolved = sum(row['attempted'] and row['id'] is None for row in api.lease['resources'])
+                receipt.update(confirmedResourceCount=known, unresolvedIntentCount=unresolved,
+                               resourcesCreated=True if known else None if unresolved else False)
+            receipt['elapsedSeconds'] = max(0, clock()-start)
+            write_once(root/'receipt.json', receipt)
+        except (Exception, KeyboardInterrupt) as error:
+            if on_failure is None: raise
+            if api is not None: api.failed = True
+            receipt['status'] = 'FAIL'
+            receipt.setdefault('failure', dict(phase='local-evidence', type=type(error).__name__))
+    if receipt['status'] == 'FAIL' and api is not None and api.gate_open and on_failure is not None:
+        recovery = on_failure(api, root, receipt)
+        if recovery is not None: receipt = dict(receipt, ownerRecovery=recovery)
     return receipt
 
 
@@ -127,7 +144,8 @@ def prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, 
     return _prepare_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,key,output)
 
 
-def _prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, approved, artifacts, key, output, *, guest_stage=None):
+def _prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, approved, artifacts, key, output, *, guest_stage=None, on_failure=None):
+    from .cloud_runner_failure import recover
     cfg, env, value, approved = map(deepcopy, (cfg, env, value, approved))
     def inspect():
         return admission.NetworkAdmission(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts)
@@ -135,11 +153,11 @@ def _prepare_native(cfg, env, source, checkout, preflight, precheck_root, value,
         _recheck(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,inspected,
                  get=admission.ci.github, wall=time.time, binding=lambda:admission.build.binding(admission.ci.ROOT,source))
     return _run(output,value,key,inspect,recheck,clock=time.monotonic,wall=time.time,sleep=time.sleep,
-                exchange=iap._network_probe,offline=False,guest_stage=guest_stage)
+                exchange=iap._network_probe,offline=False,guest_stage=guest_stage,on_failure=on_failure or recover)
 
 
 def prepare_offline(cfg, env, source, preflight, precheck_root, value, approved, artifacts, key, output, *,
-                    transport, issuer, descriptor, clock, wall, sleep, get, binding, probe, controls=None):
+                    transport, issuer, descriptor, clock, wall, sleep, get, binding, probe, controls=None, on_failure=None):
     m.need(transport.offline is True and issuer.offline is True and probe.offline is True, 'Runner resource offline dependencies')
     def inspect():
         return admission.OfflineAdmission(cfg,env,source,preflight,precheck_root,value,approved,artifacts,binding,
@@ -148,4 +166,4 @@ def prepare_offline(cfg, env, source, preflight, precheck_root, value, approved,
         _recheck(cfg,env,source,source,preflight,precheck_root,value,approved,artifacts,inspected,
                  get=get,wall=wall,binding=lambda:binding,controls=controls)
     return _run(output,value,key,inspect,recheck,clock=clock,wall=wall,sleep=sleep,
-                exchange=lambda api,target,deadline:probe.identity(target,deadline),offline=True)
+                exchange=lambda api,target,deadline:probe.identity(target,deadline),offline=True,on_failure=on_failure)

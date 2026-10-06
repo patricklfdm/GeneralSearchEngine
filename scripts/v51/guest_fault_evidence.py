@@ -112,7 +112,7 @@ def member(root, cfg, manifest, base, transcript, traces):
     return rows,processes,exchanges
 
 
-def replay_case(raw, scratch, req, budgets):
+def replay_case(raw, scratch, req, budgets, *, authority=a):
     record=c.read(raw/'receipt.json');history=c.read(raw/'history.json');case=record['case'];source=c.read(raw/'plan.json')
     m.need(case in CASES and source['request']==req and source['case']==case and source['scope']=='owned-experiment-leader-loss-no-quorum' and
            record['status']=='EXECUTED' and record['seconds']==(240 if case=='maintenance' else 120) and not record['cleanupErrors'] and
@@ -121,7 +121,7 @@ def replay_case(raw, scratch, req, budgets):
     manifest_raw=(raw/'package-manifest.json').read_bytes();manifest=m.strict_json(manifest_raw)
     package_binding(manifest,req)
     joint=scratch/'joint';joint.mkdir(parents=True);traces={};configs={};indexes={};processes={};rows={};observations={};collections={};allcalls={};bases={}
-    group=str(uuid.uuid5(uuid.NAMESPACE_URL,a.validate_request(req)+':'+case))
+    group=str(uuid.uuid5(uuid.NAMESPACE_URL,authority.validate_request(req)+':'+case))
     for cfg in source['configs']:
         guest.validate(cfg);node=cfg['binding']['node'];configs[node]=cfg
         m.need(cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],node) and cfg['packageManifestSha256']==m.sha(manifest_raw) and

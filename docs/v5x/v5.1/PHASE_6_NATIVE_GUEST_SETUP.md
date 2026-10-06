@@ -1,6 +1,10 @@
 # V5.1 native guest volume and package preparation
 
-**Status:** local implementation candidate; protected CI pending. The preceding
+**Status:** accepted through PR #291 at master
+`70b452348832d6c2803870ae1b3ec74409e43ece`,
+[exact-master CI 37411762406](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37411762406)
+attempt 2, all 36 jobs successful. The rerun does not diagnose attempt 1.
+The preceding
 [resource/IAP entry](PHASE_6_RUNNER_RESOURCE_ENTRY.md) is accepted through PR #290,
 master `5cf4bf10efb2df7b084ffee7f297877c7a494dee`,
 [exact-master CI 37400113526](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37400113526)
@@ -83,11 +87,12 @@ remain unavailable through this receiver.
 startup, package, readiness and connection records are retained alongside the
 existing safe failure phase/type and resource-ID/intent diagnostics.
 
-This stage does not complete or refund the ledger. Active cleanup remains WAITING;
+Successful preparation does not complete or refund the ledger. Active manual/scheduled cleanup remains WAITING;
 eligible independent expiry cleanup removes only the retained identities and
-preserves failed charges. The following batch must integrate the existing owned
-services/workload, immediate failure cleanup and durable evidence retention before
-adding a paid workflow selection. Actual image/IAP/disk/package behavior still
+preserves failed charges. The [owner failure continuation](PHASE_6_OWNER_FAILURE_CLEANUP.md)
+now has a local immediate-cleanup and immutable-retention candidate. The same
+batch adds [native owned experiment integration](PHASE_6_NATIVE_OWNED_EXPERIMENT.md)
+through a separate fixed entry; protected CI and paid workflow review remain open. Actual image/IAP/disk/package behavior still
 needs an approved user-triggered cloud experiment. Phase 6 remains open.
 
 ## Validation scope
@@ -103,5 +108,5 @@ imports. These checks do not execute `sudo`, open host block devices or use GCP.
 
 The suite is included in Python storage and the existing focused storage gate;
 no new CI job or Maven build is added. Retained local logs and validation index
-are under `target/v51-native-guest-setup/`. Protected CI for this source remains
-required after submission.
+are under `target/v51-native-guest-setup/`. Its protected acceptance is recorded
+above; the subsequent owner-failure candidate requires its own protected CI.

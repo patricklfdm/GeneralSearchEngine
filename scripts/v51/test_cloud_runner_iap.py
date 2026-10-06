@@ -56,6 +56,14 @@ class RunnerIapTest(unittest.TestCase):
                 r._network_probe(self.api,self.target,160)
             run.assert_not_called()
 
+    def test_partial_source_bytes_survive_without_sensitive_diagnostics(self):
+        error=ConnectionError('Authorization: Bearer bound-secret');error.partial_output=b'original source prefix'
+        with patch.object(r.transport,'process',side_effect=error) as run:
+            with self.assertRaises(ConnectionError) as caught:
+                r._network_exchange(self.api,self.target,r.COMMAND,b'',160,maximum=1024,retain_partial=True)
+        self.assertEqual(b'original source prefix',caught.exception.partial_output)
+        self.assertNotIn('bound-secret',str(caught.exception));self.assertTrue(run.call_args.kwargs['retain_partial'])
+
     def test_offline_or_renewed_deadline_rejected_before_credentials(self):
         for offline,deadline in ((True,160),(False,100),(False,701)):
             self.api.offline=offline

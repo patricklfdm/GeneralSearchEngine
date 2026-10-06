@@ -34,11 +34,11 @@ def retain(store, key, value):
     return m.sha(value if isinstance(value, bytes) else m.canonical(value))
 
 
-def cleanup(provider, lease, persist, *, authority=a):
+def cleanup(provider, lease, persist, *, authority=a, redact=False):
     """One shared cleanup path for finally, schedule and manual reconciliation."""
     authority.validate_lease(lease)
     from . import cloud_native_authority as native
-    redact = getattr(provider, 'execution', None) == native.CLEANUP_EXECUTION
+    redact = redact or getattr(provider, 'execution', None) == native.CLEANUP_EXECUTION
     errors, checks = [], []
     rows = sorted(lease['resources'], key=lambda r: {'instance': 0, 'disk': 1, 'firewall': 2}[r['spec']['kind']])
     resolved = {}
