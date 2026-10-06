@@ -1,4 +1,4 @@
-"""Fixed internal native experiment lifecycle. No paid workflow/CLI is enabled.
+"""Fixed native experiment lifecycle, selected only by the exact approved entry.
 
 A live entry always repeats fresh admission; copied receipts and fake adapters
 cannot enter it. Shared cleanup still needs the original retained CAS authority.

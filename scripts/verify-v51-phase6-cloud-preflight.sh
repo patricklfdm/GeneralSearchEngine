@@ -13,7 +13,7 @@ mkdir -p target/v51-cloud-preflight
 work_dir=$(mktemp -d "$root/target/v51-cloud-preflight/run.XXXXXX")
 echo "v51CloudPreflightEvidence=$work_dir lane=$lane"
 if [[ "$lane" == all || "$lane" == admission ]]; then
-  python3 -m unittest scripts.v51.test_cloud_preflight scripts.v51.test_cloud_recent_cleanup scripts.v51.test_cloud_identity_setup scripts.v51.test_cloud_cleanup_deployment scripts.v51.test_cloud_cleanup_observation scripts.v51.test_cloud_permissions scripts.v51.test_cloud_credential_diagnostics scripts.v51.test_cloud_runner_precheck scripts.v51.test_cloud_runner_artifacts scripts.v51.test_cloud_runner_admission
+  python3 -m unittest scripts.v51.test_cloud_preflight scripts.v51.test_cloud_recent_cleanup scripts.v51.test_cloud_identity_setup scripts.v51.test_cloud_cleanup_deployment scripts.v51.test_cloud_cleanup_observation scripts.v51.test_cloud_permissions scripts.v51.test_cloud_credential_diagnostics scripts.v51.test_cloud_runner_precheck scripts.v51.test_cloud_runner_artifacts scripts.v51.test_cloud_runner_admission scripts.v51.test_cloud_runner_prepared scripts.v51.test_cloud_runner_entry
   timeout --signal=TERM --kill-after=5s 180s python3 -m scripts.v51.cloud_runner_admission_qualification "$work_dir/runner-admission"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_preflight_qualification "$work_dir/evidence"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_identity_qualification "$work_dir/identities"

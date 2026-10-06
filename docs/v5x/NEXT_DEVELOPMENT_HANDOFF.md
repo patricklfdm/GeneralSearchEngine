@@ -341,13 +341,19 @@ volume setup and unprivileged exact-package transfer. PR #291 accepted it at mas
 That successful rerun does not establish attempt 1's cause. The local
 [owner failure continuation](v5.1/PHASE_6_OWNER_FAILURE_CLEANUP.md) now connects
 immediate exact-ID cleanup, immutable original diagnostics and append-only FAIL
-completion under the original lease, pending protected CI.
+completion under the original lease.
 The same batch adds the [native owned experiment integration](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md):
 original-lease service sessions, shared source/bootstrap, all four experiment cells,
 independent physical/history validation, immutable retention and exact-ID cleanup.
-No paid allocation workflow is exposed. Standalone preparation remains PARTIAL.
-Next verify corrected-source protected CI, then review the inactive workflow
-selection and original artifact/approval handoff before a user-triggered cloud run.
+PR #292 accepted both at master `20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`,
+exact-master CI `37424341468` attempt 1 (all 36 jobs).
+The [manual entry candidate](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) adds explicit
+prepare/run workflow selections, public original-artifact handoff, exact plan
+confirmation, private environment-key handling and detailed result summaries.
+Default dispatch stays read-only. Next verify this entry's protected CI, then
+separately configure the SSH secret, prepare/review a fresh plan and obtain exact
+approval before the operator triggers a cloud experiment. No cloud run is
+performed by implementing this entry. Standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary and original
 600/5400/1080-second preparation/lease/grace limits.
 The resource plan maps reuse, remaining implementation and exact-request approval;

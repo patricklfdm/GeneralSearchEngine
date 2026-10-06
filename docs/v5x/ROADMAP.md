@@ -274,12 +274,14 @@ accepted it (36 jobs). [Native guest preparation](v5.1/PHASE_6_NATIVE_GUEST_SETU
 connects one-shot volume setup and exact-package transfer; PR #291 / CI
 `37411762406` attempt 2 accepted it (36 jobs). The local
 [owner failure candidate](v5.1/PHASE_6_OWNER_FAILURE_CLEANUP.md) adds immediate
-exact-ID cleanup and immutable failure retention, pending protected CI.
+exact-ID cleanup and immutable failure retention.
 The same batch adds [native owned services/workload and evidence integration](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md),
-including original-lease sessions and the complete experiment. Corrected-source CI
-and the inactive paid workflow/approval review remain next.
-No paid workflow entry is exposed. Full 6C
-remains open; paid experiments require separate
+including original-lease sessions and the complete experiment. PR #292 / CI
+`37424341468` attempt 1 accepted both (36 jobs). The
+[manual entry candidate](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md) now supplies default-off
+prepare/run selections, public original-artifact handoff, exact plan approval and
+private environment-key handling. Its protected CI and separately authorized cloud
+execution remain next. Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

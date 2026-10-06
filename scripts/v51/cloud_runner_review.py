@@ -15,9 +15,9 @@ from .remote_command import read, write_once
 
 SCHEMA = 'gse-v51-runner-review-v1'
 OBSERVER_WORKFLOW_SHA256 = 'da5dc893a3044f32dc9a21d12e38ca89b4b58a30c7abf9dbe9ff46dd5f5cf59c'
-RUNNER_JOB_NAME = 'Runner permissions and optional storage qualification'
+RUNNER_JOB_NAME = 'Runner precheck and approved execution'
 ORIGINAL_HEADER = '# Observation-only stage. No prepared run, paid execution or cleanup is exposed.\nname: V5.1 Read-only Preflight\n'
-HEADER = '# Read-only by default. Storage probes require an exact approved preparation.\nname: V5.1 Preflight and Storage Qualification\n'
+HEADER = '# Read-only by default. Storage and experiment require separate exact confirmation.\nname: V5.1 Preflight and Experiment Runner\n'
 INPUT = '''    inputs:
       check_runner_permissions:
         description: 'Also check the separately enabled runner identity; no resource allocation'
@@ -34,14 +34,35 @@ INPUT = '''    inputs:
         type: string
         required: false
         default: ''
+      runner_experiment:
+        description: 'off is diagnostic-only; prepare allocates nothing; run requires a reviewed plan'
+        type: choice
+        options: ['off', prepare, run]
+        required: false
+        default: 'off'
+      runner_experiment_quote:
+        description: 'prepare only; JSON with prices, maximumCostMicrousd and sequence (32 hex)'
+        type: string
+        required: false
+        default: ''
+      runner_prepared_run:
+        description: 'run only; completed first-attempt preparation run ID on this exact master'
+        type: string
+        required: false
+        default: ''
+      runner_experiment_confirmation:
+        description: 'run only; exact plan SHA-256 approves its reservation and original 15-minute expiry'
+        type: string
+        required: false
+        default: ''
 '''
 JOB = r'''
   run:
-    name: Runner permissions and optional storage qualification
+    name: Runner precheck and approved execution
     needs: observations
-    if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' }}
+    if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' || inputs.runner_experiment != 'off' || inputs.runner_experiment_quote != '' || inputs.runner_prepared_run != '' || inputs.runner_experiment_confirmation != '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 120 || 15 }}
     environment: v51-cloud-benchmark
     permissions:
       contents: read
@@ -53,6 +74,10 @@ JOB = r'''
       RUNNER_PERMISSION_PRECHECK: ${{ inputs.check_runner_permissions }}
       RUNNER_STORAGE_REQUEST: ${{ inputs.runner_storage_request }}
       RUNNER_STORAGE_CONFIRMATION: ${{ inputs.runner_storage_confirmation }}
+      RUNNER_EXPERIMENT: ${{ inputs.runner_experiment }}
+      RUNNER_EXPERIMENT_QUOTE: ${{ inputs.runner_experiment_quote }}
+      RUNNER_PREPARED_RUN: ${{ inputs.runner_prepared_run }}
+      RUNNER_EXPERIMENT_CONFIRMATION: ${{ inputs.runner_experiment_confirmation }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -63,8 +88,17 @@ JOB = r'''
         with:
           python-version: '3.11'
 
-      - name: Validate selected Runner storage inputs before authentication
-        run: python -m scripts.v51.cloud_runner_storage_entry guard --source "$GITHUB_SHA"
+      - name: Validate Runner selections before authentication
+        run: |
+          python -m scripts.v51.cloud_runner_storage_entry guard --source "$GITHUB_SHA"
+          python -m scripts.v51.cloud_runner_entry guard --source "$GITHUB_SHA"
+
+      - name: Set up pinned Java for original experiment build binding
+        if: ${{ inputs.runner_experiment != 'off' }}
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
 
       - name: Download this attempt's observer evidence
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
@@ -86,6 +120,12 @@ JOB = r'''
           create_credentials_file: true
           export_environment_variables: true
           cleanup_credentials: true
+
+      - name: Install pinned Cloud CLI for native IAP
+        if: ${{ inputs.runner_experiment == 'run' }}
+        uses: google-github-actions/setup-gcloud@aa5489c8933f4cc7a4f7d45035b3b1440c9c10db # v3
+        with:
+          version: '582.0.0'
 
       - name: Check actual runner permissions without cloud mutations
         run: |
@@ -118,6 +158,48 @@ JOB = r'''
             echo 'Runner storage entry did not start; inspect the binding/precheck failure.' >> "$GITHUB_STEP_SUMMARY"
           fi
 
+      - name: Prepare exact V5.1 experiment for review (no allocation)
+        if: ${{ success() && inputs.runner_experiment == 'prepare' }}
+        env:
+          V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
+        run: |
+          timeout --signal=TERM --kill-after=10s 600s python -m scripts.v51.cloud_runner_entry prepare --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
+            --output target/v51-experiment
+
+      - name: Retain public experiment preparation
+        if: ${{ success() && inputs.runner_experiment == 'prepare' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-experiment-prepared-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-experiment/prepared
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Run exact approved native V5.1 experiment
+        if: ${{ success() && inputs.runner_experiment == 'run' }}
+        env:
+          V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
+        run: |
+          timeout --signal=TERM --kill-after=60s 6000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
+            --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
+            --output target/v51-experiment
+
+      - name: Report native experiment parameters and outcomes
+        if: ${{ always() && inputs.runner_experiment != 'off' }}
+        run: |
+          python -m scripts.v51.cloud_runner_entry summary --output target/v51-experiment \
+            --github-step-summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Retain native experiment evidence including failures
+        if: ${{ always() && inputs.runner_experiment != 'off' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-experiment-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/v51-experiment
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Retain runner precheck evidence including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -139,62 +221,58 @@ def workflow(raw=None):
 
 
 def text(source):
-    return f'''# Runner permission precheck review — NOT APPLIED
+    return f'''# V5.1 Runner workflow review — NOT EXECUTED
 
-Review source: `{source}`. Regenerate against the protected merge before approval.
-This package adds an optional diagnostic job at the existing runner workflow,
-environment and trust scope. Default observer-only dispatch remains available.
-Runner enablement was already separately completed after PR #283. For the current
-enabled deployment, use enabled-state readback and do not repeat enable commands.
-The disabled-to-enabled sequence below applies only to a separately reviewed
-future reactivation. Storage preparation/dispatch has its own exact confirmation.
+Review source: `{source}`. Regenerate after the protected merge before running.
+The existing runner identity is enabled. This change adds explicit prepare/run
+selections at the same workflow, master ref and environment; no IAM, WIF, role,
+cleanup identity or budget change is required. The default remains read-only.
+This generator neither dispatches a workflow nor applies the included commands.
 
-## Scope and sequence
+## Entry review
 
-1. Accept this source and exact workflow through protected CI. Run fresh manual
-   cleanup on that master; schedule qualification is optional.
-2. Collect `cloud_runner_review readback --state disabled` using operator reads.
-   All 33 explicit observations / 17 groups must match; manual stays enabled and
-   schedule may stay fully enabled or fully disabled. Missing ancestor IAM reads
-   remain unassessed, not a new organization-permission requirement.
-3. Review these exact runner-only commands and obtain separate enablement approval.
-   Execute provider, pool, then account once each, with independent readback after
-   every request. Stop and inspect ambiguity rather than replaying a mutation.
-   Do not change roles, grants, trust, environments, cleanup identities or budget.
-4. Collect `readback --state enabled`; compare with the original observations.
-   Only the three runner enable bits may change. A matching configuration is not
-   effective IAM qualification, actual workflow credentials or paid admission.
-5. The operator dispatches V5.1 Preflight and Storage Qualification on master with
-   `check_runner_permissions=true` and approves the existing environment gates.
-   Its observer job must finish first. The runner job checks the same run/attempt,
-   source, complete raw preflight and recent manual artifact before authentication.
-   If approval delays exceed evidence freshness, run a new complete dispatch;
-   do not rerun only a failed runner job using an earlier attempt's artifacts.
-6. Retain native credential/permission receipts. PRECHECK_PASS covers diagnostic
-   project/bucket permissions and the frozen image read only; image use, actual
-   object conditions, resources, IAP, native engine wiring, retention/prices and
-   paid-request approval remain open.
+- Review the entire installed workflow. Observer and runner jobs share WIF claims;
+  job ID and input checks are workflow controls, not separate IAM identities.
+- Preserve the original observer bytes, same-run raw evidence, manual cleanup,
+  current exact-source CI and Runner permission checks. Schedule is optional.
+- Storage remains separately selected and confirmed. It cannot run alongside
+  experiment preparation/execution. Its two USD 1 stages retain their own charges.
+- `runner_experiment=prepare` requires reviewed current prices, an explicit maximum
+  reservation, sequence and the environment SSH secret. It only reads and builds a
+  public plan from original CI artifacts. It makes no resource or ledger writes.
+- Review the resulting plan, original artifacts, topology, estimate, prior charges,
+  maximum reservation and 15-minute expiry. Preparation is not paid approval.
+- `runner_experiment=run` needs its preparation run ID and exact plan SHA-256, fresh
+  same-run observations and environment approval. Only this selection calls the
+  native owned experiment. The digest confirms the entire original plan, including
+  cost and expiry; it cannot change the plan or approve a different private key.
+- A changed source, CI artifact, retained ledger, expired plan, missing permission,
+  reused attempt, replaced secret or mixed selection blocks admission. Failed
+  charges remain recorded; no retry/resume or budget reset is provided.
 
-## Authority boundary and rollback
+## SSH secret and operations
 
-Enabling the runner permits its existing project-wide Compute and conditional
-storage/IAP roles to be assumed by the exact reviewed workflow/environment.
-Observer and runner jobs share those WIF claims; job ID/input selection is a
-workflow control, not an IAM separation. Review the entire protected workflow.
-The diagnostic mode offers only fixed permission queries. The separately selected
-storage mode requires an exact prepared plan and confirmation digest, performs
-conditional control/canary writes, and reserves USD 1. Operator preparation
-reserves a separate USD 1. Both use terminal FAIL records because no engine
-workload runs. No Compute/IAM operation or paid engine runner is exposed.
-See PHASE_6_RUNNER_STORAGE_ENTRY.md before preparing or selecting this mode.
+Use an unencrypted, empty-comment Ed25519 key in the protected environment secret
+`V51_EXPERIMENT_SSH_KEY`. Keep the same key through preparation and its execution.
+Only its public descriptor enters artifacts. The CLI removes the secret from its
+subprocess environment, writes it under RUNNER_TEMP outside artifact roots, and
+removes that temporary copy on exit. Do not upload a private key as a plan input.
+Secret setup/removal, dispatch and approvals are separate operator actions; this
+review does not perform them. Never rotate the key for an in-flight experiment.
 
-Rollback commands disable account, provider and pool, preserving manual cleanup
-and schedule state. Inspect each result and collect disabled-state readback;
-revocation propagation/in-flight credentials require independent observation.
-Never delete resources or reset retained charges as part of identity rollback.
-All commands in this directory are review data; this generator executes none.
+The full procedure and result boundaries are in PHASE_6_NATIVE_RUNNER_ENTRY.md.
+First accept this source with protected CI, then configure the secret, perform
+fresh manual cleanup, prepare and review the exact plan, and manually dispatch
+its run before expiry. Actual cloud execution remains unqualified until observed.
+
+## Identity rollback
+
+Runner enable/disable commands are retained for separately reviewed operations.
+Do not repeat enablement for the already enabled deployment. If rollback is
+required, disable only account/provider/pool in the prescribed order, observe each
+outcome, then collect readback. Preserve manual cleanup, retained leases, evidence
+and all charges. A request timeout is not permission to repeat a mutation.
 '''
-
 
 def payloads(cfg, source):
     a.digest(source, 40);p.configuration(cfg)

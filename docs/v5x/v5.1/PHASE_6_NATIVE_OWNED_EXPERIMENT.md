@@ -1,10 +1,13 @@
 # V5.1 native owned experiment integration
 
-**Status:** implementation candidate on PR #291's accepted source
-`70b452348832d6c2803870ae1b3ec74409e43ece`; corrected-source protected CI remains
-required. This batch includes [immediate preparation failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
-No paid workflow or CLI selects the new entry. No real GCP workload has been
-qualified by these local changes, and full Phase 6 remains open.
+**Status:** accepted through PR #292, master
+`20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`,
+[CI 37424341468](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37424341468)
+attempt 1 (36 successful jobs), together with
+[immediate preparation failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
+The subsequent [manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md) is a separate
+implementation candidate. No real GCP workload has yet been qualified, and full
+Phase 6 remains open.
 
 ## Fixed entry and reused workload
 
@@ -97,9 +100,9 @@ the reused workload implementation. New unit tests join the existing storage
 lanes; no CI job or paid entry is added.
 
 Local validation and the combined PR description are retained under
-`target/v51-native-owned-workload/`. After protected CI, review the inactive paid
+`target/v51-native-owned-workload/`. The [manual entry candidate](PHASE_6_NATIVE_RUNNER_ENTRY.md) supplies explicit
 workflow selection, original artifact/approval handoff, summary and operational
-prechecks before enabling a manually triggered experiment. Actual Compute/IAP,
+prechecks; its own protected CI and exact-request approval precede cloud execution. Actual Compute/IAP,
 guest privilege and end-to-end timing still need that separately approved run.
 Manual cleanup remains sufficient admission evidence; delayed schedule does not
 block this development step. Never resume a failed preparation or reset charges.

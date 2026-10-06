@@ -1,6 +1,6 @@
 """Internal native resource/IAP/volume/package chain, with one preparation deadline.
 
-No CLI or workflow invokes this yet. Successful preparation is PARTIAL with the
+Standalone preparation is internal; the owned entry composes it. Success is PARTIAL with the
 original active lease/reservation; it cannot stand in for a paid workload result.
 Native preparation failure uses the original owner's bounded cleanup/retention.
 """
