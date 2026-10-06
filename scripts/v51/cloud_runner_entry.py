@@ -19,6 +19,7 @@ from . import cloud_runner_owned as owned, cloud_runner_precheck as precheck
 from . import cloud_runner_storage_entry as storage, cloud_runner_review as workflow
 from . import cloud_preflight as p, cloud_ci as ci, cloud_authority as a
 from . import guest_setup, performance_model as m, remote_command as c
+from . import cloud_runner_diagnostics as diagnostics
 
 SCHEMA='gse-v51-runner-experiment-entry-v1'
 STEP='Run exact approved native V5.1 experiment'
@@ -48,7 +49,11 @@ FAILURES={
 def failure(phase,error):
     # Only exact source-controlled messages become public codes. Never copy
     # provider output, secret parser diagnostics or credential-bearing URLs.
-    return dict(phase=phase,type=type(error).__name__,code=FAILURES.get(str(error),'UNCLASSIFIED'))
+    result=diagnostics.failure(phase,error)
+    if result['code']=='UNCLASSIFIED':
+        code=FAILURES.get(diagnostics.message(error))
+        if code:result.update(code=code,detail='The Runner entry rejected the original request.')
+    return result
 
 
 def selection(env):
@@ -181,6 +186,8 @@ def summary(root):
     execution=root/'execution/receipt.json';run=receipt.get('result',c.read(execution) if execution.is_file() else {})
     plan_path=root/('prepared/plan.json' if receipt.get('mode')=='prepare' else 'handoff/prepared/plan.json')
     plan=c.read(plan_path) if plan_path.is_file() else {};stage=plan.get('resourcePlan',{});req=stage.get('request',{})
+    allocation=admission.timing.allocation()
+    reviewed=plan.get('timing')==allocation
     provider=plan.get('configuration',{}).get('provider',{});reserve=stage.get('reservation',{})
     recovery=run.get('preparation',{}).get('ownerRecovery',{})
     preparation=run.get('preparation',{})
@@ -196,7 +203,13 @@ def summary(root):
         ('Topology','3 voters; n2-standard-8; 450 GiB disks'),('Healthy modes','V4.4 local / V5.0 configured / V5.1 automatic'),
         ('Healthy calls',270),('Independent physical/history validation',run.get('evidence',{}).get('physicalHistoryQualified',False)),
         ('Independent backup/restore validation',run.get('evidence',{}).get('backupRestoreQualified',False)),
-        ('Request expires (UTC epoch)',plan.get('expiresAt','unavailable')),('Preparation / lease / grace (s)','600 / 5400 / 1080'),
+        ('Approval expires (UTC epoch)',plan.get('expiresAt','unavailable')),
+        ('Timing profile',plan.get('timing',{}).get('profile','unavailable')),
+        ('Approval / preparation / lease / grace (s)',
+         ' / '.join(str(v) for v in (allocation['approvalSeconds'],allocation['limitsSeconds']['preparation'],
+            allocation['leaseSeconds'],allocation['operationGraceSeconds'])) if reviewed else 'unavailable'),
+        ('Allocated / unallocated lease (s)',
+         str(allocation['allocatedSeconds'])+' / '+str(allocation['unallocatedSeconds']) if reviewed else 'unavailable'),
         ('Estimated cost (USD)',plan['estimatedCostMicrousd']/1_000_000 if plan else 'unavailable'),
         ('Reservation (USD)',usd('maximumCostMicrousd')),('Previous charges (USD)',usd('previousCostMicrousd')),
         ('Cumulative ceiling (USD)',a.MAXIMUM_BUDGET_MICROUSD/1_000_000),
@@ -204,12 +217,18 @@ def summary(root):
         ('Evidence retention',recovery.get('retention',run.get('retention','not established'))),('Cleanup',cleanup.get('status','not established')),
         ('Lease released',recovery.get('leaseReleased',run.get('leaseReleased',False))),('Full Phase 6 qualification',False),
         ('Failure phase',failure.get('phase','none')),('Failure code',failure.get('code','unavailable')),
+        ('Admission stage',failure['admissionStage'] if failure.get('admissionStage') in diagnostics.STAGES else 'not recorded'),
+        ('Failure detail',diagnostics.detail(failure.get('code')) if failure else 'none'),
+        ('Failure HTTP status',failure.get('httpStatus','not recorded')),
         ('Failure type',failure.get('type','none')),('Guest operation',failure.get('operation','unavailable')),
         ('Preparation elapsed (s)',preparation.get('elapsedSeconds','unavailable')),
         ('Owner failure recovery elapsed (s)',recovery.get('elapsedSeconds','not entered'))]
     def safe(v):return html.escape(str(v)).replace('|','&#124;').replace('\n',' ').replace('\r',' ')
     text='# V5.1 native experiment\n\n| Parameter | Value |\n| --- | --- |\n'
     text+=''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)
+    if preparation.get('timings'):
+        text+='\n## Preparation phases\n\n| Phase | Seconds |\n| --- | --- |\n'
+        text+=''.join('| '+safe(v['phase'])+' | '+str(round(v['elapsedSeconds'],3))+' |\n' for v in preparation['timings'])
     text+='\n## Cells\n\n| Cell | Result |\n| --- | --- |\n'
     for cell in owned.experiment.CELLS:
         passed=cell in run.get('evidence',{}).get('cells',[])
@@ -223,6 +242,7 @@ def summary(root):
     if run.get('errors'):
         text+='\n## Failures\n\n'+''.join('- '+safe(v.get('phase','unknown'))+': '+safe(v.get('type','failure'))+'\n' for v in run['errors'])
     text+='\nPreparation allocates nothing. Execution requires the exact plan digest and matching environment SSH secret. '
+    text+='The approval window gates the first lease mutation; admitted preparation keeps its original fixed deadline. '
     text+='Failed charges remain recorded. Use a new preparation after failure/expiry; job reruns cannot resume an experiment. '
     text+='A recent manual cleanup is sufficient; schedule is optional.\n'
     return text

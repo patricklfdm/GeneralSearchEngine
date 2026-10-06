@@ -30,7 +30,7 @@ def fixture(source='c'*40):
     return value, clock, http, reader, api
 
 
-def inject(name, clock, http):
+def inject(name, clock, http, *, preparation_seconds=600):
     send = http.send
     target = int(name.rsplit('-', 1)[1]) if name.startswith(('lost-insert-', 'lost-identity-')) else None
     def wrapped(method, url, *args):
@@ -41,7 +41,7 @@ def inject(name, clock, http):
             if name == 'pending-operation' and http.inserts == 11:
                 op = next(reversed(http.operations.values())); op.update(status='RUNNING'); op.pop('targetId')
                 raise ConnectionError('offline pending original operation')
-            if name == 'deadline' and http.inserts == 11: clock.sleep(601)
+            if name == 'deadline' and http.inserts == 11: clock.sleep(preparation_seconds+1)
             if name.startswith('lost-insert-') and http.inserts == target:
                 raise ConnectionError('offline original insert response lost')
         else:

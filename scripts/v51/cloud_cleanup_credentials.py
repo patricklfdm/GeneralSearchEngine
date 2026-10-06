@@ -43,6 +43,13 @@ DIAGNOSTICS = {
     'DESCRIPTOR_SOURCE_QUERY':'The credential source query does not match the runtime query and bound audience.',
     'DESCRIPTOR_SOURCE_AUTHORIZATION':'The credential source header does not match the runtime request token.',
     'DESCRIPTOR_SOURCE_FORMAT':'The credential source format does not match the pinned auth action.',
+    'OIDC_EXCHANGE_FAILED':'The bounded GitHub OIDC exchange failed.',
+    'STS_EXCHANGE_FAILED':'The bounded Google STS exchange failed.',
+    'IMPERSONATION_EXCHANGE_FAILED':'The bound service-account impersonation exchange failed.',
+    'OIDC_CLAIMS_REJECTED':'The OIDC claims do not match the admitted identity or token lifetime.',
+    'OIDC_RESPONSE_INVALID':'The OIDC response did not contain an acceptable subject token.',
+    'STS_RESPONSE_INVALID':'The STS response did not contain an acceptable federated token.',
+    'IMPERSONATION_RESPONSE_INVALID':'The impersonation response or access-token lifetime is invalid.',
 }
 
 
@@ -52,7 +59,8 @@ class CredentialError(ValueError):
         if type(reason_code) is not str or reason_code not in DIAGNOSTICS:
             raise ValueError('unknown credential diagnostic code')
         self.reason_code = reason_code
-        phase = 'file' if reason_code.startswith('CREDENTIAL_FILE_') else 'descriptor'
+        phase = 'file' if reason_code.startswith('CREDENTIAL_FILE_') else 'exchange' if reason_code.endswith(
+            ('EXCHANGE_FAILED','RESPONSE_INVALID','CLAIMS_REJECTED')) else 'descriptor'
         super().__init__('cleanup credential '+phase+' rejected: '+reason_code)
 
 
@@ -181,25 +189,31 @@ class _Exchange:
             return m.strict_json(raw)
         except Exception:
             # Never retain response text, subject tokens, Authorization or URL query.
-            raise ValueError('cleanup credential exchange failed: '+phase) from None
+            raise CredentialError({'oidc':'OIDC_EXCHANGE_FAILED','sts':'STS_EXCHANGE_FAILED',
+                'impersonation':'IMPERSONATION_EXCHANGE_FAILED'}[phase]) from None
 
     def __call__(self, timeout):
         m.need(type(timeout) in (int,float) and 0 < timeout <= 30, 'cleanup credential timeout')
         deadline = self.clock()+timeout
         source = self.value['credential_source']
+        rejected = 'OIDC_RESPONSE_INVALID'
         try:
             oidc = self.request('oidc', 'GET', source['url'], source['headers'], None, deadline)['value']
-            claims(oidc, self.binding, self.wall())
+            try:claims(oidc, self.binding, self.wall())
+            except ValueError:raise CredentialError('OIDC_CLAIMS_REJECTED') from None
             form = dict(audience=self.value['audience'], grant_type='urn:ietf:params:oauth:grant-type:token-exchange',
                         requested_token_type=ACCESS, subject_token_type=JWT, subject_token=oidc, scope=SCOPE)
+            rejected = 'STS_RESPONSE_INVALID'
             sts = self.request('sts', 'POST', STS, {'Content-Type':'application/x-www-form-urlencoded'},
                                urlencode(form).encode(), deadline)
             m.need(sts['token_type'] == 'Bearer' and sts['issued_token_type'] == ACCESS and
                    type(sts['expires_in']) is int and sts['expires_in'] > 0, 'cleanup STS response')
             # STS authenticates the OIDC signature; impersonation must then succeed
             # for this one account. A federated token is never sent to Compute/GCS.
+            federated = bearer(sts['access_token'])
+            rejected = 'IMPERSONATION_RESPONSE_INVALID'
             result = self.request('impersonation', 'POST', self.value['service_account_impersonation_url'],
-                {'Content-Type':'application/json', 'Authorization':'Bearer '+bearer(sts['access_token'])},
+                {'Content-Type':'application/json', 'Authorization':'Bearer '+federated},
                 m.canonical(dict(scope=[SCOPE], lifetime='3600s')), deadline)
             expires = result['expireTime']
             m.need(isinstance(expires,str) and expires.endswith('Z'), 'cleanup token expiry')
@@ -208,8 +222,9 @@ class _Exchange:
             token = http.AccessToken(bearer(result['accessToken']), self.clock()+remaining-60)
             self.exchanges += 1
             return token
+        except CredentialError:raise
         except Exception:
-            raise ValueError('cleanup credential exchange rejected') from None
+            raise CredentialError(rejected) from None
 
 
 class Credentials(_Exchange):

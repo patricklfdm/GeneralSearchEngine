@@ -355,12 +355,19 @@ CI `37434593823` attempt 1 (36 jobs). The secret was configured and unpaid prepa
 `37438942134` passed; approved run `37439476170` failed on host-key HTTP 404 before
 any workload, with incomplete immediate cleanup. The
 [bounded readiness/delete-wait correction](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
-is a local candidate. Next verify expired resource cleanup and corrected-source CI,
-then prepare/review a fresh exact plan before a separately approved operator run.
-The original failure and USD 27 cumulative reservation remain retained. Default
-dispatch stays read-only; standalone native preparation stays PARTIAL.
-Preserve the offline/native domain boundary and original
-600/5400/1080-second preparation/lease/grace limits.
+passed PR #294 and original resources were independently confirmed absent.
+PR #295 accepted preparation connection reuse at master
+`46e2d15cf2e5bf6fe468571101f4e8f753ddfe29`, CI `37524630590` (36 jobs).
+Its admitted run `37531128228` consumed 494 seconds before guest setup and
+exhausted the 600-second ceiling before any workload. Owner cleanup and independent
+readback confirmed all thirteen resources absent, no lease and USD 47 / 200 retained.
+The [preparation timing amendment](v5.1/PHASE_6_PREPARATION_BUDGET.md) is now a local
+candidate: 1800 seconds for this four-cell experiment, with the original
+900-second admission window, 5400-second lease and 1080-second grace. Full
+canonical/default allocation stays frozen. Next require corrected-source CI,
+then prepare/review a fresh exact plan before separately approved operator execution.
+Default dispatch stays read-only; standalone native preparation stays PARTIAL.
+Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
 historical receipts and original expiry; no need to wait for schedule.

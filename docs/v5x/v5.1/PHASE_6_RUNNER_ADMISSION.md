@@ -70,7 +70,8 @@ the old build; the native entry must still compute its own checkout binding.
 
 The plan binds the complete configuration, original artifact IDs/digests,
 source/build/package/workload, guest public-key identity, sequence/attempt,
-observed ledger generation/bytes and maximum reservation. It validates:
+observed ledger generation/bytes, maximum reservation and the exact
+[native experiment timing allocation](PHASE_6_PREPARATION_BUDGET.md). It validates:
 
 - Integer micro-USD pricing for three `n2-standard-8` VMs and 450 GiB of disks,
   covering at least 5400 + 1080 seconds; at least 30 days of evidence retention.
@@ -86,7 +87,9 @@ observed ledger generation/bytes and maximum reservation. It validates:
   `RUNNER_EXPERIMENT_CONFIRMATION`. Altering the plan invalidates the approval.
 
 The plan expires at the earlier of creation + 900 seconds and quote expiry.
-Neither a GitHub wait nor credential refresh renews that time.
+Neither a GitHub wait nor credential refresh renews that admission window.
+It gates the first lease CAS; already-admitted preparation uses its original
+1800-second clock within the existing 5400-second lease.
 
 `NetworkAdmission` checks exact master workflow/run/attempt identity, forbids a
 simultaneous storage selection, and replays the same-run observer and Runner
@@ -150,3 +153,32 @@ caller. A copied inspection receipt cannot enable it.
 Actual resource/IAP observations should come from the first separately approved
 experiment; no extra topology-only allocation or image-read rerun is required
 by this change. Manual cleanup is sufficient; schedule remains optional.
+
+## Safe admission failure diagnostics
+
+The native preparation receipt now retains a closed failure code, a fixed detail
+and the admission substage even if `NetworkAdmission` fails before returning its
+API object. Substages identify input/approval, same-run precheck, exact-source CI,
+checkout, credentials, artifact metadata/bytes, control reads and final freshness.
+The first-lease recheck preserves the original classified failure through the
+resource driver's rejection instead of replacing it with a generic stage error.
+
+Examples include `PLAN_CHANGED_OR_EXPIRED`, `APPROVAL_MISMATCH`,
+`EXACT_SOURCE_CI_NOT_GREEN`, `ARTIFACT_BYTES_MISMATCH`, `RETAINED_CONTROL_CHANGED`
+and `ADMISSION_DEADLINE`. Credential-file/descriptor failures reuse the existing
+closed credential inventory. OIDC, STS and service-account impersonation exchange
+failures now preserve separate codes; malformed responses and mismatched claims
+are distinguished as well. Provider errors retain only a bounded numeric HTTP
+status. GitHub read, transport, helper timeout and file-access failures have
+separate codes. Unclassified failures remain `UNCLASSIFIED` with the known substage.
+
+`cloud_runner_diagnostics.py` contains the code/message inventory. Only exact
+source-controlled validation messages are mapped. Receipts omit exception text,
+provider response bodies, URLs, tokens, private paths and helper command/output.
+Summary resolves explanations from the static inventory rather than copying a
+stored free-form detail. These diagnostics add no retries and change no admission,
+credential, mutation, lease or cleanup condition. New regression cases are part
+of the focused admission gate and the existing admission Python CI partition.
+
+Earlier generic failures cannot be retroactively assigned a cause. Fresh failures
+on the corrected source will retain the additional information.

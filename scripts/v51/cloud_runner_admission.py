@@ -16,6 +16,7 @@ from . import cloud_runner_precheck as precheck, cloud_runner_storage_entry as s
 from . import cloud_runner_review as workflow, cloud_cleanup_credentials as credentials
 from . import cloud_cleanup_entry as entry, cloud_preflight as p, cloud_ci as ci
 from . import cloud_workload_contract as workload, guest_setup, performance_model as m
+from . import cloud_runner_timing as timing, cloud_runner_diagnostics as diagnostics
 from .remote_command import read
 
 FLAGS = dict(paidAdmission=False, resourcesCreated=False, engineWorkloadExecuted=False, fullRemoteQualification=False)
@@ -62,8 +63,8 @@ def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost):
     inputs['pricesSha256'] = m.sha(m.canonical(quote))
     stage = resources.make(cfg['provider'], req, guest, baseline, inputs, now=now, maximum_cost=cost)
     return m.strict_json(m.canonical(dict(schema=SCHEMA, configuration=deepcopy(cfg), artifacts=deepcopy(proof),
-        prices=deepcopy(quote), estimatedCostMicrousd=estimate, resourcePlan=stage,
-        expiresAt=min(now+900, quote['expiresAt']), **FLAGS)))
+        prices=deepcopy(quote), estimatedCostMicrousd=estimate, resourcePlan=stage, timing=timing.allocation(),
+        expiresAt=min(now+timing.APPROVAL_SECONDS, quote['expiresAt']), **FLAGS)))
 
 
 def validate_plan(value, now):
@@ -90,20 +91,25 @@ def approval(value, approved, confirmation, now):
 
 
 def context(cfg, env, source, checkout, preflight, precheck_root, value, approved, *, get, now):
-    binding = precheck.identity(cfg, env, source, checkout)
-    m.need(not env.get('RUNNER_STORAGE_REQUEST') and not env.get('RUNNER_STORAGE_CONFIRMATION'), 'Runner mixed execution selections')
-    digest = approval(value, approved, env.get('RUNNER_EXPERIMENT_CONFIRMATION'), now)
-    m.need(value['configuration'] == cfg and value['artifacts']['source'] == source, 'Runner selected configuration/source')
-    jobs = precheck.collect_jobs(binding, get)
-    prerequisites = storage.check_inputs(cfg, env, binding, preflight, precheck_root, jobs, now=now)
+    with diagnostics.stage('identity'):
+        binding = precheck.identity(cfg, env, source, checkout)
+        m.need(not env.get('RUNNER_STORAGE_REQUEST') and not env.get('RUNNER_STORAGE_CONFIRMATION'), 'Runner mixed execution selections')
+    with diagnostics.stage('approval'):
+        digest = approval(value, approved, env.get('RUNNER_EXPERIMENT_CONFIRMATION'), now)
+        m.need(value['configuration'] == cfg and value['artifacts']['source'] == source, 'Runner selected configuration/source')
+    with diagnostics.stage('precheck'):
+        jobs = precheck.collect_jobs(binding, get)
+        prerequisites = storage.check_inputs(cfg, env, binding, preflight, precheck_root, jobs, now=now)
     # Replay the saved observations, then independently collect the current CI.
     # A user-controlled PASS summary or a now-superseded green run is insufficient.
-    github = ci.collect(source, get); ci.check(github, source, now, (ci.ROOT/ci.WORKFLOW).read_text())
-    m.need(github['configurationSha256'] == p.configuration(cfg), 'Runner current source configuration changed')
-    m.need((github['run']['id'], github['run']['run_attempt']) ==
-           (value['artifacts']['ciRun'], value['artifacts']['ciAttempt']), 'Runner current CI changed')
-    provider = read(Path(preflight)/'provider.json')['observations']; stage = value['resourcePlan']
-    m.need(provider['lease'] is None and m.canonical(provider['ledger']) == m.canonical(stage['baseline']), 'Runner observer ledger changed')
+    with diagnostics.stage('ci'):
+        github = ci.collect(source, get); ci.check(github, source, now, (ci.ROOT/ci.WORKFLOW).read_text())
+        m.need(github['configurationSha256'] == p.configuration(cfg), 'Runner current source configuration changed')
+        m.need((github['run']['id'], github['run']['run_attempt']) ==
+               (value['artifacts']['ciRun'], value['artifacts']['ciAttempt']), 'Runner current CI changed')
+    with diagnostics.stage('observer'):
+        provider = read(Path(preflight)/'provider.json')['observations']; stage = value['resourcePlan']
+        m.need(provider['lease'] is None and m.canonical(provider['ledger']) == m.canonical(stage['baseline']), 'Runner observer ledger changed')
     return dict(binding=binding, prerequisites=prerequisites, github=github, planSha256=digest)
 
 
@@ -126,26 +132,30 @@ class ControlReads(h.Api):
 
 
 def inspect(api, value, bound, artifact_root, checkout_binding, *, get, wall, offline_controls=None):
-    github = bound['github']; records = read(Path(artifact_root)/'artifacts.json')
-    for record in records.values(): m.need(get(f"actions/artifacts/{record['id']}") == record, 'Runner retained artifact metadata changed')
-    original_job = read(Path(artifact_root)/'build-job.json')
-    m.need(artifacts.collect_build_job(records['build'], github, get) == original_job, 'Runner original build job changed')
-    m.need(offline_controls is None or api.offline is True, 'Runner synthetic controls require offline admission')
-    proof = artifacts.verify(artifact_root, github, checkout_binding, controls=offline_controls)
-    m.need(proof == value['artifacts'], 'Runner prepared package/build changed')
+    with diagnostics.stage('artifact-metadata'):
+        github = bound['github']; records = read(Path(artifact_root)/'artifacts.json')
+        for record in records.values(): m.need(get(f"actions/artifacts/{record['id']}") == record, 'Runner retained artifact metadata changed')
+        original_job = read(Path(artifact_root)/'build-job.json')
+        m.need(artifacts.collect_build_job(records['build'], github, get) == original_job, 'Runner original build job changed')
+    with diagnostics.stage('artifact-bytes'):
+        m.need(offline_controls is None or api.offline is True, 'Runner synthetic controls require offline admission')
+        proof = artifacts.verify(artifact_root, github, checkout_binding, controls=offline_controls)
+        m.need(proof == value['artifacts'], 'Runner prepared package/build changed')
     # Credential exchange starts only after exact approval and original byte checks.
-    baseline = value['resourcePlan']['baseline']
-    for _ in range(2):
-        m.need(api.store.get(n.LEASE) is None and m.canonical(api.store.get(n.LEDGER)) == m.canonical(baseline),
-               'Runner current control state changed')
-    for record in records.values(): m.need(get(f"actions/artifacts/{record['id']}") == record, 'Runner artifact changed during inspection')
-    m.need(artifacts.collect_build_job(records['build'], github, get) == original_job, 'Runner build job changed during inspection')
-    entry.collect_run(bound['binding'], get)
-    current = ci.collect(proof['source'], get)
-    ci.check(current, proof['source'], int(wall()), (ci.ROOT/ci.WORKFLOW).read_text())
-    m.need(current == github, 'Runner CI/master moved during inspection')
-    now = int(wall()); validate_plan(value, now)
-    m.need(now < bound['prerequisites']['expiresAt'] and api.clock() <= api.deadline, 'Runner admission original deadline')
+    with diagnostics.stage('control-read'):
+        baseline = value['resourcePlan']['baseline']
+        for _ in range(2):
+            m.need(api.store.get(n.LEASE) is None and m.canonical(api.store.get(n.LEDGER)) == m.canonical(baseline),
+                   'Runner current control state changed')
+    with diagnostics.stage('final-freshness'):
+        for record in records.values(): m.need(get(f"actions/artifacts/{record['id']}") == record, 'Runner artifact changed during inspection')
+        m.need(artifacts.collect_build_job(records['build'], github, get) == original_job, 'Runner build job changed during inspection')
+        entry.collect_run(bound['binding'], get)
+        current = ci.collect(proof['source'], get)
+        ci.check(current, proof['source'], int(wall()), (ci.ROOT/ci.WORKFLOW).read_text())
+        m.need(current == github, 'Runner CI/master moved during inspection')
+        now = int(wall()); validate_plan(value, now)
+        m.need(now < bound['prerequisites']['expiresAt'] and api.clock() <= api.deadline, 'Runner admission original deadline')
     return dict(schema='gse-v51-runner-request-inspection-v1', status='REQUEST_BOUND',
         execution='offline-runner-request-inspection' if api.offline else 'native-runner-request-inspection',
         binding=bound['binding'], prerequisites=bound['prerequisites'], artifacts=proof,
@@ -156,10 +166,11 @@ def inspect(api, value, bound, artifact_root, checkout_binding, *, get, wall, of
 
 class NetworkAdmission:
     def __init__(self, cfg, env, source, checkout, preflight, precheck_root, value, approved, artifact_root):
-        workflow.workflow()
+        with diagnostics.stage('workflow'):workflow.workflow()
         bound = context(cfg, env, source, checkout, preflight, precheck_root, value, approved, get=ci.github, now=int(time.time()))
-        checkout_binding = build.binding(ci.ROOT, source)
-        tokens = credentials.NetworkCredentials(bound['binding'], env, entry.credential_file(env))
+        with diagnostics.stage('checkout'):checkout_binding = build.binding(ci.ROOT, source)
+        with diagnostics.stage('credentials'):
+            tokens = credentials.NetworkCredentials(bound['binding'], env, entry.credential_file(env))
         now = time.time(); expires = min(value['expiresAt'], bound['prerequisites']['expiresAt'])
         self.api = ControlReads(cfg['provider'], transport=h.Network(), tokens=tokens, clock=time.monotonic,
                                 expires=time.monotonic()+min(180, expires-now))
@@ -171,7 +182,8 @@ class OfflineAdmission:
                  *, transport, issuer, descriptor, clock, wall, get, controls=None):
         m.need(transport.offline is True and issuer.offline is True, 'Runner admission offline constructors')
         bound = context(cfg, env, source, source, preflight, precheck_root, value, approved, get=get, now=int(wall()))
-        tokens = credentials.Credentials(bound['binding'], env, descriptor, transport=issuer, clock=clock, wall=wall)
+        with diagnostics.stage('credentials'):
+            tokens = credentials.Credentials(bound['binding'], env, descriptor, transport=issuer, clock=clock, wall=wall)
         expires = min(value['expiresAt'], bound['prerequisites']['expiresAt'])
         self.api = ControlReads(cfg['provider'], transport=transport, tokens=tokens, clock=clock, expires=clock()+min(180, expires-wall()))
         self.result = inspect(self.api, value, bound, artifact_root, checkout_binding, get=get, wall=wall, offline_controls=controls)

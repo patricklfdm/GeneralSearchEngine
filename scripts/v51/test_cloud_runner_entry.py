@@ -213,6 +213,17 @@ class EntryTest(unittest.TestCase):
                       'Owner failure recovery elapsed (s) | 267','includes immediate owner recovery','Cleanup | PASS'):
             self.assertIn(value,text)
 
+    def test_summary_shows_reviewed_limits_and_separate_preparation_phases(self):
+        root=self.root/'summary';(root/'handoff/prepared').mkdir(parents=True)
+        c.write_once(root/'handoff/prepared/plan.json',self.f['value'])
+        c.write_once(root/'receipt.json',dict(mode='run',result=dict(preparation=dict(timings=[
+            dict(phase='resources',elapsedSeconds=494.186),dict(phase='guest-setup',elapsedSeconds=700)]))))
+        text=e.summary(root)
+        for value in ('900 / 1800 / 5400 / 1080','4920 / 480','owned-experiment-v1',
+                      'Preparation phases','resources | 494.186','guest-setup | 700',
+                      'approval window gates the first lease mutation'):
+            self.assertIn(value,text)
+
     def test_workflow_guards_default_inputs_identity_secret_and_order(self):
         raw=e.workflow.workflow().decode();job=e.workflow.JOB
         self.assertIn("default: 'off'",raw);self.assertIn("options: ['off', prepare, run]",raw)

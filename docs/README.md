@@ -96,6 +96,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 native preparation failure cleanup candidate](v5x/v5.1/PHASE_6_OWNER_FAILURE_CLEANUP.md)
 - [V5.1 native owned experiment integration](v5x/v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md)
 - [V5.1 manual native Runner entry and first-run correction](v5x/v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md)
+- [V5.1 native experiment preparation budget](v5x/v5.1/PHASE_6_PREPARATION_BUDGET.md)
 - [V5.1 ordinary experiment resource lifecycle and interrupted cleanup](v5x/v5.1/PHASE_6_EXPERIMENT_RESOURCES.md)
 - [V5.1 Runner build, quote and approval request inspection](v5x/v5.1/PHASE_6_RUNNER_ADMISSION.md)
 - [V5.1 single-disk cleanup qualification preparation](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE.md)

@@ -18,9 +18,11 @@ creation, pinned IAP identity, data-volume setup and original CI package transfe
 in one invocation. It has no injected transport, account, target, command, clock
 or backend argument. There is no CLI or workflow caller for this entry yet.
 
-The original 600-second preparation deadline covers the complete chain, including
-archive verification, credential exchange and all three guests. Plan/preflight
-expiry can shorten it. The 5400-second lease and 1080-second grace are unchanged.
+The [native experiment timing amendment](PHASE_6_PREPARATION_BUDGET.md) gives the
+complete chain one 1800-second preparation deadline, including archive verification,
+credential exchange and all three guests. Plan/preflight freshness still gates
+the first lease mutation. Admitted preparation does not expire with the approval
+window. The 5400-second lease and 1080-second grace are unchanged.
 Before and after each native connection, the controller verifies the retained
 lease generation/content, reserved ledger, provider numeric VM/disk identities,
 attachments and pinned host key. It uses the same admitted Runner credential;

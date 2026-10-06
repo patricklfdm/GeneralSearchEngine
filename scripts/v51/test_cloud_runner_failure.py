@@ -27,7 +27,8 @@ class RunnerFailureTest(unittest.TestCase):
 
     def run_failure(self, fault='iap-denied', before=None):
         self.input['probe'].fault = fault
-        original = q.resources.inject(fault, self.input['clock'], self.input['http'])
+        original = q.resources.inject(fault, self.input['clock'], self.input['http'],
+            preparation_seconds=q.r.timing.PREPARATION_SECONDS)
         def recover(api, root, receipt):
             self.api = api
             # The lost response is a one-time injection. It must not turn a

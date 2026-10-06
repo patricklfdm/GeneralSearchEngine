@@ -82,9 +82,11 @@ completion, a terminal ledger state and resource absence; unresolved uploads or
 cleanup keep the lease. Partial preparation uses its separate immediate failure
 continuation and cannot produce a successful workload completion.
 
-The USD 200 cumulative ceiling, preparation 600 seconds, lease 5400 seconds,
-operation grace 1080 seconds, validation/retention 600 seconds and cleanup 600
-seconds are unchanged. Final completion calls use the remaining existing control
+The [native experiment timing amendment](PHASE_6_PREPARATION_BUDGET.md) sets
+preparation to 1800 seconds and binds the same allocation in the approved plan
+and owner controller. The USD 200 cumulative ceiling, lease 5400 seconds, operation
+grace 1080 seconds, validation/retention 600 seconds and cleanup 600 seconds
+are unchanged. Final completion calls use the remaining existing control
 allowance. The retained completion labels its timing as `budgetBeforeCompletion`;
 the local final receipt also accounts for the completion calls in `budget`.
 

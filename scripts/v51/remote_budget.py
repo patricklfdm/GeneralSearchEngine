@@ -5,13 +5,17 @@ from . import cloud_workload_contract as contract, performance_model as m
 
 
 class Budget:
-    def __init__(self, *, clock=time.monotonic_ns, emit=lambda row: None):
+    def __init__(self, *, clock=time.monotonic_ns, emit=lambda row: None, profile=None):
         plan = contract.load()
         self.limits = {cell['name']: cell['seconds'] * 10**9 for cell in plan['cells']}
         self.limits.update({name: plan['budgets'][key] * 10**9 for name, key in (
             ('preparation', 'preparationSeconds'), ('control', 'controlOverheadSeconds'),
             ('validation-retention', 'validationRetentionSeconds'), ('cleanup', 'cleanupSeconds'))})
         self.lease = plan['budgets']['leaseSeconds'] * 10**9
+        if profile is not None:
+            from . import cloud_runner_timing as timing
+            m.need(profile == timing.PROFILE, 'unreviewed budget profile')
+            self.limits = {name: seconds * 10**9 for name, seconds in timing.allocation()['limitsSeconds'].items()}
         self.clock, self.emit = clock, emit
         self.start = self.cursor = clock()
         self.spent = {name: 0 for name in self.limits}
