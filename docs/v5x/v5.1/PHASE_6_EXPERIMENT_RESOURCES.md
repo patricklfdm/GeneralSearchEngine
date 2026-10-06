@@ -121,9 +121,11 @@ original build/package/prices, fresh preflight, exact approval and renewable
 credentials in a read-only entry (PR #289 / CI `37392515334`, attempt 1, 36 jobs).
 The [native resource/IAP candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
 connects fresh admission to this shared driver and fixed guest identity probes;
-its own protected qualification remains pending. Next connect guest volumes,
-package delivery and the complete owned experiment, including independent evidence
-gates and immediate cleanup/retention. This ordinary preparer remains offline-only;
+PR #290 / CI `37400113526` attempt 2 accepted it (36 jobs). The local
+[native guest setup](PHASE_6_NATIVE_GUEST_SETUP.md) now connects volumes and exact
+package delivery, pending its own protected CI. Next connect the complete owned
+experiment, independent evidence gates and immediate cleanup/retention.
+This ordinary preparer remains offline-only;
 the internal native entry has no installed CLI/workflow caller. A successful
 resource stage keeps its active lease rather than marking a whole experiment PASS.
 

@@ -8,7 +8,7 @@ import signal
 import subprocess
 import sys
 import time
-from . import cloud_guest as guest, performance_model as m, remote_command as c
+from . import performance_model as m, remote_command as c
 
 
 def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES, retain_partial=False, env=None):
@@ -61,7 +61,9 @@ def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c
 class Local:
     """Actual packaged CLI over a fresh process connection for each control envelope."""
     offline = True
-    def __init__(self, base, config): self.base, self.config = Path(base), config; self.root = guest.validate(config)
+    def __init__(self, base, config):
+        from . import cloud_guest as guest
+        self.base, self.config = Path(base), config; self.root = guest.validate(config)
     def args(self, action, *tail):
         return [sys.executable, '-I', str(self.base/'guest.py'), 'service', action,
                 *([] if action == 'start' else [str(self.root/'config.json')]), *tail]

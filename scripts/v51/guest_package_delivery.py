@@ -55,7 +55,11 @@ class Endpoint:
             if len(self.failures) < 8: self.failures.append(dict(action=action, type=type(error).__name__, message=str(error)[:1500]))
             raise
     def exchange(self, action, data, deadline, index=None):
-        m.need(self.offline is True, 'live package delivery disabled pending paid admission')
+        m.need(self.offline is True and self.value['schema'] == 'gse-v51-package-transfer-v1',
+               'live package delivery disabled pending paid admission')
+        return self._exchange(action,data,deadline,index)
+
+    def _exchange(self, action, data, deadline, index=None):
         m.need(action in ('begin','part','query','finish') and isinstance(data,bytes) and
                (action == 'part' or data == b''), 'package transfer input')
         now = time.monotonic(); m.need(type(deadline) in (int,float) and math.isfinite(deadline) and 0 < deadline-now <= 600, 'package original deadline')
@@ -151,8 +155,13 @@ class Endpoint:
 
 
 def deliver(endpoint, archive, deadline):
+    m.need(endpoint.offline is True and endpoint.value['schema'] == 'gse-v51-package-transfer-v1',
+           'live package delivery disabled pending paid admission')
+    return _deliver(endpoint,archive,deadline)
+
+
+def _deliver(endpoint, archive, deadline):
     value = receiver.descriptor(endpoint.value)
-    m.need(endpoint.offline is True, 'live package delivery disabled pending paid admission')
     def observe(action, data=b'', index=None):
         answer = None
         try: answer = endpoint.exchange(action, data, deadline, index)
@@ -162,8 +171,7 @@ def deliver(endpoint, archive, deadline):
                 count = answer.get('completedParts'); state = answer.get('state')
                 m.need(type(count) is int and 0 <= count <= len(value['parts']) and state in
                        ('RECEIVING','READY','SUCCEEDED','FAILED','NOT_FOUND','UNCERTAIN') and
-                       all(answer.get(k) == v for k,v in receiver.envelope(value,state,count).items()) and
-                       answer.get('paidCloud') is False and answer.get('fullRemoteQualification') is False, 'package receipt identity')
+                       all(answer.get(k) == v for k,v in receiver.envelope(value,state,count).items()), 'package receipt identity')
                 if state not in ('NOT_FOUND','UNCERTAIN'): return answer
             left = deadline-time.monotonic(); m.need(left > 0, 'package unresolved; no replay')
             time.sleep(min(.05,left))

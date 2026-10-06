@@ -63,6 +63,15 @@ class RunnerIapTest(unittest.TestCase):
                 r._network_probe(self.api,self.target,deadline)
             tokens.assert_not_called()
 
+    def test_reuses_only_admitted_token_covering_original_connection_deadline(self):
+        self.api.token,self.api.expires='already-bound',1000
+        with patch.object(self.api,'tokens',return_value=h.AccessToken('refreshed-bound',1000)) as tokens,\
+             patch.object(r.transport,'process',return_value=b'123'):
+            r._network_probe(self.api,self.target,160);tokens.assert_not_called()
+            self.api.expires=159
+            r._network_probe(self.api,self.target,160);self.assertEqual(1,tokens.call_count)
+            self.assertEqual(('refreshed-bound',1000),(self.api.token,self.api.expires))
+
     def test_token_files_must_be_private_owned_regular_files(self):
         token=self.root/'token';token.write_text('fixture');token.chmod(0o644)
         with self.assertRaisesRegex(ValueError,'token file'):r.transport.ssh_args(self.target,r.COMMAND,access_token_file=token)

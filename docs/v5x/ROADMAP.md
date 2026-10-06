@@ -269,8 +269,10 @@ and renewable credentials, with no native mutations. PR #289 / exact-master CI
 `37392515334` attempt 1 accepted that inspection (36 jobs). The local
 [native resource/IAP candidate](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
 connects once-only creation, isolated Runner credentials and fixed identity probes,
-with interruption/expiry cleanup replay. Its protected CI is pending; volume/package/
-owned workload, immediate failure cleanup and retention integration remain next.
+with interruption/expiry cleanup replay. PR #290 / CI `37400113526` attempt 2
+accepted it (36 jobs). The local [native guest preparation](v5.1/PHASE_6_NATIVE_GUEST_SETUP.md)
+now connects one-shot volume setup and exact-package transfer; its protected CI
+is pending. Owned workload, immediate failure cleanup and retention integration remain next.
 No paid workflow entry is exposed. Full 6C
 remains open; paid experiments require separate
 exact-request confirmation and user triggering.

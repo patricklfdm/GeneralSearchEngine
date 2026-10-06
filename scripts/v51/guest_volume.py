@@ -1,8 +1,8 @@
-"""Linux disk observations and a one-shot startup executor; live writes stay closed.
+"""Linux disk observations and a shared one-shot startup algorithm.
 
 The injected executor is qualified with an independent block-device model. Linux
-reads are implemented, but Linux mutations are deliberately unavailable until the
-paid runner and privileged guest delivery have their own admission boundary.
+reads and the public offline entry retain their guards. The separately admitted
+native root receiver reuses the private algorithm with its own identity boundary.
 """
 from pathlib import Path
 import os
@@ -156,9 +156,17 @@ def prepare(root, provider, user, backend, deadline, *, recheck):
     Backend writes remain restricted to offline qualification for this slice.
     """
     m.need(backend.offline is True, 'live privileged guest startup disabled')
+    return _prepare(root, provider, user, backend, deadline, recheck=recheck)
+
+
+def _prepare(root, provider, user, backend, deadline, *, recheck, native=False):
+    """Shared algorithm; native entry owns identity/privilege/claim admission."""
     root = Path(root); c.directory(root.parent); root.mkdir(mode=0o700); c.sync_directory(root.parent)
     c.write_once(root/'claim.json', dict(provider=provider, user=user))
     result = dict(schema='gse-v51-volume-startup-v1', status='RUNNING', paidCloud=False, provider=provider, commands=[])
+    if native:
+        result.pop('paidCloud')
+        result.update(schema='gse-v51-native-volume-startup-v1', execution='native-guest-volume')
     try:
         before = observe(backend, provider, deadline); c.write_once(root/'before.json', before)
         plan = blank(before, provider, user); c.write_once(root/'plan.json', plan)
@@ -192,15 +200,21 @@ def prepare(root, provider, user, backend, deadline, *, recheck):
 
 def readiness(root, provider, user, backend, deadline):
     """Reobserve a completed mount without issuing any initialization command."""
+    return _readiness(root, provider, user, backend, deadline)
+
+
+def _readiness(root, provider, user, backend, deadline, *, native=False):
     root = Path(root); c.directory(root)
     m.need(c.read(root/'claim.json') == dict(provider=provider, user=user), 'volume readiness claim')
     receipt = c.read(root/'receipt.json')
-    m.need(receipt['schema'] == 'gse-v51-volume-startup-v1' and receipt['status'] == 'PASS' and
-           receipt['paidCloud'] is False and receipt['provider'] == provider, 'volume readiness receipt')
+    scope = (receipt['schema'] == 'gse-v51-native-volume-startup-v1' and
+             receipt.get('execution') == 'native-guest-volume' and 'paidCloud' not in receipt) if native else (
+             receipt['schema'] == 'gse-v51-volume-startup-v1' and receipt.get('paidCloud') is False)
+    m.need(scope and receipt['status'] == 'PASS' and receipt['provider'] == provider, 'volume readiness receipt')
     before = c.read(root/'before.json'); after = c.read(root/'after.json')
     m.need(mounted(after, provider, user, backend, before) == receipt['volume'], 'volume retained mount changed')
     raw = observe(backend, provider, deadline)
     current = mounted(raw, provider, user, backend, before)
     m.need(current == receipt['volume'], 'volume readiness identity changed')
-    return dict(schema='gse-v51-volume-readiness-v1', provider=provider, volume=current,
+    return dict(schema='gse-v51-native-volume-readiness-v1' if native else 'gse-v51-volume-readiness-v1', provider=provider, volume=current,
                 startupSha256=m.sha(m.canonical(receipt)), observation=raw)
