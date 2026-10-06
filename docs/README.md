@@ -93,6 +93,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 actual Runner storage results and audit coverage](v5x/v5.1/PHASE_6_RUNNER_STORAGE_LIVE_REVIEW.md)
 - [V5.1 accepted Runner image read and native resource integration plan](v5x/v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md)
 - [V5.1 ordinary experiment resource lifecycle and interrupted cleanup](v5x/v5.1/PHASE_6_EXPERIMENT_RESOURCES.md)
+- [V5.1 Runner build, quote and approval request inspection](v5x/v5.1/PHASE_6_RUNNER_ADMISSION.md)
 - [V5.1 single-disk cleanup qualification preparation](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE.md)
 - [V5.1 single-disk preparation and object probe driver](v5x/v5.1/PHASE_6_CLEANUP_FIXTURE_DRIVER.md)
 - [V5.1 complete-topology cleanup qualification candidate](v5x/v5.1/PHASE_6_CLEANUP_TOPOLOGY.md)

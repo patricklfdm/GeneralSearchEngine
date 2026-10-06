@@ -36,7 +36,7 @@ Other jobs stayed below fifteen minutes in these four runs.
 | `python-v51-storage` | `test_cloud_fixture_driver`, `test_cloud_topology_fixture`, `test_cloud_runner_storage`, `test_cloud_runner_storage_entry`, `test_cloud_experiment_resources` | `python-v51-storage-<sha>` |
 | `v51-foundation` | Existing Phase 1 executable foundation, Phase 2/3 and local performance gates; restore the exact shared build | Original six evidence artifacts and build receipt |
 | `cloud-runner-tests` | Remote command foundation, cloud control, shell checks and all historical V2/V4/V5 runner checks | Original remote foundation and cloud control artifacts |
-| `cloud-preflight-tests` | Preflight, recent manual, identity, permission, cleanup deployment/observation and Runner precheck tests; preflight/identity/permission qualification and generated deployment/Runner review | Original `v51-cloud-preflight-<sha>` |
+| `cloud-preflight-tests` | Preflight, recent manual, identity, permission, cleanup deployment/observation and Runner precheck tests; preflight/identity/permission/request-inspection qualification and generated deployment/Runner review | Original `v51-cloud-preflight-<sha>` |
 | `cloud-cleanup-fixture-tests` | Cleanup fixture, operator driver and topology tests; single-disk review, single-disk/driver/topology and ordinary experiment resource qualification | `v51-cloud-preflight-cleanup-<sha>` |
 | `cloud-storage-tests` | Runner storage and entry tests; both nine-case storage qualifications | `v51-cloud-preflight-storage-<sha>` |
 | `cloud-provider-tests` | Original OpenSSH setup, complete provider gate, safe archive packaging and upload | Original `v51-cloud-provider-<sha>` |
@@ -61,7 +61,10 @@ build/download, no OIDC permission and no cloud Environment.
 three lanes all thirteen original test modules and every original qualification
 command, argument, timeout and output subtree remain. Each generate/validate
 pair stays in the same job. The jobs have separate workspaces; no qualification
-receipt from one is treated as another's input. Failure evidence uploads always
+receipt from one is treated as another's input. The later resource and two Runner
+request-inspection modules bring the focused union to sixteen modules; request
+inspection adds a bounded offline original-artifact/credential/resource/cleanup
+qualification in admission, with no new job or Maven dependency. Failure evidence uploads always
 run, with unique artifact names and the original fourteen-day retention.
 
 Full CI now requires **32 job IDs**, expanding to **36 executed jobs** including
