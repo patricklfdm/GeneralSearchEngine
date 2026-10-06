@@ -68,3 +68,25 @@ class RemoteBudgetTest(unittest.TestCase):
     def test_backwards_clock_is_rejected(self):
         self.now -= 1
         with self.assertRaises(ValueError): self.budget.finish()
+
+    def test_owned_experiment_all_stages_fit_without_extending_canonical_or_lease(self):
+        budget=Budget(clock=lambda:self.now,profile='owned-experiment-v1')
+        self.assertEqual(600*10**9,self.budget.limits['preparation'])
+        self.assertNotIn('sustained',budget.limits)
+        for stage,seconds in [('preparation',1800),('healthy',900),('leader-loss',120),
+                              ('maintenance',240),('no-quorum',120),('validation-retention',600),('cleanup',600)]:
+            with budget.stage(stage):self.advance(seconds)
+        self.advance(540)
+        result=budget.finish();self.assertEqual('PASS',result['status'])
+        self.assertEqual(4920*10**9,result['elapsedNanos']);self.assertEqual(5400*10**9,budget.lease)
+        with self.assertRaises(ValueError):Budget(profile='canonical-with-extra-preparation')
+
+    def test_owned_profile_has_no_deadline_renewal_or_unused_time_borrowing(self):
+        budget=Budget(clock=lambda:self.now,profile='owned-experiment-v1')
+        with self.assertRaisesRegex(ValueError,'preparation'):
+            with budget.stage('preparation') as end:
+                self.advance(1801);self.assertEqual(budget.start+1800*10**9,end)
+        with self.assertRaises(ValueError):
+            with budget.stage('preparation'):pass
+        with budget.stage('cleanup'):self.advance(600)
+        self.assertEqual('FAIL',budget.finish()['status'])

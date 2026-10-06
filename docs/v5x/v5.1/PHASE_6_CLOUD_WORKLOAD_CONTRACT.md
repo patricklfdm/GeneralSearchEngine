@@ -222,6 +222,11 @@ exact-source local gates. No physical disk-loss/same-group-replacement claim is 
 | Owned-resource cleanup and exact-ID absence checks | 600 |
 | **Topology lease total** | **5400** |
 
+The four-cell native Runner experiment has a separately approved
+[preparation allocation](PHASE_6_PREPARATION_BUDGET.md): 1800 seconds and 4920
+seconds total within the same lease. The canonical table and frozen machine
+plan above remain unchanged; this exception is bound in the exact Runner plan.
+
 The at-most-1080-second operation grace is cleanup/accepted-provider-operation
 reconciliation, not extra measurement time. The runner must debit each interval
 once to an explicit category, include all cell startup/drain/close intervals, expose

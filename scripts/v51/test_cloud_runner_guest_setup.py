@@ -294,7 +294,7 @@ class RunnerGuestStageTest(unittest.TestCase):
                 self.api=api
                 if self.fault=='archive':(self.f['originals']/'package.zip').write_bytes(b'changed')
                 if self.fault=='provider':next(v for v in self.f['http'].resources.values() if v['id']==guests[0]['facts']['provider']['instanceId'])['id']='999999'
-                if self.fault=='deadline':self.f['clock'].sleep(601)
+                if self.fault=='deadline':self.f['clock'].sleep(1801)
                 return s._stage(api,key,root,guests,self.f['originals'],self.f['value']['artifacts'],endpoints=self.endpoints())
             return original(*args,**kwargs,guest_stage=stage)
         with patch.object(s.resources,'_run',side_effect=run):return self.q.prepare(self.f,self.root/'evidence')

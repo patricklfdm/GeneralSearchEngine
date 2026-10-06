@@ -64,6 +64,14 @@ class RunnerAdmissionTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.inspect()
         self.assertEqual([],self.f['issuer'].calls)
 
+    def test_approval_digest_binds_exact_timing_and_rejects_old_or_changed_plan(self):
+        value=self.f['value'];digest=r.validate_plan(value,self.f['clock'].wall())
+        self.assertEqual(digest,self.f['approved']['planSha256'])
+        for mutate in (lambda v:v.pop('timing'),lambda v:v['timing']['limitsSeconds'].update(preparation=1801),
+                       lambda v:v['timing'].update(approvalSeconds=1800),lambda v:v['timing'].update(leaseSeconds=7200)):
+            changed=deepcopy(value);mutate(changed)
+            with self.assertRaises(ValueError):r.validate_plan(changed,self.f['clock'].wall())
+
     def test_changed_artifact_and_raw_precheck_block_before_credentials(self):
         for relative in ('originals/package.zip','permissions/receipt.json','preflight/provider.json'):
             path = self.f['root']/relative; raw = path.read_bytes(); path.write_bytes(b'{}')

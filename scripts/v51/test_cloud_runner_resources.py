@@ -37,6 +37,47 @@ class RunnerResourcesTest(unittest.TestCase):
         for key in ('paidCloud','paidAdmission','engineWorkloadExecuted','fullRemoteQualification'):self.assertIs(result[key],False)
         self.assertEqual([],list((self.root/'evidence').rglob('identity')))
 
+    def test_slow_creation_and_three_guest_setups_share_original_experiment_budget(self):
+        clock=self.f['clock'];started=clock.seconds();send=self.f['http'].send;delayed=False
+        def slow(method,url,*args):
+            nonlocal delayed
+            if method=='POST' and '/global/firewalls?' in url and not delayed:
+                delayed=True;clock.sleep(252)
+            return send(method,url,*args)
+        self.f['http'].send=slow;original=r._run;deadlines=[]
+        def run(*args,**kwargs):
+            def guests(api,*unused):
+                for node in (1,2,3):
+                    deadlines.append(api.deadline);clock.sleep(250)
+                    # Fresh durable reads remain enforced even after the approval window.
+                    self.assertIsNotNone(api.store.get(n.LEASE))
+                return []
+            return original(*args,**dict(kwargs,guest_stage=guests))
+        with patch.object(r,'_run',side_effect=run):result=self.prepare()
+        self.assertEqual('PARTIAL',result['status'],result)
+        self.assertTrue(delayed);self.assertEqual([started+1800]*3,deadlines)
+        self.assertEqual(1002,result['elapsedSeconds']);self.assertEqual(13,self.f['http'].inserts)
+        self.assertGreater(clock.wall(),self.f['value']['expiresAt'])
+        self.assertEqual(['admission','resources','iap','guest-setup'],[v['phase'] for v in result['timings']])
+        self.assertEqual(1002,sum(v['elapsedSeconds'] for v in result['timings']))
+
+    def test_experiment_preparation_still_rejects_late_guest_result(self):
+        original=r._run;started=self.f['clock'].seconds()
+        def run(*args,**kwargs):
+            def guests(api,*unused):
+                self.assertEqual(started+1800,api.deadline)
+                self.f['clock'].sleep(1801);return []
+            return original(*args,**dict(kwargs,guest_stage=guests))
+        with patch.object(r,'_run',side_effect=run):result=self.prepare()
+        self.assertEqual('FAIL',result['status']);self.assertEqual('PREPARATION_DEADLINE',result['failure']['code'])
+        self.assertEqual(13,self.f['http'].inserts)
+
+    def test_unreviewed_timing_cannot_expand_preparation(self):
+        self.f['value']['timing']['limitsSeconds']['preparation']=1801
+        result=self.prepare()
+        self.assertEqual('FAIL',result['status']);self.assertEqual([],self.mutations())
+        self.assertEqual([],self.f['issuer'].calls)
+
     def test_second_invocation_cannot_reuse_receipt_or_active_lease(self):
         self.assertEqual('PARTIAL',self.prepare()['status']);count=len(self.mutations())
         result=q.prepare(self.f,self.root/'again')
@@ -83,6 +124,23 @@ class RunnerResourcesTest(unittest.TestCase):
             return original(method,url,*args)
         http.send=send
         self.assertEqual('FAIL',self.prepare()['status']);self.assertEqual([],self.mutations())
+
+    def test_expired_approval_blocks_first_lease_cas_even_after_credential_refresh(self):
+        inspected=q.q.inspect(self.f);clock=self.f['clock']
+        api=r._Api(inspected,now=clock.wall(),deadline=clock.seconds()+1800)
+        api.gate_open=True;api.token=None
+        def refresh(timeout):
+            clock.sleep(api.admission_deadline-clock.seconds()+1)
+            return 'offline-token'
+        api.tokens=refresh
+        with self.assertRaisesRegex(ValueError,'deadline'):api.upload()
+        self.assertLess(clock.seconds(),api.deadline)
+        self.assertEqual([],self.mutations())
+
+    def test_expired_approval_is_rejected_before_resource_admission(self):
+        self.f['clock'].sleep(900)
+        self.assertEqual('FAIL',self.prepare()['status'])
+        self.assertEqual([],self.mutations())
 
     def test_insert_401_is_submitted_once_without_credential_retry(self):
         http=self.f['http'];original=http.send;calls=0
@@ -178,7 +236,7 @@ class RunnerResourcesTest(unittest.TestCase):
         http.hook=pending
         result=self.prepare()
         self.assertEqual(dict(phase='iap',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')})
-        self.assertEqual(600,result['elapsedSeconds']);self.assertEqual(20,calls)
+        self.assertEqual(1800,result['elapsedSeconds']);self.assertEqual(60,calls)
         self.assertEqual([],self.f['probe'].calls);self.assertEqual(13,http.inserts)
 
     def test_denied_host_key_query_is_not_readiness_retry(self):
@@ -208,7 +266,7 @@ class RunnerResourcesTest(unittest.TestCase):
         url=api.provider().url(spec)+'/getGuestAttributes'
         for tail in ('?queryPath=foreign','?queryPath=hostkeys%2F&queryPath=hostkeys%2F',''):
             with self.assertRaises(ValueError):h.Api.call(api,'GET',url+tail,deadline=api.deadline)
-        self.f['clock'].sleep(601)
+        self.f['clock'].sleep(1801)
         with self.assertRaisesRegex(ValueError,'deadline'):
             h.Api.call(api,'GET',api.provider().url(spec),deadline=api.clock()+100)
 

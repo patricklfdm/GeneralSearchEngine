@@ -77,20 +77,19 @@ class PythonLanesTest(unittest.TestCase):
         parts=[line for lane in ('admission','cleanup','storage') for line in capture(['--lane',lane])]
         self.assertEqual(complete,parts)
         modules=[name for line in parts if line.startswith('python3 -m unittest ') for name in line.split()[3:]]
-        self.assertEqual(25,len(modules))
-        self.assertIn('scripts.v51.test_cloud_experiment_resources', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_artifacts', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_admission', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_prepared', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_entry', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_resources', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_iap', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_connections', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_guest_setup', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_failure', modules)
-        self.assertIn('scripts.v51.test_cloud_runner_owned', modules)
-        self.assertIn('scripts.v51.test_guest_native_session', modules)
-        self.assertEqual(len(modules),len(set(modules)))
+        # Check identities and multiplicity: a count alone can miss a replaced
+        # module, while the full inventory also reports exactly what drifted.
+        expected=['scripts.v51.test_'+name for name in (
+            'cloud_preflight', 'cloud_recent_cleanup', 'cloud_identity_setup',
+            'cloud_cleanup_deployment', 'cloud_cleanup_observation', 'cloud_permissions',
+            'cloud_credential_diagnostics', 'cloud_runner_precheck', 'cloud_runner_artifacts',
+            'cloud_runner_admission', 'cloud_runner_prepared', 'cloud_runner_entry',
+            'cloud_runner_diagnostics', 'cloud_cleanup_fixture', 'cloud_fixture_driver',
+            'cloud_topology_fixture', 'cloud_experiment_resources', 'cloud_runner_storage',
+            'cloud_runner_storage_entry', 'cloud_runner_resources', 'cloud_runner_iap',
+            'cloud_runner_connections', 'cloud_runner_guest_setup', 'cloud_runner_failure',
+            'cloud_runner_owned', 'guest_native_session')]
+        self.assertCountEqual(expected,modules)
 
     def test_invalid_preflight_lane_is_rejected_before_running_tests(self):
         result=subprocess.run(['bash',str(lanes.ROOT/'scripts/verify-v51-phase6-cloud-preflight.sh'),'--lane','unknown'],

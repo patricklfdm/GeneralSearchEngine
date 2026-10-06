@@ -9,7 +9,9 @@ passed PR #294, master `f526fddb4711dfbc5df0b1a21bbe432ea9721e41`,
 [CI 37446172848](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37446172848)
 attempt 1 (36 jobs). Its next paid run reached package preparation but failed;
 the [connection-reuse correction](#second-native-run-and-preparation-connections--2026-10-06)
-requires its own protected CI and fresh approved experiment.
+passed PR #295 / CI `37524630590`. Its next admitted run reached the 600-second
+preparation ceiling; the [scoped timing correction](PHASE_6_PREPARATION_BUDGET.md)
+now requires its own protected CI and a fresh approved experiment.
 Full Phase 6 remains open.
 
 ## Workflow selections
@@ -54,9 +56,11 @@ Each file is hashed. SSH private keys, credentials and arbitrary local paths are
 not inventory members. A failed preparation cannot publish a successful prepared
 artifact. Preparation does not reserve money or hold a lease.
 
-The plan retains the original 900-second expiry, bounded by quote expiry. Human
+The plan retains the original 900-second admission expiry, bounded by quote expiry. Human
 review, environment approval, tool installation and downloads consume this time;
 none renew it. Run a new preparation if the review/dispatch cannot finish in time.
+After admission, the [reviewed experiment preparation clock](PHASE_6_PREPARATION_BUDGET.md)
+runs independently; approval expiry does not truncate already-admitted work.
 
 Execution accepts one explicitly selected successful preparation run on the same
 master source and first attempt. It checks repository/workflow identity, both
@@ -134,7 +138,8 @@ it does not trigger it. A secret alone cannot approve spending.
 The native run uses the accepted healthy three-mode/shared-source comparison,
 leader-loss, maintenance and no-quorum cells, with independent physical/history
 and backup/restore validation. It retains the 270 healthy calls, fixed parameters,
-600-second preparation, 5400-second lease and 1080-second operation grace.
+[1800-second experiment preparation](PHASE_6_PREPARATION_BUDGET.md),
+5400-second lease and 1080-second operation grace.
 Validation/retention, cleanup and control allowances remain unchanged.
 
 The outer command has a 6000-second cap plus 60-second forced-termination grace;
@@ -250,7 +255,9 @@ preparation time from owner recovery and reports its actual cleanup result.
 Local unit and real loopback SSH qualification cover connection reuse, binary
 parts, lost replies, missing sockets, altered pins, expiry and teardown. These
 checks establish transport behavior, not GCP throughput or completion within the
-cloud budget. Protected CI and a fresh approved prepare/run remain required;
+cloud budget. PR #295 passed protected CI, but the next admitted attempt still
+exhausted preparation. See the [timing amendment](PHASE_6_PREPARATION_BUDGET.md);
+a fresh approved prepare/run remains required;
 the consumed request cannot be rerun.
 
 ## Validation boundary

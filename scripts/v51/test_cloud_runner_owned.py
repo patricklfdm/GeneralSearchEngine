@@ -107,7 +107,7 @@ class OwnerTest(unittest.TestCase):
         self.stage('cleanup')
         with self.assertRaises(ValueError):self.stage('validation-retention')
     def test_original_owner_deadline_never_renews_after_preparation(self):
-        end=self.source.owner_deadline;self.f['clock'].sleep(601);self.stage('healthy')
+        end=self.source.owner_deadline;self.f['clock'].sleep(1801);self.stage('healthy')
         self.assertEqual(end,self.source.owner_deadline)
         self.f['clock'].sleep(end-self.api.clock())
         with self.assertRaises(ValueError):self.stage('cleanup')
@@ -216,7 +216,7 @@ class LifecycleTest(unittest.TestCase):
     prepare_source=OwnerTest.prepare_source
     setUp=BridgeTest.setUp
 
-    def execute(self,fault=None):
+    def execute(self,fault=None,*,preparation_seconds=0):
         import shutil
         from .remote_budget import Budget
         test=self;events=[];clock=self.f['clock'];original_failure=runner.failure
@@ -247,6 +247,7 @@ class LifecycleTest(unittest.TestCase):
             def retention_files(self):yield 'part-0000.bin',b'original history'
         def prepare(root,continuation):
             shutil.copytree(self.root/'preparation',root)
+            clock.sleep(preparation_seconds)
             continuation(self.source,self.archive,self.prepared)
             return self.preparation
         if fault=='upload':
@@ -256,7 +257,7 @@ class LifecycleTest(unittest.TestCase):
                 if method=='POST' and 'owned-experiment' in url:raise ConnectionError('upload interrupted')
                 return result
             self.source.transport.send=lost
-        with patch.object(o,'Budget',side_effect=lambda:Budget(clock=clock.nanos)),\
+        with patch.object(o,'Budget',side_effect=lambda **kwargs:Budget(clock=clock.nanos,**kwargs)),\
              patch.object(o.time,'monotonic_ns',side_effect=clock.nanos),\
              patch.object(o.native,'Services',Services),patch.object(o.native,'Probe',Probe),\
              patch.object(runner,'failure',side_effect=lambda phase,error,**kwargs:original_failure(phase,error)):
@@ -266,6 +267,17 @@ class LifecycleTest(unittest.TestCase):
         result,events=self.execute();self.assertEqual('PASS',result['status'],result)
         self.assertEqual(['prepare-services','prepare-probe',*o.experiment.CELLS,'stop-probe','validate','stop-services'],events)
         self.assertTrue(result['leaseReleased']);self.assertEqual({},self.f['http'].resources)
+    def test_admitted_slow_preparation_finishes_cells_retention_cleanup_and_charge(self):
+        result,events=self.execute(preparation_seconds=1500)
+        self.assertEqual('PASS',result['status'],result)
+        self.assertEqual(1500*10**9,result['budget']['spentNanos']['preparation'])
+        self.assertEqual(1,events.count('healthy'));self.assertTrue(result['leaseReleased'])
+        self.assertEqual('PASS',result['cleanup']['status']);self.assertEqual('VERIFIED',result['retention'])
+        # Read the retained terminal ledger using the ordinary read-only API.
+        store=g.Store(self.f['cfg']['provider'],h.Api(transport=self.f['http'],tokens=lambda _: 'offline',
+            clock=self.f['clock'].seconds),authority=n)
+        cost,entries=n.inspect_ledger(store.get(n.LEDGER)[1])
+        self.assertEqual(q.q.COST,cost);self.assertEqual({'PASS'},{row['status'] for row in entries.values()})
     def test_failed_window_is_not_replayed_and_still_retains_then_cleans(self):
         result,events=self.execute('healthy');self.assertEqual('FAIL',result['status'],result)
         self.assertEqual(1,events.count('healthy'));self.assertNotIn('leader-loss',events)

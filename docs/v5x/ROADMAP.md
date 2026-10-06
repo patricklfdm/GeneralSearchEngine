@@ -284,7 +284,12 @@ private environment-key handling. PR #293 / CI `37434593823` attempt 1 accepted 
 (36 jobs). The first approved native run `37439476170` failed before workload at
 host-key readiness, then exposed a short asynchronous-delete wait. The
 [bounded correction](v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
-awaits protected CI, verified resource cleanup and a fresh approved experiment.
+passed PR #294; PR #295 accepted pinned preparation connection reuse. The next
+admitted run `37531128228` exhausted its old preparation allowance before workload;
+owner recovery and independent exact-ID reads confirmed resource absence, lease
+release and USD 47 / 200 retained. The [scoped preparation timing amendment](v5.1/PHASE_6_PREPARATION_BUDGET.md)
+now provides a reviewed 1800-second experiment allowance within the original
+5400-second lease; protected CI and a fresh approved experiment remain required.
 Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

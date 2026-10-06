@@ -51,7 +51,7 @@ INPUT = '''    inputs:
         required: false
         default: ''
       runner_experiment_confirmation:
-        description: 'run only; exact plan SHA-256 approves its reservation and original 15-minute expiry'
+        description: 'run only; exact plan SHA-256 approves its reservation and 15-minute admission window'
         type: string
         required: false
         default: ''
@@ -241,7 +241,9 @@ This generator neither dispatches a workflow nor applies the included commands.
   reservation, sequence and the environment SSH secret. It only reads and builds a
   public plan from original CI artifacts. It makes no resource or ledger writes.
 - Review the resulting plan, original artifacts, topology, estimate, prior charges,
-  maximum reservation and 15-minute expiry. Preparation is not paid approval.
+  maximum reservation, 15-minute admission window and reviewed timing allocation.
+  Admitted preparation has one 1800-second limit inside the original 5400-second lease.
+  Preparation is not paid approval.
 - `runner_experiment=run` needs its preparation run ID and exact plan SHA-256, fresh
   same-run observations and environment approval. Only this selection calls the
   native owned experiment. The digest confirms the entire original plan, including

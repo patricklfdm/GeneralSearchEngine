@@ -25,6 +25,22 @@ class CleanupCredentialsTest(unittest.TestCase):
         return c.Credentials(self.binding, env or self.env, descriptor if descriptor is not None else self.descriptor,
             transport=transport or self.issuer, clock=self.clock.seconds, wall=self.clock.wall)
 
+    def test_exchange_and_response_failures_preserve_closed_reason_codes(self):
+        cases=[('oidc','OIDC_EXCHANGE_FAILED'),('sts','STS_EXCHANGE_FAILED'),
+               ('impersonation','IMPERSONATION_EXCHANGE_FAILED')]
+        for phase,code in cases:
+            self.issuer.fail=phase
+            with self.subTest(phase=phase),self.assertRaises(c.CredentialError) as caught:self.credentials()(30)
+            self.assertEqual(code,caught.exception.reason_code)
+            self.assertNotIn(f.SUBJECT_SECRET,str(caught.exception));self.assertNotIn('private issuer',str(caught.exception))
+        self.issuer.fail=None
+        for phase,changes,code in [('oidc',{'value':'private-secret'},'OIDC_CLAIMS_REJECTED'),
+            ('sts',{'access_token':'private-secret\n'},'STS_RESPONSE_INVALID'),
+            ('impersonation',{'expireTime':'private-secret'},'IMPERSONATION_RESPONSE_INVALID')]:
+            self.issuer.response_changes={phase:changes}
+            with self.subTest(phase=phase),self.assertRaises(c.CredentialError) as caught:self.credentials()(30)
+            self.assertEqual(code,caught.exception.reason_code);self.assertNotIn('private-secret',str(caught.exception))
+
     def integrated(self, name='run', **overrides):
         v = self.invocation
         arguments = dict(cfg=v['configuration'], env=self.env, observation=v['observation'],

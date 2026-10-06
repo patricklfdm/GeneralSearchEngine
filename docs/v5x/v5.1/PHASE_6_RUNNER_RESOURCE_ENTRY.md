@@ -160,9 +160,10 @@ planned VMs' `hostkeys/` guest-attribute queries after resource creation complet
 VM shape remains private `n2-standard-8`, no attached service account, ordinary
 5400-second DELETE termination and separately owned boot/data disks.
 
-Resource creation and IAP share one 600-second preparation budget from entry;
-original plan/preflight expiry may shorten it. Reinspection also retains its
-original 180-second budget. Credential refresh, guest readiness and reconnects
+Resource creation and IAP share the [native experiment preparation allocation](PHASE_6_PREPARATION_BUDGET.md)
+of 1800 seconds from original entry with guest/service setup. Original plan/preflight
+expiry gates the first lease mutation. Reinspection retains its original
+180-second budget. Credential refresh, guest readiness and reconnects
 cannot create a new budget. The existing 5400-second lease and 1080-second grace
 are unchanged. The retained resource plan is the shared unqualified input recipe;
 the native stage receipt/marker identifies the actual execution domain separately.

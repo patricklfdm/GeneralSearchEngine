@@ -36,7 +36,7 @@ on:
         required: false
         default: ''
       runner_experiment_confirmation:
-        description: 'run only; exact plan SHA-256 approves its reservation and original 15-minute expiry'
+        description: 'run only; exact plan SHA-256 approves its reservation and 15-minute admission window'
         type: string
         required: false
         default: ''

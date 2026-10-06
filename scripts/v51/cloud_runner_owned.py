@@ -13,6 +13,7 @@ from . import cloud_runner_resources as resources, cloud_runner_guest_setup as s
 from . import cloud_gcp as g, guest_native_owned as native, guest_owned_experiment as experiment
 from . import remote_collection as parts, performance_model as m, remote_command as c
 from .remote_budget import Budget
+from . import cloud_runner_timing as timing
 
 
 class _Api(failure._Api):
@@ -101,7 +102,7 @@ class _Api(failure._Api):
 def _execute(output, prepare):
     """Private composition seam; the public entry below fixes native dependencies."""
     root=Path(output);root.mkdir(parents=True,exist_ok=False)
-    budget=Budget();held={};api=None;store=None
+    budget=Budget(profile=timing.PROFILE);held={};api=None;store=None
     result=dict(schema=n.COMPLETION_SCHEMA,execution=n.EXECUTION,paidCloud=False,engineWorkloadExecuted=False,
         fullRemoteQualification=False,qualificationScope=experiment.SCOPE,status='FAIL',errors=[],cleanup=None,
         retention='INCOMPLETE',leaseReleased=False)

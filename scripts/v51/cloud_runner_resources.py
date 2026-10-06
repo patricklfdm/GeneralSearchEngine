@@ -14,6 +14,7 @@ from urllib.parse import urlsplit, parse_qsl
 from . import cloud_runner_admission as admission, cloud_runner_iap as iap
 from . import cloud_experiment_resources as resources, cloud_http as h, cloud_native_authority as n
 from . import guest_setup, performance_model as m
+from . import cloud_runner_timing as timing, cloud_runner_diagnostics as diagnostics
 from .remote_command import write_once
 
 
@@ -25,12 +26,22 @@ class _Api(resources._Policy, h.Api):
         h.Api.__init__(self, transport=source.transport, tokens=source.tokens, clock=source.clock)
         self.token, self.expires = source.token, source.expires
         self.initialize(inspected.result['resourcePlan'], now)
-        self.deadline = min(self.deadline, deadline)
+        # The shared standalone resource qualifier still has its original 600s
+        # allocation. Only this freshly approved four-cell Runner uses 1800s.
+        self.deadline = min(self.clock()+timing.PREPARATION_SECONDS, deadline)
+        self.admission_deadline = self.clock()+max(0,inspected.result['expiresAt']-now)
         self.gate_open = False
         self.owner_deadline = self.clock()+admission.workload.load()['budgets']['leaseSeconds']
         self.last_lease_write = None
         self.failure_claimed = False
         self.owner_claimed = False
+
+    def call(self, method, url, body=None, **kwargs):
+        # A credential refresh must not push the first lease CAS past approval.
+        # Once that CAS is admitted, subsequent work uses preparation's clock.
+        if method == 'POST' and self.state == 'lease':
+            kwargs['deadline'] = min(kwargs['deadline'],self.admission_deadline)
+        return super().call(method,url,body,**kwargs)
 
     def marker_value(self):
         return dict(super().marker_value(), execution='offline-runner-resources' if self.offline else 'native-runner-resources',
@@ -39,7 +50,9 @@ class _Api(resources._Policy, h.Api):
     def authorize(self, method, url, body):
         # Enforced even for a direct call through h.Api.call.
         m.need(self.clock() < self.deadline and not self.failed and not self.owner_claimed, 'Runner resource original deadline/failed stage')
-        if method != 'GET': m.need(self.gate_open, 'Runner mutation admission gate closed')
+        if method != 'GET':
+            m.need(self.gate_open, 'Runner mutation admission gate closed')
+            if self.state == 'lease':m.need(self.clock() < self.admission_deadline, 'Runner first lease admission deadline')
         if method == 'GET' and self.state == 'done':
             parsed = urlsplit(url); pairs = parse_qsl(parsed.query, strict_parsing=True) if parsed.query else []
             if parsed._replace(query='').geturl() in {self.provider().url(row['spec'])+'/getGuestAttributes'
@@ -54,36 +67,53 @@ class _Api(resources._Policy, h.Api):
 
 def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None, on_failure=None):
     root = Path(root); root.mkdir(parents=True, exist_ok=False)
-    start = clock(); deadline = start+admission.workload.load()['budgets']['preparationSeconds']
+    start = clock(); deadline = start+timing.PREPARATION_SECONDS
     api = None; inspected = None; phase = 'admission'
+    admission_failure = None
+    phase_start = start; timings = []
+    def advance(next_phase):
+        nonlocal phase, phase_start
+        end = clock()
+        timings.append(dict(phase=phase, elapsedSeconds=max(0,end-phase_start)))
+        phase, phase_start = next_phase, end
     receipt = dict(schema='gse-v51-runner-resource-entry-v1', status='FAIL',
         execution='offline-runner-resource-entry' if offline else 'native-runner-resource-entry',
         paidCloud=False, paidAdmission=False, resourcesCreated=False,
         engineWorkloadExecuted=False, fullRemoteQualification=False)
     try:
-        m.need(not Path(key).resolve().is_relative_to(root.resolve()), 'Runner private key inside evidence')
-        guest_setup.check_private_key(key, value['resourcePlan']['guestAccess'])
+        with diagnostics.stage('inputs'):
+            timing.validate(value['timing'])
+            m.need(not Path(key).resolve().is_relative_to(root.resolve()), 'Runner private key inside evidence')
+            guest_setup.check_private_key(key, value['resourcePlan']['guestAccess'])
         inspected = inspect()  # Never accept a copied REQUEST_BOUND receipt.
         m.need(inspected.api.offline is offline, 'Runner preparation transport domain')
         write_once(root/'inspection.json', inspected.result)
         write_once(root/'plan.json', value)
         receipt.update(planSha256=inspected.result['planSha256'],
                        requestSha256=n.validate_request(inspected.result['resourcePlan']['request']))
-        deadline = min(deadline, clock()+inspected.result['expiresAt']-wall())
+        # Original approval/precheck expiry is rechecked immediately before the
+        # first lease mutation below. Admitted work retains its one 1800s clock.
         m.need(clock() < deadline, 'Runner preparation original deadline')
         api = _Api(inspected, now=int(wall()), deadline=deadline)
 
         def gate():
+            nonlocal admission_failure
             # Resource-name scans may take time. Recheck the original request,
             # source/prechecks/CI/archives/controls just before the lease CAS.
-            recheck(inspected)
-            m.need(api.store.get(n.LEASE) is None and
-                   m.canonical(api.store.get(n.LEDGER)) == m.canonical(api.value['baseline']), 'Runner allocation control drift')
-            m.need(clock() < deadline and wall() < inspected.result['expiresAt'], 'Runner allocation admission expired')
-            api.gate_open = True
-            receipt.update(paidCloud=not offline, paidAdmission=not offline)
+            try:
+                with diagnostics.stage('allocation-recheck'):
+                    recheck(inspected)
+                    m.need(api.store.get(n.LEASE) is None and
+                           m.canonical(api.store.get(n.LEDGER)) == m.canonical(api.value['baseline']), 'Runner allocation control drift')
+                    m.need(clock() < deadline and wall() < inspected.result['expiresAt'], 'Runner allocation admission expired')
+                    api.admission_deadline = min(api.admission_deadline,clock()+inspected.result['expiresAt']-wall())
+                    api.gate_open = True
+                    receipt.update(paidCloud=not offline, paidAdmission=not offline)
+            except (Exception,KeyboardInterrupt) as error:
+                admission_failure = diagnostics.failure('admission-recheck',error)
+                raise
 
-        phase = 'resources'
+        advance('resources')
         flags = dict(resources.FLAGS, paidCloud=not offline, paidAdmission=not offline)
         stage = resources._prepare(api.value, api, root/'resources', now=int(wall()), sleep=sleep,
             execution=receipt['execution'], flags=flags, before_mutation=gate)
@@ -91,12 +121,12 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         receipt.update(resourcesCreated=True, requestSha256=n.validate_request(api.req), leaseGeneration=api.generation,
                        reservedCostMicrousd=api.value['reservation']['maximumCostMicrousd'],
                        expiresAt=api.lease['expiresAt'], cleanupEligibleAt=api.lease['expiresAt']+api.lease['graceSeconds'])
-        phase = 'iap'
+        advance('iap')
         receipt['guests'] = iap.probe(api, key, root/'iap', exchange=exchange)
         m.need(clock() <= deadline, 'Runner preparation late result')
         receipt.update(status='PARTIAL', stage='RESOURCES_AND_IAP_READY')
         if guest_stage is not None:
-            phase = 'guest-setup'; receipt['status'] = 'FAIL'
+            advance('guest-setup'); receipt['status'] = 'FAIL'
             with iap.preparation_connections(api,root/'iap-preparation.json'):
                 receipt['guestSetup'] = guest_stage(api,key,root,receipt['guests'])
             m.need(clock() < deadline, 'Runner guest setup original deadline')
@@ -105,7 +135,9 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         if api is not None: api.failed = True
         receipt['failure'] = dict(phase=phase, type=type(error).__name__)
         if isinstance(error, h.ApiError): receipt['failure']['httpStatus'] = error.status
-        if api is not None:
+        if phase == 'admission' or admission_failure is not None:
+            receipt['failure'] = admission_failure or diagnostics.failure('admission',error)
+        elif api is not None:
             observed = getattr(api,'guest_failure_at',clock())
             receipt['failure']['code'] = ('PREPARATION_DEADLINE' if observed>=deadline else
                 'PROVIDER_HTTP' if isinstance(error,h.ApiError) else
@@ -126,6 +158,8 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
                 receipt.update(confirmedResourceCount=known, unresolvedIntentCount=unresolved,
                                resourcesCreated=True if known else None if unresolved else False)
             receipt['elapsedSeconds'] = max(0, clock()-start)
+            advance('finished'); receipt['timings'] = timings
+            receipt['preparationLimitSeconds'] = timing.PREPARATION_SECONDS
             write_once(root/'receipt.json', receipt)
         except (Exception, KeyboardInterrupt) as error:
             if on_failure is None: raise
