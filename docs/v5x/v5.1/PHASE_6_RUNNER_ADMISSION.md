@@ -1,7 +1,9 @@
 # Runner request inspection before native allocation
 
-**Status:** local implementation and offline qualification; corrected-source
-protected CI pending. This follows the accepted
+**Status:** accepted through PR #289, master
+`e442e734564cd0cd34b47a29f0ab27401ab9a535`,
+[CI 37392515334](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37392515334)
+attempt 1 (36 successful jobs). This follows the accepted
 [ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md), PR #288, master
 `d1f7b798897b83c51be6d3de53912860005b9f6d`,
 [CI 37383808101](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37383808101)
@@ -134,14 +136,17 @@ identity, permission and review checks retain their separate receipts. Final gat
 `target/v51-cloud-preflight/run.mg2oeI/`. Actual original-archive replay is retained
 at `target/v51-runner-native-admission/verified-reused-build/`; the source/receipt
 index is `target/v51-runner-native-admission/validation-summary.json`.
-These are local checks and read-only GitHub observations, not corrected-source
-protected CI or native cloud execution.
+Those local checks and read-only GitHub observations subsequently passed the
+protected CI above; they do not establish native cloud execution.
 
-Next connect this inspection to once-only native allocation, exact-ID IAP and
-owned guest/workload execution, with failed-stage evidence, immediate cleanup
-and retention. That integration must revalidate admission immediately before
-mutation, share the original request/deadlines, and qualify interruptions before
-exposing a paid entry. The current resource preparer remains offline-only.
+The [native resource/IAP candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
+now connects a fresh inspection to once-only allocation and fixed guest identity
+probes, with original-input revalidation immediately before mutation. Its local
+qualification and protected acceptance are separate from this accepted inspection.
+Next connect owned guest/workload execution, immediate failure cleanup and durable
+retention under the same original request/deadlines. The ordinary resource preparer
+remains offline-only; the new internal native constructor has no paid CLI/workflow
+caller. A copied inspection receipt cannot enable it.
 Actual resource/IAP observations should come from the first separately approved
 experiment; no extra topology-only allocation or image-read rerun is required
 by this change. Manual cleanup is sufficient; schedule remains optional.

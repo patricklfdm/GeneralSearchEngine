@@ -3,9 +3,12 @@
 **Status:** fixed-image read accepted through PR #287 and actual Runner observation.
 The [ordinary resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md) is accepted
 through PR #288 / CI `37383808101` attempt 2 (36 successful jobs).
-The [read-only request inspection](PHASE_6_RUNNER_ADMISSION.md) is now a local
-candidate; its protected CI remains pending.
-A paid native Compute/IAP/engine entry is not yet exposed.
+The [read-only request inspection](PHASE_6_RUNNER_ADMISSION.md) is accepted through
+PR #289, master `e442e734564cd0cd34b47a29f0ab27401ab9a535`,
+[CI 37392515334](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37392515334)
+attempt 1 (36 successful jobs). Native resource creation and fixed IAP identity
+probes are the current local candidate; their protected CI remains pending.
+No paid CLI/workflow selection or native engine entry is exposed.
 
 ## Starting evidence
 
@@ -87,10 +90,13 @@ charged active lease for the next stage or the unchanged expired reconciler.
 and failure evidence. Its supplied build/price digests bind inputs; they are not
 an authenticated build, a current price quote or paid user approval.
 
-The [request inspection candidate](PHASE_6_RUNNER_ADMISSION.md) now verifies
+The [accepted request inspection](PHASE_6_RUNNER_ADMISSION.md) now verifies
 original build/package, quote, exact approval, precheck and credentials without
-mutating state. Next connect it to native allocation, IAP and owned services. The resource stage deliberately has no network constructor or workflow
-selection until that integration and its failure qualification are complete.
+mutating state. The internal `cloud_runner_resources.prepare_native` constructor
+now connects that inspection to the shared creation policy and fixed IAP probes.
+It has no installed CLI/workflow caller. The ordinary `prepare` entry remains
+offline-only; native construction requires the full original inputs and a fresh
+admission, not a copied `REQUEST_BOUND` receipt.
 
 Implement the actual Runner path using the existing topology and owned workload,
 so resource and IAP qualification can be observed during the first approved
@@ -100,11 +106,11 @@ retention and cleanup so a failure does not get mislabelled as an engine result.
 
 | Surface | Reuse | Remaining native work |
 | --- | --- | --- |
-| Request and control | `cloud_native_authority`, storage CAS and read-only Runner request inspection | Recheck the bound build/package/quote/preflight/control request immediately before native mutation; reserve once before allocation |
-| Compute | `cloud_gcp.Compute`, existing thirteen-resource inventory and durable create intents | Add a closed Runner policy for exact inserts/readback/operation polling; verify image-derived boot disks, ownership, numeric IDs, private interfaces and dependencies |
-| SSH/IAP | Accepted guest bootstrap, source delivery and persistent owned services | Bind tunnels to the retained VM identities and original public key; verify host/guest identity and mount evidence before delivering the source-exact package |
+| Request and control | `cloud_native_authority`, storage CAS and accepted Runner request inspection | Local native constructor rechecks original inputs before lease CAS; reviewed paid dispatch remains closed |
+| Compute | Shared thirteen-resource creation policy, input/context/intent/ID records | Local native constructor and interruption qualification; actual image use/creation remains to be observed in the approved experiment |
+| SSH/IAP | Fixed identity probe, retained VM IDs, pinned host key and Runner credential | Local probe constructor; next connect volume setup, package delivery and persistent owned services |
 | Workload | Accepted complete owned experiment and independent physical/history validators | Connect the three actual private guests and published controls; preserve frozen cells, parameters, time budgets and evidence limits |
-| Cleanup | Existing native retained-context reconciler and manual entry | Persist reconstruction inputs before resource intents; test interruption/unknown insert results, cleanup ordering and lease release using the same implementation |
+| Cleanup | Existing native retained-context reconciler and manual entry | Local fresh-process expiry replay after creation/IAP interruptions; next integrate immediate owned-run failure cleanup and retention |
 | Review | Original GitHub artifacts, independent state and provider observations | Retain stage outcomes and audit coverage without claiming missing events were observed; price retention/failure overhang and preserve all failed reservations |
 
 The native path must remain a distinct authority domain. Changing an offline
@@ -125,6 +131,84 @@ IDs, denied image/IAP access, retained cleanup and budget/time exhaustion. Then
 obtain corrected-source protected CI and review a concrete priced request. User
 confirmation, dispatch and environment approval remain separate execution steps.
 The USD 200 ceiling does not authorize spending the remaining USD 183 automatically.
+
+## Native resource and IAP candidate
+
+The native entry owns its actual GitHub, source checkout, clock, credential-file,
+OIDC/STS/Runner impersonation and HTTP boundaries. Before acquiring any lease it
+checks the request's private key against the approved public key, replays the
+accepted inspection, and scans the thirteen resource names and original operation
+IDs for collisions. Immediately before the first CAS it repeats original archive
+verification, checkout binding, current master/CI/run identity, raw precheck,
+approval/price expiry and generation-pinned control reads. A changed input or
+active lease stops the entry before mutations; CAS still protects the final race.
+
+The shared driver reserves once, persists cleanup context and the bound resource
+plan before create intents, then retains each original numeric result before the
+next insert. The native policy allows only that state machine's exact bodies,
+generation conditions and deterministic request IDs. A failed or lost mutation
+reply is never replayed, including HTTP 401. The read policy adds only the three
+planned VMs' `hostkeys/` guest-attribute queries after resource creation completes.
+VM shape remains private `n2-standard-8`, no attached service account, ordinary
+5400-second DELETE termination and separately owned boot/data disks.
+
+Resource creation and IAP share one 600-second preparation budget from entry;
+original plan/preflight expiry may shorten it. Reinspection also retains its
+original 180-second budget. Credential refresh, guest readiness and reconnects
+cannot create a new budget. The existing 5400-second lease and 1080-second grace
+are unchanged. The retained resource plan is the shared unqualified input recipe;
+the native stage receipt/marker identifies the actual execution domain separately.
+
+For each guest the IAP probe rechecks the retained lease/reservation, both disk
+attachments and exact numeric identities before and after connection. The guest
+agent's Ed25519 key is read through Compute with numeric-ID checks on both sides,
+then pinned to `gse-v51-<instanceId>` in a private known-hosts file. A valid response
+with no published Ed25519 key may be polled under the original deadline; malformed
+or duplicate keys, HTTP denial and changed IDs fail immediately. Native SSH uses
+the existing strict host-key/no-agent/no-forwarding options. Its only remote
+command is a bounded read of the metadata instance ID, which must equal the
+retained ID. It does not initialize volumes or execute packaged code.
+
+The official CLI routes `start-iap-tunnel` by **instance name**, not a documented
+numeric-ID selector. Generation binding comes from the pinned host key and
+provider/guest numeric-ID checks; the receipt does not claim the CLI itself used
+an ID. The accepted Runner exchange supplies a short-lived token in a temporary
+0600 file, outside evidence, with an empty isolated gcloud configuration. The
+child receives an allowlisted environment and an explicit `--access-token-file`;
+ambient credentials, impersonation and endpoint overrides are excluded. This
+matters because `CLOUDSDK_AUTH_ACCESS_TOKEN` otherwise takes precedence even over
+that flag. See [gcloud authentication priority](https://docs.cloud.google.com/sdk/docs/authenticate)
+and [IAP SSH connection](https://docs.cloud.google.com/compute/docs/connect/ssh-using-iap).
+Tokens are never put in arguments/receipts; files are removed on return/failure,
+and raw gcloud diagnostics are not retained by this entry. An interrupted identity
+probe is not resubmitted by the driver. IAP access remains unobserved in real GCP.
+
+`RESOURCES_AND_IAP_READY` is **PARTIAL**, leaves the active lease and PENDING
+reservation, and keeps engine/full-qualification flags false. Failure retains
+phase/type (and HTTP status where available), safe request traces and the local
+lease observation, with separate confirmed-ID and unresolved-intent counts.
+A lost first insert reports unknown creation (`resourcesCreated: null`), not an
+assertion that nothing was created. Probe submission records identify the node
+and original deadline even when no success reply arrives. Only retained CAS bytes
+authorize cleanup. No
+successful ledger completion or refund is synthesized. Active/grace manual
+cleanup still returns WAITING; eligible expiry cleanup removes only original IDs
+and retains the failed reservation. Immediate in-process failure cleanup, durable
+remote evidence retention and complete owned workload remain next-stage work.
+
+The explicit offline twin drives the same entry with synthetic CI archives,
+credential issuer, provider and IAP boundary. Its ten-case qualification covers
+the complete stage, lost first/VM/final insert replies, lost final ID/ledger/context
+replies, IAP denial, wrong guest ID and late probe. Every failure must match its
+expected phase/class before it counts as a negative. Each retained state goes to
+a fresh manual-cleanup process, preserving the synthetic USD 5 charge; the complete
+case also proves active WAITING. The shared forty-one-case resource matrix retains
+its additional unresolved-operation, replacement and cleanup-denial coverage.
+
+Two new unit modules enter Python storage and the existing focused storage lane;
+the new matrix has a 600-second process cap. There is no new CI job, Maven build,
+workflow permission, IAM change or live allocation. Evidence is retained under
+`target/v51-native-resource-entry/` and the focused gate's `runner-resource-entry/`.
 
 ## Operator sequence
 
@@ -163,4 +247,16 @@ contract passed. Evidence and source hashes are retained at
 performed. Those image-read checks subsequently passed protected CI and the actual Runner
 observation recorded above. The ordinary resource implementation subsequently
 passed PR #288 protected CI; its offline fixtures do not establish Compute/IAP
-permissions. The newer request inspection candidate needs its own protected CI.
+permissions. Request inspection subsequently passed PR #289 protected CI. The
+native resource/IAP candidate described above needs its own protected acceptance.
+
+For that candidate, Python 3.11 passed the complete focused storage gate, including
+both existing storage matrices and the ten new resource/IAP cases, at
+`target/v51-cloud-preflight/run.svu1OK/`. The final native unit suites passed
+25 tests, including unknown-create diagnostics and probe submission records;
+106 shared resource/admission/guest/CI-partition regressions also passed. The
+95-document contract, 721 changed-document local links, Python/shell syntax and
+whitespace checks passed. The retained index is
+`target/v51-native-resource-entry/validation-summary.json`. These remain local
+offline tests; corrected-source protected CI and actual Compute/IAP observations
+are still required at their respective acceptance stages.

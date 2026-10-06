@@ -11,10 +11,10 @@ import time
 from . import cloud_guest as guest, performance_model as m, remote_command as c
 
 
-def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES, retain_partial=False):
+def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES, retain_partial=False, env=None):
     m.need(type(request_maximum) is int and 0 < request_maximum <= 1 << 20 and
            isinstance(data, bytes) and len(data) <= request_maximum and time.monotonic() < deadline, 'guest transport request/deadline')
-    proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True)
+    proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, start_new_session=True, env=env)
     out, err, cursor = bytearray(), bytearray(), 0
     succeeded = False
     try:
@@ -78,7 +78,7 @@ class Local:
     def part(self, name, maximum, deadline): return self.exchange('part', None, deadline, '--part', name, binary=True, maximum=maximum)
 
 
-def ssh_args(target, remote):
+def ssh_args(target, remote, *, access_token_file=None):
     m.need(set(target) == {'project', 'zone', 'instance', 'instanceId', 'user', 'key', 'knownHosts'}, 'SSH target fields')
     for name in ('project', 'zone', 'instance', 'user'):
         m.need(isinstance(target[name], str) and re.fullmatch('[a-z][a-z0-9-]{0,62}', target[name]), 'SSH target '+name)
@@ -90,8 +90,14 @@ def ssh_args(target, remote):
     alias = 'gse-v51-'+target['instanceId']
     pins = known.read_text().strip().splitlines()
     m.need(len(pins) == 1 and re.fullmatch(re.escape(alias)+r' ssh-ed25519 [A-Za-z0-9+/]+={0,2}', pins[0]), 'SSH exact pinned host key')
+    credential_args = []
+    if access_token_file is not None:
+        token = Path(access_token_file)
+        m.need(token.is_absolute() and token.is_file() and not token.is_symlink() and
+               token.stat().st_uid == os.getuid() and token.stat().st_mode & 0o077 == 0, 'IAP owned token file')
+        credential_args = ['--access-token-file='+str(token)]
     proxy = shlex.join(['gcloud', 'compute', 'start-iap-tunnel', target['instance'], '22', '--listen-on-stdin',
-                        '--project='+target['project'], '--zone='+target['zone'], '--verbosity=error'])
+                        '--project='+target['project'], '--zone='+target['zone'], '--verbosity=error', *credential_args])
     return ['ssh', '-F', '/dev/null', '-T', '-i', str(key), '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes',
             '-o', 'IdentityAgent=none', '-o', 'HostKeyAlgorithms=ssh-ed25519', '-o', 'UpdateHostKeys=no',
             '-o', 'ForwardAgent=no', '-o', 'ClearAllForwardings=yes', '-o', 'ControlMaster=no', '-o', 'ControlPath=none',

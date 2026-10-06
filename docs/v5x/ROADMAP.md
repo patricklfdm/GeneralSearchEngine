@@ -263,10 +263,15 @@ records accepted Runner image reads: PR #287 / CI `37341517723` (36 jobs),
 manual `37375168508` NO_LEASE and Runner `37375846878` PRECHECK_PASS.
 The [ordinary resource lifecycle](v5.1/PHASE_6_EXPERIMENT_RESOURCES.md) is accepted
 through PR #288 / CI `37383808101` attempt 2, all 36 jobs successful. The
-[Runner request inspection candidate](v5.1/PHASE_6_RUNNER_ADMISSION.md) binds
+[Runner request inspection](v5.1/PHASE_6_RUNNER_ADMISSION.md) binds
 original build/package, reviewed quote/approval, same-run precheck, control state
-and renewable credentials, with no native mutations. Its protected CI is pending;
-native allocation, IAP and the complete owned workload remain next. Full 6C
+and renewable credentials, with no native mutations. PR #289 / exact-master CI
+`37392515334` attempt 1 accepted that inspection (36 jobs). The local
+[native resource/IAP candidate](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
+connects once-only creation, isolated Runner credentials and fixed identity probes,
+with interruption/expiry cleanup replay. Its protected CI is pending; volume/package/
+owned workload, immediate failure cleanup and retention integration remain next.
+No paid workflow entry is exposed. Full 6C
 remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

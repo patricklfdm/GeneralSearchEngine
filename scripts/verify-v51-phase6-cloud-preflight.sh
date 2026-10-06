@@ -33,7 +33,8 @@ if [[ "$lane" == all || "$lane" == cleanup ]]; then
   timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v51.cloud_experiment_resource_qualification "$work_dir/experiment-resources" --source "$(git rev-parse HEAD)"
 fi
 if [[ "$lane" == all || "$lane" == storage ]]; then
-  python3 -m unittest scripts.v51.test_cloud_runner_storage scripts.v51.test_cloud_runner_storage_entry
+  python3 -m unittest scripts.v51.test_cloud_runner_storage scripts.v51.test_cloud_runner_storage_entry scripts.v51.test_cloud_runner_resources scripts.v51.test_cloud_runner_iap
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_runner_storage_qualification "$work_dir/runner-storage"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_runner_storage_entry_qualification "$work_dir/runner-storage-entry"
+  timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v51.cloud_runner_resource_qualification "$work_dir/runner-resource-entry"
 fi

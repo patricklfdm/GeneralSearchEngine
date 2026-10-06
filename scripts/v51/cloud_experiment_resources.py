@@ -1,9 +1,10 @@
 """Ordinary experiment resource lifecycle, qualified only through offline HTTP.
 
 This is the resource stage, not a paid Runner entry or an engine result. Native
-request/lease bytes remain distinct from the fake owned-workload domain. A later
-network entry must authenticate source/build/package, current preflight, prices
-and exact user approval before it can instantiate a network creation policy.
+request/lease bytes remain distinct from the fake owned-workload domain. The
+separate Runner entry authenticates source/build/package, current preflight,
+prices and exact approval before using this private shared driver with a native
+creation policy. The public preparer in this module stays offline-only.
 """
 from copy import deepcopy
 from pathlib import Path
@@ -94,13 +95,18 @@ def prepare(value, api, output, *, now, sleep=time.sleep):
     Returning RESOURCES_PREPARED deliberately leaves the active lease/reservation;
     it cannot finish a successful experiment or refund an interrupted attempt.
     """
-    digest = validate(value, now=now)
     m.need(type(api) is OfflineApi and api.offline is True and api.value == value,
            'resource preparation offline binding')
+    return _prepare(value, api, output, now=now, sleep=sleep, execution=EXECUTION, flags=FLAGS)
+
+
+def _prepare(value, api, output, *, now, sleep, execution, flags, before_mutation=None):
+    """Shared stage driver; public entries own admission and transport selection."""
+    digest = validate(value, now=now)
     root = Path(output); root.mkdir(parents=True, exist_ok=False)
     c.write_once(root/'plan.json', value)
-    receipt = dict(schema='gse-v51-experiment-resource-stage-v1', status='FAIL', execution=EXECUTION,
-                   planSha256=digest, requestSha256=n.validate_request(api.req), **FLAGS)
+    receipt = dict(schema='gse-v51-experiment-resource-stage-v1', status='FAIL', execution=execution,
+                   planSha256=digest, requestSha256=n.validate_request(api.req), **flags)
     phase = 'original-state'
     try:
         m.need(api.state == 'lease' and not api.failed and api.store.get(n.LEASE) is None and
@@ -112,6 +118,8 @@ def prepare(value, api, output, *, now, sleep=time.sleep):
             spec = row['spec']
             m.need(provider.describe(spec) is None and provider.operation(spec)['state'] == 'UNKNOWN',
                    'resource name/operation already exists')
+        phase = 'admission-recheck'
+        if before_mutation is not None: before_mutation()
         while api.state != 'done':
             phase = api.state
             if phase == 'insert': api.insert(sleep)
