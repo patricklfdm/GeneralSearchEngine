@@ -80,6 +80,23 @@ parts and interrupted installation are not resumed. Native actions are limited
 to clock/begin/part/query/finish: service, source, producer and bootstrap execution
 remain unavailable through this receiver.
 
+## Preparation connection reuse
+
+The [second paid-run review](PHASE_6_NATIVE_RUNNER_ENTRY.md#second-native-run-and-preparation-connections--2026-10-06)
+records the preparation deadline failure and local correction. Native preparation
+now scopes one foreground SSH master to each admitted numeric VM ID, including
+subsequent initial session/source preparation. Every existing command retains its
+individual input/output bounds and full identity/mount/content checks. Private
+credentials cover the original deadline and are isolated from ambient gcloud
+configuration. Target, client key or host pin drift rejects reuse.
+
+A broken connection never replays its command. Missing control sockets cannot
+fall back to a fresh network submission; protocol receipt queries may establish
+a new pinned master under the same deadline. Scope exit kills/reaps every master
+and its IAP proxy and removes private files before cleanup or measurement. The
+closed retained inventory adds only `iap-preparation.json` with numeric identities,
+connection/command counts and timing; it contains no private credentials.
+
 ## Result and next integration
 
 `GUEST_PACKAGES_READY` is PARTIAL. The lease/reservation remain active, and

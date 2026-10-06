@@ -97,13 +97,23 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         receipt.update(status='PARTIAL', stage='RESOURCES_AND_IAP_READY')
         if guest_stage is not None:
             phase = 'guest-setup'; receipt['status'] = 'FAIL'
-            receipt['guestSetup'] = guest_stage(api,key,root,receipt['guests'])
+            with iap.preparation_connections(api,root/'iap-preparation.json'):
+                receipt['guestSetup'] = guest_stage(api,key,root,receipt['guests'])
             m.need(clock() < deadline, 'Runner guest setup original deadline')
             receipt.update(status='PARTIAL',stage='GUEST_PACKAGES_READY')
     except (Exception, KeyboardInterrupt) as error:
         if api is not None: api.failed = True
         receipt['failure'] = dict(phase=phase, type=type(error).__name__)
         if isinstance(error, h.ApiError): receipt['failure']['httpStatus'] = error.status
+        if api is not None:
+            observed = getattr(api,'guest_failure_at',clock())
+            receipt['failure']['code'] = ('PREPARATION_DEADLINE' if observed>=deadline else
+                'PROVIDER_HTTP' if isinstance(error,h.ApiError) else
+                'GUEST_TIMEOUT' if isinstance(error,TimeoutError) else
+                'GUEST_TRANSPORT' if isinstance(error,ConnectionError) else 'PREPARATION_REJECTED')
+            receipt['failure']['deadlineNanos'] = int(deadline*1e9)
+            receipt['failure']['observedNanos'] = int(observed*1e9)
+            if hasattr(api,'guest_operation'): receipt['failure']['operation'] = deepcopy(api.guest_operation)
     finally:
         try:
             if inspected is not None: write_once(root/'admission-http.json', inspected.api.requests)

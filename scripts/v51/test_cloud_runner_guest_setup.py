@@ -306,7 +306,7 @@ class RunnerGuestStageTest(unittest.TestCase):
         self.assertIsNotNone(self.api.store.get(s.n.LEASE));self.assertEqual(self.api.reserved,self.api.store.get(s.n.LEDGER)[1])
     def test_node_two_package_failure_preserves_charge_and_expiry_cleanup(self):
         self.fault='part';result=self.prepare();self.assertEqual('FAIL',result['status'],result)
-        self.assertEqual(dict(phase='guest-setup',type='ValueError'),result['failure']);self.assertEqual(2,len(self.disks))
+        self.assertEqual(dict(phase='guest-setup',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')});self.assertEqual(2,len(self.disks))
         self.assertEqual([1,1],[disk.block.formats for disk in self.disks]);self.assertEqual(13,result['confirmedResourceCount'])
         self.assertTrue((self.root/'evidence/guest-setup/node-2/connections.json').exists())
         q=self.q;f=self.f;saved=q.q.cleanup.snapshot(f['http']);lease=self.api.lease
@@ -323,7 +323,9 @@ class RunnerGuestStageTest(unittest.TestCase):
         self.fault='provider';self.assertEqual('FAIL',self.prepare()['status']);self.assertEqual(0,self.disks[0].block.formats)
         self.assertEqual([],self.transfers)
     def test_expired_original_preparation_cannot_start_guest_setup(self):
-        self.fault='deadline';self.assertEqual('FAIL',self.prepare()['status']);self.assertEqual([],self.disks)
+        self.fault='deadline';result=self.prepare();self.assertEqual('FAIL',result['status']);self.assertEqual([],self.disks)
+        self.assertEqual('PREPARATION_DEADLINE',result['failure']['code'])
+        self.assertGreaterEqual(result['failure']['observedNanos'],result['failure']['deadlineNanos'])
         self.assertEqual([],self.transfers)
     def test_native_constructor_wires_guest_stage_after_bound_resource_and_iap_admission(self):
         from urllib.parse import urlsplit

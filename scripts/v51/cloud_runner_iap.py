@@ -5,6 +5,7 @@ CLI routes by name; pinned SSH keys and provider/guest numeric IDs bind the VM
 generation. Native execution is reachable only from fresh resource admission.
 """
 from copy import deepcopy
+from contextlib import contextmanager, ExitStack
 import os
 from pathlib import Path
 import tempfile
@@ -30,8 +31,9 @@ def _network_probe(api, target, deadline):
     return _network_exchange(api,target,COMMAND,b'',deadline,maximum=64)
 
 
-def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None, retain_partial=False):
-    """Ephemeral private token/config; never inherit gcloud credential overrides."""
+@contextmanager
+def _credential_files(api, deadline):
+    """Private token/config; never inherit gcloud credential overrides."""
     m.need(not api.offline and api.clock() < deadline <= api.deadline, 'native IAP deadline/domain')
     credential = (h.AccessToken(api.token,api.expires) if getattr(api,'token',None) is not None and
                   api.expires > deadline else api.tokens(min(30, deadline-api.clock())))
@@ -48,18 +50,105 @@ def _network_exchange(api, target, remote, data, deadline, *, maximum, request_m
         env = {key:os.environ[key] for key in ('PATH', 'LANG', 'LC_ALL', 'TZ') if key in os.environ}
         env.update(CLOUDSDK_CONFIG=str(config), CLOUDSDK_CORE_DISABLE_PROMPTS='1',
                    CLOUDSDK_CORE_DISABLE_USAGE_REPORTING='true')
+        yield root, token, env
+
+
+class _PreparationConnections:
+    def __init__(self, api):
+        self.api, self.deadline = api, api.deadline
+        self.rows, self.active = {}, {}
+        self.allowed = {row['id'] for row in api.lease['resources'] if row['spec']['kind']=='instance'}
+        m.need(None not in self.allowed and len(self.allowed)==3, 'IAP preparation exact three instances')
+        self.stack = ExitStack()
+        self.credentials = None
+
+    def exchange(self, target, remote, data, deadline, **options):
+        from .guest_ssh_master import Master
+        m.need(self.api.deadline==self.deadline and self.api.clock()<deadline<=self.deadline and
+               target['instanceId'] in self.allowed, 'IAP preparation identity/deadline')
+        if self.credentials is None:
+            self.credentials = self.stack.enter_context(_credential_files(self.api,self.deadline))
+        root, token, env = self.credentials
+        args = transport.ssh_args(target, [], access_token_file=token)
+        identity = (deepcopy(target), m.sha(Path(target['key']).read_bytes()), m.sha(Path(target['knownHosts']).read_bytes()))
+        key = target['instanceId']
+        if key not in self.rows:
+            self.rows[key] = dict(identity=identity, connections=0, commands=0, failures=0)
+        row = self.rows[key]
+        m.need(row['identity']==identity and row['commands']<4096, 'IAP preparation pinned identity/command bound')
+        row['commands'] += 1
         try:
-            options = {} if request_maximum is None else dict(request_maximum=request_maximum)
-            if retain_partial: options['retain_partial'] = True
-            return transport.process(transport.ssh_args(target, remote, access_token_file=token),
-                                     data, deadline, maximum=maximum, env=env, **options)
-        except Exception as error:
-            # gcloud diagnostics can contain credential paths/headers. Preserve
-            # failure class, not raw subprocess output, in ordinary evidence.
-            safe = (TimeoutError('Runner IAP original deadline') if isinstance(error,TimeoutError)
-                    else ConnectionError('Runner IAP identity probe failed'))
-            if retain_partial and hasattr(error,'partial_output'): safe.partial_output = error.partial_output
-            raise safe from None
+            if key not in self.active:
+                directory = root/key; directory.mkdir(mode=0o700,exist_ok=True)
+                row['connections'] += 1
+                with _sanitized(options.get('retain_partial',False)):
+                    self.active[key] = Master(args,directory,self.deadline,env,connect_deadline=deadline)
+            with _sanitized(options.get('retain_partial',False)):
+                return self.active[key].exchange(remote,data,deadline,**options)
+        except BaseException:
+            row['failures'] += 1
+            master = self.active.pop(key,None)
+            if master is not None: master.close()
+            raise  # No command retry. The protocol decides whether to query.
+
+    def close(self):
+        failure = None
+        try:
+            for master in self.active.values():
+                try: master.close()
+                except BaseException as error:
+                    if failure is None: failure = error
+        finally:
+            self.active.clear(); self.stack.close()
+        if failure is not None: raise failure
+
+
+@contextmanager
+def preparation_connections(api, output):
+    """Only the admitted preparation scope owns these connections and credentials."""
+    if api.offline:
+        yield
+        return
+    m.need(api.gate_open and api.state=='done' and not api.failed and
+           not getattr(api,'_preparation_connections',None), 'IAP preparation scope')
+    pool = _PreparationConnections(api); api._preparation_connections = pool
+    started = api.clock()
+    try: yield
+    except BaseException:
+        api.guest_failure_at = api.clock()
+        raise
+    finally:
+        del api._preparation_connections
+        try: pool.close()
+        finally:
+            write_once(output,dict(schema='gse-v51-preparation-connections-v1',
+                startNanos=int(started*1e9),endNanos=int(api.clock()*1e9),deadlineNanos=int(pool.deadline*1e9),
+                guests=[dict(instanceId=key,**{k:row[k] for k in ('connections','commands','failures')})
+                        for key,row in pool.rows.items()]))
+
+
+def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None, retain_partial=False):
+    m.need(not api.offline and api.clock()<deadline<=api.deadline, 'native IAP deadline/domain')
+    options = dict(maximum=maximum)
+    if request_maximum is not None: options['request_maximum'] = request_maximum
+    if retain_partial: options['retain_partial'] = True
+    pool = getattr(api,'_preparation_connections',None)
+    if pool is not None: return pool.exchange(target,remote,data,deadline,**options)
+    with _credential_files(api,deadline) as (_,token,env):
+        with _sanitized(retain_partial):
+            return transport.process(transport.ssh_args(target,remote,access_token_file=token),
+                                     data,deadline,env=env,**options)
+
+
+@contextmanager
+def _sanitized(retain_partial):
+    try: yield
+    except Exception as error:
+        # No provider output, credentials or paths in ordinary evidence.
+        safe = (TimeoutError('Runner IAP original deadline') if isinstance(error,TimeoutError)
+                else ConnectionError('Runner IAP identity probe failed'))
+        if retain_partial and hasattr(error,'partial_output'): safe.partial_output = error.partial_output
+        raise safe from None
 
 
 def probe(api, key, output, *, exchange):

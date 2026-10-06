@@ -5,7 +5,11 @@
 [CI 37434593823](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37434593823)
 attempt 1 (all 36 jobs passed). The first approved native run failed during
 preparation, before any workload cell. The [readiness and cleanup correction](#first-native-run-and-bounded-readiness-correction--2026-10-06)
-is a local candidate requiring protected CI and a fresh approved experiment.
+passed PR #294, master `f526fddb4711dfbc5df0b1a21bbe432ea9721e41`,
+[CI 37446172848](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37446172848)
+attempt 1 (36 jobs). Its next paid run reached package preparation but failed;
+the [connection-reuse correction](#second-native-run-and-preparation-connections--2026-10-06)
+requires its own protected CI and fresh approved experiment.
 Full Phase 6 remains open.
 
 ## Workflow selections
@@ -194,6 +198,60 @@ and summaries execute even after failure. No raw credential exception text is
 included in the entry receipt. A complete experiment still reports
 `fullRemoteQualification=false`; failure-drill, canonical repetitions and the
 full admitted source/artifact set remain subsequent work.
+
+## Second native run and preparation connections — 2026-10-06
+
+PR #294 passed protected CI. Manual cleanup
+[37497953377](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37497953377)
+then reported PASS; independent original-operation and exact-ID reads confirmed
+all thirteen prior resources absent and no active lease. The previous failed
+charge remained recorded.
+
+The next approved [run 37501739556](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37501739556),
+source `f526fddb4711dfbc5df0b1a21bbe432ea9721e41`, created all thirteen resources,
+passed all three pinned IAP identity probes and prepared all three data volumes.
+Nodes 1 and 2 installed the exact 21-part, 21,299,202-byte package. Node 3's last
+recorded package call was part index 5; this proves submission, not completion.
+No workload cell started.
+
+The failure timestamp matches the plan's 2026-10-06 17:23:31 UTC expiry. Preparation
+consumed 552.011 seconds; the code uses the earlier of its original 600-second
+budget and plan expiry. Serial per-part SSH/IAP handshakes and unchanged provider
+rechecks consumed this budget. Deadline exhaustion is strongly supported; the
+original redacted ValueError does not identify the final assertion. ZIP timestamps
+have two-second precision. Immediate owner recovery took another 266.924 seconds;
+the outer 819.027-second preparation interval includes that recovery, rather than
+819 seconds of package preparation.
+
+Owner recovery reported cleanup PASS, verified diagnostic retention and lease
+release. Independent GET-only reads confirmed all thirteen resources absent by
+name and original numeric ID, and no lease. The append-only ledger retained this
+FAIL reservation, bringing the cumulative reserved amount to USD 37 of USD 200;
+this is not actual billed cost. Original archive SHA-256:
+`b776454bbe54f2f4ed4b8958e0dbde0c887596bb7fdff9308ee6f1874802bc87`.
+Evidence is retained locally under
+`target/v51-native-experiment-pr294/run-37501739556/`.
+
+The correction reuses one private foreground OpenSSH master per exact VM during
+volume/package/session/source preparation. Each existing bounded command still
+gets a separate channel, its original deadline and all existing before/after
+provider, lease, host-key, guest mount and content checks. A lost channel closes
+the master; only the protocol's next explicit query can resolve the original
+submitted operation. OpenSSH's implicit network fallback is disabled. Connection
+creation and reconnection never extend the original preparation/plan deadline.
+
+All masters, proxy processes, sockets and private token files close before owner
+recovery or the first workload cell. Measurement transport and frozen workload
+parameters are unchanged. Retained diagnostics include connection/command counts,
+static failure codes, the current node/action/part and observed/deadline clocks;
+raw provider or SSH exception output remains excluded. The summary separates
+preparation time from owner recovery and reports its actual cleanup result.
+
+Local unit and real loopback SSH qualification cover connection reuse, binary
+parts, lost replies, missing sockets, altered pins, expiry and teardown. These
+checks establish transport behavior, not GCP throughput or completion within the
+cloud budget. Protected CI and a fresh approved prepare/run remain required;
+the consumed request cannot be rerun.
 
 ## Validation boundary
 

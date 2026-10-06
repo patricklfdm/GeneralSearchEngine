@@ -10,7 +10,7 @@ LANES = ('core', 'admission', 'storage')
 STORAGE = frozenset('scripts.v51.test_' + name for name in (
     'cloud_fixture_driver', 'cloud_topology_fixture', 'cloud_experiment_resources',
     'cloud_runner_storage', 'cloud_runner_storage_entry', 'cloud_runner_resources', 'cloud_runner_iap',
-    'cloud_runner_guest_setup', 'cloud_runner_failure', 'cloud_runner_owned', 'guest_native_session'))
+    'cloud_runner_guest_setup', 'cloud_runner_connections', 'cloud_runner_failure', 'cloud_runner_owned', 'guest_native_session'))
 
 
 def partition(modules):

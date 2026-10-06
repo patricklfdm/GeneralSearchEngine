@@ -202,6 +202,17 @@ class EntryTest(unittest.TestCase):
         value=e.failure('handoff',ValueError('https://provider.example/token?secret=sentinel'))
         self.assertEqual('UNCLASSIFIED',value['code']);self.assertNotIn('sentinel',str(value))
 
+    def test_summary_shows_guest_deadline_and_distinguishes_owner_recovery_time(self):
+        root=self.root/'summary';root.mkdir()
+        c.write_once(root/'receipt.json',dict(status='FAIL',result=dict(budget=dict(spentNanos={'preparation':819000000000}),
+            preparation=dict(elapsedSeconds=552,failure=dict(phase='guest-setup',type='ValueError',code='PREPARATION_DEADLINE',
+                operation=dict(node='node-3',kind='package',action='part',index=5)),
+                ownerRecovery=dict(elapsedSeconds=267,cleanup=dict(status='PASS'),leaseReleased=True,retention='VERIFIED')))))
+        text=e.summary(root)
+        for value in ('PREPARATION_DEADLINE','node-3','package','Preparation elapsed (s) | 552',
+                      'Owner failure recovery elapsed (s) | 267','includes immediate owner recovery','Cleanup | PASS'):
+            self.assertIn(value,text)
+
     def test_workflow_guards_default_inputs_identity_secret_and_order(self):
         raw=e.workflow.workflow().decode();job=e.workflow.JOB
         self.assertIn("default: 'off'",raw);self.assertIn("options: ['off', prepare, run]",raw)

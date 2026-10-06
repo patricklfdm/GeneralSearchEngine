@@ -114,7 +114,7 @@ class RunnerResourcesTest(unittest.TestCase):
 
     def test_guest_identity_drift_stops_without_replaying_probe(self):
         self.f['probe'].fault='guest-id-drift'
-        result=self.prepare();self.assertEqual(dict(phase='iap',type='ValueError'),result['failure'])
+        result=self.prepare();self.assertEqual(dict(phase='iap',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')})
         self.assertEqual(1,len(self.f['probe'].calls));self.assertEqual(13,self.f['http'].inserts)
         self.assertEqual('SUBMITTING',read(self.root/'evidence/iap/node-1-probe.json')['status'])
         self.assertFalse((self.root/'evidence/iap/node-1.json').exists())
@@ -177,7 +177,7 @@ class RunnerResourcesTest(unittest.TestCase):
             return hook(method,path,query,body)
         http.hook=pending
         result=self.prepare()
-        self.assertEqual(dict(phase='iap',type='ValueError'),result['failure'])
+        self.assertEqual(dict(phase='iap',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')})
         self.assertEqual(600,result['elapsedSeconds']);self.assertEqual(20,calls)
         self.assertEqual([],self.f['probe'].calls);self.assertEqual(13,http.inserts)
 
@@ -188,7 +188,7 @@ class RunnerResourcesTest(unittest.TestCase):
             if path.path.endswith('/getGuestAttributes'):calls+=1;return 403,b''
             return hook(method,path,query,body)
         http.hook=denied
-        result=self.prepare();self.assertEqual(dict(phase='iap',type='ApiError',httpStatus=403),result['failure'])
+        result=self.prepare();self.assertEqual(dict(phase='iap',type='ApiError',httpStatus=403),{k:result['failure'][k] for k in ('phase','type','httpStatus')})
         self.assertEqual(1,calls);self.assertEqual([],self.f['probe'].calls)
 
     def test_resource_policy_blocks_mutations_until_gate_and_host_queries_before_completion(self):

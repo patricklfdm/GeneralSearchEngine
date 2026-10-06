@@ -183,6 +183,8 @@ def summary(root):
     plan=c.read(plan_path) if plan_path.is_file() else {};stage=plan.get('resourcePlan',{});req=stage.get('request',{})
     provider=plan.get('configuration',{}).get('provider',{});reserve=stage.get('reservation',{})
     recovery=run.get('preparation',{}).get('ownerRecovery',{})
+    preparation=run.get('preparation',{})
+    failure=receipt.get('failure') or preparation.get('failure') or {}
     cleanup=run.get('cleanup') or recovery.get('cleanup') or {}
     def usd(key):return reserve[key]/1_000_000 if key in reserve else 'unavailable'
     rows=[('Status',receipt.get('status',run.get('status','NOT_STARTED_OR_INTERRUPTED'))),
@@ -201,7 +203,10 @@ def summary(root):
         ('Paid execution',receipt.get('paidCloud','not established')),('Engine workload',run.get('engineWorkloadExecuted',False)),
         ('Evidence retention',recovery.get('retention',run.get('retention','not established'))),('Cleanup',cleanup.get('status','not established')),
         ('Lease released',recovery.get('leaseReleased',run.get('leaseReleased',False))),('Full Phase 6 qualification',False),
-        ('Failure',receipt.get('failure','none'))]
+        ('Failure phase',failure.get('phase','none')),('Failure code',failure.get('code','unavailable')),
+        ('Failure type',failure.get('type','none')),('Guest operation',failure.get('operation','unavailable')),
+        ('Preparation elapsed (s)',preparation.get('elapsedSeconds','unavailable')),
+        ('Owner failure recovery elapsed (s)',recovery.get('elapsedSeconds','not entered'))]
     def safe(v):return html.escape(str(v)).replace('|','&#124;').replace('\n',' ').replace('\r',' ')
     text='# V5.1 native experiment\n\n| Parameter | Value |\n| --- | --- |\n'
     text+=''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)
@@ -213,6 +218,8 @@ def summary(root):
     if spent:
         text+='\n## Time accounting\n\n| Stage | Seconds |\n| --- | --- |\n'
         text+=''.join('| '+safe(k)+' | '+str(round(v/1e9,3))+' |\n' for k,v in spent.items())
+        if recovery:
+            text+='\nThe outer preparation interval includes immediate owner recovery; the separate elapsed values above distinguish them.\n'
     if run.get('errors'):
         text+='\n## Failures\n\n'+''.join('- '+safe(v.get('phase','unknown'))+': '+safe(v.get('type','failure'))+'\n' for v in run['errors'])
     text+='\nPreparation allocates nothing. Execution requires the exact plan digest and matching environment SSH secret. '
