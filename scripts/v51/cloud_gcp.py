@@ -116,6 +116,24 @@ class Compute:
         self.execution = adapter_execution(api, authority)
         self.base = 'https://compute.googleapis.com/compute/v1/projects/'+configuration['project']
         self.inventory = authority.resources(req)
+        self.cleanup_until = None
+
+    def begin_cleanup(self):
+        """One operation budget for this provider's entire cleanup, never per VM.
+
+        The HTTP layer still limits each request to 30 seconds. Native owners
+        additionally cap this budget at their already established stage/lease
+        deadline; a fresh expired reconciler gets its own bounded invocation.
+        """
+        if self.cleanup_until is None:
+            self.cleanup_until = min(self.api.clock()+a.workload.load()['budgets']['cleanupSeconds'],
+                                     getattr(self.api, 'deadline', float('inf')))
+
+    def read_deadline(self, deadline=None):
+        deadline = self.api.clock()+30 if deadline is None else deadline
+        if self.cleanup_until is not None: deadline = min(deadline, self.cleanup_until)
+        m.need(self.api.clock() < deadline, 'provider original cleanup/read deadline')
+        return deadline
 
     def cleanup_context(self):
         from .cloud_cleanup import context
@@ -207,7 +225,8 @@ class Compute:
         return dict(spec=deepcopy(spec), id=value['id'])
 
     def describe(self, spec, *, identity=None, deadline=None):
-        try: value = self.api.call('GET', self.url(spec, identity), deadline=deadline if deadline is not None else self.api.clock()+30)
+        deadline = self.read_deadline(deadline)
+        try: value = self.api.call('GET', self.url(spec, identity), deadline=deadline)
         except ApiError as error:
             if error.status == 404: return None
             raise
@@ -216,12 +235,21 @@ class Compute:
         return result
 
     def guest_host_key(self, spec, identity, *, deadline=None):
-        from .guest_setup import host_key
+        from .guest_setup import host_key, HostKeyPending
         m.need(spec['kind'] == 'instance' and self.guest_access is not None, 'unprepared guest access')
         deadline = min(deadline, self.api.clock()+30) if deadline is not None else self.api.clock()+30
         before = self.describe(spec, identity=identity, deadline=deadline)
         m.need(before is not None, 'host-key instance absent')
-        response = self.api.call('GET', self.url(spec)+'/getGuestAttributes?queryPath=hostkeys%2F', deadline=deadline, maximum=65536)
+        try:
+            response = self.api.call('GET', self.url(spec)+'/getGuestAttributes?queryPath=hostkeys%2F', deadline=deadline, maximum=65536)
+        except ApiError as error:
+            if error.status != 404: raise
+            # Guest attributes can be absent while the admitted VM still exists.
+            # A 404 is only a bounded readiness hint after exact owned-ID
+            # read-back; a vanished/replaced VM or denied read remains fatal.
+            after = self.describe(spec, identity=identity, deadline=deadline)
+            m.need(before == after, 'host-key instance replaced/absent')
+            raise HostKeyPending('host-key attributes not yet available') from None
         after = self.describe(spec, identity=identity, deadline=deadline)
         m.need(before == after, 'host-key instance replaced')
         return dict(instanceId=identity, publicKey=host_key(response))
@@ -291,7 +319,7 @@ class Compute:
 
     def operation(self, spec):
         query = urllib.parse.urlencode(dict(filter='clientOperationId = "'+self.operation_id(spec)+'"'))
-        value = self.api.call('GET', self.scope(spec)+'/operations?'+query, deadline=self.api.clock()+30)
+        value = self.api.call('GET', self.scope(spec)+'/operations?'+query, deadline=self.read_deadline())
         m.need(not value.get('nextPageToken') and len(value.get('items', [])) <= 1, 'ambiguous operation lookup')
         return self.decode_operation(spec, value['items'][0]) if value.get('items') else dict(spec=deepcopy(spec), state='UNKNOWN', id=None)
 
@@ -319,7 +347,7 @@ class Compute:
         return observed
 
     def delete(self, spec, expected_id):
-        numeric(expected_id); deadline = self.api.clock()+30
+        numeric(expected_id); self.begin_cleanup(); deadline = self.cleanup_until
         if self.describe(spec, identity=expected_id, deadline=deadline) is None: return
         # Discovery accepts numeric resource identifiers. Never fall back to a
         # name-based delete; a reused name must not identify another generation.

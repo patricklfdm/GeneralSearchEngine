@@ -152,7 +152,7 @@ class ProviderTest(unittest.TestCase):
         self.http.send = send; started = self.clock.seconds()
         with self.assertRaisesRegex(ValueError, 'deadline'):
             self.provider.delete(spec, made['id'])
-        self.assertEqual(1, len(replies)); self.assertEqual(30, self.clock.seconds()-started)
+        self.assertEqual(1, len(replies)); self.assertEqual(600, self.clock.seconds()-started)
     def test_private_fixed_topology_and_image_identity(self):
         specs = a.resources(self.req)
         for spec in specs:
@@ -211,5 +211,49 @@ class ProviderTest(unittest.TestCase):
                 self.assertEqual(result['cleanup']['status'], 'FAIL' if fault in ('pending-insert', 'delete-denied', 'image-drift') else 'PASS')
                 if fault == 'lost-insert': self.assertEqual(http.inserts, 3); self.assertFalse(http.resources)
                 self.assertFalse(result['paidCloud']); self.assertFalse(result['engineWorkloadExecuted'])
+
+    def run_delayed_cleanup(self, durations):
+        f.delay_instance_deletes(self.http, self.clock, durations)
+        temporary = tempfile.TemporaryDirectory(); self.addCleanup(temporary.cleanup)
+        root = Path(temporary.name)
+        probe = cloud_fake.Probe(root/'guest', self.clock)
+        return cloud_runner.Runner(self.store, self.provider, probe, root/'run',
+                                   clock=self.clock.nanos, wall=self.clock.wall).run(self.req, self.preflight, self.approval)
+
+    def test_slow_vm_deletes_finish_once_before_disk_cleanup(self):
+        original = self.http.send; timeouts = []
+        def send(method, url, headers, body, timeout, maximum):
+            timeouts.append(timeout)
+            return original(method, url, headers, body, timeout, maximum)
+        self.http.send = send
+        result = self.run_delayed_cleanup({1:85.5, 2:56.5, 3:50})
+        self.assertEqual('PASS', result['cleanup']['status'], result)
+        self.assertTrue(result['leaseReleased']); self.assertEqual({}, self.http.resources)
+        deletes = [r for r in self.http.requests if r['method']=='DELETE' and r['path'].startswith('/compute/')]
+        self.assertEqual(13, len(deletes)); self.assertEqual(13, len({r['query']['requestId'] for r in deletes}))
+        self.assertTrue(all('/instances/' in r['path'] for r in deletes[:3]))
+        self.assertTrue(timeouts and all(0 < value <= 30 for value in timeouts))
+
+    def test_cleanup_uses_one_shared_budget_and_keeps_lease_when_exhausted(self):
+        before = self.clock.seconds()
+        result = self.run_delayed_cleanup({1:350, 2:350, 3:350})
+        self.assertEqual('FAIL', result['cleanup']['status']); self.assertFalse(result['leaseReleased'])
+        self.assertIsNotNone(self.store.get(a.LEASE)); self.assertEqual(before+600, self.clock.seconds())
+        deletes = [r for r in self.http.requests if r['method']=='DELETE' and r['path'].startswith('/compute/')]
+        self.assertEqual(2, len(deletes)); self.assertTrue(all('/instances/' in r['path'] for r in deletes))
+        lease = self.store.get(a.LEASE)[1]; before_requests = len(self.http.requests)
+        cloud_runner.cleanup(self.provider, lease, lambda: None)
+        self.assertEqual(before_requests, len(self.http.requests), 'same provider cannot renew cleanup budget')
+
+    def test_delete_wait_is_capped_by_original_owner_deadline(self):
+        spec = next(s for s in a.resources(self.req) if s['kind']=='instance')
+        _, made = self.create(spec)
+        self.provider.api.deadline = self.clock.seconds()+45
+        f.delay_instance_deletes(self.http, self.clock, {1:85})
+        with self.assertRaisesRegex(ValueError, 'deadline'):
+            self.provider.delete(spec, made['id'])
+        self.assertEqual(self.provider.api.deadline, self.clock.seconds())
+        deletes = [r for r in self.http.requests if r['method']=='DELETE']
+        self.assertEqual(1, len(deletes))
 
 if __name__ == '__main__': unittest.main()

@@ -171,8 +171,11 @@ For each guest the IAP probe rechecks the retained lease/reservation, both disk
 attachments and exact numeric identities before and after connection. The guest
 agent's Ed25519 key is read through Compute with numeric-ID checks on both sides,
 then pinned to `gse-v51-<instanceId>` in a private known-hosts file. A valid response
-with no published Ed25519 key may be polled under the original deadline; malformed
-or duplicate keys, HTTP denial and changed IDs fail immediately. Native SSH uses
+with no published Ed25519 key may be polled under the original deadline. The
+[first-run correction](PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
+also permits a host-key GET 404 to remain pending only after the same owned numeric
+instance ID is read back; malformed/duplicate keys, permission denial and changed
+IDs still fail immediately. Native SSH uses
 the existing strict host-key/no-agent/no-forwarding options. Its only remote
 command is a bounded read of the metadata instance ID, which must equal the
 retained ID. It does not initialize volumes or execute packaged code.

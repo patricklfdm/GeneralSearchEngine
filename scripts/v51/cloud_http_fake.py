@@ -116,6 +116,40 @@ class Http:
         return self.reply(op)
 
 
+def delay_instance_deletes(http, clock, durations):
+    """Keep VMs/disks attached until their original asynchronous delete completes.
+
+    Synthetic HTTP only; durations are keyed by node ordinal. Polling advances
+    through the caller's injected clock/sleep, never wall-clock sleeps.
+    """
+    original = http.compute
+    pending = {}
+
+    def compute(method, path, query, body):
+        name = path.rsplit('/', 1)[-1]
+        if method == 'GET' and '/operations/' in path and name in pending:
+            until, resource_path, identity = pending[name]
+            if clock.seconds() >= until:
+                current = http.resources.get(resource_path)
+                if current is not None and current['id'] == identity:
+                    del http.resources[resource_path]
+                http.operations[name]['status'] = 'DONE'
+            return http.reply(http.operations[name])
+        saved = next(((key, deepcopy(value)) for key, value in http.resources.items()
+                      if '/instances/' in key and value['id'] == name), None) if method == 'DELETE' else None
+        result = original(method, path, query, body)
+        if saved is not None and result[0] == 200:
+            key, value = saved
+            duration = durations[int(value['name'][-1])]
+            op = m.strict_json(result[1]); op['status'] = 'RUNNING'
+            http.resources[key] = value; http.operations[op['name']] = op
+            pending[op['name']] = (clock.seconds()+duration, key, value['id'])
+            return http.reply(op)
+        return result
+    http.compute = compute
+    return pending
+
+
 def fixture(fault=None):
     cfg = configuration(); req, preflight, approval = cloud_fake.fixture()
     req['configurationSha256'] = cloud_gcp.config(cfg)

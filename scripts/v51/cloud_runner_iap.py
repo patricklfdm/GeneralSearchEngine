@@ -21,8 +21,8 @@ def _initial_host_key(api, row):
         m.need(api.clock() < api.deadline, 'Runner host-key original deadline')
         try: return api.provider().guest_host_key(row['spec'], row['id'], deadline=api.deadline)
         except setup.HostKeyPending:
-            # Only absence from a valid response is readiness. Denials, malformed
-            # or duplicate keys and numeric identity changes fail immediately.
+            # Missing keys or a 404 bracketed by exact owned-ID reads may be
+            # pending. Denials, malformed/duplicate keys and ID changes fail.
             api.provider().sleep(min(1, max(0, api.deadline-api.clock())))
 
 

@@ -154,6 +154,33 @@ class RunnerResourcesTest(unittest.TestCase):
         self.assertEqual('FAIL',self.prepare()['status']);self.assertEqual([],self.f['probe'].calls)
         self.assertEqual(13,http.inserts)
 
+    def test_host_key_404_then_ready_polls_same_instance_without_recreating(self):
+        http=self.f['http'];hook=http.hook;calls=0
+        def pending(method,path,query,body):
+            nonlocal calls
+            if path.path.endswith('-n3/getGuestAttributes'):
+                calls+=1
+                if calls<=2:return 404,b''
+            return hook(method,path,query,body)
+        http.hook=pending
+        result=self.prepare();self.assertEqual('PARTIAL',result['status'],result)
+        self.assertEqual(2,result['elapsedSeconds']);self.assertEqual(13,http.inserts)
+        self.assertEqual(3,len(self.f['probe'].calls))
+
+    def test_persistent_host_key_404_stops_at_original_deadline_without_iap(self):
+        http=self.f['http'];hook=http.hook;calls=0
+        def pending(method,path,query,body):
+            nonlocal calls
+            if path.path.endswith('/getGuestAttributes'):
+                calls+=1;self.f['clock'].sleep(29)
+                return 404,b''
+            return hook(method,path,query,body)
+        http.hook=pending
+        result=self.prepare()
+        self.assertEqual(dict(phase='iap',type='ValueError'),result['failure'])
+        self.assertEqual(600,result['elapsedSeconds']);self.assertEqual(20,calls)
+        self.assertEqual([],self.f['probe'].calls);self.assertEqual(13,http.inserts)
+
     def test_denied_host_key_query_is_not_readiness_retry(self):
         http=self.f['http'];hook=http.hook;calls=0
         def denied(method,path,query,body):

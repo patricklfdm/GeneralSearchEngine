@@ -88,3 +88,29 @@ completion after lost finalization. No GCP resources or engine workload are run.
 The suite joins the existing Python storage and focused cloud-storage gates.
 Local logs and the PR description are retained at `target/v51-owner-failure-cleanup/`.
 Protected CI for this candidate remains required.
+
+## Asynchronous delete wait correction — 2026-10-06
+
+The [first native experiment](PHASE_6_NATIVE_RUNNER_ENTRY.md#first-native-run-and-bounded-readiness-correction--2026-10-06)
+showed that a 30-second HTTP request cap cannot also serve as the full lifetime
+of a Compute delete operation. The provider now captures one cleanup deadline
+before resolving any resource: the existing 600-second allowance, capped by the
+native owner's original stage/lease deadline. Reentering cleanup on that provider
+does not renew it. A fresh expired reconciler gets its own bounded invocation.
+
+Each DELETE is still submitted once, by exact numeric ID and deterministic request
+ID. Only the returned, validated operation is polled. Successful instance deletion
+requires operation completion and numeric absence before advancing in the shared
+ordered cleanup. Failed deletes remain failures while other resources can still
+be attempted. Each HTTP request remains capped at 30 seconds; operation polls,
+later resource resolution and absence reads share the remaining cleanup budget.
+Exhaustion, failed/lost responses and identity drift preserve failure and the lease.
+No error is converted into successful cleanup merely because a later read is absent.
+
+This shared correction covers owner failure, successful-owner final cleanup and
+manual/scheduled expired reconciliation. It changes no workload, lease, grace,
+IAM, spending limit, mutation replay or active-lease protection. Synthetic tests
+keep disks attached while VM deletes take 85.5/56.5/50 seconds, verify once-only
+deletes and final absence through owner/manual/scheduled paths, and reject both
+whole-cleanup exhaustion and a shorter original owner deadline. Protected CI and
+real-provider verification of this correction remain pending.
