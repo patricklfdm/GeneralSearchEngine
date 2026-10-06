@@ -48,6 +48,7 @@ class _VolumeEndpoint:
 
     def call(self, action, token):
         m.need(len(self.calls) < 4096,'native volume connection bound')
+        self.api.guest_operation = dict(node=self.value['binding']['node'],kind='volume',action=action)
         self.recheck(); self.calls.append(dict(action=action))
         remote = ['sudo','-n','-u','root','-g','root','--','/usr/bin/python3','-I','-c',trusted_source('volume'),
                   action,base64.b64encode(m.canonical(self.value)).decode(),token]
@@ -97,6 +98,7 @@ class _PackageEndpoint(delivery.Endpoint):
         self.api,self.recheck = api,recheck
     def call(self, action, data, deadline, token, index=None):
         m.need(len(self.calls) < 4096 and deadline == self.api.deadline,'native package original deadline')
+        self.api.guest_operation = dict(node=self.value['binding']['node'],kind='package',action=action,index=index)
         self.recheck(); self.calls.append(dict(action=action,index=index))
         remote = ['/usr/bin/python3','-I','-c',trusted_source('package'),action,
                   base64.b64encode(m.canonical(self.value)).decode(),token,*([] if index is None else [str(index)])]
@@ -135,6 +137,7 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
     with tempfile.TemporaryDirectory(prefix='gse-v51-admitted-package-') as temporary:
         archive,manifest = _archive(originals,proof,temporary)
         for node,guest in enumerate(guests,1):
+            api.guest_operation = dict(node='node-'+str(node),kind='setup',action='identity')
             m.need(guest['node'] == node and guest['status'] == 'IDENTITY_VERIFIED','native guest inventory')
             row = next(row for row in lease['resources'] if row['spec']['kind'] == 'instance' and row['spec']['node'] == node)
             facts = guest['facts']; provider = api.provider()
@@ -172,7 +175,9 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
                     startup=final['startup'],recheck=recheck))
             finally:
                 c.write_once(base/'connections.json',dict(volume=disk.calls,package=transfer.calls if transfer is not None else []))
-        if continuation is not None: continuation(api,archive,prepared)
+        if continuation is not None:
+            api.guest_operation = dict(kind='session',action='prepare')
+            continuation(api,archive,prepared)
     return records
 
 

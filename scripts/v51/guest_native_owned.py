@@ -43,6 +43,7 @@ class Endpoint(delivery.Endpoint):
 
     def process(self, remote, data, deadline, **options):
         m.need(len(self.calls)<4096 and self.api.clock()<deadline<=self.api.deadline,'native session connection budget')
+        self.api.guest_operation = dict(node=self.value['binding']['node'],kind='session',action=remote[4])
         self.recheck();self.calls.append(dict(action=remote[4],index=None))
         try:
             raw=iap._network_exchange(self.api,self.target,remote,data,deadline,**options)

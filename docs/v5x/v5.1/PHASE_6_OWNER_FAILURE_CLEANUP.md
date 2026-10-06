@@ -112,5 +112,10 @@ manual/scheduled expired reconciliation. It changes no workload, lease, grace,
 IAM, spending limit, mutation replay or active-lease protection. Synthetic tests
 keep disks attached while VM deletes take 85.5/56.5/50 seconds, verify once-only
 deletes and final absence through owner/manual/scheduled paths, and reject both
-whole-cleanup exhaustion and a shorter original owner deadline. Protected CI and
-real-provider verification of this correction remain pending.
+whole-cleanup exhaustion and a shorter original owner deadline. PR #294 passed
+exact-master CI `37446172848` at `f526fddb4711dfbc5df0b1a21bbe432ea9721e41`
+(attempt 1, 36 jobs). The next paid run `37501739556` failed during package
+preparation; its owner recovery finished in 266.924 seconds with cleanup PASS,
+verified retention and lease release. Independent exact-ID reads confirmed all
+thirteen resources absent. This observes successful recovery for that failure,
+not completion of the experiment's workload or normal successful-owner path.

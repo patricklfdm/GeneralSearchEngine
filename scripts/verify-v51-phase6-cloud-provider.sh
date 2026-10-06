@@ -23,4 +23,5 @@ timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.guest_startup_
 timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.guest_root_admission_qualification "$work_dir/root-admission"
 timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.guest_root_qualification "$work_dir/root-receiver" "${root_args[@]}"
 timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.guest_ssh_qualification "$work_dir/ssh"
+timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.guest_preparation_connections_qualification "$work_dir/preparation-ssh"
 echo 'v51Provider=PASS execution=offline-provider-http paidCloud=false fullRemoteQualification=false'

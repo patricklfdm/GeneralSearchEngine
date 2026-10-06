@@ -141,7 +141,26 @@ class RunnerFailureTest(unittest.TestCase):
             return original(*args,**dict(kwargs,guest_stage=guest))
         with patch.object(q.r,'_run',side_effect=run): result = self.run_failure('complete')
         self.assert_finished(result)
-        self.assertEqual(dict(phase='guest-setup',type='ValueError'),result['failure'])
+        self.assertEqual(dict(phase='guest-setup',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')})
+        self.assertEqual('PREPARATION_REJECTED',result['failure']['code'])
+        self.assertNotIn('private diagnostic',str(result))
+
+    def test_guest_deadline_retains_node_and_part_without_exception_text(self):
+        original=q.r._run
+        operation=dict(node='node-3',kind='package',action='part',index=5)
+        def run(*args,**kwargs):
+            def guest(api,*_):
+                api.guest_operation=operation
+                self.input['clock'].sleep(api.deadline-api.clock())
+                raise ValueError('sensitive-token-and-provider-body')
+            return original(*args,**dict(kwargs,guest_stage=guest))
+        with patch.object(q.r,'_run',side_effect=run):result=self.run_failure('complete')
+        self.assert_finished(result);failure=result['failure']
+        self.assertEqual('PREPARATION_DEADLINE',failure['code']);self.assertEqual(operation,failure['operation'])
+        self.assertEqual(failure['deadlineNanos'],failure['observedNanos'])
+        self.assertNotIn('sensitive-token',str(result))
+        key=n.PREFIX+'attempts/'+n.validate_request(self.api.req)+'/preparation-failure/receipt.json'
+        retained=m.strict_json(self.store().get(key)[1]);self.assertEqual(failure,retained['failure'])
 
     def test_original_api_consumed_once_and_copy_or_offline_resource_api_cannot_authorize(self):
         self.run_failure()

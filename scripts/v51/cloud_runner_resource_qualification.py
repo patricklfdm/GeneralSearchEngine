@@ -79,7 +79,9 @@ def qualify(output):
                        'Runner unrelated resource failure: '+name)
             elif name != 'complete':
                 expected_error = 'ConnectionError' if name == 'iap-denied' else 'ValueError'
-                m.need(result['failure'] == dict(phase='iap',type=expected_error) and len(f['probe'].calls) == 1,
+                failure=result['failure'];expected_code='GUEST_TRANSPORT' if name=='iap-denied' else 'PREPARATION_REJECTED'
+                m.need({k:failure[k] for k in ('phase','type','code')} == dict(phase='iap',type=expected_error,code=expected_code)
+                       and failure['observedNanos']<failure['deadlineNanos'] and len(f['probe'].calls) == 1,
                        'Runner unrelated IAP failure: '+name)
             m.need(result['fullRemoteQualification'] is False and result['paidCloud'] is False and
                    result['engineWorkloadExecuted'] is False, 'Runner qualification scope')
