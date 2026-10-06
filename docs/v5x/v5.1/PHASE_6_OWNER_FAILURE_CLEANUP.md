@@ -1,6 +1,10 @@
 # V5.1 native preparation failure cleanup
 
-**Status:** local implementation candidate; corrected-source protected CI pending.
+**Status:** accepted with the native owned lifecycle through PR #292, master
+`20f977e8b5fed5bc5f54f53218c27d7971c2b3d4`,
+[CI 37424341468](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37424341468)
+attempt 1 (36 successful jobs). The subsequent
+[manual entry candidate](PHASE_6_NATIVE_RUNNER_ENTRY.md) has a separate review.
 The preceding [guest preparation](PHASE_6_NATIVE_GUEST_SETUP.md) was accepted
 through PR #291, master `70b452348832d6c2803870ae1b3ec74409e43ece`,
 [CI 37411762406](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37411762406)
@@ -66,8 +70,9 @@ deadlines; native HTTP mutations are submitted once, including HTTP 401 replies.
 Successful package preparation remains PARTIAL with an active charged lease.
 The same PR also connects a separate [native owned experiment entry](PHASE_6_NATIVE_OWNED_EXPERIMENT.md)
 for successful preparations. This failure continuation remains restricted to FAIL;
-it cannot finish a successful workload. No CLI/workflow, cloud execution, IAM
-change or paid authorization is added.
+it cannot finish a successful workload. This accepted cleanup change added no
+CLI/workflow, cloud execution, IAM change or paid authorization. The subsequent
+manual entry is reviewed separately.
 Full Phase 6 remains open.
 
 ## Qualification

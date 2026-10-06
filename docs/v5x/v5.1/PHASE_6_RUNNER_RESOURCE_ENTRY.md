@@ -11,9 +11,12 @@ probes are accepted through PR #290, master `5cf4bf10efb2df7b084ffee7f297877c7a4
 [CI 37400113526](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37400113526)
 attempt 2 (36 successful jobs). The rerun does not diagnose the original failure.
 [Native guest volume/package preparation](PHASE_6_NATIVE_GUEST_SETUP.md) is accepted
-through PR #291 / CI `37411762406` attempt 2 (36 jobs). The next local candidate
-is [immediate owner failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
-No paid CLI/workflow selection or native engine entry is exposed.
+through PR #291 / CI `37411762406` attempt 2 (36 jobs).
+[Immediate owner failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md) and the
+[native owned experiment](PHASE_6_NATIVE_OWNED_EXPERIMENT.md) are accepted through
+PR #292 / CI `37424341468` attempt 1 (36 jobs). The next candidate is the
+[manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md), requiring protected CI and
+separate exact-request approval before actual cloud execution.
 
 ## Starting evidence
 
@@ -99,7 +102,7 @@ The [accepted request inspection](PHASE_6_RUNNER_ADMISSION.md) now verifies
 original build/package, quote, exact approval, precheck and credentials without
 mutating state. The internal `cloud_runner_resources.prepare_native` constructor
 now connects that inspection to the shared creation policy and fixed IAP probes.
-It has no installed CLI/workflow caller. The ordinary `prepare` entry remains
+The manual entry routes through the complete owned lifecycle. The ordinary `prepare` entry remains
 offline-only; native construction requires the full original inputs and a fresh
 admission, not a copied `REQUEST_BOUND` receipt.
 
@@ -111,11 +114,11 @@ retention and cleanup so a failure does not get mislabelled as an engine result.
 
 | Surface | Reuse | Remaining native work |
 | --- | --- | --- |
-| Request and control | `cloud_native_authority`, storage CAS and accepted Runner request inspection | Local native constructor rechecks original inputs before lease CAS; reviewed paid dispatch remains closed |
+| Request and control | `cloud_native_authority`, storage CAS and accepted Runner request inspection | Accepted native constructor rechecks original inputs before lease CAS; explicit manual dispatch candidate awaits protected acceptance |
 | Compute | Shared thirteen-resource creation policy, input/context/intent/ID records | Local native constructor and interruption qualification; actual image use/creation remains to be observed in the approved experiment |
-| SSH/IAP | Accepted fixed identity probe, retained VM IDs, pinned host key and Runner credential | Accepted native volume/package continuation; native session/services candidate pending protected CI |
-| Workload | Accepted complete owned experiment and independent physical/history validators | Native complete-experiment bridge candidate; actual private guests and pinned controls still need an approved run |
-| Cleanup | Existing native retained-context reconciler and manual entry | Local immediate owner-failure cleanup/retention candidate, with unresolved cases retaining the lease and unchanged expiry replay |
+| SSH/IAP | Accepted fixed identity probe, retained VM IDs, pinned host key and Runner credential | Accepted native volume/package/session integration; actual IAP remains to be observed |
+| Workload | Accepted complete owned experiment and independent physical/history validators | Accepted native complete-experiment bridge; actual private guests and pinned controls still need an approved run |
+| Cleanup | Existing native retained-context reconciler and manual entry | Accepted immediate owner-failure cleanup/retention; unresolved cases retain the lease and unchanged expiry replay |
 | Review | Original GitHub artifacts, independent state and provider observations | Retain stage outcomes and audit coverage without claiming missing events were observed; price retention/failure overhang and preserve all failed reservations |
 
 The native path must remain a distinct authority domain. Changing an offline
@@ -202,8 +205,8 @@ and retains the failed reservation. The separate
 [owner-failure candidate](PHASE_6_OWNER_FAILURE_CLEANUP.md) now adds immediate
 in-process cleanup and durable failure evidence. The same PR adds the separate
 [native complete experiment bridge](PHASE_6_NATIVE_OWNED_EXPERIMENT.md), with shared
-physical/history validation and retention. Protected CI and paid workflow review
-remain open.
+physical/history validation and retention, accepted through PR #292. The manual
+workflow entry has its own protected review and exact-request execution approval.
 
 The explicit offline twin drives the same entry with synthetic CI archives,
 credential issuer, provider and IAP boundary. Its ten-case qualification covers

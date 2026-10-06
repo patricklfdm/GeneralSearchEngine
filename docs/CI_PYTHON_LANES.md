@@ -72,7 +72,12 @@ cap, retained in `runner-resource-entry`. Existing commands/timeouts and all
 Required job IDs remain unchanged; there is no additional Maven build or live
 cloud execution. The native guest-preparation candidate adds one storage module
 (nineteen in the focused union), including volume/package failures and fresh-process
-expiry cleanup. It adds no job or independent build.
+expiry cleanup. It adds no job or independent build. Native failure, owner and
+session tests subsequently brought the focused union to 22 modules. The manual
+Runner entry adds two admission modules for public preparation provenance,
+selection/approval guards, temporary SSH keys and summaries (24 modules total).
+The existing admission gate runs them without a new job or Maven build; actual
+paid workflow dispatch remains a separately confirmed operator action.
 
 Full CI now requires **32 job IDs**, expanding to **36 executed jobs** including
 Change scope, Required and the existing three rich-workload matrix children.
