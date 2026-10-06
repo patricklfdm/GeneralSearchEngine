@@ -49,11 +49,16 @@ def metadata(value):
             dict(key='enable-guest-attributes', value='TRUE'), dict(key='ssh-keys', value=value['user']+':'+value['publicKey'])]
 
 
+class HostKeyPending(ValueError):
+    """The validated guest-agent response has not published an Ed25519 key yet."""
+
+
 def host_key(response):
     m.need(response.get('queryPath') == 'hostkeys/', 'SSH host-key query scope')
     items = response.get('queryValue', {}).get('items', [])
     m.need(type(items) is list and len(items) <= 10, 'SSH host-key entries')
     selected = [v for v in items if v.get('namespace') == 'hostkeys' and v.get('key') == 'ssh-ed25519']
+    if not selected: raise HostKeyPending('SSH host key not published')
     m.need(len(selected) == 1, 'missing/duplicate SSH host key')
     # The guest agent publishes the base64 wire key in the value field.
     return ed25519('ssh-ed25519 '+selected[0]['value'])

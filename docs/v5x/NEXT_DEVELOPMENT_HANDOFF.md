@@ -324,12 +324,20 @@ The [ordinary resource lifecycle](v5.1/PHASE_6_EXPERIMENT_RESOURCES.md) adds sha
 once-only creation and fresh-process expired cleanup qualification, accepted
 through PR #288 at `d1f7b798897b83c51be6d3de53912860005b9f6d`, exact-master CI
 `37383808101` attempt 2 (36 jobs). The rerun does not diagnose its earlier failure.
-The [Runner request inspection candidate](v5.1/PHASE_6_RUNNER_ADMISSION.md) adds
+The [Runner request inspection](v5.1/PHASE_6_RUNNER_ADMISSION.md) adds
 original artifact, price, exact approval, precheck, ledger and bound credential
 checks in a read-only native constructor, with an offline resource/cleanup chain.
-Its protected CI is pending; no paid allocation workflow is exposed. Next connect
-native creation, IAP and the existing complete owned experiment, preserving the
-offline/native domain boundary and rechecking admission before any mutation.
+It is accepted through PR #289, master `e442e734564cd0cd34b47a29f0ab27401ab9a535`,
+CI `37392515334` attempt 1 (36 jobs). The local
+[native resource/IAP candidate](v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
+adds fresh original-input rechecks before lease CAS, thirteen once-only inserts,
+Runner-credential isolation, pinned-host/provider/guest identity probes and ten
+fresh-process interruption/expiry-cleanup cases. Its corrected-source CI remains
+pending; no paid allocation workflow is exposed. PARTIAL keeps the charged active
+lease, with no engine/full-qualification claim. Next connect volume setup, package
+delivery and existing complete owned services/workload, immediate failure cleanup
+and evidence retention. Preserve the offline/native domain boundary and original
+600/5400/1080-second preparation/lease/grace limits.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
 historical receipts and original expiry; no need to wait for schedule.

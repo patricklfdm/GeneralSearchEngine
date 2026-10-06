@@ -32,13 +32,13 @@ Other jobs stayed below fifteen minutes in these four runs.
 | Job ID | Work | Evidence |
 | --- | --- | --- |
 | `python-v51-core` | All V5.1 Python modules outside the cloud prefix, including guest and protocol tests | `python-v51-core-<sha>` |
-| `python-v51-admission` | Cloud Python modules other than the five storage modules below | `python-v51-admission-<sha>` |
-| `python-v51-storage` | `test_cloud_fixture_driver`, `test_cloud_topology_fixture`, `test_cloud_runner_storage`, `test_cloud_runner_storage_entry`, `test_cloud_experiment_resources` | `python-v51-storage-<sha>` |
+| `python-v51-admission` | Cloud Python modules other than the seven storage modules below | `python-v51-admission-<sha>` |
+| `python-v51-storage` | `test_cloud_fixture_driver`, `test_cloud_topology_fixture`, `test_cloud_runner_storage`, `test_cloud_runner_storage_entry`, `test_cloud_experiment_resources`, `test_cloud_runner_resources`, `test_cloud_runner_iap` | `python-v51-storage-<sha>` |
 | `v51-foundation` | Existing Phase 1 executable foundation, Phase 2/3 and local performance gates; restore the exact shared build | Original six evidence artifacts and build receipt |
 | `cloud-runner-tests` | Remote command foundation, cloud control, shell checks and all historical V2/V4/V5 runner checks | Original remote foundation and cloud control artifacts |
 | `cloud-preflight-tests` | Preflight, recent manual, identity, permission, cleanup deployment/observation and Runner precheck tests; preflight/identity/permission/request-inspection qualification and generated deployment/Runner review | Original `v51-cloud-preflight-<sha>` |
 | `cloud-cleanup-fixture-tests` | Cleanup fixture, operator driver and topology tests; single-disk review, single-disk/driver/topology and ordinary experiment resource qualification | `v51-cloud-preflight-cleanup-<sha>` |
-| `cloud-storage-tests` | Runner storage and entry tests; both nine-case storage qualifications | `v51-cloud-preflight-storage-<sha>` |
+| `cloud-storage-tests` | Runner storage, entry, resources and IAP tests; both nine-case storage qualifications and ten-case resource/IAP interruption qualification | `v51-cloud-preflight-storage-<sha>` |
 | `cloud-provider-tests` | Original OpenSSH setup, complete provider gate, safe archive packaging and upload | Original `v51-cloud-provider-<sha>` |
 
 `ci_v51_python` partitions every `scripts/v51/test_*.py` module by name. New cloud
@@ -65,7 +65,12 @@ receipt from one is treated as another's input. The later resource and two Runne
 request-inspection modules bring the focused union to sixteen modules; request
 inspection adds a bounded offline original-artifact/credential/resource/cleanup
 qualification in admission, with no new job or Maven dependency. Failure evidence uploads always
-run, with unique artifact names and the original fourteen-day retention.
+run, with unique artifact names and the original fourteen-day retention. The
+native resource/IAP candidate adds two focused storage modules (eighteen in the
+complete focused union) and one ten-case offline matrix with a 600-second process
+cap, retained in `runner-resource-entry`. Existing commands/timeouts and all
+Required job IDs remain unchanged; there is no additional Maven build or live
+cloud execution.
 
 Full CI now requires **32 job IDs**, expanding to **36 executed jobs** including
 Change scope, Required and the existing three rich-workload matrix children.
@@ -104,13 +109,13 @@ workflow and gate commands, in addition to Required/docs-only tests and exact
 Python discovery coverage. The native storage CLI correction is tracked in the
 [Runner entry record](v5x/v5.1/PHASE_6_RUNNER_STORAGE_ENTRY.md).
 
-## Ordinary experiment resource addition (local, pending CI)
+## Ordinary experiment resource addition (accepted PR #288)
 
 The existing cleanup-fixture lane now also runs `test_cloud_experiment_resources`
 and the forty-one-case `cloud_experiment_resource_qualification`, retaining its
 `experiment-resources` subtree in the original artifact. Its 600-second process
 cap bounds offline failure replay; the per-attempt preparation/lease/grace clocks
 remain 600/5400/1080 seconds. The same new unit module belongs to Python storage.
-All fourteen focused unit modules form the exact default/three-lane union;
+At that addition, fourteen focused unit modules formed the exact default/three-lane union;
 existing commands and timeouts are unchanged. No workflow job, Required check,
 Maven build or paid workflow input is added.

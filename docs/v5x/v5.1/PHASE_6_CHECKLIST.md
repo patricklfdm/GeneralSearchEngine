@@ -339,7 +339,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [ordinary experiment resource lifecycle](PHASE_6_EXPERIMENT_RESOURCES.md): shared once-only creation, durable plan/context/intent/ID records, ordinary DELETE profile and fresh-process cleanup qualification.
 - [x] Resource lifecycle protected acceptance: PR #288, master `d1f7b798897b83c51be6d3de53912860005b9f6d`, CI `37383808101` attempt 2 (36 jobs); original failure remains separate.
 - [x] Local [Runner request inspection](PHASE_6_RUNNER_ADMISSION.md): original CI build/package bytes, quote/exact approval, same-run precheck and bound credentials, read-only lease/ledger checks; offline thirteen-resource/cleanup chain.
-- [ ] Corrected-source protected CI for Runner request inspection.
+- [x] Request inspection protected acceptance: PR #289, master `e442e734564cd0cd34b47a29f0ab27401ab9a535`, CI `37392515334` attempt 1 (36 jobs).
+- [x] Local [native resource/IAP candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate): fresh admission and original-input recheck before CAS, once-only creation, isolated Runner credential and pinned guest identity probes; ten interrupted/expired cleanup cases, PARTIAL only.
+- [ ] Corrected-source protected CI for the native resource/IAP candidate.
 - [ ] Native allocation entry, actual image use/IAP and complete owned-experiment integration.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

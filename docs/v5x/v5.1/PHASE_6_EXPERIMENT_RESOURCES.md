@@ -116,15 +116,16 @@ cloud acceptance. No Maven reactor or cloud experiment was run for this batch.
 
 ## Remaining work
 
-The [Runner request inspection candidate](PHASE_6_RUNNER_ADMISSION.md) now binds
+The [accepted Runner request inspection](PHASE_6_RUNNER_ADMISSION.md) now binds
 original build/package/prices, fresh preflight, exact approval and renewable
-credentials in a read-only entry. Its own protected qualification is pending.
-Connect that boundary to native allocation, then connect
-IAP identity, guest setup and the complete owned experiment, including the
-independent workload/evidence gates and immediate cleanup/retention path. The
-current offline preparer deliberately exposes no network constructor or workflow
-input and leaves a successful resource stage active rather than marking a whole
-experiment PASS.
+credentials in a read-only entry (PR #289 / CI `37392515334`, attempt 1, 36 jobs).
+The [native resource/IAP candidate](PHASE_6_RUNNER_RESOURCE_ENTRY.md#native-resource-and-iap-candidate)
+connects fresh admission to this shared driver and fixed guest identity probes;
+its own protected qualification remains pending. Next connect guest volumes,
+package delivery and the complete owned experiment, including independent evidence
+gates and immediate cleanup/retention. This ordinary preparer remains offline-only;
+the internal native entry has no installed CLI/workflow caller. A successful
+resource stage keeps its active lease rather than marking a whole experiment PASS.
 
 Resource and IAP observations should come from the first separately approved
 experiment; an extra paid topology-only run is not a prerequisite by default.
