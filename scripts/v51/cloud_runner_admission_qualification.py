@@ -17,7 +17,7 @@ from . import cloud_experiment_resource_qualification as rq, cloud_native_author
 from . import performance_model as m
 from .remote_command import read, write_once
 
-COST = 5_000_000  # Synthetic quote, not a live price or permission to spend.
+COST = 10_000_000  # Synthetic quote, not a live price or permission to spend.
 
 
 def fixture(root):
@@ -84,7 +84,7 @@ def fixture(root):
     proof = artifacts.verify(raw, obs, binding, controls=controls)
     quote = dict(observedAt=pq.NOW, expiresAt=pq.NOW+86400, region='us-west4', machineType='n2-standard-8',
         diskType='pd-balanced', vmMicrousdPerHour=500000, diskMicrousdPerGiBHour=200,
-        pricedThroughSeconds=6480, retentionDays=30,
+        pricedThroughSeconds=19800, retentionDays=30,
         otherCostsMicrousd=dict(requests=10000, evidenceRetention=10000, network=10000, actions=10000, failureOverhang=100000),
         sources={k:'https://cloud.google.com/'+path for k, path in dict(compute='compute/all-pricing',
             disks='compute/disks-image-pricing', storage='storage/pricing', network='vpc/network-pricing').items()})

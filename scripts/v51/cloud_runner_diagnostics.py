@@ -13,6 +13,7 @@ GROUPS = {
     'TIMING_CHANGED': ('Runner timing allocation changed',),
     'APPROVAL_MISMATCH': ('Runner exact approval missing/changed',),
     'PRICE_CHANGED_OR_EXPIRED': ('Runner price freshness/selection',),
+    'PRICE_COVERAGE_INSUFFICIENT': ('Runner price lifetime coverage',),
     'RESERVATION_TOO_SMALL': ('Runner estimate exceeds approved reservation',),
     'BUDGET_CEILING': ('aggregate budget ceiling','ledger budget ceiling'),
     'SSH_KEY_INVALID': ('SSH owned private key','Runner private key inside evidence','Ed25519 public key','Ed25519 key encoding'),
@@ -46,10 +47,15 @@ GROUPS = {
         'guest facts changed/late','provider ownership/intent','instance guest access metadata',
         'resource labels','private interface','attached disk scope/automatic deletion','disk shape','boot image drift'),
     'RUNTIME_DEADLINE': ('owned original stage/lease deadline','owned runtime identity deadline',
-        'native session connection budget','native IAP deadline/domain','provider original cleanup/read deadline','guest facts deadline'),
+        'native session connection budget','native IAP deadline/domain','owned service readiness deadline','provider original cleanup/read deadline','guest facts deadline'),
     'RUNTIME_BUDGET_EXCEEDED': ('control/lease budget exceeded',*(
         'budget exceeded: '+stage for stage in ('preparation','healthy','leader-loss','maintenance','no-quorum','validation-retention','cleanup'))),
     'RUNTIME_QUALIFICATION_FAILED': ('owned independent qualification failed',),
+    'RUNTIME_COMMAND_UNRESOLVED': ('remote command unresolved; never resubmit','late remote command receipt'),
+    'RUNTIME_RETRY_EXHAUSTED': ('remote transient failures exhausted; never resubmit',
+        'remote uncertain replies exhausted; never resubmit','remote query limit exhausted; never resubmit','owned service observation failures exhausted'),
+    'RUNTIME_SERVICE_STOP_FAILED': ('owned service stop failed','owned service stop deadline','owned service earlier stop failed'),
+    'RUNTIME_FINALIZATION_INCOMPLETE': ('owned completion before sealed read-back', 'owned release before retention'),
 }
 MESSAGES = {message:code for code,messages in GROUPS.items() for message in messages}
 DETAILS = {
@@ -59,6 +65,7 @@ DETAILS = {
     'TIMING_CHANGED':'The preparation timing allocation does not match the reviewed profile.',
     'APPROVAL_MISMATCH':'The explicit approval does not match the exact prepared request.',
     'PRICE_CHANGED_OR_EXPIRED':'The price observation changed or expired.',
+    'PRICE_COVERAGE_INSUFFICIENT':'The price estimate does not cover preparation, the VM lifetime and cleanup grace.',
     'RESERVATION_TOO_SMALL':'The estimate exceeds the approved reservation.',
     'BUDGET_CEILING':'The request exceeds the cumulative ledger ceiling.',
     'SSH_KEY_INVALID':'The attempt SSH key or its private location is invalid.',
@@ -97,6 +104,10 @@ DETAILS = {
     'RUNTIME_SUBPROCESS_FAILED':'A runtime helper process failed.',
     'RUNTIME_INPUT_INVALID':'A runtime input or response has an invalid structure.',
     'RUNTIME_INTERRUPTED':'The runtime was interrupted.',
+    'RUNTIME_COMMAND_UNRESOLVED':'The original command did not yield a terminal receipt before its deadline; it was not resubmitted.',
+    'RUNTIME_RETRY_EXHAUSTED':'The bounded original-command observation limit was reached; mutations were not replayed.',
+    'RUNTIME_SERVICE_STOP_FAILED':'A service shutdown did not establish a confirmed stopped process within its bound.',
+    'RUNTIME_FINALIZATION_INCOMPLETE':'Completion or lease release was blocked because immutable evidence was not fully verified.',
     'UNCLASSIFIED':'No classified failure was retained; raw exception details are withheld.',
 }
 TYPES = (ValueError,TypeError,KeyError,OSError,FileNotFoundError,PermissionError,TimeoutError,ConnectionError,

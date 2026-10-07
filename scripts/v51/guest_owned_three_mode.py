@@ -3,12 +3,14 @@
 Provider facts remain modeled. This is not a full preset or native cloud admission.
 """
 from copy import deepcopy
+import json
 from pathlib import Path
 import time
 from . import cloud_authority as a, cloud_package as package, performance_model as m, remote_command as c
 from . import guest_owned_services as owned, guest_owned_workload as workload, guest_package_delivery as delivery
 from . import guest_owned_bootstrap as bootstrap, guest_bootstrap, guest_shared_source, guest_source_delivery
 from . import remote_collection as parts
+from . import native_experiment_timing as timing
 
 MODE='three-mode'
 SCOPE='owned-three-mode-healthy-experiment'
@@ -68,7 +70,7 @@ class Services:
         for mode,group in self.groups.items():
             try:group.stop(deadline)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(mode=mode,message=str(error)))
-        m.need(not errors,'three-mode service shutdown: '+str(errors))
+        m.need(not errors,'owned service stop failed')
     def retention_files(self):
         if self.root is None:return
         for mode,group in self.groups.items():
@@ -109,19 +111,23 @@ class Probe:
         self.prepared=True
     def cell(self, name, deadline):
         m.need(self.prepared and not self.attempted and name=='healthy','three-mode healthy consumed/scope')
-        self.attempted=True;end=min(deadline/10**9,self.clock()+900)
+        self.attempted=True;end=min(deadline/10**9,self.clock()+timing.cell(self.services.provider.req,'healthy'))
         record=dict(status='FAIL',startNanos=int(self.clock()*10**9),modes=[])
         try:
             for mode,probe in self.probes.items():
-                until=min(end,self.clock()+300)
+                until=min(end,self.clock()+timing.control(self.services.provider.req,'mode',300))
                 row=dict(mode=mode,status='FAIL',startNanos=int(self.clock()*10**9));record['modes'].append(row);self.started.append(mode)
+                if timing.selected(self.services.provider.req):print(json.dumps(dict(cell='healthy',mode=mode,status='START')),flush=True)
                 try:
                     probe.cell(name,int(until*10**9))
                     errors=probe.close_voters(until)
                     m.need(not errors,'three-mode previous voters not closed: '+str(errors))
                     m.need(self.clock()<=until,'three-mode healthy mode ceiling including close')
                     row['status']='PASS'
-                finally:row['endNanos']=int(self.clock()*10**9)
+                finally:
+                    row['endNanos']=int(self.clock()*10**9)
+                    if timing.selected(self.services.provider.req):print(json.dumps(dict(cell='healthy',mode=mode,status=row['status'],
+                        elapsedSeconds=round((row['endNanos']-row['startNanos'])/1e9,3))),flush=True)
             m.need(self.clock()<=end,'three-mode healthy category ceiling');self.cells=['healthy'];record['status']='PASS'
         finally:
             record['endNanos']=int(self.clock()*10**9);c.write_once(self.raw/'timeline.json',record)

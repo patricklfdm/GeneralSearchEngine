@@ -72,8 +72,8 @@ class NativeVolumeTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'consumed identity/deadline'):
             self.perform('prepare',base64.b64encode(r.canonical(changed)).decode())
         self.assertEqual(1,self.block.formats)
-    def test_native_volume_1800_second_boundary_rejects_excess_before_mutation(self):
-        wire_token=token(self.value,v.identity,1800)
+    def test_native_volume_3600_second_boundary_rejects_excess_before_mutation(self):
+        wire_token=token(self.value,v.identity,3600)
         budget=r.decode(base64.b64decode(wire_token));bad=deepcopy(budget);bad['expiresNanos']+=1
         with self.assertRaisesRegex(ValueError,'deadline duration'):
             self.perform('prepare',base64.b64encode(r.canonical(bad)).decode())
@@ -215,8 +215,8 @@ class NativePackageTest(unittest.TestCase):
         self.assertEqual('SUCCEEDED',session.begin(base,value,self.value)['state'])
         config=session.configuration(self.value,value,session.MODES[2])
         self.assertEqual(value['leaseExpiresNanos']/1e9,session.service_deadline(base,config))
-    def test_native_package_1800_second_boundary_and_consumed_deadline(self):
-        self.token=token(self.value,receiver.identity,1800);budget=r.decode(base64.b64decode(self.token))
+    def test_native_package_3600_second_boundary_and_consumed_deadline(self):
+        self.token=token(self.value,receiver.identity,3600);budget=r.decode(base64.b64decode(self.token))
         bad=deepcopy(budget);bad['expiresNanos']+=1
         with self.assertRaisesRegex(ValueError,'deadline duration'):
             p.perform('begin',self.value,base64.b64encode(r.canonical(bad)).decode(),io.BytesIO())
@@ -268,7 +268,7 @@ class NativeControllerTest(unittest.TestCase):
         self.assertEqual(600*10**9,r.deadline_limit_nanos())
         self.assertEqual(timing.PREPARATION_SECONDS*10**9,r.deadline_limit_nanos(timing.PROFILE))
         with self.assertRaisesRegex(ValueError,'deadline duration'):r.validate_budget(budget,v.identity(value))
-        for profile in ('canonical',1800,True,{},'owned-experiment-v2'):
+        for profile in ('canonical',1800,True,{},'owned-experiment-v1'):
             with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'deadline profile'):
                 r.validate_budget(budget,v.identity(value),profile=profile)
         for field in ('profile','maximumSeconds'):
@@ -388,7 +388,7 @@ class RunnerGuestStageTest(unittest.TestCase):
                 self.api=api
                 if self.fault=='archive':(self.f['originals']/'package.zip').write_bytes(b'changed')
                 if self.fault=='provider':next(v for v in self.f['http'].resources.values() if v['id']==guests[0]['facts']['provider']['instanceId'])['id']='999999'
-                if self.fault=='deadline':self.f['clock'].sleep(1801)
+                if self.fault=='deadline':self.f['clock'].sleep(3601)
                 return s._stage(api,key,root,guests,self.f['originals'],self.f['value']['artifacts'],endpoints=self.endpoints())
             return original(*args,**kwargs,guest_stage=stage)
         with patch.object(s.resources,'_run',side_effect=run):return self.q.prepare(self.f,self.root/'evidence')

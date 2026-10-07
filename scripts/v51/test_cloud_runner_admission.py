@@ -59,7 +59,7 @@ class RunnerAdmissionTest(unittest.TestCase):
             lambda v:v.update(paidAdmission=True)):
             value = deepcopy(original); change(value)
             with self.assertRaises((ValueError,KeyError)): r.validate_plan(value,self.f['clock'].wall())
-        self.assertEqual(3_002_000,r.prices(original['prices'],self.f['clock'].wall()))
+        self.assertEqual(8_885_000,r.prices(original['prices'],self.f['clock'].wall()))
         self.f['clock'].sleep(900)
         with self.assertRaises(ValueError): self.inspect()
         self.assertEqual([],self.f['issuer'].calls)

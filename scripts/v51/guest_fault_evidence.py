@@ -54,7 +54,7 @@ def resource_samples(own, killed):
         if row['boundary']=='closed':m.need(q['queuedBytes']==0 and q['admissionAvailable']==4 and q['inboundAvailable']==8 and q['maintenancePending']==0 and all(v['available']==2 for v in q['outboundAvailable']),'owned fault undrained reservations')
 
 
-def member(root, cfg, manifest, base, transcript, traces):
+def member(root, cfg, manifest, base, transcript, traces, *, timing_profile=None):
     rows,service=guest_evidence.commands(root,cfg,transcript,physical=True)
     m.need(all(r['state']=='SUCCEEDED' for _,r in rows),'owned fault failed original command')
     starts=[(q,r) for q,r in rows if q['command']=='start-voter' or q['command']=='fault' and q['payload']=={'action':'restart'}]
@@ -80,7 +80,8 @@ def member(root, cfg, manifest, base, transcript, traces):
         m.need(previous<=start['startedNanos']<=start['endedNanos']<=stop['startedNanos']<=stop['endedNanos'],'owned fault local lifecycle order')
         previous=stop['endedNanos']
         cp=':'.join(str(base/n) for n in [*spec['jars'],spec['classes']])
-        m.need(identity['args']==[str(base/'runtime/bin/java'),*env['jvmArguments'],'-cp',cp,package.PACKAGE+'replication.V51PublicWorker',cfg['root'],node[-1],'remote-fault',str(gen)],'owned fault JVM argv')
+        tail=[timing_profile] if timing_profile is not None else []
+        m.need(identity['args']==[str(base/'runtime/bin/java'),*env['jvmArguments'],'-cp',cp,package.PACKAGE+'replication.V51PublicWorker',cfg['root'],node[-1],'remote-fault',str(gen),*tail],'owned fault JVM argv')
         own=[r for r in traces if r['pid']==pid]
         m.need(own and [r['order'] for r in own]==list(range(1,len(own)+1)) and all(r['generation']==gen for r in own),'owned fault trace continuity')
         settings=[r for r in own if r['event']=='FAULT_CONFIGURATION']
@@ -113,9 +114,11 @@ def member(root, cfg, manifest, base, transcript, traces):
 
 
 def replay_case(raw, scratch, req, budgets, *, authority=a):
+    from . import native_experiment_timing as timing
+    authority.validate_request(req)
     record=c.read(raw/'receipt.json');history=c.read(raw/'history.json');case=record['case'];source=c.read(raw/'plan.json')
     m.need(case in CASES and source['request']==req and source['case']==case and source['scope']=='owned-experiment-leader-loss-no-quorum' and
-           record['status']=='EXECUTED' and record['seconds']==(240 if case=='maintenance' else 120) and not record['cleanupErrors'] and
+           record['status']=='EXECUTED' and record['seconds']==timing.cell(req,case) and not record['cleanupErrors'] and
            0<record['endNanos']-record['startNanos']<=record['seconds']*10**9,'owned fault case completion/budget')
     m.need(len(source['configs'])==3 and [v['binding']['node'] for v in source['configs']]==list(faults.NODES),'owned fault members')
     manifest_raw=(raw/'package-manifest.json').read_bytes();manifest=m.strict_json(manifest_raw)
@@ -142,7 +145,8 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         traces[node]=[m.strict_json(line) for line in raw_trace.splitlines()]
         m.need(all(r['node']==node and type(r['pid']) is int and type(r['localNanos']) is int for r in traces[node]),'owned fault trace owner')
         bases[node]=Path(ctl['packageRoot'])
-        rows[node],pids,exchanges=member(replay,cfg,manifest,Path(ctl['packageRoot']),ctl['transcript'],traces[node]);processes.update(pids)
+        rows[node],pids,exchanges=member(replay,cfg,manifest,Path(ctl['packageRoot']),ctl['transcript'],traces[node],
+            timing_profile=timing.PROFILE if timing.selected(req) else None);processes.update(pids)
         previous=0
         for q,r in rows[node]:
             path=raw/'commands'/node[-1]/q['commandId']
@@ -180,8 +184,8 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     location=Location(joint,configs,indexes)
     def maintenance(rr,hh,tt,rrows):
         from . import guest_maintenance_evidence as maintenance
-        return maintenance.check(rr,hh,tt,rrows,observations,collections,configs,bases,manifest)
-    result=check_case(record,history,traces,joint,location,processes,rows,observations,collections,maintenance)
+        return maintenance.check(rr,hh,tt,rrows,observations,collections,configs,bases,manifest,request=req)
+    result=check_case(record,history,traces,joint,location,processes,rows,observations,collections,maintenance,request=req)
     if case=='maintenance':
         from .guest_maintenance_evidence import replay
         evidence=maintenance(record,history,traces,rows)
@@ -200,7 +204,7 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         elif name=='wrong-refusal-or-rejoin':
             if case in ('leader-loss','maintenance'):rr['rejoins']=[]
             else:rr['refusals']=[]
-        elif name=='late-progress':rr['progress'][0]['endNanos']=rr['faultStartNanos']+61*10**9
+        elif name=='late-progress':rr['progress'][0]['endNanos']=rr['faultStartNanos']+(timing.control(req,'progress',60)+1)*10**9
         elif name=='stale-read':hh[-1]['documents']=[]
         elif name=='missing-proof':tt={n:[v for v in seq if not(v['event']=='FORCE' and v['kind']=='PROOF')] for n,seq in tt.items()}
         elif name=='missing-pin-install':tt={n:[v for v in seq if v['event']!='REJOIN_INSTALLED'] for n,seq in tt.items()}
@@ -208,14 +212,16 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         elif name=='missing-unpin':tt={n:[v for v in seq if not(v['event']=='PERFORMANCE_SAMPLE' and v['queues']['pinsBytes']==0)] for n,seq in tt.items()}
         elif name=='changed-pinned-view':rr['pinnedRead']['documents']=[]
         else:tt={n:[v for v in seq if not(v['event']=='CLIENT_INVOKE' and v.get('opId')==hh[-1]['opId'])] for n,seq in tt.items()}
-        try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections,maintenance)
+        try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections,maintenance,request=req)
         except ValueError as error:negatives.append(dict(case=name,status='REJECTED',reason=str(error)))
         else:raise ValueError('owned fault negative admitted: '+name)
     return dict(case=case,status='PASS',calls=len(history),result=result,negatives=negatives)
 
 
-def check_case(record, history, traces, root, location, processes, rows, obs, collections, maintenance=None):
-    faults.schedule(history,record)
+def check_case(record, history, traces, root, location, processes, rows, obs, collections, maintenance=None,*,request=None):
+    from . import native_experiment_timing as timing
+    request=request or {}
+    faults.schedule(history,record,progress_seconds=timing.control(request,'progress',60))
     requests=[v for v in record['events'] if v['event']=='fault-request']
     m.need(len(requests)==1 and requests[0]['node']==record['seedLeader'] and requests[0]['controllerNanos']==record['faultStartNanos'] and
            history[3]['endNanos']<=record['faultStartNanos'],'owned fault seed/fault timing')
@@ -243,14 +249,14 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
     else:
         m.need(not kills and len(processes)==3,'owned fault unexpected crash')
         ready=[v for v in record['events'] if v['event']=='isolated-all'];heal=[v for v in record['events'] if v['event']=='heal-request']
-        m.need(len(ready)==len(heal)==1 and 15*10**9<=heal[0]['controllerNanos']-ready[0]['controllerNanos']<=17*10**9,'owned fault all-node hold interval')
+        m.need(len(ready)==len(heal)==1 and 15*10**9<=heal[0]['controllerNanos']-ready[0]['controllerNanos']<=timing.control(request,'hold-controller',17)*10**9,'owned fault all-node hold interval')
         for node,seq in rows.items():
             isolated=[(q,r) for q,r in seq if q['command']=='fault' and q['payload']=={'action':'isolate'}]
             healed=[(q,r) for q,r in seq if q['command']=='fault' and q['payload']=={'action':'heal'}]
             m.need(len(isolated)==len(healed)==1,'owned fault isolation/heal coverage')
             iq,ir=isolated[0];hq,hr=healed[0];actual=c.read(collections[node]/'isolation.json')
             m.need(ir['result']=={k:actual[k] for k in ('appliedNanos','rules')} and hr['result']==actual and
-                   actual['rules']==RULES and actual['watchdog'] is False and 15*10**9<=actual['healedNanos']-actual['appliedNanos']<=17*10**9,
+                   actual['rules']==RULES and actual['watchdog'] is False and 15*10**9<=actual['healedNanos']-actual['appliedNanos']<=timing.control(request,'isolation',17)*10**9,
                    'owned fault guest hold/watchdog')
             m.need(obs[iq['commandId']]['endNanos']<=ready[0]['controllerNanos']<=heal[0]['controllerNanos']<=obs[hq['commandId']]['startNanos'],'owned fault isolation controller barrier')
             drops=[v for v in traces[node] if v['event']=='NETWORK_DROP']
@@ -270,7 +276,7 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
         observed=[(q,r) for q,r in rows[join['node']] if q['command']=='fault' and q['payload']=={'action':'status'} and r['result']['response']==join['observed']]
         m.need(join['through']>=cut['index'] and len(observed)==1 and
                join['startNanos']<=obs[observed[0][0]['commandId']]['startNanos']<=obs[observed[0][0]['commandId']]['endNanos']<=join['endNanos'],'owned fault original rejoin observation')
-        m.need(0<=join['endNanos']-join['startNanos']<=60*10**9 and join['observed']['provenIndex']>=join['through'] and
+        m.need(0<=join['endNanos']-join['startNanos']<=timing.control(request,'rejoin',60)*10**9 and join['observed']['provenIndex']>=join['through'] and
                location.inspect(root/join['node'])['provenThrough']>=join['through'],'owned fault durable rejoin')
     m.need(all(join['endNanos']<=history[-1]['startNanos'] for join in record['rejoins']),'owned fault final read before rejoin')
     logical=[h for h in history if h['kind'] in ('read','addAll')]

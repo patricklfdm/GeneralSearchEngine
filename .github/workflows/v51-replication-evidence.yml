@@ -135,7 +135,7 @@ jobs:
     needs: observations
     if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' || inputs.runner_experiment != 'off' || inputs.runner_experiment_quote != '' || inputs.runner_prepared_run != '' || inputs.runner_experiment_confirmation != '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 120 || 15 }}
+    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 270 || 15 }}
     environment: v51-cloud-benchmark
     permissions:
       contents: read
@@ -254,7 +254,7 @@ jobs:
         env:
           V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
         run: |
-          timeout --signal=TERM --kill-after=60s 6000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
+          timeout --signal=TERM --kill-after=60s 15000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
             --output target/v51-experiment
 

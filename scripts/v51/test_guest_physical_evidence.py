@@ -88,7 +88,7 @@ class PhysicalScopeTest(unittest.TestCase):
         def status(member,end):
             calls.append((member,end));return dict(state='LEADER_READY' if member==1 else 'FOLLOWER',provenIndex=91)
         e.converge([1,2,3],1,status,clock.seconds()+5,clock=clock.seconds,sleep=clock.sleep)
-        self.assertEqual([n for n,_ in calls],[1,1,2,3]);self.assertEqual(len({end for _,end in calls}),1)
+        self.assertEqual([n for n,_ in calls],[1,2,3]);self.assertEqual(len({end for _,end in calls}),1)
         def behind(member,end):return dict(state='LEADER_READY',provenIndex=91 if member==1 else 90)
         with self.assertRaisesRegex(ValueError,'deadline'):
             e.converge([1,2,3],1,behind,clock.seconds()+.1,clock=clock.seconds,sleep=clock.sleep)

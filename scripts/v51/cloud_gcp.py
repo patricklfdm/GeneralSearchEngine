@@ -4,6 +4,7 @@ No paid runner is exposed here. Generic live adapters remain unqualified; the
 scoped cleanup adapter has its own tag rejected by the paid control runner.
 """
 from copy import deepcopy
+from . import native_experiment_timing as timing
 import re
 import ipaddress
 import time
@@ -126,7 +127,9 @@ class Compute:
         deadline; a fresh expired reconciler gets its own bounded invocation.
         """
         if self.cleanup_until is None:
-            self.cleanup_until = min(self.api.clock()+a.workload.load()['budgets']['cleanupSeconds'],
+            from . import native_experiment_timing as timing
+            seconds=timing.STAGES['cleanup'] if timing.selected(self.req) else a.workload.load()['budgets']['cleanupSeconds']
+            self.cleanup_until = min(self.api.clock()+seconds,
                                      getattr(self.api, 'deadline', float('inf')))
 
     def read_deadline(self, deadline=None):
@@ -179,7 +182,7 @@ class Compute:
                     serviceAccounts=[], disks=[dict(source=self.url(r), boot=r['purpose'] == 'boot', autoDelete=False,
                         mode='READ_WRITE', type='PERSISTENT', deviceName='gse-'+r['purpose']+'-'+str(r['node'])) for r in disks],
                     scheduling=dict(provisioningModel='STANDARD', automaticRestart=False,
-                        maxRunDuration=dict(seconds='5400'), instanceTerminationAction='DELETE'),
+                        maxRunDuration=dict(seconds=str(timing.LEASE_SECONDS if timing.selected(self.req) else 5400)), instanceTerminationAction='DELETE'),
                     metadata=dict(items=[dict(key='block-project-ssh-keys', value='TRUE'), dict(key='enable-oslogin', value='FALSE')]))
         if spec['kind'] == 'instance' and self.guest_access is not None:
             from .guest_setup import metadata

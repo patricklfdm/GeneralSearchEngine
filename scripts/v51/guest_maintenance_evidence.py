@@ -5,7 +5,9 @@ from . import performance_model as m, remote_command as c, cloud_package as pack
 from . import cloud_workload_contract as contract, performance_plan, guest_authority, controls, guest_bootstrap
 
 
-def check(record, history, traces, rows, obs, collections, configs, bases, manifest):
+def check(record, history, traces, rows, obs, collections, configs, bases, manifest,*,request=None):
+    from . import native_experiment_timing as timing
+    request=request or {}
     leader=record['seedLeader'];own=traces[leader];cut=record['cut']
     def commands(action):return [(q,r) for q,r in rows[leader] if q['command']=='fault' and q['payload'].get('action')==action]
     pins,releases=commands('pin'),commands('release-pin')
@@ -19,7 +21,7 @@ def check(record, history, traces, rows, obs, collections, configs, bases, manif
     release=[r for r in own if r['event']=='CUT_RELEASED' and r['cut']=='READ_CAPTURED']
     m.need(len(release)==1 and release[0]['pid']==cut['pid'],'maintenance release witness')
     installed=[r for r in own if r['event']=='REJOIN_INSTALLED' and r['pid']==cut['pid'] and cut['order']<r['order']<release[0]['order']]
-    m.need(installed and release[0]['localNanos']-cut['localNanos']<=60*10**9,'maintenance no bounded rejoin while pinned')
+    m.need(installed and release[0]['localNanos']-cut['localNanos']<=timing.control(request,'pin',60)*10**9,'maintenance no bounded rejoin while pinned')
     states=commands('pin-state')
     m.need(any(r['result']['cut']==cut and r['result']['installed'] in installed and r['result']['pending'] is True and
                obs[q['commandId']]['endNanos']<=obs[rq['commandId']]['startNanos'] for q,r in states),'maintenance original pending observation')
@@ -31,7 +33,7 @@ def check(record, history, traces, rows, obs, collections, configs, bases, manif
         m.need(len(isolated)==len(healed)==1,'maintenance isolation coverage')
         iq,ir=isolated[0];hq,hr=healed[0];actual=c.read(collections[node]/'isolation.json')
         m.need(ir['result']=={k:actual[k] for k in ('appliedNanos','rules')} and hr['result']==actual and actual['rules']==rules and
-               actual['watchdog'] is False and 0<actual['healedNanos']-actual['appliedNanos']<=60*10**9,'maintenance isolation/watchdog')
+               actual['watchdog'] is False and 0<actual['healedNanos']-actual['appliedNanos']<=timing.control(request,'isolation',60)*10**9,'maintenance isolation/watchdog')
         if any(v['event']=='NETWORK_DROP' and v['rule'] in rules and actual['appliedNanos']<=v['localNanos']<=actual['healedNanos'] for v in traces[node]):dropped.add(node)
         isolation_ends.append(obs[iq['commandId']]['endNanos']);heal_starts.append(obs[hq['commandId']]['startNanos'])
     m.need(leader in dropped and len(dropped)>=2,'maintenance missing bidirectional network drops')

@@ -62,7 +62,7 @@ JOB = r'''
     needs: observations
     if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' || inputs.runner_experiment != 'off' || inputs.runner_experiment_quote != '' || inputs.runner_prepared_run != '' || inputs.runner_experiment_confirmation != '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 120 || 15 }}
+    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 270 || 15 }}
     environment: v51-cloud-benchmark
     permissions:
       contents: read
@@ -181,7 +181,7 @@ JOB = r'''
         env:
           V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
         run: |
-          timeout --signal=TERM --kill-after=60s 6000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
+          timeout --signal=TERM --kill-after=60s 15000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
             --output target/v51-experiment
 
@@ -242,7 +242,7 @@ This generator neither dispatches a workflow nor applies the included commands.
   public plan from original CI artifacts. It makes no resource or ledger writes.
 - Review the resulting plan, original artifacts, topology, estimate, prior charges,
   maximum reservation, 15-minute admission window and reviewed timing allocation.
-  Admitted preparation has one 1800-second limit inside the original 5400-second lease.
+  Admitted preparation has one 3600-second limit inside the original 14400-second lease.
   Preparation is not paid approval.
 - `runner_experiment=run` needs its preparation run ID and exact plan SHA-256, fresh
   same-run observations and environment approval. Only this selection calls the

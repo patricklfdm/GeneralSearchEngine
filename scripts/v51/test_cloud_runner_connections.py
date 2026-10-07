@@ -107,5 +107,45 @@ class PreparationConnectionsTest(unittest.TestCase):
             with self.assertRaises(ValueError),self.scope():pass
         self.assertEqual([],self.masters)
 
+    def test_long_stage_rotates_token_epochs_without_extending_stage_or_replaying(self):
+        self.end=self.api.deadline=self.now+3600
+        self.api.tokens=lambda _:h.AccessToken('private-token-sentinel',self.now+1000)
+        with patch.object(self.api,'tokens',wraps=self.api.tokens) as tokens,self.scope():
+            self.call();first=self.masters[0]
+            self.assertEqual(self.now+900,first.deadline)
+            self.assertEqual(self.now+120,first.calls[0][2])
+            self.now+=800
+            self.call('query');second=self.masters[1]
+            self.assertTrue(first.closed);self.assertFalse(second.closed)
+            self.assertNotEqual(first.root.parent,second.root.parent)
+            # The cached token covers only another 200 seconds. A fresh short
+            # credential must cover this connection epoch, never the full hour.
+            self.assertEqual(2,tokens.call_count);self.assertEqual(self.now+900,second.deadline)
+            self.assertEqual(['part','query'],[v.calls[0][0][-1] for v in self.masters])
+            self.assertEqual(self.end,self.api._preparation_connections.deadline)
+        self.assertTrue(all(v.closed and not v.root.parent.exists() for v in self.masters))
+
+    def test_native_runtime_pool_requires_original_owned_api_and_runtime_stage(self):
+        from .cloud_runner_owned import _Api
+        with self.assertRaisesRegex(ValueError,'runtime owner/stage'),iap.runtime_connections(self.api,self.root/'runtime.json'):pass
+        api=_Api.__new__(_Api);api.__dict__.update(self.api.__dict__);api.transport=SimpleNamespace(offline=False);api.phase='healthy'
+        with iap.runtime_connections(api,self.root/'runtime.json'):
+            self.assertTrue(hasattr(api,'_preparation_connections'))
+            with self.assertRaises(ValueError),iap.runtime_connections(api,self.root/'nested.json'):pass
+        api.phase='completion'
+        with self.assertRaises(ValueError),iap.runtime_connections(api,self.root/'closed.json'):pass
+
+    def test_parallel_guest_queries_have_private_connections_and_one_credential_epoch(self):
+        from concurrent.futures import ThreadPoolExecutor
+        public=Path(self.target['knownHosts']).read_text().split(' ',1)[1].strip();targets=[]
+        for identity in ('123','456','789'):
+            pin=self.root/('known-'+identity);setup.pin(pin,identity,public)
+            targets.append(dict(self.target,instanceId=identity,instance='gse-v51-'+identity,knownHosts=str(pin)))
+        with patch.object(self.api,'tokens',wraps=self.api.tokens) as tokens,self.scope(),ThreadPoolExecutor(max_workers=3) as pool:
+            calls=[pool.submit(iap._network_exchange,self.api,t,['python3','query'],b'',self.end,maximum=4096) for t in targets]
+            self.assertEqual([b'answer']*3,[future.result() for future in calls]);self.assertEqual(1,tokens.call_count)
+            self.assertEqual(3,len({v.root for v in self.masters}))
+        self.assertTrue(all(v.closed for v in self.masters))
+
 
 if __name__=='__main__':unittest.main()

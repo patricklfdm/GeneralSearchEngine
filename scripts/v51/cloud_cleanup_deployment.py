@@ -42,7 +42,7 @@ concurrency:
 jobs:
   cleanup:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 30
     environment: '''+selected['environment']+'''
     permissions:
       contents: read

@@ -7,6 +7,7 @@ from copy import deepcopy
 import re
 from . import cloud_workload_contract as workload, performance_model as m
 from .cloud_plan import SUITE, MAXIMUM_BUDGET_MICROUSD
+from . import native_experiment_timing as timing
 
 EXECUTION = 'fake-v51-cloud-control'
 ADAPTER_EXECUTION = EXECUTION
@@ -20,7 +21,7 @@ def formats(domain):
     m.need(domain in ('fake', 'native'), 'cloud authority domain')
     if domain == 'native':
         return dict(execution='gcp-v51-owned-control', paid=True,
-                    requests=('gse-v51-native-request-v1',), access='gse-v51-native-request-v1',
+                    requests=('gse-v51-native-request-v1', timing.REQUEST_SCHEMA), access='gse-v51-native-request-v1',
                     lease='gse-v51-native-lease-v1', ledger='gse-v51-native-ledger-v1')
     return dict(execution=EXECUTION, paid=False,
                 requests=('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2'), access='gse-v51-cloud-request-v2',
@@ -51,7 +52,7 @@ def integer(value, minimum=0, maximum=(1 << 63)-1):
     return value
 
 
-def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None, domain='fake'):
+def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None, domain='fake', timing_profile=None):
     fmt = formats(domain)
     result = dict(schema=fmt['requests'][0], suite=SUITE, execution=fmt['execution'], paidCloud=fmt['paid'],
                   source=source, bundleSha256=bundle, configurationSha256=configuration,
@@ -59,6 +60,9 @@ def request(source, bundle, configuration, sequence, attempt, member, *, now, or
                   order=order, member=member, createdAt=now)
     if guest_access_sha256 is not None:
         result.update(schema=fmt['access'], guestAccessSha256=guest_access_sha256)
+    if timing_profile is not None:
+        m.need(domain == 'native', 'timing profile requires native experiment')
+        result.update(schema=timing.REQUEST_SCHEMA, timingProfile=timing_profile)
     validate_request(result, domain=domain)
     return result
 
@@ -67,6 +71,10 @@ def validate_request(value, *, domain='fake'):
     fmt = formats(domain)
     m.need(type(value) is dict, 'cloud request type')
     version = value.get('schema'); extra = {'guestAccessSha256'} if version == fmt['access'] else set()
+    if domain == 'native' and version == timing.REQUEST_SCHEMA:
+        extra = {'guestAccessSha256', 'timingProfile'}
+        m.need(value.get('timingProfile') == timing.PROFILE and value.get('member') == 'experiment',
+               'native experiment timing profile/scope')
     m.need(version in fmt['requests'] and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
     if extra: digest(value['guestAccessSha256'])
     m.need((value['schema'], value['suite'], value['execution'], value['paidCloud']) ==
@@ -77,7 +85,8 @@ def validate_request(value, *, domain='fake'):
         digest(value[key], length)
     m.need(value['workloadSha256'] == workload.PLAN_SHA256 and value['order'] in ORDERS and
            value['member'] in ORDERS[value['order']], 'cloud workload/order/member')
-    integer(value['createdAt'], 1, (1 << 63)-6481)
+    maximum=(1 << 63)-(timing.LEASE_SECONDS+timing.GRACE_SECONDS+1 if timing.selected(value) else 6481)
+    integer(value['createdAt'], 1, maximum)
     return m.sha(m.canonical(value))
 
 
@@ -197,9 +206,11 @@ def resources(req, *, domain='fake'):
 
 def lease(req, now, *, domain='fake'):
     fmt = formats(domain)
-    validate_request(req, domain=domain); integer(now, req['createdAt'], (1 << 63)-6481)
+    validate_request(req, domain=domain)
+    seconds, grace = (timing.LEASE_SECONDS, timing.GRACE_SECONDS) if timing.selected(req) else (5400, 1080)
+    integer(now, req['createdAt'], (1 << 63)-seconds-grace-1)
     return dict(schema=fmt['lease'], suite=SUITE, execution=fmt['execution'], request=deepcopy(req),
-                startedAt=now, expiresAt=now+5400, graceSeconds=1080,
+                startedAt=now, expiresAt=now+seconds, graceSeconds=grace,
                 resources=[dict(spec=spec, attempted=False, id=None) for spec in resources(req, domain=domain)])
 
 

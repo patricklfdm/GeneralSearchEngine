@@ -32,7 +32,9 @@ def prices(value, now):
     m.need(value['observedAt'] <= now < value['expiresAt'] and
            (value['region'], value['machineType'], value['diskType']) ==
            (env['zone'].rsplit('-', 1)[0], env['machineType'], env['diskType']), 'Runner price freshness/selection')
-    seconds = a.integer(value['pricedThroughSeconds'], 6480, 86400)
+    from .native_experiment_timing import PRICE_COVERAGE_SECONDS
+    seconds = a.integer(value['pricedThroughSeconds'], 1, 86400)
+    m.need(seconds >= PRICE_COVERAGE_SECONDS, 'Runner price lifetime coverage')
     a.integer(value['retentionDays'], 30, 365)
     vm = a.integer(value['vmMicrousdPerHour'], 1, a.MAXIMUM_BUDGET_MICROUSD)
     disk = a.integer(value['diskMicrousdPerGiBHour'], 1, a.MAXIMUM_BUDGET_MICROUSD)
@@ -58,7 +60,7 @@ def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost):
     cost = a.integer(maximum_cost, 1, a.MAXIMUM_BUDGET_MICROUSD); estimate = prices(quote, now)
     m.need(estimate <= cost, 'Runner estimate exceeds approved reservation')
     req = n.request(proof['source'], proof['archiveSha256'], g.config(cfg['provider']), sequence, guest['attempt'],
-                    'experiment', now=now, guest_access_sha256=m.sha(m.canonical(guest)))
+                    'experiment', now=now, guest_access_sha256=m.sha(m.canonical(guest)), timing_profile=timing.PROFILE)
     inputs = {k:proof[k] for k in ('source','archiveSha256','buildManifestSha256','packageManifestSha256','workloadSha256')}
     inputs['pricesSha256'] = m.sha(m.canonical(quote))
     stage = resources.make(cfg['provider'], req, guest, baseline, inputs, now=now, maximum_cost=cost)

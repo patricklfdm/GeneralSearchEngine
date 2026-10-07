@@ -202,7 +202,7 @@ class CommandStore:
             os.close(lock)
 
 
-def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, sleep=time.sleep):
+def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, sleep=time.sleep, limits=None):
     """Submit exactly once, then only query. Transport implements submit/query.
 
     A fresh query connection may renew credentials. Lost responses do not restart
@@ -211,10 +211,16 @@ def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, slee
     m.need(clock() < deadline, 'remote command deadline')
     expected = dict(bindingSha256=value['bindingSha256'], commandId=value['commandId'], requestSha256=m.sha(m.canonical(value)))
     result = None
+    failures=uncertain=queries=0
+    def failed():
+        nonlocal failures
+        failures+=1
+        m.need(limits is None or failures<limits['failures'],'remote transient failures exhausted; never resubmit')
     try:
         result = transport.submit(value, deadline)
-    except (ConnectionError, TimeoutError):
-        pass
+    except (ConnectionError, TimeoutError) as error:
+        if getattr(error,'retryable',True) is False:raise
+        failed()
     while True:
         if result is not None:
             m.need(all(result.get(k) == v for k, v in expected.items()) and result.get('schema') == 'gse-v51-command-receipt-v1', 'remote response identity')
@@ -223,11 +229,19 @@ def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, slee
                 m.need(clock() <= deadline, 'late remote command receipt')
                 return result
             m.need(result['state'] in ('RUNNING', 'UNCERTAIN', 'NOT_FOUND'), 'remote response state')
+            if result['state'] in ('UNCERTAIN','NOT_FOUND'):
+                uncertain+=1
+                m.need(limits is None or uncertain<limits['uncertain'],'remote uncertain replies exhausted; never resubmit')
+            else:uncertain=0
         remaining = deadline - clock()
         m.need(remaining > 0, 'remote command unresolved; never resubmit')
-        sleep(min(.05, remaining))
+        sleep(min(1 if limits is not None else .05, remaining))
         m.need(clock() < deadline, 'remote command unresolved; never resubmit')
         try:
+            queries+=1
+            m.need(limits is None or queries<=limits['queries'],'remote query limit exhausted; never resubmit')
             result = transport.query(value, deadline)
-        except (ConnectionError, TimeoutError):
-            result = None
+            failures=0
+        except (ConnectionError, TimeoutError) as error:
+            if getattr(error,'retryable',True) is False:raise
+            result = None;failed()

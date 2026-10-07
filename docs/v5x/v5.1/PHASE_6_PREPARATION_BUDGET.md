@@ -18,6 +18,10 @@ This amendment applies only to the
 four-cell native Runner experiment. It does not change the frozen canonical
 machine plan or reinterpret earlier receipts.
 
+**Current amendment:** the native v2 [first-run headroom candidate](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md)
+replaces the v1 limits below for new native experiments. Historical requests and
+leases retain the original limits documented here.
+
 ## Observed failure and sizing
 
 PR #295's connection reuse passed exact-master

@@ -84,6 +84,7 @@ public final class V51PublicWorker {
     }
     static class Trace {
         final Path path,arm;final int generation;final String node,group,manifestDigest;long order;boolean crashing;
+        int pauseSeconds=60;
         Trace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest) throws IOException {
             this.path=path;this.arm=arm;this.generation=generation;this.node=node;
             group=text(manifest.value(),"groupId");manifestDigest=manifest.digest();
@@ -124,7 +125,7 @@ public final class V51PublicWorker {
             }
             if(mode.equals("halt"))Runtime.getRuntime().halt(71);
             if(mode.equals("pause")) {
-                Path release=path.resolveSibling(node+"-release");long until=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(60);
+                Path release=path.resolveSibling(node+"-release");long until=System.nanoTime()+java.util.concurrent.TimeUnit.SECONDS.toNanos(pauseSeconds);
                 try {
                     while(!Files.exists(release)&&System.nanoTime()<until)Thread.sleep(10);
                     if(!Files.exists(release))throw new IOException("controller did not release paused worker");
@@ -135,7 +136,14 @@ public final class V51PublicWorker {
             throw new IOException("controller did not SIGKILL armed worker");
         }
     }
+    static int pauseSeconds(String[] args) throws IOException {
+        if(args.length<=4)return 60;
+        if(args.length!=5||!args[2].equals("remote-fault")||!args[4].equals("owned-experiment-v2"))
+            throw new IOException("unknown native worker timing profile");
+        return 300;
+    }
     public static void main(String[] args) throws Exception {
+        int pauseSeconds=pauseSeconds(args);
         Path root=Path.of(args[0]).toAbsolutePath();String local="node-"+args[1];
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
         var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest) {
@@ -145,6 +153,7 @@ public final class V51PublicWorker {
                 super.append(line);
             }
         };
+        trace.pauseSeconds=pauseSeconds;
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
         Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;
             var hooks=new AutomaticStore.Faults(){

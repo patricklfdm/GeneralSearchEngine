@@ -3,6 +3,7 @@ from pathlib import Path
 from . import performance_model as m, remote_command as c, remote_collection as parts, cloud_authority as a
 from . import guest_three_mode_evidence as healthy, guest_fault_evidence as faults, cloud_package as package
 from .guest_owned_experiment import CELLS, FAULTS, SCOPE
+from . import native_experiment_timing as limits
 
 
 def contract(root, *, authority=a):
@@ -16,7 +17,7 @@ def contract(root, *, authority=a):
     for cell in CELLS:
         row=c.read(root/(cell+'-timeline.json'));start,end=row['startNanos'],row['endNanos']
         m.need(row['cell']==cell and row['status']=='PASS' and type(start) is int and type(end) is int and
-               previous<=start<end and end-start<=(900 if cell=='healthy' else 240 if cell=='maintenance' else 120)*10**9,'owned experiment cell order/budget')
+               previous<=start<end and end-start<=limits.cell(req,cell)*10**9,'owned experiment cell order/budget')
         previous=end
         timing=c.read(root/cell/('timeline.json' if cell=='healthy' else 'receipt.json'))
         m.need(start<=timing['startNanos']<=timing['endNanos']<=end,'owned experiment original cell interval')

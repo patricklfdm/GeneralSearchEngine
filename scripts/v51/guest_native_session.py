@@ -31,7 +31,8 @@ def validate(session, value):
            session['schema']==SCHEMA and session['packageSha256']==r.sha(r.canonical(value)), 'native session package/fields')
     budget=r.validate_budget(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
     end=session['leaseExpiresNanos'];sample=budget['sample']
-    r.need(type(end) is int and budget['expiresNanos'] <= end <= sample['sampledNanos']+5400*10**9,'native session original lease bound')
+    from .native_experiment_timing import LEASE_SECONDS
+    r.need(type(end) is int and budget['expiresNanos'] <= end <= sample['sampledNanos']+LEASE_SECONDS*10**9,'native session original lease bound')
     hosts=session['hosts'];port=session['port']
     r.need(type(hosts) is list and len(hosts)==3 and len(set(hosts))==3 and type(port) is int and 1024<=port<=65535,
            'native session topology')

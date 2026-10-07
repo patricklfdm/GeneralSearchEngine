@@ -6,18 +6,20 @@ from . import cloud_authority as a, cloud_package as package, performance_model 
 from . import remote_command as c, remote_collection as parts, guest_evidence, guest_physical_evidence
 from . import performance_semantics, performance_plan, storage_inspector as storage, format_inspector as fmt
 from .guest_owned_three_mode import SCOPE
+from . import native_experiment_timing as limits
 
 
-def timeline(value):
+def timeline(value, request=None):
+    request = request or {}
     m.need(value['status']=='PASS' and [v['mode'] for v in value['modes']]==list(package.MODES),'three-mode complete ordered timeline')
     times=[value['startNanos'],value['endNanos'],*(v[k] for v in value['modes'] for k in ('startNanos','endNanos'))]
     m.need(all(type(v) is int and v>=0 for v in times),'three-mode timeline timestamp')
     previous=value['startNanos']
     for row in value['modes']:
         m.need(row['status']=='PASS' and previous<=row['startNanos']<=row['endNanos']<=value['endNanos'] and
-               row['endNanos']-row['startNanos']<=300*10**9,'three-mode overlap/mode budget')
+               row['endNanos']-row['startNanos']<=limits.control(request,'mode',300)*10**9,'three-mode overlap/mode budget')
         previous=row['endNanos']
-    m.need(0<=value['endNanos']-value['startNanos']<=900*10**9,'three-mode healthy budget')
+    m.need(0<=value['endNanos']-value['startNanos']<=limits.cell(request,'healthy')*10**9,'three-mode healthy budget')
 
 
 def source_binding(root, mode, files):
@@ -41,7 +43,7 @@ def validate(root, output, *, authority=a):
     m.need(services['status']=='PASS' and services['requestSha256']==sha and
            [v['mode'] for v in services['modes']]==list(package.MODES),'three-mode admitted mode set')
     m.need({p.name for p in root.iterdir()} <= {'plan.json','source','timeline.json','validation.json',*package.MODES},'three-mode extra root input')
-    timing=c.read(root/'timeline.json');timeline(timing)
+    timing=c.read(root/'timeline.json');timeline(timing,req)
     seed=performance_semantics.source_backup(root/'source',m.initial(performance_plan.load()))
     files={n:dict(bytes=v['size'],sha256=v['sha256']) for n,v in storage.inventory(root/'source').items()}
     source_sha=m.sha(m.canonical({'source/'+n:v for n,v in files.items()}))

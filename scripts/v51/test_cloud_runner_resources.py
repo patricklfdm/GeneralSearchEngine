@@ -55,7 +55,7 @@ class RunnerResourcesTest(unittest.TestCase):
             return original(*args,**dict(kwargs,guest_stage=guests))
         with patch.object(r,'_run',side_effect=run):result=self.prepare()
         self.assertEqual('PARTIAL',result['status'],result)
-        self.assertTrue(delayed);self.assertEqual([started+1800]*3,deadlines)
+        self.assertTrue(delayed);self.assertEqual([started+3600]*3,deadlines)
         self.assertEqual(1002,result['elapsedSeconds']);self.assertEqual(13,self.f['http'].inserts)
         self.assertGreater(clock.wall(),self.f['value']['expiresAt'])
         self.assertEqual(['admission','resources','iap','guest-setup'],[v['phase'] for v in result['timings']])
@@ -65,8 +65,8 @@ class RunnerResourcesTest(unittest.TestCase):
         original=r._run;started=self.f['clock'].seconds()
         def run(*args,**kwargs):
             def guests(api,*unused):
-                self.assertEqual(started+1800,api.deadline)
-                self.f['clock'].sleep(1801);return []
+                self.assertEqual(started+3600,api.deadline)
+                self.f['clock'].sleep(3601);return []
             return original(*args,**dict(kwargs,guest_stage=guests))
         with patch.object(r,'_run',side_effect=run):result=self.prepare()
         self.assertEqual('FAIL',result['status']);self.assertEqual('PREPARATION_DEADLINE',result['failure']['code'])
@@ -236,7 +236,7 @@ class RunnerResourcesTest(unittest.TestCase):
         http.hook=pending
         result=self.prepare()
         self.assertEqual(dict(phase='iap',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')})
-        self.assertEqual(1800,result['elapsedSeconds']);self.assertEqual(60,calls)
+        self.assertEqual(180,result['elapsedSeconds']);self.assertEqual(6,calls)
         self.assertEqual([],self.f['probe'].calls);self.assertEqual(13,http.inserts)
 
     def test_denied_host_key_query_is_not_readiness_retry(self):
@@ -266,7 +266,7 @@ class RunnerResourcesTest(unittest.TestCase):
         url=api.provider().url(spec)+'/getGuestAttributes'
         for tail in ('?queryPath=foreign','?queryPath=hostkeys%2F&queryPath=hostkeys%2F',''):
             with self.assertRaises(ValueError):h.Api.call(api,'GET',url+tail,deadline=api.deadline)
-        self.f['clock'].sleep(1801)
+        self.f['clock'].sleep(3601)
         with self.assertRaisesRegex(ValueError,'deadline'):
             h.Api.call(api,'GET',api.provider().url(spec),deadline=api.clock()+100)
 

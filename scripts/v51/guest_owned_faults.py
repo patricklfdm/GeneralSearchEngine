@@ -7,6 +7,7 @@ from . import guest_owned_services as owned, guest_owned_three_mode as shared, g
 from . import guest_package_delivery as delivery, remote_collection as parts
 from .guest_fault_service import QUICK_CASES as CASES
 from .remote_faults import documents, availability
+from . import native_experiment_timing as timing
 
 MODE='experiment-faults'
 SCOPE='owned-experiment-leader-loss-no-quorum'
@@ -40,7 +41,7 @@ class Cell:
         self.services=services;self.raw=Path(root);self.raw.mkdir(mode=0o700)
         self.clients=services.clients;self.case=case;self.clock=clock;self.sleep=sleep;self.command_count=0;self.transcripts={}
         self.running={};self.stopped=set();self.history=[];self.progress_count=0;self.final_count=0;self.attempted=False
-        self.record=dict(case=case,status='FAIL',seconds=240 if case=='maintenance' else 120,events=[],progress=[],finalReads=[],rejoins=[],cleanupErrors=[])
+        self.record=dict(case=case,status='FAIL',seconds=timing.cell(services.provider.req,case),events=[],progress=[],finalReads=[],rejoins=[],cleanupErrors=[])
     def parallel(self, fn, members=None):
         with ThreadPoolExecutor(max_workers=3) as pool:
             futures=[pool.submit(fn,v) for v in (self.clients if members is None else members)]
@@ -100,7 +101,7 @@ class Cell:
             if all(row[k]['outcome']=='SUCCESS' for k in ('write','read')):return node
         raise ValueError('owned fault progress attempts exhausted')
     def rejoin(self, node, through):
-        start=self.clock();end=min(self.end,start+60)
+        start=self.clock();end=min(self.end,start+timing.control(self.services.provider.req,'rejoin',60))
         def caught():
             result=self.status(node,end);return result if result['provenIndex']>=through else None
         observed=self.wait(caught,end,'owned fault durable rejoin deadline')
@@ -110,12 +111,12 @@ class Cell:
         self.end=min(deadline/1e9,self.clock()+self.record['seconds']);self.record['startNanos']=int(self.clock()*1e9)
         healer=None
         try:
-            self.parallel(self.start);leader=self.leader(min(self.end,self.clock()+30))
+            self.parallel(self.start);leader=self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)))
             for tag in (10,20,30):m.need(self.call(leader,'addAll',documents=documents(tag))['outcome']=='SUCCESS','owned fault seed failed')
             seed=self.call(leader,'read');m.need(seed['outcome']=='SUCCESS','owned fault seed read failed')
             self.record.update(seedRead=seed,seedLeader=leader)
             start=self.event('fault-request',node=leader)['controllerNanos'];self.record['faultStartNanos']=start
-            progress_end=min(self.end,start/1e9+60)
+            progress_end=min(self.end,start/1e9+timing.control(self.services.provider.req,'progress',60))
             if self.case=='leader-loss':
                 self.stop_node(leader,True);active=self.progress(progress_end);through=self.status(active)['provenIndex']
                 self.start(self.member(leader),True);self.rejoin(leader,through)
@@ -124,14 +125,20 @@ class Cell:
             else:
                 import threading
                 self.parallel(lambda member:self.succeeded(member,'fault',dict(action='isolate'),self.end))
-                self.event('isolated-all');errors=[]
+                self.event('isolated-all');errors=[];refusals_done=threading.Event()
+                native=timing.selected(self.services.provider.req)
+                hold_end=min(self.end,self.clock()+timing.CONTROLS['hold-controller']-2)  # Wake-up margin inside the evidence ceiling.
                 def release():
+                    # Keep the >=15s hold, but allow native control round trips
+                    # to finish both refusal observations before requesting heal.
+                    if native:refusals_done.wait(max(0,hold_end-self.clock()))
                     self.event('heal-request')
                     try:self.parallel(lambda member:self.succeeded(member,'fault',dict(action='heal'),self.end))
                     except BaseException as error:errors.append(str(error))
                 healer=threading.Timer(15,release);healer.start()
                 self.sleep(2)
                 self.record['refusals']=[self.call(leader,'addAll',documents=documents(90)),self.call(leader,'read')]
+                refusals_done.set()
                 m.need(all(v['outcome']!='SUCCESS' for v in self.record['refusals']),'isolated voter served a public call')
                 healer.join(max(.001,self.end-self.clock()));m.need(not healer.is_alive() and not errors,'owned network heal failed: '+str(errors))
                 active=self.progress(progress_end)
@@ -144,6 +151,7 @@ class Cell:
             self.record['status']='EXECUTED'
         finally:
             if healer is not None:
+                refusals_done.set()
                 healer.cancel();healer.join(timeout=max(.001,min(5,self.end-self.clock())))
                 if healer.is_alive():self.record['cleanupErrors'].append('heal thread remains active')
             def stop(member):
@@ -186,6 +194,9 @@ class Cell:
             self.record[kind]=result
 
     def collect(self, deadline):
+        # Prepared daemons with no attempted cell have no stopped JVM/history to
+        # collect. Keep their preparation receipts; full acceptance still fails.
+        if not self.attempted:return []
         errors=[]
         for node,client,cfg in self.clients:
             try:
