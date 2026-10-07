@@ -296,6 +296,14 @@ raw stderr, credentials and command text are not retained. A failed master is
 closed before another explicit exchange can reconnect. There is no SSH fallback
 or automatic command replay below the session protocol.
 
+Root/helper validation retains six closed terminal codes for metadata identity,
+ancestor permissions, private parent, missing invoking account, changed admission
+and changed installed bytes. Classification requires exit status 1 and an exact
+final allowlisted `ValueError` line in a Python traceback; unrelated diagnostics
+keep the generic terminal code. Root and loopback SSH qualification compare these
+codes, including host-key/authentication codes, instead of raw stderr fragments.
+The code is diagnostic only and does not establish authority or permit retries.
+
 `preparation/session-recovery.json` records per-node limits, actions, times, safe
 codes, query states and counters on both success and failure. It is included in
 the existing failure-retention allowlist. The Actions summary shows the recovery

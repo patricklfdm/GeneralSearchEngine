@@ -127,10 +127,11 @@ def run(output, allow_sudo=False):
             expected_failure = case in ('metadata-drift', 'writable-parent', 'symlink-parent', 'account-drift', 'installed-corruption', 'renewed-ticket')
             m.need(bool(error) == expected_failure, 'root qualification outcome '+case+': '+str(error)+'; '+str(endpoint.failures))
             if expected_failure:
-                reason = {'metadata-drift':'root metadata identity', 'writable-parent':'root ancestor ownership/mode',
-                          'symlink-parent':'root private parent', 'account-drift':'root invoking account missing',
-                          'installed-corruption':'delivery installed bytes changed', 'renewed-ticket':'root consumed admission identity'}[case]
-                m.need(reason in str(endpoint.failures), 'unrelated failure cannot qualify '+case+': '+str(endpoint.failures))
+                code = {'metadata-drift':'ROOT_METADATA_IDENTITY', 'writable-parent':'ROOT_ANCESTOR_MODE',
+                        'symlink-parent':'ROOT_PRIVATE_PARENT', 'account-drift':'ROOT_ACCOUNT_MISSING',
+                        'installed-corruption':'HELPER_INTEGRITY', 'renewed-ticket':'ROOT_ADMISSION_CHANGED'}[case]
+                m.need({v.get('code') for v in endpoint.failures} == {code},
+                       'unrelated failure cannot qualify '+case+': '+str(endpoint.failures))
             if case == 'lost-receipt': m.need(endpoint.calls == ['clock', 'install', 'query', 'check'], 'root install retry after response loss')
             if case in ('metadata-drift', 'writable-parent', 'symlink-parent', 'account-drift'):
                 m.need(not destination.exists(), 'root context rejection wrote payload')
@@ -186,7 +187,8 @@ def run_lifecycle(output, allow_sudo):
             retained = [key for key in http.objects if key.endswith('/startup/root-node-2.json')]
             m.need(len(retained) == 1, 'root startup diagnostics not retained')
             record = c.read(folder/'startup/root-node-2.json')
-            if expected == 'FAIL': m.need('root metadata identity' in str(record['transportFailures']), 'unrelated lifecycle failure')
+            if expected == 'FAIL':
+                m.need({v.get('code') for v in record['transportFailures']} == {'ROOT_METADATA_IDENTITY'}, 'unrelated lifecycle failure')
             if case == 'lost-receipt': m.need([o['action'] for o in record['observations']] == ['clock', 'install', 'query', 'check'], 'lifecycle repeated install')
             row = dict(case=case, status='PASS', observedOutcome=expected, cleanup='PASS', chargedMicrousd=total, modelFormats=formats)
             c.write_once(folder/'receipt.json', row); rows.append(row); print(m.canonical(dict(lifecycle=row)).decode(), flush=True)

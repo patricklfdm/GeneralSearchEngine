@@ -96,6 +96,44 @@ class RecoveryTest(unittest.TestCase):
 
 
 class ClassificationTest(unittest.TestCase):
+    def test_receiver_rejections_keep_only_closed_codes_and_remain_terminal(self):
+        for reason, code in t.RECEIVER_REJECTIONS.items():
+            with self.subTest(code=code):
+                # Real Python traceback, including private diagnostic text that
+                # must never enter an exception or the native admission evidence.
+                with self.assertRaises(t.ProcessError) as caught:
+                    t.process([sys.executable, '-c',
+                        'import sys;sys.stderr.write("private-secret\\n");raise ValueError('+repr(reason)+')'],
+                        b'', time.monotonic()+5)
+                self.assertEqual(code, caught.exception.code)
+                self.assertFalse(caught.exception.retryable)
+                self.assertNotIn('private-secret', str(caught.exception))
+                with self.assertRaises(t.ProcessRejected) as native:
+                    with iap._sanitized(False): raise caught.exception
+                self.assertEqual(code, native.exception.code)
+                self.assertNotIsInstance(native.exception, ConnectionError)
+                raw = ('Traceback (most recent call last):\nprivate-secret\nValueError: '+reason+'\n').encode()
+                self.assertEqual(code, t.exit_error(1, raw, ssh=True).code)
+
+    def test_unknown_or_embedded_receiver_reason_cannot_qualify_specific_rejection(self):
+        exact = b'ValueError: root metadata identity'
+        for raw in (exact+b'\n', b'Traceback (most recent call last):\n'+exact+b' private-secret\n',
+                    b'Traceback (most recent call last):\n'+exact+b'\nRuntimeError: unrelated\n',
+                    b'Traceback (most recent call last):\nRuntimeError: root metadata identity\n'):
+            for ssh, expected in ((False, 'LOCAL_PROCESS_EXIT'), (True, 'REMOTE_EXIT')):
+                with self.subTest(raw=raw, ssh=ssh):
+                    error = t.exit_error(1, raw, ssh=ssh)
+                    self.assertEqual(expected, error.code)
+                    self.assertFalse(error.retryable)
+                    self.assertNotIn('private-secret', str(error))
+
+    def test_receiver_reason_cannot_override_signal_or_ssh_connection_exit(self):
+        raw = b'Traceback (most recent call last):\nValueError: root metadata identity\n'
+        self.assertEqual('LOCAL_PROCESS_EXIT', t.exit_error(-9, raw, ssh=False).code)
+        self.assertEqual('REMOTE_EXIT', t.exit_error(7, raw, ssh=True).code)
+        self.assertEqual('SSH_UNCLASSIFIED', t.exit_error(255, raw, ssh=True).code)
+        self.assertEqual('SSH_AUTHENTICATION', t.exit_error(255, b'Permission denied (publickey).\n'+raw, ssh=True).code)
+
     def test_remote_python_error_is_not_transient_even_if_text_mentions_connection(self):
         error=t.exit_error(1,b'Traceback: Connection closed secret',ssh=True)
         self.assertEqual('REMOTE_EXIT',error.code);self.assertFalse(error.retryable)

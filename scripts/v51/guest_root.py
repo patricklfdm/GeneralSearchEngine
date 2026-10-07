@@ -38,7 +38,11 @@ class Endpoint(delivery.Endpoint):
             raw = guest_transport.process(self.argv(self.remote(action, token)), data, deadline,
                                           maximum=4096, request_maximum=receiver.MAX_BYTES)
         except Exception as error:
-            if len(self.failures) < 8: self.failures.append(dict(action=action, type=type(error).__name__, message=str(error)[:2000]))
+            if len(self.failures) < 8:
+                failure = dict(action=action, type=type(error).__name__, message=str(error)[:2000])
+                if type(error) in (guest_transport.ProcessError, guest_transport.ProcessRejected):
+                    failure['code'] = error.code
+                self.failures.append(failure)
             raise
         result = m.strict_json(raw)
         m.need(type(result) is dict and set(result) == {'schema', 'planSha256', 'rootUid', 'answer'} and

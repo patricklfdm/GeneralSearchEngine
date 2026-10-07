@@ -20,8 +20,22 @@ FAILURE_DETAILS = {
     'REMOTE_EXIT': 'The remote command returned an unsuccessful exit status.',
     'SSH_UNCLASSIFIED': 'SSH failed without a recognized transient diagnostic.',
     'LOCAL_PROCESS_EXIT': 'The local helper returned an unsuccessful exit status.',
+    'ROOT_METADATA_IDENTITY': 'The root receiver rejected the guest metadata identity.',
+    'ROOT_ANCESTOR_MODE': 'The root receiver rejected ancestor ownership or permissions.',
+    'ROOT_PRIVATE_PARENT': 'The root receiver rejected its private parent directory.',
+    'ROOT_ACCOUNT_MISSING': 'The root receiver could not find the invoking account.',
+    'ROOT_ADMISSION_CHANGED': 'The root receiver rejected a changed consumed admission.',
+    'HELPER_INTEGRITY': 'The installed helper bytes changed.',
 }
 TRANSIENT = frozenset(('SSH_DISCONNECTED', 'SSH_MASTER_CLOSED'))
+RECEIVER_REJECTIONS = {
+    'root metadata identity': 'ROOT_METADATA_IDENTITY',
+    'root ancestor ownership/mode': 'ROOT_ANCESTOR_MODE',
+    'root private parent': 'ROOT_PRIVATE_PARENT',
+    'root invoking account missing': 'ROOT_ACCOUNT_MISSING',
+    'root consumed admission identity': 'ROOT_ADMISSION_CHANGED',
+    'delivery installed bytes changed': 'HELPER_INTEGRITY',
+}
 
 
 class ProcessError(ConnectionError):
@@ -47,6 +61,15 @@ class ProcessRejected(ValueError):
 
 
 def exit_error(returncode, stderr, *, ssh):
+    # Recognize only an exact final Python rejection from our fixed receiver
+    # vocabulary. Do not retain traceback text or match echoed source/substrings.
+    # These codes remain terminal; a diagnostic never authorizes a retry.
+    if returncode == 1:
+        lines = stderr.splitlines()
+        if b'Traceback (most recent call last):' in lines and lines:
+            for reason, code in RECEIVER_REJECTIONS.items():
+                if lines[-1] == ('ValueError: '+reason).encode('ascii'):
+                    return ProcessError(code)
     if not ssh: return ProcessError('LOCAL_PROCESS_EXIT')
     # A completed remote process (including Python validation failures) is not
     # a dropped SSH connection. Its failure must not become a retryable outage.
