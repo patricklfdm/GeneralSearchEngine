@@ -89,6 +89,32 @@ def start(base, config):
     return dict(state='LAUNCHED', pid=proc.pid, configSha256=m.sha(m.canonical(config)))
 
 
+def run_setup(root, label, args, deadline, stopping=lambda: False):
+    """Bound a one-shot setup process without constructing a persistent service."""
+    started=time.monotonic_ns(); until=min(deadline,time.monotonic()+90)
+    m.need(not stopping() and time.monotonic()<until,'guest setup cancelled/deadline')
+    with (root/(label+'.stdout')).open('xb') as out, (root/(label+'.stderr')).open('xb') as err:
+        proc = subprocess.Popen(args, stdout=out, stderr=err)
+        try:
+            while proc.poll() is None:
+                m.need(not stopping() and time.monotonic()<until,'guest setup cancelled/deadline')
+                time.sleep(.05)
+        finally:
+            if proc.poll() is None: proc.kill(); proc.wait(timeout=5)
+    m.need(proc.returncode==0,'guest setup process failed: '+label)
+    m.need(not stopping() and time.monotonic()<until,'guest setup cancelled/deadline')
+    return dict(args=args,pid=proc.pid,exitCode=proc.returncode,startedNanos=started,endedNanos=time.monotonic_ns())
+
+
+def seed_source(base, config, cell, run):
+    """Write topology and run the published control's immutable seed generator."""
+    for file, text in [('hosts.txt', '\n'.join(config['hosts'])+'\n'),
+                       ('ports.txt', '\n'.join(map(str,config['ports']))+'\n'), ('group-id.txt',config['groupId']+'\n')]:
+        with (cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
+    plan=base/'source-inputs/docs/v5x/v5.1/phase6-plan.json'
+    run('seed',package.command(base,package.MODES[0],args=list(map(str,(cell,'prepare',plan,cell/'source')))))
+
+
 class Service:
     def __init__(self, base, config):
         self.base, self.config = base, config
@@ -105,25 +131,11 @@ class Service:
     def java(self, mode, *args): return package.command(self.base, mode, args=list(map(str, args)))
 
     def oneshot(self, label, args):
-        started=time.monotonic_ns()
-        with (self.root/(label+'.stdout')).open('xb') as out, (self.root/(label+'.stderr')).open('xb') as err:
-            proc = subprocess.Popen(args, stdout=out, stderr=err)
-            try:
-                until = min(self.deadline, time.monotonic()+90)
-                while proc.poll() is None:
-                    m.need(not self.shutting_down and time.monotonic() < until, 'guest setup cancelled/deadline')
-                    time.sleep(.05)
-            finally:
-                if proc.poll() is None: proc.kill(); proc.wait(timeout=5)
-        m.need(proc.returncode == 0, 'guest setup process failed: '+label)
-        return dict(args=args,pid=proc.pid,exitCode=proc.returncode,startedNanos=started,endedNanos=time.monotonic_ns())
+        return run_setup(self.root,label,args,self.deadline,lambda:self.shutting_down)
 
     def prepare_source(self):
         m.need(self.node == 'node-1' and self.jvm is None and not self.shutting_down, 'guest source role/state')
-        for file, text in [('hosts.txt', '\n'.join(self.config['hosts'])+'\n'),
-                           ('ports.txt', '\n'.join(map(str, self.config['ports']))+'\n'), ('group-id.txt', self.config['groupId']+'\n')]:
-            with (self.cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
-        self.oneshot('seed', self.java(package.MODES[0], self.cell, 'prepare', self.plan, self.cell/'source'))
+        seed_source(self.base,self.config,self.cell,self.oneshot)
 
     def handler(self, name, payload, checkpoint):
         self.ack.set(); checkpoint(); m.need(not self.shutting_down, 'guest shutting down')

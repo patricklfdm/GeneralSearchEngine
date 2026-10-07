@@ -371,10 +371,18 @@ remaining; the original clock reply and detailed exception were not retained.
 Owner recovery and independent exact-ID reads confirmed all thirteen resources
 absent, no lease and USD 57 / 200 retained.
 The [guest deadline propagation correction](v5.1/PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
-is a local candidate covering volume, package, native session and source/bootstrap
-validation. Ordinary helper/package limits and full canonical/default allocation
-stay frozen. Next require corrected-source CI, then prepare/review a fresh exact
-plan before separately approved operator execution.
+passed PR #297 at master `cdfb5af108c16c7bc01df98b74182a00db6396ee`,
+CI `37552754929` attempt 1 (36 jobs). Admitted run `37555787624` completed all
+three volume/package/session stages, then failed at source creation with
+`native session exact configuration`; preparation used 1027.482 seconds, not the
+1800-second ceiling. Recovery passed in 339.570 seconds; independent exact-ID
+reads confirmed thirteen resources absent, no lease and USD 67 / 200 retained.
+The [source-producer correction](v5.1/PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
+is a local candidate: seed generation authenticates the original configuration
+but uses a separate consumed directory and the original preparation clock.
+Ordinary service directory constraints, budgets and frozen workload parameters
+remain unchanged. Next require corrected-source CI, then prepare/review a fresh
+exact plan before separately approved operator execution.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;

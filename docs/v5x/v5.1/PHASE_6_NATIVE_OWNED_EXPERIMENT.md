@@ -5,8 +5,11 @@
 [CI 37424341468](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37424341468)
 attempt 1 (36 successful jobs), together with
 [immediate preparation failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
-The subsequent [manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md) is a separate
-implementation candidate. No real GCP workload has yet been qualified, and full
+The subsequent [manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md) and guest
+deadline correction passed protected CI through PR #297. Admitted run
+`37555787624` completed package/session preparation but failed at source creation.
+The [producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
+is a local candidate. No real GCP workload has yet been qualified, and full
 Phase 6 remains open.
 
 ## Fixed entry and reused workload
@@ -50,6 +53,12 @@ source transfer and bootstrap retain their original deadline. Completed service
 sessions remain usable after preparation expires, only until that same original
 lease deadline. Both the parent launcher and new daemon check it; reconnecting,
 changing the boot ID, or starting another daemon cannot renew it.
+
+Source creation has a separate consumed, seed-only directory derived from the
+installed package. It authenticates the original exact session configuration and
+uses the original preparation clock; it does not construct a persistent service
+with a relocated configuration. Its one-shot published-control generator shares
+the existing bounded setup process helper. Ordinary daemon roots remain exact.
 
 Every native connection uses pinned SSH with a short-lived bound token file and
 isolated gcloud configuration. Ambient credentials and API redirects are not

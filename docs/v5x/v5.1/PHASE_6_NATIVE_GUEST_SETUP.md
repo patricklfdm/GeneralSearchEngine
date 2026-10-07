@@ -24,10 +24,15 @@ credential exchange and all three guests. Plan/preflight freshness still gates
 the first lease mutation. Admitted preparation does not expire with the approval
 window. The 5400-second lease and 1080-second grace are unchanged.
 The [guest deadline propagation correction](PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
-is a local candidate: native volume/package/session receivers select that same
+passed PR #297 / exact-master CI `37552754929`, attempt 1 (36 jobs):
+native volume/package/session receivers select that same
 1800-second profile, including installed-package and source/bootstrap checks.
 Ordinary helper/package paths remain limited to 600 seconds. The original clock
 and consumed deadline cannot be renewed, including after a lost response.
+Admitted run `37555787624` completed all three volume/package/session stages;
+source preparation then failed at a separate directory/configuration boundary.
+The [source-producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
+preserves the same clocks and strict persistent-service roots.
 Before and after each native connection, the controller verifies the retained
 lease generation/content, reserved ledger, provider numeric VM/disk identities,
 attachments and pinned host key. It uses the same admitted Runner credential;
