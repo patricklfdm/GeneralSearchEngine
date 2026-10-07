@@ -42,6 +42,9 @@ build/
 __pycache__/
 *.py[cod]
 
+### Local operator accounting archives (preserve across Maven clean) ###
+/.local/v51-ledger-backups/
+
 ### GitHub Actions Google authentication ###
 gha-creds-*.json
 

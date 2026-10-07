@@ -9,7 +9,7 @@ elif [[ $# -ne 0 ]]; then
   echo "usage: $0 [--allow-sudo-namespace]" >&2
   exit 2
 fi
-python3 -m unittest scripts.v51.test_cloud_provider scripts.v51.test_cloud_cleanup scripts.v51.test_cloud_native_cleanup scripts.v51.test_cloud_cleanup_entry scripts.v51.test_cloud_cleanup_credentials scripts.v51.test_cloud_cleanup_network scripts.v51.test_cloud_package scripts.v51.test_guest_setup scripts.v51.test_guest_startup scripts.v51.test_guest_delivery scripts.v51.test_guest_deadline scripts.v51.test_guest_root_admission scripts.v51.test_guest_root scripts.v51.test_provider_artifacts scripts.v51.test_guest_package_delivery scripts.v51.test_guest_owned_services
+python3 -m unittest scripts.v51.test_cloud_provider scripts.v51.test_cloud_http_pool scripts.v51.test_cloud_cleanup scripts.v51.test_cloud_native_cleanup scripts.v51.test_cloud_cleanup_entry scripts.v51.test_cloud_cleanup_credentials scripts.v51.test_cloud_cleanup_network scripts.v51.test_cloud_package scripts.v51.test_guest_setup scripts.v51.test_guest_startup scripts.v51.test_guest_delivery scripts.v51.test_guest_deadline scripts.v51.test_guest_root_admission scripts.v51.test_guest_root scripts.v51.test_provider_artifacts scripts.v51.test_guest_package_delivery scripts.v51.test_guest_owned_services
 mkdir -p target/v51-cloud-provider
 work_dir=$(mktemp -d "$root/target/v51-cloud-provider/run.XXXXXX")
 echo "v51ProviderEvidence=$work_dir/evidence"

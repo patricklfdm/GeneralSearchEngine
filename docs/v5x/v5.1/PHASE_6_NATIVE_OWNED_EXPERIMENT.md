@@ -10,8 +10,11 @@ deadline correction and source preparation passed protected CI through PR #298.
 The [producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
 worked in admitted run `37569971625`: source generation and download succeeded.
 That run then exposed the [controller path defect](#controller-path-correction-and-chain-review)
-before any workload. Its correction is locally qualified; corrected-source CI
-and a fresh approved native experiment remain required. Full Phase 6 remains open.
+before any workload. PR #299 accepted that correction at master
+`45b49095643aef6a5bb171e0f61158f3f7f22a27`, CI `37575940225` attempt 1
+(all 36 jobs). The next native run reached a [preparation deadline](#preparation-round-trip-reduction)
+after both published-mode bootstraps. The round-trip reduction below is a local
+candidate; protected CI and a fresh approved experiment remain required. Full Phase 6 remains open.
 
 ## Fixed entry and reused workload
 
@@ -182,4 +185,87 @@ The failed run's immediate recovery passed in 263.530 seconds. Independent reads
 confirmed all thirteen resource names/numeric IDs absent, lease release and
 USD 77 / 200 retained. Keep that FAIL and charge. After corrected-source acceptance,
 prepare/review a fresh request and obtain its exact confirmation; do not rerun the
-expired preparation or reset its ledger entry.
+expired preparation or reset its ledger entry as part of normal failure recovery.
+The subsequent explicit operator budget restart is recorded separately below.
+
+
+## Preparation round-trip reduction
+
+Admitted run [37580265449](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37580265449)
+used PR #299's exact master and the original 1800-second preparation allocation.
+The V4.4 bootstrap/idle service passed; V5.0 completed all three receiver imports
+and public seals, then started its first idle service. Preparation expired before
+starting the second service. No formal workload cell executed (0/4). The original
+controller path defect did not recur. Immediate owner recovery passed in 342.374
+seconds, explaining the roughly 36-minute paid step. Exact name/ID reads confirmed
+all thirteen resources absent and the active lease released.
+
+The retained preparation journal contains 6298 GETs and 44 POSTs. All three IAP
+connections stayed usable: one connection per instance, 174 commands, zero recorded
+connection failures. Repeated serial provider checks amplify network cost. The
+old journal has no individual HTTP durations, so their exact share of the 1800
+seconds cannot be reconstructed. Local correctness qualification did not measure
+this native round-trip cost.
+
+The correction preserves the original checks and clocks while removing redundant
+work:
+
+- Direct GCP HTTP reuses at most one TLS connection per origin. Every request still
+  obtains its own response and current credential header; there is no authority or
+  response cache. OIDC, STS and impersonation retain their original unpooled
+  exchange and exact endpoint admission. Idle connections are retired after ten seconds. Mutations use
+  fresh connections, and transport failures never replay a request. Redirects,
+  oversized/truncated replies and late responses reject. Configured HTTPS proxies
+  retain the previous transport behavior. Preparation and owner exit close sockets.
+- A combined guest identity observation reads both disks and the instance, reads
+  the host key, then reads all three resources again. This uses seven GETs instead
+  of nine, retaining exact numeric IDs, attachment checks and the two samples
+  surrounding the host-key observation. Lease and ledger reads remain fresh and
+  generation-bound, with their original metadata/media checks.
+- Native mounted readiness uses its original volume endpoint's before/after
+  identity checks once. The service wrapper no longer adds another identical pair.
+  The remote mount/UUID/startup checks and all existing phase boundaries remain.
+  Each readiness boundary therefore uses 22 provider GETs instead of 52
+  (two checks of 4 control + 7 resource reads, versus four of 4 + 9).
+- `preparation/provider-timings.json` records bounded operation groups, request and
+  failure counts, total/max seconds and connection-open/reuse counts. It is in the
+  existing retained diagnostic allowlist and contains no credentials or response
+  bodies. It cannot authorize cleanup or establish workload success.
+
+A read-only local comparison alternated the old and new transports over the same
+GCS metadata and Compute zone reads. Twenty GETs took 10.504 seconds with the old
+transport and 6.071 seconds with reuse (42.2% less elapsed time); median request
+latency was 0.562 versus 0.233 seconds. This is a local network observation, not a
+GitHub Runner timing guarantee or a completed native preparation measurement.
+The raw measurements and original failed artifact remain under
+`target/v51-preparation-roundtrips/` and
+`target/v51-native-experiment-pr299/run-37580265449/` respectively.
+
+Preparation remains 1800 seconds and the original lease remains 5400 seconds.
+Workload parameters, per-cell ceilings, no-resubmit rules, resource/IAM scope and
+measurement acceptance are unchanged. After protected acceptance, review a new
+prepare/request and have the operator trigger the paid run; do not reuse the
+failed request. Corrected native completion is still open.
+
+## Explicit operator budget restart — 2026-10-07
+
+The repository owner separately authorized restarting the budget counter at zero.
+After confirming no active experiment/lease and all prior reservations terminal,
+the original USD 87 ledger was read at generation `1791355813533567`, preserved
+byte-for-byte locally, and replaced with an empty native ledger using that exact
+generation as the write precondition. Read-back confirmed generation
+`1791356875141336`, USD 0 and no active lease. The ceiling remains USD 200.
+
+The original ledger SHA-256 is
+`c1bc490a9e9dc696fb483aca02d25b6144e496f3f5c8a17eae3c0458ce448b93`.
+Its local backup and reset receipt are in
+`.local/v51-ledger-backups/1791355813533567/`, outside Maven build output and
+explicitly ignored by Git. A working copy also remains in
+`target/v51-preparation-roundtrips/ledger-reset/`. No cloud backup was uploaded;
+automatic approval review rejected that additional upload, so the operation used
+a verified local backup. Retained attempt completions and evidence were not
+modified or deleted. Preserve this local backup with other operator records.
+
+This is an explicit operator accounting restart, not a refund, a successful
+experiment or evidence that prior cost was zero. Ordinary failure cleanup still
+retains charges; no reset CLI, workflow input or automatic refund path is added.

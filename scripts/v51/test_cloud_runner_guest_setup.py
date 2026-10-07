@@ -398,6 +398,48 @@ class RunnerGuestStageTest(unittest.TestCase):
         self.assertEqual([1,1,1],[disk.block.formats for disk in self.disks]);self.assertEqual(13,self.f['http'].inserts)
         self.assertFalse(result['paidCloud']);self.assertFalse(result['engineWorkloadExecuted']);self.assertFalse(result['fullRemoteQualification'])
         self.assertIsNotNone(self.api.store.get(s.n.LEASE));self.assertEqual(self.api.reserved,self.api.store.get(s.n.LEDGER)[1])
+    def test_combined_identity_uses_seven_fresh_gets_and_same_facts(self):
+        result=self.prepare();self.assertEqual('PARTIAL',result['status'])
+        start=len(self.api.requests)
+        observed=self.api.provider().guest_identity(self.api.lease,1,deadline=self.api.deadline)
+        calls=self.api.requests[start:]
+        self.assertEqual(7,len(calls));self.assertTrue(all(v['method']=='GET' for v in calls))
+        self.assertIn('getGuestAttributes',calls[3]['url'])
+        self.assertEqual([v['url'] for v in calls[:3]],[v['url'] for v in calls[4:]])
+        self.assertEqual(result['guests'][0]['facts'],observed['facts'])
+        self.assertEqual(result['guests'][0]['hostKeySha256'],m.sha(observed['publicKey'].encode()))
+        self.api.provider().guest_identity(self.api.lease,1,deadline=self.api.deadline)
+        self.assertEqual(14,len(self.api.requests)-start)  # No observation cache.
+    def test_combined_identity_rejects_replacement_between_samples(self):
+        result=self.prepare();self.assertEqual('PARTIAL',result['status'])
+        identity=result['guests'][0]['facts']['provider']['instanceId'];send=self.api.transport.send
+        def replace(method,url,*args):
+            answer=send(method,url,*args)
+            if 'getGuestAttributes' in url:
+                next(v for v in self.f['http'].resources.values() if v['id']==identity)['id']='999999'
+            return answer
+        self.api.transport.send=replace
+        with self.assertRaises(s.resources.h.ApiError) as caught:
+            self.api.provider().guest_identity(self.api.lease,1,deadline=self.api.deadline)
+        self.assertEqual(404,caught.exception.status)
+    def test_combined_identity_rejects_disk_detachment_between_samples(self):
+        result=self.prepare();self.assertEqual('PARTIAL',result['status'])
+        identity=result['guests'][0]['facts']['provider']['diskId'];send=self.api.transport.send;after_key=False
+        def detach(method,url,*args):
+            nonlocal after_key
+            answer=send(method,url,*args)
+            if 'getGuestAttributes' in url:after_key=True
+            if after_key and url.endswith('/'+identity):
+                changed=m.strict_json(answer[1]);changed['users']=[];return answer[0],m.canonical(changed)
+            return answer
+        self.api.transport.send=detach
+        with self.assertRaisesRegex(ValueError,'attachment'):self.api.provider().guest_identity(self.api.lease,1,deadline=self.api.deadline)
+    def test_http_timings_are_retained_with_counts_and_no_credentials(self):
+        result=self.prepare();self.assertEqual('PARTIAL',result['status'])
+        timings=s.c.read(self.root/'evidence/provider-timings.json')
+        self.assertEqual(len(self.api.requests),sum(v['calls'] for v in timings['groups']))
+        self.assertTrue(all(v['elapsedSeconds']>=v['maxSeconds']>=0 for v in timings['groups']))
+        self.assertTrue(all(set(v)=={'state','method','host','operation','calls','failures','elapsedSeconds','maxSeconds'} for v in timings['groups']))
     def test_node_two_package_failure_preserves_charge_and_expiry_cleanup(self):
         self.fault='part';result=self.prepare();self.assertEqual('FAIL',result['status'],result)
         self.assertEqual(dict(phase='guest-setup',type='ValueError'),{k:result['failure'][k] for k in ('phase','type')});self.assertEqual(2,len(self.disks))

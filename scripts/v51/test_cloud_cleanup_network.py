@@ -100,6 +100,7 @@ class CleanupNetworkTest(unittest.TestCase):
         with tls.Fixture(self.state) as fixture:
             root=self.root/'entry'
             self.assertEqual(0,fixture.run_cli(root))
+            self.assertLess(fixture.connections,len(fixture.requests))
             result=read(root/'receipt.json');self.assertEqual('PASS',result['status'])
             self.assertTrue(result['credentialExchangeCompleted']);self.assertFalse(result['identityAuthenticated'])
             self.assertFalse(result['cleanupReady']);self.assertEqual(n.CLEANUP_EXECUTION,result['reconciliation']['execution'])

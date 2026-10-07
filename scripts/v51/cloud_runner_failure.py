@@ -15,7 +15,7 @@ from . import cloud_workload_contract as workload
 
 SCHEMA = 'gse-v51-runner-failure-recovery-v1'
 FILES = frozenset({'receipt.json', 'inspection.json', 'plan.json', 'http.json', 'admission-http.json',
-    'lease-observation.json', 'iap-preparation.json', 'resources/plan.json', 'resources/receipt.json', 'resources/http.json'} |
+    'lease-observation.json', 'iap-preparation.json', 'provider-timings.json', 'resources/plan.json', 'resources/receipt.json', 'resources/http.json'} |
     {f'iap/node-{node}{suffix}' for node in (1, 2, 3) for suffix in ('.json', '-probe.json', '.known_hosts')} |
     {f'guest-setup/node-{node}/{name}.json' for node in (1, 2, 3) for name in
      ('request', 'volume', 'package-request', 'package', 'readiness', 'connections')})

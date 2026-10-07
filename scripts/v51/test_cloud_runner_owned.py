@@ -214,6 +214,34 @@ class BridgeTest(unittest.TestCase):
         self.assertEqual('service',args[2][4]);self.assertEqual(ep.session,m.strict_json(base64.b64decode(args[2][6])))
         self.assertEqual('ready',args[2][-1]);self.assertIsNone(result['ready'])
         self.assertEqual(2,self.recheck.call_count)
+    def test_native_readiness_keeps_exactly_one_pair_of_current_checks(self):
+        from .test_cloud_runner_guest_setup import request
+        value=request();value['binding']['node']='node-1'
+        checks=[]
+        disk=o.setup._VolumeEndpoint(self.source,{},value,lambda:checks.append('identity'))
+        disk.started=True;disk.budget={'original':'budget'}
+        self.services.pool.disks['node-1']=disk
+        group=self.services.group();answer=dict(schema='gse-v51-native-volume-transport-v1',
+            requestSha256=m.sha(m.canonical(value)),deadlineSha256=m.sha(m.canonical(disk.budget)),
+            state='SUCCEEDED',readiness={'mount':'checked'})
+        def exchange(*args,**kwargs):checks.append('remote');return m.canonical(answer)
+        duplicate=Mock(side_effect=AssertionError('redundant wrapper'))
+        with patch.object(o.native.iap,'_network_exchange',side_effect=exchange):
+            self.assertEqual(answer['readiness'],group.mounted_readiness(1,duplicate,duplicate))
+            self.assertEqual(answer['readiness'],group.mounted_readiness(1,duplicate,duplicate))
+        self.assertEqual(['identity','remote','identity']*2,checks)
+        disk.recheck=Mock(side_effect=[None,ValueError('post-check changed')])
+        with patch.object(o.native.iap,'_network_exchange',return_value=m.canonical(answer)) as exchange,\
+             self.assertRaisesRegex(ValueError,'post-check changed'):
+            group.mounted_readiness(1,duplicate,duplicate)
+        self.assertEqual(2,disk.recheck.call_count);exchange.assert_called_once()
+        disk.recheck=Mock(side_effect=ValueError('lease changed'))
+        with patch.object(o.native.iap,'_network_exchange') as exchange,self.assertRaisesRegex(ValueError,'lease changed'):
+            group.mounted_readiness(1,duplicate,duplicate)
+        exchange.assert_not_called()
+    def test_native_readiness_rejects_wrong_endpoint_owner(self):
+        group=self.services.group();self.services.pool.disks['node-1']=Mock()
+        with self.assertRaisesRegex(ValueError,'original endpoint'):group.mounted_readiness(1,Mock(),Mock())
     def test_promote_requires_same_original_owner_and_keeps_session_deadlines(self):
         pool=self.services.pool;pool.started=True;before={k:deepcopy(v.session) for k,v in pool.endpoints.items()}
         owner=o._Api(self.source);owner.admit();checks={k:Mock() for k in pool.endpoints}

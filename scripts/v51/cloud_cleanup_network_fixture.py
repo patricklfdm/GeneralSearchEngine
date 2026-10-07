@@ -1,6 +1,6 @@
 """Loopback TLS fixture for cleanup qualification, never a production transport.
 
-The real urllib Network, certificate checks, HTTP framing and redirect handler
+The real provider Network, certificate checks, HTTP framing and redirect handler
 run unchanged. Only connection routing/trust is replaced, inside this fixture.
 There is no environment/CLI route from production to this socket substitution.
 """
@@ -21,7 +21,7 @@ from urllib.parse import urlsplit
 import urllib.request
 from . import cloud_cleanup_auth_fake as auth, cloud_cleanup_entry as entry
 from . import cloud_cleanup_entry_qualification as entries, cloud_cleanup_qualification as retained
-from . import cloud_native_authority as n, performance_model as m
+from . import cloud_native_authority as n, performance_model as m, cloud_http
 
 HOSTS = ('pipelines.actions.githubusercontent.com', 'sts.googleapis.com', 'iamcredentials.googleapis.com',
          'compute.googleapis.com', 'storage.googleapis.com')
@@ -45,6 +45,7 @@ class Fixture:
         self.provider = auth.Provider(self.http)
         self.requests, self.errors, self.used_faults = [], [], set()
         self.forbidden_routes = []
+        self.connections = 0
 
     def reply(self, method, host, path, headers, body):
         stage = 'sts' if host == HOSTS[1] else 'impersonation' if host == HOSTS[2] else 'oidc' if host == HOSTS[0] else 'provider'
@@ -87,6 +88,7 @@ class Fixture:
                 '-keyout',str(key),'-out',str(cert)], check=True, capture_output=True, timeout=15)
             fixture = self
             class Handler(BaseHTTPRequestHandler):
+                protocol_version = 'HTTP/1.1'
                 def log_message(self, *args): pass
                 def request(self):
                     try:
@@ -118,6 +120,7 @@ class Fixture:
                     allowed = self.host in HOSTS and self.port == 443 and not self._tunnel_host
                     if not allowed: fixture.forbidden_routes.append(self.host)
                     m.need(allowed, 'non-loopback fixture route')
+                    fixture.connections += 1
                     sock = socket.create_connection(server.server_address, timeout=self.timeout)
                     self.sock = self._context.wrap_socket(sock, server_hostname=self.host)
             class HandlerTLS(urllib.request.HTTPSHandler):
@@ -126,6 +129,8 @@ class Fixture:
             build = urllib.request.build_opener
             def opener(*handlers): return build(urllib.request.ProxyHandler({}), HandlerTLS(), *handlers)
             self.stack.enter_context(patch.object(urllib.request,'build_opener',side_effect=opener))
+            self.stack.enter_context(patch.object(cloud_http,'HTTPSConnection',
+                side_effect=lambda *args,**kwargs:Connection(*args,context=trust,**kwargs)))
             descriptor = tmp/'descriptor.json'; descriptor.write_bytes(m.canonical(self.descriptor)); descriptor.chmod(0o600)
             self.env['GOOGLE_GHA_CREDS_PATH'] = str(descriptor)
             self.config_path = tmp/'config.json'; self.config_path.write_bytes(m.canonical(self.invocation['configuration']))

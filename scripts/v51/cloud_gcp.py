@@ -255,6 +255,17 @@ class Compute:
         return dict(instanceId=identity, publicKey=host_key(response))
 
     def guest_facts(self, lease, node, *, deadline):
+        return self._guest_observation(lease,node,deadline=deadline,with_host=False)
+
+    def guest_identity(self, lease, node, *, deadline):
+        """Bracket the host-key read with the same two complete resource samples.
+
+        This avoids two extra instance GETs from a separate guest_host_key call;
+        every observation still reads both disks and the exact instance twice.
+        """
+        return self._guest_observation(lease,node,deadline=deadline,with_host=True)
+
+    def _guest_observation(self, lease, node, *, deadline, with_host):
         """Read exact retained IDs, including both sides of each disk attachment.
 
         Read twice under the caller's original deadline. Names identify intent;
@@ -292,7 +303,13 @@ class Compute:
                 instance=instance['spec']['name'], privateIp=address, bootDiskId=boot['id'],
                 provider=dict(instanceId=instance['id'], diskId=data['id'], node=node, sizeGiB=data['spec']['sizeGiB'], attempt=self.req['attempt']))
         first = sample()
+        if with_host:
+            from .guest_setup import host_key
+            response=self.api.call('GET',self.url(instance['spec'])+'/getGuestAttributes?queryPath=hostkeys%2F',
+                                   deadline=deadline,maximum=65536)
+            key=host_key(response)
         m.need(first == sample() and self.api.clock() < deadline, 'guest facts changed/late')
+        if with_host: return dict(facts=first,publicKey=key)
         return first
 
     def decode_operation(self, spec, op, action='insert', identity=None):

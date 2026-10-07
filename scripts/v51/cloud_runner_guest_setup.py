@@ -147,8 +147,9 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
             def recheck(row=row,node=node,facts=facts,guest=guest,pin=pin,pin_raw=pin_raw,provider=provider):
                 m.need(api.clock() < api.deadline and api.store.get(n.LEASE) == (api.generation,lease) and
                        api.store.get(n.LEDGER)[1] == api.reserved,'native guest durable authority/deadline')
-                host = provider.guest_host_key(row['spec'],row['id'],deadline=api.deadline)['publicKey']
-                m.need(provider.guest_facts(lease,node,deadline=api.deadline) == facts and
+                identity = provider.guest_identity(lease,node,deadline=api.deadline)
+                host = identity['publicKey']
+                m.need(identity['facts'] == facts and
                        m.sha(host.encode()) == guest['hostKeySha256'] and pin.read_bytes() == pin_raw ==
                        ('gse-v51-'+row['id']+' '+host+'\n').encode(),'native guest provider/host identity changed')
             binding = dict(schema='gse-v51-guest-binding-v1',source=proof['source'],bundleSha256=proof['archiveSha256'],

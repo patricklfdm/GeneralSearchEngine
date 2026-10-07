@@ -206,7 +206,15 @@ def _execute(output, prepare):
 def run_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,key,output):
     """Fresh native admission and fixed complete experiment; no injectable backend."""
     proof=deepcopy(value['artifacts'])
+    transports=[]
     def prepare(root,continuation):
+        def stage(api,key,root,guests):
+            transports.append(api.transport)
+            return setup._stage(api,key,root,guests,artifacts,proof,continuation=continuation)
         return resources._prepare_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,key,root,
-            guest_stage=lambda api,key,root,guests:setup._stage(api,key,root,guests,artifacts,proof,continuation=continuation))
-    return _execute(output,prepare)
+            guest_stage=stage)
+    try:return _execute(output,prepare)
+    finally:
+        for transport in transports:
+            close=getattr(transport,'close',None)
+            if close is not None:close()
