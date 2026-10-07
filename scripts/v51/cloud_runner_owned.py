@@ -14,6 +14,7 @@ from . import cloud_gcp as g, guest_native_owned as native, guest_owned_experime
 from . import remote_collection as parts, performance_model as m, remote_command as c
 from .remote_budget import Budget
 from . import cloud_runner_timing as timing
+from . import cloud_runner_diagnostics as diagnostics
 
 
 class _Api(failure._Api):
@@ -41,11 +42,23 @@ class _Api(failure._Api):
     def check(self, method, url, body):
         m.need(self.clock()<self.deadline<=self.source.owner_deadline,'owned original stage/lease deadline')
         parsed=urlsplit(url);base=parsed._replace(query='').geturl()
-        if method=='GET' and self.provider is not None:
+        m.need(parsed.scheme=='https' and parsed.netloc in ('compute.googleapis.com','storage.googleapis.com') and
+               not parsed.fragment and not parsed.username,'owned endpoint')
+        if method=='GET' and parsed.netloc=='compute.googleapis.com' and self.phase!='cleanup':
+            m.need(self.phase in (*experiment.CELLS,'validation-retention') and self.provider is not None and
+                   self.lease is not None and body is None,'owned runtime compute read scope')
             for row in self.lease['resources']:
-                if row['spec']['kind']=='instance' and base==self.provider.url(row['spec'])+'/getGuestAttributes':
-                    m.need(body is None and parse_qsl(parsed.query)==[('queryPath','hostkeys/')],'owned host key read scope')
+                spec=row['spec']
+                if not row['attempted'] or row['id'] is None or spec['kind'] not in ('disk','instance'):continue
+                # Runtime reads bind retained IDs directly. They never populate
+                # cleanup's resolved map or authorize deletion without reconciling
+                # the original insert operation in the cleanup stage.
+                if not parsed.query and base==self.provider.url(spec,row['id']):return ('resource',spec,row['id'])
+                if spec['kind']=='instance' and base==self.provider.url(spec)+'/getGuestAttributes':
+                    m.need(parse_qsl(parsed.query,keep_blank_values=True,strict_parsing=True)==[('queryPath','hostkeys/')],
+                           'owned host key read scope')
                     return ('host-key',None,None)
+            raise ValueError('owned runtime compute read scope')
         if method=='POST' and base==self.upload:
             pairs=parse_qsl(parsed.query,strict_parsing=True);query=dict(pairs);key=query.get('name')
             m.need(len(pairs)==len(query),'owned duplicate query')
@@ -99,6 +112,25 @@ class _Api(failure._Api):
         self.retention_sealed=True
 
 
+def _runtime_rechecks(api, store, prepared, lease, generation):
+    """Freeze preparation identities; each command brackets fresh bounded reads."""
+    lease=deepcopy(lease);checks={}
+    for node,row in enumerate(prepared,1):
+        old=row['endpoint'];facts=deepcopy(row['facts'])
+        pin=Path(old.target['knownHosts']);pin_raw=pin.read_bytes();identity=old.value['instanceId']
+        def check(*,deadline=None,node=node,facts=facts,pin=pin,pin_raw=pin_raw,identity=identity):
+            until=min(api.deadline,api.source.owner_deadline,deadline if deadline is not None else api.deadline)
+            m.need(api.clock()<until,'owned runtime identity deadline')
+            current=store.get(n.LEASE,deadline=until);ledger=store.get(n.LEDGER,deadline=until)
+            m.need(current==(generation,lease) and ledger is not None and ledger[1]==api.source.reserved,
+                   'owned runtime durable authority changed')
+            observed=api.provider.guest_identity(lease,node,deadline=until)
+            m.need(observed['facts']==facts and not pin.is_symlink() and pin.read_bytes()==pin_raw==
+                   ('gse-v51-'+identity+' '+observed['publicKey']+'\n').encode(),'owned provider/pinned host changed')
+        checks['node-'+str(node)]=check
+    return checks
+
+
 def _execute(output, prepare):
     """Private composition seam; the public entry below fixes native dependencies."""
     # All later controller paths (source exports, restore and retained evidence)
@@ -121,7 +153,10 @@ def _execute(output, prepare):
         probe.prepare(source.req,int(source.deadline*1e9))
         held['prepared']=prepared
 
-    def report(phase,error):result['errors'].append(runner.failure(phase,error,redact=True))
+    def report(phase,error):
+        record=diagnostics.runtime_failure(phase,error)
+        if api is not None and api.phase in experiment.CELLS:record['cell']=api.phase
+        result['errors'].append(record)
     try:
         with budget.stage('preparation') as deadline:
             prepared=prepare(root/'preparation',continuation)
@@ -130,16 +165,7 @@ def _execute(output, prepare):
             api=_Api(held['source']);store=api.admit()
             result['requestSha256']=api.sha;result['paidCloud']=True
             lease=deepcopy(api.lease);generation=api.lease_generation
-            def check(node):
-                row=held['prepared'][node-1];old=row['endpoint'];facts=row['facts']
-                m.need(store.get(n.LEASE)==(generation,lease) and store.get(n.LEDGER)[1]==api.source.reserved,
-                       'owned runtime durable authority changed')
-                spec=next(v['spec'] for v in lease['resources'] if v['spec']['kind']=='instance' and v['spec']['node']==node)
-                key=api.provider.guest_host_key(spec,old.value['instanceId'],deadline=api.deadline)['publicKey']
-                m.need(api.provider.guest_facts(lease,node,deadline=api.deadline)==facts and
-                       Path(old.target['knownHosts']).read_text()=='gse-v51-'+old.value['instanceId']+' '+key+'\n',
-                       'owned provider/pinned host changed')
-            held['services'].pool.promote(api,{'node-'+str(i):lambda i=i:check(i) for i in (1,2,3)})
+            held['services'].pool.promote(api,_runtime_rechecks(api,store,held['prepared'],lease,generation))
             m.need(time.monotonic_ns()<deadline,'owned preparation total deadline')
         for cell in experiment.CELLS:
             with budget.stage(cell) as deadline:

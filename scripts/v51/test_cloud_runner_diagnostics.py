@@ -46,6 +46,21 @@ class SafeDiagnosticsTest(unittest.TestCase):
         for invalid in (True,'private-secret',600):
             self.assertNotIn('httpStatus',d.failure('admission',h.ApiError(invalid,'GET')))
 
+    def test_runtime_codes_keep_identity_transport_and_deadline_distinct_without_secrets(self):
+        for error,code in ((ValueError('cleanup compute method/path/operation scope'),'RUNTIME_RESOURCE_SCOPE'),
+            (ValueError('owned provider/pinned host changed'),'RUNTIME_IDENTITY_CHANGED'),
+            (ValueError('owned runtime durable authority changed'),'RUNTIME_AUTHORITY_CHANGED'),
+            (ValueError('provider late response'),'RUNTIME_DEADLINE'),
+            (ConnectionError('private-secret'),'RUNTIME_TRANSPORT'),(TimeoutError('private-secret'),'RUNTIME_TIMEOUT'),
+            (d.transport.ProcessError('SSH_DISCONNECTED'),'SSH_DISCONNECTED'),
+            (d.transport.ProcessRejected('SSH_HOST_KEY'),'SSH_HOST_KEY'),
+            (h.ApiError(403,'private-secret'),'PROVIDER_HTTP')):
+            result=d.runtime_failure('execution',error)
+            self.assertEqual(code,result['code']);self.assertEqual(d.detail(code),result['detail'])
+            self.assertNotIn('private-secret',json.dumps(result))
+        forged=d.transport.ProcessError('SSH_DISCONNECTED');forged.code='private-secret'
+        self.assertEqual('UNCLASSIFIED',d.runtime_failure('execution',forged)['code'])
+
 
 class AdmissionPathTest(unittest.TestCase):
     setUpClass=classmethod(resource_tests.RunnerResourcesTest.setUpClass.__func__)

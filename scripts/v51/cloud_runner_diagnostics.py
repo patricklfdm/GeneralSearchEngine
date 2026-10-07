@@ -4,6 +4,7 @@ import json
 import subprocess
 from . import cloud_cleanup_credentials as credentials, cloud_http as h
 from . import guest_session_recovery as session_recovery
+from . import guest_transport as transport
 
 STAGES = frozenset(('inputs','workflow','identity','approval','precheck','ci','observer',
     'checkout','credentials','artifact-metadata','artifact-bytes','control-read','final-freshness','allocation-recheck'))
@@ -37,6 +38,18 @@ GROUPS = {
     'ADMISSION_DEADLINE': ('Runner admission original deadline','Runner allocation admission expired',
         'Runner first lease admission deadline','provider original deadline','provider late response'),
     'ADMISSION_READ_LIMIT': ('Runner admission read bound',),
+    'RUNTIME_RESOURCE_SCOPE': ('owned endpoint','owned runtime compute read scope','owned host key read scope',
+        'cleanup compute method/path/operation scope'),
+    'RUNTIME_AUTHORITY_CHANGED': ('owned runtime durable authority changed','cleanup bound lease generation changed'),
+    'RUNTIME_IDENTITY_CHANGED': ('owned provider/pinned host changed','cleanup numeric lookup identity',
+        'guest numeric resource changed','guest instance not running','guest disk attachment/status',
+        'guest facts changed/late','provider ownership/intent','instance guest access metadata',
+        'resource labels','private interface','attached disk scope/automatic deletion','disk shape','boot image drift'),
+    'RUNTIME_DEADLINE': ('owned original stage/lease deadline','owned runtime identity deadline',
+        'native session connection budget','native IAP deadline/domain','provider original cleanup/read deadline','guest facts deadline'),
+    'RUNTIME_BUDGET_EXCEEDED': ('control/lease budget exceeded',*(
+        'budget exceeded: '+stage for stage in ('preparation','healthy','leader-loss','maintenance','no-quorum','validation-retention','cleanup'))),
+    'RUNTIME_QUALIFICATION_FAILED': ('owned independent qualification failed',),
 }
 MESSAGES = {message:code for code,messages in GROUPS.items() for message in messages}
 DETAILS = {
@@ -72,6 +85,18 @@ DETAILS = {
     'ADMISSION_SUBPROCESS_FAILED':'An admission helper process failed.',
     'ADMISSION_INPUT_INVALID':'An admission input or response has an invalid structure.',
     'ADMISSION_INTERRUPTED':'Admission was interrupted.',
+    'RUNTIME_RESOURCE_SCOPE':'A runtime provider read was outside the exact retained resource scope.',
+    'RUNTIME_AUTHORITY_CHANGED':'The original runtime lease or reserved ledger changed or disappeared.',
+    'RUNTIME_IDENTITY_CHANGED':'An exact resource, attachment, guest state or pinned host identity changed.',
+    'RUNTIME_DEADLINE':'The original runtime command, stage or lease deadline was exhausted.',
+    'RUNTIME_BUDGET_EXCEEDED':'Execution exceeded the original stage or lease time budget.',
+    'RUNTIME_QUALIFICATION_FAILED':'Independent evidence did not establish every required experiment result.',
+    'RUNTIME_TIMEOUT':'A runtime operation timed out; workload mutations are not replayed.',
+    'RUNTIME_TRANSPORT':'A runtime transport operation failed; workload mutations are not replayed.',
+    'RUNTIME_FILE_ACCESS':'A required runtime or evidence file could not be accessed.',
+    'RUNTIME_SUBPROCESS_FAILED':'A runtime helper process failed.',
+    'RUNTIME_INPUT_INVALID':'A runtime input or response has an invalid structure.',
+    'RUNTIME_INTERRUPTED':'The runtime was interrupted.',
     'UNCLASSIFIED':'No classified failure was retained; raw exception details are withheld.',
 }
 TYPES = (ValueError,TypeError,KeyError,OSError,FileNotFoundError,PermissionError,TimeoutError,ConnectionError,
@@ -88,8 +113,12 @@ def message(error):
 
 
 def failure(phase,error):
+    if type(error) in (transport.ProcessError,transport.ProcessRejected):
+        code=error.code if type(error.code) is str and error.code in transport.FAILURE_DETAILS else 'UNCLASSIFIED'
+        return dict(phase=phase,type=type(error).__name__,code=code,detail=detail(code))
     if type(error) is session_recovery.RecoveryError:
-        return dict(phase=phase,type='RecoveryError',code=error.code,detail=detail(error.code))
+        code=error.code if type(error.code) is str and error.code in session_recovery.DETAILS else 'UNCLASSIFIED'
+        return dict(phase=phase,type='RecoveryError',code=code,detail=detail(code))
     if type(error) is AdmissionError:
         code=error.code if error.code in DETAILS or error.code in credentials.DIAGNOSTICS else 'UNCLASSIFIED'
         error_type=error.error_type if error.error_type in tuple(t.__name__ for t in TYPES) else 'Exception'
@@ -109,6 +138,17 @@ def failure(phase,error):
         status=error.status if isinstance(error,h.ApiError) else None
     if type(status) is int and 100<=status<=599:result['httpStatus']=status
     result['detail']=detail(code)
+    return result
+
+
+def runtime_failure(phase,error):
+    result=failure(phase,error)
+    # Keep closed codes and numeric HTTP status, without mislabelling an owned
+    # execution/collection failure as an admission failure.
+    code=result['code']
+    if code.startswith('ADMISSION_') and 'RUNTIME_'+code[len('ADMISSION_'):] in DETAILS:
+        code='RUNTIME_'+code[len('ADMISSION_'):]
+        result.update(code=code,detail=detail(code))
     return result
 
 
