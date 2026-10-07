@@ -11,7 +11,13 @@ attempt 1 (36 jobs). Its next paid run reached package preparation but failed;
 the [connection-reuse correction](#second-native-run-and-preparation-connections--2026-10-06)
 passed PR #295 / CI `37524630590`. Its next admitted run reached the 600-second
 preparation ceiling; the [scoped timing correction](PHASE_6_PREPARATION_BUDGET.md)
-now requires its own protected CI and a fresh approved experiment.
+passed PR #296 / CI `37540790465` attempt 2 (36 jobs). Run `37546477964`
+then stopped before workload with about 1550 seconds still available; retained
+request reproduction exposes the guest validators' unchanged 600-second limit.
+The [guest deadline propagation correction](PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
+now requires its own protected CI and a fresh approved experiment. Owner recovery
+and independent exact-ID reads confirmed all thirteen resources absent, lease
+release and USD 57 / 200 retained.
 Full Phase 6 remains open.
 
 ## Workflow selections

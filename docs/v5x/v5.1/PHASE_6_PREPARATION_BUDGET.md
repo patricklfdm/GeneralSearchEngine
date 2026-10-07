@@ -1,7 +1,11 @@
 # V5.1 native experiment preparation budget
 
-**Status:** implementation candidate; corrected-source protected CI and a fresh
-approved native experiment remain required. This amendment applies only to the
+**Status:** timing allocation accepted through PR #296, master
+`5254455d04bc832c5fb4ae4f2b8735a724a089e7`,
+[CI 37540790465](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37540790465)
+attempt 2 (36 successful jobs). The guest deadline propagation correction below
+is a local candidate; corrected-source protected CI and a fresh approved native
+experiment remain required. This amendment applies only to the
 four-cell native Runner experiment. It does not change the frozen canonical
 machine plan or reinterpret earlier receipts.
 
@@ -98,6 +102,53 @@ changed timing rejection, and cleanup/retention with failed charges preserved.
 The existing offline storage and admission gates also exercise provider identity,
 CAS, package integrity, pinned SSH and cleanup boundaries. Local results are
 retained under `target/v51-preparation-budget/`; no paid run is part of this change.
+
+## Guest deadline propagation correction
+
+The admitted [run 37546477964](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37546477964)
+used PR #296's 1800-second allocation, but stopped at node 1's volume clock
+exchange after 249.500 seconds, before any engine workload. The retained failure
+is `PREPARATION_REJECTED`; the original guest clock reply and detailed exception
+were not retained. There were no recorded IAP transport failures.
+
+The retained volume request with a valid modeled clock response reproduces a
+deterministic blocker: about 1550.507 seconds remained, but the controller's
+shared guest-budget validator still rejected anything over 600 seconds. The
+package controller also had an independent 600-second check; installed-package,
+source/bootstrap and native-session validation reused the same old ceiling.
+This reproduction explains the incompatible limits without claiming a retained
+raw guest exception or a transport failure.
+
+The correction selects the existing `owned-experiment-v1` profile in the trusted
+native volume, package and session paths. Controller allocation and guest
+validation share the 1800-second constant from the standalone trusted receiver.
+The full native descriptor is bound into the clock sample and consumed claim;
+neither the wire budget nor a public duration argument can select a larger limit.
+Ordinary helpers and package transfers retain 600 seconds, and their existing
+entry points continue to reject native package descriptors. Package inventory,
+boot identity, original deadline equality and expired-clock rejection remain
+mandatory through source transfer and bootstrap. A lost reply permits queries
+of the original operation, never a new clock, deadline or repeated write.
+
+Regression evidence uses real controller endpoints, consumed file claims,
+multipart package installation, installed-byte verification and session/source
+receivers with a 1550-second budget. OS/provider/network boundaries and backup
+payloads are explicitly modeled; no engine or cloud execution is claimed.
+Four native controller/boundary regressions and ten existing session cases all
+failed against the original implementation's 600-second limit. Boundary cases
+cover exactly 1800 seconds, rejection at 1800 seconds plus one nanosecond,
+unchanged ordinary limits, unknown profiles, wire overrides, expiry, reboot,
+consumed deadline drift, and lost replies without replay. Local logs are retained
+under `target/v51-guest-preparation-deadlines/`.
+
+Run `37546477964` owner recovery passed in 302.156 seconds, verified retention
+and released the lease. Independent original-name/numeric-ID reads confirmed
+all thirteen resources absent. The ledger retained USD 57 / 200, including the
+failed attempt. Original artifact ID `11451715815`, SHA-256
+`202ab28e40ca6220241a82bcaa94a090aa7bda6e37d12e86b57ab16db08a4cc7`,
+and diagnosis are retained at
+`target/v51-native-experiment-pr296/run-37546477964/`.
+No new cloud mutation or budget increase is part of this correction.
 
 After protected merge, use a recent same-source manual cleanup and a fresh
 prepare/review/run sequence with separate exact-request approval. A prior failed

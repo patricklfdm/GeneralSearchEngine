@@ -67,7 +67,8 @@ class Endpoint:
     def _exchange(self, action, data, deadline, index=None):
         m.need(action in ('begin','part','query','finish') and isinstance(data,bytes) and
                (action == 'part' or data == b''), 'package transfer input')
-        now = time.monotonic(); m.need(type(deadline) in (int,float) and math.isfinite(deadline) and 0 < deadline-now <= 600, 'package original deadline')
+        maximum = r.deadline_limit_nanos(receiver.deadline_profile(self.value))/1e9
+        now = time.monotonic(); m.need(type(deadline) in (int,float) and math.isfinite(deadline) and 0 < deadline-now <= maximum, 'package original deadline')
         if not self.started:
             self.started = True; self.deadline = deadline; nonce = secrets.token_hex(16)
             try: sample = self.call('clock', b'', deadline, nonce)
@@ -75,8 +76,8 @@ class Endpoint:
                 raise ValueError('package clock unavailable; no delivery admitted: '+str(error)) from error
             r.validate_sample(sample, receiver.identity(self.value), nonce)
             remaining = math.floor((deadline-time.monotonic())*10**9)
-            self.budget = r.validate_budget(dict(schema='gse-v51-helper-deadline-v1', sample=sample,
-                expiresNanos=sample['sampledNanos']+remaining), receiver.identity(self.value))
+            self.budget = receiver.validate_budget(dict(schema='gse-v51-helper-deadline-v1', sample=sample,
+                expiresNanos=sample['sampledNanos']+remaining), self.value)
         m.need(self.budget is not None and deadline == self.deadline, 'package clock/deadline cannot renew')
         answer = self.call(action, data, deadline, base64.b64encode(m.canonical(self.budget)).decode(), index)
         m.need(type(answer) is dict and set(answer) == {'schema','deadlineSha256','receipt'} and

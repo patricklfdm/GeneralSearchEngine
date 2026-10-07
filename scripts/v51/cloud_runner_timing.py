@@ -4,10 +4,10 @@ Approval freshness gates the first mutation. It is not the already-admitted
 preparation lifetime. Canonical/failure-drill allocation remains frozen.
 """
 from . import cloud_workload_contract as contract, performance_model as m
+from .guest_delivery_receiver import (NATIVE_PREPARATION_PROFILE as PROFILE,
+                                     NATIVE_PREPARATION_SECONDS as PREPARATION_SECONDS)
 
-PROFILE = 'owned-experiment-v1'
 APPROVAL_SECONDS = 900
-PREPARATION_SECONDS = 1800
 
 
 def allocation():

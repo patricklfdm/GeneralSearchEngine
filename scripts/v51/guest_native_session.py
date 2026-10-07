@@ -20,6 +20,7 @@ FAULTS=('leader-loss','maintenance','no-quorum')
 
 
 def identity(value):
+    r.need(value.get('schema')=='gse-v51-native-package-transfer-v1','native session package domain')
     raw=r.canonical(value)
     return r.descriptor(dict(schema='gse-v51-helper-delivery-v1',binding=value['binding'],instanceId=value['instanceId'],
         diskId=value['diskId'],guestAccessSha256=value['guestAccessSha256'],payloadSha256=r.sha(raw),payloadBytes=len(raw)))
@@ -28,7 +29,7 @@ def identity(value):
 def validate(session, value):
     r.need(type(session) is dict and set(session)=={'schema','packageSha256','preparation','leaseExpiresNanos','hosts','port'} and
            session['schema']==SCHEMA and session['packageSha256']==r.sha(r.canonical(value)), 'native session package/fields')
-    budget=r.validate_budget(session['preparation'],identity(value))
+    budget=r.validate_budget(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
     end=session['leaseExpiresNanos'];sample=budget['sample']
     r.need(type(end) is int and budget['expiresNanos'] <= end <= sample['sampledNanos']+5400*10**9,'native session original lease bound')
     hosts=session['hosts'];port=session['port']
@@ -79,7 +80,7 @@ def observe(base, session, value):
 
 
 def begin(base, session, value):
-    r.guest_deadline(session['preparation'],identity(value))
+    r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
     previous=observe(base,session,value)
     if previous['state']!='NOT_FOUND':return previous
     folder=Path(base).parent/'native-session'
@@ -107,7 +108,7 @@ def dispatch(action, value, session, tail, stream):
     from . import guest_native_package as native, guest_package_receiver as package
     native.validate(value);validate(session,value)
     preparation=action in ('begin','producer','source','bootstrap')
-    deadline=r.guest_deadline(session['preparation'],identity(value)) if preparation else lease_deadline(session,value)
+    deadline=r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE) if preparation else lease_deadline(session,value)
     native.context(value,deadline)
     base=package.installed('/mnt/gse-v51',value)
     r.need(package.read(base.parent/'deadline.json')==session['preparation'],'native session original package budget')
@@ -143,7 +144,7 @@ def main():
     r.need(len(encoded)<=131072 and len(token)<=8192,'native session envelope bound')
     value=r.decode(base64.b64decode(encoded,validate=True));session=r.decode(base64.b64decode(token,validate=True))
     deadline=lease_deadline(session,value)
-    if action in ('begin','producer','source','bootstrap'):deadline=r.guest_deadline(session['preparation'],identity(value))
+    if action in ('begin','producer','source','bootstrap'):deadline=r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
     def expired(*_):raise TimeoutError('native session original deadline')
     signal.signal(signal.SIGALRM,expired);signal.setitimer(signal.ITIMER_REAL,max(.001,deadline-time.monotonic()))
     try:

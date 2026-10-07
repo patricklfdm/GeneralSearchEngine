@@ -61,13 +61,13 @@ def perform(action, value, token, stream, index=None):
     if action == 'clock':
         context(value,time.monotonic()+5)
         return r.clock_sample(p.identity(value),token)
-    budget = r.validate_budget(r.decode(base64.b64decode(token,validate=True)),p.identity(value))
-    deadline = r.guest_deadline(budget,p.identity(value)); context(value,deadline)
+    budget = p.validate_budget(r.decode(base64.b64decode(token,validate=True)),value)
+    deadline = p.guest_deadline(budget,value); context(value,deadline)
     if action == 'begin': answer = p.begin(v.MOUNT,value,budget)
     elif action == 'part': answer = p.put(v.MOUNT,value,budget,index,stream)
     elif action == 'finish': answer = p.finish(v.MOUNT,value,budget)
     else: answer = p.query(v.MOUNT,value,budget)
-    context(value,deadline); r.guest_deadline(budget,p.identity(value))
+    context(value,deadline); p.guest_deadline(budget,value)
     return dict(schema='gse-v51-package-transport-v1',deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
 
 
@@ -75,7 +75,7 @@ def main():
     action, encoded, token, *tail = sys.argv[1:]
     r.need(len(encoded) <= 131072 and len(token) <= 4096 and len(tail) <= 1,'native package envelope bound')
     value = validate(r.decode(base64.b64decode(encoded,validate=True)))
-    seconds = 5 if action == 'clock' else r.guest_deadline(r.decode(base64.b64decode(token,validate=True)),p.identity(value))-time.monotonic()
+    seconds = 5 if action == 'clock' else p.guest_deadline(r.decode(base64.b64decode(token,validate=True)),value)-time.monotonic()
     def expired(*_): raise TimeoutError('native package original deadline')
     signal.signal(signal.SIGALRM,expired); signal.setitimer(signal.ITIMER_REAL,max(.001,seconds))
     try: print(r.canonical(perform(action,value,token,sys.stdin.buffer,int(tail[0]) if tail else None)).decode(),flush=True)

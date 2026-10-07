@@ -23,6 +23,11 @@ complete chain one 1800-second preparation deadline, including archive verificat
 credential exchange and all three guests. Plan/preflight freshness still gates
 the first lease mutation. Admitted preparation does not expire with the approval
 window. The 5400-second lease and 1080-second grace are unchanged.
+The [guest deadline propagation correction](PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
+is a local candidate: native volume/package/session receivers select that same
+1800-second profile, including installed-package and source/bootstrap checks.
+Ordinary helper/package paths remain limited to 600 seconds. The original clock
+and consumed deadline cannot be renewed, including after a lost response.
 Before and after each native connection, the controller verifies the retained
 lease generation/content, reserved ledger, provider numeric VM/disk identities,
 attachments and pinned host key. It uses the same admitted Runner credential;
