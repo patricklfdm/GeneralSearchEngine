@@ -145,7 +145,7 @@ class OwnerTest(unittest.TestCase):
         with self.assertRaises(ValueError):self.api.seal()
     def test_stage_replay_out_of_order_or_extended_ceiling_rejected(self):
         with self.assertRaises(ValueError):self.stage('maintenance')
-        with self.assertRaises(ValueError):self.stage('healthy',901)
+        with self.assertRaises(ValueError):self.stage('healthy',2701)
         self.stage('healthy')
         with self.assertRaises(ValueError):self.stage('healthy')
         self.stage('cleanup')

@@ -5,6 +5,10 @@ cannot enter it. Shared cleanup still needs the original retained CAS authority.
 """
 from copy import deepcopy
 from pathlib import Path
+from contextlib import contextmanager
+import json
+import threading
+import time as walltime
 import re
 import time
 from urllib.parse import urlsplit, parse_qsl
@@ -15,6 +19,7 @@ from . import remote_collection as parts, performance_model as m, remote_command
 from .remote_budget import Budget
 from . import cloud_runner_timing as timing
 from . import cloud_runner_diagnostics as diagnostics
+from . import cloud_runner_iap as iap
 
 
 class _Api(failure._Api):
@@ -30,8 +35,7 @@ class _Api(failure._Api):
     def stage(self, name, deadline):
         m.need(name in (*experiment.CELLS,'validation-retention','cleanup','completion') and name not in self.seen and
                self.clock()<deadline<=self.source.owner_deadline,'owned stage deadline/consumed')
-        limits={v['name']:v['seconds'] for v in failure.workload.load()['cells']}
-        limits.update({'validation-retention':600,'cleanup':600,'completion':540})
+        limits=dict(timing.allocation()['limitsSeconds']);limits['completion']=limits['control']
         if name in experiment.CELLS:
             m.need(self.phase==('admission' if name=='healthy' else experiment.CELLS[experiment.CELLS.index(name)-1]),'owned cell order')
         elif name=='completion':m.need(self.phase=='cleanup','owned completion before cleanup')
@@ -137,6 +141,22 @@ def _execute(output, prepare):
     # derive from this root. Keep guest/session paths separate and unchanged.
     root=Path(output).absolute();root.mkdir(parents=True,exist_ok=False);c.directory(root)
     budget=Budget(profile=timing.PROFILE);held={};api=None;store=None
+    @contextmanager
+    def stage(name):
+        # No provider data, paths or exception strings in the live heartbeat.
+        started=walltime.monotonic();done=threading.Event()
+        def emit(state):
+            print(json.dumps(dict(stage=name,status=state,elapsedSeconds=round(walltime.monotonic()-started,1),
+                                  limitSeconds=budget.limits[name]//10**9)),flush=True)
+        def beat():
+            while not done.wait(30):emit('RUNNING')
+        emit('START');worker=threading.Thread(target=beat,daemon=True);worker.start()
+        try:
+            with budget.stage(name) as deadline:yield deadline
+        except BaseException:
+            emit('FAIL');raise
+        else:emit('DONE')
+        finally:done.set();worker.join()
     result=dict(schema=n.COMPLETION_SCHEMA,execution=n.EXECUTION,paidCloud=False,engineWorkloadExecuted=False,
         fullRemoteQualification=False,qualificationScope=experiment.SCOPE,status='FAIL',errors=[],cleanup=None,
         retention='INCOMPLETE',leaseReleased=False)
@@ -158,7 +178,7 @@ def _execute(output, prepare):
         if api is not None and api.phase in experiment.CELLS:record['cell']=api.phase
         result['errors'].append(record)
     try:
-        with budget.stage('preparation') as deadline:
+        with stage('preparation') as deadline:
             prepared=prepare(root/'preparation',continuation)
             result['preparation']=prepared;result['paidCloud']=prepared['paidCloud']
             m.need(prepared['status']=='PARTIAL' and 'probe' in held,'owned preparation failed')
@@ -168,9 +188,10 @@ def _execute(output, prepare):
             held['services'].pool.promote(api,_runtime_rechecks(api,store,held['prepared'],lease,generation))
             m.need(time.monotonic_ns()<deadline,'owned preparation total deadline')
         for cell in experiment.CELLS:
-            with budget.stage(cell) as deadline:
+            with stage(cell) as deadline:
                 api.stage(cell,min(deadline/1e9,api.source.owner_deadline))
-                held['probe'].cell(cell,int(api.deadline*1e9))
+                with iap.runtime_connections(api,root/('connections-'+cell+'.json')):
+                    held['probe'].cell(cell,int(api.deadline*1e9))
     except (Exception,KeyboardInterrupt) as error:report('execution',error)
     finally:
         if api is not None and store is not None:
@@ -178,13 +199,15 @@ def _execute(output, prepare):
             try:probe.stop()
             except (Exception,KeyboardInterrupt) as error:report('stop',error)
             try:
-                with budget.stage('validation-retention') as deadline:
+                with stage('validation-retention') as deadline:
                     api.stage('validation-retention',min(deadline/1e9,api.source.owner_deadline))
-                    try:result['evidence']=probe.collect_validate(root,int(api.deadline*1e9))
-                    except (Exception,KeyboardInterrupt) as error:report('collection',error)
-                    finally:
-                        try:held['services'].stop(api.deadline)
-                        except (Exception,KeyboardInterrupt) as error:report('service-stop',error)
+                    with iap.runtime_connections(api,root/'connections-validation-retention.json'):
+                        try:result['evidence']=probe.collect_validate(root,int(api.deadline*1e9))
+                        except (Exception,KeyboardInterrupt) as error:report('collection',error)
+                        finally:
+                            try:held['services'].stop(api.deadline)
+                            except (Exception,KeyboardInterrupt) as error:report('service-stop',error)
+                    for path in sorted(root.glob('connections-*.json')):api.retain(store,path.name,path.read_bytes())
                     for name,data in held['services'].retention_files():api.retain(store,'startup/'+name,data)
                     for name,data in probe.retention_files():api.retain(store,'parts/'+name,data)
                     for name,data in failure.evidence(root/'preparation',status='PARTIAL').items():api.retain(store,'preparation/'+name,data)
@@ -200,7 +223,7 @@ def _execute(output, prepare):
                            'owned independent qualification failed')
             except (Exception,KeyboardInterrupt) as error:report('validation-retention',error)
             try:
-                with budget.stage('cleanup') as deadline:
+                with stage('cleanup') as deadline:
                     api.stage('cleanup',min(deadline/1e9,api.source.owner_deadline))
                     def persist():
                         nonlocal generation

@@ -16,8 +16,11 @@ before any workload. PR #299 accepted that correction at master
 after both published-mode bootstraps. The round-trip reduction and bounded session
 recovery passed protected CI through PR #301. The next native run completed
 preparation but exposed the [runtime identity handoff defect](#runtime-identity-handoff-correction).
-That correction is a local candidate; protected CI and a fresh approved experiment
-remain required. Full Phase 6 remains open.
+PR #302 merged that correction at `47d6d2874258b2554b6397b6a691d531f1575dc3`.
+Its native run `37689820061` completed preparation and the V4.4 healthy mode, then
+exhausted the V5.0 mode observation budget. The [first-run headroom correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md)
+is a local candidate; protected CI and a fresh approved experiment remain required.
+Full Phase 6 remains open.
 
 ## Fixed entry and reused workload
 
@@ -36,7 +39,9 @@ their existing public empty bootstrap. No measurement or mutation is resubmitted
 after a lost response. Existing bounded immutable source downloads can retry reads.
 
 Physical/history replay, shared source validation, backup/restore checks, combined
-evidence budgets, 270 healthy calls and frozen per-cell ceilings are unchanged.
+evidence budgets and 270 healthy calls are unchanged. The native v2 experiment
+uses the explicitly reviewed [control time ceilings](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md);
+legacy/offline and canonical ceilings remain frozen.
 Native request validation is passed explicitly to the aggregate evidence readers;
 replay does not infer authority from a claimed result. Independent replay receipts
 remain evidence-only; the outer native owner records actual execution scope.

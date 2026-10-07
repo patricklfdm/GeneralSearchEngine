@@ -72,7 +72,7 @@ def archives(root,receipt,location):
     return result
 
 
-def schedule(history,receipt):
+def schedule(history,receipt,*,progress_seconds=60):
     case=receipt['case'];m.need(4<=len(history)<=24,'fault public-call cap')
     m.need([h['intentId'] for h in history]==[f'call-{n:02d}' for n in range(1,len(history)+1)],'undeclared call IDs')
     m.need([h['kind'] for h in history[:4]]==['addAll']*3+['read'] and all(h['outcome']=='SUCCESS' for h in history[:4]),'fault seed calls')
@@ -85,13 +85,13 @@ def schedule(history,receipt):
         m.need(pair['tag']==100+i*10,'fresh progress tags')
         write,view=(indexed[pair[k]['opId']] for k in ('write','read'))
         m.need(write['kind']=='addAll' and write['documents']==expected_documents(pair['tag']) and view['kind']=='read','progress payload')
-        m.need(pair['endNanos']-receipt['faultStartNanos']<=60*10**9,'progress pair deadline')
+        m.need(pair['endNanos']-receipt['faultStartNanos']<=progress_seconds*10**9,'progress pair deadline')
         m.need(pair['startNanos']<=write['startNanos']<=write['endNanos']<=view['startNanos']<=view['endNanos']<=pair['endNanos'],'progress call timing')
         for key,op in [('write',write),('read',view)]:
             m.need(op['response']==pair[key] and op['node']==pair['node'] and op['opId'] not in used,'progress original response')
             used.add(op['opId'])
     success=next((p for p in progress if all(p[k]['outcome']=='SUCCESS' for k in ('write','read'))),None)
-    m.need(success is not None and 0<=success['endNanos']-receipt['faultStartNanos']<=60*10**9,'fault first progress deadline')
+    m.need(success is not None and 0<=success['endNanos']-receipt['faultStartNanos']<=progress_seconds*10**9,'fault first progress deadline')
     for response in reads:
         op=indexed[response['opId']];m.need(op['kind']=='read' and op['response']==response and op['opId'] not in used,'final read binding');used.add(op['opId'])
     m.need(reads[-1]['outcome']=='SUCCESS','no final successful read')

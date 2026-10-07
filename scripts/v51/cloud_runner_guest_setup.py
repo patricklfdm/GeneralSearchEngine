@@ -27,7 +27,7 @@ def trusted_source(kind):
     m.need(kind in ('volume','package','session'),'native guest receiver kind')
     names = ('performance_model','performance_plan','cloud_workload_contract','remote_command','guest_setup',
              'guest_transport','guest_volume','guest_delivery_receiver','guest_root_policy','guest_root_receiver',
-             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package','guest_native_session')
+             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package','native_experiment_timing','guest_native_session')
     modules = {name:(Path(__file__).parent/(name+'.py')).read_text() for name in names}
     encoded = base64.b64encode(zlib.compress(m.canonical(modules))).decode()
     # Preserve dependency order explicitly; canonical JSON sorts its keys.

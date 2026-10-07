@@ -204,7 +204,7 @@ class SessionTest(unittest.TestCase):
         with patch.object(guest.c,'write_once') as write,self.assertRaises(FileNotFoundError):guest.prepared_config(self.base,self.cfg)
         write.assert_not_called()
     def test_session_rejects_foreign_package_oversized_lease_public_or_duplicate_peers(self):
-        for field,value in (('packageSha256','0'*64),('leaseExpiresNanos',self.budget['sample']['sampledNanos']+5400*10**9+1),
+        for field,value in (('packageSha256','0'*64),('leaseExpiresNanos',self.budget['sample']['sampledNanos']+14400*10**9+1),
                             ('hosts',['8.8.8.8','10.0.0.2','10.0.0.3']),('hosts',['10.0.0.1']*3),('hosts',['127.0.0.1','127.0.0.2','127.0.0.3'])):
             with self.subTest(field=field),self.assertRaises(ValueError):s.validate(dict(self.session,**{field:value}),self.value)
     def test_closed_dispatch_rejects_arbitrary_actions_and_local_source_paths(self):

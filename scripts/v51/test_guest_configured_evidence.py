@@ -86,7 +86,7 @@ class ConfiguredBackupEvidenceTest(unittest.TestCase):
         seen=[]
         def status(node,end):seen.append((node,end));return dict(state='READY',provenIndex=73)
         joint.converge([1,2,3],1,status,10,mode=package.MODES[1],clock=lambda:0)
-        self.assertEqual(seen,[(1,10),(1,10),(2,10),(3,10)])
+        self.assertEqual(seen,[(1,10),(2,10),(3,10)])
         with self.assertRaisesRegex(ValueError,'leader status'):
             joint.converge([1,2,3],1,status,10,clock=lambda:0)
 

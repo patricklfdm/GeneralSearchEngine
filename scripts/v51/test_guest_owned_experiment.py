@@ -159,7 +159,7 @@ class CompleteCoordinatorTest(unittest.TestCase):
     def test_maintenance_isolates_and_heals_every_independent_receiver(self):
         from .guest_owned_faults import Cell
         members=[(i,None,{}) for i in (1,2,3)]
-        cell=Cell(SimpleNamespace(clients=members),self.root/'cell','maintenance',clock=self.clock.seconds,sleep=self.clock.sleep)
+        cell=Cell(SimpleNamespace(clients=members,provider=SimpleNamespace(req=self.req)),self.root/'cell','maintenance',clock=self.clock.seconds,sleep=self.clock.sleep)
         cell.end=self.clock.seconds()+240;cell.record['seedRead']={'documents':[]}
         issued=[]
         def command(member,name,payload,deadline):

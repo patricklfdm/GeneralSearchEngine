@@ -12,6 +12,7 @@ from . import cloud_native_cleanup as cleanup, cloud_native_authority as n
 from . import cloud_gcp as g, cloud_http as h, cloud_runner as runner
 from . import performance_model as m, remote_command as c
 from . import cloud_workload_contract as workload
+from . import native_experiment_timing as timing
 
 SCHEMA = 'gse-v51-runner-failure-recovery-v1'
 FILES = frozenset({'receipt.json', 'inspection.json', 'plan.json', 'http.json', 'admission-http.json',
@@ -61,7 +62,7 @@ class _Api(cleanup._Policy, h.Api):
         self.initialize(source.cfg)
         self.source = source
         self.started = self.clock()
-        self.deadline = min(source.owner_deadline, self.started+workload.load()['budgets']['cleanupSeconds'])
+        self.deadline = min(source.owner_deadline, self.started+(timing.STAGES['cleanup'] if timing.selected(source.req) else workload.load()['budgets']['cleanupSeconds']))
         self.mutations = set(); self.requests = []; self.retained = {}; self.verified = set()
         self.expected_completion = None; self.retention_started = False
 
@@ -147,7 +148,7 @@ class _Api(cleanup._Policy, h.Api):
         started = self.clock() if started is None else started
         m.need(self.started <= started <= self.clock(), 'owner retention original start')
         self.retention_started = True
-        self.deadline = min(self.source.owner_deadline, started+workload.load()['budgets']['validationRetentionSeconds'])
+        self.deadline = min(self.source.owner_deadline, started+(timing.STAGES['validation-retention'] if timing.selected(self.source.req) else workload.load()['budgets']['validationRetentionSeconds']))
         self.retained = {self.attempt+'preparation-failure/'+name: data for name, data in files.items()}
 
 

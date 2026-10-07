@@ -33,7 +33,7 @@ if [[ "$lane" == all || "$lane" == cleanup ]]; then
   timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v51.cloud_experiment_resource_qualification "$work_dir/experiment-resources" --source "$(git rev-parse HEAD)"
 fi
 if [[ "$lane" == all || "$lane" == storage ]]; then
-  python3 -m unittest scripts.v51.test_cloud_runner_storage scripts.v51.test_cloud_runner_storage_entry scripts.v51.test_cloud_runner_resources scripts.v51.test_cloud_runner_iap scripts.v51.test_cloud_runner_connections scripts.v51.test_cloud_runner_guest_setup scripts.v51.test_cloud_runner_failure scripts.v51.test_cloud_runner_owned scripts.v51.test_guest_native_session scripts.v51.test_guest_session_recovery
+  python3 -m unittest scripts.v51.test_cloud_runner_storage scripts.v51.test_cloud_runner_storage_entry scripts.v51.test_cloud_runner_resources scripts.v51.test_cloud_runner_iap scripts.v51.test_cloud_runner_connections scripts.v51.test_cloud_runner_guest_setup scripts.v51.test_cloud_runner_failure scripts.v51.test_cloud_runner_owned scripts.v51.test_guest_native_session scripts.v51.test_guest_session_recovery scripts.v51.test_native_experiment_timing
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_runner_storage_qualification "$work_dir/runner-storage"
   timeout --signal=TERM --kill-after=5s 120s python3 -m scripts.v51.cloud_runner_storage_entry_qualification "$work_dir/runner-storage-entry"
   timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v51.cloud_runner_resource_qualification "$work_dir/runner-resource-entry"

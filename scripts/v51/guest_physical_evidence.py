@@ -20,14 +20,15 @@ NEGATIVES = dict(zip(('missing-invocation','borrowed-invocation','unknown-read-i
      'publish before own force and remote proof acknowledgement','unsuccessful cloud API call')))
 
 
-def converge(members, active, status, deadline, *, mode=package.MODES[2], clock=time.monotonic, sleep=time.sleep):
+def converge(members, active, status, deadline, *, mode=package.MODES[2], clock=time.monotonic, sleep=time.sleep, seconds=30):
     """Observe durability only; never issue a read, mutation, activation or replay."""
-    end=min(deadline,clock()+30)
+    end=min(deadline,clock()+seconds)
     m.need(mode in package.MODES[1:], 'guest final replicated mode')
     leader=status(active,end)
     expected='READY' if mode==package.MODES[1] else 'LEADER_READY'
     m.need(leader['state']==expected and leader['provenIndex']>0, 'guest final leader status')
-    target=leader['provenIndex']; pending=list(members)
+    # The first status already established the active member's durable prefix.
+    target=leader['provenIndex']; pending=[member for member in members if member!=active]
     while pending:
         member=pending[0]; value=status(member,end)
         m.need(value['state']!='FAILED', 'guest final voter failed')

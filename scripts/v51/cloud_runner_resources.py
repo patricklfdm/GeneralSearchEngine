@@ -29,11 +29,11 @@ class _Api(resources._Policy, h.Api):
         self.token, self.expires = source.token, source.expires
         self.initialize(inspected.result['resourcePlan'], now)
         # The shared standalone resource qualifier still has its original 600s
-        # allocation. Only this freshly approved four-cell Runner uses 1800s.
+        # allocation. Only this freshly approved four-cell Runner uses 3600s.
         self.deadline = min(self.clock()+timing.PREPARATION_SECONDS, deadline)
         self.admission_deadline = self.clock()+max(0,inspected.result['expiresAt']-now)
         self.gate_open = False
-        self.owner_deadline = self.clock()+admission.workload.load()['budgets']['leaseSeconds']
+        self.owner_deadline = self.clock()+timing.allocation()['leaseSeconds']
         self.last_lease_write = None
         self.failure_claimed = False
         self.owner_claimed = False
@@ -108,7 +108,7 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         receipt.update(planSha256=inspected.result['planSha256'],
                        requestSha256=n.validate_request(inspected.result['resourcePlan']['request']))
         # Original approval/precheck expiry is rechecked immediately before the
-        # first lease mutation below. Admitted work retains its one 1800s clock.
+        # first lease mutation below. Admitted work retains its one 3600s clock.
         m.need(clock() < deadline, 'Runner preparation original deadline')
         api = _Api(inspected, now=int(wall()), deadline=deadline)
 

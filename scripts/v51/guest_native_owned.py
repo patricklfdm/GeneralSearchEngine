@@ -14,6 +14,7 @@ from . import guest_owned_bootstrap as bootstrap, guest_shared_source as shared,
 from . import guest_producer_source as producer, guest_owned_workload as workload, guest_owned_three_mode as healthy
 from . import guest_owned_experiment as experiment, performance_model as m, remote_command as c
 from . import guest_session_recovery as recovery
+from . import native_experiment_timing as timing
 
 
 def creation(api):
@@ -43,6 +44,7 @@ class Endpoint(delivery.Endpoint):
 
     def process(self, remote, data, deadline, **options):
         m.need(len(self.calls)<4096 and self.api.clock()<deadline<=self.api.deadline,'native session connection budget')
+        deadline=min(deadline,self.api.clock()+timing.EXCHANGE_SECONDS)
         self.api.guest_operation = dict(node=self.value['binding']['node'],kind='session',action=remote[4])
         # Provider guards share the command's deadline during preparation AND
         # runtime; a short exchange must not inherit the whole cell allowance.

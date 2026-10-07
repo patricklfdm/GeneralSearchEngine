@@ -279,7 +279,7 @@ class RunnerFailureTest(unittest.TestCase):
     def test_expired_owner_cannot_begin_fresh_cleanup_or_retention_budget(self):
         count=[]
         def expired(api):
-            self.input['clock'].sleep(5401);count.append(len(self.mutations()))
+            self.input['clock'].sleep(14401);count.append(len(self.mutations()))
         result=self.run_failure(before=expired)
         self.assertIsNone(result['ownerRecovery']['cleanup']);self.assertEqual(count[0],len(self.mutations()))
         self.assertEqual(13,len(self.input['http'].resources))
@@ -330,7 +330,7 @@ class RunnerFailureTest(unittest.TestCase):
     def test_cleanup_and_whole_lease_deadlines_cannot_be_reset_by_base_api_calls(self):
         def inspect(source):
             api=f._Api(source);store=api.admit()
-            self.input['clock'].sleep(601)
+            self.input['clock'].sleep(901)
             with self.assertRaisesRegex(ValueError,'deadline'):
                 h.Api.call(api,'GET',store.url(n.LEASE),deadline=api.clock()+600)
             api.retention({'receipt.json':b'original'})
@@ -338,7 +338,7 @@ class RunnerFailureTest(unittest.TestCase):
             spec=next(row['spec'] for row in api.lease['resources'] if row['attempted'])
             with self.assertRaisesRegex(ValueError,'retention cannot reopen'):
                 h.Api.call(api,'GET',api.provider.url(spec),deadline=api.clock()+30)
-            self.input['clock'].sleep(5400)
+            self.input['clock'].sleep(14400)
             with self.assertRaisesRegex(ValueError,'deadline'):
                 h.Api.call(api,'GET',store.url(n.LEASE),deadline=api.clock()+600)
         result=self.run_failure(before=inspect)

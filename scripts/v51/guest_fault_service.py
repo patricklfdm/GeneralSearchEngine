@@ -21,7 +21,9 @@ RULES=[f'node-{a} node-{b} BEFORE_REQUEST_WRITE *' for a in (1,2,3) for b in (1,
 def argv(base, config, action, generation=1):
     command=package.command(base,package.MODES[2])
     command[-1]=package.PACKAGE+('admission.V51RemoteFaultConsumer' if action=='setup' else 'replication.V51PublicWorker')
-    return command+[config['root'],'setup'] if action=='setup' else command+[config['root'],config['binding']['node'][-1],'remote-fault',str(generation)]
+    from .native_experiment_timing import PROFILE
+    tail=[PROFILE] if config['execution']=='native-v51-guest-service' else []
+    return command+[config['root'],'setup'] if action=='setup' else command+[config['root'],config['binding']['node'][-1],'remote-fault',str(generation),*tail]
 
 
 class Handler:
@@ -115,7 +117,9 @@ class Handler:
                     self.rules(rules);self.isolation=dict(appliedNanos=time.monotonic_ns(),rules=rules)
                     # Independent emergency release. Triggering it FAILS validation;
                     # it is never accepted in lieu of the controller's 15s hold.
-                    self.timer=threading.Timer(17 if self.case=='no-quorum' else 60,lambda:self.heal(True));self.timer.daemon=True;self.timer.start()
+                    from . import native_experiment_timing as timing
+                    seconds=timing.CONTROLS['isolation'] if cfg['execution']=='native-v51-guest-service' else (17 if self.case=='no-quorum' else 60)
+                    self.timer=threading.Timer(seconds,lambda:self.heal(True));self.timer.daemon=True;self.timer.start()
                     return dict(self.isolation)
             if action=='heal':
                 m.need(payload=={'action':'heal'} and self.isolated,'fault heal scope');self.heal();return c.read(root/'isolation.json')

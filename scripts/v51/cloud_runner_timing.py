@@ -1,27 +1,24 @@
-"""Reviewed four-cell Runner allocation inside the existing topology lease.
+"""Reviewed four-cell Runner allocation inside the native v2 topology lease.
 
 Approval freshness gates the first mutation. It is not the already-admitted
 preparation lifetime. Canonical/failure-drill allocation remains frozen.
 """
 from . import cloud_workload_contract as contract, performance_model as m
-from .guest_delivery_receiver import (NATIVE_PREPARATION_PROFILE as PROFILE,
-                                     NATIVE_PREPARATION_SECONDS as PREPARATION_SECONDS)
+from .native_experiment_timing import PROFILE, PREPARATION_SECONDS, STAGES, LEASE_SECONDS, GRACE_SECONDS
 
 APPROVAL_SECONDS = 900
 
 
 def allocation():
-    plan = contract.load(); budgets = plan['budgets']
+    plan = contract.load()
     cells = plan['presets']['experiment']['cells']
     m.need(cells == ['healthy', 'leader-loss', 'maintenance', 'no-quorum'], 'Runner timing cell scope')
-    limits = {v['name']: v['seconds'] for v in plan['cells'] if v['name'] in cells}
-    limits.update(preparation=PREPARATION_SECONDS, control=budgets['controlOverheadSeconds'],
-                  **{'validation-retention': budgets['validationRetentionSeconds'], 'cleanup': budgets['cleanupSeconds']})
+    limits = dict(STAGES)
     allocated = sum(limits.values())
-    m.need(allocated == 4920 <= budgets['leaseSeconds'] == 5400, 'Runner allocation exceeds lease')
+    m.need(allocated == 12000 <= LEASE_SECONDS, 'Runner allocation exceeds lease')
     return dict(profile=PROFILE, approvalSeconds=APPROVAL_SECONDS, limitsSeconds=limits,
-                leaseSeconds=budgets['leaseSeconds'], operationGraceSeconds=budgets['operationGraceSeconds'],
-                allocatedSeconds=allocated, unallocatedSeconds=budgets['leaseSeconds']-allocated)
+                leaseSeconds=LEASE_SECONDS, operationGraceSeconds=GRACE_SECONDS,
+                allocatedSeconds=allocated, unallocatedSeconds=LEASE_SECONDS-allocated)
 
 
 def validate(value):

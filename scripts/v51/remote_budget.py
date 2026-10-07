@@ -16,6 +16,7 @@ class Budget:
             from . import cloud_runner_timing as timing
             m.need(profile == timing.PROFILE, 'unreviewed budget profile')
             self.limits = {name: seconds * 10**9 for name, seconds in timing.allocation()['limitsSeconds'].items()}
+            self.lease = timing.allocation()['leaseSeconds'] * 10**9
         self.clock, self.emit = clock, emit
         self.start = self.cursor = clock()
         self.spent = {name: 0 for name in self.limits}

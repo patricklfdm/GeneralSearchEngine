@@ -9,22 +9,25 @@ from contextlib import contextmanager, ExitStack
 import os
 from pathlib import Path
 import tempfile
+import threading
 from . import cloud_http as h, cloud_native_authority as n
 from . import guest_setup as setup, guest_transport as transport, performance_model as m
 from .remote_command import write_once
+from . import native_experiment_timing as timing
 
 COMMAND = ('curl', '--fail', '--silent', '--show-error', '--max-time', '10',
            '-H', 'Metadata-Flavor: Google', 'http://metadata.google.internal/computeMetadata/v1/instance/id')
 
 
 def _initial_host_key(api, row):
+    end=min(api.deadline,api.clock()+180)
     while True:
-        m.need(api.clock() < api.deadline, 'Runner host-key original deadline')
-        try: return api.provider().guest_host_key(row['spec'], row['id'], deadline=api.deadline)
+        m.need(api.clock() < end, 'Runner host-key original deadline')
+        try: return api.provider().guest_host_key(row['spec'], row['id'], deadline=end)
         except setup.HostKeyPending:
             # Missing keys or a 404 bracketed by exact owned-ID reads may be
             # pending. Denials, malformed/duplicate keys and ID changes fail.
-            api.provider().sleep(min(1, max(0, api.deadline-api.clock())))
+            api.provider().sleep(min(1, max(0, end-api.clock())))
 
 
 def _network_probe(api, target, deadline):
@@ -61,14 +64,30 @@ class _PreparationConnections:
         m.need(None not in self.allowed and len(self.allowed)==3, 'IAP preparation exact three instances')
         self.stack = ExitStack()
         self.credentials = None
+        self.credential_deadline = 0
+        self.lock = threading.RLock()
+        self.member_locks = {key:threading.Lock() for key in self.allowed}
 
     def exchange(self, target, remote, data, deadline, **options):
+        m.need(target['instanceId'] in self.allowed,'IAP preparation identity/deadline')
+        lock=self.member_locks[target['instanceId']]
+        if not lock.acquire(timeout=max(0,deadline-self.api.clock())):
+            raise TimeoutError('IAP connection queue deadline')
+        try:return self._exchange(target,remote,data,deadline,**options)
+        finally:lock.release()
+
+    def _exchange(self, target, remote, data, deadline, **options):
         from .guest_ssh_master import Master
         m.need(self.api.deadline==self.deadline and self.api.clock()<deadline<=self.deadline and
                target['instanceId'] in self.allowed, 'IAP preparation identity/deadline')
-        if self.credentials is None:
-            self.credentials = self.stack.enter_context(_credential_files(self.api,self.deadline))
-        root, token, env = self.credentials
+        # A four-hour owner never asks for a four-hour token. Rotate credentials
+        # and only the affected connection before its original token epoch ends.
+        with self.lock:
+            if self.credentials is None or deadline>self.credential_deadline:
+                self.credential_deadline=min(self.deadline,self.api.clock()+timing.CONNECTION_SECONDS)
+                self.credentials = self.stack.enter_context(_credential_files(self.api,self.credential_deadline))
+            root, token, env = self.credentials
+            connection_deadline=self.credential_deadline
         args = transport.ssh_args(target, [], access_token_file=token)
         identity = (deepcopy(target), m.sha(Path(target['key']).read_bytes()), m.sha(Path(target['knownHosts']).read_bytes()))
         key = target['instanceId']
@@ -78,11 +97,13 @@ class _PreparationConnections:
         m.need(row['identity']==identity and row['commands']<4096, 'IAP preparation pinned identity/command bound')
         row['commands'] += 1
         try:
+            if key in self.active and self.active[key].deadline<deadline:
+                self.active.pop(key).close()
             if key not in self.active:
                 directory = root/key; directory.mkdir(mode=0o700,exist_ok=True)
                 row['connections'] += 1
                 with _sanitized(options.get('retain_partial',False)):
-                    self.active[key] = Master(args,directory,self.deadline,env,connect_deadline=deadline)
+                    self.active[key] = Master(args,directory,connection_deadline,env,connect_deadline=deadline)
             with _sanitized(options.get('retain_partial',False)):
                 return self.active[key].exchange(remote,data,deadline,**options)
         except BaseException:
@@ -111,6 +132,23 @@ def preparation_connections(api, output):
         return
     m.need(api.gate_open and api.state=='done' and not api.failed and
            not getattr(api,'_preparation_connections',None), 'IAP preparation scope')
+    with _connections(api,output):yield
+
+
+@contextmanager
+def runtime_connections(api, output):
+    from .cloud_runner_owned import _Api
+    m.need(type(api) is _Api and api.phase in ('healthy','leader-loss','maintenance','no-quorum','validation-retention'),
+           'IAP runtime owner/stage')
+    if api.offline:
+        yield
+        return
+    m.need(not getattr(api,'_preparation_connections',None),'IAP nested runtime connections')
+    with _connections(api,output):yield
+
+
+@contextmanager
+def _connections(api,output):
     pool = _PreparationConnections(api); api._preparation_connections = pool
     started = api.clock()
     try: yield
@@ -129,6 +167,7 @@ def preparation_connections(api, output):
 
 def _network_exchange(api, target, remote, data, deadline, *, maximum, request_maximum=None, retain_partial=False):
     m.need(not api.offline and api.clock()<deadline<=api.deadline, 'native IAP deadline/domain')
+    deadline=min(deadline,api.clock()+timing.EXCHANGE_SECONDS)
     options = dict(maximum=maximum)
     if request_maximum is not None: options['request_maximum'] = request_maximum
     if retain_partial: options['retain_partial'] = True

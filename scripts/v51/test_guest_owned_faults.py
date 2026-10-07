@@ -79,7 +79,7 @@ class ControllerTest(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
         self.clock=cloud_fake.Clock();members=[(n,Mock(),{}) for n in (1,2,3)]
-        self.cell=faults.Cell(SimpleNamespace(clients=members),self.root/'cell','leader-loss',clock=self.clock.seconds,sleep=self.clock.sleep)
+        self.cell=faults.Cell(SimpleNamespace(clients=members,provider=SimpleNamespace(req={})),self.root/'cell','leader-loss',clock=self.clock.seconds,sleep=self.clock.sleep)
         self.cell.end=self.clock.seconds()+120
     def test_uncertain_stop_is_not_replayed(self):
         self.cell.succeeded=Mock(side_effect=ConnectionError('lost'))

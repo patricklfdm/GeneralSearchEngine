@@ -10,6 +10,7 @@ import uuid
 from . import cloud_authority as a, cloud_package as package, performance_model as m
 from . import remote_command as c, remote_collection as collection, remote_schedule as schedule
 from . import guest_evidence
+from . import native_experiment_timing as timing
 
 SCOPE='owned-automatic-healthy-experiment'
 CONFIGURED_SCOPE='owned-configured-healthy-experiment'
@@ -47,7 +48,12 @@ class Probe:
         c.write_once(folder/'request.json',dict(config=cfg,request=request))
         start=int(self.clock()*10**9)
         try:
-            receipt=c.submit_and_observe(client,request,deadline,clock=self.clock,sleep=self.sleep)
+            options={}
+            if timing.selected(self.services.provider.req):
+                deadline=min(deadline,self.clock()+timing.COMMAND_SECONDS)
+                options['limits']=dict(failures=timing.MAX_TRANSIENT_FAILURES,
+                    uncertain=timing.MAX_UNCERTAIN_REPLIES,queries=timing.MAX_QUERIES)
+            receipt=c.submit_and_observe(client,request,deadline,clock=self.clock,sleep=self.sleep,**options)
             c.write_once(folder/'receipt.json',receipt)
             self.transcripts.setdefault(node,[]).append(dict(request=request,receipt=receipt))
             return receipt
@@ -86,13 +92,13 @@ class Probe:
 
     def cell(self, name, deadline):
         m.need(self.prepared and not self.attempted and name=='healthy','owned workload cell consumed/scope')
-        self.attempted=True;end=min(deadline/10**9,self.clock()+300)
+        self.attempted=True;end=min(deadline/10**9,self.clock()+timing.control(self.services.provider.req,'mode',300))
         record=dict(scope=self.scope,mode=self.mode,status='FAIL',startedNanos=int(self.clock()*10**9),windows=[])
         try:
             for member in self.clients:
                 self.started.append(member);self.engineWorkloadExecuted=True
                 self.succeeded(member,'start-voter',{},end)
-            activation=min(end,self.clock()+30)
+            activation=min(end,self.clock()+timing.control(self.services.provider.req,'activation',30))
             if self.mode==package.MODES[0]:self.active=self.clients[0]
             if self.mode==package.MODES[1]:
                 self.active=self.clients[0]
@@ -117,7 +123,8 @@ class Probe:
                 if self.require_backup:self.succeeded(self.active,'backup',{},end)
                 from .guest_physical_evidence import converge
                 converge(self.clients,self.active,lambda member,until:self.succeeded(member,'fault',dict(action='status'),until)['result']['status'],
-                         end,mode=self.mode,clock=self.clock,sleep=self.sleep)
+                         end,mode=self.mode,clock=self.clock,sleep=self.sleep,
+                         seconds=timing.control(self.services.provider.req,'convergence',30))
             self.cells.append(name);record['status']='EXECUTED'
         finally:
             record['endedNanos']=int(self.clock()*10**9)

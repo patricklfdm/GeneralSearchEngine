@@ -111,22 +111,31 @@ class Services:
                 intent = dict(configSha256=m.sha(m.canonical(cfg)),requestSha256=sha)
                 c.write_once(self.root/f'node-{i+1}-launch.json',intent)
                 self.clients.append((i+1,client,cfg))  # Includes an uncertain start.
+                from . import native_experiment_timing as timing
+                native=timing.selected(req);failures=0
+                ready_end=min(deadline,self.clock()+timing.control(req,'activation',3600)) if native else deadline
+                def failed(error):
+                    nonlocal failures
+                    if getattr(error,'retryable',True) is False:raise error
+                    failures+=1
+                    m.need(not native or failures<timing.MAX_TRANSIENT_FAILURES,'owned service observation failures exhausted')
                 try:
-                    launched=client.start(deadline)
+                    launched=client.start(ready_end)
                     m.need(launched['state']=='LAUNCHED' and launched['configSha256']==intent['configSha256'], 'owned service launch receipt')
-                except (ConnectionError,TimeoutError): launched=None
+                except (ConnectionError,TimeoutError) as error: failed(error);launched=None
                 while True:
-                    m.need(self.clock()<deadline,'owned service readiness deadline')
-                    try: answer=client.ready(deadline)
-                    except (ConnectionError,TimeoutError): answer=None
+                    m.need(self.clock()<ready_end,'owned service readiness deadline')
+                    try: answer=client.ready(ready_end);failures=0
+                    except (ConnectionError,TimeoutError) as error: failed(error);answer=None
                     if answer is not None:
+                        m.need(self.clock()<ready_end,'owned service readiness deadline')
                         m.need(answer['closed'] is None, 'owned service closed during startup')
                         ready=answer['ready']
                         if ready is not None:
                             m.need(ready['configSha256']==intent['configSha256'] and type(ready['pid']) is int and ready['pid']>0 and
                                    (launched is None or ready['pid']==launched['pid']), 'owned service readiness identity')
                             break
-                    self.sleep(min(.05,max(0,deadline-self.clock())))
+                    self.sleep(min(1 if native else .05,max(0,ready_end-self.clock())))
                 check(i,'ready'); c.write_once(self.root/f'node-{i+1}-ready.json',answer)
                 result['members'].append(dict(node=i+1,configSha256=intent['configSha256'],pid=ready['pid']))
             for i in range(len(configs)): check(i,'final')
@@ -142,22 +151,31 @@ class Services:
         if path.exists():
             result=c.read(path); m.need(result['status']=='PASS','owned service earlier stop failed'); return result
         c.write_once(self.root/'stop-claim.json',dict(nodes=[node for node,_,_ in self.clients]))
-        end=min(deadline,self.clock()+30); rows=[]; errors=[]
+        from . import native_experiment_timing as timing
+        end=min(deadline,self.clock()+timing.control(self.provider.req,'service-stop',30)); rows=[]; errors=[]
+        native=timing.selected(self.provider.req)
         for node,client,cfg in self.clients:
             row=dict(node=node,status='FAIL'); rows.append(row)
             try:
+                failures=0
+                def failed(error):
+                    nonlocal failures
+                    if getattr(error,'retryable',True) is False:raise error
+                    failures+=1
+                    m.need(not native or failures<timing.MAX_TRANSIENT_FAILURES,'owned service observation failures exhausted')
                 m.need(self.clock()<end,'owned service stop deadline')
                 try: client.shutdown(end)
-                except (ConnectionError,TimeoutError): pass  # Query only; no second shutdown write.
+                except (ConnectionError,TimeoutError) as error: failed(error)  # Query only; no second shutdown write.
                 while True:
                     m.need(self.clock()<end,'owned service stop deadline')
-                    try: observed=client.ready(end)
-                    except (ConnectionError,TimeoutError): observed=None
+                    try: observed=client.ready(end);failures=0
+                    except (ConnectionError,TimeoutError) as error: failed(error);observed=None
                     if observed is not None and observed['closed'] is not None:
+                        m.need(self.clock()<end,'owned service stop deadline')
                         m.need(observed['ready'] is not None and observed['ready']['configSha256']==m.sha(m.canonical(cfg)) and
                                observed['closed']['status']=='PASS' and observed['closed']['jvmStopped'] is True,'owned service stop identity/outcome')
                         row.update(status='PASS',receipt=observed); break
-                    self.sleep(min(.05,max(0,end-self.clock())))
+                    self.sleep(min(1 if native else .05,max(0,end-self.clock())))
             except (Exception,KeyboardInterrupt) as error:
                 row['failure']=dict(type=type(error).__name__,message=str(error)[:2000]); errors.append(row['failure'])
         result=dict(status='FAIL' if errors else 'PASS',members=rows,errors=errors,paidCloud=self.authority.PAID_CLOUD)

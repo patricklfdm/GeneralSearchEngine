@@ -233,7 +233,7 @@ class EntryTest(unittest.TestCase):
         c.write_once(root/'receipt.json',dict(mode='run',result=dict(preparation=dict(timings=[
             dict(phase='resources',elapsedSeconds=494.186),dict(phase='guest-setup',elapsedSeconds=700)]))))
         text=e.summary(root)
-        for value in ('900 / 1800 / 5400 / 1080','4920 / 480','owned-experiment-v1',
+        for value in ('900 / 3600 / 14400 / 1800','12000 / 2400','owned-experiment-v2',
                       'Preparation phases','resources | 494.186','guest-setup | 700',
                       'approval window gates the first lease mutation'):
             self.assertIn(value,text)
@@ -246,7 +246,7 @@ class EntryTest(unittest.TestCase):
         self.assertLess(job.index('cloud_runner_precheck report'),job.index('cloud_runner_entry prepare'))
         self.assertLess(job.index('cloud_runner_precheck report'),job.index('cloud_runner_entry run'))
         self.assertIn("success() && inputs.runner_experiment == 'run'",raw)
-        self.assertIn('timeout --signal=TERM --kill-after=60s 6000s',raw)
+        self.assertIn('timeout --signal=TERM --kill-after=60s 15000s',raw)
         for bad in (raw.replace("default: 'off'","default: 'run'"),raw.replace("success() && inputs.runner_experiment == 'run'",'always()'),
             raw.replace('path: target/v51-experiment\n','path: /tmp\n'),raw.replace("version: '582.0.0'","version: 'latest'")):
             with self.assertRaises(ValueError):e.workflow.workflow(bad)
