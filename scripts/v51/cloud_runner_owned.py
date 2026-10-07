@@ -101,7 +101,9 @@ class _Api(failure._Api):
 
 def _execute(output, prepare):
     """Private composition seam; the public entry below fixes native dependencies."""
-    root=Path(output);root.mkdir(parents=True,exist_ok=False)
+    # All later controller paths (source exports, restore and retained evidence)
+    # derive from this root. Keep guest/session paths separate and unchanged.
+    root=Path(output).absolute();root.mkdir(parents=True,exist_ok=False);c.directory(root)
     budget=Budget(profile=timing.PROFILE);held={};api=None;store=None
     result=dict(schema=n.COMPLETION_SCHEMA,execution=n.EXECUTION,paidCloud=False,engineWorkloadExecuted=False,
         fullRemoteQualification=False,qualificationScope=experiment.SCOPE,status='FAIL',errors=[],cleanup=None,

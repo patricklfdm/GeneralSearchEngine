@@ -1,5 +1,6 @@
 """Owner policy/lifecycle tests; every provider operation uses synthetic HTTP."""
 from copy import deepcopy
+from contextlib import chdir
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -129,6 +130,22 @@ class OwnerTest(unittest.TestCase):
 
 
 class EntryBoundaryTest(unittest.TestCase):
+    def test_linked_controller_parent_is_rejected_before_native_admission(self):
+        with tempfile.TemporaryDirectory() as directory,\
+             patch.object(o.resources,'_prepare_native',return_value=dict(status='FAIL',paidCloud=False)) as prepare:
+            root=Path(directory);(root/'real').mkdir();(root/'linked').symlink_to(root/'real',target_is_directory=True)
+            with self.assertRaisesRegex(ValueError,'directory symlink'):
+                o.run_native(*([None]*6),{'artifacts':{}},None,None,None,root/'linked/execution')
+            prepare.assert_not_called()
+    def test_relative_entry_binds_absolute_output_before_admission_and_cannot_reuse_it(self):
+        with tempfile.TemporaryDirectory() as directory,chdir(directory),\
+             patch.object(o.resources,'_prepare_native',return_value=dict(status='FAIL',paidCloud=False)) as prepare:
+            output=Path('nested/execution')
+            result=o.run_native(*([None]*6),{'artifacts':{}},None,None,None,output)
+            self.assertEqual(Path(directory)/output/'preparation',prepare.call_args.args[-1])
+            self.assertFalse(result['paidCloud'])
+            with self.assertRaises(FileExistsError):o.run_native(*([None]*6),{'artifacts':{}},None,None,None,output)
+            prepare.assert_called_once()
     def test_public_entry_fixes_fresh_admission_and_no_override_parameters(self):
         import inspect
         self.assertEqual(['cfg','env','source','checkout','preflight','precheck_root','value','approved','artifacts','key','output'],
@@ -216,7 +233,7 @@ class LifecycleTest(unittest.TestCase):
     prepare_source=OwnerTest.prepare_source
     setUp=BridgeTest.setUp
 
-    def execute(self,fault=None,*,preparation_seconds=0):
+    def execute(self,fault=None,*,preparation_seconds=0,relative=False):
         import shutil
         from .remote_budget import Budget
         test=self;events=[];clock=self.f['clock'];original_failure=runner.failure
@@ -224,6 +241,7 @@ class LifecycleTest(unittest.TestCase):
             def __init__(self,provider,archive,prepared):
                 self.provider=provider;self.pool=Mock();self.root=None
             def prepare(self,req,facts,targets,startup,output,deadline,**checks):
+                test.assertTrue(Path(output).is_absolute())
                 self.root=Path(output);self.root.mkdir();events.append('prepare-services')
             def stop(self,deadline):
                 events.append('stop-services')
@@ -231,7 +249,7 @@ class LifecycleTest(unittest.TestCase):
             def retention_files(self):yield 'services.json',b'original startup'
         class Probe:
             engineWorkloadExecuted=False
-            def __init__(self,services,root):self.cells=[]
+            def __init__(self,services,root):test.assertTrue(Path(root).is_absolute());self.cells=[]
             def prepare(self,req,deadline):events.append('prepare-probe')
             def cell(self,name,deadline):
                 events.append(name);self.engineWorkloadExecuted=True;clock.sleep(1)
@@ -239,6 +257,7 @@ class LifecycleTest(unittest.TestCase):
                 self.cells.append(name)
             def stop(self):events.append('stop-probe')
             def collect_validate(self,root,deadline):
+                test.assertTrue(Path(root).is_absolute())
                 events.append('validate')
                 if fault=='collect':raise ValueError('invalid collection')
                 return dict(status='FAIL' if fault=='evidence' else 'PASS',scope=o.experiment.SCOPE,execution=n.EXECUTION,
@@ -261,12 +280,24 @@ class LifecycleTest(unittest.TestCase):
              patch.object(o.time,'monotonic_ns',side_effect=clock.nanos),\
              patch.object(o.native,'Services',Services),patch.object(o.native,'Probe',Probe),\
              patch.object(runner,'failure',side_effect=lambda phase,error,**kwargs:original_failure(phase,error)):
-            result=o._execute(self.root/'execution',prepare)
+            with chdir(self.root):
+                result=o._execute(Path('execution') if relative else self.root/'execution',prepare)
         return result,events
     def test_complete_controller_finishes_all_cells_validation_cleanup_and_ledger(self):
         result,events=self.execute();self.assertEqual('PASS',result['status'],result)
         self.assertEqual(['prepare-services','prepare-probe',*o.experiment.CELLS,'stop-probe','validate','stop-services'],events)
         self.assertTrue(result['leaseReleased']);self.assertEqual({},self.f['http'].resources)
+    def test_relative_controller_completes_cells_validation_retention_and_cleanup(self):
+        result,events=self.execute(relative=True)
+        self.assertEqual('PASS',result['status'],result)
+        self.assertEqual(list(o.experiment.CELLS),[v for v in events if v in o.experiment.CELLS])
+        self.assertEqual('VERIFIED',result['retention']);self.assertTrue(result['leaseReleased'])
+        self.assertEqual({},self.f['http'].resources)
+    def test_relative_controller_keeps_failed_cell_evidence_and_cleans_once(self):
+        result,events=self.execute('healthy',relative=True)
+        self.assertEqual('FAIL',result['status']);self.assertEqual(1,events.count('healthy'))
+        self.assertNotIn('leader-loss',events);self.assertEqual('VERIFIED',result['retention'])
+        self.assertTrue(result['leaseReleased']);self.assertEqual('PASS',result['cleanup']['status'])
     def test_admitted_slow_preparation_finishes_cells_retention_cleanup_and_charge(self):
         result,events=self.execute(preparation_seconds=1500)
         self.assertEqual('PASS',result['status'],result)

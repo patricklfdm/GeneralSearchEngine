@@ -9,7 +9,11 @@ PR #297 at master `cdfb5af108c16c7bc01df98b74182a00db6396ee`,
 attempt 1 (36 successful jobs). Its admitted run reached all three installed
 packages and sessions, then exposed a separate
 [source-producer configuration failure](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction).
-That correction needs protected CI and a fresh approved native experiment.
+That correction passed PR #298 / CI `37565010319`. Run `37569971625` then
+generated/downloaded the source but failed at a
+[controller path boundary](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
+after 529.357 seconds; it did not exhaust this budget. The path correction needs
+protected CI and a fresh approved native experiment.
 This amendment applies only to the
 four-cell native Runner experiment. It does not change the frozen canonical
 machine plan or reinterpret earlier receipts.

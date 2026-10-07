@@ -300,7 +300,13 @@ producer's strict service-directory check, with preparation time still available
 Recovery and independent exact-ID reads confirmed absence, lease release and
 USD 67 / 200 retained. The
 [source-producer correction](v5.1/PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
-is a local candidate; its protected CI and a fresh approved experiment remain required.
+passed PR #298 / CI `37565010319` attempt 1 (36 jobs). Run `37569971625`
+generated/downloaded the source, then failed before workload with a relative
+controller export path (`guest root`), within its preparation budget. Recovery and
+independent reads confirmed all thirteen resources absent, lease release and
+USD 77 / 200 retained. The
+[controller path correction and chain review](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
+is locally qualified; corrected-source CI and a fresh approved experiment remain required.
 Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
