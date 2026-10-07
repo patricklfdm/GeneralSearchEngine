@@ -191,7 +191,7 @@ def summary(root):
     provider=plan.get('configuration',{}).get('provider',{});reserve=stage.get('reservation',{})
     recovery=run.get('preparation',{}).get('ownerRecovery',{})
     preparation=run.get('preparation',{})
-    failure=receipt.get('failure') or preparation.get('failure') or {}
+    failure=receipt.get('failure') or preparation.get('failure') or next(iter(run.get('errors',[])),{})
     cleanup=run.get('cleanup') or recovery.get('cleanup') or {}
     def usd(key):return reserve[key]/1_000_000 if key in reserve else 'unavailable'
     rows=[('Status',receipt.get('status',run.get('status','NOT_STARTED_OR_INTERRUPTED'))),
@@ -217,6 +217,7 @@ def summary(root):
         ('Evidence retention',recovery.get('retention',run.get('retention','not established'))),('Cleanup',cleanup.get('status','not established')),
         ('Lease released',recovery.get('leaseReleased',run.get('leaseReleased',False))),('Full Phase 6 qualification',False),
         ('Failure phase',failure.get('phase','none')),('Failure code',failure.get('code','unavailable')),
+        ('Failure cell',failure['cell'] if failure.get('cell') in owned.experiment.CELLS else 'not recorded'),
         ('Admission stage',failure['admissionStage'] if failure.get('admissionStage') in diagnostics.STAGES else 'not recorded'),
         ('Failure detail',diagnostics.detail(failure.get('code')) if failure else 'none'),
         ('Failure HTTP status',failure.get('httpStatus','not recorded')),
@@ -252,7 +253,8 @@ def summary(root):
         if recovery:
             text+='\nThe outer preparation interval includes immediate owner recovery; the separate elapsed values above distinguish them.\n'
     if run.get('errors'):
-        text+='\n## Failures\n\n'+''.join('- '+safe(v.get('phase','unknown'))+': '+safe(v.get('type','failure'))+'\n' for v in run['errors'])
+        text+='\n## Failures\n\n'+''.join('- '+safe(v.get('phase','unknown'))+': '+safe(v.get('type','failure'))+
+            ' — '+safe(v.get('code','UNCLASSIFIED'))+'; '+safe(diagnostics.detail(v.get('code')))+'\n' for v in run['errors'])
     text+='\nPreparation allocates nothing. Execution requires the exact plan digest and matching environment SSH secret. '
     text+='The approval window gates the first lease mutation; admitted preparation keeps its original fixed deadline. '
     text+='Failed charges remain recorded. Use a new preparation after failure/expiry; job reruns cannot resume an experiment. '

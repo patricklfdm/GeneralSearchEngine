@@ -44,10 +44,9 @@ class Endpoint(delivery.Endpoint):
     def process(self, remote, data, deadline, **options):
         m.need(len(self.calls)<4096 and self.api.clock()<deadline<=self.api.deadline,'native session connection budget')
         self.api.guest_operation = dict(node=self.value['binding']['node'],kind='session',action=remote[4])
-        # Session recovery has a shorter deadline, including its provider guards.
-        def check():
-            if remote[4] in ('begin','query'): self.recheck(deadline=deadline)
-            else: self.recheck()
+        # Provider guards share the command's deadline during preparation AND
+        # runtime; a short exchange must not inherit the whole cell allowance.
+        def check():self.recheck(deadline=deadline)
         check();self.calls.append(dict(action=remote[4],index=None))
         try:
             raw=iap._network_exchange(self.api,self.target,remote,data,deadline,**options)

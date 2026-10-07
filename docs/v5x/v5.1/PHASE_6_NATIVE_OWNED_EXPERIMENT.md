@@ -13,8 +13,11 @@ That run then exposed the [controller path defect](#controller-path-correction-a
 before any workload. PR #299 accepted that correction at master
 `45b49095643aef6a5bb171e0f61158f3f7f22a27`, CI `37575940225` attempt 1
 (all 36 jobs). The next native run reached a [preparation deadline](#preparation-round-trip-reduction)
-after both published-mode bootstraps. The round-trip reduction below is a local
-candidate; protected CI and a fresh approved experiment remain required. Full Phase 6 remains open.
+after both published-mode bootstraps. The round-trip reduction and bounded session
+recovery passed protected CI through PR #301. The next native run completed
+preparation but exposed the [runtime identity handoff defect](#runtime-identity-handoff-correction).
+That correction is a local candidate; protected CI and a fresh approved experiment
+remain required. Full Phase 6 remains open.
 
 ## Fixed entry and reused workload
 
@@ -269,7 +272,7 @@ retained after the separately authorized accounting restart. Original evidence
 and diagnosis are retained under
 `target/v51-native-experiment-pr300/run-37595059219/`.
 
-The next implementation candidate bounds recovery of the exact session claim:
+The PR #301 implementation bounds recovery of the exact session claim:
 
 | Boundary | Limit |
 | --- | --- |
@@ -340,3 +343,60 @@ modified or deleted. Preserve this local backup with other operator records.
 This is an explicit operator accounting restart, not a refund, a successful
 experiment or evidence that prior cost was zero. Ordinary failure cleanup still
 retains charges; no reset CLI, workflow input or automatic refund path is added.
+
+## Runtime identity handoff correction
+
+PR #301 accepted bounded session recovery at master
+`f22930f3c7b53fa94a250093199fbdbebc56b68f`, exact-master CI
+[37613099633](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37613099633)
+(all 36 jobs). Native run
+[37619934689](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37619934689)
+completed preparation in 1113.778 seconds; all three sessions succeeded on their
+first begin/exchange. Healthy failed after about 0.355 seconds at the first
+published V4.4 `start-voter` command. No formal cell completed (0/4).
+
+The retained command failure was `cleanup compute method/path/operation scope`.
+Runtime handoff constructed a fresh owner API whose cleanup `resolved` map was
+empty. The runtime guard's exact numeric VM lookup consequently required cleanup
+insert-operation reconciliation that had not occurred. Offline reproduction
+rejected that same read before any HTTP request. This is a local policy defect,
+not an observed IAM denial, network failure or preparation timeout.
+
+The run retained evidence successfully and released the lease after all thirteen
+resources were confirmed absent. Its roughly 26-minute execution included
+18m34s preparation, 3m26s validation/retention and 4m04s cleanup. Original evidence
+and the zero-HTTP reproduction remain under
+`target/v51-native-experiment-pr301/run-37619934689/`.
+
+The local correction makes these boundaries explicit:
+
+- During cells and validation/collection, allow bodyless exact-ID GETs only for
+  attempted VMs and boot/data disks with IDs in the retained lease. Host-key reads
+  remain limited to those VMs and the exact `hostkeys/` query. Response ownership,
+  resource shape and numeric ID are still checked. Foreign IDs, name-based runtime
+  lookups, list calls, extra queries and mutations are rejected before HTTP.
+- Runtime reads never populate cleanup's resolved operation map. Cleanup still
+  requires the original insert operation, exact ID, current ownership and deletion
+  request ID; manual reconciliation still requires expiry plus grace.
+- Each connection checks the current lease and reserved ledger, then samples both
+  disks and the VM before and after reading the host key. It checks the frozen
+  preparation facts and original pin before and after the remote command. The
+  existing combined identity sampler uses seven Compute GETs per guard rather
+  than nine; no authority observation is cached.
+- All guard reads now share the connection's shorter original deadline, including
+  ordinary runtime commands. Previously only session initialization forwarded its
+  shorter deadline, allowing a runtime guard to consume the whole cell allowance.
+- Runtime failures retain closed codes, the cell and numeric HTTP status when
+  available. Summary selects the first runtime failure when no outer/preparation
+  failure exists, including interrupted runs with only the inner receipt. It never
+  renders raw exception details as a classified explanation.
+
+The lifecycle fixture now crosses the real native pool promotion and real
+lease/provider/host guards through all four cells, collection and shutdown;
+only HTTP and remote processes are synthetic. Negative cases cover drift before
+and after commands, resource replacement between samples, missing control
+objects, changed generations, short deadlines and deletion without operation
+reconciliation. The exact-ID and lifecycle tests fail on the original policy;
+two deadline tests fail with the original endpoint. Separate protected CI and a
+fresh operator-approved native run remain required. These local checks do not
+establish cloud latency, JVM workload acceptance or full Phase 6 qualification.

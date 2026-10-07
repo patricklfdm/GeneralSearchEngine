@@ -393,10 +393,20 @@ passed PR #300 at `a91101f7a88a0a592ecaf98da8e889d9b3a1ef48`, CI `37590718799`
 (36 jobs). Run `37595059219` installed all packages but exhausted preparation
 querying node 2's unestablished session after an initial SSH/remote exchange failure.
 All four formal cells remain unexecuted; recovery and independent absence checks
-passed, USD 10 / 200 retained. The next local candidate is
-[bounded session recovery](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#bounded-native-session-recovery):
-query before safe identical begin replay, terminal errors and cumulative thresholds,
-120-second recovery/30-second exchanges, and retained safe diagnostics.
+passed, USD 10 / 200 retained. The
+[bounded session recovery](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#bounded-native-session-recovery)
+passed PR #301 at master `f22930f3c7b53fa94a250093199fbdbebc56b68f`, CI
+`37613099633` (36 jobs). Run `37619934689` completed preparation in 1113.778
+seconds with all three sessions succeeding on the first exchange, then failed
+before the first healthy command reached its guest: the new owner API rejected
+an exact-ID resource read using uninitialized cleanup reconciliation state.
+No formal cell completed (0/4); retained evidence, thirteen-resource cleanup and
+lease release passed. The local
+[runtime identity handoff correction](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#runtime-identity-handoff-correction)
+separates exact retained-ID reads from cleanup operation resolution, shares each
+command's deadline with its real guards, reduces duplicate identity reads and
+retains safe runtime failure codes. Real promotion/guard regressions now cover the
+lifecycle rather than substituting a mock recheck.
 Next require corrected-source CI and a new reviewed, operator-triggered request.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.

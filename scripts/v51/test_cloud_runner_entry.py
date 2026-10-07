@@ -197,6 +197,20 @@ class EntryTest(unittest.TestCase):
         for value in ('Status | FAIL','Cleanup | PASS','Evidence retention | VERIFIED','Lease released | True','Engine workload | False'):
             self.assertIn(value,text)
 
+    def test_summary_reports_first_runtime_failure_even_without_outer_receipt(self):
+        root=self.root/'summary';(root/'execution').mkdir(parents=True)
+        result=dict(status='FAIL',errors=[dict(phase='execution',type='ValueError',cell='healthy',
+            code='RUNTIME_RESOURCE_SCOPE',detail='private-secret',message='private-secret'),
+            dict(phase='validation-retention',type='ValueError',code='RUNTIME_QUALIFICATION_FAILED')])
+        c.write_once(root/'execution/receipt.json',result)
+        for wrapped in (False,True):
+            if wrapped:c.write_once(root/'receipt.json',dict(status='FAIL',mode='run',result=result))
+            text=e.summary(root)
+            for value in ('Failure phase | execution','Failure cell | healthy','Failure code | RUNTIME_RESOURCE_SCOPE',
+                          'RUNTIME_QUALIFICATION_FAILED',e.diagnostics.detail('RUNTIME_RESOURCE_SCOPE')):
+                self.assertIn(value,text)
+            self.assertNotIn('private-secret',text)
+
     def test_failure_codes_only_expose_known_static_messages(self):
         self.assertEqual('PLAN_CHANGED_OR_EXPIRED',e.failure('handoff',ValueError('Runner plan drift/expiry'))['code'])
         value=e.failure('handoff',ValueError('https://provider.example/token?secret=sentinel'))

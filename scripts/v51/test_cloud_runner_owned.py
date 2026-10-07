@@ -55,6 +55,49 @@ class OwnerTest(unittest.TestCase):
                        lambda:self.api.provider.create(spec,int(self.api.deadline*1e9))):
             with self.assertRaises(ValueError):action()
         self.assertEqual(13,self.f['http'].inserts);self.assertEqual(13,len(self.f['http'].resources))
+    def test_runtime_reads_exact_guest_ids_without_granting_cleanup_resolution(self):
+        self.stage('healthy')
+        for node in (1,2,3):
+            observed=self.api.provider.guest_identity(self.api.lease,node,deadline=self.api.deadline)
+            self.assertEqual(self.preparation['guests'][node-1]['facts'],observed['facts'])
+            self.assertEqual(self.source.value['guestAccess']['publicKey'],observed['publicKey'])
+        self.assertEqual({},self.api.resolved)
+        # Reading an owned ID must not substitute for insert reconciliation.
+        self.stage('cleanup')
+        row=next(v for v in self.api.lease['resources'] if v['spec']['kind']=='instance')
+        with self.assertRaises(ValueError):self.api.provider.delete(row['spec'],row['id'])
+        self.api.provider.operation(row['spec']);self.api.provider.delete(row['spec'],row['id'])
+    def test_runtime_read_scope_rejects_foreign_ids_names_queries_and_mutations_before_http(self):
+        row=next(v for v in self.api.lease['resources'] if v['spec']['kind']=='instance')
+        numeric=self.api.provider.url(row['spec'],row['id']);named=self.api.provider.url(row['spec'])
+        with self.assertRaises(ValueError):self.api.check('GET',numeric,None)  # admission, before cells
+        self.stage('healthy');before=len(self.f['http'].requests)
+        for method,url,body in [('GET',url,None) for url in (
+            named,numeric+'?alt=json',numeric+'#fragment',numeric.replace('offline-project','foreign-project'),
+            numeric.rsplit('/',1)[0]+'/99999999',numeric.rsplit('/',1)[0],
+            named+'/getGuestAttributes?queryPath=hostkeys%2F&unused=',
+            named+'/getGuestAttributes?queryPath=hostkeys%2F&queryPath=hostkeys%2F',
+            named+'/getGuestAttributes?queryPath=other%2F')] + [
+            ('GET',numeric,{}),('POST',numeric,{}),('DELETE',numeric,None)]:
+            with self.subTest(method=method,url=url),self.assertRaises(ValueError):
+                self.api.call(method,url,body,deadline=self.api.deadline)
+        self.assertEqual(before,len(self.f['http'].requests))
+        for field,value in (('attempted',False),('id',None)):
+            old=row[field];row[field]=value
+            try:
+                with self.assertRaises(ValueError):self.api.check('GET',numeric,None)
+            finally:row[field]=old
+        self.assertEqual(before,len(self.f['http'].requests))
+    def test_runtime_numeric_response_must_match_retained_id_and_owned_shape(self):
+        self.stage('healthy');row=next(v for v in self.api.lease['resources'] if v['spec']['kind']=='disk')
+        original=self.source.transport.send
+        for key,value in (('id','99999999'),('labels',{}),('description','foreign')):
+            def changed(*args,**kwargs):
+                status,raw=original(*args,**kwargs);body=m.strict_json(raw);body[key]=value
+                return status,m.canonical(body)
+            with self.subTest(key=key),patch.object(self.source.transport,'send',side_effect=changed),self.assertRaises(ValueError):
+                self.api.provider.describe(row['spec'],identity=row['id'],deadline=self.api.deadline)
+        self.assertEqual({},self.api.resolved)
     def test_success_retains_exact_bytes_finishes_charge_and_deletes_only_exact_ids(self):
         self.stage('validation-retention');digest=self.api.retain(self.store,'parts/part-0000.bin',b'physical evidence')
         self.assertEqual(m.sha(b'physical evidence'),digest);self.api.seal()
@@ -176,7 +219,9 @@ class BridgeTest(unittest.TestCase):
             desc=delivery.describe(archive,manifest,binding,facts['provider'],m.sha(m.canonical(access)))
             desc.update(schema='gse-v51-native-package-transfer-v1',nativeVolume=dict(request=value,startupSha256='a'*64,
                 volume=dict(device='/dev/sdb',majorMinor='8:16',uuid='12345678-1234-1234-1234-123456789abc',mount='/mnt/gse-v51',uid=1001,gid=1001)))
-            endpoint=o.setup._PackageEndpoint(self.source,dict(instanceId=desc['instanceId']),desc,self.recheck)
+            target=dict(instanceId=desc['instanceId'],instance=facts['instance'],project=facts['project'],zone=facts['zone'],
+                user=access['user'],key=str(self.f['key']),knownHosts=str(self.root/'preparation/iap'/f'node-{number}.known_hosts'))
+            endpoint=o.setup._PackageEndpoint(self.source,target,desc,self.recheck)
             endpoint.deadline=self.source.deadline
             sample=r.clock_sample(o.native.session.identity(desc),'e'*32)
             endpoint.budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+500*10**9)
@@ -276,15 +321,17 @@ class LifecycleTest(unittest.TestCase):
     def execute(self,fault=None,*,preparation_seconds=0,relative=False):
         import shutil
         from .remote_budget import Budget
-        test=self;events=[];clock=self.f['clock'];original_failure=runner.failure
+        test=self;events=[];clock=self.f['clock']
         class Services:
             def __init__(self,provider,archive,prepared):
-                self.provider=provider;self.pool=Mock();self.root=None
+                self.provider=provider;self.pool=test.services.pool;self.root=None
             def prepare(self,req,facts,targets,startup,output,deadline,**checks):
                 test.assertTrue(Path(output).is_absolute())
                 self.root=Path(output);self.root.mkdir();events.append('prepare-services')
             def stop(self,deadline):
                 events.append('stop-services')
+                ep=test.services.pool.endpoints['node-1'];cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                ep.client(cfg).shutdown(deadline)
                 if fault=='stop':raise ValueError('service stop failure')
             def retention_files(self):yield 'services.json',b'original startup'
         class Probe:
@@ -293,12 +340,19 @@ class LifecycleTest(unittest.TestCase):
             def prepare(self,req,deadline):events.append('prepare-probe')
             def cell(self,name,deadline):
                 events.append(name);self.engineWorkloadExecuted=True;clock.sleep(1)
+                # Cross the real API promotion and provider/lease/host guards;
+                # only the remote process and its response are synthetic.
+                for ep in test.services.pool.endpoints.values():
+                    cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                    ep.client(cfg).ready(deadline/1e9)
                 if fault==name:raise ConnectionError('lost original window')
                 self.cells.append(name)
             def stop(self):events.append('stop-probe')
             def collect_validate(self,root,deadline):
                 test.assertTrue(Path(root).is_absolute())
                 events.append('validate')
+                ep=test.services.pool.endpoints['node-1'];cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                ep.client(cfg).part('part-0000.bin',4096,deadline/1e9)
                 if fault=='collect':raise ValueError('invalid collection')
                 return dict(status='FAIL' if fault=='evidence' else 'PASS',scope=o.experiment.SCOPE,execution=n.EXECUTION,
                     paidCloud=True,fullRemoteQualification=False,engineWorkloadExecuted=self.engineWorkloadExecuted,
@@ -316,10 +370,15 @@ class LifecycleTest(unittest.TestCase):
                 if method=='POST' and 'owned-experiment' in url:raise ConnectionError('upload interrupted')
                 return result
             self.source.transport.send=lost
+        def exchange(api,target,remote,data,deadline,**options):
+            if remote[4]=='begin':
+                ep=next(ep for ep in test.services.pool.endpoints.values() if ep.target==target)
+                return m.canonical(dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(ep.session))))
+            return m.canonical(dict(ready=None,closed=None))
         with patch.object(o,'Budget',side_effect=lambda **kwargs:Budget(clock=clock.nanos,**kwargs)),\
              patch.object(o.time,'monotonic_ns',side_effect=clock.nanos),\
-             patch.object(o.native,'Services',Services),patch.object(o.native,'Probe',Probe),\
-             patch.object(runner,'failure',side_effect=lambda phase,error,**kwargs:original_failure(phase,error)):
+             patch.object(o.native.iap,'_network_exchange',side_effect=exchange),\
+             patch.object(o.native,'Services',Services),patch.object(o.native,'Probe',Probe):
             with chdir(self.root):
                 result=o._execute(Path('execution') if relative else self.root/'execution',prepare)
         return result,events
@@ -353,6 +412,8 @@ class LifecycleTest(unittest.TestCase):
         result,events=self.execute('healthy');self.assertEqual('FAIL',result['status'],result)
         self.assertEqual(1,events.count('healthy'));self.assertNotIn('leader-loss',events)
         self.assertEqual('PASS',result['cleanup']['status']);self.assertTrue(result['leaseReleased'])
+        self.assertEqual('RUNTIME_TRANSPORT',result['errors'][0]['code'])
+        self.assertEqual('healthy',result['errors'][0]['cell']);self.assertNotIn('lost original window',str(result))
     def test_collection_failure_keeps_partial_history_and_cleans(self):
         result,events=self.execute('collect');self.assertEqual('FAIL',result['status'],result)
         self.assertIsNotNone(result['cleanup'],result)
@@ -365,3 +426,105 @@ class LifecycleTest(unittest.TestCase):
     def test_failed_service_shutdown_still_deletes_resources_and_preserves_failure(self):
         result,events=self.execute('stop');self.assertEqual('FAIL',result['status'],result)
         self.assertEqual('PASS',result['cleanup']['status']);self.assertTrue(result['leaseReleased'])
+
+
+class RuntimeIdentityTest(unittest.TestCase):
+    """Real promoted API, pool, pinned endpoints and provider reads; synthetic I/O."""
+    setUpClass=classmethod(OwnerTest.setUpClass.__func__)
+    prepare_source=OwnerTest.prepare_source
+    def setUp(self):
+        BridgeTest.setUp(self)
+        self.pool=self.services.pool;self.pool.started=True
+        for ep in self.pool.endpoints.values():ep.started=True
+        self.api=o._Api(self.source);self.store=self.api.admit()
+        self.checks=o._runtime_rechecks(self.api,self.store,self.prepared,self.api.lease,self.api.lease_generation)
+        self.pool.promote(self.api,self.checks)
+        self.ep=self.pool.endpoints['node-1']
+        cfg=o.native.session.configuration(self.ep.value,self.ep.session,o.native.session.MODES[2])
+        self.client=self.ep.client(cfg)
+
+    def test_first_submit_all_cells_and_collection_use_fresh_exact_reads_after_preparation_expires(self):
+        # The runtime must not retain the consumed preparation API/deadline.
+        self.f['clock'].sleep(1801);self.api.stage('healthy',self.api.clock()+300)
+        original=self.api.transport.send;calls=[]
+        def send(method,url,*args):
+            calls.append(url);return original(method,url,*args)
+        with patch.object(self.api.transport,'send',side_effect=send),\
+             patch.object(o.native.iap,'_network_exchange',return_value=b'{"state":"RUNNING"}') as ssh:
+            for phase in (*o.experiment.CELLS,'validation-retention'):
+                if phase!='healthy':self.api.stage(phase,self.api.clock()+30)
+                start=len(calls);until=self.api.clock()+10
+                answer=self.client.submit({'command':'start-voter'},until)
+                self.assertEqual('RUNNING',answer['state'])
+                compute=[url for url in calls[start:] if url.startswith('https://compute.')]
+                self.assertEqual(14,len(compute))  # seven before, seven after
+                self.assertEqual(2,sum('/getGuestAttributes?' in url for url in compute))
+                self.assertEqual(until,ssh.call_args.args[4]);self.assertIs(self.api,ssh.call_args.args[0])
+            self.assertEqual(5,ssh.call_count)
+        self.assertEqual({},self.api.resolved)
+
+    def test_pre_command_guard_rejects_missing_authority_without_ssh(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        for key in (n.LEASE,n.LEDGER):
+            old=self.f['http'].objects.pop(key)
+            try:
+                with patch.object(o.native.iap,'_network_exchange') as ssh,self.assertRaisesRegex(ValueError,'authority changed'):
+                    self.client.ready(self.api.clock()+10)
+                ssh.assert_not_called()
+            finally:self.f['http'].objects[key]=old
+
+    def test_changed_retained_generation_rejects_before_ssh(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        generation,raw,content=self.f['http'].objects[n.LEASE]
+        self.f['http'].objects[n.LEASE]=(generation+1,raw,content)
+        with patch.object(o.native.iap,'_network_exchange') as ssh,self.assertRaisesRegex(ValueError,'generation changed'):
+            self.client.ready(self.api.clock()+10)
+        ssh.assert_not_called()
+
+    def test_before_and_after_command_identity_drift_is_terminal_without_replay(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        pin=Path(self.ep.target['knownHosts']);original=pin.read_bytes()
+        pin.write_bytes(original+b'\n')
+        with patch.object(o.native.iap,'_network_exchange') as ssh,self.assertRaisesRegex(ValueError,'pinned host changed'):
+            self.client.ready(self.api.clock()+10)
+        ssh.assert_not_called();pin.write_bytes(original)
+        def changed(*args,**kwargs):pin.write_bytes(original+b'\n');return b'{"state":"RUNNING"}'
+        with patch.object(o.native.iap,'_network_exchange',side_effect=changed) as ssh,self.assertRaisesRegex(ValueError,'pinned host changed'):
+            self.client.submit({'command':'start-voter'},self.api.clock()+10)
+        ssh.assert_called_once()
+
+    def test_replacement_between_resource_samples_is_rejected_before_ssh(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        original=self.api.transport.send;changed=False
+        def send(method,url,*args):
+            nonlocal changed
+            status,raw=original(method,url,*args)
+            if '/getGuestAttributes?' in url:changed=True
+            elif changed and '/instances/' in url:
+                body=m.strict_json(raw);body['id']='99999999';raw=m.canonical(body)
+            return status,raw
+        with patch.object(self.api.transport,'send',side_effect=send),\
+             patch.object(o.native.iap,'_network_exchange') as ssh,self.assertRaisesRegex(ValueError,'numeric lookup identity'):
+            self.client.ready(self.api.clock()+10)
+        self.assertTrue(changed);ssh.assert_not_called()
+
+    def test_all_guard_reads_share_the_short_exchange_deadline(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        until=self.api.clock()+.5;original=self.api.transport.send;timeouts=[]
+        def delayed(method,url,headers,body,timeout,maximum):
+            timeouts.append(timeout);self.f['clock'].sleep(.2)
+            return original(method,url,headers,body,timeout,maximum)
+        with patch.object(self.api.transport,'send',side_effect=delayed),\
+             patch.object(o.native.iap,'_network_exchange',return_value=b'{}') as ssh,self.assertRaisesRegex(ValueError,'late response'):
+            self.client.ready(until)
+        ssh.assert_not_called();self.assertEqual(3,len(timeouts))
+        self.assertLessEqual(max(timeouts),.5)
+
+    def test_post_command_guard_cannot_extend_an_expired_exchange(self):
+        self.api.stage('healthy',self.api.clock()+30)
+        until=self.api.clock()+1
+        def late(*args,**kwargs):self.f['clock'].sleep(1);return b'{"state":"RUNNING"}'
+        with patch.object(o.native.iap,'_network_exchange',side_effect=late) as ssh,\
+             self.assertRaisesRegex(ValueError,'runtime identity deadline'):
+            self.client.submit({'command':'start-voter'},until)
+        ssh.assert_called_once()
