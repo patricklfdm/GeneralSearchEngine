@@ -385,20 +385,26 @@ controller supplied a relative producer export path. Preparation used 529.357
 seconds; recovery passed in 263.530 seconds. Independent reads confirmed all
 thirteen resources absent, no active lease and USD 77 / 200 retained.
 The [controller path correction and chain review](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
-is a local candidate. Six regressions reject the old implementation; retained seed
-replay covers both path styles and seven binary receivers. Guest/session roots,
-budgets and workload parameters remain exact. Next require corrected-source CI,
-then prepare/review a fresh exact plan before separately approved operator execution.
+passed PR #299 at `45b49095643aef6a5bb171e0f61158f3f7f22a27`, CI `37575940225`
+(all 36 jobs). Run `37580265449` passed the published bootstraps but exhausted
+1800 seconds before workload (0/4); owner recovery and independent absence checks
+passed. The [preparation round-trip reduction](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#preparation-round-trip-reduction)
+is the next local candidate: TLS reuse, combined exact-ID observations, removal
+of nested duplicate readiness checks and retained provider timing diagnostics.
+Next require corrected-source CI and a new reviewed, operator-triggered request.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;
 it does not require another topology-only paid allocation by default. Preserve
 historical receipts and original expiry; no need to wait for schedule.
-Do not resume failed preparation or remove failed charges.
+Do not resume failed preparation or automatically remove failed charges.
 The user approved the [USD 200 cumulative ceiling](v5.1/PHASE_6_CLOUD_CONTROL.md#approved-cumulative-ceiling-amendment--2026-10-01);
-the single-disk proposal stays USD 1 and previous charges remain recorded.
-Keep the 5400+1080-second real wait, existing authority and failed charges; no
-backdating, fake-record upload or ledger reset. Retain the audit coverage limitation.
+the single-disk proposal stays USD 1. On 2026-10-07 the user explicitly authorized
+a [budget restart](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#explicit-operator-budget-restart--2026-10-07):
+USD 87 was archived locally, the generation-bound counter restarted at USD 0, and
+all historical attempt evidence stayed intact. This exception does not authorize
+automatic refunds or future resets. Keep the 5400+1080-second real wait, existing
+authority and subsequent failed charges. Retain the audit coverage limitation.
 Image use/IAP and actual resource/failure-path qualification remain open; empty
 PASS is not full readiness. Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.

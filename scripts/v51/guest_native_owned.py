@@ -114,10 +114,21 @@ class Group(owned.Services):
         m.need(all(actual[k]==v for k,v in expected.items() if k!='schema'),'native package descriptor drift')
         return deepcopy(actual)
 
+    def mounted_readiness(self,node,recheck,readiness):
+        # The native volume exchange already checks current durable authority,
+        # exact provider IDs and the pinned host key before AND after the remote
+        # mount check. Do not wrap it in a second identical pair of checks.
+        disk=self.pool.disks['node-'+str(node)]
+        m.need(type(disk) is setup._VolumeEndpoint and disk.api is self.provider.api and
+               disk.value['binding']['node']=='node-'+str(node),
+               'native readiness original endpoint')
+        return disk.exchange('check')['readiness']
+
 
 class Pool(healthy.PackagePool):
     def __init__(self,api,archive,prepared):
         super().__init__(None);hosts=[v['facts']['privateIp'] for v in prepared]
+        self.disks={'node-'+str(row['facts']['provider']['node']):row.get('disk') for row in prepared}
         for row in prepared:
             ep=Endpoint(api,row,hosts);key=ep.value['binding']['node']
             self.endpoints[key]=ep;self.completed[key]=(Path(archive),api.deadline,deepcopy(row['installed']))

@@ -46,6 +46,12 @@ class Services:
     def descriptor(self, manifest, binding, provider, access_sha):
         return delivery.describe(self.archive,manifest,binding,provider,access_sha)
 
+    def mounted_readiness(self, node, recheck, readiness):
+        recheck(node)
+        observed = readiness(node)
+        recheck(node)
+        return observed
+
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
         m.need(req == self.provider.req and len(facts) == len(targets) == len(startup) == 3 and
                [v['provider']['node'] for v in facts] == [1,2,3], 'owned service topology')
@@ -80,12 +86,11 @@ class Services:
                 configs=configs,descriptors=descriptors,startupSha256=[m.sha(m.canonical(v)) for v in startup]))
             def check(index, phase):
                 m.need(self.clock() < deadline, 'owned service original deadline')
-                recheck(index+1)
-                observed = readiness(index+1)
+                observed = self.mounted_readiness(index+1,recheck,readiness)
                 m.need(observed['schema'] == ('gse-v51-volume-readiness-v1' if self.offline else 'gse-v51-native-volume-readiness-v1') and observed['provider'] == facts[index]['provider'] and
                        observed['volume'] == startup[index]['volume'] and
                        observed['startupSha256'] == m.sha(m.canonical(startup[index])), 'owned service mounted readiness')
-                recheck(index+1); m.need(self.clock() < deadline, 'owned service original deadline')
+                m.need(self.clock() < deadline, 'owned service original deadline')
                 c.write_once(self.root/f'node-{index+1}-check-{phase}.json',observed,maximum=262144)
             for i in range(len(configs)): check(i,'initial')
             for i, endpoint in enumerate(endpoints):

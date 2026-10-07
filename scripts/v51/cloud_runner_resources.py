@@ -35,13 +35,27 @@ class _Api(resources._Policy, h.Api):
         self.last_lease_write = None
         self.failure_claimed = False
         self.owner_claimed = False
+        self.http_timings = {}
 
     def call(self, method, url, body=None, **kwargs):
         # A credential refresh must not push the first lease CAS past approval.
         # Once that CAS is admitted, subsequent work uses preparation's clock.
         if method == 'POST' and self.state == 'lease':
             kwargs['deadline'] = min(kwargs['deadline'],self.admission_deadline)
-        return super().call(method,url,body,**kwargs)
+        start = self.clock()
+        operation = deepcopy(getattr(self,'guest_operation',{}))
+        key = (self.state,method,urlsplit(url).netloc,operation.get('node',''),
+               operation.get('kind',''),operation.get('action',''))
+        row = self.http_timings.setdefault(key,dict(state=self.state,method=method,host=key[2],
+            operation={k:v for k,v in operation.items() if k!='index'},calls=0,failures=0,elapsedSeconds=0,maxSeconds=0))
+        row['calls'] += 1
+        try: return super().call(method,url,body,**kwargs)
+        except BaseException:
+            row['failures'] += 1
+            raise
+        finally:
+            elapsed = max(0,self.clock()-start)
+            row['elapsedSeconds'] += elapsed; row['maxSeconds'] = max(row['maxSeconds'],elapsed)
 
     def marker_value(self):
         return dict(super().marker_value(), execution='offline-runner-resources' if self.offline else 'native-runner-resources',
@@ -151,6 +165,10 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
             if inspected is not None: write_once(root/'admission-http.json', inspected.api.requests)
             if api is not None:
                 write_once(root/'http.json', api.requests)
+                transport=api.transport
+                write_once(root/'provider-timings.json',dict(schema='gse-v51-provider-timings-v1',
+                    groups=list(api.http_timings.values()),
+                    connectionsOpened=getattr(transport,'opened',None),connectionsReused=getattr(transport,'reused',None)))
                 # A local snapshot is diagnostic; only retained CAS bytes authorize cleanup.
                 write_once(root/'lease-observation.json', dict(generation=api.generation, lease=api.lease))
                 known = sum(row['id'] is not None for row in api.lease['resources'])
@@ -191,13 +209,21 @@ def prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, 
 def _prepare_native(cfg, env, source, checkout, preflight, precheck_root, value, approved, artifacts, key, output, *, guest_stage=None, on_failure=None):
     from .cloud_runner_failure import recover
     cfg, env, value, approved = map(deepcopy, (cfg, env, value, approved))
+    transports=[]
     def inspect():
-        return admission.NetworkAdmission(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts)
+        inspected=admission.NetworkAdmission(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts)
+        transports.append(inspected.api.transport)
+        return inspected
     def recheck(inspected):
         _recheck(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,inspected,
                  get=admission.ci.github, wall=time.time, binding=lambda:admission.build.binding(admission.ci.ROOT,source))
-    return _run(output,value,key,inspect,recheck,clock=time.monotonic,wall=time.time,sleep=time.sleep,
-                exchange=iap._network_probe,offline=False,guest_stage=guest_stage,on_failure=on_failure or recover)
+    try:
+        return _run(output,value,key,inspect,recheck,clock=time.monotonic,wall=time.time,sleep=time.sleep,
+                    exchange=iap._network_probe,offline=False,guest_stage=guest_stage,on_failure=on_failure or recover)
+    finally:
+        for transport in transports:
+            close=getattr(transport,'close',None)
+            if close is not None: close()
 
 
 def prepare_offline(cfg, env, source, preflight, precheck_root, value, approved, artifacts, key, output, *,
