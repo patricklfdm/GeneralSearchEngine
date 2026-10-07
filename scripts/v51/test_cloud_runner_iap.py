@@ -44,8 +44,9 @@ class RunnerIapTest(unittest.TestCase):
             seen.append(Path(kwargs['env']['CLOUDSDK_CONFIG']).parent)
             raise ConnectionError('Authorization: Bearer bound-secret /sensitive/credential.json')
         with patch.object(r.transport,'process',side_effect=failure) as run:
-            with self.assertRaisesRegex(ConnectionError,'^Runner IAP identity probe failed$'):
+            with self.assertRaises(r.transport.ProcessRejected) as caught:
                 r._network_probe(self.api,self.target,160)
+            self.assertEqual('SSH_UNCLASSIFIED',caught.exception.code)
             self.assertEqual(1,run.call_count)
         self.assertTrue(all(not path.exists() for path in seen))
 
@@ -59,7 +60,7 @@ class RunnerIapTest(unittest.TestCase):
     def test_partial_source_bytes_survive_without_sensitive_diagnostics(self):
         error=ConnectionError('Authorization: Bearer bound-secret');error.partial_output=b'original source prefix'
         with patch.object(r.transport,'process',side_effect=error) as run:
-            with self.assertRaises(ConnectionError) as caught:
+            with self.assertRaises(r.transport.ProcessRejected) as caught:
                 r._network_exchange(self.api,self.target,r.COMMAND,b'',160,maximum=1024,retain_partial=True)
         self.assertEqual(b'original source prefix',caught.exception.partial_output)
         self.assertNotIn('bound-secret',str(caught.exception));self.assertTrue(run.call_args.kwargs['retain_partial'])

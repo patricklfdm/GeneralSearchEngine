@@ -11,6 +11,7 @@ from unittest.mock import patch
 from . import cloud_runner_iap as iap, cloud_http as h, guest_transport as transport
 from . import guest_ssh_master as ssh, guest_ssh_qualification as qualification
 from . import performance_model as m, remote_command as c
+from . import guest_session_recovery as recovery, guest_native_session as session, guest_delivery_receiver as receiver
 
 
 def run(output):
@@ -54,7 +55,7 @@ def run(output):
                 original=transport.process
                 def lost(args,*rest,**options):
                     result=original(args,*rest,**options)
-                    if 'open(' in args[-1]:raise ConnectionError('synthetic lost reply')
+                    if 'open(' in args[-1]:raise transport.ProcessError('SSH_DISCONNECTED')
                     return result
                 with iap.preparation_connections(api,root/'lost-reply.json'):
                     with patch.object(transport,'process',side_effect=lost):
@@ -67,12 +68,57 @@ def run(output):
                     'lost reply caused command replay')
                 receipt['cases'].append(dict(case='lost-reply-query-only-reconnect',status='PASS'))
 
+                # Real SSH and real session filesystem claims, with an explicitly
+                # synthetic package descriptor (no provider/volume admission).
+                for sent in (False,True):
+                    case='session-lost-reply' if sent else 'session-unsent-begin'
+                    base=root/case/'package';base.parent.mkdir(mode=0o700)
+                    descriptor=dict(schema='gse-v51-native-package-transfer-v1',
+                        binding=c.binding('a'*40,'b'*64,'c'*32,'node-1'),instanceId='123',diskId='456',guestAccessSha256='d'*64)
+                    sample=receiver.clock_sample(session.identity(descriptor),'e'*32)
+                    budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+90*10**9)
+                    claim=dict(schema=session.SCHEMA,packageSha256=m.sha(m.canonical(descriptor)),preparation=budget,
+                        leaseExpiresNanos=sample['sampledNanos']+120*10**9,hosts=['10.0.0.1','10.0.0.2','10.0.0.3'],port=19151)
+                    expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(claim)))
+                    injected=[];actions=[];report={}
+                    def interrupted(args,*rest,**options):
+                        if not injected:
+                            injected.append(True)
+                            if sent:original(args,*rest,**options)
+                            raise transport.ProcessError('SSH_DISCONNECTED' if sent else 'SSH_MASTER_CLOSED')
+                        return original(args,*rest,**options)
+                    def exchange(action,until):
+                        actions.append(action)
+                        script=('import sys,json;sys.path.insert(0,'+repr(str(qualification.ROOT))+');'
+                            'from scripts.v51 import guest_native_session as s;'
+                            'print(json.dumps(s.'+('begin' if action=='begin' else 'observe')+'('
+                            +repr(str(base))+','+repr(claim)+','+repr(descriptor)+')))')
+                        return m.strict_json(iap._network_exchange(api,target,['python3','-c',script],b'',until,maximum=4096))
+                    with iap.preparation_connections(api,root/(case+'.json')),patch.object(transport,'process',side_effect=interrupted):
+                        m.need(recovery.initialize(exchange,expected,api.deadline,report)==expected,'session did not recover')
+                    m.need(actions==(['begin','query'] if sent else ['begin','query','begin']),'session replay policy')
+                    m.need(c.read(base.parent/'native-session/request.json')==claim and
+                           c.read(base.parent/'native-session/receipt.json')==expected,'original session claim changed')
+                    c.write_once(root/(case+'-recovery.json'),report)
+                    receipt['cases'].append(dict(case=case,status='PASS',actions=actions))
+
+                report={}
+                with iap.preparation_connections(api,root/'remote-exit.json'):
+                    def rejected(action,until):
+                        return iap._network_exchange(api,target,['python3','-c','raise ValueError("private-diagnostic")'],
+                                                     b'',until,maximum=4096)
+                    try:recovery.initialize(rejected,{},api.deadline,report)
+                    except recovery.RecoveryError as error:m.need(error.code=='REMOTE_EXIT','remote rejection misclassified')
+                    else:raise ValueError('remote rejection accepted')
+                m.need(len(report['events'])==1 and 'private-diagnostic' not in json.dumps(report),'remote rejection retried/leaked')
+                receipt['cases'].append(dict(case='remote-exit-fails-without-retry',status='PASS'))
+
                 with iap.preparation_connections(api,root/'missing-socket.json'):
                     call(['true']);master=api._preparation_connections.active['123'];check=master.check
                     def disappear(deadline):check(deadline);master.path.unlink()
                     with patch.object(master,'check',side_effect=disappear):
                         try:call(['touch',str(root/'must-not-exist')])
-                        except ConnectionError:pass
+                        except (transport.ProcessError,transport.ProcessRejected):pass
                         else:raise ValueError('silent SSH network fallback')
                     m.need(not (root/'must-not-exist').exists(),'command executed through fallback')
                 receipt['cases'].append(dict(case='socket-race-no-network-fallback',status='PASS'))
@@ -83,7 +129,7 @@ def run(output):
                 try:
                     with iap.preparation_connections(api,root/'wrong-host.json'):
                         try:call(['touch',str(root/'must-not-exist')])
-                        except ConnectionError:pass
+                        except transport.ProcessRejected as error:m.need(error.code=='SSH_HOST_KEY','host rejection misclassified')
                         else:raise ValueError('wrong pinned host accepted')
                 finally:known.write_bytes(saved)
                 m.need(not (root/'must-not-exist').exists(),'wrong-host command executed')

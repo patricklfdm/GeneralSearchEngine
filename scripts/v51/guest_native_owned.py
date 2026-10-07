@@ -8,12 +8,12 @@ import base64
 from copy import deepcopy
 import math
 from pathlib import Path
-import time
 from . import cloud_native_authority as n, cloud_runner_guest_setup as setup, cloud_runner_iap as iap
 from . import guest_native_session as session, guest_package_delivery as delivery, guest_owned_services as owned
 from . import guest_owned_bootstrap as bootstrap, guest_shared_source as shared, guest_source_delivery as transfer
 from . import guest_producer_source as producer, guest_owned_workload as workload, guest_owned_three_mode as healthy
 from . import guest_owned_experiment as experiment, performance_model as m, remote_command as c
+from . import guest_session_recovery as recovery
 
 
 def creation(api):
@@ -44,10 +44,14 @@ class Endpoint(delivery.Endpoint):
     def process(self, remote, data, deadline, **options):
         m.need(len(self.calls)<4096 and self.api.clock()<deadline<=self.api.deadline,'native session connection budget')
         self.api.guest_operation = dict(node=self.value['binding']['node'],kind='session',action=remote[4])
-        self.recheck();self.calls.append(dict(action=remote[4],index=None))
+        # Session recovery has a shorter deadline, including its provider guards.
+        def check():
+            if remote[4] in ('begin','query'): self.recheck(deadline=deadline)
+            else: self.recheck()
+        check();self.calls.append(dict(action=remote[4],index=None))
         try:
             raw=iap._network_exchange(self.api,self.target,remote,data,deadline,**options)
-            self.recheck();return raw
+            check();return raw
         except (Exception,KeyboardInterrupt) as error:
             if len(self.failures)<8:self.failures.append(dict(type=type(error).__name__))
             raise
@@ -55,16 +59,11 @@ class Endpoint(delivery.Endpoint):
     def begin(self):
         m.need(not self.started,'native session already submitted');self.started=True
         token=base64.b64encode(m.canonical(self.budget)).decode()
-        answer=None
-        try:answer=m.strict_json(self.process(self.remote('begin',token),b'',self.deadline,maximum=4096))
-        except (ConnectionError,TimeoutError):pass
-        while answer is None or answer.get('state') in ('NOT_FOUND','UNCERTAIN'):
-            m.need(self.api.clock()<self.deadline,'native session unresolved; no resubmit')
-            time.sleep(min(.05,max(0,self.deadline-self.api.clock())))
-            try:answer=m.strict_json(self.process(self.remote('query',token),b'',self.deadline,maximum=4096))
-            except (ConnectionError,TimeoutError):answer=None
-        m.need(answer==dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(self.session))), 'native session receipt identity')
-        return answer
+        if not hasattr(self.api,'session_recoveries'): self.api.session_recoveries=[]
+        report=dict(node=self.value['binding']['node']);self.api.session_recoveries.append(report)
+        expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(self.session)))
+        return recovery.initialize(lambda action,until:m.strict_json(self.process(
+            self.remote(action,token),b'',until,maximum=4096)),expected,self.deadline,report,clock=self.api.clock)
 
     def client(self, config):
         m.need(self.started,'native session not started');session.check_config(config,self.value,self.session)

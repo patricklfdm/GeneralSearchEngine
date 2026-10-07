@@ -144,10 +144,11 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
             pin = Path(root)/'iap'/('node-'+str(node)+'.known_hosts'); pin_raw = pin.read_bytes()
             target = dict(project=api.cfg['project'],zone=api.cfg['zone'],instance=row['spec']['name'],instanceId=row['id'],
                 user=api.value['guestAccess']['user'],key=str(Path(key).resolve()),knownHosts=str(pin.resolve()))
-            def recheck(row=row,node=node,facts=facts,guest=guest,pin=pin,pin_raw=pin_raw,provider=provider):
-                m.need(api.clock() < api.deadline and api.store.get(n.LEASE) == (api.generation,lease) and
-                       api.store.get(n.LEDGER)[1] == api.reserved,'native guest durable authority/deadline')
-                identity = provider.guest_identity(lease,node,deadline=api.deadline)
+            def recheck(row=row,node=node,facts=facts,guest=guest,pin=pin,pin_raw=pin_raw,provider=provider,*,deadline=None):
+                until = api.deadline if deadline is None else min(api.deadline,deadline)
+                m.need(api.clock() < until and api.store.get(n.LEASE,deadline=until) == (api.generation,lease) and
+                       api.store.get(n.LEDGER,deadline=until)[1] == api.reserved,'native guest durable authority/deadline')
+                identity = provider.guest_identity(lease,node,deadline=until)
                 host = identity['publicKey']
                 m.need(identity['facts'] == facts and
                        m.sha(host.encode()) == guest['hostKeySha256'] and pin.read_bytes() == pin_raw ==

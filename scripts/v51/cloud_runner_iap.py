@@ -145,8 +145,10 @@ def _sanitized(retain_partial):
     try: yield
     except Exception as error:
         # No provider output, credentials or paths in ordinary evidence.
-        safe = (TimeoutError('Runner IAP original deadline') if isinstance(error,TimeoutError)
-                else ConnectionError('Runner IAP identity probe failed'))
+        if type(error) in (transport.ProcessError,transport.ProcessRejected):
+            safe = (transport.ProcessError if error.retryable else transport.ProcessRejected)(error.code)
+        elif isinstance(error,TimeoutError): safe = TimeoutError('Runner IAP original deadline')
+        else: safe = transport.ProcessRejected('SSH_UNCLASSIFIED')
         if retain_partial and hasattr(error,'partial_output'): safe.partial_output = error.partial_output
         raise safe from None
 

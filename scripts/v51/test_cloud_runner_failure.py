@@ -74,6 +74,36 @@ class RunnerFailureTest(unittest.TestCase):
                          self.store().get(prefix+'preparation-failure/receipt.json')[1])
         self.assertNotIn('identity', [row['path'] for row in manifest['files']])
 
+    def test_session_retry_limit_reaches_cleanup_and_retains_safe_diagnostics(self):
+        from . import guest_session_recovery as recovery, guest_transport as transport, cloud_runner_entry as entry
+        original=q.r._run
+        def run(*args,**kwargs):
+            def stage(api,*unused):
+                report=dict(node='node-2');api.session_recoveries=[report]
+                def exchange(action,until):raise transport.ProcessError('SSH_DISCONNECTED')
+                recovery.initialize(exchange,{'state':'SUCCEEDED'},api.deadline,report,
+                    clock=api.clock,sleep=self.input['clock'].sleep)
+            return original(*args,**dict(kwargs,guest_stage=stage))
+        def recover(api,root,receipt):
+            self.api=api
+            return f.recover(api,root,receipt)
+        with patch.object(q.r,'_run',side_effect=run):
+            result=q.prepare(self.input,self.root/'evidence',on_failure=recover)
+        self.assert_finished(result)
+        self.assertEqual('SESSION_RETRY_LIMIT',result['failure']['code'])
+        self.assertLess(result['elapsedSeconds'],120)
+        path=self.root/'evidence/session-recovery.json';report=read(path)
+        self.assertEqual(3,len(report['sessions'][0]['events']))
+        prefix=n.PREFIX+'attempts/'+n.validate_request(self.api.req)+'/'
+        self.assertEqual(path.read_bytes(),self.store().get(prefix+'preparation-failure/session-recovery.json')[1])
+        root=self.root/'report';root.mkdir()
+        entry.c.write_once(root/'receipt.json',dict(status='FAIL',result=dict(preparation=result)))
+        retained=root/'execution/preparation';retained.mkdir(parents=True)
+        entry.c.write_once(retained/'session-recovery.json',report)
+        text=entry.summary(root)
+        self.assertIn('Session initialization recovery',text);self.assertIn('node-2 | FAIL | 1 | 3 | 3 | 0',text)
+        self.assertIn('SESSION_RETRY_LIMIT',text);self.assertNotIn('unavailable |',text.split('## Session initialization recovery')[1].split('## Cells')[0])
+
     def test_lost_insert_and_identity_replies_resolve_original_operation_without_replay(self):
         for fault in ('lost-insert-1','lost-insert-11','lost-insert-13','lost-identity-13'):
             with self.subTest(fault=fault):

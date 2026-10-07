@@ -389,8 +389,14 @@ passed PR #299 at `45b49095643aef6a5bb171e0f61158f3f7f22a27`, CI `37575940225`
 (all 36 jobs). Run `37580265449` passed the published bootstraps but exhausted
 1800 seconds before workload (0/4); owner recovery and independent absence checks
 passed. The [preparation round-trip reduction](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#preparation-round-trip-reduction)
-is the next local candidate: TLS reuse, combined exact-ID observations, removal
-of nested duplicate readiness checks and retained provider timing diagnostics.
+passed PR #300 at `a91101f7a88a0a592ecaf98da8e889d9b3a1ef48`, CI `37590718799`
+(36 jobs). Run `37595059219` installed all packages but exhausted preparation
+querying node 2's unestablished session after an initial SSH/remote exchange failure.
+All four formal cells remain unexecuted; recovery and independent absence checks
+passed, USD 10 / 200 retained. The next local candidate is
+[bounded session recovery](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#bounded-native-session-recovery):
+query before safe identical begin replay, terminal errors and cumulative thresholds,
+120-second recovery/30-second exchanges, and retained safe diagnostics.
 Next require corrected-source CI and a new reviewed, operator-triggered request.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.

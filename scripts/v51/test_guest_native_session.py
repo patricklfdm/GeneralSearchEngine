@@ -14,6 +14,7 @@ from . import guest_delivery_receiver as r, performance_model as m
 from . import cloud_workload_contract as contract
 from . import test_cloud_runner_guest_setup as fixture
 from . import guest_source_producer as producer, guest_source_transfer as source, guest_bootstrap as boot
+from . import guest_session_recovery as recovery, guest_transport as transport
 
 
 # Replace only the Java seed command, with a real child process producing explicit
@@ -48,6 +49,27 @@ class SessionTest(unittest.TestCase):
             bad=deepcopy(self.session)
             bad[name]=bad[name]+1 if type(bad[name]) is int else ['10.0.0.4','10.0.0.5','10.0.0.6']
             with self.subTest(name=name),self.assertRaisesRegex(ValueError,'consumed'):s.observe(self.base,bad,self.value)
+    def test_controller_recovery_after_unsent_or_lost_begin_uses_one_real_claim(self):
+        # Actual receiver filesystem claims; only the connection loss is modeled.
+        for sent in (False,True):
+            if sent:
+                # Use the existing exact claim, proving a later lost reply cannot
+                # replace it, rewrite its receipts, or extend its original clock.
+                before=(self.base.parent/'native-session/request.json').read_bytes()
+            actions=[];report={}
+            def exchange(action,deadline):
+                actions.append(action)
+                if len(actions)==1:
+                    if sent:s.begin(self.base,self.session,self.value)
+                    raise transport.ProcessError('SSH_DISCONNECTED')
+                return s.begin(self.base,self.session,self.value) if action=='begin' else s.observe(self.base,self.session,self.value)
+            expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(self.session)))
+            with patch.object(r,'publish',wraps=r.publish) as publish:
+                self.assertEqual(expected,recovery.initialize(exchange,expected,r.time.monotonic()+100,report,sleep=lambda _:None))
+            self.assertEqual(['begin','query'] if sent else ['begin','query','begin'],actions)
+            self.assertEqual(0 if sent else 2,publish.call_count)
+            if sent:self.assertEqual(before,(self.base.parent/'native-session/request.json').read_bytes())
+            self.assertEqual(self.budget,package.read(self.base.parent/'deadline.json'))
     def test_long_preparation_reaches_producer_source_and_bootstrap_without_renewal(self):
         from . import guest_source_producer as producer, guest_source_transfer as source, guest_bootstrap as boot
         self.addCleanup(setattr,sys,'path',sys.path[:]);self.addCleanup(setattr,sys,'dont_write_bytecode',sys.dont_write_bytecode)

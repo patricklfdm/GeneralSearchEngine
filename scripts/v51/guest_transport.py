@@ -11,6 +11,58 @@ import time
 from . import performance_model as m, remote_command as c
 
 
+FAILURE_DETAILS = {
+    'SSH_DISCONNECTED': 'The pinned SSH connection was interrupted.',
+    'SSH_MASTER_CLOSED': 'The private SSH master is no longer available.',
+    'SSH_HOST_KEY': 'SSH rejected the pinned host identity.',
+    'SSH_AUTHENTICATION': 'SSH or IAP rejected authentication.',
+    'IAP_PERMISSION': 'IAP rejected access to the guest.',
+    'REMOTE_EXIT': 'The remote command returned an unsuccessful exit status.',
+    'SSH_UNCLASSIFIED': 'SSH failed without a recognized transient diagnostic.',
+    'LOCAL_PROCESS_EXIT': 'The local helper returned an unsuccessful exit status.',
+}
+TRANSIENT = frozenset(('SSH_DISCONNECTED', 'SSH_MASTER_CLOSED'))
+
+
+class ProcessError(ConnectionError):
+    """Closed diagnostics; never carry stderr, command text or credentials."""
+    def __init__(self, code):
+        m.need(code in FAILURE_DETAILS, 'unknown guest process failure')
+        self.code = code
+        super().__init__(FAILURE_DETAILS[code])
+
+    @property
+    def retryable(self): return self.code in TRANSIENT
+
+
+class ProcessRejected(ValueError):
+    """A native terminal failure must bypass generic connection-retry loops."""
+    def __init__(self, code):
+        m.need(code in FAILURE_DETAILS and code not in TRANSIENT, 'unknown terminal guest failure')
+        self.code = code
+        super().__init__(FAILURE_DETAILS[code])
+
+    @property
+    def retryable(self): return False
+
+
+def exit_error(returncode, stderr, *, ssh):
+    if not ssh: return ProcessError('LOCAL_PROCESS_EXIT')
+    # A completed remote process (including Python validation failures) is not
+    # a dropped SSH connection. Its failure must not become a retryable outage.
+    if returncode != 255: return ProcessError('REMOTE_EXIT')
+    text = stderr.decode(errors='replace').lower()
+    for code, markers in (
+        ('SSH_HOST_KEY', ('host key verification failed', 'remote host identification has changed', 'no ed25519 host key is known')),
+        ('SSH_AUTHENTICATION', ('permission denied (', 'authentication failed', 'unauthenticated', 'invalid_grant', 'invalid credentials')),
+        ('IAP_PERMISSION', ('permission_denied', 'not authorized', 'not authorised', '403: forbidden', '403 forbidden')),
+        ('SSH_DISCONNECTED', ('broken pipe', 'connection reset', 'connection closed', 'connection timed out',
+                              'operation timed out', 'connection refused', 'network is unreachable',
+                              'unexpected error while reconnecting'))):
+        if any(marker in text for marker in markers): return ProcessError(code)
+    return ProcessError('SSH_UNCLASSIFIED')
+
+
 def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c.REQUEST_BYTES, retain_partial=False, env=None):
     m.need(type(request_maximum) is int and 0 < request_maximum <= 1 << 20 and
            isinstance(data, bytes) and len(data) <= request_maximum and time.monotonic() < deadline, 'guest transport request/deadline')
@@ -42,10 +94,14 @@ def process(args, data, deadline, maximum=c.RESPONSE_BYTES, *, request_maximum=c
                         m.need(len(target) <= (maximum if target is out else 65536), 'guest transport response/diagnostic bound')
             proc.wait(timeout=max(.001, deadline-time.monotonic()))
             if proc.returncode or cursor != len(data):
-                raise ConnectionError('guest transport failed; inspect retained guest receipts: '+err.decode(errors='replace')[-1500:])
+                raise exit_error(proc.returncode, bytes(err), ssh=Path(args[0]).name == 'ssh')
             m.need(time.monotonic() <= deadline, 'late guest transport result')
             succeeded = True
             return bytes(out)
+    except subprocess.TimeoutExpired:
+        error = TimeoutError('guest transport original deadline')
+        if retain_partial: error.partial_output=bytes(out)
+        raise error from None
     except (ConnectionError,TimeoutError) as error:
         if retain_partial: error.partial_output=bytes(out)
         raise
