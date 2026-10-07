@@ -40,6 +40,14 @@ def identity(value):
         diskId=p['diskId'],guestAccessSha256=r.sha(r.canonical(value['access'])),payloadSha256=r.sha(raw),payloadBytes=len(raw)))
 
 
+def validate_budget(budget, value):
+    return r.validate_budget(budget, identity(validate(value)), profile=r.NATIVE_PREPARATION_PROFILE)
+
+
+def guest_deadline(budget, value):
+    return r.guest_deadline(budget, identity(validate(value)), profile=r.NATIVE_PREPARATION_PROFILE)
+
+
 def account(value, deadline, *, privileged):
     user = value['access']['user']; entry = pwd.getpwnam(user)
     r.need(entry.pw_uid > 0 and entry.pw_gid > 0, 'native guest account')
@@ -90,8 +98,8 @@ def _perform(action, value, token, backend):
     if action == 'clock':
         context(value,time.monotonic()+5)
         return r.clock_sample(desc,token)
-    budget = r.validate_budget(r.decode(base64.b64decode(token,validate=True)),desc)
-    deadline = r.guest_deadline(budget,desc); context(value,deadline)
+    budget = validate_budget(r.decode(base64.b64decode(token,validate=True)),value)
+    deadline = guest_deadline(budget,value); context(value,deadline)
     parent = Path(PARENT); answer = dict(state='NOT_FOUND')
     if action == 'prepare':
         try:
@@ -129,7 +137,7 @@ def _perform(action, value, token, backend):
                     if action == 'check' and answer['state'] == 'SUCCEEDED':
                         answer['readiness'] = v._readiness(folder/'volume',value['provider'],value['access']['user'],
                                                          backend,deadline,native=True)
-    context(value,deadline); r.guest_deadline(budget,desc)
+    context(value,deadline); guest_deadline(budget,value)
     return dict(schema='gse-v51-native-volume-transport-v1',requestSha256=r.sha(r.canonical(value)),
                 deadlineSha256=r.sha(r.canonical(budget)),**answer)
 
@@ -138,7 +146,7 @@ def main():
     action, encoded, token = sys.argv[1:]
     r.need(len(encoded) <= 16384 and len(token) <= 4096,'native volume request bound')
     value = validate(r.decode(base64.b64decode(encoded,validate=True)))
-    seconds = 5 if action == 'clock' else r.guest_deadline(r.decode(base64.b64decode(token,validate=True)),identity(value))-time.monotonic()
+    seconds = 5 if action == 'clock' else guest_deadline(r.decode(base64.b64decode(token,validate=True)),value)-time.monotonic()
     def expired(*_): raise TimeoutError('native volume original deadline')
     signal.signal(signal.SIGALRM,expired); signal.setitimer(signal.ITIMER_REAL,max(.001,seconds))
     try: print(r.canonical(_perform(action,value,token,_Linux(value))).decode(),flush=True)

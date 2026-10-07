@@ -361,11 +361,20 @@ PR #295 accepted preparation connection reuse at master
 Its admitted run `37531128228` consumed 494 seconds before guest setup and
 exhausted the 600-second ceiling before any workload. Owner cleanup and independent
 readback confirmed all thirteen resources absent, no lease and USD 47 / 200 retained.
-The [preparation timing amendment](v5.1/PHASE_6_PREPARATION_BUDGET.md) is now a local
-candidate: 1800 seconds for this four-cell experiment, with the original
-900-second admission window, 5400-second lease and 1080-second grace. Full
-canonical/default allocation stays frozen. Next require corrected-source CI,
-then prepare/review a fresh exact plan before separately approved operator execution.
+The [preparation timing amendment](v5.1/PHASE_6_PREPARATION_BUDGET.md) passed
+PR #296 at master `5254455d04bc832c5fb4ae4f2b8735a724a089e7`, CI `37540790465`
+attempt 2 (36 jobs): 1800 seconds for this four-cell experiment, with the original
+900-second admission window, 5400-second lease and 1080-second grace. Its admitted
+run `37546477964` stopped before workload after 249.500 seconds. Retained-request
+reproduction exposes a 600-second guest validator rejecting about 1550 seconds
+remaining; the original clock reply and detailed exception were not retained.
+Owner recovery and independent exact-ID reads confirmed all thirteen resources
+absent, no lease and USD 57 / 200 retained.
+The [guest deadline propagation correction](v5.1/PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
+is a local candidate covering volume, package, native session and source/bootstrap
+validation. Ordinary helper/package limits and full canonical/default allocation
+stay frozen. Next require corrected-source CI, then prepare/review a fresh exact
+plan before separately approved operator execution.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;

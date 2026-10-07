@@ -1,5 +1,6 @@
 """Native protocol tests with modeled OS/provider boundaries; never touches a disk."""
 import base64
+from contextlib import redirect_stdout
 from copy import deepcopy
 import io
 import os
@@ -26,9 +27,9 @@ def request(attempt='a'*32):
         access=access,requestSha256='d'*64)
 
 
-def token(value, identity):
+def token(value, identity, seconds=30):
     sample = r.clock_sample(identity(value),'e'*32)
-    budget = dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+30*10**9)
+    budget = dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+seconds*10**9)
     return base64.b64encode(r.canonical(budget)).decode()
 
 
@@ -50,6 +51,42 @@ class NativeVolumeTest(unittest.TestCase):
         self.enterContext(patch.object(r,'read',side_effect=lambda path,uid,maximum=r.MAX_BYTES:read(path,owner if uid==0 else uid,maximum)))
     def perform(self, action, token_value=None):
         return v._perform(action,self.value,token_value or self.token,self.block)
+    def test_long_native_controller_deadline_reaches_volume_and_queries_lost_reply_once(self):
+        api=SimpleNamespace(clock=time.monotonic,deadline=time.monotonic()+1550,
+                            provider=lambda:SimpleNamespace(sleep=lambda _:None))
+        endpoint=s._VolumeEndpoint(api,{},self.value,lambda:None);actions=[]
+        def exchange(api,target,remote,data,deadline,**options):
+            action,encoded,wire_token=remote[remote.index('-c')+2:]
+            self.assertEqual(self.value,r.decode(base64.b64decode(encoded)))
+            actions.append(action)
+            answer=v._perform(action,self.value,wire_token,self.block)
+            if action=='prepare':raise ConnectionError('lost completed volume reply')
+            return r.canonical(answer)
+        with patch.object(s.iap,'_network_exchange',side_effect=exchange):
+            result=endpoint.prepare()
+        self.assertEqual('SUCCEEDED',result['state'])
+        self.assertEqual(['clock','prepare','query','check'],actions)
+        self.assertEqual(1,self.block.formats)
+        self.assertGreater(endpoint.budget['expiresNanos']-endpoint.budget['sample']['sampledNanos'],1500*10**9)
+        changed=deepcopy(endpoint.budget);changed['expiresNanos']+=1
+        with self.assertRaisesRegex(ValueError,'consumed identity/deadline'):
+            self.perform('prepare',base64.b64encode(r.canonical(changed)).decode())
+        self.assertEqual(1,self.block.formats)
+    def test_native_volume_1800_second_boundary_rejects_excess_before_mutation(self):
+        wire_token=token(self.value,v.identity,1800)
+        budget=r.decode(base64.b64decode(wire_token));bad=deepcopy(budget);bad['expiresNanos']+=1
+        with self.assertRaisesRegex(ValueError,'deadline duration'):
+            self.perform('prepare',base64.b64encode(r.canonical(bad)).decode())
+        self.context.assert_not_called();self.assertEqual([],self.block.commands)
+        self.assertEqual('SUCCEEDED',self.perform('prepare',wire_token)['state'])
+        output=io.StringIO()
+        with patch.object(sys,'argv',['receiver','check',base64.b64encode(r.canonical(self.value)).decode(),wire_token]),\
+             patch.object(v,'_Linux',return_value=self.block),redirect_stdout(output):v.main()
+        self.assertEqual('SUCCEEDED',r.decode(output.getvalue().encode())['state'])
+        for patcher in (patch.object(r.time,'monotonic_ns',return_value=budget['expiresNanos']),
+                        patch.object(r,'boot_identity',return_value='00000000-0000-0000-0000-000000000000')):
+            with patcher,self.assertRaises(ValueError):self.perform('check',wire_token)
+        self.assertEqual(1,self.block.formats)
     def test_real_algorithm_consumes_once_and_rechecks_mount(self):
         answer=self.perform('prepare');self.assertEqual('SUCCEEDED',answer['state'])
         self.assertEqual(1,self.block.formats);self.assertNotIn('paidCloud',answer['startup'])
@@ -131,6 +168,7 @@ class NativeVolumeTest(unittest.TestCase):
 
 
 class NativePackageTest(unittest.TestCase):
+    workload_raw=package_fixture.PackageDeliveryTest.workload_raw
     def setUp(self):
         # Shared independently constructed tar fixture; no product JVM is executed.
         package_fixture.PackageDeliveryTest.setUp(self)
@@ -147,6 +185,50 @@ class NativePackageTest(unittest.TestCase):
         self.perform('begin')
         with self.archive.open('rb') as stream:
             for part in self.value['parts']:self.perform('part',stream.read(part['bytes']),part['index'])
+    def test_long_native_package_controller_transfers_and_opens_original_session(self):
+        from . import guest_native_session as session
+        api=SimpleNamespace(clock=time.monotonic,deadline=time.monotonic()+1550)
+        endpoint=s._PackageEndpoint(api,dict(instanceId='123'),self.value,lambda:None)
+        actions=[];lost=False
+        def exchange(api,target,remote,data,deadline,**options):
+            nonlocal lost
+            action,encoded,wire_token,*tail=remote[remote.index('-c')+2:]
+            self.assertEqual(self.value,r.decode(base64.b64decode(encoded)))
+            index=int(tail[0]) if tail else None;actions.append((action,index))
+            answer=p.perform(action,self.value,wire_token,io.BytesIO(data),index)
+            if action=='part' and not lost:
+                lost=True;raise ConnectionError('lost completed package part reply')
+            return r.canonical(answer)
+        with patch.object(s.iap,'_network_exchange',side_effect=exchange):
+            result=delivery._deliver(endpoint,self.archive,api.deadline)
+            with self.assertRaisesRegex(ValueError,'cannot renew'):
+                endpoint.exchange('query',b'',api.deadline-1)
+        self.assertEqual('SUCCEEDED',result['state'])
+        self.assertEqual(1,actions.count(('clock',None)));self.assertIn(('query',None),actions)
+        self.assertEqual([('part',part['index']) for part in self.value['parts']],[a for a in actions if a[0]=='part'])
+        base=Path(result['installed']['package']);budget=endpoint.budget
+        self.assertEqual(base,receiver.installed(self.parent,self.value))
+        self.assertEqual(budget,receiver.read(base.parent/'deadline.json'))
+        self.assertGreater(budget['expiresNanos']-budget['sample']['sampledNanos'],1500*10**9)
+        value=dict(schema=session.SCHEMA,packageSha256=m.sha(m.canonical(self.value)),preparation=budget,
+            leaseExpiresNanos=budget['sample']['sampledNanos']+4000*10**9,hosts=['10.0.0.1','10.0.0.2','10.0.0.3'],port=19151)
+        self.assertEqual('SUCCEEDED',session.begin(base,value,self.value)['state'])
+        config=session.configuration(self.value,value,session.MODES[2])
+        self.assertEqual(value['leaseExpiresNanos']/1e9,session.service_deadline(base,config))
+    def test_native_package_1800_second_boundary_and_consumed_deadline(self):
+        self.token=token(self.value,receiver.identity,1800);budget=r.decode(base64.b64decode(self.token))
+        bad=deepcopy(budget);bad['expiresNanos']+=1
+        with self.assertRaisesRegex(ValueError,'deadline duration'):
+            p.perform('begin',self.value,base64.b64encode(r.canonical(bad)).decode(),io.BytesIO())
+        self.context.assert_not_called();self.assertEqual([],list(self.parent.iterdir()))
+        self.assertEqual('RECEIVING',self.perform('begin')['receipt']['state'])
+        output=io.StringIO()
+        with patch.object(sys,'argv',['receiver','query',base64.b64encode(r.canonical(self.value)).decode(),self.token]),\
+             redirect_stdout(output):p.main()
+        self.assertEqual('RECEIVING',r.decode(output.getvalue().encode())['receipt']['state'])
+        changed=deepcopy(budget);changed['expiresNanos']-=1
+        with self.assertRaisesRegex(ValueError,'deadline changed'):
+            p.perform('query',self.value,base64.b64encode(r.canonical(changed)).decode(),io.BytesIO())
     def test_native_complete_transfer_checks_context_before_and_after_every_call(self):
         self.receive();answer=self.perform('finish')['receipt'];self.assertEqual('SUCCEEDED',answer['state'])
         self.assertEqual('native-guest-package',answer['execution']);self.assertNotIn('paidCloud',answer)
@@ -180,6 +262,18 @@ class NativePackageTest(unittest.TestCase):
 
 
 class NativeControllerTest(unittest.TestCase):
+    def test_closed_native_profile_does_not_extend_default_or_allow_wire_override(self):
+        from . import cloud_runner_timing as timing
+        value=request();budget=r.decode(base64.b64decode(token(value,v.identity,1800)))
+        self.assertEqual(600*10**9,r.deadline_limit_nanos())
+        self.assertEqual(timing.PREPARATION_SECONDS*10**9,r.deadline_limit_nanos(timing.PROFILE))
+        with self.assertRaisesRegex(ValueError,'deadline duration'):r.validate_budget(budget,v.identity(value))
+        for profile in ('canonical',1800,True,{},'owned-experiment-v2'):
+            with self.subTest(profile=profile),self.assertRaisesRegex(ValueError,'deadline profile'):
+                r.validate_budget(budget,v.identity(value),profile=profile)
+        for field in ('profile','maximumSeconds'):
+            with self.subTest(field=field),self.assertRaisesRegex(ValueError,'deadline fields'):
+                v.validate_budget(dict(budget,**{field:timing.PROFILE if field=='profile' else 1800}),value)
     def test_trusted_source_loads_in_isolated_process_without_repo_or_package_import(self):
         for kind in ('volume','package','session'):
             source=s.trusted_source(kind)

@@ -41,6 +41,21 @@ def identity(value):
         diskId=value['diskId'], guestAccessSha256=value['guestAccessSha256'], payloadSha256=r.sha(raw), payloadBytes=len(raw)))
 
 
+def deadline_profile(value):
+    # The native descriptor is admitted only by the separate native receiver.
+    # Its complete bytes are bound into the clock sample and consumed claim.
+    descriptor(value)
+    return r.NATIVE_PREPARATION_PROFILE if value['schema'] == 'gse-v51-native-package-transfer-v1' else None
+
+
+def validate_budget(budget, value):
+    return r.validate_budget(budget, identity(value), profile=deadline_profile(value))
+
+
+def guest_deadline(budget, value):
+    return r.guest_deadline(budget, identity(value), profile=deadline_profile(value))
+
+
 def location(parent, value): return r.location(parent, identity(value), os.getuid())
 def read(path): return r.decode(r.read(path, os.getuid()))
 def exists(path): return path.exists() or path.is_symlink()
@@ -65,7 +80,7 @@ def verify(root, value):
 
 
 def query(parent, value, budget):
-    descriptor(value); r.guest_deadline(budget, identity(value)); root = location(parent, value)
+    descriptor(value); guest_deadline(budget, value); root = location(parent, value)
     if not exists(root): return envelope(value, 'NOT_FOUND')
     r.owned(root, os.getuid(), True)
     if not exists(root/'deadline.json'): return envelope(value, 'UNCERTAIN')
@@ -115,7 +130,7 @@ def put(parent, value, budget, index, stream):
         raw = stream.read(part['bytes']+1)
         r.write(folder/'data.bin', raw)  # Retain malformed/partial input for diagnosis.
         r.need(len(raw) == part['bytes'] and r.sha(raw) == part['sha256'], 'package part digest/size')
-        r.guest_deadline(budget, identity(value)); receipt = dict(part=part, state='SUCCEEDED')
+        guest_deadline(budget, value); receipt = dict(part=part, state='SUCCEEDED')
     except Exception as error:
         receipt = dict(part=part, state='FAILED', error=dict(type=type(error).__name__, message=str(error)[:1000]))
     r.publish(folder/'receipt.json', receipt)
@@ -133,7 +148,7 @@ def finish(parent, value, budget):
         digest = hashlib.sha256()
         with os.fdopen(os.open(root/'archive.tar.gz', os.O_CREAT|os.O_EXCL|os.O_WRONLY|os.O_NOFOLLOW, 0o600), 'wb') as out:
             for part in value['parts']:
-                r.guest_deadline(budget, identity(value))
+                guest_deadline(budget, value)
                 raw = r.read(root/('part-%04d' % part['index'])/'data.bin', os.getuid(), PART_BYTES)
                 r.need(len(raw) == part['bytes'] and r.sha(raw) == part['sha256'], 'package part changed before assembly')
                 out.write(raw); digest.update(raw)
@@ -148,7 +163,7 @@ def finish(parent, value, budget):
                 try: os.fsync(fd)
                 finally: os.close(fd)
         (root/'package').chmod(0o700); r.sync(root/'package'); r.sync(root)
-        installed = verify(root, value); r.guest_deadline(budget, identity(value))
+        installed = verify(root, value); guest_deadline(budget, value)
         receipt = envelope(value, 'SUCCEEDED', len(value['parts']), installed=installed)
     except Exception as error:
         receipt = envelope(value, 'FAILED', len(value['parts']), error=dict(type=type(error).__name__, message=str(error)[:1000]))
@@ -159,7 +174,7 @@ def installed(parent, value):
     """Completed installation is usable after its transfer deadline; no new writes."""
     root = location(parent, value); r.owned(root, os.getuid(), True)
     r.need(read(root/'request.json') == value, 'service package descriptor changed')
-    budget = r.validate_budget(read(root/'deadline.json'), identity(value))
+    budget = validate_budget(read(root/'deadline.json'), value)
     r.need(budget['sample']['bootId'] == r.boot_identity(), 'service package boot changed')
     r.owned(root/'install', os.getuid(), True)
     receipt = read(root/'install/receipt.json')
@@ -203,11 +218,11 @@ def bootstrap(parent, value, budget, tail):
            config['root'] == str(Path(parent)/config['mode']), 'bootstrap installed configuration binding')
     sys.dont_write_bytecode = True; sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_bootstrap as boot, cloud_guest as guest
-    guest.validate(config); deadline = r.guest_deadline(budget,identity(value))
+    guest.validate(config); deadline = guest_deadline(budget,value)
     digest = request['descriptorSha256']
     if transferred:
         from scripts.v51 import guest_source_transfer as source
-        folder = source.received(base,config,digest,lambda:r.guest_deadline(budget,identity(value)))
+        folder = source.received(base,config,digest,lambda:guest_deadline(budget,value))
         r.need(r.sha(r.canonical(source.read(folder.parent/'request.json'))) == request['sourceTransferSha256'],
                'bootstrap transferred source identity')
     else: folder = Path(request['folder'])
@@ -220,7 +235,7 @@ def bootstrap(parent, value, budget, tail):
     else:
         r.need(boot.observe(config,'install',digest)['state'] == 'SUCCEEDED', 'bootstrap seed not ready')
         answer = dict(state='SUCCEEDED',result=boot.seal(base,config,deadline=deadline))
-    r.guest_deadline(budget,identity(value))
+    guest_deadline(budget,value)
     return dict(schema='gse-v51-package-bootstrap-v1',action=action,requestSha256=r.sha(r.canonical(request)),
         deadlineSha256=r.sha(r.canonical(budget)),receipt=answer)
 
@@ -235,7 +250,7 @@ def source_transfer(parent, value, budget, tail, stream):
            config['root']==str(Path(parent)/config['mode']),'source installed configuration binding')
     sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_source_transfer as source
-    check=lambda:r.guest_deadline(budget,identity(value))
+    check=lambda:guest_deadline(budget,value)
     check();source.validate(request)
     if action=='chunk': answer=source.put(base,request,int(tail[2]),stream,check)
     else: answer=getattr(source,action)(base,request,check)
@@ -257,7 +272,7 @@ def producer(parent,value,budget,tail):
            'producer installed configuration binding')
     sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_source_producer as source
-    source.validate(request);check=lambda:r.guest_deadline(budget,identity(value));deadline=check()
+    source.validate(request);check=lambda:guest_deadline(budget,value);deadline=check()
     if action=='prepare':answer=source.prepare(base,request,deadline,check)
     elif action=='query':answer=source.query(base,request,check)
     elif action=='manifest':answer=source.observe(base,request,tail[2],check)
@@ -278,8 +293,8 @@ def main():
     if action == 'clock':
         r.need(not tail, 'package clock arguments'); location(parent, value)
         print(r.canonical(r.clock_sample(identity(value), token)).decode(), flush=True); return
-    budget = r.validate_budget(r.decode(base64.b64decode(token, validate=True)), identity(value))
-    deadline = r.guest_deadline(budget, identity(value))
+    budget = validate_budget(r.decode(base64.b64decode(token, validate=True)), value)
+    deadline = guest_deadline(budget, value)
     def expired(*_): raise TimeoutError('package original deadline')
     signal.signal(signal.SIGALRM, expired); signal.setitimer(signal.ITIMER_REAL, max(.001, deadline-time.monotonic()))
     try:
@@ -295,6 +310,6 @@ def main():
         elif action == 'part': answer = put(parent, value, budget, int(tail[0]), sys.stdin.buffer)
         elif action == 'finish': answer = finish(parent, value, budget)
         else: answer = query(parent, value, budget)
-        r.guest_deadline(budget, identity(value))
+        guest_deadline(budget, value)
         print(r.canonical(dict(schema='gse-v51-package-transport-v1', deadlineSha256=r.sha(r.canonical(budget)), receipt=answer)).decode(), flush=True)
     finally: signal.setitimer(signal.ITIMER_REAL, 0)

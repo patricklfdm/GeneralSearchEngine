@@ -16,6 +16,10 @@ import time
 
 MAX_BYTES = 512 << 10
 MAX_DEADLINE_NANOS = 600 * 10**9
+# Shared by the reviewed Runner allocation and its trusted native receivers.
+# This source is also delivered standalone; do not import controller modules.
+NATIVE_PREPARATION_PROFILE = 'owned-experiment-v1'
+NATIVE_PREPARATION_SECONDS = 1800
 MODULES = ('guest_fault_service', 'guest_fault_jvm', 'public_trace', 'cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'guest_backup', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
@@ -81,19 +85,28 @@ def validate_sample(sample, value, nonce):
     return sample
 
 
-def validate_budget(budget, value):
+def deadline_limit_nanos(profile=None):
+    # A source-selected closed profile, never a caller-supplied duration or a
+    # field from the wire budget. The ordinary helper remains bounded at 600s.
+    need(profile is None or type(profile) is str and profile == NATIVE_PREPARATION_PROFILE,
+         'delivery deadline profile')
+    return MAX_DEADLINE_NANOS if profile is None else NATIVE_PREPARATION_SECONDS * 10**9
+
+
+def validate_budget(budget, value, *, profile=None):
+    maximum = deadline_limit_nanos(profile)
     need(type(budget) is dict and set(budget) == {'schema', 'sample', 'expiresNanos'} and
          budget['schema'] == 'gse-v51-helper-deadline-v1' and type(budget['sample']) is dict,
          'delivery deadline fields')
     sample = validate_sample(budget['sample'], value, budget['sample'].get('nonce'))
     need(type(budget['expiresNanos']) is int and
-         0 < budget['expiresNanos'] - sample['sampledNanos'] <= MAX_DEADLINE_NANOS,
+         0 < budget['expiresNanos'] - sample['sampledNanos'] <= maximum,
          'delivery deadline duration')
     return budget
 
 
-def guest_deadline(budget, value):
-    validate_budget(budget, value)
+def guest_deadline(budget, value, *, profile=None):
+    validate_budget(budget, value, profile=profile)
     need(budget['sample']['bootId'] == boot_identity(), 'delivery guest rebooted')
     need(budget['sample']['sampledNanos'] <= time.monotonic_ns() < budget['expiresNanos'],
          'delivery guest deadline expired or clock moved backwards')

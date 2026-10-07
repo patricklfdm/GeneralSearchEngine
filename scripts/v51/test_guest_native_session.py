@@ -5,20 +5,26 @@ import io
 from pathlib import Path
 import subprocess
 import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from . import guest_native_session as s, guest_native_owned as owned, cloud_runner_guest_setup as setup
 from . import guest_package_receiver as package, guest_native_package as native, cloud_guest as guest
 from . import guest_delivery_receiver as r, performance_model as m
+from . import cloud_workload_contract as contract
 from . import test_cloud_runner_guest_setup as fixture
 
 
 class SessionTest(unittest.TestCase):
+    workload_raw=m.canonical(contract.load())
     deadline=fixture.NativePackageTest.deadline
     perform=fixture.NativePackageTest.perform
     receive=fixture.NativePackageTest.receive
     def setUp(self):
         fixture.NativePackageTest.setUp(self)
+        # Exercise the actual receiver and every session path with the native
+        # allowance; a short synthetic deadline hid the old 600-second ceiling.
+        self.token=fixture.token(self.value,package.identity,1550)
         self.receive();answer=self.perform('finish')['receipt'];self.base=Path(answer['installed']['package'])
         self.budget=r.decode(base64.b64decode(self.token))
         self.session=dict(schema=s.SCHEMA,packageSha256=m.sha(m.canonical(self.value)),preparation=self.budget,
@@ -31,6 +37,51 @@ class SessionTest(unittest.TestCase):
             bad=deepcopy(self.session)
             bad[name]=bad[name]+1 if type(bad[name]) is int else ['10.0.0.4','10.0.0.5','10.0.0.6']
             with self.subTest(name=name),self.assertRaisesRegex(ValueError,'consumed'):s.observe(self.base,bad,self.value)
+    def test_long_preparation_reaches_producer_source_and_bootstrap_without_renewal(self):
+        from . import guest_source_producer as producer, guest_source_transfer as source, guest_bootstrap as boot
+        self.addCleanup(setattr,sys,'path',sys.path[:]);self.addCleanup(setattr,sys,'dont_write_bytecode',sys.dont_write_bytecode)
+        configs=[s.configuration(self.value,self.session,s.MODES[2],node='node-'+str(i)) for i in (1,2,3)]
+        # Synthetic backup bytes, real export/transfer/receipt validation. No JVM.
+        seed=self.parent/'seed';seed.mkdir(mode=0o700);(seed/'source').mkdir()
+        for name in boot.SOURCE:(seed/'source'/name).write_bytes(name.encode())
+        for name,text in zip(boot.TOPOLOGY,('\n'.join(self.cfg['hosts'])+'\n',
+                                          '\n'.join(map(str,self.cfg['ports']))+'\n',self.cfg['groupId']+'\n')):
+            (seed/name).write_text(text)
+        export=self.parent/'export'
+        row=boot.export(seed,export,self.cfg,producer_config=dict(self.cfg,root=str(seed)))
+        transfer=source.describe(export,row['descriptorSha256'],self.cfg)
+        installed=package.installed
+        def dispatch(action,kind,request,*,data=b'',index=None):
+            tail=[kind,base64.b64encode(m.canonical(request)).decode()]
+            if index is not None:tail.append(str(index))
+            return s.dispatch(action,self.value,self.session,tail,io.BytesIO(data))
+        # Only the fixed cloud mount is mapped to the real temporary install.
+        # Keep installed-byte validation and all three receiver wrappers intact.
+        with patch.object(package,'installed',side_effect=lambda _,v:installed(self.parent,v)):
+            output=io.BytesIO()
+            args=['receiver','begin',base64.b64encode(m.canonical(self.value)).decode(),base64.b64encode(m.canonical(self.session)).decode()]
+            with patch.object(sys,'argv',args),patch.object(sys,'stdout',SimpleNamespace(buffer=output)):s.main()
+            self.assertEqual('SUCCEEDED',r.decode(output.getvalue())['state'])
+            request=dict(schema=producer.SCHEMA,configs=configs)
+            self.assertEqual('NOT_FOUND',dispatch('producer','query',request)['receipt']['state'])
+            self.assertEqual('RECEIVING',dispatch('source','begin',transfer)['receipt']['state'])
+            for chunk in transfer['chunks']:
+                with (export/'parts'/chunk['part']).open('rb') as stream:
+                    stream.seek(chunk['offset']);data=stream.read(chunk['bytes'])
+                dispatch('source','chunk',transfer,data=data,index=chunk['index'])
+            self.assertEqual('SUCCEEDED',dispatch('source','finish',transfer)['receipt']['state'])
+            request=dict(config=self.cfg,descriptorSha256=row['descriptorSha256'],sourceTransferSha256=m.sha(m.canonical(transfer)))
+            self.assertEqual('NOT_FOUND',dispatch('bootstrap','query-install',request)['receipt']['state'])
+            self.assertEqual(self.budget,package.read(self.base.parent/'deadline.json'))
+            self.context.reset_mock()
+            with patch.object(r.time,'monotonic_ns',return_value=self.budget['expiresNanos']),\
+                 self.assertRaisesRegex(ValueError,'deadline expired'):
+                dispatch('source','query',transfer)
+            self.context.assert_not_called()
+    def test_plain_package_cannot_admit_native_session(self):
+        value=deepcopy(self.value);value['schema']='gse-v51-package-transfer-v1';value.pop('nativeVolume')
+        session=dict(self.session,packageSha256=m.sha(m.canonical(value)))
+        with self.assertRaisesRegex(ValueError,'package domain'):s.validate(session,value)
     def test_torn_claim_stays_uncertain_and_is_not_recreated(self):
         folder=self.base.parent/'native-session';folder.mkdir(mode=0o700)
         self.assertEqual({'state':'UNCERTAIN'},s.begin(self.base,self.session,self.value))

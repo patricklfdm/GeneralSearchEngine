@@ -63,8 +63,8 @@ class _VolumeEndpoint:
             except (ConnectionError,TimeoutError): raise ValueError('native volume clock unavailable; no mutation admitted') from None
             r.validate_sample(sample,volume.identity(self.value),nonce)
             remaining = math.floor((self.api.deadline-self.api.clock())*10**9)
-            self.budget = r.validate_budget(dict(schema='gse-v51-helper-deadline-v1',sample=sample,
-                expiresNanos=sample['sampledNanos']+remaining),volume.identity(self.value))
+            self.budget = volume.validate_budget(dict(schema='gse-v51-helper-deadline-v1',sample=sample,
+                expiresNanos=sample['sampledNanos']+remaining),self.value)
         m.need(self.budget is not None,'native volume clock cannot renew')
         answer = self.call(action,base64.b64encode(m.canonical(self.budget)).decode())
         m.need(answer['schema'] == 'gse-v51-native-volume-transport-v1' and

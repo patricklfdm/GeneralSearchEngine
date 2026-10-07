@@ -15,13 +15,14 @@ from .test_cloud_package import fixture, save
 
 
 class PackageDeliveryTest(unittest.TestCase):
+    workload_raw=b'{ }\n'
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(); self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name); base = self.root/'package'; self.manifest = fixture(base)
         (base/'padding').write_bytes(os.urandom((1 << 20)+128))
         # Raw package digests and the canonical workload contract digest differ.
-        (base/'workload.json').write_bytes(b'{ }\n')
-        self.manifest['workloadSha256']=package.sha(b'{ }\n')
+        (base/'workload.json').write_bytes(self.workload_raw)
+        self.manifest['workloadSha256']=package.sha(self.workload_raw)
         self.manifest['files'] = package.inventory(base); save(base/'manifest.json', self.manifest)
         self.archive = self.root/'guest.tar.gz'
         with tarfile.open(self.archive, 'w:gz', format=tarfile.USTAR_FORMAT) as tar:
@@ -31,7 +32,7 @@ class PackageDeliveryTest(unittest.TestCase):
                     info.mode=0o755 if item.stat().st_mode & 0o111 else 0o644
                     tar.addfile(info,io.BytesIO(raw))
         binding = dict(schema='gse-v51-guest-binding-v1', source='a'*40, bundleSha256=package.sha(self.archive.read_bytes()),
-                       attempt='b'*32, node='node-1', workloadSha256=package.sha(b'{}'))
+                       attempt='b'*32, node='node-1', workloadSha256=package.sha(helper.canonical(helper.decode(self.workload_raw))))
         self.value = d.describe(self.archive, self.manifest, binding, dict(instanceId='123', diskId='456', attempt='b'*32, node=1), 'c'*64)
         self.parent = self.root/'installations'; self.parent.mkdir(mode=0o700)
         self.budget = self.deadline(self.value)
@@ -49,6 +50,16 @@ class PackageDeliveryTest(unittest.TestCase):
             offline = True
             def argv(self, remote): return [sys.executable,*remote[1:]]
         return Local(dict(instanceId='123'),self.parent,self.value)
+    def test_plain_package_cannot_use_native_preparation_allowance(self):
+        for nanos in (600*10**9+1,1550*10**9,1800*10**9):
+            budget=deepcopy(self.budget)
+            budget['expiresNanos']=budget['sample']['sampledNanos']+nanos
+            with self.subTest(nanos=nanos),self.assertRaisesRegex(ValueError,'deadline duration'):
+                r.begin(self.parent,self.value,budget)
+        endpoint=self.endpoint()
+        with patch.object(endpoint,'call') as call,self.assertRaisesRegex(ValueError,'package original deadline'):
+            endpoint.exchange('begin',b'',time.monotonic()+1550)
+        call.assert_not_called();self.assertEqual([],list(self.parent.iterdir()))
     def test_actual_bounded_process_transfer_and_lost_replies_are_not_replayed(self):
         endpoint = self.endpoint(); original = endpoint.exchange; lost = set()
         def exchange(action,data,deadline,index=None):
