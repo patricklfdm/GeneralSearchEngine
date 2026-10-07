@@ -23,16 +23,19 @@ class ProducerTest(unittest.TestCase):
         for i,cfg in enumerate(self.configs,1):cfg['binding']['node']='node-'+str(i)
         self.request=dict(schema=producer.SCHEMA,configs=self.configs);self.generated=0;self.fault=None;self.calls=[];test=self
         self.seed=os.urandom((1<<20)+1024)
-        class Service:
-            def __init__(_,base,cfg):_.config=cfg;_.cell=Path(cfg['root']);_.deadline=time.monotonic()+5400
-            def prepare_source(service):
-                test.generated+=1
-                if test.fault=='generation':raise ValueError('seed generation failed')
-                for name,text in zip(boot.TOPOLOGY,('\n'.join(service.config['hosts'])+'\n','\n'.join(map(str,service.config['ports']))+'\n',service.config['groupId']+'\n')):
-                    (service.cell/name).write_text(text)
-                (service.cell/'source').mkdir()
-                for i,name in enumerate(boot.SOURCE):(service.cell/'source'/name).write_bytes(test.seed if i==0 else name.encode())
-        mocked=patch.object(producer.guest,'Service',Service);mocked.start();self.addCleanup(mocked.stop)
+        seed_path=self.fixture.fixture.root/'synthetic-source';seed_path.write_bytes(self.seed)
+        def command(base,mode,*,args):
+            test.generated+=1
+            if test.fault=='generation':return [sys.executable,'-I','-c','raise SystemExit(7)']
+            code="""import pathlib,sys
+source=pathlib.Path(sys.argv[4]);source.mkdir()
+seed=pathlib.Path(sys.argv[5]).read_bytes()
+for i,name in enumerate(('gse-backup-manifest','gse-backup-checkpoint','gse-backup-metadata')):
+    (source/name).write_bytes(seed if i==0 else name.encode())
+"""
+            return [sys.executable,'-I','-c',code,*args,str(seed_path)]
+        # Keep real source preparation; replace only Java with a synthetic child.
+        mocked=patch.object(producer.guest.package,'command',side_effect=command);mocked.start();self.addCleanup(mocked.stop)
         class Endpoint:
             offline=True;value=f.fixture.value
             def producer(_,action,request,deadline,*,node=None,index=None):

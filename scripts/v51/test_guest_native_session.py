@@ -13,6 +13,17 @@ from . import guest_package_receiver as package, guest_native_package as native,
 from . import guest_delivery_receiver as r, performance_model as m
 from . import cloud_workload_contract as contract
 from . import test_cloud_runner_guest_setup as fixture
+from . import guest_source_producer as producer, guest_source_transfer as source, guest_bootstrap as boot
+
+
+# Replace only the Java seed command, with a real child process producing explicit
+# synthetic backup bytes. Session/config validation and producer preparation run.
+SEED_COMMAND = """import pathlib, sys
+root = pathlib.Path(sys.argv[1]); assert sys.argv[2] == 'prepare'
+source = pathlib.Path(sys.argv[4]); source.mkdir()
+for name in ('gse-backup-manifest', 'gse-backup-checkpoint', 'gse-backup-metadata'):
+    (source/name).write_bytes(name.encode())
+"""
 
 
 class SessionTest(unittest.TestCase):
@@ -82,6 +93,71 @@ class SessionTest(unittest.TestCase):
         value=deepcopy(self.value);value['schema']='gse-v51-package-transfer-v1';value.pop('nativeVolume')
         session=dict(self.session,packageSha256=m.sha(m.canonical(value)))
         with self.assertRaisesRegex(ValueError,'package domain'):s.validate(session,value)
+    def producer_call(self,kind,request):
+        installed=package.installed
+        self.addCleanup(setattr,sys,'path',sys.path[:]);self.addCleanup(setattr,sys,'dont_write_bytecode',sys.dont_write_bytecode)
+        with patch.object(package,'installed',side_effect=lambda _,v:installed(self.parent,v)):
+            return s.dispatch('producer',self.value,self.session,
+                [kind,base64.b64encode(m.canonical(request)).decode()],io.BytesIO())['receipt']
+    def source_request(self,mode,cell=None):
+        return dict(schema=producer.SCHEMA,configs=[s.configuration(self.value,self.session,mode,cell,node='node-'+str(i))
+            for i in guest.package.experiment_nodes(mode)])
+    def check_real_producer_prepare(self,mode,cell=None):
+        s.begin(self.base,self.session,self.value);request=self.source_request(mode,cell)
+        def command(base,selected_mode,*,args):
+            self.assertEqual(self.base,base);self.assertEqual(s.MODES[0],selected_mode)
+            self.assertEqual(str(producer.location(self.base)/'cell'),args[0])
+            return [sys.executable,'-I','-c',SEED_COMMAND,*args]
+        with patch.object(guest.package,'command',side_effect=command) as launch:
+            result=self.producer_call('prepare',request)
+            self.assertEqual('SUCCEEDED',result['state'],result)
+            self.assertEqual(result,self.producer_call('prepare',request));launch.assert_called_once()
+        self.assertEqual(len(request['configs']),len(result['exports']))
+        inventories=[]
+        for cfg in request['configs']:
+            value,folder=producer.retained(self.base,request,cfg['binding']['node'])
+            source.check_archive(folder,value);inventories.append(value['bootstrap']['files'])
+            self.assertEqual(boot.expected_files(cfg),set(inventories[-1]))
+        self.assertTrue(all(v==inventories[0] for v in inventories))
+        self.assertFalse(list((producer.location(self.base)/'cell').glob('agents')))
+        self.assertEqual(self.budget,package.read(self.base.parent/'deadline.json'))
+        # The same derived directory must remain invalid for a persistent service.
+        changed=dict(request['configs'][0],root=str(producer.location(self.base)/'cell'))
+        with self.assertRaisesRegex(ValueError,'exact configuration'):guest.Service(self.base,changed)
+    def test_native_local_producer_prepares_actual_source_once(self):
+        self.check_real_producer_prepare(s.MODES[0])
+    def test_native_replicated_producer_exports_identical_source_to_three_members(self):
+        self.check_real_producer_prepare(s.MODES[2])
+    def test_native_configured_producer_prepares_source_for_three_members(self):
+        self.check_real_producer_prepare(s.MODES[1])
+    def test_native_fault_cell_cannot_use_healthy_source_producer(self):
+        s.begin(self.base,self.session,self.value);request=self.source_request(s.MODES[2],'maintenance')
+        with patch.object(guest.package,'command') as launch,self.assertRaisesRegex(ValueError,'installed configuration binding'):
+            self.producer_call('prepare',request)
+        launch.assert_not_called();self.assertFalse(producer.location(self.base).exists())
+    def test_native_producer_cannot_substitute_service_lease_for_preparation_deadline(self):
+        s.begin(self.base,self.session,self.value);request=self.source_request(s.MODES[0]);prepare=producer.prepare
+        def extended(base,req,deadline,check):return prepare(base,req,deadline+1,check)
+        with patch.object(producer,'prepare',side_effect=extended),patch.object(guest.package,'command') as launch:
+            result=self.producer_call('prepare',request)
+            self.assertEqual('FAILED',result['state']);self.assertIn('original preparation deadline',result['error']['message'])
+            launch.assert_not_called()
+    def test_native_producer_generation_failure_is_terminal(self):
+        s.begin(self.base,self.session,self.value);request=self.source_request(s.MODES[0])
+        with patch.object(guest.package,'command',return_value=[sys.executable,'-I','-c','raise SystemExit(7)']) as launch:
+            result=self.producer_call('prepare',request)
+            self.assertEqual('FAILED',result['state']);self.assertIn('guest setup process failed',result['error']['message'])
+            self.assertEqual(result,self.producer_call('prepare',request));launch.assert_called_once()
+    def test_native_producer_rejects_foreign_root_expiry_and_changed_package_before_launch(self):
+        s.begin(self.base,self.session,self.value);request=self.source_request(s.MODES[0])
+        with patch.object(guest.package,'command') as launch:
+            changed=deepcopy(request);changed['configs'][0]['root']='/tmp/foreign'
+            with self.assertRaisesRegex(ValueError,'exact configuration'):self.producer_call('prepare',changed)
+            with patch.object(r.time,'monotonic_ns',return_value=self.budget['expiresNanos']),self.assertRaisesRegex(ValueError,'deadline'):
+                self.producer_call('prepare',request)
+            (self.base/'guest.py').write_bytes(b'changed')
+            with self.assertRaisesRegex(ValueError,'inventory'):self.producer_call('prepare',request)
+            launch.assert_not_called();self.assertFalse(producer.location(self.base).exists())
     def test_torn_claim_stays_uncertain_and_is_not_recreated(self):
         folder=self.base.parent/'native-session';folder.mkdir(mode=0o700)
         self.assertEqual({'state':'UNCERTAIN'},s.begin(self.base,self.session,self.value))

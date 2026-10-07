@@ -102,6 +102,14 @@ def service_deadline(base, config):
     return lease_deadline(session,value)
 
 
+def preparation_deadline(base, config):
+    """Authenticate the exact service config but retain its shorter setup clock."""
+    service_deadline(base,config)
+    base=Path(base);value=r.decode(r.read(base.parent/'request.json',os.getuid()))
+    budget=r.decode(r.read(base.parent/'deadline.json',os.getuid()))
+    return r.guest_deadline(budget,identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
+
+
 def dispatch(action, value, session, tail, stream):
     # These imports exist in the trusted controller bundle. They are deliberately
     # absent from the packaged daemon path above, which cannot admit new actions.

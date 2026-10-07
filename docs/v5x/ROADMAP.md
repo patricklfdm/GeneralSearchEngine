@@ -294,8 +294,13 @@ Run `37546477964` then stopped before workload; retained-request reproduction
 exposes a legacy 600-second guest deadline check. Owner recovery and independent
 exact-ID reads confirmed absence, lease release and USD 57 / 200 retained.
 The [guest deadline propagation correction](v5.1/PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
-is a local candidate. Corrected-source protected CI and a fresh approved
-experiment remain required.
+passed PR #297 / CI `37552754929` attempt 1 (36 jobs). Its admitted run
+`37555787624` completed all three packages/sessions, then failed at the source
+producer's strict service-directory check, with preparation time still available.
+Recovery and independent exact-ID reads confirmed absence, lease release and
+USD 67 / 200 retained. The
+[source-producer correction](v5.1/PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
+is a local candidate; its protected CI and a fresh approved experiment remain required.
 Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope

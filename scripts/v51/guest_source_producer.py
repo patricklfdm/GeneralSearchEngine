@@ -63,10 +63,19 @@ def query(base,request,check):
 
 
 def produce(base,request,deadline,check):
-    root=location(base);cell=root/'cell';cell.mkdir(mode=0o700)
-    local=deepcopy(request['configs'][0]);local['root']=str(cell)
-    service=guest.Service(base,local);m.need(deadline<=service.deadline,'producer preparation deadline');service.deadline=deadline
-    check();service.prepare_source();check()
+    config=validate(request)[0];root=location(base);files.owned(root,os.getuid(),True)
+    m.need(read(root/'request.json')==request,'producer original request changed')
+    # Authenticate the original service configuration, never a relaxed root.
+    # The derived directory is seed-only and cannot acquire daemon authority.
+    if config['execution']==guest.NATIVE_EXECUTION:
+        from .guest_native_session import preparation_deadline
+        m.need(deadline==preparation_deadline(base,config),'producer original preparation deadline')
+    package.verify(base,config['binding']['source'])
+    m.need(m.sha((base/'manifest.json').read_bytes())==config['packageManifestSha256'],'guest package manifest changed')
+    check();cell=root/'cell';cell.mkdir(mode=0o700)
+    local=deepcopy(config);local['root']=str(cell)
+    guest.seed_source(base,config,cell,lambda label,args:guest.run_setup(root,label,args,deadline))
+    check()
     exports=root/'exports';exports.mkdir(mode=0o700);rows=[]
     for cfg in request['configs']:
         check();node=cfg['binding']['node'];folder=exports/node

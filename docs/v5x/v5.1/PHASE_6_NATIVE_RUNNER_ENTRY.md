@@ -15,9 +15,14 @@ passed PR #296 / CI `37540790465` attempt 2 (36 jobs). Run `37546477964`
 then stopped before workload with about 1550 seconds still available; retained
 request reproduction exposes the guest validators' unchanged 600-second limit.
 The [guest deadline propagation correction](PHASE_6_PREPARATION_BUDGET.md#guest-deadline-propagation-correction)
-now requires its own protected CI and a fresh approved experiment. Owner recovery
-and independent exact-ID reads confirmed all thirteen resources absent, lease
-release and USD 57 / 200 retained.
+passed PR #297 / CI `37552754929` attempt 1 (36 jobs). Its approved
+[run 37555787624](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37555787624)
+completed all three volume/package/session stages, then failed at source creation:
+`native session exact configuration`. Preparation used 1027.482 of 1800 seconds;
+this was not a timeout. The
+[source-producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
+is a local candidate. Owner recovery and independent exact-ID reads confirmed
+all thirteen resources absent, lease release and USD 67 / 200 retained.
 Full Phase 6 remains open.
 
 ## Workflow selections
