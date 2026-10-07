@@ -21,8 +21,12 @@ completed all three volume/package/session stages, then failed at source creatio
 `native session exact configuration`. Preparation used 1027.482 of 1800 seconds;
 this was not a timeout. The
 [source-producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
-is a local candidate. Owner recovery and independent exact-ID reads confirmed
-all thirteen resources absent, lease release and USD 67 / 200 retained.
+passed PR #298 / CI `37565010319` attempt 1 (36 jobs). Run `37569971625`
+successfully generated/downloaded the source, then failed before workload at the
+[relative controller path boundary](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review).
+Preparation used 529.357 seconds; recovery passed in 263.530 seconds. Independent
+exact-ID reads confirmed all thirteen resources absent, lease release and
+USD 77 / 200 retained. The path correction needs protected CI and a fresh request.
 Full Phase 6 remains open.
 
 ## Workflow selections

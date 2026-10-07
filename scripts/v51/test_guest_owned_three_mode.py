@@ -1,5 +1,6 @@
 """Synthetic coordinator faults and real source-byte replay; no cloud claims."""
 from copy import deepcopy
+from contextlib import chdir
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -26,7 +27,7 @@ class SourceTest(unittest.TestCase):
         base=deepcopy(self.initial);base.update(mode=mode,root=str(self.root/mode),groupId=str(uuid.uuid5(uuid.NAMESPACE_URL,mode)))
         return [dict(base,binding=dict(base['binding'],node='node-'+str(n))) for n in package.experiment_nodes(mode)]
     def produce(self, configs, deadline, *, endpoint, output):
-        output.mkdir();raw=output/'seed';raw.mkdir();(raw/'source').mkdir()
+        output.mkdir();raw=output.absolute()/'seed';raw.mkdir();(raw/'source').mkdir()
         for n,b in self.backup.items():(raw/'source'/n).write_bytes(b)
         cfg=configs[0]
         for n,text in zip(boot.TOPOLOGY, ('\n'.join(cfg['hosts'])+'\n','\n'.join(map(str,cfg['ports']))+'\n',cfg['groupId']+'\n')):(raw/n).write_text(text)
@@ -47,6 +48,26 @@ class SourceTest(unittest.TestCase):
                 values.append({n:v for n,v in value['files'].items() if n.startswith('source/')})
             retained=list(adapter.retention_files());self.assertTrue(retained)
         self.assertEqual(self.remote.call_count,1);self.assertEqual(len(values),7);self.assertTrue(all(v==values[0] for v in values))
+    def test_relative_controller_exports_preserve_seven_exact_guest_configs_and_one_seed(self):
+        inventories=[]
+        with chdir(self.root):
+            for mode in package.MODES:
+                configs=self.configs(mode);original=deepcopy(configs)
+                adapter=source.Source(self.shared)
+                rows=adapter.prepare(configs,self.deadline,endpoint=object(),output=Path('export-'+mode))
+                self.assertEqual(original,configs)
+                for cfg,row in zip(configs,rows):
+                    folder=Path(row['folder']);self.assertTrue(folder.is_absolute())
+                    value=boot.descriptor(folder,row['descriptorSha256'],cfg)
+                    inventories.append({n:v for n,v in value['files'].items() if n.startswith('source/')})
+                self.assertTrue(list(adapter.retention_files()))
+        self.remote.assert_called_once();self.assertEqual(7,len(inventories))
+        self.assertTrue(all(v==inventories[0] for v in inventories))
+    def test_linked_export_parent_is_rejected_before_source_download(self):
+        (self.root/'real').mkdir();(self.root/'link').symlink_to(self.root/'real',target_is_directory=True)
+        with self.assertRaisesRegex(ValueError,'directory symlink'):
+            self.shared.prepare(self.configs(package.MODES[0]),self.deadline,endpoint=object(),output=self.root/'link/export')
+        self.remote.assert_not_called();self.assertEqual([],list((self.root/'real').iterdir()))
     def test_mode_order_and_repeat_are_rejected_before_remote_operation(self):
         with self.assertRaisesRegex(ValueError,'order'):self.prepare(package.MODES[1])
         self.remote.assert_not_called();self.prepare(package.MODES[0])

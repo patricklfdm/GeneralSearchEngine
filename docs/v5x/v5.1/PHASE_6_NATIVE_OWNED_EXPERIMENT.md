@@ -5,12 +5,13 @@
 [CI 37424341468](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37424341468)
 attempt 1 (36 successful jobs), together with
 [immediate preparation failure cleanup](PHASE_6_OWNER_FAILURE_CLEANUP.md).
-The subsequent [manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md) and guest
-deadline correction passed protected CI through PR #297. Admitted run
-`37555787624` completed package/session preparation but failed at source creation.
+The subsequent [manual Runner entry](PHASE_6_NATIVE_RUNNER_ENTRY.md), guest
+deadline correction and source preparation passed protected CI through PR #298.
 The [producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
-is a local candidate. No real GCP workload has yet been qualified, and full
-Phase 6 remains open.
+worked in admitted run `37569971625`: source generation and download succeeded.
+That run then exposed the [controller path defect](#controller-path-correction-and-chain-review)
+before any workload. Its correction is locally qualified; corrected-source CI
+and a fresh approved native experiment remain required. Full Phase 6 remains open.
 
 ## Fixed entry and reused workload
 
@@ -117,3 +118,68 @@ prechecks; its own protected CI and exact-request approval precede cloud executi
 guest privilege and end-to-end timing still need that separately approved run.
 Manual cleanup remains sufficient admission evidence; delayed schedule does not
 block this development step. Never resume a failed preparation or reset charges.
+
+## Controller path correction and chain review
+
+PR #298 passed [exact-master CI 37565010319](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37565010319)
+attempt 1 (36 jobs) at `58a2376c0687810ee8e294737ccf6f7c98cc6fc3`.
+[Native run 37569971625](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37569971625)
+completed three volume/package/session preparations and generated/downloaded the
+published-V4.4 backup. The controller then failed with `guest root` while
+repacking that backup for the first healthy service. Preparation used 529.357 of
+1800 seconds. No workload cell ran; this was neither a preparation timeout nor a
+failed source download.
+
+The workflow supplies a relative output such as `target/v51-experiment`.
+The native owner previously propagated it into `SharedSource.prepare`, which
+constructed a relative `producer_config.root`. Export validates an absolute
+guest root and therefore rejected it. The loopback qualification had normalized
+its output on entry, and existing unit fixtures used absolute temporary paths.
+Retained source bytes reproduced the defect without new cloud allocation.
+
+The owner now makes its controller root absolute before admission and passes
+absolute paths into preparation, services, evidence and retention. Shared-source
+export also normalizes its own output before deriving the local producer config,
+so direct callers are covered. Both use the existing directory symlink rejection;
+normalization does not resolve a linked parent into an accepted path. Guest
+configuration roots, package/session bindings and persistent-service admission
+remain exact. A used output directory cannot start another invocation.
+
+The review followed the native entry through completion:
+
+| Boundary | Verification and preserved constraint |
+| --- | --- |
+| Prepared request → native owner | Fresh request/artifact/source checks remain before paid admission. Relative output is bound before resource preparation; linked parents and reused outputs reject before admission. |
+| Resource creation → package/session | Original provider IDs, host pins, installed inventory and consumed boot-bound preparation ticket remain required. Long native preparation uses 1800 seconds; a session cannot renew it. |
+| Producer → shared source | One original seed download; independent backup decode before each mode; one V4.4 and three V5.0/V5.1 exports with unchanged guest configs. |
+| Export → receiver/bootstrap | Binary chunks, assembled archives, exact descriptors and six-file inventories are rechecked. All transfers precede imports and receiver-local public seals; fault groups use their separate empty bootstrap. |
+| Session → experiment | Three healthy groups and three fault groups retain distinct configs. The controller consumes healthy, leader-loss, maintenance and no-quorum once, with the original per-cell deadlines and query-only recovery after ambiguous submissions. |
+| Shutdown → evidence | Stop/collection order, history and physical replay, source/backup checks, aggregate budgets and terminal service evidence remain required. Failure cannot turn an incomplete workload into PASS. |
+| Retention → cleanup/completion | Original immutable object read-back, exact-ID cleanup, terminal ledger charge and lease release conditions remain enforced. Both successful and failed relative-path controller cases exercise these algorithms with modeled HTTP/workload boundaries. |
+
+Six new regressions reject the original implementation. The corrected tests cover
+relative export across seven receivers, linked export/controller parents, the
+native entry's path and one-use boundary, full controller completion and failed
+cell retention/cleanup. Replaying the failed run's unchanged real seed passes all
+three exports for both path styles; seven local binary receivers also assemble
+and independently decode the same backup. The original failures, replay scripts,
+unit/gate logs and hash index are under `target/v51-native-controller-paths/`;
+original run evidence remains under `target/v51-native-experiment-pr298/`.
+Local Python 3.11 validation passed the 18 focused path/lifecycle tests, 330 guest
+chain tests, the storage gate (191 tests and 28 qualification cases) and the
+admission gate (219 tests plus its qualifications). The additional controller
+symlink test is covered by the focused run. All 27 packaged guest inputs also
+match the authenticated PR #298 artifact byte-for-byte.
+
+These checks cover controller logic, real retained source bytes and offline
+provider/guest boundaries. They do not establish corrected-source real VM/IAP
+timing or rerun the JVM experiment. Protected CI must still execute its complete
+owned loopback-SSH/JVM qualification before a fresh, separately approved request.
+No workload retry, guest validation relaxation, timing/budget increase, Java,
+workflow or IAM change is included.
+
+The failed run's immediate recovery passed in 263.530 seconds. Independent reads
+confirmed all thirteen resource names/numeric IDs absent, lease release and
+USD 77 / 200 retained. Keep that FAIL and charge. After corrected-source acceptance,
+prepare/review a fresh request and obtain its exact confirmation; do not rerun the
+expired preparation or reset its ledger entry.

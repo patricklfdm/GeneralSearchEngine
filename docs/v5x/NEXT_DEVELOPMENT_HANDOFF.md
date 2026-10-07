@@ -378,11 +378,17 @@ three volume/package/session stages, then failed at source creation with
 1800-second ceiling. Recovery passed in 339.570 seconds; independent exact-ID
 reads confirmed thirteen resources absent, no lease and USD 67 / 200 retained.
 The [source-producer correction](v5.1/PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
-is a local candidate: seed generation authenticates the original configuration
-but uses a separate consumed directory and the original preparation clock.
-Ordinary service directory constraints, budgets and frozen workload parameters
-remain unchanged. Next require corrected-source CI, then prepare/review a fresh
-exact plan before separately approved operator execution.
+passed PR #298 at master `58a2376c0687810ee8e294737ccf6f7c98cc6fc3`,
+CI `37565010319` attempt 1 (36 jobs). Run `37569971625` successfully generated
+and downloaded the seed, then failed before workload with `guest root`: the
+controller supplied a relative producer export path. Preparation used 529.357
+seconds; recovery passed in 263.530 seconds. Independent reads confirmed all
+thirteen resources absent, no active lease and USD 77 / 200 retained.
+The [controller path correction and chain review](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
+is a local candidate. Six regressions reject the old implementation; retained seed
+replay covers both path styles and seven binary receivers. Guest/session roots,
+budgets and workload parameters remain exact. Next require corrected-source CI,
+then prepare/review a fresh exact plan before separately approved operator execution.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;

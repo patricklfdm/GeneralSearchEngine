@@ -7,8 +7,9 @@ attempt 1 passed all 27 jobs, including three-receiver owned bootstrap with sour
 production and binary delivery. Native cloud writes and full Phase 6C remain open.
 The [owned healthy extension](PHASE_6_OWNED_WORKLOAD.md) is a separate candidate.
 The later [native source preparation correction](#native-source-preparation-correction)
-is locally qualified; corrected-source protected CI and a fresh approved native
-experiment remain required.
+passed PR #298 and source creation/download in run `37569971625`. The subsequent
+[controller path correction](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
+still requires corrected-source protected CI and a fresh approved native experiment.
 
 PR #243 also accepted the public hardening partition-evidence correction: either
 endpoint may observe the partition drop, with original process, direction, cut
@@ -131,8 +132,12 @@ user-triggered paid execution.
 
 ## Native source preparation correction
 
-**Status:** local correction after PR #297; protected CI and successful paid
-execution on the corrected source are pending. This does not close Phase 6C.
+**Status:** accepted through PR #298, master
+`58a2376c0687810ee8e294737ccf6f7c98cc6fc3`, exact-master CI `37565010319`
+attempt 1 (36 jobs). Run `37569971625` successfully generated and downloaded the
+source, then failed at the separate controller export path boundary. See the
+[current correction and chain review](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review).
+This does not close Phase 6C.
 
 [Native run 37555787624](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37555787624)
 used master `cdfb5af108c16c7bc01df98b74182a00db6396ee`, whose

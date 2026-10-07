@@ -32,7 +32,10 @@ and consumed deadline cannot be renewed, including after a lost response.
 Admitted run `37555787624` completed all three volume/package/session stages;
 source preparation then failed at a separate directory/configuration boundary.
 The [source-producer correction](PHASE_6_SOURCE_PRODUCER.md#native-source-preparation-correction)
-preserves the same clocks and strict persistent-service roots.
+passed PR #298 and preserves the same clocks and strict persistent-service roots.
+Run `37569971625` completed those stages and source generation/download; the
+[controller path correction](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
+addresses the later local export failure without changing guest admission.
 Before and after each native connection, the controller verifies the retained
 lease generation/content, reserved ledger, provider numeric VM/disk identities,
 attachments and pinned host key. It uses the same admitted Runner credential;

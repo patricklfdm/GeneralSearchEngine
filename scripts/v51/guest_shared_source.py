@@ -21,7 +21,9 @@ class SharedSource:
         normalized=deepcopy(configs[0]);normalized.update(mode=self.config['mode'],root=self.config['root'],groupId=self.config['groupId'])
         m.need(normalized==self.config and deadline==self.deadline and self.clock()<deadline, 'shared source identity/original deadline')
         self.modes.append(mode)  # A failed preparation also consumes this mode.
-        output=Path(output);output.mkdir(mode=0o700)
+        # export() checks the derived producer configuration as an absolute path.
+        # Do not resolve symlinks: the existing directory check must reject them.
+        output=Path(output).absolute();c.directory(output.parent);output.mkdir(mode=0o700)
         c.write_once(output/'plan.json',dict(configs=configs,deadline=deadline))
         if len(self.modes)==1:
             rows=self.remote.prepare(configs,deadline,endpoint=endpoint,output=output/'original')
