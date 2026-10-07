@@ -59,8 +59,8 @@ class Store:
                all(p and p not in ('.', '..') for p in key.split('/')) and '\\' not in key, 'V5.1 object namespace')
         return self.base+urllib.parse.quote(key, safe='')
 
-    def get(self, key):
-        deadline = self.api.clock()+30
+    def get(self, key, *, deadline=None):
+        deadline = min(self.api.clock()+30,deadline) if deadline is not None else self.api.clock()+30
         try: metadata = self.api.call('GET', self.url(key), deadline=deadline)
         except ApiError as error:
             if error.status == 404: return None

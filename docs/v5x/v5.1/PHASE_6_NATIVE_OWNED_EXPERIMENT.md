@@ -247,6 +247,77 @@ measurement acceptance are unchanged. After protected acceptance, review a new
 prepare/request and have the operator trigger the paid run; do not reuse the
 failed request. Corrected native completion is still open.
 
+## Bounded native session recovery
+
+PR #300 merged the round-trip correction at
+`a91101f7a88a0a592ecaf98da8e889d9b3a1ef48`; exact-master CI
+[37590718799](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37590718799)
+passed all 36 jobs. Native run
+[37595059219](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37595059219)
+installed all three packages and initialized node 1's session. Node 2's first
+session exchange failed; its SSH connection was reopened, followed by 387 query
+exchanges without an established session. Those queries caused 8523 provider
+GETs, consuming 1091.075 seconds in provider calls alone. Preparation expired at
+1800.065 seconds; all four formal cells remained unexecuted. TLS reuse was active
+(10958 reused connections). This run does not establish whether the first
+failure was IAP, SSH or a remote command rejection: the old wrapper discarded the
+distinction, and query states were not retained.
+
+Immediate owner recovery passed in 296.403 seconds. Independent current reads
+checked all thirteen names and numeric IDs absent, no active lease, and USD 10 / 200
+retained after the separately authorized accounting restart. Original evidence
+and diagnosis are retained under
+`target/v51-native-experiment-pr300/run-37595059219/`.
+
+The next implementation candidate bounds recovery of the exact session claim:
+
+| Boundary | Limit |
+| --- | --- |
+| Total recovery per node | 120 seconds, capped by original preparation deadline |
+| One exchange, including provider identity/control guards | 30 seconds, capped by recovery deadline |
+| Identical `begin` submissions | 3 total |
+| Transient transport failures | 3 cumulative, including failures separated by successful queries |
+| `UNCERTAIN` responses | 3 cumulative |
+| All exchanges | 8 total |
+| Backoff | 1, 2, then at most 4 seconds; counted within the same deadline |
+
+A dropped connection or bounded exchange timeout first queries the original
+claim. `SUCCEEDED` must match the exact session hash. Only a well-formed
+`NOT_FOUND` query permits another identical `begin`; receiver `mkdir` still admits
+one writer, and concurrent/torn claims remain `UNCERTAIN`. Recovery never removes
+claims, changes the session, renews preparation/lease clocks or replays workload
+mutations. Repeated uncertainty fails without submitting another begin.
+
+SSH host-key/authentication failures, IAP permission denial, remote nonzero exits,
+unclassified errors, changed authority and malformed replies fail immediately.
+Native terminal process errors bypass existing generic connection-retry loops.
+The bounded private SSH diagnostic stream is classified into fixed public codes;
+raw stderr, credentials and command text are not retained. A failed master is
+closed before another explicit exchange can reconnect. There is no SSH fallback
+or automatic command replay below the session protocol.
+
+Root/helper validation retains six closed terminal codes for metadata identity,
+ancestor permissions, private parent, missing invoking account, changed admission
+and changed installed bytes. Classification requires exit status 1 and an exact
+final allowlisted `ValueError` line in a Python traceback; unrelated diagnostics
+keep the generic terminal code. Root and loopback SSH qualification compare these
+codes, including host-key/authentication codes, instead of raw stderr fragments.
+The code is diagnostic only and does not establish authority or permit retries.
+
+`preparation/session-recovery.json` records per-node limits, actions, times, safe
+codes, query states and counters on both success and failure. It is included in
+the existing failure-retention allowlist. The Actions summary shows the recovery
+counts and outcome, and threshold failure enters the original owner cleanup and
+FAIL accounting path immediately. It does not wait for the preparation ceiling.
+
+Validation includes deterministic retry/deadline/terminal-error cases, actual
+receiver claims, provider-guard deadline propagation, retained cleanup diagnostics,
+and eight loopback OpenSSH cases. The SSH cases cover an unsent begin, a lost reply,
+remote command rejection, wrong pinned host and expired channels. These are local
+qualifications, not a completed native experiment. Corrected-source protected CI
+and a fresh reviewed, operator-triggered run remain required. No paid run, ledger
+reset, Java change, timing expansion or measurement retry is part of this change.
+
 ## Explicit operator budget restart — 2026-10-07
 
 The repository owner separately authorized restarting the budget counter at zero.

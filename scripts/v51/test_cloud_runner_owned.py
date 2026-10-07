@@ -197,8 +197,9 @@ class BridgeTest(unittest.TestCase):
         expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(ep.session)))
         def exchange(api,target,remote,data,deadline,**options):
             actions.append(remote[4]);self.assertIs(api,self.source)
-            self.assertEqual(deadline,self.source.deadline)
-            if remote[4]=='begin':raise ConnectionError('lost begin reply')
+            self.assertLessEqual(deadline,self.source.deadline)
+            self.assertLessEqual(deadline,self.source.clock()+30)
+            if remote[4]=='begin':raise o.native.recovery.transport.ProcessError('SSH_DISCONNECTED')
             return m.canonical(expected)
         with patch.object(o.native.iap,'_network_exchange',side_effect=exchange):
             self.assertEqual(expected,ep.begin())
@@ -214,6 +215,17 @@ class BridgeTest(unittest.TestCase):
         self.assertEqual('service',args[2][4]);self.assertEqual(ep.session,m.strict_json(base64.b64decode(args[2][6])))
         self.assertEqual('ready',args[2][-1]);self.assertIsNone(result['ready'])
         self.assertEqual(2,self.recheck.call_count)
+    def test_session_guards_and_transport_share_short_deadline_and_drift_is_terminal(self):
+        ep=self.services.pool.endpoints['node-1']
+        expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(ep.session)))
+        self.recheck.side_effect=[None,ValueError('changed provider identity')]
+        with patch.object(o.native.iap,'_network_exchange',return_value=m.canonical(expected)) as exchange,\
+             self.assertRaises(o.native.recovery.RecoveryError) as caught:ep.begin()
+        self.assertEqual('SESSION_REJECTED',caught.exception.code)
+        self.assertEqual(1,exchange.call_count)
+        until=exchange.call_args.args[4]
+        self.assertEqual([{'deadline':until}]*2,[call.kwargs for call in self.recheck.call_args_list])
+        self.assertEqual(1,len(self.source.session_recoveries[0]['events']))
     def test_native_readiness_keeps_exactly_one_pair_of_current_checks(self):
         from .test_cloud_runner_guest_setup import request
         value=request();value['binding']['node']='node-1'

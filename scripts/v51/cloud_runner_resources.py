@@ -15,6 +15,8 @@ from . import cloud_runner_admission as admission, cloud_runner_iap as iap
 from . import cloud_experiment_resources as resources, cloud_http as h, cloud_native_authority as n
 from . import guest_setup, performance_model as m
 from . import cloud_runner_timing as timing, cloud_runner_diagnostics as diagnostics
+from . import guest_session_recovery as session_recovery
+from . import guest_transport
 from .remote_command import write_once
 
 
@@ -153,13 +155,15 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
             receipt['failure'] = admission_failure or diagnostics.failure('admission',error)
         elif api is not None:
             observed = getattr(api,'guest_failure_at',clock())
-            receipt['failure']['code'] = ('PREPARATION_DEADLINE' if observed>=deadline else
+            receipt['failure']['code'] = (error.code if type(error) in (session_recovery.RecoveryError,guest_transport.ProcessRejected) else
+                'PREPARATION_DEADLINE' if observed>=deadline else
                 'PROVIDER_HTTP' if isinstance(error,h.ApiError) else
                 'GUEST_TIMEOUT' if isinstance(error,TimeoutError) else
                 'GUEST_TRANSPORT' if isinstance(error,ConnectionError) else 'PREPARATION_REJECTED')
             receipt['failure']['deadlineNanos'] = int(deadline*1e9)
             receipt['failure']['observedNanos'] = int(observed*1e9)
             if hasattr(api,'guest_operation'): receipt['failure']['operation'] = deepcopy(api.guest_operation)
+            receipt['failure']['detail'] = diagnostics.detail(receipt['failure']['code'])
     finally:
         try:
             if inspected is not None: write_once(root/'admission-http.json', inspected.api.requests)
@@ -169,6 +173,9 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
                 write_once(root/'provider-timings.json',dict(schema='gse-v51-provider-timings-v1',
                     groups=list(api.http_timings.values()),
                     connectionsOpened=getattr(transport,'opened',None),connectionsReused=getattr(transport,'reused',None)))
+                if hasattr(api,'session_recoveries'):
+                    write_once(root/'session-recovery.json',dict(schema='gse-v51-session-recovery-v1',
+                        sessions=api.session_recoveries))
                 # A local snapshot is diagnostic; only retained CAS bytes authorize cleanup.
                 write_once(root/'lease-observation.json', dict(generation=api.generation, lease=api.lease))
                 known = sum(row['id'] is not None for row in api.lease['resources'])

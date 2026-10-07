@@ -63,6 +63,19 @@ class ProviderTest(unittest.TestCase):
                 gen, data, content = self.http.objects[a.LEDGER]; self.http.objects[a.LEDGER] = gen+1, data, content
         self.http.hook = race
         with self.assertRaises(ApiError): self.store.get(a.LEDGER)
+    def test_control_read_cannot_renew_callers_shorter_deadline(self):
+        from unittest.mock import patch
+        self.store.put(a.LEDGER, {'value':1},0)
+        until=self.clock.seconds()+5;call=self.store.api.call;deadlines=[]
+        def limited(*args,**kwargs):
+            deadlines.append(kwargs['deadline']);self.clock.sleep(1)
+            return call(*args,**kwargs)
+        with patch.object(self.store.api,'call',side_effect=limited):
+            self.assertEqual({'value':1},self.store.get(a.LEDGER,deadline=until)[1])
+        self.assertEqual([until,until],deadlines)
+        self.clock.sleep(5);before=len(self.http.requests)
+        with self.assertRaises(ValueError):self.store.get(a.LEDGER,deadline=until)
+        self.assertEqual(before,len(self.http.requests))
     def test_namespace_and_configuration_closed(self):
         for key in ('v5.0/active.json', a.PREFIX+'../a', a.PREFIX+'x//a'):
             with self.assertRaises(ValueError): self.store.get(key)

@@ -3,6 +3,7 @@ from contextlib import contextmanager
 import json
 import subprocess
 from . import cloud_cleanup_credentials as credentials, cloud_http as h
+from . import guest_session_recovery as session_recovery
 
 STAGES = frozenset(('inputs','workflow','identity','approval','precheck','ci','observer',
     'checkout','credentials','artifact-metadata','artifact-bytes','control-read','final-freshness','allocation-recheck'))
@@ -39,6 +40,8 @@ GROUPS = {
 }
 MESSAGES = {message:code for code,messages in GROUPS.items() for message in messages}
 DETAILS = {
+    **session_recovery.DETAILS,
+    'PREPARATION_DEADLINE':'The original guest preparation deadline expired.',
     'PLAN_CHANGED_OR_EXPIRED':'The exact prepared plan changed or its admission window expired.',
     'TIMING_CHANGED':'The preparation timing allocation does not match the reviewed profile.',
     'APPROVAL_MISMATCH':'The explicit approval does not match the exact prepared request.',
@@ -85,6 +88,8 @@ def message(error):
 
 
 def failure(phase,error):
+    if type(error) is session_recovery.RecoveryError:
+        return dict(phase=phase,type='RecoveryError',code=error.code,detail=detail(error.code))
     if type(error) is AdmissionError:
         code=error.code if error.code in DETAILS or error.code in credentials.DIAGNOSTICS else 'UNCLASSIFIED'
         error_type=error.error_type if error.error_type in tuple(t.__name__ for t in TYPES) else 'Exception'

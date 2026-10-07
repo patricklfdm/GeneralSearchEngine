@@ -229,6 +229,18 @@ def summary(root):
     if preparation.get('timings'):
         text+='\n## Preparation phases\n\n| Phase | Seconds |\n| --- | --- |\n'
         text+=''.join('| '+safe(v['phase'])+' | '+str(round(v['elapsedSeconds'],3))+' |\n' for v in preparation['timings'])
+    session_path=Path(root)/'execution/preparation/session-recovery.json'
+    if session_path.is_file():
+        sessions=c.read(session_path)['sessions']
+        text+='\n## Session initialization recovery\n\n'
+        text+='Limits per node: 120 seconds total, 30 seconds per exchange, 3 begin submissions, '
+        text+='3 transient failures, 3 uncertain replies, 8 exchanges. Original preparation/lease deadlines still apply.\n\n'
+        text+='| Node | Status | Begins | Exchanges | Transient failures | Uncertain replies | Seconds | Result |\n'
+        text+='| --- | --- | --- | --- | --- | --- | --- | --- |\n'
+        for row in sessions:
+            cells=(row['node'],row['status'],row['begins'],len(row['events']),row['transientFailures'],row['uncertain'],
+                   round((row['endNanos']-row['startNanos'])/1e9,3),diagnostics.detail(row['code']) if row['code'] else 'SUCCEEDED')
+            text+='| '+' | '.join(safe(v) for v in cells)+' |\n'
     text+='\n## Cells\n\n| Cell | Result |\n| --- | --- |\n'
     for cell in owned.experiment.CELLS:
         passed=cell in run.get('evidence',{}).get('cells',[])

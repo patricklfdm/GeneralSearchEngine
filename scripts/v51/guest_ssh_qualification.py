@@ -11,7 +11,7 @@ import tempfile
 import time
 from . import guest_delivery as d, guest_delivery_receiver as r, guest_setup as setup
 from . import performance_model as m, remote_command as c
-from .guest_transport import ssh_args
+from .guest_transport import ProcessError, ssh_args
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -115,8 +115,8 @@ def run(output):
             cases.append(dict(case='success', status='PASS', files=answer['inventory']['files']))
             root = r.location(good.parent,value,os.getuid()); (root/'files/helper.py').write_text('raise RuntimeError("must not execute")\n')
             try: good.exchange('check', value, b'', deadline)
-            except ConnectionError as error:
-                m.need('delivery installed bytes changed' in str(error), 'changed-helper failure had another cause: '+str(error))
+            except ProcessError as error:
+                m.need(error.code == 'HELPER_INTEGRITY', 'changed-helper failure had another cause: '+error.code)
             else: raise ValueError('altered installed helper accepted')
             cases.append(dict(case='changed-installed-helper', status='PASS'))
             for name, offset in (('future-clock-epoch', 10**15), ('earlier-clock-epoch', -time.monotonic_ns()//2)):
@@ -150,16 +150,16 @@ def run(output):
             pin = Path(private)/'wrong-known'; setup.pin(pin, '123', server.access['publicKey'])
             wrong.target = dict(wrong.target, knownHosts=str(pin))
             try: wrong.exchange('install', value, raw, time.monotonic()+15)
-            except ConnectionError as error:
-                m.need('Host key verification failed' in str(error), 'wrong-pin failure had another cause: '+str(error))
+            except ProcessError as error:
+                m.need(error.code == 'SSH_HOST_KEY', 'wrong-pin failure had another cause: '+error.code)
             else: raise ValueError('wrong SSH host key accepted')
             m.need(not list(Path(wrong.parent).iterdir()), 'wrong pin reached installer')
             cases.append(dict(case='wrong-host-key', status='PASS'))
             unauthorized = endpoint('wrong-client-key')
             unauthorized.target = dict(unauthorized.target, key=str(Path(private)/'host/identity'))
             try: unauthorized.exchange('install', value, raw, time.monotonic()+15)
-            except ConnectionError as error:
-                m.need('Permission denied (publickey)' in str(error), 'wrong-client failure had another cause: '+str(error))
+            except ProcessError as error:
+                m.need(error.code == 'SSH_AUTHENTICATION', 'wrong-client failure had another cause: '+error.code)
             else: raise ValueError('unauthorized SSH client accepted')
             m.need(not list(Path(unauthorized.parent).iterdir()), 'wrong client reached installer')
             cases.append(dict(case='wrong-client-key', status='PASS'))

@@ -58,6 +58,15 @@ class RootTransportTest(unittest.TestCase):
         self.assertEqual(len(endpoint.failures), 8)
         self.assertEqual(endpoint.failures[0]['message'], 'lost')
 
+    def test_root_diagnostics_preserve_closed_receiver_code(self):
+        endpoint = root.Endpoint(self.target, self.plan); endpoint.argv = lambda remote:remote
+        error = root.guest_transport.ProcessError('ROOT_METADATA_IDENTITY')
+        with patch.object(root.guest_transport, 'process', side_effect=error):
+            with self.assertRaises(root.guest_transport.ProcessError):
+                endpoint._call('clock', self.desc, b'', 123, 'ticket')
+        self.assertEqual(endpoint.failures, [dict(action='clock', type='ProcessError',
+            code='ROOT_METADATA_IDENTITY', message=str(error))])
+
     def test_nonroot_rejected_before_account_metadata_or_paths(self):
         with patch.object(receiver.os, 'getuid', return_value=1001), patch.object(receiver, 'metadata') as metadata:
             with self.assertRaisesRegex(ValueError, 'root effective identity'):

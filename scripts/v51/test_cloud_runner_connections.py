@@ -27,7 +27,7 @@ class PreparationConnectionsTest(unittest.TestCase):
             def exchange(self,remote,data,deadline,**options):
                 self.calls.append((remote,data,deadline,options))
                 if owner.fail:
-                    owner.fail=False;error=ConnectionError('private-token-sentinel');error.partial_output=b'prefix';raise error
+                    owner.fail=False;error=iap.transport.ProcessError('SSH_DISCONNECTED');error.partial_output=b'prefix';raise error
                 return b'answer'
             def close(self):self.closed=True
         self.enterContext(patch.object(ssh,'Master',Master))
