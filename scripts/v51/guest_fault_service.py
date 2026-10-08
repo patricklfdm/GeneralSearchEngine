@@ -12,6 +12,7 @@ import time
 from . import cloud_package as package, remote_command as c, remote_collection as parts, performance_model as m
 from . import guest_authority as authority, public_trace
 from .guest_fault_jvm import Jvm
+from .guest_fault_network import CASES as NETWORK_CASES, Controls
 
 CASES=('leader-loss','maintenance','no-quorum')
 QUICK_CASES=('leader-loss','no-quorum')
@@ -31,10 +32,12 @@ class Handler:
         self.s=service;self.case=service.config['faultCell'];self.generation=0;self.isolated=False;self.healed=False
         self.pin=None;self.pin_released=False
         self.lock=threading.RLock();self.timer=None;self.isolation=None
+        self.network=Controls(self) if self.case in NETWORK_CASES else None
     def rules(self, rows):
         path=self.s.cell/'network-rules.txt';temporary=path.with_suffix('.tmp')
         temporary.write_text('\n'.join(rows)+'\n');os.replace(temporary,path)
     def heal(self, watchdog=False):
+        if self.network is not None:return self.network.release(watchdog)
         with self.lock:
             if not self.isolated or self.healed:return
             self.rules([]);self.healed=True
@@ -43,7 +46,7 @@ class Handler:
             if self.timer is not None:self.timer.cancel()
     def handle(self, name, payload, checkpoint):
         s=self.s;root=s.cell;node=s.node;cfg=s.config
-        m.need(self.case in CASES,'fault scope')
+        m.need(self.case in (*CASES,*NETWORK_CASES),'fault scope')
         if name=='prepare-cell':
             m.need(payload=={} and s.jvm is None,'fault preparation payload/state')
             c.write_once(root/'fault-prepare-claim.json',cfg)
@@ -76,6 +79,8 @@ class Handler:
                 m.need(authority.inventory(archive)==authority.inventory(root/node),'fault retained restart authority changed')
                 self.generation=2;s.jvm=Jvm(argv(s.base,cfg,'start',2),root,node,2,s.deadline);return s.jvm.ready
             m.need(s.jvm is not None and not s.jvm.closed,'fault live voter required')
+            if self.network is not None and action in ('isolate','heal','observe-network'):
+                return self.network.handle(payload)
             if action=='status':
                 m.need(payload=={'action':'status'},'fault status payload');return s.jvm.command('status')
             if action=='pin':

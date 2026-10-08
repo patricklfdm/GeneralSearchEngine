@@ -1,9 +1,14 @@
 # GeneralSearchEngine V5.x roadmap
 
-- **Status:** V5.0 published and reconciled; V5.1 Phase 3 accepted; Phase 4 accepted; Phase 5 accepted; Phase 6A/6B accepted; Phase 6C remote foundation; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
+
+The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
+isolated-leader, asymmetric request/response and slow-follower guest controls and
+independent replay. Protected CI acceptance is pending. Next implement the five
+remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
 
 ## Version sequence
 
@@ -16,6 +21,15 @@
 | 5.4 | Final hardening | Is the replicated single-shard line a stable future architecture reference? |
 
 ## Next entry and proposal status
+
+**Current next batch:** extend the accepted four-cell native path to failure-drill
+and canonical following the [native preset entry plan](v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
+The [native experiment acceptance record](v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
+binds source `500a41f30a5149703b81c4c2d01da75cd3baf1ed`, protected CI `37718123364`
+and successful native run `37723402614`. Four cells and 42 evidence negatives,
+retention, thirteen-resource cleanup and lease release passed. Offline replay of
+the original ZIP agrees exactly. The eventual five-member set must use one final
+source/artifact; this historical experiment cannot be mixed with future-source runs.
 
 The user has started [V5.1 Phase 0](v5.1/PHASE_0_ENTRY_PLAN.md), limited to contract
 and evidence design. The [contract candidate](v5.1/PHASE_0_CONTRACT.md) supplies the
@@ -306,8 +320,11 @@ controller export path (`guest root`), within its preparation budget. Recovery a
 independent reads confirmed all thirteen resources absent, lease release and
 USD 77 / 200 retained. The
 [controller path correction and chain review](v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md#controller-path-correction-and-chain-review)
-is locally qualified; corrected-source CI and a fresh approved experiment remain required.
-Full 6C remains open; paid experiments require separate
+passed PR #299; subsequent preparation, runtime identity, native timing and
+shutdown corrections culminated in the first accepted native experiment through
+PR #304. The [acceptance record](v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md) has
+the exact original source, request, archive and independent replay boundary.
+Full 6C remains open for larger presets; paid experiments require separate
 exact-request confirmation and user triggering.
 The [next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) is a proposed scope
 refinement, not a replacement for the accepted [charter](DEVELOPMENT_CHARTER.md).

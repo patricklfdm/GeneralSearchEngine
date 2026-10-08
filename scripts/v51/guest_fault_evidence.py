@@ -8,6 +8,7 @@ from . import guest_authority, storage_inspector as storage, format_inspector as
 from . import public_qualification_evidence as physical, public_history, remote_fault_evidence as faults
 from . import cloud_workload_contract as contract, performance_plan as plan
 from .guest_fault_service import CASES, QUICK_CASES, RULES
+from .guest_network_evidence import CASES as NETWORK_CASES
 
 
 def package_binding(manifest, req):
@@ -117,7 +118,8 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     from . import native_experiment_timing as timing
     authority.validate_request(req)
     record=c.read(raw/'receipt.json');history=c.read(raw/'history.json');case=record['case'];source=c.read(raw/'plan.json')
-    m.need(case in CASES and source['request']==req and source['case']==case and source['scope']=='owned-experiment-leader-loss-no-quorum' and
+    scope='owned-network-faults' if case in NETWORK_CASES else 'owned-experiment-leader-loss-no-quorum'
+    m.need(case in (*CASES,*NETWORK_CASES) and source['request']==req and source['case']==case and source['scope']==scope and
            record['status']=='EXECUTED' and record['seconds']==timing.cell(req,case) and not record['cleanupErrors'] and
            0<record['endNanos']-record['startNanos']<=record['seconds']*10**9,'owned fault case completion/budget')
     m.need(len(source['configs'])==3 and [v['binding']['node'] for v in source['configs']]==list(faults.NODES),'owned fault members')
@@ -193,6 +195,10 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     negatives=[]
     variants=('missing-kill-or-isolation','wrong-refusal-or-rejoin','late-progress','stale-read','missing-proof','missing-invocation')
     if case=='maintenance':variants+=('missing-pin-install','missing-release','missing-unpin','changed-pinned-view')
+    if case in NETWORK_CASES:
+        variants+=('missing-network-observation','wrong-network-direction','early-release','outside-network-hold')
+        if case.startswith('asymmetric-'):variants+=('missing-reverse','outside-reverse-hold')
+        if case=='isolated-old-leader':variants+=('missing-fence',)
     for name in variants:
         rr,hh,tt=deepcopy(record),deepcopy(history),deepcopy(traces)
         rrows=deepcopy(rows)
@@ -202,7 +208,7 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
                     if q['command']=='stop-voter' and q['payload'].get('forced'):q['payload']['forced']=False
                     if q['command']=='fault' and q['payload'].get('action')=='isolate':q['payload']['action']='status'
         elif name=='wrong-refusal-or-rejoin':
-            if case in ('leader-loss','maintenance'):rr['rejoins']=[]
+            if case in ('leader-loss','maintenance',*NETWORK_CASES):rr['rejoins']=[]
             else:rr['refusals']=[]
         elif name=='late-progress':rr['progress'][0]['endNanos']=rr['faultStartNanos']+(timing.control(req,'progress',60)+1)*10**9
         elif name=='stale-read':hh[-1]['documents']=[]
@@ -211,6 +217,24 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         elif name=='missing-release':tt={n:[v for v in seq if v['event']!='CUT_RELEASED'] for n,seq in tt.items()}
         elif name=='missing-unpin':tt={n:[v for v in seq if not(v['event']=='PERFORMANCE_SAMPLE' and v['queues']['pinsBytes']==0)] for n,seq in tt.items()}
         elif name=='changed-pinned-view':rr['pinnedRead']['documents']=[]
+        elif name=='missing-network-observation':tt={n:[v for v in seq if v['event'] not in ('NETWORK_DROP','SLOW_FORCE_BEGIN')] for n,seq in tt.items()}
+        elif name=='wrong-network-direction':
+            for seq in tt.values():
+                for v in seq:
+                    if v['event']=='NETWORK_DROP':v['barrier']='WRONG_DIRECTION'
+                    if v['event']=='SLOW_FORCE_BEGIN':v['delayMillis']=1
+        elif name=='early-release':
+            ready=next(v['controllerNanos'] for v in rr['events'] if v['event']=='network-ready')
+            next(v for v in rr['events'] if v['event']=='network-heal-request')['controllerNanos']=ready+10**9
+        elif name=='missing-reverse':tt[rr['seedLeader']]=[v for v in tt[rr['seedLeader']] if v['event']!='REPLY']
+        elif name=='outside-network-hold':
+            for seq in tt.values():
+                for v in seq:
+                    if v['event'] in ('NETWORK_DROP','SLOW_FORCE_BEGIN','SLOW_FORCE_END'):v['localNanos']=0
+        elif name=='outside-reverse-hold':
+            for v in tt[rr['seedLeader']]:
+                if v['event']=='REPLY':v['localNanos']=0
+        elif name=='missing-fence':tt[rr['seedLeader']]=[v for v in tt[rr['seedLeader']] if not(v['event']=='FORCE' and v['kind']=='PROMISE')]
         else:tt={n:[v for v in seq if not(v['event']=='CLIENT_INVOKE' and v.get('opId')==hh[-1]['opId'])] for n,seq in tt.items()}
         try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections,maintenance,request=req)
         except ValueError as error:negatives.append(dict(case=name,status='REJECTED',reason=str(error)))
@@ -246,6 +270,10 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
     elif case=='maintenance':
         m.need(not kills and len(processes)==3,'owned maintenance unexpected crash')
         maintenance(record,history,traces,rows)
+    elif case in NETWORK_CASES:
+        from .guest_network_evidence import check
+        m.need(not kills and len(processes)==3,'owned network unexpected crash')
+        check(record,history,traces,root,rows,obs,collections,capture)
     else:
         m.need(not kills and len(processes)==3,'owned fault unexpected crash')
         ready=[v for v in record['events'] if v['event']=='isolated-all'];heal=[v for v in record['events'] if v['event']=='heal-request']
@@ -288,7 +316,8 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
 def validate(raw, scratch, *, cases=QUICK_CASES, scope='owned-experiment-leader-loss-no-quorum'):
     raw=Path(raw);scratch=Path(scratch);scratch.mkdir(parents=True,exist_ok=False)
     request=c.read(raw/'plan.json');req=request['request'];a.validate_request(req)
-    m.need((tuple(cases),scope) in ((QUICK_CASES,'owned-experiment-leader-loss-no-quorum'),(('maintenance',),'owned-maintenance-experiment')) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
+    m.need((tuple(cases),scope) in ((QUICK_CASES,'owned-experiment-leader-loss-no-quorum'),(('maintenance',),'owned-maintenance-experiment'),
+           (NETWORK_CASES,'owned-network-faults')) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
     parts.inventory(raw);results=[];last=None;budgets={k:0 for k in ('compressedBytes','expandedBytes','files','traceBytes')}
     for case in cases:
         cell=raw/case

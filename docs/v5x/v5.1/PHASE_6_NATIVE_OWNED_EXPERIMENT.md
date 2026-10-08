@@ -24,8 +24,12 @@ within budget, but healthy shutdown closed the leader first and let the remainin
 quorum force a new NO_OP behind the stopped voter. The independent final-cut check
 rejected the result; thirteen-resource cleanup, retention and lease release passed.
 The [follower-first shutdown correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#healthy-shutdown-correction)
-requires corrected-source protected CI and a fresh approved experiment.
-Full Phase 6 remains open.
+passed PR #304, master `500a41f30a5149703b81c4c2d01da75cd3baf1ed`, CI `37718123364`.
+The [first complete native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md),
+run `37723402614`, passed all four cells, independent validation, retention and
+thirteen-resource cleanup/lease release. Its unchanged original archive also
+passed complete offline replay. Full Phase 6 remains open; next implement the
+[remaining native presets](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
 
 ## Fixed entry and reused workload
 

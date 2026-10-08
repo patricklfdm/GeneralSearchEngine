@@ -28,9 +28,10 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False):
+    m.need(not network or not any((experiment,maintenance,faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)), 'network faults have their own scope')
     m.need(not (experiment or maintenance) or not any((faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)) and not (experiment and maintenance), 'complete experiment/maintenance has its own scope')
-    if maintenance:faults=True
+    if maintenance or network:faults=True
     if experiment:three_mode=bootstrap=source_transfer=producer_source=workload=physical=backup=True
     m.need(not fault_local or faults, 'shared local fault scope')
     m.need(not faults or not any((three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)) and mode==package.MODES[2], 'fault qualification has its own scope')
@@ -174,7 +175,9 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             from . import guest_owned_three_mode as batch
             from . import guest_owned_faults as fault_batch
             from . import guest_owned_experiment as experiment_batch
+            from . import guest_owned_network as network_batch
             if experiment:service_type=experiment_batch.Services
+            elif network:service_type=network_batch.Services
             elif maintenance:service_type=fault_batch.MaintenanceServices
             elif faults:service_type=fault_batch.Services
             elif three_mode:service_type=batch.Services
@@ -188,6 +191,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe
             if experiment:probe=experiment_batch.Probe(services,root/'probe')
+            elif network:probe=network_batch.Probe(services,root/'probe')
             elif maintenance:probe=fault_batch.MaintenanceProbe(services,root/'probe')
             elif faults:probe=fault_batch.Probe(services,root/'probe')
             elif three_mode:probe=batch.Probe(services,root/'probe')
@@ -228,7 +232,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             if experiment:
                 all_ids=[v['request']['commandId'] for v in workload_submits]
                 m.need(len(set(all_ids))==len(all_ids) and all(v['commandId'] in lost_submissions for v in fault_submits), 'experiment replay/fault lost-reply coverage')
-            m.need([n for n,_,_ in services.clients]==([1,1,2,3,1,2,3]+[1,2,3]*3 if experiment else [1,2,3] if maintenance else [1,2,3,1,2,3] if faults else [1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
+            m.need([n for n,_,_ in services.clients]==([1,2,3]*4 if network else [1,1,2,3,1,2,3]+[1,2,3]*3 if experiment else [1,2,3] if maintenance else [1,2,3,1,2,3] if faults else [1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
                    all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
@@ -317,10 +321,11 @@ if __name__=='__main__':
     p.add_argument('--workload',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
     p.add_argument('--experiment',action='store_true');p.add_argument('--maintenance',action='store_true')
+    p.add_argument('--network-faults',action='store_true')
     p.add_argument('--three-mode',action='store_true');p.add_argument('--faults',action='store_true');p.add_argument('--fault-local',action='store_true',help='Fault JVM/SSH qualification in separate local paths; no mount-isolation claim')
     p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance,network=args.network_faults)

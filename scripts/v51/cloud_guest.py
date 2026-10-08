@@ -25,7 +25,9 @@ def validate(config):
     m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}) and config['schema'] == 'gse-v51-guest-service-v1' and
            config['execution'] in (EXECUTION,NATIVE_EXECUTION), 'guest service configuration scope')
     if 'faultCell' in config:
-        m.need(config['faultCell'] in ('leader-loss','maintenance','no-quorum') and config['mode']==package.MODES[2], 'guest fault cell/mode')
+        from .guest_fault_network import CASES as network_cases
+        allowed=('leader-loss','maintenance','no-quorum')+ (network_cases if config['execution']==EXECUTION else ())
+        m.need(config['faultCell'] in allowed and config['mode']==package.MODES[2], 'guest fault cell/mode')
     c.validate_binding(config['binding'])
     m.need(re.fullmatch('[0-9a-f]{64}', config['packageManifestSha256']) and config['mode'] in package.MODES, 'guest package/mode')
     root = Path(config['root']); m.need(root.is_absolute() and str(root) == config['root'] and '..' not in root.parts, 'guest root')
