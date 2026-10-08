@@ -47,7 +47,9 @@ def check(record, history, traces, root, rows, observations, collections, seed_c
         wanted = dict(node=target, delayMillis=1500) if case == 'slow-follower' else dict(node=target, rules=expected_rules)
         m.need(ir['result'] == dict(wanted, appliedNanos=actual['appliedNanos']) and hr['result'] == actual and
                actual == dict(wanted, appliedNanos=actual['appliedNanos'], healedNanos=actual['healedNanos'], watchdog=False) and
-               15*10**9 <= actual['healedNanos']-actual['appliedNanos'] <= 17*10**9, 'owned network guest hold/watchdog')
+               15*10**9 <= actual['healedNanos']-actual['appliedNanos'] <= 17*10**9,
+               f"owned network guest hold/watchdog: case={case} node={node} "
+               f"holdSeconds={(actual['healedNanos']-actual['appliedNanos'])/1e9:.9f} watchdog={actual.get('watchdog')}")
         begin, end = observations[iq['commandId']], observations[hq['commandId']]
         m.need(record['faultStartNanos'] <= begin['startNanos'] <= begin['endNanos'] <= ready <= heal <= end['startNanos'] <= end['endNanos'],
                'owned network controller command barrier')

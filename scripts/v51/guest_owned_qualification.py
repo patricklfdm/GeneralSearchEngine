@@ -28,6 +28,12 @@ class Clock:
     def sleep(self, seconds): time.sleep(seconds)
 
 
+def require_completion(result, resources):
+    m.need(result['status']=='PASS' and result['leaseReleased'] and not resources,
+           'owned controller completion: '+str(dict(errors=result['errors'],
+               workloadErrors=(result.get('evidence') or {}).get('errors',[]))))
+
+
 def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False):
     m.need(not network or not any((experiment,maintenance,faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)), 'network faults have their own scope')
     m.need(not (experiment or maintenance) or not any((faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)) and not (experiment and maintenance), 'complete experiment/maintenance has its own scope')
@@ -203,7 +209,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 receipt.update(execution=probe.scope,engineWorkloadExecuted=result['engineWorkloadExecuted'],
                     backupRestoreQualified=result.get('evidence',{}).get('backupRestoreQualified',False),
                     physicalHistoryQualified=result.get('evidence',{}).get('physicalHistoryQualified',False),networkMapping='qualification-loopback',workload=result.get('evidence'))
-            m.need(result['status']=='PASS' and result['leaseReleased'] and not http.resources,'owned controller completion: '+str(result['errors']))
+            require_completion(result, http.resources)
             if faults:
                 requests=[v['request'] for v in workload_submits]
                 m.need(len(requests)==len(lost_submissions)==len({r['commandId'] for r in requests}), 'fault command replay/lost reply coverage')
