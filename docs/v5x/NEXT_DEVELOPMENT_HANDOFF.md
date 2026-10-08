@@ -410,12 +410,21 @@ lifecycle rather than substituting a mock recheck.
 PR #302 merged the handoff correction at `47d6d2874258b2554b6397b6a691d531f1575dc3`.
 Run `37689820061` completed preparation and V4.4 healthy, then exhausted V5.0
 final-observation and retention budgets; cleanup confirmed thirteen resources
-absent, but incomplete retention kept the lease. The current
-[first-run headroom candidate](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md) widens all
+absent, but incomplete retention kept the lease. The
+[first-run headroom correction](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md) widens all
 native stage/lease and nested control clocks, reuses short-lived pinned runtime
 connections, retains bounded query-only recovery and adds 30-second heartbeats.
-Next require corrected-source CI and a fresh reviewed request with prices through
-19800 seconds; the USD 200 cumulative budget and historical charges are unchanged.
+It passed PR #303 at master `366e379455ad7628a81160db604e09b09ffe9e0e`, CI
+`37703102993`. Native run `37706121942` executed all four cells within budget,
+but healthy shutdown closed leader node 1 first. The surviving quorum forced
+NO_OP 93, leaving final cuts 92/93/93; independent healthy replay rejected this.
+Cleanup of all thirteen resources, retention and lease release passed. Diagnostic
+replay of the three original fault cells passed 22 negatives without qualifying
+the failed aggregate. The current [shutdown correction](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#healthy-shutdown-correction)
+closes followers before the observed issuer while preserving strict oracles,
+original stop identities, failures and shared deadlines. Next require its
+protected CI and a fresh reviewed request with prices through 19800 seconds;
+v2 timing and the USD 200 ceiling remain unchanged (USD 50 retained charges).
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;

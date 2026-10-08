@@ -105,6 +105,53 @@ class OwnedWorkloadTest(unittest.TestCase):
         self.assertTrue(self.probe.clients[1][1].closed);self.assertFalse(self.probe.clients[2][1].calls)
 
 
+class OwnedShutdownTest(unittest.TestCase):
+    """Delayed stop observations must not leave a leaderless voting majority."""
+    def setUp(self):
+        self.fixture=OwnedWorkloadTest();self.fixture.setUp();self.addCleanup(self.fixture.doCleanups)
+        self.probe=self.fixture.probe
+
+    def test_slow_shutdown_preserves_final_cut_for_every_issuer_position(self):
+        for leader in (1,2,3):
+            with self.subTest(leader=leader):
+                self.probe.started=list(self.probe.clients);self.probe.active=self.probe.clients[leader-1]
+                self.probe.stop_attempted.clear();original=list(self.probe.started)
+                live={1,2,3};cuts={1:92,2:92,3:92};stops=[];deadlines=[]
+                deadline=self.fixture.clock.seconds()+60
+                def close(member,name,payload,until):
+                    self.assertEqual((name,payload),('stop-voter',dict(forced=False)))
+                    node=member[0];stops.append(node);deadlines.append(until);live.remove(node)
+                    # A remote stop observation can outlast the election delay.
+                    # Without the issuer, the surviving quorum forces activation.
+                    self.fixture.clock.sleep(10)
+                    if leader not in live and len(live)>=2:
+                        for voter in live:cuts[voter]+=1
+                with patch.object(self.probe,'succeeded',side_effect=close):
+                    self.assertEqual(self.probe.close_voters(deadline),[])
+                self.assertEqual(cuts,{1:92,2:92,3:92},'shutdown created an unreplicated final cut')
+                self.assertEqual(sorted(stops),[1,2,3]);self.assertEqual(stops[-1],leader)
+                self.assertEqual(deadlines,[deadline]*3);self.assertEqual(self.probe.started,original)
+
+    def test_lost_stop_reply_observes_original_command_and_never_stops_twice(self):
+        self.probe.started=list(self.probe.clients);self.probe.active=self.probe.clients[0]
+        for _,client,_ in self.probe.clients:client.lost=True
+        deadline=self.fixture.clock.seconds()+60
+        self.assertEqual(self.probe.close_voters(deadline),[])
+        self.assertEqual(self.probe.close_voters(deadline),[])
+        for _,client,_ in self.probe.clients:
+            self.assertTrue(client.closed);self.assertEqual(len(client.calls),1)
+            self.assertEqual(client.calls,client.queries)
+
+    def test_partial_start_without_issuer_still_closes_all_attempted_members(self):
+        self.probe.started=list(self.probe.clients[:2]);self.probe.clients[0][1].failure='stop-voter'
+        deadline=self.fixture.clock.seconds()+60
+        errors=self.probe.close_voters(deadline)
+        self.assertEqual([row['node'] for row in errors],[1]);self.assertTrue(self.probe.clients[1][1].closed)
+        self.assertFalse(self.probe.clients[2][1].calls)
+        self.assertEqual(self.probe.close_voters(deadline),errors)
+        for _,client,_ in self.probe.started:self.assertEqual(len(client.calls),1)
+
+
 class OwnedCollectionTest(unittest.TestCase):
     """Exercise the actual owned collector and independent validator together."""
     mode=package.MODES[2]
