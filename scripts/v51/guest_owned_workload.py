@@ -192,14 +192,14 @@ class Probe:
                 c.write_once(folder/'validation.json',validated);members.append(validated)
                 physical_members.append(dict(root=replay,controller=controller))
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))
-        if self.require_physical:
+        if self.require_physical and self.prepared:
             try:
                 from . import guest_physical_evidence
                 physical=guest_physical_evidence.validate(physical_members,self.manifest,backup=self.require_backup)
                 c.write_once(self.raw/'physical.json',physical)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='physical-validation',message=str(error)[:2000]))
         m.need(self.clock()<end,'owned validation deadline')
-        valid=(self.cells==[self.cell_name] and [n for n,_,_ in self.started]==list(self.nodes) and
+        valid=(self.prepared and self.cells==[self.cell_name] and [n for n,_,_ in self.started]==list(self.nodes) and
                len(members)==len(self.nodes) and sum(v['calls'] for v in members)==sum(len(s['calls']) for s in schedule.windows(self.cell_name,self.preset)) and not errors)
         result=dict(status='PASS' if valid else 'FAIL',execution=self.execution,scope=self.scope,mode=self.mode,paidCloud=self.authority.PAID_CLOUD,
             engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,

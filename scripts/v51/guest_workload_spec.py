@@ -1,19 +1,12 @@
 """Closed offline rich tapes. Selecting a tape never admits a cloud preset."""
 from . import cloud_package as package, performance_model as m, performance_plan as plan, remote_schedule as schedule
 
-CELLS = ('healthy', 'read-heavy', 'sustained')
-CASES = tuple((mode, 'healthy') for mode in package.MODES) + tuple(
-    (package.MODES[2], cell) for cell in CELLS[1:])
+CELLS = package.WORKLOAD_CELLS
+CASES = package.CANONICAL_WORKLOADS
 
 
 def selection(config):
-    value = config.get('workload')
-    if 'workload' not in config:
-        return 'healthy', 'experiment'
-    m.need(config['execution'] == 'local-guest-service-only' and 'faultCell' not in config and
-           type(value) is dict and set(value) == {'cell', 'preset'} and value['preset'] == 'canonical' and
-           (config['mode'], value['cell']) in CASES, 'offline canonical guest workload scope')
-    return value['cell'], value['preset']
+    return package.workload_selection(config)
 
 
 def specs(config):

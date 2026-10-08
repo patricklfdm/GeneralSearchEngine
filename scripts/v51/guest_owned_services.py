@@ -73,7 +73,9 @@ class Services:
             m.need(req['guestAccessSha256'] == m.sha(m.canonical(self.provider.guest_access)), 'owned service access binding')
             configs, descriptors, endpoints = [], [], []
             canonical_cell=getattr(self,'canonical_cell',None)
-            label=('canonical-'+canonical_cell+'-'+self.mode) if canonical_cell else self.fault_cell or self.mode
+            selection=dict(mode=self.mode,execution=self.service_execution)
+            if canonical_cell:selection['workload']=dict(cell=canonical_cell,preset='canonical')
+            label=self.fault_cell or package.bootstrap_directory_name(selection)
             group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+label))
             nodes=package.experiment_nodes(self.mode)
             for node in nodes:

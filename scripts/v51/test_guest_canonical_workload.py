@@ -1,6 +1,12 @@
 """Synthetic full tapes test accounting, never substitute for physical qualification."""
 from copy import deepcopy
+import base64
+import io
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tarfile
 import tempfile
 import unittest
 from . import cloud_guest as guest, cloud_package as package, guest_workload_spec as workload
@@ -240,6 +246,146 @@ class CanonicalWorkloadTest(unittest.TestCase):
             guest_backup.create(f.service)
             with self.assertRaises(FileExistsError):guest_backup.create(f.service)
             f.service.jvm.command.assert_called_once_with('backup')
+
+
+class CanonicalDeliveryTest(unittest.TestCase):
+    """Real isolated trusted receiver and package imports; synthetic seed, no JVM."""
+    def setUp(self):
+        from . import cloud_bundle, cloud_authority
+        from .test_cloud_package import fixture, save
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);base=self.root/'package';manifest=fixture(base)
+        for name in cloud_bundle.GUEST_INPUTS:
+            target=base/'source-inputs'/name;target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(cloud_bundle.ROOT/name,target)
+        (base/'workload.json').write_bytes(m.canonical(cloud_authority.workload.load()))
+        manifest.update(workloadSha256=m.sha((base/'workload.json').read_bytes()),files=package.inventory(base))
+        save(base/'manifest.json',manifest)
+        archive=self.root/'guest.tar.gz'
+        with tarfile.open(archive,'w:gz',format=tarfile.USTAR_FORMAT) as tar:
+            for path in sorted(base.rglob('*')):
+                if path.is_file():
+                    raw=path.read_bytes();info=tarfile.TarInfo(str(path.relative_to(base)));info.size=len(raw)
+                    info.mode=0o755 if path.stat().st_mode & 0o111 else 0o644
+                    tar.addfile(info,io.BytesIO(raw))
+        self.parent=self.root/'mounted';self.parent.mkdir(mode=0o700)
+        self.archive,self.manifest,self.attempt=archive,manifest,0
+        self.new_attempt()
+
+    def new_attempt(self):
+        from . import guest_delivery_receiver as helper, guest_package_delivery as delivery, guest_package_receiver as receiver
+        self.attempt+=1
+        self.cfg=config(self.parent/package.MODES[2])
+        self.cfg['binding'].update(attempt=f'{self.attempt:032x}',bundleSha256=m.sha(self.archive.read_bytes()))
+        self.value=delivery.describe(self.archive,self.manifest,self.cfg['binding'],
+            dict(instanceId='123',diskId='456',attempt=self.cfg['binding']['attempt'],node=1),'c'*64)
+        self.cfg['packageManifestSha256']=self.value['manifestSha256']
+        sample=helper.clock_sample(receiver.identity(self.value),'d'*32)
+        self.budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+60*10**9)
+        receiver.begin(self.parent,self.value,self.budget)
+        with self.archive.open('rb') as stream:
+            for part in self.value['parts']:
+                receiver.put(self.parent,self.value,self.budget,part['index'],io.BytesIO(stream.read(part['bytes'])))
+        receiver.finish(self.parent,self.value,self.budget)
+        self.endpoint=delivery.Endpoint(dict(instanceId='123'),self.parent,self.value)
+
+    def selected(self,mode,cell):
+        cfg=deepcopy(self.cfg);cfg['mode']=mode
+        label=mode if cell is None else 'canonical-'+cell+'-'+mode
+        cfg['root']=str(self.parent/label)
+        if cell is not None:cfg['workload']=dict(cell=cell,preset='canonical')
+        return cfg
+
+    def invoke(self,entry,action,request,data=b'',index=None,*,reject=None):
+        encode=lambda value:base64.b64encode(m.canonical(value)).decode()
+        args=self.endpoint.remote(entry,encode(self.budget),action,encode(request),*(() if index is None else (str(index),)))
+        result=subprocess.run([sys.executable,*args[1:]],input=data,capture_output=True,timeout=10,cwd=self.root)
+        if reject:
+            self.assertNotEqual(result.returncode,0);self.assertRegex(result.stderr.decode(),reject);return
+        self.assertEqual(result.returncode,0,result.stderr.decode())
+        answer=m.strict_json(result.stdout)
+        self.assertEqual(answer['requestSha256'],m.sha(m.canonical(request)))
+        self.assertEqual(answer['deadlineSha256'],m.sha(m.canonical(self.budget)))
+        return answer['receipt']
+
+    def producer_request(self,cfg):
+        from . import guest_source_producer
+        configs=[]
+        for node in package.experiment_nodes(cfg['mode']):
+            member=deepcopy(cfg);member['binding']['node']='node-'+str(node);configs.append(member)
+        return dict(schema=guest_source_producer.SCHEMA,configs=configs)
+
+    def exported(self,cfg):
+        from . import guest_bootstrap as boot
+        root=Path(cfg['root']);root.mkdir()
+        for name in boot.expected_files(cfg):
+            path=root/name;path.parent.mkdir(exist_ok=True);path.write_bytes(name.encode())
+        for name,value in zip(boot.TOPOLOGY,('\n'.join(cfg['hosts'])+'\n','\n'.join(map(str,cfg['ports']))+'\n',cfg['groupId']+'\n')):
+            if name in boot.expected_files(cfg):(root/name).write_text(value)
+        folder=self.root/(root.name+'-export');row=boot.export(root,folder,cfg)
+        root.rename(self.root/(root.name+'-original'))
+        return folder,row['descriptorSha256']
+
+    def test_all_five_producer_queries_cross_the_standalone_receiver(self):
+        for mode,cell in workload.CASES:
+            with self.subTest(mode=mode,cell=cell):
+                cfg=self.selected(mode,cell)
+                self.assertEqual(self.invoke('producer','query',self.producer_request(cfg))['state'],'NOT_FOUND')
+                self.assertFalse(Path(cfg['root']).exists())
+        self.assertEqual(list(self.parent.rglob('__pycache__')),[])
+
+    def test_all_five_source_transfers_cross_the_standalone_receiver(self):
+        from . import guest_source_transfer as wire
+        for mode,cell in workload.CASES:
+            with self.subTest(mode=mode,cell=cell):
+                # Each CI tape has its own attempt. Source claims are not reusable across tapes.
+                self.new_attempt()
+                cfg=self.selected(mode,cell);folder,digest=self.exported(cfg)
+                request=wire.describe(folder,digest,cfg)
+                self.assertEqual(self.invoke('source','query',request)['state'],'NOT_FOUND')
+                self.assertEqual(self.invoke('source','begin',request)['state'],'RECEIVING')
+                for part in request['chunks']:
+                    with (folder/'parts'/part['part']).open('rb') as stream:
+                        stream.seek(part['offset']);raw=stream.read(part['bytes'])
+                    self.invoke('source','chunk',request,raw,part['index'])
+                self.assertEqual(self.invoke('source','finish',request)['state'],'SUCCEEDED')
+                # The receiving node installs only its transferred bytes; producer path is gone.
+                folder.rename(folder.with_name(folder.name+'-hidden'))
+                install=dict(config=cfg,descriptorSha256=digest,sourceTransferSha256=m.sha(m.canonical(request)))
+                self.assertEqual(self.invoke('bootstrap','install',install)['state'],'SUCCEEDED')
+                self.assertEqual(self.invoke('bootstrap','query-install',install)['state'],'SUCCEEDED')
+
+    def test_all_five_bootstrap_queries_cross_the_standalone_receiver(self):
+        for mode,cell in workload.CASES:
+            with self.subTest(mode=mode,cell=cell):
+                cfg=self.selected(mode,cell)
+                request=dict(config=cfg,folder=str(self.root/'absent'),descriptorSha256='e'*64)
+                for action in ('query-install','query-seal'):
+                    self.assertEqual(self.invoke('bootstrap',action,request)['state'],'NOT_FOUND')
+
+    def test_reduced_experiment_keeps_its_original_receiver_directories(self):
+        for mode in package.MODES:
+            with self.subTest(mode=mode):
+                cfg=self.selected(mode,None)
+                self.assertEqual(self.invoke('producer','query',self.producer_request(cfg))['state'],'NOT_FOUND')
+                folder,digest=self.exported(cfg)
+                self.assertEqual(self.invoke('bootstrap','install',dict(config=cfg,folder=str(folder),descriptorSha256=digest))['state'],'SUCCEEDED')
+
+    def test_changed_root_scope_and_identity_are_rejected_before_payload_access(self):
+        original=self.selected(package.MODES[2],'healthy')
+        for delta in (dict(root=str(self.parent/original['mode'])),dict(root=original['root']+'/../escape'),
+                      dict(root=str(self.root/'elsewhere')),dict(workload=dict(cell='sustained',preset='canonical')),
+                      dict(execution=guest.NATIVE_EXECUTION),dict(faultCell='leader-loss'),dict(workload=None),
+                      dict(workload=dict(cell='../healthy',preset='canonical')),
+                      dict(packageManifestSha256='0'*64),dict(binding=dict(original['binding'],attempt='0'*32))):
+            cfg=deepcopy(original);cfg.update(delta)
+            for entry in ('producer','source','bootstrap'):
+                with self.subTest(delta=delta,entry=entry):
+                    request=self.producer_request(cfg) if entry=='producer' else dict(config=cfg)
+                    if entry=='bootstrap':request.update(folder=str(self.root/'absent'),descriptorSha256='e'*64)
+                    self.invoke(entry,'query-install' if entry=='bootstrap' else 'query',request,
+                                reject='configuration|offline canonical guest workload scope')
+        self.assertFalse(Path(original['root']).exists())
 
 
 if __name__ == '__main__': unittest.main()

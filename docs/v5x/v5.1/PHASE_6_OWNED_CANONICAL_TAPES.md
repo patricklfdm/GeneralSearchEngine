@@ -80,6 +80,31 @@ the same canonical cell/mode flags to verify the packaged real JVM tape and
 physical evidence using shared local paths. That receipt explicitly reports
 `shared-local`; it cannot replace the owned independent-mount CI gate.
 
+### Trusted receiver correction
+
+PR #309 CI `37855730381` failed all five owned tapes before measurement. The
+controller selected `canonical-<cell>-<mode>`, but the trusted producer receiver
+still required `<mode>`. The source-transfer and bootstrap receivers had the
+same stale directory check. The shared-local JVM runs bypassed these wrappers
+and therefore did not qualify this boundary.
+
+The controller and all three trusted receivers now derive the exact directory
+from one closed workload selection in the standalone package module. The
+receiver verifies package inventory and binding before importing delivered
+code. This admits only the five existing offline selections; it does not accept
+arbitrary descendants, native canonical selections, or changed node/package
+identities. Experiment retains `<mode>` and the original consumed claims and
+deadlines. Each component still requires its own attempt.
+
+Regression tests execute the generated trusted receiver in isolated Python
+processes, with authenticated source inputs and synthetic seed bytes. They
+cover all five configurations, binary transfer and bootstrap installation,
+original experiment directories, and rejection before payload access. They
+do not claim a real JVM or independent-mount qualification. If startup fails
+before probe preparation, collection retains FAIL without attempting the
+physical oracle against an absent manifest; successful preparation remains
+required for acceptance. Corrected-source protected CI is still pending.
+
 ## Remaining acceptance
 
 These jobs are independent component qualifications. Their modeled requests are
