@@ -137,8 +137,14 @@ class Probe:
         self.stopped=True
 
     def close_voters(self, deadline):
+        # Final convergence precedes shutdown. Keep the observed issuer alive
+        # while followers stop: a slow remote stop of the leader first leaves
+        # a quorum that can elect and force a new cut behind the stopped voter.
+        # Preserve start order for collection and partially attempted startup.
+        leader=self.active[0] if self.active is not None else None
+        closing=sorted(self.started,key=lambda member:member[0]==leader)
         # Reuse the original result, including failure. Never retry a stop mutation.
-        for member in self.started:
+        for member in closing:
             if member[0] in self.stop_attempted:continue
             self.stop_attempted.add(member[0])
             try:self.succeeded(member,'stop-voter',dict(forced=False),deadline)

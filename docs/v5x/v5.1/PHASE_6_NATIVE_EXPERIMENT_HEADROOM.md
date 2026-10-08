@@ -1,14 +1,17 @@
 # Native experiment first-run headroom
 
-**Status:** local correction candidate after the operator-approved run
-[37689820061](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37689820061),
-on PR #302 source `47d6d2874258b2554b6397b6a691d531f1575dc3`.
-Protected CI and a fresh explicitly approved native experiment remain required.
+**Status:** headroom correction accepted through PR #303 at master
+`366e379455ad7628a81160db604e09b09ffe9e0e`,
+[CI 37703102993](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37703102993).
+The subsequent [native run 37706121942](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37706121942)
+stayed within every time budget but failed the healthy final durable-cut check.
+The [shutdown correction below](#healthy-shutdown-correction) is a local candidate;
+corrected-source protected CI and a fresh explicitly approved experiment remain required.
 This supersedes the current native timing in the
 [preparation budget amendment](PHASE_6_PREPARATION_BUDGET.md); that document retains
 the historical v1 limits. It does not retrospectively qualify the failed run.
 
-## Observed failure
+## Earlier observation-budget failure
 
 Preparation completed in about 1398 seconds. Healthy's published V4.4 mode passed
 in 151.876 seconds. The published V5.0 mode reached its 300-second ceiling during
@@ -125,3 +128,49 @@ and exact digest, then explicitly trigger the experiment. Keep the result even i
 it fails. After the first complete run, use phase/mode/connection timings to review
 smaller limits; do not automatically shrink or renew a running lease. Phase 6,
 canonical repetitions and release qualification remain open.
+
+## Healthy shutdown correction
+
+Native run `37706121942` completed all four cell executions and all healthy mode
+tapes. Preparation took 1356.752 seconds; healthy 805.559; leader-loss 182.830;
+maintenance 271.802; no-quorum 248.472; validation/retention 781.432; cleanup
+245.857. Every stage remained within its fixed v2 allocation. Execution completion
+does not qualify the experiment: independent replay rejected candidate V5.1
+healthy with `voter missing final durable cut`.
+
+Before shutdown, all three voters reported proven index 92, with node 1 the
+observed leader. Serial shutdown used startup order (1, 2, 3). Each remote stop
+observation took approximately 9–11 seconds. After node 1 closed, nodes 2 and 3
+formed epoch 9 and forced activation NO_OP 93. The final retained cuts were
+92/93/93. The all-voter final-cut validator correctly rejected those bytes.
+This is a controller shutdown ordering defect; increasing the time limit would
+not remove it.
+
+The correction closes followers before the observed issuer, preserving relative
+follower order and the original startup/collection inventory. All stops retain
+their original shared deadline and once-only command identity. A failed stop
+remains failed, other attempted members still receive cleanup, a second close
+does not resubmit, and backup restore requires every original stop to succeed.
+Partial startup without an issuer still cleans all attempted members. A mode
+must close successfully before the next mode starts. The same healthy controller
+serves offline and native execution, including configured V5.0 and single-node
+V4.4. Fault cells already close their remaining voters concurrently; that separate
+path is unchanged. No final-cut, physical/history, read or negative oracle is relaxed.
+
+Original artifact SHA-256:
+`e1045a669bd5cac03334c6ede72aa304edcdbb9db2de7b73ae8ce170bb1f933e`.
+Diagnosis and unmodified failed evidence remain in
+`target/v51-native-failure-37706121942/`. Independent diagnostic replay of its
+leader-loss, maintenance and no-quorum cells passed all 22 negatives; it does not
+upgrade the failed aggregate. Cleanup confirmed all thirteen resources absent,
+retention verified and the lease released. The ledger remains USD 50 / 200.
+
+Shutdown regression receipts, including a local real-JVM comparison with delayed
+stop acknowledgements, are retained in `target/v51-owned-shutdown-order/`.
+With ten seconds between stop acknowledgements, the unchanged original method
+produced cuts 4/3/4 after all voters had reached 3; the corrected method kept
+3/3/3. Independent retained-storage inspection and quorum ACCEPT observations
+confirmed the extra activation NO_OP only in the original run. This is a finite
+local reproduction, not native experiment qualification or a failover SLA.
+This correction leaves the v2 timing, workload calls and budget reservations
+unchanged. Fresh native acceptance remains pending after protected CI and merge.

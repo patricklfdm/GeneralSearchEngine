@@ -19,7 +19,12 @@ preparation but exposed the [runtime identity handoff defect](#runtime-identity-
 PR #302 merged that correction at `47d6d2874258b2554b6397b6a691d531f1575dc3`.
 Its native run `37689820061` completed preparation and the V4.4 healthy mode, then
 exhausted the V5.0 mode observation budget. The [first-run headroom correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md)
-is a local candidate; protected CI and a fresh approved experiment remain required.
+passed protected CI through PR #303. Run `37706121942` executed all four cells
+within budget, but healthy shutdown closed the leader first and let the remaining
+quorum force a new NO_OP behind the stopped voter. The independent final-cut check
+rejected the result; thirteen-resource cleanup, retention and lease release passed.
+The [follower-first shutdown correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#healthy-shutdown-correction)
+requires corrected-source protected CI and a fresh approved experiment.
 Full Phase 6 remains open.
 
 ## Fixed entry and reused workload

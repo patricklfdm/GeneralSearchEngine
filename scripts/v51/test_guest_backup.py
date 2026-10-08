@@ -222,13 +222,13 @@ class OwnedBackupTest(unittest.TestCase):
         self.probe.clients[1][1].failure='backup'
         with self.assertRaisesRegex(ValueError,'injected backup'):self.run_tape()
         result=self.collect();self.assertEqual(result['status'],'FAIL')
-        self.assertEqual([n for n,c in self.order if c=='stop-voter'],[1,2,3])
+        self.assertEqual([n for n,c in self.order if c=='stop-voter'],[1,3,2])
         self.assertNotIn('restore-backup',[c for _,c in self.order])
         self.assertEqual(c.read(self.probe.raw/'cell.json')['status'],'FAIL')
     def test_failed_stop_prevents_restore_without_skipping_other_stops(self):
         self.run_tape();self.probe.clients[0][1].failure='stop-voter'
         result=self.collect();self.assertEqual(result['status'],'FAIL')
-        self.assertEqual([n for n,c in self.order if c=='stop-voter'],[1,2,3])
+        self.assertEqual([n for n,c in self.order if c=='stop-voter'],[1,3,2])
         self.assertNotIn('restore-backup',[c for _,c in self.order])
 
 
