@@ -20,7 +20,7 @@ MAX_DEADLINE_NANOS = 600 * 10**9
 # This source is also delivered standalone; do not import controller modules.
 NATIVE_PREPARATION_PROFILE = 'owned-experiment-v2'
 NATIVE_PREPARATION_SECONDS = 3600
-MODULES = ('guest_fault_service', 'guest_fault_network', 'guest_fault_jvm', 'public_trace', 'cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'guest_backup', 'cloud_package',
+MODULES = ('guest_fault_service', 'guest_fault_network', 'guest_fault_recovery', 'guest_fault_jvm', 'public_trace', 'cloud_guest', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'guest_backup', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
            'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver', 'native_experiment_timing', 'guest_native_session')

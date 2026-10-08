@@ -26,7 +26,8 @@ def validate(config):
            config['execution'] in (EXECUTION,NATIVE_EXECUTION), 'guest service configuration scope')
     if 'faultCell' in config:
         from .guest_fault_network import CASES as network_cases
-        allowed=('leader-loss','maintenance','no-quorum')+ (network_cases if config['execution']==EXECUTION else ())
+        from .guest_fault_recovery import CASES as recovery_cases
+        allowed=('leader-loss','maintenance','no-quorum')+ (network_cases+recovery_cases if config['execution']==EXECUTION else ())
         m.need(config['faultCell'] in allowed and config['mode']==package.MODES[2], 'guest fault cell/mode')
     c.validate_binding(config['binding'])
     m.need(re.fullmatch('[0-9a-f]{64}', config['packageManifestSha256']) and config['mode'] in package.MODES, 'guest package/mode')

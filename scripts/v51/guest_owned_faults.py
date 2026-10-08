@@ -94,7 +94,7 @@ class Cell:
         record.update(endNanos=int(self.clock()*10**9),outcome=response['outcome'],opId=response['opId'],pid=identity['pid'],generation=identity['generation'],response=response)
         for key in ('documents','reason','reasonCode'):
             if key in response:record[key]=response[key]
-        availability(response,kind);return response
+        availability(response,kind,self.case=='minority-capacity' and node=='node-3');return response
     def progress(self, deadline, exclude=()):
         while self.progress_count<4:
             tag=100+10*self.progress_count;self.progress_count+=1;node=self.leader(deadline,exclude)
@@ -109,19 +109,31 @@ class Cell:
             result=self.status(node,end);return result if result['provenIndex']>=through else None
         observed=self.wait(caught,end,'owned fault durable rejoin deadline')
         self.record['rejoins'].append(dict(node=node,through=through,startNanos=int(start*1e9),endNanos=int(self.clock()*1e9),observed=observed))
+    def start_group(self):
+        self.parallel(self.start)
+        return self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)))
+    def after_seed(self, leader):pass
+    def extra_scenario(self, leader, deadline):return False
+    def final_read(self, exclude=()):
+        while self.final_count<4:
+            self.final_count+=1;active=self.leader(self.end,exclude);result=self.call(active,'read');self.record['finalReads'].append(result)
+            if result['outcome']=='SUCCESS':return active,result
+        raise ValueError('owned fault final read failed')
     def run(self, deadline):
         m.need(not self.attempted,'owned fault cell consumed');self.attempted=True
         self.end=min(deadline/1e9,self.clock()+self.record['seconds']);self.record['startNanos']=int(self.clock()*1e9)
         healer=None
         try:
-            self.parallel(self.start);leader=self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)))
+            leader=self.start_group()
             for tag in (10,20,30):m.need(self.call(leader,'addAll',documents=documents(tag))['outcome']=='SUCCESS','owned fault seed failed')
             seed=self.call(leader,'read');m.need(seed['outcome']=='SUCCESS','owned fault seed read failed')
             self.record.update(seedRead=seed,seedLeader=leader)
+            self.after_seed(leader)
             start=self.event('fault-request',node=leader)['controllerNanos'];self.record['faultStartNanos']=start
             progress_end=min(self.end,start/1e9+timing.control(self.services.provider.req,'progress',60))
             from .guest_fault_network import CASES as network_cases
-            if self.case in network_cases:
+            if self.extra_scenario(leader,progress_end):pass
+            elif self.case in network_cases:
                 from .guest_owned_network import scenario
                 scenario(self,leader,progress_end)
             elif self.case=='leader-loss':
@@ -151,10 +163,7 @@ class Cell:
                 active=self.progress(progress_end)
                 through=self.status(active)['provenIndex']
                 for node in self.running:self.rejoin(node,through)
-            while self.final_count<4:
-                self.final_count+=1;active=self.leader(self.end);result=self.call(active,'read');self.record['finalReads'].append(result)
-                if result['outcome']=='SUCCESS':break
-            m.need(self.record['finalReads'][-1]['outcome']=='SUCCESS','owned fault final read failed')
+            self.final_read(('node-3',) if self.case=='minority-capacity' else ())
             self.record['status']='EXECUTED'
         finally:
             if healer is not None:

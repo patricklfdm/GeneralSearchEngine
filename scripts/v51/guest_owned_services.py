@@ -31,7 +31,8 @@ class Services:
                     qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         from .guest_fault_network import CASES as network_cases
-        allowed=('leader-loss','maintenance','no-quorum')+(network_cases if self.offline else ())
+        from .guest_fault_recovery import CASES as recovery_cases
+        allowed=('leader-loss','maintenance','no-quorum')+(network_cases+recovery_cases if self.offline else ())
         m.need(fault_cell is None or fault_cell in allowed and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
         self.fault_cell=fault_cell
         self.mode, self.clock, self.sleep = mode, clock, sleep

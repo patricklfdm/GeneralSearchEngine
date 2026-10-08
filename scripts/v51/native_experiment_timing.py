@@ -34,5 +34,6 @@ def control(request, name, legacy):
 
 
 def cell(request, name):
-    if name=='slow-follower' and not selected(request):return 180
-    return STAGES[name] if selected(request) else (900 if name == 'healthy' else 240 if name == 'maintenance' else 120)
+    if selected(request):return STAGES[name]
+    from . import cloud_workload_contract as contract
+    return {cell['name']:cell['seconds'] for cell in contract.load()['cells']}[name]
