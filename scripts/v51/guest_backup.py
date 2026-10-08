@@ -1,7 +1,8 @@
-"""Once-only healthy backup and stopped-voter public V4.4 restore qualification."""
+"""Once-only completed-tape backup and stopped-voter public V4.4 restore."""
 import shutil
 from . import cloud_package as package, guest_bootstrap as bootstrap, guest_authority as authority
-from . import performance_model as m, remote_command as c, remote_schedule as schedule
+from . import performance_model as m, remote_command as c
+from . import guest_workload_spec as workload
 
 
 def exported(cell):
@@ -14,8 +15,9 @@ def create(service):
     m.need(service.config['mode'] in package.MODES[1:] and service.jvm is not None and not service.jvm.closed,
            'guest backup requires live replicated voter')
     # A new command ID cannot repeat the backup, including after a lost result.
-    for spec in schedule.windows('healthy','experiment'):
-        value=c.read(service.root/('window-healthy-'+spec['window'])/'result.json')
+    cell,_=workload.selection(service.config)
+    for spec in workload.specs(service.config):
+        value=c.read(service.root/('window-'+cell+'-'+spec['window'])/'result.json')
         m.need(value['status']=='PASS' and len(value['calls'])==len(spec['calls']), 'guest backup requires complete healthy tape')
     c.write_once(service.root/'backup-claim.json',dict(config=service.config))
     m.need(not (service.cell/'export').exists() and not (service.cell/'export').is_symlink(), 'guest backup destination consumed')

@@ -1,8 +1,9 @@
-"""Independent replay of the packaged guest gate's frozen experiment warmup.
+"""Independent replay of explicitly selected packaged guest tapes.
 
 Inputs include controller-retained command receipts and the authenticated package
-manifest, not just a guest's PASS flag. This checks logical answers, dispatch and
-process/resource identity; it does not prove physical history or a full cloud cell.
+manifest, not just a guest's PASS flag. This checks serialized logical answers,
+dispatch and process/resource identity. Concurrent semantics require the separate
+physical-history oracle; this module cannot qualify a full cloud cell.
 """
 from pathlib import Path
 import re
@@ -12,6 +13,7 @@ from . import performance_model as m, performance_plan as plan, performance_evid
 from . import remote_command as c, remote_collection as parts, remote_schedule as schedule
 from . import remote_schedule_evidence as scheduling, remote_rich_evidence as rich
 from . import storage_inspector as storage
+from . import guest_workload_spec as workload
 
 
 def retained(root, manifest, owner):
@@ -119,9 +121,11 @@ def process(root, config, manifest, base, rows, service):
     return node, record, start, stop
 
 
-def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False, physical=False, backup=False):
+def validate(root, config, manifest_bytes, package_root, transcript, *, active, healthy=False, physical=False, backup=False, trace_budget=None):
     """Validate one downloaded member against independently retained controller inputs."""
     root = c.directory(root); guest.validate(config); m.need(type(active) is bool and type(healthy) is bool, 'guest issuer/scope flag')
+    cell, preset = workload.selection(config)
+    m.need('workload' not in config or healthy, 'canonical tape requires complete window evidence')
     m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == 'node-1' and active, 'guest local issuer role')
     manifest = m.strict_json(manifest_bytes)
     m.need(m.sha(manifest_bytes) == config['packageManifestSha256'] and manifest['source'] == config['binding']['source'],
@@ -134,7 +138,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     m.need(backup or all(q['command'] not in ('backup','restore-backup') for q,_ in rows), 'guest unrequested backup/restore')
     node, record, started, stopped = process(root,config,manifest,package_root,rows,service)
     windows = [(q,r) for q,r in rows if q['command'] == 'window']
-    specs = schedule.windows('healthy','experiment')[:None if healthy else 1]
+    specs = workload.specs(config)[:None if healthy else 1]
     m.need(len(windows) == len(specs)*int(active), 'guest warmup/healthy issuer coverage')
     activations=[r for q,r in rows if q['command']=='fault' and q['payload']==dict(action='activate')]
     configured=config['mode']==package.MODES[1]
@@ -142,7 +146,14 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
            (not configured or not active or node=='node-1' and activations[0]['endedNanos']<=windows[0][1]['startedNanos']),
            'guest configured activation role/coverage/order')
     m.need(sum(q['command'] == 'collect' for q,_ in rows) == 1+int(active), 'guest live collection negative coverage')
-    budget = [contract.load()['evidence']['perNodePerCellTraceBytes']]
+    limits=contract.load()['evidence']
+    ceiling=limits['traceBytes'] if preset=='canonical' else limits['perNodePerCellTraceBytes']
+    budget=[ceiling] if trace_budget is None else trace_budget
+    m.need(type(budget) is list and len(budget)==1 and type(budget[0]) is int and 0<=budget[0]<=ceiling,
+           'guest decoded trace budget')
+    if preset=='canonical':
+        stored=sum(p.stat().st_size for p in root.glob(node+'-*.jsonl*'))
+        m.need(stored<=limits['perNodePerCellTraceBytes'],'node/cell trace budget')
     exchanges = c.read(root/(node+'-exchanges.json'))
     originals = rich.lines(root,node+'-results',budget)
     m.need(0 < len(originals) == len(exchanges) <= 2000, 'guest original response coverage')
@@ -182,8 +193,8 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     configured = [e for e in exchanges if e['request']['command'] == 'configure']
     m.need(len(configured)==len(specs) if active or healthy else not configured, 'guest window configuration coverage')
     for expected_spec,(request,receipt) in zip(specs,windows):
-        name=expected_spec['window']; folder = root/('window-healthy-'+name)
-        m.need(request['payload'] == dict(cell='healthy',preset='experiment',window=name), 'guest warmup scope')
+        name=expected_spec['window']; folder = root/('window-'+cell+'-'+name)
+        m.need(request['payload'] == dict(cell=cell,preset=preset,window=name), 'guest warmup scope')
         spec = c.read(folder/'spec.json'); result = c.read(folder/'result.json')
         m.need(m.canonical(spec) == m.canonical(expected_spec), 'guest frozen warmup changed')
         validation = scheduling.validate(spec,rich.lines(folder,'arrivals',budget),result)
@@ -196,6 +207,11 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
         mapped.add(configured[0]['request']['opId'])
         window_calls=[e for e in calls if e['request'].get('window')==name]
         m.need(len(window_calls) == len(spec['calls']), 'guest frozen call coverage')
+        # Concurrent lanes may reach the persistent pipe in a different order.
+        # Match frozen ordinals, retaining the original opId and time bindings.
+        m.need({e['request'].get('ordinal') for e in window_calls} == {v['ordinal'] for v in spec['calls']},
+               'guest frozen ordinal coverage')
+        if cell != 'healthy':window_calls.sort(key=lambda e:e['request']['ordinal'])
         arrivals = {r['ordinal']:r for r in result['calls']}
         for expected, exchange in zip(spec['calls'],window_calls):
             op = exchange['request']['opId']; response = exchange['response']; call = response['call']; arrival = arrivals[expected['ordinal']]
@@ -206,13 +222,21 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
                    call['payloadSha256'] == m.sha(bytes.fromhex(expected['payload'])), 'guest original call identity')
             m.need(response['workerStartNanos'] <= call['apiStartNanos'] < call['apiEndNanos'] <= response['workerEndNanos'] and
                    call['apiEndNanos']-call['apiStartNanos'] <= 9600*10**6, 'guest original API interval')
-            m.need(call['beforeSequence'] == state.sequence, 'guest healthy before-sequence')
+            if cell == 'healthy':
+                m.need(call['beforeSequence'] == state.sequence, 'guest healthy before-sequence')
             answer = None
             if expected['operation'] in m.OP_IDS: state.apply(m.OP_IDS[expected['operation']],bytes.fromhex(expected['payload']))
-            else: answer = state.answer(expected['operation'],expected['cycle'])
-            m.need(call['answer'] == answer and call['answerSha256'] == m.sha(m.canonical(answer)) and
-                   call['afterSequence'] == state.sequence, 'guest healthy logical answer/sequence')
+            elif cell == 'healthy': answer = state.answer(expected['operation'],expected['cycle'])
+            m.need(call['answerSha256'] == m.sha(m.canonical(call['answer'])), 'guest original answer digest')
+            if cell == 'healthy':
+                m.need(call['answer'] == answer and call['afterSequence'] == state.sequence, 'guest healthy logical answer/sequence')
+            # Concurrent read answers are checked against their captured physical
+            # prefix by guest_physical_evidence, never this static final state.
             mapped.add(op)
+        if cell != 'healthy':
+            apis=[exchange['response']['call'] for exchange in window_calls]
+            m.need(any(a['apiStartNanos']<b['apiStartNanos']<a['apiEndNanos'] for a in apis for b in apis
+                       if a['lane']!=b['lane']), 'missing real concurrent Java API overlap')
     backup_files={};backup_result=None
     if backup:
         from . import guest_backup_evidence
@@ -238,7 +262,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
             m.need(all(r['groupId'] == config['groupId'] and r['generation'] == 1 for r in traces), 'guest trace group/generation')
     allowed = {node+'-'+s for s in ('jvm.json','exchanges.json','stop.json','stderr.log')} | {'store/binding.json'}
     allowed |= {f'store/commands/{q["commandId"]}/{n}.json' for q,_ in rows[:-1] for n in ('request','started','terminal')}
-    if active: allowed |= {'window-healthy-'+s['window']+'/'+n for s in specs for n in ('spec.json','result.json','arrivals.jsonl')}
+    if active: allowed |= {'window-'+cell+'-'+s['window']+'/'+n for s in specs for n in ('spec.json','result.json','arrivals.jsonl')}
     journals = {n for n in names if re.fullmatch(re.escape(node)+r'-(results|samples'+('' if node == 'local' else '|trace')+r')(-part[0-9]{4})?\.jsonl\.gz',n)}
     if physical:
         from . import guest_authority
@@ -250,7 +274,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
         allowed|={'backup/'+n for n in ('backup-claim.json','backup-result.json','restore-claim.json','restore-result.json','restore.stdout','restore.stderr')}
     m.need(names == allowed | journals, 'guest collection closed inventory')
     return dict(status='PASS',execution='guest-healthy-evidence-only' if healthy else 'guest-warmup-evidence-only',node=node,mode=config['mode'],calls=len(calls),
-        logicalSemanticsQualified=True,physicalHistoryQualified=False,backupRestore=backup_result,paidCloud=False,fullRemoteQualification=False,
+        logicalSemanticsQualified=cell=='healthy',physicalHistoryQualified=False,backupRestore=backup_result,paidCloud=False,fullRemoteQualification=False,
         configSha256=m.sha(m.canonical(config)),collectionSha256=m.sha(m.canonical(rows[-1][1]['result'])),
         resources=resources,journals=dict(results=len(originals),samples=len(samples),trace=len(traces)))
 

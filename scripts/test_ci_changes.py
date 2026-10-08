@@ -24,6 +24,7 @@ FULL_GATES = {
     "v51-owned-experiment": "V51_OWNED_EXPERIMENT_RESULT",
     "v51-owned-network-faults": "V51_OWNED_NETWORK_RESULT",
     "v51-owned-failure-drill": "V51_OWNED_DRILL_RESULT",
+    "v51-owned-canonical-tapes": "V51_OWNED_CANONICAL_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
     "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
     "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
@@ -229,7 +230,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill"):
+            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes"):
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build(?: --skip-python-tests)?$", body, re.MULTILINE)
@@ -271,6 +272,21 @@ class WorkflowTopologyTest(unittest.TestCase):
         for body in (service,experiment,network,drill):
             for step in re.split(r"^      - ",body,flags=re.MULTILINE):
                 if "uses: actions/upload-artifact@" in step:self.assertRegex(step,r"if: (?:\$\{\{ )?always\(\)")
+
+    def test_canonical_tapes_run_all_five_cases_independently_without_fail_fast(self):
+        from scripts.v51.guest_workload_spec import CASES
+        body=self.jobs['v51-owned-canonical-tapes']
+        self.assertIn('fail-fast: false',body)
+        self.assertEqual(len(re.findall(r'^          - tape: ',body,re.MULTILINE)),5)
+        self.assertCountEqual(CASES,re.findall(r'            mode: (.+)\n            cell: (.+)',body))
+        self.assertIn('--canonical-cell "$CANONICAL_CELL" --mode "$CANONICAL_MODE" --allow-sudo-namespace',body)
+        self.assertIn('CANONICAL_CELL: ${{ matrix.cell }}',body)
+        self.assertIn('CANONICAL_MODE: ${{ matrix.mode }}',body)
+        self.assertNotIn('id-token: write',body)
+        for step in re.split(r'^      - ',body,flags=re.MULTILINE):
+            if 'uses: actions/upload-artifact@' in step:
+                self.assertRegex(step,r'if: (?:\$\{\{ )?always\(\)')
+                self.assertIn('${{ matrix.tape }}-${{ github.sha }}',step)
 
     def test_cloud_control_gate_has_retained_evidence_without_cloud_permissions(self):
         body = self.jobs["cloud-runner-tests"]
@@ -349,13 +365,14 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
                 verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
-                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill"): verifier = "scripts.v51.cloud_bundle"
+                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes"): verifier = "scripts.v51.cloud_bundle"
                 self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
                 if name in ("v51-remote-rich-inputs", "v51-remote-rich-shards"):
                     self.assertIn("${{ runner.temp }}/v51-build/restore.json", body)
                     continue
+                suffix = '${{ matrix.tape }}-${{ github.sha }}' if name=='v51-owned-canonical-tapes' else '${{ github.sha }}'
                 receipts = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
-                            if "name: " + name + "-build-inputs-${{ github.sha }}" in step]
+                            if "name: " + name + "-build-inputs-" + suffix in step]
                 self.assertEqual(1, len(receipts))
                 self.assertIn("if: ${{ always() }}", receipts[0])
                 self.assertIn("retention-days: 14", receipts[0])

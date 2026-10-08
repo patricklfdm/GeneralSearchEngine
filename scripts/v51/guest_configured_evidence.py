@@ -93,13 +93,13 @@ def observations(root, traces, exchanges):
         m.need(current is None and next(original,None) is None,'configured original trace coverage')
 
 
-def audit(root, calls, traces, exchanges):
+def audit(root, calls, traces, exchanges, *, final_sequence):
     observations(root,traces,exchanges)
-    return legacy.configured_physical(root,calls,traces)
+    return legacy.configured_physical(root,calls,traces,final_sequence=final_sequence)
 
 
-def qualify(root, calls, traces, exchanges):
-    result=audit(root,calls,traces,exchanges)  # Reject a bad original before mutations.
+def qualify(root, calls, traces, exchanges, *, final_sequence):
+    result=audit(root,calls,traces,exchanges,final_sequence=final_sequence)  # Reject a bad original before mutations.
     negatives=[]
     cases={
         'missing-invocation':'configured result without invocation',
@@ -133,7 +133,7 @@ def qualify(root, calls, traces, exchanges):
         elif name=='missing-leader-proof':rows[:]=[r for r in rows if not(r['event']=='FORCE' and r['kind']=='PROOF')]
         else:rows[:]=[r for r in rows if not(r['event']=='RECEIVED' and
             f.wire(physical.raw(r['frame']),_manifest(root))['type']=='COMMIT_PROOF_ACK')]
-        try:audit(root,calls,changed,originals)
+        try:audit(root,calls,changed,originals,final_sequence=final_sequence)
         except ValueError as error:
             m.need(str(error)==reason,'configured negative reason: '+name+': '+str(error))
             negatives.append(dict(case=name,status='REJECTED',reason=reason))

@@ -1,13 +1,9 @@
 # Next-development documentation handoff
 
-Current implementation candidate: [complete owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md),
-all twelve offline guest fault cells; corrected-source protected CI remains pending.
-Native preset admission is unchanged.
-Master CI `37761664548` exposed a transfer-recipient election during full
-isolation; complete local regression reproduced the same mechanism in the bounded
-capacity recipient. The current correction preserves heartbeats during both owned
-recovery setups and independently requires the original lagging heartbeat and fault;
-see the failure-drill record for the retained diagnosis and acceptance boundary.
+Current implementation candidate: [owned canonical tapes](v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md),
+all five full rich tapes through packaged guest services; protected CI is pending.
+The [twelve-cell owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) is accepted
+at PR #308 / master CI `37837221623`. Native preset admission is unchanged.
 
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not
@@ -23,14 +19,11 @@ archive replay, retention and cleanup. Start with the
 [remaining preset implementation plan](v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
 Full Phase 6 and final same-source five-member qualification remain open.
 
-The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
-isolated-leader, asymmetric request/response and slow-follower guest controls and
-independent replay. PR #305 merged, but both master CI `37738421960` attempts
-rejected delayed network-heal/watchdog evidence. The controller now reserves the
-heal slots before the fixed hold ends; corrected-source protected CI acceptance
-is pending. The five crash/transfer/capacity guest cases and full failure-drill
-aggregate are now implemented in this candidate. Next qualify the complete set,
-then extend canonical rich scheduling and control placement.
+The owned network and complete failure-drill lanes passed corrected-source master
+CI `37837221623`. The canonical tape batch adds three 260-call healthy modes,
+120 read-heavy calls and 180 sustained calls. Next add repetition-bound control
+placement and the shared-seed fifteen-cell aggregate, then review native admission
+and time/pricing allocation. Per-tape qualification cannot close a full preset.
 
 **Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0
 on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The

@@ -373,9 +373,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Native allocation entry, actual image use/IAP and complete four-cell owned-experiment integration, qualified by run `37723402614`; this does not qualify larger presets.
 - [ ] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): protected guest fault qualification, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
 - [x] [Owned network-fault implementation](PHASE_6_OWNED_NETWORK_FAULTS.md): closed guest controls/controller and independent replay for isolated-old-leader, asymmetric requests/responses and slow-follower; separate required CI lane, native admission closed.
-- [ ] Owned network-fault protected CI acceptance, including the PR #306 heal-admission correction.
+- [x] Owned network-fault protected CI acceptance, including the PR #306 heal-admission correction: master CI `37837221623`.
 - [x] [Complete owned failure-drill implementation candidate](PHASE_6_OWNED_FAILURE_DRILL.md): remaining five guest faults and a source-bound twelve-cell offline aggregate.
-- [ ] Complete owned failure-drill corrected-source protected CI acceptance.
+- [x] Complete owned failure-drill corrected-source protected CI acceptance: PR #308, master `bc805a4c922d77f1e7e5127694e20963a990e311`, CI `37837221623`.
+- [x] [Owned canonical tape implementation](PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes with frozen timing, original command/response bindings, concurrent physical read oracle, and five required parallel CI jobs.
+- [ ] Owned canonical tape protected CI acceptance; repetition-bound placement and fifteen-cell aggregation remain separate gates.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

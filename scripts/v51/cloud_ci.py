@@ -15,10 +15,17 @@ CONFIG_PATH = 'docs/v5x/v5.1/phase6-preflight-config.json'
 OWNED_JOB = 'V5.1 owned experiment (no GCP)'
 OWNED_STEP = 'Qualify V5.1 owned complete experiment history and backup restore without GCP'
 SHARDS = ('published-controls', 'automatic-healthy', 'automatic-concurrent')
+CANONICAL_TAPES = (
+    ('v44-healthy', 'published-v4.4-local', 'healthy'),
+    ('v50-healthy', 'published-v5.0-configured', 'healthy'),
+    ('automatic-healthy', 'candidate-v5.1-automatic', 'healthy'),
+    ('automatic-read-heavy', 'candidate-v5.1-automatic', 'read-heavy'),
+    ('automatic-sustained', 'candidate-v5.1-automatic', 'sustained'),
+)
 
 
 def expected_jobs(text):
-    """Closed parser for this repository's explicit job names and one matrix."""
+    """Closed parser for this repository's explicit names and reviewed matrices."""
     blocks = re.split(r'^  ([\w-]+):\n', text.split('\njobs:\n', 1)[1], flags=re.M)
     result = []
     for key, body in zip(blocks[1::2], blocks[2::2]):
@@ -29,6 +36,14 @@ def expected_jobs(text):
             m.need(name == 'V5.1 rich workload (${{ matrix.shard }}, no GCP)' and
                    re.findall(r'^        shard: \[(.+)\]$', body, re.M) == [', '.join(SHARDS)], 'CI rich matrix changed')
             result.extend(name.replace('${{ matrix.shard }}', shard) for shard in SHARDS)
+        elif key == 'v51-owned-canonical-tapes':
+            expected='      fail-fast: false\n      matrix:\n        include:\n'+''.join(
+                f'          - tape: {tape}\n            mode: {mode}\n            cell: {cell}\n'
+                for tape,mode,cell in CANONICAL_TAPES)
+            strategy=re.findall(r'^    strategy:\n(.*?)^    env:\n',body,re.M|re.S)
+            m.need(name=='V5.1 owned canonical tape (${{ matrix.tape }}, no GCP)' and strategy==[expected],
+                   'CI owned canonical matrix changed')
+            result.extend(name.replace('${{ matrix.tape }}',tape) for tape,_,_ in CANONICAL_TAPES)
         else:
             m.need('${{' not in name and '    strategy:' not in body, 'unreviewed CI matrix')
             result.append(name)

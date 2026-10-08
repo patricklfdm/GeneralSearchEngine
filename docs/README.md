@@ -516,4 +516,5 @@ Raw JMH JSON, soak logs, compiled classes, generated reports, and release artifa
 belong under `target/`. They are disposable validation output and are not repository
 documentation.
 
+- [V5.1 owned canonical tapes](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes in parallel; full-preset placement, aggregation and native admission remain open.
 - [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native admission remains closed.

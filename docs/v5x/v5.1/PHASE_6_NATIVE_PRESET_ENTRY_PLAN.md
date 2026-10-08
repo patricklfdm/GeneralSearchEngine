@@ -5,7 +5,9 @@
 The [owned network-fault batch](PHASE_6_OWNED_NETWORK_FAULTS.md) now implements
 the first four missing guest scenarios in an offline scope. The
 [complete owned failure drill](PHASE_6_OWNED_FAILURE_DRILL.md) adds the remaining
-five and a source-bound twelve-cell offline aggregate candidate. This document
+five and a source-bound twelve-cell offline aggregate accepted by PR #308 / master
+CI `37837221623`. The [canonical tape batch](PHASE_6_OWNED_CANONICAL_TAPES.md) adds
+all five full rich tapes as an offline implementation candidate. This document
 identifies the remaining batches; it does not enable paid presets or amend
 frozen workload parameters.
 
@@ -57,7 +59,9 @@ Neither an observer retry nor a replacement topology may become a workload retry
 3. **Extend the canonical owned workload.** Add full healthy windows, rich
    read-heavy/sustained guest execution and repetition-bound control placement.
    Qualify all fifteen cells, collection budgets and portable aggregate replay;
-   reuse one immutable seed while retaining distinct group identities.
+   reuse one immutable seed while retaining distinct group identities. The five
+   individual tapes are now implemented in the canonical tape batch; host rotation,
+   shared-seed aggregation and complete-preset acceptance remain open.
 4. **Review the native preset admission and time allocation.** Carry a closed
    preset selection through request, package/configuration, lease, price,
    workflow, summary and independent validators. Add same-path fake failures
