@@ -16,7 +16,10 @@ Full Phase 6 and final same-source five-member qualification remain open.
 
 The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
 isolated-leader, asymmetric request/response and slow-follower guest controls and
-independent replay. Protected CI acceptance is pending. Next implement the five
+independent replay. PR #305 merged, but both master CI `37738421960` attempts
+rejected delayed network-heal/watchdog evidence. The controller now reserves the
+heal slots before the fixed hold ends; corrected-source protected CI acceptance
+is pending. Next implement the five
 remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
 
 **Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0

@@ -34,6 +34,15 @@ executor. Different guests remain independent. Waiting consumes the original
 deadline; a lost reply never authorizes resubmission. This also preserves disjoint
 controller command intervals required by portable replay.
 
+The controller reserves the affected guests' command slots at hold second 12.
+Existing commands finish observing their original receipts; later polls wait on
+their original deadlines. Once all slots are available, the controller waits until
+hold second 15 and submits one heal per affected guest in parallel. Ordinary
+admission resumes after those original heal observations finish. Unaffected guests
+remain independent. Failure to reserve by second 15 fails the cell promptly;
+shutdown and evidence collection remain available. No command is replayed and the
+15-second hold, 17-second watchdog and all cell limits remain unchanged.
+
 The asymmetric controller may use the old leader again only after the heal has
 completed on every guest. Isolation must instead show surviving-majority progress
 while the old leader remains disconnected. All three voters must subsequently
@@ -107,6 +116,34 @@ build later failed one unchanged `V50ReadyTest` COMMIT_PROOF case; its complete
 `target/v51-owned-network-final/failed-build-reports` and `maven.log`. This does
 not establish the timing failure's cause or a runtime fix. Protected-source CI
 remains required for the combined batch.
+
+### Post-merge correction: reserve the heal before its deadline
+
+PR #305 merged at `03e361c12265516ddabb43c5660f6ad0c68d9fd9`. Both attempts of
+master CI `37738421960` failed this lane, although the PR's second attempt passed.
+All four cells executed and cleaned up; independent replay rejected the guest
+hold/watchdog evidence. In attempt 1, asymmetric-request node 3 and
+asymmetric-response node 1 reached their watchdogs. Attempt 2 repeated the latter.
+
+The controller requested heal after 15 seconds, then waited 0.761–1.162 seconds
+behind an in-flight status observation. The heal command itself took another
+1.156–1.336 seconds. Guest holds reached 17.0007–17.0023 seconds with
+`watchdog=true`. Original archives and measured intervals are retained under
+`target/v51-network-ci-review`; no failed receipt is reclassified as passing.
+
+Early reservation removes that command-queue delay from the release path while
+preserving the original command/receipt serialization and independent watchdog.
+Regression tests cover an in-flight observation, a waiting poll, unrelated guests,
+partial reservation timeout, cancelled holds, uncertain heal results, original
+deadlines and the 12/15-second schedule. Errors now include the failing case,
+node, observed hold and watchdog flag, and the CI qualifier reports nested workload
+validation errors alongside controller errors.
+
+The correction's local build, four-cell qualification and regression receipts are
+retained under `target/v51-network-heal-admission`. Corrected-source protected CI
+is still required. Reservation cannot eliminate arbitrary host/SSH stalls: a late
+release or watchdog intervention must still fail independent replay. The original
+native experiment and the remaining preset implementation boundary are unchanged.
 
 ## Next boundary
 
