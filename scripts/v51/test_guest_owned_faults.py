@@ -15,7 +15,7 @@ class ScopeTest(unittest.TestCase):
     def test_fault_service_accepts_only_declared_automatic_cells(self):
         good=config(Path('/tmp/fault-qualification'))
         for case in service.CASES:cloud_guest.validate(dict(good,faultCell=case))
-        for change in ({'faultCell':'minority-capacity'},{'faultCell':'leader-loss','mode':'published-v5.0-configured'},
+        for change in ({'faultCell':'undeclared-fault'},{'faultCell':'leader-loss','mode':'published-v5.0-configured'},
                        {'faultCell':'leader-loss','duration':30}):
             with self.assertRaises(ValueError):cloud_guest.validate(dict(good,**change))
     def test_closed_runner_scope_and_exact_two_cells(self):

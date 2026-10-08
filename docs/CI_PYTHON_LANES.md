@@ -6,7 +6,8 @@ attempt 1, all 36 jobs passed. This establishes correctness of the migrated gate
 the pre-split measurements below are historical, not measured post-split durations.
 
 The subsequent [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md)
-adds one required job, bringing the current topology to 33 required IDs / 37
+and [complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md)
+bring the current topology to 34 required IDs / 38
 executed jobs. The accepted partition and original measurements below remain historical.
 
 ## Observed bottlenecks

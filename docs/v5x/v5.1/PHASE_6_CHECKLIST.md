@@ -371,9 +371,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [First complete native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md): prepared run `37722737290`, native run `37723402614` attempt 1; four cells, 42 rejected evidence mutations, retention and thirteen-resource cleanup/lease release passed. Historical archive independently replayed offline; full five-member qualification remains open.
 - [x] Explicit [operator budget restart](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#explicit-operator-budget-restart--2026-10-07), 2026-10-07: original USD 87 ledger backed up locally; generation-conditional reset read back as USD 0 / 200, no active lease. Historical evidence remains intact; this does not authorize future resets.
 - [x] Native allocation entry, actual image use/IAP and complete four-cell owned-experiment integration, qualified by run `37723402614`; this does not qualify larger presets.
-- [ ] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): nine remaining guest fault scenarios, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
+- [ ] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): protected guest fault qualification, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
 - [x] [Owned network-fault implementation](PHASE_6_OWNED_NETWORK_FAULTS.md): closed guest controls/controller and independent replay for isolated-old-leader, asymmetric requests/responses and slow-follower; separate required CI lane, native admission closed.
-- [ ] Owned network-fault protected CI acceptance; remaining five guest faults and full twelve-cell aggregate.
+- [ ] Owned network-fault protected CI acceptance, including the PR #306 heal-admission correction.
+- [x] [Complete owned failure-drill implementation candidate](PHASE_6_OWNED_FAILURE_DRILL.md): remaining five guest faults and a source-bound twelve-cell offline aggregate.
+- [ ] Complete owned failure-drill corrected-source protected CI acceptance.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

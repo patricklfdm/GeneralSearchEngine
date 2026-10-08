@@ -23,6 +23,7 @@ FULL_GATES = {
     "v51-guest-services": "V51_GUEST_SERVICES_RESULT",
     "v51-owned-experiment": "V51_OWNED_EXPERIMENT_RESULT",
     "v51-owned-network-faults": "V51_OWNED_NETWORK_RESULT",
+    "v51-owned-failure-drill": "V51_OWNED_DRILL_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
     "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
     "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
@@ -228,7 +229,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults"):
+            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill"):
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build(?: --skip-python-tests)?$", body, re.MULTILINE)
@@ -247,8 +248,9 @@ class WorkflowTopologyTest(unittest.TestCase):
     def test_owned_lanes_preserve_local_package_dependencies_and_complete_coverage(self):
         foundation=self.jobs["v51-foundation"]
         self.assertNotIn("scripts.v51.guest_",foundation)
+        drill=self.jobs["v51-owned-failure-drill"]
         service=self.jobs["v51-guest-services"];experiment=self.jobs["v51-owned-experiment"];network=self.jobs["v51-owned-network-faults"]
-        for body in (service,experiment,network):
+        for body in (service,experiment,network,drill):
             self.assertIn("needs: [changes, v51-verification-build]",body)
             self.assertIn("timeout-minutes: 60",body)
             self.assertEqual(1,body.count("python3 -m scripts.v51.cloud_bundle"))
@@ -263,8 +265,10 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn("target/v51-owned-experiment --bundle target/v51-experiment-package",experiment)
         self.assertIn("--network-faults --allow-sudo-namespace",network)
         self.assertIn("target/v51-owned-network-faults --bundle target/v51-network-package",network)
+        self.assertIn("--failure-drill --allow-sudo-namespace",drill)
+        self.assertIn("target/v51-owned-failure-drill --bundle target/v51-drill-package",drill)
         self.assertNotIn("--three-mode",experiment) # Superset runs the same original healthy probe.
-        for body in (service,experiment,network):
+        for body in (service,experiment,network,drill):
             for step in re.split(r"^      - ",body,flags=re.MULTILINE):
                 if "uses: actions/upload-artifact@" in step:self.assertRegex(step,r"if: (?:\$\{\{ )?always\(\)")
 
@@ -345,7 +349,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
                 verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
-                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults"): verifier = "scripts.v51.cloud_bundle"
+                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill"): verifier = "scripts.v51.cloud_bundle"
                 self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
                 if name in ("v51-remote-rich-inputs", "v51-remote-rich-shards"):
                     self.assertIn("${{ runner.temp }}/v51-build/restore.json", body)

@@ -1,5 +1,9 @@
 # Next-development documentation handoff
 
+Current implementation candidate: [complete owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md),
+all twelve offline guest fault cells; corrected-source protected CI remains pending.
+Native preset admission is unchanged.
+
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not
 constitute protected acceptance of a protocol or authorization to implement it.
@@ -19,8 +23,9 @@ isolated-leader, asymmetric request/response and slow-follower guest controls an
 independent replay. PR #305 merged, but both master CI `37738421960` attempts
 rejected delayed network-heal/watchdog evidence. The controller now reserves the
 heal slots before the fixed hold ends; corrected-source protected CI acceptance
-is pending. Next implement the five
-remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
+is pending. The five crash/transfer/capacity guest cases and full failure-drill
+aggregate are now implemented in this candidate. Next qualify the complete set,
+then extend canonical rich scheduling and control placement.
 
 **Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0
 on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The

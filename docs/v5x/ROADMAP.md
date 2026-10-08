@@ -1,5 +1,9 @@
 # GeneralSearchEngine V5.x roadmap
 
+Current implementation candidate: [complete owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md),
+all twelve offline guest fault cells; corrected-source protected CI remains pending.
+Native preset admission is unchanged.
+
 - **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
@@ -7,8 +11,9 @@
 
 The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
 isolated-leader, asymmetric request/response and slow-follower guest controls and
-independent replay. Protected CI acceptance is pending. Next implement the five
-remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
+independent replay. Protected CI acceptance is pending. The five crash/transfer/capacity guest cases and full failure-drill
+aggregate are now implemented in this candidate. Next qualify the complete set,
+then extend canonical rich scheduling and control placement.
 
 ## Version sequence
 

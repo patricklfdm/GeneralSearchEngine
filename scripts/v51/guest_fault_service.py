@@ -1,7 +1,7 @@
 """Closed fault controls in one authenticated, independently bootstrapped guest.
 
-Only EMPTY two-field groups, leader SIGKILL/reopen and bounded network isolation
-are supported. No request supplies executable code, paths, durations or rules.
+Only the frozen EMPTY two-field fault groups, observed-cut crashes, retained
+restarts and bounded network/force controls are supported. No request supplies executable code, paths, durations or rules.
 """
 import os
 from pathlib import Path
@@ -13,6 +13,7 @@ from . import cloud_package as package, remote_command as c, remote_collection a
 from . import guest_authority as authority, public_trace
 from .guest_fault_jvm import Jvm
 from .guest_fault_network import CASES as NETWORK_CASES, Controls
+from . import guest_fault_recovery as recovery
 
 CASES=('leader-loss','maintenance','no-quorum')
 QUICK_CASES=('leader-loss','no-quorum')
@@ -33,10 +34,12 @@ class Handler:
         self.pin=None;self.pin_released=False
         self.lock=threading.RLock();self.timer=None;self.isolation=None
         self.network=Controls(self) if self.case in NETWORK_CASES else None
+        self.recovery=recovery.Controls(self) if self.case in recovery.CASES else None
     def rules(self, rows):
         path=self.s.cell/'network-rules.txt';temporary=path.with_suffix('.tmp')
         temporary.write_text('\n'.join(rows)+'\n');os.replace(temporary,path)
     def heal(self, watchdog=False):
+        if self.recovery is not None:self.recovery.release_direction(watchdog)
         if self.network is not None:return self.network.release(watchdog)
         with self.lock:
             if not self.isolated or self.healed:return
@@ -46,10 +49,11 @@ class Handler:
             if self.timer is not None:self.timer.cancel()
     def handle(self, name, payload, checkpoint):
         s=self.s;root=s.cell;node=s.node;cfg=s.config
-        m.need(self.case in (*CASES,*NETWORK_CASES),'fault scope')
+        m.need(self.case in (*CASES,*NETWORK_CASES,*recovery.CASES),'fault scope')
         if name=='prepare-cell':
             m.need(payload=={} and s.jvm is None,'fault preparation payload/state')
             c.write_once(root/'fault-prepare-claim.json',cfg)
+            if self.case=='minority-capacity':(root/'resource-evidence').touch(exist_ok=False)
             for file,text in [('hosts.txt','\n'.join(cfg['hosts'])+'\n'),('ports.txt','\n'.join(map(str,cfg['ports']))+'\n'),
                               ('group-id.txt',cfg['groupId']+'\n'),('cell.txt',self.case+'\n')]:
                 with (root/file).open('x') as out:out.write(text)
@@ -74,15 +78,19 @@ class Handler:
         if name=='fault':
             action=payload.get('action')
             if action=='restart':
-                m.need(payload=={'action':'restart'} and self.case=='leader-loss' and self.generation==1 and s.jvm.closed and s.jvm.proc.returncode==-9,'fault retained restart state')
+                m.need(payload=={'action':'restart'} and self.case in ('leader-loss',*recovery.CASES) and self.generation==1 and s.jvm.closed and
+                       s.jvm.proc.returncode in ((0,) if self.case in ('group-restart','minority-capacity') else (-9,)), 'fault retained restart state')
                 archive=root/'crash'/node
                 m.need(authority.inventory(archive)==authority.inventory(root/node),'fault retained restart authority changed')
                 self.generation=2;s.jvm=Jvm(argv(s.base,cfg,'start',2),root,node,2,s.deadline);return s.jvm.ready
+            if self.recovery is not None and action in ('prepare-direction','heal-direction','arm-cut','start-target','observe-recovery','isolate','heal'):
+                return self.recovery.handle(payload)
             m.need(s.jvm is not None and not s.jvm.closed,'fault live voter required')
             if self.network is not None and action in ('isolate','heal','observe-network'):
                 return self.network.handle(payload)
             if action=='status':
-                m.need(payload=={'action':'status'},'fault status payload');return s.jvm.command('status')
+                m.need(payload=={'action':'status'} or self.case=='minority-capacity' and payload=={'action':'status','boundary':'resource-rejected'},'fault status payload')
+                return s.jvm.command('status',**({} if 'boundary' not in payload else dict(boundary=payload['boundary'])))
             if action=='pin':
                 m.need(self.case=='maintenance' and self.pin is None and set(payload)=={'action','intentId'} and
                        re.fullmatch('call-(0[1-9]|1[0-9]|2[0-4])',payload['intentId']), 'fault pin consumed/scope')
@@ -109,7 +117,7 @@ class Handler:
                 m.need(kind in (('addAll','read','checkpoint','backup') if self.case=='maintenance' else ('addAll','read')) and set(payload)=={'action','kind','intentId'}|extra and
                        re.fullmatch('call-(0[1-9]|1[0-9]|2[0-4])',payload['intentId']), 'fault public call payload')
                 if kind=='addAll':
-                    docs=payload['documents'];m.need(type(docs) is list and len(docs)==2 and all(set(d)=={'id','value'} and type(d['id']) is int and type(d['value']) is str and len(d['value'].encode())==64 for d in docs),'fault two-field bulk')
+                    m.need(recovery.bulk_allowed(self.case,payload['documents']),'fault two-field bulk')
                 claims=root/'calls';claims.mkdir(exist_ok=True)
                 c.write_once(claims/(payload['intentId']+'.json'),payload)
                 return s.jvm.command(kind,**{k:v for k,v in payload.items() if k not in ('action','kind')})
@@ -130,10 +138,12 @@ class Handler:
                 m.need(payload=={'action':'heal'} and self.isolated,'fault heal scope');self.heal();return c.read(root/'isolation.json')
             raise ValueError('unsupported owned fault action')
         if name=='stop-voter':
-            m.need(set(payload)=={'forced'} and type(payload['forced']) is bool and s.jvm is not None and not s.jvm.closed,'fault stop state')
-            m.need(not payload['forced'] or self.case=='leader-loss' and self.generation==1,'fault kill scope')
+            retained=payload.get('retain') is True and set(payload)=={'forced','retain'} and self.case in ('group-restart','minority-capacity') and self.generation==1
+            m.need((set(payload)=={'forced'} or retained) and type(payload['forced']) is bool and s.jvm is not None and not s.jvm.closed,'fault stop state')
+            m.need(not payload['forced'] or self.case in ('leader-loss',*recovery.CUTS) and self.generation==1,'fault kill scope')
+            if payload['forced'] and self.recovery is not None:self.recovery.before_kill()
             s.jvm.stop(payload['forced'])
-            if payload['forced']:
+            if payload['forced'] or retained:
                 (root/'crash').mkdir();authority.capture(root,node,root/'crash'/node)
                 c.write_once(root/'crash/inventory.json',authority.inventory(root/node))
             return c.read(root/(s.jvm.prefix+'-stop.json'))

@@ -9,6 +9,7 @@ from . import public_qualification_evidence as physical, public_history, remote_
 from . import cloud_workload_contract as contract, performance_plan as plan
 from .guest_fault_service import CASES, QUICK_CASES, RULES
 from .guest_network_evidence import CASES as NETWORK_CASES
+from .guest_fault_recovery import CASES as RECOVERY_CASES
 
 
 def package_binding(manifest, req):
@@ -38,7 +39,7 @@ class Location:
         return storage._inspect(directory,maximum_bytes,maximum_frame,Path(self.configs[node]['root'])/node)
 
 
-def resource_samples(own, killed):
+def resource_samples(own, killed, authority_limit=64<<20):
     samples=[r for r in own if r['event']=='PERFORMANCE_SAMPLE']
     m.need(samples and samples[0]['boundary']=='start' and (killed or samples[-1]['boundary']=='closed'),'owned fault sampling boundaries')
     m.need(sum(r['boundary']=='periodic' for r in samples)>=max(0,(samples[-1]['localNanos']-samples[0]['localNanos'])//10**9-1),'owned fault periodic samples')
@@ -47,7 +48,7 @@ def resource_samples(own, killed):
         m.need(0<row['heapUsedBytes']<=row['heapMaxBytes']<=512<<20 and row['VmRSSBytes']>0 and row['threads']>0 and
                0<=row['retainedBytes']<=128<<20 and 0<=row['localNanos']-row['samplingStartNanos']<=9600*10**6,'owned fault resource bounds')
         for key,bound in [('orderedQueue',4),('deadlinesQueue',4),('inputsQueue',32),('completionsQueue',16),('networkQueue',4),('appQueue',4),('clientsQueue',2),
-                          ('queuedBytes',64<<20),('authorityDiskBytes',64<<20),('transferDiskBytes',64<<20),('maintenancePending',1),('pinsBytes',64<<20),('stagingBytes',64<<20),('admissionAvailable',4),('inboundAvailable',8)]:
+                          ('queuedBytes',64<<20),('authorityDiskBytes',authority_limit),('transferDiskBytes',64<<20),('maintenancePending',1),('pinsBytes',64<<20),('stagingBytes',64<<20),('admissionAvailable',4),('inboundAvailable',8)]:
             m.need(type(q[key]) is int and 0<=q[key]<=bound,'owned fault queue/byte bound '+key)
         m.need(len(q['outboundAvailable'])==3 and {v['node'] for v in q['outboundAvailable']}==set(faults.NODES) and all(type(v['available']) is int and 0<=v['available']<=2 for v in q['outboundAvailable']),'owned fault outbound permits')
         m.need(all(type(row[k]) is int and row[k]>=0 for k in ('gcCount','gcMillis','cpuNanos')) and
@@ -71,6 +72,9 @@ def member(root, cfg, manifest, base, transcript, traces, *, timing_profile=None
     env=contract.load()['environment'];spec=manifest['modes'][package.MODES[2]];files={v['path']:v for v in manifest['files']}
     expected=dict(contract.load()['replicationBounds'],**{k:v for k,v in contract.load()['automaticPolicy'].items() if k!='applyTo'})
     expected.update({k:contract.load()['application'][k] for k in ('maxDocuments','maxBulkElements','maxEncodedKeyBytes','maxEncodedDocumentBytes','checkpointWalBytes','maxRetainedBytes','maxDerivedStateBytes')})
+    cell=next(v for v in contract.load()['cells'] if v['name']==cfg['faultCell'])
+    expected['maxEncodedDocumentBytes']=cell.get('maxEncodedDocumentBytes',4096)
+    if cfg['faultCell']=='minority-capacity' and node=='node-3':expected['maxRetainedLogBytes']=128<<10
     processes={};exchanges={};previous=prepares[0][1]['endedNanos']
     for gen,((startq,start),(stopq,stop)) in enumerate(zip(starts,stops),1):
         identity=c.read(root/f'{node}-g{gen}-jvm.json');closed=c.read(root/f'{node}-g{gen}-stop.json');pid=identity['pid'];killed=stopq['payload'].get('forced')
@@ -93,12 +97,21 @@ def member(root, cfg, manifest, base, transcript, traces, *, timing_profile=None
                loaded['javaRuntime']==env['javaRuntime'] and loaded['jvmArguments']==env['jvmArguments'] and
                loaded['planFileSha256']==m.sha(plan.PLAN.read_bytes()) and loaded['cloudPlanSha256']==contract.PLAN_SHA256,'owned fault environment/plan identity')
         for key,path in zip(('core','replication'),spec['jars']):m.need(loaded[key+'Source']==str(base/path) and loaded[key+'Sha256']==files[path]['sha256'],'owned fault loaded JAR binding')
-        resource_samples(own,killed)
+        resource_samples(own,killed,expected['maxRetainedLogBytes'])
         processes[node,pid]=gen
         original=c.read(root/f'{node}-g{gen}-exchanges.json')
         m.need(len(original)<=2000,'owned fault exchange count')
         for row in original:
             request=row['request'];response=row.get('response');opid=request['opId']
+            if response is None and row['outcome']=='PENDING':
+                m.need(killed and cfg['faultCell'] in ('entry-chosen','proof-quorum') and 'failure' not in row and
+                       type(row.get('disconnectNanos')) is int and stop['startedNanos']<=row['disconnectNanos']<=stop['endedNanos'] and
+                       opid not in exchanges,'owned fault unexplained disconnected exchange')
+                invokes=[r for r in own if r['event']=='CLIENT_INVOKE' and r.get('opId')==opid]
+                m.need(len(invokes)==1 and all(invokes[0].get(k)==v for k,v in request.items()) and
+                       not any(r['event'] in ('CLIENT_SUCCESS','CLIENT_FAILURE') and r.get('opId')==opid for r in own),
+                       'owned fault disconnected invocation/response')
+                exchanges[opid]=row;continue
             m.need(opid not in exchanges and row['outcome']!='PENDING' and 'failure' not in row and response is not None and
                    row['outcome']==response['outcome'] and all(response.get(k)==v for k,v in request.items()),'owned fault incomplete/duplicate exchange')
             exchanges[opid]=row
@@ -106,7 +119,15 @@ def member(root, cfg, manifest, base, transcript, traces, *, timing_profile=None
                 witnesses=[r for r in own if r['event']==event and r.get('opId')==opid]
                 m.need(len(witnesses)==1 and all(witnesses[0].get(k)==v for k,v in (request if event=='CLIENT_INVOKE' else response).items()),'owned fault exchange trace binding')
         commands=[r for q,r in rows if q['command']=='fault' and q['payload'].get('action') in ('status','call','release-pin') and r['result']['identity']==identity]
-        m.need(len(commands)==len(original) and {r['result']['response']['opId'] for r in commands}=={r['request']['opId'] for r in original},'owned fault original exchange coverage')
+        pending=[(q,r) for q,r in rows if q['command']=='fault' and q['payload'].get('action')=='start-target' and r['result']['identity']==identity]
+        m.need(len(pending)<=1 and len(commands)+len(pending)==len(original) and
+               {r['result']['response']['opId'] for r in commands}|{r['result']['request']['opId'] for q,r in pending}=={r['request']['opId'] for r in original},'owned fault original exchange coverage')
+        for q,r in pending:
+            request=r['result']['request'];row=exchanges[request['opId']]
+            m.need(cfg['faultCell'] in ('entry-chosen','proof-quorum') and killed and row['request']==request and row['outcome']=='PENDING' and
+                   request==dict(kind='addAll',opId=request['opId'],intentId=q['payload']['intentId'],documents=faults.expected_documents(40,512)) and
+                   q['payload']==dict(action='start-target',intentId=request['intentId'])==c.read(root/'target-claim.json') and
+                   start['endedNanos']<=r['startedNanos']<=row['startNanos']<=r['endedNanos']<=stop['startedNanos'],'owned fault target original submission')
         for r in commands:
             row=exchanges[r['result']['response']['opId']]
             m.need(r['result']['response']==row['response'] and start['endedNanos']<=r['startedNanos']<=r['endedNanos']<=stop['startedNanos'],'owned fault response/lifetime')
@@ -119,7 +140,7 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     authority.validate_request(req)
     record=c.read(raw/'receipt.json');history=c.read(raw/'history.json');case=record['case'];source=c.read(raw/'plan.json')
     scope='owned-network-faults' if case in NETWORK_CASES else 'owned-experiment-leader-loss-no-quorum'
-    m.need(case in (*CASES,*NETWORK_CASES) and source['request']==req and source['case']==case and source['scope']==scope and
+    m.need(case in (*CASES,*NETWORK_CASES,*RECOVERY_CASES) and source['request']==req and source['case']==case and source['scope']==scope and
            record['status']=='EXECUTED' and record['seconds']==timing.cell(req,case) and not record['cleanupErrors'] and
            0<record['endNanos']-record['startNanos']<=record['seconds']*10**9,'owned fault case completion/budget')
     m.need(len(source['configs'])==3 and [v['binding']['node'] for v in source['configs']]==list(faults.NODES),'owned fault members')
@@ -157,7 +178,9 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
             observations[q['commandId']]=obs
             if q['command'] not in ('prepare-cell','collect'):
                 m.need(record['startNanos']<=obs['startNanos']<=obs['endNanos']<=record['endNanos'],'owned fault command outside cell')
-            if q['command']=='fault' and q['payload'].get('action') in ('call','release-pin'):
+            if q['command']=='fault' and q['payload'].get('action')=='start-target':
+                opid=r['result']['request']['opId'];m.need(opid not in allcalls,'owned duplicate target ID');allcalls[opid]=(q,r,obs)
+            elif q['command']=='fault' and q['payload'].get('action') in ('call','release-pin'):
                 response=r['result']['response'];opid=response['opId'];m.need(opid not in allcalls,'owned fault duplicate public ID')
                 if q['payload']['action']=='release-pin':
                     pinq,pinr=next((qq,rr) for qq,rr in rows[node] if qq['command']=='fault' and qq['payload'].get('action')=='pin')
@@ -173,12 +196,22 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     decoded=f.inspect((joint/'node-1/manifest.gsr').read_bytes(),'MANIFEST')
     cfg=configs['node-1'];m.need(decoded['groupId']==group and decoded['members']==[dict(node=f'node-{i+1}',host=host,port=port) for i,(host,port) in enumerate(zip(cfg['hosts'],cfg['ports']))],'owned fault physical endpoints')
     first_starts=[observations[q['commandId']] for seq in rows.values() for q,r in seq if q['command']=='start-voter']
-    final_stops=[observations[q['commandId']] for seq in rows.values() for q,r in seq if q['command']=='stop-voter' and q['payload']=={'forced':False}]
+    final_stops=[observations[[q for q,r in seq if q['command']=='stop-voter'][-1]['commandId']] for seq in rows.values()]
     m.need(len(first_starts)==len(final_stops)==3 and max(v['endNanos'] for v in first_starts)<=history[0]['startNanos'] and
            history[-1]['endNanos']<=min(v['startNanos'] for v in final_stops),'owned fault concurrent voter lifetime')
     m.need(len(allcalls)==len(history) and set(allcalls)=={h['opId'] for h in history},'owned fault complete public history')
     for h in history:
-        q,r,obs=allcalls[h['opId']];response=r['result']['response'];identity=r['result']['identity']
+        q,r,obs=allcalls[h['opId']];identity=r['result']['identity']
+        if q['payload']['action']=='start-target':
+            stopq,stop=next((q,r) for q,r in rows[h['node']] if q['command']=='stop-voter' and r['result']['pid']==identity['pid'])
+            stopped=observations[stopq['commandId']]
+            m.need(h['outcome']=='PENDING' and h['endNanos'] is None and 'response' not in h and
+                   h['node']==identity['node'] and h['pid']==identity['pid'] and h['generation']==identity['generation'] and
+                   r['result']['request']==dict(kind=h['kind'],opId=h['opId'],intentId=h['intentId'],documents=h['documents']) and
+                   h['startNanos']<=obs['startNanos']<=obs['endNanos']<=stopped['startNanos']<=stopped['endNanos']<=h['disconnectNanos'],
+                   'owned fault disconnected history binding')
+            continue
+        response=r['result']['response']
         m.need(h['response']==response and h['outcome']==response['outcome'] and h['node']==identity['node'] and
                h['pid']==identity['pid'] and h['generation']==identity['generation'] and h['intentId']==q['payload']['intentId'] and
                h['kind']==q['payload'].get('kind','read') and h['startNanos']<=obs['startNanos']<=obs['endNanos']<=h['endNanos'],'owned fault public response binding')
@@ -199,6 +232,13 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         variants+=('missing-network-observation','wrong-network-direction','early-release','outside-network-hold')
         if case.startswith('asymmetric-'):variants+=('missing-reverse','outside-reverse-hold')
         if case=='isolated-old-leader':variants+=('missing-fence',)
+    if case in RECOVERY_CASES:
+        variants+=('missing-seed-rejoin','missing-retained-restart')
+        if case in ('entry-chosen','proof-quorum','interrupted-transfer'):variants+=('missing-durable-cut',)
+        if case in ('entry-chosen','proof-quorum'):variants+=('fabricated-target-response','missing-target-quorum')
+        if case in ('interrupted-transfer','minority-capacity'):variants+=('missing-isolation-observation',)
+        if case=='interrupted-transfer':variants+=('missing-transfer-chunks','wrong-transfer-recipient')
+        if case=='minority-capacity':variants+=('missing-capacity-reply','changed-capacity-accounting','missing-prepare-barrier')
     for name in variants:
         rr,hh,tt=deepcopy(record),deepcopy(history),deepcopy(traces)
         rrows=deepcopy(rows)
@@ -206,9 +246,10 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
             for node in rrows:
                 for q,r in rrows[node]:
                     if q['command']=='stop-voter' and q['payload'].get('forced'):q['payload']['forced']=False
+                    if q['command']=='stop-voter' and q['payload'].get('retain'):q['payload']['retain']=False
                     if q['command']=='fault' and q['payload'].get('action')=='isolate':q['payload']['action']='status'
         elif name=='wrong-refusal-or-rejoin':
-            if case in ('leader-loss','maintenance',*NETWORK_CASES):rr['rejoins']=[]
+            if case in ('leader-loss','maintenance',*NETWORK_CASES,*RECOVERY_CASES) and case!='minority-capacity':rr['rejoins']=[]
             else:rr['refusals']=[]
         elif name=='late-progress':rr['progress'][0]['endNanos']=rr['faultStartNanos']+(timing.control(req,'progress',60)+1)*10**9
         elif name=='stale-read':hh[-1]['documents']=[]
@@ -235,6 +276,20 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
             for v in tt[rr['seedLeader']]:
                 if v['event']=='REPLY':v['localNanos']=0
         elif name=='missing-fence':tt[rr['seedLeader']]=[v for v in tt[rr['seedLeader']] if not(v['event']=='FORCE' and v['kind']=='PROMISE')]
+        elif name=='missing-seed-rejoin':rr['seedRejoins']=[]
+        elif name=='missing-retained-restart':
+            for node in rrows:rrows[node]=[(q,r) for q,r in rrows[node] if not(q['command']=='fault' and q['payload']=={'action':'restart'})]
+        elif name=='missing-durable-cut':tt={n:[v for v in seq if v['event']!='CUT_REACHED'] for n,seq in tt.items()}
+        elif name=='fabricated-target-response':next(v for v in hh if v['outcome']=='PENDING')['outcome']='SUCCESS'
+        elif name=='missing-target-quorum':
+            tt={n:[v for v in seq if not(n!=rr['seedLeader'] and v['event']=='FORCE' and v['kind']=='ACCEPT')] for n,seq in tt.items()}
+        elif name=='missing-isolation-observation':tt={n:[v for v in seq if v['event']!='NETWORK_DROP'] for n,seq in tt.items()}
+        elif name=='missing-transfer-chunks':tt={n:[v for v in seq if v['event']!='WIRE_BEFORE_REQUEST_WRITE_SNAPSHOT_CHUNK'] for n,seq in tt.items()}
+        elif name=='wrong-transfer-recipient':rr['targetNode']=rr['seedLeader']
+        elif name=='missing-capacity-reply':tt['node-3']=[v for v in tt['node-3'] if v['event']!='REPLY']
+        elif name=='changed-capacity-accounting':rr['rejection']['requested']=0
+        elif name=='missing-prepare-barrier':
+            for node in rrows:rrows[node]=[(q,r) for q,r in rrows[node] if not(q['command']=='fault' and q['payload']=={'action':'prepare-direction'})]
         else:tt={n:[v for v in seq if not(v['event']=='CLIENT_INVOKE' and v.get('opId')==hh[-1]['opId'])] for n,seq in tt.items()}
         try:check_case(rr,hh,tt,joint,location,processes,rrows,observations,collections,maintenance,request=req)
         except ValueError as error:negatives.append(dict(case=name,status='REJECTED',reason=str(error)))
@@ -267,6 +322,9 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
         for name in ('manifest.gsr','node.gsr','genesis.gsr','bootstrap-seal.gsr','bootstrap-prepared.gsr'):
             m.need((crash/name).read_bytes()==(root/leader/name).read_bytes(),'owned fault restart changed authority identity')
         m.need(len(record['rejoins'])==1 and record['rejoins'][0]['node']==leader and restart['endNanos']<=record['rejoins'][0]['startNanos'],'owned fault missing retained rejoin')
+    elif case in RECOVERY_CASES:
+        from .guest_recovery_evidence import check
+        check(record,history,traces,root,rows,obs,collections,processes)
     elif case=='maintenance':
         m.need(not kills and len(processes)==3,'owned maintenance unexpected crash')
         maintenance(record,history,traces,rows)
@@ -308,16 +366,17 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
                location.inspect(root/join['node'])['provenThrough']>=join['through'],'owned fault durable rejoin')
     m.need(all(join['endNanos']<=history[-1]['startNanos'] for join in record['rejoins']),'owned fault final read before rejoin')
     logical=[h for h in history if h['kind'] in ('read','addAll')]
-    proof=physical.physical(root,logical,traces,process_generations=processes,evidence_location=location,require_restart=case=='leader-loss')
+    proof=physical.physical(root,logical,traces,process_generations=processes,evidence_location=location,require_restart=case in ('leader-loss',*RECOVERY_CASES))
     logical_bounds(history,traces,proof['chosen'])
     return dict(history=public_history.check(logical),physical=proof,seedEpoch=capture['epoch'])
 
 
 def validate(raw, scratch, *, cases=QUICK_CASES, scope='owned-experiment-leader-loss-no-quorum'):
+    from .guest_owned_drill import CASES as DRILL_CASES, SCOPE as DRILL_SCOPE
     raw=Path(raw);scratch=Path(scratch);scratch.mkdir(parents=True,exist_ok=False)
     request=c.read(raw/'plan.json');req=request['request'];a.validate_request(req)
     m.need((tuple(cases),scope) in ((QUICK_CASES,'owned-experiment-leader-loss-no-quorum'),(('maintenance',),'owned-maintenance-experiment'),
-           (NETWORK_CASES,'owned-network-faults')) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
+           (NETWORK_CASES,'owned-network-faults'),(DRILL_CASES,DRILL_SCOPE)) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
     parts.inventory(raw);results=[];last=None;budgets={k:0 for k in ('compressedBytes','expandedBytes','files','traceBytes')}
     for case in cases:
         cell=raw/case

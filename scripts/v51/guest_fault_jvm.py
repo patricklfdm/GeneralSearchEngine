@@ -59,6 +59,12 @@ class Jvm(Pipes):
         finally:
             if self.proc.poll() is None:self.proc.kill();self.proc.wait(timeout=5)
             self.reader.join(timeout=5);self.closed=True;self.streams_close()
+            # A real SIGKILL can disconnect the one armed mutation. Keep the
+            # original invocation unresolved; never invent a response or replay.
+            if forced and self.proc.returncode==-9:
+                for row in self.rows:
+                    if row['outcome']=='PENDING' and 'response' not in row and 'failure' not in row:
+                        row['disconnectNanos']=time.monotonic_ns()
             c.write_once(self.root/(self.prefix+'-exchanges.json'),self.rows)
             c.write_once(self.root/(self.prefix+'-stop.json'),dict(**self.identity,exitCode=self.proc.returncode,
                 forced=forced or failed is not None,readerReaped=not self.reader.is_alive()))

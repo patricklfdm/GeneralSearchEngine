@@ -3,7 +3,9 @@
 **Status:** implementation plan after the
 [first successful native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md).
 The [owned network-fault batch](PHASE_6_OWNED_NETWORK_FAULTS.md) now implements
-the first four missing guest scenarios in an offline scope. This document
+the first four missing guest scenarios in an offline scope. The
+[complete owned failure drill](PHASE_6_OWNED_FAILURE_DRILL.md) adds the remaining
+five and a source-bound twelve-cell offline aggregate candidate. This document
 identifies the remaining batches; it does not enable paid presets or amend
 frozen workload parameters.
 
@@ -11,7 +13,7 @@ frozen workload parameters.
 
 `guest_owned_experiment` and `guest_native_owned` run four cells, and
 the native guest configuration accepts only leader-loss, maintenance and
-no-quorum. Four additional network/lag cases are available only to local qualification.
+no-quorum. All twelve fault cases are available to local qualification only.
 `cloud_runner_admission` / `cloud_experiment_resources` construct only experiment
 requests; native timing profile `owned-experiment-v2` also rejects other members.
 Adding a workflow choice alone cannot execute or qualify a new preset.
@@ -27,8 +29,8 @@ The existing rich-workload shards similarly qualify local execution/replay only.
 | rich automatic concurrency | absent | read-heavy 120 calls and sustained 180 calls; guest-clock bursts and timing evidence |
 | existing fault cells | leader-loss, maintenance, no-quorum | reuse exact scenario/history semantics in larger presets |
 | partition and lag | offline guest implementation candidate; native entry closed | qualify isolated-old-leader, asymmetric-requests, asymmetric-responses, slow-follower through the independent CI lane |
-| crash and transfer | absent | interrupted-transfer, entry-chosen, proof-quorum, group-restart |
-| resource bound | absent | minority-capacity with the sealed bounded voter and real refusal |
+| crash and transfer | offline guest implementation candidate | interrupted-transfer, entry-chosen, proof-quorum, group-restart |
+| resource bound | offline guest implementation candidate | minority-capacity with the sealed bounded voter and real refusal |
 | healthy control placement | experiment placement | rotate the control host through nodes 1/2/3 by repetition; automatic leader remains observed, never forced |
 | independent aggregate | four cells | all twelve failure-drill cells; all fifteen canonical cells; complete source-bound five-member set |
 
@@ -42,8 +44,8 @@ Neither an observer retry nor a replacement topology may become a workload retry
 1. **Extend the authenticated guest fault service and controller.** Implement
    bounded typed actions for the nine missing cells, preserving the existing
    command claims, retained process identities and original monotonic deadlines.
-   The [partition/lag slice](PHASE_6_OWNED_NETWORK_FAULTS.md) is implemented; next
-   port crash/transfer and capacity cases. Reuse
+   The [partition/lag slice](PHASE_6_OWNED_NETWORK_FAULTS.md) is implemented, with crash/transfer and capacity in the
+   [complete-drill batch](PHASE_6_OWNED_FAILURE_DRILL.md). Reuse
    the actual worker fault hooks; retain observed drops, force delays, exact
    durable cuts and partial transfer receipts. Do not expose arbitrary guest
    commands or manufacture damaged authority files.

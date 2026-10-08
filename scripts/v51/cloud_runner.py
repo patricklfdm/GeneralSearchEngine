@@ -111,8 +111,9 @@ class Runner:
         from . import guest_owned_faults as faults
         from . import guest_owned_experiment as experiment
         from . import guest_owned_network as network
-        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE}
-        self.qualification_cells=(list(network.CASES) if qualification==network.SCOPE else list(experiment.CELLS) if qualification==experiment.SCOPE else ['maintenance'] if qualification==faults.MaintenanceProbe.scope else list(faults.CASES) if qualification==faults.SCOPE else ['healthy'])
+        from . import guest_owned_drill as drill
+        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE,drill.MODE:drill.SCOPE}
+        self.qualification_cells=(list(drill.CASES) if qualification==drill.SCOPE else list(network.CASES) if qualification==network.SCOPE else list(experiment.CELLS) if qualification==experiment.SCOPE else ['maintenance'] if qualification==faults.MaintenanceProbe.scope else list(faults.CASES) if qualification==faults.SCOPE else ['healthy'])
         m.need((qualification is None and getattr(probe,'scope',None) not in SCOPES.values()) or
                qualification in SCOPES.values() and getattr(probe,'scope',None)==qualification and
                SCOPES.get(getattr(probe,'mode',None))==qualification and
