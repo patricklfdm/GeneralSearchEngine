@@ -3,6 +3,11 @@
 Current implementation candidate: [complete owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md),
 all twelve offline guest fault cells; corrected-source protected CI remains pending.
 Native preset admission is unchanged.
+Master CI `37761664548` exposed a transfer-recipient election during full
+isolation; complete local regression reproduced the same mechanism in the bounded
+capacity recipient. The current correction preserves heartbeats during both owned
+recovery setups and independently requires the original lagging heartbeat and fault;
+see the failure-drill record for the retained diagnosis and acceptance boundary.
 
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not

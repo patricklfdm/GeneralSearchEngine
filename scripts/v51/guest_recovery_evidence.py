@@ -6,6 +6,28 @@ from .guest_fault_recovery import CUTS
 NODES=('node-1','node-2','node-3')
 
 
+def recipient_path(r, own, isolation, manifest):
+    """A live, unchanged recipient must acknowledge the source while data is held."""
+    heartbeat=r['recipientHeartbeat'];end=r['cut'] if r['case']=='interrupted-transfer' else r['rejection']
+    target=r['targetNode'] if r['case']=='interrupted-transfer' else 'node-3'
+    m.need(heartbeat in own and heartbeat['event']=='REPLY' and heartbeat['pid']==end['pid'] and
+           isolation['appliedNanos']<heartbeat['localNanos']<isolation['healedNanos']<end['localNanos'],
+           'owned recovery heartbeat outside data isolation')
+    request=a.f.wire(a.raw(heartbeat['request']),manifest);reply=a.f.wire(a.raw(heartbeat['frame']),manifest)
+    m.need(request['type']=='HEARTBEAT' and reply['type']=='HEARTBEAT_ACK' and
+           request['sender']==reply['recipient']==r['seedLeader'] and request['recipient']==reply['sender']==target and
+           request['traceId']==reply['traceId'] and request['epoch']==reply['epoch'] and
+           request['incarnationId']==reply['incarnationId'] and
+           request['payload']['activated'] is True and request['payload']['provenIndex']>=r['sourceFloor']['index'] and
+           reply['payload']['provenIndex']<r['sourceFloor']['index'] and
+           reply['payload']['sequence']==request['payload']['sequence'], 'owned recovery heartbeat does not bind live source')
+    campaigns=[v for v in own if v['pid']==end['pid'] and v['event']=='CAMPAIGN_BEGIN']
+    before=[v for v in campaigns if v['localNanos']<isolation['appliedNanos']]
+    m.need(r['recipientCampaign']==(before[-1] if before else None) and
+           not any(isolation['appliedNanos']<=v['localNanos']<=end['localNanos'] for v in campaigns),
+           'owned recovery recipient campaigned before intended fault')
+
+
 def check(r, history, traces, root, rows, obs, collections, processes):
     case=r['case'];old=r['seedLeader'];starts=[];stops=[];files={}
     for node,seq in rows.items():
@@ -78,7 +100,12 @@ def check(r, history, traces, root, rows, obs, collections, processes):
                any(q['command']=='fault' and q['payload']=={'action':'observe-recovery'} and v['result']['floor']==floor
                    for q,v in rows[old]),'owned recovery original exportable floor')
         encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(a.f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
-        expected_rules=[f'{x} {y} BEFORE_REQUEST_WRITE *' for x in NODES for y in NODES if x!=y and target in (x,y)]
+        # Independent closed traffic policy. Heartbeats keep the intended
+        # transfer/capacity recipient alive while mutation/recovery is withheld.
+        types=('PREPARE','BASIS_CHUNK','SELECTED_OFFER','ACCEPT','COMMIT_PROOF','COMMIT_ADVANCE',
+               'SNAPSHOT_OFFER','SNAPSHOT_CHUNK','REJOIN_INSTALL','SNAPSHOT_ABORT','SOURCE_OFFER','SOURCE_CHUNK')
+        expected_rules=[f'{x} {y} BEFORE_REQUEST_WRITE {kind}' for x in NODES for y in NODES
+                        if x!=y and target in (x,y) for kind in types]
         held_drops=[]
         for node,seq in rows.items():
             injected=[(q,v) for q,v in seq if q['command']=='fault' and q['payload']==dict(action='isolate',node=target)]
@@ -94,14 +121,21 @@ def check(r, history, traces, root, rows, obs, collections, processes):
             held_drops.extend(v for v in drops if v['rule'] in expected_rules and actual['appliedNanos']<=v['localNanos']<=actual['healedNanos'])
             for drop in drops:
                 frame=a.f.wire(a.raw(drop['request']),manifest)
-                rule=f"{frame['sender']} {frame['recipient']} BEFORE_REQUEST_WRITE *"
+                rule=f"{frame['sender']} {frame['recipient']} BEFORE_REQUEST_WRITE "
                 # Capacity's initial PREPARE-only barrier is independently checked below.
                 m.need(drop['rule'] in (expected_rules if case!='minority-capacity' else expected_rules+
                        [f'{x} {y} BEFORE_REQUEST_WRITE PREPARE' for x in NODES for y in NODES if x!=y and 'node-3' in (x,y)]) and
                        drop['node']==frame['sender'] and drop['barrier']=='BEFORE_REQUEST_WRITE' and
-                       (drop['rule']==rule or case=='minority-capacity' and frame['type']=='PREPARE' and drop['rule']==rule[:-1]+'PREPARE'),
+                       drop['rule'] in (rule+'*',rule+frame['type']),
                        'owned recovery actual isolation direction')
         m.need(held_drops,'owned recovery missing actual isolation observation')
+        isolation=c.read(collections[target]/'isolation.json')
+        recipient_path(r,traces[target],isolation,manifest)
+        heal=next(q for q,_ in rows[target] if q['command']=='fault' and q['payload']=={'action':'heal'})
+        m.need(any(q['command']=='fault' and q['payload']=={'action':'observe-recovery'} and
+                   v['result']['heartbeat']==r['recipientHeartbeat'] and
+                   obs[q['commandId']]['endNanos']<=obs[heal['commandId']]['startNanos'] for q,v in rows[target]),
+               'owned recovery original heartbeat observation before heal')
         if case=='interrupted-transfer':
             selected=r['selected'];m.need(selected in traces[old] and selected['event']=='PROMISE_QUORUM','owned transfer original selected pair')
             pair={b['node'] for b in a.f.inspect(a.raw(selected['selected']),'SELECTED')['bases']}
