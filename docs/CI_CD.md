@@ -53,7 +53,7 @@ No branch-protection change is needed. A docs-only master CI receipt establishes
 documentation acceptance; it is not evidence that Maven or the process gates ran.
 Use manual dispatch when new full-runtime evidence is required for that exact commit.
 
-For build inputs or manual dispatch, the workflow runs thirty-two required job IDs,
+For build inputs or manual dispatch, the workflow runs thirty-three required job IDs,
 each with its own runner workspace.
 The V5.1 behavioral lanes depend on their dedicated verification build. Rich
 workload execution additionally uses prepared inputs, three matrix children and a
@@ -111,9 +111,10 @@ complete aggregate. Other domains start after `changes`:
 30. `cloud-cleanup-fixture-tests` runs single-disk, operator-driver and topology fixtures.
 31. `cloud-storage-tests` runs both Runner storage qualification matrices and entry regressions.
 32. `cloud-provider-tests` runs the complete provider, TLS and SSH gate.
+33. `v51-owned-network-faults` runs all four owned partition/slow-follower cells with original SSH receipts and independent physical/history replay, in parallel with the owned experiment.
 
 See the [Python/cloud partition and timing audit](CI_PYTHON_LANES.md).
-The 32 required job IDs expand to 36 executed jobs. Foundation still runs all
+The 33 required job IDs expand to 37 executed jobs. Foundation still runs all
 Python tests locally by default; CI requires the three exhaustive Python partitions.
 
 The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)

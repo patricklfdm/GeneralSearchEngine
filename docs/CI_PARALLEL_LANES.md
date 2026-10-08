@@ -1,7 +1,7 @@
 # CI parallel lanes: dependency audit and migration map
 
 **Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
-Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
+Python test and cloud-gate ownership below. The added [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) brings the current topology to 33 required job IDs, 37 executed jobs.
 Earlier counts and timings in this document describe their historical migrations.
 
 

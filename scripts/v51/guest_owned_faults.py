@@ -52,7 +52,9 @@ class Cell:
             if errors:raise errors[0]
             return results
     def prepare(self, req, deadline):
-        c.write_once(self.raw/'plan.json',dict(scope=SCOPE,request=req,case=self.case,configs=[v[2] for v in self.clients]))
+        from .guest_fault_network import CASES as network_cases
+        scope='owned-network-faults' if self.case in network_cases else SCOPE
+        c.write_once(self.raw/'plan.json',dict(scope=scope,request=req,case=self.case,configs=[v[2] for v in self.clients]))
         (self.raw/'package-manifest.json').write_bytes((self.services.archive.parent/'package/manifest.json').read_bytes())
         prepared=self.parallel(lambda member:self.succeeded(member,'prepare-cell',{},deadline)['result'])
         m.need(len({(v['manifestSha256'],v['genesisSha256']) for v in prepared})==1 and all(v['source']=='EMPTY' for v in prepared),'fault bootstrap agreement')
@@ -79,7 +81,8 @@ class Cell:
     def leader(self, deadline, exclude=()):
         def choose():
             for node in self.running:
-                if node not in self.stopped and node not in exclude and self.status(node,deadline)['state']=='LEADER_READY':return node
+                skip=node in exclude and not (self.case.startswith('asymmetric-') and getattr(self,'network_healed',False))
+                if node not in self.stopped and not skip and self.status(node,deadline)['state']=='LEADER_READY':return node
         return self.wait(choose,deadline,'owned fault activation deadline')
     def call(self, node, kind, **values):
         m.need(len(self.history)<24,'owned fault operation cap')
@@ -117,7 +120,11 @@ class Cell:
             self.record.update(seedRead=seed,seedLeader=leader)
             start=self.event('fault-request',node=leader)['controllerNanos'];self.record['faultStartNanos']=start
             progress_end=min(self.end,start/1e9+timing.control(self.services.provider.req,'progress',60))
-            if self.case=='leader-loss':
+            from .guest_fault_network import CASES as network_cases
+            if self.case in network_cases:
+                from .guest_owned_network import scenario
+                scenario(self,leader,progress_end)
+            elif self.case=='leader-loss':
                 self.stop_node(leader,True);active=self.progress(progress_end);through=self.status(active)['provenIndex']
                 self.start(self.member(leader),True);self.rejoin(leader,through)
             elif self.case=='maintenance':
@@ -213,6 +220,7 @@ class Cell:
 
 
 class Probe:
+    cell_type=Cell
     execution=a.EXECUTION;scope=SCOPE;mode=MODE;cases=CASES;require_physical=True;require_backup=False
     def __init__(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline and services.mode==self.mode,'owned fault services scope')
@@ -225,7 +233,7 @@ class Probe:
         m.need(not self.programs and req==self.services.provider.req and req['member']=='experiment' and list(self.services.groups)==list(self.cases),'owned fault preparation scope/order')
         c.write_once(self.raw/'plan.json',dict(scope=self.scope,request=req))
         for case,group in self.services.groups.items():
-            program=Cell(group,self.raw/case,case,clock=self.clock,sleep=self.sleep);self.programs[case]=program;program.prepare(req,deadline/1e9)
+            program=self.cell_type(group,self.raw/case,case,clock=self.clock,sleep=self.sleep);self.programs[case]=program;program.prepare(req,deadline/1e9)
     def cell(self, name, deadline):
         m.need(len(self.cells)<len(self.cases) and name==self.cases[len(self.cells)],'owned fault cell order')
         self.programs[name].run(deadline);self.cells.append(name)

@@ -367,10 +367,13 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [native first-run headroom candidate](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md): request-bound v2 clocks, four-hour lease, short credential epochs, query-only retry thresholds, bounded shutdown/collection and live heartbeat.
 - [x] First-run headroom protected CI: PR #303, master `366e379455ad7628a81160db604e09b09ffe9e0e`, CI `37703102993`. Native run `37706121942` executed all four cells within budget but failed healthy final-cut replay (92/93/93 after leader-first shutdown). Cleanup, retention and lease release passed; this is not aggregate acceptance.
 - [x] Local [healthy shutdown correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#healthy-shutdown-correction): close followers before the observed issuer, preserve original stop results/deadlines and strict all-voter final-cut validation.
-- [ ] Shutdown correction protected CI and fresh approved complete native experiment.
-- [ ] Corrected-source protected acceptance and successful native experiment; a fresh reviewed request remains required.
+- [x] Shutdown correction protected CI: PR #304, master `500a41f30a5149703b81c4c2d01da75cd3baf1ed`, CI `37718123364`.
+- [x] [First complete native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md): prepared run `37722737290`, native run `37723402614` attempt 1; four cells, 42 rejected evidence mutations, retention and thirteen-resource cleanup/lease release passed. Historical archive independently replayed offline; full five-member qualification remains open.
 - [x] Explicit [operator budget restart](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#explicit-operator-budget-restart--2026-10-07), 2026-10-07: original USD 87 ledger backed up locally; generation-conditional reset read back as USD 0 / 200, no active lease. Historical evidence remains intact; this does not authorize future resets.
-- [ ] Native allocation entry, actual image use/IAP and complete owned-experiment integration.
+- [x] Native allocation entry, actual image use/IAP and complete four-cell owned-experiment integration, qualified by run `37723402614`; this does not qualify larger presets.
+- [ ] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): nine remaining guest fault scenarios, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
+- [x] [Owned network-fault implementation](PHASE_6_OWNED_NETWORK_FAULTS.md): closed guest controls/controller and independent replay for isolated-old-leader, asymmetric requests/responses and slow-follower; separate required CI lane, native admission closed.
+- [ ] Owned network-fault protected CI acceptance; remaining five guest faults and full twelve-cell aggregate.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.
@@ -386,9 +389,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C29 corrected-source protected acceptance: PR #264/#265, master `5ec1e13d64b3236c4aa87dec2d63496d6ea6d1ed`, CI `36756473536` attempt 1, all 29 jobs.
 - [x] 6C3C30 implementation candidate: [read-only native cleanup observations and independent state review](PHASE_6_CLEANUP_STATE_REVIEW.md); no live cleanup or readiness claim.
 - [x] 6C3C30 corrected-source protected CI acceptance: PR #266/#267, master `9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1, all 29 jobs; original [local outbound admission failure and correction](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission) retained.
-- [ ] Real-provider cleanup, identity and activation qualification.
-- [ ] Native cloud source transport and complete owned engine workload cells (controlled SSH source transfer/producer accepted through 6C3C11/12).
-- [ ] Remaining 6C3C: actual cloud SSH/mount setup, complete remote faults and evidence validation.
+- [x] Real-provider cleanup, identity and activation qualified for the four-cell experiment by run `37723402614`; later presets require their own admitted qualification.
+- [x] Native cloud source transport and all four experiment workload cells, run `37723402614`.
+- [ ] Remaining 6C3C: extend the accepted cloud SSH/mount path to all twelve faults and fifteen canonical cells, with complete independent evidence validation.
 - [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
 - [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
 - [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.

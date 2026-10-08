@@ -6,6 +6,19 @@ constitute protected acceptance of a protocol or authorization to implement it.
 
 **Reviewed source:** `066a04602f7116a0386c645ddfcf4c2e3d41312a`.
 
+**Latest native milestone:** PR #304, source
+`500a41f30a5149703b81c4c2d01da75cd3baf1ed`, protected CI `37718123364`, native run
+`37723402614`: first complete four-cell experiment accepted, including independent
+archive replay, retention and cleanup. Start with the
+[acceptance record](v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md) and
+[remaining preset implementation plan](v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
+Full Phase 6 and final same-source five-member qualification remain open.
+
+The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
+isolated-leader, asymmetric request/response and slow-follower guest controls and
+independent replay. Protected CI acceptance is pending. Next implement the five
+remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
+
 **Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0
 on source `09d2bf247f004eb134eb81c59ee88005affafe92`. The
 [contract candidate](v5.1/PHASE_0_CONTRACT.md) now supplies all six design outputs;
@@ -422,9 +435,14 @@ Cleanup of all thirteen resources, retention and lease release passed. Diagnosti
 replay of the three original fault cells passed 22 negatives without qualifying
 the failed aggregate. The current [shutdown correction](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#healthy-shutdown-correction)
 closes followers before the observed issuer while preserving strict oracles,
-original stop identities, failures and shared deadlines. Next require its
-protected CI and a fresh reviewed request with prices through 19800 seconds;
-v2 timing and the USD 200 ceiling remain unchanged (USD 50 retained charges).
+original stop identities, failures and shared deadlines. PR #304 accepted this
+correction with protected CI `37718123364`. Run `37723402614`, prepared by
+`37722737290`, passed all four cells and 42 evidence negatives; retention and all
+thirteen-resource cleanup/lease release passed. Original archive replay agrees.
+Next extend the [native full presets](v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
+The experiment-only v2 timing and USD 200 ceiling remain unchanged; this run's
+USD 20 reservation brought the restarted ledger to USD 70. This is reserved cost,
+not a bill or a new budget reset.
 Default dispatch stays read-only; standalone native preparation stays PARTIAL.
 Preserve the offline/native domain boundary.
 The resource plan maps reuse, remaining implementation and exact-request approval;
@@ -438,8 +456,9 @@ USD 87 was archived locally, the generation-bound counter restarted at USD 0, an
 all historical attempt evidence stayed intact. This exception does not authorize
 automatic refunds or future resets. Keep the 5400+1080-second real wait, existing
 authority and subsequent failed charges. Retain the audit coverage limitation.
-Image use/IAP and actual resource/failure-path qualification remain open; empty
-PASS is not full readiness. Full 6C remains open; paid experiments require separate
+Image use/IAP and actual resource/failure paths are qualified for this four-cell
+experiment. Larger presets and the full five-member set remain open; an empty
+cleanup PASS is not full readiness. Full 6C remains open; paid experiments require separate
 exact-request confirmation and user triggering.
 The original Phase 0 planning-only restrictions below describe that earlier task.
 

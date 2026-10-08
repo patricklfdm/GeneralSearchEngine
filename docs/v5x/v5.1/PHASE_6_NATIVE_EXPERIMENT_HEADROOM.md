@@ -5,8 +5,9 @@
 [CI 37703102993](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37703102993).
 The subsequent [native run 37706121942](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37706121942)
 stayed within every time budget but failed the healthy final durable-cut check.
-The [shutdown correction below](#healthy-shutdown-correction) is a local candidate;
-corrected-source protected CI and a fresh explicitly approved experiment remain required.
+The [shutdown correction below](#healthy-shutdown-correction) passed protected CI
+through PR #304. The [first complete native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
+then passed in run `37723402614`, with all four cells inside the v2 allocation.
 This supersedes the current native timing in the
 [preparation budget amendment](PHASE_6_PREPARATION_BUDGET.md); that document retains
 the historical v1 limits. It does not retrospectively qualify the failed run.
@@ -122,12 +123,13 @@ The original source/build and independent evidence checks remain required.
 Validation results are retained in `target/v51-native-headroom/` and summarized
 in the PR body. No paid workload or ledger operation is performed by this change.
 
-After protected CI and merge: use the current manual cleanup result, prepare a
-new request with fresh prices and sufficient reservation, review its new timing
-and exact digest, then explicitly trigger the experiment. Keep the result even if
-it fails. After the first complete run, use phase/mode/connection timings to review
-smaller limits; do not automatically shrink or renew a running lease. Phase 6,
-canonical repetitions and release qualification remain open.
+The first complete native run is now accepted; its
+[measured stage timings](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md#measured-controller-time)
+provide a starting point for later budget review. Do not automatically shrink or
+renew a running lease based on one run. Next follow the
+[full-preset entry plan](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md); larger native presets
+need their own reviewed allocation. Phase 6, canonical repetitions and release
+qualification remain open.
 
 ## Healthy shutdown correction
 
@@ -173,4 +175,6 @@ produced cuts 4/3/4 after all voters had reached 3; the corrected method kept
 confirmed the extra activation NO_OP only in the original run. This is a finite
 local reproduction, not native experiment qualification or a failover SLA.
 This correction leaves the v2 timing, workload calls and budget reservations
-unchanged. Fresh native acceptance remains pending after protected CI and merge.
+unchanged. PR #304 / CI `37718123364` accepted the corrected source; native run
+`37723402614` observed leader node 1 and shutdown order 2, 3, 1, passing the strict
+final-cut validator and complete experiment aggregate.

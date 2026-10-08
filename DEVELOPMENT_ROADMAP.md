@@ -2,6 +2,20 @@
 
 ## Current development: V5.1 automatic election and activation
 
+**Latest milestone:** the [first native experiment](docs/v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
+passed all four cells, 42 evidence negatives, retention and thirteen-resource
+cleanup/lease release on source `500a41f30a5149703b81c4c2d01da75cd3baf1ed`
+(PR #304, protected CI `37718123364`, native run `37723402614`). Original archive
+replay also passed. Next implement the
+[remaining native presets](docs/v5x/v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
+Full Phase 6 still requires one final source's experiment, failure drill and three
+canonical repetitions. The chronology below retains earlier entry boundaries.
+
+The [owned network-fault slice](docs/v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
+isolated-leader, asymmetric request/response and slow-follower guest controls and
+independent replay. Protected CI acceptance is pending. Next implement the five
+remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
+
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
 `35487644896` passing. The [Phase 1 foundation](docs/v5x/v5.1/PHASE_1_FOUNDATION.md)
@@ -128,23 +142,25 @@ attempt 1 (all 29 jobs). The [Phase 6 checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST
 records each intermediate acceptance. The subsequent
 [disabled identity configuration](docs/v5x/v5.1/PHASE_6_CLEANUP_ACTIVATION_REVIEW.md)
 was separately authorized, applied and read back as `STAGED_MATCH` on 2026-09-30.
-All three identities/pools/providers remain disabled. Subsequent scoped cleanup
+At that staging checkpoint all three identities/pools/providers were disabled. Subsequent scoped cleanup
 network integration and deployment review are accepted through 6C3C29. The
 [6C3C30 independent state review](docs/v5x/v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md)
 and outbound-admission correction are accepted through PR #266/#267, master
 `9243bc31dc3727a132b50740430426b3512fc5c8`, exact-master CI `36785256345`
 attempt 1 (all 29 jobs). The original failed run remains retained. Actual
 workflow-identity permission checks, real cleanup qualification/activation and
-remaining remote integration are next. The operator authorized a
+remaining remote integration followed in later batches. The operator authorized a
 [bounded IAM review amendment](docs/v5x/v5.1/PHASE_6_CLEANUP_STATE_REVIEW.md#iam-admission-scope-amendment--2026-09-30):
 ancestor-policy reads are optional and unassessed; required access, forbidden-action
 probes and explicit role/trust review remain mandatory, without extra privileges.
 The amendment and selection correction are accepted through PR #268/#269,
 master `c209383a510ae785244003b8778e5e193cdaf255`, CI `36804323832` attempt 1
-(29 jobs). The next [6C3C31 candidate](docs/v5x/v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
-adds bound project/bucket permission prechecks and offline qualification; protected
-CI, actual identity execution and conditional object/IAP qualification remain open.
-Native cloud writes and full 6C remain open; paid experiments require separate
+(29 jobs). The [6C3C31 implementation](docs/v5x/v5.1/PHASE_6_IDENTITY_PERMISSIONS.md)
+added bound project/bucket permission prechecks and offline qualification.
+Subsequent acceptance through PR #304 is recorded in the
+[Phase 6 checklist](docs/v5x/v5.1/PHASE_6_CHECKLIST.md); actual native identity,
+resource, object/IAP and four-cell workload integration are now qualified.
+Full 6C remains open for larger presets; paid experiments require separate
 exact-request confirmation and user triggering.
 V5.2-V5.4 remain future work.
 The [updated minor roadmap](docs/v5x/ROADMAP.md) and

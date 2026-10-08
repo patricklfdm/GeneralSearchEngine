@@ -34,4 +34,5 @@ def control(request, name, legacy):
 
 
 def cell(request, name):
+    if name=='slow-follower' and not selected(request):return 180
     return STAGES[name] if selected(request) else (900 if name == 'healthy' else 240 if name == 'maintenance' else 120)
