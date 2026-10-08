@@ -51,10 +51,33 @@ class Cell(network.Cell):
 
     def partition(self, node, action):
         self.event('recovery-'+action,node=node)
-        self.parallel(lambda member:self.command('node-'+str(member[0]),action,**(dict(node=node) if action=='isolate' else {})))
+        if action=='heal':
+            # Rules act at the sender. Release the recipient first, then permit
+            # senders to deliver the armed chunk; guest-clock heal precedes cut.
+            result={node:self.command(node,action)}
+            result.update(self.parallel(lambda member:('node-'+str(member[0]),self.command('node-'+str(member[0]),action)),
+                                        [member for member in self.clients if member!=self.member(node)]))
+            return result
+        return dict(self.parallel(lambda member:('node-'+str(member[0]),
+            self.command('node-'+str(member[0]),action,**(dict(node=node) if action=='isolate' else {})))))
+
+    def recipient_observation(self, node):
+        value=self.observe(node)
+        self.record['recipientLastObservation']={k:value[k] for k in ('campaign','heartbeat','cut')}
+        m.need(value['campaign']==self.record['recipientCampaign'],
+               'owned recovery recipient started a campaign before intended fault: '+node)
+        return value
+
+    def recipient_heartbeat(self, node, old, through, applied, deadline):
+        def received():
+            row=self.recipient_observation(node)['heartbeat'];frame=recovery.heartbeat_frame(row)
+            return row if frame and row['localNanos']>applied and frame['sender']==old and frame['recipient']==node and \
+                frame['payload']['activated'] and frame['payload']['provenIndex']>=through else None
+        self.record['recipientHeartbeat']=self.wait(received,deadline,'owned recovery recipient heartbeat missing')
 
     def cut(self, node, deadline):
-        self.record['cut']=self.wait(lambda:self.observe(node)['cut'],deadline,'owned original durable cut missing')
+        observe=self.recipient_observation if self.case=='interrupted-transfer' else self.observe
+        self.record['cut']=self.wait(lambda:observe(node)['cut'],deadline,'owned original durable cut missing')
         m.need(self.record['cut']['cut']==recovery.CUTS[self.case],'owned wrong crash cut')
 
     def start_target(self, node):
@@ -82,20 +105,24 @@ class Cell(network.Cell):
             selected=self.observe(old)['selected'];m.need(selected is not None,'owned transfer selected source pair')
             pair={b['node'] for b in f.inspect(base64.b64decode(selected['selected'],validate=True),'SELECTED')['bases']}
             target=next(n for n in self.running if n not in pair);self.record.update(selected=selected,targetNode=target)
-            self.partition(target,'isolate')
+            self.record['recipientCampaign']=self.observe(target)['campaign']
+            isolation=self.partition(target,'isolate')
             m.need(self.call(old,'addAll',documents=recovery.documents(40,4096))['outcome']=='SUCCESS','owned transfer seed failed')
             through=self.status(old)['provenIndex'];self.record['sourceFloor']=self.source(old,through,deadline)
+            self.recipient_heartbeat(target,old,through,isolation[target]['appliedNanos'],deadline)
             self.command(target,'arm-cut');self.partition(target,'heal');self.cut(target,deadline)
             self.stop_node(target,True);self.start(self.member(target),True);self.rejoin(target,through)
             self.record['transferRejoin']=self.record['rejoins'].pop()
             active=self.progress(deadline);self.rejoin(target,self.status(active)['provenIndex'])
         else:
-            self.partition('node-3','isolate')
+            self.record['recipientCampaign']=self.observe('node-3')['campaign']
+            isolation=self.partition('node-3','isolate')
             for tag in (40,60):m.need(self.call(old,'addAll',documents=recovery.documents(tag,20000))['outcome']=='SUCCESS','owned capacity target failed')
             through=self.status(old)['provenIndex'];self.record['sourceFloor']=self.source(old,through,deadline)
+            self.recipient_heartbeat('node-3',old,through,isolation['node-3']['appliedNanos'],deadline)
             self.partition('node-3','heal')
             def rejected():
-                value=self.observe('node-3')
+                value=self.recipient_observation('node-3')
                 return value if value['rejection'] and value['capacityReply'] else None
             observed=self.wait(rejected,deadline,'owned real capacity rejection/reply missing');self.record['rejection']=observed['rejection']
             self.command('node-3','status',boundary='resource-rejected')

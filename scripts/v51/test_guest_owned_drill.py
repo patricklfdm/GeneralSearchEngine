@@ -1,5 +1,7 @@
 """Closed drill commands, once-only crashes and complete offline admission."""
 from concurrent.futures import Future
+from copy import deepcopy
+import base64
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -11,6 +13,7 @@ from . import guest_owned_drill as drill, guest_owned_experiment as experiment, 
 from . import remote_command as c, guest_fault_evidence as evidence
 from .test_guest_service import config
 from . import test_guest_owned_workload as common
+from . import guest_recovery_evidence as replay, format_encoder as encoder, fixtures
 
 
 class DrillScopeTest(unittest.TestCase):
@@ -154,6 +157,113 @@ class RecoveryHandlerTest(unittest.TestCase):
         with self.assertRaises(ConnectionError):cell.retained_stop('node-1')
         with self.assertRaisesRegex(ValueError,'consumed'):cell.retained_stop('node-1')
         cell.succeeded.assert_called_once()
+
+
+class TransferPathTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.cell=drill.Cell(SimpleNamespace(clients=[(n,None,{}) for n in (1,2,3)],provider=SimpleNamespace(req={})),
+                             self.root/'cell','interrupted-transfer',clock=lambda:1,sleep=lambda _:None)
+        self.cell.end=10;self.cell.record['recipientCampaign']=None
+        self.manifest=dict(groupId=fixtures.UUID,configurationId='transfer-test',digest='ab'*32,
+                           members=[dict(node='node-'+str(n)) for n in (1,2,3)])
+        envelope=dict(groupId=fixtures.UUID,configurationId='transfer-test',manifestDigest='ab'*32,
+            protocol='gse-replication/1.2',epoch=2,incarnationId=fixtures.UUID,proposer='node-1',
+            sender='node-1',recipient='node-3',eventSequence=7,traceId=fixtures.UUID)
+        request=encoder.wire('HEARTBEAT',envelope,dict(activated=True,provenIndex=6,progressBytes=0,sequence=9,stage=7))
+        response=encoder.wire('HEARTBEAT_ACK',dict(envelope,sender='node-3',recipient='node-1'),dict(provenIndex=5,sequence=9))
+        self.heartbeat=dict(event='REPLY',node='node-3',pid=41,order=20,localNanos=12,
+            request=base64.b64encode(request).decode(),frame=base64.b64encode(response).decode())
+        self.cut=dict(event='CUT_REACHED',pid=41,localNanos=16)
+        self.isolation=dict(appliedNanos=10,healedNanos=15)
+        self.record=dict(case='interrupted-transfer',recipientHeartbeat=self.heartbeat,cut=self.cut,targetNode='node-3',seedLeader='node-1',
+                         sourceFloor=dict(index=6),recipientCampaign=None)
+
+    def test_transfer_partition_preserves_heartbeats_but_blocks_all_data_paths(self):
+        for case in ('interrupted-transfer','minority-capacity'):
+            with self.subTest(case=case):
+                root=self.root/case;root.mkdir()
+                h=service.Handler(SimpleNamespace(config=dict(config(root),faultCell=case),
+                    cell=root,node='node-3',jvm=Mock(closed=False)))
+                h.recovery.direction_healed=True
+                with patch.object(recovery.threading,'Timer'):
+                    value=h.handle('fault',dict(action='isolate',node='node-3'),lambda:None)
+                def blocked(sender,recipient,kind):
+                    return any(row in value['rules'] for row in (f'{sender} {recipient} BEFORE_REQUEST_WRITE *',
+                                                                 f'{sender} {recipient} BEFORE_REQUEST_WRITE {kind}'))
+                for peer in ('node-1','node-2'):
+                    for sender,recipient in ((peer,'node-3'),('node-3',peer)):
+                        self.assertFalse(blocked(sender,recipient,'HEARTBEAT'))
+                        for kind in ('ACCEPT','COMMIT_PROOF','SNAPSHOT_OFFER','SNAPSHOT_CHUNK','REJOIN_INSTALL','SOURCE_OFFER','SOURCE_CHUNK','PREPARE','SELECTED_OFFER','BASIS_CHUNK'):
+                            self.assertTrue(blocked(sender,recipient,kind),kind)
+                self.assertFalse(blocked('node-1','node-2','ACCEPT'))
+                self.assertEqual(value['rules'],(root/'network-rules.txt').read_text().splitlines())
+
+    def test_cut_wait_fails_immediately_if_recipient_campaigns_even_with_a_cut(self):
+        for cut in (None,dict(cut=recovery.CUTS['interrupted-transfer'])):
+            self.cell.observe=Mock(return_value=dict(campaign=dict(event='CAMPAIGN_BEGIN',order=22),heartbeat=self.heartbeat,cut=cut))
+            with self.assertRaisesRegex(ValueError,'recipient started a campaign'):
+                self.cell.cut('node-3',5)
+            self.cell.observe.assert_called_once()
+            self.assertEqual(22,self.cell.record['recipientLastObservation']['campaign']['order'])
+
+    def test_heal_releases_recipient_before_any_sender_can_deliver_the_chunk(self):
+        for case in ('interrupted-transfer','minority-capacity'):
+            self.cell.case=case;calls=[]
+            self.cell.command=lambda node,action:calls.append((node,action)) or {}
+            result=self.cell.partition('node-3','heal')
+            self.assertEqual(('node-3','heal'),calls[0])
+            self.assertEqual({'node-1','node-2','node-3'},set(result))
+            self.assertEqual(3,len(calls))
+
+    def test_capacity_recipient_campaign_fails_before_waiting_for_a_capacity_reply(self):
+        self.cell.case='minority-capacity'
+        self.cell.observe=Mock(return_value=dict(campaign=dict(event='CAMPAIGN_BEGIN'),heartbeat=None,cut=None,
+                                                 rejection=dict(event='RESOURCE_REJECTED'),capacityReply=None))
+        with self.assertRaisesRegex(ValueError,'recipient started a campaign'):
+            self.cell.recipient_observation('node-3')
+        self.cell.observe.assert_called_once()
+
+    def test_transfer_wait_requires_current_activated_source_heartbeat(self):
+        stale=dict(self.heartbeat,localNanos=9)
+        self.cell.observe=Mock(side_effect=[dict(campaign=None,heartbeat=v,cut=None) for v in (stale,self.heartbeat)])
+        self.cell.recipient_heartbeat('node-3','node-1',6,10,5)
+        self.assertEqual(2,self.cell.observe.call_count)
+        self.assertEqual(self.heartbeat,self.cell.record['recipientHeartbeat'])
+
+    def test_independent_transfer_path_rejects_absent_early_and_foreign_heartbeats(self):
+        replay.recipient_path(self.record,[self.heartbeat],self.isolation,self.manifest)
+        for field,value in (('localNanos',9),('localNanos',15),('pid',99),('event','RECEIVED')):
+            record=deepcopy(self.record);record['recipientHeartbeat'][field]=value
+            with self.assertRaisesRegex(ValueError,'heartbeat outside'):
+                replay.recipient_path(record,[record['recipientHeartbeat']],self.isolation,self.manifest)
+        with self.assertRaisesRegex(ValueError,'heartbeat outside'):
+            replay.recipient_path(self.record,[],self.isolation,self.manifest)
+        record=dict(self.record,seedLeader='node-2')
+        with self.assertRaisesRegex(ValueError,'bind live source'):
+            replay.recipient_path(record,[self.heartbeat],self.isolation,self.manifest)
+
+    def test_independent_path_rejects_campaign_during_hold_or_after_heal(self):
+        for when in (11,15,16):
+            campaign=dict(event='CAMPAIGN_BEGIN',pid=41,localNanos=when)
+            with self.assertRaisesRegex(ValueError,'recipient campaigned'):
+                replay.recipient_path(self.record,[self.heartbeat,campaign],self.isolation,self.manifest)
+        previous=dict(event='CAMPAIGN_BEGIN',pid=41,localNanos=8)
+        replay.recipient_path(dict(self.record,recipientCampaign=previous),[previous,self.heartbeat],self.isolation,self.manifest)
+
+    def test_capacity_path_requires_live_heartbeat_until_original_resource_rejection(self):
+        record=dict(self.record,case='minority-capacity',rejection=dict(self.cut,event='RESOURCE_REJECTED'))
+        replay.recipient_path(record,[self.heartbeat],self.isolation,self.manifest)
+        for rows in ([],[self.heartbeat,dict(event='CAMPAIGN_BEGIN',pid=41,localNanos=15)]):
+            with self.assertRaises(ValueError):replay.recipient_path(record,rows,self.isolation,self.manifest)
+
+    def test_missing_capacity_reply_negative_preserves_heartbeat_and_other_refusals(self):
+        self.assertFalse(evidence.capacity_reply(self.heartbeat))
+        envelope=recovery.m.strict_json(base64.b64decode(self.heartbeat['frame'])[48:])
+        for reason in ('NOT_READY','CAPACITY_EXCEEDED'):
+            frame=encoder.wire('REJECT',envelope,dict(reason=reason,promised=dict(epoch=2,proposer='node-1',incarnation=fixtures.UUID)))
+            row=dict(self.heartbeat,frame=base64.b64encode(frame).decode())
+            self.assertEqual(reason=='CAPACITY_EXCEEDED',evidence.capacity_reply(row))
 
 
 class DisconnectedJvmTest(unittest.TestCase):

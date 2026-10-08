@@ -9,6 +9,23 @@ CASES = ('interrupted-transfer', 'entry-chosen', 'proof-quorum', 'group-restart'
 CUTS = {'entry-chosen':'ACCEPT_ACK_RECEIVED', 'proof-quorum':'PROOF_ACK_RECEIVED',
         'interrupted-transfer':'STORAGE_CUT:TRANSFER_PROGRESS_BEFORE_ACK'}
 NODES = ('node-1','node-2','node-3')
+# Withhold mutation/recovery traffic, not the heartbeat that keeps a lagging
+# recipient a follower during slow SSH control exchanges.
+DATA_BLOCKED_TYPES = ('PREPARE','BASIS_CHUNK','SELECTED_OFFER','ACCEPT','COMMIT_PROOF',
+    'COMMIT_ADVANCE','SNAPSHOT_OFFER','SNAPSHOT_CHUNK','REJOIN_INSTALL','SNAPSHOT_ABORT','SOURCE_OFFER','SOURCE_CHUNK')
+
+
+def isolation_rules(case, node):
+    m.need(case in ('interrupted-transfer','minority-capacity'),'recovery data isolation scope')
+    return [f'{a} {b} BEFORE_REQUEST_WRITE {kind}' for a in NODES for b in NODES
+            if a!=b and node in (a,b) for kind in DATA_BLOCKED_TYPES]
+
+
+def heartbeat_frame(row):
+    if row is None:return None
+    request=m.strict_json(base64.b64decode(row['request'],validate=True)[48:])
+    response=m.strict_json(base64.b64decode(row['frame'],validate=True)[48:])
+    return request if request['type']=='HEARTBEAT' and response['type']=='HEARTBEAT_ACK' else None
 
 
 def documents(tag, size):
@@ -80,6 +97,8 @@ class Controls:
                 return frame['type']=='REJECT' and frame['payload'].get('reason')=='CAPACITY_EXCEEDED'
             return dict(selected=next((v for v in reversed(own) if v['event']=='PROMISE_QUORUM'),None),
                 floor=next((v for v in reversed(own) if v['event']=='RECOVERY_FLOOR'),None),
+                campaign=next((v for v in reversed(own) if v['event']=='CAMPAIGN_BEGIN'),None),
+                heartbeat=next((v for v in reversed(own) if v['event']=='REPLY' and heartbeat_frame(v)),None),
                 cut=next((v for v in own if v['event']=='CUT_REACHED'),None),rejection=rejection,
                 capacityReply=next((v for v in replies if capacity(v)),None))
         if action=='isolate':
@@ -87,7 +106,7 @@ class Controls:
                    not h.isolated and (h.case!='minority-capacity' or self.direction_healed and payload['node']=='node-3'),'recovery isolation consumed/scope')
             c.write_once(root/'network-injection-claim.json',payload)
             with h.lock:
-                h.isolated=True;rules=[f'{a} {b} BEFORE_REQUEST_WRITE *' for a in NODES for b in NODES if a!=b and payload['node'] in (a,b)]
+                h.isolated=True;rules=isolation_rules(h.case,payload['node'])
                 h.rules(rules);h.isolation=dict(appliedNanos=time.monotonic_ns(),rules=rules,node=payload['node'])
                 h.timer=threading.Timer(60,lambda:h.heal(True));h.timer.daemon=True;h.timer.start();return dict(h.isolation)
         if action=='heal':

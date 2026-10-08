@@ -17,6 +17,12 @@ def package_binding(manifest, req):
     m.need(manifest['source']==req['source'] and manifest['workloadSha256']==m.sha(contract.PLAN.read_bytes()),'owned fault package source/plan')
 
 
+def capacity_reply(row):
+    if row['event']!='REPLY':return False
+    frame=m.strict_json(faults.a.raw(row['frame'])[48:])
+    return frame['type']=='REJECT' and frame['payload'].get('reason')=='CAPACITY_EXCEEDED'
+
+
 def logical_bounds(history, traces, chosen):
     m.need(chosen<=512,'owned fault logical slot bound')
     noops=set()
@@ -236,7 +242,7 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         variants+=('missing-seed-rejoin','missing-retained-restart')
         if case in ('entry-chosen','proof-quorum','interrupted-transfer'):variants+=('missing-durable-cut',)
         if case in ('entry-chosen','proof-quorum'):variants+=('fabricated-target-response','missing-target-quorum')
-        if case in ('interrupted-transfer','minority-capacity'):variants+=('missing-isolation-observation',)
+        if case in ('interrupted-transfer','minority-capacity'):variants+=('missing-isolation-observation','missing-recipient-heartbeat','recipient-campaigned')
         if case=='interrupted-transfer':variants+=('missing-transfer-chunks','wrong-transfer-recipient')
         if case=='minority-capacity':variants+=('missing-capacity-reply','changed-capacity-accounting','missing-prepare-barrier')
     for name in variants:
@@ -286,7 +292,11 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         elif name=='missing-isolation-observation':tt={n:[v for v in seq if v['event']!='NETWORK_DROP'] for n,seq in tt.items()}
         elif name=='missing-transfer-chunks':tt={n:[v for v in seq if v['event']!='WIRE_BEFORE_REQUEST_WRITE_SNAPSHOT_CHUNK'] for n,seq in tt.items()}
         elif name=='wrong-transfer-recipient':rr['targetNode']=rr['seedLeader']
-        elif name=='missing-capacity-reply':tt['node-3']=[v for v in tt['node-3'] if v['event']!='REPLY']
+        elif name=='missing-recipient-heartbeat':
+            node=rr.get('targetNode','node-3');tt[node]=[v for v in tt[node] if v!=rr['recipientHeartbeat']]
+        elif name=='recipient-campaigned':
+            row=dict(rr['recipientHeartbeat'],event='CAMPAIGN_BEGIN');tt[rr.get('targetNode','node-3')].append(row)
+        elif name=='missing-capacity-reply':tt['node-3']=[v for v in tt['node-3'] if not capacity_reply(v)]
         elif name=='changed-capacity-accounting':rr['rejection']['requested']=0
         elif name=='missing-prepare-barrier':
             for node in rrows:rrows[node]=[(q,r) for q,r in rrows[node] if not(q['command']=='fault' and q['payload']=={'action':'prepare-direction'})]

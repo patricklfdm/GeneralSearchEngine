@@ -9,17 +9,52 @@ to the accepted four-cell experiment.
 
 | Cell | Original fault and evidence | Cell ceiling |
 | --- | --- | --- |
-| interrupted-transfer | Nonselected recipient isolated during the 4096-byte-value bulk, original exportable floor, first durable transfer chunk before ACK, SIGKILL and same-directory partial restart | 180 s |
+| interrupted-transfer | Nonselected recipient isolated from mutation/recovery traffic during the 4096-byte-value bulk, acknowledged live heartbeat, original exportable floor, first durable transfer chunk before ACK, SIGKILL and same-directory partial restart | 180 s |
 | entry-chosen | Original 512-byte-value bulk stopped at ACCEPT_ACK_RECEIVED; chosen quorum and unresolved caller retained; surviving progress before old voter restart | 120 s |
 | proof-quorum | Original bulk stopped at PROOF_ACK_RECEIVED; original forced proof quorum and unresolved caller retained; surviving progress before restart | 120 s |
 | group-restart | All three original directories archived after graceful stop, restarted as new process generations, acknowledged state retained | 120 s |
-| minority-capacity | PREPARE-only initialization barrier; node 3 sealed at 128 KiB, two 20000-byte-value bulks, genuine capacity rejection/reply, bounded voter and healthy voter retained restarts | 180 s |
+| minority-capacity | PREPARE-only initialization barrier; node 3 sealed at 128 KiB and isolated from data with live heartbeats during two 20000-byte-value bulks, genuine capacity rejection/reply, bounded voter and healthy voter retained restarts | 180 s |
 
 The existing leader-loss, maintenance, no-quorum and four
 [network/lag cells](PHASE_6_OWNED_NETWORK_FAULTS.md) complete the twelve-cell set.
 Document encoding limits stay exactly 4100/20004 bytes in the two frozen large
 payload cases. Other voters retain the sealed 64 MiB limit. Public call caps,
 progress/rejoin limits, original network holds and cut hooks are unchanged.
+
+### Recovery recipient election regressions
+
+Master CI [37761664548](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37761664548)
+failed `interrupted-transfer` with `owned original durable cut missing`. The
+original full partition also dropped heartbeats. During the 4.9-second isolation,
+node 3 began a campaign, then became the epoch-10 leader after healing. It recovered
+through its selected basis instead of receiving a snapshot. Its cut remained
+armed, with no incoming snapshot chunk after healing. The 60-second progress
+deadline expired; the 180-second cell and 1800-second outer command did not expire.
+
+The complete local regression then exposed the same mechanism in
+`minority-capacity`: node 3 campaigned during its 4.4-second full isolation and
+rejected a 146632-byte campaign reconstruction against its 131072-byte limit.
+There was no original CAPACITY_EXCEEDED wire reply from a receiving follower, so
+that required evidence never arrived. The unchanged capacity case failed; it was
+not counted as passing because the transfer case succeeded.
+
+Both owned recovery setups now block only the closed mutation/recovery request
+types on target edges, including PREPARE and basis/selected exchange, while
+allowing normal heartbeats and status probes. The controller waits for an original successful
+heartbeat reply from the lagging target acknowledging the active source's new
+proven index before healing (and before arming the transfer cut). No election policy
+or engine state is changed. The recipient is healed before any source can deliver
+the held data, preserving original guest-clock ordering.
+A new target campaign fails immediately with the observed campaign retained.
+Independent replay requires the actual heartbeat during isolation, the still
+lagging reply, and no target campaign through the durable cut or original resource
+rejection. Missing heartbeat
+and unexpected campaign mutations must be rejected along with the existing
+original chunk, cut, SIGKILL, capacity reply and unchanged partial-directory checks.
+
+This is a correction to fault setup, not a retry or a larger timing budget.
+Original failed evidence remains retained. Corrected-source protected CI is
+required before accepting the complete owned failure drill.
 
 ## Command and evidence boundaries
 
