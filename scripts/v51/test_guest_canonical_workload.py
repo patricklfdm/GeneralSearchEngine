@@ -272,13 +272,14 @@ class CanonicalDeliveryTest(unittest.TestCase):
         self.archive,self.manifest,self.attempt=archive,manifest,0
         self.new_attempt()
 
-    def new_attempt(self):
+    def new_attempt(self,node=1):
         from . import guest_delivery_receiver as helper, guest_package_delivery as delivery, guest_package_receiver as receiver
         self.attempt+=1
         self.cfg=config(self.parent/package.MODES[2])
+        self.cfg['binding']['node']='node-'+str(node)
         self.cfg['binding'].update(attempt=f'{self.attempt:032x}',bundleSha256=m.sha(self.archive.read_bytes()))
         self.value=delivery.describe(self.archive,self.manifest,self.cfg['binding'],
-            dict(instanceId='123',diskId='456',attempt=self.cfg['binding']['attempt'],node=1),'c'*64)
+            dict(instanceId='123',diskId='456',attempt=self.cfg['binding']['attempt'],node=node),'c'*64)
         self.cfg['packageManifestSha256']=self.value['manifestSha256']
         sample=helper.clock_sample(receiver.identity(self.value),'d'*32)
         self.budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+60*10**9)
@@ -289,11 +290,14 @@ class CanonicalDeliveryTest(unittest.TestCase):
         receiver.finish(self.parent,self.value,self.budget)
         self.endpoint=delivery.Endpoint(dict(instanceId='123'),self.parent,self.value)
 
-    def selected(self,mode,cell):
+    def selected(self,mode,cell,repetition=None):
         cfg=deepcopy(self.cfg);cfg['mode']=mode
         label=mode if cell is None else 'canonical-'+cell+'-'+mode
-        cfg['root']=str(self.parent/label)
         if cell is not None:cfg['workload']=dict(cell=cell,preset='canonical')
+        if repetition is not None:
+            cfg['workload']['repetition']=repetition
+            label=package.bootstrap_directory_name(cfg)
+        cfg['root']=str(self.parent/label)
         return cfg
 
     def invoke(self,entry,action,request,data=b'',index=None,*,reject=None):
@@ -311,7 +315,7 @@ class CanonicalDeliveryTest(unittest.TestCase):
     def producer_request(self,cfg):
         from . import guest_source_producer
         configs=[]
-        for node in package.experiment_nodes(cfg['mode']):
+        for node in package.service_nodes(cfg):
             member=deepcopy(cfg);member['binding']['node']='node-'+str(node);configs.append(member)
         return dict(schema=guest_source_producer.SCHEMA,configs=configs)
 
@@ -320,7 +324,7 @@ class CanonicalDeliveryTest(unittest.TestCase):
         root=Path(cfg['root']);root.mkdir()
         for name in boot.expected_files(cfg):
             path=root/name;path.parent.mkdir(exist_ok=True);path.write_bytes(name.encode())
-        for name,value in zip(boot.TOPOLOGY,('\n'.join(cfg['hosts'])+'\n','\n'.join(map(str,cfg['ports']))+'\n',cfg['groupId']+'\n')):
+        for name,value in boot.topology_values(cfg).items():
             if name in boot.expected_files(cfg):(root/name).write_text(value)
         folder=self.root/(root.name+'-export');row=boot.export(root,folder,cfg)
         root.rename(self.root/(root.name+'-original'))

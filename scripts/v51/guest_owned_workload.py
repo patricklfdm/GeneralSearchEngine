@@ -37,7 +37,11 @@ class Probe:
             m.need(services.offline is True,'owned canonical workload is offline only')
             m.need(self.mode==package.MODES[0] or physical and backup,'canonical replicated tape requires physical history and backup')
             self.scope=workload.scope(self.mode,self.cell_name)
-        self.nodes=package.experiment_nodes(self.mode)
+        self.repetition=getattr(services,'canonical_repetition',None)
+        selection=dict(mode=self.mode)
+        if self.repetition:selection.update(execution='local-guest-service-only',workload=dict(cell=self.cell_name,preset=self.preset,repetition=self.repetition))
+        self.nodes=package.service_nodes(selection)
+        self.control_node=package.control_node(selection)
         m.need(type(physical) is bool and (not physical or self.mode in package.MODES[1:]),'owned physical scope');self.require_physical=physical
         m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
@@ -89,6 +93,7 @@ class Probe:
         for (node,client,cfg),member in zip(self.clients,complete['members']):
             m.need(client.config==cfg and cfg['mode']==self.mode and
                    workload.selection(cfg)==(self.cell_name,self.preset) and
+                   cfg.get('workload',{}).get('repetition')==self.repetition and
                    cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node)) and
                    m.sha(self.manifest)==cfg['packageManifestSha256'] and member['node']==node and
                    member['configSha256']==m.sha(m.canonical(cfg)), 'owned workload client identity')
@@ -111,7 +116,7 @@ class Probe:
             activation=min(end,self.clock()+timing.control(self.services.provider.req,'activation',30))
             if self.mode==package.MODES[0]:self.active=self.clients[0]
             if self.mode==package.MODES[1]:
-                self.active=self.clients[0]
+                self.active=next(member for member in self.clients if 'node-'+str(member[0])==self.control_node)
                 self.succeeded(self.active,'fault',dict(action='activate'),activation)
             while self.active is None:
                 for member in self.clients:

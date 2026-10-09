@@ -34,7 +34,13 @@ def require_completion(result, resources):
                workloadErrors=(result.get('evidence') or {}).get('errors',[]))))
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False, failure_drill=False, canonical_cell=None):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False, failure_drill=False, canonical_cell=None, canonical_repetition=None):
+    from . import guest_owned_canonical as canonical_batch
+    complete=canonical_repetition is not None
+    if complete:
+        canonical_batch.validate_repetition(canonical_repetition)
+        m.need(not any((bootstrap,source_transfer,producer_source,workload,physical,backup,three_mode,faults,fault_local,experiment,maintenance,network,failure_drill)) and
+               canonical_cell is None and mode==package.MODES[2], 'complete canonical has its own offline scope')
     if canonical_cell is not None:
         from . import guest_workload_spec as rich
         m.need((mode,canonical_cell) in rich.CASES and not any((bootstrap,source_transfer,producer_source,workload,physical,backup,
@@ -57,6 +63,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
     m.need(not source_transfer or bootstrap,'source transfer requires bootstrap qualification')
     m.need(not producer_source or source_transfer,'producer requires source transfer qualification')
     m.need(not workload or producer_source,'owned workload requires authenticated source preparation')
+    if complete:workload=backup=True
     nodes=package.experiment_nodes(mode)
     root=Path(output).resolve(); root.mkdir(parents=True,mode=0o700,exist_ok=False)
     bundle=Path(bundle).resolve(); manifest=package.verify(bundle/'package',source)
@@ -69,7 +76,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
         execution='owned-model-loopback-ssh-idle-services',realSshExecuted=True,engineWorkloadExecuted=False,
         providerIdentity='modeled-fixtures',volumeObservations='offline-block-model',filesystem='shared-local',
         realBlockDeviceWritten=False,paidCloud=False,fullRemoteQualification=False)
-    if producer_source:receipt['producerPathsHidden']=False
+    if producer_source or complete:receipt['producerPathsHidden']=False
     services=None; endpoints=[]; views=None; workload_submits=[]; lost_submissions=[]
     try:
         with tempfile.TemporaryDirectory(prefix='gse-v51-owned-keys-',dir=ROOT/'target') as private, Server(private,root) as server:
@@ -87,7 +94,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     return http.reply(dict(queryPath='hostkeys/',queryValue=dict(items=[dict(namespace='hostkeys',key='ssh-ed25519',value=server.host['publicKey'].split()[1])])))
                 return original(method,path,query,body)
             http.hook=hook
-            if bootstrap or faults and not fault_local:
+            if complete or bootstrap or faults and not fault_local:
                 from .guest_isolation import Views
                 from .guest_bootstrap_source import ViewSource
                 from .guest_owned_bootstrap import Bootstrap
@@ -135,7 +142,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                     if workload or faults:
                         submit=cl.submit
                         def lose_workload_reply(value,end):
-                            workload_submits.append(dict(mode=config['mode'],node=config['binding']['node'],request=value,**({'faultCell':config['faultCell']} if 'faultCell' in config else {})))
+                            workload_submits.append(dict(mode=config['mode'],node=config['binding']['node'],request=value,**({'faultCell':config['faultCell']} if 'faultCell' in config else {}),**({'workload':config['workload']} if complete and 'workload' in config else {})))
                             answer=submit(value,end)
                             activate=(config['mode']==package.MODES[1] and value['command']=='fault' and value['payload']==dict(action='activate'))
                             if faults or 'faultCell' in config or value['command']=='window' or activate or backup and value['command'] in ('backup','restore-backup'):
@@ -162,6 +169,13 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 ep.bootstrap=lost_bootstrap
                 original_source=ep.source; source_lost=set()
                 def lose_source(action,request,data,end,index=None):
+                    if complete and not receipt['producerPathsHidden']:
+                        first_mode=canonical_batch.key(package.MODES[0],'healthy')
+                        record=c.read(root/'startup/services'/first_mode/'bootstrap/producer/original/receipt.json')
+                        m.need(record['status']=='PASS' and len(record['exports'])==1,'canonical producer download barrier')
+                        first=endpoints[0].value;node=first['binding']['node']
+                        producer=views.root/node/(first['binding']['attempt']+'-'+node)/'source-producer'
+                        (producer/'exports').rename(producer/'hidden-exports');receipt['producerPathsHidden']=True
                     if producer_source and not receipt['producerPathsHidden']:
                         producer_root=(root/'startup/services'/package.MODES[0]/'bootstrap/producer/original') if three_mode else root/'startup/services/bootstrap/producer'
                         record=c.read(producer_root/'receipt.json')
@@ -171,7 +185,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                         (producer/'exports').rename(producer/'hidden-exports')
                         receipt['producerPathsHidden']=True
                     answer=original_source(action,request,data,end,index)
-                    key=(request['config']['mode'],action)
+                    key=(package.bootstrap_directory_name(request['config']),action)
                     if (action in ('begin','finish') or action=='chunk' and index==0) and key not in source_lost:
                         source_lost.add(key);raise ConnectionError('discarded completed source reply')
                     return answer
@@ -190,14 +204,15 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             from . import guest_owned_experiment as experiment_batch
             from . import guest_owned_network as network_batch
             from . import guest_owned_drill as drill_batch
-            if failure_drill:service_type=drill_batch.Services
+            if complete:service_type=canonical_batch.Services
+            elif failure_drill:service_type=drill_batch.Services
             elif experiment:service_type=experiment_batch.Services
             elif network:service_type=network_batch.Services
             elif maintenance:service_type=fault_batch.MaintenanceServices
             elif faults:service_type=fault_batch.Services
             elif three_mode:service_type=batch.Services
             else:service_type=owned.Services
-            options={} if three_mode or faults else dict(mode=mode,bootstrap=admitted_bootstrap)
+            options=dict(repetition=canonical_repetition) if complete else ({} if three_mode or faults else dict(mode=mode,bootstrap=admitted_bootstrap))
             if canonical_cell is not None:options['canonical_cell']=canonical_cell
             services=service_type(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,
                 qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload or faults else None,**options)
@@ -206,7 +221,8 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             if experiment:receipt.update(mode=experiment_batch.MODE)
             startup=guest_startup.Prepare(provider,transport,Path(private)/'owner/identity',root/'startup',services=services)
             from .guest_owned_workload import Probe
-            if failure_drill:probe=drill_batch.Probe(services,root/'probe')
+            if complete:probe=canonical_batch.Probe(services,root/'probe');receipt.update(mode=canonical_batch.MODE,repetition=canonical_repetition,sourcePreparation='authenticated-shared-source')
+            elif failure_drill:probe=drill_batch.Probe(services,root/'probe')
             elif experiment:probe=experiment_batch.Probe(services,root/'probe')
             elif network:probe=network_batch.Probe(services,root/'probe')
             elif maintenance:probe=fault_batch.MaintenanceProbe(services,root/'probe')
@@ -226,7 +242,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 m.need(len(requests)==len(lost_submissions)==len({r['commandId'] for r in requests}), 'fault command replay/lost reply coverage')
                 c.write_once(root/'workload-submissions.json',workload_submits)
                 receipt['workloadSubmitReplyLosses']=len(lost_submissions)
-            if workload:
+            if workload and not complete:
                 healthy_submits=[v for v in workload_submits if 'faultCell' not in v]
                 requests=[v['request'] for v in healthy_submits]
                 fault_submits=[v['request'] for v in workload_submits if 'faultCell' in v]
@@ -251,7 +267,10 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             if experiment:
                 all_ids=[v['request']['commandId'] for v in workload_submits]
                 m.need(len(set(all_ids))==len(all_ids) and all(v['commandId'] in lost_submissions for v in fault_submits), 'experiment replay/fault lost-reply coverage')
-            m.need([n for n,_,_ in services.clients]==([1,2,3]*12 if failure_drill else [1,2,3]*4 if network else [1,1,2,3,1,2,3]+[1,2,3]*3 if experiment else [1,2,3] if maintenance else [1,2,3,1,2,3] if faults else [1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
+            if complete:
+                from .guest_canonical_qualification import audit
+                audit(root,services,probe,endpoints,workload_submits,lost_submissions,views)
+            m.need([n for n,_,_ in services.clients]==([canonical_repetition]+[1,2,3]*16 if complete else [1,2,3]*12 if failure_drill else [1,2,3]*4 if network else [1,1,2,3,1,2,3]+[1,2,3]*3 if experiment else [1,2,3] if maintenance else [1,2,3,1,2,3] if faults else [1,1,2,3,1,2,3] if three_mode else list(nodes)) and len(endpoints)==len(nodes) and
                    all(b.formats==1 for b in transport.blocks),'owned service/format cardinality')
             rows=[]
             for ep in endpoints:
@@ -284,7 +303,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 if mode==package.MODES[0] or three_mode:
                     m.need(all(not (views.root/('node-'+str(n))/package.MODES[0]).exists() for n in (2,3)), 'owned local idle neighbours')
                 receipt['bootstrap']=completed
-            if faults or experiment:
+            if faults or experiment or complete:
                 for node,_,cfg in services.clients:
                     if 'faultCell' not in cfg:continue
                     cell=Path(cfg['root'])
@@ -344,8 +363,9 @@ if __name__=='__main__':
     p.add_argument('--three-mode',action='store_true');p.add_argument('--faults',action='store_true');p.add_argument('--fault-local',action='store_true',help='Fault JVM/SSH qualification in separate local paths; no mount-isolation claim')
     p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
     p.add_argument('--canonical-cell',choices=('healthy','read-heavy','sustained'),help='One full offline canonical tape; not a complete preset')
+    p.add_argument('--canonical-repetition',type=int,choices=(1,2,3),help='Complete offline canonical repetition; native admission stays closed')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance,network=args.network_faults,failure_drill=args.failure_drill,canonical_cell=args.canonical_cell)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance,network=args.network_faults,failure_drill=args.failure_drill,canonical_cell=args.canonical_cell,canonical_repetition=args.canonical_repetition)

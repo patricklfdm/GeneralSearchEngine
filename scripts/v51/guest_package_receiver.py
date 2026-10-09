@@ -267,7 +267,7 @@ def producer(parent,value,budget,tail):
     action=tail[0]
     r.need(len(tail)==(4 if action=='chunk' else 3 if action=='manifest' else 2),'producer action arguments')
     request=r.decode(base64.b64decode(tail[1],validate=True));config=request['configs'][0]
-    r.need(value['binding']['node']=='node-1' and config['binding']==value['binding'] and
+    r.need(value['binding']['node']=='node-'+str(package.service_nodes(config)[0]) and config['binding']==value['binding'] and
            config['packageManifestSha256']==value['manifestSha256'] and
            config['root']==str(Path(parent)/package.bootstrap_directory_name(config)),
            'producer installed configuration binding')

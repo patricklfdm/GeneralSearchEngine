@@ -28,10 +28,10 @@ class Bootstrap:
 
     def prepare(self, req, configs, endpoints, output, deadline, *, recheck):
         m.need(self.root is None and configs and len(configs) == len(endpoints), 'owned bootstrap consumed/topology')
-        nodes=package.experiment_nodes(configs[0]['mode'])
+        nodes=package.service_nodes(configs[0])
         m.need([v['binding']['node'] for v in configs] == ['node-'+str(n) for n in nodes], 'owned bootstrap mode/member set')
         for cfg,ep in zip(configs,endpoints):
-            guest.validate(cfg); normalized=deepcopy(cfg); normalized['binding']['node']='node-1'
+            guest.validate(cfg); normalized=deepcopy(cfg); normalized['binding']['node']=configs[0]['binding']['node']
             m.need(normalized == configs[0] and ep.offline is self.offline and ep.value['binding'] == cfg['binding'] and
                    cfg['binding']['source'] == req['source'] and cfg['binding']['bundleSha256'] == req['bundleSha256'] and
                    cfg['binding']['attempt'] == req['attempt'], 'owned bootstrap exact group/package binding')
@@ -53,7 +53,7 @@ class Bootstrap:
                 m.need(previous == {'state':'NOT_FOUND'},'owned bootstrap destination consumed')
                 # Publish a forced intent before the single mutation. The result
                 # file below never replaces it, including after a lost response.
-                c.write_once(self.root/f'node-{i+1}-{phase}-intent.json',request)
+                c.write_once(self.root/f'node-{nodes[i]}-{phase}-intent.json',request)
                 record['submits']+=1
                 try: answer=ep.bootstrap(phase,request,deadline)
                 except (ConnectionError,TimeoutError): answer=None
@@ -75,7 +75,7 @@ class Bootstrap:
                     except (ConnectionError,TimeoutError): answer=None
             except (Exception,KeyboardInterrupt) as error:
                 record['failure']=dict(type=type(error).__name__,message=str(error)[:2000]); raise
-            finally: c.write_once(self.root/f'node-{i+1}-{phase}.json',record,maximum=262144)
+            finally: c.write_once(self.root/f'node-{nodes[i]}-{phase}.json',record,maximum=262144)
         try:
             for i in range(len(configs)): check(i,'bootstrap')
             if self.source.scope in ('authenticated-producer-download','authenticated-shared-source'):
@@ -94,7 +94,7 @@ class Bootstrap:
                 for i,request in enumerate(requests):
                     check(i,'transfer')
                     requests[i]=self.delivery.deliver(request['folder'],request['descriptorSha256'],configs[i],endpoints[i],
-                        deadline,self.root/f'node-{i+1}-transfer')
+                        deadline,self.root/f'node-{nodes[i]}-transfer')
                     check(i,'transferred')
             for i,request in enumerate(requests):
                 check(i,'install'); once(i,'install',request); check(i,'seeded')

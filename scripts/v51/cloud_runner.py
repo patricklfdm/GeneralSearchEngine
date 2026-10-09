@@ -113,10 +113,13 @@ class Runner:
         from . import guest_owned_network as network
         from . import guest_owned_drill as drill
         from . import guest_workload_spec as rich
-        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE,drill.MODE:drill.SCOPE}
+        from . import guest_owned_canonical as complete
+        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE,drill.MODE:drill.SCOPE,complete.MODE:complete.SCOPE}
         self.qualification_cells=(list(drill.CASES) if qualification==drill.SCOPE else list(network.CASES) if qualification==network.SCOPE else list(experiment.CELLS) if qualification==experiment.SCOPE else ['maintenance'] if qualification==faults.MaintenanceProbe.scope else list(faults.CASES) if qualification==faults.SCOPE else ['healthy'])
         canonical=qualification in rich.SCOPES
         if canonical:self.qualification_cells=[rich.SCOPES[qualification][1]]
+        if qualification==complete.SCOPE:
+            complete.validate_repetition(probe.repetition);self.qualification_cells=list(complete.CELLS)
         m.need((qualification is None and getattr(probe,'scope',None) not in (*SCOPES.values(),*rich.SCOPES)) or
                (qualification in SCOPES.values() or canonical) and getattr(probe,'scope',None)==qualification and
                (rich.SCOPES[qualification]==(getattr(probe,'mode',None),getattr(probe,'cell_name',None)) if canonical else

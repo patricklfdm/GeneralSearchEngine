@@ -16,10 +16,10 @@ def validate(request):
     m.need(type(request) is dict and set(request)=={'schema','configs'} and request['schema']==SCHEMA,'producer request fields')
     configs=request['configs']
     m.need(type(configs) is list and configs,'producer member count')
-    nodes=package.experiment_nodes(configs[0]['mode'])
+    nodes=package.service_nodes(configs[0])
     m.need(len(configs)==len(nodes),'producer member count')
     for i,cfg in enumerate(configs):
-        guest.validate(cfg);normalized=deepcopy(cfg);normalized['binding']['node']='node-1'
+        guest.validate(cfg);normalized=deepcopy(cfg);normalized['binding']['node']=configs[0]['binding']['node']
         m.need(cfg['binding']['node']=='node-'+str(nodes[i]) and normalized==configs[0],
                'producer exact member configurations')
     m.need(len(m.canonical(request))<=wire.METADATA_BYTES,'producer request bound')
@@ -35,7 +35,7 @@ def envelope(request,state,**extra):
 
 def retained(base,request,node):
     m.need(node in [cfg['binding']['node'] for cfg in request['configs']],'producer selected member')
-    cfg=request['configs'][int(node[-1])-1];root=location(base)
+    cfg=next(cfg for cfg in request['configs'] if cfg['binding']['node']==node);root=location(base)
     value=read(root/(node+'-descriptor.json'),wire.METADATA_BYTES);wire.validate(value)
     m.need(value['config']==cfg,'producer retained export configuration')
     folder=root/'exports'/node;digest=m.sha(m.canonical(value['bootstrap']))

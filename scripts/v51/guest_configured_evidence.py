@@ -7,7 +7,7 @@ from copy import deepcopy
 from pathlib import Path
 import uuid
 from scripts.v50 import admission_format as f, runtime_format as runtime
-from . import performance_model as m, performance_plan as plan, performance_physical as physical
+from . import cloud_package as package, performance_model as m, performance_plan as plan, performance_physical as physical
 from . import performance_evidence as legacy, guest_authority as authority
 
 
@@ -20,7 +20,7 @@ def member(directory, cfg):
     manifest_raw=(directory/'manifest.gsr').read_bytes();manifest=f.manifest(manifest_raw,genesis)
     m.need(manifest['group']==uuid.UUID(cfg['groupId']).bytes and manifest['members']==[
         ('node-'+str(i+1),host,port) for i,(host,port) in enumerate(zip(cfg['hosts'],cfg['ports']))] and
-        manifest['leader']=='node-1' and manifest['configuration']=='phase6-local-v1' and
+        manifest['leader']==package.control_node(cfg) and manifest['configuration']=='phase6-local-v1' and
         (manifest['codec'],manifest['codecVersion'],manifest['schema'])==('semantic-codec',1,'semantic-schema'),
         'guest physical manifest topology')
     initial=m.initial(plan.load())
@@ -50,11 +50,11 @@ def member(directory, cfg):
 def observations(root, traces, exchanges):
     """Bind every client observation to original exchanges and physical prefixes."""
     raw=(root/'node-1/genesis.gsr').read_bytes();genesis=f.genesis(raw);genesis['raw']=raw
-    manifest=f.manifest((root/'node-1/manifest.gsr').read_bytes(),genesis)
+    manifest=f.manifest((root/'node-1/manifest.gsr').read_bytes(),genesis);leader=manifest['leader']
     state=m.application(genesis['app'],genesis['base']);prefixes={0:state.copy()}
     journals={node:{kind:set(runtime.journal(root/node/file,number,manifest,node)) for kind,file,number in
         [('ENTRY','entries.gsr',5),('PROOF','proofs.gsr',6),('PROMISE','promises.gsr',4)]} for node in traces}
-    for raw in runtime.journal(root/'node-1/entries.gsr',5,manifest,'node-1'):
+    for raw in runtime.journal(root/leader/'entries.gsr',5,manifest,leader):
         r=f.record(raw,5,1<<20);r.take(56);index,op=r.number('q'),r.number('B');r.take(48)
         size=r.number('i');r.take(32);state.apply(op,r.take(size));r.end();prefixes[index]=state.copy()
     for node,events in traces.items():
@@ -64,7 +64,7 @@ def observations(root, traces, exchanges):
             if kind=='FORCE':
                 m.need(physical.raw(event['record']) in journals[node].get(event['kind'],set()),
                        'configured force differs from retained bytes')
-            elif kind=='AFTER_APPLICATION_PUBLICATION' and node=='node-1':
+            elif kind=='AFTER_APPLICATION_PUBLICATION' and node==leader:
                 m.need(event['index']==published+1 and event['index'] in prefixes,'configured publication prefix order')
                 published=event['index']
             elif kind=='CLIENT_INVOKE':
@@ -80,14 +80,14 @@ def observations(root, traces, exchanges):
                 m.need(event['outcome']=='SUCCESS','configured unsuccessful original response')
                 if event['command']=='call':
                     call=event['call'];cut=prefixes[published]
-                    m.need(node=='node-1' and call['beforeSequence']==prefixes[before].sequence and
+                    m.need(node==leader and call['beforeSequence']==prefixes[before].sequence and
                            call['afterSequence']==cut.sequence,'configured call published sequence')
                     if call['operation'] not in m.OP_IDS:
                         answer=cut.answer(call['operation'],call['cycle'])
                         m.need(before==published and call['answer']==answer and call['answerSha256']==m.sha(m.canonical(answer)),
                                'configured read differs from published prefix')
                 elif event['command']=='backup':
-                    m.need(node=='node-1' and before==published and event['sequence']==prefixes[published].sequence,
+                    m.need(node==leader and before==published and event['sequence']==prefixes[published].sequence,
                            'configured backup published sequence')
                 current=None
         m.need(current is None and next(original,None) is None,'configured original trace coverage')
@@ -100,7 +100,7 @@ def audit(root, calls, traces, exchanges, *, final_sequence):
 
 def qualify(root, calls, traces, exchanges, *, final_sequence):
     result=audit(root,calls,traces,exchanges,final_sequence=final_sequence)  # Reject a bad original before mutations.
-    negatives=[]
+    negatives=[];leader=_manifest(root)['leader']
     cases={
         'missing-invocation':'configured result without invocation',
         'changed-invocation':'configured original invocation binding',
@@ -114,7 +114,7 @@ def qualify(root, calls, traces, exchanges, *, final_sequence):
         'missing-proof-ack':'configured publication before proof quorum',
     }
     for name,reason in cases.items():
-        changed=deepcopy(traces);originals=deepcopy(exchanges);rows=changed['node-1']
+        changed=deepcopy(traces);originals=deepcopy(exchanges);rows=changed[leader]
         invoke=next(r for r in rows if r['event']=='CLIENT_INVOKE' and r['command']=='call')
         response=next(r for r in rows if r['event']=='CLIENT_RESULT' and r['command']=='call')
         if name=='missing-invocation':rows.remove(invoke)
@@ -122,7 +122,7 @@ def qualify(root, calls, traces, exchanges, *, final_sequence):
         elif name=='changed-result':response['pid']+=1
         elif name in ('failed-original','changed-sequence','resealed-read'):
             if name=='resealed-read':response=next(r for r in rows if r['event']=='CLIENT_RESULT' and r.get('call',{}).get('operation')=='GET')
-            exchange=next(e for e in originals['node-1'] if e['response']['opId']==response['opId'])
+            exchange=next(e for e in originals[leader] if e['response']['opId']==response['opId'])
             for target in (response,exchange['response']):
                 if name=='failed-original':target['outcome']='FAILED'
                 elif name=='changed-sequence':target['call']['beforeSequence']+=1

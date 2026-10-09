@@ -7,7 +7,9 @@ the first four missing guest scenarios in an offline scope. The
 [complete owned failure drill](PHASE_6_OWNED_FAILURE_DRILL.md) adds the remaining
 five and a source-bound twelve-cell offline aggregate accepted by PR #308 / master
 CI `37837221623`. The [canonical tape batch](PHASE_6_OWNED_CANONICAL_TAPES.md) adds
-all five full rich tapes as an offline implementation candidate. This document
+all five full rich tapes, accepted through PR #309 / CI `37863567136`. The
+[complete canonical aggregate candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md) adds
+control rotation, shared seed and fifteen-cell replay, with protected acceptance pending. This document
 identifies the remaining batches; it does not enable paid presets or amend
 frozen workload parameters.
 
@@ -60,8 +62,9 @@ Neither an observer retry nor a replacement topology may become a workload retry
    read-heavy/sustained guest execution and repetition-bound control placement.
    Qualify all fifteen cells, collection budgets and portable aggregate replay;
    reuse one immutable seed while retaining distinct group identities. The five
-   individual tapes are now implemented in the canonical tape batch; host rotation,
-   shared-seed aggregation and complete-preset acceptance remain open.
+   individual tapes are accepted. Host rotation and shared-seed aggregation are
+   implemented in the complete aggregate candidate; all three protected
+   repetitions and native complete-preset acceptance remain open.
 4. **Review the native preset admission and time allocation.** Carry a closed
    preset selection through request, package/configuration, lease, price,
    workflow, summary and independent validators. Add same-path fake failures

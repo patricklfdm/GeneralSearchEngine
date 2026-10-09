@@ -12,13 +12,19 @@ class SharedSource:
         self.root=Path(output);self.clock=clock;self.remote=producer.RemoteSource(clock=clock,sleep=sleep)
         self.modes=[];self.config=None;self.files=None;self.deadline=None
 
+    def selection(self, config):return config['mode'],list(package.MODES)
+
+    def normalized(self, config):
+        value=deepcopy(config);value.update(mode=self.config['mode'],root=self.config['root'],groupId=self.config['groupId'])
+        return value
+
     def prepare(self, configs, deadline, *, endpoint, output):
-        mode=configs[0]['mode']
-        m.need(len(self.modes)<3 and mode==package.MODES[len(self.modes)], 'shared source mode order/consumed')
+        mode,order=self.selection(configs[0])
+        m.need(len(self.modes)<len(order) and mode==order[len(self.modes)], 'shared source mode order/consumed')
         if self.config is None:
             self.config=deepcopy(configs[0]);self.deadline=deadline
             self.root.mkdir(mode=0o700)
-        normalized=deepcopy(configs[0]);normalized.update(mode=self.config['mode'],root=self.config['root'],groupId=self.config['groupId'])
+        normalized=self.normalized(configs[0])
         m.need(normalized==self.config and deadline==self.deadline and self.clock()<deadline, 'shared source identity/original deadline')
         self.modes.append(mode)  # A failed preparation also consumes this mode.
         # export() checks the derived producer configuration as an absolute path.
@@ -39,7 +45,7 @@ class SharedSource:
         m.need(actual==self.files, 'shared source backup changed')
         raw=output/'source';raw.mkdir(mode=0o700);(raw/'source').mkdir(mode=0o700)
         for n in boot.SOURCE:(raw/'source'/n).write_bytes((self.root/'seed/source'/n).read_bytes())
-        for n,text in zip(boot.TOPOLOGY, ('\n'.join(configs[0]['hosts'])+'\n','\n'.join(map(str,configs[0]['ports']))+'\n',configs[0]['groupId']+'\n')):
+        for n,text in boot.topology_values(configs[0]).items():
             (raw/n).write_text(text)
         local=deepcopy(configs[0]);local['root']=str(raw)
         exports=[]

@@ -35,8 +35,10 @@ def workload_selection(config):
         return 'healthy', 'experiment'
     value = config['workload']
     need(config['execution'] == 'local-guest-service-only' and 'faultCell' not in config and
-         type(value) is dict and set(value) == {'cell', 'preset'} and value['preset'] == 'canonical' and
+         type(value) is dict and set(value) in ({'cell', 'preset'}, {'cell', 'preset', 'repetition'}) and value['preset'] == 'canonical' and
          (config['mode'], value['cell']) in CANONICAL_WORKLOADS, 'offline canonical guest workload scope')
+    if 'repetition' in value:
+        need(type(value['repetition']) is int and value['repetition'] in (1,2,3), 'canonical repetition')
     return value['cell'], value['preset']
 
 
@@ -44,7 +46,17 @@ def bootstrap_directory_name(config):
     """Exact source/bootstrap root name; never accept an arbitrary child path."""
     need(config['mode'] in MODES, 'bootstrap configuration mode')
     cell, preset = workload_selection(config)
-    return 'canonical-'+cell+'-'+config['mode'] if preset == 'canonical' else config['mode']
+    repetition=config.get('workload',{}).get('repetition')
+    return ('canonical-'+('r'+str(repetition)+'-' if repetition else '')+cell+'-'+config['mode']) if preset == 'canonical' else config['mode']
+
+
+def control_node(config):
+    workload_selection(config)
+    return 'node-'+str(config.get('workload',{}).get('repetition',1))
+
+
+def service_nodes(config):
+    return (int(control_node(config)[-1]),) if config['mode']==MODES[0] else experiment_nodes(config['mode'])
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()

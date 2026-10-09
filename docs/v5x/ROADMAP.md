@@ -1,9 +1,11 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current implementation candidate: [owned canonical tapes](v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md),
-all five full rich tapes through packaged guest services; protected CI is pending.
-The [twelve-cell owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) is accepted
-at PR #308 / master CI `37837221623`. Native preset admission is unchanged.
+Current implementation candidate: [complete owned canonical aggregation](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md),
+with repetition-bound control placement, one immutable rich seed and all fifteen
+cells under one offline lease. Protected acceptance of all three repetitions is
+pending. The five component tapes are accepted through PR #309 / master
+`6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`; the twelve-cell drill
+was accepted through PR #308 / CI `37837221623`. Native preset admission is unchanged.
 
 - **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
@@ -11,10 +13,11 @@ at PR #308 / master CI `37837221623`. Native preset admission is unchanged.
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
 
 The owned network and complete failure-drill lanes passed corrected-source master
-CI `37837221623`. The canonical tape batch adds three 260-call healthy modes,
-120 read-heavy calls and 180 sustained calls. Next add repetition-bound control
-placement and the shared-seed fifteen-cell aggregate, then review native admission
-and time/pricing allocation. Per-tape qualification cannot close a full preset.
+CI `37837221623`. The complete canonical candidate preserves three 260-call
+healthy modes, 120 read-heavy calls and 180 sustained calls, and independently
+replays all twelve faults. Next obtain protected acceptance of the three offline
+repetitions, then review native admission and time/pricing allocation. Offline
+qualification cannot close a paid preset or the formal five-member cloud set.
 
 ## Version sequence
 
