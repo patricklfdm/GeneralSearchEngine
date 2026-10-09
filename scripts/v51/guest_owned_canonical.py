@@ -152,7 +152,11 @@ class Probe:
             m.need(self.prepared and not errors and len(self.probes)==5 and
                    self.cells==list(CELLS) and self.clock()<deadline/1e9,'owned canonical incomplete/deadline')
             from .guest_canonical_evidence import bounded_replay
-            result['aggregate']=bounded_replay(self.raw,self.root/'replay',deadline/1e9,clock=self.clock)
+            from .remote_budget import CANONICAL_RETENTION_RESERVE_SECONDS
+            replay_end=deadline/1e9-CANONICAL_RETENTION_RESERVE_SECONDS
+            print(m.canonical(dict(phase='canonical-replay-budget',remainingSeconds=round(max(0,replay_end-self.clock()),3),
+                                  retentionReserveSeconds=CANONICAL_RETENTION_RESERVE_SECONDS)).decode(),flush=True)
+            result['aggregate']=bounded_replay(self.raw,self.root/'replay',replay_end,clock=self.clock)
             result.update(status='PASS',physicalHistoryQualified=True,backupRestoreQualified=True)
         except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='aggregate',message=str(error)[:2000]))
         c.write_once(self.raw/'validation.json',result,maximum=262144);return result

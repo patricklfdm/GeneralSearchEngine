@@ -9,6 +9,76 @@ from pathlib import Path
 import struct
 from .performance_model import need
 
+FAULT_LINE_BYTES = 4 << 20
+FAULT_SEGMENT_BYTES = 32 << 20
+FAULT_TRACE_BYTES = 128 << 20
+
+
+def fault_rows(root, node):
+    """Read complete stopped fault segments, with one per-node decoded ceiling."""
+    from .performance_model import strict_json
+    root = Path(root); name = node+'-trace'
+    paths = [root/(name+'.jsonl'), *sorted(root.glob(name+'-part*.jsonl'))]
+    need(not list(root.glob(name+'*.jsonl.gz')), 'mixed fault trace encodings')
+    rows = []; total = 0; orders = {}
+    for i, path in enumerate(paths):
+        expected = root/(name+('' if i == 0 else f'-part{i:04d}')+'.jsonl')
+        # A legacy unsegmented live-source copy can be inspected before packing.
+        bound = FAULT_TRACE_BYTES if len(paths) == 1 else FAULT_SEGMENT_BYTES
+        need(path == expected and path.is_file() and not path.is_symlink() and
+             0 < path.stat().st_size <= bound, 'fault trace member bound/type')
+        total += path.stat().st_size
+        need(total <= FAULT_TRACE_BYTES, 'fault trace per-node bound')
+        with path.open('rb') as stream:
+            while True:
+                line = stream.readline(FAULT_LINE_BYTES+1)
+                if not line: break
+                need(len(line) <= FAULT_LINE_BYTES and line.endswith(b'\n'), 'fault trace response bound/completeness')
+                row = strict_json(line)
+                need(row['node'] == node and all(type(row[k]) is int and row[k] > 0
+                     for k in ('pid', 'generation', 'order', 'localNanos')), 'fault trace process/counter types')
+                identity = row['pid'], row['generation']
+                need(row['order'] == orders.get(identity, 0)+1, 'fault trace order discontinuity')
+                orders[identity] = row['order']
+                rows.append(row)
+    return rows
+
+
+def copy_fault_trace(source, destination, node):
+    """Losslessly segment a stopped trace; never trim rows or change live input.
+
+    The caller has reaped all voter generations and completed any published tail.
+    In-place use is only for the stopped local qualification before archive pack.
+    """
+    import tempfile
+    source, destination = Path(source), Path(destination)
+    name = node+'-trace'; path = source/(name+'.jsonl')
+    need(path.is_file() and not path.is_symlink() and 0 < path.stat().st_size <= FAULT_TRACE_BYTES,
+         'fault trace per-node bound/type')
+    need(not path.with_name(path.name+'.pending').exists(), 'fault trace unfinished append')
+    need(not list(source.glob(name+'-part*')) and not list(source.glob(name+'*.gz')),
+         'fault trace already segmented/mixed')
+    same = source.resolve() == destination.resolve()
+    need(same or not list(destination.glob(name+'*.jsonl*')), 'fault trace destination occupied')
+    with tempfile.TemporaryDirectory(prefix='.fault-segments-', dir=destination) as temporary:
+        stage = Path(temporary); segments = []; stream = None; size = total = 0
+        try:
+            with path.open('rb') as original:
+                while True:
+                    line = original.readline(FAULT_LINE_BYTES+1)
+                    if not line: break
+                    need(len(line) <= FAULT_LINE_BYTES and line.endswith(b'\n'), 'fault trace response bound/completeness')
+                    total += len(line); need(total <= FAULT_TRACE_BYTES, 'fault trace per-node bound')
+                    if stream is None or size+len(line) > FAULT_SEGMENT_BYTES:
+                        if stream is not None: stream.close()
+                        filename = name+('' if not segments else f'-part{len(segments):04d}')+'.jsonl'
+                        segments.append(stage/filename); stream = segments[-1].open('xb'); size = 0
+                    stream.write(line); size += len(line)
+        finally:
+            if stream is not None: stream.close()
+        need(total == path.stat().st_size, 'fault trace changed during collection')
+        for segment in segments: segment.replace(destination/segment.name)
+
 
 def save(path, value): path.write_text(json.dumps(value, sort_keys=True, indent=2) + '\n')
 
@@ -85,4 +155,13 @@ def verify_writer(root, cp):
              and rows[1]['payload']==rows[3]['payload']=='x'*32768,'trace probe restart content')
         need(not path.with_name(path.name+'.pending').exists(),'trace probe pending after normal write')
         checks.append(dict(boundary=boundary,status='PASS'))
+    output=root/'trace-probe-fault-bound';output.mkdir()
+    q.command(['java','-cp',cp,q.PACKAGE+'replication.V51PublicTraceProbe',str(output),'fault-bound','1'],
+              output,'fault-bound')
+    # The oversized sparse file only exercises rejection, and is not evidence.
+    (output/'bounded.jsonl').unlink()
+    segmented=output/'segments';segmented.mkdir()
+    copy_fault_trace(output,segmented,'node-1')
+    need(len(fault_rows(segmented,'node-1'))==34,'fault trace segment lost observations')
+    checks.append(dict(boundary='fault-bound',status='PASS'))
     return dict(status='PASS',checks=checks)

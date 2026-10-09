@@ -147,6 +147,7 @@ class CompleteRunnerTest(common.RunnerWorkloadTest):
         result=self.run_case();self.assertEqual(result['status'],'PASS',result['errors'])
         self.assertEqual([v.args[0] for v in self.probe.cell.call_args_list],list(run.CELLS))
         self.assertTrue(result['leaseReleased']);self.assertFalse(result['fullRemoteQualification']);self.assertFalse(self.provider.objects)
+        self.assertEqual(result['budgetProfile'],'offline-owned-canonical-v1')
     def test_component_success_cannot_close_complete_scope(self):
         self.probe.collect_validate.return_value['cells']=['healthy']
         self.assertEqual(self.run_case()['status'],'FAIL')
@@ -154,7 +155,7 @@ class CompleteRunnerTest(common.RunnerWorkloadTest):
     def test_validation_overrun_uses_cleanup_reserve_for_one_shutdown_and_retains_failure(self):
         report=deepcopy(self.probe.collect_validate.return_value)
         def replay(output,deadline):
-            self.clock.sleep(601);return report
+            self.clock.sleep(2401);return report
         def close(deadline):
             self.assertGreater(deadline,self.clock.nanos())
             self.clock.sleep(2)
@@ -168,6 +169,16 @@ class CompleteRunnerTest(common.RunnerWorkloadTest):
         self.assertTrue(any(e['phase']=='retention' for e in result['errors']))
         self.assertFalse(any(e['phase']=='guest-stop' for e in result['errors']))
         self.assertTrue(any(key.endswith('/startup/stop.json') for key in self.store.objects))
+
+    def test_old_replay_overrun_fits_reviewed_complete_validation_budget(self):
+        report=deepcopy(self.probe.collect_validate.return_value)
+        def replay(output,deadline):
+            self.assertEqual(deadline-self.clock.nanos(),2400*10**9)
+            self.clock.sleep(1600);return report
+        self.probe.collect_validate.side_effect=replay
+        result=self.run_case()
+        self.assertEqual(result['status'],'PASS',result['errors'])
+        self.assertEqual(result['budget']['spentNanos']['validation-retention'],1600*10**9)
 
 
 class CompleteCollectionTest(unittest.TestCase):
@@ -191,6 +202,7 @@ class CompleteCollectionTest(unittest.TestCase):
         with patch.object(evidence,'bounded_replay',side_effect=replay) as aggregate:
             result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
         self.assertEqual(result['status'],'PASS');aggregate.assert_called_once()
+        self.assertEqual(aggregate.call_args.args[2],self.clock.seconds()+480)
         self.assertEqual(self.events,[run.key(*v) for v in run.TAPES]+list(run.drill.CASES)+['services-stopped'])
         for probe in self.probe.probes.values():probe.collect_validate.assert_not_called()
     def test_partial_collection_cannot_accept_cached_pass(self):

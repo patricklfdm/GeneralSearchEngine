@@ -7,6 +7,7 @@ from . import public_history, public_qualification_evidence as physical, public_
 from . import storage_inspector as storage, runtime_evidence as a, remote_command as commands
 from . import performance_artifacts as artifacts, performance_evidence as performance
 from .remote_rich_evidence import EvidenceLocation
+from . import public_trace
 
 NODES=('node-1','node-2','node-3')
 
@@ -18,21 +19,7 @@ def read(path):
 
 
 def load_traces(root):
-    traces={}
-    for node in NODES:
-        path=Path(root)/(node+'-trace.jsonl')
-        m.need(path.is_file() and not path.is_symlink() and 0<path.stat().st_size<=32<<20,'fault trace member bound/type')
-        rows=[]
-        with path.open('rb') as stream:
-            while True:
-                line=stream.readline((4<<20)+1)
-                if not line:break
-                m.need(len(line)<=4<<20 and line.endswith(b'\n'),'fault trace response bound/completeness')
-                row=m.strict_json(line)
-                m.need(row['node']==node and all(type(row[k]) is int and row[k]>0 for k in ('pid','generation','order','localNanos')),'fault trace process/counter types')
-                rows.append(row)
-        traces[node]=rows
-    return traces
+    return {node: public_trace.fault_rows(root,node) for node in NODES}
 
 
 def expected_documents(tag,size=64):
@@ -168,7 +155,6 @@ def validate_cell(root,adapter,location=None):
                    all(type(v) is int and v>=0 for v in s['processIo'].values()),'missing fault resource counter')
             if s['boundary']=='closed':m.need(queues['queuedBytes']==0 and queues['admissionAvailable']==4 and queues['inboundAvailable']==8 and all(v['available']==2 for v in queues['outboundAvailable']) and queues['maintenancePending']==0,'fault reservations not drained')
             m.need(0<=s['localNanos']-s['samplingStartNanos']<=9600*10**6,'fault sampling deadline')
-        m.need((root/(start['node']+'-trace.jsonl')).stat().st_size<=32<<20,'fault trace member overflow')
     m.need(max(s['readyNanos'] for s in starts[:3])<receipt['faultStartNanos']<=min(s['startNanos'] for s in stops if s['generation']==1),'voters did not overlap before fault')
     for h in history:
         start=next(s for s in starts if s['pid']==h['pid'] and s['node']==h['node'])

@@ -141,7 +141,11 @@ class Runner:
         result = dict(schema='gse-v51-control-completion-v1', execution=a.EXECUTION, paidCloud=False,
                       engineWorkloadExecuted=False, fullRemoteQualification=False, requestSha256=sha,
                       errors=[], status='RUNNING', cleanup=None, retention='INCOMPLETE', leaseReleased=False)
-        budget = Budget(clock=self.clock)
+        from . import guest_owned_canonical as complete
+        from .remote_budget import OWNED_CANONICAL_PROFILE
+        profile = OWNED_CANONICAL_PROFILE if self.qualification == complete.SCOPE else None
+        budget = Budget(clock=self.clock, profile=profile)
+        if profile: result['budgetProfile'] = profile
         if self.qualification: result['qualificationScope']=self.qualification
         try:
             # A pre-existing lease, even expired, blocks allocation until reconciled.

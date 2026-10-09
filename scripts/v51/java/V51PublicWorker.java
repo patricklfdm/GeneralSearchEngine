@@ -84,7 +84,7 @@ public final class V51PublicWorker {
     }
     static class Trace {
         final Path path,arm;final int generation;final String node,group,manifestDigest;long order;boolean crashing;
-        int pauseSeconds=60;
+        int pauseSeconds=60;IOException failure;
         Trace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest) throws IOException {
             this.path=path;this.arm=arm;this.generation=generation;this.node=node;
             group=text(manifest.value(),"groupId");manifestDigest=manifest.digest();
@@ -92,21 +92,26 @@ public final class V51PublicWorker {
                 throw new IOException("stopped observer trace must be completed before restart");
         }
         synchronized void write(String name,Map<String,Object> values) throws IOException {
-            var row=new LinkedHashMap<>(values);row.put("event",name);row.put("order",++order);row.put("pid",ProcessHandle.current().pid());
-            row.put("generation",generation);row.put("localNanos",System.nanoTime());
-            row.put("node",node);row.put("groupId",group);row.put("manifestDigest",manifestDigest);
-            byte[] json=canonical(row),line=Arrays.copyOf(json,json.length+1);line[json.length]='\n';
-            // Test telemetry only, outside replica authority. Publish the complete
-            // observation before SIGKILL can interrupt its JSONL append.
-            Path pending=path.resolveSibling(path.getFileName()+".pending"), staging=path.resolveSibling(path.getFileName()+".staging");
-            if(Files.exists(pending))throw new IOException("unfinished observer append");
-            byte[] record=ByteBuffer.allocate(48+line.length).put("GSETRC1\n".getBytes(StandardCharsets.US_ASCII))
-                    .putLong(Files.exists(path)?Files.size(path):0).put(hash(line)).put(line).array();
-            Files.write(staging,record);
-            Files.move(staging,pending,StandardCopyOption.ATOMIC_MOVE);
-            append(line);
-            Files.delete(pending);
+            if(failure!=null)throw new IOException("observer failed: "+failure.getMessage(),failure);
+            try {
+                var row=new LinkedHashMap<>(values);row.put("event",name);row.put("order",++order);row.put("pid",ProcessHandle.current().pid());
+                row.put("generation",generation);row.put("localNanos",System.nanoTime());
+                row.put("node",node);row.put("groupId",group);row.put("manifestDigest",manifestDigest);
+                byte[] json=canonical(row),line=Arrays.copyOf(json,json.length+1);line[json.length]='\n';
+                checkAppend(line); // Reject a known bound before publishing pending bytes.
+                // Test telemetry only, outside replica authority. Publish the complete
+                // observation before SIGKILL can interrupt its JSONL append.
+                Path pending=path.resolveSibling(path.getFileName()+".pending"), staging=path.resolveSibling(path.getFileName()+".staging");
+                if(Files.exists(pending))throw new IOException("unfinished observer append");
+                byte[] record=ByteBuffer.allocate(48+line.length).put("GSETRC1\n".getBytes(StandardCharsets.US_ASCII))
+                        .putLong(Files.exists(path)?Files.size(path):0).put(hash(line)).put(line).array();
+                Files.write(staging,record);
+                Files.move(staging,pending,StandardCopyOption.ATOMIC_MOVE);
+                append(line);
+                Files.delete(pending);
+            }catch(IOException error){failure=error;throw error;}
         }
+        void checkAppend(byte[] line) throws IOException {}
         void append(byte[] line) throws IOException {
             Files.write(path,line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
         }
@@ -136,6 +141,15 @@ public final class V51PublicWorker {
             throw new IOException("controller did not SIGKILL armed worker");
         }
     }
+    static class FaultTrace extends Trace {
+        FaultTrace(Path path,Path arm,int generation,String node,AutomaticRecords.Record manifest) throws IOException {
+            super(path,arm,generation,node,manifest);
+        }
+        @Override void checkAppend(byte[] line) throws IOException {
+            if(line.length>4<<20||(Files.exists(path)?Files.size(path):0)+line.length>128L<<20)
+                throw new IOException("remote fault trace per-node bound");
+        }
+    }
     static int pauseSeconds(String[] args) throws IOException {
         if(args.length<=4)return 60;
         if(args.length!=5||!args[2].equals("remote-fault")||!args[4].equals("owned-experiment-v2"))
@@ -146,13 +160,11 @@ public final class V51PublicWorker {
         int pauseSeconds=pauseSeconds(args);
         Path root=Path.of(args[0]).toAbsolutePath();String local="node-"+args[1];
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
-        var trace=new Trace(root.resolve(local+"-trace.jsonl"),root.resolve(local+"-arm.txt"),args.length>3?Integer.parseInt(args[3]):1,local,manifest) {
-            @Override void append(byte[] line) throws IOException {
-                if(args.length>2&&args[2].equals("remote-fault")&&(line.length>4<<20||Files.exists(path)&&Files.size(path)+line.length>32L<<20))
-                    throw new IOException("remote fault trace member bound");
-                super.append(line);
-            }
-        };
+        Path tracePath=root.resolve(local+"-trace.jsonl"),armPath=root.resolve(local+"-arm.txt");
+        int generation=args.length>3?Integer.parseInt(args[3]):1;
+        Trace trace=args.length>2&&args[2].equals("remote-fault")
+            ?new FaultTrace(tracePath,armPath,generation,local,manifest)
+            :new Trace(tracePath,armPath,generation,local,manifest);
         trace.pauseSeconds=pauseSeconds;
         boolean promiseEvidence=Files.exists(root.resolve("promise-evidence"));
         Pressure pressure=Files.exists(root.resolve("pressure-evidence"))?new Pressure(root,trace,manifest):null;

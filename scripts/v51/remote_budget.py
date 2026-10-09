@@ -3,6 +3,10 @@ from contextlib import contextmanager
 import time
 from . import cloud_workload_contract as contract, performance_model as m
 
+OWNED_CANONICAL_PROFILE = 'offline-owned-canonical-v1'
+CANONICAL_VALIDATION_SECONDS = 2400
+CANONICAL_RETENTION_RESERVE_SECONDS = 120
+
 
 class Budget:
     def __init__(self, *, clock=time.monotonic_ns, emit=lambda row: None, profile=None):
@@ -12,7 +16,12 @@ class Budget:
             ('preparation', 'preparationSeconds'), ('control', 'controlOverheadSeconds'),
             ('validation-retention', 'validationRetentionSeconds'), ('cleanup', 'cleanupSeconds'))})
         self.lease = plan['budgets']['leaseSeconds'] * 10**9
-        if profile is not None:
+        if profile == OWNED_CANONICAL_PROFILE:
+            # Offline complete-set replay needs controller CPU time after all
+            # guests stop. Keep the original lease and its cleanup reservation;
+            # stage maxima do not authorize extending that enclosing deadline.
+            self.limits['validation-retention'] = CANONICAL_VALIDATION_SECONDS * 10**9
+        elif profile is not None:
             from . import cloud_runner_timing as timing
             m.need(profile == timing.PROFILE, 'unreviewed budget profile')
             self.limits = {name: seconds * 10**9 for name, seconds in timing.allocation()['limitsSeconds'].items()}

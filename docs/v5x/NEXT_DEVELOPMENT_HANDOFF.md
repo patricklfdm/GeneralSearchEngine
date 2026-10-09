@@ -14,6 +14,16 @@ evidence once, closes services before one bounded replay, and preserves cleanup
 time after validation expiry. The original failed runs do not constitute complete
 acceptance; corrected-source protected qualification remains required.
 
+Follow-up CI `37876817676` passed 42 jobs but failed all complete repetitions:
+one exhausted validation time and two exceeded a fault observer's mistaken
+32-MiB whole-trace bound. The operator authorized additional headroom. The
+complete offline coordinator now has a 2400-second validation/retention ceiling
+inside the unchanged 5400-second lease, with 120 seconds reserved for retention
+and the existing 600-second cleanup reserve. Stopped fault traces are losslessly
+segmented under the existing 32-MiB member / 128-MiB per-node limits. The
+[canonical record](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md#follow-up-hosted-headroom-and-fault-trace-segmentation)
+documents the failures and pending protected acceptance. Native admission stays closed.
+
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not
 constitute protected acceptance of a protocol or authorization to implement it.

@@ -104,9 +104,13 @@ expands exactly repetitions 1/2/3 and rejects matrix drift or missing jobs.
 One complete repetition has 18 minutes of frozen measurement alone. Splitting
 cells across jobs would lose this gate's single-lease, shared-source and sequential
 handoff coverage. A 6000-second outer command guard and 120-minute job guard
-allow setup and artifact upload; they do not override the existing 600-second
-preparation, 600-second validation/retention, per-cell budgets or 5400-second
-generic topology ceiling. No frozen budget is amended here. Actual hosted
+allow setup and artifact upload. The complete offline coordinator now selects
+`offline-owned-canonical-v1`: preparation remains 600 seconds and validation/
+retention has a reviewed 2400-second ceiling. Per-cell limits, the 5400-second
+enclosing lease and its 600-second cleanup reserve remain mandatory. The stage
+maxima cannot all be spent simultaneously: the controller clips each deadline
+to the original lease minus cleanup, and unused allowance never renews a stage.
+Native admission and the frozen workload plan retain their earlier budgets. Actual hosted
 measurements must inform the separate native preset timing/pricing review.
 
 CI `37869232192` exposed duplicate validation work: all three original aggregate
@@ -115,7 +119,7 @@ replays passed fifteen cells and 1080 calls, but validation/retention took
 also prevented service shutdown, followed by per-process reap waits. These runs
 are failed qualifications; their passing inner replay does not close this gate.
 
-The correction removes the preceding full tape replays and duplicate logical
+The first correction removes the preceding full tape replays and duplicate logical
 passes within the aggregate, keeping the 600-second ceiling. The replay child
 is killed and reaped at the remaining original deadline, with partial output and
 stderr retained and no retry. Collection and per-tape/fault replay progress appear
@@ -132,8 +136,52 @@ byte count, which now charges only the passes actually performed. Original raw
 bytes were compared against the downloaded artifact and remained unchanged.
 These local timings exclude live SSH collection/service shutdown and are not a
 hosted-runtime guarantee. Corrected-source protected CI must qualify that full
-path within the unchanged budgets. The validation index is
+path. The validation index for that first correction is
 `target/v51-canonical-finalization/validation-summary.json`.
+
+### Follow-up: hosted headroom and fault trace segmentation
+
+CI `37876817676` passed 42 jobs. Complete repetition 1 executed all fifteen cells,
+then hit the same 600-second validation ceiling: collection/service closure used
+about 155 seconds and automatic healthy replay alone used 364 seconds. The
+600-second child termination worked, but that allocation lacked hosted headroom.
+The operator authorized a larger budget. The complete offline stage now permits
+40 minutes, reserving its final two minutes for packing/retention; the single
+replay child receives the remaining original deadline and is killed/reaped on
+expiry. Corruption, partial collection, failed commands and validation errors
+still fail immediately, without rerunning workloads or the aggregate. All other
+offline scopes and the native experiment keep their existing allocations.
+
+Repetitions 2/3 failed `minority-capacity` when node 1's observation log crossed
+32 MiB. The observer incorrectly treated the archive's single-member limit as
+the whole trace limit. A published pending record then obscured the first bound
+error, causing command/close failures and an oversized collected member. Both
+original failures remain failures; completing their interrupted telemetry does
+not qualify the failed workload.
+
+Fault observers now enforce the existing 128-MiB per-node/per-cell ceiling and
+4-MiB record ceiling before publishing a pending append. The first I/O failure
+remains terminal and its cause is retained. After all generations stop, collection
+copies the exact newline-terminated byte stream into consecutively named segments
+of at most 32 MiB each. No record is dropped, rewritten or sampled. Live guest
+files remain intact. Portable replay checks every segment's identity, ordering,
+owner, record size and aggregate byte limit, with the existing command/history,
+physical and negative oracles. The local fault gate applies the same lossless
+segmentation before packing. Shared file/byte and decoded budgets still apply.
+
+All three repetitions still need corrected-source protected qualification.
+The failures are not attributed to GitHub scheduling, and this change makes no
+claim that production consensus semantics failed or were repaired.
+
+Local follow-up validation: 296 related Python regressions passed, plus the
+stopped-collection integration added afterward. The complete local fault gate
+passed all twelve cells, 105 calls, 41 evidence negatives and relocated archive
+replay at `target/v51-remote-faults/run.8hvkvm/evidence`. The real Java observer
+passed three SIGKILL append boundaries, a trace over 32 MiB and terminal rejection
+at 128 MiB without publishing another pending record. The original failed
+repetition-2 trace was repacked into two segments: all 33,561,802 bytes and 4,655
+rows survived unchanged; its workload remains failed. Receipts and commands are
+indexed at `target/v51-canonical-headroom/validation-summary.json`.
 
 ## Validation boundary and next step
 

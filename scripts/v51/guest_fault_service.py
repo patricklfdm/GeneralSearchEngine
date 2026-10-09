@@ -161,6 +161,8 @@ class Handler:
             shutil.copytree(s.root/'store',raw/'store',ignore=shutil.ignore_patterns(s.current['commandId'],'executor.lock'))
             for path in root.iterdir():
                 if path.name in ('agents','app-'+node,'restored') or path.name in ('node-1','node-2','node-3'):continue
+                if path.name==node+'-trace.jsonl':
+                    public_trace.copy_fault_trace(root,raw,node);continue
                 m.need(not path.is_symlink(),'fault collection symlink')
                 if path.is_dir():shutil.copytree(path,raw/path.name)
                 else:shutil.copyfile(path,raw/path.name)
