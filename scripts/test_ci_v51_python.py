@@ -80,6 +80,7 @@ class PythonLanesTest(unittest.TestCase):
         # Check identities and multiplicity: a count alone can miss a replaced
         # module, while the full inventory also reports exactly what drifted.
         expected=['scripts.v51.test_'+name for name in (
+            'native_preset_review', 'native_presets',
             'cloud_preflight', 'cloud_recent_cleanup', 'cloud_identity_setup',
             'cloud_cleanup_deployment', 'cloud_cleanup_observation', 'cloud_permissions',
             'cloud_credential_diagnostics', 'cloud_runner_precheck', 'cloud_runner_artifacts',
