@@ -14,6 +14,20 @@ from . import performance_model as m, remote_command as c
 from . import guest_session_recovery as recovery, guest_native_session as session, guest_delivery_receiver as receiver
 
 
+def session_fixture():
+    """Synthetic package and original clock for session claims, without volume admission."""
+    # Session clocks select the legacy timing profile from the volume protocol.
+    # This minimal fixture never enters native package or volume admission.
+    descriptor=dict(schema='gse-v51-native-package-transfer-v1',
+        binding=c.binding('a'*40,'b'*64,'c'*32,'node-1'),instanceId='123',diskId='456',guestAccessSha256='d'*64,
+        nativeVolume=dict(request=dict(schema='gse-v51-native-volume-request-v1')))
+    sample=receiver.clock_sample(session.identity(descriptor),'e'*32)
+    budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+90*10**9)
+    claim=dict(schema=session.SCHEMA,packageSha256=m.sha(m.canonical(descriptor)),preparation=budget,
+        leaseExpiresNanos=sample['sampledNanos']+120*10**9,hosts=['10.0.0.1','10.0.0.2','10.0.0.3'],port=19151)
+    return descriptor,claim
+
+
 def run(output):
     root=Path(output).absolute();root.mkdir(parents=True,exist_ok=False)
     receipt=dict(schema='gse-v51-preparation-ssh-qualification-v1',status='FAIL',cases=[],
@@ -73,12 +87,7 @@ def run(output):
                 for sent in (False,True):
                     case='session-lost-reply' if sent else 'session-unsent-begin'
                     base=root/case/'package';base.parent.mkdir(mode=0o700)
-                    descriptor=dict(schema='gse-v51-native-package-transfer-v1',
-                        binding=c.binding('a'*40,'b'*64,'c'*32,'node-1'),instanceId='123',diskId='456',guestAccessSha256='d'*64)
-                    sample=receiver.clock_sample(session.identity(descriptor),'e'*32)
-                    budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+90*10**9)
-                    claim=dict(schema=session.SCHEMA,packageSha256=m.sha(m.canonical(descriptor)),preparation=budget,
-                        leaseExpiresNanos=sample['sampledNanos']+120*10**9,hosts=['10.0.0.1','10.0.0.2','10.0.0.3'],port=19151)
+                    descriptor,claim=session_fixture()
                     expected=dict(state='SUCCEEDED',sessionSha256=m.sha(m.canonical(claim)))
                     injected=[];actions=[];report={}
                     def interrupted(args,*rest,**options):
