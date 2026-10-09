@@ -12,6 +12,9 @@ import tarfile
 SCHEMA = 'gse-v51-guest-package-v1'
 MAX_BYTES = 256 << 20
 MODES = ('published-v4.4-local', 'published-v5.0-configured', 'candidate-v5.1-automatic')
+WORKLOAD_CELLS = ('healthy', 'read-heavy', 'sustained')
+CANONICAL_WORKLOADS = tuple((mode, 'healthy') for mode in MODES) + tuple(
+    (MODES[2], cell) for cell in WORKLOAD_CELLS[1:])
 PACKAGE = 'io.github.patricklfdm.generalsearch.'
 MAINS = dict(zip(MODES, ('admission.V51CloudLocal', 'replication.V51CloudConfigured', 'replication.V51CloudAutomatic')))
 
@@ -24,6 +27,24 @@ def experiment_nodes(mode):
     """Frozen experiment placement; canonical host rotation is not admitted here."""
     need(mode in MODES, 'package experiment mode')
     return (1,) if mode == MODES[0] else (1,2,3)
+
+
+def workload_selection(config):
+    """Closed offline tapes, also usable before importing an authenticated payload."""
+    if 'workload' not in config:
+        return 'healthy', 'experiment'
+    value = config['workload']
+    need(config['execution'] == 'local-guest-service-only' and 'faultCell' not in config and
+         type(value) is dict and set(value) == {'cell', 'preset'} and value['preset'] == 'canonical' and
+         (config['mode'], value['cell']) in CANONICAL_WORKLOADS, 'offline canonical guest workload scope')
+    return value['cell'], value['preset']
+
+
+def bootstrap_directory_name(config):
+    """Exact source/bootstrap root name; never accept an arbitrary child path."""
+    need(config['mode'] in MODES, 'bootstrap configuration mode')
+    cell, preset = workload_selection(config)
+    return 'canonical-'+cell+'-'+config['mode'] if preset == 'canonical' else config['mode']
 
 
 def sha(data): return hashlib.sha256(data).hexdigest()

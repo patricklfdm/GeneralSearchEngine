@@ -41,7 +41,7 @@ class ConfiguredReadTest(unittest.TestCase):
     def test_original_bad_evidence_does_not_count_as_rejected_mutations(self):
         self.traces['node-1'].pop(0)
         with patch.object(e,'audit',wraps=e.audit) as audit:
-            with self.assertRaisesRegex(ValueError,'without invocation'):e.qualify(self.root,[],self.traces,self.exchanges)
+            with self.assertRaisesRegex(ValueError,'without invocation'):e.qualify(self.root,[],self.traces,self.exchanges,final_sequence=4)
             self.assertEqual(audit.call_count,1)
     def test_resealed_read_answer_rejected_by_independent_bytes(self):
         for r in (self.traces['node-1'][1],self.exchanges['node-1'][0]['response']):

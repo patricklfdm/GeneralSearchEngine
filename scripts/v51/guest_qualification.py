@@ -13,7 +13,13 @@ from . import remote_command as command, remote_collection as collection, remote
 from . import guest_evidence
 
 
-def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None, healthy=False, physical=False, backup=False):
+def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=None, healthy=False, physical=False, backup=False, canonical_cell=None, mode=None):
+    from . import guest_workload_spec as workload
+    if canonical_cell is not None:
+        m.need((mode,canonical_cell) in workload.CASES and not any((healthy,physical,backup)), 'canonical guest qualification scope')
+        healthy=physical=backup=True
+    else:m.need(mode is None,'selected mode requires canonical tape')
+    cell_name,preset=canonical_cell or 'healthy','canonical' if canonical_cell else 'experiment'
     m.need(not backup or physical,'backup requires physical evidence')
     m.need(not physical or healthy,'physical evidence requires healthy scope')
     m.need(not (isolated and delivery), 'SSH service and mount-view qualification are separate gates')
@@ -33,7 +39,11 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
         paidCloud=False, fullRemoteQualification=False, engineWorkloadExecuted=True, cases=results)
     def execute(client, name, payload, lost=False, until=None):
         value = command.request(client.config['binding'], uuid.uuid4().hex, name, payload)
-        until = min(deadline,time.monotonic()+120,until if until is not None else deadline)
+        ceiling=120
+        if canonical_cell and name=='window':
+            spec=next(s for s in workload.specs(client.config) if s['window']==payload['window'])
+            ceiling=(spec['durationNanos']+spec['drainNanos'])/1e9+10
+        until = min(deadline,time.monotonic()+ceiling,until if until is not None else deadline)
         identity = m.sha(m.canonical(client.config))
         retained = root/'controller'/identity/value['commandId']; retained.mkdir(parents=True,mode=0o700)
         command.write_once(retained/'request.json',dict(config=client.config,request=value))
@@ -50,7 +60,7 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
         transcripts.setdefault(identity,[]).append(dict(request=value,receipt=result))
         return value, result, dict(submits=connection.submits, queries=connection.queries)
     try:
-        for mode in package.MODES:
+        for mode in ((mode,) if canonical_cell else package.MODES):
             cell = root/mode; cell.mkdir(); sockets = [socket.socket() for _ in range(3)]
             try:
                 hosts = ['127.0.0.2', '127.0.0.3', '127.0.0.4']; ports = []
@@ -62,6 +72,7 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                         binding=command.binding(source, packed['archiveSha256'], attempt, 'node-'+str(n)),
                         packageManifestSha256=m.sha((packaged/'manifest.json').read_bytes()), root=str(cell), mode=mode,
                         hosts=hosts, ports=ports, groupId=group)
+                    if canonical_cell:cfg['workload']=dict(cell=cell_name,preset=preset)
                     configs.append(cfg)
                 packages = {cfg['binding']['node']: delivery.install(cfg, min(deadline,time.monotonic()+120)) if delivery else packaged for cfg in configs}
                 views = None
@@ -101,14 +112,14 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                         m.need(answer['state'] == 'SUCCEEDED', 'automatic guest status')
                         if answer['result']['status']['state'] == 'LEADER_READY': active = client; break
                     m.need(time.monotonic() < until, 'automatic guest startup deadline')
-            specs=schedule.windows('healthy','experiment')[:None if healthy else 1]
+            specs=schedule.windows(cell_name,preset)[:None if healthy else 1]
             for spec in specs:
                 if healthy:
                     for client in clients:
                         if client is not active:
                             _,configured,_=execute(client,'fault',dict(action='configure',window=spec['window']))
                             m.need(configured['state']=='SUCCEEDED','guest passive configure')
-                value, answer, counts = execute(active, 'window', dict(cell='healthy', preset='experiment', window=spec['window']), lost=True)
+                value, answer, counts = execute(active, 'window', dict(cell=cell_name, preset=preset, window=spec['window']), lost=True)
                 m.need(answer['state'] == 'SUCCEEDED' and counts['submits'] == 1 and counts['queries'] > 0, 'guest lost-reply window: '+str(answer))
                 m.need(answer['result']['calls'] == len(spec['calls']), 'guest frozen window count')
             expected = len(specs[0]['calls'])
@@ -125,14 +136,14 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                     m.need(answer['state']=='SUCCEEDED','guest final status command')
                     return answer['result']['status']
                 guest_physical_evidence.converge(clients,active,status,deadline,mode=mode)
-            for client in clients:
+            for client in sorted(clients,key=lambda client:client is active):
                 _, stopped, _ = execute(client, 'stop-voter', dict(forced=False))
                 m.need(stopped['state'] == 'SUCCEEDED', 'guest clean stop: '+str(stopped))
             if backup and physical_mode:
                 _,restored,_=execute(active,'restore-backup',{},lost=True)
                 m.need(restored['state']=='SUCCEEDED','guest restore command')
             old = active.submit(value, min(deadline, time.monotonic()+20)); m.need(old == answer, 'terminal command was replayed')
-            members = []; physical_members=[]
+            members = []; physical_members=[]; collected_members=[]
             for client in clients:
                 _, collected, _ = execute(client, 'collect', dict(physical=True,backup=True) if backup and physical_mode and client is active else ({'physical':True} if physical_mode else {}))
                 m.need(collected['state'] == 'SUCCEEDED', 'guest collection: '+str(collected))
@@ -155,9 +166,14 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
                 controller = dict(config=client.config,packageRoot=str(client.base),active=client is active,
                     transcript=transcripts[m.sha(m.canonical(client.config))])
                 command.write_once(cell/('controller-'+client.config['binding']['node']+'.json'),controller)
-                validated = guest_evidence.validate(replay,client.config,manifest_bytes,client.base,
-                    controller['transcript'],active=controller['active'],healthy=healthy,physical=physical_mode,backup=backup and physical_mode and client is active)
-                command.write_once(cell/('validation-'+client.config['binding']['node']+'.json'),validated)
+                collected_members.append((replay,controller,node,checked))
+            # Retain every stopped member before replay, so one invalid member
+            # cannot prevent investigation of the other original collections.
+            for replay,controller,node,checked in collected_members:
+                cfg=controller['config']
+                validated = guest_evidence.validate(replay,cfg,manifest_bytes,controller['packageRoot'],
+                    controller['transcript'],active=controller['active'],healthy=healthy,physical=physical_mode,backup=backup and physical_mode and controller['active'])
+                command.write_once(cell/('validation-'+cfg['binding']['node']+'.json'),validated)
                 members.append(dict(node=node,calls=validated['calls'],journals=validated['journals'],collection=checked,validation=validated))
                 physical_members.append(dict(root=replay,controller=controller))
             physical_result=None
@@ -196,7 +212,8 @@ def run(output, bundle, source, *, isolated=False, allow_sudo=False, delivery=No
 if __name__ == '__main__':
     p=argparse.ArgumentParser();p.add_argument('output',type=Path);p.add_argument('--bundle',type=Path,required=True);p.add_argument('--source',required=True);p.add_argument('--isolated',action='store_true');p.add_argument('--allow-sudo-namespace',action='store_true');p.add_argument('--healthy',action='store_true')
     p.add_argument('--physical',action='store_true');p.add_argument('--backup',action='store_true')
+    p.add_argument('--canonical-cell',choices=('healthy','read-heavy','sustained'));p.add_argument('--mode',choices=package.MODES)
     a=p.parse_args()
     def terminate(*_): raise TimeoutError('guest qualification terminated')
     signal.signal(signal.SIGTERM, terminate)
-    run(a.output,a.bundle,a.source,isolated=a.isolated,allow_sudo=a.allow_sudo_namespace,healthy=a.healthy,physical=a.physical,backup=a.backup)
+    run(a.output,a.bundle,a.source,isolated=a.isolated,allow_sudo=a.allow_sudo_namespace,healthy=a.healthy,physical=a.physical,backup=a.backup,canonical_cell=a.canonical_cell,mode=a.mode)

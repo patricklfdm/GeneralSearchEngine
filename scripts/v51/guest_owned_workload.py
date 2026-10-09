@@ -1,7 +1,8 @@
-"""One complete experiment healthy tape on already admitted services.
+"""One complete frozen tape on already admitted services.
 
 Offline qualification only: provider/block facts remain fixtures. Physical replay
-supports both replicated modes; faults and paid acceptance stay open.
+supports both replicated modes. Canonical tapes are explicit offline components;
+they do not admit full presets or paid execution.
 """
 from pathlib import Path
 import os
@@ -11,6 +12,7 @@ from . import cloud_authority as a, cloud_package as package, performance_model 
 from . import remote_command as c, remote_collection as collection, remote_schedule as schedule
 from . import guest_evidence
 from . import native_experiment_timing as timing
+from . import guest_workload_spec as workload
 
 SCOPE='owned-automatic-healthy-experiment'
 CONFIGURED_SCOPE='owned-configured-healthy-experiment'
@@ -29,6 +31,12 @@ class Probe:
 
     def _initialize(self, services, output, *, physical=False, backup=False, clock=time.monotonic, sleep=time.sleep):
         self.mode=services.mode;self.scope=SCOPES[self.mode]
+        self.cell_name=getattr(services,'canonical_cell',None) or 'healthy'
+        self.preset='canonical' if getattr(services,'canonical_cell',None) else 'experiment'
+        if self.preset=='canonical':
+            m.need(services.offline is True,'owned canonical workload is offline only')
+            m.need(self.mode==package.MODES[0] or physical and backup,'canonical replicated tape requires physical history and backup')
+            self.scope=workload.scope(self.mode,self.cell_name)
         self.nodes=package.experiment_nodes(self.mode)
         m.need(type(physical) is bool and (not physical or self.mode in package.MODES[1:]),'owned physical scope');self.require_physical=physical
         m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
@@ -80,6 +88,7 @@ class Probe:
         package.verify(self.services.archive.parent/'package',req['source'])
         for (node,client,cfg),member in zip(self.clients,complete['members']):
             m.need(client.config==cfg and cfg['mode']==self.mode and
+                   workload.selection(cfg)==(self.cell_name,self.preset) and
                    cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node)) and
                    m.sha(self.manifest)==cfg['packageManifestSha256'] and member['node']==node and
                    member['configSha256']==m.sha(m.canonical(cfg)), 'owned workload client identity')
@@ -91,8 +100,9 @@ class Probe:
         m.need(self.clock()<deadline/10**9,'owned workload preparation deadline')
 
     def cell(self, name, deadline):
-        m.need(self.prepared and not self.attempted and name=='healthy','owned workload cell consumed/scope')
-        self.attempted=True;end=min(deadline/10**9,self.clock()+timing.control(self.services.provider.req,'mode',300))
+        m.need(self.prepared and not self.attempted and name==self.cell_name,'owned workload cell consumed/scope')
+        limit=300 if name=='healthy' else timing.cell(self.services.provider.req,name)
+        self.attempted=True;end=min(deadline/10**9,self.clock()+timing.control(self.services.provider.req,'mode',limit))
         record=dict(scope=self.scope,mode=self.mode,status='FAIL',startedNanos=int(self.clock()*10**9),windows=[])
         try:
             for member in self.clients:
@@ -110,10 +120,10 @@ class Probe:
                     if state=='LEADER_READY':self.active=member;break
                 m.need(self.clock()<activation,'owned activation deadline')
                 if self.active is None:self.sleep(.05)
-            for spec in schedule.windows('healthy','experiment'):
+            for spec in schedule.windows(self.cell_name,self.preset):
                 for member in self.clients:
                     if member[0]!=self.active[0]:self.succeeded(member,'fault',dict(action='configure',window=spec['window']),end)
-                result=self.succeeded(self.active,'window',dict(cell='healthy',preset='experiment',window=spec['window']),end)
+                result=self.succeeded(self.active,'window',dict(cell=self.cell_name,preset=self.preset,window=spec['window']),end)
                 m.need(result['result']['calls']==len(spec['calls']),'owned frozen window count')
                 record['windows'].append(spec['window'])
             negative=self.execute(self.active,'collect',{},end)
@@ -155,7 +165,7 @@ class Probe:
     def collect_validate(self, output, deadline):
         m.need(self.stopped,'owned workload collection before stop')
         end=deadline/10**9;errors=list(self.close_voters(end));members=[];physical_members=[];physical=None
-        if self.require_backup and self.active is not None and self.cells==['healthy'] and not errors:
+        if self.require_backup and self.active is not None and self.cells==[self.cell_name] and not errors:
             try:self.succeeded(self.active,'restore-backup',{},end)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=self.active[0],phase='restore',message=str(error)[:2000]))
         for member in self.started:
@@ -182,15 +192,15 @@ class Probe:
                 c.write_once(folder/'validation.json',validated);members.append(validated)
                 physical_members.append(dict(root=replay,controller=controller))
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))
-        if self.require_physical:
+        if self.require_physical and self.prepared:
             try:
                 from . import guest_physical_evidence
                 physical=guest_physical_evidence.validate(physical_members,self.manifest,backup=self.require_backup)
                 c.write_once(self.raw/'physical.json',physical)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='physical-validation',message=str(error)[:2000]))
         m.need(self.clock()<end,'owned validation deadline')
-        valid=(self.cells==['healthy'] and [n for n,_,_ in self.started]==list(self.nodes) and
-               len(members)==len(self.nodes) and sum(v['calls'] for v in members)==90 and not errors)
+        valid=(self.prepared and self.cells==[self.cell_name] and [n for n,_,_ in self.started]==list(self.nodes) and
+               len(members)==len(self.nodes) and sum(v['calls'] for v in members)==sum(len(s['calls']) for s in schedule.windows(self.cell_name,self.preset)) and not errors)
         result=dict(status='PASS' if valid else 'FAIL',execution=self.execution,scope=self.scope,mode=self.mode,paidCloud=self.authority.PAID_CLOUD,
             engineWorkloadExecuted=self.engineWorkloadExecuted,fullRemoteQualification=False,physicalHistoryQualified=physical is not None,
             backupRestoreQualified=physical is not None and physical.get('backupRestoreQualified',False),

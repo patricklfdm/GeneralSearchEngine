@@ -666,6 +666,113 @@ jobs:
           retention-days: 7
           compression-level: 1
 
+  v51-owned-canonical-tapes:
+    # Isolated execution using verified inputs from the V5.1 build domain.
+    name: V5.1 owned canonical tape (${{ matrix.tape }}, no GCP)
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - tape: v44-healthy
+            mode: published-v4.4-local
+            cell: healthy
+          - tape: v50-healthy
+            mode: published-v5.0-configured
+            cell: healthy
+          - tape: automatic-healthy
+            mode: candidate-v5.1-automatic
+            cell: healthy
+          - tape: automatic-read-heavy
+            mode: candidate-v5.1-automatic
+            cell: read-heavy
+          - tape: automatic-sustained
+            mode: candidate-v5.1-automatic
+            cell: sustained
+    env:
+      CANONICAL_CELL: ${{ matrix.cell }}
+      CANONICAL_MODE: ${{ matrix.mode }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+
+      - name: Download this run's exact-source verification inputs
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+          merge-multiple: true
+          path: target/ci-v51-build
+
+      - name: Validate and restore V5.1 verification inputs
+        run: >-
+          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/ci-v51-build
+          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-owned-canonical-tapes-build-inputs-${{ matrix.tape }}-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/v51-build/restore.json
+            target/ci-v51-build/manifest.json
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Build and relocate the V5.1 guest package without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 240s python3 -m scripts.v51.cloud_bundle
+          target/v51-canonical-package --source "$GITHUB_SHA"
+          --build-manifest target/ci-v51-build/manifest.json
+
+      - name: Retain V5.1 guest package provenance and startup checks
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-canonical-package-${{ matrix.tape }}-${{ github.sha }}
+          path: |
+            target/v51-canonical-package/guest.tar.gz
+            target/v51-canonical-package/receipt.json
+            target/v51-canonical-package/failure.json
+            target/v51-canonical-package/package/manifest.json
+            target/v51-canonical-package/build
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Prepare OpenSSH for the complete guest package qualification
+        run: |
+          if [[ ! -x /usr/sbin/sshd ]]; then
+            sudo apt-get update
+            sudo apt-get install --yes --no-install-recommends openssh-server
+          fi
+          sudo install -d -o root -g root -m 0755 /run/sshd
+
+      - name: Qualify one complete owned canonical tape without GCP
+        run: >-
+          timeout --signal=TERM --kill-after=5s 1200s python3 -m scripts.v51.guest_owned_qualification
+          target/v51-owned-canonical-tapes --bundle target/v51-canonical-package --source "$GITHUB_SHA"
+          --canonical-cell "$CANONICAL_CELL" --mode "$CANONICAL_MODE" --allow-sudo-namespace
+
+      - name: Retain V5.1 owned canonical tape and consumed claims
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-owned-canonical-tapes-${{ matrix.tape }}-${{ github.sha }}
+          path: target/v51-owned-canonical-tapes
+          if-no-files-found: warn
+          retention-days: 7
+          compression-level: 1
+
   v51-remote-rich-inputs:
     name: V5.1 rich workload inputs (no GCP)
     needs: [changes, v51-verification-build]
@@ -2491,6 +2598,7 @@ jobs:
       - v51-owned-experiment
       - v51-owned-network-faults
       - v51-owned-failure-drill
+      - v51-owned-canonical-tapes
       - v51-remote-rich
       - v51-remote-rich-inputs
       - v51-remote-rich-shards
@@ -2530,6 +2638,7 @@ jobs:
           V51_GUEST_SERVICES_RESULT: ${{ needs.v51-guest-services.result }}
           V51_OWNED_EXPERIMENT_RESULT: ${{ needs.v51-owned-experiment.result }}
           V51_OWNED_NETWORK_RESULT: ${{ needs.v51-owned-network-faults.result }}
+          V51_OWNED_CANONICAL_RESULT: ${{ needs.v51-owned-canonical-tapes.result }}
           V51_OWNED_DRILL_RESULT: ${{ needs.v51-owned-failure-drill.result }}
           V51_FOUNDATION_RESULT: ${{ needs.v51-foundation.result }}
           V51_RICH_INPUTS_RESULT: ${{ needs.v51-remote-rich-inputs.result }}
@@ -2566,7 +2675,7 @@ jobs:
             false) expected=skipped ;;
             *) echo "Invalid change-scope result" >&2; exit 1 ;;
           esac
-          for result in "$V51_RICH_INPUTS_RESULT" "$V51_RICH_SHARDS_RESULT" "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_GUEST_SERVICES_RESULT" "$V51_OWNED_EXPERIMENT_RESULT" "$V51_OWNED_NETWORK_RESULT" "$V51_OWNED_DRILL_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
+          for result in "$V51_RICH_INPUTS_RESULT" "$V51_RICH_SHARDS_RESULT" "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_GUEST_SERVICES_RESULT" "$V51_OWNED_EXPERIMENT_RESULT" "$V51_OWNED_NETWORK_RESULT" "$V51_OWNED_DRILL_RESULT" "$V51_OWNED_CANONICAL_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
             "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
             "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
             "$V51_RECLAMATION_RESULT" "$V51_FULL_SIZE_RUNTIME_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \

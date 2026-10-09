@@ -1,19 +1,20 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current implementation candidate: [complete owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md),
-all twelve offline guest fault cells; corrected-source protected CI remains pending.
-Native preset admission is unchanged.
+Current implementation candidate: [owned canonical tapes](v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md),
+all five full rich tapes through packaged guest services; protected CI is pending.
+The [twelve-cell owned failure drill](v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) is accepted
+at PR #308 / master CI `37837221623`. Native preset admission is unchanged.
 
 - **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
 
-The [owned network-fault slice](v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
-isolated-leader, asymmetric request/response and slow-follower guest controls and
-independent replay. Protected CI acceptance is pending. The five crash/transfer/capacity guest cases and full failure-drill
-aggregate are now implemented in this candidate. Next qualify the complete set,
-then extend canonical rich scheduling and control placement.
+The owned network and complete failure-drill lanes passed corrected-source master
+CI `37837221623`. The canonical tape batch adds three 260-call healthy modes,
+120 read-heavy calls and 180 sustained calls. Next add repetition-bound control
+placement and the shared-seed fifteen-cell aggregate, then review native admission
+and time/pricing allocation. Per-tape qualification cannot close a full preset.
 
 ## Version sequence
 

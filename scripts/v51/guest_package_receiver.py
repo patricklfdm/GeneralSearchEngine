@@ -215,7 +215,7 @@ def bootstrap(parent, value, budget, tail):
     r.need(transferred or set(request) == {'config','folder','descriptorSha256'}, 'bootstrap request fields')
     config = request['config']
     r.need(config['binding'] == value['binding'] and config['packageManifestSha256'] == value['manifestSha256'] and
-           config['root'] == str(Path(parent)/config['mode']), 'bootstrap installed configuration binding')
+           config['root'] == str(Path(parent)/package.bootstrap_directory_name(config)), 'bootstrap installed configuration binding')
     sys.dont_write_bytecode = True; sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_bootstrap as boot, cloud_guest as guest
     guest.validate(config); deadline = guest_deadline(budget,value)
@@ -247,7 +247,7 @@ def source_transfer(parent, value, budget, tail, stream):
            (len(tail)==3)==(tail[0]=='chunk') and len(tail[1])<=90000,'source transfer arguments')
     action=tail[0];request=r.decode(base64.b64decode(tail[1],validate=True));config=request['config']
     r.need(config['binding']==value['binding'] and config['packageManifestSha256']==value['manifestSha256'] and
-           config['root']==str(Path(parent)/config['mode']),'source installed configuration binding')
+           config['root']==str(Path(parent)/package.bootstrap_directory_name(config)),'source installed configuration binding')
     sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_source_transfer as source
     check=lambda:guest_deadline(budget,value)
@@ -268,7 +268,8 @@ def producer(parent,value,budget,tail):
     r.need(len(tail)==(4 if action=='chunk' else 3 if action=='manifest' else 2),'producer action arguments')
     request=r.decode(base64.b64decode(tail[1],validate=True));config=request['configs'][0]
     r.need(value['binding']['node']=='node-1' and config['binding']==value['binding'] and
-           config['packageManifestSha256']==value['manifestSha256'] and config['root']==str(Path(parent)/config['mode']),
+           config['packageManifestSha256']==value['manifestSha256'] and
+           config['root']==str(Path(parent)/package.bootstrap_directory_name(config)),
            'producer installed configuration binding')
     sys.dont_write_bytecode=True;sys.path.insert(0,str(base/'source-inputs'))
     from scripts.v51 import guest_source_producer as source

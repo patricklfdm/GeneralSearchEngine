@@ -34,7 +34,13 @@ def require_completion(result, resources):
                workloadErrors=(result.get('evidence') or {}).get('errors',[]))))
 
 
-def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False, failure_drill=False):
+def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_transfer=False, producer_source=False, workload=False, physical=False, backup=False, mode=package.MODES[2], three_mode=False, faults=False, fault_local=False, experiment=False, maintenance=False, network=False, failure_drill=False, canonical_cell=None):
+    if canonical_cell is not None:
+        from . import guest_workload_spec as rich
+        m.need((mode,canonical_cell) in rich.CASES and not any((bootstrap,source_transfer,producer_source,workload,physical,backup,
+            three_mode,faults,fault_local,experiment,maintenance,network,failure_drill)), 'canonical tape has its own offline scope')
+        bootstrap=source_transfer=producer_source=workload=True
+        physical=backup=mode in package.MODES[1:]
     m.need(not failure_drill or not any((experiment,maintenance,network,faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)), 'failure drill has its own scope')
     m.need(not network or not any((experiment,maintenance,faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)), 'network faults have their own scope')
     m.need(not (experiment or maintenance) or not any((faults,three_mode,bootstrap,source_transfer,producer_source,workload,physical,backup)) and not (experiment and maintenance), 'complete experiment/maintenance has its own scope')
@@ -192,6 +198,7 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
             elif three_mode:service_type=batch.Services
             else:service_type=owned.Services
             options={} if three_mode or faults else dict(mode=mode,bootstrap=admitted_bootstrap)
+            if canonical_cell is not None:options['canonical_cell']=canonical_cell
             services=service_type(provider,bundle/'guest.tar.gz',endpoint,qualification_mounts=mounts,
                 qualification_hosts=['127.0.0.2','127.0.0.3','127.0.0.4'] if workload or faults else None,**options)
             if faults:receipt.update(mode=service_type.mode,sourcePreparation='per-guest-public-empty-bootstrap')
@@ -223,7 +230,9 @@ def run(output, bundle, source, *, bootstrap=False, allow_sudo=False, source_tra
                 healthy_submits=[v for v in workload_submits if 'faultCell' not in v]
                 requests=[v['request'] for v in healthy_submits]
                 fault_submits=[v['request'] for v in workload_submits if 'faultCell' in v]
-                m.need(len(lost_submissions)-len(fault_submits)==(20 if three_mode else 5+2*int(backup)+int(mode==package.MODES[1])) and len({q['commandId'] for q in requests})==len(requests),
+                from . import remote_schedule
+                windows=len(remote_schedule.windows(canonical_cell or 'healthy','canonical' if canonical_cell else 'experiment'))
+                m.need(len(lost_submissions)-len(fault_submits)==(20 if three_mode else windows+2*int(backup)+int(mode==package.MODES[1])) and len({q['commandId'] for q in requests})==len(requests),
                        'owned workload submission replay/cardinality')
                 activations=[v for v in workload_submits if v['request']['command']=='fault' and v['request']['payload']==dict(action='activate')]
                 m.need(len(activations)==(1 if three_mode else int(mode==package.MODES[1])) and
@@ -334,8 +343,9 @@ if __name__=='__main__':
     p.add_argument('--network-faults',action='store_true');p.add_argument('--failure-drill',action='store_true')
     p.add_argument('--three-mode',action='store_true');p.add_argument('--faults',action='store_true');p.add_argument('--fault-local',action='store_true',help='Fault JVM/SSH qualification in separate local paths; no mount-isolation claim')
     p.add_argument('--mode',choices=package.MODES,default=package.MODES[2])
+    p.add_argument('--canonical-cell',choices=('healthy','read-heavy','sustained'),help='One full offline canonical tape; not a complete preset')
     args=p.parse_args()
     def terminate(*_): raise TimeoutError('owned qualification terminated')
     signal.signal(signal.SIGTERM,terminate)
     run(args.output,args.bundle,args.source,bootstrap=args.bootstrap,allow_sudo=args.allow_sudo_namespace,
-        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance,network=args.network_faults,failure_drill=args.failure_drill)
+        source_transfer=args.source_transfer,producer_source=args.producer_source,workload=args.workload,physical=args.physical,backup=args.backup,mode=args.mode,three_mode=args.three_mode,faults=args.faults,fault_local=args.fault_local,experiment=args.experiment,maintenance=args.maintenance,network=args.network_faults,failure_drill=args.failure_drill,canonical_cell=args.canonical_cell)

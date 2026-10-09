@@ -22,8 +22,12 @@ class Services:
     authority = a
     service_execution = guest.EXECUTION
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None):
+                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None, canonical_cell=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
+        from . import guest_workload_spec as workload
+        m.need(canonical_cell is None or fault_cell is None and bootstrap is not None and
+               (mode,canonical_cell) in workload.CASES, 'owned canonical service scope')
+        self.canonical_cell=canonical_cell
         self._initialize(provider,archive,endpoint_factory,mode=mode,qualification_mounts=qualification_mounts,
             qualification_hosts=qualification_hosts,clock=clock,sleep=sleep,bootstrap=bootstrap,deliver=deliver,fault_cell=fault_cell)
 
@@ -68,7 +72,11 @@ class Services:
             manifest = package.verify(self.archive.parent/'package', req['source'])
             m.need(req['guestAccessSha256'] == m.sha(m.canonical(self.provider.guest_access)), 'owned service access binding')
             configs, descriptors, endpoints = [], [], []
-            group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+(self.fault_cell or self.mode)))
+            canonical_cell=getattr(self,'canonical_cell',None)
+            selection=dict(mode=self.mode,execution=self.service_execution)
+            if canonical_cell:selection['workload']=dict(cell=canonical_cell,preset='canonical')
+            label=self.fault_cell or package.bootstrap_directory_name(selection)
+            group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+label))
             nodes=package.experiment_nodes(self.mode)
             for node in nodes:
                 item,target=facts[node-1],targets[node-1]
@@ -76,9 +84,10 @@ class Services:
                 desc = self.descriptor(manifest,binding,item['provider'],req['guestAccessSha256'])
                 m.need(target['instanceId'] == desc['instanceId'] and target['user'] == self.provider.guest_access['user'], 'owned service SSH target')
                 cfg = dict(schema='gse-v51-guest-service-v1', execution=self.service_execution, binding=binding,
-                    packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+(self.fault_cell or self.mode), mode=self.mode,
+                    packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+label, mode=self.mode,
                     hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
                 if self.fault_cell:cfg['faultCell']=self.fault_cell
+                if canonical_cell:cfg['workload']=dict(cell=canonical_cell,preset='canonical')
                 guest.validate(cfg)
                 endpoint = self.factory(target,self.mounts[node],desc)
                 m.need(endpoint.offline is self.offline and endpoint.value == desc and endpoint.target == target and

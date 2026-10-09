@@ -15,6 +15,7 @@ import uuid
 from . import cloud_package as package, performance_model as m, remote_command as c
 from . import remote_collection as collection, remote_schedule as schedule, remote_schedule_evidence as schedule_evidence
 from .guest_jvm import Jvm
+from . import guest_workload_spec as workload
 
 EXECUTION = 'local-guest-service-only'
 NATIVE_EXECUTION = 'native-v51-guest-service'
@@ -22,8 +23,9 @@ FIELDS = {'schema', 'execution', 'binding', 'packageManifestSha256', 'root', 'mo
 
 
 def validate(config):
-    m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}) and config['schema'] == 'gse-v51-guest-service-v1' and
+    m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}, FIELDS | {'workload'}) and config['schema'] == 'gse-v51-guest-service-v1' and
            config['execution'] in (EXECUTION,NATIVE_EXECUTION), 'guest service configuration scope')
+    workload.selection(config)
     if 'faultCell' in config:
         from .guest_fault_network import CASES as network_cases
         from .guest_fault_recovery import CASES as recovery_cases
@@ -180,13 +182,14 @@ class Service:
             # Only lifecycle control in this batch; no arbitrary argv or mutation replay.
             if payload.get('action')=='configure':
                 m.need(self.jvm is not None and set(payload)=={'action','window'} and
-                       payload['window'] in [s['window'] for s in schedule.windows('healthy','experiment')], 'guest configure window')
+                       payload['window'] in [s['window'] for s in workload.specs(self.config)], 'guest configure window')
                 return self.jvm.command('configure',window=payload['window'])
             m.need(self.jvm is not None and set(payload) == {'action'} and payload['action'] in ('status', 'activate'), 'guest control action')
             m.need(payload['action'] != 'activate' or self.config['mode'] == package.MODES[1] and self.node == 'node-1', 'configured activation role')
             return self.jvm.command(payload['action'])
         if name == 'window':
             m.need(self.jvm is not None and set(payload) == {'cell', 'preset', 'window'}, 'guest window fields/state')
+            m.need((payload['cell'], payload['preset']) == workload.selection(self.config), 'guest admitted workload selection')
             m.need(payload['cell'] == 'healthy' or self.config['mode'] == package.MODES[2], 'guest mode/cell scope')
             specs = schedule.windows(payload['cell'], payload['preset'])
             spec = next((v for v in specs if v['window'] == payload['window']), None); m.need(spec is not None, 'guest frozen window')

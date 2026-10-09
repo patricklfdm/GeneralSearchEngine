@@ -1,6 +1,10 @@
 # V5.1 complete owned failure drill
 
-**Status:** implementation candidate; corrected-source protected CI is pending.
+**Status:** protected offline qualification accepted at PR #308, master
+`bc805a4c922d77f1e7e5127694e20963a990e311`,
+[CI 37837221623](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37837221623).
+The complete twelve-cell lane and Required passed. This acceptance includes the
+recipient-heartbeat correction below; previous failed evidence remains retained.
 The twelve frozen fault cells now share one offline guest qualification scope,
 source, verified build, package and modeled lease. Native admission remains limited
 to the accepted four-cell experiment.

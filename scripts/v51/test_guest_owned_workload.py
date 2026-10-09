@@ -104,6 +104,20 @@ class OwnedWorkloadTest(unittest.TestCase):
         self.assertEqual(result['status'],'FAIL');self.assertEqual([n for n,_,_ in self.probe.started],[1,2])
         self.assertTrue(self.probe.clients[1][1].closed);self.assertFalse(self.probe.clients[2][1].calls)
 
+    def test_preparation_failure_retains_fail_without_invoking_physical_oracle(self):
+        # Services failed before Probe.prepare(), so there is no package manifest or JVM.
+        probe=w.Probe(self.services,self.root/'unprepared',clock=self.clock.seconds,sleep=self.clock.sleep,
+                      physical=True,backup=True)
+        probe.stop()
+        with patch('scripts.v51.guest_physical_evidence.validate') as oracle:
+            result=probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+        oracle.assert_not_called()
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(result['errors'],[])
+        self.assertFalse(result['engineWorkloadExecuted']);self.assertFalse(result['physicalHistoryQualified'])
+        self.assertFalse(result['backupRestoreQualified']);self.assertEqual(result['cells'],[])
+        self.assertEqual(c.read(probe.raw/'validation.json'),result)
+        self.assertTrue(list(probe.retention_files()))
+
 
 class OwnedShutdownTest(unittest.TestCase):
     """Delayed stop observations must not leave a leaderless voting majority."""
@@ -175,7 +189,7 @@ class OwnedCollectionTest(unittest.TestCase):
             client=SimpleNamespace(config=f.config,base=f.base,part=Mock(side_effect=self.download(node)))
             self.probe.clients.append((node,client,f.config))
             self.probe.transcripts[node]=list(f.transcript[:-2])
-        self.probe.manifest=self.fixtures[1].manifest;self.probe.started=list(self.probe.clients)
+        self.probe.manifest=self.fixtures[1].manifest;self.probe.prepared=True;self.probe.started=list(self.probe.clients)
         self.probe.active=self.probe.clients[0];self.probe.cells=['healthy'];self.probe.engineWorkloadExecuted=True
         self.probe.stop()
     def download(self,node):

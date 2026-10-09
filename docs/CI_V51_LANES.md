@@ -3,7 +3,9 @@
 **Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
 [complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring
-the current topology to 34 required job IDs, 38 executed jobs.
+the topology to 34 required job IDs, 38 executed jobs. The
+[owned canonical tape matrix](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md) adds five
+independent whole-tape jobs: current total 35 required job IDs, 43 executed jobs.
 Earlier counts and timings in this document describe their historical migrations.
 
 

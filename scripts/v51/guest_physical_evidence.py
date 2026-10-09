@@ -11,6 +11,7 @@ from . import remote_command as c, remote_collection as parts, performance_model
 from . import remote_rich_evidence as rich, remote_rich_physical as history
 from . import performance_physical as physical, storage_inspector as storage, format_inspector as f
 from . import cloud_workload_contract as contract
+from . import guest_workload_spec as workload
 
 NEGATIVES = dict(zip(('missing-invocation','borrowed-invocation','unknown-read-id','changed-cut','changed-release',
     'missing-release','resealed-answer','missing-leader-proof','missing-proof-ack','failed-original-call'),
@@ -60,15 +61,16 @@ def validate(members, manifest_bytes, *, backup=False):
     m.need(mode in package.MODES[1:] and all(common(cfg)==common(configs[0]) for cfg in configs), 'guest physical group/config binding')
     m.need(sum(v['controller']['active'] is True for v in members)==1, 'guest physical issuer coverage')
     reports=[];calls=[];traces={};indexes={};bindings={};exchanges={}
-    # The same existing per-member decoded limit is shared across logical and
-    # physical streams within each pass. No cross-machine timestamps are ordered.
+    # Full tapes retain the original stored per-node bound and one shared decoded
+    # budget. Reduced experiment members retain their stricter decoded bound.
+    shared=[contract.load()['evidence']['traceBytes']] if workload.selection(configs[0])[1]=='canonical' else None
     with tempfile.TemporaryDirectory(prefix='gse-v51-guest-physical-') as scratch:
         root=Path(scratch)
         for member,cfg,node in zip(members,configs,nodes):
             replay=c.directory(member['root']); controller=member['controller']
             reports.append(guest.validate(replay,cfg,manifest_bytes,controller['packageRoot'],controller['transcript'],
-                active=controller['active'],healthy=True,physical=True,backup=backup and controller['active']))
-            budget=[contract.load()['evidence']['perNodePerCellTraceBytes']]
+                active=controller['active'],healthy=True,physical=True,backup=backup and controller['active'],trace_budget=shared))
+            budget=shared if shared is not None else [contract.load()['evidence']['perNodePerCellTraceBytes']]
             results=rich.lines(replay,node+'-results',budget)
             rich.lines(replay,node+'-samples',budget)
             traces[node]=rich.lines(replay,node+'-trace',budget)
@@ -88,14 +90,15 @@ def validate(members, manifest_bytes, *, backup=False):
                     'guest physical manifest topology')
             bindings[node]=(m.sha(raw),m.sha(genesis))
         m.need(len(set(bindings.values()))==1, 'guest physical manifest/genesis agreement')
-        m.need(len(calls)==90, 'guest physical healthy call count')
+        m.need(len(calls)==sum(len(spec['calls']) for spec in workload.specs(configs[0])), 'guest physical frozen call count')
         if backup:
             from .guest_backup_evidence import trace_binding
             issuer=next(v for v in members if v['controller']['active'])
             response=c.read(Path(issuer['root'])/'backup/backup-result.json')['response']
             trace_binding(traces,issuer['controller']['config']['binding']['node'],response)
         if mode==package.MODES[1]:
-            result,negatives=guest_configured_evidence.qualify(root,calls,traces,exchanges)
+            result,negatives=guest_configured_evidence.qualify(root,calls,traces,exchanges,
+                final_sequence=workload.final_state(configs[0]).sequence)
         else:
             location=Location(root,configs[0]['root'],indexes)
             result=physical.automatic(root,calls,traces,evidence_location=location,
