@@ -88,8 +88,11 @@ def validate_request(value, *, domain='fake'):
     for key, length in (('source', 40), ('bundleSha256', 64), ('configurationSha256', 64),
                         ('sequence', 32), ('attempt', 32)):
         digest(value[key], length)
-    m.need(value['workloadSha256'] == workload.PLAN_SHA256 and value['order'] in ORDERS and
-           value['member'] in ORDERS[value['order']], 'cloud workload/order/member')
+    if domain == 'native' and full.selected(value):
+        order_valid = value['order'] in full.ORDERS and value['member'] in full.MEMBERS
+    else:
+        order_valid = value['order'] in ORDERS and value['member'] in ORDERS[value['order']]
+    m.need(value['workloadSha256'] == workload.PLAN_SHA256 and order_valid, 'cloud workload/order/member')
     maximum=(1 << 63)-(timing.allocation(value)['leaseSeconds']+timing.allocation(value)['operationGraceSeconds']+1 if timing.selected(value) else 6481)
     integer(value['createdAt'], 1, maximum)
     return m.sha(m.canonical(value))
@@ -160,8 +163,11 @@ def inspect_ledger(value, *, domain='fake'):
             m.need(all(a['status'] != 'PENDING' for a in attempts.values()), 'unresolved prior attempt')
             seq = sequences.setdefault(req['sequence'], dict(identity=identity(req), passed=[], blocked=False))
             m.need(seq['identity'] == identity(req) and not seq['blocked'], 'sequence changed/failed canonical set')
-            order = ORDERS[req['order']]
-            m.need(len(seq['passed']) < len(order) and req['member'] == order[len(seq['passed'])], 'sequence order')
+            if domain == 'native' and full.selected(req) and req['order'] == 'any-order':
+                m.need(req['member'] not in seq['passed'], 'sequence order')
+            else:
+                order = ORDERS[req['order']]
+                m.need(len(seq['passed']) < len(order) and req['member'] == order[len(seq['passed'])], 'sequence order')
             total += integer(row['maximumCostMicrousd'], 1, MAXIMUM_BUDGET_MICROUSD)
             m.need(total <= MAXIMUM_BUDGET_MICROUSD, 'ledger budget ceiling')
             attempts[sha] = dict(request=req, status='PENDING')

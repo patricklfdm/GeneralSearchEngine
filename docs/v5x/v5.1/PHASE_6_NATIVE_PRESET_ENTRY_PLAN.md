@@ -77,7 +77,10 @@ Neither an observer retry nor a replacement topology may become a workload retry
    before any new native preset becomes dispatchable.
 5. **Run the formal paid set on one final source.** Prepare fresh prices and
    exact requests, obtain the user's confirmations, then let the user trigger
-   experiment, failure-drill and three canonical repetitions. Keep all failed
+   experiment, failure-drill and three canonical repetitions. The operator-authorized
+   [any-order mode](PHASE_6_NATIVE_DRILL_RECOVERY.md#operator-authorized-member-order-amendment)
+   allows any member to start or run next; complete-set and failed-canonical rules
+   still apply. Keep all failed
    attempts and charges. Finish independent set review, cleanup/absence checks
    and append-only baseline registration before closing Phase 6.
 

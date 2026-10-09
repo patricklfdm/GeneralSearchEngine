@@ -518,5 +518,5 @@ documentation.
 
 - [V5.1 owned canonical tapes](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes accepted through PR #309.
 - [V5.1 complete owned canonical qualification](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md): all three offline repetitions accepted through PR #310; native admission remains separate.
-- [V5.1 native full-preset integration](v5x/v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md): exact member/order requests, guest sessions, complete execution and independent replay; protected CI and paid acceptance pending.
+- [V5.1 native full-preset integration](v5x/v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md): PR #311 accepted; native experiment passed. [Drill startup correction and arbitrary member order](v5x/v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md) await corrected-source CI and paid validation; full Phase 6 remains open.
 - [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native integration requires separate acceptance.

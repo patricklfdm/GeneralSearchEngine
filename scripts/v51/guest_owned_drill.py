@@ -19,14 +19,24 @@ class Cell(network.Cell):
         if self.case!='minority-capacity':return super().start_group()
         self.parallel(lambda member:self.command('node-'+str(member[0]),'prepare-direction'))
         self.parallel(self.start,self.clients[:2])
-        leader=self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),exclude=('node-3',))
+        self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),exclude=('node-3',))
         self.start(self.member('node-3'))
         self.parallel(lambda member:self.command('node-'+str(member[0]),'heal-direction'))
+        deadline=min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30))
+        label='owned bounded voter initial fencing'
         def stable():
-            a,b=self.status(leader),self.status('node-3')
-            return a['state']=='LEADER_READY' and b['state']=='FOLLOWER' and a['epoch']==b['epoch']
-        self.wait(stable,min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),'owned bounded voter initial fencing')
-        return leader
+            # Healing PREPARE traffic can change the leader. Observe both healthy
+            # voters under one deadline rather than pinning the pre-heal leader.
+            states={}
+            for node in ('node-1','node-2','node-3'):
+                m.need(self.clock()<deadline,label)
+                states[node]=self.status(node,deadline)
+            m.need(self.clock()<deadline,label)
+            bounded=states['node-3']
+            candidates=[node for node in ('node-1','node-2') if states[node]['state']=='LEADER_READY'
+                        and states[node]['epoch']==bounded['epoch']]
+            return candidates[0] if bounded['state']=='FOLLOWER' and len(candidates)==1 else None
+        return self.wait(stable,deadline,label)
 
     def status(self, node, deadline=None):
         if self.case!='minority-capacity' or node!='node-3':return super().status(node,deadline)

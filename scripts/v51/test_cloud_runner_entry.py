@@ -241,6 +241,9 @@ class EntryTest(unittest.TestCase):
     def test_workflow_guards_default_inputs_identity_secret_and_order(self):
         raw=e.workflow.workflow().decode();job=e.workflow.JOB
         self.assertIn("default: 'off'",raw);self.assertIn("options: ['off', prepare, run]",raw)
+        order=raw.split('      runner_order:\n',1)[1].split('      runner_experiment_quote:',1)[0]
+        self.assertIn('options: [any-order, experiment-first, canonical-first]',order)
+        self.assertIn('default: any-order',order)
         self.assertEqual(2,raw.count('V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}'))
         self.assertLess(job.index('cloud_runner_entry guard'),job.index('google-github-actions/auth@'))
         self.assertLess(job.index('cloud_runner_precheck report'),job.index('cloud_runner_entry prepare'))

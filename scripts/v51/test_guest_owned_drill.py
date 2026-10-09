@@ -60,6 +60,77 @@ class DrillScopeTest(unittest.TestCase):
                 run('/unused','/unused','a'*40,failure_drill=True,**{name:True})
 
 
+class BoundedStartupTest(unittest.TestCase):
+    def cell(self, initial='node-2', remaining=600):
+        from .test_native_presets import request
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup)
+        self.now=0
+        def sleep(seconds):self.now+=seconds
+        cell=drill.Cell(SimpleNamespace(clients=[(n,None,{}) for n in (1,2,3)],
+            provider=SimpleNamespace(req=request('failure-drill'))),Path(temp.name)/'cell',
+            'minority-capacity',clock=lambda:self.now,sleep=sleep)
+        cell.end=remaining;cell.command=Mock();cell.start=Mock();cell.leader=Mock(return_value=initial)
+        return cell
+
+    def states(self, leader, epoch=5, bounded='FOLLOWER', bounded_epoch=5):
+        return {node:dict(state=bounded if node=='node-3' else ('LEADER_READY' if node==leader else 'FOLLOWER'),
+                         epoch=bounded_epoch if node=='node-3' else epoch) for node in ('node-1','node-2','node-3')}
+
+    def test_startup_reselects_either_healthy_leader_after_heal_without_mutation_replay(self):
+        # Native run 37981974124 had node-2 ready at epoch 3 before healing,
+        # then node-1 ready at epoch 5 while both other voters were followers.
+        for initial,active in (('node-2','node-1'),('node-1','node-2'),('node-2','node-2')):
+            with self.subTest(initial=initial,active=active):
+                cell=self.cell(initial);states=self.states(active)
+                cell.status=Mock(side_effect=lambda node,deadline=None:states[node])
+                self.assertEqual(active,cell.start_group())
+                self.assertEqual([],cell.history)
+                self.assertEqual(3,cell.start.call_count)
+                self.assertEqual(['prepare-direction']*3+['heal-direction']*3,
+                                 [v.args[1] for v in cell.command.call_args_list])
+                cell.leader.assert_called_once()
+
+    def test_no_leader_wrong_epoch_or_bounded_leader_never_satisfies_fencing(self):
+        ambiguous=self.states('node-1');ambiguous['node-2']['state']='LEADER_READY'
+        for states in (self.states(None),self.states('node-1',bounded_epoch=4),
+                       self.states(None,bounded='LEADER_READY'),self.states('node-1',bounded='CANDIDATE'),ambiguous):
+            with self.subTest(states=states):
+                cell=self.cell(remaining=.2);cell.status=Mock(side_effect=lambda node,deadline=None:states[node])
+                with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+                self.assertEqual([],cell.history)
+
+    def test_final_observation_arriving_at_or_after_deadline_cannot_pass(self):
+        for arrival in (180,181):
+            cell=self.cell()
+            def status(node,deadline=None):
+                if node=='node-3':self.now=arrival
+                return self.states('node-1')[node]
+            cell.status=Mock(side_effect=status)
+            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+            self.assertEqual(3,cell.status.call_count)
+
+    def test_fencing_wait_has_one_deadline_and_accepts_only_before_it(self):
+        for remaining,late in ((600,False),(600,True),(.15,True)):
+            cell=self.cell(remaining=remaining);deadline=min(180,remaining);seen=[]
+            def status(node,limit=None):
+                seen.append(limit)
+                if late:self.now=deadline+1
+                else:self.now+=1
+                return self.states('node-1' if late else None)[node]
+            cell.status=Mock(side_effect=status)
+            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+            self.assertTrue(seen);self.assertEqual({deadline},set(seen))
+            self.assertLessEqual(len(seen),180)
+
+    def test_transient_election_can_converge_but_status_failure_is_not_swallowed(self):
+        cell=self.cell()
+        cell.status=Mock(side_effect=lambda node,deadline=None:self.states('node-1' if self.now else None)[node])
+        self.assertEqual('node-1',cell.start_group())
+        cell=self.cell();cell.status=Mock(side_effect=ConnectionError('lost status'))
+        with self.assertRaisesRegex(ConnectionError,'lost status'):cell.start_group()
+        self.assertEqual(1,cell.status.call_count)
+
+
 class DrillRunnerTest(common.RunnerWorkloadTest):
     def setUp(self):
         super().setUp();self.probe.mode=drill.MODE;self.probe.scope=drill.SCOPE

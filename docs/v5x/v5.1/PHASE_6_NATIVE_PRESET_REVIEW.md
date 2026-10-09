@@ -1,11 +1,11 @@
 # V5.1 native full-preset admission and execution
 
-**Status:** local implementation candidate after PR #310's accepted
-[three complete owned canonical repetitions](PHASE_6_OWNED_CANONICAL_AGGREGATE.md#protected-acceptance--pr-310).
-This batch completes the request-to-cleanup integration in step 4 of the
-[native preset entry plan](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md). Protected CI and
-actual native failure-drill/canonical acceptance remain pending. No paid run or
-cloud configuration change is performed by this implementation batch.
+**Status:** native integration accepted through PR #311 / master CI `37957278096`
+attempt 2. Native experiment `37970604996` passed; native failure-drill
+`37981974124` exposed a startup observer bug before the final cell's workload.
+The [startup correction and flexible member order](PHASE_6_NATIVE_DRILL_RECOVERY.md)
+are the current local candidate. Corrected-source protected CI, native drill and
+canonical acceptance remain pending; full Phase 6 remains open.
 
 ## Two distinct outputs
 
@@ -94,18 +94,19 @@ Input fields are exactly:
 | --- | --- |
 | `configuration`, `artifacts`, `guestAccess` | Same configuration/artifact-proof/guest-access shapes as the existing Runner plan; this tool validates shape/binding, not live authenticity |
 | `baseline` | `null` or `[generation, nativeLedger]`, read-only supplied observation |
-| `sequence`, `member`, `order` | Original sequence identity, one exact member and one of the existing two fixed orders |
+| `sequence`, `member`, `order` | Original sequence identity, one exact member and `any-order` or either legacy fixed order |
 | `prices` | Existing Runner quote schema, indexed by **every remaining member**, including the selected member |
 | `maximumCostsMicrousd` | Explicit per-member reservation ceilings with exactly the same keys as `prices` |
 
 `canonical-1/2/3` bind repetitions and configured control hosts 1/2/3. Automatic
-leadership remains observed, never forced to a proposed control host. Starting
-from an empty ledger is valid for experiment-first/experiment or
-canonical-first/canonical-1. A later member requires the original successful
-prefix; a duplicate attempt, pending attempt, changed source/bundle/configuration,
-changed order or failed canonical sequence is rejected by the existing native
-ledger implementation. Only an in-memory reservation is simulated and discarded;
-no simulated PASS result or ledger is emitted.
+leadership remains observed, never forced to a proposed control host. With
+`any-order`, any of the five members can be first; each unpassed member may be next.
+Remaining quotes cover all members without a same-sequence PASS, in a stable
+display order. This display order does not prescribe execution order.
+`experiment-first` and `canonical-first` retain their original successful-prefix
+rules. A duplicate PASS member/attempt, pending attempt, changed source/bundle/
+configuration/order or failed canonical sequence is rejected. Only an in-memory
+reservation is simulated and discarded; no simulated PASS result or ledger is emitted.
 
 The price calculator is shared with the unchanged experiment entry. Each quote
 must cover its member's reviewed lifetime, 3 VMs and 450 GiB of disks, retention,
@@ -168,15 +169,16 @@ and cumulative headroom; `review.json` retains every supplied input.
 
 The existing **V5.1 Preflight and Experiment Runner** adds two choices:
 `runner_member` (`experiment`, `failure-drill`, `canonical-1`, `canonical-2`,
-`canonical-3`) and `runner_order` (`experiment-first`, `canonical-first`).
+`canonical-3`) and `runner_order` (`any-order`, `experiment-first`, `canonical-first`).
 Diagnostic-only remains the default. No new IAM role, identity or cleanup workflow
 is introduced; recent successful manual cleanup remains sufficient.
 
 1. Confirm corrected-source protected CI, fresh read-only observations, and no
    active/pending attempt. Review current quotes covering the lifetimes above
    and the remaining sequence against the USD 200 cumulative ceiling.
-2. Start a **new sequence** on the final source/package. Select the first member
-   of its fixed order, `runner_experiment=prepare`, and the usual quote JSON
+2. Start a **new sequence** on the final source/package. Select `any-order` and
+   any member (or the first member of a legacy fixed order),
+   `runner_experiment=prepare`, and the usual quote JSON
    (`prices`, `maximumCostMicrousd`, `sequence`). Preparation allocates nothing.
 3. Inspect the Action summary and retained plan: exact member/order/repetition,
    control node, cell set, stage limits, price estimate and charged reservation.
@@ -194,7 +196,8 @@ CI and offline fixtures cannot substitute for those paid results or close Phase 
 
 ## Validation boundary
 
-The admission CI lane includes `test_native_presets`: both ledger orders, immutable
+The admission CI lane includes `test_native_presets`: all 120 arbitrary member
+permutations and both legacy ledger orders, immutable
 budgets and old-request compatibility, exact guest sessions, rotated control
 placement, changed-selection rejection, trusted receiver imports, every member's
 thirteen-resource synthetic preparation and fresh-process expired cleanup.

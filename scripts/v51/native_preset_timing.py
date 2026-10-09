@@ -11,7 +11,7 @@ import re
 REQUEST_SCHEMA = 'gse-v51-native-request-v3'
 PLAN_SHA256 = 'f201a52a96b6451f068090f0f8b6999f15c774fa9ae41ec60182f2329c214670'
 MEMBERS = ('experiment', 'failure-drill', 'canonical-1', 'canonical-2', 'canonical-3')
-ORDERS = ('experiment-first', 'canonical-first')
+ORDERS = ('any-order', 'experiment-first', 'canonical-first')
 PROFILES = {'failure-drill': {'profile': 'owned-failure-drill-v1',
                    'cells': ['leader-loss',
                              'isolated-old-leader',

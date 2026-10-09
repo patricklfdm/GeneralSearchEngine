@@ -51,6 +51,7 @@ class SafeDiagnosticsTest(unittest.TestCase):
             (ValueError('owned provider/pinned host changed'),'RUNTIME_IDENTITY_CHANGED'),
             (ValueError('owned runtime durable authority changed'),'RUNTIME_AUTHORITY_CHANGED'),
             (ValueError('provider late response'),'RUNTIME_DEADLINE'),
+            (ValueError('owned bounded voter initial fencing'),'RUNTIME_BOUNDED_VOTER_FENCING'),
             (ConnectionError('private-secret'),'RUNTIME_TRANSPORT'),(TimeoutError('private-secret'),'RUNTIME_TIMEOUT'),
             (d.transport.ProcessError('SSH_DISCONNECTED'),'SSH_DISCONNECTED'),
             (d.transport.ProcessRejected('SSH_HOST_KEY'),'SSH_HOST_KEY'),

@@ -1,5 +1,6 @@
 """Native full-preset binding qualification; no live network or paid execution."""
 from copy import deepcopy
+from itertools import permutations
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
@@ -78,6 +79,52 @@ class PresetIdentityTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'sequence changed'):
             n.reserve(ledger,request('failure-drill','experiment-first','1'*32),dict(previousCostMicrousd=1,maximumCostMicrousd=1))
 
+    def test_any_order_accepts_all_120_permutations_with_five_distinct_passes(self):
+        for members in permutations(t.MEMBERS):
+            with self.subTest(members=members):
+                ledger=n.empty_ledger()
+                for i,member in enumerate(members):
+                    req=request(member,'any-order',attempt=f'{i+1:032x}')
+                    self.assertEqual(dict(member=member,order='any-order'),entry.member_selection(
+                        dict(RUNNER_MEMBER=member,RUNNER_ORDER='any-order')))
+                    ledger=n.reserve(ledger,req,dict(previousCostMicrousd=i,maximumCostMicrousd=1))
+                    ledger=n.finish(ledger,req,dict(requestSha256=n.validate_request(req),status='PASS'))
+                    total,attempts=n.inspect_ledger(ledger)
+                    self.assertEqual((i+1,set(members[:i+1])),(total,{v['request']['member'] for v in attempts.values() if v['status']=='PASS'}))
+                with self.assertRaisesRegex(ValueError,'sequence order'):
+                    n.reserve(ledger,request(members[0],'any-order','f'*32),dict(previousCostMicrousd=5,maximumCostMicrousd=1))
+
+    def test_any_order_preserves_pending_duplicate_identity_failure_and_budget_guards(self):
+        req=request('failure-drill','any-order')
+        pending=n.reserve(n.empty_ledger(),req,dict(previousCostMicrousd=0,maximumCostMicrousd=100_000_000))
+        next_req=request('canonical-3','any-order','1'*32)
+        with self.assertRaisesRegex(ValueError,'unresolved prior attempt'):
+            n.reserve(pending,next_req,dict(previousCostMicrousd=100_000_000,maximumCostMicrousd=1))
+        failed=n.finish(pending,req,dict(requestSha256=n.validate_request(req),status='FAIL'))
+        retry=request('failure-drill','any-order','2'*32)
+        retried=n.reserve(failed,retry,dict(previousCostMicrousd=100_000_000,maximumCostMicrousd=1))
+        passed=n.finish(retried,retry,dict(requestSha256=n.validate_request(retry),status='PASS'))
+        with self.assertRaisesRegex(ValueError,'sequence order'):
+            n.reserve(passed,request('failure-drill','any-order','3'*32),dict(previousCostMicrousd=100_000_001,maximumCostMicrousd=1))
+        for key,value in (('source','0'*40),('bundleSha256','0'*64),('configurationSha256','0'*64),('order','canonical-first')):
+            changed=deepcopy(next_req);changed[key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'sequence changed'):
+                n.reserve(passed,changed,dict(previousCostMicrousd=100_000_001,maximumCostMicrousd=1))
+        with self.assertRaisesRegex(ValueError,'ledger budget ceiling'):
+            n.reserve(passed,next_req,dict(previousCostMicrousd=100_000_001,maximumCostMicrousd=100_000_000))
+        reserved=n.reserve(passed,next_req,dict(previousCostMicrousd=100_000_001,maximumCostMicrousd=1))
+        blocked=n.finish(reserved,next_req,dict(requestSha256=n.validate_request(next_req),status='FAIL'))
+        with self.assertRaisesRegex(ValueError,'failed canonical'):
+            n.reserve(blocked,request('experiment','any-order','4'*32),dict(previousCostMicrousd=100_000_002,maximumCostMicrousd=1))
+
+    def test_any_order_does_not_change_legacy_or_fake_admission(self):
+        for schema in ('gse-v51-native-request-v1','gse-v51-native-request-v2'):
+            req=request('experiment','any-order');req['schema']=schema;req.pop('timingPlanSha256')
+            if schema.endswith('v1'):req.pop('timingProfile')
+            with self.assertRaisesRegex(ValueError,'cloud workload/order/member'):n.validate_request(req)
+        with self.assertRaises(ValueError):
+            a.request('a'*40,'b'*64,'c'*64,'d'*32,'e'*32,'canonical-3',now=100,order='any-order')
+
     def test_entry_selection_is_closed_and_controller_selects_complete_original_algorithms(self):
         for member in t.MEMBERS:
             self.assertEqual(member,entry.member_selection(dict(RUNNER_MEMBER=member,RUNNER_ORDER='canonical-first'))['member'])
@@ -134,12 +181,23 @@ class AdmissionTest(unittest.TestCase):
     def setUpClass(cls):
         frozen=admission.workload.load();p=patch.object(admission.workload,'load',side_effect=lambda:deepcopy(frozen));p.start();cls.addClassCleanup(p.stop)
         tmp=tempfile.TemporaryDirectory();cls.addClassCleanup(tmp.cleanup);cls.f=fixture.fixture(Path(tmp.name)/'inputs')
-    def plan(self,member='canonical-1'):
+    def plan(self,member='canonical-1',order=None):
         old=self.f['value'];stage=old['resourcePlan'];req=stage['request'];quote=deepcopy(old['prices'])
         quote['pricedThroughSeconds']=t.allocation(member)['priceCoverageSeconds']
         return admission.plan(old['configuration'],old['artifacts'],stage['guestAccess'],quote,None,
             sequence=req['sequence'],now=req['createdAt'],maximum_cost=20_000_000,member=member,
-            order='canonical-first' if member=='canonical-1' else 'experiment-first')
+            order=order or ('canonical-first' if member=='canonical-1' else 'experiment-first'))
+    def test_any_first_member_has_exact_plan_approval_budget_and_control_binding(self):
+        for member in t.MEMBERS:
+            with self.subTest(member=member):
+                value=self.plan(member,'any-order');req=value['resourcePlan']['request'];now=req['createdAt']
+                digest=admission.validate_plan(value,now);approval=admission.approval_template(value);approval['confirmed']=True
+                self.assertEqual(digest,admission.approval(value,approval,digest,now))
+                self.assertEqual((member,'any-order'),(req['member'],req['order']))
+                n.validate_lease(n.lease(req,now))
+                self.assertEqual(t.allocation(member),value['timing'])
+                altered=deepcopy(value);altered['resourcePlan']['request']['order']='canonical-first'
+                with self.assertRaises(ValueError):admission.approval(altered,approval,digest,now)
     def test_plan_roundtrip_quote_coverage_and_exact_approval(self):
         for member in ('experiment','canonical-1'):
             value=self.plan(member);req=value['resourcePlan']['request'];now=req['createdAt']
@@ -353,15 +411,21 @@ class NativeNetworkControlTest(unittest.TestCase):
 
 class NativeEntryTest(unittest.TestCase):
     def test_prepare_then_fresh_dispatch_passes_exact_v3_member_into_owner_once(self):
+        self.prepare_run('canonical-1','canonical-first')
+
+    def test_any_order_can_prepare_and_dispatch_canonical_three_first(self):
+        self.prepare_run('canonical-3','any-order')
+
+    def prepare_run(self,member,order):
         from contextlib import ExitStack
         import shutil
         from .test_cloud_runner_entry import EntryTest
         from . import remote_command as c
         test=EntryTest();test.setUp();self.addCleanup(test.doCleanups)
         quote=m.strict_json(test.env['RUNNER_EXPERIMENT_QUOTE'])
-        quote['prices']['pricedThroughSeconds']=t.allocation('canonical-1')['priceCoverageSeconds']
+        quote['prices']['pricedThroughSeconds']=t.allocation(member)['priceCoverageSeconds']
         quote['maximumCostMicrousd']=20_000_000
-        test.env.update(RUNNER_MEMBER='canonical-1',RUNNER_ORDER='canonical-first',RUNNER_EXPERIMENT_QUOTE=m.canonical(quote).decode())
+        test.env.update(RUNNER_MEMBER=member,RUNNER_ORDER=order,RUNNER_EXPERIMENT_QUOTE=m.canonical(quote).decode())
         with ExitStack() as stack:
             test.dependencies(stack)
             prepared=test.call('prepare')
@@ -369,7 +433,7 @@ class NativeEntryTest(unittest.TestCase):
         test.f['value']=c.read(test.root/'entry/prepared/plan.json')
         self.assertEqual(t.REQUEST_SCHEMA,test.f['value']['resourcePlan']['request']['schema'])
         test.f['approved']=admission.approval_template(test.f['value']);test.f['approved']['confirmed']=True
-        archive=test.setup_run();test.env.update(RUNNER_MEMBER='canonical-1',RUNNER_ORDER='canonical-first')
+        archive=test.setup_run();test.env.update(RUNNER_MEMBER=member,RUNNER_ORDER=order)
         collect=entry.prepared.collect
         with ExitStack() as stack:
             test.dependencies(stack)
@@ -379,5 +443,6 @@ class NativeEntryTest(unittest.TestCase):
             result=test.call('run','execution-entry')
         self.assertEqual('PASS',result['status'],result);owner.assert_called_once()
         self.assertEqual(test.f['value'],owner.call_args.args[6])
-        self.assertEqual('canonical-1',owner.call_args.args[1]['RUNNER_MEMBER'])
+        self.assertEqual(member,owner.call_args.args[1]['RUNNER_MEMBER'])
+        self.assertEqual(order,owner.call_args.args[1]['RUNNER_ORDER'])
         self.assertFalse(Path(owner.call_args.args[-2]).exists())
