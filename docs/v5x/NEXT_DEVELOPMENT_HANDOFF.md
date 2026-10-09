@@ -7,6 +7,13 @@ pending. The five component tapes are accepted through PR #309 / master
 `6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`; the twelve-cell drill
 was accepted through PR #308 / CI `37837221623`. Native preset admission is unchanged.
 
+CI `37869232192` completed all fifteen cells and the independent replay in each
+repetition, but failed the 600-second validation/retention ceiling and then used
+the expired deadline for service shutdown. The correction collects original
+evidence once, closes services before one bounded replay, and preserves cleanup
+time after validation expiry. The original failed runs do not constitute complete
+acceptance; corrected-source protected qualification remains required.
+
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not
 constitute protected acceptance of a protocol or authorization to implement it.

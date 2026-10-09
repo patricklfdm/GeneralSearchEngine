@@ -151,6 +151,112 @@ class CompleteRunnerTest(common.RunnerWorkloadTest):
         self.probe.collect_validate.return_value['cells']=['healthy']
         self.assertEqual(self.run_case()['status'],'FAIL')
 
+    def test_validation_overrun_uses_cleanup_reserve_for_one_shutdown_and_retains_failure(self):
+        report=deepcopy(self.probe.collect_validate.return_value)
+        def replay(output,deadline):
+            self.clock.sleep(601);return report
+        def close(deadline):
+            self.assertGreater(deadline,self.clock.nanos())
+            self.clock.sleep(2)
+        self.probe.collect_validate.side_effect=replay;self.startup.stop.side_effect=close
+        self.startup.retention_files.return_value=[('stop.json',b'original stop evidence')]
+        result=self.run_case()
+        self.assertEqual(result['status'],'FAIL');self.assertEqual(result['budget']['status'],'FAIL')
+        self.assertEqual(result['cleanup']['status'],'PASS');self.assertFalse(self.provider.objects)
+        self.startup.stop.assert_called_once();self.startup.retention_files.assert_called_once()
+        self.probe.retention_files.assert_not_called();self.assertFalse(result['leaseReleased'])
+        self.assertTrue(any(e['phase']=='retention' for e in result['errors']))
+        self.assertFalse(any(e['phase']=='guest-stop' for e in result['errors']))
+        self.assertTrue(any(key.endswith('/startup/stop.json') for key in self.store.objects))
+
+
+class CompleteCollectionTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+        self.clock=cloud_fake.Clock();req,_,_=cloud_fake.fixture();self.events=[]
+        services=Mock(offline=True,mode=run.MODE,repetition=1,provider=SimpleNamespace(req=req))
+        services.stop.side_effect=lambda deadline:self.events.append('services-stopped')
+        self.probe=run.Probe(services,self.root/'probe',clock=self.clock.seconds,sleep=self.clock.sleep)
+        self.probe.prepared=True;self.probe.cells=list(run.CELLS);self.probe.stopped=True
+        for mode,cell in run.TAPES:
+            name=run.key(mode,cell);raw=self.root/name;raw.mkdir()
+            def collect(deadline,name=name):self.events.append(name);return [],[object()]
+            self.probe.probes[name]=Mock(raw=raw,nodes=(1,),collect=collect,engineWorkloadExecuted=True)
+        for case in run.drill.CASES:
+            def collect(deadline,case=case):self.events.append(case);return []
+            self.probe.programs[case]=Mock(collect=collect,attempted=True)
+    def test_collect_once_close_services_then_replay_all_originals_once(self):
+        def replay(*args,**kwargs):
+            self.assertEqual(self.events[-1],'services-stopped');return dict(status='PASS',calls=1080)
+        with patch.object(evidence,'bounded_replay',side_effect=replay) as aggregate:
+            result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+        self.assertEqual(result['status'],'PASS');aggregate.assert_called_once()
+        self.assertEqual(self.events,[run.key(*v) for v in run.TAPES]+list(run.drill.CASES)+['services-stopped'])
+        for probe in self.probe.probes.values():probe.collect_validate.assert_not_called()
+    def test_partial_collection_cannot_accept_cached_pass(self):
+        self.probe.probes[run.key(*run.TAPES[0])].collect=lambda deadline:([dict(message='original part corrupt')],[])
+        with patch.object(evidence,'bounded_replay') as aggregate:
+            result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+        aggregate.assert_not_called();self.assertEqual(result['status'],'FAIL')
+        self.probe.services.stop.assert_called_once()
+        self.assertTrue(any(e.get('message')=='original part corrupt' for e in result['errors']))
+    def test_failed_replay_stays_failed_with_all_raw_inputs_retained(self):
+        with patch.object(evidence,'bounded_replay',side_effect=ValueError('owned canonical replay deadline')):
+            result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+        self.assertEqual(result['status'],'FAIL');self.assertFalse(result['physicalHistoryQualified'])
+        self.assertEqual(result['errors'],[dict(phase='aggregate',message='owned canonical replay deadline')])
+        self.assertTrue(all((self.probe.raw/run.key(*v)).is_dir() for v in run.TAPES))
+    def test_failed_service_stop_prevents_replay_and_does_not_hide_collection(self):
+        self.probe.services.stop.side_effect=ValueError('original shutdown failed')
+        with patch.object(evidence,'bounded_replay') as aggregate:
+            result=self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+        self.probe.services.stop.assert_called_once();aggregate.assert_not_called()
+        self.assertEqual(result['status'],'FAIL')
+        self.assertEqual(result['errors'],[dict(phase='aggregate',message='original shutdown failed')])
+
+
+class BoundedReplayTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.root=Path(self.temp.name)
+    def test_real_child_timeout_is_killed_reaped_and_never_retried(self):
+        import os,subprocess,sys,time
+        pidfile=self.root/'pid';original=subprocess.run
+        def child(command,**kwargs):
+            return original([sys.executable,'-c',
+                'import os,pathlib,sys,time; pathlib.Path(sys.argv[1]).write_text(str(os.getpid())); time.sleep(60)',str(pidfile)],**kwargs)
+        with patch.object(evidence.subprocess,'run',side_effect=child) as spawn:
+            with self.assertRaisesRegex(ValueError,'replay deadline'):
+                evidence.bounded_replay(self.root,self.root/'replay',time.monotonic()+1)
+        spawn.assert_called_once()
+        with self.assertRaises(ProcessLookupError):os.kill(int(pidfile.read_text()),0)
+        self.assertFalse((self.root/'replay-result.json').exists());self.assertTrue((self.root/'replay-stderr.log').exists())
+    def test_expired_deadline_does_not_launch_and_timeout_cannot_restart(self):
+        with patch.object(evidence.subprocess,'run') as spawn:
+            with self.assertRaisesRegex(ValueError,'replay deadline'):
+                evidence.bounded_replay(self.root,self.root/'expired',0,clock=lambda:1)
+            spawn.assert_not_called()
+        (self.root/'replay-stderr.log').write_text('original failure')
+        with patch.object(evidence.subprocess,'run') as spawn:
+            with self.assertRaises(FileExistsError):evidence.bounded_replay(self.root,self.root/'replay',10,clock=lambda:1)
+            spawn.assert_not_called()
+    def test_child_error_preserves_diagnostic_and_cannot_use_result(self):
+        import subprocess,sys,time
+        original=subprocess.run
+        def child(command,**kwargs):return original([sys.executable,'-c','raise ValueError("original evidence invalid")'],**kwargs)
+        with patch.object(evidence.subprocess,'run',side_effect=child):
+            with self.assertRaisesRegex(ValueError,'original evidence invalid'):
+                evidence.bounded_replay(self.root,self.root/'replay',time.monotonic()+10)
+    def test_late_success_receipt_cannot_override_deadline_or_be_reused(self):
+        def child(command,**kwargs):
+            c.write_once(self.root/'replay-result.json',dict(status='PASS'));return SimpleNamespace(returncode=0)
+        with patch.object(evidence.subprocess,'run',side_effect=child):
+            with self.assertRaisesRegex(ValueError,'replay deadline'):
+                evidence.bounded_replay(self.root,self.root/'replay',10,clock=Mock(side_effect=(1,11)))
+        with patch.object(evidence.subprocess,'run') as spawn:
+            with self.assertRaisesRegex(ValueError,'replay consumed'):
+                evidence.bounded_replay(self.root,self.root/'replay',100,clock=lambda:20)
+            spawn.assert_not_called()
+
 
 class HandoffTest(unittest.TestCase):
     def setUp(self):
@@ -287,13 +393,17 @@ class AggregateReplayTest(unittest.TestCase):
             budgets.append(kwargs['trace_budget']);kwargs['trace_budget'][0]-=1+extra_trace
             m.need(kwargs['trace_budget'][0]>=0,'combined decoded trace budget')
             return dict(calls=sum(len(s['calls']) for s in workload.specs(cfg)) if kwargs['active'] else 0)
+        def joint(members,manifest,**kwargs):
+            reports=[logical(v['root'],v['controller']['config'],active=v['controller']['active'],trace_budget=kwargs['trace_budget']) for v in members]
+            return dict(status='PASS',members=reports)
         with patch.object(evidence.guest_evidence,'validate',side_effect=logical) as member, \
-             patch.object(evidence.guest_physical_evidence,'validate',return_value=dict(status='PASS')) as physical, \
+             patch.object(evidence.guest_physical_evidence,'validate',side_effect=joint) as physical, \
              patch.object(evidence.guest_three_mode_evidence,'source_binding'), \
              patch.object(evidence.guest_fault_evidence,'replay_case',return_value=dict(status='PASS')) as fault:
             answer=evidence.validate(root,Path(self.temp.name).parent/(Path(self.temp.name).name+'-replay-'+str(self.serial)))
             self.addCleanup(__import__('shutil').rmtree,Path(self.temp.name).parent/(Path(self.temp.name).name+'-replay-'+str(self.serial)))
-            self.assertEqual(member.call_count,13);self.assertEqual(physical.call_count,4);self.assertEqual(fault.call_count,12)
+            self.assertEqual(member.call_count,1);self.assertEqual(physical.call_count,4);self.assertEqual(fault.call_count,12)
+            self.assertEqual(len(budgets),13)
             self.assertTrue(all(v is budgets[0] for v in budgets))
             self.assertTrue(all(v.kwargs['trace_budget'] is budgets[0] for v in physical.call_args_list))
             return answer

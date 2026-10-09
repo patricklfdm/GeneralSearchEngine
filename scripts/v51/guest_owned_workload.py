@@ -167,9 +167,12 @@ class Probe:
                 self.stop_errors.append(dict(node=member[0],phase='stop',message=str(error)[:2000]))
         return list(self.stop_errors)
 
-    def collect_validate(self, output, deadline):
+    def collect(self, deadline):
+        """Retain original bytes for replay; collection alone never qualifies a tape."""
         m.need(self.stopped,'owned workload collection before stop')
-        end=deadline/10**9;errors=list(self.close_voters(end));members=[];physical_members=[];physical=None
+        m.need(not getattr(self,'collection_attempted',False),'owned workload collection consumed')
+        self.collection_attempted=True
+        end=deadline/10**9;errors=list(self.close_voters(end));collected=[]
         if self.require_backup and self.active is not None and self.cells==[self.cell_name] and not errors:
             try:self.succeeded(self.active,'restore-backup',{},end)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=self.active[0],phase='restore',message=str(error)[:2000]))
@@ -189,11 +192,23 @@ class Probe:
                     # most 1 MiB. Preserve the original part length and digest.
                     collection.receive_part(download,part,(raw[p:p+(1<<20)] for p in range(0,len(raw),1<<20)))
                     m.need(self.clock()<end,'owned collection deadline')
-                replay=self.root/('replay-node-'+str(node));collection.unpack(download,replay,binding)
                 controller=dict(config=cfg,packageRoot=str(client.base),active=self.active is not None and node==self.active[0],
                                 transcript=self.transcripts[node])
                 c.write_once(folder/'controller.json',controller)
-                validated=guest_evidence.validate(replay,cfg,self.manifest,client.base,controller['transcript'],active=controller['active'],healthy=True,physical=self.require_physical,backup=backup)
+                collected.append(dict(node=node,folder=folder,controller=controller,backup=backup))
+            except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))
+        return errors,collected
+
+    def collect_validate(self, output, deadline):
+        errors,collected=self.collect(deadline);end=deadline/10**9
+        members=[];physical_members=[];physical=None
+        for item in collected:
+            node,folder,controller,backup=(item[k] for k in ('node','folder','controller','backup'))
+            cfg=controller['config']
+            try:
+                replay=self.root/('replay-node-'+str(node))
+                collection.unpack(folder/'parts',replay,m.sha(m.canonical(cfg['binding'])))
+                validated=guest_evidence.validate(replay,cfg,self.manifest,controller['packageRoot'],controller['transcript'],active=controller['active'],healthy=True,physical=self.require_physical,backup=backup)
                 c.write_once(folder/'validation.json',validated);members.append(validated)
                 physical_members.append(dict(root=replay,controller=controller))
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))

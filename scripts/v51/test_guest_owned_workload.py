@@ -199,13 +199,23 @@ class OwnedCollectionTest(unittest.TestCase):
             if node==1 and self.fault=='corrupt':return bytes([raw[0]^1])+raw[1:]
             return raw
         return read
-    def collect(self):
+    def collect(self, *, raw_only=False):
         def received(member,name,payload,deadline):
             f=self.fixtures[member[0]];row=f.transcript[-2 if name=='stop-voter' else -1]
             self.assertEqual(row['request']['command'],name);self.assertEqual(row['request']['payload'],payload)
             self.probe.transcripts[member[0]].append(row);return row['receipt']
         with patch.object(self.probe,'succeeded',side_effect=received):
-            return self.probe.collect_validate(self.root,self.clock.nanos()+600*10**9)
+            deadline=self.clock.nanos()+600*10**9
+            return self.probe.collect(deadline) if raw_only else self.probe.collect_validate(self.root,deadline)
+    def test_collection_only_retains_original_parts_without_qualifying_or_replaying(self):
+        with patch.object(w.guest_evidence,'validate') as oracle:
+            errors,members=self.collect(raw_only=True)
+        self.assertEqual(errors,[]);self.assertEqual(len(members),len(self.probe.nodes));oracle.assert_not_called()
+        self.assertFalse((self.probe.raw/'validation.json').exists())
+        for row in members:
+            self.assertTrue((row['folder']/'controller.json').is_file())
+            self.assertFalse((self.probe.root/('replay-node-'+str(row['node']))).exists())
+        with self.assertRaisesRegex(ValueError,'collection consumed'):self.collect(raw_only=True)
     def test_full_size_parts_and_tail_replay_all_members_without_retries(self):
         result=self.collect();self.assertEqual(result['status'],'PASS',result['errors'])
         self.assertEqual([r['calls'] for r in result['members']],[90]+[0]*(len(self.probe.nodes)-1))

@@ -1,5 +1,8 @@
 """Portable replay of one complete owned canonical repetition, never a paid set."""
 from pathlib import Path
+import subprocess
+import sys
+import time
 import uuid
 from . import cloud_authority as a, cloud_package as package, cloud_workload_contract as contract
 from . import performance_model as m, remote_command as c, remote_collection as parts
@@ -114,22 +117,26 @@ def tape(root,output,plan,mode,cell,files,budgets,decoded):
         budgets['traceBytes']+=sum(v['bytes'] for n,v in index.items() if n.endswith(('.jsonl','.jsonl.gz','.log')))
         m.need(all(budgets[k]<=parts.LIMITS[k] for k in budgets),'owned canonical combined evidence budget')
         replicated=mode in package.MODES[1:]
-        logical.append(guest_evidence.validate(replay,cfg,manifest,controller['packageRoot'],controller['transcript'],
-            active=controller['active'],healthy=True,physical=replicated,backup=replicated and controller['active'],trace_budget=decoded))
         if replicated:
             stored=replay/'authority'/node;guest_three_mode_evidence.source_binding(stored,mode,files)
             m.need(all(m.sha((stored/(n+'.gsr')).read_bytes())==boot['identity'][n+'Sha256'] for n in ('manifest','genesis')),
                    'owned canonical admitted authority changed')
+        else:
+            logical.append(guest_evidence.validate(replay,cfg,manifest,controller['packageRoot'],controller['transcript'],
+                active=controller['active'],healthy=True,physical=False,backup=False,trace_budget=decoded))
         members.append(dict(root=replay,controller=controller));seen.add(node)
     m.need({p.name for p in folder.glob('node-*')}==seen and len(issuers)==1 and
            (mode==package.MODES[2] or issuers==[package.control_node(configs[0])]),'owned canonical control placement')
     expected=sum(len(s['calls']) for s in guest_evidence.workload.specs(configs[0]))
-    m.need(sum(v['calls'] for v in logical)==expected,'owned canonical frozen call count')
+    # The joint physical validator independently validates every original member
+    # before checking cross-member history and negatives. Do not run it twice.
     physical=guest_physical_evidence.validate(members,manifest,backup=True,trace_budget=decoded) if mode in package.MODES[1:] else None
+    if physical is not None:logical=physical['members']
+    m.need(sum(v['calls'] for v in logical)==expected,'owned canonical frozen call count')
     return dict(mode=mode,cell=cell,calls=expected,issuer=issuers[0],members=logical,physical=physical)
 
 
-def validate(root,output):
+def validate(root,output,*,progress=lambda row:None):
     root=c.directory(root);output=Path(output);output.mkdir(parents=True,mode=0o700,exist_ok=False)
     parts.inventory(root);plan=admission(root);req=plan['request']
     seed=performance_semantics.source_backup(root/'source',m.initial(performance_plan.load()))
@@ -137,9 +144,13 @@ def validate(root,output):
     source=m.sha(m.canonical({'source/'+n:v for n,v in files.items()}))
     m.need(plan['services']['sourceSha256']==source,'owned canonical shared seed identity')
     budgets=dict(files=0,expandedBytes=0,compressedBytes=0,traceBytes=0);decoded=[parts.LIMITS['traceBytes']];reports=[]
-    for mode,cell in run.TAPES:reports.append(tape(root,output,plan,mode,cell,files,budgets,decoded))
+    for mode,cell in run.TAPES:
+        progress(dict(phase='canonical-replay',cell=cell,mode=mode,status='START'))
+        reports.append(tape(root,output,plan,mode,cell,files,budgets,decoded))
+        progress(dict(phase='canonical-replay',cell=cell,mode=mode,status='PASS'))
     faults=[]
     for cell in run.drill.CASES:
+        progress(dict(phase='canonical-replay',cell=cell,status='START'))
         receipt=next(v['receipt'] for v in plan['services']['faults'] if v['case']==cell)
         m.need(receipt['status']=='PASS' and receipt['requestSha256']==a.validate_request(req),'owned canonical fault admission')
         span=c.read(root/(cell+'-timeline.json'));original=c.read(root/cell/'receipt.json')
@@ -149,6 +160,7 @@ def validate(root,output):
         faults.append(guest_fault_evidence.replay_case(root/cell,output/cell,req,budgets))
         decoded[0]-=budgets['traceBytes']-before
         m.need(decoded[0]>=0,'owned canonical combined decoded trace budget')
+        progress(dict(phase='canonical-replay',cell=cell,status='PASS'))
     m.need(sum(v['calls'] for v in reports)==1080 and all(budgets[k]<=parts.LIMITS[k] for k in budgets),
            'owned canonical combined calls/evidence budget')
     return dict(status='PASS',scope=run.SCOPE,repetition=plan['repetition'],cells=list(run.CELLS),tapes=reports,faults=faults,
@@ -156,7 +168,27 @@ def validate(root,output):
         decodedTraceBytes=parts.LIMITS['traceBytes']-decoded[0],paidCloud=False,fullRemoteQualification=False,ownedCanonicalQualified=True)
 
 
+def bounded_replay(root,output,deadline,*,clock=time.monotonic):
+    """Kill/reap a read-only replay at the original deadline; never rerun it."""
+    output=Path(output);receipt=output.with_name(output.name+'-result.json')
+    stderr=output.with_name(output.name+'-stderr.log')
+    m.need(not output.exists() and not receipt.exists(),'owned canonical replay consumed')
+    remaining=deadline-clock();m.need(remaining>0,'owned canonical replay deadline')
+    command=[sys.executable,'-m','scripts.v51.guest_canonical_evidence',str(Path(root).absolute()),
+             '--output',str(output.absolute()),'--result',str(receipt.absolute())]
+    with stderr.open('xb') as errors:
+        try:result=subprocess.run(command,cwd=Path(__file__).resolve().parents[2],stderr=errors,timeout=remaining)
+        except subprocess.TimeoutExpired as error:raise ValueError('owned canonical replay deadline') from error
+    m.need(result.returncode==0,'owned canonical replay failed: '+stderr.read_text()[-2000:])
+    m.need(clock()<deadline,'owned canonical replay deadline')
+    return c.read(receipt)
+
+
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('input',type=Path);parser.add_argument('--output',type=Path,required=True)
-    args=parser.parse_args();print(m.canonical(validate(args.input,args.output)).decode())
+    parser.add_argument('--result',type=Path)
+    args=parser.parse_args()
+    result=validate(args.input,args.output,progress=(lambda row:print(m.canonical(row).decode(),flush=True)) if args.result else (lambda row:None))
+    if args.result:c.write_once(args.result,result)
+    else:print(m.canonical(result).decode())

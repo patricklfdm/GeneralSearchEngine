@@ -129,20 +129,30 @@ class Probe:
         self.stopped=True
         for probe in self.probes.values():probe.stop()
     def collect_validate(self,output,deadline):
-        m.need(self.stopped,'owned canonical collection before stop');errors=[];reports=[]
+        m.need(self.stopped,'owned canonical collection before stop');errors=[]
         for name,probe in self.probes.items():
-            try:reports.append(probe.collect_validate(output,deadline))
+            print(m.canonical(dict(phase='canonical-collection',tape=name,status='START')).decode(),flush=True)
+            try:
+                failures,collected=probe.collect(deadline)
+                errors.extend(dict(tape=name,**v) for v in failures)
+                m.need(len(collected)==len(probe.nodes),'owned canonical collected member coverage')
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(tape=name,message=str(error)[:2000]))
             finally:probe.raw.rename(self.raw/name);probe.raw=self.raw/name
-        for name,program in self.programs.items():errors.extend(dict(case=name,**v) for v in program.collect(deadline/1e9))
+        for name,program in self.programs.items():
+            print(m.canonical(dict(phase='canonical-collection',cell=name,status='START')).decode(),flush=True)
+            errors.extend(dict(case=name,**v) for v in program.collect(deadline/1e9))
         result=dict(status='FAIL',scope=SCOPE,mode=MODE,repetition=self.repetition,execution=self.execution,paidCloud=False,
             fullRemoteQualification=False,engineWorkloadExecuted=self.engineWorkloadExecuted,physicalHistoryQualified=False,
             backupRestoreQualified=False,cells=list(self.cells),errors=errors)
         try:
-            from .guest_canonical_evidence import validate
-            result['aggregate']=validate(self.raw,self.root/'replay')
-            m.need(self.prepared and not errors and len(reports)==5 and all(v['status']=='PASS' for v in reports) and
+            # Close all daemons before CPU-heavy replay. Runner subsequently
+            # verifies these same terminal stop receipts, without another write.
+            m.need(self.clock()<deadline/1e9,'owned canonical collection deadline')
+            self.services.stop(deadline/1e9)
+            m.need(self.prepared and not errors and len(self.probes)==5 and
                    self.cells==list(CELLS) and self.clock()<deadline/1e9,'owned canonical incomplete/deadline')
+            from .guest_canonical_evidence import bounded_replay
+            result['aggregate']=bounded_replay(self.raw,self.root/'replay',deadline/1e9,clock=self.clock)
             result.update(status='PASS',physicalHistoryQualified=True,backupRestoreQualified=True)
         except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='aggregate',message=str(error)[:2000]))
         c.write_once(self.raw/'validation.json',result,maximum=262144);return result

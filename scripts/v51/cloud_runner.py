@@ -200,8 +200,11 @@ class Runner:
                         try:
                             result['evidence'] = self.probe.collect_validate(self.output, deadline)
                         finally:
-                            stop_startup(deadline)
-                            retain_startup()
+                            # Do not consume shutdown with an already-expired
+                            # validation deadline. Cleanup has its own reserve.
+                            if self.clock()<deadline:
+                                stop_startup(deadline)
+                                retain_startup()
                         evidence=result['evidence']
                         m.need(evidence['execution']==a.EXECUTION and
                                (evidence['engineWorkloadExecuted'] is False if self.qualification is None else
@@ -209,7 +212,9 @@ class Runner:
                                 evidence['mode']==self.probe.mode and
                                 evidence['fullRemoteQualification'] is False and type(evidence['physicalHistoryQualified']) is bool and
                                 evidence['engineWorkloadExecuted'] is result['engineWorkloadExecuted']), 'probe evidence scope')
+                        m.need(self.clock()<deadline,'evidence retention deadline')
                         for name, data in self.probe.retention_files():
+                            m.need(self.clock()<deadline,'evidence retention deadline')
                             retain(self.store, a.PREFIX+'attempts/'+sha+'/parts/'+name, data)
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
                         if self.qualification:

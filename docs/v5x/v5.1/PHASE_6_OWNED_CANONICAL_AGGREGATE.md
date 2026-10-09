@@ -64,6 +64,14 @@ reads still require the existing physical captured-prefix oracle. All four
 replicated rich tapes retain backup/restore validation and evidence negatives.
 All twelve fault cells invoke the original independent fault replay and negatives.
 
+The complete coordinator collects original parts without qualifying individual
+tapes first. After collection it stops the idle guest services, then runs one
+independent aggregate in a separate process. For replicated tapes, the joint
+physical validator already performs every member's logical, receipt, backup and
+inventory checks; its freshly computed member results provide the aggregate's
+logical reports. No stored PASS result substitutes for a check. Standalone tape
+entry points retain their complete validation path.
+
 The aggregate enforces combined stored byte/file ceilings and one shared decoded
 trace budget across rich logical/physical passes and fault traces. The original
 per-node/per-cell limits also apply. It requires 1080 rich calls and all original
@@ -100,6 +108,32 @@ allow setup and artifact upload; they do not override the existing 600-second
 preparation, 600-second validation/retention, per-cell budgets or 5400-second
 generic topology ceiling. No frozen budget is amended here. Actual hosted
 measurements must inform the separate native preset timing/pricing review.
+
+CI `37869232192` exposed duplicate validation work: all three original aggregate
+replays passed fifteen cells and 1080 calls, but validation/retention took
+968.293, 1078.540 and 1218.665 seconds against 600 seconds. The expired deadline
+also prevented service shutdown, followed by per-process reap waits. These runs
+are failed qualifications; their passing inner replay does not close this gate.
+
+The correction removes the preceding full tape replays and duplicate logical
+passes within the aggregate, keeping the 600-second ceiling. The replay child
+is killed and reaped at the remaining original deadline, with partial output and
+stderr retained and no retry. Collection and per-tape/fault replay progress appear
+in the log. An expired validation deadline no longer consumes a shutdown attempt:
+the controller uses its existing cleanup reserve for shutdown and startup receipt
+retention. Overshoot remains FAIL and cannot release an incompletely retained
+lease. This changes neither the frozen workload nor native/cloud timing admission.
+
+The unchanged repetition-3 raw evidence from that CI was replayed locally with
+the correction in 405.574 seconds; packing it for retention took 6.681 seconds.
+All fifteen cells, 1080 calls and original negative results passed. The entire
+aggregate result matches the original passing inner replay except the decoded
+byte count, which now charges only the passes actually performed. Original raw
+bytes were compared against the downloaded artifact and remained unchanged.
+These local timings exclude live SSH collection/service shutdown and are not a
+hosted-runtime guarantee. Corrected-source protected CI must qualify that full
+path within the unchanged budgets. The validation index is
+`target/v51-canonical-finalization/validation-summary.json`.
 
 ## Validation boundary and next step
 
