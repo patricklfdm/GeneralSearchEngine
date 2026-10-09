@@ -47,6 +47,10 @@ def run(output):
         execution=workload.run(root/'raw')
         result=evidence.validate(root/'raw');save(root/'raw/validation.json',result)
         rejected=negatives(root/'raw');save(root/'raw/negatives.json',rejected)
+        from . import public_trace
+        for case in execution['cases']:
+            for node in workload.NODES:
+                public_trace.copy_fault_trace(root/'raw'/case['case'],root/'raw'/case['case'],node)
         binding=m.sha(m.canonical(execution));parts=collection.pack(root/'raw',root/'parts',binding)
         with tempfile.TemporaryDirectory(prefix='v51-fault-replay-') as temp:
             retained=collection.unpack(root/'parts',Path(temp)/'raw',binding)

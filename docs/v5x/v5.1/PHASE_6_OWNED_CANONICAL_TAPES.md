@@ -1,7 +1,7 @@
 # V5.1 owned canonical tapes
 
-**Status:** offline implementation candidate; corrected-source protected CI is
-required. This is the rich-tape slice of the
+**Status:** accepted through PR #309 at master
+`6d7273f5861f02d13c442dad76a80dde273a6e0c`, exact-master CI `37863567136`. This is the rich-tape slice of the
 [full-preset entry plan](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md), following accepted
 PR #308 / master CI `37837221623` for the complete twelve-cell failure drill.
 
@@ -103,7 +103,7 @@ original experiment directories, and rejection before payload access. They
 do not claim a real JVM or independent-mount qualification. If startup fails
 before probe preparation, collection retains FAIL without attempting the
 physical oracle against an absent manifest; successful preparation remains
-required for acceptance. Corrected-source protected CI is still pending.
+required for acceptance. Corrected PR CI `37861401752` and master CI `37863567136` passed all five tapes.
 
 ## Remaining acceptance
 
@@ -113,8 +113,9 @@ green jobs form a canonical cloud member. All receipts retain
 `fullRemoteQualification=false`. They do not share a source backup/lease across
 jobs and cannot be combined as the final fifteen-cell aggregate.
 
-Next implement repetition-bound control placement and one immutable shared seed
-with distinct group identities in the complete canonical aggregate. Then review
+The next [complete aggregate candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md) implements
+repetition-bound placement and one shared seed with distinct group identities;
+its three protected repetitions remain pending. Then review
 native preset request/configuration/lease/pricing/time admission and run the new
 same-source five-member cloud set with explicit approval. The native experiment
 entry, USD 200 ceiling and cleanup requirements are unchanged.

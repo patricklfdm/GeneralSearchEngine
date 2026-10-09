@@ -127,6 +127,17 @@ facts, then packs binary parts and independently replays an extracted bundle at 
 new path. Parts/member/trace/response ceilings inherit 6B; no truncation can produce
 PASS. Failed raw evidence remains available for the workflow's always-upload step.
 
+The complete canonical follow-up exposed a mistaken 32-MiB whole-trace guard in
+the shared fault observer. Fault traces now use the existing 128-MiB per-node/
+per-cell allowance, and stopped collection divides the exact byte stream at
+newline boundaries into members of at most 32 MiB. Each record still fits 4 MiB.
+Portable readers require consecutive segment names, contiguous observation
+orders, exact node/process ownership and the aggregate bound. The observer checks
+limits before publishing a pending append and preserves the first I/O failure;
+segmentation never converts failed execution into accepted evidence. The
+[canonical follow-up](PHASE_6_OWNED_CANONICAL_AGGREGATE.md#follow-up-hosted-headroom-and-fault-trace-segmentation)
+records the original failed CI and pending protected qualification.
+
 ## Reproduction and CI
 
 ### Local candidate validation

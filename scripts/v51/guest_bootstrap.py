@@ -25,8 +25,15 @@ LOCAL_CLAIM, LOCAL_READY = '.bootstrap-local-claim.json', '.bootstrap-local-read
 
 
 def expected_files(config):
-    if config['mode'] == package.MODES[0]: m.need(config['binding']['node'] == 'node-1', 'local bootstrap node')
-    return {*TOPOLOGY, *('source/'+n for n in SOURCE)}
+    if config['mode'] == package.MODES[0]: m.need(config['binding']['node'] == package.control_node(config), 'local bootstrap node')
+    return {*topology_values(config), *('source/'+n for n in SOURCE)}
+
+
+def topology_values(config):
+    values=dict(zip(TOPOLOGY, ('\n'.join(config['hosts'])+'\n', '\n'.join(map(str,config['ports']))+'\n', config['groupId']+'\n')))
+    if config['mode']==package.MODES[1] and 'repetition' in config.get('workload',{}):
+        values['control-node.txt']=package.control_node(config)+'\n'
+    return values
 
 
 def authority_files(config):
@@ -35,7 +42,7 @@ def authority_files(config):
 
 
 def topology(root, config):
-    for name, text in zip(TOPOLOGY, ('\n'.join(config['hosts'])+'\n', '\n'.join(map(str, config['ports']))+'\n', config['groupId']+'\n')):
+    for name, text in topology_values(config).items():
         path = root/name
         m.need(path.is_file() and not path.is_symlink() and path.read_bytes() == text.encode(), 'bootstrap topology differs')
 
@@ -47,7 +54,7 @@ def export(root, target, config, *, producer_config=None):
         m.need(str(root) == config['root'], 'bootstrap sealed path')
     else:
         validate(producer_config)
-        normalized=deepcopy(config);normalized['root']=str(root);normalized['binding']['node']='node-1'
+        normalized=deepcopy(config);normalized['root']=str(root);normalized['binding']['node']=producer_config['binding']['node']
         m.need(normalized==producer_config,'bootstrap producer/source configuration binding')
     m.need(not list(root.glob('*-jvm.json')) and not list(root.glob('*-results*')) and not (root/'store').exists(), 'bootstrap already used')
     topology(root, config)
@@ -112,7 +119,7 @@ def check_ready(root, config, *, sealed=False):
     root = c.directory(root); value = c.read(root/READY); claim = c.read(root/CLAIM)
     m.need(value['schema'] == SCHEMA and value['config'] == config and claim == dict(descriptorSha256=m.sha(m.canonical(value)), config=config), 'bootstrap ready identity')
     m.need(set(value['files']) == expected_files(config), 'bootstrap ready members')
-    allowed = {CLAIM, READY, 'agents', *TOPOLOGY, 'source'}
+    allowed = {CLAIM, READY, 'agents', *topology_values(config), 'source'}
     if sealed:
         allowed.update((LOCAL_CLAIM, LOCAL_READY))
         local = c.read(root/LOCAL_READY)

@@ -377,7 +377,9 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Complete owned failure-drill implementation candidate](PHASE_6_OWNED_FAILURE_DRILL.md): remaining five guest faults and a source-bound twelve-cell offline aggregate.
 - [x] Complete owned failure-drill corrected-source protected CI acceptance: PR #308, master `bc805a4c922d77f1e7e5127694e20963a990e311`, CI `37837221623`.
 - [x] [Owned canonical tape implementation](PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes with frozen timing, original command/response bindings, concurrent physical read oracle, and five required parallel CI jobs.
-- [ ] Owned canonical tape protected CI acceptance; repetition-bound placement and fifteen-cell aggregation remain separate gates.
+- [x] Owned canonical tape protected acceptance: PR #309, master `6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`.
+- [x] [Complete owned canonical candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md): repetition-bound controls, shared rich seed, seventeen fresh groups, fifteen-cell replay and three parallel required repetitions.
+- [ ] Complete owned canonical protected acceptance for all three repetitions; native admission and final paid-set qualification remain separate.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

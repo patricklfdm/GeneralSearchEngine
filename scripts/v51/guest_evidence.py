@@ -126,7 +126,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     root = c.directory(root); guest.validate(config); m.need(type(active) is bool and type(healthy) is bool, 'guest issuer/scope flag')
     cell, preset = workload.selection(config)
     m.need('workload' not in config or healthy, 'canonical tape requires complete window evidence')
-    m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == 'node-1' and active, 'guest local issuer role')
+    m.need(config['mode'] != package.MODES[0] or config['binding']['node'] == package.control_node(config) and active, 'guest local issuer role')
     manifest = m.strict_json(manifest_bytes)
     m.need(m.sha(manifest_bytes) == config['packageManifestSha256'] and manifest['source'] == config['binding']['source'],
            'guest evidence package binding')
@@ -143,7 +143,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
     activations=[r for q,r in rows if q['command']=='fault' and q['payload']==dict(action='activate')]
     configured=config['mode']==package.MODES[1]
     m.need(len(activations)==int(configured and active) and
-           (not configured or not active or node=='node-1' and activations[0]['endedNanos']<=windows[0][1]['startedNanos']),
+           (not configured or not active or node==package.control_node(config) and activations[0]['endedNanos']<=windows[0][1]['startedNanos']),
            'guest configured activation role/coverage/order')
     m.need(sum(q['command'] == 'collect' for q,_ in rows) == 1+int(active), 'guest live collection negative coverage')
     limits=contract.load()['evidence']
@@ -177,7 +177,7 @@ def validate(root, config, manifest_bytes, package_root, transcript, *, active, 
             m.need((request['payload'] in ({'action':'status'},{'action':'activate'}) or configuration) and results.get(op) == answer and
                    answer['command'] == request['payload']['action'] and op not in mapped, 'guest control/JVM binding')
             if answer['command'] == 'activate':
-                m.need(config['mode'] == package.MODES[1] and node == 'node-1', 'guest activation role')
+                m.need(config['mode'] == package.MODES[1] and node == package.control_node(config), 'guest activation role')
             exchange = next(e for e in exchanges if e['request']['opId'] == op)
             wanted=dict(command=answer['command'],opId=op)
             if configuration:wanted['window']=request['payload']['window']

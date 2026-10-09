@@ -74,6 +74,21 @@ class HandlerTest(unittest.TestCase):
     def test_collection_of_live_voter_rejected(self):
         with self.assertRaisesRegex(ValueError,'stopped collection'):self.call('collect',dict(physical=True))
 
+    def test_stopped_collection_packs_complete_segments_without_changing_original(self):
+        from . import public_trace, remote_collection as parts, performance_model as m
+        self.jvm.closed=True
+        self.s.root=self.root/'agents/node-1';self.s.root.mkdir(parents=True)
+        (self.s.root/'store').mkdir();self.s.current=dict(commandId='collect-once')
+        rows=[m.canonical(dict(node='node-1',pid=41,generation=1,order=i+1,localNanos=i+1,payload='x'*200))+b'\n' for i in range(5)]
+        original=b''.join(rows);path=self.root/'node-1-trace.jsonl';path.write_bytes(original)
+        with patch.object(service.authority,'capture'),patch.object(public_trace,'FAULT_SEGMENT_BYTES',500):
+            result=self.call('collect',dict(physical=True))
+        parts.unpack(self.s.root/'parts',self.root/'retained',m.sha(m.canonical(self.s.config['binding'])))
+        self.assertEqual(5,len(public_trace.fault_rows(self.root/'retained','node-1')))
+        self.assertEqual(original,path.read_bytes())
+        self.assertGreater(len(list((self.root/'retained').glob('*-trace*.jsonl'))),1)
+        self.assertEqual(result,c.read(self.s.root/'parts/parts.json'))
+
 
 class ControllerTest(unittest.TestCase):
     def setUp(self):

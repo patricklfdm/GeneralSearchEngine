@@ -1,5 +1,5 @@
 import unittest
-from .remote_budget import Budget
+from .remote_budget import Budget, OWNED_CANONICAL_PROFILE
 
 
 class RemoteBudgetTest(unittest.TestCase):
@@ -88,5 +88,30 @@ class RemoteBudgetTest(unittest.TestCase):
                 self.advance(3601);self.assertEqual(budget.start+3600*10**9,end)
         with self.assertRaises(ValueError):
             with budget.stage('preparation'):pass
+        with budget.stage('cleanup'):self.advance(600)
+        self.assertEqual('FAIL',budget.finish()['status'])
+
+    def test_complete_offline_replay_has_headroom_without_changing_cells_or_lease(self):
+        budget=Budget(clock=lambda:self.now,profile=OWNED_CANONICAL_PROFILE)
+        self.assertEqual(budget.limits,dict(self.budget.limits,**{'validation-retention':2400*10**9}))
+        self.assertEqual(budget.lease,self.budget.lease)
+        # Hosted run 37876817676 reached collection after about 1982 seconds.
+        with budget.stage('preparation'):self.advance(240)
+        for cell,seconds in [('healthy',854),('read-heavy',142),('sustained',203),('leader-loss',32),
+                             ('isolated-old-leader',44),('asymmetric-requests',48),('asymmetric-responses',55),
+                             ('slow-follower',45),('interrupted-transfer',47),('entry-chosen',40),('proof-quorum',38),
+                             ('group-restart',44),('maintenance',43),('no-quorum',49),('minority-capacity',65)]:
+            with budget.stage(cell):self.advance(seconds)
+        with budget.stage('validation-retention') as end:
+            self.assertEqual(end-self.now,2400*10**9);self.advance(1800)
+        with budget.stage('cleanup'):self.advance(600)
+        self.assertEqual('PASS',budget.finish()['status'])
+
+    def test_complete_offline_replay_expiry_stays_failed_and_cannot_renew(self):
+        budget=Budget(clock=lambda:self.now,profile=OWNED_CANONICAL_PROFILE)
+        with self.assertRaisesRegex(ValueError,'validation-retention'):
+            with budget.stage('validation-retention'):self.advance(2401)
+        with self.assertRaisesRegex(ValueError,'restart'):
+            with budget.stage('validation-retention'):pass
         with budget.stage('cleanup'):self.advance(600)
         self.assertEqual('FAIL',budget.finish()['status'])

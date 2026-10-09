@@ -22,12 +22,14 @@ class Services:
     authority = a
     service_execution = guest.EXECUTION
     def __init__(self, provider, archive, endpoint_factory=delivery.Endpoint, *, mode=package.MODES[2],
-                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None, canonical_cell=None):
+                 qualification_mounts=None, qualification_hosts=None, clock=time.monotonic, sleep=time.sleep, bootstrap=None, deliver=delivery.deliver, fault_cell=None, canonical_cell=None, canonical_repetition=None):
         m.need(provider.api.offline is True and mode in package.MODES, 'live owned services disabled')
         from . import guest_workload_spec as workload
         m.need(canonical_cell is None or fault_cell is None and bootstrap is not None and
                (mode,canonical_cell) in workload.CASES, 'owned canonical service scope')
         self.canonical_cell=canonical_cell
+        m.need(canonical_repetition is None or canonical_cell is not None and type(canonical_repetition) is int and canonical_repetition in (1,2,3), 'owned canonical repetition')
+        self.canonical_repetition=canonical_repetition
         self._initialize(provider,archive,endpoint_factory,mode=mode,qualification_mounts=qualification_mounts,
             qualification_hosts=qualification_hosts,clock=clock,sleep=sleep,bootstrap=bootstrap,deliver=deliver,fault_cell=fault_cell)
 
@@ -75,9 +77,10 @@ class Services:
             canonical_cell=getattr(self,'canonical_cell',None)
             selection=dict(mode=self.mode,execution=self.service_execution)
             if canonical_cell:selection['workload']=dict(cell=canonical_cell,preset='canonical')
+            if getattr(self,'canonical_repetition',None):selection['workload']['repetition']=self.canonical_repetition
             label=self.fault_cell or package.bootstrap_directory_name(selection)
             group = str(uuid.uuid5(uuid.NAMESPACE_URL, sha+':'+label))
-            nodes=package.experiment_nodes(self.mode)
+            nodes=package.service_nodes(selection)
             for node in nodes:
                 item,target=facts[node-1],targets[node-1]
                 node = item['provider']['node']; binding = c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node))
@@ -87,7 +90,7 @@ class Services:
                     packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+label, mode=self.mode,
                     hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
                 if self.fault_cell:cfg['faultCell']=self.fault_cell
-                if canonical_cell:cfg['workload']=dict(cell=canonical_cell,preset='canonical')
+                if canonical_cell:cfg['workload']=deepcopy(selection['workload'])
                 guest.validate(cfg)
                 endpoint = self.factory(target,self.mounts[node],desc)
                 m.need(endpoint.offline is self.offline and endpoint.value == desc and endpoint.target == target and
@@ -98,12 +101,12 @@ class Services:
                 configs=configs,descriptors=descriptors,startupSha256=[m.sha(m.canonical(v)) for v in startup]))
             def check(index, phase):
                 m.need(self.clock() < deadline, 'owned service original deadline')
-                observed = self.mounted_readiness(index+1,recheck,readiness)
-                m.need(observed['schema'] == ('gse-v51-volume-readiness-v1' if self.offline else 'gse-v51-native-volume-readiness-v1') and observed['provider'] == facts[index]['provider'] and
-                       observed['volume'] == startup[index]['volume'] and
-                       observed['startupSha256'] == m.sha(m.canonical(startup[index])), 'owned service mounted readiness')
+                observed = self.mounted_readiness(nodes[index],recheck,readiness)
+                m.need(observed['schema'] == ('gse-v51-volume-readiness-v1' if self.offline else 'gse-v51-native-volume-readiness-v1') and observed['provider'] == facts[nodes[index]-1]['provider'] and
+                       observed['volume'] == startup[nodes[index]-1]['volume'] and
+                       observed['startupSha256'] == m.sha(m.canonical(startup[nodes[index]-1])), 'owned service mounted readiness')
                 m.need(self.clock() < deadline, 'owned service original deadline')
-                c.write_once(self.root/f'node-{index+1}-check-{phase}.json',observed,maximum=262144)
+                c.write_once(self.root/f'node-{nodes[index]}-check-{phase}.json',observed,maximum=262144)
             for i in range(len(configs)): check(i,'initial')
             for i, endpoint in enumerate(endpoints):
                 check(i,'delivery'); record = dict(descriptor=descriptors[i], status='FAIL')
@@ -111,7 +114,7 @@ class Services:
                     record['receipt'] = self.deliver(endpoint,self.archive,deadline); record['status']='PASS'
                 finally:
                     record.update(deadline=endpoint.budget,calls=endpoint.calls,failures=endpoint.failures)
-                    c.write_once(self.root/f'node-{i+1}-package.json',record,maximum=262144)
+                    c.write_once(self.root/f'node-{nodes[i]}-package.json',record,maximum=262144)
             for i in range(len(configs)): check(i,'delivered')
             if self.bootstrap is not None:
                 result['bootstrap']=self.bootstrap.prepare(req,configs,endpoints,self.root/'bootstrap',deadline,recheck=check)
@@ -121,8 +124,8 @@ class Services:
                 check(i,'launch'); client=endpoint.client(cfg)
                 m.need(client.config == cfg, 'owned service client binding')
                 intent = dict(configSha256=m.sha(m.canonical(cfg)),requestSha256=sha)
-                c.write_once(self.root/f'node-{i+1}-launch.json',intent)
-                self.clients.append((i+1,client,cfg))  # Includes an uncertain start.
+                c.write_once(self.root/f'node-{nodes[i]}-launch.json',intent)
+                self.clients.append((nodes[i],client,cfg))  # Includes an uncertain start.
                 from . import native_experiment_timing as timing
                 native=timing.selected(req);failures=0
                 ready_end=min(deadline,self.clock()+timing.control(req,'activation',3600)) if native else deadline
@@ -148,8 +151,8 @@ class Services:
                                    (launched is None or ready['pid']==launched['pid']), 'owned service readiness identity')
                             break
                     self.sleep(min(1 if native else .05,max(0,ready_end-self.clock())))
-                check(i,'ready'); c.write_once(self.root/f'node-{i+1}-ready.json',answer)
-                result['members'].append(dict(node=i+1,configSha256=intent['configSha256'],pid=ready['pid']))
+                check(i,'ready'); c.write_once(self.root/f'node-{nodes[i]}-ready.json',answer)
+                result['members'].append(dict(node=nodes[i],configSha256=intent['configSha256'],pid=ready['pid']))
             for i in range(len(configs)): check(i,'final')
             result['status']='PASS'
         except (Exception,KeyboardInterrupt) as error:
@@ -200,7 +203,7 @@ class Services:
         allowed=FILES | (BOOTSTRAP_FILES if self.bootstrap is not None else set())
         if self.bootstrap is not None and getattr(self.bootstrap,'delivery',None) is not None:allowed |= SOURCE_FILES
         if self.bootstrap is not None and getattr(getattr(self.bootstrap,'source',None),'scope',None) in ('authenticated-producer-download','authenticated-shared-source'):
-            allowed |= {'node-1-check-produced.json'}
+            allowed |= {f'node-{n}-check-produced.json' for n in (1,2,3)}
         for path in sorted(self.root.iterdir()):
             if path.name=='bootstrap' and self.bootstrap is not None:
                 c.directory(path)

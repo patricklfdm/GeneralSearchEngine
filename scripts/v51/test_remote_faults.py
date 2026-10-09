@@ -76,7 +76,7 @@ class RemoteFaultTest(unittest.TestCase):
             for invalid in (original.rstrip(),b'{"node":"node-1","node":"node-1"}\n',b'x'*((4<<20)+1)):
                 path.write_bytes(invalid)
                 with self.assertRaises(ValueError):evidence.load_traces(root)
-            with path.open('wb') as stream:stream.truncate((32<<20)+1)
+            with path.open('wb') as stream:stream.truncate((128<<20)+1)
             with self.assertRaisesRegex(ValueError,'member bound'):evidence.load_traces(root)
 
     def test_unknown_fault_never_creates_a_plan(self):

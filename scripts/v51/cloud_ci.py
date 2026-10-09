@@ -44,6 +44,12 @@ def expected_jobs(text):
             m.need(name=='V5.1 owned canonical tape (${{ matrix.tape }}, no GCP)' and strategy==[expected],
                    'CI owned canonical matrix changed')
             result.extend(name.replace('${{ matrix.tape }}',tape) for tape,_,_ in CANONICAL_TAPES)
+        elif key == 'v51-owned-canonical':
+            strategy=re.findall(r'^    strategy:\n(.*?)^    env:\n',body,re.M|re.S)
+            m.need(name=='V5.1 owned canonical (repetition ${{ matrix.repetition }}, no GCP)' and
+                   strategy==['      fail-fast: false\n      matrix:\n        repetition: [1, 2, 3]\n'],
+                   'CI owned canonical repetition matrix changed')
+            result.extend(name.replace('${{ matrix.repetition }}',str(n)) for n in (1,2,3))
         else:
             m.need('${{' not in name and '    strategy:' not in body, 'unreviewed CI matrix')
             result.append(name)

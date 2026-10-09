@@ -50,7 +50,7 @@ class Location:
         return storage._inspect(directory,maximum_bytes,maximum_frame,self.original/node)
 
 
-def validate(members, manifest_bytes, *, backup=False):
+def validate(members, manifest_bytes, *, backup=False, trace_budget=None):
     m.need(type(backup) is bool, 'guest physical backup scope')
     m.need(type(members) is list and len(members)==3, 'guest physical member count')
     configs=[v['controller']['config'] for v in members]
@@ -63,7 +63,7 @@ def validate(members, manifest_bytes, *, backup=False):
     reports=[];calls=[];traces={};indexes={};bindings={};exchanges={}
     # Full tapes retain the original stored per-node bound and one shared decoded
     # budget. Reduced experiment members retain their stricter decoded bound.
-    shared=[contract.load()['evidence']['traceBytes']] if workload.selection(configs[0])[1]=='canonical' else None
+    shared=trace_budget if trace_budget is not None else ([contract.load()['evidence']['traceBytes']] if workload.selection(configs[0])[1]=='canonical' else None)
     with tempfile.TemporaryDirectory(prefix='gse-v51-guest-physical-') as scratch:
         root=Path(scratch)
         for member,cfg,node in zip(members,configs,nodes):

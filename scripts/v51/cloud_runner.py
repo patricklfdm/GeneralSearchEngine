@@ -113,10 +113,13 @@ class Runner:
         from . import guest_owned_network as network
         from . import guest_owned_drill as drill
         from . import guest_workload_spec as rich
-        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE,drill.MODE:drill.SCOPE}
+        from . import guest_owned_canonical as complete
+        SCOPES={**singles,MODE:SCOPE,faults.MODE:faults.SCOPE,experiment.MODE:experiment.SCOPE,faults.MaintenanceProbe.mode:faults.MaintenanceProbe.scope,network.MODE:network.SCOPE,drill.MODE:drill.SCOPE,complete.MODE:complete.SCOPE}
         self.qualification_cells=(list(drill.CASES) if qualification==drill.SCOPE else list(network.CASES) if qualification==network.SCOPE else list(experiment.CELLS) if qualification==experiment.SCOPE else ['maintenance'] if qualification==faults.MaintenanceProbe.scope else list(faults.CASES) if qualification==faults.SCOPE else ['healthy'])
         canonical=qualification in rich.SCOPES
         if canonical:self.qualification_cells=[rich.SCOPES[qualification][1]]
+        if qualification==complete.SCOPE:
+            complete.validate_repetition(probe.repetition);self.qualification_cells=list(complete.CELLS)
         m.need((qualification is None and getattr(probe,'scope',None) not in (*SCOPES.values(),*rich.SCOPES)) or
                (qualification in SCOPES.values() or canonical) and getattr(probe,'scope',None)==qualification and
                (rich.SCOPES[qualification]==(getattr(probe,'mode',None),getattr(probe,'cell_name',None)) if canonical else
@@ -138,7 +141,11 @@ class Runner:
         result = dict(schema='gse-v51-control-completion-v1', execution=a.EXECUTION, paidCloud=False,
                       engineWorkloadExecuted=False, fullRemoteQualification=False, requestSha256=sha,
                       errors=[], status='RUNNING', cleanup=None, retention='INCOMPLETE', leaseReleased=False)
-        budget = Budget(clock=self.clock)
+        from . import guest_owned_canonical as complete
+        from .remote_budget import OWNED_CANONICAL_PROFILE
+        profile = OWNED_CANONICAL_PROFILE if self.qualification == complete.SCOPE else None
+        budget = Budget(clock=self.clock, profile=profile)
+        if profile: result['budgetProfile'] = profile
         if self.qualification: result['qualificationScope']=self.qualification
         try:
             # A pre-existing lease, even expired, blocks allocation until reconciled.
@@ -197,8 +204,11 @@ class Runner:
                         try:
                             result['evidence'] = self.probe.collect_validate(self.output, deadline)
                         finally:
-                            stop_startup(deadline)
-                            retain_startup()
+                            # Do not consume shutdown with an already-expired
+                            # validation deadline. Cleanup has its own reserve.
+                            if self.clock()<deadline:
+                                stop_startup(deadline)
+                                retain_startup()
                         evidence=result['evidence']
                         m.need(evidence['execution']==a.EXECUTION and
                                (evidence['engineWorkloadExecuted'] is False if self.qualification is None else
@@ -206,7 +216,9 @@ class Runner:
                                 evidence['mode']==self.probe.mode and
                                 evidence['fullRemoteQualification'] is False and type(evidence['physicalHistoryQualified']) is bool and
                                 evidence['engineWorkloadExecuted'] is result['engineWorkloadExecuted']), 'probe evidence scope')
+                        m.need(self.clock()<deadline,'evidence retention deadline')
                         for name, data in self.probe.retention_files():
+                            m.need(self.clock()<deadline,'evidence retention deadline')
                             retain(self.store, a.PREFIX+'attempts/'+sha+'/parts/'+name, data)
                         result['evidenceSha256'] = retain(self.store, a.PREFIX+'attempts/'+sha+'/evidence.json', result['evidence'])
                         if self.qualification:

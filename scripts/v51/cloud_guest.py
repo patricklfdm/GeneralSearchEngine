@@ -113,8 +113,8 @@ def run_setup(root, label, args, deadline, stopping=lambda: False):
 
 def seed_source(base, config, cell, run):
     """Write topology and run the published control's immutable seed generator."""
-    for file, text in [('hosts.txt', '\n'.join(config['hosts'])+'\n'),
-                       ('ports.txt', '\n'.join(map(str,config['ports']))+'\n'), ('group-id.txt',config['groupId']+'\n')]:
+    from .guest_bootstrap import topology_values
+    for file, text in topology_values(config).items():
         with (cell/file).open('x') as out: out.write(text); out.flush(); os.fsync(out.fileno())
     plan=base/'source-inputs/docs/v5x/v5.1/phase6-plan.json'
     run('seed',package.command(base,package.MODES[0],args=list(map(str,(cell,'prepare',plan,cell/'source')))))
@@ -169,7 +169,7 @@ class Service:
             if (self.cell/guest_bootstrap.CLAIM).exists() or (self.cell/guest_bootstrap.READY).exists() or (self.cell/'.bootstrap-install').exists():
                 guest_bootstrap.check_ready(self.cell, self.config, sealed=True)
             local = self.config['mode'] == package.MODES[0]
-            m.need(not local or self.node == 'node-1', 'local control belongs to node 1')
+            m.need(not local or self.node == package.control_node(self.config), 'local control belongs to admitted host')
             # Every host must use the identical sealed absolute cell path and endpoint bytes.
             m.need((self.cell/'hosts.txt').read_text().splitlines() == self.config['hosts'] and
                    (self.cell/'ports.txt').read_text().splitlines() == list(map(str, self.config['ports'])) and
@@ -185,7 +185,7 @@ class Service:
                        payload['window'] in [s['window'] for s in workload.specs(self.config)], 'guest configure window')
                 return self.jvm.command('configure',window=payload['window'])
             m.need(self.jvm is not None and set(payload) == {'action'} and payload['action'] in ('status', 'activate'), 'guest control action')
-            m.need(payload['action'] != 'activate' or self.config['mode'] == package.MODES[1] and self.node == 'node-1', 'configured activation role')
+            m.need(payload['action'] != 'activate' or self.config['mode'] == package.MODES[1] and self.node == package.control_node(self.config), 'configured activation role')
             return self.jvm.command(payload['action'])
         if name == 'window':
             m.need(self.jvm is not None and set(payload) == {'cell', 'preset', 'window'}, 'guest window fields/state')

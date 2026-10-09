@@ -169,10 +169,8 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         collections[node]=replay
         guest_authority.capture(replay/'authority',node,joint/node)
         indexes[node]={k[len('authority/'+node+'/'):]:v for k,v in index.items() if k.startswith('authority/'+node+'/')}
-        tracefile=replay/(node+'-trace.jsonl');m.need(0<tracefile.stat().st_size<=32<<20,'owned fault trace byte budget')
-        raw_trace=tracefile.read_bytes();m.need(raw_trace.endswith(b'\n') and all(len(line)<=4<<20 for line in raw_trace.splitlines()),'owned fault complete trace lines')
-        traces[node]=[m.strict_json(line) for line in raw_trace.splitlines()]
-        m.need(all(r['node']==node and type(r['pid']) is int and type(r['localNanos']) is int for r in traces[node]),'owned fault trace owner')
+        from . import public_trace
+        traces[node]=public_trace.fault_rows(replay,node)
         bases[node]=Path(ctl['packageRoot'])
         rows[node],pids,exchanges=member(replay,cfg,manifest,Path(ctl['packageRoot']),ctl['transcript'],traces[node],
             timing_profile=timing.PROFILE if timing.selected(req) else None);processes.update(pids)

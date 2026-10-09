@@ -9,8 +9,11 @@ public final class V51MeasuredConfigured {
         var ports=Files.readAllLines(root.resolve("ports.txt"));var hosts=V51GuestEndpoints.hosts(root);var members=new ArrayList<ReplicationMember>();
         for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint(hosts.get(i),Integer.parseInt(ports.get(i)))));
         var bounds=new ReplicationBounds(1<<20,16,4,4,2,1200,25,4096,64L<<20,64L<<20);
+        String control=Files.exists(root.resolve("control-node.txt"))?read(root.resolve("control-node.txt")):"node-1";
+        if(!control.matches("node-[123]"))throw new IllegalArgumentException("configured control node");
+        var leader=new ReplicationNodeId(control);
         return members.stream().map(m->new ReplicationGroupConfig<>(new ReplicationGroupId(UUID.fromString(Files.exists(root.resolve("group-id.txt"))?read(root.resolve("group-id.txt")):"51000000-0000-0000-0000-000000000006")),
-                "phase6-local-v1",m.nodeId(),members.getFirst().nodeId(),members,root.resolve(m.nodeId().value()),
+                "phase6-local-v1",m.nodeId(),leader,members,root.resolve(m.nodeId().value()),
                 V51RichWorkload.storage(root.resolve("app-"+m.nodeId().value())),bounds)).toList();
     }
     private static String read(Path path){try{return Files.readString(path).trim();}catch(Exception e){throw new IllegalStateException(e);}}

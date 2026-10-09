@@ -37,7 +37,11 @@ class Probe:
             m.need(services.offline is True,'owned canonical workload is offline only')
             m.need(self.mode==package.MODES[0] or physical and backup,'canonical replicated tape requires physical history and backup')
             self.scope=workload.scope(self.mode,self.cell_name)
-        self.nodes=package.experiment_nodes(self.mode)
+        self.repetition=getattr(services,'canonical_repetition',None)
+        selection=dict(mode=self.mode)
+        if self.repetition:selection.update(execution='local-guest-service-only',workload=dict(cell=self.cell_name,preset=self.preset,repetition=self.repetition))
+        self.nodes=package.service_nodes(selection)
+        self.control_node=package.control_node(selection)
         m.need(type(physical) is bool and (not physical or self.mode in package.MODES[1:]),'owned physical scope');self.require_physical=physical
         m.need(type(backup) is bool and (not backup or physical), 'owned backup requires physical scope');self.require_backup=backup
         self.services,self.root,self.clock,self.sleep=services,Path(output),clock,sleep
@@ -89,6 +93,7 @@ class Probe:
         for (node,client,cfg),member in zip(self.clients,complete['members']):
             m.need(client.config==cfg and cfg['mode']==self.mode and
                    workload.selection(cfg)==(self.cell_name,self.preset) and
+                   cfg.get('workload',{}).get('repetition')==self.repetition and
                    cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-'+str(node)) and
                    m.sha(self.manifest)==cfg['packageManifestSha256'] and member['node']==node and
                    member['configSha256']==m.sha(m.canonical(cfg)), 'owned workload client identity')
@@ -111,7 +116,7 @@ class Probe:
             activation=min(end,self.clock()+timing.control(self.services.provider.req,'activation',30))
             if self.mode==package.MODES[0]:self.active=self.clients[0]
             if self.mode==package.MODES[1]:
-                self.active=self.clients[0]
+                self.active=next(member for member in self.clients if 'node-'+str(member[0])==self.control_node)
                 self.succeeded(self.active,'fault',dict(action='activate'),activation)
             while self.active is None:
                 for member in self.clients:
@@ -162,9 +167,12 @@ class Probe:
                 self.stop_errors.append(dict(node=member[0],phase='stop',message=str(error)[:2000]))
         return list(self.stop_errors)
 
-    def collect_validate(self, output, deadline):
+    def collect(self, deadline):
+        """Retain original bytes for replay; collection alone never qualifies a tape."""
         m.need(self.stopped,'owned workload collection before stop')
-        end=deadline/10**9;errors=list(self.close_voters(end));members=[];physical_members=[];physical=None
+        m.need(not getattr(self,'collection_attempted',False),'owned workload collection consumed')
+        self.collection_attempted=True
+        end=deadline/10**9;errors=list(self.close_voters(end));collected=[]
         if self.require_backup and self.active is not None and self.cells==[self.cell_name] and not errors:
             try:self.succeeded(self.active,'restore-backup',{},end)
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=self.active[0],phase='restore',message=str(error)[:2000]))
@@ -184,11 +192,23 @@ class Probe:
                     # most 1 MiB. Preserve the original part length and digest.
                     collection.receive_part(download,part,(raw[p:p+(1<<20)] for p in range(0,len(raw),1<<20)))
                     m.need(self.clock()<end,'owned collection deadline')
-                replay=self.root/('replay-node-'+str(node));collection.unpack(download,replay,binding)
                 controller=dict(config=cfg,packageRoot=str(client.base),active=self.active is not None and node==self.active[0],
                                 transcript=self.transcripts[node])
                 c.write_once(folder/'controller.json',controller)
-                validated=guest_evidence.validate(replay,cfg,self.manifest,client.base,controller['transcript'],active=controller['active'],healthy=True,physical=self.require_physical,backup=backup)
+                collected.append(dict(node=node,folder=folder,controller=controller,backup=backup))
+            except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))
+        return errors,collected
+
+    def collect_validate(self, output, deadline):
+        errors,collected=self.collect(deadline);end=deadline/10**9
+        members=[];physical_members=[];physical=None
+        for item in collected:
+            node,folder,controller,backup=(item[k] for k in ('node','folder','controller','backup'))
+            cfg=controller['config']
+            try:
+                replay=self.root/('replay-node-'+str(node))
+                collection.unpack(folder/'parts',replay,m.sha(m.canonical(cfg['binding'])))
+                validated=guest_evidence.validate(replay,cfg,self.manifest,controller['packageRoot'],controller['transcript'],active=controller['active'],healthy=True,physical=self.require_physical,backup=backup)
                 c.write_once(folder/'validation.json',validated);members.append(validated)
                 physical_members.append(dict(root=replay,controller=controller))
             except (Exception,KeyboardInterrupt) as error:errors.append(dict(node=node,phase='collection-validation',message=str(error)[:2000]))

@@ -261,7 +261,8 @@ class WorkflowTest(unittest.TestCase):
             self.assertNotIn('./mvnw',body);self.assertNotIn('id-token:',body)
             self.assertIn('needs.'+key+'.result',text)
         self.assertIn('name: v51-cloud-preflight-${{ github.sha }}',text)
-        self.assertEqual(len(ci.expected_jobs(text)),len(FULL_GATES)+8)
+        # Changes/Required plus 2 rich, 4 tape and 2 repetition matrix expansions.
+        self.assertEqual(len(ci.expected_jobs(text)),len(FULL_GATES)+10)
     def test_observer_permissions_run_after_auth_and_before_report(self):
         text=(ci.ROOT/'.github/workflows/v51-replication-evidence.yml').read_text()
         self.assertLess(text.index('google-github-actions/auth@'),text.index('cloud_permissions --role observer'))

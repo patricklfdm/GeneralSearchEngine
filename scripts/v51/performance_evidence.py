@@ -172,6 +172,7 @@ def configured_physical(root, calls, traces, *, final_sequence=76):
     genesis_bytes=(root/'node-1/genesis.gsr').read_bytes()
     genesis=fmt.genesis(genesis_bytes);genesis['raw']=genesis_bytes
     manifest=fmt.manifest((root/'node-1/manifest.gsr').read_bytes(),genesis)
+    leader=manifest['leader']
     replies={model.sha(physical.raw(r['frame'])) for events in traces.values() for r in events if r['event']=='REPLY'}
     publications={};successes=set();expected_calls={c['opId']:c for c in calls}
     for node,events in traces.items():
@@ -180,7 +181,7 @@ def configured_physical(root, calls, traces, *, final_sequence=76):
             kind=event['event']
             if kind=='FORCE':
                 raw=physical.raw(event['record']);forced.add((event['kind'],raw[16:48].hex()))
-                if event['kind']=='PROOF' and node=='node-1':
+                if event['kind']=='PROOF' and node==leader:
                     reader=fmt.record(raw,6);reader.take(32);reader.number('q');reader.take(16);index=reader.number('q')
                     need(anchors[index-1] in remote_entry,'configured proof before remote durable entry ACK')
             elif kind in ('REPLY','RECEIVED'):
@@ -194,7 +195,7 @@ def configured_physical(root, calls, traces, *, final_sequence=76):
                     entry=message['type']=='DURABLE_ACK';digest=message['payload']['entryDigest' if entry else 'proofDigest']
                     if kind=='REPLY':need(('ENTRY' if entry else 'PROOF',digest) in forced,'configured ACK before own force')
                     else:(remote_entry if entry else remote_proof).add(digest)
-            elif kind=='AFTER_APPLICATION_PUBLICATION' and node=='node-1':
+            elif kind=='AFTER_APPLICATION_PUBLICATION' and node==leader:
                 index=event['index']
                 # Each retained proof is also force-observed by an actual follower.
                 proof_rows=[r for r in events if r['event']=='FORCE' and r['kind']=='PROOF' and r['order']<event['order']]
@@ -211,7 +212,7 @@ def configured_physical(root, calls, traces, *, final_sequence=76):
                     call=expected_calls[event['opId']]
                     if call['operation'] in model.OP_IDS:
                         index=call['afterSequence']-4+1
-                        need(node=='node-1' and current['order']<publications.get(index,-1)<event['order'],'configured success before own publication')
+                        need(node==leader and current['order']<publications.get(index,-1)<event['order'],'configured success before own publication')
                     successes.add(event['opId'])
                 current=None
     need(successes==set(expected_calls),'configured missing success observation')

@@ -25,6 +25,7 @@ FULL_GATES = {
     "v51-owned-network-faults": "V51_OWNED_NETWORK_RESULT",
     "v51-owned-failure-drill": "V51_OWNED_DRILL_RESULT",
     "v51-owned-canonical-tapes": "V51_OWNED_CANONICAL_RESULT",
+    "v51-owned-canonical": "V51_OWNED_CANONICAL_SET_RESULT",
     "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
     "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
     "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
@@ -230,7 +231,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         }
         found = []
         for name in FULL_GATES:
-            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes"):
+            if not name.startswith("v51-") or name in ("v51-verification-build", "v51-remote-rich", "v51-remote-rich-inputs", "v51-remote-rich-shards", "v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes", "v51-owned-canonical"):
                 continue
             body = self.jobs[name]
             gates = re.findall(r"^        run: scripts/verify-v51-([\w-]+)\.sh --skip-build(?: --skip-python-tests)?$", body, re.MULTILINE)
@@ -365,12 +366,12 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", body)
                 self.assertIn('scripts.ci_v51_bundle restore --source "$GITHUB_SHA"', body)
                 verifier = "scripts.v51.remote_rich_shards" if name in ("v51-remote-rich", "v51-remote-rich-inputs") else "run: scripts/verify-v51-"
-                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes"): verifier = "scripts.v51.cloud_bundle"
+                if name in ("v51-guest-services", "v51-owned-experiment", "v51-owned-network-faults", "v51-owned-failure-drill", "v51-owned-canonical-tapes", "v51-owned-canonical"): verifier = "scripts.v51.cloud_bundle"
                 self.assertLess(body.index("scripts.ci_v51_bundle restore"), body.index(verifier))
                 if name in ("v51-remote-rich-inputs", "v51-remote-rich-shards"):
                     self.assertIn("${{ runner.temp }}/v51-build/restore.json", body)
                     continue
-                suffix = '${{ matrix.tape }}-${{ github.sha }}' if name=='v51-owned-canonical-tapes' else '${{ github.sha }}'
+                suffix = '${{ matrix.tape }}-${{ github.sha }}' if name=='v51-owned-canonical-tapes' else '${{ matrix.repetition }}-${{ github.sha }}' if name=='v51-owned-canonical' else '${{ github.sha }}'
                 receipts = [step for step in re.split(r"^      - ", body, flags=re.MULTILINE)
                             if "name: " + name + "-build-inputs-" + suffix in step]
                 self.assertEqual(1, len(receipts))

@@ -7,6 +7,7 @@ import tempfile
 from types import SimpleNamespace
 import unittest
 from . import public_trace as trace
+from unittest.mock import patch
 
 
 class PublicTraceTest(unittest.TestCase):
@@ -104,6 +105,62 @@ class PublicTraceTest(unittest.TestCase):
         self.first=b''; self.last=self.line(order=1,event='STARTED')
         self.publish(0); self.path.unlink(); self.finish()
         self.assertEqual(self.last,self.path.read_bytes())
+
+
+class FaultTraceSegmentsTest(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.raw=self.root/'raw';self.raw.mkdir();self.copy=self.root/'copy';self.copy.mkdir()
+        self.path=self.raw/'node-1-trace.jsonl'
+    def rows(self,count=5,size=120):
+        return [json.dumps(dict(node='node-1',pid=41,generation=1,order=i+1,localNanos=i+1,payload='x'*size)).encode()+b'\n' for i in range(count)]
+    def test_actual_over_32_mib_trace_survives_packing_and_relocated_replay(self):
+        from . import remote_collection as collection
+        rows=self.rows(34,1<<20);original=b''.join(rows);self.path.write_bytes(original)
+        trace.copy_fault_trace(self.raw,self.copy,'node-1')
+        paths=[self.copy/self.path.name,*sorted(self.copy.glob('*-part*.jsonl'))]
+        self.assertGreater(len(paths),1);self.assertTrue(all(p.stat().st_size<=32<<20 for p in paths))
+        self.assertEqual(original,b''.join(p.read_bytes() for p in paths));self.assertEqual(original,self.path.read_bytes())
+        collection.pack(self.copy,self.root/'parts','a'*64)
+        collection.unpack(self.root/'parts',self.root/'relocated','a'*64)
+        self.assertEqual([json.loads(r) for r in rows],trace.fault_rows(self.root/'relocated','node-1'))
+    def test_in_place_stopped_packing_preserves_every_byte(self):
+        original=b''.join(self.rows());self.path.write_bytes(original)
+        with patch.object(trace,'FAULT_SEGMENT_BYTES',450):
+            trace.copy_fault_trace(self.raw,self.raw,'node-1')
+            self.assertEqual([json.loads(r) for r in self.rows()],trace.fault_rows(self.raw,'node-1'))
+        self.assertEqual(original,b''.join(p.read_bytes() for p in [self.path,*sorted(self.raw.glob('*-part*.jsonl'))]))
+    def test_reject_incomplete_oversized_pending_or_mixed_input_without_copying(self):
+        for data in (b'{}',b'x'*((4<<20)+1)+b'\n'):
+            self.path.write_bytes(data)
+            with self.assertRaisesRegex(ValueError,'completeness'):trace.copy_fault_trace(self.raw,self.copy,'node-1')
+            self.assertEqual([],list(self.copy.iterdir()));self.assertEqual(data,self.path.read_bytes())
+        self.path.write_bytes(b''.join(self.rows()));pending=self.path.with_name(self.path.name+'.pending');pending.touch()
+        with self.assertRaisesRegex(ValueError,'unfinished'):trace.copy_fault_trace(self.raw,self.copy,'node-1')
+        pending.unlink();(self.raw/'node-1-trace-part0001.jsonl').write_bytes(self.rows()[0])
+        with self.assertRaisesRegex(ValueError,'segmented'):trace.copy_fault_trace(self.raw,self.copy,'node-1')
+    def test_missing_duplicate_oversized_symlink_and_wrong_owner_segments_rejected(self):
+        self.path.write_bytes(b''.join(self.rows()))
+        with patch.object(trace,'FAULT_SEGMENT_BYTES',450):trace.copy_fault_trace(self.raw,self.copy,'node-1')
+        part=self.copy/'node-1-trace-part0001.jsonl';raw=part.read_bytes()
+        part.rename(part.with_name('node-1-trace-part0009.jsonl'))
+        with self.assertRaisesRegex(ValueError,'member'):trace.fault_rows(self.copy,'node-1')
+        part.with_name('node-1-trace-part0009.jsonl').rename(part)
+        part.write_bytes(raw+raw)
+        with self.assertRaisesRegex(ValueError,'discontinuity'):trace.fault_rows(self.copy,'node-1')
+        part.write_bytes(raw.replace(b'node-1',b'node-2'))
+        with self.assertRaisesRegex(ValueError,'process'):trace.fault_rows(self.copy,'node-1')
+        part.unlink();part.symlink_to(self.path)
+        with self.assertRaisesRegex(ValueError,'member'):trace.fault_rows(self.copy,'node-1')
+        part.unlink();part.write_bytes(raw)
+        with patch.object(trace,'FAULT_TRACE_BYTES',100):
+            with self.assertRaisesRegex(ValueError,'per-node'):trace.fault_rows(self.copy,'node-1')
+        with patch.object(trace,'FAULT_SEGMENT_BYTES',10):
+            with self.assertRaisesRegex(ValueError,'member'):trace.fault_rows(self.copy,'node-1')
+    def test_known_total_limit_rejects_before_publishing_any_segments(self):
+        with self.path.open('wb') as stream:stream.truncate((128<<20)+1)
+        with self.assertRaisesRegex(ValueError,'per-node'):trace.copy_fault_trace(self.raw,self.copy,'node-1')
+        self.assertEqual([],list(self.copy.iterdir()))
 
 
 if __name__ == '__main__': unittest.main()

@@ -5,7 +5,12 @@ Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v
 [complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring
 the topology to 34 required job IDs, 38 executed jobs. The
 [owned canonical tape matrix](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md) adds five
-independent whole-tape jobs: current total 35 required job IDs, 43 executed jobs.
+independent whole-tape jobs. The [complete owned canonical matrix](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
+adds three independent repetitions: current total 36 required job IDs, 46 executed
+jobs (including Changes and Required). Each complete repetition preserves 1080
+seconds of frozen measurement, then all twelve faults, under one modeled lease.
+The repetitions run concurrently; component tapes stay required for early failure
+diagnostics. A 6000-second command guard does not loosen internal stage budgets.
 Earlier counts and timings in this document describe their historical migrations.
 
 

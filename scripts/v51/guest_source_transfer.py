@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import tarfile
 from . import guest_bootstrap as boot, cloud_guest as guest, remote_collection as parts
+from . import cloud_package as package
 from . import performance_model as m, remote_command as c, guest_delivery_receiver as files
 
 CHUNK_BYTES = 1 << 20
@@ -64,7 +65,7 @@ def describe(folder, digest, config):
 
 def location(base,config):
     guest.validate(config)
-    return Path(base).parent/('source-transfer-'+config['mode'])
+    return Path(base).parent/('source-transfer-'+package.bootstrap_directory_name(config))
 def read(path, maximum=METADATA_BYTES): return files.decode(files.read(path,os.getuid(),maximum))
 def exists(path): return path.exists() or path.is_symlink()
 def envelope(value,state,count=0,**extra):
