@@ -23,7 +23,7 @@ NATIVE_PREPARATION_SECONDS = 3600
 MODULES = ('guest_fault_service', 'guest_fault_network', 'guest_fault_recovery', 'guest_fault_jvm', 'public_trace', 'cloud_guest', 'guest_workload_spec', 'guest_jvm', 'guest_bootstrap', 'guest_source_transfer', 'guest_source_producer', 'guest_authority', 'guest_backup', 'cloud_package',
            'remote_command', 'remote_collection', 'remote_schedule', 'remote_schedule_evidence',
            'cloud_workload_contract', 'performance_model', 'performance_plan',
-           'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver', 'native_experiment_timing', 'guest_native_session')
+           'guest_volume', 'guest_setup', 'guest_transport', 'guest_delivery_receiver', 'native_experiment_timing', 'native_preset_timing', 'guest_native_session')
 INPUTS = ('scripts/v51/__init__.py', *('scripts/v51/'+n+'.py' for n in MODULES),
           'docs/v5x/v5.1/phase6-plan.json', 'docs/v5x/v5.1/phase6-cloud-workload-plan.json')
 NAMES = frozenset(('helper.py', 'scripts/__init__.py', *INPUTS))
@@ -88,9 +88,10 @@ def validate_sample(sample, value, nonce):
 def deadline_limit_nanos(profile=None):
     # A source-selected closed profile, never a caller-supplied duration or a
     # field from the wire budget. The ordinary helper remains bounded at 600s.
-    need(profile is None or type(profile) is str and profile == NATIVE_PREPARATION_PROFILE,
-         'delivery deadline profile')
-    return MAX_DEADLINE_NANOS if profile is None else NATIVE_PREPARATION_SECONDS * 10**9
+    if profile is None:return MAX_DEADLINE_NANOS
+    from . import native_preset_timing as full
+    try:return full.by_profile(profile)['limitsSeconds']['preparation'] * 10**9
+    except ValueError as error:raise ValueError('delivery deadline profile') from error
 
 
 def validate_budget(budget, value, *, profile=None):

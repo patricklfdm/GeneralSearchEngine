@@ -29,11 +29,11 @@ class _Api(resources._Policy, h.Api):
         self.token, self.expires = source.token, source.expires
         self.initialize(inspected.result['resourcePlan'], now)
         # The shared standalone resource qualifier still has its original 600s
-        # allocation. Only this freshly approved four-cell Runner uses 3600s.
-        self.deadline = min(self.clock()+timing.PREPARATION_SECONDS, deadline)
+        # allocation. This freshly approved Runner selects its closed profile.
+        self.deadline = min(self.clock()+timing.allocation(self.req)['limitsSeconds']['preparation'], deadline)
         self.admission_deadline = self.clock()+max(0,inspected.result['expiresAt']-now)
         self.gate_open = False
-        self.owner_deadline = self.clock()+timing.allocation()['leaseSeconds']
+        self.owner_deadline = self.clock()+timing.allocation(self.req)['leaseSeconds']
         self.last_lease_write = None
         self.failure_claimed = False
         self.owner_claimed = False
@@ -83,7 +83,8 @@ class _Api(resources._Policy, h.Api):
 
 def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None, on_failure=None):
     root = Path(root); root.mkdir(parents=True, exist_ok=False)
-    start = clock(); deadline = start+timing.PREPARATION_SECONDS
+    allocation = timing.allocation(value['resourcePlan']['request'])
+    start = clock(); deadline = start+allocation['limitsSeconds']['preparation']
     api = None; inspected = None; phase = 'admission'
     admission_failure = None
     phase_start = start; timings = []
@@ -98,7 +99,7 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
         engineWorkloadExecuted=False, fullRemoteQualification=False)
     try:
         with diagnostics.stage('inputs'):
-            timing.validate(value['timing'])
+            timing.validate(value['timing'], value['resourcePlan']['request'])
             m.need(not Path(key).resolve().is_relative_to(root.resolve()), 'Runner private key inside evidence')
             guest_setup.check_private_key(key, value['resourcePlan']['guestAccess'])
         inspected = inspect()  # Never accept a copied REQUEST_BOUND receipt.
@@ -184,7 +185,7 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
                                resourcesCreated=True if known else None if unresolved else False)
             receipt['elapsedSeconds'] = max(0, clock()-start)
             advance('finished'); receipt['timings'] = timings
-            receipt['preparationLimitSeconds'] = timing.PREPARATION_SECONDS
+            receipt['preparationLimitSeconds'] = allocation['limitsSeconds']['preparation']
             write_once(root/'receipt.json', receipt)
         except (Exception, KeyboardInterrupt) as error:
             if on_failure is None: raise

@@ -23,13 +23,22 @@ FIELDS = {'schema', 'execution', 'binding', 'packageManifestSha256', 'root', 'mo
 
 
 def validate(config):
-    m.need(type(config) is dict and set(config) in (FIELDS, FIELDS | {'faultCell'}, FIELDS | {'workload'}) and config['schema'] == 'gse-v51-guest-service-v1' and
+    extra={'nativeRequest'} if type(config) is dict and 'nativeRequest' in config else set()
+    m.need(type(config) is dict and set(config)-extra in (FIELDS, FIELDS | {'faultCell'}, FIELDS | {'workload'}) and config['schema'] == 'gse-v51-guest-service-v1' and
            config['execution'] in (EXECUTION,NATIVE_EXECUTION), 'guest service configuration scope')
-    workload.selection(config)
+    if extra:
+        from . import native_preset_timing as full
+        selected=full.validate(config['nativeRequest'])
+        m.need(config['execution']==NATIVE_EXECUTION and all(config['binding'][k]==config['nativeRequest'][k] for k in ('source','bundleSha256','workloadSha256','attempt')), 'native service request binding')
+    choice=workload.selection(config)
+    if extra and 'faultCell' not in config:
+        m.need(selected['preset']!='failure-drill' and
+               (selected['preset']!='canonical' or choice[1]=='canonical'), 'native workload preset selection')
     if 'faultCell' in config:
         from .guest_fault_network import CASES as network_cases
         from .guest_fault_recovery import CASES as recovery_cases
-        allowed=('leader-loss','maintenance','no-quorum')+ (network_cases+recovery_cases if config['execution']==EXECUTION else ())
+        allowed=('leader-loss','maintenance','no-quorum')+ (network_cases+recovery_cases if config['execution']==EXECUTION or extra else ())
+        if extra:m.need(config['faultCell'] in selected['cells'], 'native fault preset selection')
         m.need(config['faultCell'] in allowed and config['mode']==package.MODES[2], 'guest fault cell/mode')
     c.validate_binding(config['binding'])
     m.need(re.fullmatch('[0-9a-f]{64}', config['packageManifestSha256']) and config['mode'] in package.MODES, 'guest package/mode')

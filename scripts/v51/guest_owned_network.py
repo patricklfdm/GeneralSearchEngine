@@ -5,6 +5,7 @@ import threading
 from . import guest_owned_faults as faults, performance_model as m, format_inspector as f
 from .guest_fault_network import CASES
 from .remote_faults import documents
+from . import native_experiment_timing as timing
 
 MODE = 'network-faults'
 SCOPE = 'owned-network-faults'
@@ -70,7 +71,9 @@ class Cell(faults.Cell):
 
     def heal_at(self, members, when, cancelled):
         self.event('network-heal-reserve')
-        with self.reserve_heal(members, min(when, self.end)):
+        request=self.services.provider.req
+        until=min(self.end,when-15+timing.control(request,'hold-controller',15))
+        with self.reserve_heal(members, until):
             self.event('network-heal-reserved')
             if cancelled.wait(max(0, when-self.clock())): return
             m.need(self.clock() >= when, 'owned network early heal')
@@ -98,12 +101,17 @@ def scenario(cell, leader, deadline):
         members = [cell.member(target)]
     cell.parallel(lambda member:command(member, 'isolate', node=target if case=='slow-follower' else leader), members)
     ready = cell.event('network-ready')['controllerNanos']/1e9
-    cancelled = threading.Event()
+    cancelled = threading.Event();observations_done=threading.Event()
+    native=timing.selected(cell.services.provider.req)
     def release():
-        try: cell.heal_at(members, ready+15, cancelled)
+        try:
+            if native:
+                observations_done.wait(max(0,min(cell.end,ready+timing.control(cell.services.provider.req,'hold-controller',17)-2)-cell.clock()))
+            cell.heal_at(members, ready+15, cancelled)
         except BaseException as exc: errors.append(str(exc))
     # Drain control traffic three seconds early, but never remove the injected
-    # fault before the original 15-second hold. The guest watchdog stays at 17s.
+    # fault before the original 15-second hold. Native control waits for the
+    # required under-fault observations within its original bounded allowance.
     timer = threading.Timer(max(0, ready+12-cell.clock()), release); timer.start()
     try:
         if case == 'isolated-old-leader':
@@ -116,12 +124,13 @@ def scenario(cell, leader, deadline):
         if case == 'slow-follower':
             cell.record['delayed'] = cell.wait(lambda:command(members[0], 'observe-network')['delayed'], deadline, 'no owned delayed force')
             cell.record['lag'] = dict(leader=cell.status(active), follower=cell.status(target))
-        timer.join(max(.001, min(17, cell.end-cell.clock())))
+        observations_done.set()
+        timer.join(max(.001, min(timing.control(cell.services.provider.req,'isolation',17), cell.end-cell.clock())))
         m.need(not timer.is_alive() and not errors and cell.network_healed, 'owned network release failed: '+str(errors))
         through = cell.status(active)['provenIndex']
         for node in cell.running: cell.rejoin(node, through)
     finally:
-        cancelled.set(); timer.cancel(); timer.join(timeout=5)
+        cancelled.set(); observations_done.set(); timer.cancel(); timer.join(timeout=5)
         m.need(not timer.is_alive(), 'owned network release thread remains active')
 
 

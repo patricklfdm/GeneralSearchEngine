@@ -30,7 +30,8 @@ class Controls:
 
     def handle(self, payload):
         h = self.h; action = payload.get('action')
-        m.need(h.s.config['execution'] == 'local-guest-service-only', 'network faults not admitted natively')
+        from . import native_preset_timing as full, native_experiment_timing as timing
+        native=full.fault_configuration(h.s.config,CASES)
         if action == 'observe-network':
             m.need(payload == {'action':action} and h.case == 'slow-follower', 'network observation scope')
             rows = public_trace.live_rows(h.s.cell, h.s.node)
@@ -51,7 +52,7 @@ class Controls:
                 else:
                     value = rules(h.case, payload['node']); h.rules(value); data = dict(rules=value, node=payload['node'])
                 h.isolation = dict(appliedNanos=time.monotonic_ns(), **data)
-                h.timer = threading.Timer(17, lambda:self.release(True))
+                h.timer = threading.Timer(timing.CONTROLS['isolation'] if native else 17, lambda:self.release(True))
                 h.timer.daemon = True; h.timer.start()
                 return dict(h.isolation)
         if action == 'heal':

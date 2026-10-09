@@ -27,7 +27,7 @@ def trusted_source(kind):
     m.need(kind in ('volume','package','session'),'native guest receiver kind')
     names = ('performance_model','performance_plan','cloud_workload_contract','remote_command','guest_setup',
              'guest_transport','guest_volume','guest_delivery_receiver','guest_root_policy','guest_root_receiver',
-             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package','native_experiment_timing','guest_native_session')
+             'guest_native_volume','cloud_package','guest_package_receiver','guest_native_package','native_experiment_timing','native_preset_timing','guest_native_session')
     modules = {name:(Path(__file__).parent/(name+'.py')).read_text() for name in names}
     encoded = base64.b64encode(zlib.compress(m.canonical(modules))).decode()
     # Preserve dependency order explicitly; canonical JSON sorts its keys.
@@ -155,8 +155,10 @@ def _stage(api, key, root, guests, originals, proof, *, endpoints=(_VolumeEndpoi
                        ('gse-v51-'+row['id']+' '+host+'\n').encode(),'native guest provider/host identity changed')
             binding = dict(schema='gse-v51-guest-binding-v1',source=proof['source'],bundleSha256=proof['archiveSha256'],
                 workloadSha256=proof['workloadSha256'],attempt=api.req['attempt'],node='node-'+str(node))
-            value = volume.validate(dict(schema=volume.SCHEMA,binding=binding,provider=facts['provider'],bootDiskId=facts['bootDiskId'],
-                access=api.value['guestAccess'],requestSha256=n.validate_request(api.req)))
+            from . import native_preset_timing as full
+            extras=dict(nativeRequest=deepcopy(api.req)) if full.selected(api.req) else {}
+            value = volume.validate(dict(schema=volume.FULL_SCHEMA if extras else volume.SCHEMA,binding=binding,provider=facts['provider'],bootDiskId=facts['bootDiskId'],
+                access=api.value['guestAccess'],requestSha256=n.validate_request(api.req),**extras))
             base = output/('node-'+str(node)); base.mkdir(); c.write_once(base/'request.json',value)
             disk = endpoints[0](api,target,value,recheck); transfer = None
             try:

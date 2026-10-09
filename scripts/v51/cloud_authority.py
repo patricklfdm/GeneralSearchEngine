@@ -7,7 +7,7 @@ from copy import deepcopy
 import re
 from . import cloud_workload_contract as workload, performance_model as m
 from .cloud_plan import SUITE, MAXIMUM_BUDGET_MICROUSD
-from . import native_experiment_timing as timing
+from . import native_experiment_timing as timing, native_preset_timing as full
 
 EXECUTION = 'fake-v51-cloud-control'
 ADAPTER_EXECUTION = EXECUTION
@@ -21,7 +21,7 @@ def formats(domain):
     m.need(domain in ('fake', 'native'), 'cloud authority domain')
     if domain == 'native':
         return dict(execution='gcp-v51-owned-control', paid=True,
-                    requests=('gse-v51-native-request-v1', timing.REQUEST_SCHEMA), access='gse-v51-native-request-v1',
+                    requests=('gse-v51-native-request-v1', timing.REQUEST_SCHEMA, full.REQUEST_SCHEMA), access='gse-v51-native-request-v1',
                     lease='gse-v51-native-lease-v1', ledger='gse-v51-native-ledger-v1')
     return dict(execution=EXECUTION, paid=False,
                 requests=('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2'), access='gse-v51-cloud-request-v2',
@@ -52,7 +52,7 @@ def integer(value, minimum=0, maximum=(1 << 63)-1):
     return value
 
 
-def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None, domain='fake', timing_profile=None):
+def request(source, bundle, configuration, sequence, attempt, member, *, now, order='experiment-first', guest_access_sha256=None, domain='fake', timing_profile=None, timing_plan_sha256=None):
     fmt = formats(domain)
     result = dict(schema=fmt['requests'][0], suite=SUITE, execution=fmt['execution'], paidCloud=fmt['paid'],
                   source=source, bundleSha256=bundle, configurationSha256=configuration,
@@ -63,6 +63,9 @@ def request(source, bundle, configuration, sequence, attempt, member, *, now, or
     if timing_profile is not None:
         m.need(domain == 'native', 'timing profile requires native experiment')
         result.update(schema=timing.REQUEST_SCHEMA, timingProfile=timing_profile)
+    if timing_plan_sha256 is not None:
+        m.need(domain == 'native', 'native preset domain')
+        result.update(schema=full.REQUEST_SCHEMA, timingPlanSha256=timing_plan_sha256)
     validate_request(result, domain=domain)
     return result
 
@@ -75,6 +78,8 @@ def validate_request(value, *, domain='fake'):
         extra = {'guestAccessSha256', 'timingProfile'}
         m.need(value.get('timingProfile') == timing.PROFILE and value.get('member') == 'experiment',
                'native experiment timing profile/scope')
+    if domain == 'native' and version == full.REQUEST_SCHEMA:
+        full.validate(value); extra = {'guestAccessSha256', 'timingProfile', 'timingPlanSha256'}
     m.need(version in fmt['requests'] and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
     if extra: digest(value['guestAccessSha256'])
     m.need((value['schema'], value['suite'], value['execution'], value['paidCloud']) ==
@@ -85,13 +90,15 @@ def validate_request(value, *, domain='fake'):
         digest(value[key], length)
     m.need(value['workloadSha256'] == workload.PLAN_SHA256 and value['order'] in ORDERS and
            value['member'] in ORDERS[value['order']], 'cloud workload/order/member')
-    maximum=(1 << 63)-(timing.LEASE_SECONDS+timing.GRACE_SECONDS+1 if timing.selected(value) else 6481)
+    maximum=(1 << 63)-(timing.allocation(value)['leaseSeconds']+timing.allocation(value)['operationGraceSeconds']+1 if timing.selected(value) else 6481)
     integer(value['createdAt'], 1, maximum)
     return m.sha(m.canonical(value))
 
 
 def identity(value):
-    return {k: value[k] for k in ('source', 'bundleSha256', 'configurationSha256', 'workloadSha256', 'order')}
+    keys = ('source', 'bundleSha256', 'configurationSha256', 'workloadSha256', 'order')
+    if full.selected(value): keys += ('timingPlanSha256',)
+    return {k: value[k] for k in keys}
 
 
 def admit(req, preflight, approval, now):
@@ -207,7 +214,7 @@ def resources(req, *, domain='fake'):
 def lease(req, now, *, domain='fake'):
     fmt = formats(domain)
     validate_request(req, domain=domain)
-    seconds, grace = (timing.LEASE_SECONDS, timing.GRACE_SECONDS) if timing.selected(req) else (5400, 1080)
+    seconds, grace = (timing.allocation(req)['leaseSeconds'], timing.allocation(req)['operationGraceSeconds']) if timing.selected(req) else (5400, 1080)
     integer(now, req['createdAt'], (1 << 63)-seconds-grace-1)
     return dict(schema=fmt['lease'], suite=SUITE, execution=fmt['execution'], request=deepcopy(req),
                 startedAt=now, expiresAt=now+seconds, graceSeconds=grace,

@@ -9,6 +9,10 @@ from . import guest_transport as transport
 STAGES = frozenset(('inputs','workflow','identity','approval','precheck','ci','observer',
     'checkout','credentials','artifact-metadata','artifact-bytes','control-read','final-freshness','allocation-recheck'))
 GROUPS = {
+    'PRESET_SELECTION_CHANGED': ('Runner prepared member/order changed','owned original selected request changed'),
+    'PRESET_MEMBER_INVALID': ('native preset member',),
+    'PRESET_ORDER_INVALID': ('native preset order',),
+    'PRESET_REQUEST_INVALID': ('native preset request fields','native preset request identity','native preset request digest','native preset request timestamp'),
     'PLAN_CHANGED_OR_EXPIRED': ('Runner plan drift/expiry',),
     'TIMING_CHANGED': ('Runner timing allocation changed',),
     'APPROVAL_MISMATCH': ('Runner exact approval missing/changed',),
@@ -49,7 +53,7 @@ GROUPS = {
     'RUNTIME_DEADLINE': ('owned original stage/lease deadline','owned runtime identity deadline',
         'native session connection budget','native IAP deadline/domain','owned service readiness deadline','provider original cleanup/read deadline','guest facts deadline'),
     'RUNTIME_BUDGET_EXCEEDED': ('control/lease budget exceeded',*(
-        'budget exceeded: '+stage for stage in ('preparation','healthy','leader-loss','maintenance','no-quorum','validation-retention','cleanup'))),
+        'budget exceeded: '+stage for stage in ('preparation','healthy','read-heavy','sustained','leader-loss','isolated-old-leader','asymmetric-requests','asymmetric-responses','slow-follower','interrupted-transfer','entry-chosen','proof-quorum','group-restart','minority-capacity','maintenance','no-quorum','validation-retention','cleanup'))),
     'RUNTIME_QUALIFICATION_FAILED': ('owned independent qualification failed',),
     'RUNTIME_COMMAND_UNRESOLVED': ('remote command unresolved; never resubmit','late remote command receipt'),
     'RUNTIME_RETRY_EXHAUSTED': ('remote transient failures exhausted; never resubmit',
@@ -59,6 +63,10 @@ GROUPS = {
 }
 MESSAGES = {message:code for code,messages in GROUPS.items() for message in messages}
 DETAILS = {
+    'PRESET_SELECTION_CHANGED':'The selected member or order does not match the original prepared request.',
+    'PRESET_MEMBER_INVALID':'Select experiment, failure-drill, or canonical repetition 1, 2 or 3.',
+    'PRESET_ORDER_INVALID':'The selected sequence order is not one of the two admitted orders.',
+    'PRESET_REQUEST_INVALID':'The native preset request does not match the closed source-controlled format.',
     **session_recovery.DETAILS,
     'PREPARATION_DEADLINE':'The original guest preparation deadline expired.',
     'PLAN_CHANGED_OR_EXPIRED':'The exact prepared plan changed or its admission window expired.',

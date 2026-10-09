@@ -128,7 +128,7 @@ class PreparationConnectionsTest(unittest.TestCase):
     def test_native_runtime_pool_requires_original_owned_api_and_runtime_stage(self):
         from .cloud_runner_owned import _Api
         with self.assertRaisesRegex(ValueError,'runtime owner/stage'),iap.runtime_connections(self.api,self.root/'runtime.json'):pass
-        api=_Api.__new__(_Api);api.__dict__.update(self.api.__dict__);api.transport=SimpleNamespace(offline=False);api.phase='healthy'
+        api=_Api.__new__(_Api);api.__dict__.update(self.api.__dict__);api.transport=SimpleNamespace(offline=False);api.phase='healthy';api.cells=('healthy','leader-loss','maintenance','no-quorum')
         with iap.runtime_connections(api,self.root/'runtime.json'):
             self.assertTrue(hasattr(api,'_preparation_connections'))
             with self.assertRaises(ValueError),iap.runtime_connections(api,self.root/'nested.json'):pass

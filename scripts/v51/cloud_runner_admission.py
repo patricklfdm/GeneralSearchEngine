@@ -6,7 +6,6 @@ qualifies the same checks; neither entry can mutate resource/control state.
 """
 from copy import deepcopy
 from pathlib import Path
-import re
 import time
 from urllib.parse import urlsplit, parse_qsl
 from scripts import ci_v51_bundle as build
@@ -23,58 +22,43 @@ FLAGS = dict(paidAdmission=False, resourcesCreated=False, engineWorkloadExecuted
 SCHEMA = 'gse-v51-runner-experiment-plan-v1'
 
 
-def prices(value, now):
-    fields = {'observedAt', 'expiresAt', 'region', 'machineType', 'diskType', 'vmMicrousdPerHour',
-              'diskMicrousdPerGiBHour', 'pricedThroughSeconds', 'retentionDays', 'otherCostsMicrousd', 'sources'}
-    m.need(type(value) is dict and set(value) == fields, 'Runner price fields')
-    a.integer(value['observedAt'], 1); a.integer(value['expiresAt'], value['observedAt']+1, value['observedAt']+86400)
-    env = workload.load()['environment']
-    m.need(value['observedAt'] <= now < value['expiresAt'] and
-           (value['region'], value['machineType'], value['diskType']) ==
-           (env['zone'].rsplit('-', 1)[0], env['machineType'], env['diskType']), 'Runner price freshness/selection')
+def prices(value, now, request=None):
+    from .cloud_prices import estimate
     from .native_experiment_timing import PRICE_COVERAGE_SECONDS
-    seconds = a.integer(value['pricedThroughSeconds'], 1, 86400)
-    m.need(seconds >= PRICE_COVERAGE_SECONDS, 'Runner price lifetime coverage')
-    a.integer(value['retentionDays'], 30, 365)
-    vm = a.integer(value['vmMicrousdPerHour'], 1, a.MAXIMUM_BUDGET_MICROUSD)
-    disk = a.integer(value['diskMicrousdPerGiBHour'], 1, a.MAXIMUM_BUDGET_MICROUSD)
-    extra = value['otherCostsMicrousd']
-    m.need(type(extra) is dict and set(extra) == {'requests', 'evidenceRetention', 'network', 'actions', 'failureOverhang'},
-           'Runner price coverage')
-    for cost in extra.values(): a.integer(cost, 1, a.MAXIMUM_BUDGET_MICROUSD)
-    sources = value['sources']
-    m.need(type(sources) is dict and set(sources) == {'compute', 'disks', 'storage', 'network', 'actions'}, 'Runner price sources')
-    for kind, url in sources.items():
-        domain = r'docs\.github\.com' if kind == 'actions' else r'(?:cloud|docs\.cloud)\.google\.com'
-        m.need(type(url) is str and len(url) <= 1024 and re.fullmatch(r'https://'+domain+r'/[^\s]+', url), 'Runner price source URL')
-    return ((3*vm+450*disk)*seconds+3599)//3600 + sum(extra.values())
+    return estimate(value, now, minimum_coverage_seconds=(timing.allocation(request).get('priceCoverageSeconds', PRICE_COVERAGE_SECONDS)))
 
 
-def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost):
+def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost, member=None, order='experiment-first'):
     p.configuration(cfg); a.integer(now, 1); guest_setup.access(guest)
     m.need(type(proof) is dict and set(proof) == {'schema','source','ciRun','ciAttempt','artifacts','buildBinding','buildProducer',
            'buildManifestSha256','packageManifestSha256','archiveSha256','workloadSha256'} and
            proof['schema'] == 'gse-v51-runner-artifacts-v1', 'Runner artifact proof shape')
     for key in ('buildManifestSha256','packageManifestSha256','archiveSha256'): a.digest(proof[key])
     a.integer(proof['ciRun'], 1); a.integer(proof['ciAttempt'], 1)
-    cost = a.integer(maximum_cost, 1, a.MAXIMUM_BUDGET_MICROUSD); estimate = prices(quote, now)
-    m.need(estimate <= cost, 'Runner estimate exceeds approved reservation')
+    cost = a.integer(maximum_cost, 1, a.MAXIMUM_BUDGET_MICROUSD)
+    from . import native_preset_timing as full
+    options = {} if member is None else dict(timing_plan_sha256=full.PLAN_SHA256)
+    profile = timing.PROFILE if member is None else full.allocation(member)['profile']
     req = n.request(proof['source'], proof['archiveSha256'], g.config(cfg['provider']), sequence, guest['attempt'],
-                    'experiment', now=now, guest_access_sha256=m.sha(m.canonical(guest)), timing_profile=timing.PROFILE)
+                    member or 'experiment', now=now, order=order, guest_access_sha256=m.sha(m.canonical(guest)), timing_profile=profile, **options)
+    estimate = prices(quote, now, req)
+    m.need(estimate <= cost, 'Runner estimate exceeds approved reservation')
     inputs = {k:proof[k] for k in ('source','archiveSha256','buildManifestSha256','packageManifestSha256','workloadSha256')}
     inputs['pricesSha256'] = m.sha(m.canonical(quote))
     stage = resources.make(cfg['provider'], req, guest, baseline, inputs, now=now, maximum_cost=cost)
     return m.strict_json(m.canonical(dict(schema=SCHEMA, configuration=deepcopy(cfg), artifacts=deepcopy(proof),
-        prices=deepcopy(quote), estimatedCostMicrousd=estimate, resourcePlan=stage, timing=timing.allocation(),
+        prices=deepcopy(quote), estimatedCostMicrousd=estimate, resourcePlan=stage, timing=timing.allocation(req),
         expiresAt=min(now+timing.APPROVAL_SECONDS, quote['expiresAt']), **FLAGS)))
 
 
 def validate_plan(value, now):
+    from . import native_preset_timing as full
     stage = value['resourcePlan']; req = stage['request']
     expected = plan(value['configuration'], value['artifacts'], stage['guestAccess'], value['prices'], stage['baseline'],
-                    sequence=req['sequence'], now=req['createdAt'], maximum_cost=stage['reservation']['maximumCostMicrousd'])
+                    sequence=req['sequence'], now=req['createdAt'], maximum_cost=stage['reservation']['maximumCostMicrousd'],
+                    member=req['member'] if full.selected(req) else None, order=req['order'])
     m.need(value == expected and req['createdAt'] <= now < value['expiresAt'], 'Runner plan drift/expiry')
-    prices(value['prices'], now)
+    prices(value['prices'], now, req)
     return m.sha(m.canonical(value))
 
 
@@ -98,6 +82,12 @@ def context(cfg, env, source, checkout, preflight, precheck_root, value, approve
         m.need(not env.get('RUNNER_STORAGE_REQUEST') and not env.get('RUNNER_STORAGE_CONFIRMATION'), 'Runner mixed execution selections')
     with diagnostics.stage('approval'):
         digest = approval(value, approved, env.get('RUNNER_EXPERIMENT_CONFIRMATION'), now)
+        from .cloud_runner_entry import member_selection
+        chosen=member_selection(env)
+        req=value['resourcePlan']['request']
+        if chosen['member'] is not None:
+            from . import native_preset_timing as full
+            m.need(full.selected(req) and (req['member'],req['order'])==(chosen['member'],chosen['order']), 'Runner prepared member/order changed')
         m.need(value['configuration'] == cfg and value['artifacts']['source'] == source, 'Runner selected configuration/source')
     with diagnostics.stage('precheck'):
         jobs = precheck.collect_jobs(binding, get)

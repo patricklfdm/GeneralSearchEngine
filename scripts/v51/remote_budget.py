@@ -23,9 +23,10 @@ class Budget:
             self.limits['validation-retention'] = CANONICAL_VALIDATION_SECONDS * 10**9
         elif profile is not None:
             from . import cloud_runner_timing as timing
-            m.need(profile == timing.PROFILE, 'unreviewed budget profile')
-            self.limits = {name: seconds * 10**9 for name, seconds in timing.allocation()['limitsSeconds'].items()}
-            self.lease = timing.allocation()['leaseSeconds'] * 10**9
+            from . import native_preset_timing as full
+            allocation = timing.allocation() if profile == timing.PROFILE else full.by_profile(profile)
+            self.limits = {name: seconds * 10**9 for name, seconds in allocation['limitsSeconds'].items()}
+            self.lease = allocation['leaseSeconds'] * 10**9
         self.clock, self.emit = clock, emit
         self.start = self.cursor = clock()
         self.spent = {name: 0 for name in self.limits}

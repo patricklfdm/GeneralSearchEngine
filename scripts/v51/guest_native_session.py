@@ -11,7 +11,7 @@ import signal
 import sys
 import time
 import uuid
-from . import guest_delivery_receiver as r
+from . import guest_delivery_receiver as r, native_preset_timing as full
 
 SCHEMA='gse-v51-native-session-v1'
 EXECUTION='native-v51-guest-service'
@@ -29,9 +29,11 @@ def identity(value):
 def validate(session, value):
     r.need(type(session) is dict and set(session)=={'schema','packageSha256','preparation','leaseExpiresNanos','hosts','port'} and
            session['schema']==SCHEMA and session['packageSha256']==r.sha(r.canonical(value)), 'native session package/fields')
-    budget=r.validate_budget(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
+    budget=r.validate_budget(session['preparation'],identity(value),profile=full.package_profile(value))
     end=session['leaseExpiresNanos'];sample=budget['sample']
     from .native_experiment_timing import LEASE_SECONDS
+    req=full.package_request(value)
+    if req is not None:LEASE_SECONDS=full.validate(req)['leaseSeconds']
     r.need(type(end) is int and budget['expiresNanos'] <= end <= sample['sampledNanos']+LEASE_SECONDS*10**9,'native session original lease bound')
     hosts=session['hosts'];port=session['port']
     r.need(type(hosts) is list and len(hosts)==3 and len(set(hosts))==3 and type(port) is int and 1024<=port<=65535,
@@ -43,22 +45,38 @@ def validate(session, value):
     return session
 
 
-def configuration(value, session, mode, cell=None, *, node=None):
+def configuration(value, session, mode, cell=None, *, node=None, workload=None):
     validate(session,value)
-    r.need(mode in MODES and (cell is None or cell in FAULTS and mode==MODES[2]),'native session cell/mode')
+    req=full.package_request(value)
+    selected=full.validate(req) if req is not None else None
+    faults=selected['cells'] if selected else FAULTS
+    r.need(mode in MODES and (cell is None or cell in faults and cell not in ('healthy','read-heavy','sustained') and mode==MODES[2]),'native session cell/mode')
+    from . import cloud_package as layout
+    r.need(workload is None or selected is not None and selected['preset']=='canonical' and cell is None and
+           workload==dict(cell=workload.get('cell'),preset='canonical',repetition=selected['repetition']) and
+           (mode,workload['cell']) in layout.CANONICAL_WORKLOADS,
+           'native session canonical workload')
+    if selected:
+        r.need((selected['preset']=='failure-drill' and cell is not None) or
+               (selected['preset']=='canonical' and (cell is not None or workload is not None)) or
+               (selected['preset']=='experiment' and workload is None), 'native session preset scope')
     binding=dict(value['binding']);binding['node']=node or binding['node']
     r.need(binding['node'] in ('node-1','node-2','node-3'),'native session node')
     sha=value['nativeVolume']['request']['requestSha256']
+    label=cell or mode
+    if workload:label='canonical-r'+str(workload['repetition'])+'-'+workload['cell']+'-'+mode
     result=dict(schema='gse-v51-guest-service-v1',execution=EXECUTION,binding=binding,
-        packageManifestSha256=value['manifestSha256'],root='/mnt/gse-v51/'+(cell or mode),mode=mode,
-        hosts=session['hosts'],ports=[session['port']]*3,groupId=str(uuid.uuid5(uuid.NAMESPACE_URL,sha+':'+(cell or mode))))
+        packageManifestSha256=value['manifestSha256'],root='/mnt/gse-v51/'+label,mode=mode,
+        hosts=session['hosts'],ports=[session['port']]*3,groupId=str(uuid.uuid5(uuid.NAMESPACE_URL,sha+':'+label)))
     if cell:result['faultCell']=cell
+    if workload:result['workload']=dict(workload)
+    if req is not None:result['nativeRequest']=dict(req)
     return result
 
 
 def check_config(config, value, session, *, node=None):
-    r.need(type(config) is dict and config==configuration(value,session,config.get('mode'),config.get('faultCell'),node=node),
-           'native session exact configuration')
+    r.need(type(config) is dict and config==configuration(value,session,config.get('mode'),config.get('faultCell'),
+           node=node,workload=config.get('workload')), 'native session exact configuration')
 
 
 def lease_deadline(session, value):
@@ -81,7 +99,7 @@ def observe(base, session, value):
 
 
 def begin(base, session, value):
-    r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
+    r.guest_deadline(session['preparation'],identity(value),profile=full.package_profile(value))
     previous=observe(base,session,value)
     if previous['state']!='NOT_FOUND':return previous
     folder=Path(base).parent/'native-session'
@@ -108,7 +126,7 @@ def preparation_deadline(base, config):
     service_deadline(base,config)
     base=Path(base);value=r.decode(r.read(base.parent/'request.json',os.getuid()))
     budget=r.decode(r.read(base.parent/'deadline.json',os.getuid()))
-    return r.guest_deadline(budget,identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
+    return r.guest_deadline(budget,identity(value),profile=full.package_profile(value))
 
 
 def dispatch(action, value, session, tail, stream):
@@ -117,7 +135,7 @@ def dispatch(action, value, session, tail, stream):
     from . import guest_native_package as native, guest_package_receiver as package
     native.validate(value);validate(session,value)
     preparation=action in ('begin','producer','source','bootstrap')
-    deadline=r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE) if preparation else lease_deadline(session,value)
+    deadline=r.guest_deadline(session['preparation'],identity(value),profile=full.package_profile(value)) if preparation else lease_deadline(session,value)
     native.context(value,deadline)
     base=package.installed('/mnt/gse-v51',value)
     r.need(package.read(base.parent/'deadline.json')==session['preparation'],'native session original package budget')
@@ -136,9 +154,12 @@ def dispatch(action, value, session, tail, stream):
             r.need(len(tail)>=2 and len(tail[1])<=90000,'native bootstrap request bound')
             request=r.decode(base64.b64decode(tail[1],validate=True))
             if action=='producer':
-                r.need(value['binding']['node']=='node-1' and type(request.get('configs')) is list and
-                       len(request['configs']) in (1,3),'native producer members')
-                for i,cfg in enumerate(request['configs'],1):check_config(cfg,value,session,node='node-'+str(i))
+                from . import cloud_package as layout
+                configs=request.get('configs')
+                r.need(type(configs) is list and len(configs) in (1,3),'native producer members')
+                nodes=layout.service_nodes(configs[0])
+                r.need(len(configs)==len(nodes) and value['binding']['node']=='node-'+str(nodes[0]),'native producer host')
+                for i,cfg in zip(nodes,configs):check_config(cfg,value,session,node='node-'+str(i))
             else:
                 check_config(request['config'],value,session)
                 if action=='bootstrap':r.need(set(request)=={'config','descriptorSha256','sourceTransferSha256'},'native transferred bootstrap only')
@@ -153,7 +174,7 @@ def main():
     r.need(len(encoded)<=131072 and len(token)<=8192,'native session envelope bound')
     value=r.decode(base64.b64decode(encoded,validate=True));session=r.decode(base64.b64decode(token,validate=True))
     deadline=lease_deadline(session,value)
-    if action in ('begin','producer','source','bootstrap'):deadline=r.guest_deadline(session['preparation'],identity(value),profile=r.NATIVE_PREPARATION_PROFILE)
+    if action in ('begin','producer','source','bootstrap'):deadline=r.guest_deadline(session['preparation'],identity(value),profile=full.package_profile(value))
     def expired(*_):raise TimeoutError('native session original deadline')
     signal.signal(signal.SIGALRM,expired);signal.setitimer(signal.ITIMER_REAL,max(.001,deadline-time.monotonic()))
     try:

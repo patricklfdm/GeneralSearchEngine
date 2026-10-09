@@ -1,18 +1,21 @@
 # Next-development documentation handoff
 
-Current implementation candidate: [complete owned canonical aggregation](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md),
-with repetition-bound control placement, one immutable rich seed and all fifteen
-cells under one offline lease. Protected acceptance of all three repetitions is
-pending. The five component tapes are accepted through PR #309 / master
-`6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`; the twelve-cell drill
-was accepted through PR #308 / CI `37837221623`. Native preset admission is unchanged.
+Current batch: [native full-preset admission and execution](v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md).
+[Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
+is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,
+CI `37887342685` attempt 2. All three repetitions passed fifteen cells and 1080
+rich calls with independent replay and modeled cleanup. Original failed attempts
+remain retained; no timing root cause is claimed. The twelve-cell drill was
+accepted through PR #308 / CI `37837221623`. The current candidate connects all five native members through request, guest session,
+controller, independent replay and cleanup. Corrected-source protected CI and
+paid full-preset acceptance remain pending; diagnostic-only stays the default.
 
 CI `37869232192` completed all fifteen cells and the independent replay in each
 repetition, but failed the 600-second validation/retention ceiling and then used
 the expired deadline for service shutdown. The correction collects original
 evidence once, closes services before one bounded replay, and preserves cleanup
 time after validation expiry. The original failed runs do not constitute complete
-acceptance; corrected-source protected qualification remains required.
+acceptance; PR #310 subsequently completed the corrected-source qualification.
 
 Follow-up CI `37876817676` passed 42 jobs but failed all complete repetitions:
 one exhausted validation time and two exceeded a fault observer's mistaken
@@ -22,7 +25,7 @@ inside the unchanged 5400-second lease, with 120 seconds reserved for retention
 and the existing 600-second cleanup reserve. Stopped fault traces are losslessly
 segmented under the existing 32-MiB member / 128-MiB per-node limits. The
 [canonical record](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md#follow-up-hosted-headroom-and-fault-trace-segmentation)
-documents the failures and pending protected acceptance. Native admission stays closed.
+documents the original failures and subsequent protected acceptance. The current native integration still requires corrected-source protected acceptance.
 
 **Status:** local documentation integration and review record, 2026-09-19.
 The V5.1-V5.4 refinements and V6 preview remain PROPOSED. Integration does not
@@ -39,10 +42,10 @@ archive replay, retention and cleanup. Start with the
 Full Phase 6 and final same-source five-member qualification remain open.
 
 The owned network and complete failure-drill lanes passed corrected-source master
-CI `37837221623`. The complete canonical candidate preserves three 260-call
+CI `37837221623`. The accepted complete canonical gate preserves three 260-call
 healthy modes, 120 read-heavy calls and 180 sustained calls, and independently
-replays all twelve faults. Next obtain protected acceptance of the three offline
-repetitions, then review native admission and time/pricing allocation. Offline
+replays all twelve faults. The current integration binds full-preset budgets, remaining-sequence prices and ledger
+constraints, with matching Action member/order choices and native guest/validator paths. Offline
 qualification cannot close a paid preset or the formal five-member cloud set.
 
 **Subsequent design handoff:** after planning PR #183, the user started V5.1 Phase 0

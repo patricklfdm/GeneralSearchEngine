@@ -379,7 +379,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Owned canonical tape implementation](PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes with frozen timing, original command/response bindings, concurrent physical read oracle, and five required parallel CI jobs.
 - [x] Owned canonical tape protected acceptance: PR #309, master `6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`.
 - [x] [Complete owned canonical candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md): repetition-bound controls, shared rich seed, seventeen fresh groups, fifteen-cell replay and three parallel required repetitions.
-- [ ] Complete owned canonical protected acceptance for all three repetitions; native admission and final paid-set qualification remain separate.
+- [x] Complete owned canonical protected acceptance: PR #310, master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`, CI `37887342685` attempt 2; repetitions 2/3 retained from attempt 1, repetition 1 accepted on attempt 2. Native admission and final paid-set qualification remain separate.
+- [x] Local [native full-preset review](PHASE_6_NATIVE_PRESET_REVIEW.md): closed reviewed budgets, whole-remaining-sequence quote coverage, ledger/order/failure rules and non-dispatchable review output.
+- [ ] Corrected-source protected acceptance of full-preset review and native integration.
+- [x] Local native full-preset request/session/controller/independent-validator integration using the reviewed allocation, matching Action choices and legacy cleanup compatibility. Native paid acceptance remains open.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.
 - [x] 6C3C25 implementation candidate: [native formats and cleanup HTTP policy](PHASE_6_NATIVE_CLEANUP.md), shared invariants and offline native-format reconstruction.

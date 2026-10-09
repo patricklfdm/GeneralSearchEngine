@@ -1,6 +1,7 @@
 """Reviewed first-run headroom; fixed ceilings, never a wire-supplied timeout.
 
-Only native request v2 selects these limits. Legacy leases keep their original
+Native request v2 selects these limits; v3 delegates to its closed member
+allocation below. Legacy leases keep their original
 expiry, and canonical measurement parameters are not changed by this profile.
 """
 PROFILE = 'owned-experiment-v2'
@@ -25,15 +26,24 @@ MAX_QUERIES = 256
 
 
 def selected(request):
-    return (request.get('schema') == REQUEST_SCHEMA and
-            request.get('timingProfile') == PROFILE)
+    from . import native_preset_timing as full
+    return (request.get('schema') == REQUEST_SCHEMA and request.get('timingProfile') == PROFILE) or full.selected(request)
 
 
 def control(request, name, legacy):
+    from . import native_preset_timing as full
+    if full.selected(request) and name=='mode':return full.validate(request)['healthyModeSeconds']
     return CONTROLS[name] if selected(request) else legacy
 
 
 def cell(request, name):
-    if selected(request):return STAGES[name]
+    if selected(request):return allocation(request)['limitsSeconds'][name]
     from . import cloud_workload_contract as contract
     return {cell['name']:cell['seconds'] for cell in contract.load()['cells']}[name]
+
+
+def allocation(request):
+    from . import native_preset_timing as full
+    if full.selected(request):return full.validate(request)
+    return dict(profile=PROFILE, limitsSeconds=dict(STAGES), leaseSeconds=LEASE_SECONDS,
+                operationGraceSeconds=GRACE_SECONDS, priceCoverageSeconds=PRICE_COVERAGE_SECONDS)

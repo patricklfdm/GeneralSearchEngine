@@ -62,14 +62,15 @@ class Controls:
 
     def handle(self, payload):
         h=self.h;s=h.s;root=s.cell;action=payload.get('action')
-        m.need(s.config['execution']=='local-guest-service-only','recovery faults not admitted natively')
+        from . import native_preset_timing as full, native_experiment_timing as timing
+        native=full.fault_configuration(s.config,CASES)
         if action=='prepare-direction':
             m.need(payload=={'action':action} and h.case=='minority-capacity' and h.generation==0 and
                    s.jvm is None and not self.direction,'bounded PREPARE direction consumed/scope')
             c.write_once(root/'prepare-direction-claim.json',payload);self.direction=True
             rules=[f'{a} {b} BEFORE_REQUEST_WRITE PREPARE' for a in NODES for b in NODES if a!=b and 'node-3' in (a,b)]
             h.rules(rules);self.direction_record=dict(appliedNanos=time.monotonic_ns(),rules=rules)
-            self.direction_timer=threading.Timer(60,lambda:self.release_direction(True))
+            self.direction_timer=threading.Timer(timing.CONTROLS['isolation'] if native else 60,lambda:self.release_direction(True))
             self.direction_timer.daemon=True;self.direction_timer.start();return dict(self.direction_record)
         m.need(s.jvm is not None and not s.jvm.closed,'recovery live voter required')
         if action=='heal-direction':
@@ -108,7 +109,7 @@ class Controls:
             with h.lock:
                 h.isolated=True;rules=isolation_rules(h.case,payload['node'])
                 h.rules(rules);h.isolation=dict(appliedNanos=time.monotonic_ns(),rules=rules,node=payload['node'])
-                h.timer=threading.Timer(60,lambda:h.heal(True));h.timer.daemon=True;h.timer.start();return dict(h.isolation)
+                h.timer=threading.Timer(timing.CONTROLS['isolation'] if native else 60,lambda:h.heal(True));h.timer.daemon=True;h.timer.start();return dict(h.isolation)
         if action=='heal':
             m.need(payload=={'action':action} and h.isolated,'recovery heal scope');h.heal();return c.read(root/'isolation.json')
         raise ValueError('unsupported recovery fault action')

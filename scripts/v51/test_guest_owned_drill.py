@@ -143,9 +143,9 @@ class RecoveryHandlerTest(unittest.TestCase):
             self.assertFalse(self.command(h,action='heal')['watchdog'])
             with self.assertRaises(ValueError):self.command(h,action='isolate',node='node-3')
 
-    def test_recovery_actions_reject_native_execution_and_arbitrary_inputs(self):
+    def test_recovery_actions_reject_unadmitted_native_execution_and_arbitrary_inputs(self):
         h=self.handler('group-restart');h.s.config['execution']=cloud_guest.NATIVE_EXECUTION
-        with self.assertRaisesRegex(ValueError,'not admitted natively'):self.command(h,action='observe-recovery')
+        with self.assertRaisesRegex(ValueError,'native fault request missing'):self.command(h,action='observe-recovery')
         h.s.config['execution']=cloud_guest.EXECUTION
         for values in (dict(action='observe-recovery',path='/tmp'),dict(action='arm-cut'),dict(action='start-target',intentId='call-01'),
                        dict(action='isolate',node='node-1',seconds=70)):

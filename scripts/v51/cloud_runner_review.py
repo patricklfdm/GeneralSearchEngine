@@ -40,6 +40,18 @@ INPUT = '''    inputs:
         options: ['off', prepare, run]
         required: false
         default: 'off'
+      runner_member:
+        description: 'Exact member for both prepare and run; run must match the prepared plan'
+        type: choice
+        options: [experiment, failure-drill, canonical-1, canonical-2, canonical-3]
+        required: false
+        default: experiment
+      runner_order:
+        description: 'Immutable sequence order; failed canonical requires a new sequence'
+        type: choice
+        options: [experiment-first, canonical-first]
+        required: false
+        default: experiment-first
       runner_experiment_quote:
         description: 'prepare only; JSON with prices, maximumCostMicrousd and sequence (32 hex)'
         type: string
@@ -62,7 +74,7 @@ JOB = r'''
     needs: observations
     if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' || inputs.runner_experiment != 'off' || inputs.runner_experiment_quote != '' || inputs.runner_prepared_run != '' || inputs.runner_experiment_confirmation != '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.runner_experiment == 'run' && 270 || 15 }}
+    timeout-minutes: ${{ inputs.runner_experiment == 'run' && (startsWith(inputs.runner_member, 'canonical-') && 360 || inputs.runner_member == 'failure-drill' && 330 || 270) || 15 }}
     environment: v51-cloud-benchmark
     permissions:
       contents: read
@@ -75,6 +87,8 @@ JOB = r'''
       RUNNER_STORAGE_REQUEST: ${{ inputs.runner_storage_request }}
       RUNNER_STORAGE_CONFIRMATION: ${{ inputs.runner_storage_confirmation }}
       RUNNER_EXPERIMENT: ${{ inputs.runner_experiment }}
+      RUNNER_MEMBER: ${{ inputs.runner_member }}
+      RUNNER_ORDER: ${{ inputs.runner_order }}
       RUNNER_EXPERIMENT_QUOTE: ${{ inputs.runner_experiment_quote }}
       RUNNER_PREPARED_RUN: ${{ inputs.runner_prepared_run }}
       RUNNER_EXPERIMENT_CONFIRMATION: ${{ inputs.runner_experiment_confirmation }}
@@ -181,7 +195,13 @@ JOB = r'''
         env:
           V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
         run: |
-          timeout --signal=TERM --kill-after=60s 15000s python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
+          case "$RUNNER_MEMBER" in
+            experiment) guard_seconds=15000 ;;
+            failure-drill) guard_seconds=16500 ;;
+            canonical-1|canonical-2|canonical-3) guard_seconds=20100 ;;
+            *) exit 2 ;;
+          esac
+          timeout --signal=TERM --kill-after=60s "${guard_seconds}s" python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
             --output target/v51-experiment
 
@@ -237,16 +257,21 @@ This generator neither dispatches a workflow nor applies the included commands.
   current exact-source CI and Runner permission checks. Schedule is optional.
 - Storage remains separately selected and confirmed. It cannot run alongside
   experiment preparation/execution. Its two USD 1 stages retain their own charges.
+- `runner_member` selects experiment, failure-drill or canonical-1/2/3;
+  `runner_order` fixes experiment-first or canonical-first for the sequence.
+  Prepare and run must select the same member/order on the same source/package.
 - `runner_experiment=prepare` requires reviewed current prices, an explicit maximum
   reservation, sequence and the environment SSH secret. It only reads and builds a
   public plan from original CI artifacts. It makes no resource or ledger writes.
 - Review the resulting plan, original artifacts, topology, estimate, prior charges,
   maximum reservation, 15-minute admission window and reviewed timing allocation.
-  Admitted preparation has one 3600-second limit inside the original 14400-second lease.
+  Preparation/lease ceilings are 3600/14400 seconds for experiment, 3600/16200
+  for failure-drill and 5400/19800 for canonical. All work shares the original
+  admitted lease; exact per-cell and retention limits are bound into the plan.
   Preparation is not paid approval.
 - `runner_experiment=run` needs its preparation run ID and exact plan SHA-256, fresh
   same-run observations and environment approval. Only this selection calls the
-  native owned experiment. The digest confirms the entire original plan, including
+  selected native preset. The digest confirms the entire original plan, including
   cost and expiry; it cannot change the plan or approve a different private key.
 - A changed source, CI artifact, retained ledger, expired plan, missing permission,
   reused attempt, replaced secret or mixed selection blocks admission. Failed

@@ -28,7 +28,9 @@ def recipient_path(r, own, isolation, manifest):
            'owned recovery recipient campaigned before intended fault')
 
 
-def check(r, history, traces, root, rows, obs, collections, processes):
+def check(r, history, traces, root, rows, obs, collections, processes, *, request=None):
+    from . import native_experiment_timing as timing
+    request=request or {}
     case=r['case'];old=r['seedLeader'];starts=[];stops=[];files={}
     for node,seq in rows.items():
         for q,receipt in seq:
@@ -72,7 +74,7 @@ def check(r, history, traces, root, rows, obs, collections, processes):
         found=[q for q,receipt in rows[join['node']] if q['command']=='fault' and q['payload']=={'action':'status'} and
                receipt['result']['response']==join['observed'] and
                join['startNanos']<=obs[q['commandId']]['startNanos']<=obs[q['commandId']]['endNanos']<=join['endNanos']]
-        m.need(len(found)==1 and 0<=join['endNanos']-join['startNanos']<=60*10**9 and
+        m.need(len(found)==1 and 0<=join['endNanos']-join['startNanos']<=timing.control(request,'rejoin',60)*10**9 and
                join['observed']['provenIndex']>=join['through'],'owned recovery original rejoin')
     for join in seeds:
         join_original(join)
@@ -114,7 +116,7 @@ def check(r, history, traces, root, rows, obs, collections, processes):
             iq,ir=injected[0];hq,hr=healed[0];actual=c.read(collections[node]/'isolation.json')
             m.need(ir['result']==dict(node=target,rules=expected_rules,appliedNanos=actual['appliedNanos']) and
                    hr['result']==actual and actual['watchdog'] is False and actual['rules']==expected_rules and
-                   0<actual['healedNanos']-actual['appliedNanos']<=60*10**9,'owned recovery guest isolation/watchdog')
+                   0<actual['healedNanos']-actual['appliedNanos']<=timing.control(request,'isolation',60)*10**9,'owned recovery guest isolation/watchdog')
             m.need(obs[iq['commandId']]['endNanos']<=large[0]['startNanos']<=large[0]['endNanos']<=obs[hq['commandId']]['startNanos'],
                    'owned recovery target outside isolation')
             drops=[v for v in traces[node] if v['event']=='NETWORK_DROP']
@@ -153,7 +155,7 @@ def check(r, history, traces, root, rows, obs, collections, processes):
                 expected=[f'{x} {y} BEFORE_REQUEST_WRITE PREPARE' for x in NODES for y in NODES if x!=y and 'node-3' in (x,y)]
                 m.need(began[0][1]['result']==dict(appliedNanos=actual['appliedNanos'],rules=expected) and
                        healed[0][1]['result']==actual and actual['watchdog'] is False and
-                       0<actual['healedNanos']-actual['appliedNanos']<=60*10**9 and
+                       0<actual['healedNanos']-actual['appliedNanos']<=timing.control(request,'isolation',60)*10**9 and
                        obs[began[0][0]['commandId']]['endNanos']<=min(v['startNanos'] for v in starts) and
                        max(v['readyNanos'] for v in starts if v['generation']==1)<=obs[healed[0][0]['commandId']]['startNanos']<=
                        obs[healed[0][0]['commandId']]['endNanos']<=history[0]['startNanos'],'owned bounded PREPARE original barrier')

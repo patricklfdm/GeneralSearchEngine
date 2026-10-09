@@ -45,7 +45,9 @@ def deadline_profile(value):
     # The native descriptor is admitted only by the separate native receiver.
     # Its complete bytes are bound into the clock sample and consumed claim.
     descriptor(value)
-    return r.NATIVE_PREPARATION_PROFILE if value['schema'] == 'gse-v51-native-package-transfer-v1' else None
+    if value['schema'] != 'gse-v51-native-package-transfer-v1':return None
+    from . import native_preset_timing as full
+    return full.package_profile(value)
 
 
 def validate_budget(budget, value):

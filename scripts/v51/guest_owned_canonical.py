@@ -6,6 +6,7 @@ from . import cloud_authority as a, cloud_package as package, cloud_workload_con
 from . import performance_model as m, remote_command as c, remote_collection as parts
 from . import guest_owned_three_mode as shared, guest_shared_source, guest_bootstrap
 from . import guest_owned_workload as rich, guest_owned_drill as drill
+from . import native_experiment_timing as timing
 
 MODE='complete-canonical'
 SCOPE='owned-complete-canonical'
@@ -42,11 +43,12 @@ class Services(shared.Services):
     def __init__(self,*args,repetition,**kwargs):
         self.repetition=validate_repetition(repetition)
         super().__init__(*args,**kwargs)
+    def shared_source(self):return Source(self.root/'shared-source',self.repetition,clock=self.clock,sleep=self.sleep)
     def prepare(self,req,facts,targets,startup,output,deadline,*,recheck,readiness):
-        m.need(self.root is None and self.offline and req['member']=='experiment','owned canonical services scope/consumed')
+        m.need(self.root is None and req['member']==('canonical-'+str(self.repetition) if self.authority.PAID_CLOUD else 'experiment'),'owned canonical services scope/consumed')
         self.root=Path(output);self.root.mkdir(mode=0o700)
-        self.source=Source(self.root/'shared-source',self.repetition,clock=self.clock,sleep=self.sleep)
-        result=dict(status='FAIL',scope=SCOPE,repetition=self.repetition,requestSha256=a.validate_request(req),tapes=[],faults=[])
+        self.source=self.shared_source()
+        result=dict(status='FAIL',scope=SCOPE,repetition=self.repetition,requestSha256=self.authority.validate_request(req),tapes=[],faults=[])
         try:
             for mode,cell in TAPES:
                 name=key(mode,cell)
@@ -70,22 +72,27 @@ class Services(shared.Services):
 
 
 class Probe:
+    authority=a
+    workload_probe=rich.Probe
     execution=a.EXECUTION;scope=SCOPE;mode=MODE;require_physical=True;require_backup=True
     def __init__(self,services,output,*,clock=time.monotonic,sleep=time.sleep):
         m.need(services.offline is True and services.mode==MODE,'owned canonical services scope')
+        self._initialize(services,output,clock=clock,sleep=sleep)
+
+    def _initialize(self,services,output,*,clock=time.monotonic,sleep=time.sleep):
         self.services,self.clock,self.sleep=services,clock,sleep;self.repetition=validate_repetition(services.repetition)
         self.root=Path(output);self.root.mkdir(parents=True,mode=0o700);self.raw=self.root/'raw';self.raw.mkdir(mode=0o700)
         self.probes={};self.programs={};self.cells=[];self.attempted=[];self.prepared=False;self.stopped=False
-        self.binding=m.sha(m.canonical(dict(scope=SCOPE,repetition=self.repetition,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=SCOPE,repetition=self.repetition,requestSha256=self.authority.validate_request(services.provider.req))))
     @property
     def engineWorkloadExecuted(self):
         return any(p.engineWorkloadExecuted for p in self.probes.values()) or any(p.attempted for p in self.programs.values())
     def prepare(self,req,deadline):
         names=[key(mode,cell) for mode,cell in TAPES]+list(drill.CASES)
         m.need(not self.prepared and not self.probes and not self.programs and req==self.services.provider.req and
-               req['member']=='experiment' and list(self.services.groups)==names,'owned canonical preparation/order')
+               req['member']==('canonical-'+str(self.repetition) if self.authority.PAID_CLOUD else 'experiment') and list(self.services.groups)==names,'owned canonical preparation/order')
         receipt=c.read(self.services.root/'receipt.json')
-        m.need(receipt['status']=='PASS' and receipt['requestSha256']==a.validate_request(req) and
+        m.need(receipt['status']=='PASS' and receipt['requestSha256']==self.authority.validate_request(req) and
                receipt['repetition']==self.repetition,'owned canonical service admission')
         c.write_once(self.raw/'plan.json',dict(scope=SCOPE,repetition=self.repetition,request=req,services=receipt))
         (self.raw/'source').mkdir(mode=0o700)
@@ -93,7 +100,7 @@ class Probe:
             (self.raw/'source'/name).write_bytes((self.services.source.root/'seed/source'/name).read_bytes())
         for mode,cell in TAPES:
             name=key(mode,cell);group=self.services.groups[name]
-            probe=rich.Probe(group,self.root/name,physical=mode in package.MODES[1:],backup=mode in package.MODES[1:],clock=self.clock,sleep=self.sleep)
+            probe=self.workload_probe(group,self.root/name,physical=mode in package.MODES[1:],backup=mode in package.MODES[1:],clock=self.clock,sleep=self.sleep)
             self.probes[name]=probe;probe.prepare(req,deadline)
         for case in drill.CASES:
             program=drill.Cell(self.services.groups[case],self.raw/case,case,clock=self.clock,sleep=self.sleep)
@@ -111,7 +118,7 @@ class Probe:
                     if cell!=name:continue
                     probe=self.probes[key(mode,cell)];span=dict(mode=mode,status='FAIL',startNanos=int(self.clock()*1e9));row['tapes'].append(span)
                     try:
-                        ceiling=300 if cell=='healthy' else next(v['seconds'] for v in contract.load()['cells'] if v['name']==cell)
+                        ceiling=timing.control(self.services.provider.req,'mode',300) if cell=='healthy' else timing.cell(self.services.provider.req,cell)
                         end=min(deadline/1e9,self.clock()+ceiling)
                         probe.cell(cell,int(end*1e9))
                         m.need(not probe.close_voters(end) and self.clock()<=end,'owned canonical mode close/deadline')
@@ -141,7 +148,7 @@ class Probe:
         for name,program in self.programs.items():
             print(m.canonical(dict(phase='canonical-collection',cell=name,status='START')).decode(),flush=True)
             errors.extend(dict(case=name,**v) for v in program.collect(deadline/1e9))
-        result=dict(status='FAIL',scope=SCOPE,mode=MODE,repetition=self.repetition,execution=self.execution,paidCloud=False,
+        result=dict(status='FAIL',scope=SCOPE,mode=MODE,repetition=self.repetition,execution=self.execution,paidCloud=self.authority.PAID_CLOUD,
             fullRemoteQualification=False,engineWorkloadExecuted=self.engineWorkloadExecuted,physicalHistoryQualified=False,
             backupRestoreQualified=False,cells=list(self.cells),errors=errors)
         try:
@@ -153,10 +160,11 @@ class Probe:
                    self.cells==list(CELLS) and self.clock()<deadline/1e9,'owned canonical incomplete/deadline')
             from .guest_canonical_evidence import bounded_replay
             from .remote_budget import CANONICAL_RETENTION_RESERVE_SECONDS
-            replay_end=deadline/1e9-CANONICAL_RETENTION_RESERVE_SECONDS
+            reserve=timing.allocation(self.services.provider.req)['retentionReserveSeconds'] if self.authority.PAID_CLOUD else CANONICAL_RETENTION_RESERVE_SECONDS
+            replay_end=deadline/1e9-reserve
             print(m.canonical(dict(phase='canonical-replay-budget',remainingSeconds=round(max(0,replay_end-self.clock()),3),
-                                  retentionReserveSeconds=CANONICAL_RETENTION_RESERVE_SECONDS)).decode(),flush=True)
-            result['aggregate']=bounded_replay(self.raw,self.root/'replay',replay_end,clock=self.clock)
+                                  retentionReserveSeconds=reserve)).decode(),flush=True)
+            result['aggregate']=bounded_replay(self.raw,self.root/'replay',replay_end,clock=self.clock,authority=self.authority)
             result.update(status='PASS',physicalHistoryQualified=True,backupRestoreQualified=True)
         except (Exception,KeyboardInterrupt) as error:errors.append(dict(phase='aggregate',message=str(error)[:2000]))
         c.write_once(self.raw/'validation.json',result,maximum=262144);return result

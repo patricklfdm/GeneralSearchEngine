@@ -24,7 +24,8 @@ FLAGS = dict(paidCloud=False, paidAdmission=False, nativeResourcesQualified=Fals
 def make(configuration, req, guest_access, baseline, inputs, *, now, maximum_cost):
     """Bind already selected inputs; hashes here do not authenticate build bytes."""
     sha = n.validate_request(req)
-    m.need(req['member'] == 'experiment' and req['order'] == 'experiment-first', 'resource experiment scope')
+    from . import native_preset_timing as full
+    m.need(full.selected(req) or req['member'] == 'experiment' and req['order'] == 'experiment-first', 'resource experiment scope')
     m.need(g.config(configuration) == req['configurationSha256'], 'resource configuration binding')
     guest_setup.access(guest_access)
     m.need(guest_access['attempt'] == req['attempt'] and

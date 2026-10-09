@@ -246,7 +246,8 @@ class EntryTest(unittest.TestCase):
         self.assertLess(job.index('cloud_runner_precheck report'),job.index('cloud_runner_entry prepare'))
         self.assertLess(job.index('cloud_runner_precheck report'),job.index('cloud_runner_entry run'))
         self.assertIn("success() && inputs.runner_experiment == 'run'",raw)
-        self.assertIn('timeout --signal=TERM --kill-after=60s 15000s',raw)
+        self.assertIn('timeout --signal=TERM --kill-after=60s "${guard_seconds}s"',raw)
+        for seconds in (15000,16500,20100):self.assertIn('guard_seconds='+str(seconds),raw)
         for bad in (raw.replace("default: 'off'","default: 'run'"),raw.replace("success() && inputs.runner_experiment == 'run'",'always()'),
             raw.replace('path: target/v51-experiment\n','path: /tmp\n'),raw.replace("version: '582.0.0'","version: 'latest'")):
             with self.assertRaises(ValueError):e.workflow.workflow(bad)

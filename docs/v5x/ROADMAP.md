@@ -1,11 +1,14 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current implementation candidate: [complete owned canonical aggregation](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md),
-with repetition-bound control placement, one immutable rich seed and all fifteen
-cells under one offline lease. Protected acceptance of all three repetitions is
-pending. The five component tapes are accepted through PR #309 / master
-`6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`; the twelve-cell drill
-was accepted through PR #308 / CI `37837221623`. Native preset admission is unchanged.
+Current batch: [native full-preset admission and execution](v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md).
+[Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
+is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,
+CI `37887342685` attempt 2. All three repetitions passed fifteen cells and 1080
+rich calls with independent replay and modeled cleanup. Original failed attempts
+remain retained; no timing root cause is claimed. The twelve-cell drill was
+accepted through PR #308 / CI `37837221623`. The current candidate connects all five native members through request, guest session,
+controller, independent replay and cleanup. Corrected-source protected CI and
+paid full-preset acceptance remain pending; diagnostic-only stays the default.
 
 - **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
@@ -13,10 +16,10 @@ was accepted through PR #308 / CI `37837221623`. Native preset admission is unch
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
 
 The owned network and complete failure-drill lanes passed corrected-source master
-CI `37837221623`. The complete canonical candidate preserves three 260-call
+CI `37837221623`. The accepted complete canonical gate preserves three 260-call
 healthy modes, 120 read-heavy calls and 180 sustained calls, and independently
-replays all twelve faults. Next obtain protected acceptance of the three offline
-repetitions, then review native admission and time/pricing allocation. Offline
+replays all twelve faults. The current integration binds full-preset budgets, remaining-sequence prices and ledger
+constraints, with matching Action member/order choices and native guest/validator paths. Offline
 qualification cannot close a paid preset or the formal five-member cloud set.
 
 ## Version sequence
