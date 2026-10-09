@@ -138,7 +138,7 @@ def preparation_connections(api, output):
 @contextmanager
 def runtime_connections(api, output):
     from .cloud_runner_owned import _Api
-    m.need(type(api) is _Api and api.phase in ('healthy','leader-loss','maintenance','no-quorum','validation-retention'),
+    m.need(type(api) is _Api and api.phase in (*api.cells,'validation-retention'),
            'IAP runtime owner/stage')
     if api.offline:
         yield

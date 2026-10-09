@@ -34,7 +34,7 @@ class Probe:
         self.cell_name=getattr(services,'canonical_cell',None) or 'healthy'
         self.preset='canonical' if getattr(services,'canonical_cell',None) else 'experiment'
         if self.preset=='canonical':
-            m.need(services.offline is True,'owned canonical workload is offline only')
+            m.need(services.offline is True or self.authority.PAID_CLOUD and services.authority is self.authority,'owned canonical workload domain')
             m.need(self.mode==package.MODES[0] or physical and backup,'canonical replicated tape requires physical history and backup')
             self.scope=workload.scope(self.mode,self.cell_name)
         self.repetition=getattr(services,'canonical_repetition',None)
@@ -80,7 +80,7 @@ class Probe:
         return result
 
     def prepare(self, req, deadline):
-        m.need(not self.prepared and req==self.services.provider.req and req['member']=='experiment', 'owned workload request/scope')
+        m.need(not self.prepared and req==self.services.provider.req and (req['member']=='experiment' or self.authority.PAID_CLOUD and req['member'].startswith('canonical-')), 'owned workload request/scope')
         complete=c.read(self.services.root/'receipt.json')
         m.need(complete['status']=='PASS' and complete['requestSha256']==self.authority.validate_request(req) and
                complete['bootstrap']['status']=='PASS' and complete['bootstrap']['publicBootstrapVerified'] is True,

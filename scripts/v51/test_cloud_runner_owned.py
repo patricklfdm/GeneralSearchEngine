@@ -20,6 +20,7 @@ class OwnerTest(unittest.TestCase):
     def prepare_source(self):
         temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
         self.f=q.fixture(self.root/'inputs',self.root/'private');original=q.r._run
+        if hasattr(self,'configure_fixture'):self.configure_fixture(self.f)
         def run(*args,**kwargs):
             def capture(api,*args):self.source=api;return []
             return original(*args,**kwargs,guest_stage=capture)
@@ -216,6 +217,8 @@ class BridgeTest(unittest.TestCase):
             access=self.source.value['guestAccess']
             value=dict(schema=volume.SCHEMA,binding=binding,provider=facts['provider'],bootDiskId=facts['bootDiskId'],
                        access=access,requestSha256=n.validate_request(self.source.req))
+            from . import native_preset_timing as full
+            if full.selected(self.source.req):value.update(schema=volume.FULL_SCHEMA,nativeRequest=deepcopy(self.source.req))
             desc=delivery.describe(archive,manifest,binding,facts['provider'],m.sha(m.canonical(access)))
             desc.update(schema='gse-v51-native-package-transfer-v1',nativeVolume=dict(request=value,startupSha256='a'*64,
                 volume=dict(device='/dev/sdb',majorMinor='8:16',uuid='12345678-1234-1234-1234-123456789abc',mount='/mnt/gse-v51',uid=1001,gid=1001)))
@@ -226,7 +229,8 @@ class BridgeTest(unittest.TestCase):
             sample=r.clock_sample(o.native.session.identity(desc),'e'*32)
             endpoint.budget=dict(schema='gse-v51-helper-deadline-v1',sample=sample,expiresNanos=sample['sampledNanos']+500*10**9)
             self.prepared.append(dict(endpoint=endpoint,recheck=self.recheck,facts=facts,startup={},installed=dict(state='SUCCEEDED')))
-        self.services=o.native.Services(self.source.provider(),archive,self.prepared)
+        services_type,_,_,_=o.native.selection(self.source.req)
+        self.services=services_type(self.source.provider(),archive,self.prepared)
     def test_all_six_groups_use_native_factories_and_original_package_pool(self):
         services=self.services;services.root=self.root/'services';services.root.mkdir();services.source=services.shared_source()
         self.assertIsInstance(services.source.remote,o.native.RemoteSource)
@@ -322,6 +326,13 @@ class LifecycleTest(unittest.TestCase):
         import shutil
         from .remote_budget import Budget
         test=self;events=[];clock=self.f['clock']
+        service_type,probe_type,cells,scope=o.native.selection(self.source.req)
+        def config(ep):
+            from . import native_preset_timing as full
+            req=test.source.req
+            if full.selected(req) and req['member']!='experiment':
+                return o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2],'leader-loss')
+            return o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
         class Services:
             def __init__(self,provider,archive,prepared):
                 self.provider=provider;self.pool=test.services.pool;self.root=None
@@ -330,11 +341,12 @@ class LifecycleTest(unittest.TestCase):
                 self.root=Path(output);self.root.mkdir();events.append('prepare-services')
             def stop(self,deadline):
                 events.append('stop-services')
-                ep=test.services.pool.endpoints['node-1'];cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                ep=test.services.pool.endpoints['node-1'];cfg=config(ep)
                 ep.client(cfg).shutdown(deadline)
                 if fault=='stop':raise ValueError('service stop failure')
             def retention_files(self):yield 'services.json',b'original startup'
         class Probe:
+            require_backup=True
             engineWorkloadExecuted=False
             def __init__(self,services,root):test.assertTrue(Path(root).is_absolute());self.cells=[]
             def prepare(self,req,deadline):events.append('prepare-probe')
@@ -343,7 +355,7 @@ class LifecycleTest(unittest.TestCase):
                 # Cross the real API promotion and provider/lease/host guards;
                 # only the remote process and its response are synthetic.
                 for ep in test.services.pool.endpoints.values():
-                    cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                    cfg=config(ep)
                     ep.client(cfg).ready(deadline/1e9)
                 if fault==name:raise ConnectionError('lost original window')
                 self.cells.append(name)
@@ -351,10 +363,10 @@ class LifecycleTest(unittest.TestCase):
             def collect_validate(self,root,deadline):
                 test.assertTrue(Path(root).is_absolute())
                 events.append('validate')
-                ep=test.services.pool.endpoints['node-1'];cfg=o.native.session.configuration(ep.value,ep.session,o.native.session.MODES[2])
+                ep=test.services.pool.endpoints['node-1'];cfg=config(ep)
                 ep.client(cfg).part('part-0000.bin',4096,deadline/1e9)
                 if fault=='collect':raise ValueError('invalid collection')
-                return dict(status='FAIL' if fault=='evidence' else 'PASS',scope=o.experiment.SCOPE,execution=n.EXECUTION,
+                return dict(status='FAIL' if fault=='evidence' else 'PASS',scope=scope,execution=n.EXECUTION,
                     paidCloud=True,fullRemoteQualification=False,engineWorkloadExecuted=self.engineWorkloadExecuted,
                     physicalHistoryQualified=True,backupRestoreQualified=True,cells=self.cells)
             def retention_files(self):yield 'part-0000.bin',b'original history'
@@ -378,9 +390,9 @@ class LifecycleTest(unittest.TestCase):
         with patch.object(o,'Budget',side_effect=lambda **kwargs:Budget(clock=clock.nanos,**kwargs)),\
              patch.object(o.time,'monotonic_ns',side_effect=clock.nanos),\
              patch.object(o.native.iap,'_network_exchange',side_effect=exchange),\
-             patch.object(o.native,'Services',Services),patch.object(o.native,'Probe',Probe):
+             patch.object(o.native,service_type.__name__,Services),patch.object(o.native,probe_type.__name__,Probe):
             with chdir(self.root):
-                result=o._execute(Path('execution') if relative else self.root/'execution',prepare)
+                result=o._execute(Path('execution') if relative else self.root/'execution',prepare,self.source.req)
         return result,events
     def test_complete_controller_finishes_all_cells_validation_cleanup_and_ledger(self):
         result,events=self.execute();self.assertEqual('PASS',result['status'],result)

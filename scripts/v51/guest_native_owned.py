@@ -107,6 +107,8 @@ class Group(owned.Services):
     offline=False;authority=n;service_execution=session.EXECUTION
     def __init__(self,provider,archive,pool,**options):
         creation(provider.api);self.pool=pool
+        self.canonical_cell=options.pop('canonical_cell',None)
+        self.canonical_repetition=options.pop('canonical_repetition',None)
         self._initialize(provider,archive,pool.endpoint,deliver=pool.deliver,**options)
     def descriptor(self,manifest,binding,provider,access_sha):
         expected=super().descriptor(manifest,binding,provider,access_sha)
@@ -175,3 +177,59 @@ class Probe(experiment.Probe):
     def __init__(self,services,output,**options):
         m.need(type(services) is Services,'native complete experiment scope')
         self._initialize(services,output,**options)
+
+
+# Full native presets reuse the same owned algorithms. Constructors remain
+# reachable only with the once-admitted, original native creation capability.
+from . import guest_owned_drill as drill, guest_owned_canonical as canonical
+from . import native_preset_timing as full
+
+
+class DrillServices(drill.Services):
+    offline=False;authority=n
+    def __init__(self,provider,archive,prepared):
+        creation(provider.api);full.validate(provider.req)
+        m.need(provider.req['member']=='failure-drill','native drill selection')
+        super().__init__(provider,archive)
+        self.pool=Pool(provider.api,self.archive,prepared)
+    group=Services.group
+
+
+class DrillProbe(drill.Probe):
+    authority=n;execution=n.EXECUTION
+    def __init__(self,services,output,**options):
+        m.need(type(services) is DrillServices,'native complete failure-drill scope')
+        self._initialize(services,output,**options)
+
+
+class CanonicalSource(canonical.Source):
+    def __init__(self,output,member,**options):
+        super().__init__(output,member,**options);self.remote=RemoteSource(**options)
+
+
+class CanonicalServices(canonical.Services):
+    offline=False;authority=n
+    def __init__(self,provider,archive,prepared):
+        creation(provider.api)
+        selected=full.validate(provider.req)
+        m.need(selected['preset']=='canonical','native canonical selection')
+        super().__init__(provider,archive,repetition=selected['repetition'])
+        self.pool=Pool(provider.api,self.archive,prepared)
+    def shared_source(self):return CanonicalSource(self.root/'shared-source',self.repetition,clock=self.clock,sleep=self.sleep)
+    seed=Services.seed
+    group=Services.group
+
+
+class CanonicalProbe(canonical.Probe):
+    authority=n;execution=n.EXECUTION;workload_probe=SingleProbe
+    def __init__(self,services,output,**options):
+        m.need(type(services) is CanonicalServices,'native complete canonical scope')
+        self._initialize(services,output,**options)
+
+
+def selection(req):
+    n.validate_request(req)
+    preset=full.validate(req)['preset'] if full.selected(req) else 'experiment'
+    if preset=='failure-drill':return DrillServices,DrillProbe,tuple(drill.CASES),drill.SCOPE
+    if preset=='canonical':return CanonicalServices,CanonicalProbe,tuple(canonical.CELLS),canonical.SCOPE
+    return Services,Probe,tuple(experiment.CELLS),experiment.SCOPE

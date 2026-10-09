@@ -517,5 +517,6 @@ belong under `target/`. They are disposable validation output and are not reposi
 documentation.
 
 - [V5.1 owned canonical tapes](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md): five full guest tapes accepted through PR #309.
-- [V5.1 complete owned canonical candidate](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md): rotated controls, shared seed and fifteen-cell aggregate; protected CI and native admission remain open.
-- [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native admission remains closed.
+- [V5.1 complete owned canonical qualification](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md): all three offline repetitions accepted through PR #310; native admission remains separate.
+- [V5.1 native full-preset integration](v5x/v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md): exact member/order requests, guest sessions, complete execution and independent replay; protected CI and paid acceptance pending.
+- [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native integration requires separate acceptance.

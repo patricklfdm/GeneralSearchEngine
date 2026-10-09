@@ -62,7 +62,7 @@ class _Api(cleanup._Policy, h.Api):
         self.initialize(source.cfg)
         self.source = source
         self.started = self.clock()
-        self.deadline = min(source.owner_deadline, self.started+(timing.STAGES['cleanup'] if timing.selected(source.req) else workload.load()['budgets']['cleanupSeconds']))
+        self.deadline = min(source.owner_deadline, self.started+(timing.cell(source.req,'cleanup') if timing.selected(source.req) else workload.load()['budgets']['cleanupSeconds']))
         self.mutations = set(); self.requests = []; self.retained = {}; self.verified = set()
         self.expected_completion = None; self.retention_started = False
 
@@ -148,7 +148,7 @@ class _Api(cleanup._Policy, h.Api):
         started = self.clock() if started is None else started
         m.need(self.started <= started <= self.clock(), 'owner retention original start')
         self.retention_started = True
-        self.deadline = min(self.source.owner_deadline, started+(timing.STAGES['validation-retention'] if timing.selected(self.source.req) else workload.load()['budgets']['validationRetentionSeconds']))
+        self.deadline = min(self.source.owner_deadline, started+(timing.cell(self.source.req,'validation-retention') if timing.selected(self.source.req) else workload.load()['budgets']['validationRetentionSeconds']))
         self.retained = {self.attempt+'preparation-failure/'+name: data for name, data in files.items()}
 
 

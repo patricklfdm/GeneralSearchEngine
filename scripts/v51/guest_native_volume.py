@@ -17,11 +17,16 @@ from . import guest_volume as v, guest_transport as transport
 
 PARENT = '/var/lib/gse-v51-native-volume'
 SCHEMA = 'gse-v51-native-volume-request-v1'
+FULL_SCHEMA = 'gse-v51-native-volume-request-v2'
 
 
 def validate(value):
-    r.need(type(value) is dict and set(value) == {'schema','binding','provider','bootDiskId','access','requestSha256'} and
-           value['schema'] == SCHEMA, 'native volume request fields/scope')
+    from . import native_preset_timing as full
+    r.need(type(value) is dict, 'native volume request type')
+    extra={'nativeRequest'} if value.get('schema')==FULL_SCHEMA else set()
+    r.need(set(value) == {'schema','binding','provider','bootDiskId','access','requestSha256'} | extra and
+           value['schema'] in (SCHEMA,FULL_SCHEMA), 'native volume request fields/scope')
+    if extra:full.volume_request(value)
     p = value['provider']; access = policy.access(value['access']); binding = value['binding']
     r.need(type(p) is dict and set(p) == {'instanceId','diskId','node','sizeGiB','attempt'} and
            type(p['node']) is int and p['node'] in (1,2,3) and type(p['sizeGiB']) is int and p['sizeGiB'] == 100 and
@@ -40,12 +45,17 @@ def identity(value):
         diskId=p['diskId'],guestAccessSha256=r.sha(r.canonical(value['access'])),payloadSha256=r.sha(raw),payloadBytes=len(raw)))
 
 
+def profile(value):
+    from . import native_preset_timing as full
+    return full.validate(full.volume_request(value))['profile'] if value['schema']==FULL_SCHEMA else r.NATIVE_PREPARATION_PROFILE
+
+
 def validate_budget(budget, value):
-    return r.validate_budget(budget, identity(validate(value)), profile=r.NATIVE_PREPARATION_PROFILE)
+    return r.validate_budget(budget, identity(validate(value)), profile=profile(value))
 
 
 def guest_deadline(budget, value):
-    return r.guest_deadline(budget, identity(validate(value)), profile=r.NATIVE_PREPARATION_PROFILE)
+    return r.guest_deadline(budget, identity(validate(value)), profile=profile(value))
 
 
 def account(value, deadline, *, privileged):

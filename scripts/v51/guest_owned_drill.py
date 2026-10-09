@@ -2,7 +2,7 @@
 import base64
 from . import guest_owned_faults as faults, guest_owned_network as network
 from . import performance_model as m, format_inspector as f, remote_faults
-from . import guest_fault_recovery as recovery
+from . import guest_fault_recovery as recovery, native_experiment_timing as timing
 
 MODE='failure-drill-faults'
 SCOPE='owned-complete-failure-drill'
@@ -19,13 +19,13 @@ class Cell(network.Cell):
         if self.case!='minority-capacity':return super().start_group()
         self.parallel(lambda member:self.command('node-'+str(member[0]),'prepare-direction'))
         self.parallel(self.start,self.clients[:2])
-        leader=self.leader(min(self.end,self.clock()+30),exclude=('node-3',))
+        leader=self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),exclude=('node-3',))
         self.start(self.member('node-3'))
         self.parallel(lambda member:self.command('node-'+str(member[0]),'heal-direction'))
         def stable():
             a,b=self.status(leader),self.status('node-3')
             return a['state']=='LEADER_READY' and b['state']=='FOLLOWER' and a['epoch']==b['epoch']
-        self.wait(stable,min(self.end,self.clock()+30),'owned bounded voter initial fencing')
+        self.wait(stable,min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),'owned bounded voter initial fencing')
         return leader
 
     def status(self, node, deadline=None):

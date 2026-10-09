@@ -1,7 +1,8 @@
 # V5.1 complete owned canonical qualification
 
-**Status:** offline implementation candidate. Corrected-source protected CI is
-required for all three repetitions. The five component tapes were accepted in
+**Status:** offline qualification accepted through PR #310, master
+`07e0745de7498c9f45ad9fc9209d7afbc550e4c8`, exact-master CI `37887342685`,
+attempt 2. All three repetitions passed. The five component tapes were accepted in
 PR #309, master `6d7273f5861f02d13c442dad76a80dde273a6e0c`, CI `37863567136`.
 This batch implements step 3 of the [native preset entry plan](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
 It does not enable a paid canonical preset or close Phase 6.
@@ -169,8 +170,8 @@ owner, record size and aggregate byte limit, with the existing command/history,
 physical and negative oracles. The local fault gate applies the same lossless
 segmentation before packing. Shared file/byte and decoded budgets still apply.
 
-All three repetitions still need corrected-source protected qualification.
-The failures are not attributed to GitHub scheduling, and this change makes no
+The subsequent protected acceptance is recorded below.
+The original failures are not attributed to GitHub scheduling, and this change makes no
 claim that production consensus semantics failed or were repaired.
 
 Local follow-up validation: 296 related Python regressions passed, plus the
@@ -183,6 +184,40 @@ repetition-2 trace was repacked into two segments: all 33,561,802 bytes and 4,65
 rows survived unchanged; its workload remains failed. Receipts and commands are
 indexed at `target/v51-canonical-headroom/validation-summary.json`.
 
+## Protected acceptance — PR #310
+
+[Master CI 37887342685](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37887342685)
+finished successfully on attempt 2 at source
+`07e0745de7498c9f45ad9fc9209d7afbc550e4c8`. All 46 current job results are
+successful. A failed-job rerun retained repetitions 2/3 from attempt 1 and
+replaced repetition 1 and the automatic-healthy component result with attempt 2.
+This is three accepted executions on one source/build, not three rerun executions.
+
+| Repetition | Producing attempt | Artifact ID | Controller seconds | Preparation seconds | Validation/retention seconds |
+| --- | --- | --- | ---: | ---: | ---: |
+| 1 | 2 | 11601490088 | 2905.588 | 246.837 | 914.271 |
+| 2 | 1 | 11598419298 | 2883.192 | 241.045 | 908.234 |
+| 3 | 1 | 11598568557 | 2878.044 | 240.870 | 899.684 |
+
+Each retained `receipt.json`, `controller/receipt.json` and
+`probe/raw/validation.json` agrees: PASS, fifteen cells, 1080 rich calls,
+`ownedCanonicalQualified=true`, independent replay accepted and modeled cleanup
+PASS. This acceptance audit inspected the original retained receipts; it did not
+execute another local full archive replay. Metadata and extracted receipts are
+retained under `target/v51-native-preset-admission/`.
+
+Attempt 1's automatic-healthy component failed after a successful UPDATE_ALL
+occupied its lane for 1.220 seconds. Complete repetition 1 failed in the published
+V5.0 control: both follower PROOF forces took about 1.406 seconds, exceeding its
+1.2-second request timeout. The published handler maps that timeout to
+`INTEGRITY_FAILURE`, then both forces complete. These original failures remain
+retained. Passing the rerun does not establish a GitHub scheduling cause or a
+latency fix. No request interval or engine timeout was changed for acceptance.
+
+The earlier 600-second finalization and whole-trace-limit failures did not recur.
+Native admission now proceeds through the separate
+[full-preset budget and admission review](PHASE_6_NATIVE_PRESET_REVIEW.md).
+
 ## Validation boundary and next step
 
 Local tests exercise exact placement, all five transfers sharing one attempt,
@@ -194,7 +229,7 @@ fixtures establish validator routing and rejection boundaries only.
 
 This development host lacks mount-namespace privileges. Local shared-filesystem
 or consumer validation cannot replace the independent-mount hosted qualification.
-After all three protected repetitions pass, review native preset request,
-configuration, lease, time/price allocation and fail-closed admission together.
+All three protected repetitions have passed. The next native entry must bind
+preset request, configuration, lease, time/price allocation and fail-closed admission together.
 New paid work still requires the user's exact-request confirmation and manual
 trigger. The USD 200 ledger ceiling and cleanup requirements are unchanged.

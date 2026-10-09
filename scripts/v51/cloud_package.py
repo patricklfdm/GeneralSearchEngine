@@ -34,7 +34,12 @@ def workload_selection(config):
     if 'workload' not in config:
         return 'healthy', 'experiment'
     value = config['workload']
-    need(config['execution'] == 'local-guest-service-only' and 'faultCell' not in config and
+    native=config['execution']=='native-v51-guest-service' and 'nativeRequest' in config
+    if native:
+        from . import native_preset_timing as full
+        selected=full.validate(config['nativeRequest'])
+        need(selected['preset']=='canonical' and value.get('repetition')==selected['repetition'], 'native canonical selection')
+    need((config['execution'] == 'local-guest-service-only' or native) and 'faultCell' not in config and
          type(value) is dict and set(value) in ({'cell', 'preset'}, {'cell', 'preset', 'repetition'}) and value['preset'] == 'canonical' and
          (config['mode'], value['cell']) in CANONICAL_WORKLOADS, 'offline canonical guest workload scope')
     if 'repetition' in value:

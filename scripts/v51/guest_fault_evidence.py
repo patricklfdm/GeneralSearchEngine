@@ -10,6 +10,7 @@ from . import cloud_workload_contract as contract, performance_plan as plan
 from .guest_fault_service import CASES, QUICK_CASES, RULES
 from .guest_network_evidence import CASES as NETWORK_CASES
 from .guest_fault_recovery import CASES as RECOVERY_CASES
+from . import native_preset_timing as full
 
 
 def package_binding(manifest, req):
@@ -156,6 +157,8 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
     group=str(uuid.uuid5(uuid.NAMESPACE_URL,authority.validate_request(req)+':'+case))
     for cfg in source['configs']:
         guest.validate(cfg);node=cfg['binding']['node'];configs[node]=cfg
+        m.need(cfg.get('nativeRequest')==(req if full.selected(req) else None), 'owned fault native selection binding')
+        m.need(cfg['execution']==('native-v51-guest-service' if authority.PAID_CLOUD else 'local-guest-service-only'), 'owned fault guest domain')
         m.need(cfg['binding']==c.binding(req['source'],req['bundleSha256'],req['attempt'],node) and cfg['packageManifestSha256']==m.sha(manifest_raw) and
                cfg['faultCell']==case and cfg['groupId']==group,'owned fault request/package/group binding')
         folder=raw/node;ctl=c.read(folder/'controller.json');m.need(ctl['config']==cfg,'owned fault controller config')
@@ -332,14 +335,14 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
         m.need(len(record['rejoins'])==1 and record['rejoins'][0]['node']==leader and restart['endNanos']<=record['rejoins'][0]['startNanos'],'owned fault missing retained rejoin')
     elif case in RECOVERY_CASES:
         from .guest_recovery_evidence import check
-        check(record,history,traces,root,rows,obs,collections,processes)
+        check(record,history,traces,root,rows,obs,collections,processes,request=request)
     elif case=='maintenance':
         m.need(not kills and len(processes)==3,'owned maintenance unexpected crash')
         maintenance(record,history,traces,rows)
     elif case in NETWORK_CASES:
         from .guest_network_evidence import check
         m.need(not kills and len(processes)==3,'owned network unexpected crash')
-        check(record,history,traces,root,rows,obs,collections,capture)
+        check(record,history,traces,root,rows,obs,collections,capture,request=request)
     else:
         m.need(not kills and len(processes)==3,'owned fault unexpected crash')
         ready=[v for v in record['events'] if v['event']=='isolated-all'];heal=[v for v in record['events'] if v['event']=='heal-request']
@@ -379,15 +382,43 @@ def check_case(record, history, traces, root, location, processes, rows, obs, co
     return dict(history=public_history.check(logical),physical=proof,seedEpoch=capture['epoch'])
 
 
-def validate(raw, scratch, *, cases=QUICK_CASES, scope='owned-experiment-leader-loss-no-quorum'):
+def validate(raw, scratch, *, cases=QUICK_CASES, scope='owned-experiment-leader-loss-no-quorum', authority=a):
     from .guest_owned_drill import CASES as DRILL_CASES, SCOPE as DRILL_SCOPE
     raw=Path(raw);scratch=Path(scratch);scratch.mkdir(parents=True,exist_ok=False)
-    request=c.read(raw/'plan.json');req=request['request'];a.validate_request(req)
+    request=c.read(raw/'plan.json');req=request['request'];authority.validate_request(req)
+    if authority.PAID_CLOUD:
+        full.validate(req)
+        m.need(tuple(cases)==DRILL_CASES and scope==DRILL_SCOPE and req['member']=='failure-drill', 'native failure-drill scope')
     m.need((tuple(cases),scope) in ((QUICK_CASES,'owned-experiment-leader-loss-no-quorum'),(('maintenance',),'owned-maintenance-experiment'),
-           (NETWORK_CASES,'owned-network-faults'),(DRILL_CASES,DRILL_SCOPE)) and request['scope']==scope and req['member']=='experiment','owned fault aggregate scope')
+           (NETWORK_CASES,'owned-network-faults'),(DRILL_CASES,DRILL_SCOPE)) and request['scope']==scope and req['member']==('failure-drill' if authority.PAID_CLOUD else 'experiment'),'owned fault aggregate scope')
     parts.inventory(raw);results=[];last=None;budgets={k:0 for k in ('compressedBytes','expandedBytes','files','traceBytes')}
     for case in cases:
         cell=raw/case
         if last is not None:m.need(last<=c.read(cell/'receipt.json')['startNanos'],'owned fault overlapping cells')
-        results.append(replay_case(cell,scratch/case,req,budgets));last=c.read(cell/'receipt.json')['endNanos']
+        results.append(replay_case(cell,scratch/case,req,budgets,authority=authority));last=c.read(cell/'receipt.json')['endNanos']
     return dict(status='PASS',cells=results,budgets=budgets,paidCloud=False,fullRemoteQualification=False,physicalHistoryQualified=True)
+
+
+def bounded_replay(raw,output,deadline,*,clock=None):
+    import subprocess,sys,time
+    clock=clock or time.monotonic
+    output=Path(output);receipt=output.with_name(output.name+'-result.json');stderr=output.with_name(output.name+'-stderr.log')
+    m.need(not output.exists() and not receipt.exists(),'native drill replay consumed')
+    remaining=deadline-clock();m.need(remaining>0,'native drill replay deadline')
+    command=[sys.executable,'-m','scripts.v51.guest_fault_evidence',str(Path(raw).absolute()),
+             '--output',str(output.absolute()),'--result',str(receipt.absolute())]
+    with stderr.open('xb') as errors:
+        try:result=subprocess.run(command,cwd=Path(__file__).resolve().parents[2],stderr=errors,timeout=remaining)
+        except subprocess.TimeoutExpired as error:raise ValueError('native drill replay deadline') from error
+    m.need(result.returncode==0 and clock()<deadline,'native drill replay failed: '+stderr.read_text()[-2000:])
+    return c.read(receipt)
+
+
+if __name__=='__main__':
+    import argparse
+    from . import cloud_native_authority as native
+    from .guest_owned_drill import CASES as DRILL_CASES,SCOPE as DRILL_SCOPE
+    parser=argparse.ArgumentParser();parser.add_argument('input',type=Path)
+    parser.add_argument('--output',type=Path,required=True);parser.add_argument('--result',type=Path,required=True)
+    args=parser.parse_args()
+    c.write_once(args.result,validate(args.input,args.output,cases=DRILL_CASES,scope=DRILL_SCOPE,authority=native))

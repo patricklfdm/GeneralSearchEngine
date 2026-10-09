@@ -6,14 +6,16 @@ from .guest_fault_network import NODES
 CASES = ('isolated-old-leader', 'asymmetric-requests', 'asymmetric-responses', 'slow-follower')
 
 
-def check(record, history, traces, root, rows, observations, collections, seed_capture):
+def check(record, history, traces, root, rows, observations, collections, seed_capture, *, request=None):
+    from . import native_experiment_timing as timing
+    request=request or {}
     case = record['case']; leader = record['seedLeader']
     def event(name):
         values = [v for v in record['events'] if v['event'] == name]
         m.need(len(values) == 1, 'owned network control event: '+name)
         return values[0]['controllerNanos']
     ready, heal = event('network-ready'), event('network-heal-request')
-    m.need(record['faultStartNanos'] <= ready and 15*10**9 <= heal-ready <= 17*10**9, 'owned network controller hold')
+    m.need(record['faultStartNanos'] <= ready and 15*10**9 <= heal-ready <= timing.control(request,'hold-controller',17)*10**9, 'owned network controller hold')
     selected = None
     if case == 'slow-follower':
         selected = record['selected']; target = record['delayedNode']
@@ -47,7 +49,7 @@ def check(record, history, traces, root, rows, observations, collections, seed_c
         wanted = dict(node=target, delayMillis=1500) if case == 'slow-follower' else dict(node=target, rules=expected_rules)
         m.need(ir['result'] == dict(wanted, appliedNanos=actual['appliedNanos']) and hr['result'] == actual and
                actual == dict(wanted, appliedNanos=actual['appliedNanos'], healedNanos=actual['healedNanos'], watchdog=False) and
-               15*10**9 <= actual['healedNanos']-actual['appliedNanos'] <= 17*10**9,
+               15*10**9 <= actual['healedNanos']-actual['appliedNanos'] <= timing.control(request,'isolation',17)*10**9,
                f"owned network guest hold/watchdog: case={case} node={node} "
                f"holdSeconds={(actual['healedNanos']-actual['appliedNanos'])/1e9:.9f} watchdog={actual.get('watchdog')}")
         begin, end = observations[iq['commandId']], observations[hq['commandId']]

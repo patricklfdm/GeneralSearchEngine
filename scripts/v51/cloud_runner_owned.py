@@ -31,15 +31,16 @@ class _Api(failure._Api):
         source.owner_claimed=True;self._initialize(source)
         self.phase='admission';self.deadline=min(source.deadline,source.owner_deadline)
         self.seen=set();self.retention_sealed=False
+        _,_,self.cells,self.scope=native.selection(source.req)
 
     def stage(self, name, deadline):
-        m.need(name in (*experiment.CELLS,'validation-retention','cleanup','completion') and name not in self.seen and
+        m.need(name in (*self.cells,'validation-retention','cleanup','completion') and name not in self.seen and
                self.clock()<deadline<=self.source.owner_deadline,'owned stage deadline/consumed')
-        limits=dict(timing.allocation()['limitsSeconds']);limits['completion']=limits['control']
-        if name in experiment.CELLS:
-            m.need(self.phase==('admission' if name=='healthy' else experiment.CELLS[experiment.CELLS.index(name)-1]),'owned cell order')
+        limits=dict(timing.allocation(self.source.req)['limitsSeconds']);limits['completion']=limits['control']
+        if name in self.cells:
+            m.need(self.phase==('admission' if name==self.cells[0] else self.cells[self.cells.index(name)-1]),'owned cell order')
         elif name=='completion':m.need(self.phase=='cleanup','owned completion before cleanup')
-        elif name=='validation-retention':m.need(self.phase in ('admission',*experiment.CELLS),'owned validation after close')
+        elif name=='validation-retention':m.need(self.phase in ('admission',*self.cells),'owned validation after close')
         m.need(deadline<=self.clock()+limits[name],'owned frozen stage ceiling')
         self.seen.add(name);self.phase=name;self.deadline=deadline
 
@@ -49,7 +50,7 @@ class _Api(failure._Api):
         m.need(parsed.scheme=='https' and parsed.netloc in ('compute.googleapis.com','storage.googleapis.com') and
                not parsed.fragment and not parsed.username,'owned endpoint')
         if method=='GET' and parsed.netloc=='compute.googleapis.com' and self.phase!='cleanup':
-            m.need(self.phase in (*experiment.CELLS,'validation-retention') and self.provider is not None and
+            m.need(self.phase in (*self.cells,'validation-retention') and self.provider is not None and
                    self.lease is not None and body is None,'owned runtime compute read scope')
             for row in self.lease['resources']:
                 spec=row['spec']
@@ -135,12 +136,13 @@ def _runtime_rechecks(api, store, prepared, lease, generation):
     return checks
 
 
-def _execute(output, prepare):
+def _execute(output, prepare, request=None):
     """Private composition seam; the public entry below fixes native dependencies."""
     # All later controller paths (source exports, restore and retained evidence)
     # derive from this root. Keep guest/session paths separate and unchanged.
     root=Path(output).absolute();root.mkdir(parents=True,exist_ok=False);c.directory(root)
-    budget=Budget(profile=timing.PROFILE);held={};api=None;store=None
+    services_type,probe_type,cells,scope=native.selection(request) if request is not None else (native.Services,native.Probe,experiment.CELLS,experiment.SCOPE)
+    budget=Budget(profile=timing.allocation(request)['profile']);held={};api=None;store=None
     @contextmanager
     def stage(name):
         # No provider data, paths or exception strings in the live heartbeat.
@@ -158,24 +160,25 @@ def _execute(output, prepare):
         else:emit('DONE')
         finally:done.set();worker.join()
     result=dict(schema=n.COMPLETION_SCHEMA,execution=n.EXECUTION,paidCloud=False,engineWorkloadExecuted=False,
-        fullRemoteQualification=False,qualificationScope=experiment.SCOPE,status='FAIL',errors=[],cleanup=None,
+        fullRemoteQualification=False,qualificationScope=scope,status='FAIL',errors=[],cleanup=None,
         retention='INCOMPLETE',leaseReleased=False)
 
     def continuation(source,archive,prepared):
         native.creation(source);held['source']=source
-        services=native.Services(source.provider(),archive,prepared);held['services']=services
+        m.need(request is None or source.req==request,'owned original selected request changed')
+        services=services_type(source.provider(),archive,prepared);held['services']=services
         session_root=root/'sessions';session_root.mkdir()
         services.pool.begin(session_root)
         services.prepare(source.req,[v['facts'] for v in prepared],[v['endpoint'].target for v in prepared],
             [v['startup'] for v in prepared],root/'services',source.deadline,
             recheck=lambda node:prepared[node-1]['recheck'](),readiness=lambda node:prepared[node-1]['disk'].exchange('check')['readiness'])
-        probe=native.Probe(services,root/'workload');held['probe']=probe
+        probe=probe_type(services,root/'workload');held['probe']=probe
         probe.prepare(source.req,int(source.deadline*1e9))
         held['prepared']=prepared
 
     def report(phase,error):
         record=diagnostics.runtime_failure(phase,error)
-        if api is not None and api.phase in experiment.CELLS:record['cell']=api.phase
+        if api is not None and api.phase in cells:record['cell']=api.phase
         result['errors'].append(record)
     try:
         with stage('preparation') as deadline:
@@ -187,7 +190,7 @@ def _execute(output, prepare):
             lease=deepcopy(api.lease);generation=api.lease_generation
             held['services'].pool.promote(api,_runtime_rechecks(api,store,held['prepared'],lease,generation))
             m.need(time.monotonic_ns()<deadline,'owned preparation total deadline')
-        for cell in experiment.CELLS:
+        for cell in cells:
             with stage(cell) as deadline:
                 api.stage(cell,min(deadline/1e9,api.source.owner_deadline))
                 with iap.runtime_connections(api,root/('connections-'+cell+'.json')):
@@ -216,10 +219,10 @@ def _execute(output, prepare):
                     result['evidenceSha256']=api.retain(store,'evidence.json',m.canonical(evidence))
                     manifest=dict(schema='gse-v51-native-owned-evidence-v1',requestSha256=api.sha,files=deepcopy(api.retained))
                     result['inventorySha256']=api.retain(store,'manifest.json',m.canonical(manifest));api.seal()
-                    m.need(evidence['status']=='PASS' and evidence['scope']==experiment.SCOPE and evidence['execution']==n.EXECUTION and
+                    m.need(evidence['status']=='PASS' and evidence['scope']==scope and evidence['execution']==n.EXECUTION and
                            evidence['paidCloud'] is True and evidence['fullRemoteQualification'] is False and
                            evidence['engineWorkloadExecuted'] is True and evidence['physicalHistoryQualified'] is True and
-                           evidence['backupRestoreQualified'] is True and evidence['cells']==list(experiment.CELLS),
+                           (not probe.require_backup or evidence.get('backupRestoreQualified') is True) and evidence['cells']==list(cells),
                            'owned independent qualification failed')
             except (Exception,KeyboardInterrupt) as error:report('validation-retention',error)
             try:
@@ -262,7 +265,7 @@ def run_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,ar
             return setup._stage(api,key,root,guests,artifacts,proof,continuation=continuation)
         return resources._prepare_native(cfg,env,source,checkout,preflight,precheck_root,value,approved,artifacts,key,root,
             guest_stage=stage)
-    try:return _execute(output,prepare)
+    try:return _execute(output,prepare,value.get('resourcePlan',{}).get('request'))
     finally:
         for transport in transports:
             close=getattr(transport,'close',None)

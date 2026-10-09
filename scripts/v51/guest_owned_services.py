@@ -38,7 +38,8 @@ class Services:
         self.provider, self.archive, self.factory = provider, Path(archive).resolve(), endpoint_factory
         from .guest_fault_network import CASES as network_cases
         from .guest_fault_recovery import CASES as recovery_cases
-        allowed=('leader-loss','maintenance','no-quorum')+(network_cases+recovery_cases if self.offline else ())
+        from . import native_preset_timing as full
+        allowed=('leader-loss','maintenance','no-quorum')+(network_cases+recovery_cases if self.offline or full.selected(provider.req) else ())
         m.need(fault_cell is None or fault_cell in allowed and mode==package.MODES[2] and bootstrap is None, 'owned fault service scope')
         self.fault_cell=fault_cell
         self.mode, self.clock, self.sleep = mode, clock, sleep
@@ -76,6 +77,8 @@ class Services:
             configs, descriptors, endpoints = [], [], []
             canonical_cell=getattr(self,'canonical_cell',None)
             selection=dict(mode=self.mode,execution=self.service_execution)
+            from . import native_preset_timing as full
+            if not self.offline and full.selected(req):selection['nativeRequest']=deepcopy(req)
             if canonical_cell:selection['workload']=dict(cell=canonical_cell,preset='canonical')
             if getattr(self,'canonical_repetition',None):selection['workload']['repetition']=self.canonical_repetition
             label=self.fault_cell or package.bootstrap_directory_name(selection)
@@ -89,6 +92,7 @@ class Services:
                 cfg = dict(schema='gse-v51-guest-service-v1', execution=self.service_execution, binding=binding,
                     packageManifestSha256=desc['manifestSha256'], root=self.mounts[node]+'/'+label, mode=self.mode,
                     hosts=self.hosts or [v['privateIp'] for v in facts], ports=[self.provider.config['port']]*3, groupId=group)
+                if 'nativeRequest' in selection:cfg['nativeRequest']=deepcopy(req)
                 if self.fault_cell:cfg['faultCell']=self.fault_cell
                 if canonical_cell:cfg['workload']=deepcopy(selection['workload'])
                 guest.validate(cfg)

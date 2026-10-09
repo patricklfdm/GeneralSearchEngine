@@ -25,6 +25,9 @@ SCHEMA='gse-v51-runner-experiment-entry-v1'
 STEP='Run exact approved native V5.1 experiment'
 SECRET='V51_EXPERIMENT_SSH_KEY'
 FAILURES={
+    'native preset member':'PRESET_MEMBER_INVALID',
+    'native preset order':'PRESET_ORDER_INVALID',
+    'Runner prepared member/order changed':'PRESET_SELECTION_CHANGED',
     'experiment SSH secret missing/oversized':'SSH_SECRET_MISSING_OR_INVALID',
     'experiment SSH secret is not an unencrypted Ed25519 private key':'SSH_SECRET_INVALID',
     'experiment prepared SSH key changed':'SSH_KEY_CHANGED',
@@ -56,7 +59,17 @@ def failure(phase,error):
     return result
 
 
+def member_selection(env):
+    from . import native_preset_timing as full
+    if 'RUNNER_MEMBER' not in env and 'RUNNER_ORDER' not in env:
+        return dict(member=None,order='experiment-first')  # Legacy offline callers only.
+    member,order=env.get('RUNNER_MEMBER'),env.get('RUNNER_ORDER')
+    full.selection(member);m.need(order in a.ORDERS,'native preset order')
+    return dict(member=member,order=order)
+
+
 def selection(env):
+    member_selection(env)
     mode=env.get('RUNNER_EXPERIMENT','off')
     quote=env.get('RUNNER_EXPERIMENT_QUOTE','');run=env.get('RUNNER_PREPARED_RUN','')
     confirmation=env.get('RUNNER_EXPERIMENT_CONFIRMATION','')
@@ -136,7 +149,7 @@ def prepare_network(cfg,env,source,checkout,preflight,precheck_root,output,secre
             provider=c.read(Path(preflight)/'provider.json')['observations']
             m.need(provider['lease'] is None,'preparation observer lease active')
             value=admission.plan(cfg,proof,guest,quote['prices'],provider['ledger'],sequence=quote['sequence'],
-                                 now=int(time.time()),maximum_cost=quote['maximumCostMicrousd'])
+                                 now=int(time.time()),maximum_cost=quote['maximumCostMicrousd'],**member_selection(env))
         phase='freshness'
         binding,after,current_ci=current(cfg,env,source,checkout,preflight,precheck_root)
         m.need(after==before and current_ci==github,'preparation CI/precheck changed')
@@ -160,6 +173,10 @@ def run_network(cfg,env,source,checkout,preflight,precheck_root,output,secret):
         phase='prepared-handoff'
         public,value,approved=prepared.collect(root/'handoff',source,int(env['RUNNER_PREPARED_RUN']),
             env['RUNNER_EXPERIMENT_CONFIRMATION'],now=int(time.time()))
+        chosen=member_selection(env);req=value['resourcePlan']['request']
+        from . import native_preset_timing as full
+        if chosen['member'] is not None:
+            m.need(full.selected(req) and (req['member'],req['order'])==(chosen['member'],chosen['order']), 'Runner prepared member/order changed')
         result['planSha256']=approved['planSha256'];result['preparedRun']=int(env['RUNNER_PREPARED_RUN'])
         c.write_once(root/'approval.json',approved)
         phase='key'
@@ -186,7 +203,8 @@ def summary(root):
     execution=root/'execution/receipt.json';run=receipt.get('result',c.read(execution) if execution.is_file() else {})
     plan_path=root/('prepared/plan.json' if receipt.get('mode')=='prepare' else 'handoff/prepared/plan.json')
     plan=c.read(plan_path) if plan_path.is_file() else {};stage=plan.get('resourcePlan',{});req=stage.get('request',{})
-    allocation=admission.timing.allocation()
+    allocation=admission.timing.allocation(req or None)
+    cells=allocation.get('cells',list(owned.experiment.CELLS))
     reviewed=plan.get('timing')==allocation
     provider=plan.get('configuration',{}).get('provider',{});reserve=stage.get('reservation',{})
     recovery=run.get('preparation',{}).get('ownerRecovery',{})
@@ -198,10 +216,12 @@ def summary(root):
         ('Mode',receipt.get('mode','unavailable')),('Source',receipt.get('source',req.get('source','unavailable'))),
         ('Prepared run',receipt.get('preparedRun',receipt.get('binding',{}).get('runId','unavailable'))),
         ('Plan SHA-256',receipt.get('planSha256',receipt.get('preparation',{}).get('planSha256','unavailable'))),
+        ('Member',req.get('member','unavailable')),('Order',req.get('order','unavailable')),
+        ('Repetition',allocation.get('repetition') or 'not applicable'),('Configured control node',allocation.get('controlNode','node-1')),
         ('Sequence',req.get('sequence','unavailable')),('Attempt',req.get('attempt','unavailable')),
         ('Region / zone',str(provider.get('region','?'))+' / '+str(provider.get('zone','?'))),
         ('Topology','3 voters; n2-standard-8; 450 GiB disks'),('Healthy modes','V4.4 local / V5.0 configured / V5.1 automatic'),
-        ('Healthy calls',270),('Independent physical/history validation',run.get('evidence',{}).get('physicalHistoryQualified',False)),
+        ('Measured calls',1080 if req.get('member','').startswith('canonical-') else 0 if req.get('member')=='failure-drill' else 270),('Independent physical/history validation',run.get('evidence',{}).get('physicalHistoryQualified',False)),
         ('Independent backup/restore validation',run.get('evidence',{}).get('backupRestoreQualified',False)),
         ('Approval expires (UTC epoch)',plan.get('expiresAt','unavailable')),
         ('Timing profile',plan.get('timing',{}).get('profile','unavailable')),
@@ -217,7 +237,7 @@ def summary(root):
         ('Evidence retention',recovery.get('retention',run.get('retention','not established'))),('Cleanup',cleanup.get('status','not established')),
         ('Lease released',recovery.get('leaseReleased',run.get('leaseReleased',False))),('Full Phase 6 qualification',False),
         ('Failure phase',failure.get('phase','none')),('Failure code',failure.get('code','unavailable')),
-        ('Failure cell',failure['cell'] if failure.get('cell') in owned.experiment.CELLS else 'not recorded'),
+        ('Failure cell',failure['cell'] if failure.get('cell') in cells else 'not recorded'),
         ('Admission stage',failure['admissionStage'] if failure.get('admissionStage') in diagnostics.STAGES else 'not recorded'),
         ('Failure detail',diagnostics.detail(failure.get('code')) if failure else 'none'),
         ('Failure HTTP status',failure.get('httpStatus','not recorded')),
@@ -225,7 +245,7 @@ def summary(root):
         ('Preparation elapsed (s)',preparation.get('elapsedSeconds','unavailable')),
         ('Owner failure recovery elapsed (s)',recovery.get('elapsedSeconds','not entered'))]
     def safe(v):return html.escape(str(v)).replace('|','&#124;').replace('\n',' ').replace('\r',' ')
-    text='# V5.1 native experiment\n\n| Parameter | Value |\n| --- | --- |\n'
+    text='# V5.1 native preset\n\n| Parameter | Value |\n| --- | --- |\n'
     text+=''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)
     if preparation.get('timings'):
         text+='\n## Preparation phases\n\n| Phase | Seconds |\n| --- | --- |\n'
@@ -239,11 +259,11 @@ def summary(root):
         text+='| Node | Status | Begins | Exchanges | Transient failures | Uncertain replies | Seconds | Result |\n'
         text+='| --- | --- | --- | --- | --- | --- | --- | --- |\n'
         for row in sessions:
-            cells=(row['node'],row['status'],row['begins'],len(row['events']),row['transientFailures'],row['uncertain'],
+            session_cells=(row['node'],row['status'],row['begins'],len(row['events']),row['transientFailures'],row['uncertain'],
                    round((row['endNanos']-row['startNanos'])/1e9,3),diagnostics.detail(row['code']) if row['code'] else 'SUCCEEDED')
-            text+='| '+' | '.join(safe(v) for v in cells)+' |\n'
+            text+='| '+' | '.join(safe(v) for v in session_cells)+' |\n'
     text+='\n## Cells\n\n| Cell | Result |\n| --- | --- |\n'
-    for cell in owned.experiment.CELLS:
+    for cell in cells:
         passed=cell in run.get('evidence',{}).get('cells',[])
         text+='| '+cell+' | '+('EXECUTED (see independent validation)' if passed else 'NOT_ESTABLISHED')+' |\n'
     budget=run.get('budget',{});spent=budget.get('spentNanos',{})

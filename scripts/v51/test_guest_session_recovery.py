@@ -1,9 +1,26 @@
 import json
+from pathlib import Path
 import sys
+import tempfile
 import time
 import unittest
 from unittest.mock import patch
 from . import guest_session_recovery as r, guest_transport as t, cloud_runner_iap as iap
+
+
+class PreparationFixtureTest(unittest.TestCase):
+    def test_ssh_fixture_can_create_and_query_the_original_session(self):
+        from . import guest_preparation_connections_qualification as q
+        value,claim=q.session_fixture()
+        expected=dict(state='SUCCEEDED',sessionSha256=q.m.sha(q.m.canonical(claim)))
+        with tempfile.TemporaryDirectory() as folder:
+            base=Path(folder)/'package'
+            self.assertEqual({'state':'NOT_FOUND'},q.session.observe(base,claim,value))
+            self.assertEqual(expected,q.session.begin(base,claim,value))
+            self.assertEqual(expected,q.session.observe(base,claim,value))
+            before=(base.parent/'native-session/request.json').read_bytes()
+            self.assertEqual(expected,q.session.begin(base,claim,value))
+            self.assertEqual(before,(base.parent/'native-session/request.json').read_bytes())
 
 
 class RecoveryTest(unittest.TestCase):

@@ -8,19 +8,21 @@ the first four missing guest scenarios in an offline scope. The
 five and a source-bound twelve-cell offline aggregate accepted by PR #308 / master
 CI `37837221623`. The [canonical tape batch](PHASE_6_OWNED_CANONICAL_TAPES.md) adds
 all five full rich tapes, accepted through PR #309 / CI `37863567136`. The
-[complete canonical aggregate candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md) adds
-control rotation, shared seed and fifteen-cell replay, with protected acceptance pending. This document
-identifies the remaining batches; it does not enable paid presets or amend
-frozen workload parameters.
+[complete canonical aggregate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md) adds
+control rotation, shared seed and fifteen-cell replay, accepted through PR #310 /
+CI `37887342685` attempt 2. The [native admission and execution integration](PHASE_6_NATIVE_PRESET_REVIEW.md)
+now connects the reviewed allocation, exact request/session, owned algorithms, independent replay
+and workflow selection. Corrected-source protected CI and actual paid qualification
+remain pending. This document retains the implementation plan and acceptance boundary.
 
-## Verified gap
+## Original gap and current candidate
 
-`guest_owned_experiment` and `guest_native_owned` run four cells, and
-the native guest configuration accepts only leader-loss, maintenance and
-no-quorum. All twelve fault cases are available to local qualification only.
-`cloud_runner_admission` / `cloud_experiment_resources` construct only experiment
-requests; native timing profile `owned-experiment-v2` also rejects other members.
-Adding a workflow choice alone cannot execute or qualify a new preset.
+The accepted native experiment initially ran four cells. This candidate adds
+v3 requests for all five members, complete native failure-drill/canonical service
+composition, source-bound guest sessions, independent replay and matching Action
+choices. Legacy experiment records retain their original meaning. The extensions
+are implemented but require protected CI and paid acceptance; an offline result
+cannot establish native performance.
 
 The existing `remote_faults` local controller has all twelve fault scenarios and
 independent physical/history replay. Its direct JVM/filesystem controls are
@@ -32,9 +34,9 @@ The existing rich-workload shards similarly qualify local execution/replay only.
 | healthy, three published/candidate modes | 90 calls per mode | canonical 260 calls per mode; preserve ABBA windows and original scheduling |
 | rich automatic concurrency | absent | read-heavy 120 calls and sustained 180 calls; guest-clock bursts and timing evidence |
 | existing fault cells | leader-loss, maintenance, no-quorum | reuse exact scenario/history semantics in larger presets |
-| partition and lag | offline guest implementation candidate; native entry closed | qualify isolated-old-leader, asymmetric-requests, asymmetric-responses, slow-follower through the independent CI lane |
-| crash and transfer | offline guest implementation candidate | interrupted-transfer, entry-chosen, proof-quorum, group-restart |
-| resource bound | offline guest implementation candidate | minority-capacity with the sealed bounded voter and real refusal |
+| partition and lag | offline guest accepted; native integration candidate | qualify isolated-old-leader, asymmetric-requests, asymmetric-responses, slow-follower through the independent CI lane |
+| crash and transfer | offline guest accepted; native integration candidate | interrupted-transfer, entry-chosen, proof-quorum, group-restart |
+| resource bound | offline guest accepted; native integration candidate | minority-capacity with the sealed bounded voter and real refusal |
 | healthy control placement | experiment placement | rotate the control host through nodes 1/2/3 by repetition; automatic leader remains observed, never forced |
 | independent aggregate | four cells | all twelve failure-drill cells; all fifteen canonical cells; complete source-bound five-member set |
 
@@ -63,9 +65,11 @@ Neither an observer retry nor a replacement topology may become a workload retry
    Qualify all fifteen cells, collection budgets and portable aggregate replay;
    reuse one immutable seed while retaining distinct group identities. The five
    individual tapes are accepted. Host rotation and shared-seed aggregation are
-   implemented in the complete aggregate candidate; all three protected
-   repetitions and native complete-preset acceptance remain open.
-4. **Review the native preset admission and time allocation.** Carry a closed
+   accepted through all three protected repetitions. Native complete-preset
+   acceptance remains open.
+4. **Review the native preset admission and time allocation.** The
+   [review implementation](PHASE_6_NATIVE_PRESET_REVIEW.md) supplies proposed clocks
+   and rejects stale/mixed/over-budget remaining sequences without admitting a run. Carry a closed
    preset selection through request, package/configuration, lease, price,
    workflow, summary and independent validators. Add same-path fake failures
    for mixed presets/repetitions, duplicate commands, missing cells, expired

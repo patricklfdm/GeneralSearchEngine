@@ -8,12 +8,14 @@ from . import cloud_authority as a, cloud_package as package, cloud_workload_con
 from . import performance_model as m, remote_command as c, remote_collection as parts
 from . import guest_owned_canonical as run, guest_evidence, guest_physical_evidence, guest_fault_evidence
 from . import guest_three_mode_evidence, performance_semantics, performance_plan, storage_inspector
+from . import native_experiment_timing as timing, native_preset_timing as full
 
 
-def admission(root):
-    plan=c.read(root/'plan.json');req=plan['request'];sha=a.validate_request(req);member=run.validate_repetition(plan['repetition'])
+def admission(root, *, authority=a):
+    plan=c.read(root/'plan.json');req=plan['request'];sha=authority.validate_request(req);member=run.validate_repetition(plan['repetition'])
+    if authority.PAID_CLOUD:full.validate(req)
     service=plan['services']
-    m.need(plan['scope']==run.SCOPE and req['member']=='experiment' and service['scope']==run.SCOPE and
+    m.need(plan['scope']==run.SCOPE and req['member']==('canonical-'+str(member) if authority.PAID_CLOUD else 'experiment') and service['scope']==run.SCOPE and
            service['status']=='PASS' and service['requestSha256']==sha and service['repetition']==member and
            [(v['mode'],v['cell']) for v in service['tapes']]==list(run.TAPES) and
            [v['case'] for v in service['faults']]==list(run.drill.CASES),'owned canonical complete service set')
@@ -23,7 +25,7 @@ def admission(root):
     previous=0;groups=set();directories=set();manifest=None;topology=None
     for cell in run.CELLS:
         row=c.read(root/(cell+'-timeline.json'));start,end=row['startNanos'],row['endNanos']
-        ceiling=next(v['seconds'] for v in contract.load()['cells'] if v['name']==cell)
+        ceiling=timing.cell(req,cell)
         m.need(row['cell']==cell and row['status']=='PASS' and type(start) is int and type(end) is int and
                previous<=start<end and end-start<=ceiling*10**9,'owned canonical cell order/budget');previous=end
         wanted=[(mode,kind) for mode,kind in run.TAPES if kind==cell]
@@ -32,7 +34,7 @@ def admission(root):
         for span,(mode,kind) in zip(row['tapes'],wanted):
             m.need(span['status']=='PASS' and type(span['startNanos']) is int and type(span['endNanos']) is int and
                    last<=span['startNanos']<span['endNanos']<=end and
-                   span['endNanos']-span['startNanos']<=(300 if cell=='healthy' else ceiling)*10**9,
+                   span['endNanos']-span['startNanos']<=(timing.control(req,'mode',300) if cell=='healthy' else ceiling)*10**9,
                    'owned canonical mode order/budget');last=span['endNanos']
         for name in ([run.key(mode,kind) for mode,kind in wanted] or [cell]):
             local=c.read(root/name/'plan.json');configs=local['configs']
@@ -46,6 +48,8 @@ def admission(root):
                 m.need(local['case']==cell and local['scope']==expected_scope,'owned canonical local fault scope')
             for cfg in configs:
                 guest_evidence.guest.validate(cfg)
+                m.need(cfg.get('nativeRequest')==(req if full.selected(req) else None), 'owned canonical native selection binding')
+                m.need(cfg['execution']==('native-v51-guest-service' if authority.PAID_CLOUD else 'local-guest-service-only'), 'owned canonical guest domain')
                 current=(cfg['hosts'],cfg['ports'],str(Path(cfg['root']).parent))
                 if topology is None:topology=current
                 m.need(current==topology,'owned canonical changed physical topology')
@@ -92,11 +96,11 @@ def command_intervals(folder,cfg,controller,span):
            owned=={p.name for p in (folder/'commands'/node[-1]).iterdir()},'owned canonical lifecycle coverage')
 
 
-def tape(root,output,plan,mode,cell,files,budgets,decoded):
+def tape(root,output,plan,mode,cell,files,budgets,decoded,*,authority=a):
     folder=root/run.key(mode,cell);local=c.read(folder/'plan.json');configs=local['configs']
     manifest=(folder/'package-manifest.json').read_bytes()
     service=next(v['receipt'] for v in plan['services']['tapes'] if (v['mode'],v['cell'])==(mode,cell));boot=service['bootstrap']
-    m.need(service['status']=='PASS' and service['requestSha256']==a.validate_request(plan['request']) and
+    m.need(service['status']=='PASS' and service['requestSha256']==authority.validate_request(plan['request']) and
            boot['status']=='PASS' and boot['publicBootstrapVerified'] is True and
            boot['identity']['sourceSha256']==plan['services']['sourceSha256'],'owned canonical receiver seed binding')
     span=next(v for v in c.read(root/(cell+'-timeline.json'))['tapes'] if v['mode']==mode)
@@ -136,9 +140,9 @@ def tape(root,output,plan,mode,cell,files,budgets,decoded):
     return dict(mode=mode,cell=cell,calls=expected,issuer=issuers[0],members=logical,physical=physical)
 
 
-def validate(root,output,*,progress=lambda row:None):
+def validate(root,output,*,progress=lambda row:None,authority=a):
     root=c.directory(root);output=Path(output);output.mkdir(parents=True,mode=0o700,exist_ok=False)
-    parts.inventory(root);plan=admission(root);req=plan['request']
+    parts.inventory(root);plan=admission(root,authority=authority);req=plan['request']
     seed=performance_semantics.source_backup(root/'source',m.initial(performance_plan.load()))
     files={n:dict(bytes=v['size'],sha256=v['sha256']) for n,v in storage_inspector.inventory(root/'source').items()}
     source=m.sha(m.canonical({'source/'+n:v for n,v in files.items()}))
@@ -146,29 +150,29 @@ def validate(root,output,*,progress=lambda row:None):
     budgets=dict(files=0,expandedBytes=0,compressedBytes=0,traceBytes=0);decoded=[parts.LIMITS['traceBytes']];reports=[]
     for mode,cell in run.TAPES:
         progress(dict(phase='canonical-replay',cell=cell,mode=mode,status='START'))
-        reports.append(tape(root,output,plan,mode,cell,files,budgets,decoded))
+        reports.append(tape(root,output,plan,mode,cell,files,budgets,decoded,authority=authority))
         progress(dict(phase='canonical-replay',cell=cell,mode=mode,status='PASS'))
     faults=[]
     for cell in run.drill.CASES:
         progress(dict(phase='canonical-replay',cell=cell,status='START'))
         receipt=next(v['receipt'] for v in plan['services']['faults'] if v['case']==cell)
-        m.need(receipt['status']=='PASS' and receipt['requestSha256']==a.validate_request(req),'owned canonical fault admission')
+        m.need(receipt['status']=='PASS' and receipt['requestSha256']==authority.validate_request(req),'owned canonical fault admission')
         span=c.read(root/(cell+'-timeline.json'));original=c.read(root/cell/'receipt.json')
         m.need(span['startNanos']<=original['startNanos']<=original['endNanos']<=span['endNanos'],
                'owned canonical fault outside cell')
         before=budgets['traceBytes']
-        faults.append(guest_fault_evidence.replay_case(root/cell,output/cell,req,budgets))
+        faults.append(guest_fault_evidence.replay_case(root/cell,output/cell,req,budgets,authority=authority))
         decoded[0]-=budgets['traceBytes']-before
         m.need(decoded[0]>=0,'owned canonical combined decoded trace budget')
         progress(dict(phase='canonical-replay',cell=cell,status='PASS'))
     m.need(sum(v['calls'] for v in reports)==1080 and all(budgets[k]<=parts.LIMITS[k] for k in budgets),
            'owned canonical combined calls/evidence budget')
     return dict(status='PASS',scope=run.SCOPE,repetition=plan['repetition'],cells=list(run.CELLS),tapes=reports,faults=faults,
-        calls=1080,sourceBackup=seed,sourceSha256=source,requestSha256=a.validate_request(req),budgets=budgets,
+        calls=1080,sourceBackup=seed,sourceSha256=source,requestSha256=authority.validate_request(req),budgets=budgets,
         decodedTraceBytes=parts.LIMITS['traceBytes']-decoded[0],paidCloud=False,fullRemoteQualification=False,ownedCanonicalQualified=True)
 
 
-def bounded_replay(root,output,deadline,*,clock=time.monotonic):
+def bounded_replay(root,output,deadline,*,clock=time.monotonic,authority=a):
     """Kill/reap a read-only replay at the original deadline; never rerun it."""
     output=Path(output);receipt=output.with_name(output.name+'-result.json')
     stderr=output.with_name(output.name+'-stderr.log')
@@ -176,6 +180,7 @@ def bounded_replay(root,output,deadline,*,clock=time.monotonic):
     remaining=deadline-clock();m.need(remaining>0,'owned canonical replay deadline')
     command=[sys.executable,'-m','scripts.v51.guest_canonical_evidence',str(Path(root).absolute()),
              '--output',str(output.absolute()),'--result',str(receipt.absolute())]
+    if authority.PAID_CLOUD:command.append('--native')
     with stderr.open('xb') as errors:
         try:result=subprocess.run(command,cwd=Path(__file__).resolve().parents[2],stderr=errors,timeout=remaining)
         except subprocess.TimeoutExpired as error:raise ValueError('owned canonical replay deadline') from error
@@ -187,8 +192,9 @@ def bounded_replay(root,output,deadline,*,clock=time.monotonic):
 if __name__=='__main__':
     import argparse
     parser=argparse.ArgumentParser();parser.add_argument('input',type=Path);parser.add_argument('--output',type=Path,required=True)
-    parser.add_argument('--result',type=Path)
+    parser.add_argument('--result',type=Path);parser.add_argument('--native',action='store_true')
     args=parser.parse_args()
-    result=validate(args.input,args.output,progress=(lambda row:print(m.canonical(row).decode(),flush=True)) if args.result else (lambda row:None))
+    from . import cloud_native_authority as native
+    result=validate(args.input,args.output,authority=native if args.native else a,progress=(lambda row:print(m.canonical(row).decode(),flush=True)) if args.result else (lambda row:None))
     if args.result:c.write_once(args.result,result)
     else:print(m.canonical(result).decode())

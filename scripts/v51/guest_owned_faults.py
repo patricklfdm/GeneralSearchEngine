@@ -22,11 +22,10 @@ class Services(shared.Services):
     def prepare(self, req, facts, targets, startup, output, deadline, *, recheck, readiness):
         m.need(self.root is None,'owned fault services consumed')
         self.root=Path(output);self.root.mkdir(mode=0o700)
-        result=dict(status='FAIL',requestSha256=a.validate_request(req),cells=[])
+        result=dict(status='FAIL',requestSha256=self.authority.validate_request(req),cells=[])
         try:
             for case in self.cases:
-                group=owned.Services(self.provider,self.archive,self.pool.endpoint,fault_cell=case,deliver=self.pool.deliver,
-                    clock=self.clock,sleep=self.sleep,**self.options)
+                group=self.group(fault_cell=case)
                 self.groups[case]=group
                 answer=group.prepare(req,facts,targets,startup,self.root/case,deadline,recheck=recheck,readiness=readiness)
                 result['cells'].append(dict(case=case,receipt=answer))
@@ -229,17 +228,21 @@ class Cell:
 
 
 class Probe:
+    authority=a
     cell_type=Cell
     execution=a.EXECUTION;scope=SCOPE;mode=MODE;cases=CASES;require_physical=True;require_backup=False
     def __init__(self, services, output, *, clock=time.monotonic, sleep=time.sleep):
         m.need(services.offline and services.mode==self.mode,'owned fault services scope')
+        self._initialize(services,output,clock=clock,sleep=sleep)
+
+    def _initialize(self,services,output,*,clock=time.monotonic,sleep=time.sleep):
         self.services=services;self.root=Path(output);self.root.mkdir(mode=0o700,parents=True);self.raw=self.root/'raw';self.raw.mkdir()
         self.clock=clock;self.sleep=sleep;self.cells=[];self.programs={};self.stopped=False
-        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=a.validate_request(services.provider.req))))
+        self.binding=m.sha(m.canonical(dict(scope=self.scope,requestSha256=self.authority.validate_request(services.provider.req))))
     @property
     def engineWorkloadExecuted(self):return any(v.attempted for v in self.programs.values())
     def prepare(self, req, deadline):
-        m.need(not self.programs and req==self.services.provider.req and req['member']=='experiment' and list(self.services.groups)==list(self.cases),'owned fault preparation scope/order')
+        m.need(not self.programs and req==self.services.provider.req and req['member']==('failure-drill' if self.authority.PAID_CLOUD else 'experiment') and list(self.services.groups)==list(self.cases),'owned fault preparation scope/order')
         c.write_once(self.raw/'plan.json',dict(scope=self.scope,request=req))
         for case,group in self.services.groups.items():
             program=self.cell_type(group,self.raw/case,case,clock=self.clock,sleep=self.sleep);self.programs[case]=program;program.prepare(req,deadline/1e9)
@@ -250,11 +253,16 @@ class Probe:
     def collect_validate(self, output, deadline):
         m.need(self.stopped,'owned fault collection before stop');errors=[]
         for name,program in self.programs.items():errors.extend(dict(case=name,**v) for v in program.collect(deadline/1e9))
-        result=dict(status='FAIL',scope=self.scope,mode=self.mode,execution=a.EXECUTION,paidCloud=False,fullRemoteQualification=False,
+        result=dict(status='FAIL',scope=self.scope,mode=self.mode,execution=self.execution,paidCloud=self.authority.PAID_CLOUD,fullRemoteQualification=False,
             engineWorkloadExecuted=self.engineWorkloadExecuted,physicalHistoryQualified=False,cells=self.cells,errors=errors)
         try:
             from .guest_fault_evidence import validate
-            result['aggregate']=validate(self.raw,self.root/'replay',cases=self.cases,scope=self.scope)
+            if self.authority.PAID_CLOUD:
+                from .guest_fault_evidence import bounded_replay
+                from .native_preset_timing import validate as timing
+                self.services.stop(deadline/1e9)
+                result['aggregate']=bounded_replay(self.raw,self.root/'replay',deadline/1e9-timing(self.services.provider.req)['retentionReserveSeconds'],clock=self.clock)
+            else:result['aggregate']=validate(self.raw,self.root/'replay',cases=self.cases,scope=self.scope)
             m.need(not errors and self.cells==list(self.cases) and self.clock()<deadline/1e9,'owned fault incomplete/deadline')
             result.update(status='PASS',physicalHistoryQualified=True)
         except BaseException as error:errors.append(dict(phase='validation',message=str(error)[:2000]))
