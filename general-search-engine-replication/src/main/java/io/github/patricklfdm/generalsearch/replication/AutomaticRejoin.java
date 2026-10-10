@@ -16,6 +16,7 @@ final class AutomaticRejoin implements AutoCloseable {
     private record Lease(String requestId,String id,Record ballot,String peer,long deadline,byte[] bytes,boolean delivered) { }
     private record Transfer(String id,Record ballot,String peer,long deadline,long length,String digest) { }
     private record Cut(Record ballot,Record snapshot) { }
+    private record InstalledCut(String ballot,String snapshot) { }
     private static final class Seed {
         final String requestId,id,peer,digest;final Record ballot;final long deadline,index;final byte[] bytes;
         int received;boolean complete;
@@ -49,6 +50,9 @@ final class AutomaticRejoin implements AutoCloseable {
     private long next;
     private volatile Throwable lastFailure;
     private volatile Throwable lastRejected;
+    // Maintenance-worker memory only, at most one confirmed cut per remote voter.
+    // Never substitutes for a fresh status probe, proof, vote or recovery source.
+    private final Map<String,InstalledCut> completedInstalls=new HashMap<>();
     AutomaticRejoin(AutomaticStore store,AutomaticProtocol protocol,Control control,Sender sender,LongSupplier clock,LongSupplier ids,AutomaticRuntime.Events events) {
         this.store=store;this.protocol=protocol;this.control=control;this.sender=sender;this.clock=clock;this.ids=ids;this.events=events;
         manifest=store.manifest();local=text(store.status(),"node");bounds=store.bounds();lifetime=store.leadershipPolicy().operationTimeoutMillis();interval=store.leadershipPolicy().heartbeatIntervalMillis();
@@ -132,6 +136,12 @@ final class AutomaticRejoin implements AutoCloseable {
         var promised=new LinkedHashMap<>(object(status.get("promised")));promised.put("manifestDigest",manifest.digest());var ballot=decode(encode("PROMISE",promised),"PROMISE");
         if(number(ballot.value(),"epoch")>number(cut.ballot().value(),"epoch")) {control.call(()->{protocol.observePromise(ballot);return null;});return;}
         if(number(status,"provenIndex")>AutomaticRecovery.index(cut.snapshot()))return;
+        var identity=new InstalledCut(cut.ballot().digest(),cut.snapshot().digest());
+        if(Arrays.equals(ballot.bytes(),cut.ballot().bytes())&&number(status,"provenIndex")==AutomaticRecovery.index(cut.snapshot())
+                &&identity.equals(completedInstalls.get(peer)))return;
+        // Equal proven indexes alone do not establish snapshot installation.
+        // A changed cut/ballot or lagging peer must complete the full exchange.
+        completedInstalls.remove(peer);
         if(!Arrays.equals(ballot.bytes(),cut.ballot().bytes())) {
             var prepared=request(cut.ballot(),peer,"PREPARE",Map.of("nonce",nonce));
             need(prepared.get("type").equals("PROMISE")&&object(prepared.get("payload")).get("nonce").equals(nonce),"rejoin prepare");
@@ -147,6 +157,7 @@ final class AutomaticRejoin implements AutoCloseable {
         }
         var install=Map.<String,Object>of("transferId",id,"imageDigest",digest(bytes),"response",false);
         echo(request(cut.ballot(),peer,"REJOIN_INSTALL",install),"REJOIN_INSTALL",install);
+        completedInstalls.put(peer,identity);
     }
     private void echo(Map<String,Object> response,String type,Map<String,Object> request) {
         var expected=new LinkedHashMap<>(request);expected.put("response",true);need(response.get("type").equals(type)&&expected.equals(response.get("payload")),"recovery exact response");

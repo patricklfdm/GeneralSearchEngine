@@ -25,9 +25,29 @@ class Jvm(Pipes):
             self.proc.kill();self.proc.wait(timeout=5);self.streams_close();raise
         self.reader=threading.Thread(target=self.read,name='fault-'+self.prefix,daemon=True);self.reader.start()
 
+    def line(self, deadline):
+        try:return super().line(deadline)
+        except ValueError as error:
+            if error.args==('guest JVM EOF',):
+                # Diagnostic only. Inspect a bounded tail for the exact observer
+                # exception; never copy JVM/provider text into the Runner summary.
+                try:
+                    with (self.root/(self.prefix+'-stderr.log')).open('rb') as stream:
+                        offset=max(0,stream.seek(0,2)-8192)
+                        # Include the preceding byte so a clipped line cannot
+                        # turn arbitrary text into an exact diagnostic match.
+                        stream.seek(offset-1 if offset else 0)
+                        lines=stream.read(8193 if offset else 8192).splitlines()
+                        if offset:lines=lines[1:]
+                    if b'Caused by: java.io.IOException: remote fault trace per-node bound' in lines:
+                        raise ValueError('remote fault trace per-node bound') from None
+                except OSError:pass
+            raise
+
     def submit(self, kind, **values):
         with self.lock:
-            m.need(self.failed is None and not self.closed and len(self.rows)<2000,'fault JVM unavailable/command bound')
+            if self.failed is not None:raise self.failed
+            m.need(not self.closed and len(self.rows)<2000,'fault JVM unavailable/command bound')
             request=dict(kind=kind,opId=f'{self.prefix}-{len(self.rows)+1}',**values)
             row=dict(request=request,startNanos=time.monotonic_ns(),outcome='PENDING');self.rows.append(row)
             future=Future();self.pending[request['opId']]=future
