@@ -381,7 +381,10 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [Complete owned canonical candidate](PHASE_6_OWNED_CANONICAL_AGGREGATE.md): repetition-bound controls, shared rich seed, seventeen fresh groups, fifteen-cell replay and three parallel required repetitions.
 - [x] Complete owned canonical protected acceptance: PR #310, master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`, CI `37887342685` attempt 2; repetitions 2/3 retained from attempt 1, repetition 1 accepted on attempt 2. Native admission and final paid-set qualification remain separate.
 - [x] Local [native full-preset review](PHASE_6_NATIVE_PRESET_REVIEW.md): closed reviewed budgets, whole-remaining-sequence quote coverage, ledger/order/failure rules and non-dispatchable review output.
-- [ ] Corrected-source protected acceptance of full-preset review and native integration.
+- [x] Full-preset review and native integration protected acceptance: PR #311, master `99df69f1d5c50daae8690f2ed4237482b0e88830`, CI `37957278096` attempt 2. Native experiment `37970604996` passed on that source.
+- [x] Local [native drill startup correction and flexible member order](PHASE_6_NATIVE_DRILL_RECOVERY.md): rediscover the post-heal healthy leader under the original deadline; admit all five members in any order with unchanged completeness, identity and budget rules.
+- [ ] Corrected-source protected acceptance and native validation of that startup/order correction. Failed native drill `37981974124` and its USD 20 reservation remain retained; cumulative charge then USD 110 / 200.
+- [x] Separately authorized [operator accounting restart, 2026-10-09](PHASE_6_NATIVE_DRILL_RECOVERY.md#separate-operator-accounting-restart--2026-10-09): original seven-attempt USD 110 ledger backed up locally; exact-generation replacement/read-back confirmed USD 0 / 200, no active lease or V5.1 resources. Historical costs and evidence remain retained.
 - [x] Local native full-preset request/session/controller/independent-validator integration using the reviewed allocation, matching Action choices and legacy cleanup compatibility. Native paid acceptance remains open.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
 - [x] 6C3C24 protected acceptance: PR #256 / CI `36655860450`, attempt 1, all 29 jobs.

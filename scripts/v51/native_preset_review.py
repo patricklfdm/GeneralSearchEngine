@@ -75,8 +75,20 @@ def review(inputs, *, now):
     a.integer(now, 1)
     member, order = inputs['member'], inputs['order']
     selection(member)
-    m.need(type(order) is str and order in a.ORDERS, 'preset review order')
-    remaining = a.ORDERS[order][a.ORDERS[order].index(member):]
+    m.need(type(order) is str and order in full.ORDERS, 'preset review order')
+    baseline = inputs['baseline']
+    if baseline is not None:
+        m.need(type(baseline) in (tuple, list) and len(baseline) == 2, 'preset review ledger observation')
+        a.integer(baseline[0], 1)
+    ledger = baseline[1] if baseline is not None else n.empty_ledger()
+    previous, attempts = n.inspect_ledger(ledger)
+    if order == 'any-order':
+        passed = {v['request']['member'] for v in attempts.values()
+                  if v['request']['sequence'] == inputs['sequence'] and v['status'] == 'PASS'}
+        remaining = tuple(v for v in full.MEMBERS if v not in passed)
+        m.need(member in remaining, 'sequence order')
+    else:
+        remaining = a.ORDERS[order][a.ORDERS[order].index(member):]
     quotes, maxima = inputs['prices'], inputs['maximumCostsMicrousd']
     m.need(type(quotes) is dict and type(maxima) is dict and
            set(quotes) == set(maxima) == set(remaining), 'preset review remaining quotes')
@@ -91,12 +103,6 @@ def review(inputs, *, now):
                     guest['attempt'], member, now=now, order=order,
                     guest_access_sha256=m.sha(m.canonical(guest)),timing_profile=allocation(member)['profile'],
                     timing_plan_sha256=PLAN_SHA256)
-    baseline = inputs['baseline']
-    if baseline is not None:
-        m.need(type(baseline) in (tuple, list) and len(baseline) == 2, 'preset review ledger observation')
-        a.integer(baseline[0], 1)
-    ledger = baseline[1] if baseline is not None else n.empty_ledger()
-    previous, _ = n.inspect_ledger(ledger)
     rows = []
     for selected in remaining:
         timing = allocation(selected)
@@ -104,7 +110,7 @@ def review(inputs, *, now):
         maximum = a.integer(maxima[selected], 1, a.MAXIMUM_BUDGET_MICROUSD)
         m.need(cost <= maximum, 'preset review estimate exceeds reservation: '+selected)
         rows.append(dict(member=selected, timing=timing, estimatedCostMicrousd=cost, maximumCostMicrousd=maximum))
-    # Enforces order, immutable sequence identity, global pending attempts,
+    # Enforces order/member availability, immutable sequence identity, global pending attempts,
     # consumed attempt IDs, failed-canonical blocking and cumulative costs.
     # Discard the simulated reservation; it is never written or returned.
     n.reserve(ledger, req, dict(previousCostMicrousd=previous, maximumCostMicrousd=maxima[member]))

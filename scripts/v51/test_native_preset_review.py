@@ -24,7 +24,8 @@ class NativePresetReviewTest(unittest.TestCase):
         cls.now = cls.fixture['clock'].wall()
 
     def inputs(self, member='experiment', order='experiment-first'):
-        original = self.fixture['value']; remaining = a.ORDERS[order][a.ORDERS[order].index(member):]
+        original = self.fixture['value']
+        remaining = r.full.MEMBERS if order == 'any-order' else a.ORDERS[order][a.ORDERS[order].index(member):]
         quotes = {v: dict(deepcopy(original['prices']), pricedThroughSeconds=r.allocation(v)['priceCoverageSeconds']) for v in remaining}
         return dict(configuration=deepcopy(original['configuration']), artifacts=deepcopy(original['artifacts']),
                     guestAccess=deepcopy(original['resourcePlan']['guestAccess']), prices=quotes, baseline=None,
@@ -132,6 +133,42 @@ class NativePresetReviewTest(unittest.TestCase):
         inputs['baseline'] = [5, self.finished(n.empty_ledger(), self.request(inputs, 'canonical-1'))]
         value = self.make(inputs)
         self.assertEqual(['canonical-2','canonical-3','experiment','failure-drill'], [v['member'] for v in value['members']])
+
+    def test_any_member_can_start_but_all_five_quotes_and_maxima_are_required(self):
+        for member in r.full.MEMBERS:
+            with self.subTest(member=member):
+                inputs = self.inputs(member, 'any-order'); original = deepcopy(inputs)
+                value = self.make(inputs)
+                self.assertEqual(list(r.full.MEMBERS), [v['member'] for v in value['members']])
+                self.assertEqual(100_000_000, value['projectedMaximumCostMicrousd'])
+                self.assertEqual(original, inputs)
+                inputs['prices'].pop(next(v for v in r.full.MEMBERS if v != member))
+                with self.assertRaisesRegex(ValueError, 'remaining quotes'): self.make(inputs)
+
+    def test_any_order_remaining_set_uses_only_same_sequence_passes(self):
+        inputs = self.inputs('failure-drill', 'any-order'); ledger = n.empty_ledger()
+        for i,member in enumerate(('canonical-3', 'canonical-1')):
+            ledger = self.finished(ledger, self.request(inputs, member, attempt=f'{i+1:032x}'))
+        inputs['baseline'] = [5, ledger]
+        for member in ('canonical-3', 'canonical-1'):
+            inputs['prices'].pop(member); inputs['maximumCostsMicrousd'].pop(member)
+        value = self.make(inputs)
+        self.assertEqual(['experiment','failure-drill','canonical-2'], [v['member'] for v in value['members']])
+        self.assertEqual(62_000_000, value['projectedMaximumCostMicrousd'])
+        inputs['member'] = 'canonical-3'
+        with self.assertRaisesRegex(ValueError, 'sequence order'): self.make(inputs)
+        inputs['member'] = 'failure-drill'; inputs['sequence'] = 'c'*32
+        with self.assertRaisesRegex(ValueError, 'remaining quotes'): self.make(inputs)
+
+    def test_any_order_failures_keep_charge_and_canonical_failure_blocks_sequence(self):
+        inputs = self.inputs('canonical-2', 'any-order')
+        inputs['baseline'] = [5, self.finished(n.empty_ledger(), self.request(inputs, 'failure-drill'), 'FAIL', 100_000_000)]
+        self.assertEqual(200_000_000, self.make(inputs)['projectedMaximumCostMicrousd'])
+        inputs['maximumCostsMicrousd']['experiment'] += 1
+        with self.assertRaisesRegex(ValueError, 'remaining sequence'): self.make(inputs)
+        inputs = self.inputs('experiment', 'any-order')
+        inputs['baseline'] = [5, self.finished(n.empty_ledger(), self.request(inputs, 'canonical-3'), 'FAIL')]
+        with self.assertRaisesRegex(ValueError, 'failed canonical'): self.make(inputs)
 
     def test_failed_canonical_blocks_same_sequence_but_retains_charge_for_new_sequence(self):
         inputs = self.inputs('canonical-1', 'canonical-first')

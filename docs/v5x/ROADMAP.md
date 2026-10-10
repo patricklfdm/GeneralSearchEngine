@@ -1,14 +1,27 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [native full-preset admission and execution](v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md).
+Current batch: [native drill startup correction and flexible member order](v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md).
+PR #311's native integration passed master CI `37957278096` attempt 2 at
+`99df69f1d5c50daae8690f2ed4237482b0e88830`; native experiment `37970604996`
+passed. Drill `37981974124` failed before the final cell's workload because the
+controller kept observing the pre-heal leader after another healthy node took
+over. Cleanup/retention passed; the recorded charge total was USD 110 / 200.
+The owner subsequently authorized an accounting restart on 2026-10-09: original
+ledger backed up, no active lease/resources, and USD 0 / 200 verified by read-back.
+The local correction rediscovers the leader within the original deadline and
+adds `any-order` for all five distinct native members. Corrected-source CI and
+paid validation remain pending. Historical cost records and the complete same-source
+five-member acceptance requirement remain in force.
+
 [Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
 is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,
 CI `37887342685` attempt 2. All three repetitions passed fifteen cells and 1080
 rich calls with independent replay and modeled cleanup. Original failed attempts
 remain retained; no timing root cause is claimed. The twelve-cell drill was
-accepted through PR #308 / CI `37837221623`. The current candidate connects all five native members through request, guest session,
-controller, independent replay and cleanup. Corrected-source protected CI and
-paid full-preset acceptance remain pending; diagnostic-only stays the default.
+accepted through PR #308 / CI `37837221623`. The accepted PR #311 integration
+connects all five native members through request, guest session, controller,
+independent replay and cleanup. Paid full-preset acceptance remains pending;
+diagnostic-only stays the default.
 
 - **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`

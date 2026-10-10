@@ -12,6 +12,7 @@ GROUPS = {
     'PRESET_SELECTION_CHANGED': ('Runner prepared member/order changed','owned original selected request changed'),
     'PRESET_MEMBER_INVALID': ('native preset member',),
     'PRESET_ORDER_INVALID': ('native preset order',),
+    'RUNTIME_BOUNDED_VOTER_FENCING': ('owned bounded voter initial fencing',),
     'PRESET_REQUEST_INVALID': ('native preset request fields','native preset request identity','native preset request digest','native preset request timestamp'),
     'PLAN_CHANGED_OR_EXPIRED': ('Runner plan drift/expiry',),
     'TIMING_CHANGED': ('Runner timing allocation changed',),
@@ -65,7 +66,8 @@ MESSAGES = {message:code for code,messages in GROUPS.items() for message in mess
 DETAILS = {
     'PRESET_SELECTION_CHANGED':'The selected member or order does not match the original prepared request.',
     'PRESET_MEMBER_INVALID':'Select experiment, failure-drill, or canonical repetition 1, 2 or 3.',
-    'PRESET_ORDER_INVALID':'The selected sequence order is not one of the two admitted orders.',
+    'PRESET_ORDER_INVALID':'The selected sequence order is not one of the admitted orders.',
+    'RUNTIME_BOUNDED_VOTER_FENCING':'No healthy leader and bounded follower were observed in the same epoch before the original startup deadline.',
     'PRESET_REQUEST_INVALID':'The native preset request does not match the closed source-controlled format.',
     **session_recovery.DETAILS,
     'PREPARATION_DEADLINE':'The original guest preparation deadline expired.',

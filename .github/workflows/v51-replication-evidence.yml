@@ -34,9 +34,9 @@ on:
       runner_order:
         description: 'Immutable sequence order; failed canonical requires a new sequence'
         type: choice
-        options: [experiment-first, canonical-first]
+        options: [any-order, experiment-first, canonical-first]
         required: false
-        default: experiment-first
+        default: any-order
       runner_experiment_quote:
         description: 'prepare only; JSON with prices, maximumCostMicrousd and sequence (32 hex)'
         type: string

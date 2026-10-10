@@ -64,7 +64,7 @@ def member_selection(env):
     if 'RUNNER_MEMBER' not in env and 'RUNNER_ORDER' not in env:
         return dict(member=None,order='experiment-first')  # Legacy offline callers only.
     member,order=env.get('RUNNER_MEMBER'),env.get('RUNNER_ORDER')
-    full.selection(member);m.need(order in a.ORDERS,'native preset order')
+    full.selection(member);m.need(order in full.ORDERS,'native preset order')
     return dict(member=member,order=order)
 
 

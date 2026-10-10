@@ -49,9 +49,9 @@ INPUT = '''    inputs:
       runner_order:
         description: 'Immutable sequence order; failed canonical requires a new sequence'
         type: choice
-        options: [experiment-first, canonical-first]
+        options: [any-order, experiment-first, canonical-first]
         required: false
-        default: experiment-first
+        default: any-order
       runner_experiment_quote:
         description: 'prepare only; JSON with prices, maximumCostMicrousd and sequence (32 hex)'
         type: string
@@ -258,7 +258,9 @@ This generator neither dispatches a workflow nor applies the included commands.
 - Storage remains separately selected and confirmed. It cannot run alongside
   experiment preparation/execution. Its two USD 1 stages retain their own charges.
 - `runner_member` selects experiment, failure-drill or canonical-1/2/3;
-  `runner_order` fixes experiment-first or canonical-first for the sequence.
+  `runner_order=any-order` lets each unpassed member run next, including any first member.
+  The sequence still binds all five distinct members and immutable source/artifacts;
+  experiment-first and canonical-first retain their fixed-prefix rules.
   Prepare and run must select the same member/order on the same source/package.
 - `runner_experiment=prepare` requires reviewed current prices, an explicit maximum
   reservation, sequence and the environment SSH secret. It only reads and builds a
