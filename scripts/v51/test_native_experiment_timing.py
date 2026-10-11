@@ -158,3 +158,125 @@ class NativeObservationTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'query limit exhausted'):self.observe()
         self.client.reset_mock();self.client.submit.side_effect=ConnectionError();self.client.query.return_value=self.reply('SUCCEEDED')
         self.assertEqual('SUCCEEDED',self.observe()['state']);self.client.submit.assert_called_once();self.client.query.assert_called_once()
+
+
+class NativeWindowCommandTest(unittest.TestCase):
+    """Run the native probe's real observer with a simulated clock/transport.
+
+    No admission, engine, provider or paid evidence is synthesized. Keeping the
+    native timing selection here catches bounds that the offline preset skips.
+    """
+    def setUp(self):
+        from . import guest_native_owned as bridge, native_preset_timing as full
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup)
+        self.root=Path(self.temp.name);self.clock=cloud_fake.Clock()
+        req=n.request('a'*40,'b'*64,'c'*64,'d'*32,'e'*32,'canonical-1',now=100,
+            order='any-order',guest_access_sha256='f'*64,
+            timing_profile=full.allocation('canonical-1')['profile'],timing_plan_sha256=full.PLAN_SHA256)
+        group=SimpleNamespace(offline=False,authority=n,mode='candidate-v5.1-automatic',
+            canonical_cell='sustained',canonical_repetition=1,provider=SimpleNamespace(req=req))
+        self.probe=bridge.SingleProbe.__new__(bridge.SingleProbe)
+        self.probe._initialize(group,self.root/'probe',physical=True,backup=True,
+            clock=self.clock.seconds,sleep=self.clock.sleep)
+        self.client=Mock();self.member=(1,self.client,dict(binding=c.binding(req['source'],req['bundleSha256'],req['attempt'],'node-1')))
+        self.payload=dict(cell='sustained',preset='canonical',window='sustained')
+        self.start=self.clock.seconds();self.ready=self.start+180.251689153
+        self.deadlines=[];self.current=None;self.submit_delay=0;self.query_delay=0
+        self.lost=False;self.state='SUCCEEDED'
+        self.client.submit.side_effect=self.submit;self.client.query.side_effect=self.query
+
+    def reply(self,state):
+        return dict(schema='gse-v51-command-receipt-v1',state=state,
+            bindingSha256=self.current['bindingSha256'],commandId=self.current['commandId'],
+            requestSha256=m.sha(m.canonical(self.current)))
+
+    def submit(self,value,deadline):
+        self.current=value;self.deadlines.append(deadline);self.clock.sleep(self.submit_delay)
+        if self.lost:raise ConnectionError('lost original submission receipt')
+        return self.reply('RUNNING')
+
+    def query(self,value,deadline):
+        self.assertEqual(value,self.current);self.deadlines.append(deadline)
+        self.clock.sleep(self.query_delay)
+        return self.reply(self.state if self.clock.seconds()>=self.ready else 'RUNNING')
+
+    def observe(self,*,seconds=600,name='window',payload=None):
+        return self.probe.execute(self.member,name,self.payload if payload is None else payload,self.start+seconds)
+
+    def test_original_sustained_duration_and_transport_return_fit(self):
+        # Hosted run 38169987864 completed its guest command in 180.252 s.
+        # An 8 s submit/receipt exchange also precedes the fixed guest window.
+        self.submit_delay=8;self.ready+=self.submit_delay;self.query_delay=8
+        self.assertEqual('SUCCEEDED',self.observe()['state'])
+        self.assertGreater(self.clock.seconds()-self.start,180)
+        self.client.submit.assert_called_once();self.assertEqual(len(set(self.deadlines)),1)
+        self.assertEqual(len(list((self.probe.raw/'commands/1').glob('*/receipt.json'))),1)
+        self.assertFalse(list((self.probe.raw/'commands/1').glob('*/failure.json')))
+
+    def test_long_running_window_can_exceed_256_queries_without_restarting(self):
+        self.ready=self.start+300
+        self.assertEqual('SUCCEEDED',self.observe()['state'])
+        self.assertGreater(self.client.query.call_count,256);self.client.submit.assert_called_once()
+        self.assertEqual(len(set(self.deadlines)),1)
+
+    def test_read_heavy_gets_control_headroom_after_its_frozen_window(self):
+        self.probe.cell_name='read-heavy';self.payload.update(cell='read-heavy',window='read-heavy')
+        self.ready=self.start+200
+        self.assertEqual('SUCCEEDED',self.observe()['state']);self.client.submit.assert_called_once()
+
+    def test_lost_submit_is_only_queried_until_original_window_completes(self):
+        self.lost=True
+        self.assertEqual('SUCCEEDED',self.observe()['state']);self.client.submit.assert_called_once()
+        self.assertEqual(len(set(self.deadlines)),1)
+
+    def test_stuck_window_stops_at_its_own_bound_before_cell_expiry(self):
+        self.ready=float('inf')
+        with self.assertRaisesRegex(ValueError,'unresolved; never resubmit'):self.observe()
+        self.assertEqual(self.clock.seconds()-self.start,370)
+        self.client.submit.assert_called_once();self.assertEqual(len(set(self.deadlines)),1)
+        self.assertEqual(len(list((self.probe.raw/'commands/1').glob('*/failure.json'))),1)
+        self.assertFalse(list((self.probe.raw/'commands/1').glob('*/receipt.json')))
+
+    def test_window_cannot_extend_the_original_outer_deadline(self):
+        self.ready=self.start+240
+        with self.assertRaisesRegex(ValueError,'unresolved; never resubmit'):self.observe(seconds=200)
+        self.assertEqual(self.clock.seconds()-self.start,200)
+        self.assertEqual(set(self.deadlines),{self.start+200});self.client.submit.assert_called_once()
+
+    def test_late_success_is_still_rejected(self):
+        self.ready=self.start;self.query_delay=201
+        with self.assertRaisesRegex(ValueError,'late remote command receipt'):self.observe(seconds=200)
+        self.client.submit.assert_called_once();self.client.query.assert_called_once()
+
+    def test_non_window_commands_keep_the_original_180_second_bound(self):
+        self.ready=float('inf')
+        with self.assertRaisesRegex(ValueError,'unresolved; never resubmit'):
+            self.observe(name='fault',payload=dict(action='status'))
+        self.assertEqual(self.clock.seconds()-self.start,180);self.client.submit.assert_called_once()
+
+    def test_terminal_failure_is_returned_immediately_and_not_retried(self):
+        self.ready=self.start;self.state='FAILED'
+        self.assertEqual('FAILED',self.observe()['state'])
+        self.assertLess(self.clock.seconds()-self.start,3)
+        self.client.submit.assert_called_once();self.client.query.assert_called_once()
+
+    def test_repeated_transient_failures_still_fail_fast(self):
+        self.lost=True;self.client.query.side_effect=ConnectionError('lost query')
+        with self.assertRaisesRegex(ValueError,'transient failures exhausted'):self.observe()
+        self.client.submit.assert_called_once();self.assertEqual(self.client.query.call_count,2)
+        self.assertLess(self.clock.seconds()-self.start,3)
+
+    def test_repeated_uncertainty_and_permanent_transport_errors_still_fail_fast(self):
+        self.ready=self.start;self.state='UNCERTAIN'
+        with self.assertRaisesRegex(ValueError,'uncertain replies exhausted'):self.observe()
+        self.client.submit.assert_called_once();self.assertEqual(self.client.query.call_count,3)
+        self.assertLess(self.clock.seconds()-self.start,4)
+        self.client.reset_mock();self.client.submit.side_effect=transport.ProcessError('SSH_AUTHENTICATION')
+        with self.assertRaises(transport.ProcessError):self.observe()
+        self.client.submit.assert_called_once();self.client.query.assert_not_called()
+
+    def test_window_identity_or_caller_supplied_timeout_cannot_select_headroom(self):
+        for changes in (dict(cell='healthy'),dict(preset='experiment'),dict(window='unknown'),dict(timeout=3600)):
+            with self.subTest(changes=changes),self.assertRaisesRegex(ValueError,'owned frozen window command'):
+                self.observe(payload=dict(self.payload,**changes))
+            self.client.submit.assert_not_called();self.client.query.assert_not_called()

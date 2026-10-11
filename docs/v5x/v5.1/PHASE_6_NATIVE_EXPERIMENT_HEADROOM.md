@@ -12,6 +12,10 @@ This supersedes the current native timing in the
 [preparation budget amendment](PHASE_6_PREPARATION_BUDGET.md); that document retains
 the historical v1 limits. It does not retrospectively qualify the failed run.
 
+**Current follow-up:** the [canonical window observation correction](#canonical-window-observation-correction)
+is locally implemented, 2026-10-11. Corrected-source protected CI and native
+canonical qualification remain pending.
+
 ## Earlier observation-budget failure
 
 Preparation completed in about 1398 seconds. Healthy's published V4.4 mode passed
@@ -97,9 +101,11 @@ These are first-run control allowances, not a failover SLA.
   Credentials remain private and are removed when the original scope closes.
 - Submit each workload command once. Only query that command ID after a lost
   reply. Native observation stops after three consecutive transient failures,
-  three uncertain/missing replies, 256 queries, or its original 180-second command
-  deadline, whichever comes first. RUNNING is progress, not an uncertain reply.
-  A command with a terminal failure is never rerun.
+  three uncertain/missing replies, its query bound, or its original command
+  deadline, whichever comes first. Ordinary commands keep 256 queries and 180
+  seconds. Frozen windows add their measured duration and drain allowance as
+  described below. RUNNING is progress, not an uncertain reply. A command with a
+  terminal failure is never rerun.
 - Authentication, host identity and permission rejection fail immediately.
   Service readiness/shutdown also stop after three consecutive transport failures;
   readiness gets 180 seconds, instead of consuming the full preparation hour.
@@ -178,3 +184,76 @@ This correction leaves the v2 timing, workload calls and budget reservations
 unchanged. PR #304 / CI `37718123364` accepted the corrected source; native run
 `37723402614` observed leader node 1 and shutdown order 2, 3, 1, passing the strict
 final-cut validator and complete experiment aggregate.
+
+## Canonical window observation correction
+
+PR #314 merged at `982c326b0de57305ffbe099d2d5a4e6a0b398866`;
+[protected CI 38124803155](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38124803155)
+passed all 46 jobs on attempt 1. Native
+[failure-drill 38159827082](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38159827082)
+then passed all twelve cells, with independent replay of 103 calls and 129
+evidence negatives. Its retained qualification remains evidence for that source.
+
+The following [canonical-1 run 38169987864](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38169987864)
+passed healthy's three modes and read-heavy, then failed sustained with
+`RUNTIME_COMMAND_UNRESOLVED`. The controller observed original command
+`a5712cac3a284fbaa581b07c55685840` for 180.003616 seconds. On node 1, that exact
+request completed successfully in 180.251689 seconds: its frozen window ran
+180.000484 seconds and recorded 180 completed calls with SUCCESS outcomes.
+The entire cell used 233.173 seconds of its 600-second ceiling.
+
+The native observer applied an ordinary 180-second command cap to a window
+that itself must run for 180 seconds. Guest setup and remote receipt return had
+no headroom. The local owned canonical path does not select the native cap,
+which explains why its complete offline runs did not exercise this boundary.
+The successful guest window is dispatch evidence; it does not retroactively
+qualify the incomplete canonical aggregate, physical history or backups.
+
+The correction derives window observation time from the admitted cell/preset
+and the frozen window name. It adds the exact duration and 10-second drain to
+the existing 180-second control allowance:
+
+| Command | Observation ceiling (seconds) |
+| --- | ---: |
+| Ordinary command | 180 |
+| Canonical warmup | 210 |
+| Canonical healthy measurement | 250 |
+| Canonical read-heavy | 310 |
+| Canonical sustained | 370 |
+
+Each command is still clipped to the original enclosing mode/cell deadline.
+Unknown windows, changed cell/preset and caller-supplied timeout fields are
+rejected before submission. At one native poll per second, the query cap is
+`max(256, observation seconds)`, so a healthy RUNNING window can use its full
+budget. This remains a finite bound. Three consecutive transport failures,
+three uncertain/missing replies, permanent transport errors and terminal
+failure retain their original fast exits. Lost replies only query the original
+command; no request is resubmitted and polling never renews the deadline.
+
+The workload, 180-second measurement, arrival schedule, runtime Java, evidence
+oracles, outer stage/lease/job limits, pricing coverage and ledger rules are
+unchanged. No cloud workflow or ledger mutation was performed for the fix.
+
+Original Actions artifact SHA-256:
+`526ced7f336c03f9f932afe84c84ffe0b120dd0b9a3c822d06fb69b833751692`.
+The authenticated ZIP, original controller request/failure, verified guest parts
+and terminal receipt are retained under `target/v51-canonical-failure-38169987864/`;
+`diagnosis.json` indexes the timings and resource outcome. Cleanup confirmed all
+thirteen exact resource IDs absent, retention was VERIFIED and the lease was
+released. A live read confirmed USD 80 / 200 of cumulative reservations.
+
+Twelve deterministic native-probe regressions cover the retained duration,
+transport delay, more than 256 healthy polls, read-heavy headroom, lost replies,
+permanent/transient/uncertain failure, stuck windows, late success, outer
+deadline clipping, unchanged ordinary commands and closed window selection.
+Seven of those tests fail against the original implementation. The tests are
+part of the existing required native timing suite in the preflight/storage lane;
+they do not dispatch a workload or represent paid evidence. Local validation
+logs are retained in `target/v51-window-command-budget/`.
+
+After corrected-source protected CI, use fresh cleanup/preflight and a new
+source-bound `any-order` sequence. A failed canonical member blocks its sequence;
+its old plan and successful drill cannot be mixed into a new-source acceptance
+set. All five members remain required. Prior costs remain charged; five fresh
+USD 20 reservations would bring the observed USD 80 ledger to USD 180 / 200.
+Prices and live budget must be checked again before admission.

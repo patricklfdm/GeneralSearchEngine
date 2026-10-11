@@ -1,14 +1,16 @@
 # Next-development documentation handoff
 
-Current batch: [native drill snapshot-repeat correction](v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md#follow-up-repeated-snapshots-exhausted-fault-telemetry).
-PR #312's startup/order correction passed master CI `38010525953` at
-`ba62539afa237eeda6576e4c184f9f903f1d00be`. Native drill `38033332912`
-completed eleven cells and passed the corrected final-cell startup, but repeated
-snapshot installations exhausted healthy node-2's 128-MiB fault trace capacity.
-All stage budgets passed; cleanup/retention passed and the lease was released.
-The local correction skips only an exact confirmed snapshot installation after
-a fresh peer status probe and preserves a closed trace-capacity failure code.
-Corrected-source protected CI and paid validation remain pending.
+Current batch: [native canonical window observation correction](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction).
+PR #314 passed master CI `38124803155` on `982c326b0de57305ffbe099d2d5a4e6a0b398866`.
+Native drill `38159827082` passed all twelve cells, with independent replay of
+103 calls and 129 negatives. Canonical-1 `38169987864` passed healthy and
+read-heavy, then exhausted a 180-second command cap around a guest sustained
+window that completed successfully in 180.252 seconds. The local fix adds frozen
+window duration/drain to bounded control headroom and retains original outer
+deadlines, once-only submission and fast failure. Corrected-source protected CI
+and paid canonical qualification remain pending. Cleanup and retention passed;
+the current ledger is USD 80 / 200, with no active lease. The failed canonical
+sequence stays blocked; the new source needs a fresh complete five-member set.
 
 PR #311's native experiment `37970604996` remains accepted on its earlier source.
 The owner-authorized accounting restart of 2026-10-09 preserved the original

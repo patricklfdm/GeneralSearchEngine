@@ -3,9 +3,13 @@
 **Status:** startup/order correction accepted through PR #312; snapshot-repeat
 correction accepted through PR #313, master
 `eaa80316a3e45de437c521f07c64b6d7f0b130b6`, protected CI `38097928287`.
-The staged-startup correction below is a local candidate, 2026-10-11;
-corrected-source protected CI and complete paid qualification remain pending.
-Full Phase 6 remains open.
+The staged-startup correction is accepted through PR #314, master
+`982c326b0de57305ffbe099d2d5a4e6a0b398866`, protected CI `38124803155` (46 jobs,
+attempt 1). Native drill `38159827082` passed all twelve cells, 103 calls and 129
+evidence negatives, including independent archive replay, verified retention
+and exact-resource cleanup. The subsequent canonical run requires a
+[window observation correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction).
+Full Phase 6 and the same-source five-member acceptance remain open.
 
 ## Staged bounded-voter startup
 
@@ -270,10 +274,10 @@ hashes are unchanged. Logs and a file/hash index are retained in
 
 Those checks qualified the earlier controller/admission correction. PR #312
 subsequently passed protected CI, and its paid follow-up is recorded above.
-PR #313 subsequently passed protected CI. The new staged-startup correction
-requires its own protected acceptance. After that
-and fresh cleanup/preflight, create a new source-bound `any-order` sequence,
-review its remaining budget and manually prepare/run the selected member.
+PR #313 and PR #314 subsequently passed protected CI. The latter's complete
+native drill acceptance and subsequent canonical blocker are recorded above.
+After the window correction and fresh cleanup/preflight, create a new
+source-bound `any-order` sequence, review its budget and manually prepare/run the selected member.
 Existing complete owned failure-drill and three canonical CI gates remain
 required. All five native members need complete independent replay, retention
 and cleanup on one source for final acceptance.
