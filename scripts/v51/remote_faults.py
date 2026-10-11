@@ -193,6 +193,32 @@ class Cell:
             result.append(value)
         self.receipt['refusals']=result
 
+    def start_group(self):
+        bounded=self.case=='minority-capacity'
+        if bounded:
+            self.network([f'node-3 {n} BEFORE_REQUEST_WRITE PREPARE' for n in NODES[:2]]+
+                         [f'{n} node-3 AFTER_RESPONSE_READ PREPARE' for n in NODES[:2]],'prepare-direction')
+        for node in (NODES[:2] if bounded else NODES):self.start_node(node)
+        leader=self.leader(('node-3',) if bounded else ())
+        if not bounded:return leader
+        self.start_node('node-3')
+        # Healthy PREPARE fences node-3; its withheld basis cannot become the
+        # fixed write partner. Observe the real selected pair before releasing.
+        def stable_pair():
+            states={node:self.status(node) for node in NODES}
+            candidates=[node for node in NODES[:2] if states[node]['state']=='LEADER_READY' and
+                        states[node]['epoch']==states['node-3']['epoch']]
+            if states['node-3']['state']!='FOLLOWER' or len(candidates)!=1:return None
+            leader=candidates[0]
+            selected=next((r for r in reversed(self.rows(leader)) if r['event']=='PROMISE_QUORUM'),None)
+            if selected is None:return None
+            pair=storage.f.inspect(storage.raw(selected['selected']),'SELECTED')
+            m.need({v['node'] for v in pair['bases']}==set(NODES[:2]),'bounded voter selected as write partner')
+            return leader if pair['ballot']['epoch']==states['node-3']['epoch'] and pair['ballot']['proposer']==leader else None
+        self.wait(stable_pair,'healthy pair did not fence bounded campaign')
+        self.network([],'prepare-heal')
+        return self.wait(stable_pair,'healthy pair did not fence bounded campaign')
+
     def execute(self):
         base.group_directory(self.root)
         base.save(self.root/'declaration.json',declaration(self.case))
@@ -201,17 +227,7 @@ class Cell:
         self.run.deadline=self.deadline
         try:
             self.run.process(self.run.java(self.cp,'admission.V51RemoteFaultConsumer',self.root,'setup'),'bootstrap',self.root)
-            if self.case=='minority-capacity':
-                self.network([f'{a} {b} BEFORE_REQUEST_WRITE PREPARE' for a in NODES for b in NODES if a!=b and 'node-3' in (a,b)],'prepare-direction')
-            for node in (NODES[:2] if self.case=='minority-capacity' else NODES):self.start_node(node)
-            leader=self.leader(('node-3',) if self.case=='minority-capacity' else ())
-            if self.case=='minority-capacity':
-                self.start_node('node-3')
-                self.network([],'prepare-heal')
-                def stable_pair():
-                    state=self.status(leader);bounded=self.status('node-3')
-                    return state['state']=='LEADER_READY' and bounded['state']=='FOLLOWER' and state['epoch']==bounded['epoch']
-                self.wait(stable_pair,'healthy pair did not fence bounded campaign')
+            leader=self.start_group()
             for tag in (10,20,30):self.success(leader,'addAll',documents=documents(tag))
             self.receipt['seedRead']=self.success(leader,'read')
             self.receipt['seedLeader']=leader

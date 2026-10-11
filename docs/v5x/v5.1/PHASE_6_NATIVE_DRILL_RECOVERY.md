@@ -1,10 +1,99 @@
 # Native drill startup correction and flexible member order
 
-**Status:** startup/order correction accepted through PR #312, master
-`ba62539afa237eeda6576e4c184f9f903f1d00be`, protected CI `38010525953`.
-The subsequent snapshot-repeat correction below is a local candidate,
-2026-10-10; corrected-source protected CI and paid qualification remain pending.
+**Status:** startup/order correction accepted through PR #312; snapshot-repeat
+correction accepted through PR #313, master
+`eaa80316a3e45de437c521f07c64b6d7f0b130b6`, protected CI `38097928287`.
+The staged-startup correction below is a local candidate, 2026-10-11;
+corrected-source protected CI and complete paid qualification remain pending.
 Full Phase 6 remains open.
+
+## Staged bounded-voter startup
+
+PR #313 merged at `eaa80316a3e45de437c521f07c64b6d7f0b130b6`;
+protected master CI `38097928287` passed all 46 jobs on attempt 1.
+The subsequent native drill [38109891402](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38109891402)
+executed eleven cells, then failed the final cell before any workload call.
+After the original three-way PREPARE heal, node 3 was `LEADER_READY` at epoch 10
+in seven consecutive controller observations. Both healthy voters were followers.
+Waiting longer could not require that legitimate elected leader to step down.
+
+The 180-second startup wait ended during a status query with only 2.75 seconds
+remaining. Its retained guest terminal receipt is `SUCCEEDED` (3.66 milliseconds
+of guest execution), while the controller reported `RUNTIME_COMMAND_UNRESOLVED`.
+All JVMs subsequently exited normally; traces were about 1.2–1.8 MB, without the
+previous trace-capacity failure. Cleanup confirmed all thirteen resources absent,
+retention was `VERIFIED`, and the lease was released. Original artifacts, decoded
+traces and diagnosis are retained under `target/v51-failure-drill-38109891402/`.
+
+A first local correction released healthy PREPARE senders before node 3. The
+complete SSH drill with a twelve-second delayed node-3 startup exposed another
+required invariant: the healthy leader could select node 3 as its **fixed write
+partner** even though node 3 was a follower. Isolating that partner then made the
+first large bulk `INDETERMINATE / QUORUM_UNAVAILABLE`. The original failed local
+run remains at `target/v51-bounded-voter-startup/owned-delayed/`; it is not accepted.
+
+The final initialization barrier lets healthy PREPARE requests reach node 3 and
+fence its campaign, while dropping their responses at the healthy sender. Node 3's
+own outbound PREPARE remains blocked. Thus node 3 can promise the current healthy
+ballot without supplying the first complete basis that fixes the write pair.
+The controller requires both healthy voters in the original `PROMISE_QUORUM`
+selection and a same-epoch healthy leader/bounded follower before releasing the
+barrier, then repeats both checks before the first seed mutation. Either healthy
+leader remains eligible. The shared-host fault entry uses the same request/response
+routing and selected-pair check; it no longer pins the earlier leader.
+
+Status queries to different guests run concurrently; each guest still has one
+serialized command executor. Both checks, their selection observations and all
+heals share one original activation deadline, clipped to the cell limit. Watchdog
+releases fail admission. A command exhausting that deadline retains its original
+receipt/failure and cause, but reports `RUNTIME_BOUNDED_VOTER_FENCING`; last
+observed states remain in the cell receipt. Earlier transport errors still fail.
+Independent replay binds role and selection observations to original receipts and
+traces, checks the fixed healthy pair and epoch, and requires both observations
+around the complete PREPARE heal before seeds. Missing, fabricated, wrong-role,
+wrong-pair, wrong-epoch, reordered and late observations cannot qualify.
+
+The delayed local failure also showed that stopping a failed cell while its data
+fault remained held could reject later collection as `fault still isolated`.
+After the JVM is confirmed closed, stop now releases remaining local injections
+with an emergency/watchdog marker. Original stop failures still propagate, and
+that marker cannot substitute for the scenario's original heal or make failed
+work qualify. This preserves diagnostic collection without waiting for a timer.
+
+The final-cell audit covers seed catch-up, heartbeat-preserving data isolation,
+real 128-KiB capacity refusal/accounting, once-only retained restarts of node 3 and
+a healthy leader, post-restart strong reads, original-command collection, immutable
+retention and exact-resource cleanup. No runtime Java, sealed workload/capacity/
+timing contract, budget ledger or paid dispatch changes. Corrected-source protected
+CI and all five same-source native members remain required.
+
+Local verification of this correction:
+
+- Complete pinned-Java reactor: 923 tests, four existing skips, zero failures or
+  errors. The final guest package was rebuilt after all 103 required Java
+  prerequisite tests passed. Runtime Java is unchanged by this correction.
+- 190 related Python tests passed, covering startup, original evidence,
+  diagnostics, shared fault cleanup, native timing and canonical reuse. The new
+  bounded-election regression fails against the original startup implementation.
+- Complete real JVM/TCP/SSH drill: all twelve cells, 103 public calls and 129
+  evidence-negative variants passed. Every one of 663 command submissions lost
+  its original reply deliberately and was resolved without submitting it twice.
+  The final cell included a twelve-second node-3 startup delay; both observations
+  showed node 2 leading at epoch 3 with the healthy fixed pair. Real capacity
+  refusal, both retained restarts and three final strong reads completed in
+  58.102 seconds, including the injected delay.
+- Collection covered all 36 guest services; immutable retention read-back was
+  `VERIFIED`, all thirteen modeled resources were absent and the lease released.
+  Local paths were separate on one filesystem. This run does not establish mount
+  isolation, GCP/IAP behavior or paid acceptance.
+- Replaying the retained archive after unpacking into a new directory reproduced
+  the exact twelve-cell result, including all 103 calls and 129 negative results.
+- The shared-host targeted capacity cell also passed with twelve seconds of
+  delayed startup, followed by exact independent replay after archive relocation.
+
+Evidence and the final replay result are indexed at
+`target/v51-bounded-voter-startup/validation-summary.json`. The earlier failed
+local correction and original paid failure remain retained separately.
 
 ## Follow-up: repeated snapshots exhausted fault telemetry
 
@@ -75,8 +164,8 @@ Local verification on the correction:
 Receipts and hashes are indexed in
 `target/v51-rejoin-snapshot-repeat/validation-summary.json`, with the full local
 fault receipt at `target/v51-remote-faults/run.gn8PLP/evidence/receipt.json`.
-Corrected-source protected CI, including the complete owned drill/canonical
-gates, and paid full-preset acceptance remain required.
+Those local checks preceded PR #313's protected acceptance. Native full-preset
+acceptance is still open; the subsequent startup failure is recorded above.
 
 ## Retained failure and cause
 
@@ -181,7 +270,8 @@ hashes are unchanged. Logs and a file/hash index are retained in
 
 Those checks qualified the earlier controller/admission correction. PR #312
 subsequently passed protected CI, and its paid follow-up is recorded above.
-The snapshot-repeat correction requires its own protected acceptance. After that
+PR #313 subsequently passed protected CI. The new staged-startup correction
+requires its own protected acceptance. After that
 and fresh cleanup/preflight, create a new source-bound `any-order` sequence,
 review its remaining budget and manually prepare/run the selected member.
 Existing complete owned failure-drill and three canonical CI gates remain

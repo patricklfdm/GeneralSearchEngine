@@ -6,6 +6,53 @@ from .guest_fault_recovery import CUTS
 NODES=('node-1','node-2','node-3')
 
 
+def startup_fencing(r, history, rows, obs, starts, *, request, traces):
+    """Bind both role observations to original status receipts and staged heals."""
+    from . import native_experiment_timing as timing
+    startup=r.get('startupFencing')
+    m.need(type(startup) is dict and all(k in startup for k in ('beforeRelease','afterRelease','startNanos','deadlineNanos')),
+           'owned bounded startup observations missing')
+    heals={}
+    for node in NODES:
+        commands=[q for q,_ in rows[node] if q['command']=='fault' and q['payload']=={'action':'heal-direction'}]
+        m.need(len(commands)==1,'owned bounded PREPARE coverage')
+        heals[node]=obs[commands[0]['commandId']]
+    ready=max(v['readyNanos'] for v in starts if v['generation']==1)
+    deadline=startup['deadlineNanos']
+    m.need(type(deadline) is int and ready<=startup['startNanos']<=min(heals[n]['startNanos'] for n in NODES[:2]) and
+           startup['startNanos']<deadline<=r['startNanos']+r['seconds']*10**9 and
+           deadline-startup['startNanos']<=timing.control(request,'activation',30)*10**9,
+           'owned bounded startup deadline')
+    for stage in ('beforeRelease','afterRelease'):
+        observation=startup[stage];states=observation['states'];leader=observation['leader']
+        m.need(set(states)==set(NODES) and leader in NODES[:2] and states['node-3']['state']=='FOLLOWER' and
+               [n for n in NODES[:2] if states[n]['state']=='LEADER_READY' and
+                states[n]['epoch']==states['node-3']['epoch']]==[leader], 'owned bounded startup roles')
+        m.need(ready<=observation['startNanos']<=observation['endNanos']<deadline,
+               'owned bounded startup observation deadline')
+        for node in NODES:
+            original=[q for q,v in rows[node] if q['command']=='fault' and q['payload']=={'action':'status'} and
+                      v['result']['response']==states[node] and
+                      observation['startNanos']<=obs[q['commandId']]['startNanos']<=
+                      obs[q['commandId']]['endNanos']<=observation['endNanos']]
+            m.need(len(original)==1,'owned bounded startup original status')
+        selected=observation.get('selected')
+        m.need(selected is not None and selected in traces[leader] and selected['event']=='PROMISE_QUORUM',
+               'owned bounded startup selected witness')
+        pair=a.f.inspect(a.raw(selected['selected']),'SELECTED')
+        m.need({v['node'] for v in pair['bases']}==set(NODES[:2]) and
+               pair['ballot']['epoch']==states['node-3']['epoch'] and pair['ballot']['proposer']==leader,
+               'owned bounded startup selected pair')
+        original=[q for q,v in rows[leader] if q['command']=='fault' and q['payload']=={'action':'observe-recovery'} and
+                  v['result']['selected']==selected and observation['startNanos']<=obs[q['commandId']]['startNanos']<=
+                  obs[q['commandId']]['endNanos']<=observation['endNanos']]
+        m.need(len(original)==1,'owned bounded startup original selection')
+    before,after=startup['beforeRelease'],startup['afterRelease']
+    m.need(all(before['endNanos']<=heals[n]['startNanos']<=heals[n]['endNanos']<=after['startNanos'] for n in NODES) and
+           after['endNanos']<=history[0]['startNanos'] and after['leader']==r['seedLeader'],
+           'owned bounded startup release order')
+
+
 def recipient_path(r, own, isolation, manifest):
     """A live, unchanged recipient must acknowledge the source while data is held."""
     heartbeat=r['recipientHeartbeat'];end=r['cut'] if r['case']=='interrupted-transfer' else r['rejection']
@@ -123,11 +170,12 @@ def check(r, history, traces, root, rows, obs, collections, processes, *, reques
             held_drops.extend(v for v in drops if v['rule'] in expected_rules and actual['appliedNanos']<=v['localNanos']<=actual['healedNanos'])
             for drop in drops:
                 frame=a.f.wire(a.raw(drop['request']),manifest)
-                rule=f"{frame['sender']} {frame['recipient']} BEFORE_REQUEST_WRITE "
+                rule=f"{frame['sender']} {frame['recipient']} {drop['barrier']} "
                 # Capacity's initial PREPARE-only barrier is independently checked below.
                 m.need(drop['rule'] in (expected_rules if case!='minority-capacity' else expected_rules+
-                       [f'{x} {y} BEFORE_REQUEST_WRITE PREPARE' for x in NODES for y in NODES if x!=y and 'node-3' in (x,y)]) and
-                       drop['node']==frame['sender'] and drop['barrier']=='BEFORE_REQUEST_WRITE' and
+                       [f'node-3 {n} BEFORE_REQUEST_WRITE PREPARE' for n in NODES[:2]]+
+                       [f'{n} node-3 AFTER_RESPONSE_READ PREPARE' for n in NODES[:2]]) and
+                       drop['node']==frame['sender'] and drop['barrier'] in ('BEFORE_REQUEST_WRITE','AFTER_RESPONSE_READ') and
                        drop['rule'] in (rule+'*',rule+frame['type']),
                        'owned recovery actual isolation direction')
         m.need(held_drops,'owned recovery missing actual isolation observation')
@@ -147,12 +195,14 @@ def check(r, history, traces, root, rows, obs, collections, processes, *, reques
                    restarts[0]['readyNanos']<=r['transferRejoin']['startNanos'] and
                    r['transferRejoin']['endNanos']<=r['progress'][0]['startNanos'],'owned partial transfer completion before progress')
         else:
+            startup_fencing(r,history,rows,obs,starts,request=request,traces=traces)
             for node,seq in rows.items():
                 began=[(q,v) for q,v in seq if q['command']=='fault' and q['payload']=={'action':'prepare-direction'}]
                 healed=[(q,v) for q,v in seq if q['command']=='fault' and q['payload']=={'action':'heal-direction'}]
                 m.need(len(began)==len(healed)==1,'owned bounded PREPARE coverage')
                 actual=c.read(collections[node]/'prepare-isolation.json')
-                expected=[f'{x} {y} BEFORE_REQUEST_WRITE PREPARE' for x in NODES for y in NODES if x!=y and 'node-3' in (x,y)]
+                expected=([f'node-3 {n} BEFORE_REQUEST_WRITE PREPARE' for n in NODES[:2]]+
+                          [f'{n} node-3 AFTER_RESPONSE_READ PREPARE' for n in NODES[:2]])
                 m.need(began[0][1]['result']==dict(appliedNanos=actual['appliedNanos'],rules=expected) and
                        healed[0][1]['result']==actual and actual['watchdog'] is False and
                        0<actual['healedNanos']-actual['appliedNanos']<=timing.control(request,'isolation',60)*10**9 and

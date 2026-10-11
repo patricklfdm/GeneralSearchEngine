@@ -245,7 +245,9 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
         if case in ('entry-chosen','proof-quorum'):variants+=('fabricated-target-response','missing-target-quorum')
         if case in ('interrupted-transfer','minority-capacity'):variants+=('missing-isolation-observation','missing-recipient-heartbeat','recipient-campaigned')
         if case=='interrupted-transfer':variants+=('missing-transfer-chunks','wrong-transfer-recipient')
-        if case=='minority-capacity':variants+=('missing-capacity-reply','changed-capacity-accounting','missing-prepare-barrier')
+        if case=='minority-capacity':variants+=('missing-capacity-reply','changed-capacity-accounting','missing-prepare-barrier',
+                                              'missing-startup-fencing','unbound-startup-status','bounded-startup-leader',
+                                              'missing-startup-selection')
     for name in variants:
         rr,hh,tt=deepcopy(record),deepcopy(history),deepcopy(traces)
         rrows=deepcopy(rows)
@@ -299,6 +301,12 @@ def replay_case(raw, scratch, req, budgets, *, authority=a):
             row=dict(rr['recipientHeartbeat'],event='CAMPAIGN_BEGIN');tt[rr.get('targetNode','node-3')].append(row)
         elif name=='missing-capacity-reply':tt['node-3']=[v for v in tt['node-3'] if not capacity_reply(v)]
         elif name=='changed-capacity-accounting':rr['rejection']['requested']=0
+        elif name=='missing-startup-fencing':rr.pop('startupFencing',None)
+        elif name=='unbound-startup-status':rr['startupFencing']['beforeRelease']['states']['node-3']['opId']='fabricated'
+        elif name=='bounded-startup-leader':rr['startupFencing']['beforeRelease']['states']['node-3']['state']='LEADER_READY'
+        elif name=='missing-startup-selection':
+            leader=rr['startupFencing']['beforeRelease']['leader'];selected=rr['startupFencing']['beforeRelease']['selected']
+            tt[leader]=[v for v in tt[leader] if v!=selected]
         elif name=='missing-prepare-barrier':
             for node in rrows:rrows[node]=[(q,r) for q,r in rrows[node] if not(q['command']=='fault' and q['payload']=={'action':'prepare-direction'})]
         else:tt={n:[v for v in seq if not(v['event']=='CLIENT_INVOKE' and v.get('opId')==hh[-1]['opId'])] for n,seq in tt.items()}

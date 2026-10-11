@@ -17,7 +17,7 @@ to the accepted four-cell experiment.
 | entry-chosen | Original 512-byte-value bulk stopped at ACCEPT_ACK_RECEIVED; chosen quorum and unresolved caller retained; surviving progress before old voter restart | 120 s |
 | proof-quorum | Original bulk stopped at PROOF_ACK_RECEIVED; original forced proof quorum and unresolved caller retained; surviving progress before restart | 120 s |
 | group-restart | All three original directories archived after graceful stop, restarted as new process generations, acknowledged state retained | 120 s |
-| minority-capacity | PREPARE-only initialization barrier; node 3 sealed at 128 KiB and isolated from data with live heartbeats during two 20000-byte-value bulks, genuine capacity rejection/reply, bounded voter and healthy voter retained restarts | 180 s |
+| minority-capacity | PREPARE-only initialization barrier with bounded outbound requests/basis responses withheld, original healthy write-pair and role observations around release; node 3 sealed at 128 KiB and isolated from data with live heartbeats during two 20000-byte-value bulks, genuine capacity rejection/reply, bounded voter and healthy voter retained restarts | 180 s |
 
 The existing leader-loss, maintenance, no-quorum and four
 [network/lag cells](PHASE_6_OWNED_NETWORK_FAULTS.md) complete the twelve-cell set.
@@ -59,6 +59,11 @@ original chunk, cut, SIGKILL, capacity reply and unchanged partial-directory che
 This is a correction to fault setup, not a retry or a larger timing budget.
 Original failed evidence remains retained. Corrected-source protected CI is
 required before accepting the complete owned failure drill.
+
+The later native startup race and staged-release correction are recorded in
+[Native drill recovery](PHASE_6_NATIVE_DRILL_RECOVERY.md#staged-bounded-voter-startup).
+Both role and fixed-pair observations bind original receipts/traces; all routing is restored
+before seed writes and the declared capacity fault.
 
 ## Command and evidence boundaries
 

@@ -16,6 +16,14 @@ from . import test_guest_owned_workload as common
 from . import guest_recovery_evidence as replay, format_encoder as encoder, fixtures
 
 
+def selected_pair(leader='node-1',epoch=5,nodes=('node-1','node-2')):
+    value=dict(manifestDigest='ab'*32,ballot=dict(epoch=epoch,proposer=leader,incarnation=fixtures.UUID),
+               bases=[dict(node=n,basisId=fixtures.UUID,basisDigest='cd'*32) for n in nodes],
+               prefixIndex=0,prefixDigest='ef'*32,nextEntry=None,sourceBallot=None)
+    return dict(event='PROMISE_QUORUM',node=leader,pid=41,order=20,
+                selected=base64.b64encode(encoder.encode('SELECTED',value)).decode())
+
+
 class DrillScopeTest(unittest.TestCase):
     def test_all_twelve_are_offline_and_native_keeps_three_faults(self):
         expected=('leader-loss','isolated-old-leader','asymmetric-requests','asymmetric-responses','slow-follower',
@@ -69,28 +77,50 @@ class BoundedStartupTest(unittest.TestCase):
         cell=drill.Cell(SimpleNamespace(clients=[(n,None,{}) for n in (1,2,3)],
             provider=SimpleNamespace(req=request('failure-drill'))),Path(temp.name)/'cell',
             'minority-capacity',clock=lambda:self.now,sleep=sleep)
-        cell.end=remaining;cell.command=Mock();cell.start=Mock();cell.leader=Mock(return_value=initial)
+        cell.end=remaining;cell.command=Mock(side_effect=lambda node,action,**kw:
+            {'selected':selected_pair(node)} if action=='observe-recovery' else {'watchdog':False})
+        cell.start=Mock();cell.leader=Mock(return_value=initial)
         return cell
 
     def states(self, leader, epoch=5, bounded='FOLLOWER', bounded_epoch=5):
         return {node:dict(state=bounded if node=='node-3' else ('LEADER_READY' if node==leader else 'FOLLOWER'),
                          epoch=bounded_epoch if node=='node-3' else epoch) for node in ('node-1','node-2','node-3')}
 
-    def test_startup_reselects_either_healthy_leader_after_heal_without_mutation_replay(self):
-        # Native run 37981974124 had node-2 ready at epoch 3 before healing,
-        # then node-1 ready at epoch 5 while both other voters were followers.
+    def test_bounded_campaign_cannot_escape_before_healthy_pair_fences_it(self):
+        # Native 38109891402: delayed control let node-3 raise its ballot. Once
+        # all senders healed it won and stayed leader. Model that irreversible
+        # race, rather than feeding the implementation a preselected leader.
+        cell=self.cell();healed=set();fenced=False;escaped=False
+        def command(node,action,**values):
+            nonlocal escaped
+            if action=='heal-direction':
+                if node=='node-3' and not fenced:escaped=True
+                healed.add(node)
+            return {'selected':selected_pair(node)} if action=='observe-recovery' else {'watchdog':False}
+        def status(node,deadline=None):
+            nonlocal fenced
+            if not healed:fenced=True
+            return self.states('node-1' if fenced and not escaped else None,
+                               bounded='LEADER_READY' if escaped else 'FOLLOWER')[node]
+        cell.command.side_effect=command;cell.status=Mock(side_effect=status)
+        self.assertEqual('node-1',cell.start_group());self.assertFalse(escaped)
+        self.assertEqual(healed,{'node-1','node-2','node-3'})
+        self.assertEqual([],cell.history);self.assertEqual(3,cell.start.call_count)
+        for stage in ('beforeRelease','afterRelease'):
+            self.assertEqual('node-1',cell.record['startupFencing'][stage]['leader'])
+
+    def test_startup_reselects_either_healthy_leader_without_mutation_replay(self):
         for initial,active in (('node-2','node-1'),('node-1','node-2'),('node-2','node-2')):
             with self.subTest(initial=initial,active=active):
                 cell=self.cell(initial);states=self.states(active)
                 cell.status=Mock(side_effect=lambda node,deadline=None:states[node])
                 self.assertEqual(active,cell.start_group())
-                self.assertEqual([],cell.history)
-                self.assertEqual(3,cell.start.call_count)
-                self.assertEqual(['prepare-direction']*3+['heal-direction']*3,
-                                 [v.args[1] for v in cell.command.call_args_list])
+                self.assertEqual([],cell.history);self.assertEqual(3,cell.start.call_count)
+                heals=[v.args[0] for v in cell.command.call_args_list if v.args[1]=='heal-direction']
+                self.assertEqual({'node-1','node-2','node-3'},set(heals))
                 cell.leader.assert_called_once()
 
-    def test_no_leader_wrong_epoch_or_bounded_leader_never_satisfies_fencing(self):
+    def test_no_leader_wrong_epoch_or_bounded_leader_never_releases_bounded_sender(self):
         ambiguous=self.states('node-1');ambiguous['node-2']['state']='LEADER_READY'
         for states in (self.states(None),self.states('node-1',bounded_epoch=4),
                        self.states(None,bounded='LEADER_READY'),self.states('node-1',bounded='CANDIDATE'),ambiguous):
@@ -98,37 +128,118 @@ class BoundedStartupTest(unittest.TestCase):
                 cell=self.cell(remaining=.2);cell.status=Mock(side_effect=lambda node,deadline=None:states[node])
                 with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
                 self.assertEqual([],cell.history)
+                self.assertNotIn(('node-3','heal-direction'),[v.args for v in cell.command.call_args_list])
+                self.assertEqual(states,cell.record['startupFencing']['lastStates'])
 
-    def test_final_observation_arriving_at_or_after_deadline_cannot_pass(self):
-        for arrival in (180,181):
-            cell=self.cell()
+    def test_both_stages_and_heals_share_one_deadline(self):
+        cell=self.cell();seen=[]
+        def command(node,action,**values):
+            if action in ('heal-direction','observe-recovery'):seen.append(values['deadline'])
+            return {'selected':selected_pair(node)} if action=='observe-recovery' else {'watchdog':False}
+        def status(node,deadline=None):
+            seen.append(deadline)
+            return self.states('node-1')[node]
+        cell.command.side_effect=command;cell.status=Mock(side_effect=status)
+        self.assertEqual('node-1',cell.start_group());self.assertEqual({180},set(seen));self.assertEqual(11,len(seen))
+
+    def test_late_terminal_receipt_reports_fencing_and_retains_original_cause(self):
+        from .cloud_runner_diagnostics import runtime_failure
+        for stage in ('beforeRelease','afterRelease'):
+            cell=self.cell();original=ValueError('remote command unresolved; never resubmit')
             def status(node,deadline=None):
-                if node=='node-3':self.now=arrival
+                released=any(v.args==('node-3','heal-direction') for v in cell.command.call_args_list)
+                if node=='node-1' and (stage=='beforeRelease' or released):
+                    self.now=deadline;raise original
                 return self.states('node-1')[node]
             cell.status=Mock(side_effect=status)
-            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
-            self.assertEqual(3,cell.status.call_count)
+            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing') as caught:cell.start_group()
+            self.assertIs(original,caught.exception.__cause__)
+            self.assertEqual('RUNTIME_BOUNDED_VOTER_FENCING',runtime_failure('execution',caught.exception)['code'])
+            self.assertEqual([],cell.history)
 
-    def test_fencing_wait_has_one_deadline_and_accepts_only_before_it(self):
-        for remaining,late in ((600,False),(600,True),(.15,True)):
-            cell=self.cell(remaining=remaining);deadline=min(180,remaining);seen=[]
-            def status(node,limit=None):
-                seen.append(limit)
-                if late:self.now=deadline+1
-                else:self.now+=1
-                return self.states('node-1' if late else None)[node]
-            cell.status=Mock(side_effect=status)
-            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
-            self.assertTrue(seen);self.assertEqual({deadline},set(seen))
-            self.assertLessEqual(len(seen),180)
-
-    def test_transient_election_can_converge_but_status_failure_is_not_swallowed(self):
+    def test_late_success_and_watchdog_release_never_pass(self):
         cell=self.cell()
-        cell.status=Mock(side_effect=lambda node,deadline=None:self.states('node-1' if self.now else None)[node])
-        self.assertEqual('node-1',cell.start_group())
+        def status(node,deadline=None):
+            self.now=deadline;return self.states('node-1')[node]
+        cell.status=Mock(side_effect=status)
+        with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+        for watchdog in ('node-1','node-3'):
+            cell=self.cell();cell.status=Mock(side_effect=lambda node,deadline=None:self.states('node-1')[node])
+            cell.command.side_effect=lambda node,action,**kw:({'selected':selected_pair(node)} if action=='observe-recovery' else {'watchdog':node==watchdog})
+            with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+            self.assertEqual([],cell.history)
+
+    def test_post_release_roles_are_rechecked_before_workload(self):
+        cell=self.cell(remaining=.2)
+        def status(node,deadline=None):
+            released=any(v.args==('node-3','heal-direction') for v in cell.command.call_args_list)
+            return self.states(None if released else 'node-1',bounded='LEADER_READY' if released else 'FOLLOWER')[node]
+        cell.status=Mock(side_effect=status)
+        with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+        self.assertIn('beforeRelease',cell.record['startupFencing'])
+        self.assertNotIn('afterRelease',cell.record['startupFencing']);self.assertEqual([],cell.history)
+
+    def test_healthy_roles_with_bounded_write_partner_fail_before_release(self):
+        cell=self.cell();cell.status=Mock(side_effect=lambda node,deadline=None:self.states('node-1')[node])
+        cell.command.side_effect=lambda node,action,**kw:({'selected':selected_pair(nodes=('node-1','node-3'))}
+            if action=='observe-recovery' else {'watchdog':False})
+        with self.assertRaisesRegex(ValueError,'owned bounded voter initial fencing'):cell.start_group()
+        self.assertFalse(any(v.args[1]=='heal-direction' for v in cell.command.call_args_list));self.assertEqual([],cell.history)
+
+    def test_transport_failure_before_deadline_is_not_swallowed(self):
         cell=self.cell();cell.status=Mock(side_effect=ConnectionError('lost status'))
         with self.assertRaisesRegex(ConnectionError,'lost status'):cell.start_group()
-        self.assertEqual(1,cell.status.call_count)
+        self.assertEqual([],cell.history)
+
+
+class StartupEvidenceTest(unittest.TestCase):
+    def fixture(self):
+        self.traces={n:[] for n in recovery.NODES}
+        rows={n:[] for n in recovery.NODES};obs={};starts=[dict(generation=1,readyNanos=10**9) for _ in rows]
+        startup=dict(startNanos=10**9,deadlineNanos=31*10**9)
+        for node in rows:
+            key='heal-'+node;start=6
+            rows[node].append((dict(command='fault',payload={'action':'heal-direction'},commandId=key),{}))
+            obs[key]=dict(startNanos=start*10**9,endNanos=(start+1)*10**9)
+        for stage,start in (('beforeRelease',4),('afterRelease',8)):
+            states={}
+            for node in rows:
+                key=stage+node;states[node]=dict(state='LEADER_READY' if node=='node-1' else 'FOLLOWER',epoch=5,opId=key)
+                rows[node].append((dict(command='fault',payload={'action':'status'},commandId=key),
+                                   dict(result={'response':deepcopy(states[node])})))
+                obs[key]=dict(startNanos=start*10**9,endNanos=(start+1)*10**9)
+            selected=selected_pair();self.traces['node-1'].append(selected)
+            key=stage+'-selected'
+            rows['node-1'].append((dict(command='fault',payload={'action':'observe-recovery'},commandId=key),dict(result={'selected':selected})))
+            obs[key]=dict(startNanos=start*10**9,endNanos=(start+1)*10**9)
+            startup[stage]=dict(states=states,leader='node-1',selected=selected,startNanos=start*10**9,endNanos=(start+1)*10**9)
+        record=dict(startupFencing=startup,startNanos=0,seconds=180,seedLeader='node-1')
+        return record,[dict(startNanos=10*10**9)],rows,obs,starts
+
+    def test_original_staged_observations_pass(self):
+        args=self.fixture();replay.startup_fencing(*args,request={},traces=self.traces)
+
+    def test_missing_fabricated_wrong_roles_and_late_observations_fail(self):
+        for mutation in ('missing','unbound','bounded-leader','wrong-epoch','two-leaders','wrong-seed','late','extended','shifted','swapped','heal-early','missing-status','wrong-pair','missing-selection'):
+            with self.subTest(mutation=mutation):
+                record,history,rows,obs,starts=self.fixture();startup=record['startupFencing'];before=startup['beforeRelease']
+                if mutation=='missing':record.pop('startupFencing')
+                elif mutation=='unbound':before['states']['node-3']['opId']='fake'
+                elif mutation=='bounded-leader':before['states']['node-3']['state']='LEADER_READY'
+                elif mutation=='wrong-epoch':before['states']['node-3']['epoch']=6
+                elif mutation=='two-leaders':before['states']['node-2']['state']='LEADER_READY'
+                elif mutation=='wrong-seed':record['seedLeader']='node-2'
+                elif mutation=='late':startup['afterRelease']['endNanos']=startup['deadlineNanos']
+                elif mutation=='extended':startup['deadlineNanos']+=1
+                elif mutation=='shifted':startup.update(startNanos=100*10**9,deadlineNanos=130*10**9)
+                elif mutation=='swapped':startup['beforeRelease'],startup['afterRelease']=startup['afterRelease'],startup['beforeRelease']
+                elif mutation=='heal-early':obs['heal-node-3']=dict(startNanos=2*10**9,endNanos=3*10**9)
+                elif mutation=='missing-status':rows['node-3']=rows['node-3'][:1]
+                elif mutation=='wrong-pair':
+                    wrong=selected_pair(nodes=('node-1','node-3'));before['selected']=wrong;self.traces['node-1'].append(wrong)
+                elif mutation=='missing-selection':self.traces['node-1']=[]
+                with self.assertRaisesRegex(ValueError,'owned bounded startup'):
+                    replay.startup_fencing(record,history,rows,obs,starts,request={},traces=self.traces)
 
 
 class DrillRunnerTest(common.RunnerWorkloadTest):
@@ -202,6 +313,34 @@ class RecoveryHandlerTest(unittest.TestCase):
             timer.call_args.args[1]();self.assertTrue(c.read(self.root/'prepare-isolation.json')['watchdog'])
             h.s.jvm=self.jvm
             self.assertTrue(self.command(h,action='heal-direction')['watchdog'])
+
+    def test_prepare_can_fence_bounded_voter_without_selecting_its_basis(self):
+        h=self.handler('minority-capacity');h.s.jvm=None
+        with patch.object(recovery.threading,'Timer'):
+            rules=self.command(h,action='prepare-direction')['rules']
+        for healthy in ('node-1','node-2'):
+            self.assertNotIn(f'{healthy} node-3 BEFORE_REQUEST_WRITE PREPARE',rules)
+            self.assertIn(f'{healthy} node-3 AFTER_RESPONSE_READ PREPARE',rules)
+            self.assertIn(f'node-3 {healthy} BEFORE_REQUEST_WRITE PREPARE',rules)
+        self.assertFalse(any('HEARTBEAT' in r for r in rules))
+        self.assertFalse(any('node-3' not in r for r in rules))
+
+    def test_failed_cell_stop_releases_fault_for_collection_only_after_jvm_closes(self):
+        for failed in (False,True):
+            root=self.root/str(failed);root.mkdir()
+            h=service.Handler(SimpleNamespace(config=dict(config(root),faultCell='minority-capacity'),
+                cell=root,root=root,node='node-1',jvm=Mock(closed=False,prefix='node-1-g1')))
+            h.isolated=True;h.isolation=dict(appliedNanos=1,rules=['node-1 node-3 BEFORE_REQUEST_WRITE ACCEPT'])
+            def stop(_):
+                self.assertFalse(h.healed);h.s.jvm.closed=True
+                c.write_once(root/'node-1-g1-stop.json',dict(exitCode=1 if failed else 0))
+                if failed:raise ValueError('original JVM failure')
+            h.s.jvm.stop.side_effect=stop
+            if failed:
+                with self.assertRaisesRegex(ValueError,'original JVM failure'):h.handle('stop-voter',dict(forced=False),lambda:None)
+            else:h.handle('stop-voter',dict(forced=False),lambda:None)
+            self.assertTrue(c.read(root/'isolation.json')['watchdog']);self.assertTrue(h.healed)
+            self.assertEqual([], (root/'network-rules.txt').read_text().split())
 
     def test_capacity_isolation_needs_completed_initial_direction_and_fixed_target(self):
         h=self.handler('minority-capacity')
