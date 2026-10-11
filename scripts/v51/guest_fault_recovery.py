@@ -21,6 +21,15 @@ def isolation_rules(case, node):
             if a!=b and node in (a,b) for kind in DATA_BLOCKED_TYPES]
 
 
+def preparation_rules():
+    # A healthy PREPARE must reach node-3 to fence its local campaign, but its
+    # basis must not become the healthy leader's fixed write partner. Dropping
+    # that response preserves the promise and forces the healthy pair to select
+    # each other. Node-3's own PREPARE cannot win while this barrier is held.
+    return ([f'node-3 {peer} BEFORE_REQUEST_WRITE PREPARE' for peer in NODES[:2]]+
+            [f'{peer} node-3 AFTER_RESPONSE_READ PREPARE' for peer in NODES[:2]])
+
+
 def heartbeat_frame(row):
     if row is None:return None
     request=m.strict_json(base64.b64decode(row['request'],validate=True)[48:])
@@ -68,7 +77,7 @@ class Controls:
             m.need(payload=={'action':action} and h.case=='minority-capacity' and h.generation==0 and
                    s.jvm is None and not self.direction,'bounded PREPARE direction consumed/scope')
             c.write_once(root/'prepare-direction-claim.json',payload);self.direction=True
-            rules=[f'{a} {b} BEFORE_REQUEST_WRITE PREPARE' for a in NODES for b in NODES if a!=b and 'node-3' in (a,b)]
+            rules=preparation_rules()
             h.rules(rules);self.direction_record=dict(appliedNanos=time.monotonic_ns(),rules=rules)
             self.direction_timer=threading.Timer(timing.CONTROLS['isolation'] if native else 60,lambda:self.release_direction(True))
             self.direction_timer.daemon=True;self.direction_timer.start();return dict(self.direction_record)

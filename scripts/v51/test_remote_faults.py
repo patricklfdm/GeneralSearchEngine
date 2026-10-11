@@ -3,12 +3,46 @@ import copy
 from pathlib import Path
 import tempfile
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from .test_guest_owned_drill import selected_pair
 from . import cloud_workload_contract as contract, performance_model as m
 from . import remote_faults as workload, remote_fault_evidence as evidence
 
 
 class RemoteFaultTest(unittest.TestCase):
+    def test_shared_host_startup_fences_before_release_and_rediscovers_leader(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            cell=workload.Cell(None,Path(tmp),'unused','minority-capacity')
+            cell.start_node=Mock();cell.leader=Mock(return_value='node-2');events=[];observed=[]
+            def network(rules,name):
+                if name=='prepare-heal':self.assertEqual(list(workload.NODES),observed)
+                events.append((name,rules))
+            def status(node):
+                observed.append(node);healed=events[-1][0]=='prepare-heal'
+                # Both the pre-heal leader and the intermediate leader may change.
+                active='node-2' if healed else 'node-1'
+                return dict(state='LEADER_READY' if node==active else 'FOLLOWER',epoch=8 if healed else 5)
+            cell.network=network;cell.status=status
+            cell.rows=lambda node:[selected_pair(node,8 if events[-1][0]=='prepare-heal' else 5)]
+            self.assertEqual('node-2',cell.start_group());self.assertEqual([],cell.history)
+            self.assertEqual(list(workload.NODES),[c.args[0] for c in cell.start_node.call_args_list])
+            self.assertEqual(['prepare-direction','prepare-heal'],[e[0] for e in events])
+            self.assertEqual([f'node-3 {n} BEFORE_REQUEST_WRITE PREPARE' for n in workload.NODES[:2]]+
+                             [f'{n} node-3 AFTER_RESPONSE_READ PREPARE' for n in workload.NODES[:2]],events[0][1])
+            self.assertEqual([],events[1][1]);self.assertEqual(6,len(observed))
+
+    def test_shared_host_startup_does_not_release_unfenced_bounded_voter(self):
+        for state in ('CANDIDATE','LEADER_READY','FAILED'):
+            with tempfile.TemporaryDirectory() as tmp:
+                cell=workload.Cell(None,Path(tmp),'unused','minority-capacity')
+                cell.start_node=Mock();cell.leader=Mock(return_value='node-1');cell.network=Mock()
+                cell.status=lambda node:dict(state=state if node=='node-3' else 'LEADER_READY' if node=='node-1' else 'FOLLOWER',epoch=5)
+                def wait(fn,label):
+                    if not fn():raise ValueError(label)
+                cell.wait=wait
+                with self.assertRaisesRegex(ValueError,'healthy pair did not fence'):cell.start_group()
+                self.assertEqual(['prepare-direction'],[c.args[1] for c in cell.network.call_args_list])
+
     def test_large_values_fit_only_the_two_reviewed_exceptions(self):
         plan=contract.load();cells={c['name']:c for c in plan['cells']}
         for name,value_bytes,total in [('interrupted-transfer',4096,4100),('minority-capacity',20000,20004)]:

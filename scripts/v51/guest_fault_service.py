@@ -142,7 +142,13 @@ class Handler:
             m.need((set(payload)=={'forced'} or retained) and type(payload['forced']) is bool and s.jvm is not None and not s.jvm.closed,'fault stop state')
             m.need(not payload['forced'] or self.case in ('leader-loss',*recovery.CUTS) and self.generation==1,'fault kill scope')
             if payload['forced'] and self.recovery is not None:self.recovery.before_kill()
-            s.jvm.stop(payload['forced'])
+            try:s.jvm.stop(payload['forced'])
+            finally:
+                # A failed cell may stop before its intended heal. Release any
+                # remaining local fault only after stopping the JVM, preserving
+                # an emergency/watchdog marker so incomplete work cannot pass.
+                # This permits original failure evidence to be collected.
+                if s.jvm.closed:self.heal(watchdog=True)
             if payload['forced'] or retained:
                 (root/'crash').mkdir();authority.capture(root,node,root/'crash'/node)
                 c.write_once(root/'crash/inventory.json',authority.inventory(root/node))

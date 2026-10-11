@@ -10,8 +10,8 @@ CASES=remote_faults.CASES
 
 
 class Cell(network.Cell):
-    def command(self, peer, action, **values):
-        return self.succeeded(self.member(peer),'fault',dict(action=action,**values),self.end)['result']
+    def command(self, peer, action, *, deadline=None, **values):
+        return self.succeeded(self.member(peer),'fault',dict(action=action,**values),self.end if deadline is None else deadline)['result']
 
     def observe(self, node):return self.command(node,'observe-recovery')
 
@@ -21,22 +21,49 @@ class Cell(network.Cell):
         self.parallel(self.start,self.clients[:2])
         self.leader(min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30)),exclude=('node-3',))
         self.start(self.member('node-3'))
-        self.parallel(lambda member:self.command('node-'+str(member[0]),'heal-direction'))
-        deadline=min(self.end,self.clock()+timing.control(self.services.provider.req,'activation',30))
+        started=self.clock()
+        deadline=min(self.end,started+timing.control(self.services.provider.req,'activation',30))
         label='owned bounded voter initial fencing'
-        def stable():
-            # Healing PREPARE traffic can change the leader. Observe both healthy
-            # voters under one deadline rather than pinning the pre-heal leader.
-            states={}
-            for node in ('node-1','node-2','node-3'):
-                m.need(self.clock()<deadline,label)
-                states[node]=self.status(node,deadline)
+        startup=self.record['startupFencing']=dict(startNanos=int(started*1e9),deadlineNanos=int(deadline*1e9),lastStates={})
+        def heal(member):
             m.need(self.clock()<deadline,label)
-            bounded=states['node-3']
-            candidates=[node for node in ('node-1','node-2') if states[node]['state']=='LEADER_READY'
-                        and states[node]['epoch']==bounded['epoch']]
-            return candidates[0] if bounded['state']=='FOLLOWER' and len(candidates)==1 else None
-        return self.wait(stable,deadline,label)
+            result=self.command('node-'+str(member[0]),'heal-direction',deadline=deadline)
+            m.need(result['watchdog'] is False,label)
+        def fenced(stage):
+            def stable():
+                m.need(self.clock()<deadline,label)
+                observed=dict(startNanos=int(self.clock()*1e9),states={})
+                startup['lastStates']=observed['states']
+                def status(member):
+                    node='node-'+str(member[0]);observed['states'][node]=self.status(node,deadline)
+                self.parallel(status)
+                observed['endNanos']=int(self.clock()*1e9)
+                m.need(self.clock()<deadline,label)
+                states=observed['states'];bounded=states['node-3']
+                candidates=[node for node in ('node-1','node-2') if states[node]['state']=='LEADER_READY'
+                            and states[node]['epoch']==bounded['epoch']]
+                if bounded['state']=='FOLLOWER' and len(candidates)==1:
+                    selected=self.command(candidates[0],'observe-recovery',deadline=deadline)['selected']
+                    m.need(self.clock()<deadline,label)
+                    if selected is None:return None
+                    pair=f.inspect(base64.b64decode(selected['selected'],validate=True),'SELECTED')
+                    m.need({v['node'] for v in pair['bases']}=={'node-1','node-2'},label)
+                    if pair['ballot']['epoch']!=bounded['epoch'] or pair['ballot']['proposer']!=candidates[0]:return None
+                    observed.update(leader=candidates[0],selected=selected,endNanos=int(self.clock()*1e9));startup[stage]=observed
+                    return candidates[0]
+            return self.wait(stable,deadline,label)
+        try:
+            # Deliver healthy PREPAREs but discard node-3's basis responses.
+            # Roles alone cannot show which fixed pair will perform writes.
+            fenced('beforeRelease')
+            self.parallel(heal)
+            return fenced('afterRelease')
+        except (ValueError,TimeoutError) as error:
+            # A last status may execute in the guest yet miss the controller's
+            # remaining deadline. Preserve its original command evidence, but
+            # report the enclosing startup failure instead of a misleading hang.
+            if self.clock()>=deadline:raise ValueError(label) from error
+            raise
 
     def status(self, node, deadline=None):
         if self.case!='minority-capacity' or node!='node-3':return super().status(node,deadline)
