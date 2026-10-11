@@ -1,17 +1,20 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [native drill startup correction and flexible member order](v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md).
-PR #311's native integration passed master CI `37957278096` attempt 2 at
-`99df69f1d5c50daae8690f2ed4237482b0e88830`; native experiment `37970604996`
-passed. Drill `37981974124` failed before the final cell's workload because the
-controller kept observing the pre-heal leader after another healthy node took
-over. Cleanup/retention passed; the recorded charge total was USD 110 / 200.
-The owner subsequently authorized an accounting restart on 2026-10-09: original
-ledger backed up, no active lease/resources, and USD 0 / 200 verified by read-back.
-The local correction rediscovers the leader within the original deadline and
-adds `any-order` for all five distinct native members. Corrected-source CI and
-paid validation remain pending. Historical cost records and the complete same-source
-five-member acceptance requirement remain in force.
+Current batch: [native drill snapshot-repeat correction](v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md#follow-up-repeated-snapshots-exhausted-fault-telemetry).
+PR #312's startup/order correction passed master CI `38010525953` at
+`ba62539afa237eeda6576e4c184f9f903f1d00be`. Native drill `38033332912`
+completed eleven cells and passed the corrected final-cell startup, but repeated
+snapshot installations exhausted healthy node-2's 128-MiB fault trace capacity.
+All stage budgets passed; cleanup/retention passed and the lease was released.
+The local correction skips only an exact confirmed snapshot installation after
+a fresh peer status probe and preserves a closed trace-capacity failure code.
+Corrected-source protected CI and paid validation remain pending.
+
+PR #311's native experiment `37970604996` remains accepted on its earlier source.
+The owner-authorized accounting restart of 2026-10-09 preserved the original
+USD 110 ledger and verified USD 0 / 200 before the new attempt. This correction
+adds no reset or refund. Historical failures, failed-attempt accounting and the
+complete same-source five-member acceptance requirement remain in force.
 
 [Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
 is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,

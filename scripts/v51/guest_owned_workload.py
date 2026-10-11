@@ -76,6 +76,8 @@ class Probe:
 
     def succeeded(self, member, name, payload, deadline):
         result=self.execute(member,name,payload,deadline)
+        if result['state']=='FAILED' and result.get('error')==dict(type='ValueError',message='remote fault trace per-node bound'):
+            raise ValueError('remote fault trace per-node bound')
         m.need(result['state']=='SUCCEEDED','owned guest command failed: '+str(result))
         return result
 

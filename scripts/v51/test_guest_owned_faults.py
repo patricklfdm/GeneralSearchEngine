@@ -3,12 +3,71 @@ from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 import tempfile
+import sys
+import time
 import unittest
 from unittest.mock import Mock, patch
 from . import cloud_guest, cloud_fake, cloud_runner, guest_owned_faults as faults
 from . import guest_fault_service as service, guest_fault_evidence as evidence, remote_command as c
 from .test_guest_service import config
 from . import test_guest_owned_workload as common
+
+
+class FaultDiagnosticTest(unittest.TestCase):
+    def test_original_trace_bound_reaches_controller_and_safe_runner_code(self):
+        from .guest_fault_jvm import Jvm
+        from . import cloud_runner_diagnostics as diagnostics
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            script='''import json,os,sys,pathlib
+pathlib.Path(sys.argv[1],"node-1-trace.jsonl").write_text(json.dumps(dict(node="node-1",pid=os.getpid(),generation=1,order=1))+"\\n")
+print(json.dumps(dict(status="STARTED",pid=os.getpid())),flush=True)
+sys.stdin.readline()
+print("private-secret\\nCaused by: java.io.IOException: remote fault trace per-node bound",file=sys.stderr,flush=True)
+sys.exit(1)
+'''
+            jvm=Jvm([sys.executable,'-c',script,temp],root,'node-1',1,time.monotonic()+15)
+            try:
+                with self.assertRaisesRegex(ValueError,'^remote fault trace per-node bound$'):jvm.command('status')
+                with self.assertRaisesRegex(ValueError,'^remote fault trace per-node bound$'):jvm.submit('read')
+            finally:
+                with self.assertRaises(ValueError):jvm.stop()
+            self.assertEqual(1,len(jvm.rows))
+            cell=faults.Cell(SimpleNamespace(clients=[],provider=SimpleNamespace(req={})),root/'cell','leader-loss')
+            cell.execute=Mock(return_value=dict(state='FAILED',error=jvm.rows[0]['failure']))
+            with self.assertRaises(ValueError) as caught:cell.succeeded(None,'fault',{},0)
+            result=diagnostics.runtime_failure('execution',caught.exception)
+            self.assertEqual('RUNTIME_TRACE_CAPACITY',result['code']);self.assertNotIn('private-secret',str(result))
+            self.assertEqual(1,cell.execute.call_count)
+
+    def test_only_exact_bounded_stderr_line_classifies_eof(self):
+        from .guest_fault_jvm import Jvm, Pipes
+        with tempfile.TemporaryDirectory() as temp:
+            jvm=Jvm.__new__(Jvm);jvm.root=Path(temp);jvm.prefix='node-1-g1'
+            exact='Caused by: java.io.IOException: remote fault trace per-node bound'
+            for text in ('remote fault trace per-node bound',
+                         'private-secret: Caused by: java.io.IOException: remote fault trace per-node bound',
+                         'Caused by: java.io.IOException: remote fault trace per-node bound extra',
+                         'private-secret '+exact+'\n'+'x'*(8192-len(exact)-2),
+                         exact+'\n'+'x'*8192,
+                         'unrelated failure'):
+                (jvm.root/(jvm.prefix+'-stderr.log')).write_text(text+'\n')
+                with patch.object(Pipes,'line',side_effect=ValueError('guest JVM EOF')):
+                    with self.assertRaisesRegex(ValueError,'^guest JVM EOF$'):jvm.line(1)
+            (jvm.root/(jvm.prefix+'-stderr.log')).write_text('x'*10000+'\n'+exact+'\n')
+            with patch.object(Pipes,'line',side_effect=ValueError('guest JVM EOF')):
+                with self.assertRaisesRegex(ValueError,'^remote fault trace per-node bound$'):jvm.line(1)
+            with patch.object(Pipes,'line',side_effect=TimeoutError('original deadline')):
+                with self.assertRaisesRegex(TimeoutError,'original deadline'):jvm.line(1)
+
+    def test_unrecognized_remote_failure_is_not_promoted_to_a_safe_code(self):
+        from . import cloud_runner_diagnostics as diagnostics
+        with tempfile.TemporaryDirectory() as temp:
+            cell=faults.Cell(SimpleNamespace(clients=[],provider=SimpleNamespace(req={})),Path(temp)/'cell','leader-loss')
+            cell.execute=Mock(return_value=dict(state='FAILED',error=dict(type='ValueError',message='private-secret remote fault trace per-node bound')))
+            with self.assertRaises(ValueError) as caught:cell.succeeded(None,'fault',{},0)
+            result=diagnostics.runtime_failure('execution',caught.exception)
+            self.assertEqual('UNCLASSIFIED',result['code']);self.assertNotIn('private-secret',str(result))
 
 
 class ScopeTest(unittest.TestCase):
