@@ -81,6 +81,7 @@ class PythonLanesTest(unittest.TestCase):
         # module, while the full inventory also reports exactly what drifted.
         expected=['scripts.v51.test_'+name for name in (
             'native_preset_review', 'native_presets', 'native_soft_budgets',
+            'cloud_image_policy', 'native_image_continuation',
             'cloud_preflight', 'cloud_recent_cleanup', 'cloud_identity_setup',
             'cloud_cleanup_deployment', 'cloud_cleanup_observation', 'cloud_permissions',
             'cloud_credential_diagnostics', 'cloud_runner_precheck', 'cloud_runner_artifacts',
