@@ -1,25 +1,31 @@
 # Next-development documentation handoff
 
-Current batch: [native soft budgets and packed retention](v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md).
-PR #315 passed exact-master CI `38193537774` on
-`be16ce4af3837a13558b73efbce7c4feade68e44`. Canonical-1 `38206276543` passed
-all fifteen cells and independent replay, then exceeded the 2400-second retention
-stage while uploading small files. Exact-resource cleanup passed; retention and
-ledger finalization did not. The observed ledger is USD 100 with that attempt
-PENDING. The original lease requires manual reconciliation; no reset is performed.
+Current batch: [frozen image admission and one-batch continuation](v5.1/PHASE_6_IMAGE_CONTINUATION.md).
+PR #316 accepted soft budgets/packed retention on
+`f46f9a4ea624df2b42902efd0b633c30933ae2f2`. Canonical-1 `38280933954` and
+canonical-2 `38300809738` passed all fifteen cells, independent replay, retention,
+exact cleanup and ledger completion. Last observed ledger: USD 150 reserved,
+no PENDING attempt or active lease. Failed prepare `38319063804` never allocated:
+the exact frozen image had become DEPRECATED.
 
-The operator authorized soft time **and** money budgets. New v4 plans warn on
-stage overruns and the USD 200 threshold, pack metadata with original path/hash
-inventories, and retain fast failure for definite errors. GitHub's six-hour job
-limit and immutable cleanup ownership still apply. Local verification is complete;
-corrected-source protected CI and a new same-source five-member native set remain
-pending. Earlier v1/v2/v3 requests retain their historical semantics.
+The operator authorized reusing only those two runs. Corrected-source CI and
+package-byte compatibility must pass before running canonical-3, experiment and
+failure-drill with sequence `68efdd6b99df497fb1b1dd6d87947fb4`. Keep all three on
+one corrected source; their order is free. Use the read-only continuation tool
+for the explicit five-member mapping; do not copy old ledger entries or relabel
+old source/sequence. Subsequent batches keep normal same-source/sequence rules.
+Phase 6 and final acceptance remain open. Cloud dispatch remains manual.
+
+The accepted [soft budgets](v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md) retain advisory
+time/money thresholds, fast failure, GitHub's six-hour platform limit and original
+cleanup ownership. This repair performs no budget reset or refund.
 
 PR #311's native experiment `37970604996` remains accepted on its earlier source.
 The owner-authorized accounting restart of 2026-10-09 preserved the original
 USD 110 ledger and verified USD 0 / 200 before the new attempt. This correction
 adds no reset or refund. Historical failures, failed-attempt accounting and the
-complete same-source five-member acceptance requirement remain in force.
+complete five-member acceptance requirement remain in force, with only the
+explicit image-continuation exception above.
 
 [Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
 is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,

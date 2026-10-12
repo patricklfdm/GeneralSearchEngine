@@ -17,6 +17,7 @@ from . import cloud_authority as a, cloud_ci as ci, cloud_preflight as p
 from . import cloud_identity_setup as identities, cloud_observer_setup as observer
 from . import cloud_cleanup_entry as entry, cloud_cleanup_credentials as credentials
 from . import cloud_http as http, performance_model as m
+from . import cloud_image_policy as images
 from .remote_command import read, write_once
 
 SCHEMA = 'gse-v51-permission-precheck-v1'
@@ -95,12 +96,10 @@ def plan(cfg, role):
 def image(response, query):
     """Retain only the frozen identity fields, never arbitrary provider text."""
     m.need(type(response) is dict and
-           all(response.get(k) == v for k, v in query['expectedImage'].items()) and
-           response.get('deprecated') in (None, {}) and
            response.get('kind', 'compute#image') == 'compute#image' and
            p.gcp.link(response.get('selfLink', query['url'])) == query['url'],
            'frozen Runner image identity/status/architecture changed')
-    return {k:response[k] for k in query['expectedImage']}
+    return images.observe(response, query['expectedImage'])
 
 
 def permissions(response, query):
@@ -195,7 +194,7 @@ def evaluate(cfg, binding, value, *, now):
             if name == 'image':
                 m.need(set(observed) == {'image'} and observed['image'] == image(observed['image'], query),
                        'Runner image observation fields')
-                checks[name] = dict(status='PASS', detail=observed['image'])
+                checks[name] = dict(status='PASS', detail=observed['image'], warnings=images.warnings(observed['image']))
                 continue
             actual = set(permissions(observed, query)); missing = sorted(set(query['required'])-actual)
             forbidden = sorted(set(query['forbidden']) & actual)
@@ -217,6 +216,7 @@ def summary(value):
             ''.join('- '+safe(k)+': '+safe(v)+'\n' for k,v in image_check['detail'].items())
             if image_check.get('detail') else 'Image observation unavailable; inspect the failed checks.\n')
         image_section += '\nA successful image read does not prove permission to create a boot disk from it.\n'
+        image_section += ''.join('\nWarning: '+safe(v)+'\n' for v in image_check.get('warnings', []))
     rows = [('Status',value['status'])]+[(key,value[key]) for key in
             ('role','source','runId','runAttempt','serviceAccount','provider','environment','configurationSha256','execution') if key in value]
     rows += credentials.failure_rows(value.get('failure'))

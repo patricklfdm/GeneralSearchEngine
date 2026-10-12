@@ -1,6 +1,12 @@
 # V5.1 Phase 6 checklist
 
-**Current correction:** [native soft time/cost budgets and packed retention](PHASE_6_NATIVE_SOFT_BUDGETS.md). PR #315 passed protected CI; canonical-1 passed all fifteen cells and replay but failed retention timing. Full Phase 6 remains open.
+**Current correction:** [frozen image policy and one-batch continuation](PHASE_6_IMAGE_CONTINUATION.md).
+PR #316's native canonical-1 `38280933954` and canonical-2 `38300809738` completed
+successfully. Third-member preparation `38319063804` was blocked by the frozen
+image becoming DEPRECATED. The operator authorized retaining exactly those two
+members and running canonical-3, experiment and failure-drill on one new sequence
+after the admission-only correction. Corrected-source CI, remaining native runs
+and final review are pending; full Phase 6 remains open.
 
 **Status:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
