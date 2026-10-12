@@ -1,5 +1,10 @@
 # V5.1 native full-preset entry plan
 
+**2026-10-12 narrow amendment:** the [image continuation](PHASE_6_IMAGE_CONTINUATION.md)
+may reuse exactly two pinned canonical runs for one named batch. All other
+phase/batch qualification still requires a complete same-source, same-sequence
+set. Normal request and ledger identity validation is unchanged.
+
 **Status:** implementation plan after the
 [first successful native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md).
 The [owned network-fault batch](PHASE_6_OWNED_NETWORK_FAULTS.md) now implements

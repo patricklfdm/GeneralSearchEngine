@@ -8,6 +8,7 @@ import subprocess
 import time
 from . import cloud_authority as a, cloud_ci as ci, cloud_gcp as gcp, cloud_http
 from . import cloud_native_authority as native
+from . import cloud_image_policy as images
 from . import performance_model as m, remote_command as c
 
 CONFIG = ci.ROOT/ci.CONFIG_PATH
@@ -98,10 +99,8 @@ def check_provider(cfg, evidence):
             checks[name] = dict(status='BLOCKED', reason=str(error)[:300])
     check('observerIdentity', lambda: m.need(o['principal'] == cfg['observerServiceAccount'], 'wrong/missing observer account'))
     def image():
-        v = o['image']
-        m.need(v['id'] == p['imageId'] and v['name'] == p['imageName'] and v['status'] == 'READY' and
-               v['architecture'] == 'X86_64' and not v.get('deprecated'), 'frozen image identity/status/architecture changed')
-        return dict(name=v['name'], id=v['id'])
+        v = images.observe(o['image'], dict(name=p['imageName'], id=p['imageId'], status='READY', architecture='X86_64'))
+        return dict(v, warnings=images.warnings(v))
     check('image', image)
     def topology():
         base = 'https://compute.googleapis.com/compute/v1/projects/'+p['project']

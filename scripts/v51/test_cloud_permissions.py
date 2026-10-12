@@ -202,7 +202,7 @@ class PermissionPrecheckTest(unittest.TestCase):
         for key in original:
             missing = deepcopy(original); del missing[key]; variants.append(missing)
             variants.append(dict(original, **{key:'secret'}))
-        for extra in ({'deprecated':{'state':'DEPRECATED'}}, {'deprecated':[]},
+        for extra in ({'deprecated':{'state':'OBSOLETE'}}, {'deprecated':{'state':'DELETED'}}, {'deprecated':[]},
                       {'deprecated':False}, {'kind':'storage#bucket'},
                       {'selfLink':'https://compute.googleapis.com/compute/v1/projects/foreign/global/images/other'}):
             variants.append(dict(original, **extra))
@@ -214,6 +214,16 @@ class PermissionPrecheckTest(unittest.TestCase):
                 self.assertEqual('PASS', result['checks']['project']['status'])
                 self.assertEqual('PASS', result['checks']['bucket']['status'])
                 self.assertNotIn('secret', repr(observed)+p.summary(result))
+
+    def test_deprecated_image_round_trips_with_warning_without_following_replacement(self):
+        self.fixture('runner')
+        self.provider.responses['image']['deprecated']={'state':'DEPRECATED','replacement':'private-provider-text'}
+        observed=self.collect(); result=self.evaluate(observed)
+        self.assertEqual('PRECHECK_PASS',result['status'])
+        self.assertEqual({'state':'DEPRECATED'},observed['observations']['image']['image']['deprecated'])
+        self.assertTrue(result['checks']['image']['warnings'])
+        self.assertIn('Warning:',p.summary(result));self.assertNotIn('private-provider-text',str(observed))
+        self.assertEqual(1,len([v for v in self.provider.requests if v['scope']=='image']))
 
     def test_image_endpoint_and_expected_identity_drift_stop_before_credentials(self):
         for change in ('url','method','body','identity'):

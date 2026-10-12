@@ -81,9 +81,17 @@ class PreflightTest(unittest.TestCase):
         result=self.blocked('image');self.assertIn('HTTP 403',result['checks']['image']['reason'])
     def test_boolean_observation_times_are_rejected(self):
         self.provider['startedAt']=True;self.blocked('provider')
-    def test_changed_or_deprecated_image_blocks(self):
-        for change in ({'id':'1'},{'status':'PENDING'},{'architecture':'ARM64'},{'deprecated':{'state':'DEPRECATED'}}):
+    def test_changed_or_unusable_image_blocks(self):
+        for change in ({'id':'1'},{'status':'PENDING'},{'architecture':'ARM64'},
+                       {'deprecated':{'state':'OBSOLETE'}},{'deprecated':{'state':'DELETED'}}):
             self.setUp();self.provider['observations']['image'].update(change);self.blocked('image')
+    def test_deprecated_exact_image_is_ready_with_visible_warning(self):
+        self.provider['observations']['image']['deprecated']={'state':'DEPRECATED','replacement':'another-image'}
+        result=self.evaluate()
+        self.assertEqual('OBSERVATIONS_READY',result['status'])
+        detail=result['checks']['image']['detail']
+        self.assertEqual(self.cfg['provider']['imageId'],detail['id'])
+        self.assertTrue(detail['warnings']);self.assertNotIn('another-image',str(result))
     def test_compute_resource_id_is_distinct_from_project_number(self):
         project=self.provider['observations']['project']
         project.update(id='5021569533786003310',name=self.cfg['provider']['project'])

@@ -1,7 +1,10 @@
 # Native soft budgets and packed retention
 
-**Status:** local correction, 2026-10-12. Protected CI and a new native run remain
-required. The operator explicitly authorized soft **time and money** budgets.
+**Status:** accepted through PR #316, source `f46f9a4ea624df2b42902efd0b633c30933ae2f2`.
+Native canonical-1 `38280933954` and canonical-2 `38300809738` passed workload,
+replay, packed retention, cleanup and ledger finalization. The remaining members
+are covered by the explicitly authorized [one-batch continuation](PHASE_6_IMAGE_CONTINUATION.md)
+after fixing DEPRECATED image admission. The operator authorized soft **time and money** budgets.
 This supersedes the v3 native stage/cost ceilings for new v4 requests. Historical
 requests, failed evidence and the separate offline CI qualification keep their
 original semantics. This change does not reset the ledger or dispatch cloud work.

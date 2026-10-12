@@ -1,0 +1,91 @@
+{
+  "schema": "gse-v51-image-continuation-v1",
+  "authorizedOn": "2026-10-12",
+  "oldSource": "f46f9a4ea624df2b42902efd0b633c30933ae2f2",
+  "oldSequence": "eb7859da90c94c468215f2867638b0bf",
+  "sequence": "68efdd6b99df497fb1b1dd6d87947fb4",
+  "remaining": [
+    "canonical-3",
+    "experiment",
+    "failure-drill"
+  ],
+  "inherited": {
+    "canonical-1": {
+      "runId": 38280933954,
+      "runAttempt": 1,
+      "preparedRunId": 38280005640,
+      "requestSha256": "abafc17f6b00bd8dff9fe3d959f96fe5af32ddadf5aaddef53db58af9fb70132",
+      "records": {
+        "completion.json": "fd70dfcf7cca529b59693c122dcb33e02f98dd41c3965251bc3c4c6561a42703",
+        "owned-experiment/evidence.json": "8641e9c3c92ee3bc9e29f5ff9f631393d22de3bc7713ebb54c171fac5910555c",
+        "owned-experiment/manifest.json": "77582bc7d81b08f0b8cb8c451cdf3347d317e8e0f96d56e56edbbe69b3ecdb36"
+      }
+    },
+    "canonical-2": {
+      "runId": 38300809738,
+      "runAttempt": 1,
+      "preparedRunId": 38300238047,
+      "requestSha256": "0ed27054ac2a111d95b9370f47b7f2485ff7ffdc8ecca210f0a96bff7a37ff90",
+      "records": {
+        "completion.json": "a9f93c1477a4685676881dd2cc36234624026392e9099c402f8a5a0cdb81068b",
+        "owned-experiment/evidence.json": "3bd70e883ec53d3a4f5d27d7d545584061a0733f5e928bba475ca379a395e354",
+        "owned-experiment/manifest.json": "ce86625e7815dfa938e2d01a2aa47817b05536cf1903f891f1eb638b50d7dfc7"
+      }
+    }
+  },
+  "payloadSha256": "5e6e22804463e14d011c3c5bdd133dddb3c8190cd3f7f4a2ba5e5dbf1b0bd742",
+  "configurationSha256": "0c973182bdbb8d3ad20a3270f5427d4b91631645414bf1bdb9762854fa215bd8",
+  "workloadSha256": "f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7",
+  "timingPlanSha256": "0c10ffa9de000005d488fb490967db357dd97d1e8ab75d6334cbb17487ec241b",
+  "image": {
+    "imageProject": "ubuntu-os-cloud",
+    "imageName": "ubuntu-2404-noble-amd64-v20260918",
+    "imageId": "763874002631433611"
+  },
+  "allowedChanges": [
+    "scripts/v51/cloud_image_policy.py",
+    "scripts/v51/cloud_preflight.py",
+    "scripts/v51/cloud_permissions.py",
+    "scripts/v51/native_image_continuation.py",
+    "scripts/v51/test_cloud_image_policy.py",
+    "scripts/v51/test_cloud_preflight.py",
+    "scripts/v51/test_cloud_permissions.py",
+    "scripts/v51/test_native_image_continuation.py",
+    "scripts/verify-v51-phase6-cloud-preflight.sh",
+    "docs/v5x/v5.1/native-image-continuation.json",
+    "docs/v5x/v5.1/PHASE_6_IMAGE_CONTINUATION.md",
+    "docs/v5x/v5.1/PHASE_6_CHECKLIST.md",
+    "docs/v5x/v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md",
+    "docs/v5x/v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md",
+    "docs/v5x/v5.1/PHASE_6_RUNNER_RESOURCE_ENTRY.md",
+    "docs/v5x/NEXT_DEVELOPMENT_HANDOFF.md"
+  ],
+  "approvedScripts": {
+    "scripts/v51/cloud_image_policy.py": "398aaf15f274ea64d7a9c790f6a4f4c0b3a93714cc278e4f813c2688a2225469",
+    "scripts/v51/cloud_preflight.py": "6a72dbbe353cafc77d1c5949f5cdba9c9c4679304365b5f4cbf29f7309ad4fa1",
+    "scripts/v51/cloud_permissions.py": "26d516c1f9bd041ddc6628332b4fb1cfd59340023a03d5f3b24e3254c986240a",
+    "scripts/v51/native_image_continuation.py": "6f980579c9f471a78e588b8318003d2f563a21f720b6ed0f2511c20ed516e366",
+    "scripts/v51/test_cloud_image_policy.py": "39f5a71e954db276cd8372f2443b9c3b428d686d5f1e4faa986a499dd57a6494",
+    "scripts/v51/test_cloud_preflight.py": "36c3df9ba83569c24d114eeb7942ad414715c6f857033821c4d5ad5a048fe223",
+    "scripts/v51/test_cloud_permissions.py": "38a43caa3fbd9dd0ea8eda5a207028db7e70fdd49d2fb04a6c8f8f641c11a6c2",
+    "scripts/v51/test_native_image_continuation.py": "bf346d4fe2057d5c1eaeda9e93edb828c879ecb54afc022d63b252c4fa2e958b",
+    "scripts/verify-v51-phase6-cloud-preflight.sh": "47842dd2879feb34c3a9cb2f19367f0df95616fffc682c231411e89ac220a586"
+  },
+  "originalPackage": {
+    "ciRun": 38231529564,
+    "ciAttempt": 1,
+    "artifacts": {
+      "build": {
+        "id": 11739175928,
+        "sha256": "f1abd8118725e8251d69108984dc408a0dc4fd08c1dbf0950d969dfa615ebe09"
+      },
+      "package": {
+        "id": 11739595450,
+        "sha256": "20fb1b4961981330a8ccdb4f250a76f99bd4706924176be80d95b005cc8a31e0"
+      }
+    },
+    "archiveSha256": "97b24e09675462f9c6f24a2a2c69ed4c5ad0acc4c7c9b31bf863c3c5284df8da",
+    "packageManifestSha256": "434234aa71d59524828a18cad088342b7be43fe15d63bf8e07d2c8afb0029116",
+    "buildManifestSha256": "1b15aabf72e22aad758ac72e1935033472b90fe506181b793e989e9987b8cc97"
+  }
+}

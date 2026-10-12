@@ -63,7 +63,9 @@ no allocation or engine workload was selected. The earlier audit gap remains.
 
 The existing optional Runner precheck adds one fixed `GET` using the same bound
 Runner credential. The URL is derived from the pinned `imageProject` and
-`imageName`; the result must match `imageId`, READY, X86_64 and no deprecation.
+`imageName`; the result must match `imageId`, READY and X86_64. The
+[shared image policy](PHASE_6_IMAGE_CONTINUATION.md) admits DEPRECATED with a
+warning; OBSOLETE, DELETED and unknown/malformed states remain blocked.
 A returned self-link, if present, must identify that exact image. Only the four
 validated identity/status fields enter the receipt and Actions summary; arbitrary
 descriptions, encryption fields and provider error bodies are not retained.
@@ -253,7 +255,7 @@ All 21 storage-entry regressions and 35 CI classifier/Python partition tests pas
 the complete 24-test permission suite also passed under Python 3.11.
 
 Six new regressions cover frozen-image scope/identity, sanitized responses,
-malformed/deprecated/drifted images, unavailable HTTP results, endpoint drift,
+malformed/unusable/drifted images, unavailable HTTP results, endpoint drift,
 401 refresh, original deadlines and saved-observation replay. Original
 project/bucket query plans match the accepted source for all four roles. The
 eleven changed/new documents passed local-link/fence checks and the documentation
