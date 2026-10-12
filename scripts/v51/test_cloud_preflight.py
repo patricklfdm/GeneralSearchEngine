@@ -135,7 +135,9 @@ class PreflightTest(unittest.TestCase):
         self.provider['observations']['ledger']=[1,{'schema':'gse-v50-budget-v1','reservations':[]}];self.blocked('controlState')
         req,_,approval=native_fixture(cost=200_000_000)
         ledger=n.finish(n.reserve(n.empty_ledger(),req,approval),req,dict(requestSha256=n.validate_request(req),status='FAIL'))
-        self.provider['observations']['ledger']=[1,ledger];self.blocked('controlState')
+        self.provider['observations']['ledger']=[1,ledger]
+        check=self.evaluate()['checks']['controlState']
+        self.assertEqual('PASS',check['status']);self.assertTrue(check['detail']['budgetWarning'])
     def test_preflight_retains_charges_and_reports_200_dollar_ceiling(self):
         for cost in (100_000_000,199_999_999):
             with self.subTest(cost=cost):
@@ -144,7 +146,8 @@ class PreflightTest(unittest.TestCase):
                 self.provider['observations']['ledger']=[1,ledger]
                 result=self.evaluate()['checks']['controlState']
                 self.assertEqual('PASS',result['status'])
-                self.assertEqual(dict(previousCostMicrousd=cost,budgetMicrousd=200_000_000,leaseAbsent=True),result['detail'])
+                self.assertEqual(dict(previousCostMicrousd=cost,budgetMicrousd=200_000_000,leaseAbsent=True,
+                    budgetMode='soft',budgetWarning=False),result['detail'])
     def test_fake_ledger_cannot_replace_native_control_state(self):
         self.provider['observations']['ledger']=[1,a.empty_ledger()]
         self.blocked('controlState')
@@ -168,7 +171,7 @@ class PreflightTest(unittest.TestCase):
     def test_summary_escapes_dynamic_text_and_shows_bounds(self):
         r=self.evaluate();r['checks']['example']=dict(status='BLOCKED',reason='<script>|\ntext')
         s=p.summary(r,self.cfg);self.assertNotIn('<script>',s);self.assertIn('&#124;',s)
-        for text in ('24 vCPU','450 GiB','paid admission remains closed','200; reservations never reset'):self.assertIn(text,s)
+        for text in ('24 vCPU','450 GiB','paid admission remains closed','200; soft for new v4 runs; charges retained'):self.assertIn(text,s)
 
 
 class GitHubCollectionTest(unittest.TestCase):

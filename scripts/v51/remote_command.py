@@ -202,7 +202,8 @@ class CommandStore:
             os.close(lock)
 
 
-def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, sleep=time.sleep, limits=None):
+def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, sleep=time.sleep, limits=None,
+                       warn_after=None, warn=lambda: None):
     """Submit exactly once, then only query. Transport implements submit/query.
 
     A fresh query connection may renew credentials. Lost responses do not restart
@@ -211,6 +212,7 @@ def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, slee
     m.need(clock() < deadline, 'remote command deadline')
     expected = dict(bindingSha256=value['bindingSha256'], commandId=value['commandId'], requestSha256=m.sha(m.canonical(value)))
     result = None
+    started=clock();warned=False
     failures=uncertain=queries=0
     def failed():
         nonlocal failures
@@ -222,6 +224,8 @@ def submit_and_observe(transport, value, deadline, *, clock=time.monotonic, slee
         if getattr(error,'retryable',True) is False:raise
         failed()
     while True:
+        if warn_after is not None and not warned and clock()-started>warn_after:
+            warn();warned=True
         if result is not None:
             m.need(all(result.get(k) == v for k, v in expected.items()) and result.get('schema') == 'gse-v51-command-receipt-v1', 'remote response identity')
             m.need(len(m.canonical(result)) <= RESPONSE_BYTES, 'remote response limit')

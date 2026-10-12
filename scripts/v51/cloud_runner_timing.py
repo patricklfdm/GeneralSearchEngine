@@ -5,6 +5,7 @@ preparation lifetime. Canonical/failure-drill allocation remains frozen.
 """
 from . import cloud_workload_contract as contract, performance_model as m
 from .native_experiment_timing import PROFILE, PREPARATION_SECONDS, STAGES, LEASE_SECONDS, GRACE_SECONDS
+from .native_experiment_timing import preparation
 
 APPROVAL_SECONDS = 900
 

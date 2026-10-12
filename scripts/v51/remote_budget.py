@@ -1,4 +1,4 @@
-"""One controller clock and disjoint charging of the frozen topology lease."""
+"""One controller clock: legacy limits or v4 advisory stage accounting."""
 from contextlib import contextmanager
 import time
 from . import cloud_workload_contract as contract, performance_model as m
@@ -16,6 +16,7 @@ class Budget:
             ('preparation', 'preparationSeconds'), ('control', 'controlOverheadSeconds'),
             ('validation-retention', 'validationRetentionSeconds'), ('cleanup', 'cleanupSeconds'))})
         self.lease = plan['budgets']['leaseSeconds'] * 10**9
+        self.soft = False
         if profile == OWNED_CANONICAL_PROFILE:
             # Offline complete-set replay needs controller CPU time after all
             # guests stop. Keep the original lease and its cleanup reservation;
@@ -27,6 +28,7 @@ class Budget:
             allocation = timing.allocation() if profile == timing.PROFILE else full.by_profile(profile)
             self.limits = {name: seconds * 10**9 for name, seconds in allocation['limitsSeconds'].items()}
             self.lease = allocation['leaseSeconds'] * 10**9
+            self.soft = allocation.get('timeBudgetMode') == 'soft'
         self.clock, self.emit = clock, emit
         self.start = self.cursor = clock()
         self.spent = {name: 0 for name in self.limits}
@@ -47,19 +49,21 @@ class Budget:
         m.need(name in self.limits and name != 'control' and self.active is None, 'budget stage/nesting')
         m.need(name not in self.used, 'stage cannot restart its deadline')
         gap_ok = self._charge('control', self.clock())
-        # Cleanup must still be attempted after an overrun; accounting reports FAIL.
-        m.need(gap_ok or name == 'cleanup', 'control/lease budget exceeded')
+        # Cleanup is attempted after an overrun. Legacy accounting reports FAIL;
+        # v4 retains the elapsed observation and emits a warning.
+        m.need(self.soft or gap_ok or name == 'cleanup', 'control/lease budget exceeded')
         self.used.add(name)
         self.active = name
         stage_deadline = self.cursor + self.limits[name]
         reserve = 0 if name == 'cleanup' else self.limits['cleanup']
         deadline = min(stage_deadline, self.start+self.lease-reserve)
+        if self.soft:deadline = self.start+self.lease
         try:
             yield deadline
         finally:
             self.active = None
             ok = self._charge(name, self.clock())
-            m.need(ok, 'budget exceeded: ' + name)
+            m.need(self.soft or ok, 'budget exceeded: ' + name)
 
     def finish(self):
         m.need(self.active is None, 'unfinished budget stage')
@@ -67,5 +71,8 @@ class Budget:
         elapsed = self.cursor-self.start
         m.need(sum(self.spent.values()) == elapsed, 'uncharged controller time')
         ok = all(row['withinBudget'] for row in self.rows) and elapsed <= self.lease
-        return dict(status='PASS' if ok else 'FAIL', clock='controller-monotonic',
+        result = dict(status='PASS' if ok or self.soft else 'FAIL', clock='controller-monotonic',
                     elapsedNanos=elapsed, spentNanos=self.spent.copy(), intervals=self.rows.copy())
+        if self.soft:
+            result.update(mode='soft', warnings=[name for name,value in self.spent.items() if value>self.limits[name]])
+        return result

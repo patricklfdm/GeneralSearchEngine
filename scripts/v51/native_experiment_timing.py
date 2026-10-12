@@ -1,7 +1,7 @@
-"""Reviewed first-run headroom; fixed ceilings, never a wire-supplied timeout.
+"""Reviewed native timing policies, never a wire-supplied timeout.
 
-Native request v2 selects these limits; v3 delegates to its closed member
-allocation below. Legacy leases keep their original
+Native request v2 selects these limits; v3/v4 delegate to their closed member
+allocation below. v4 stage thresholds only warn. Legacy leases keep their original
 expiry, and canonical measurement parameters are not changed by this profile.
 """
 PROFILE = 'owned-experiment-v2'
@@ -34,14 +34,28 @@ def selected(request):
 
 def control(request, name, legacy):
     from . import native_preset_timing as full
+    # Fault injection durations remain part of the experiment itself. Waiting
+    # for control work uses the original session/platform lifetime for v4.
+    if full.soft(request) and name not in ('isolation','hold-controller'):
+        CONTROLS[name]  # Reject an unknown control rather than granting time.
+        return full.validate(request)['leaseSeconds']
     if full.selected(request) and name=='mode':return full.validate(request)['healthyModeSeconds']
     return CONTROLS[name] if selected(request) else legacy
 
 
 def cell(request, name):
+    from . import native_preset_timing as full
+    if full.soft(request):
+        value=full.validate(request);value['limitsSeconds'][name]
+        return value['leaseSeconds']
     if selected(request):return allocation(request)['limitsSeconds'][name]
     from . import cloud_workload_contract as contract
     return {cell['name']:cell['seconds'] for cell in contract.load()['cells']}[name]
+
+
+def preparation(request):
+    value=allocation(request)
+    return value.get('preparationDeadlineSeconds',value['limitsSeconds']['preparation'])
 
 
 def allocation(request):

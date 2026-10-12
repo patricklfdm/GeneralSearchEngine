@@ -144,8 +144,8 @@ def check_provider(cfg, evidence):
         if lease is not None:native.validate_lease(entry(lease))
         m.need(lease is None, 'retained lease requires reconciliation; expiry does not authorize reset')
         m.need(not any(v['status'] == 'PENDING' for v in attempts.values()), 'unresolved ledger reservation')
-        m.need(total < a.MAXIMUM_BUDGET_MICROUSD, 'suite budget exhausted')
-        return dict(previousCostMicrousd=total, budgetMicrousd=a.MAXIMUM_BUDGET_MICROUSD, leaseAbsent=True)
+        return dict(previousCostMicrousd=total, budgetMicrousd=a.MAXIMUM_BUDGET_MICROUSD, leaseAbsent=True,
+                    budgetMode='soft',budgetWarning=total>=a.MAXIMUM_BUDGET_MICROUSD)
     check('controlState', control)
     return checks
 
@@ -187,7 +187,7 @@ def summary(receipt, cfg):
              '| Parameter | Value |', '| --- | --- |']
     for key, value in [('Source', receipt['source']), ('Project', p['project']), ('Zone', p['zone']), ('Machine', p['machineType']),
                        ('Topology', '3 voters / 24 vCPU / 450 GiB'), ('Image', p['imageName']+' / '+p['imageId']),
-                       ('Bucket', p['bucket']), ('Suite budget (USD)', f'{a.MAXIMUM_BUDGET_MICROUSD/1_000_000:g}; reservations never reset'),
+                       ('Bucket', p['bucket']), ('Suite warning threshold (USD)', f'{a.MAXIMUM_BUDGET_MICROUSD/1_000_000:g}; soft for new v4 runs; charges retained'),
                        ('Cleanup policy', 'Recent manual PASS by default; schedule is optional and does not block development'),
                        ('Observed at / expires (UTC epoch)', f'{receipt["observedAt"]} / {receipt["expiresAt"]}'),
                        ('Execution', receipt['execution'])]:lines.append('| '+safe(key)+' | '+safe(value)+' |')

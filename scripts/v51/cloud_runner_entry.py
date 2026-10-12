@@ -83,7 +83,7 @@ def selection(env):
         m.need(run==confirmation=='' and 0<len(quote.encode())<=16384,'prepare input scope')
         value=m.strict_json(quote.encode())
         m.need(type(value) is dict and set(value)=={'prices','maximumCostMicrousd','sequence'},'prepare quote fields')
-        a.digest(value['sequence'],32);a.integer(value['maximumCostMicrousd'],1,a.MAXIMUM_BUDGET_MICROUSD)
+        a.digest(value['sequence'],32);a.integer(value['maximumCostMicrousd'],1)
     else:
         m.need(quote=='' and re.fullmatch(r'[1-9][0-9]{0,19}',run) and run!=env.get('GITHUB_RUN_ID'),
                'run requires another completed preparation')
@@ -149,7 +149,8 @@ def prepare_network(cfg,env,source,checkout,preflight,precheck_root,output,secre
             provider=c.read(Path(preflight)/'provider.json')['observations']
             m.need(provider['lease'] is None,'preparation observer lease active')
             value=admission.plan(cfg,proof,guest,quote['prices'],provider['ledger'],sequence=quote['sequence'],
-                                 now=int(time.time()),maximum_cost=quote['maximumCostMicrousd'],**member_selection(env))
+                                 now=int(time.time()),maximum_cost=quote['maximumCostMicrousd'],
+                                 soft_budget=member_selection(env)['member'] is not None,**member_selection(env))
         phase='freshness'
         binding,after,current_ci=current(cfg,env,source,checkout,preflight,precheck_root)
         m.need(after==before and current_ci==github,'preparation CI/precheck changed')
@@ -232,7 +233,8 @@ def summary(root):
          str(allocation['allocatedSeconds'])+' / '+str(allocation['unallocatedSeconds']) if reviewed else 'unavailable'),
         ('Estimated cost (USD)',plan['estimatedCostMicrousd']/1_000_000 if plan else 'unavailable'),
         ('Reservation (USD)',usd('maximumCostMicrousd')),('Previous charges (USD)',usd('previousCostMicrousd')),
-        ('Cumulative ceiling (USD)',a.MAXIMUM_BUDGET_MICROUSD/1_000_000),
+        ('Time / cost budget mode',allocation.get('timeBudgetMode','hard')+' / '+allocation.get('costBudgetMode','hard')),
+        ('Cumulative warning threshold (USD)' if allocation.get('costBudgetMode')=='soft' else 'Cumulative ceiling (USD)',a.MAXIMUM_BUDGET_MICROUSD/1_000_000),
         ('Paid execution',receipt.get('paidCloud','not established')),('Engine workload',run.get('engineWorkloadExecuted',False)),
         ('Evidence retention',recovery.get('retention',run.get('retention','not established'))),('Cleanup',cleanup.get('status','not established')),
         ('Lease released',recovery.get('leaseReleased',run.get('leaseReleased',False))),('Full Phase 6 qualification',False),
@@ -247,6 +249,13 @@ def summary(root):
     def safe(v):return html.escape(str(v)).replace('|','&#124;').replace('\n',' ').replace('\r',' ')
     text='# V5.1 native preset\n\n| Parameter | Value |\n| --- | --- |\n'
     text+=''.join('| '+safe(k)+' | '+safe(v)+' |\n' for k,v in rows)
+    if plan.get('budgetWarnings'):
+        warning=plan['budgetWarnings']
+        text+='\nTime and cost estimates are advisory. Charges are retained; the ledger is not a billing meter. '
+        text+='GitHub-hosted jobs still have a 6-hour platform limit.\n'
+        text+='\nProjected recorded cost: USD '+str(warning['projectedCostMicrousd']/1_000_000)+'. '
+        text+='WARNING: cumulative estimate exceeds threshold.\n' if warning['projectedExceedsThreshold'] else 'Within warning threshold.\n'
+        if warning['estimateExceedsReservation']:text+='\nWARNING: price estimate exceeds the entered per-attempt amount.\n'
     if preparation.get('timings'):
         text+='\n## Preparation phases\n\n| Phase | Seconds |\n| --- | --- |\n'
         text+=''.join('| '+safe(v['phase'])+' | '+str(round(v['elapsedSeconds'],3))+' |\n' for v in preparation['timings'])
@@ -268,8 +277,9 @@ def summary(root):
         text+='| '+cell+' | '+('EXECUTED (see independent validation)' if passed else 'NOT_ESTABLISHED')+' |\n'
     budget=run.get('budget',{});spent=budget.get('spentNanos',{})
     if spent:
-        text+='\n## Time accounting\n\n| Stage | Seconds |\n| --- | --- |\n'
-        text+=''.join('| '+safe(k)+' | '+str(round(v/1e9,3))+' |\n' for k,v in spent.items())
+        text+='\n## Time accounting\n\n| Stage | Seconds | Budget (s) | Result |\n| --- | --- | --- | --- |\n'
+        text+=''.join('| '+safe(k)+' | '+str(round(v/1e9,3))+' | '+str(allocation['limitsSeconds'][k])+
+                     ' | '+('WARNING' if k in budget.get('warnings',[]) else 'Recorded')+' |\n' for k,v in spent.items())
         if recovery:
             text+='\nThe outer preparation interval includes immediate owner recovery; the separate elapsed values above distinguish them.\n'
     if run.get('errors'):

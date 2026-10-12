@@ -21,7 +21,7 @@ def formats(domain):
     m.need(domain in ('fake', 'native'), 'cloud authority domain')
     if domain == 'native':
         return dict(execution='gcp-v51-owned-control', paid=True,
-                    requests=('gse-v51-native-request-v1', timing.REQUEST_SCHEMA, full.REQUEST_SCHEMA), access='gse-v51-native-request-v1',
+                    requests=('gse-v51-native-request-v1', timing.REQUEST_SCHEMA, full.REQUEST_SCHEMA, full.SOFT_REQUEST_SCHEMA), access='gse-v51-native-request-v1',
                     lease='gse-v51-native-lease-v1', ledger='gse-v51-native-ledger-v1')
     return dict(execution=EXECUTION, paid=False,
                 requests=('gse-v51-cloud-request-v1', 'gse-v51-cloud-request-v2'), access='gse-v51-cloud-request-v2',
@@ -65,7 +65,8 @@ def request(source, bundle, configuration, sequence, attempt, member, *, now, or
         result.update(schema=timing.REQUEST_SCHEMA, timingProfile=timing_profile)
     if timing_plan_sha256 is not None:
         m.need(domain == 'native', 'native preset domain')
-        result.update(schema=full.REQUEST_SCHEMA, timingPlanSha256=timing_plan_sha256)
+        result.update(schema=full.SOFT_REQUEST_SCHEMA if timing_plan_sha256==full.SOFT_PLAN_SHA256 else full.REQUEST_SCHEMA,
+                      timingPlanSha256=timing_plan_sha256)
     validate_request(result, domain=domain)
     return result
 
@@ -78,7 +79,7 @@ def validate_request(value, *, domain='fake'):
         extra = {'guestAccessSha256', 'timingProfile'}
         m.need(value.get('timingProfile') == timing.PROFILE and value.get('member') == 'experiment',
                'native experiment timing profile/scope')
-    if domain == 'native' and version == full.REQUEST_SCHEMA:
+    if domain == 'native' and full.selected(value):
         full.validate(value); extra = {'guestAccessSha256', 'timingProfile', 'timingPlanSha256'}
     m.need(version in fmt['requests'] and set(value) == REQUEST_FIELDS | extra, 'cloud request fields')
     if extra: digest(value['guestAccessSha256'])
@@ -168,8 +169,10 @@ def inspect_ledger(value, *, domain='fake'):
             else:
                 order = ORDERS[req['order']]
                 m.need(len(seq['passed']) < len(order) and req['member'] == order[len(seq['passed'])], 'sequence order')
-            total += integer(row['maximumCostMicrousd'], 1, MAXIMUM_BUDGET_MICROUSD)
-            m.need(total <= MAXIMUM_BUDGET_MICROUSD, 'ledger budget ceiling')
+            soft = domain == 'native' and full.soft(req)
+            total += integer(row['maximumCostMicrousd'], 1, (1<<63)-1 if soft else MAXIMUM_BUDGET_MICROUSD)
+            integer(total)
+            m.need(soft or total <= MAXIMUM_BUDGET_MICROUSD, 'ledger budget ceiling')
             attempts[sha] = dict(request=req, status='PENDING')
             ids.add(req['attempt'])
         else:

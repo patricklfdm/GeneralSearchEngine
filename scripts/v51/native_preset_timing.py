@@ -1,7 +1,8 @@
-"""Closed native full-preset identities and ceilings, also shipped to trusted guests.
+"""Closed native full-preset identities, also shipped to trusted guests.
 
-No caller-selected duration. v1/v2 requests retain their original semantics.
-The same timing plan identity binds every member of a new v3 sequence.
+v1/v2/v3 retain their original ceilings. v4 selects soft stage and cost budgets;
+the platform lifetime and immutable cleanup lease still bound resource ownership.
+The same policy identity binds every member of a sequence.
 """
 from copy import deepcopy
 import hashlib
@@ -9,6 +10,9 @@ import json
 import re
 
 REQUEST_SCHEMA = 'gse-v51-native-request-v3'
+SOFT_REQUEST_SCHEMA = 'gse-v51-native-request-v4'
+SOFT_PLAN_SHA256 = '0c10ffa9de000005d488fb490967db357dd97d1e8ab75d6334cbb17487ec241b'
+PLATFORM_SECONDS = 21600
 PLAN_SHA256 = 'f201a52a96b6451f068090f0f8b6999f15c774fa9ae41ec60182f2329c214670'
 MEMBERS = ('experiment', 'failure-drill', 'canonical-1', 'canonical-2', 'canonical-3')
 ORDERS = ('any-order', 'experiment-first', 'canonical-first')
@@ -104,7 +108,7 @@ def selection(member):
     return ('canonical' if repetition else member), repetition
 
 
-def allocation(member):
+def allocation(member, *, soft=False):
     preset, repetition = selection(member)
     if preset == 'experiment':
         from . import native_experiment_timing as old
@@ -118,28 +122,40 @@ def allocation(member):
                  repetition=repetition, controlNode=None if preset == 'failure-drill' else 'node-'+str(repetition or 1))
     value['unallocatedSeconds'] = value['leaseSeconds']-value['allocatedSeconds']
     value['priceCoverageSeconds'] = value['limitsSeconds']['preparation']+value['leaseSeconds']+value['operationGraceSeconds']
+    if soft:
+        value.update(profile='soft-'+value['profile'], timeBudgetMode='soft', costBudgetMode='soft',
+                     preparationDeadlineSeconds=PLATFORM_SECONDS, leaseSeconds=PLATFORM_SECONDS,
+                     jobMinutes=360, commandGuardSeconds=None, retentionReserveSeconds=0,
+                     jobOverheadReserveSeconds=0)
+        value['unallocatedSeconds'] = PLATFORM_SECONDS-value['allocatedSeconds']
+        value['priceCoverageSeconds'] = 2*PLATFORM_SECONDS+value['operationGraceSeconds']
     return value
 
 
 def by_profile(profile):
     for member in ('experiment','failure-drill','canonical-1'):
-        value=allocation(member)
-        if value['profile']==profile:return value
+        for soft in (False, True):
+            value=allocation(member,soft=soft)
+            if value['profile']==profile:return value
     raise ValueError('unreviewed budget profile')
 
 
 def selected(req):
-    return req.get('schema') == REQUEST_SCHEMA
+    return req.get('schema') in (REQUEST_SCHEMA, SOFT_REQUEST_SCHEMA)
+
+
+def soft(req):
+    return req.get('schema') == SOFT_REQUEST_SCHEMA
 
 
 def validate(req):
     fields={'schema','suite','execution','paidCloud','source','bundleSha256','configurationSha256','workloadSha256',
             'sequence','attempt','order','member','createdAt','guestAccessSha256','timingProfile','timingPlanSha256'}
-    need(type(req) is dict and set(req)==fields and req['schema']==REQUEST_SCHEMA, 'native preset request fields')
-    value=allocation(req['member'])
+    need(type(req) is dict and set(req)==fields and selected(req), 'native preset request fields')
+    value=allocation(req['member'],soft=soft(req))
     need(req['suite']=='v5.1-automatic-leadership-suite-v1' and req['execution']=='gcp-v51-owned-control' and
          req['paidCloud'] is True and req['order'] in ORDERS and req['timingProfile']==value['profile'] and
-         req['timingPlanSha256']==PLAN_SHA256 and
+         req['timingPlanSha256']==(SOFT_PLAN_SHA256 if soft(req) else PLAN_SHA256) and
          req['workloadSha256']=='f0e964ba12fea8702a40082d4a01a85d6d3eb1bf7fe3fecf8778c899af44bea7', 'native preset request identity')
     for key,size in (('source',40),('sequence',32),('attempt',32),('bundleSha256',64),('configurationSha256',64),
                      ('workloadSha256',64),('guestAccessSha256',64)):

@@ -44,8 +44,8 @@ def make(configuration, req, guest_access, baseline, inputs, *, now, maximum_cos
     total, attempts = n.inspect_ledger(old)
     m.need(not any(v['status'] == 'PENDING' for v in attempts.values()), 'resource pending reservation')
     approval = dict(requestSha256=sha, previousCostMicrousd=total,
-                    maximumCostMicrousd=a.integer(maximum_cost, 1, a.MAXIMUM_BUDGET_MICROUSD))
-    n.reserve(old, req, approval)  # Includes sequence, attempt uniqueness and cumulative ceiling.
+                    maximumCostMicrousd=a.integer(maximum_cost, 1, (1<<63)-1 if full.soft(req) else a.MAXIMUM_BUDGET_MICROUSD))
+    n.reserve(old, req, approval)  # Sequence, attempt uniqueness and schema-bound cost policy.
     return m.strict_json(m.canonical(dict(schema=SCHEMA, execution=EXECUTION, request=deepcopy(req),
         configuration=deepcopy(configuration), guestAccess=deepcopy(guest_access), baseline=deepcopy(baseline),
         inputs=deepcopy(inputs), reservation=approval, expiresAt=req['createdAt']+900, **FLAGS)))

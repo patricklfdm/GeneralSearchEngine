@@ -1,5 +1,7 @@
 # V5.1 native full-preset admission and execution
 
+**v4 amendment:** [soft time/cost budgets and packed retention](PHASE_6_NATIVE_SOFT_BUDGETS.md) supersede the ceilings below for new Runner preparations. This document and `native_preset_review` retain the historical v3 review.
+
 **Status:** native integration accepted through PR #311 / master CI `37957278096`
 attempt 2. Native experiment `37970604996` passed; native failure-drill
 `37981974124` exposed a startup observer bug before the final cell's workload.

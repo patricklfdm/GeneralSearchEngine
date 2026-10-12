@@ -30,7 +30,7 @@ class _Api(resources._Policy, h.Api):
         self.initialize(inspected.result['resourcePlan'], now)
         # The shared standalone resource qualifier still has its original 600s
         # allocation. This freshly approved Runner selects its closed profile.
-        self.deadline = min(self.clock()+timing.allocation(self.req)['limitsSeconds']['preparation'], deadline)
+        self.deadline = min(self.clock()+timing.preparation(self.req), deadline)
         self.admission_deadline = self.clock()+max(0,inspected.result['expiresAt']-now)
         self.gate_open = False
         self.owner_deadline = self.clock()+timing.allocation(self.req)['leaseSeconds']
@@ -84,7 +84,7 @@ class _Api(resources._Policy, h.Api):
 def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, offline, guest_stage=None, on_failure=None):
     root = Path(root); root.mkdir(parents=True, exist_ok=False)
     allocation = timing.allocation(value['resourcePlan']['request'])
-    start = clock(); deadline = start+allocation['limitsSeconds']['preparation']
+    start = clock(); deadline = start+allocation.get('preparationDeadlineSeconds',allocation['limitsSeconds']['preparation'])
     api = None; inspected = None; phase = 'admission'
     admission_failure = None
     phase_start = start; timings = []
@@ -186,6 +186,8 @@ def _run(root, value, key, inspect, recheck, *, clock, wall, sleep, exchange, of
             receipt['elapsedSeconds'] = max(0, clock()-start)
             advance('finished'); receipt['timings'] = timings
             receipt['preparationLimitSeconds'] = allocation['limitsSeconds']['preparation']
+            if allocation.get('timeBudgetMode')=='soft':
+                receipt.update(budgetMode='soft',budgetWarning=receipt['elapsedSeconds']>receipt['preparationLimitSeconds'])
             write_once(root/'receipt.json', receipt)
         except (Exception, KeyboardInterrupt) as error:
             if on_failure is None: raise
