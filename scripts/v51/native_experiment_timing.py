@@ -19,6 +19,8 @@ CONTROLS = {'mode': 900, 'activation': 180, 'convergence': 180,
             'isolation': 180, 'pin': 300, 'hold-controller': 120}
 EXCHANGE_SECONDS = 120
 CONNECTION_SECONDS = 900
+# Ordinary command ceiling; frozen windows add their duration and drain to this
+# control allowance, always clipped to the original enclosing deadline.
 COMMAND_SECONDS = 180
 MAX_TRANSIENT_FAILURES = 3
 MAX_UNCERTAIN_REPLIES = 3

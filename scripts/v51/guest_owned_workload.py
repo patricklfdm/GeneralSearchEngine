@@ -62,9 +62,22 @@ class Probe:
         try:
             options={}
             if timing.selected(self.services.provider.req):
-                deadline=min(deadline,self.clock()+timing.COMMAND_SECONDS)
+                seconds=timing.COMMAND_SECONDS
+                if name=='window':
+                    # The guest must run the complete frozen window before it
+                    # can return. Add that work to the control allowance, using
+                    # the admitted tape rather than caller-supplied durations.
+                    spec=next((v for v in schedule.windows(self.cell_name,self.preset)
+                        if payload==dict(cell=self.cell_name,preset=self.preset,window=v['window'])),None)
+                    m.need(spec is not None,'owned frozen window command')
+                    seconds+=(spec['durationNanos']+spec['drainNanos']+10**9-1)//10**9
+                deadline=min(deadline,self.clock()+seconds)
                 options['limits']=dict(failures=timing.MAX_TRANSIENT_FAILURES,
-                    uncertain=timing.MAX_UNCERTAIN_REPLIES,queries=timing.MAX_QUERIES)
+                    uncertain=timing.MAX_UNCERTAIN_REPLIES,
+                    # Native observation sleeps at least one second per query.
+                    # A healthy RUNNING reply must not exhaust a shorter count
+                    # before the fixed window observation budget can elapse.
+                    queries=max(timing.MAX_QUERIES,seconds))
             receipt=c.submit_and_observe(client,request,deadline,clock=self.clock,sleep=self.sleep,**options)
             c.write_once(folder/'receipt.json',receipt)
             self.transcripts.setdefault(node,[]).append(dict(request=request,receipt=receipt))
