@@ -1,6 +1,7 @@
 # Frozen image policy and one-batch native continuation
 
-**Status:** local correction, 2026-10-12; corrected-source protected CI is pending.
+**Status:** image correction merged, 2026-10-12; CI inventory follow-up is local,
+and corrected-source protected CI is pending.
 The operator explicitly authorized this one batch to reuse canonical-1 and
 canonical-2. Subsequent phases/batches continue to require one source and one
 sequence. The native five-member set and Phase 6 remain incomplete.
@@ -65,7 +66,8 @@ normal admission. It never writes cloud objects, migrates receipts, resets the
 ledger, grants paid admission or relaxes normal sequence identity checks.
 
 1. The corrected source must descend from the old source. A closed path list and
-   approved script hashes allow only this image repair, audit, tests and docs.
+   approved script hashes allow only this image repair, audit, tests and docs,
+   including the exact `scripts/test_ci_v51_python.py` inventory correction below.
    Engine, workload, workflow, POM, timing and provider configuration edits fail.
 2. Every new prepared package is authenticated and safely unpacked. All payload
    file paths, hashes, sizes and executable bits must equal the old package,
@@ -110,6 +112,23 @@ general permission to mix arbitrary green runs across releases.
 Receipts and logs: `target/v51-image-continuation/`. New-source protected CI and
 the actual new-source prepared package still require verification after merge.
 
+### Change scope inventory follow-up
+
+Manually dispatched [CI 38323762567](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38323762567)
+on merged source `6faae5cec54a70be1cfb0598e6be7e57e9f3a054` failed before
+classification. The preflight script already ran `test_cloud_image_policy` and
+`test_native_image_continuation`, but its independent expected-module list in
+`scripts/test_ci_v51_python.py` omitted them. The same test failed locally;
+rerunning the unchanged source would not repair this inventory mismatch.
+
+The follow-up adds exactly those two module names and pins the corrected test
+file in the continuation policy. Exact module identity/multiplicity and full
+versus split command/timeout checks remain active. Historical member records,
+the continuation sequence, payload comparison and runtime bytes are unchanged.
+All 69 tests from the exact Change scope command and all 15 focused image and
+continuation tests pass locally. Logs: `target/v51-preflight-ci-inventory/`.
+Protected CI must still pass on the final corrected source.
+
 ## Operator procedure after merge
 
 The operator runs commit/push/PR/merge and every paid dispatch. From the clean,
@@ -122,6 +141,9 @@ python3.11 -m scripts.v51.native_image_continuation source \
   --output target/v51-image-continuation/post-merge/source.json
 ```
 
+Require a successful CI run for that exact master source, including its build
+and package artifacts. If the merge used a CI-skip directive, dispatch
+`gh workflow run ci.yml --ref master` manually after synchronization.
 Then run manual cleanup for that source, refresh the quote if expired, and prepare
 canonical-3 using the new sequence above. Download/authenticate its prepared
 artifact using the existing producing-run review. Before approving execution:

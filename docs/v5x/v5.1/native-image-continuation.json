@@ -43,6 +43,7 @@
     "imageId": "763874002631433611"
   },
   "allowedChanges": [
+    "scripts/test_ci_v51_python.py",
     "scripts/v51/cloud_image_policy.py",
     "scripts/v51/cloud_preflight.py",
     "scripts/v51/cloud_permissions.py",
@@ -61,6 +62,7 @@
     "docs/v5x/NEXT_DEVELOPMENT_HANDOFF.md"
   ],
   "approvedScripts": {
+    "scripts/test_ci_v51_python.py": "9747189d8d1c2bfb5674356e1107304d85cede331cf233235012e3398cc5301e",
     "scripts/v51/cloud_image_policy.py": "398aaf15f274ea64d7a9c790f6a4f4c0b3a93714cc278e4f813c2688a2225469",
     "scripts/v51/cloud_preflight.py": "6a72dbbe353cafc77d1c5949f5cdba9c9c4679304365b5f4cbf29f7309ad4fa1",
     "scripts/v51/cloud_permissions.py": "26d516c1f9bd041ddc6628332b4fb1cfd59340023a03d5f3b24e3254c986240a",
