@@ -20,6 +20,8 @@ from .remote_budget import Budget
 from . import cloud_runner_timing as timing
 from . import cloud_runner_diagnostics as diagnostics
 from . import cloud_runner_iap as iap
+from . import native_preset_timing as full
+from . import cloud_runner_retention as retention
 
 
 class _Api(failure._Api):
@@ -41,7 +43,7 @@ class _Api(failure._Api):
             m.need(self.phase==('admission' if name==self.cells[0] else self.cells[self.cells.index(name)-1]),'owned cell order')
         elif name=='completion':m.need(self.phase=='cleanup','owned completion before cleanup')
         elif name=='validation-retention':m.need(self.phase in ('admission',*self.cells),'owned validation after close')
-        m.need(deadline<=self.clock()+limits[name],'owned frozen stage ceiling')
+        m.need(full.soft(self.source.req) or deadline<=self.clock()+limits[name],'owned frozen stage ceiling')
         self.seen.add(name);self.phase=name;self.deadline=deadline
 
     def check(self, method, url, body):
@@ -148,8 +150,10 @@ def _execute(output, prepare, request=None):
         # No provider data, paths or exception strings in the live heartbeat.
         started=walltime.monotonic();done=threading.Event()
         def emit(state):
+            elapsed=walltime.monotonic()-started
+            if budget.soft and elapsed>budget.limits[name]/1e9 and state in ('RUNNING','DONE'):state='WARNING'
             print(json.dumps(dict(stage=name,status=state,elapsedSeconds=round(walltime.monotonic()-started,1),
-                                  limitSeconds=budget.limits[name]//10**9)),flush=True)
+                                  limitSeconds=budget.limits[name]//10**9,budgetMode='soft' if budget.soft else 'hard')),flush=True)
         def beat():
             while not done.wait(30):emit('RUNNING')
         emit('START');worker=threading.Thread(target=beat,daemon=True);worker.start()
@@ -210,14 +214,26 @@ def _execute(output, prepare, request=None):
                         finally:
                             try:held['services'].stop(api.deadline)
                             except (Exception,KeyboardInterrupt) as error:report('service-stop',error)
-                    for path in sorted(root.glob('connections-*.json')):api.retain(store,path.name,path.read_bytes())
-                    for name,data in held['services'].retention_files():api.retain(store,'startup/'+name,data)
-                    for name,data in probe.retention_files():api.retain(store,'parts/'+name,data)
-                    for name,data in failure.evidence(root/'preparation',status='PARTIAL').items():api.retain(store,'preparation/'+name,data)
-                    for path in sorted((root/'sessions').iterdir()):api.retain(store,'sessions/'+path.name,path.read_bytes())
+                    def metadata():
+                        for path in sorted(root.glob('connections-*.json')):yield path.name,path.read_bytes()
+                        for name,data in held['services'].retention_files():yield 'startup/'+name,data
+                        for name,data in failure.evidence(root/'preparation',status='PARTIAL').items():yield 'preparation/'+name,data
+                        for path in sorted((root/'sessions').iterdir()):yield 'sessions/'+path.name,path.read_bytes()
+                    files=metadata()
+                    if full.soft(api.source.req):files=retention.pack(root/'retention-metadata',files,api.sha)
+                    def upload(kind,rows):
+                        started=walltime.monotonic();count=total=0
+                        print(m.canonical(dict(phase='evidence-retention',kind=kind,status='START')).decode(),flush=True)
+                        for name,data in rows:
+                            api.retain(store,name,data);count+=1;total+=len(data)
+                            print(m.canonical(dict(phase='evidence-retention',kind=kind,status='VERIFIED',
+                                objects=count,bytes=total,elapsedSeconds=round(walltime.monotonic()-started,3))).decode(),flush=True)
+                    upload('metadata',files)
+                    upload('workload',(('parts/'+name,data) for name,data in probe.retention_files()))
                     evidence=result.get('evidence',dict(status='FAIL',reason='collection incomplete'))
                     result['evidenceSha256']=api.retain(store,'evidence.json',m.canonical(evidence))
-                    manifest=dict(schema='gse-v51-native-owned-evidence-v1',requestSha256=api.sha,files=deepcopy(api.retained))
+                    manifest=dict(schema='gse-v51-native-owned-evidence-v2' if full.soft(api.source.req) else 'gse-v51-native-owned-evidence-v1',
+                                  requestSha256=api.sha,files=deepcopy(api.retained))
                     result['inventorySha256']=api.retain(store,'manifest.json',m.canonical(manifest));api.seal()
                     m.need(evidence['status']=='PASS' and evidence['scope']==scope and evidence['execution']==n.EXECUTION and
                            evidence['paidCloud'] is True and evidence['fullRemoteQualification'] is False and
@@ -237,10 +253,10 @@ def _execute(output, prepare, request=None):
             result['status']=('PASS' if not result['errors'] and result['cleanup'] and result['cleanup']['status']=='PASS' and
                               result['budgetBeforeCompletion']['status']=='PASS' else 'FAIL')
             try:
-                # Final control calls use the remaining control allowance and the
-                # original lease; no fresh finalization/retention deadline.
+                # v4 treats control allowance as advisory. Final calls still use
+                # the original ownership lifetime, never a fresh lease.
                 left=budget.limits['control']-budget.spent['control']
-                api.stage('completion',min(api.source.owner_deadline,(budget.cursor+left)/1e9))
+                api.stage('completion',api.source.owner_deadline if budget.soft else min(api.source.owner_deadline,(budget.cursor+left)/1e9))
                 completion={k:deepcopy(v) for k,v in result.items() if k not in ('retention','leaseReleased')}
                 api.expected_completion=completion
                 runner.finalize(store,lease,completion,authority=n);result['retention']='VERIFIED'

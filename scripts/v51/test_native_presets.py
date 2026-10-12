@@ -410,7 +410,7 @@ class NativeNetworkControlTest(unittest.TestCase):
 
 
 class NativeEntryTest(unittest.TestCase):
-    def test_prepare_then_fresh_dispatch_passes_exact_v3_member_into_owner_once(self):
+    def test_prepare_then_fresh_dispatch_passes_exact_v4_member_into_owner_once(self):
         self.prepare_run('canonical-1','canonical-first')
 
     def test_any_order_can_prepare_and_dispatch_canonical_three_first(self):
@@ -423,7 +423,7 @@ class NativeEntryTest(unittest.TestCase):
         from . import remote_command as c
         test=EntryTest();test.setUp();self.addCleanup(test.doCleanups)
         quote=m.strict_json(test.env['RUNNER_EXPERIMENT_QUOTE'])
-        quote['prices']['pricedThroughSeconds']=t.allocation(member)['priceCoverageSeconds']
+        quote['prices']['pricedThroughSeconds']=t.allocation(member,soft=True)['priceCoverageSeconds']
         quote['maximumCostMicrousd']=20_000_000
         test.env.update(RUNNER_MEMBER=member,RUNNER_ORDER=order,RUNNER_EXPERIMENT_QUOTE=m.canonical(quote).decode())
         with ExitStack() as stack:
@@ -431,7 +431,7 @@ class NativeEntryTest(unittest.TestCase):
             prepared=test.call('prepare')
         self.assertEqual('PREPARED',prepared['status'],prepared)
         test.f['value']=c.read(test.root/'entry/prepared/plan.json')
-        self.assertEqual(t.REQUEST_SCHEMA,test.f['value']['resourcePlan']['request']['schema'])
+        self.assertEqual(t.SOFT_REQUEST_SCHEMA,test.f['value']['resourcePlan']['request']['schema'])
         test.f['approved']=admission.approval_template(test.f['value']);test.f['approved']['confirmed']=True
         archive=test.setup_run();test.env.update(RUNNER_MEMBER=member,RUNNER_ORDER=order)
         collect=entry.prepared.collect

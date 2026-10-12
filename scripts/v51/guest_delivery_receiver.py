@@ -90,7 +90,9 @@ def deadline_limit_nanos(profile=None):
     # field from the wire budget. The ordinary helper remains bounded at 600s.
     if profile is None:return MAX_DEADLINE_NANOS
     from . import native_preset_timing as full
-    try:return full.by_profile(profile)['limitsSeconds']['preparation'] * 10**9
+    try:
+        value=full.by_profile(profile)
+        return value.get('preparationDeadlineSeconds',value['limitsSeconds']['preparation']) * 10**9
     except ValueError as error:raise ValueError('delivery deadline profile') from error
 
 

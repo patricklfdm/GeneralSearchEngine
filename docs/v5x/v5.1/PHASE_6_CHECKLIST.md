@@ -1,5 +1,7 @@
 # V5.1 Phase 6 checklist
 
+**Current correction:** [native soft time/cost budgets and packed retention](PHASE_6_NATIVE_SOFT_BUDGETS.md). PR #315 passed protected CI; canonical-1 passed all fifteen cells and replay but failed retention timing. Full Phase 6 remains open.
+
 **Status:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
 `35920225478` passed all nineteen jobs and all 24 V5.1 verification steps, including

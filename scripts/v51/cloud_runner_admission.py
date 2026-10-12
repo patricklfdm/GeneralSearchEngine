@@ -28,27 +28,34 @@ def prices(value, now, request=None):
     return estimate(value, now, minimum_coverage_seconds=(timing.allocation(request).get('priceCoverageSeconds', PRICE_COVERAGE_SECONDS)))
 
 
-def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost, member=None, order='experiment-first'):
+def plan(cfg, proof, guest, quote, baseline, *, sequence, now, maximum_cost, member=None, order='experiment-first', soft_budget=False):
     p.configuration(cfg); a.integer(now, 1); guest_setup.access(guest)
     m.need(type(proof) is dict and set(proof) == {'schema','source','ciRun','ciAttempt','artifacts','buildBinding','buildProducer',
            'buildManifestSha256','packageManifestSha256','archiveSha256','workloadSha256'} and
            proof['schema'] == 'gse-v51-runner-artifacts-v1', 'Runner artifact proof shape')
     for key in ('buildManifestSha256','packageManifestSha256','archiveSha256'): a.digest(proof[key])
     a.integer(proof['ciRun'], 1); a.integer(proof['ciAttempt'], 1)
-    cost = a.integer(maximum_cost, 1, a.MAXIMUM_BUDGET_MICROUSD)
+    m.need(type(soft_budget) is bool and (not soft_budget or member is not None), 'Runner soft budget selection')
+    cost = a.integer(maximum_cost, 1, (1<<63)-1 if soft_budget else a.MAXIMUM_BUDGET_MICROUSD)
     from . import native_preset_timing as full
-    options = {} if member is None else dict(timing_plan_sha256=full.PLAN_SHA256)
-    profile = timing.PROFILE if member is None else full.allocation(member)['profile']
+    options = {} if member is None else dict(timing_plan_sha256=full.SOFT_PLAN_SHA256 if soft_budget else full.PLAN_SHA256)
+    profile = timing.PROFILE if member is None else full.allocation(member,soft=soft_budget)['profile']
     req = n.request(proof['source'], proof['archiveSha256'], g.config(cfg['provider']), sequence, guest['attempt'],
                     member or 'experiment', now=now, order=order, guest_access_sha256=m.sha(m.canonical(guest)), timing_profile=profile, **options)
     estimate = prices(quote, now, req)
-    m.need(estimate <= cost, 'Runner estimate exceeds approved reservation')
+    m.need(soft_budget or estimate <= cost, 'Runner estimate exceeds approved reservation')
     inputs = {k:proof[k] for k in ('source','archiveSha256','buildManifestSha256','packageManifestSha256','workloadSha256')}
     inputs['pricesSha256'] = m.sha(m.canonical(quote))
     stage = resources.make(cfg['provider'], req, guest, baseline, inputs, now=now, maximum_cost=cost)
-    return m.strict_json(m.canonical(dict(schema=SCHEMA, configuration=deepcopy(cfg), artifacts=deepcopy(proof),
+    result=dict(schema=SCHEMA, configuration=deepcopy(cfg), artifacts=deepcopy(proof),
         prices=deepcopy(quote), estimatedCostMicrousd=estimate, resourcePlan=stage, timing=timing.allocation(req),
-        expiresAt=min(now+timing.APPROVAL_SECONDS, quote['expiresAt']), **FLAGS)))
+        expiresAt=min(now+timing.APPROVAL_SECONDS, quote['expiresAt']), **FLAGS)
+    if soft_budget:
+        previous=stage['reservation']['previousCostMicrousd']
+        result['budgetWarnings']=dict(mode='soft',thresholdMicrousd=a.MAXIMUM_BUDGET_MICROUSD,
+            estimateExceedsReservation=estimate>cost,projectedCostMicrousd=previous+cost,
+            projectedExceedsThreshold=previous+cost>a.MAXIMUM_BUDGET_MICROUSD)
+    return m.strict_json(m.canonical(result))
 
 
 def validate_plan(value, now):
@@ -56,7 +63,7 @@ def validate_plan(value, now):
     stage = value['resourcePlan']; req = stage['request']
     expected = plan(value['configuration'], value['artifacts'], stage['guestAccess'], value['prices'], stage['baseline'],
                     sequence=req['sequence'], now=req['createdAt'], maximum_cost=stage['reservation']['maximumCostMicrousd'],
-                    member=req['member'] if full.selected(req) else None, order=req['order'])
+                    member=req['member'] if full.selected(req) else None, order=req['order'],soft_budget=full.soft(req))
     m.need(value == expected and req['createdAt'] <= now < value['expiresAt'], 'Runner plan drift/expiry')
     prices(value['prices'], now, req)
     return m.sha(m.canonical(value))

@@ -1,16 +1,19 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [native canonical window observation correction](v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction).
-PR #314 passed master CI `38124803155` on `982c326b0de57305ffbe099d2d5a4e6a0b398866`.
-Native drill `38159827082` passed all twelve cells, with independent replay of
-103 calls and 129 negatives. Canonical-1 `38169987864` passed healthy and
-read-heavy, then exhausted a 180-second command cap around a guest sustained
-window that completed successfully in 180.252 seconds. The local fix adds frozen
-window duration/drain to bounded control headroom and retains original outer
-deadlines, once-only submission and fast failure. Corrected-source protected CI
-and paid canonical qualification remain pending. Cleanup and retention passed;
-the current ledger is USD 80 / 200, with no active lease. The failed canonical
-sequence stays blocked; the new source needs a fresh complete five-member set.
+Current batch: [native soft budgets and packed retention](v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md).
+PR #315 passed exact-master CI `38193537774` on
+`be16ce4af3837a13558b73efbce7c4feade68e44`. Canonical-1 `38206276543` passed
+all fifteen cells and independent replay, then exceeded the 2400-second retention
+stage while uploading small files. Exact-resource cleanup passed; retention and
+ledger finalization did not. The observed ledger is USD 100 with that attempt
+PENDING. The original lease requires manual reconciliation; no reset is performed.
+
+The operator authorized soft time **and** money budgets. New v4 plans warn on
+stage overruns and the USD 200 threshold, pack metadata with original path/hash
+inventories, and retain fast failure for definite errors. GitHub's six-hour job
+limit and immutable cleanup ownership still apply. Local verification is complete;
+corrected-source protected CI and a new same-source five-member native set remain
+pending. Earlier v1/v2/v3 requests retain their historical semantics.
 
 PR #311's native experiment `37970604996` remains accepted on its earlier source.
 The owner-authorized accounting restart of 2026-10-09 preserved the original

@@ -97,6 +97,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 native owned experiment integration](v5x/v5.1/PHASE_6_NATIVE_OWNED_EXPERIMENT.md)
 - [V5.1 manual native Runner entry and first-run correction](v5x/v5.1/PHASE_6_NATIVE_RUNNER_ENTRY.md)
 - [V5.1 native experiment preparation budget](v5x/v5.1/PHASE_6_PREPARATION_BUDGET.md)
+- [V5.1 native soft budgets and packed retention](v5x/v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md)
 - [V5.1 native experiment first-run headroom](v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md)
 - [V5.1 first native experiment acceptance and offline replay](v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
 - [V5.1 remaining native failure-drill and canonical entry plan](v5x/v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md)

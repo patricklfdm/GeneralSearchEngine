@@ -71,13 +71,19 @@ class Probe:
                         if payload==dict(cell=self.cell_name,preset=self.preset,window=v['window'])),None)
                     m.need(spec is not None,'owned frozen window command')
                     seconds+=(spec['durationNanos']+spec['drainNanos']+10**9-1)//10**9
-                deadline=min(deadline,self.clock()+seconds)
+                from . import native_preset_timing as full
+                soft=full.soft(self.services.provider.req)
+                if soft:
+                    options.update(warn_after=seconds,warn=lambda:print(m.canonical(dict(
+                        stage=self.cell_name,command=name,status='WARNING',budgetMode='soft',
+                        warningSeconds=seconds)).decode(),flush=True))
+                else:deadline=min(deadline,self.clock()+seconds)
                 options['limits']=dict(failures=timing.MAX_TRANSIENT_FAILURES,
                     uncertain=timing.MAX_UNCERTAIN_REPLIES,
                     # Native observation sleeps at least one second per query.
                     # A healthy RUNNING reply must not exhaust a shorter count
                     # before the fixed window observation budget can elapse.
-                    queries=max(timing.MAX_QUERIES,seconds))
+                    queries=max(timing.MAX_QUERIES,int(deadline-self.clock())+1 if soft else seconds))
             receipt=c.submit_and_observe(client,request,deadline,clock=self.clock,sleep=self.sleep,**options)
             c.write_once(folder/'receipt.json',receipt)
             self.transcripts.setdefault(node,[]).append(dict(request=request,receipt=receipt))

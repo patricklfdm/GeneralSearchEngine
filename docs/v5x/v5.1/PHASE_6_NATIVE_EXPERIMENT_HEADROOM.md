@@ -1,5 +1,7 @@
 # Native experiment first-run headroom
 
+**v4 amendment:** [soft time/cost budgets and packed retention](PHASE_6_NATIVE_SOFT_BUDGETS.md) supersede the stage and spending ceilings below for new requests. PR #315 passed protected CI; the subsequent fifteen-cell canonical run failed only during retention. Historical evidence is preserved.
+
 **Status:** headroom correction accepted through PR #303 at master
 `366e379455ad7628a81160db604e09b09ffe9e0e`,
 [CI 37703102993](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/37703102993).

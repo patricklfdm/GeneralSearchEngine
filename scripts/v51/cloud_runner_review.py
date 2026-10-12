@@ -74,7 +74,7 @@ JOB = r'''
     needs: observations
     if: ${{ inputs.check_runner_permissions == true || inputs.runner_storage_request != '' || inputs.runner_storage_confirmation != '' || inputs.runner_experiment != 'off' || inputs.runner_experiment_quote != '' || inputs.runner_prepared_run != '' || inputs.runner_experiment_confirmation != '' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ inputs.runner_experiment == 'run' && (startsWith(inputs.runner_member, 'canonical-') && 360 || inputs.runner_member == 'failure-drill' && 330 || 270) || 15 }}
+    timeout-minutes: ${{ inputs.runner_experiment != 'off' && 360 || 15 }}
     environment: v51-cloud-benchmark
     permissions:
       contents: read
@@ -177,7 +177,7 @@ JOB = r'''
         env:
           V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
         run: |
-          timeout --signal=TERM --kill-after=10s 600s python -m scripts.v51.cloud_runner_entry prepare --source "$GITHUB_SHA" \
+          python -m scripts.v51.cloud_runner_entry prepare --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
             --output target/v51-experiment
 
@@ -195,13 +195,7 @@ JOB = r'''
         env:
           V51_EXPERIMENT_SSH_KEY: ${{ secrets.V51_EXPERIMENT_SSH_KEY }}
         run: |
-          case "$RUNNER_MEMBER" in
-            experiment) guard_seconds=15000 ;;
-            failure-drill) guard_seconds=16500 ;;
-            canonical-1|canonical-2|canonical-3) guard_seconds=20100 ;;
-            *) exit 2 ;;
-          esac
-          timeout --signal=TERM --kill-after=60s "${guard_seconds}s" python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
+          python -m scripts.v51.cloud_runner_entry run --source "$GITHUB_SHA" \
             --preflight target/v51-runner-precheck/preflight --precheck target/v51-runner-precheck \
             --output target/v51-experiment
 
@@ -246,7 +240,8 @@ def text(source):
 Review source: `{source}`. Regenerate after the protected merge before running.
 The existing runner identity is enabled. This change adds explicit prepare/run
 selections at the same workflow, master ref and environment; no IAM, WIF, role,
-cleanup identity or budget change is required. The default remains read-only.
+cleanup identity change is required. New native requests use soft time and cost
+budgets. The default remains read-only.
 This generator neither dispatches a workflow nor applies the included commands.
 
 ## Entry review
@@ -262,14 +257,17 @@ This generator neither dispatches a workflow nor applies the included commands.
   The sequence still binds all five distinct members and immutable source/artifacts;
   experiment-first and canonical-first retain their fixed-prefix rules.
   Prepare and run must select the same member/order on the same source/package.
-- `runner_experiment=prepare` requires reviewed current prices, an explicit maximum
-  reservation, sequence and the environment SSH secret. It only reads and builds a
+- `runner_experiment=prepare` requires reviewed current prices, an explicit
+  accounting amount, sequence and the environment SSH secret. It only reads and builds a
   public plan from original CI artifacts. It makes no resource or ledger writes.
 - Review the resulting plan, original artifacts, topology, estimate, prior charges,
-  maximum reservation, 15-minute admission window and reviewed timing allocation.
-  Preparation/lease ceilings are 3600/14400 seconds for experiment, 3600/16200
-  for failure-drill and 5400/19800 for canonical. All work shares the original
-  admitted lease; exact per-cell and retention limits are bound into the plan.
+  recorded amount, 15-minute admission window and reviewed timing allocation.
+  v4 stage thresholds and the USD 200 cumulative threshold only warn, including
+  when a price estimate exceeds the entered amount. The ledger retains all charges
+  and is not a billing meter. GitHub hosted jobs still end at 6 hours; the original
+  21600-second lease and 1800-second cleanup grace cover that platform lifetime.
+  Prices cover 45000 seconds conservatively. Approval freshness, exact resource
+  identity, once-only commands and fast failure remain mandatory.
   Preparation is not paid approval.
 - `runner_experiment=run` needs its preparation run ID and exact plan SHA-256, fresh
   same-run observations and environment approval. Only this selection calls the
