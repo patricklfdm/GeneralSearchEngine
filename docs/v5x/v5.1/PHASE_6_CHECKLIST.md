@@ -1,17 +1,13 @@
 # V5.1 Phase 6 checklist
 
-**Current correction:** [frozen image policy and one-batch continuation](PHASE_6_IMAGE_CONTINUATION.md).
-PR #316's native canonical-1 `38280933954` and canonical-2 `38300809738` completed
-successfully. Third-member preparation `38319063804` was blocked by the frozen
-image becoming DEPRECATED. The operator authorized retaining exactly those two
-members and running canonical-3, experiment and failure-drill on one new sequence
-after the admission-only correction. CI `38324679812` and prepare `38329864714`
-passed on `50a4fae`; canonical-3 run `38330325048` then failed during V5.0
-control command delivery, with retention VERIFIED and exact cleanup PASS.
-The operator authorized replacing that failed continuation sequence while
-preserving the two successful members and USD 175 reserved accounting. The
-replacement mapping's merged-source CI, remaining native runs and final review
-are pending; full Phase 6 remains open.
+**Current batch:** [five-member native final review and baseline registration](PHASE_6_NATIVE_SET_ACCEPTANCE.md).
+All five paid members completed successfully. The operator-authorized image
+continuation retains canonical-1/2 on `f46f9a4` and canonical-3/experiment/drill on
+`7100b61`, with byte-compatible executable payloads. Both sources have exact full
+CI. The final control observation records USD 250, no unresolved reservation and
+no active lease. This PR supplies independent raw replay and baseline registration;
+its protected CI/merge is required for formal Phase 6 closure. Historical failure
+records and costs remain intact.
 
 **Status:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
@@ -300,11 +296,11 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Runtime OIDC path correction accepted: PR #272 / CI `36934779388` attempt 2 (29 jobs).
 - [x] Immutable OIDC subject correction accepted: PR #273 / CI `36943901305` attempt 1 (29 jobs).
 - [x] 6C3C31 actual observer precheck: run `36945892944` attempt 1, all eight checks PASS; historical evidence does not extend its 900-second freshness.
-- [ ] Actual observer/runner/selected-cleanup required-access and forbidden-action checks; explicit roles/grants/trust and real cleanup qualification remain mandatory. Manual suffices; scheduled qualification is optional.
+- [x] Actual observer/runner/manual-cleanup required-access and forbidden-action checks completed for admitted native runs, following the recorded role/trust and cleanup qualification. Manual suffices; no blanket inherited-IAM assessment or scheduled qualification is inferred.
 - [x] 6C3C23 implementation candidate: [disabled runner/cleanup identities and explicit read-back audits](PHASE_6_CLOUD_IDENTITIES.md).
 - [x] 6C3C23 protected acceptance: PR #255 / CI `36648030423`, all 29 jobs.
 - [x] Separately authorized disabled identity application and exact readback on 2026-09-30: 45 commands, 33 audit reads, `STAGED_MATCH`; all identities remain disabled.
-- [ ] Native identity/cleanup activation review and qualification.
+- [x] Native identity/manual-cleanup activation review and actual qualification completed through the recorded topology/Runner milestones and successful native runs.
 - [x] Operator authorization for the reviewed manual workflow and post-merge manual provider/pool/account enablement; scheduled cleanup and runner excluded.
 - [x] Exact reviewed manual workflow staged locally; 33-read configuration review passed all 17 groups with all identities disabled.
 - [x] Protected manual-workflow merge: PR #274 / CI `36951936364` attempt 2, 29 jobs.
@@ -384,7 +380,7 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] [First complete native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md): prepared run `37722737290`, native run `37723402614` attempt 1; four cells, 42 rejected evidence mutations, retention and thirteen-resource cleanup/lease release passed. Historical archive independently replayed offline; full five-member qualification remains open.
 - [x] Explicit [operator budget restart](PHASE_6_NATIVE_OWNED_EXPERIMENT.md#explicit-operator-budget-restart--2026-10-07), 2026-10-07: original USD 87 ledger backed up locally; generation-conditional reset read back as USD 0 / 200, no active lease. Historical evidence remains intact; this does not authorize future resets.
 - [x] Native allocation entry, actual image use/IAP and complete four-cell owned-experiment integration, qualified by run `37723402614`; this does not qualify larger presets.
-- [ ] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): protected guest fault qualification, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
+- [x] [Full-preset native entry](PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md): protected guest fault qualification, canonical rich workload/placement, complete aggregates and reviewed native admission/timing.
 - [x] [Owned network-fault implementation](PHASE_6_OWNED_NETWORK_FAULTS.md): closed guest controls/controller and independent replay for isolated-old-leader, asymmetric requests/responses and slow-follower; separate required CI lane, native admission closed.
 - [x] Owned network-fault protected CI acceptance, including the PR #306 heal-admission correction: master CI `37837221623`.
 - [x] [Complete owned failure-drill implementation candidate](PHASE_6_OWNED_FAILURE_DRILL.md): remaining five guest faults and a source-bound twelve-cell offline aggregate.
@@ -402,7 +398,7 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] Local [staged bounded-voter startup correction](PHASE_6_NATIVE_DRILL_RECOVERY.md#staged-bounded-voter-startup): healthy PREPARE requests fence node 3 while its basis responses and outbound campaigns are withheld; original role/selection evidence requires the fixed healthy write pair before and after heal; one deadline, preserved diagnostics and stopped-process fault release.
 - [x] Staged-startup protected and native drill acceptance: PR #314, master `982c326b0de57305ffbe099d2d5a4e6a0b398866`, CI `38124803155` (46 jobs, attempt 1); native run `38159827082` passed twelve cells, 103 calls and 129 negatives with independent replay, retention and cleanup.
 - [x] Local [canonical window observation correction](PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction): native run `38169987864` exhausted the 180-second command cap around a successful 180-second sustained window. Add frozen duration/drain to bounded control headroom, with bounded queries, original outer deadlines and unchanged fast failures.
-- [ ] Corrected-source protected CI and complete native canonical acceptance. The original failed sequence stays blocked, its costs stay charged and all five members require one fresh source-bound set; no failed workload is promoted to PASS.
+- [x] Corrected-source protected CI and all three native canonical executions. The [one-batch continuation](PHASE_6_IMAGE_CONTINUATION.md) pins the two inherited members and three compatible new members; failed sequences stay blocked and charged. Final raw-set review is below.
 - [x] Separately authorized [operator accounting restart, 2026-10-09](PHASE_6_NATIVE_DRILL_RECOVERY.md#separate-operator-accounting-restart--2026-10-09): original seven-attempt USD 110 ledger backed up locally; exact-generation replacement/read-back confirmed USD 0 / 200, no active lease or V5.1 resources. Historical costs and evidence remain retained.
 - [x] Local native full-preset request/session/controller/independent-validator integration using the reviewed allocation, matching Action choices and legacy cleanup compatibility. Native paid acceptance remains open.
 - [x] 6C3C24 implementation candidate: [retained cleanup reconstruction](PHASE_6_CLOUD_CLEANUP.md), shared reconciliation and fresh-process HTTP qualification.
@@ -422,14 +418,14 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6C3C30 corrected-source protected CI acceptance: PR #266/#267, master `9243bc31dc3727a132b50740430426b3512fc5c8`, CI `36785256345` attempt 1, all 29 jobs; original [local outbound admission failure and correction](PHASE_6_LOCAL_PERFORMANCE.md#pr-266-master-failure-unsent-outbound-admission) retained.
 - [x] Real-provider cleanup, identity and activation qualified for the four-cell experiment by run `37723402614`; later presets require their own admitted qualification.
 - [x] Native cloud source transport and all four experiment workload cells, run `37723402614`.
-- [ ] Remaining 6C3C: extend the accepted cloud SSH/mount path to all twelve faults and fifteen canonical cells, with complete independent evidence validation.
-- [ ] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified.
-- [ ] 6C: fresh configuration/IAM/image/quota/retention/cleanup readiness; exact-source full CI.
-- [ ] 6D: priced complete-sequence request and fresh user confirmation; user-triggered paid execution only.
-- [ ] 6D: experiment and failure-drill independently valid, with failures/costs retained.
-- [ ] 6D: all three canonical repetitions valid on one admitted source/artifact/workload set.
-- [ ] 6D: every member's raw evidence retained and cleanup/absence verified; no leftovers.
-- [ ] 6E: independent set review and append-only baseline registration accepted.
+- [x] 6C3C: native SSH/mount path executed all twelve fault and fifteen canonical cells, including independent in-run validation. Offline raw-set review is recorded separately below.
+- [x] 6C3: V5.1 runner, workflows, identities, remote adapter and same-path fake failures qualified through the accepted implementation milestones and native set.
+- [x] 6C: each native run admitted fresh required-access/image/quota/retention/manual-cleanup observations and exact-source full CI. These historical observations do not authorize another run.
+- [x] 6D: priced requests and fresh exact user confirmations; all paid executions were user-triggered, with the approved soft time/money policy.
+- [x] 6D: experiment `38363263163` and failure-drill `38372566659` passed independent in-run validation; failures/costs retained.
+- [x] 6D: canonical runs `38280933954`, `38300809738`, `38346492463` passed; the narrowly authorized image continuation preserves compatible payloads and original source/sequence identities.
+- [x] 6D: every member's raw evidence retained; thirteen exact resources absent per run; final observed lease absent and no PENDING reservation.
+- [ ] 6E protected acceptance of the [independent raw-set review and first baseline registration](PHASE_6_NATIVE_SET_ACCEPTANCE.md); candidate in this PR.
 - [ ] Full Phase 6 acceptance; only then a separate Phase 7 entry.
 
 An entry merge does not check implementation or cloud boxes. The current

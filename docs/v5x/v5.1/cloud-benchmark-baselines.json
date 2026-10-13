@@ -1,0 +1,22 @@
+{
+  "baselines": [
+    {
+      "canonicalCount": 3,
+      "measuredSequences": [
+        "c4d557b802ec49cd843081326608becb",
+        "eb7859da90c94c468215f2867638b0bf"
+      ],
+      "measuredSources": [
+        "7100b61e752647c52246cc86f2887fefa00821ea",
+        "f46f9a4ea624df2b42902efd0b633c30933ae2f2"
+      ],
+      "memberCount": 5,
+      "name": "v5.1-automatic-leadership-cloud",
+      "payloadSha256": "5e6e22804463e14d011c3c5bdd133dddb3c8190cd3f7f4a2ba5e5dbf1b0bd742",
+      "policySha256": "ebec1fb38db9d7544088e04409458a128e1054d8c803b276668f35a85fe2f725",
+      "reviewSha256": "c0cf273dc68813bc056598c7f9c678bd39d28b16e6dd794acda85b8a653c47a2",
+      "scope": "authorized-native-continuation-set"
+    }
+  ],
+  "schema": "gse-v51-cloud-baseline-registry-v1"
+}

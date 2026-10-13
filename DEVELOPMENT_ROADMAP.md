@@ -2,19 +2,13 @@
 
 ## Current development: V5.1 automatic election and activation
 
-**Latest milestone:** the [first native experiment](docs/v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
-passed all four cells, 42 evidence negatives, retention and thirteen-resource
-cleanup/lease release on source `500a41f30a5149703b81c4c2d01da75cd3baf1ed`
-(PR #304, protected CI `37718123364`, native run `37723402614`). Original archive
-replay also passed. Next implement the
-[remaining native presets](docs/v5x/v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
-Full Phase 6 still requires one final source's experiment, failure drill and three
-canonical repetitions. The chronology below retains earlier entry boundaries.
-
-The [owned network-fault slice](docs/v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) now adds
-isolated-leader, asymmetric request/response and slow-follower guest controls and
-independent replay. Protected CI acceptance is pending. Next implement the five
-remaining crash/transfer/capacity guest cases and the full failure-drill aggregate.
+**Latest milestone:** the [five-member native batch](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
+has completed all three canonical repetitions, experiment and failure-drill, with
+retained evidence and exact resource cleanup. The explicitly authorized image
+continuation retains the original sources/sequences. Final offline raw replay and
+baseline registration are in review; protected acceptance of that PR closes
+Phase 6 before a separate Phase 7 release-candidate entry. The chronology below
+preserves earlier milestones and their original acceptance boundaries.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
