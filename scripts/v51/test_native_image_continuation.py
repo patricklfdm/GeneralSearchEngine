@@ -66,7 +66,7 @@ class ContinuationTest(unittest.TestCase):
     def test_checked_in_exception_has_only_two_exact_historical_runs(self):
         p=v.policy()
         self.assertEqual([38280933954,38300809738],[p['inherited'][k]['runId'] for k in v.INHERITED])
-        self.assertEqual('68efdd6b99df497fb1b1dd6d87947fb4',p['sequence'])
+        self.assertEqual('c4d557b802ec49cd843081326608becb',p['sequence'])
         self.assertEqual(list(v.REMAINING),p['remaining'])
         self.assertEqual('763874002631433611',p['image']['imageId'])
         scripts={name for name in p['allowedChanges'] if name.startswith('scripts/')}

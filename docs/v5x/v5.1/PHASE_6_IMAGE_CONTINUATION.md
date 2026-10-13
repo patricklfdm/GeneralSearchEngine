@@ -1,7 +1,9 @@
 # Frozen image policy and one-batch native continuation
 
-**Status:** image correction merged, 2026-10-12; CI inventory follow-up is local,
-and corrected-source protected CI is pending.
+**Status:** image correction and CI inventory follow-up accepted on
+`50a4fae2f0af7479ba42cb11409234b9ddf825a6`; canonical-3 subsequently failed during
+remote command delivery. The replacement continuation sequence below is a local
+correction, 2026-10-12; its merged-source CI and remaining cloud runs are pending.
 The operator explicitly authorized this one batch to reuse canonical-1 and
 canonical-2. Subsequent phases/batches continue to require one source and one
 sequence. The native five-member set and Phase 6 remain incomplete.
@@ -48,7 +50,7 @@ The machine policy is [native-image-continuation.json](native-image-continuation
 
 Original source: `f46f9a4ea624df2b42902efd0b633c30933ae2f2`.
 Original sequence: `eb7859da90c94c468215f2867638b0bf`.
-**Only authorized continuation sequence: `68efdd6b99df497fb1b1dd6d87947fb4`.**
+**Only authorized continuation sequence: `c4d557b802ec49cd843081326608becb`.**
 Use `any-order`; the three remaining members can run in any order. Do not run
 canonical-1/2 again or place inherited reservations into the new ledger sequence.
 
@@ -58,6 +60,52 @@ independent physical/history and backup replay, immutable retention and cleanup
 of thirteen exact resources. Their original ledger entries remain PASS.
 Local replay of the retained completion records confirms these bindings; it
 does not rerun their raw physical traces or constitute new cloud execution.
+
+### Failed canonical-3 and replacement sequence
+
+[CI 38324679812](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38324679812)
+passed all 46 jobs on source `50a4fae2f0af7479ba42cb11409234b9ddf825a6`.
+[Prepare 38329864714](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38329864714)
+passed the new-source package comparison. Then
+[run 38330325048](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38330325048),
+attempt 1, failed with `RUNTIME_RETRY_EXHAUSTED` while configuring node 1's
+published V5.0 control for healthy window `instrumented-b`. The retained command
+store has no claim/start/terminal record for that command; its offline query
+returns NOT_FOUND. All 140 preceding V5.0 workload calls succeeded and all three
+worker stderr files were empty. Per-exchange transport errors and query replies
+were not retained, so the exact SSH/IAP interruption cause is undetermined.
+The candidate V5.1 workload had not started. No runtime defect is established
+by this evidence; this correction changes only the batch mapping, its pinned
+test and documentation.
+
+The failed request remains
+`9948e0c79a154419ffa04ddef34815d6edd089ae421aa5354eac1641ed2dda94`, on superseded
+sequence `68efdd6b99df497fb1b1dd6d87947fb4`. Retention was VERIFIED and exact
+cleanup passed for all thirteen resources. The last authenticated control
+observation has no active lease or PENDING attempt and USD 175 reserved,
+including this failed attempt's USD 25. This accounting is not an actual bill.
+
+The existing ledger rejects reuse of a failed canonical sequence with
+`sequence changed/failed canonical set`. The operator authorized a fresh
+continuation sequence for the same remaining three members. Only the new
+sequence above is eligible; the failed sequence contributes no accepted member
+and remains charged. The inherited requests, completion hashes, payload pin,
+closed source-change allowlist and normal failed-sequence rule stay unchanged.
+All three remaining members must use the next corrected source and new sequence.
+Subsequent batches still require their normal single source/sequence.
+
+Retained diagnosis: `target/v51-canonical-failure-38330325048/`.
+Local replacement audit: `target/v51-continuation-retry/`. The previous prepared
+plan and approval were used and cannot authorize the next attempt.
+
+Replacement validation passed all fifteen image/continuation tests and all
+69 Change scope tests. Offline replay of the retained ledger and completion
+metadata confirms both historical members, the failed completion hash, USD 175
+accounting and rejection of the superseded sequence. Pure local reservation
+simulations allow each remaining member to start the new sequence; they neither
+write the ledger nor qualify a paid attempt. All ten approved script hashes and
+the unchanged closed path list match the working tree. Committed-source and
+prepared-package checks remain required after merge.
 
 ## Compatibility and acceptance boundary
 
@@ -84,8 +132,8 @@ ledger, grants paid admission or relaxes normal sequence identity checks.
 4. Current ledger/lease observation must be reconciled. Completion audit checks
    native execution, physical/history results, applicable backup qualification,
    exact cleanup and evidence inventory bindings. Historical failures and costs
-   remain recorded. At the last observed canonical-2 completion, cumulative
-   reservations were USD 150; this is conservative accounting, not an invoice.
+   remain recorded. Reservations were USD 150 after canonical-2 and USD 175
+   after the failed canonical-3; this is conservative accounting, not an invoice.
 5. A two-/three-/four-member review reports PARTIAL. Five eligible PASS members
    report `batchComplete=true` in this **one-batch completion audit**. It still
    reports `fullRemoteQualification=false`: final raw evidence review and Phase 6
@@ -109,8 +157,9 @@ general permission to mix arbitrary green runs across releases.
   and one source-normalized helper in the 173-file comparison. A diagnostic
   source-only change preserves this comparison; helper program changes do not.
 
-Receipts and logs: `target/v51-image-continuation/`. New-source protected CI and
-the actual new-source prepared package still require verification after merge.
+Receipts and logs: `target/v51-image-continuation/`. CI and the prepared package
+subsequently passed on `50a4fae`; the replacement mapping still requires CI and
+actual package verification on its own merged source.
 
 ### Change scope inventory follow-up
 
@@ -123,11 +172,13 @@ rerunning the unchanged source would not repair this inventory mismatch.
 
 The follow-up adds exactly those two module names and pins the corrected test
 file in the continuation policy. Exact module identity/multiplicity and full
-versus split command/timeout checks remain active. Historical member records,
-the continuation sequence, payload comparison and runtime bytes are unchanged.
+versus split command/timeout checks remain active. That inventory correction
+preserved historical member records, the then-current continuation sequence,
+payload comparison and runtime bytes.
 All 69 tests from the exact Change scope command and all 15 focused image and
 continuation tests pass locally. Logs: `target/v51-preflight-ci-inventory/`.
-Protected CI must still pass on the final corrected source.
+It was accepted by CI `38324679812` on `50a4fae`. The replacement-sequence
+correction above must separately pass CI on its final merged source.
 
 ## Operator procedure after merge
 
@@ -135,10 +186,11 @@ The operator runs commit/push/PR/merge and every paid dispatch. From the clean,
 synchronized corrected master checkout (with original source history available):
 
 ```bash
-mkdir -p target/v51-image-continuation/post-merge
+mkdir -p target/v51-image-continuation
+continuation_review_dir=$(mktemp -d target/v51-image-continuation/post-merge.XXXXXX)
 python3.11 -m scripts.v51.native_image_continuation source \
   --source "$(git rev-parse HEAD)" \
-  --output target/v51-image-continuation/post-merge/source.json
+  --output "$continuation_review_dir/source.json"
 ```
 
 Require a successful CI run for that exact master source, including its build
@@ -151,12 +203,12 @@ artifact using the existing producing-run review. Before approving execution:
 ```bash
 python3.11 -m scripts.v51.native_image_continuation prepared \
   --source "$(git rev-parse HEAD)" --prepared PATH_TO_AUTHENTICATED_PREPARED_DIRECTORY \
-  --output target/v51-image-continuation/post-merge/canonical-3-package.json
+  --output "$continuation_review_dir/canonical-3-package.json"
 ```
 
 Use fresh approval for each remaining member and perform the same package check
-for experiment/failure-drill. Preserve their prepared directories. The failed
-old-source canonical-3 prepare is not a reusable approval.
+for experiment/failure-drill. Preserve their prepared directories. Neither the
+failed old-source prepare nor the used canonical-3 plan/approval is reusable.
 
 After reconciliation, collect current generation-pinned control/completion
 metadata with the already configured local read identity. This command only
@@ -165,14 +217,14 @@ reads exact objects; it does not run experiments or clean resources:
 ```bash
 python3.11 -m scripts.v51.native_image_continuation collect \
   --source "$(git rev-parse HEAD)" \
-  --output target/v51-image-continuation/post-merge/observations.json
+  --output "$continuation_review_dir/observations.json"
 python3.11 -m scripts.v51.native_image_continuation review \
   --source "$(git rev-parse HEAD)" \
-  --observations target/v51-image-continuation/post-merge/observations.json \
+  --observations "$continuation_review_dir/observations.json" \
   --prepared canonical-3=PATH_TO_CANONICAL_3_PREPARED \
   --prepared experiment=PATH_TO_EXPERIMENT_PREPARED \
   --prepared failure-drill=PATH_TO_DRILL_PREPARED \
-  --output target/v51-image-continuation/post-merge/batch-review.json
+  --output "$continuation_review_dir/batch-review.json"
 ```
 
 For an interim review, supply prepared directories only for new PASS members.

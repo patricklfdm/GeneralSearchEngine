@@ -5,8 +5,13 @@ PR #316's native canonical-1 `38280933954` and canonical-2 `38300809738` complet
 successfully. Third-member preparation `38319063804` was blocked by the frozen
 image becoming DEPRECATED. The operator authorized retaining exactly those two
 members and running canonical-3, experiment and failure-drill on one new sequence
-after the admission-only correction. Corrected-source CI, remaining native runs
-and final review are pending; full Phase 6 remains open.
+after the admission-only correction. CI `38324679812` and prepare `38329864714`
+passed on `50a4fae`; canonical-3 run `38330325048` then failed during V5.0
+control command delivery, with retention VERIFIED and exact cleanup PASS.
+The operator authorized replacing that failed continuation sequence while
+preserving the two successful members and USD 175 reserved accounting. The
+replacement mapping's merged-source CI, remaining native runs and final review
+are pending; full Phase 6 remains open.
 
 **Status:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
