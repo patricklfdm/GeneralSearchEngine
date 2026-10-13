@@ -62,7 +62,7 @@ def extract(archive, target, expected_sha):
                 shutil.copyfileobj(src, dst, 1 << 20)
 
 
-def budget(value, timing):
+def budget(value, timing, *, cells=CELLS):
     """Recompute disjoint accounting instead of trusting recorded PASS booleans."""
     limits = timing['limitsSeconds']; spent = dict.fromkeys(limits, 0)
     rows = value['intervals']; m.need(rows, 'missing budget intervals')
@@ -72,18 +72,30 @@ def budget(value, timing):
         m.need(name in spent and all(type(v) is int and v >= 0 for v in (begin, end, elapsed)) and
                begin == previous and end >= begin and elapsed == end-begin, 'budget interval arithmetic')
         spent[name] += elapsed; previous = end
-        m.need(row['withinBudget'] is True and spent[name] <= limits[name]*10**9 and
-               end-start <= timing['leaseSeconds']*10**9, 'budget limit')
+        within = spent[name] <= limits[name]*10**9 and end-start <= timing['leaseSeconds']*10**9
+        m.need(row['withinBudget'] is within, 'budget limit observation')
+        m.need(timing.get('timeBudgetMode') == 'soft' or within, 'budget limit')
         if name != 'control': stages.append(name)
-    m.need(stages == ['preparation', *CELLS, 'validation-retention', 'cleanup'], 'budget stage coverage/order')
+    m.need(stages == ['preparation', *cells, 'validation-retention', 'cleanup'], 'budget stage coverage/order')
     m.need(value['clock'] == 'controller-monotonic' and value['status'] == 'PASS' and
            all(type(v) is int for v in value['spentNanos'].values()) and type(value['elapsedNanos']) is int and
            value['spentNanos'] == spent and value['elapsedNanos'] == previous-start == sum(spent.values()),
            'budget totals')
+    if timing.get('timeBudgetMode') == 'soft':
+        warnings = value.get('warnings')
+        m.need(value.get('mode') == 'soft' and type(warnings) is list and
+               all(type(name) is str for name in warnings) and sorted(warnings) ==
+               sorted(name for name, elapsed in spent.items() if elapsed > limits[name]*10**9), 'budget warnings')
 
 
-def metadata(root, *, source, run, attempt, request_sha):
+def metadata(root, *, source, run, attempt, request_sha, member=None):
     plan = c.read(root/'handoff/prepared/plan.json'); req = plan['resourcePlan']['request']
+    scope, cells = SCOPE, CELLS
+    if member is not None:
+        from . import native_preset_timing as full
+        allocation = full.validate(req)
+        m.need(req['member'] == member, 'native review member')
+        scope, cells = 'owned-complete-'+allocation['preset'], allocation['cells']
     # Historical validation uses original creation time. The result grants no
     # current admission, regardless of whether the approval has since expired.
     plan_sha = admission.approval(plan, c.read(root/'approval.json'),
@@ -101,12 +113,15 @@ def metadata(root, *, source, run, attempt, request_sha):
         m.need(value['paidCloud'] is True and value['engineWorkloadExecuted'] is True and
                value['fullRemoteQualification'] is False, 'native experiment scope')
     m.need(result['schema'] == n.COMPLETION_SCHEMA and result['execution'] == n.EXECUTION and
-           result['status'] == 'PASS' and result['errors'] == [] and result['qualificationScope'] == SCOPE and
+           result['status'] == 'PASS' and result['errors'] == [] and result['qualificationScope'] == scope and
            result['retention'] == 'VERIFIED' and result['leaseReleased'] is True, 'native completion status')
     recorded = result['evidence']
-    m.need(recorded['status'] == 'PASS' and recorded['scope'] == SCOPE and recorded['errors'] == [] and
-           recorded['physicalHistoryQualified'] is True and recorded['backupRestoreQualified'] is True and
+    m.need(recorded['status'] == 'PASS' and recorded['scope'] == scope and recorded['errors'] == [] and
+           recorded['physicalHistoryQualified'] is True and
+           (member == 'failure-drill' or recorded['backupRestoreQualified'] is True) and
            m.sha(m.canonical(recorded)) == result['evidenceSha256'], 'recorded evidence binding')
+    if member is not None:
+        m.need(recorded['cells'] == list(cells), 'recorded member cells')
     resources = c.read(root/'execution/preparation/resources/receipt.json')
     m.need(resources['requestSha256'] == request_sha and resources['status'] == 'RESOURCES_PREPARED' and
            [r['spec'] for r in resources['resources']] == n.resources(req), 'resource request inventory')
@@ -119,7 +134,7 @@ def metadata(root, *, source, run, attempt, request_sha):
            len(checks) == len(expected) and {r['name'] for r in checks} == set(expected) and
            all(r['expectedId'] == expected[r['name']] and r['absent'] is True and r['observed'] is None for r in checks),
            'cleanup exact-ID absence')
-    for key in ('budgetBeforeCompletion', 'budget'): budget(result[key], plan['timing'])
+    for key in ('budgetBeforeCompletion', 'budget'): budget(result[key], plan['timing'], cells=cells)
     earlier = result['budgetBeforeCompletion']['intervals']; final = result['budget']['intervals']
     m.need(final[:len(earlier)] == earlier and all(r['category'] == 'control' for r in final[len(earlier):]),
            'completion budget changed')

@@ -1,33 +1,25 @@
 # Next-development documentation handoff
 
-Current batch: [frozen image admission and one-batch continuation](v5.1/PHASE_6_IMAGE_CONTINUATION.md).
-PR #316 accepted soft budgets/packed retention on
-`f46f9a4ea624df2b42902efd0b633c30933ae2f2`. Canonical-1 `38280933954` and
-canonical-2 `38300809738` passed all fifteen cells, independent replay, retention,
-exact cleanup and ledger completion. Failed prepare `38319063804` never allocated:
-the exact frozen image had become DEPRECATED.
+Current batch: [native five-member final review and baseline registration](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md).
+All five paid members are complete: canonical-1 `38280933954`, canonical-2
+`38300809738`, canonical-3 `38346492463`, experiment `38363263163` and failure-drill
+`38372566659`. The final drill passed twelve cells, 103 calls and 129 evidence
+negatives; all thirteen resources were cleaned and the lease released.
 
-The image repair and inventory correction passed all 46 jobs in CI `38324679812`
-on `50a4fae2f0af7479ba42cb11409234b9ddf825a6`; prepare `38329864714` also passed
-package-byte compatibility. Canonical-3 run `38330325048` failed with
-`RUNTIME_RETRY_EXHAUSTED` during V5.0 control command delivery, before the V5.1
-candidate started. Retention was VERIFIED and all thirteen resources were
-cleaned. Last authenticated observation: USD 175 reserved, no PENDING attempt
-or active lease. The failed sequence `68efdd6b99df497fb1b1dd6d87947fb4` cannot
-be reused and its cost remains recorded; the precise transport cause is unknown.
+The first two members retain source `f46f9a4ea624df2b42902efd0b633c30933ae2f2` /
+sequence `eb7859da90c94c468215f2867638b0bf`. The remaining three retain source
+`7100b61e752647c52246cc86f2887fefa00821ea` / sequence
+`c4d557b802ec49cd843081326608becb`. Only the explicitly authorized
+[image continuation](v5.1/PHASE_6_IMAGE_CONTINUATION.md) permits this mapping.
+Both measured sources passed all 46 jobs in their recorded exact CI attempts.
 
-The operator authorized a replacement sequence, retaining only the two pinned
-successful runs. Corrected-source CI and package-byte compatibility must pass
-again before running canonical-3, experiment and failure-drill with sequence
-`c4d557b802ec49cd843081326608becb`. Keep all three on one corrected source;
-their order is free. Obtain a fresh prepare/approval. Use the read-only continuation tool
-for the explicit five-member mapping; do not copy old ledger entries or relabel
-old source/sequence. Subsequent batches keep normal same-source/sequence rules.
-Phase 6 and final acceptance remain open. Cloud dispatch remains manual.
-
-The accepted [soft budgets](v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md) retain advisory
-time/money thresholds, fast failure, GitHub's six-hour platform limit and original
-cleanup ownership. This repair performs no budget reset or refund.
+The completion audit is PASS with five members, USD 250 cumulative reservations,
+no PENDING attempt and no active lease. Historical failures and charges remain.
+The current PR adds full raw archive replay and baseline registration; its own
+protected CI/merge is required before formal Phase 6 closure. Do not repeat the
+five paid experiments merely to qualify this offline review change. Subsequent
+batches retain normal source/sequence rules; cloud dispatch remains manual.
+Next after acceptance: a separate Phase 7 release-candidate entry.
 
 PR #311's native experiment `37970604996` remains accepted on its earlier source.
 The owner-authorized accounting restart of 2026-10-09 preserved the original

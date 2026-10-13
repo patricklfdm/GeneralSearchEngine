@@ -1,0 +1,216 @@
+{
+  "bucket": "gse-benchmark-evidence-266952534277",
+  "leaseObservedAbsent": true,
+  "ledger": {
+    "generation": 1791887773231908,
+    "object": "v5.1-automatic-leadership/control/ledger.json",
+    "sha256": "15bf410bd5011e8dd76d714e58324a52a5a0d214ac7af065479ff28bb0902c3d"
+  },
+  "members": [
+    {
+      "apiMetadataSha256": {
+        "artifacts.json": "6c58d4766e8cdedc120fb215115d3a7e20730d2913d3de00a1044fac4c930b36",
+        "jobs.json": "82eda7cf3ff73a67d5fa7763a388eda21ab46d94177f3cc42f4bf5c2319520d6",
+        "run.json": "c057b443850be51fc7b19ac2cc5ebbb84059dbbb3859ed8b1fd9e91a1474af12"
+      },
+      "artifactId": 11769513246,
+      "bytes": 720734434,
+      "member": "canonical-1",
+      "preparedRun": 38280005640,
+      "records": {
+        "completion.json": {
+          "bytes": 62816,
+          "generation": 1791834224266077,
+          "object": "v5.1-automatic-leadership/control/attempts/abafc17f6b00bd8dff9fe3d959f96fe5af32ddadf5aaddef53db58af9fb70132/completion.json",
+          "sha256": "fd70dfcf7cca529b59693c122dcb33e02f98dd41c3965251bc3c4c6561a42703"
+        },
+        "owned-experiment/evidence.json": {
+          "bytes": 51643,
+          "generation": 1791833966905442,
+          "object": "v5.1-automatic-leadership/control/attempts/abafc17f6b00bd8dff9fe3d959f96fe5af32ddadf5aaddef53db58af9fb70132/owned-experiment/evidence.json",
+          "sha256": "8641e9c3c92ee3bc9e29f5ff9f631393d22de3bc7713ebb54c171fac5910555c"
+        },
+        "owned-experiment/manifest.json": {
+          "bytes": 7593,
+          "generation": 1791833967876913,
+          "object": "v5.1-automatic-leadership/control/attempts/abafc17f6b00bd8dff9fe3d959f96fe5af32ddadf5aaddef53db58af9fb70132/owned-experiment/manifest.json",
+          "sha256": "77582bc7d81b08f0b8cb8c451cdf3347d317e8e0f96d56e56edbbe69b3ecdb36"
+        }
+      },
+      "requestSha256": "abafc17f6b00bd8dff9fe3d959f96fe5af32ddadf5aaddef53db58af9fb70132",
+      "run": 38280933954,
+      "runAttempt": 1,
+      "sequence": "eb7859da90c94c468215f2867638b0bf",
+      "sha256": "418f63556c887d0ed05c1a9b661982bf9cc0abc6ca8b8864ce74c332dde39858",
+      "source": "f46f9a4ea624df2b42902efd0b633c30933ae2f2"
+    },
+    {
+      "apiMetadataSha256": {
+        "artifacts.json": "6061219f82cf941f5f548c418eef39be5e68cf447dd8a56a357ee9cf53c662c4",
+        "jobs.json": "8232f168b1893ec20fc40dc16002d278f9365a05ea6aa8c37a95e7cb2127ab6e",
+        "run.json": "ea05e4c2479946f6921a4568fb517aa1b7902396fdafee034f197325c13fce47"
+      },
+      "artifactId": 11777382286,
+      "bytes": 725849735,
+      "member": "canonical-2",
+      "preparedRun": 38300238047,
+      "records": {
+        "completion.json": {
+          "bytes": 62841,
+          "generation": 1791844482691996,
+          "object": "v5.1-automatic-leadership/control/attempts/0ed27054ac2a111d95b9370f47b7f2485ff7ffdc8ecca210f0a96bff7a37ff90/completion.json",
+          "sha256": "a9f93c1477a4685676881dd2cc36234624026392e9099c402f8a5a0cdb81068b"
+        },
+        "owned-experiment/evidence.json": {
+          "bytes": 51658,
+          "generation": 1791844249631384,
+          "object": "v5.1-automatic-leadership/control/attempts/0ed27054ac2a111d95b9370f47b7f2485ff7ffdc8ecca210f0a96bff7a37ff90/owned-experiment/evidence.json",
+          "sha256": "3bd70e883ec53d3a4f5d27d7d545584061a0733f5e928bba475ca379a395e354"
+        },
+        "owned-experiment/manifest.json": {
+          "bytes": 7593,
+          "generation": 1791844250490742,
+          "object": "v5.1-automatic-leadership/control/attempts/0ed27054ac2a111d95b9370f47b7f2485ff7ffdc8ecca210f0a96bff7a37ff90/owned-experiment/manifest.json",
+          "sha256": "ce86625e7815dfa938e2d01a2aa47817b05536cf1903f891f1eb638b50d7dfc7"
+        }
+      },
+      "requestSha256": "0ed27054ac2a111d95b9370f47b7f2485ff7ffdc8ecca210f0a96bff7a37ff90",
+      "run": 38300809738,
+      "runAttempt": 1,
+      "sequence": "eb7859da90c94c468215f2867638b0bf",
+      "sha256": "0130d21c8b2f39fd8198ec2a29c0275176824f25087b88b4f53486beaa93027c",
+      "source": "f46f9a4ea624df2b42902efd0b633c30933ae2f2"
+    },
+    {
+      "apiMetadataSha256": {
+        "artifacts.json": "6f3dde7801dc8449a800c6203445025ea1ee777f5f4567975b2dc8c764fa54f8",
+        "jobs.json": "2eeaa57f62df5b130fef61a7d001f7bdd2fbe75504b292d39ed80d0b61e8fe85",
+        "run.json": "7d857b813e6e5c01e4ff86f79381faa80a2edb079aee6eadb87250665cb833dc"
+      },
+      "artifactId": 11794648045,
+      "bytes": 727371354,
+      "member": "canonical-3",
+      "preparedRun": 38345952012,
+      "records": {
+        "completion.json": {
+          "bytes": 62776,
+          "generation": 1791875598768779,
+          "object": "v5.1-automatic-leadership/control/attempts/efeb5c9b40b5364e30b762ace77f19c2396bf0369ca305c227229384fdb64daa/completion.json",
+          "sha256": "f400afabc7de616b6fc871af78aa521f9b7415d2c1741dabb794f80d9c2f3dbb"
+        },
+        "owned-experiment/evidence.json": {
+          "bytes": 51591,
+          "generation": 1791875350878196,
+          "object": "v5.1-automatic-leadership/control/attempts/efeb5c9b40b5364e30b762ace77f19c2396bf0369ca305c227229384fdb64daa/owned-experiment/evidence.json",
+          "sha256": "8ca58c7ca6ca631e37d0ecdcfc3f1b5161a4a8c3eb3a5917522638099b963de7"
+        },
+        "owned-experiment/manifest.json": {
+          "bytes": 7593,
+          "generation": 1791875351778241,
+          "object": "v5.1-automatic-leadership/control/attempts/efeb5c9b40b5364e30b762ace77f19c2396bf0369ca305c227229384fdb64daa/owned-experiment/manifest.json",
+          "sha256": "eed2f73690525de560dbdba3b317205ae9865bf1ccc2298ce3ecd46acc45692f"
+        }
+      },
+      "requestSha256": "efeb5c9b40b5364e30b762ace77f19c2396bf0369ca305c227229384fdb64daa",
+      "run": 38346492463,
+      "runAttempt": 1,
+      "sequence": "c4d557b802ec49cd843081326608becb",
+      "sha256": "234a7f1f6f070e3a3f23c2c9ce7992af356e1291362ba7fffa80d5b664aca17d",
+      "source": "7100b61e752647c52246cc86f2887fefa00821ea"
+    },
+    {
+      "apiMetadataSha256": {
+        "artifacts.json": "10c12a0c8a568fe218dd1631d76dd0e84e7f5fcc91bb94ba98676d24144953f1",
+        "jobs.json": "dafc50f3322eece1c4910dd26a4be25ab684e1e0e0939d351a58fc320b4a3828",
+        "run.json": "95a76269f819e5f293470f18b51f9aa1dfab5a23e5cabf14f40a0c3e12f7782d"
+      },
+      "artifactId": 11799270105,
+      "bytes": 217925842,
+      "member": "experiment",
+      "preparedRun": 38362642098,
+      "records": {
+        "completion.json": {
+          "bytes": 28202,
+          "generation": 1791880710811556,
+          "object": "v5.1-automatic-leadership/control/attempts/18e1132b02ea8fd7ca02c3f37c25d4d6475bb6e5a3a69ef27e6c9cc240a504b9/completion.json",
+          "sha256": "8878dea4b322a95ec0bb0fc68ec08e76f17a812f18578460288cfb4bb560fcef"
+        },
+        "owned-experiment/evidence.json": {
+          "bytes": 20093,
+          "generation": 1791880480364707,
+          "object": "v5.1-automatic-leadership/control/attempts/18e1132b02ea8fd7ca02c3f37c25d4d6475bb6e5a3a69ef27e6c9cc240a504b9/owned-experiment/evidence.json",
+          "sha256": "54b883694b08426dc98336c1e4ae223b7698a8513f2685c74ce419a3bfd7280d"
+        },
+        "owned-experiment/manifest.json": {
+          "bytes": 2290,
+          "generation": 1791880481493111,
+          "object": "v5.1-automatic-leadership/control/attempts/18e1132b02ea8fd7ca02c3f37c25d4d6475bb6e5a3a69ef27e6c9cc240a504b9/owned-experiment/manifest.json",
+          "sha256": "8c356c52425ea515cea517bd55c6645ab904d0cf4687e41698f129e541070ee4"
+        }
+      },
+      "requestSha256": "18e1132b02ea8fd7ca02c3f37c25d4d6475bb6e5a3a69ef27e6c9cc240a504b9",
+      "run": 38363263163,
+      "runAttempt": 1,
+      "sequence": "c4d557b802ec49cd843081326608becb",
+      "sha256": "538b4f0262ebe976eab70b4a58cb112799a36d3b5a0bc0ecea0c49d7afa64c36",
+      "source": "7100b61e752647c52246cc86f2887fefa00821ea"
+    },
+    {
+      "apiMetadataSha256": {
+        "artifacts.json": "80cc904aaa1748da49e9962e99e30a805aee8b04e9be553e21a8d0e281d339db",
+        "jobs.json": "a7ea34109a94d43b541e5d4341ad21fd2e679bae606bca45717c04c800dd5a59",
+        "run.json": "b2851b97c21f2b4227e8085a4dac5141903bcb7bf96d65ac08f03e777f4acc68"
+      },
+      "artifactId": 11804613456,
+      "bytes": 97637096,
+      "member": "failure-drill",
+      "preparedRun": 38371664898,
+      "records": {
+        "completion.json": {
+          "bytes": 33292,
+          "generation": 1791887772083796,
+          "object": "v5.1-automatic-leadership/control/attempts/20b8186ee191bc7ea188ae2c0c2450ffafbd9871eefb674afd54d795b6026cb3/completion.json",
+          "sha256": "26b034c19cdc869c85932384902972d41d1a419569481981cf9367ea794a85f1"
+        },
+        "owned-experiment/evidence.json": {
+          "bytes": 22916,
+          "generation": 1791887499384924,
+          "object": "v5.1-automatic-leadership/control/attempts/20b8186ee191bc7ea188ae2c0c2450ffafbd9871eefb674afd54d795b6026cb3/owned-experiment/evidence.json",
+          "sha256": "ba20f76310bf672bc44078227da2c413497abb7b8592137c98e1bcf058b07ce7"
+        },
+        "owned-experiment/manifest.json": {
+          "bytes": 1567,
+          "generation": 1791887500954315,
+          "object": "v5.1-automatic-leadership/control/attempts/20b8186ee191bc7ea188ae2c0c2450ffafbd9871eefb674afd54d795b6026cb3/owned-experiment/manifest.json",
+          "sha256": "577861eae8c8605e534a5e2f9264abf64e3f8656c86b8b5d6e56327e5819879f"
+        }
+      },
+      "requestSha256": "20b8186ee191bc7ea188ae2c0c2450ffafbd9871eefb674afd54d795b6026cb3",
+      "run": 38372566659,
+      "runAttempt": 1,
+      "sequence": "c4d557b802ec49cd843081326608becb",
+      "sha256": "8362d9a4af58ed3d5c394afb49b6f33de803e285e306cb91f1fa3c510ade928e",
+      "source": "7100b61e752647c52246cc86f2887fefa00821ea"
+    }
+  ],
+  "observationsSha256": "56e3bd3e98690f550286ebd18a28df699588429e57c87d1bf9dea289d32a8567",
+  "observedAt": 1791907683,
+  "reviewSha256": "c0cf273dc68813bc056598c7f9c678bd39d28b16e6dd794acda85b8a653c47a2",
+  "schema": "gse-v51-native-set-provenance-v1",
+  "sourceCI": [
+    {
+      "attempt": 1,
+      "jobs": 46,
+      "run": 38231529564,
+      "source": "f46f9a4ea624df2b42902efd0b633c30933ae2f2",
+      "status": "PASS"
+    },
+    {
+      "attempt": 2,
+      "jobs": 46,
+      "run": 38339508687,
+      "source": "7100b61e752647c52246cc86f2887fefa00821ea",
+      "status": "PASS"
+    }
+  ]
+}

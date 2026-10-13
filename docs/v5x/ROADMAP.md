@@ -1,37 +1,19 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [native soft budgets and packed retention](v5.1/PHASE_6_NATIVE_SOFT_BUDGETS.md).
-PR #315 passed exact-master CI `38193537774` on
-`be16ce4af3837a13558b73efbce7c4feade68e44`. Canonical-1 `38206276543` passed
-all fifteen cells and independent replay, then exceeded the 2400-second retention
-stage while uploading small files. Exact-resource cleanup passed; retention and
-ledger finalization did not. The observed ledger is USD 100 with that attempt
-PENDING. The original lease requires manual reconciliation; no reset is performed.
+Current batch: [native five-member final review and baseline registration](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md).
+Three canonical repetitions, experiment and failure-drill have completed with
+retention and exact thirteen-resource cleanup. The one-batch image continuation
+preserves two pinned original-source members and three compatible corrected-source
+members. USD 250 cumulative reservations and all historical failed attempts remain
+recorded; no active lease or PENDING reservation was observed at completion.
 
-The operator authorized soft time **and** money budgets. New v4 plans warn on
-stage overruns and the USD 200 threshold, pack metadata with original path/hash
-inventories, and retain fast failure for definite errors. GitHub's six-hour job
-limit and immutable cleanup ownership still apply. Local verification is complete;
-corrected-source protected CI and a new same-source five-member native set remain
-pending. Earlier v1/v2/v3 requests retain their historical semantics.
+This PR supplies independent raw archive replay, measured summaries and the first
+V5.1 baseline record. Protected acceptance of the review PR remains required to
+close Phase 6. Then enter Phase 7 separately; no further paid run or version bump
+is implied. Earlier native failures and implementation stages remain documented
+in their linked historical records.
 
-PR #311's native experiment `37970604996` remains accepted on its earlier source.
-The owner-authorized accounting restart of 2026-10-09 preserved the original
-USD 110 ledger and verified USD 0 / 200 before the new attempt. This correction
-adds no reset or refund. Historical failures, failed-attempt accounting and the
-complete same-source five-member acceptance requirement remain in force.
-
-[Complete owned canonical qualification](v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md)
-is accepted through PR #310 / master `07e0745de7498c9f45ad9fc9209d7afbc550e4c8`,
-CI `37887342685` attempt 2. All three repetitions passed fifteen cells and 1080
-rich calls with independent replay and modeled cleanup. Original failed attempts
-remain retained; no timing root cause is claimed. The twelve-cell drill was
-accepted through PR #308 / CI `37837221623`. The accepted PR #311 integration
-connects all five native members through request, guest session, controller,
-independent replay and cleanup. Paid full-preset acceptance remains pending;
-diagnostic-only stays the default.
-
-- **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; first native four-cell experiment accepted; full Phase 6 remains open; V5.2–V5.4 planned
+- **Status:** V5.0 published and reconciled; V5.1 Phases 3–5 and Phase 6A/6B accepted; five-member paid batch complete; Phase 6 final-review protected acceptance pending; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below

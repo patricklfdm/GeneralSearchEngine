@@ -1,12 +1,14 @@
 # Frozen image policy and one-batch native continuation
 
-**Status:** image correction and CI inventory follow-up accepted on
-`50a4fae2f0af7479ba42cb11409234b9ddf825a6`; canonical-3 subsequently failed during
-remote command delivery. The replacement continuation sequence below is a local
-correction, 2026-10-12; its merged-source CI and remaining cloud runs are pending.
-The operator explicitly authorized this one batch to reuse canonical-1 and
-canonical-2. Subsequent phases/batches continue to require one source and one
-sequence. The native five-member set and Phase 6 remain incomplete.
+**Status:** all five authorized members completed successfully by 2026-10-13.
+PR #319 source `7100b61e752647c52246cc86f2887fefa00821ea` passed exact CI
+`38339508687`, attempt 2 (46 jobs). Its canonical-3, experiment and failure-drill
+completed on the replacement sequence. The completion audit is PASS, with USD 250
+cumulative reservations and no active lease/PENDING entry. The separate
+[raw-set review and baseline candidate](PHASE_6_NATIVE_SET_ACCEPTANCE.md) must
+receive protected acceptance before formal Phase 6 closure.
+Only this batch may inherit the two pinned original canonical members. Subsequent
+batches retain their normal same-source/same-sequence requirements.
 
 ## Failure and image policy
 
@@ -44,9 +46,9 @@ The machine policy is [native-image-continuation.json](native-image-continuation
 | --- | --- | --- |
 | canonical-1 | [38280933954](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38280933954), attempt 1 | original source and sequence |
 | canonical-2 | [38300809738](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38300809738), attempt 1 | original source and sequence |
-| canonical-3 | pending | corrected source, new sequence |
-| experiment | pending | same corrected source and new sequence |
-| failure-drill | pending | same corrected source and new sequence |
+| canonical-3 | [38346492463](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38346492463), attempt 1 | `7100b61`, replacement sequence |
+| experiment | [38363263163](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38363263163), attempt 1 | `7100b61`, replacement sequence |
+| failure-drill | [38372566659](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38372566659), attempt 1 | `7100b61`, replacement sequence |
 
 Original source: `f46f9a4ea624df2b42902efd0b633c30933ae2f2`.
 Original sequence: `eb7859da90c94c468215f2867638b0bf`.
@@ -159,7 +161,9 @@ general permission to mix arbitrary green runs across releases.
 
 Receipts and logs: `target/v51-image-continuation/`. CI and the prepared package
 subsequently passed on `50a4fae`; the replacement mapping still requires CI and
-actual package verification on its own merged source.
+actual package verification on its own merged source. Those checks subsequently
+passed on `7100b61` for prepared runs `38345952012`, `38362642098` and `38371664898`;
+their native runs are recorded above.
 
 ### Change scope inventory follow-up
 
@@ -182,7 +186,9 @@ correction above must separately pass CI on its final merged source.
 
 ## Operator procedure after merge
 
-The operator runs commit/push/PR/merge and every paid dispatch. From the clean,
+This procedure was completed for the five runs above; it is retained for audit,
+not an instruction to rerun them. The operator runs commit/push/PR/merge and every
+paid dispatch. From the clean,
 synchronized corrected master checkout (with original source history available):
 
 ```bash

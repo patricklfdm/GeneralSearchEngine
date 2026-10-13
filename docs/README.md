@@ -46,6 +46,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 - [V5.1 Phase 5B quarantine, pressure and recovery lifecycle](v5x/v5.1/PHASE_5_COMBINED_LIFECYCLE.md)
 - [V5.1 Phase 5C acceptance and resource reconciliation](v5x/v5.1/PHASE_5_ACCEPTANCE.md)
 - [V5.1 Phase 5 checklist](v5x/v5.1/PHASE_5_CHECKLIST.md)
+- [V5.1 Phase 6 native five-member final review and baseline candidate](v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
 - [V5.1 Phase 6 performance and cloud entry](v5x/v5.1/PHASE_6_ENTRY_PLAN.md)
 - [V5.1 Phase 6A local measurement contract](v5x/v5.1/PHASE_6_LOCAL_MEASUREMENT_PLAN.md)
 - [V5.1 Phase 6A rich model and published-control foundation](v5x/v5.1/PHASE_6_MODEL_FOUNDATION.md)

@@ -5,6 +5,12 @@ may reuse exactly two pinned canonical runs for one named batch. All other
 phase/batch qualification still requires a complete same-source, same-sequence
 set. Normal request and ledger identity validation is unchanged.
 
+**2026-10-13 completion update:** all five native members are complete under the
+approved continuation. The [final raw-set review and baseline candidate](PHASE_6_NATIVE_SET_ACCEPTANCE.md)
+is the remaining Phase 6 acceptance PR. The implementation plan below preserves
+its earlier boundaries; it does not require repeating the successful paid set.
+The later soft-budget policy supersedes the historical hard USD 200 wording below.
+
 **Status:** implementation plan after the
 [first successful native experiment](PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md).
 The [owned network-fault batch](PHASE_6_OWNED_NETWORK_FAULTS.md) now implements
