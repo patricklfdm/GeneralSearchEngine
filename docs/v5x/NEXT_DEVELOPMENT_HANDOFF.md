@@ -4,14 +4,23 @@ Current batch: [frozen image admission and one-batch continuation](v5.1/PHASE_6_
 PR #316 accepted soft budgets/packed retention on
 `f46f9a4ea624df2b42902efd0b633c30933ae2f2`. Canonical-1 `38280933954` and
 canonical-2 `38300809738` passed all fifteen cells, independent replay, retention,
-exact cleanup and ledger completion. Last observed ledger: USD 150 reserved,
-no PENDING attempt or active lease. Failed prepare `38319063804` never allocated:
+exact cleanup and ledger completion. Failed prepare `38319063804` never allocated:
 the exact frozen image had become DEPRECATED.
 
-The operator authorized reusing only those two runs. Corrected-source CI and
-package-byte compatibility must pass before running canonical-3, experiment and
-failure-drill with sequence `68efdd6b99df497fb1b1dd6d87947fb4`. Keep all three on
-one corrected source; their order is free. Use the read-only continuation tool
+The image repair and inventory correction passed all 46 jobs in CI `38324679812`
+on `50a4fae2f0af7479ba42cb11409234b9ddf825a6`; prepare `38329864714` also passed
+package-byte compatibility. Canonical-3 run `38330325048` failed with
+`RUNTIME_RETRY_EXHAUSTED` during V5.0 control command delivery, before the V5.1
+candidate started. Retention was VERIFIED and all thirteen resources were
+cleaned. Last authenticated observation: USD 175 reserved, no PENDING attempt
+or active lease. The failed sequence `68efdd6b99df497fb1b1dd6d87947fb4` cannot
+be reused and its cost remains recorded; the precise transport cause is unknown.
+
+The operator authorized a replacement sequence, retaining only the two pinned
+successful runs. Corrected-source CI and package-byte compatibility must pass
+again before running canonical-3, experiment and failure-drill with sequence
+`c4d557b802ec49cd843081326608becb`. Keep all three on one corrected source;
+their order is free. Obtain a fresh prepare/approval. Use the read-only continuation tool
 for the explicit five-member mapping; do not copy old ledger entries or relabel
 old source/sequence. Subsequent batches keep normal same-source/sequence rules.
 Phase 6 and final acceptance remain open. Cloud dispatch remains manual.

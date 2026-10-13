@@ -3,7 +3,7 @@
   "authorizedOn": "2026-10-12",
   "oldSource": "f46f9a4ea624df2b42902efd0b633c30933ae2f2",
   "oldSequence": "eb7859da90c94c468215f2867638b0bf",
-  "sequence": "68efdd6b99df497fb1b1dd6d87947fb4",
+  "sequence": "c4d557b802ec49cd843081326608becb",
   "remaining": [
     "canonical-3",
     "experiment",
@@ -70,7 +70,7 @@
     "scripts/v51/test_cloud_image_policy.py": "39f5a71e954db276cd8372f2443b9c3b428d686d5f1e4faa986a499dd57a6494",
     "scripts/v51/test_cloud_preflight.py": "36c3df9ba83569c24d114eeb7942ad414715c6f857033821c4d5ad5a048fe223",
     "scripts/v51/test_cloud_permissions.py": "38a43caa3fbd9dd0ea8eda5a207028db7e70fdd49d2fb04a6c8f8f641c11a6c2",
-    "scripts/v51/test_native_image_continuation.py": "bf346d4fe2057d5c1eaeda9e93edb828c879ecb54afc022d63b252c4fa2e958b",
+    "scripts/v51/test_native_image_continuation.py": "3d6c29f931bca2beea55d3ff6545664c5138f15e3854691ea73c94c0dc4cd967",
     "scripts/verify-v51-phase6-cloud-preflight.sh": "47842dd2879feb34c3a9cb2f19367f0df95616fffc682c231411e89ac220a586"
   },
   "originalPackage": {
