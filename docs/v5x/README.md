@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 3–5 and 6A/6B accepted; 6C implementation accepted through 6C3C30 independent cleanup state review; native activation pending; V5.2-V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 0–6 accepted, Phase 7A release preparation in review; V5.2–V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -10,6 +10,12 @@ add automated leadership, explicit replica reads, membership operations and fina
 hardening. Sharding and distributed query are not V5 work.
 
 ## Next development entry
+
+Current entry: [V5.1 Phase 7 release preparation](v5.1/PHASE_7_CHECKLIST.md), after
+Phase 6 acceptance in PR #320 / CI `38457745089` (46 jobs, attempt 1).
+The [migration guide](v5.1/MIGRATION_GUIDE.md) and
+[publication checklist](v5.1/RELEASE_CHECKLIST.md) retain the distinction between
+an accepted cloud baseline, final candidate freeze and actual publication.
 
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
 review boundaries, source identities and validation guidance in this repository.

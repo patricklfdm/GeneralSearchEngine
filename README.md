@@ -15,6 +15,11 @@ V1–V5 consumers pass against Maven Central. The
 [release checklist](docs/v5x/v5.0/RELEASE_CHECKLIST.md) records publication and
 independent verification.
 
+V5.1 development has completed its automatic-leadership cloud qualification and
+entered [release preparation](docs/v5x/v5.1/PHASE_7_CHECKLIST.md). It remains
+unreleased; see the [V5.1 migration guidance](docs/v5x/v5.1/MIGRATION_GUIDE.md)
+for the opt-in automatic mode and new-group transfer requirements.
+
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and
 recovery. Existing in-memory and single-node APIs retain the published V4.4 search

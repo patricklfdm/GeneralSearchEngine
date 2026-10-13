@@ -5,8 +5,8 @@ PR #319 source `7100b61e752647c52246cc86f2887fefa00821ea` passed exact CI
 `38339508687`, attempt 2 (46 jobs). Its canonical-3, experiment and failure-drill
 completed on the replacement sequence. The completion audit is PASS, with USD 250
 cumulative reservations and no active lease/PENDING entry. The separate
-[raw-set review and baseline candidate](PHASE_6_NATIVE_SET_ACCEPTANCE.md) must
-receive protected acceptance before formal Phase 6 closure.
+[raw-set review and baseline](PHASE_6_NATIVE_SET_ACCEPTANCE.md) was accepted in
+PR #320 / exact-master CI `38457745089` (46 jobs, attempt 1); Phase 6 is closed.
 Only this batch may inherit the two pinned original canonical members. Subsequent
 batches retain their normal same-source/same-sequence requirements.
 

@@ -5,11 +5,12 @@ All five paid members completed successfully. The operator-authorized image
 continuation retains canonical-1/2 on `f46f9a4` and canonical-3/experiment/drill on
 `7100b61`, with byte-compatible executable payloads. Both sources have exact full
 CI. The final control observation records USD 250, no unresolved reservation and
-no active lease. This PR supplies independent raw replay and baseline registration;
-its protected CI/merge is required for formal Phase 6 closure. Historical failure
-records and costs remain intact.
+no active lease. Independent raw replay and baseline registration were accepted
+through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
+CI `38457745089` attempt 1 (all 46 jobs). **Phase 6 is closed**;
+[Phase 7](PHASE_7_CHECKLIST.md) is next. Historical failure records and costs remain intact.
 
-**Status:** entry/model foundation accepted; runtime and its corrections merged
+**Historical milestones:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI
 `35920225478` passed all nineteen jobs and all 24 V5.1 verification steps, including
 public bounds, resources and local performance. The [6A acceptance record](PHASE_6_LOCAL_ACCEPTANCE.md)
@@ -425,8 +426,8 @@ Governing documents: [entry plan](PHASE_6_ENTRY_PLAN.md),
 - [x] 6D: experiment `38363263163` and failure-drill `38372566659` passed independent in-run validation; failures/costs retained.
 - [x] 6D: canonical runs `38280933954`, `38300809738`, `38346492463` passed; the narrowly authorized image continuation preserves compatible payloads and original source/sequence identities.
 - [x] 6D: every member's raw evidence retained; thirteen exact resources absent per run; final observed lease absent and no PENDING reservation.
-- [ ] 6E protected acceptance of the [independent raw-set review and first baseline registration](PHASE_6_NATIVE_SET_ACCEPTANCE.md); candidate in this PR.
-- [ ] Full Phase 6 acceptance; only then a separate Phase 7 entry.
+- [x] 6E protected acceptance of the [independent raw-set review and first baseline registration](PHASE_6_NATIVE_SET_ACCEPTANCE.md): PR #320 / master CI `38457745089`, attempt 1, all 46 jobs.
+- [x] Full Phase 6 acceptance; separate [Phase 7 entry](PHASE_7_CHECKLIST.md).
 
 An entry merge does not check implementation or cloud boxes. The current
 `scripts/v51/cloud_plan.py` is fake-control-plane-only. Existing V5.0 cloud evidence,
