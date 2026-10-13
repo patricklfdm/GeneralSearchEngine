@@ -1,6 +1,13 @@
 # Next-development documentation handoff
 
-Current batch: [native five-member final review and baseline registration](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md).
+Current batch: [V5.1 Phase 7A release preparation](v5.1/PHASE_7_CHECKLIST.md).
+Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
+exact-master CI `38457745089` attempt 1 (46 successful jobs). This batch adds an
+independent V5.1 Maven consumer, release-artifact API/binary checks and migration/
+publication guidance. Next freeze final coordinates, canonical toolchain and
+artifact hashes in Phase 7B; signed tag/publication remain Phase 8.
+
+Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):
 All five paid members are complete: canonical-1 `38280933954`, canonical-2
 `38300809738`, canonical-3 `38346492463`, experiment `38363263163` and failure-drill
 `38372566659`. The final drill passed twelve cells, 103 calls and 129 evidence
@@ -15,11 +22,11 @@ Both measured sources passed all 46 jobs in their recorded exact CI attempts.
 
 The completion audit is PASS with five members, USD 250 cumulative reservations,
 no PENDING attempt and no active lease. Historical failures and charges remain.
-The current PR adds full raw archive replay and baseline registration; its own
-protected CI/merge is required before formal Phase 6 closure. Do not repeat the
-five paid experiments merely to qualify this offline review change. Subsequent
-batches retain normal source/sequence rules; cloud dispatch remains manual.
-Next after acceptance: a separate Phase 7 release-candidate entry.
+PR #320 accepted full raw archive replay and baseline registration. No additional
+paid experiment is needed for consumer/documentation/release-tooling preparation.
+Subsequent batches retain normal source/sequence rules; cloud dispatch remains manual.
+
+## Historical implementation milestones
 
 PR #311's native experiment `37970604996` remains accepted on its earlier source.
 The owner-authorized accounting restart of 2026-10-09 preserved the original

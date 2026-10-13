@@ -6,8 +6,8 @@ phase/batch qualification still requires a complete same-source, same-sequence
 set. Normal request and ledger identity validation is unchanged.
 
 **2026-10-13 completion update:** all five native members are complete under the
-approved continuation. The [final raw-set review and baseline candidate](PHASE_6_NATIVE_SET_ACCEPTANCE.md)
-is the remaining Phase 6 acceptance PR. The implementation plan below preserves
+approved continuation. The [final raw-set review and baseline](PHASE_6_NATIVE_SET_ACCEPTANCE.md)
+was accepted through PR #320 / CI `38457745089`; Phase 6 is closed. The implementation plan below preserves
 its earlier boundaries; it does not require repeating the successful paid set.
 The later soft-budget policy supersedes the historical hard USD 200 wording below.
 

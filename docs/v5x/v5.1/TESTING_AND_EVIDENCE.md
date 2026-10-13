@@ -90,7 +90,9 @@ Proposed new identities, distinct from every V5.0 family:
 - Evidence schema: `gse-v51-leadership-evidence-v1`.
 - Deterministic/process suite: `v5.1-automatic-leadership-suite-v1`.
 - Later cloud preset: `v5.1-automatic-leadership-v1`.
-- Eventual append-only baseline: `v5.1.0-automatic-leadership-cloud`.
+- Accepted append-only baseline: `v5.1-automatic-leadership-cloud`, as registered
+  in [Phase 6 review](PHASE_6_NATIVE_SET_ACCEPTANCE.md) through PR #320. The earlier
+  planned `v5.1.0-automatic-leadership-cloud` label is not a second registered baseline.
 
 These names reserve new evidence scope; no baseline is registered by this document.
 

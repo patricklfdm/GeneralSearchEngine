@@ -1,9 +1,11 @@
 # V5.1 Phase 6 native five-member review
 
-**Status:** final offline review and baseline-registration candidate, 2026-10-13.
-The five paid members completed successfully. This PR adds their independent raw
-archive replay and first baseline record; protected acceptance of this review PR
-is still required before closing Phase 6 and entering Phase 7.
+**Status:** accepted through [PR #320](https://github.com/patricklfdm/GeneralSearchEngine/pull/320),
+master `5c88a2b908347fa3e411e2018876657a21fa0912`. Exact-master
+[CI 38457745089](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38457745089),
+attempt 1, passed all 46 jobs. **Phase 6 is closed.** The five paid members,
+independent raw replay and first baseline are accepted. Next is
+[Phase 7 release preparation](PHASE_7_CHECKLIST.md).
 
 ## Measured sources and original runs
 
@@ -63,8 +65,9 @@ writes only after every raw replay and set check succeeds. The separate `check`
 command verifies compact review/registry integrity; it does not replay raw evidence.
 
 The raw validators preserve their component-level `fullRemoteQualification=false`.
-Only the final five-member review reports complete remote qualification. Protected
-acceptance of this PR and Phase 6 closure remain a separate repository decision.
+Only the final five-member review reports complete remote qualification. Its
+protected acceptance is recorded above; individual component receipts retain
+their original limited scope.
 
 ## Independently replayed results
 
@@ -130,11 +133,10 @@ trips use their own clocks; controller window-command duration includes whole
 window execution and is not treated as API latency. ABBA ratios describe observed
 instrumentation cost without a new speedup target.
 
-After this review PR passes protected CI and is merged, reconcile its commit/run
-and close Phase 6. Begin Phase 7 with a separate release-candidate entry:
-compatibility consumers, API/Javadoc review, canonical artifacts and reproducible
-builds, release notes and publication checks. No version bump or release is part
-of this batch.
+PR #320 and its exact-master CI close Phase 6. The separate
+[Phase 7 entry](PHASE_7_CHECKLIST.md) now covers compatibility consumers,
+API/Javadoc review, canonical artifacts and reproducible builds, release notes
+and publication checks. The accepted baseline does not authorize publication.
 
 ## Reproduction
 

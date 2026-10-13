@@ -3,6 +3,26 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## Unreleased — V5.1
+
+### Added
+
+- Opt-in automatic leadership for one sealed, fixed three-voter group: durable
+  promises, election/activation, quorum-proven publication, strong leader reads
+  and retained-voter recovery in the optional replication artifact.
+- Explicit protocol 1.2 bootstrap/resume/cleanup and verified V4 backup import
+  into a new group; configured-leader protocol 1.1 behavior remains available.
+- Independent fault, recovery and resource evidence, including the accepted
+  [five-member cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md).
+- Independent V5.1 Maven consumer and packaged-artifact compatibility review.
+
+### Compatibility and status
+
+Version 5.1 remains in [release preparation](docs/v5x/v5.1/PHASE_7_CHECKLIST.md).
+No public follower reads, membership changes, mixed-version rolling upgrade or
+in-place authority conversion are introduced. Indeterminate mutations require
+application reconciliation. See the [migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md).
+
 ## 5.0.0 — 2026-09-19
 
 ### Added
