@@ -5,9 +5,10 @@
 **Latest milestone:** V5.1 [Phase 6](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
 is closed through PR #320 and exact-master CI `38457745089` (46 jobs, attempt 1).
 The accepted five-member cloud baseline preserves its original sources/sequences.
-[Phase 7A](docs/v5x/v5.1/PHASE_7_CHECKLIST.md) now prepares independent consumers,
-artifact/API compatibility and migration/release guidance; final coordinates and
-canonical artifact hashes follow in 7B, publication in Phase 8. The chronology
+[Phase 7A](docs/v5x/v5.1/PHASE_7_CHECKLIST.md) merged through PR #321 with the
+operator's one-time CI exception. Phase 7B now freezes `5.1.0` coordinates,
+canonical artifact hashes and publication checks; exact-source CI and merge
+remain pending. Publication follows in Phase 8. The chronology
 below preserves earlier milestones and acceptance boundaries.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at

@@ -271,6 +271,7 @@ def timing(rows, windows, exchanges, traces, manifest=None):
 
 
 def artifacts(root,mode,adapter,pinned,source_inventory):
+    from .artifact_version import candidate_pair
     classes=root/('classes-'+mode)
     need(storage.inventory(classes)==adapter['classes'],'compiled adapter inventory differs')
     need(adapter['sources'] and all(source_inventory.get(p)==digest for p,digest in adapter['sources'].items()),'mixed adapter source')
@@ -279,10 +280,10 @@ def artifacts(root,mode,adapter,pinned,source_inventory):
          len({p.parent for p in paths})==1 and
          adapter['cp']==os.pathsep.join(map(str,[*paths,paths[0].parent.parent/classes.name])), 'isolated adapter classpath')
     names=[]
+    if mode=='candidate-v5.1-automatic':candidate_pair([p.name for p in paths])
     for artifact in adapter['artifacts']:
         path=retained_artifacts.retained(root,artifact['path'],artifact['sha256'])
         if mode!='candidate-v5.1-automatic':need(pinned[path.name]==artifact['sha256'],'wrong control artifact')
-        else:need(path.name.endswith('-5.1.0-SNAPSHOT.jar'),'wrong candidate version')
         with zipfile.ZipFile(path) as archive:
             names+=archive.namelist()
     need(not(set(adapter['classes'])&set(names)),'adapter shadows production class')

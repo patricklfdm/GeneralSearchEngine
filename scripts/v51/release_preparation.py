@@ -4,20 +4,13 @@ import hashlib
 from pathlib import Path
 import re
 import subprocess
-import xml.etree.ElementTree as ET
 import zipfile
 
 from . import controls, native_set_review, remote_command as c, performance_model as m
+from .artifact_version import current as version
 
 ROOT = Path(__file__).resolve().parents[2]
-NS = {'m': 'http://maven.apache.org/POM/4.0.0'}
 ARTIFACTS = ('general-search-engine', 'general-search-engine-processor', 'general-search-engine-replication')
-
-
-def version(root=ROOT):
-    current = ET.parse(root/'pom.xml').getroot().findtext('m:version', namespaces=NS)
-    m.need(current in ('5.1.0-SNAPSHOT', '5.1.0'), 'V5.1 preparation version')
-    return current
 
 
 def artifact_inventory(root, current):

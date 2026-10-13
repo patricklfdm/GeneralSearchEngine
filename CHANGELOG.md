@@ -3,7 +3,7 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
-## Unreleased — V5.1
+## 5.1.0 — 2026-10-13
 
 ### Added
 
@@ -16,9 +16,10 @@ Semantic Versioning once the first stable artifact is published.
   [five-member cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md).
 - Independent V5.1 Maven consumer and packaged-artifact compatibility review.
 
-### Compatibility and status
+### Compatibility
 
-Version 5.1 remains in [release preparation](docs/v5x/v5.1/PHASE_7_CHECKLIST.md).
+V5.1 retains configured-leader protocol 1.1 alongside opt-in automatic protocol
+1.2. Applications select automatic mode explicitly and use homogeneous groups.
 No public follower reads, membership changes, mixed-version rolling upgrade or
 in-place authority conversion are introduced. Indeterminate mutations require
 application reconciliation. See the [migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md).

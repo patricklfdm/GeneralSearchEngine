@@ -373,7 +373,9 @@ def run(output,only=None):
         adapters=base.compile_adapters(runner,base.ROOT/'target/v51-controls');receipt['adapters']=adapters
         cp=adapters['candidate-v5.1-automatic']['cp']
         control_dir=root/'restore-classes';control_dir.mkdir()
-        control_cp=':'.join((str(root/'artifacts/general-search-engine-4.4.0.jar'),str(root/'artifacts/general-search-engine-replication-5.1.0-SNAPSHOT.jar'),str(control_dir)))
+        replica=next(a['path'] for a in adapters['candidate-v5.1-automatic']['artifacts']
+                     if Path(a['path']).name.startswith('general-search-engine-replication-'))
+        control_cp=':'.join((str(root/'artifacts/general-search-engine-4.4.0.jar'),replica,str(control_dir)))
         module=base.ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission'
         runner.process(['javac','--release','21','-proc:none','-cp',control_cp,'-d',control_dir,module/'AdmissionJson.java',base.ROOT/'scripts/v51/java/PublicRuntimeConsumer.java',base.ROOT/'scripts/v51/java/V51RemoteFaultRestore.java'],'compile-restore')
         runner.control_cp=control_cp

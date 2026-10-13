@@ -27,6 +27,17 @@ class RelocatedArtifactTest(unittest.TestCase):
 
     def test_downloaded_bundle_validates_without_original_runner_paths(self):self.validate()
 
+    def test_final_pair_replays_but_mixed_snapshot_and_final_are_rejected(self):
+        self.validate()  # Original cloud snapshots remain valid.
+        for i, artifact in enumerate(self.adapter['artifacts']):
+            old=Path(artifact['path']).name;new=old.replace('-SNAPSHOT','')
+            (self.root/'artifacts'/old).rename(self.root/'artifacts'/new)
+            artifact['path']=str(self.original/'artifacts'/new)
+            self.adapter['cp']=self.adapter['cp'].replace(old,new)
+            if i==0:
+                with self.assertRaisesRegex(ValueError,'candidate version'):self.validate()
+        self.validate()
+
     def test_tampered_or_missing_retained_bytes_fail(self):
         p=self.root/'artifacts'/Path(self.adapter['artifacts'][0]['path']).name
         p.write_bytes(b'changed')

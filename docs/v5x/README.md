@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 0–6 accepted, Phase 7A release preparation in review; V5.2–V5.4 planned
+- **Status:** V5.0 published and independently verified; V5.1 Phases 0–6 and 7A accepted, Phase 7B candidate in review; V5.2–V5.4 planned
 - **Stable comparison release:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
@@ -11,8 +11,9 @@ hardening. Sharding and distributed query are not V5 work.
 
 ## Next development entry
 
-Current entry: [V5.1 Phase 7 release preparation](v5.1/PHASE_7_CHECKLIST.md), after
-Phase 6 acceptance in PR #320 / CI `38457745089` (46 jobs, attempt 1).
+Current entry: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md), after
+Phase 6 acceptance in PR #320 / CI `38457745089` (46 jobs, attempt 1) and Phase 7A
+merge in PR #321 under the operator's one-time CI exception.
 The [migration guide](v5.1/MIGRATION_GUIDE.md) and
 [publication checklist](v5.1/RELEASE_CHECKLIST.md) retain the distinction between
 an accepted cloud baseline, final candidate freeze and actual publication.
