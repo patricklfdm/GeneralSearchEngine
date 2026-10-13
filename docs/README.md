@@ -12,7 +12,7 @@ scope. Proposed documents are not accepted merely because they are linked here.
 
 - [Development handoff, reading order and integration review](v5x/NEXT_DEVELOPMENT_HANDOFF.md)
 - [V5.x proposed scope refinement](v5x/NEXT_DEVELOPMENT_ADDENDUM.md)
-- [V5.1 Phase 7 release preparation and candidate checklist](v5x/v5.1/PHASE_7_CHECKLIST.md)
+- [V5.1 Phase 7B final candidate and canonical artifact checklist](v5x/v5.1/PHASE_7_CHECKLIST.md)
 - [V5.1 migration guide](v5x/v5.1/MIGRATION_GUIDE.md)
 - [V5.1 publication checklist](v5x/v5.1/RELEASE_CHECKLIST.md)
 - [V5.1 Phase 0 entry plan: documentation only](v5x/v5.1/PHASE_0_ENTRY_PLAN.md)

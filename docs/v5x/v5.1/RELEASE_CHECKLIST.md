@@ -1,13 +1,16 @@
 # V5.1 release checklist
 
-**Status:** preparation only. No final candidate hashes, signed V5.1 tag, Central
-deployment or GitHub Release have been created by this batch. Stable remains 5.0.0.
+**Status:** Phase 7B candidate review. Nine JAR and three POM identities are frozen
+in [the candidate manifest](candidate-artifacts.sha256); protected candidate CI
+and merge remain pending. No signed V5.1 tag, Central deployment or GitHub Release
+has been created by this batch. Stable remains 5.0.0.
 
 ## Before a tag
 
 - [x] [Phase 6](PHASE_6_NATIVE_SET_ACCEPTANCE.md) accepted through PR #320 and
   exact-master CI `38457745089`, attempt 1, all 46 jobs.
-- [ ] [Phase 7A](PHASE_7_CHECKLIST.md) consumer/API/documentation changes accepted.
+- [x] [Phase 7A](PHASE_7_CHECKLIST.md) consumer/API/documentation changes accepted
+  through PR #321 with the recorded one-time CI skip; no hosted PASS is claimed.
 - [ ] Phase 7B final `5.1.0` candidate accepted, with canonical toolchain, nine
   unsigned JAR/three POM identities and protected exact-source CI.
 - [ ] Core, processor and replication remain separately publishable; independent

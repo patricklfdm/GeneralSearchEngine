@@ -1,11 +1,14 @@
 # Next-development documentation handoff
 
-Current batch: [V5.1 Phase 7A release preparation](v5.1/PHASE_7_CHECKLIST.md).
+Current batch: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md).
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
-exact-master CI `38457745089` attempt 1 (46 successful jobs). This batch adds an
-independent V5.1 Maven consumer, release-artifact API/binary checks and migration/
-publication guidance. Next freeze final coordinates, canonical toolchain and
-artifact hashes in Phase 7B; signed tag/publication remain Phase 8.
+exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
+PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
+PR/master CI skip; that source has local validation, not hosted CI acceptance.
+Phase 7B freezes final `5.1.0` coordinates, the canonical toolchain and twelve
+artifact hashes, and connects signing/deploy/download checks and six remote
+consumers. Its protected exact-source CI is still required. Signed tag/publication
+remain Phase 8; the Phase 7A skip does not carry forward.
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):
 All five paid members are complete: canonical-1 `38280933954`, canonical-2

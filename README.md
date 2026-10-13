@@ -16,7 +16,8 @@ V1–V5 consumers pass against Maven Central. The
 independent verification.
 
 V5.1 development has completed its automatic-leadership cloud qualification and
-entered [release preparation](docs/v5x/v5.1/PHASE_7_CHECKLIST.md). It remains
+entered [Phase 7B final-candidate review](docs/v5x/v5.1/PHASE_7_CHECKLIST.md)
+at `5.1.0`, with nine JAR and three POM hashes frozen. It remains
 unreleased; see the [V5.1 migration guidance](docs/v5x/v5.1/MIGRATION_GUIDE.md)
 for the opt-in automatic mode and new-group transfer requirements.
 

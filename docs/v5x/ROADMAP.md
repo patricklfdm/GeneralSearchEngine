@@ -1,17 +1,18 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [V5.1 Phase 7A release preparation](v5.1/PHASE_7_CHECKLIST.md).
+Current batch: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md).
 Phase 6 closed through PR #320 at `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (all 46 jobs). The accepted
 [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md) retains the original
 measured identities, explicit image continuation, USD 250 reserved accounting
 and historical failures.
 
-This batch adds the independent V5.1 consumer, artifact-bound compatibility checks
-and migration/release preparation. Final coordinates and canonical hashes are
-Phase 7B; signed tag, Central/GitHub publication and reconciliation are Phase 8.
+PR #321 accepted Phase 7A under the operator's one-time CI skip. Phase 7B freezes
+final coordinates, canonical hashes and release verification; its exact-source CI
+and merge are pending. Signed tag, Central/GitHub publication and reconciliation
+are Phase 8.
 
-- **Status:** V5.0 published; V5.1 Phases 0–6 accepted, Phase 7A in review; V5.2–V5.4 planned
+- **Status:** V5.0 published; V5.1 Phases 0–6 and 7A accepted, Phase 7B in review; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below

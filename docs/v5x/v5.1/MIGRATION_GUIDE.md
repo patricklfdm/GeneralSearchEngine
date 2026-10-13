@@ -1,6 +1,6 @@
 # Preparing for V5.1 automatic leadership
 
-**Status:** development guidance for `5.1.0-SNAPSHOT`; 5.0.0 remains the published
+**Status:** migration guidance for the `5.1.0` candidate; 5.0.0 remains the published
 stable release. Final release coordinates and publication are tracked in the
 [Phase 7 checklist](PHASE_7_CHECKLIST.md).
 

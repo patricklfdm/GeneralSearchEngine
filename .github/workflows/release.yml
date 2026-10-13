@@ -49,7 +49,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: ${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0') && '21.0.12+8.0.LTS' || '21' }}
+          java-version: ${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0' || env.RELEASE_TAG == 'v5.1.0') && '21.0.12+8.0.LTS' || '21' }}
           cache: maven
           cache-dependency-path: '**/pom.xml'
 
@@ -109,6 +109,10 @@ jobs:
       - name: Run the travel example
         run: scripts/run-travel-example.sh
 
+      - name: Verify the V5.1 final candidate boundary
+        if: ${{ env.RELEASE_TAG == 'v5.1.0' }}
+        run: scripts/verify-v51-phase7-release.sh --skip-consumers
+
       - name: Compile and execute a bounded JMH smoke case
         run: scripts/verify-jmh-smoke.sh
 
@@ -117,6 +121,10 @@ jobs:
 
       - name: Inspect release artifact contents
         run: scripts/verify-release-artifacts.sh
+
+      - name: Verify V5.1 packaged API and binary compatibility
+        if: ${{ env.RELEASE_TAG == 'v5.1.0' }}
+        run: python3 -m scripts.v51.release_preparation --output target/v51-release-preparation
 
       - name: Match the V4.4 release build to the frozen candidate bytes
         run: |
@@ -128,13 +136,28 @@ jobs:
 
       - name: Verify reproducible artifacts
         run: |
-          if [[ "$RELEASE_TAG" == "v5.0.0" ]]; then
+          if [[ "$RELEASE_TAG" == "v5.1.0" ]]; then
+            python3 -m scripts.v51.candidate_artifacts validate-build
+            scripts/verify-v51-canonical-build.sh
+            python3 -m scripts.v51.candidate_artifacts validate-evidence target/v51-canonical-reproducibility --source "$(git rev-parse HEAD)"
+          elif [[ "$RELEASE_TAG" == "v5.0.0" ]]; then
             python3 -m scripts.v50.candidate_artifacts validate-build
             scripts/verify-v50-canonical-build.sh
             python3 -m scripts.v50.candidate_artifacts validate-evidence target/v50-canonical-reproducibility
           else
             scripts/verify-reproducible-build.sh
           fi
+
+      - name: Retain V5.1 release receipts
+        if: ${{ always() && env.RELEASE_TAG == 'v5.1.0' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v51-release-reproducibility-${{ github.run_id }}
+          path: |
+            target/v51-canonical-reproducibility
+            target/v51-release-preparation
+          if-no-files-found: warn
+          retention-days: 90
 
       - name: Retain V5.0 canonical reproducibility receipt
         if: ${{ always() && hashFiles('target/v50-canonical-reproducibility/**') != '' }}
@@ -211,7 +234,7 @@ jobs:
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
-          java-version: ${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0') && '21.0.12+8.0.LTS' || '21' }}
+          java-version: ${{ (env.RELEASE_TAG == 'v4.4.0' || env.RELEASE_TAG == 'v5.0.0' || env.RELEASE_TAG == 'v5.1.0') && '21.0.12+8.0.LTS' || '21' }}
           server-id: central
           server-username: CENTRAL_USERNAME
           server-password: CENTRAL_PASSWORD
@@ -245,6 +268,19 @@ jobs:
             ./mvnw -f reactor/pom.xml -Prelease -DskipTests \
               -Dgpg.useagent=false verify
             python3 -m scripts.v44.candidate_artifacts validate-build
+          elif [[ "$RELEASE_TAG" == "v5.1.0" ]]; then
+            umask 0022
+            ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
+            python3 -m scripts.v51.candidate_artifacts validate-build
+            {
+              echo "## V5.1 unsigned candidate artifacts before signing"
+              echo
+              echo '```text'
+              cat docs/v5x/v5.1/candidate-artifacts.sha256
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+            ./mvnw -f reactor/pom.xml -Prelease -DskipTests -Dgpg.useagent=false verify
+            python3 -m scripts.v51.candidate_artifacts validate-build
           elif [[ "$RELEASE_TAG" == "v5.0.0" ]]; then
             umask 0022
             ./mvnw -f reactor/pom.xml clean -Prelease -Dgpg.skip=true verify
@@ -272,6 +308,8 @@ jobs:
         run: |
           if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
             python3 -m scripts.v44.candidate_artifacts validate-build
+          elif [[ "$RELEASE_TAG" == "v5.1.0" ]]; then
+            python3 -m scripts.v51.candidate_artifacts validate-build
           elif [[ "$RELEASE_TAG" == "v5.0.0" ]]; then
             python3 -m scripts.v50.candidate_artifacts validate-build
           fi
@@ -281,6 +319,8 @@ jobs:
             -DwaitMaxTime=3600
           if [[ "$RELEASE_TAG" == "v4.4.0" ]]; then
             python3 -m scripts.v44.candidate_artifacts validate-build
+          elif [[ "$RELEASE_TAG" == "v5.1.0" ]]; then
+            python3 -m scripts.v51.candidate_artifacts validate-build
           elif [[ "$RELEASE_TAG" == "v5.0.0" ]]; then
             python3 -m scripts.v50.candidate_artifacts validate-build
           fi

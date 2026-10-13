@@ -18,7 +18,7 @@ fi
 if ! $skip_build; then
   ./mvnw -f reactor/pom.xml package
 fi
-scripts/verify-version-alignment.sh 5.1.0-SNAPSHOT
+scripts/verify-version-alignment.sh
 scripts/verify-v50-phase0-contract.sh
 python_command=python3
 command -v python3.11 >/dev/null 2>&1 && python_command=python3.11
