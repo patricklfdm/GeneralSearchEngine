@@ -24,13 +24,15 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | HOSTED_PENDING |
-| T6 full local regression and review | Resumed after user-provided namespace setup | Original 25 passing / five failing instances retained; missing checks and one controlled serial recheck underway | HOSTED_PENDING |
+| T6 full local regression and review | All planned executions finished; acceptance blocked | 39 passing / five failing non-meta instances; all original attempts retained | HOSTED_PENDING |
 
-**Acceptance status: `LOCAL_VALIDATION_IN_PROGRESS`; final readiness is unproven.**
-T0–T5 implementation is committed. The original execution ended with
-`BLOCKED_WITH_PARTIAL_DELIVERY`; its results below remain retained. The user has
-since supplied the missing namespace prerequisite, and T6 has resumed as recorded
-at the end of this document. New-source hosted acceptance is separately pending.
+**Acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
+T0–T5 implementation is committed. The user supplied the missing namespace
+prerequisite, and the predeclared 19-instance continuation has finished: 14 passed
+and five failed. Combined with retained prior executions, all 44 non-meta instances
+have whole-job results: 39 passed and five failed. None remains unexecuted because
+of permissions. Required local acceptance is still incomplete; this is not
+`LOCAL_READY_FOR_FINAL_REVIEW`. New-source hosted acceptance is separately pending.
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
 handoff implementation base are nine documentation files; there is no runtime
@@ -113,16 +115,16 @@ step-copy boundary as the existing artifact consumer. Historical raw run
 `38522705456` provides the observed carried-check shape; synthetic negative tests
 exercise corruption, pagination and changed executions. CI adds only `actions: read`.
 
-## Local environment gap (must not be hidden as hosted pending)
+## Original local environment gap (resolved by the resumed probe below)
 
 The pinned Temurin JDK is available at `/tmp/gse-v51-phase7b-jdk` and Python 3.11 is
 installed. The existing complete owned qualification requires a native-UID mount
 namespace with `--allow-sudo-namespace`. The minimal probe
 `sudo -n unshare --mount --propagation private true` failed with
 `sudo: a password is required`. No directory was mounted or host setting changed.
-Full canonical local verification is currently `LOCAL_VALIDATION_BLOCKED`;
-continue independent implementation and tests, but final local readiness cannot be
-claimed until that required verification actually runs successfully.
+At that point full canonical local verification was `LOCAL_VALIDATION_BLOCKED`.
+The resumed native probe below resolves this prerequisite; successful execution of
+the required workload checks remains necessary before claiming final readiness.
 
 ## T6 local verification
 
@@ -148,10 +150,11 @@ Surefire restore verifier. Commands come from the actual effective workflow.
   114 documents/860 links; the changed-doc review additionally checked 595 links.
   Production Java/POM/frozen release files and release workflow have no diff.
   Input package `SHA256SUMS` still verifies; its files remain unmodified/uncommitted.
-* Executable lanes ran in bounded independent sequences alongside the Python/cloud
-  partitions. Their final results are below. No new-source hosted runs were
-  triggered. Native-UID mount qualification remains a separate local environment
-  gap; fake Python canonical fixtures are not counted as complete canonical runs.
+* Original executable lanes ran in bounded independent sequences alongside the
+  Python/cloud partitions. No new-source hosted runs were triggered. Native-UID
+  mount qualification was then blocked; the continuation below resolves that
+  prerequisite. Fake Python canonical fixtures are never counted as complete
+  canonical runs.
 
 Stage commit IDs are available from Git history for this file; each stage records
 its exact checks and evidence before committing. Final readiness has not been claimed.
@@ -179,8 +182,9 @@ threshold, deadline or runtime assertion was changed to obtain a pass.
 
 Review and raw logs: `target/ci-tiered-development/t6/runtime-failure-review.json`,
 `t6/local/reactor-core/04.log` and `t6/local/v51-public-reads-faults/05.log` under the
-same evidence root. The sudo prerequisite and these failures must be resolved
-before final local readiness; none is described as merely `HOSTED_PENDING`.
+same evidence root. These were required local gaps, not merely `HOSTED_PENDING`.
+The continuation below records the resolved sudo prerequisite and later whole-job
+passes without discarding the original failures or claiming their root cause fixed.
 
 ### T6 control-plane self-review correction
 
@@ -196,7 +200,7 @@ release tests passed in 94.082 seconds**; original red and corrected logs are
 The long-running workload lanes remain pinned to the earlier implementation source
 `4090b57`; they are not relabeled as qualification of this follow-up correction.
 The correction touches only CI metadata parsing and its tests. Local readiness
-still requires the unresolved full-regression and environment gaps to be closed.
+still requires the unresolved full-regression gaps below to be closed.
 
 ## Original local accounting (through `92a3d4b`)
 
@@ -281,9 +285,10 @@ summed as unique test cases.
 The final accounting is a subsequent documentation-only commit; use `git log` for
 its identifier. No push, PR, merge, workflow trigger or paid cloud action occurred.
 
-Next is **T6 acceptance**, not a new tier or V5.2: obtain an already suitable Linux
-environment for native-UID mount checks, resolve the retained runtime failures
-within separately authorized scope, and complete the frozen full local acceptance.
+The next step at original delivery was **T6 acceptance**, not a new tier or V5.2:
+obtain a suitable Linux environment for native-UID mount checks, resolve the retained
+runtime failures within separately authorized scope, and complete frozen acceptance.
+The user subsequently configured this machine; the continuation is recorded below.
 An unanswered environment question is not permission to change sudoers or bypass
 the existing isolation checks. Only after required local checks pass can the user
 review and push the accumulated branch for the hosted checks in
@@ -328,8 +333,71 @@ attempts. `resume_index.py --verify` checks log hashes and every passing instanc
 complete run-command list. Full readiness remains pending until the outcomes and
 remaining acceptance requirements have been reviewed.
 
-The first resumed whole job, `cloud-provider-tests`, passed all three original run
-steps in 487.911 seconds, including OpenSSH setup, the complete qualification script
-and evidence packing. Receipt: `t6-resume/receipts/cloud-provider-tests/receipt.json`.
-This supersedes its earlier not-run-as-a-whole status without erasing either partial
-provider attempt. Guest and owned qualification are still in progress.
+Completed resumed whole jobs include provider (487.9 seconds), guest services
+(440.2), complete experiment (638.1), network faults (234.7), failure drill (678.1),
+the V4.4 and V5.0 healthy tapes (302.7 and 353.4), and automatic sustained (288.8).
+The provider result includes all three original run steps, not only its verifier.
+Their earlier partial or blocked attempts remain in the combined index.
+
+All three complete canonical repetitions ran once. Repetition 2 passed the complete
+15-cell execution, independent replay, physical/history and backup-restore checks,
+and cleanup in 2037.665 seconds. Repetitions 1 and 3 failed as recorded below. No
+tape successes or successful repetition substitute for either failed repetition.
+
+The serial reactor recheck passed **923 tests, zero failures/errors, four existing
+skips**, with 179 Surefire reports. The public reads/faults and candidate-crashes
+whole instances also passed their original command lists. These observations do
+not establish a root cause for the retained earlier failures.
+
+The rich published-controls shard and aggregate also passed. Independent aggregate
+replay accepted all five cells, 1080 calls and ten evidence negatives, with the
+same-source producer and shard receipt hashes checked. This completes the
+predeclared continuation; its nonzero process exit records the five failed jobs,
+not a failure of the final aggregate.
+
+### Resumed failures retained for diagnosis
+
+| Instance | Observed failure | Evidence / limitation |
+| --- | --- | --- |
+| Automatic healthy tape | QUERY ordinal 120 returned successfully after 2.034 seconds; ordinal 121 was not dispatched (`LANE_BUSY`). | About 1.54 seconds preceded the first recorded ACCEPT force. Recorded subsequent force intervals were approximately 0.06–0.13 seconds and sampled GC increased by 2 ms; missing thread/storage spans prevent attributing the earlier wait. |
+| Automatic read-heavy tape | GET ordinal 84 returned `QUORUM_UNAVAILABLE`; later offers were not dispatched. | Original API result and all three nodes' nearby samples are retained; this window does not contain detailed force timing. |
+| Canonical repetition 1 | All 15 execution stages passed, but independent replay rejected isolated-old-leader: no successful majority progress before heal. | The successful pair starts 1.719 seconds after the heal request and ends 3.262 seconds after it. This is a missing required under-isolation witness, not a validator failure to be ignored. |
+| Canonical repetition 3 | Healthy automatic baseline-a REMOVE_ALL ordinal 66 returned successfully after 1.013 seconds; ordinal 67 was not dispatched (`LANE_BUSY`). | Later unexecuted cells and aggregate incompleteness are consequences of this failed window. |
+| V5.0 recovery/workload | Its independent build and preceding gates passed, but hardening could not start node 2 for `recovery-after_recovery_selection` within the existing 25-second receive bound. | No ready response or stderr; the harness killed that worker, closed node 1, and a native scan found no retained worker. This differs from the original prerequisite COMMIT_PROOF failure. |
+
+Diagnostic extracts are `automatic-healthy-failure.json`,
+`automatic-healthy-trace-window.json`, `automatic-healthy-force-window.json`,
+`automatic-read-heavy-failure.json`, `canonical-1-failure.json`,
+`canonical-3-window-failure.json` and `v50-hardening-failure.json` under
+`t6-resume/`. Original logs and source evidence remain in the receipt/workspace
+paths. No runtime implementation, oracle, workload interval or deadline was changed
+to reinterpret these results.
+
+### Resumed final accounting and remaining work
+
+`t6-resume/index.json` contains all 44 instances and their original/resumed attempts.
+`resume_index.py --verify` passed log hashes, dependency receipt hashes and each
+passing instance's complete literal run-command comparison: **39 PASS / five FAIL**.
+`t6-resume/completion.json` records the 19 completed serial executions, frozen plan
+hash and local elapsed times. These are local execution measurements, not GitHub
+runner minutes, billing or a measurement of integration-tier performance.
+`t6-resume/evidence-manifest.json` pins the retained failed-workload evidence and
+diagnostic extracts; original files remain in place.
+
+All three canonical repetitions executed once, but only repetition 2 qualified.
+Its success cannot replace repetitions 1 and 3 or either independent failed tape.
+The permission prerequisite is resolved. Remaining work is diagnosis of the five
+specific failures, including the missing progress witness before network healing
+and the startup with no ready response. Available evidence does not establish one
+common scheduling, storage or product defect. There is no automatic further retry.
+
+The handoff's section 5 prohibits production Java/POM and frozen workload/oracle
+changes in this CI task. Such changes require a separate scope decision; this
+delivery does not weaken checks to obtain green results. Only documentation and
+local evidence accounting changed during this continuation. No remote write,
+workflow trigger, paid cloud execution or production change occurred.
+
+All started test commands have finished. The optional temporary sudo configuration
+was supplied by the user and has not been changed by the agent. It can be removed
+when native privileged local testing is no longer needed. Hosted acceptance remains
+the distinct checklist in [CI_TIERED_ACCEPTANCE.md](CI_TIERED_ACCEPTANCE.md).
