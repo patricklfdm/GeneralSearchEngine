@@ -69,6 +69,20 @@ class HealthTest(unittest.TestCase):
         value = self.collect()
         self.assertEqual(("FAILED", 121), (value["status"], value["runId"]))
 
+    def test_incomplete_api_timestamps_escalate_to_full_without_crashing_scope(self):
+        original = copy.deepcopy(self.data)
+        for field in ("started_at", "completed_at"):
+            for value in (None, False, 123, [], {}):
+                self.data = copy.deepcopy(original)
+                self.data[self.jobs_key]["jobs"][0][field] = value
+                with self.subTest(field=field, value=value):
+                    health = self.collect()
+                    self.assertEqual("UNAVAILABLE", health["status"])
+                    self.f.health_file.write_text(json.dumps(self.data))
+                    plan, _ = ci_plan.compute(self.f.root, self.f.env, self.f.graph.event)
+                    self.assertEqual("full", plan["profile"])
+                    self.assertEqual("HEALTH_UNAVAILABLE", plan["reasons"][-1])
+
     def test_history_listing_is_paginated_and_changed_or_unavailable_inputs_fail_closed(self):
         first = self.data[self.list_key]
         rows = [dict(self.f.health_run, id=i) for i in range(20,120)]

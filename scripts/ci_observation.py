@@ -31,6 +31,7 @@ def jobs(get, run_id, attempt):
 
 
 def stamp(value):
+    s.need(type(value) is str, "timestamp must be a string")
     stamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
     s.need(stamp.tzinfo is not None, "timestamp timezone missing")
     return stamp.timestamp()
