@@ -14,10 +14,18 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
+
+# Keep the historic direct-script entry point as well as python -m support.
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from scripts import ci_suites as suites
 
 WORKFLOW = ".github/workflows/ci.yml"
 POLICY = "scripts/ci_shadow_policy.json"
 PLANNER = "scripts/ci_shadow_plan.py"
+REGISTRY = suites.REGISTRY
+SUITE_VALIDATOR = "scripts/ci_suites.py"
 POLICY_V1 = {"schema": "gse-ci-shadow-policy-v1", "mode": "shadow",
              "profiles": ["docs", "core", "full"],
              "documentationRule": "ci-documentation-v1", "corePaths": []}
@@ -32,6 +40,7 @@ REASONS = {
     "EMPTY_OR_INVALID_DIFF": "The complete diff is empty or contains invalid paths.",
     "BUILD_OR_UNKNOWN_PATH": "A build, qualification, CI, release or unclassified path requires full.",
     "DOCS_ONLY": "Every changed path satisfies the existing conservative documentation rule.",
+    "REGISTRY_UNAVAILABLE": "The source-bound suite registry or its validator is unavailable/invalid.",
 }
 
 
@@ -70,7 +79,9 @@ def strict_json(data):
                 raise ValueError("duplicate key")
             result[key] = value
         return result
-    return json.loads(data, object_pairs_hook=pairs)
+    def constant(value):
+        raise ValueError("invalid JSON constant: " + value)
+    return json.loads(data, object_pairs_hook=pairs, parse_constant=constant)
 
 
 def documentation(path):
@@ -86,9 +97,53 @@ def valid_path(path):
     return bool(path) and not path.startswith("/") and all(part not in ("", ".", "..") for part in path.split("/"))
 
 
+def change_records(raw):
+    """Parse complete raw NUL records; --no-renames exposes both rename endpoints."""
+    require(raw and raw.endswith(b"\0"), "EMPTY_OR_INVALID_DIFF")
+    pieces = raw[:-1].split(b"\0")
+    require(len(pieces) % 2 == 0, "EMPTY_OR_INVALID_DIFF")
+    records = []
+    kinds = {"000000": "absent", "100644": "regular", "100755": "regular",
+             "120000": "symlink", "160000": "gitlink"}
+    for header, path_bytes in zip(pieces[::2], pieces[1::2]):
+        match = re.fullmatch(rb":([0-7]{6}) ([0-7]{6}) ([0-9a-f]{40}) ([0-9a-f]{40}) ([AMDT])", header)
+        require(match is not None, "EMPTY_OR_INVALID_DIFF")
+        old_mode, new_mode, old_blob, new_blob, status = (v.decode("ascii") for v in match.groups())
+        try:
+            path = path_bytes.decode("utf-8")
+        except UnicodeError:
+            raise Unavailable("EMPTY_OR_INVALID_DIFF") from None
+        require(valid_path(path) and old_mode in kinds and new_mode in kinds, "EMPTY_OR_INVALID_DIFF")
+        require((old_mode == "000000") == (old_blob == "0" * 40)
+                and (new_mode == "000000") == (new_blob == "0" * 40), "EMPTY_OR_INVALID_DIFF")
+        require((status == "A" and old_mode == "000000" and new_mode != "000000")
+                or (status == "D" and old_mode != "000000" and new_mode == "000000")
+                or (status in ("M", "T") and "000000" not in (old_mode, new_mode)), "EMPTY_OR_INVALID_DIFF")
+        records.append(dict(path=path, status=status, oldMode=old_mode, newMode=new_mode,
+                            oldType=kinds[old_mode], newType=kinds[new_mode], oldBlob=old_blob, newBlob=new_blob))
+    require(len({v["path"] for v in records}) == len(records), "EMPTY_OR_INVALID_DIFF")
+    return records
+
+
+def suite_plan(registry, profile):
+    """Closed recipes; a policy cannot supply suites, shell or expressions."""
+    suites.validate_registry(registry)
+    require(profile in ("docs", "integration", "full"), "CONTEXT_UNAVAILABLE")
+    expected = {row["id"]: "skipped" if profile == "docs" or
+                (profile == "integration" and row["id"] == "v51-owned-canonical") else "success"
+                for row in registry["suites"]}
+    selected = [row["id"] for row in registry["suites"] if expected[row["id"]] == "success"]
+    for row in registry["suites"]:
+        if row["id"] in selected:
+            require(all(dep == "changes" or dep in selected for dep in row["needs"]), "REGISTRY_UNAVAILABLE")
+    expanded = suites.expanded_names(dict(metaJobs=registry["metaJobs"],
+                                         suites=[row for row in registry["suites"] if row["id"] in selected]))
+    return dict(profile=profile, selectedSuites=selected, expectedResults=expected, executedJobCount=len(expanded))
+
+
 def plan(root, env, event):
     actual = {"true": "full", "false": "docs"}.get(env.get("ACTUAL_RUN_FULL_CI"), "unknown")
-    report = dict(schema="gse-ci-shadow-plan-v1", mode="shadow", actualProfile=actual,
+    report = dict(schema="gse-ci-shadow-plan-v2", mode="shadow", actualProfile=actual,
                   recommendedProfile="full", reasons=[], coreEligible=False,
                   event=env.get("GITHUB_EVENT_NAME", ""), testedSha=env.get("GITHUB_SHA", ""),
                   repository=env.get("GITHUB_REPOSITORY", ""), ref=env.get("GITHUB_REF", ""),
@@ -97,7 +152,10 @@ def plan(root, env, event):
                                 source=env.get("GITHUB_WORKFLOW_SHA", ""), sha256=None),
                   plannerSha256=None, policy=dict(path=POLICY, source=None, sha256=None, testedSha256=None),
                   baseSha=None, headSha=None, mergeBaseSha=None, comparison=None,
-                  changedPaths=[], changedPathsSha256=None, nonDocumentationPaths=[])
+                  changedPaths=[], changedPathsSha256=None, nonDocumentationPaths=[],
+                  changes=[], diffSha256=None, registry=dict(path=REGISTRY, sha256=None, validatorSha256=None),
+                  suitePlan=None)
+    registry = None
     try:
         source, repository, ref = report["testedSha"], report["repository"], report["ref"]
         require(isinstance(event, dict) and sha(source), "CONTEXT_UNAVAILABLE")
@@ -114,6 +172,15 @@ def plan(root, env, event):
         report["plannerSha256"] = digest(implementation)
         require(workflow == (root / WORKFLOW).read_bytes()
                 and implementation == (root / PLANNER).read_bytes(), "CONTEXT_UNAVAILABLE")
+        try:
+            registry_bytes = blob(root, source, REGISTRY)
+            validator = blob(root, source, SUITE_VALIDATOR)
+            require(registry_bytes == (root / REGISTRY).read_bytes()
+                    and validator == (root / SUITE_VALIDATOR).read_bytes(), "REGISTRY_UNAVAILABLE")
+            registry = suites.validate_registry(strict_json(registry_bytes))
+            report["registry"].update(sha256=digest(registry_bytes), validatorSha256=digest(validator))
+        except (OSError, subprocess.SubprocessError, ValueError, TypeError, KeyError):
+            raise Unavailable("REGISTRY_UNAVAILABLE") from None
         if report["event"] == "pull_request":
             pr = event["pull_request"]
             base, head = pr["base"]["sha"], pr["head"]["sha"]
@@ -135,11 +202,11 @@ def plan(root, env, event):
             raise Unavailable("MANUAL_OR_UNKNOWN")
         report.update(baseSha=base, headSha=head, comparison=comparison)
         report["policy"]["source"] = base
-        changed = git(root, "diff", "--name-only", "--no-renames", "-z", comparison, "--")
-        report["changedPathsSha256"] = digest(changed)
-        require(changed and changed.endswith(b"\0"), "EMPTY_OR_INVALID_DIFF")
-        paths = changed[:-1].decode("utf-8").split("\0")
-        require(all(valid_path(path) for path in paths), "EMPTY_OR_INVALID_DIFF")
+        changed = git(root, "diff", "--raw", "--no-abbrev", "--no-renames", "-z", comparison, "--")
+        report["diffSha256"] = digest(changed)
+        report["changes"] = change_records(changed)
+        paths = [v["path"] for v in report["changes"]]
+        report["changedPathsSha256"] = digest(b"".join(v.encode("utf-8") + b"\0" for v in paths))
         report["changedPaths"] = paths
         report["nonDocumentationPaths"] = [path for path in paths if not documentation(path)]
         try:
@@ -169,6 +236,10 @@ def plan(root, env, event):
         report["reasons"] = ["HISTORY_UNAVAILABLE"]
     except (KeyError, TypeError, ValueError, UnicodeError):
         report["reasons"] = ["CONTEXT_UNAVAILABLE"]
+    if registry is not None:
+        report["suitePlan"] = dict(schema="gse-ci-suite-plan-v1",
+                                   candidate=suite_plan(registry, report["recommendedProfile"]),
+                                   actual=suite_plan(registry, actual) if actual != "unknown" else None)
     return report
 
 
@@ -182,6 +253,7 @@ def summary(report):
               ("PR head / push after", report["headSha"]), ("Policy baseline", report["policy"]["source"]),
               ("Workflow SHA-256", report["workflow"]["sha256"]),
               ("Policy SHA-256", report["policy"]["sha256"]),
+              ("Registry SHA-256", report["registry"]["sha256"]),
               ("Changed paths", len(report["changedPaths"]))]
     lines = ["## CI shadow plan", "", "Observation only. Existing full/docs gates decide execution; this plan is not qualification evidence.",
              "", "| Field | Value |", "| --- | --- |"]

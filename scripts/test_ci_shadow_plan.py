@@ -24,7 +24,7 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_NAME="Fixture", GIT_COMMITTER_NAME="Fixture",
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
-        for path in (p.WORKFLOW, p.POLICY, p.PLANNER):
+        for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR):
             self.write(path, (ROOT / path).read_bytes())
         self.write("src/main/java/Engine.java", b"// original source\n")
         self.base = self.commit()
@@ -81,6 +81,64 @@ class ShadowPlanTest(unittest.TestCase):
         self.assertEqual(p.digest((self.root / p.WORKFLOW).read_bytes()), report["workflow"]["sha256"])
         self.assertEqual(p.digest((self.root / p.POLICY).read_bytes()), report["policy"]["sha256"])
         self.assertEqual(["docs/guide.md"], report["changedPaths"])
+        self.assertEqual(p.digest((self.root / p.REGISTRY).read_bytes()), report["registry"]["sha256"])
+        self.assertEqual("gse-ci-shadow-plan-v2", report["schema"])
+        self.assertEqual(2, report["suitePlan"]["candidate"]["executedJobCount"])
+        self.assertEqual({"skipped"}, set(report["suitePlan"]["candidate"]["expectedResults"].values()))
+
+    def test_exact_raw_status_mode_type_and_blobs_are_bound(self):
+        self.git("checkout", "-qb", "topic")
+        self.write("src/main/java/Engine.java", b"// changed\n")
+        self.git("update-index", "--chmod=+x", "src/main/java/Engine.java")
+        (self.root / "src/main/java/Engine.java").chmod(0o755)
+        self.write("new.java", b"new\n")
+        self.write("old.java", b"old\n")
+        # Record a real type change and deletion on the same complete PR diff.
+        self.git("checkout", "-q", "master")
+        self.git("add", "--all"); self.git("commit", "-qm", "base files")
+        self.base = self.git("rev-parse", "HEAD")
+        self.git("branch", "-D", "topic")
+        (self.root / "old.java").unlink()
+        (self.root / "new.java").unlink(); (self.root / "new.java").symlink_to("old.java")
+        self.pr({"src/main/java/Engine.java": b"// content only\n"})
+        report = self.result(code="BUILD_OR_UNKNOWN_PATH")
+        rows = {v["path"]: v for v in report["changes"]}
+        self.assertEqual(("D", "absent"), (rows["old.java"]["status"], rows["old.java"]["newType"]))
+        self.assertEqual(("T", "symlink"), (rows["new.java"]["status"], rows["new.java"]["newType"]))
+        row = rows["src/main/java/Engine.java"]
+        self.assertEqual(("M", "100755", "100755"), (row["status"], row["oldMode"], row["newMode"]))
+        self.assertNotEqual(row["oldBlob"], row["newBlob"])
+        self.assertEqual(46, report["suitePlan"]["candidate"]["executedJobCount"])
+
+    def test_registry_missing_dirty_or_invalid_cannot_produce_selection(self):
+        self.pr()
+        for path in (p.REGISTRY, p.SUITE_VALIDATOR):
+            original = (self.root / path).read_bytes()
+            for data in (b"{}", b"bad registry"):
+                self.write(path, data)
+                report = self.result(code="REGISTRY_UNAVAILABLE")
+                self.assertIsNone(report["suitePlan"])
+            self.write(path, original)
+
+    def test_raw_parser_rejects_duplicate_and_inconsistent_records(self):
+        row = b":100644 100644 " + b"a" * 40 + b" " + b"b" * 40 + b" M\0file.java\0"
+        self.assertEqual(1, len(p.change_records(row)))
+        for raw in (row + row, row.replace(b" M\0", b" R100\0"), row.replace(b"100644", b"999999", 1),
+                    row.replace(b"a" * 40, b"0" * 40), row.replace(b"file.java", b"../file.java")):
+            with self.subTest(raw=raw), self.assertRaises(p.Unavailable):p.change_records(raw)
+
+    def test_closed_suite_recipes_keep_matrix_group_and_dependency_closure(self):
+        registry = s.load_registry()
+        for profile, count in (("docs", 2), ("integration", 43), ("full", 46)):
+            result = p.suite_plan(registry, profile)
+            self.assertEqual(count, result["executedJobCount"])
+            self.assertEqual(len(registry["suites"]), len(result["expectedResults"]))
+        result = p.suite_plan(registry, "integration")
+        self.assertEqual(["v51-owned-canonical"], [key for key, value in result["expectedResults"].items() if value == "skipped"])
+        bad = copy.deepcopy(registry)
+        next(v for v in bad["suites"] if v["id"] == "v51-remote-faults")["needs"].append("v51-owned-canonical")
+        with self.assertRaises(p.Unavailable):p.suite_plan(bad, "integration")
+        with self.assertRaises(p.Unavailable):p.suite_plan(registry, "custom")
 
     def test_multiple_commit_diff_and_base_only_changes(self):
         # A PR branches before an unrelated master change; only head-side changes

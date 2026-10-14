@@ -19,7 +19,7 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | Stage | Implementation | Local validation | New-source hosted |
 | --- | --- | --- | --- |
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline only; later source pending |
-| T1 suite-aware shadow plan | Pending | Pending | HOSTED_PENDING |
+| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | HOSTED_PENDING |
 | T2 plan/Required/workflow, forceFull | Pending | Pending | HOSTED_PENDING |
 | T3 integration activation | Pending | Pending | HOSTED_PENDING |
 | T4 optional rule review | Pending | Pending | HOSTED_PENDING |
@@ -35,8 +35,16 @@ drift to undo. No source reset, tag move or Maven clean was performed in T0.
 * T0 hashes and full effective command list: `target/ci-tiered-development/t0/`.
 * Design: [CI_TIERED_DESIGN.md](CI_TIERED_DESIGN.md).
 * Frozen acceptance: [CI_TIERED_ACCEPTANCE.md](CI_TIERED_ACCEPTANCE.md).
-* Next: extend the existing shadow planner and its tests. Actual execution remains
-  docs/full until the coordinated T2/T3 migration. Do not duplicate the registry.
+* T1: `gse-ci-shadow-plan-v2` retains exact raw diff status, old/new Git modes,
+  types and blob identities, registry/validator hashes, plus closed suite recipes
+  and dependency closure. The actual classifier and Required are unchanged.
+  The frozen eight-module test command passed 130 tests in 19.640 seconds;
+  log: `target/ci-tiered-development/t1/tests.log`. New regressions cover raw
+  records, dirty registry/validator, grouped matrix recipes and dependency closure.
+* T1 self-review: no workflow, policy, runtime, POM, suite or artifact changed.
+  The planner still never writes gate outputs. Missing registry yields no suite
+  plan and a conservative diagnostic rather than a usable qualification.
+* Next: T2 coordinated closed outputs, plan and Required, initially forceFull.
 
 Stage commit IDs are available from Git history for this file; each stage records
 its exact checks and evidence before committing. Final readiness has not been claimed.
