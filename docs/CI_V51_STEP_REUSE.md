@@ -1,7 +1,8 @@
 # V5.1 restore and provenance step reuse (PR2)
 
 Base: `62b104e914e690be860a8c7a770d4de39ef797ec`, after PR #324.
-Status: implemented and locally validated; hosted acceptance pending.
+Status: merged in PR #325. [Hosted full-path observations](CI_SHADOW_ACCEPTANCE.md)
+confirm restore/provenance success; docs-only hosted follow-up remains pending.
 
 ## Exact migration scope
 
@@ -105,9 +106,11 @@ collector's expiry/source/attempt checks remain authoritative.
   comparison tooling are in `target/ci-v51-step-reuse/` during review.
 
 No full Maven build, hosted workflow, cloud experiment or release was started
-by this implementation. A hosted full run must still confirm composite action
-execution and failure propagation; docs-only hosted validation also remains
-pending. If checkout fails before local action metadata exists, its retention
+by the implementation agent. The operator's subsequent PR/master CI showed all
+eleven composite restore/provenance pairs succeeding. Master's first workload
+failure occurred after restore, and its runtime evidence was uploaded; a hosted
+failure inside the composite was not injected. Docs-only hosted validation
+remains pending. If checkout fails before local action metadata exists, its retention
 action cannot run; the original source-bound restore receipt cannot exist at
 that point either. Runner termination cannot guarantee artifact upload.
 

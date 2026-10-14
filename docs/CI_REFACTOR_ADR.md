@@ -1,9 +1,10 @@
 # ADR: explicit suite contracts before CI policy changes
 
-Status: PR0 audited; PR1 merged with PR/master full CI success; PR1 docs-only
-hosted validation pending. [PR2](CI_V51_STEP_REUSE.md) and
-[PR3 shadow observation](CI_SHADOW_PLANNER.md) implemented together for review,
-with their own hosted acceptance pending.
+Status: PR0 audited; PR1 merged with PR/master full CI success.
+[PR2](CI_V51_STEP_REUSE.md) and [PR3 shadow observation](CI_SHADOW_PLANNER.md)
+merged in PR #325. [Full hosted paths and rollout reports](CI_SHADOW_ACCEPTANCE.md)
+are observed, including master's failed first attempt and successful partial
+rerun. Docs-only hosted acceptance remains pending; core is disabled.
 Base: `98f2996f896f97a85bf18b0be4b73bb44ad6d2d5`. This is a CI maintenance task
 after V5.1 publication, separate from V5.2 development.
 
@@ -60,8 +61,8 @@ See the [measured baseline](CI_BASELINE.md).
 | --- | --- |
 | PR0 | Completed read-only baseline/attempt/consumer audit; preserve raw observations and failed attempts. |
 | PR1 | Registry and Required equivalence; preserve all lanes, artifacts and external consumers; local negatives plus hosted full/docs acceptance. |
-| PR2 | Small mechanical reuse of identical ordinary V5.1 restore/provenance steps. Keep externally observed named steps, original producer tracking and failure evidence visible. Exclude release literal blocks and specialized builds. |
-| PR3 | Implemented with PR2: shadow planner only; actual execution remains full/docs. Baseline JSON policy, tested merge/source identities, complete diff and per-attempt observation retained. Core allowlist empty. Hosted observation pending. |
+| PR2 | Merged: eleven ordinary V5.1 restore/provenance groups reused, hosted restore/upload success observed. Named steps, producer tracking and failure evidence preserved; specialized/release domains remain inline. Docs-only follow-up pending. |
+| PR3 | Merged with PR2: shadow-only planner; actual execution remains full/docs. Hosted first-rollout full fallback and tested source identities verified. Empty core allowlist; valid-baseline docs observation pending. |
 | PR4 | Separately approved reduction in PR coverage. Initial candidate omits only three complete canonical repetitions, retaining their component checks and every other lane. Master/unknown/manual remain full; core cannot pass cloud admission. |
 | PR5 | Measure one hotspot's internal phases before optimizing. Preserve immutable-byte/source-bound replay, all negatives and combined budgets. Shared builds/sharding/replay corrections are already done. |
 | PR6 | Reconcile current vs historical documentation and establish V5.2 suite registration rules with measured results and explicit remaining gaps. |
@@ -78,8 +79,9 @@ Local checks cover the actual workflow, all original legal full/docs outcomes,
 configuration drift, untrusted JSON, complete-diff classification, real cloud
 job catalog, artifact provenance and PR #322 release fixtures. Hosted PR full,
 master full and a safe docs-only change remain operator validation steps, with
-source/run/attempt and any reruns recorded separately. No new workflow is
-triggered by the local implementation task.
+source/run/attempt and any reruns recorded separately. PR #325's full observations
+are now recorded; the next docs-only PR and merge push provide the pending docs
+sample. No new workflow is triggered by the local implementation/audit task.
 
 If PR1 needs rollback, revert its actual merged commit(s), restoring the old
 Required shell, test bindings and Change scope command together. Keep audit
