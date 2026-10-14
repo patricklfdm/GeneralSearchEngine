@@ -179,5 +179,22 @@ class ExecutionPlanTest(unittest.TestCase):
                       [p.shadow.INTEGRATION_RULE, p.shadow.INTEGRATION_RULE]):
             self.assertFalse(p.shadow.valid_policy({**p.shadow.POLICY_V2, "integrationRules": rules}))
 
+    def test_force_full_rollback_is_effective_across_real_committed_policy_generations(self):
+        f = self.fixture("integration");g = f.graph
+        g.write(p.shadow.POLICY, (json.dumps({**p.shadow.POLICY_V2, "forceFull": True})+"\n").encode())
+        g.base = g.commit();g.git("branch", "-D", "topic")
+        g.pr({p.shadow.INTEGRATION_PATH: b"example after trusted rollback\n"})
+        plan, _ = p.compute(g.root, {**f.env, **g.env}, g.event)
+        self.assertEqual(("integration", "full"), (plan["candidateProfile"], plan["profile"]))
+        self.assertEqual(["REVIEWED_INTEGRATION", "FORCE_FULL"], plan["reasons"])
+        self.assertIsNone(plan["health"])
+        # Disabling forceFull in this next PR cannot downgrade that PR itself.
+        g.base = g.git("rev-parse", "HEAD");g.git("branch", "-D", "topic")
+        g.pr({p.shadow.INTEGRATION_PATH: b"example with policy rollout\n",
+              p.shadow.POLICY: (json.dumps(p.shadow.POLICY_V2)+"\n").encode()})
+        plan, _ = p.compute(g.root, {**f.env, **g.env}, g.event)
+        self.assertEqual("full", plan["profile"])
+        self.assertEqual(["POLICY_CHANGED"], plan["reasons"])
+
 
 if __name__ == "__main__":unittest.main()
