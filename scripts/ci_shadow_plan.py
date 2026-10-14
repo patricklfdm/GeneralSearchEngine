@@ -48,6 +48,9 @@ REASONS = {
     "REGISTRY_UNAVAILABLE": "The source-bound suite registry or its validator is unavailable/invalid.",
     "REVIEWED_INTEGRATION": "Only reviewed existing-file content and permitted documentation changed.",
     "FORCE_FULL": "The trusted policy requires full execution while retaining the candidate recommendation.",
+    "HEALTH_UNAVAILABLE": "Recent exact-base full health is unavailable, pending or incomplete; run full.",
+    "HEALTH_STALE": "The latest exact-base full success exceeds the 36-hour health window; run full.",
+    "HEALTH_FAILED": "The newest exact-base master full run failed or was cancelled; run full.",
 }
 
 

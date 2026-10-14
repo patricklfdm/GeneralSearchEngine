@@ -23,7 +23,7 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | HOSTED_PENDING |
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
-| T5 Nightly/manual/health controls | Pending | Pending | HOSTED_PENDING |
+| T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | HOSTED_PENDING |
 | T6 full local regression and review | Pending | Pending | HOSTED_PENDING |
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
@@ -73,6 +73,26 @@ rejects optional rule names, globs, duplicate rules and unsupported profiles; no
 existing checks are removed and this decision does not block T5.
 Command: `python3.11 -m unittest scripts.test_ci_plan.ExecutionPlanTest.test_optional_tiers_remain_explicitly_disabled`;
 one test passed (0.006 seconds), log `target/ci-tiered-development/t4/tests.log`.
+
+T5 adds daily full no-GCP scheduling at 10:17 UTC, keeps manual and non-doc master
+full, and separates non-PR concurrency by event/run. Integration requires complete
+recent exact-base full health and Required rechecks it. The API is GET-only,
+pagination is complete/bounded, latest failed/pending/docs outcomes are not hidden
+by earlier green runs, and all uncertainty escalates to full. This health check
+does not change the independent cloud reader; schedule remains rejected there.
+
+T5 full related command is the T2 command plus `scripts.test_ci_observation` and
+`scripts.test_ci_health`: 214 tests passed in 71.108 seconds, retained at
+`target/ci-tiered-development/t5/regression.log`. The first focused run exposed a
+test-fixture URL replacement bug (`per_page` was accidentally changed with `page`);
+the production pagination was unchanged. Its failed log remains in `focused.log`.
+Final review added original-scope step time/event checks and forged-health negatives.
+`python3.11 -m unittest scripts.test_ci_observation scripts.test_ci_health scripts.test_ci_suites`
+passed 34 tests in 3.871 seconds (`final-negatives.log`). The literal-command audit
+confirmed every verification command in all 36 suites unchanged from T0
+(`command-parity.json`); only Change scope's classifier/tests changed. Generated
+inventory and whitespace checks passed. Next: T6 self-review, rollback exercises,
+remaining executable local verification and explicit environment-gap accounting.
 
 T3 candidate review is recorded in the design under “本轮委托自主审查”. The
 exact example content rule is active in versioned policy; this CI/policy PR itself

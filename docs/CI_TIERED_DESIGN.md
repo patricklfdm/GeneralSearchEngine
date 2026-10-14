@@ -71,6 +71,31 @@ scheduled/manual/master runs from PR cancellation. Failed, stale or unavailable
 full-health evidence upgrades eligible PRs to full. Hosted scheduling and runtime
 improvement remain unmeasured until actual new-source acceptance.
 
+Nightly is `17 10 * * *` (10:17 UTC daily) in the same CI workflow. Manual dispatch
+is always full. Only PR runs cancel previous runs on the same PR ref; other event
+groups include run ID, keeping master/manual/Nightly isolated. Existing verification
+commands and time ceilings are unchanged. Nightly is expensive: the baseline full
+execution totaled about 400 runner-minutes; scheduling it is not a claim of reduced
+total daily CI usage.
+
+Before selecting integration, the planner reads the newest matching CI run on
+master for the **exact protected PR base SHA**, including failed/cancelled/pending
+runs. It requires the same control-plane bytes, all 46 expanded jobs successful
+at the accepted attempt, visible complete canonical and experiment qualification
+steps, stable paginated observations, and completion within 36 hours. This is
+deliberately stricter than using an ancestor's green result: a new docs-only master
+without a full run also upgrades eligible PRs to full until a full manual/Nightly
+or non-doc master run establishes health at that source. No API access, truncated
+pages, incomplete matrices and ambiguous data also select full.
+
+Required rechecks an integration plan's health observation. A changed/stale/failed
+health record cannot grant integration acceptance. A plan already upgraded to full
+keeps its conservative recipe if external health later improves, because all full
+suite results are still required. No automatic rerun/dispatch or settings mutation
+occurs. The GitHub token has only contents/actions read access; no cloud token is
+introduced. These health observations are not cloud/release admission receipts;
+`cloud_ci.py` still rejects schedule and integration.
+
 The historical counterfactual integration critical paths are 21:23 (PR) and 20:37
 (master timings), compared with roughly 48-minute full runs. These are estimates,
 not integration measurements or billing estimates. Historical full summed job

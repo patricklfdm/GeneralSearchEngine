@@ -25,7 +25,7 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
         for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
-                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py", "scripts/ci_observation.py",
+                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py", "scripts/ci_observation.py", "scripts/ci_health.py",
                      ".github/workflows/release.yml", ".github/actions/v51-restore-build/action.yml",
                      ".github/actions/v51-retain-build/action.yml"):
             self.write(path, (ROOT / path).read_bytes())

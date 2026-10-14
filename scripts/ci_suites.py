@@ -372,6 +372,15 @@ def artifacts(parsed_steps, direction):
 
 def validate_workflow(registry, workflow, related, actions=None):
     validate_registry(registry)
+    header = fields(workflow.split("\njobs:\n", 1)[0], 0)
+    need(set(header) == {"name", "on", "permissions", "concurrency", "env"} and scalar(header["name"]) == "CI",
+         "CI routing fields")
+    need(not header["on"][0] and content(header["on"][1]) == ["  pull_request:", "  push:", "    branches:", "      - master",
+         "  workflow_dispatch:", "  schedule:", "    - cron: '17 10 * * *'"], "CI routing triggers")
+    need(string_map(header["permissions"], 2) == {"contents": "read", "actions": "read"}, "CI read-only permissions")
+    need(string_map(header["concurrency"], 2) == {
+         "group": "ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}",
+         "cancel-in-progress": "${{ github.event_name == 'pull_request' }}"}, "CI concurrency isolation")
     actions = load_actions() if actions is None else actions
     blocks = job_blocks(workflow)
     suites = {s["id"]: s for s in registry["suites"]}
@@ -417,6 +426,7 @@ def validate_workflow(registry, workflow, related, actions=None):
             scope = parsed_steps.get("Classify the complete change set", {})
             need(scope.get("run") == ("python3 -m scripts.ci_plan --output target/ci-shadow-plan", "") and scope.get("id") == ("scope", "") and "if" not in scope,
                  "classifier execution binding")
+            need(string_map(scope.get("env", ("", "")), 10) == {"GH_TOKEN": "${{ github.token }}"}, "read-only health token binding")
             shadow = parsed_steps.get("Observe the CI shadow plan", {})
             need(set(shadow) == {"run", "env"} and shadow["run"] ==
                  ("python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan", "") and

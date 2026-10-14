@@ -6,12 +6,12 @@ import subprocess
 from scripts import ci_shadow_plan as shadow, ci_suites as s
 
 
-def github(repository, path):
+def github(repository, path, env=None):
     s.need(re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", repository) is not None, "GitHub repository")
     s.need(type(path) is str and path.startswith("actions/") and ".." not in path and "\n" not in path,
            "GitHub read path")
     result = subprocess.run(["gh", "api", "--hostname", "github.com", "--method", "GET",
-                             "repos/" + repository + "/" + path], capture_output=True, timeout=10)
+                             "repos/" + repository + "/" + path], capture_output=True, timeout=10, env=env)
     s.need(result.returncode == 0 and len(result.stdout) <= 8 << 20, "GitHub read unavailable/oversized")
     return shadow.strict_json(result.stdout)
 
@@ -51,12 +51,13 @@ def producer_environment(plan, env, get=None):
     producer, accepted = int(identity["runAttempt"]), int(env["GITHUB_RUN_ATTEMPT"])
     s.need(producer <= accepted, "future plan producing attempt")
     if producer == accepted:return env
-    get = get or (lambda path: github(env["GITHUB_REPOSITORY"], path))
+    get = get or (lambda path: github(env["GITHUB_REPOSITORY"], path, env=env))
     run_id = int(env["GITHUB_RUN_ID"])
     before = get(f"actions/runs/{run_id}")
     expected_head = identity["headSha"] if env["GITHUB_EVENT_NAME"] == "pull_request" else env["GITHUB_SHA"]
     s.need(before["id"] == run_id and before["run_attempt"] == accepted and before["head_sha"] == expected_head
-           and before["path"] == s.WORKFLOW and before["repository"]["full_name"] == env["GITHUB_REPOSITORY"],
+           and before["event"] == env["GITHUB_EVENT_NAME"] and before["path"] == s.WORKFLOW
+           and before["repository"]["full_name"] == env["GITHUB_REPOSITORY"],
            "accepted run changed")
     selected = []
     for attempt in (producer, accepted):
@@ -64,10 +65,14 @@ def producer_environment(plan, env, get=None):
         s.need(len(found) == 1, "scope producer missing/duplicate")
         job = found[0]
         s.need(job["run_id"] == run_id and job["run_attempt"] == attempt and job["head_sha"] == expected_head
-               and job["status"] == "completed" and job["conclusion"] == "success", "scope producing job identity")
+               and type(job["id"]) is int and job["id"] > 0 and job["status"] == "completed"
+               and job["conclusion"] == "success" and 0 < stamp(job["started_at"]) <= stamp(job["completed_at"]),
+               "scope producing job identity")
         steps = [row for row in job["steps"] if row["name"] == "Classify the complete change set"]
         s.need(len(steps) == 1 and steps[0]["conclusion"] == "success" and steps[0]["status"] == "completed",
                "scope producing step failed")
+        s.need(stamp(job["started_at"]) <= stamp(steps[0]["started_at"]) <= stamp(steps[0]["completed_at"])
+               <= stamp(job["completed_at"]), "scope step time outside job")
         selected.append(job)
     original, current = selected
     fields = ("name", "run_id", "head_sha", "started_at", "completed_at", "status", "conclusion", "steps")
@@ -79,5 +84,6 @@ def producer_environment(plan, env, get=None):
                and stamp(original["created_at"]) <= stamp(original["started_at"])
                and stamp(current["created_at"]) >= stamp(original["completed_at"]), "scope carried runner changed")
     after = get(f"actions/runs/{run_id}")
-    s.need(all(before[key] == after[key] for key in ("id", "run_attempt", "head_sha", "path")), "run changed during scope observation")
+    s.need(all(before[key] == after[key] for key in ("id", "run_attempt", "head_sha", "path", "event", "repository")),
+           "run changed during scope observation")
     return dict(env, GITHUB_RUN_ATTEMPT=str(producer))

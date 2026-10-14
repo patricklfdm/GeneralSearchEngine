@@ -6,13 +6,13 @@ import json
 import os
 from pathlib import Path
 
-from scripts import ci_shadow_plan as shadow, ci_suites as suites
+from scripts import ci_health, ci_shadow_plan as shadow, ci_suites as suites
 
 SCHEMA = "gse-ci-execution-plan-v1"
 OUTPUTS = ("run_full_ci", "profile", "run_canonical", "plan", "plan_sha256")
 BINDINGS = (shadow.WORKFLOW, shadow.POLICY, shadow.REGISTRY, shadow.PLANNER,
             shadow.SUITE_VALIDATOR, "scripts/ci_changes.py", "scripts/ci_required.py", "scripts/ci_plan.py",
-            "scripts/ci_observation.py")
+            "scripts/ci_observation.py", "scripts/ci_health.py")
 IDENTITIES = ("event", "testedSha", "repository", "ref", "runId", "runAttempt", "workflow",
               "baseSha", "headSha", "mergeBaseSha", "comparison")
 
@@ -21,7 +21,7 @@ def encode(value):
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True, allow_nan=False)
 
 
-def compute(root, env, event):
+def compute(root, env, event, *, health=None):
     registry = suites.check(root)
     report = shadow.plan(root, dict(env, ACTUAL_RUN_FULL_CI="true", CI_PROFILE="full"), event)
     # Invalid run/source context cannot create an execution receipt. Missing
@@ -35,10 +35,18 @@ def compute(root, env, event):
         bindings[path] = shadow.digest(data)
     candidate = report["recommendedProfile"]
     profile = "full" if candidate == "integration" and report["forceFull"] else candidate
+    reasons = report["reasons"] + (["FORCE_FULL"] if profile != candidate else [])
+    if profile == "integration":
+        health = (ci_health.collect(root, env, report["baseSha"], registry, bindings) if health is None
+                  else ci_health.validate(health, report["baseSha"]))
+        if health["status"] != "HEALTHY":
+            profile = "full";reasons.append(health["reason"])
+    else:
+        suites.need(health is None, "unexpected health input for noncandidate")
     plan = dict(schema=SCHEMA, identity={key: report[key] for key in IDENTITIES},
                 bindings=bindings, policy=report["policy"], diffSha256=report["diffSha256"],
                 changedPathsSha256=report["changedPathsSha256"], candidateProfile=candidate,
-                profile=profile, reasons=report["reasons"] + (["FORCE_FULL"] if profile != candidate else []),
+                profile=profile, reasons=reasons, health=health,
                 recipe=shadow.suite_plan(registry, profile))
     validate(plan, registry)
     return plan, report
@@ -46,13 +54,18 @@ def compute(root, env, event):
 
 def validate(value, registry):
     suites.keys(value, {"schema", "identity", "bindings", "policy", "diffSha256", "changedPathsSha256",
-                        "candidateProfile", "profile", "reasons", "recipe"}, "execution plan")
+                        "candidateProfile", "profile", "reasons", "recipe", "health"}, "execution plan")
     suites.need(value["schema"] == SCHEMA, "execution plan version")
     suites.keys(value["identity"], IDENTITIES, "execution identity")
     suites.keys(value["bindings"], BINDINGS, "execution bindings")
     suites.need(value["profile"] in ("docs", "integration", "full") and
                 value["candidateProfile"] in ("docs", "integration", "full"), "execution profile")
     suites.need(value["recipe"] == shadow.suite_plan(registry, value["profile"]), "execution recipe differs")
+    if value["health"] is not None:
+        ci_health.validate(value["health"], value["identity"]["baseSha"])
+        suites.need(value["candidateProfile"] == "integration", "health on noncandidate")
+    if value["profile"] == "integration":
+        suites.need(value["health"] is not None and value["health"]["status"] == "HEALTHY", "integration requires full health")
     suites.need(type(value["reasons"]) is list and value["reasons"] and
                 all(v in shadow.REASONS for v in value["reasons"]), "execution reasons")
     # All other identity/data fields are compared to an independently generated

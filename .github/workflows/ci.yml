@@ -6,14 +6,16 @@ on:
     branches:
       - master
   workflow_dispatch:
+  schedule:
+    - cron: '17 10 * * *'
 
 permissions:
   contents: read
   actions: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
@@ -36,10 +38,12 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan scripts.test_ci_observation
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan scripts.test_ci_observation scripts.test_ci_health
 
       - name: Classify the complete change set
         id: scope
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: python3 -m scripts.ci_plan --output target/ci-shadow-plan
 
       - name: Observe the CI shadow plan

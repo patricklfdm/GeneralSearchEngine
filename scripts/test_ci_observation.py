@@ -12,7 +12,7 @@ class ObservationTest(unittest.TestCase):
         self.f = PlanFixture("full");self.addCleanup(self.f.close)
         self.run = int(self.f.env["GITHUB_RUN_ID"])
         self.plan = copy.deepcopy(self.f.plan);self.plan["identity"]["runAttempt"] = "1"
-        self.metadata = dict(id=self.run, run_attempt=2, head_sha=self.f.graph.head, path=o.s.WORKFLOW,
+        self.metadata = dict(id=self.run, run_attempt=2, head_sha=self.f.graph.head, path=o.s.WORKFLOW, event="pull_request",
                              repository=dict(full_name=self.f.env["GITHUB_REPOSITORY"]))
         self.original = dict(id=101, name="Change scope", run_id=self.run, run_attempt=1, head_sha=self.f.graph.head,
                              status="completed", conclusion="success", created_at="2026-10-14T00:00:00Z",

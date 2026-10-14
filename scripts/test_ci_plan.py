@@ -87,7 +87,7 @@ class ExecutionPlanTest(unittest.TestCase):
             file.write_bytes(data)
 
     def test_selected_and_unselected_integration_results_require_the_complete_inventory(self):
-        f = self.fixture()
+        f = self.fixture("integration")
         registry = s.load_registry();plan = copy.deepcopy(f.plan)
         plan.update(profile="integration", candidateProfile="integration", recipe=p.shadow.suite_plan(registry, "integration"))
         self.assertEqual("PASS", ci_required.evaluate(self.needs(plan), registry, plan)["status"])
@@ -167,7 +167,8 @@ class ExecutionPlanTest(unittest.TestCase):
             g.base = g.git("rev-parse", "HEAD");g.git("branch", "-D", "topic")
             before = (g.root / path).read_bytes() if (g.root / path).exists() else b""
             g.pr({p.shadow.INTEGRATION_PATH: b"next example\n", path: before + b"\n"})
-            plan, _ = p.compute(g.root, g.env, g.event)
+            f.install_health(g.base)
+            plan, _ = p.compute(g.root, {**f.env, **g.env}, g.event)
             self.assertEqual(expected, plan["profile"], path)
 
     def test_optional_tiers_remain_explicitly_disabled(self):

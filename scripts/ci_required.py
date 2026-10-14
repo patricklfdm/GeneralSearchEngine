@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 
-from scripts import ci_observation, ci_plan, ci_suites as suites
+from scripts import ci_health, ci_observation, ci_plan, ci_suites as suites
 
 
 def evaluate(needs, registry, expected_plan=None):
@@ -62,9 +63,10 @@ def main(env=None, root=suites.ROOT):
         registry = suites.check(root)
         claimed = ci_plan.checked_outputs(needs["changes"]["outputs"], registry)
         producer_env = ci_observation.producer_environment(claimed, env)
-        expected, _ = ci_plan.compute(root, producer_env, ci_plan.event(env))
+        health = ci_health.replay(claimed, root, producer_env, registry, claimed["bindings"])
+        expected, _ = ci_plan.compute(root, producer_env, ci_plan.event(env), health=health)
         result = evaluate(needs, registry, expected)
-    except (ValueError, OSError, KeyError, TypeError, RecursionError) as error:
+    except (ValueError, OSError, KeyError, TypeError, RecursionError, subprocess.SubprocessError) as error:
         result = dict(status="FAIL", profile=None, errors=[dict(job="Required", reason=str(error))])
     print(json.dumps(result, ensure_ascii=True, sort_keys=True))
     return 0 if result["status"] == "PASS" else 1

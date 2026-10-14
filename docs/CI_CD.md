@@ -24,8 +24,10 @@ supported for the local emergency release procedure.
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs for pull requests, pushes to `master`, and manual
-dispatches. It has read-only repository permission and receives no release secrets.
+`.github/workflows/ci.yml` runs for pull requests, pushes to `master`, manual
+dispatches and full Nightly at 10:17 UTC daily. It has contents/actions read-only
+permission and receives no release secrets. Only newer runs for the same PR cancel
+earlier PR runs; master, manual and Nightly have isolated run-specific groups.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
 full CI. Pull requests compare merge-base to PR head, so a final docs commit cannot
@@ -57,6 +59,12 @@ does not grant qualification. Required independently replays the versioned execu
 plan against source/workflow/policy/registry and all 36 suite results. The legacy
 `run_full_ci=true` means ordinary suites run, including in integration; it alone
 does not establish full qualification.
+
+Integration additionally requires a recent complete full run at the exact PR base
+SHA. Failed, cancelled, pending, docs-only, unavailable or older-than-36-hour results
+upgrade to full. The newest matching run is used, not an older green result. A
+Nightly health success does not satisfy paid-cloud admission, which still rejects
+schedule. See [tiered operations and rollback](CI_TIERED_DESIGN.md).
 
 Required runs with `always()` and checks every expected ID and result. Failed or
 cancelled detection, missing results, unexpected skips and unregistered jobs
