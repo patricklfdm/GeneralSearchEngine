@@ -170,5 +170,13 @@ class ExecutionPlanTest(unittest.TestCase):
             plan, _ = p.compute(g.root, g.env, g.event)
             self.assertEqual(expected, plan["profile"], path)
 
+    def test_optional_tiers_remain_explicitly_disabled(self):
+        registry = s.load_registry()
+        for profile in ("consumer", "python-isolated", "core"):
+            with self.subTest(profile=profile), self.assertRaises(ValueError):p.shadow.suite_plan(registry, profile)
+        for rules in (["consumer"], ["python-isolated"], ["scripts/*.py"], ["examples/**"],
+                      [p.shadow.INTEGRATION_RULE, p.shadow.INTEGRATION_RULE]):
+            self.assertFalse(p.shadow.valid_policy({**p.shadow.POLICY_V2, "integrationRules": rules}))
+
 
 if __name__ == "__main__":unittest.main()

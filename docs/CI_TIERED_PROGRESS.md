@@ -22,7 +22,7 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | HOSTED_PENDING |
 | T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | HOSTED_PENDING |
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
-| T4 optional rule review | Pending | Pending | HOSTED_PENDING |
+| T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Pending | Pending | HOSTED_PENDING |
 | T6 full local regression and review | Pending | Pending | HOSTED_PENDING |
 
@@ -65,6 +65,14 @@ drift to undo. No source reset, tag move or Maven clean was performed in T0.
   `target/ci-tiered-development/t3/final-tests.log`. Earlier pre-provenance run:
   101 tests passed in 43.835 seconds. Generated inventory and whitespace passed.
 * Next: T4 optional rule decisions, followed by T5 full-health/Nightly operation.
+
+T4 [review](CI_TIERED_OPTIONAL_REVIEW.md) leaves consumer/python-isolated rules
+disabled: no separately justified safe and useful further coverage reduction was
+found. Integration remains the required implemented tier. The added negative test
+rejects optional rule names, globs, duplicate rules and unsupported profiles; no
+existing checks are removed and this decision does not block T5.
+Command: `python3.11 -m unittest scripts.test_ci_plan.ExecutionPlanTest.test_optional_tiers_remain_explicitly_disabled`;
+one test passed (0.006 seconds), log `target/ci-tiered-development/t4/tests.log`.
 
 T3 candidate review is recorded in the design under “本轮委托自主审查”. The
 exact example content rule is active in versioned policy; this CI/policy PR itself
