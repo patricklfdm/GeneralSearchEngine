@@ -7,6 +7,12 @@ existing lanes. See [consumer contracts](CI_DEPENDENCY_CONTRACTS.md) and
 historical. [PR1 progress](CI_REFACTOR_PROGRESS.md) distinguishes local checks
 from pending hosted acceptance.
 
+[PR2 step reuse](CI_V51_STEP_REUSE.md) now centralizes the identical build restore
+and provenance steps in eleven ordinary V5.1 consumers. Effective operations and
+job dependencies are preserved; the timing figures below predate that extraction.
+The accompanying [PR3 shadow planner](CI_SHADOW_PLANNER.md) records baseline-policy
+recommendations in Change scope while actual execution stays full/docs.
+
 **Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
 [complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring

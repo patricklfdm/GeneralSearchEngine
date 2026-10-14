@@ -31,17 +31,31 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan
 
       - name: Classify the complete change set
         id: scope
         run: python3 scripts/ci_changes.py
+
+      - name: Observe the CI shadow plan
+        env:
+          ACTUAL_RUN_FULL_CI: ${{ steps.scope.outputs.run_full_ci }}
+        run: python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan
 
       - name: Validate documentation-only contract changes
         if: ${{ steps.scope.outputs.run_full_ci == 'false' }}
         run: |
           scripts/verify-v50-phase0-contract.sh
           python3 -m scripts.v51.contract
+
+      - name: Retain the CI shadow plan
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ci-shadow-plan-${{ github.run_id }}-${{ github.run_attempt }}
+          path: target/ci-shadow-plan
+          if-no-files-found: warn
+          retention-days: 14
 
   reactor-core:
     # Keep the display name consumed by the existing V5.0 cloud preflight.
@@ -172,29 +186,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-foundation-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-foundation-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 declarations and independent leadership foundation
         run: scripts/verify-v51-phase1-foundation.sh --skip-build --skip-python-tests
@@ -1086,29 +1087,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-remote-faults-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-remote-faults-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 twelve frozen fault workloads and retained evidence
         run: scripts/verify-v51-phase6-remote-faults.sh --skip-build
@@ -1140,29 +1128,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-admission-resources-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-admission-resources-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public capacity, admission and wire rejection
         run: scripts/verify-v51-phase4-public-bounds.sh --skip-build
@@ -1229,29 +1204,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-promise-crashes-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-promise-crashes-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public promise force and reply crash boundaries
         run: scripts/verify-v51-phase4-public-promises.sh --skip-build
@@ -1283,29 +1245,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-public-reads-faults-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-public-reads-faults-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public lifecycle, strong reads and retained failover
         run: scripts/verify-v51-phase4-public-runtime.sh --skip-build
@@ -1361,29 +1310,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-public-recovery-pressure-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-public-recovery-pressure-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 imported failover, rejected authority and public lifecycle boundaries
         run: scripts/verify-v51-phase4-public-recovery.sh --skip-build
@@ -1451,29 +1387,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-public-hardening-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-public-hardening-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 pinned recovery, partial writes and repeated timeouts
         run: scripts/verify-v51-phase4-lifecycle-hardening.sh --skip-build
@@ -1517,29 +1440,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-protocol-selection-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-protocol-selection-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public campaigns, minority selection and interrupted recovery
         run: scripts/verify-v51-phase4-public-protocol.sh --skip-build
@@ -1583,29 +1493,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-candidate-crashes-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-candidate-crashes-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public candidate crashes and fresh elections
         run: scripts/verify-v51-phase4-public-candidates.sh --skip-build
@@ -1637,29 +1534,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-reclamation-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-reclamation-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public two-source floors and interrupted reclamation
         run: scripts/verify-v51-phase4-public-reclamation.sh --skip-build
@@ -1703,29 +1587,16 @@ jobs:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
 
-      - name: Download this run's exact-source verification inputs
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-          merge-multiple: true
-          path: target/ci-v51-build
-
       - name: Validate and restore V5.1 verification inputs
-        run: >-
-          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
-          --bundle target/ci-v51-build
-          --receipt "$RUNNER_TEMP/v51-build/restore.json"
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
 
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: ./.github/actions/v51-retain-build
         with:
-          name: v51-full-size-runtime-build-inputs-${{ github.sha }}
-          path: |
-            ${{ runner.temp }}/v51-build/restore.json
-            target/ci-v51-build/manifest.json
-          if-no-files-found: warn
-          retention-days: 14
+          artifact-name: v51-full-size-runtime-build-inputs-${{ github.sha }}
 
       - name: Verify V5.1 public automatic 512-slot runtime boundary
         run: scripts/verify-v51-phase6-full-size-runtime.sh --skip-build

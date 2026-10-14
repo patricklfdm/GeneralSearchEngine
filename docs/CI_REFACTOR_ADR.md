@@ -1,6 +1,9 @@
 # ADR: explicit suite contracts before CI policy changes
 
-Status: PR0 audited; PR1 implemented for review; hosted PR1 acceptance pending.
+Status: PR0 audited; PR1 merged with PR/master full CI success; PR1 docs-only
+hosted validation pending. [PR2](CI_V51_STEP_REUSE.md) and
+[PR3 shadow observation](CI_SHADOW_PLANNER.md) implemented together for review,
+with their own hosted acceptance pending.
 Base: `98f2996f896f97a85bf18b0be4b73bb44ad6d2d5`. This is a CI maintenance task
 after V5.1 publication, separate from V5.2 development.
 
@@ -15,7 +18,12 @@ registry/workflow/needs set, and reports each invalid result. It retains its nam
 Required adds a pinned checkout with credentials not persisted to read the
 validator. Failure to check out, parse or validate fails the job; there is no
 fallback PASS. The Change scope test command adds the two new test modules.
-Other lane bodies remain unchanged, including all verification/upload commands.
+PR1 kept other lane bodies unchanged, including all verification/upload commands.
+PR2 subsequently extracts only eleven identical ordinary consumer prerequisite
+groups, with expanded contract equality and a separate always-upload action.
+PR3 adds a baseline-policy-constrained observer and an attempt-specific report
+in Change scope. It cannot output a gate result; actual full/docs selection is
+unchanged. The initial core allowlist is empty and nonempty lists are rejected.
 
 The JSON inventory stores dependencies, build domain, matrix, inputs/outputs,
 evidence options and full/docs expected results. It contains literal Actions
@@ -53,7 +61,7 @@ See the [measured baseline](CI_BASELINE.md).
 | PR0 | Completed read-only baseline/attempt/consumer audit; preserve raw observations and failed attempts. |
 | PR1 | Registry and Required equivalence; preserve all lanes, artifacts and external consumers; local negatives plus hosted full/docs acceptance. |
 | PR2 | Small mechanical reuse of identical ordinary V5.1 restore/provenance steps. Keep externally observed named steps, original producer tracking and failure evidence visible. Exclude release literal blocks and specialized builds. |
-| PR3 | Shadow planner only; actual execution remains full/docs. Unknown, policy, registry, toolchain, frozen artifact and qualifier changes remain full. PR edits cannot downgrade themselves. |
+| PR3 | Implemented with PR2: shadow planner only; actual execution remains full/docs. Baseline JSON policy, tested merge/source identities, complete diff and per-attempt observation retained. Core allowlist empty. Hosted observation pending. |
 | PR4 | Separately approved reduction in PR coverage. Initial candidate omits only three complete canonical repetitions, retaining their component checks and every other lane. Master/unknown/manual remain full; core cannot pass cloud admission. |
 | PR5 | Measure one hotspot's internal phases before optimizing. Preserve immutable-byte/source-bound replay, all negatives and combined budgets. Shared builds/sharding/replay corrections are already done. |
 | PR6 | Reconcile current vs historical documentation and establish V5.2 suite registration rules with measured results and explicit remaining gaps. |

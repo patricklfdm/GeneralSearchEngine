@@ -22,6 +22,17 @@ ALWAYS = "${{ always() }}"
 LIMIT = 512 * 1024
 IDENTIFIER = re.compile(r"[a-z][a-z0-9-]*\Z")
 MATRIX_VALUE = re.compile(r"[a-z][a-z0-9.-]*\Z")
+RESTORE_ACTION = "./.github/actions/v51-restore-build"
+RETAIN_ACTION = "./.github/actions/v51-retain-build"
+RESTORE_STEP = "Validate and restore V5.1 verification inputs"
+RETAIN_STEP = "Retain restored build provenance including failures"
+DOWNLOAD_STEP = "Download this run's exact-source verification inputs"
+BUILD_ID = "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}"
+BUILD_CONSUMERS = frozenset((
+    "v51-foundation", "v51-remote-faults", "v51-admission-resources", "v51-promise-crashes",
+    "v51-public-reads-faults", "v51-public-recovery-pressure", "v51-public-hardening",
+    "v51-protocol-selection", "v51-candidate-crashes", "v51-reclamation", "v51-full-size-runtime",
+))
 
 
 def need(condition, message):
@@ -161,6 +172,91 @@ def steps(pair):
     return parsed
 
 
+def load_actions(root=ROOT):
+    return {path: read(root, path[2:] + "/action.yml") for path in (RESTORE_ACTION, RETAIN_ACTION)}
+
+
+def composite_steps(source, input_name):
+    """Read only our two local actions, not an arbitrary nested action graph."""
+    need("\t" not in source, "composite indentation")
+    metadata = fields(source, 0)
+    keys(metadata, {"name", "description", "inputs", "runs"}, "composite metadata")
+    scalar(metadata["name"]); scalar(metadata["description"])
+    need(not metadata["inputs"][0] and not metadata["runs"][0], "composite explicit mappings")
+    inputs = fields(metadata["inputs"][1], 2)
+    keys(inputs, {input_name}, "composite inputs")
+    need(not inputs[input_name][0], "composite input mapping")
+    spec = fields(inputs[input_name][1], 4)
+    keys(spec, {"description", "required"}, "composite input")
+    scalar(spec["description"])
+    need(spec["required"] == ("true", ""), "composite input must be required")
+    runs = fields(metadata["runs"][1], 2)
+    keys(runs, {"using", "steps"}, "composite runs")
+    need(scalar(runs["using"]) == "composite" and not runs["steps"][0], "composite execution")
+    return steps(("", "\n".join("  " + line for line in runs["steps"][1].splitlines())))
+
+
+def expand_steps(parsed, job, actions):
+    """Expand reviewed data bindings for contract comparison, without evaluation."""
+    result = {}; calls = []
+    for name, values in parsed.items():
+        uses = scalar(values["uses"]) if "uses" in values else ""
+        if not uses.startswith("./"):
+            expanded = {name: values}
+        else:
+            need(job in BUILD_CONSUMERS and uses in (RESTORE_ACTION, RETAIN_ACTION), "unreviewed local action: " + job)
+            restore = uses == RESTORE_ACTION
+            keys(values, {"uses", "with"} if restore else {"uses", "with", "if"}, "composite caller")
+            need(name == (RESTORE_STEP if restore else RETAIN_STEP), "composite caller name")
+            inputs = string_map(values["with"], 10)
+            input_name = "artifact-id" if restore else "artifact-name"
+            keys(inputs, {input_name}, "composite caller inputs")
+            expected = BUILD_ID if restore else job + "-build-inputs-${{ github.sha }}"
+            need(inputs[input_name] == expected, "composite artifact binding: " + job)
+            if not restore:
+                need(scalar(values["if"]) == ALWAYS, "provenance caller must always run")
+            expanded = composite_steps(actions[uses], input_name)
+            if restore:
+                need(list(expanded) == [DOWNLOAD_STEP, RESTORE_STEP], "composite restore step sequence")
+                keys(expanded[DOWNLOAD_STEP], {"uses", "with"}, "composite download")
+                run = expanded[RESTORE_STEP]
+                keys(run, {"run", "shell"}, "composite restore")
+                need(scalar(run["shell"]) == "bash", "composite restore shell")
+                command = run["run"]
+                need(command[0] == ">-" and content(command[1]) == [
+                    '          python3 -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"',
+                    '          --bundle target/ci-v51-build',
+                    '          --receipt "$RUNNER_TEMP/v51-build/restore.json"'], "composite restore command")
+                # Only one simple command: explicit composite bash preserves its exit status.
+                del run["shell"]
+                token = "${{ inputs.artifact-id || 'missing-build-artifact' }}"
+            else:
+                need(list(expanded) == [RETAIN_STEP], "composite provenance step sequence")
+                keys(expanded[RETAIN_STEP], {"uses", "if", "with"}, "composite provenance")
+                need(scalar(expanded[RETAIN_STEP]["if"]) == ALWAYS, "provenance child must always run")
+                token = "${{ inputs.artifact-name }}"
+            # The sole input is data in an action's with map, never in shell source.
+            changed = 0
+            for step in expanded.values():
+                for key, pair in list(step.items()):
+                    if token in pair[1]:
+                        need(key == "with" and pair[1].count(token) == 1, "composite input location")
+                        step[key] = (pair[0], pair[1].replace(token, inputs[input_name])); changed += 1
+            need(changed == 1 and "${{ inputs." not in str(expanded), "composite unresolved input")
+            calls.append(uses)
+        need(not set(result).intersection(expanded), "duplicate expanded step")
+        result.update(expanded)
+    if calls:
+        need(calls == [RESTORE_ACTION, RETAIN_ACTION], "restore/provenance action pair")
+        order = list(result)
+        need(order.index(RETAIN_STEP) == order.index(RESTORE_STEP) + 1, "provenance must follow restore")
+        # Both prerequisites must remain visible and precede artifact consumption.
+        for prerequisite, action in (("Check out source", "actions/checkout@"), ("Set up Java 21", "actions/setup-java@")):
+            need(prerequisite in result and order.index(prerequisite) < order.index(DOWNLOAD_STEP) and
+                 scalar(result[prerequisite]["uses"]).startswith(action), "composite prerequisite: " + prerequisite)
+    return result
+
+
 def matrix_value(value):
     return (type(value) is str and MATRIX_VALUE.fullmatch(value) is not None and
             value not in {"true", "false", "null", "yes", "no", "on", "off"})
@@ -270,8 +366,9 @@ def artifacts(parsed_steps, direction):
     return result
 
 
-def validate_workflow(registry, workflow, related):
+def validate_workflow(registry, workflow, related, actions=None):
     validate_registry(registry)
+    actions = load_actions() if actions is None else actions
     blocks = job_blocks(workflow)
     suites = {s["id"]: s for s in registry["suites"]}
     need(set(blocks) == set(suites) | set(registry["metaJobs"]), "workflow/registry job inventory differs")
@@ -283,7 +380,7 @@ def validate_workflow(registry, workflow, related):
         expected = suites.get(key, registry["metaJobs"].get(key))
         need(scalar(values["name"]) == expected["name"], "job display name: " + key)
         need(scalar(values["runs-on"]) == "ubuntu-latest", "runner changed: " + key)
-        parsed_steps = steps(values["steps"])
+        parsed_steps = expand_steps(steps(values["steps"]), key, actions)
         if key in suites:
             need(scalar(values["if"]) == FULL_IF, "full/docs condition: " + key)
             need(dependencies(values.get("needs")) == expected["needs"], "needs changed: " + key)
@@ -311,6 +408,21 @@ def validate_workflow(registry, workflow, related):
             scope = parsed_steps.get("Classify the complete change set", {})
             need(scope.get("run") == ("python3 scripts/ci_changes.py", "") and scope.get("id") == ("scope", "") and "if" not in scope,
                  "classifier execution binding")
+            shadow = parsed_steps.get("Observe the CI shadow plan", {})
+            need(set(shadow) == {"run", "env"} and shadow["run"] ==
+                 ("python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan", "") and
+                 string_map(shadow["env"], 10) == {"ACTUAL_RUN_FULL_CI": "${{ steps.scope.outputs.run_full_ci }}"},
+                 "shadow observation binding")
+            retained = parsed_steps.get("Retain the CI shadow plan", {})
+            need(set(retained) == {"if", "uses", "with"} and scalar(retained["if"]) == ALWAYS and
+                 scalar(retained["uses"]).split(" #", 1)[0] == "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02" and
+                 string_map(retained["with"], 10) == {
+                     "name": "ci-shadow-plan-${{ github.run_id }}-${{ github.run_attempt }}",
+                     "path": "target/ci-shadow-plan", "if-no-files-found": "warn", "retention-days": "14"},
+                 "shadow observation retention")
+            order = list(parsed_steps)
+            need(order.index("Classify the complete change set") < order.index("Observe the CI shadow plan") <
+                 order.index("Retain the CI shadow plan"), "shadow observation order")
     for interface in registry["externalInterfaces"]:
         source = workflow if interface["workflow"] == WORKFLOW else related[interface["workflow"]]
         jobs = job_blocks(source)
@@ -329,7 +441,7 @@ def validate_workflow(registry, workflow, related):
 def check(root=ROOT):
     registry = load_registry(root)
     related = {v["workflow"]: read(root, v["workflow"]) for v in registry["externalInterfaces"] if v["workflow"] != WORKFLOW}
-    validate_workflow(registry, read(root, WORKFLOW), related)
+    validate_workflow(registry, read(root, WORKFLOW), related, load_actions(root))
     return registry
 
 
