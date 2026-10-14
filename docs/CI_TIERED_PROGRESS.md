@@ -24,7 +24,13 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | HOSTED_PENDING |
-| T6 full local regression and review | In progress | Build/rollback passed; other lanes running; namespace prerequisite blocked | HOSTED_PENDING |
+| T6 full local regression and review | Review and executable checks finished; acceptance blocked | 25 whole local instances passed, five failed; required mount-namespace checks unavailable | HOSTED_PENDING |
+
+**Delivery status: `BLOCKED_WITH_PARTIAL_DELIVERY` / `LOCAL_VALIDATION_BLOCKED`.**
+T0–T5 implementation is committed. All started local commands have finished.
+Required local acceptance has not passed, so this branch is not
+`LOCAL_READY_FOR_FINAL_REVIEW`. New-source hosted acceptance is separately pending.
+The final accounting and remaining actions are recorded below.
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
 handoff implementation base are nine documentation files; there is no runtime
@@ -118,7 +124,7 @@ Full canonical local verification is currently `LOCAL_VALIDATION_BLOCKED`;
 continue independent implementation and tests, but final local readiness cannot be
 claimed until that required verification actually runs successfully.
 
-## T6 verification underway
+## T6 local verification
 
 The unchanged implementation commit `4090b57afc90d429fed6c9d4bfd24b2f27b59ed2`
 is checked out independently for each local build/consumer lane below
@@ -142,8 +148,8 @@ Surefire restore verifier. Commands come from the actual effective workflow.
   114 documents/860 links; the changed-doc review additionally checked 595 links.
   Production Java/POM/frozen release files and release workflow have no diff.
   Input package `SHA256SUMS` still verifies; its files remain unmodified/uncommitted.
-* Remaining executable lanes are being run in two bounded independent sequences,
-  alongside the Python/cloud unit partitions. No new-source hosted runs have been
+* Executable lanes ran in bounded independent sequences alongside the Python/cloud
+  partitions. Their final results are below. No new-source hosted runs were
   triggered. Native-UID mount qualification remains a separate local environment
   gap; fake Python canonical fixtures are not counted as complete canonical runs.
 
@@ -166,10 +172,10 @@ initial write with `INDETERMINATE / QUORUM_UNAVAILABLE`. Its original evidence a
 logs are retained. The follower trace brackets proof force at 1,885.489 ms, beyond
 the existing 1,200 ms request bound. This explains the missing timely proof ACK;
 it does not distinguish disk latency from scheduling delay within that interval.
-That failure prevents accepting the entire lane; subsequent independent commands
-must be reported separately if run. These runtime behaviors are outside the
-authorized CI-only production-change boundary. Independent lanes continue; no
-test threshold, deadline or runtime assertion has been changed to obtain a pass.
+That failure prevents accepting the entire lane. Subsequent public qualification
+and fault commands passed in a separately recorded partial execution. These runtime
+behaviors are outside the authorized CI-only production-change boundary. No test
+threshold, deadline or runtime assertion was changed to obtain a pass.
 
 Review and raw logs: `target/ci-tiered-development/t6/runtime-failure-review.json`,
 `t6/local/reactor-core/04.log` and `t6/local/v51-public-reads-faults/05.log` under the
@@ -191,3 +197,101 @@ The long-running workload lanes remain pinned to the earlier implementation sour
 `4090b57`; they are not relabeled as qualification of this follow-up correction.
 The correction touches only CI metadata parsing and its tests. Local readiness
 still requires the unresolved full-regression and environment gaps to be closed.
+
+## Final local accounting
+
+The full workflow has 46 expanded jobs, including Change scope and Required.
+The local workload index covers its **44 non-meta instances**. Local planner and
+Required tests are accounted for separately; no hosted job success is implied.
+
+| Outcome | Instances | Meaning |
+| --- | ---: | --- |
+| PASS | 25 | All literal run commands in that local instance passed. |
+| FAIL | 5 | Original failures retained; see the table below. |
+| BLOCKED_NOT_RUN | 12 | Whole guest/owned jobs need the unavailable native-UID mount namespace. This includes five tapes and all three canonical repetitions. |
+| BLOCKED | 1 | Rich aggregate lacks its successful published-controls shard. No old/partial shard was substituted. |
+| NOT_RUN as a whole job | 1 | Provider verifier and evidence packing passed separately using verified pre-existing OpenSSH; the workflow's sudo installation step was not run. |
+
+Passing instances include all three V5.1 Python partitions, cloud preflight/cleanup/
+storage, V4 regression, V5.0 authority, V5.1 foundation/admission/protocol/reclamation/
+full-size/public recovery/hardening, remote faults, rich inputs and both automatic
+rich shards, compatibility, soak/examples and release artifacts. Release validation
+includes candidate artifact checks, both pinned Docker reproducibility builds and
+`validate-evidence --source`. The successful shared producer does not erase a failed
+independent reactor build.
+
+| Failed whole instance | Observed failure / retained limit |
+| --- | --- |
+| reactor-core | Query callback entry latch exceeded 30 seconds; Future outcome was not retained before the assertion. |
+| v50-recovery-workload | Prerequisite reactor test `V50ReadyTest.incrementalCatchupReplaysOnlyTheMissingTailOfAPublishedPrefix[5]`: no valid remote voter for COMMIT_PROOF. Later lane commands did not run. |
+| v51-public-reads-faults | Initial public-runtime write failed with QUORUM_UNAVAILABLE; proof-force interval was 1,885.489 ms against the existing 1,200 ms request bound. |
+| v51-candidate-crashes | `before-write-halt` did not reach PROMISE_BEFORE_WRITE; the other 13 cases passed, but the suite failed. |
+| rich published-controls | Published V4.4 warmup call 18 took 1.430698 s against one-second spacing; the next call was LANE_BUSY. |
+
+These observations establish failed checks, not a universal host-scheduling or
+production-defect diagnosis. No Java, POM, frozen parameters or oracle changed.
+Original evidence is retained with hashes at `t6/failures/manifest.json`; analysis
+is `t6/runtime-failure-review.json`. No measurement was retried until green.
+
+Six selected-step receipts are kept separately. The initial provider check failed
+because OpenSSH StrictModes rejected the `/tmp` ancestor. A fresh checkout under
+the user's HOME passed the complete original provider verifier and packing command;
+StrictModes and host directory permissions were unchanged. The first guest-service
+prefix and the independent public qualification/fault commands passed. A second
+guest-service run in HOME failed a published V4.4 warmup (1.639985 s / one-second
+spacing); its failure remains retained. Its already-built package subsequently
+passed the separate SSH delivery and owned startup/idle checks. These partial
+results do not close the guest mount-namespace requirement or any failed whole lane.
+
+Final evidence root: `target/ci-tiered-development/`.
+
+* `t6/local-validation-index.json`: every expected instance, source, receipt hash,
+  partial result and verified log hash. Regenerate with
+  `python3.11 target/ci-tiered-development/tools/local_index.py`.
+* `tools/local_ci.py`: extracts literal commands/composites and records isolated
+  workspaces, pinned tools and local file transfers; `tools/home_ssh_checks.py` and
+  `tools/guest_ssh_remaining.py` record the explicit SSH environment correction and
+  independent remaining commands. No hosted artifact identity is fabricated.
+* `t6/active-sessions.json`: every started queue completed; no test is left running.
+* `t6/structural-rollback-8c74390/`: all eight implementation/review commits reverted
+  together in an isolated clone; tracked tree equals the initial baseline and all
+  126 original CI tests passed in 21.773 seconds. This supplements the earlier
+  six-commit rollback, which is also retained.
+* `t6/final-shell-inventory.json`: all 170 effective shell blocks pass `bash -n`.
+  The 36-suite literal command comparison is `t5/command-parity.json`.
+
+The long workload receipts bind to `4090b57`; the timestamp correction and subsequent
+documentation/rollback tests bind to later commits. No result is relabeled as a
+full regression of a different source. Test counts above overlap and must not be
+summed as unique test cases.
+
+## Commit sequence and resumption
+
+| Commit | Scope |
+| --- | --- |
+| `7ee397c` | T0 baseline and frozen acceptance |
+| `089e327` | T1 suite-aware shadow / exact raw diff |
+| `20d45ab` | T2 execution plan / Required / forceFull rollout |
+| `3182f07` | T3 integration and carried-scope provenance |
+| `2a19bc7` | T4 optional tiers explicitly disabled |
+| `4090b57` | T5 Nightly/manual and exact-base health |
+| `1858645` | T6 malformed health timestamps safely select full |
+| `8c74390` | Contract documentation and actual forceFull rollback test |
+
+The final accounting is a subsequent documentation-only commit; use `git log` for
+its identifier. No push, PR, merge, workflow trigger or paid cloud action occurred.
+
+Next is **T6 acceptance**, not a new tier or V5.2: obtain an already suitable Linux
+environment for native-UID mount checks, resolve the retained runtime failures
+within separately authorized scope, and complete the frozen full local acceptance.
+An unanswered environment question is not permission to change sudoers or bypass
+the existing isolation checks. Only after required local checks pass can the user
+review and push the accumulated branch for the hosted checks in
+[CI_TIERED_ACCEPTANCE.md](CI_TIERED_ACCEPTANCE.md). The rollout PR must select full;
+later eligible PRs may select integration after exact-base full health is established.
+
+Draft review commands and PR description are in
+`target/ci-tiered-development/review-commands.sh` and `pr-body.md`; they have not been
+executed and do not claim merge readiness. First rollback is `forceFull=true`;
+structural rollback reverts all task commits together, including their contracts,
+with a new revert commit rather than resetting or rewriting the branch.
