@@ -1,10 +1,12 @@
-# CI refactor handoff and remaining acceptance
+# CI refactor completed handoff
 
 Implementation base: `d12d682e2a16eb2c9a96b326f2875e97768ddd7f` (PR #326).
 The operator combined PR4 review, PR5 replay optimization and PR6 documentation/
-integration checks in one branch. **Local implementation is ready; new-source
-hosted PR/master acceptance is pending.** This is not a claim that the whole
-refactor is closed or that V5.2 development has started.
+integration checks in PR #327, merged as
+`c62e4719f8fd346e0f8997f0800e8fbd69414cbf`. **The revised CI refactor is complete:**
+new-source full PR/master acceptance and final reconciliation are recorded in
+[the final acceptance report](CI_REFACTOR_ACCEPTANCE.md). Core remains deferred;
+V5.2 development is the next separate task.
 
 ## Current architecture and operating entry points
 
@@ -36,9 +38,9 @@ the independent combined aggregate. Core is disabled and
 | PR1 / #324 | Merge `62b104e914e690be860a8c7a770d4de39ef797ec`; PR 38499699430 attempts 1–2; master 38505983953 attempt 1 | Required/registry implementation accepted. PR initial failure retained. API PR head was recorded, but its tested merge SHA was not recovered in that metadata observation. |
 | PR2/PR3 / #325 | Merge `563dfe290326945d9cf0cda2b556b609d3be85a7`; PR 38516949749 attempt 1; master 38522705456 attempts 1–2 | Full hosted paths accepted; master's original runtime failure retained, root cause unproven. Tested PR merge `045a8af4984e003ff0ab5891e034689c93c82c41` differs from API head. |
 | Docs / #326 | Merge `d12d682e2a16eb2c9a96b326f2875e97768ddd7f`; PR 38532075143 and master 38532208752, both attempt 1 | Normal docs-only PR/master accepted; completes PR1–PR3 full/docs rollout. Does not qualify runtime for that docs-only master. |
-| PR4 | Same base plus current review | Complete local scope review; no approved core activation. 30 merged-PR diff sample: 2 docs, 0 proposed core, 28 full. |
-| PR5 | Same base plus current inspector/test changes | Same-byte full replay and focused tests passed; new-source full live PR/master qualification and hosted timing remain pending. |
-| PR6 | Same combined branch | Current inventory/operations, future-suite procedure and static contracts prepared; final hosted reconciliation waits for the two new full paths below. |
+| PR4 / #327 | Merge `c62e4719f8fd346e0f8997f0800e8fbd69414cbf` | Scope review complete; core activation deferred. 30 merged-PR diff sample: 2 docs, 0 proposed core, 28 full. |
+| PR5 / #327 | PR 38540436241 attempt 2; master 38548426916 attempt 1 | Same-byte replay and focused tests passed; both new-source full executions passed all 46 jobs. PR attempt 1 platform cancellation retained. |
+| PR6 / #327 and this documentation follow-up | Same implementation sources; final hosted reconciliation recorded | Inventory, operations and suite onboarding accepted; this follow-up records results without granting runtime qualification to a later docs-only source. |
 
 The [baseline](CI_BASELINE.md) records the successful complete V5.1 release run
 38488481320 and publication. That release source, tag and frozen artifacts remain
@@ -54,6 +56,8 @@ separate from this refactor. No release was rerun or Central artifacts redownloa
 | PR2/PR3 full | Two runs / three attempts; 94 fresh executions after clone deduplication | PR 54:15 / 438.28 minutes; master attempt 1 failed, 53:43 / 410.60 minutes; partial retry 16:04 / 16.03 minutes. Combined 864.92 minutes. |
 | PR5 original canonical logs | Six successful jobs across PR/master producing attempt 1 | Independent replay 349.40–648.81 seconds; median 548.09. Six jobs are not six independent runs. |
 | PR5 local replay | One sequential before/after pair over the same 2291 raw files | 361.929 → 143.271 seconds; identical complete results and budgets. No new workload execution; uncontrolled machine load/OS caches. |
+| PR5/PR6 hosted acceptance | PR #327 and master: two runs / three attempts, 136 fresh jobs | Successful PR 48:14 / 399.95 runner-minutes; master 48:37 / 404.77. Aborted PR attempt 260.52; total 1065.23. |
+| PR5 optimized canonical logs | Six successful jobs across PR attempt 2 and master attempt 1 | Independent replay 138.18–271.86 seconds; median 235.60. Complete workloads and checks retained. |
 
 For PR2/PR3, both initial critical paths were Change scope → verification build →
 canonical repetition 1 → Required. Master attempt 2 reused 44 jobs and executed
@@ -74,31 +78,30 @@ post-optimization sample set for P50/P95 or an end-to-end savings claim; the loc
 60.41% replay reduction must not be applied to the whole workflow. Earlier
 counterfactual canonical omission estimates are not implemented results.
 
-## Remaining hosted acceptance after submission
+## Completed hosted acceptance and next task
 
-1. Run normal full PR CI on the actual test merge. Verify Change scope selects
-   full, Required sees every suite, and the three complete canonical repetitions,
-   rich aggregate, release fixtures and evidence uploads succeed. Preserve a
-   failure before deciding whether a rerun is appropriate.
-2. After the operator merges, verify the exact-master full CI. Record the actual
-   merge SHA; do not substitute the PR head, a docs-only receipt or old success.
-   No bypass or automatic workflow dispatch is part of this handoff.
-3. Read all pages and all attempts for both runs. Retain original job/step IDs,
-   workflow/source/policy hashes, artifact IDs/digests and expiry, copied-job
-   execution timestamps, and accepted versus producing attempts. Count reused
-   executions once; keep failed/cancelled executions in cost accounting.
-4. Measure canonical phase envelopes and original monotonic cell durations,
-   Required span, critical dependency path, earliest failed step and total fresh
-   execution. Compare only compatible sources/events/semantics. Full PR/master
-   correctness can be accepted without inventing a statistically stable speedup.
-5. Append those observations and any gaps to progress/handoff, then mark PR5/PR6
-   acceptance complete. PR4 stays an explicit decision to defer core. New runtime
-   or oracle edits in response to failures require qualification of that new source.
+The [final report](CI_REFACTOR_ACCEPTANCE.md) closes the five acceptance items:
 
-PR1–PR3's normal docs paths were already exercised by #326. This batch preserves
-their conditions, but the local full/docs and stale-inventory checks still run
-against the combined source. Neither archive replay nor mock Required results
-can satisfy steps 1–2. No new paid-cloud experiment is needed for this CI task.
+1. Normal full PR CI passed on actual test merge
+   `8712825bdcaf7af39d889ae8a486c9aecb9caa8d`, distinct from the API head.
+2. Exact-master full CI passed on `c62e4719f8fd346e0f8997f0800e8fbd69414cbf`.
+   The two tested commits have the same tree and parents. Each run includes all
+   46 jobs, three complete canonical repetitions, rich aggregate and release fixtures.
+3. Every attempt/job/artifact page was read. Both accepted attempts are full fresh
+   executions; no cloned-job work is counted twice. All nineteen original cancelled
+   checks explicitly report a GitHub internal error and remain retained.
+4. Canonical phase envelopes, monotonic cell timers, Required spans, dependency
+   paths and runner execution totals are recorded with their measurement limits.
+5. Progress, ADR and performance documentation now record PR5/PR6 acceptance.
+   PR4 remains the decision to defer core; no reduced-coverage policy was enabled.
+
+PR1–PR3's normal docs paths were already exercised by #326. This follow-up is
+documentation-only and preserves those conditions. Its later docs-only CI does
+not qualify runtime for its own SHA or replace the two full runs above.
+No paid-cloud experiment is needed to close this task. Next is
+[V5.2 Phase 0 contract design](v5x/NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0),
+using the [suite onboarding procedure](CI_SUITE_ONBOARDING.md) when new checks
+are introduced. New runtime or oracle edits require qualification of their source.
 
 ## Failure triage and rollback
 
@@ -132,6 +135,8 @@ The original PR0 directory is unchanged. Earlier full/docs API evidence remains
 at the paths in [hosted acceptance](CI_SHADOW_ACCEPTANCE.md). The combined branch
 retains PR4 review in `target/ci-core-policy-review/`, PR5 raw logs/profiles/archive/
 comparison in `target/ci-canonical-hotspot/`, and PR6 inventory/contracts/coverage
-receipts in `target/ci-refactor-closeout/`. Target files are local review aids, not
-portable CI prerequisites. No Git add/commit/push, PR creation or hosted execution
-is performed by these tools.
+receipts in `target/ci-refactor-closeout/`. Final read-only hosted observations are
+in `target/ci-refactor-closeout/hosted-pr327/authorized-read/`; initial platform-error
+annotations remain in `target/ci-refactor-closeout/run-38540436241/authorized-read/`.
+Target files are local review aids, not portable CI prerequisites. No Git
+add/commit/push, PR creation or hosted execution is performed by these tools.

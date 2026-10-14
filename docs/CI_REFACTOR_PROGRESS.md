@@ -1,5 +1,11 @@
 # CI refactor progress
 
+**Closed on the accepted PR #327 implementation.** The
+[final hosted report](CI_REFACTOR_ACCEPTANCE.md) records successful full PR and
+exact-master execution and retains the initial platform cancellation. PR0–PR3
+are complete, PR4 closes with core activation deferred, and PR5/PR6 are accepted.
+This documentation follow-up records the results; actual policy remains docs/full.
+
 ## PR0 — complete
 
 Read-only audit completed on 2026-10-14 UTC. The original input package and
@@ -200,10 +206,10 @@ first attempts each end on a canonical dependency path. Their three canonical
 executions sum to 138.37 and 129.37 runner-minutes respectively; these are elapsed
 execution, not money or savings achievable on those ineligible changes.
 
-Recommendation: retain full/docs and take PR5's phase-level canonical timing
-investigation next. No core coverage reduction has been approved or enabled;
-this review only prepares that decision. The subsequently authorized PR5 work
-is recorded below; V5.2 work has not begun. Local analysis/source identities and the release GET data
+At the review boundary, the recommendation was to retain full/docs and take
+PR5's phase-level canonical timing investigation next. No core coverage reduction
+has been approved or enabled. The subsequently completed PR5 work is recorded
+below; V5.2 work has not begun. Local analysis/source identities and the release GET data
 are retained under `target/ci-core-policy-review/`.
 
 Local review checks passed: both documentation contracts, the unchanged
@@ -215,7 +221,7 @@ That PR4 review covered eight Markdown documents. No Maven, hosted workflow,
 cloud or release execution was started; its original `validation.json` records
 that scope. The combined batch additionally includes the PR5 changes below.
 
-## PR5 — canonical replay optimization; full hosted acceptance pending
+## PR5 — canonical replay optimization; full hosted acceptance complete
 
 The operator requested this next batch together with the PR4 review.
 [Phase analysis and equivalence boundaries](CI_CANONICAL_REPLAY_PERFORMANCE.md)
@@ -229,8 +235,9 @@ inspector. Every lookup rereads the source files; private size-one caches are
 bound to content, while frames, authority, histories, negatives and budgets are
 fully revalidated. Format catalogs, Java, POMs, workflow selection and release
 inputs remain unchanged. Tests additionally cover final/SNAPSHOT coexistence
-and exact artifact-role/Manifest selection. Full live PR/master CI remains
-required; no cloud experiment is triggered by this batch.
+and exact artifact-role/Manifest selection. Full live PR/master CI was required
+and subsequently passed on #327's source, as recorded below; no cloud experiment
+was triggered by this batch.
 
 Complete local replay of the same hosted repetition passed before and after:
 **361.929 → 143.271 seconds**, with exact equality of the complete result and all
@@ -245,9 +252,9 @@ Validation, comparison receipts and original failures are retained in
 `target/ci-canonical-hotspot/`. The PR4 staging/description files include both
 batches at that boundary: nine Markdown files and three Python files. The
 operator then authorized the PR6 work below in the same branch. This combined
-change uses full CI; final hosted reconciliation remains pending.
+change used full CI; final hosted reconciliation is recorded below.
 
-## PR6 — local handoff prepared; final hosted reconciliation pending
+## PR6 — handoff and final hosted reconciliation complete
 
 The operator requested one more phase before submission. Added the
 [generated current inventory](CI_JOB_INVENTORY.md),
@@ -284,7 +291,42 @@ inventory and whitespace checks passed. No generated catalog or workload changed
 Static contract results and source/coverage checks are retained under
 `target/ci-refactor-closeout/`. No Maven, live workload, hosted dispatch/rerun,
 paid cloud, release or repository-setting operation is part of this phase.
-Final acceptance still needs the combined source's normal full PR and exact-master
-runs, including all three live canonical repetitions. PR5's archive comparison
-and earlier PR1–PR3 acceptance do not replace those runs. Core activation stays
-deferred; the CI task is not yet marked fully closed.
+At the local implementation boundary, acceptance still needed the combined
+source's normal full PR and exact-master runs. Those runs have now passed;
+PR5's archive comparison and earlier PR1–PR3 results were not used as substitutes.
+
+### PR #327 final hosted acceptance and documentation closeout
+
+[PR #327](https://github.com/patricklfdm/GeneralSearchEngine/pull/327) merged as
+`c62e4719f8fd346e0f8997f0800e8fbd69414cbf`. The
+[complete acceptance record](CI_REFACTOR_ACCEPTANCE.md) binds these observations:
+
+- PR run `38540436241`, attempt 1: 25 jobs succeeded and 19 were cancelled with
+  explicit GitHub internal-error annotations. Required and rich aggregate were
+  not created. The original attempt and 260.52 runner-minutes remain retained.
+- The same PR run, attempt 2: all 46 jobs freshly executed and succeeded on
+  test merge `8712825bdcaf7af39d889ae8a486c9aecb9caa8d`, not the API branch head.
+  Required completed after 48:14; execution totaled 399.95 runner-minutes.
+- Master run `38548426916`, attempt 1: all 46 jobs freshly executed and succeeded
+  on `c62e4719f8fd346e0f8997f0800e8fbd69414cbf`; 48:37 and 404.77 runner-minutes.
+  The PR test merge and final master commit share the same tree and parents.
+- Both full executions preserve three complete canonical repetitions, 15 cells
+  and 1080 rich calls per repetition, physical/history checks and successful
+  cleanup. Rich aggregation, release fixtures and evidence uploads succeeded.
+- The six completed canonical logs show replay at 138.18–271.86 seconds,
+  median 235.60, versus the earlier six-job median 548.09. Correlated samples,
+  uncontrolled host load and log timestamps limit causal/performance claims.
+  No fixed full-CI speedup or billing saving is asserted.
+
+All attempt/job/artifact pages and source/shadow identities were checked; there
+are no unresolved collection gaps or cloned executions. The two runs total
+136 fresh jobs and 1065.23 runner-minutes, including the original cancellation.
+Raw data, logs, two small shadow ZIPs and normalized receipts are retained at
+`target/ci-refactor-closeout/hosted-pr327/authorized-read/`. Large canonical
+archives were not redownloaded or replayed locally during this observation.
+
+PR5/PR6 acceptance is complete and this documentation follow-up closes the revised
+CI task. Core remains disabled; docs/full behavior and all suite coverage stay
+unchanged. A future docs-only success does not qualify runtime for that future
+source. Next mainline work is
+[V5.2 Phase 0 replica-read contract design](v5x/NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0).

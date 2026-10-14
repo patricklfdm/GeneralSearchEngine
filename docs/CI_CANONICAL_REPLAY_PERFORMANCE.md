@@ -3,7 +3,9 @@
 Implementation base: `d12d682e2a16eb2c9a96b326f2875e97768ddd7f` (PR #326).
 This batch follows the [PR4 scope review](CI_CORE_POLICY_REVIEW.md) while keeping
 full/docs selection, every suite and all three complete canonical repetitions.
-Corrected-source hosted live acceptance remains required.
+New-source hosted live acceptance passed after PR #327 merged as
+`c62e4719f8fd346e0f8997f0800e8fbd69414cbf`; see
+[the final report](CI_REFACTOR_ACCEPTANCE.md) for source/attempt identities.
 The operator subsequently added [PR6 documentation and integration checks](CI_REFACTOR_HANDOFF.md)
 to the same branch; that addition does not alter this replay optimization.
 
@@ -92,7 +94,8 @@ both executions. Only replay outputs were written to separate directories.
 This pair saved 218.658 seconds (60.41%) **in local replay**. One sequential pair
 with uncontrolled host load and OS caches is not a hosted CI speedup estimate,
 population statistic or billing measurement. Workload durations were not
-remeasured or shortened. Full live hosted acceptance remains pending.
+remeasured or shortened in this local pair. The subsequent full live hosted
+acceptance is recorded below.
 
 - Five new regression tests cover warmed caches with missing/corrupt catalogs,
   same-size/same-mtime changed contents across all four source files, public
@@ -139,13 +142,27 @@ raw inventory, complete result equality, timings and environment;
 
 ## Hosted acceptance and rollback
 
-This batch changes an oracle implementation, so **normal full PR and exact-master
-CI are required**, including all three complete live canonical repetitions,
-component tapes, rich aggregate, all negative suites and release fixtures.
-Archive replay never establishes new-source live startup/collection/cleanup
-qualification. Record producing/accepted attempts, failed samples and actual
-hosted durations before claiming an end-to-end improvement. PR5 hosted acceptance
-and PR6 reconciliation remain pending; core activation remains deferred.
+This batch changed an oracle implementation, so **normal full PR and exact-master
+CI were required**. [PR run 38540436241 attempt 2](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38540436241/attempts/2)
+and [master run 38548426916 attempt 1](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38548426916/attempts/1)
+each freshly executed all 46 jobs successfully, including three complete live
+canonical repetitions, component tapes, rich aggregate, negatives and release
+fixtures. The PR tested merge and final master have identical trees. The first
+PR attempt's nineteen platform-error cancellations remain separately retained.
+
+Six completed canonical jobs show independent replay at **138.18–271.86 seconds,
+median 235.60**, compared with the earlier six-job median 548.09. Complete-workflow
+Required spans were 48:14 for the successful PR attempt and 48:37 for master.
+The [acceptance report](CI_REFACTOR_ACCEPTANCE.md) separates preparation, rich/fault
+cell timers, collection, replay, dependency waits, execution totals and failed
+attempt costs. These are measured observations, not a controlled end-to-end
+benchmark, billing result or population P95. Hosted log ingestion may batch lines.
+
+PR5 acceptance and PR6 reconciliation are complete; core activation remains
+deferred. The observation read logs, metadata and small shadow reports without
+redownloading large canonical archives or rerunning workload locally. Earlier
+archive replay was not substituted for new-source live qualification. Future
+oracle changes still need qualification on their own source.
 
 Rollback only the inspector reuse and its added tests, restoring uncached schema
 parsing and matching documentation. Keep all suites, immutable format catalogs,

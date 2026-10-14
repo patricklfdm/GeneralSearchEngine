@@ -4,7 +4,8 @@
 - [CI refactor baseline, contracts and implementation progress](CI_REFACTOR_PROGRESS.md)
 - [Current generated CI job inventory](CI_JOB_INVENTORY.md)
 - [CI suite onboarding for future versions](CI_SUITE_ONBOARDING.md)
-- [CI refactor handoff and remaining hosted acceptance](CI_REFACTOR_HANDOFF.md)
+- [CI refactor completed handoff](CI_REFACTOR_HANDOFF.md)
+- [CI refactor final hosted acceptance and measured replay results](CI_REFACTOR_ACCEPTANCE.md)
 
 This directory preserves published records through V5.1 and completed development
 phases. The repository root [`README.md`](../README.md) remains the user-facing entry

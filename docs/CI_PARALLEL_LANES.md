@@ -17,8 +17,9 @@ See [PR #325's hosted observations](CI_SHADOW_ACCEPTANCE.md) for all attempts,
 source identities and PR #326's completed documentation-only follow-up. The
 [PR4 policy review](CI_CORE_POLICY_REVIEW.md) retains full/docs execution and
 defers a narrow core rule. The [replay optimization](CI_CANONICAL_REPLAY_PERFORMANCE.md)
-now has local equivalence evidence; [final hosted acceptance](CI_REFACTOR_HANDOFF.md)
-remains pending.
+has local equivalence evidence and [completed full PR/master acceptance](CI_REFACTOR_ACCEPTANCE.md).
+Both new-source executions passed all 46 jobs; original failed/cancelled attempts
+and measured timing limits remain recorded.
 
 **Topology evolution (historical counts):** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
