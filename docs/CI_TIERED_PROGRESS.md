@@ -24,13 +24,13 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | HOSTED_PENDING |
-| T6 full local regression and review | Review and executable checks finished; acceptance blocked | 25 whole local instances passed, five failed; required mount-namespace checks unavailable | HOSTED_PENDING |
+| T6 full local regression and review | Resumed after user-provided namespace setup | Original 25 passing / five failing instances retained; missing checks and one controlled serial recheck underway | HOSTED_PENDING |
 
-**Delivery status: `BLOCKED_WITH_PARTIAL_DELIVERY` / `LOCAL_VALIDATION_BLOCKED`.**
-T0–T5 implementation is committed. All started local commands have finished.
-Required local acceptance has not passed, so this branch is not
-`LOCAL_READY_FOR_FINAL_REVIEW`. New-source hosted acceptance is separately pending.
-The final accounting and remaining actions are recorded below.
+**Acceptance status: `LOCAL_VALIDATION_IN_PROGRESS`; final readiness is unproven.**
+T0–T5 implementation is committed. The original execution ended with
+`BLOCKED_WITH_PARTIAL_DELIVERY`; its results below remain retained. The user has
+since supplied the missing namespace prerequisite, and T6 has resumed as recorded
+at the end of this document. New-source hosted acceptance is separately pending.
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
 handoff implementation base are nine documentation files; there is no runtime
@@ -198,7 +198,7 @@ The long-running workload lanes remain pinned to the earlier implementation sour
 The correction touches only CI metadata parsing and its tests. Local readiness
 still requires the unresolved full-regression and environment gaps to be closed.
 
-## Final local accounting
+## Original local accounting (through `92a3d4b`)
 
 The full workflow has 46 expanded jobs, including Change scope and Required.
 The local workload index covers its **44 non-meta instances**. Local planner and
@@ -295,3 +295,41 @@ Draft review commands and PR description are in
 executed and do not claim merge readiness. First rollback is `forceFull=true`;
 structural rollback reverts all task commits together, including their contracts,
 with a new revert commit rather than resetting or rewriting the branch.
+
+## T6 resumed after local namespace setup
+
+The user configured the two existing sudo command routes and reported both probes
+passing. A new native check independently confirmed noninteractive execution,
+then exercised the existing `guest_isolation.Views(preserve_uid=True)` helper:
+the child kept UID/GID 1000, used a different mount namespace, wrote its sentinel
+only into the backing directory, and left the host cell and parent namespace
+unchanged. Receipt: `target/ci-tiered-development/t6-resume/namespace-probe.json`.
+No agent change to sudoers or sandbox policy occurred.
+
+The predeclared continuation contains 19 job instances: the 13 not previously run
+as whole jobs (provider plus 12 namespace-dependent instances), one serial recheck
+of each of the five failed instances, and the blocked rich aggregate. Each is
+executed at most once in this continuation. Independent jobs are now serial to
+reduce competing host load; frozen workload scheduling, windows, limits and
+assertions are unchanged. A later pass does not prove the root cause of an earlier
+failure. There is no retry-until-green loop.
+
+Workload source remains `4090b57`, with its original verified build and source-bound
+rich inputs. The final metadata changes are separately tested and are not relabeled
+as old-source workload results. Each new checkout is under HOME, preserving SSH
+StrictModes, and has its own Maven/output paths. New receipts never overwrite old
+ones. The original rich shard must pass this execution before aggregate can run;
+other same-source shards come from their recorded executions, with receipt hashes.
+
+Plan, logs and combined attempt index: `target/ci-tiered-development/t6-resume/`.
+The plan is frozen before execution. `tools/resume_ci.py` and `tools/resume_index.py`
+under the evidence root retain literal commands and reconcile original and resumed
+attempts. `resume_index.py --verify` checks log hashes and every passing instance's
+complete run-command list. Full readiness remains pending until the outcomes and
+remaining acceptance requirements have been reviewed.
+
+The first resumed whole job, `cloud-provider-tests`, passed all three original run
+steps in 487.911 seconds, including OpenSSH setup, the complete qualification script
+and evidence packing. Receipt: `t6-resume/receipts/cloud-provider-tests/receipt.json`.
+This supersedes its earlier not-run-as-a-whole status without erasing either partial
+provider attempt. Guest and owned qualification are still in progress.
