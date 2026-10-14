@@ -85,3 +85,14 @@ portable checkout prerequisite. See [progress](CI_REFACTOR_PROGRESS.md) for
 implementation validation, and [contracts](CI_DEPENDENCY_CONTRACTS.md) for the
 current topology. [PR #325's later observations](CI_SHADOW_ACCEPTANCE.md) retain
 their own source/event/attempt grouping and do not replace this historical sample.
+
+PR #326 completed both docs-only hosted paths on master source
+`d12d682e2a16eb2c9a96b326f2875e97768ddd7f`. The subsequent
+[PR4 scope review](CI_CORE_POLICY_REVIEW.md) keeps full/docs execution; its
+30-merge path sample is separate from PR0's 30-run timing sample. No core
+performance result or new runtime qualification is inferred from those docs runs.
+
+The [combined implementation handoff](CI_REFACTOR_HANDOFF.md) keeps these
+historical cohorts separate from PR5's local replay pair and pending hosted
+optimization results. Current job ownership is in the
+[generated inventory](CI_JOB_INVENTORY.md).

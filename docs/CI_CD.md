@@ -28,108 +28,72 @@ supported for the local emergency release procedure.
 dispatches. It has read-only repository permission and receives no release secrets.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
-the thirty-two full CI gates. Pull requests compare merge-base to PR head, so a final docs
-commit cannot hide earlier code changes. Master pushes compare the event's `before`
-and `after` commits, including every commit in the push. Renames include both paths;
-there is no changed-file API pagination limit.
+full CI. Pull requests compare merge-base to PR head, so a final docs commit cannot
+hide earlier code changes. Master pushes compare the event's `before` and `after`,
+including every commit in the push. Renames include both paths; no changed-file
+API pagination limit is involved.
 
-Markdown files outside source/test resources, scripts, workflows and `.mvn/`, plus
-`LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, use the documentation lane:
-only change-detection/required-gate, build-bundle, Python partition-inventory and Maven retry helper tests,
-the lightweight V5.0/V5.1 contract checks and `Required` run. Maven, Java setup and the thirty-two
-full gates are skipped. Machine-readable files under `docs/` (JSON plans, baselines,
-checksums) remain build inputs. Source/resources in every module, POMs, scripts,
-workflows, Maven Wrapper files and unknown file types run full CI. Mixed changes run
-full CI too. Manual dispatch always runs full CI; missing history, an empty diff or
-an unreadable event conservatively selects full CI.
+Markdown outside source/test resources, scripts, workflows, local actions and
+`.mvn/`, plus `LICENSE`, `.gitignore` and `.github/ISSUE_TEMPLATE/**`, uses the
+documentation lane. Change scope still runs the CI/helper/registry/Required,
+composite, planner, build-bundle and Python partition-inventory tests and both
+V5 documentation contracts; Required checks the expected skipped suite results.
+Maven and Java qualification do not run. JSON plans, checksums, source/resources,
+POMs, scripts, workflows and unknown paths require full CI. Mixed changes also
+require full; manual dispatch, missing history, empty diffs and unreadable events
+conservatively select full.
 
-The workflow itself remains enabled for every PR and master push so `CI / Required`
-is always reported. It requires successful change detection and either all thirty-two
-full gates to succeed, or all thirty-two to be intentionally skipped for a verified
-documentation-only change. Failed/cancelled detection and unexpected skipped tests
-cannot pass. This follows GitHub's distinction between
-[skipping a workflow and conditionally skipping jobs](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks#handling-skipped-but-required-checks).
-No branch-protection change is needed. A docs-only master CI receipt establishes
-documentation acceptance; it is not evidence that Maven or the process gates ran.
-Use manual dispatch when new full-runtime evidence is required for that exact commit.
+The current [generated job inventory](CI_JOB_INVENTORY.md) is checked against the
+actual workflow, local actions and [suite registry](../scripts/ci_suite_registry.json).
+It lists **36 suites plus Change scope and Required: 38 static IDs, 46 expanded
+full jobs**. Docs mode has two successful meta jobs and 36 skipped placeholders;
+it does not have 46 executed jobs. Core is disabled; the
+[shadow planner](CI_SHADOW_PLANNER.md) cannot change execution.
 
-For build inputs or manual dispatch, the workflow runs thirty-four required job IDs,
-each with its own runner workspace.
-The V5.1 behavioral lanes depend on their dedicated verification build. Rich
-workload execution additionally uses prepared inputs, three matrix children and a
-complete aggregate. Other domains start after `changes`:
+Required runs with `always()` and checks every expected ID and result. Failed or
+cancelled detection, missing results, unexpected skips and unregistered jobs
+cannot pass. The workflow remains enabled for PR/master events so `CI / Required`
+is reported. A docs-only master receipt establishes documentation acceptance;
+it cannot satisfy exact-master full cloud admission. Manual full dispatch is an
+operator action, not a substitute for a PR's required status check.
 
-1. `reactor-core` (`Reactor tests`) checks version alignment and the V5.0 contract,
-   then performs the full clean Maven reactor package, including core, replication,
-   processor and example tests. Its display name remains compatible with V5.0 cloud preflight.
-2. `v51-foundation` runs Phase 1–3 model/storage/protocol/runtime/rejoin gates.
-3. `v51-admission-resources` runs public bounds, bootstrap and resource exhaustion.
-4. `v51-promise-crashes` runs public promise force and reply crash boundaries.
-5. `v51-public-reads-faults` runs public runtime, concurrent histories and partition/read/mutation faults.
-6. `v51-public-recovery-pressure` runs public recovery, transport pressure, backpressure and final heartbeat/disk-loss coverage.
-7. `v51-public-hardening` runs lifecycle hardening and Phase 5 combined/repeated recovery.
-8. `v51-protocol-selection` runs public protocol and selection/recovery schedules.
-9. `v51-candidate-crashes` runs candidate election crashes.
-10. `v51-reclamation` runs interrupted two-source reclamation and the 512-slot component boundary.
-11. `v50-authority` runs public admission, offline authority, public runtime and Phase 1–3.
-12. `v50-recovery-workload` runs Phase 4–6, including hardening and local cloud/remote workloads.
-    Both V5.0 lanes retain their independent reactor builds/tests and execution evidence.
-13. `v4-regression` (`V4 regression`) compiles its own core and test harnesses, then
-    retains the V4.0–V4.4 chain, specialized JMH rebuilds and closed-line conditions.
-14. `soak-examples` (`Soak and examples`) runs the JMH instrumentation contract tests,
-    reduced stabilization/JFR end-to-end checks and travel example. These commands
-    build their own prerequisites.
-15. `Compatibility` runs the frozen source/reflection fixture, compares the public API
-    with published baselines through 4.4.0 from an isolated Maven repository,
-    and compiles all five independent V1–V5 consumers.
-16. `Release artifacts` builds sources and strict Javadocs with GPG intentionally
-    skipped; checks all nine V5 JARs, Manifest versions, and processor service isolation;
-    then reproduces the nine JARs and three POMs in two clean workspaces under the
-    digest-pinned canonical image and matches the frozen candidate hashes. Historical
-    two-artifact releases keep their six-JAR checks.
-17. `Cloud runner (no GCP)` validates shell syntax, the manual cloud-performance
-    workflow, fake Compute/GCS lifecycles, and deterministic Cloud Benchmark V2 evidence.
-    It receives no OIDC permission or cloud Environment and creates no paid resource.
+### Build and qualification boundaries
 
-18. `v51-remote-rich` independently validates all five frozen rich cells from three
-    matrix outputs with shared evidence budgets and portable binary replay, without GCP.
-19. `v51-remote-faults` runs twelve frozen fault cells, independent history/physical
-    checks and relocated binary replay without GCP.
-20. `v51-verification-build` builds and tests the dedicated V5.1 verification inputs.
-21. `v51-remote-rich-inputs` prepares one immutable source backup for all rich cells.
-22. `v51-remote-rich-shards` executes three complete-cell matrix children; see the
-    [partition and full-acceptance contract](CI_V51_RICH_SHARDS.md).
-23. `v51-full-size-runtime` runs the complete public 512-slot runtime gate and its
-    positive/negative portable replay, in parallel with reclamation using the same
-    verified build. See the [measured split](CI_V51_LANES.md#reclamation-and-full-size-runtime-split).
-24. `v51-guest-services` runs package, service, delivery, idle, two-fault and isolated bootstrap qualification.
-25. `v51-owned-experiment` runs the complete owned four-cell experiment, including all three healthy modes.
-26. `python-v51-core` runs the core/guest/protocol Python partition.
-27. `python-v51-admission` runs the cloud admission/provider Python partition.
-28. `python-v51-storage` runs the four stateful storage/fixture Python modules.
-29. `cloud-preflight-tests` runs preflight, identity and permission qualification.
-30. `cloud-cleanup-fixture-tests` runs single-disk, operator-driver and topology fixtures.
-31. `cloud-storage-tests` runs both Runner storage qualification matrices and entry regressions.
-32. `cloud-provider-tests` runs the complete provider, TLS and SSH gate.
-33. `v51-owned-network-faults` runs all four owned partition/slow-follower cells with original SSH receipts and independent physical/history replay, in parallel with the owned experiment.
+| Domain | Contract |
+| --- | --- |
+| Reactor | Independent clean package and tests; `Reactor tests` remains visible to V5.0 preflight. |
+| V5.1 verification build | Dedicated tested inputs, exact source/JDK/hash inventory and Surefire reports; consumers use the producer's artifact ID in isolated workspaces. |
+| Ordinary V5.1 consumers | Eleven shared restore/provenance action pairs; original qualification steps and failure evidence remain. |
+| Rich workload | One seed, three whole-cell shards and a required aggregate over all five cells/1080 calls. PARTIAL shard results do not replace aggregate acceptance. |
+| Owned canonical | Five component tapes plus three complete repetitions. Each repetition keeps 15 cells, 1080 measurement seconds, 1080 rich calls, ordered faults and one lease/source/history. |
+| Other owned histories | Guest services, experiment, network faults and failure drill keep their respective state and source boundaries. |
+| V5.0 / V4 / soak | V5.0's two independent reactor domains and V4/JMH ordering remain separate. Soak/example commands build their own prerequisites. |
+| Compatibility | Packaged API/reflection checks, published baselines and all six V1–V5.1 consumers, including V1 compile-only. |
+| Release artifacts | Independent canonical build, nine JARs/three POMs, frozen hashes/toolchain and exact-source receipt. Release evidence retains 90 days. |
+| Python/cloud without GCP | Exhaustive disjoint Python partitions and separate preflight/storage/provider/cleanup gates; no paid cloud resources or cloud credentials. |
 
-34. `v51-owned-failure-drill` runs the complete twelve-cell owned fault set through real guest SSH/JVM controls with one source/package/lease binding, independent physical/history replay and evidence negatives.
+The registry lists each lane's exact dependencies, fixed matrix, job ceiling,
+artifact inputs/outputs and retention. Verification artifacts retain 14 days;
+other artifact classes keep their explicitly declared seven/90-day values.
+The [dependency contracts](CI_DEPENDENCY_CONTRACTS.md) explain external readers
+and why independent build domains and continuous histories cannot be combined.
+[Earlier split records](CI_PARALLEL_LANES.md) preserve historical counts and
+timing estimates; they are not the current inventory.
 
-See the [Python/cloud partition and timing audit](CI_PYTHON_LANES.md).
-The 34 required job IDs expand to 38 executed jobs. Foundation still runs all
-Python tests locally by default; CI requires the three exhaustive Python partitions.
+To check or regenerate the human-readable inventory (no Maven/network/workloads):
 
-The [lane dependency audit and complete step migration map](CI_PARALLEL_LANES.md)
-record build prerequisites and artifact ownership. The [V5.1 split record](CI_V51_LANES.md)
-includes measured estimates and the accompanying test-only catch-up budget correction.
-The [V5.1 verification build domain](CI_V51_BUILD_DOMAIN.md) adds the twentieth
-gate in its original migration, `v51-verification-build`: a dedicated clean reactor package/tests whose exact-source
-JARs, replication test classes and executed reports are restored by the V5.1
-behavioral lanes, including rich preparation, matrix children and aggregate. These lanes keep isolated workspaces and all original verification
-commands/evidence. The producer always retains all reactor Java reports and Maven
-attempts; each consumer retains its restore provenance. All artifacts last fourteen
-days. Maven remains serial within each build, the independent clean/release/compatibility
-builds remain separate, and regression timeouts remain 60 minutes.
+```bash
+python3 -m scripts.ci_suites
+python3 -m scripts.ci_inventory --check
+# After an intentionally reviewed workflow/registry change:
+python3 -m scripts.ci_inventory > docs/CI_JOB_INVENTORY.md
+```
+
+Change scope's existing suite-contract tests reject a stale generated document.
+Use the [suite onboarding procedure](CI_SUITE_ONBOARDING.md) for future versions
+and the [refactor handoff](CI_REFACTOR_HANDOFF.md) for hosted acceptance, failed
+attempt accounting and rollback. No repository settings are changed by this
+refactor.
 
 Ordinary prerequisite Maven builds use the [bounded infrastructure retry](CI_MAVEN_INFRA_RETRY.md):
 at most two attempts with a fifteen-second backoff, only for explicit remote-transfer

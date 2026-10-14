@@ -2,7 +2,7 @@
 
 Base: `62b104e914e690be860a8c7a770d4de39ef797ec`, after PR #324.
 Status: merged in PR #325. [Hosted full-path observations](CI_SHADOW_ACCEPTANCE.md)
-confirm restore/provenance success; docs-only hosted follow-up remains pending.
+confirm restore/provenance success; PR #326 also completed docs-only hosted acceptance.
 
 ## Exact migration scope
 
@@ -109,8 +109,8 @@ No full Maven build, hosted workflow, cloud experiment or release was started
 by the implementation agent. The operator's subsequent PR/master CI showed all
 eleven composite restore/provenance pairs succeeding. Master's first workload
 failure occurred after restore, and its runtime evidence was uploaded; a hosted
-failure inside the composite was not injected. Docs-only hosted validation
-remains pending. If checkout fails before local action metadata exists, its retention
+failure inside the composite was not injected. PR #326 completed docs-only
+hosted validation with all suites skipped and Required successful. If checkout fails before local action metadata exists, its retention
 action cannot run; the original source-bound restore receipt cannot exist at
 that point either. Runner termination cannot guarantee artifact upload.
 

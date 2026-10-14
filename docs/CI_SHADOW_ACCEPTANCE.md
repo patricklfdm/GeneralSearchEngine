@@ -1,11 +1,12 @@
-# CI PR2/PR3 hosted acceptance and docs-only follow-up
+# CI PR2/PR3 full and docs-only hosted acceptance
 
 Observation: 2026-10-14 UTC (2026-10-14 America/Los_Angeles collection date).
 [PR #325](https://github.com/patricklfdm/GeneralSearchEngine/pull/325) merged the
 step reuse and shadow planner as `563dfe290326945d9cf0cda2b556b609d3be85a7`.
-Both full CI accepted views are successful. The **docs-only follow-up is pending**;
-this document prepares its acceptance criteria, not an already executed result.
-Core remains disabled, with an empty allowlist.
+Both full CI accepted views are successful. PR #326 subsequently verified the
+**docs-only PR and master paths**, completing the full/docs rollout observations.
+Core remains disabled, with an empty allowlist; its
+[policy review](CI_CORE_POLICY_REVIEW.md) recommends deferring activation.
 
 ## Runs, attempts and failures
 
@@ -59,9 +60,9 @@ the recorded planner hash also matches the merged source bytes.
 
 The baseline predates the policy, so the observed full recommendation is the
 expected first-rollout fallback. Baseline/tested policy hashes are null because
-the planner stops at that missing-baseline condition. This has **not yet**
-exercised a hosted recommendation with a valid baseline policy. Current master
-now contains that policy, enabling the next docs-only PR to test it.
+the planner stops at that missing-baseline condition. These first-rollout runs
+did not exercise a hosted recommendation with a valid baseline policy.
+PR #326 subsequently exercised that path below.
 
 The downloaded ZIP digests match GitHub's artifact metadata:
 
@@ -101,34 +102,42 @@ one failed full run and a partial rerun. They do not establish a speedup, P95 or
 billed cost. A shorter failed run is not a performance improvement. Existing
 [PR0 timing samples](CI_BASELINE.md) remain separate; none is overwritten.
 
-## Pending docs-only acceptance
+## Completed docs-only acceptance: PR #326
 
-The current `docs/ci-shadow-acceptance` change edits only Markdown under `docs/`.
-After the operator creates its normal PR, check the following; do not use a
-manual full dispatch or a `[skip ci]` commit as the docs-only acceptance sample.
+[PR #326](https://github.com/patricklfdm/GeneralSearchEngine/pull/326) changed
+seven Markdown files under `docs/` and merged as
+`d12d682e2a16eb2c9a96b326f2875e97768ddd7f`.
 
-1. **PR Change scope:** `run_full_ci=false`; both documentation contract checks
-   execute successfully. Summary and artifact show actual `docs`, recommended
-   `docs`, reason `DOCS_ONLY`, and `coreEligible=false`.
-2. **Trusted identity:** the policy source is the event's master base (initially
-   `563dfe290326945d9cf0cda2b556b609d3be85a7`, or the actual newer base if master
-   advances). Baseline and tested policy hashes match. The complete path set is
-   documentation-only; actual test merge SHA remains distinct from PR head.
-3. **Required:** all 36 suite dependency results are `skipped`; Change scope and
-   Required succeed. Check matrix skip placeholders/aggregate results rather
-   than expecting the 46 expanded full-execution job names. No Maven, packaged
-   workload or cloud experiment should execute on this docs path.
-4. **Retention:** the correctly named run/producing-attempt artifact contains
-   the full report and summary. Reused attempts must retain their original
-   producing identity; an absent report is a gap, not acceptance.
-5. **After merge:** perform the same read-only verification on the exact master
-   push. Its report binds `testedSha` to the merge/push SHA and uses the complete
-   `before..after` comparison. Preserve every attempt if a rerun occurs.
+| Observation | PR | master |
+| --- | --- | --- |
+| Run, producing/accepted attempt | [38532075143](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38532075143), 1 / 1 | [38532208752](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38532208752), 1 / 1 |
+| API head SHA | `96674bacebfda51e359e274c1843f57af3a6dce1` | `d12d682e2a16eb2c9a96b326f2875e97768ddd7f` |
+| Actual tested SHA in retained report | `c7245fe8f2a0e0d085cc2746deab2c80b7df555a` | `d12d682e2a16eb2c9a96b326f2875e97768ddd7f` |
+| Actual / recommended profile | docs / docs | docs / docs |
+| Reason, core eligible | `DOCS_ONLY`, false | `DOCS_ONLY`, false |
+| Jobs | Change scope + Required succeeded; 36 suites skipped | Same |
 
-Record those run IDs, producing/accepted attempts and hashes in the progress
-record once observed. Until then, docs-only hosted acceptance remains pending.
-PR4 has not started: any omission of canonical repetitions requires a separately
-reviewed path policy and explicit approval. There is no approved core path yet.
+Both reports bind the policy source to
+`563dfe290326945d9cf0cda2b556b609d3be85a7`. Tested and baseline policy SHA256 are
+`24d6831276f0a0d44a1ac591efaea6ec02f17f067aaf978ad922d23a4b326957`.
+Workflow SHA256 remains
+`096d555b001dd37b5209cb79ae8ad8ca34a41a2515662c65f793635d036a8bbb`.
+All seven changed paths match the local complete diff; actual tested PR merge
+identity is not replaced by the branch head.
+
+Classify, shadow observation, documentation contract validation and report
+retention succeeded. Each accepted view contains **38** job records, including
+unexpanded skipped matrix placeholders, rather than 46 executed full jobs.
+Neither path ran Maven/runtime/paid-cloud workloads. Named artifacts
+`ci-shadow-plan-38532075143-1` and `ci-shadow-plan-38532208752-1` were downloaded;
+their reports and summaries match event/source/attempt identities. These are
+normal PR and push executions, not manual full dispatches or skip-CI commits.
+
+API job/step views, decoded reports/summaries and `acceptance.json` are retained
+under `target/ci-shadow-acceptance/docs-hosted-pr326/`. PR1–PR3's full/docs rollout
+acceptance is now complete; this does not enable core or qualify this docs-only
+master SHA for cloud execution. The original full-runtime failure remains open
+as a root-cause uncertainty, independently of the CI refactor's acceptance.
 
 ## Retained data and checks
 

@@ -63,13 +63,14 @@ their root cause was not investigated as part of PR2. The two complete job views
 from the PR rerun must not be added together as fresh runner work.
 
 The corresponding run and paginated job/step metadata were reread into
-`target/ci-v51-step-reuse/pr1-*.json`. Post-PR1 **docs-only hosted behavior remains
-pending**; local full/docs parity passed. PR2 does not replace that pending item.
+`target/ci-v51-step-reuse/pr1-*.json`. At that point post-PR1 docs-only hosted
+behavior was pending; local full/docs parity passed. PR #326 subsequently
+completed that hosted path, recorded below.
 For the PR row, API `head_sha` is the branch head; the actual tested merge SHA
 was not recovered in this metadata observation. Do not substitute the branch
 head for tested-source evidence. The push row identifies master source.
 
-## PR2 — merged; full hosted paths observed, docs-only pending
+## PR2 — merged; full/docs hosted acceptance recorded
 
 See [the precise scope and acceptance record](CI_V51_STEP_REUSE.md).
 Eleven ordinary consumers now use two small local actions for tested-build
@@ -83,9 +84,9 @@ effective steps, commands and artifact contracts, 26 untouched job bodies,
 not claim measured time savings. At that implementation boundary hosted
 full/composite and docs-only validation were pending. The user subsequently
 authorized PR3 in the same batch; the PR2-only local receipts remain intact.
-The later full hosted observations are recorded below; docs-only is still pending.
+The later full and docs-only hosted observations are recorded below.
 
-## PR3 — merged with PR2; rollout observation verified, trusted docs path pending
+## PR3 — merged with PR2; rollout and trusted docs paths verified
 
 See [the shadow-policy contract](CI_SHADOW_PLANNER.md). The observer reads a
 closed baseline JSON policy, checks actual test-merge/source/workflow identities,
@@ -139,8 +140,8 @@ ruleset change is involved.
 [PR #325](https://github.com/patricklfdm/GeneralSearchEngine/pull/325) merged as
 `563dfe290326945d9cf0cda2b556b609d3be85a7`. The
 [complete acceptance record](CI_SHADOW_ACCEPTANCE.md) retains source identities,
-all attempts, original failure details, artifact hashes, timing and the remaining
-docs-only checklist.
+all attempts, original failure details, artifact hashes, timing and completed
+docs-only follow-up.
 
 - [PR run 38516949749](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38516949749),
   attempt 1: all 46 jobs succeeded. API head is `8a9f8a736e4ab3783499c2ab952bef2bbc989743`;
@@ -162,20 +163,128 @@ runner-minutes after clone deduplication. No billing or speedup conclusion is
 drawn. Raw/normalized data and the first failure log are retained under
 `target/ci-shadow-acceptance/observations-20261014T075021Z/authorized-read/`.
 
-The current `docs/ci-shadow-acceptance` branch only updates Markdown and prepares
-the normal PR/master **docs-only hosted acceptance**. That future result remains
-pending: expected classifier false, both documentation contracts successful,
-actual/shadow docs with a valid unchanged baseline policy, all 36 suite dependency
-results skipped, Required successful, and an attempt-bound report retained.
-Matrix skip placeholders must not be checked as if 46 full jobs executed.
+[PR #326](https://github.com/patricklfdm/GeneralSearchEngine/pull/326) subsequently
+merged as `d12d682e2a16eb2c9a96b326f2875e97768ddd7f`. Both normal hosted docs runs
+passed on their first attempt: PR
+[38532075143](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38532075143)
+and exact-master push
+[38532208752](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38532208752).
+Each has Change scope and Required successful, 36 suites skipped, successful
+documentation contracts and retained actual/shadow `docs/docs` reports. The
+baseline policy source is `563dfe290326945d9cf0cda2b556b609d3be85a7`; full source,
+policy/workflow hashes and producing attempts are in the acceptance record.
+The PR tested merge is `c7245fe8f2a0e0d085cc2746deab2c80b7df555a`, distinct from
+its branch head. Matrix skip placeholders are retained, not counted as full jobs.
 
-Local checks use the existing documentation contracts and registry plus changed
-path, links, whitespace and expected docs-result validation. No workflow or
-runtime change, new dispatch, rerun or paid-cloud action is part of this follow-up.
-Both documentation contracts passed (the V5.1 check covered 114 documents and
-860 local links); registry validation still reports 36 suites / 46 full jobs.
-All seven changed Markdown paths classify as docs and the local expected
-Required docs result passes. These are local results; the PR/master hosted
-docs outcomes above remain pending. The staging list, local receipt and PR text
-are under `target/ci-shadow-acceptance/`.
-PR4–PR6 and V5.2 development have not begun here; core has no approved paths.
+Full/docs hosted rollout acceptance for PR1–PR3 is complete. The original failed
+full-size runtime execution remains retained; its root cause is unproven. The
+docs result does not qualify this newer master SHA for cloud execution.
+
+PR #326's local documentation contracts, registry and expected docs result also
+passed; the V5.1 contract covered 114 documents and 860 local links. Its local
+receipt/PR text is under `target/ci-shadow-acceptance/`, and its hosted views and
+reports are under `target/ci-shadow-acceptance/docs-hosted-pr326/`.
+
+## PR4 — review completed; core activation deferred
+
+[Policy review and conditional implementation](CI_CORE_POLICY_REVIEW.md) audits
+actual example/reactor/guest/build/release dependencies and specifies files,
+plan identities, Required results, acceptance negatives and a policy rollback.
+The only candidate is the exact existing travel-example Java file. Applying the
+proposed rule to the last 30 original merged-PR diffs gives **2 docs, 0 core,
+28 full**. This is a merged-only retrospective sample, not new hosted core data.
+
+V5.1 release status was reread: the complete release workflow and all three jobs
+remain successful; the release is published, not draft/prerelease. PR #325's two
+first attempts each end on a canonical dependency path. Their three canonical
+executions sum to 138.37 and 129.37 runner-minutes respectively; these are elapsed
+execution, not money or savings achievable on those ineligible changes.
+
+Recommendation: retain full/docs and take PR5's phase-level canonical timing
+investigation next. No core coverage reduction has been approved or enabled;
+this review only prepares that decision. The subsequently authorized PR5 work
+is recorded below; V5.2 work has not begun. Local analysis/source identities and the release GET data
+are retained under `target/ci-core-policy-review/`.
+
+Local review checks passed: both documentation contracts, the unchanged
+36-suite/46-job registry, 12 boundary cases for the offline candidate classifier,
+97 changed-document local links, docs classification/Required result, and
+whitespace. The 12 cases validate only the review tool, not a future core gate.
+The 30 source comparisons and complete three-job release identity were checked.
+That PR4 review covered eight Markdown documents. No Maven, hosted workflow,
+cloud or release execution was started; its original `validation.json` records
+that scope. The combined batch additionally includes the PR5 changes below.
+
+## PR5 — canonical replay optimization; full hosted acceptance pending
+
+The operator requested this next batch together with the PR4 review.
+[Phase analysis and equivalence boundaries](CI_CANONICAL_REPLAY_PERFORMANCE.md)
+record six successful canonical jobs across PR #325 and its master first attempt.
+Independent replay spans 349.40–648.81 seconds in those logs. Frozen measurement,
+fault execution, collection/service stop and retention are accounted separately;
+log timing does not isolate every nested operation or establish a population P95.
+
+One implementation change reuses parsed format catalogs inside the independent
+inspector. Every lookup rereads the source files; private size-one caches are
+bound to content, while frames, authority, histories, negatives and budgets are
+fully revalidated. Format catalogs, Java, POMs, workflow selection and release
+inputs remain unchanged. Tests additionally cover final/SNAPSHOT coexistence
+and exact artifact-role/Manifest selection. Full live PR/master CI remains
+required; no cloud experiment is triggered by this batch.
+
+Complete local replay of the same hosted repetition passed before and after:
+**361.929 → 143.271 seconds**, with exact equality of the complete result and all
+2291 original raw files unchanged. This is one sequential local pair, with
+uncontrolled machine load/OS caches, not a measured whole-workflow improvement.
+All 15 cells, 1080 rich calls, physical/history/negative results and budgets
+remain identical. The 312-case frozen-format differential and focused oracle,
+release and CI contract test groups passed. An older incompatible archive and
+the filesystem-sandbox test failures remain retained with their explanations.
+
+Validation, comparison receipts and original failures are retained in
+`target/ci-canonical-hotspot/`. The PR4 staging/description files include both
+batches at that boundary: nine Markdown files and three Python files. The
+operator then authorized the PR6 work below in the same branch. This combined
+change uses full CI; final hosted reconciliation remains pending.
+
+## PR6 — local handoff prepared; final hosted reconciliation pending
+
+The operator requested one more phase before submission. Added the
+[generated current inventory](CI_JOB_INVENTORY.md),
+[future-version suite onboarding](CI_SUITE_ONBOARDING.md) and
+[operations/acceptance handoff](CI_REFACTOR_HANDOFF.md). Current CI/CD references
+now use the validated inventory; older 32/34/35-lane counts remain labeled as
+historical migration stages instead of being presented as today's topology.
+Compatibility's current six consumers and the separate release evidence
+retention are explicit.
+
+`scripts.ci_inventory` renders the existing validated registry/workflow/actions
+without executing commands or affecting job selection. The existing
+`scripts.test_ci_suites` module adds checks for a stale/missing committed
+inventory and invalid source contracts, so no workflow edit or new job is needed.
+All existing suites retain explicit full/docs results, Required dependencies,
+artifact ownership and independent cloud/release checks.
+
+The onboarding procedure covers responsibility/resource domains, new-version
+test discovery, fixed matrices, producer IDs, original/accepted attempts,
+continuous-state boundaries, budgets, failure diagnosis and rollback. V5.1-only
+discovery is not claimed to automatically cover a new V5.2 directory. Unknown
+paths remain full; unregistered jobs and missing results fail closed.
+
+The final **222 interface tests passed in 43.409 seconds** under Python 3.11,
+including three new generated-inventory regressions, Required/planner/composite,
+bundle/source/attempt, exhaustive partition discovery, cloud and release checks.
+Static inventory and the independent cloud parser agree on all 46 expanded jobs;
+all 36 suite dependencies and full/docs outcomes remain intact. The combined
+scope is 19 Markdown files and five Python files; existing test methods are
+preserved, with nine additions across the three modified test modules.
+The 634 changed-document local links, documentation contracts, generated
+inventory and whitespace checks passed. No generated catalog or workload changed.
+
+Static contract results and source/coverage checks are retained under
+`target/ci-refactor-closeout/`. No Maven, live workload, hosted dispatch/rerun,
+paid cloud, release or repository-setting operation is part of this phase.
+Final acceptance still needs the combined source's normal full PR and exact-master
+runs, including all three live canonical repetitions. PR5's archive comparison
+and earlier PR1–PR3 acceptance do not replace those runs. Core activation stays
+deferred; the CI task is not yet marked fully closed.

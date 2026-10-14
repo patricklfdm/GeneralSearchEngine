@@ -1,11 +1,12 @@
 # CI parallel lanes: dependency audit and migration map
 
-The current machine-readable inventory is the [suite registry](../scripts/ci_suite_registry.json).
+The current [generated inventory](CI_JOB_INVENTORY.md) is checked against the
+[suite registry](../scripts/ci_suite_registry.json) and actual workflow.
 The [Required migration](CI_REFACTOR_ADR.md) preserves full/docs outcomes and all
 existing lanes. See [consumer contracts](CI_DEPENDENCY_CONTRACTS.md) and
 [measured PR0 baseline](CI_BASELINE.md); earlier migration timings below remain
 historical. [Refactor progress](CI_REFACTOR_PROGRESS.md) distinguishes local and
-hosted checks, including the still-pending docs-only acceptance.
+hosted checks, including completed full/docs acceptance.
 
 [PR2 step reuse](CI_V51_STEP_REUSE.md) now centralizes the identical build restore
 and provenance steps in eleven ordinary V5.1 consumers. Effective operations and
@@ -13,9 +14,13 @@ job dependencies are preserved; the timing figures below predate that extraction
 The accompanying [PR3 shadow planner](CI_SHADOW_PLANNER.md) records baseline-policy
 recommendations in Change scope while actual execution stays full/docs.
 See [PR #325's hosted observations](CI_SHADOW_ACCEPTANCE.md) for all attempts,
-source identities and the pending documentation-only follow-up.
+source identities and PR #326's completed documentation-only follow-up. The
+[PR4 policy review](CI_CORE_POLICY_REVIEW.md) retains full/docs execution and
+defers a narrow core rule. The [replay optimization](CI_CANONICAL_REPLAY_PERFORMANCE.md)
+now has local equivalence evidence; [final hosted acceptance](CI_REFACTOR_HANDOFF.md)
+remains pending.
 
-**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
+**Topology evolution (historical counts):** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
 [complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring
 the topology to 34 required job IDs, 38 executed jobs. The

@@ -1,8 +1,11 @@
 """Mutate the actual CI and registry; external consumers remain independent."""
 import copy
+from pathlib import Path
+import tempfile
 import unittest
+from unittest.mock import patch
 
-from scripts import ci_suites as s
+from scripts import ci_inventory, ci_suites as s
 from scripts.v51 import cloud_ci, cloud_runner_artifacts
 
 
@@ -34,6 +37,24 @@ class SuiteContractTest(unittest.TestCase):
         self.assertCountEqual(cloud_ci.expected_jobs(self.workflow), names)
         for key in ("v51-remote-rich-shards", "v51-owned-canonical-tapes", "v51-owned-canonical"):
             self.assertIsNotNone(next(v["matrix"] for v in self.registry["suites"] if v["id"] == key))
+
+    def test_committed_inventory_matches_validated_current_topology(self):
+        ci_inventory.check_document()
+
+    def test_documentation_rejects_missing_and_stale_inventory(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); document = root / ci_inventory.DOCUMENT
+            document.parent.mkdir()
+            with patch.object(s, 'check', return_value=self.registry):
+                with self.assertRaises(FileNotFoundError):ci_inventory.check_document(root)
+                document.write_text(ci_inventory.render(root), encoding='utf-8')
+                ci_inventory.check_document(root)
+                document.write_text(document.read_text().replace('46 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'stale'):ci_inventory.check_document(root)
+
+    def test_inventory_generation_propagates_invalid_source_contract(self):
+        with patch.object(s, 'check', side_effect=ValueError('unregistered job')):
+            with self.assertRaisesRegex(ValueError, 'unregistered job'):ci_inventory.render()
 
     def test_external_consumers_are_registered(self):
         interfaces = self.registry["externalInterfaces"]
