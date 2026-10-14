@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import os
 
-from scripts import ci_plan, ci_suites as suites
+from scripts import ci_observation, ci_plan, ci_suites as suites
 
 
 def evaluate(needs, registry, expected_plan=None):
@@ -60,7 +60,9 @@ def main(env=None, root=suites.ROOT):
     try:
         needs = suites.strict_json(env.get("CI_NEEDS_JSON"))
         registry = suites.check(root)
-        expected, _ = ci_plan.compute(root, env, ci_plan.event(env))
+        claimed = ci_plan.checked_outputs(needs["changes"]["outputs"], registry)
+        producer_env = ci_observation.producer_environment(claimed, env)
+        expected, _ = ci_plan.compute(root, producer_env, ci_plan.event(env))
         result = evaluate(needs, registry, expected)
     except (ValueError, OSError, KeyError, TypeError, RecursionError) as error:
         result = dict(status="FAIL", profile=None, errors=[dict(job="Required", reason=str(error))])

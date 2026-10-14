@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -35,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Test change detection, required gates and Maven infrastructure retries
-        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan
+        run: python3 -m unittest scripts.test_ci_changes scripts.test_maven_infra_retry scripts.test_ci_v51_bundle scripts.test_ci_v51_python scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan scripts.test_ci_observation
 
       - name: Classify the complete change set
         id: scope
@@ -44,6 +45,7 @@ jobs:
       - name: Observe the CI shadow plan
         env:
           ACTUAL_RUN_FULL_CI: ${{ steps.scope.outputs.run_full_ci }}
+          CI_PROFILE: ${{ steps.scope.outputs.profile }}
         run: python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan
 
       - name: Validate documentation-only contract changes
@@ -2631,4 +2633,5 @@ jobs:
       - name: Require every CI gate
         env:
           CI_NEEDS_JSON: ${{ toJSON(needs) }}
+          GH_TOKEN: ${{ github.token }}
         run: python3 -m scripts.ci_required

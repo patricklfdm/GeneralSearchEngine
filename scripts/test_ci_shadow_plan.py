@@ -25,11 +25,12 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
         for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
-                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py",
+                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py", "scripts/ci_observation.py",
                      ".github/workflows/release.yml", ".github/actions/v51-restore-build/action.yml",
                      ".github/actions/v51-retain-build/action.yml"):
             self.write(path, (ROOT / path).read_bytes())
         self.write("src/main/java/Engine.java", b"// original source\n")
+        self.write(p.INTEGRATION_PATH, b"// original example\n")
         self.base = self.commit()
 
     def git(self, *args):
@@ -330,7 +331,7 @@ class ShadowPolicyContractTest(unittest.TestCase):
                 self.assertFalse(p.documentation(path))
                 self.assertEqual(ci_changes.is_documentation(path), p.documentation(path))
         self.assertEqual(p.POLICY_V2, p.strict_json((ROOT / p.POLICY).read_bytes()))
-        self.assertEqual([], p.POLICY_V2["integrationRules"])
+        self.assertEqual([p.INTEGRATION_RULE], p.POLICY_V2["integrationRules"])
 
     def test_shadow_cannot_replace_classifier_or_gate_and_retention_is_attempt_specific(self):
         workflow = (ROOT / p.WORKFLOW).read_text()

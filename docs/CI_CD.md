@@ -39,16 +39,24 @@ documentation lane. Change scope still runs the CI/helper/registry/Required,
 composite, planner, build-bundle and Python partition-inventory tests and both
 V5 documentation contracts; Required checks the expected skipped suite results.
 Maven and Java qualification do not run. JSON plans, checksums, source/resources,
-POMs, scripts, workflows and unknown paths require full CI. Mixed changes also
-require full; manual dispatch, missing history, empty diffs and unreadable events
-conservatively select full.
+POMs, scripts, workflows and unknown paths require full CI. The sole reviewed
+integration exception is an existing regular-file content change at the exact
+TravelSearchDemo path in [the versioned policy](CI_TIERED_DESIGN.md). It retains
+every suite except the three complete canonical repetitions. Mixed risky changes
+still require full; non-doc master pushes and manual runs stay full. Missing
+history, empty diffs and unavailable policy select conservative full. An invalid
+run/source context or failure to produce a valid plan fails Change scope/Required.
 
 The current [generated job inventory](CI_JOB_INVENTORY.md) is checked against the
 actual workflow, local actions and [suite registry](../scripts/ci_suite_registry.json).
 It lists **36 suites plus Change scope and Required: 38 static IDs, 46 expanded
 full jobs**. Docs mode has two successful meta jobs and 36 skipped placeholders;
-it does not have 46 executed jobs. Core is disabled; the
-[shadow planner](CI_SHADOW_PLANNER.md) cannot change execution.
+it does not have 46 executed jobs. Integration executes 43 instances, leaving the
+canonical suite deliberately skipped. The diagnostic [shadow report](CI_SHADOW_PLANNER.md)
+does not grant qualification. Required independently replays the versioned execution
+plan against source/workflow/policy/registry and all 36 suite results. The legacy
+`run_full_ci=true` means ordinary suites run, including in integration; it alone
+does not establish full qualification.
 
 Required runs with `always()` and checks every expected ID and result. Failed or
 cancelled detection, missing results, unexpected skips and unregistered jobs

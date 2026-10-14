@@ -7,6 +7,6 @@
     "full"
   ],
   "documentationRule": "ci-documentation-v1",
-  "forceFull": true,
-  "integrationRules": []
+  "forceFull": false,
+  "integrationRules": ["travel-demo-content-v1"]
 }

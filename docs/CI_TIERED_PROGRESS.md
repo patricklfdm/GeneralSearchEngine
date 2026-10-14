@@ -21,7 +21,7 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline only; later source pending |
 | T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | HOSTED_PENDING |
 | T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | HOSTED_PENDING |
-| T3 integration activation | Pending | Pending | HOSTED_PENDING |
+| T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | Pending | Pending | HOSTED_PENDING |
 | T5 Nightly/manual/health controls | Pending | Pending | HOSTED_PENDING |
 | T6 full local regression and review | Pending | Pending | HOSTED_PENDING |
@@ -60,7 +60,34 @@ drift to undo. No source reset, tag move or Maven clean was performed in T0.
   matrices, artifacts, external interfaces and release retention. Inventory parity
   and whitespace checks passed. Two small follow-up policy-type checks are retained
   with the final T2 regression log.
-* Next: T3 exact-path candidate review/activation and real Git event selection tests.
+* T3 command: `python3.11 -m unittest scripts.test_ci_plan scripts.test_ci_observation scripts.test_ci_shadow_plan scripts.test_ci_suites scripts.test_ci_required scripts.test_ci_changes scripts.test_ci_composites scripts.v51.test_cloud_preflight scripts.v51.test_cloud_runner_artifacts scripts.v51.test_phase7_release_fixtures`.
+  All 166 tests passed in 65.795 seconds; log:
+  `target/ci-tiered-development/t3/final-tests.log`. Earlier pre-provenance run:
+  101 tests passed in 43.835 seconds. Generated inventory and whitespace passed.
+* Next: T4 optional rule decisions, followed by T5 full-health/Nightly operation.
+
+T3 candidate review is recorded in the design under “本轮委托自主审查”. The
+exact example content rule is active in versioned policy; this CI/policy PR itself
+is full. Positive tests execute the actual planner and Required CLIs in temporary
+Git repositories. They simulate job results and do not claim hosted scheduling.
+
+Self-review found the partial-rerun boundary: Required now verifies a carried
+Change scope execution against original/accepted attempt API data before replaying
+its source-bound plan. The implementation preserves the same original-runner/time/
+step-copy boundary as the existing artifact consumer. Historical raw run
+`38522705456` provides the observed carried-check shape; synthetic negative tests
+exercise corruption, pagination and changed executions. CI adds only `actions: read`.
+
+## Local environment gap (must not be hidden as hosted pending)
+
+The pinned Temurin JDK is available at `/tmp/gse-v51-phase7b-jdk` and Python 3.11 is
+installed. The existing complete owned qualification requires a native-UID mount
+namespace with `--allow-sudo-namespace`. The minimal probe
+`sudo -n unshare --mount --propagation private true` failed with
+`sudo: a password is required`. No directory was mounted or host setting changed.
+Full canonical local verification is currently `LOCAL_VALIDATION_BLOCKED`;
+continue independent implementation and tests, but final local readiness cannot be
+claimed until that required verification actually runs successfully.
 
 Stage commit IDs are available from Git history for this file; each stage records
 its exact checks and evidence before committing. Final readiness has not been claimed.

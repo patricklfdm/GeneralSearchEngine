@@ -11,7 +11,8 @@ from scripts import ci_shadow_plan as shadow, ci_suites as suites
 SCHEMA = "gse-ci-execution-plan-v1"
 OUTPUTS = ("run_full_ci", "profile", "run_canonical", "plan", "plan_sha256")
 BINDINGS = (shadow.WORKFLOW, shadow.POLICY, shadow.REGISTRY, shadow.PLANNER,
-            shadow.SUITE_VALIDATOR, "scripts/ci_changes.py", "scripts/ci_required.py", "scripts/ci_plan.py")
+            shadow.SUITE_VALIDATOR, "scripts/ci_changes.py", "scripts/ci_required.py", "scripts/ci_plan.py",
+            "scripts/ci_observation.py")
 IDENTITIES = ("event", "testedSha", "repository", "ref", "runId", "runAttempt", "workflow",
               "baseSha", "headSha", "mergeBaseSha", "comparison")
 
@@ -22,7 +23,7 @@ def encode(value):
 
 def compute(root, env, event):
     registry = suites.check(root)
-    report = shadow.plan(root, dict(env, ACTUAL_RUN_FULL_CI="true"), event)
+    report = shadow.plan(root, dict(env, ACTUAL_RUN_FULL_CI="true", CI_PROFILE="full"), event)
     # Invalid run/source context cannot create an execution receipt. Missing
     # historical policy is different: the source-bound fallback recipe is full.
     suites.need(report["registry"]["sha256"] is not None and report["workflow"]["sha256"] is not None,
@@ -37,7 +38,8 @@ def compute(root, env, event):
     plan = dict(schema=SCHEMA, identity={key: report[key] for key in IDENTITIES},
                 bindings=bindings, policy=report["policy"], diffSha256=report["diffSha256"],
                 changedPathsSha256=report["changedPathsSha256"], candidateProfile=candidate,
-                profile=profile, reasons=report["reasons"], recipe=shadow.suite_plan(registry, profile))
+                profile=profile, reasons=report["reasons"] + (["FORCE_FULL"] if profile != candidate else []),
+                recipe=shadow.suite_plan(registry, profile))
     validate(plan, registry)
     return plan, report
 

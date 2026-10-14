@@ -39,10 +39,26 @@ all-success full inventory and its named visible step. Schedule is not cloud adm
 
 ## Candidate and optional tiers
 
-The first candidate is the exact TravelSearchDemo Java source already examined in
-[the core-policy review](CI_CORE_POLICY_REVIEW.md). T3 must renew that review as
-“本轮委托自主审查”, record retained reverse-dependency coverage and test the real
-selection path. Do not use directory-wide example or Python rules.
+The first enabled rule, `travel-demo-content-v1`, is the exact TravelSearchDemo
+Java source already examined in [the core-policy review](CI_CORE_POLICY_REVIEW.md).
+The renewed review below is “本轮委托自主审查”; the user did not individually
+approve a list of paths. This rule is applied only from a byte-identical trusted
+base policy. Its own rollout PR is full.
+
+| Rule boundary | Evidence / retained coverage |
+| --- | --- |
+| Exact path | `examples/travel-search/src/main/java/example/travel/TravelSearchDemo.java` only. |
+| Status and type | Git `M`, regular file at both ends, identical modes, different blob IDs. No addition, deletion, rename, symlink, gitlink or execute-bit change. |
+| Reverse dependency | Re-read the example and its POM: standalone core API only, no replication/processor dependency, deploy skipped. The reactor includes the example module. |
+| Retained execution | Reactor compilation/tests; independent build domains; `Soak and examples` including `scripts/run-travel-example.sh`; compatibility, release, all protocol/resource/recovery/fault suites, rich shards/aggregate, five tapes, complete experiment and failure drill. |
+| Omitted execution | Only three complete owned canonical repetitions. Their package contains core/replication JARs and explicit adapters, not example classes. No old build/PASS is reused. |
+| Escalation | Any accompanying non-doc path outside the exact rule, changed policy/CI/build/package dependencies, unknown/new-version paths, old/invalid policy, missing history or forceFull select full. Master always full for non-doc changes. |
+| Remaining risk | This is a reviewed dependency argument, not proof of universal independence. Changes to packaging/dependencies must re-review the rule; protected full and Nightly remain required. Historical sampled traffic had zero eligible PRs, so no daily savings are claimed. |
+
+The candidate can coexist with permitted documentation changes. The complete PR
+diff, not its last commit, controls selection. There is no directory-wide example
+or Python allowance. `forceFull=true` restores full for an eligible candidate;
+the observer may still report the integration candidate separately from execution.
 Optional consumer/python-isolated rules require separate evidence; otherwise record
 `NOT_ENABLED_WITH_RATIONALE`. Do not invent tiers to meet a count.
 

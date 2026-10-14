@@ -1,5 +1,28 @@
 # CI shadow planner (PR3)
 
+## Current tiered extension
+
+The historical PR3 record below is preserved. Current version 2 observations also
+retain raw Git status/mode/type/blob records, registry/validator hashes and closed
+suite recipes. The active [execution wrapper](../scripts/ci_plan.py) reuses that
+identity/diff logic and emits a compact `execution-plan.json`; the diagnostic
+`plan.json` still never emits gate outputs. `CI_PROFILE` distinguishes actual
+integration from full, even though legacy `run_full_ci` is true for both.
+
+Required independently recomputes the execution receipt and compares every suite
+result. For a partial rerun with a reused scope plan, read-only GitHub observations
+bind the original producing attempt to the carried successful scope job, including
+unchanged execution times, steps and runner. New check-run IDs are accepted only
+with that evidence. Missing API/provenance fails; an earlier plan is not accepted
+merely because its attempt number is smaller. All static Required dependencies
+remain present. No existing suite artifact contract or cloud qualification is relaxed.
+
+Current policy, candidate review and rollback are documented in
+[CI_TIERED_DESIGN.md](CI_TIERED_DESIGN.md). New-source hosted acceptance remains
+pending as recorded in [progress](CI_TIERED_PROGRESS.md).
+
+## Historical PR3 implementation
+
 Status: merged together with [PR2 step reuse](CI_V51_STEP_REUSE.md) in PR #325;
 [hosted first-rollout reports verified](CI_SHADOW_ACCEPTANCE.md), valid-baseline
 docs-only observation verified by PR #326. No core execution

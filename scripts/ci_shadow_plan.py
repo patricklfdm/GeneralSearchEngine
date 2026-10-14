@@ -29,9 +29,11 @@ SUITE_VALIDATOR = "scripts/ci_suites.py"
 POLICY_V1 = {"schema": "gse-ci-shadow-policy-v1", "mode": "shadow",
              "profiles": ["docs", "core", "full"],
              "documentationRule": "ci-documentation-v1", "corePaths": []}
+INTEGRATION_RULE = "travel-demo-content-v1"
+INTEGRATION_PATH = "examples/travel-search/src/main/java/example/travel/TravelSearchDemo.java"
 POLICY_V2 = {"schema": "gse-ci-policy-v2", "mode": "execution",
              "profiles": ["docs", "integration", "full"],
-             "documentationRule": "ci-documentation-v1", "forceFull": True, "integrationRules": []}
+             "documentationRule": "ci-documentation-v1", "forceFull": False, "integrationRules": [INTEGRATION_RULE]}
 REASONS = {
     "CONTEXT_UNAVAILABLE": "Event or source identity is missing or inconsistent.",
     "HISTORY_UNAVAILABLE": "Complete comparison history is unavailable.",
@@ -44,6 +46,8 @@ REASONS = {
     "BUILD_OR_UNKNOWN_PATH": "A build, qualification, CI, release or unclassified path requires full.",
     "DOCS_ONLY": "Every changed path satisfies the existing conservative documentation rule.",
     "REGISTRY_UNAVAILABLE": "The source-bound suite registry or its validator is unavailable/invalid.",
+    "REVIEWED_INTEGRATION": "Only reviewed existing-file content and permitted documentation changed.",
+    "FORCE_FULL": "The trusted policy requires full execution while retaining the candidate recommendation.",
 }
 
 
@@ -100,6 +104,19 @@ def valid_path(path):
     return bool(path) and not path.startswith("/") and all(part not in ("", ".", "..") for part in path.split("/"))
 
 
+def valid_policy(value):
+    return (type(value) is dict and type(value.get("forceFull")) is bool
+            and value.get("integrationRules") in ([], [INTEGRATION_RULE])
+            and value == {**POLICY_V2, "forceFull": value["forceFull"], "integrationRules": value["integrationRules"]})
+
+
+def integration_change(change, rules):
+    return (rules == [INTEGRATION_RULE] and change["path"] == INTEGRATION_PATH
+            and change["status"] == "M" and change["oldMode"] == change["newMode"]
+            and change["oldType"] == change["newType"] == "regular"
+            and change["oldBlob"] != change["newBlob"])
+
+
 def change_records(raw):
     """Parse complete raw NUL records; --no-renames exposes both rename endpoints."""
     require(raw and raw.endswith(b"\0"), "EMPTY_OR_INVALID_DIFF")
@@ -144,8 +161,10 @@ def suite_plan(registry, profile):
 
 def plan(root, env, event):
     actual = {"true": "full", "false": "docs"}.get(env.get("ACTUAL_RUN_FULL_CI"), "unknown")
+    if "CI_PROFILE" in env:
+        actual = env["CI_PROFILE"] if env["CI_PROFILE"] in ("docs", "integration", "full") else "unknown"
     report = dict(schema="gse-ci-shadow-plan-v2", mode="shadow", actualProfile=actual,
-                  recommendedProfile="full", reasons=[], coreEligible=False,
+                  recommendedProfile="full", reasons=[], coreEligible=False, integrationEligible=False,
                   event=env.get("GITHUB_EVENT_NAME", ""), testedSha=env.get("GITHUB_SHA", ""),
                   repository=env.get("GITHUB_REPOSITORY", ""), ref=env.get("GITHUB_REF", ""),
                   runId=env.get("GITHUB_RUN_ID", ""), runAttempt=env.get("GITHUB_RUN_ATTEMPT", ""),
@@ -219,7 +238,8 @@ def plan(root, env, event):
             value = strict_json(policy)
         except (ValueError, UnicodeError):
             raise Unavailable("POLICY_INVALID") from None
-        require(value == POLICY_V2 and type(value.get("forceFull")) is bool, "POLICY_INVALID")
+        require(valid_policy(value), "POLICY_INVALID")
+        report["forceFull"] = value["forceFull"]
         try:
             tested_policy = blob(root, source, POLICY)
             report["policy"]["testedSha256"] = digest(tested_policy)
@@ -228,7 +248,11 @@ def plan(root, env, event):
             raise Unavailable("POLICY_CHANGED") from None
         require(actual != "unknown", "ACTUAL_UNKNOWN")
         if report["nonDocumentationPaths"]:
-            report["reasons"] = ["BUILD_OR_UNKNOWN_PATH"]
+            if report["event"] == "pull_request" and all(documentation(row["path"]) or
+                    integration_change(row, value["integrationRules"]) for row in report["changes"]):
+                report.update(recommendedProfile="integration", integrationEligible=True, reasons=["REVIEWED_INTEGRATION"])
+            else:
+                report["reasons"] = ["BUILD_OR_UNKNOWN_PATH"]
         else:
             report.update(recommendedProfile="docs", reasons=["DOCS_ONLY"])
     except Unavailable as error:
@@ -249,14 +273,15 @@ def summary(report):
         return html.escape(str(value)).replace("|", "&#124;").replace("\n", " ").replace("\r", " ").replace("`", "&#96;")
     values = [("Actual execution profile", report["actualProfile"]),
               ("Shadow recommendation", report["recommendedProfile"]),
-              ("Core eligible", "No; the approved allowlist is empty"),
+              ("Integration candidate", report["integrationEligible"]),
+              ("Force full", report["forceFull"]),
               ("Event", report["event"]), ("Tested SHA", report["testedSha"]),
               ("PR head / push after", report["headSha"]), ("Policy baseline", report["policy"]["source"]),
               ("Workflow SHA-256", report["workflow"]["sha256"]),
               ("Policy SHA-256", report["policy"]["sha256"]),
               ("Registry SHA-256", report["registry"]["sha256"]),
               ("Changed paths", len(report["changedPaths"]))]
-    lines = ["## CI shadow plan", "", "Observation only. Existing full/docs gates decide execution; this plan is not qualification evidence.",
+    lines = ["## CI shadow plan", "", "Observation only. The independently checked execution receipt decides coverage; this report is not qualification evidence.",
              "", "| Field | Value |", "| --- | --- |"]
     lines += [f"| {name} | {safe(value)} |" for name, value in values]
     lines += ["", *[f"- **{code}**: {REASONS[code]}" for code in report["reasons"]], "",

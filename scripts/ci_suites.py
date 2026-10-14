@@ -408,7 +408,7 @@ def validate_workflow(registry, workflow, related, actions=None):
                  {"persist-credentials": "false", "fetch-depth": "0"}, "Required complete comparison history")
             gate = parsed_steps.get("Require every CI gate", {})
             need(gate.get("run") == ("python3 -m scripts.ci_required", "") and "if" not in gate and
-                 string_map(gate["env"], 10) == {"CI_NEEDS_JSON": "${{ toJSON(needs) }}"}, "Required validator binding")
+                 string_map(gate["env"], 10) == {"CI_NEEDS_JSON": "${{ toJSON(needs) }}", "GH_TOKEN": "${{ github.token }}"}, "Required validator binding")
         else:
             need("if" not in values and "needs" not in values and "strategy" not in values, "classifier must run")
             checkout = parsed_steps.get("Check out comparison history", {})
@@ -420,7 +420,8 @@ def validate_workflow(registry, workflow, related, actions=None):
             shadow = parsed_steps.get("Observe the CI shadow plan", {})
             need(set(shadow) == {"run", "env"} and shadow["run"] ==
                  ("python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan", "") and
-                 string_map(shadow["env"], 10) == {"ACTUAL_RUN_FULL_CI": "${{ steps.scope.outputs.run_full_ci }}"},
+                 string_map(shadow["env"], 10) == {"ACTUAL_RUN_FULL_CI": "${{ steps.scope.outputs.run_full_ci }}",
+                                                "CI_PROFILE": "${{ steps.scope.outputs.profile }}"},
                  "shadow observation binding")
             retained = parsed_steps.get("Retain the CI shadow plan", {})
             need(set(retained) == {"if", "uses", "with"} and scalar(retained["if"]) == ALWAYS and
