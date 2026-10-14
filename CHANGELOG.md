@@ -24,6 +24,19 @@ No public follower reads, membership changes, mixed-version rolling upgrade or
 in-place authority conversion are introduced. Indeterminate mutations require
 application reconciliation. See the [migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md).
 
+### Publication
+
+Signed tag `v5.1.0` points to `516fe1efb54ef0787f38209108f322f258f71696`
+(PR #322, exact-master CI `38482900297`, all 46 jobs passed).
+[Release workflow `38488481320`](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38488481320),
+Central deployment `e6850421-91b0-43ce-b7b7-a99c6abb05f9`, GitHub deployment
+`7053418761` and the [GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.1.0)
+completed successfully. Independent verification passes all twelve POM/JAR
+signatures and checksums, all twelve canonical hashes and fresh V1–V5.1 consumers
+(six modules, 22 tests; V1 compile-only). Publication time is
+`2026-10-14T00:33:12Z`, October 13 in America/Los_Angeles, matching this heading.
+See the [release record](docs/v5x/v5.1/RELEASE_CHECKLIST.md).
+
 ## 5.0.0 — 2026-09-19
 
 ### Added

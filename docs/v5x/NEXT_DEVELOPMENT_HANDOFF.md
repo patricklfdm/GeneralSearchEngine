@@ -1,14 +1,39 @@
 # Next-development documentation handoff
 
-Current batch: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md).
+Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
+next is V5.2 Phase 0 replica-read contract and evidence design.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
 PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
 PR/master CI skip; that source has local validation, not hosted CI acceptance.
-Phase 7B freezes final `5.1.0` coordinates, the canonical toolchain and twelve
-artifact hashes, and connects signing/deploy/download checks and six remote
-consumers. Its protected exact-source CI is still required. Signed tag/publication
-remain Phase 8; the Phase 7A skip does not carry forward.
+Phase 7B was accepted in PR #322 at `516fe1efb54ef0787f38209108f322f258f71696`,
+exact-master CI `38482900297` attempt 1 (all 46 jobs). Signed tag `v5.1.0` and
+Release `38488481320` published that commit. The independent post-publication
+check passes twelve signatures/checksums, twelve canonical hashes and all six
+fresh remote consumer modules (22 tests, V1 compile-only). Stable is **5.1.0**.
+The Phase 7A skip did not carry forward to final-candidate or release validation.
+
+## Next batch: V5.2 Phase 0
+
+Start with the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
+[proposed read-policy refinement](NEXT_DEVELOPMENT_ADDENDUM.md#v52-explicit-read-policies),
+and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). Define the replica-read
+authority/API contract and its evidence matrix before production implementation:
+
+- Strong leader, explicitly stale-allowed and history-bound at-least-index policies.
+- Progress tokens bound to group/history identity, published-state admission and
+  exact wait/reject behavior during lag, leadership changes, restore and restart.
+- Bounded waiters, snapshot pins/cursors and cancellation/close behavior.
+- Adversarial history and physical evidence proving that followers never expose
+  uncommitted state or mislabel stale state as a stronger read.
+
+Published `5.1.0` becomes the immediate replication reference for V5.2; inherited
+V4.4 search/storage behavior and earlier configured-mode guarantees remain.
+V5.2 runtime work follows acceptance of its own Phase 0. This release-reconciliation
+batch changes documentation only; no V5.2 version bump or runtime work has started.
+Commit/push/PR/tag operations remain operator-owned, and paid runs remain manual.
+
+## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):
 All five paid members are complete: canonical-1 `38280933954`, canonical-2
