@@ -1,0 +1,106 @@
+# PR1 equivalence oracle: Required from master 98f2996f896f97a85bf18b0be4b73bb44ad6d2d5.
+    name: Required
+    if: ${{ always() }}
+    needs:
+      - changes
+      - reactor-core
+      - v51-verification-build
+      - v51-foundation
+      - v51-guest-services
+      - v51-owned-experiment
+      - v51-owned-network-faults
+      - v51-owned-failure-drill
+      - v51-owned-canonical-tapes
+      - v51-owned-canonical
+      - v51-remote-rich
+      - v51-remote-rich-inputs
+      - v51-remote-rich-shards
+      - v51-remote-faults
+      - v51-admission-resources
+      - v51-promise-crashes
+      - v51-public-reads-faults
+      - v51-public-recovery-pressure
+      - v51-public-hardening
+      - v51-protocol-selection
+      - v51-candidate-crashes
+      - v51-reclamation
+      - v51-full-size-runtime
+      - v50-authority
+      - v50-recovery-workload
+      - v4-regression
+      - soak-examples
+      - compatibility
+      - release-artifacts
+      - python-v51-core
+      - python-v51-admission
+      - python-v51-storage
+      - cloud-preflight-tests
+      - cloud-cleanup-fixture-tests
+      - cloud-storage-tests
+      - cloud-provider-tests
+      - cloud-runner-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every CI gate
+        env:
+          CHANGES_RESULT: ${{ needs.changes.result }}
+          RUN_FULL_CI: ${{ needs.changes.outputs.run_full_ci }}
+          V51_BUILD_RESULT: ${{ needs.v51-verification-build.result }}
+          REACTOR_RESULT: ${{ needs.reactor-core.result }}
+          V51_GUEST_SERVICES_RESULT: ${{ needs.v51-guest-services.result }}
+          V51_OWNED_EXPERIMENT_RESULT: ${{ needs.v51-owned-experiment.result }}
+          V51_OWNED_NETWORK_RESULT: ${{ needs.v51-owned-network-faults.result }}
+          V51_OWNED_CANONICAL_RESULT: ${{ needs.v51-owned-canonical-tapes.result }}
+          V51_OWNED_CANONICAL_SET_RESULT: ${{ needs.v51-owned-canonical.result }}
+          V51_OWNED_DRILL_RESULT: ${{ needs.v51-owned-failure-drill.result }}
+          V51_FOUNDATION_RESULT: ${{ needs.v51-foundation.result }}
+          V51_RICH_INPUTS_RESULT: ${{ needs.v51-remote-rich-inputs.result }}
+          V51_RICH_SHARDS_RESULT: ${{ needs.v51-remote-rich-shards.result }}
+          V51_REMOTE_RICH_RESULT: ${{ needs.v51-remote-rich.result }}
+          V51_REMOTE_FAULTS_RESULT: ${{ needs.v51-remote-faults.result }}
+          V51_ADMISSION_RESOURCES_RESULT: ${{ needs.v51-admission-resources.result }}
+          V51_PROMISE_CRASHES_RESULT: ${{ needs.v51-promise-crashes.result }}
+          V51_PUBLIC_READS_FAULTS_RESULT: ${{ needs.v51-public-reads-faults.result }}
+          V51_PUBLIC_RECOVERY_PRESSURE_RESULT: ${{ needs.v51-public-recovery-pressure.result }}
+          V51_PUBLIC_HARDENING_RESULT: ${{ needs.v51-public-hardening.result }}
+          V51_PROTOCOL_SELECTION_RESULT: ${{ needs.v51-protocol-selection.result }}
+          V51_CANDIDATE_CRASHES_RESULT: ${{ needs.v51-candidate-crashes.result }}
+          V51_RECLAMATION_RESULT: ${{ needs.v51-reclamation.result }}
+          V51_FULL_SIZE_RUNTIME_RESULT: ${{ needs.v51-full-size-runtime.result }}
+          V50_AUTHORITY_RESULT: ${{ needs.v50-authority.result }}
+          V50_RECOVERY_RESULT: ${{ needs.v50-recovery-workload.result }}
+          V4_RESULT: ${{ needs.v4-regression.result }}
+          SOAK_RESULT: ${{ needs.soak-examples.result }}
+          COMPATIBILITY_RESULT: ${{ needs.compatibility.result }}
+          RELEASE_RESULT: ${{ needs.release-artifacts.result }}
+          V51_PYTHON_CORE_RESULT: ${{ needs.python-v51-core.result }}
+          V51_PYTHON_ADMISSION_RESULT: ${{ needs.python-v51-admission.result }}
+          V51_PYTHON_STORAGE_RESULT: ${{ needs.python-v51-storage.result }}
+          CLOUD_PREFLIGHT_RESULT: ${{ needs.cloud-preflight-tests.result }}
+          CLOUD_CLEANUP_FIXTURE_RESULT: ${{ needs.cloud-cleanup-fixture-tests.result }}
+          CLOUD_STORAGE_RESULT: ${{ needs.cloud-storage-tests.result }}
+          CLOUD_PROVIDER_RESULT: ${{ needs.cloud-provider-tests.result }}
+          CLOUD_RUNNER_RESULT: ${{ needs.cloud-runner-tests.result }}
+        run: |
+          test "$CHANGES_RESULT" = success
+          case "$RUN_FULL_CI" in
+            true) expected=success ;;
+            false) expected=skipped ;;
+            *) echo "Invalid change-scope result" >&2; exit 1 ;;
+          esac
+          for result in "$V51_RICH_INPUTS_RESULT" "$V51_RICH_SHARDS_RESULT" "$V51_BUILD_RESULT" "$V51_REMOTE_FAULTS_RESULT" "$V51_REMOTE_RICH_RESULT" "$REACTOR_RESULT" "$V51_FOUNDATION_RESULT" "$V51_GUEST_SERVICES_RESULT" "$V51_OWNED_EXPERIMENT_RESULT" "$V51_OWNED_NETWORK_RESULT" "$V51_OWNED_DRILL_RESULT" "$V51_OWNED_CANONICAL_RESULT" "$V51_OWNED_CANONICAL_SET_RESULT" "$V51_ADMISSION_RESOURCES_RESULT" \
+            "$V51_PROMISE_CRASHES_RESULT" "$V51_PUBLIC_READS_FAULTS_RESULT" "$V51_PUBLIC_RECOVERY_PRESSURE_RESULT" \
+            "$V51_PUBLIC_HARDENING_RESULT" "$V51_PROTOCOL_SELECTION_RESULT" "$V51_CANDIDATE_CRASHES_RESULT" \
+            "$V51_RECLAMATION_RESULT" "$V51_FULL_SIZE_RUNTIME_RESULT" "$V50_AUTHORITY_RESULT" "$V50_RECOVERY_RESULT" \
+            "$V4_RESULT" "$SOAK_RESULT" "$COMPATIBILITY_RESULT" \
+            "$RELEASE_RESULT" "$CLOUD_RUNNER_RESULT" \
+            "$V51_PYTHON_CORE_RESULT" \
+            "$V51_PYTHON_ADMISSION_RESULT" \
+            "$V51_PYTHON_STORAGE_RESULT" \
+            "$CLOUD_PREFLIGHT_RESULT" \
+            "$CLOUD_CLEANUP_FIXTURE_RESULT" \
+            "$CLOUD_STORAGE_RESULT" \
+            "$CLOUD_PROVIDER_RESULT"; do
+            test "$result" = "$expected"
+          done
