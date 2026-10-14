@@ -181,7 +181,10 @@ Review data and the offline analysis script are at
 in [acceptance](CI_SHADOW_ACCEPTANCE.md). This review changes documentation only.
 No new workflow, rerun, Maven workload, paid cloud or release is executed.
 
-The operator subsequently requested combining the next batch in this branch.
-The [PR5 replay optimization](CI_CANONICAL_REPLAY_PERFORMANCE.md) now accompanies
-this review. That implementation requires normal full CI; this combined PR is
-no longer documentation-only. It does not activate the proposed core policy.
+The operator subsequently combined this review, the
+[PR5 replay optimization](CI_CANONICAL_REPLAY_PERFORMANCE.md) and PR6 handoff in
+PR #327. That implementation ran normal full CI;
+[both PR and exact-master qualification passed](CI_REFACTOR_ACCEPTANCE.md).
+The review's recommended investigation is complete. The combined implementation
+did not activate core; a future core proposal still needs the separate approval
+and qualification specified above.

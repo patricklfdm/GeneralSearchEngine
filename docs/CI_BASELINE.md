@@ -93,6 +93,7 @@ PR #326 completed both docs-only hosted paths on master source
 performance result or new runtime qualification is inferred from those docs runs.
 
 The [combined implementation handoff](CI_REFACTOR_HANDOFF.md) keeps these
-historical cohorts separate from PR5's local replay pair and pending hosted
-optimization results. Current job ownership is in the
+historical cohorts separate from PR5's local replay pair and
+[completed hosted optimization observations](CI_REFACTOR_ACCEPTANCE.md).
+Current job ownership is in the
 [generated inventory](CI_JOB_INVENTORY.md).
