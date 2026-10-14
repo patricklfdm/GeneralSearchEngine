@@ -12,7 +12,7 @@ import subprocess
 def is_documentation(path: str) -> bool:
     parts = path.split("/")
     # Markdown in source/test resources can itself be a build input.
-    if "src" in parts[:-1] or path.startswith((".github/workflows/", "scripts/", ".mvn/")):
+    if "src" in parts[:-1] or path.startswith((".github/workflows/", ".github/actions/", "scripts/", ".mvn/")):
         return False
     return (path.endswith(".md") or path in {"LICENSE", ".gitignore"}
             or path.startswith(".github/ISSUE_TEMPLATE/"))

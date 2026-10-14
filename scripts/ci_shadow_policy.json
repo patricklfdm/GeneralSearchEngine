@@ -1,0 +1,7 @@
+{
+  "schema": "gse-ci-shadow-policy-v1",
+  "mode": "shadow",
+  "profiles": ["docs", "core", "full"],
+  "documentationRule": "ci-documentation-v1",
+  "corePaths": []
+}

@@ -137,7 +137,7 @@ class SuiteContractTest(unittest.TestCase):
     def test_artifact_identity_restore_provenance_and_retention_rejected(self):
         changes = [
             ("v51-verification-build", "artifact_id: ${{ steps.handoff.outputs.artifact-id }}", "artifact_id: '123'"),
-            ("v51-foundation", "artifact-ids: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "name: latest-build"),
+            ("v51-foundation", "artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "artifact-id: latest-build"),
             ("v51-remote-rich-shards", "artifact-ids: ${{ needs.v51-remote-rich-inputs.outputs.artifact_id || 'missing-rich-inputs-artifact' }}", "name: latest-rich-inputs"),
             ("v51-remote-rich", "artifact-ids: ${{ needs.v51-remote-rich-shards.outputs.published_controls || 'missing-rich-shard-artifact' }}", "artifact-ids: 123"),
             ("v51-foundation", "retention-days: 14", "retention-days: 1"),

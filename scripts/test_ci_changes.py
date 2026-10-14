@@ -33,6 +33,7 @@ class ChangeDetectionTest(unittest.TestCase):
                      ".mvn/wrapper/maven-wrapper.properties", "scripts/check.py", "scripts/input.md",
                      "scripts/ci_suite_registry.json", "scripts/ci_suites.py", "scripts/ci_required.py",
                      ".github/workflows/ci.yml", ".github/workflows/README.md",
+                     ".github/actions/v51-restore-build/action.yml", ".github/actions/README.md",
                      "docs/v5x/v5.0/phase1-plan.json", "docs/baseline.sha256",
                      "new-module/new-build-input", "src/test/resources/README.md"):
             with self.subTest(path=path):
@@ -315,6 +316,7 @@ class WorkflowTopologyTest(unittest.TestCase):
                 self.assertIn("    timeout-minutes: 60\n", body)
 
     def test_v51_build_executes_tests_and_consumers_restore_exact_inputs(self):
+        from scripts.test_ci_composites import effective_job
         build = self.jobs["v51-verification-build"]
         command = "run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml clean package"
         self.assertEqual(1, build.count(command))
@@ -329,7 +331,7 @@ class WorkflowTopologyTest(unittest.TestCase):
             if not name.startswith("v51-") or name == "v51-verification-build":
                 continue
             with self.subTest(job=name):
-                body = self.jobs[name]
+                body = effective_job(self.jobs[name], name)
                 self.assertNotIn("./mvnw", body)
                 self.assertNotIn("cache: maven", body)
                 self.assertIn("uses: actions/download-artifact@", body)
@@ -351,6 +353,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn("scripts.test_ci_v51_bundle", self.jobs["changes"])
 
     def test_rerun_handoffs_use_producer_ids_and_preserve_every_attempt(self):
+        from scripts.test_ci_composites import effective_job
         # Never derive a handoff from the consumer attempt: a failed-only rerun
         # legitimately consumes successful producers from earlier attempts.
         for name in ("v51-verification-build", "v51-remote-rich-inputs", "v51-remote-rich-shards"):
@@ -371,6 +374,7 @@ class WorkflowTopologyTest(unittest.TestCase):
         downloads = []
         for name, body in self.jobs.items():
             if not name.startswith("v51-"): continue
+            body = effective_job(body, name)
             for step in re.split(r"^      - ", body, flags=re.MULTILINE):
                 if "uses: actions/download-artifact@" in step:
                     downloads.append(step)

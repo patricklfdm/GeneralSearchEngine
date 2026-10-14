@@ -25,11 +25,18 @@ attempt. Independent Reactor, V5.0, V4, soak, compatibility and release build
 domains remain intentional. In V4, later `--skip-build` steps consume earlier
 JMH outputs, so their order matters.
 
-The registry records all **24 download and 99 upload definitions**, including
+The registry records all **24 download and 99 upload operations per static job set**, including
 paths, IDs, conditions, missing-file policy, compression and retention. Of the
 uploads, 90 use 14 days, eight use seven days, and the V5.1 canonical receipt uses
 90 days. These static definitions are not counts of expanded uploaded artifacts.
 The release workflow's corresponding reproducibility evidence also uses 90 days.
+PR3 adds one independent [shadow observation upload](CI_SHADOW_PLANNER.md) in
+Change scope, with run/attempt identity and 14-day retention. It is diagnostic
+metadata with no qualification consumer; the 99 suite uploads remain unchanged.
+
+After [PR2 step reuse](CI_V51_STEP_REUSE.md), these contracts are checked against
+the effective steps after expanding the two reviewed local actions. Physical
+YAML declaration counts are smaller; the executed operations remain the same.
 
 ## External readers
 

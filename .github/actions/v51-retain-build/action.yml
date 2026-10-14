@@ -1,0 +1,19 @@
+name: Retain V5.1 restored build provenance
+description: Preserve the restore receipt and manifest, including failed restorations.
+inputs:
+  artifact-name:
+    description: The caller's existing per-job provenance artifact name.
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Retain restored build provenance including failures
+      if: ${{ always() }}
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.artifact-name }}
+        path: |
+          ${{ runner.temp }}/v51-build/restore.json
+          target/ci-v51-build/manifest.json
+        if-no-files-found: warn
+        retention-days: 14
