@@ -2,19 +2,23 @@
 
 - [CI/CD and release operations](CI_CD.md)
 
-This directory preserves published records through V5.0 and completed development
+This directory preserves published records through V5.1 and completed development
 phases. The repository root [`README.md`](../README.md) remains the user-facing entry
 point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase history and
 current planning. Accepted version-specific charters and contracts govern their
 scope. Proposed documents are not accepted merely because they are linked here.
 
-## Next development proposals
+Next development is [V5.2 Phase 0 replica-read contract design](v5x/NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0).
+
+## v5.1 — current stable automatic leadership
 
 - [Development handoff, reading order and integration review](v5x/NEXT_DEVELOPMENT_HANDOFF.md)
 - [V5.x proposed scope refinement](v5x/NEXT_DEVELOPMENT_ADDENDUM.md)
-- [V5.1 Phase 7B final candidate and canonical artifact checklist](v5x/v5.1/PHASE_7_CHECKLIST.md)
+- [V5.1 accepted Phase 7 final candidate and canonical artifact checklist](v5x/v5.1/PHASE_7_CHECKLIST.md)
 - [V5.1 migration guide](v5x/v5.1/MIGRATION_GUIDE.md)
-- [V5.1 publication checklist](v5x/v5.1/RELEASE_CHECKLIST.md)
+- [V5.1 completed publication and independent verification](v5x/v5.1/RELEASE_CHECKLIST.md)
+- [V5.1 published artifact hashes](v5x/v5.1/candidate-artifacts.sha256)
+- [V5.1 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.1.0)
 - [V5.1 Phase 0 entry plan: documentation only](v5x/v5.1/PHASE_0_ENTRY_PLAN.md)
 - [V5.1 Phase 0 automatic-leadership contract candidate](v5x/v5.1/PHASE_0_CONTRACT.md)
 - [V5.1 Phase 0 delivery and acceptance checklist](v5x/v5.1/PHASE_0_CHECKLIST.md)

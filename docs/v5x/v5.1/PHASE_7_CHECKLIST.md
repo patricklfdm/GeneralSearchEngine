@@ -1,6 +1,7 @@
 # V5.1 Phase 7 release preparation
 
-**Status:** Phase 7B candidate at `5.1.0`; protected CI and merge pending.
+**Status:** Phase 7 accepted through PR #322; exact-master CI `38482900297`,
+attempt 1, passed all 46 jobs. [Phase 8 publication](RELEASE_CHECKLIST.md) is complete.
 **Starting master:** `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` (PR #321).
 
 ## Accepted entry
@@ -18,8 +19,8 @@
 | Batch | Concrete result | Acceptance boundary |
 | --- | --- | --- |
 | 7A, accepted | Independent V5.1 Maven consumer; published V5.0 API/binary audit against packaged JARs; migration guide and release checklist; snapshot packaging/Javadoc/reproducibility review | PR #321 merged with the one-time CI exception below, at `5.1.0-SNAPSHOT` |
-| 7B, current | Final `5.1.0` coordinates throughout modules/consumers/harnesses; frozen canonical toolchain/output timestamp; two independent clean-workspace builds; nine JAR/three POM hashes; CI/release/remote verification routes | Exact candidate source passes all required CI; no signed tag or publication |
-| Phase 8 | Operator-created signed tag, approved Central/GitHub publication, signature/checksum/canonical-byte and clean remote-consumer reconciliation | [Release checklist](RELEASE_CHECKLIST.md) |
+| 7B, accepted | Final `5.1.0` coordinates throughout modules/consumers/harnesses; frozen canonical toolchain/output timestamp; two independent clean-workspace builds; nine JAR/three POM hashes; CI/release/remote verification routes | PR #322, master `516fe1efb54ef0787f38209108f322f258f71696`, exact-master CI `38482900297` |
+| Phase 8, complete | Operator-created signed tag, approved Central/GitHub publication, signature/checksum/canonical-byte and clean remote-consumer reconciliation | Release `38488481320`; [publication record](RELEASE_CHECKLIST.md) |
 
 Phase 7A implemented its entry and qualification together in PR #321. It changed
 consumer/test/release tooling and documentation, not runtime Java, formats,
@@ -104,10 +105,10 @@ required jobs and their dependency/skip rules remain in place.
 - [x] Run source/reflection/API compatibility, all independent consumers, strict
   Javadocs and package inspections at final coordinates.
 - [x] Add dated release notes while keeping 5.0.0 marked stable until publication.
-- [ ] Protected candidate CI and exact-master acceptance recorded; Phase 7 closed.
+- [x] Protected candidate CI and exact-master acceptance recorded; Phase 7 closed.
 
 Signed tag, publication and cloud workflow dispatch remain operator-owned. Do not
-invoke the generic release workflow with this snapshot or treat a green 7A audit
+invoke the generic release workflow with a snapshot or treat a green 7A audit
 as a substitute for the final nine-JAR/three-POM freeze.
 
 ## Phase 7B artifact and source boundaries
@@ -127,8 +128,8 @@ It was generated only from a successful two-workspace canonical receipt at
 `target/v51-canonical-reproducibility/`. That local receipt explicitly identifies
 an uncommitted working tree based on PR #321; it does not claim an accepted final
 commit. CI regenerates the receipt from a clean checkout and must match both the
-frozen bytes and the exact CI/tag commit. Hosted acceptance remains open until
-those checks actually pass.
+frozen bytes and the exact CI/tag commit. Both exact-master CI `38482900297` and
+Release `38488481320` passed these checks at the accepted final source.
 
 Candidate version checks distinguish current execution from historical replay:
 new builds resolve the exact current POM coordinate and matching manifest version;
@@ -146,9 +147,13 @@ signatures/checksums, then all six independent consumers. This wiring is checked
 locally without invoking a signing key or publishing anything.
 
 Phase 7B local receipts are retained under `target/v51-phase7-candidate/` and
-summarized in its `validation-summary.json`. Full final-candidate CI and a
-master merge are the next acceptance steps. The Phase 7A CI exception does not
-apply to this candidate.
+summarized in its `validation-summary.json`. PR #322 merged at
+`516fe1efb54ef0787f38209108f322f258f71696`; full exact-master CI `38482900297`
+passed all 46 jobs on attempt 1. Its downloaded canonical receipt was independently
+replayed with `--source` set to that exact commit; all twelve hashes match.
+The entry review is retained at `target/v51-phase8-entry/acceptance.json`.
+The Phase 7A CI exception did not apply to this candidate. Subsequent signed
+publication and independent remote verification are in the [release record](RELEASE_CHECKLIST.md).
 
 ## Phase 7B local validation
 

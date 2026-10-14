@@ -1,14 +1,20 @@
 # GeneralSearchEngine development roadmap
 
-## Current development: V5.1 automatic election and activation
+## Current milestone: V5.1 published; V5.2 contract design next
 
-**Latest milestone:** V5.1 [Phase 6](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
-is closed through PR #320 and exact-master CI `38457745089` (46 jobs, attempt 1).
-The accepted five-member cloud baseline preserves its original sources/sequences.
-[Phase 7A](docs/v5x/v5.1/PHASE_7_CHECKLIST.md) merged through PR #321 with the
-operator's one-time CI exception. Phase 7B now freezes `5.1.0` coordinates,
-canonical artifact hashes and publication checks; exact-source CI and merge
-remain pending. Publication follows in Phase 8. The chronology
+**Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
+are complete. PR #322 and exact-master CI `38482900297` accepted source
+`516fe1efb54ef0787f38209108f322f258f71696` (46 successful jobs, attempt 1).
+Signed tag `v5.1.0` and Release `38488481320` published that source to Central and
+GitHub. Independent remote verification passes all twelve canonical artifacts,
+their signatures/checksums and fresh V1–V5.1 consumers. Stable is **5.1.0**.
+The accepted [Phase 6 cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
+preserves its measured sources/sequences and historical failures/costs. The
+one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
+
+**Next:** V5.2 Phase 0 replica-read contract and evidence design, starting with
+the [V5.x roadmap](docs/v5x/ROADMAP.md#next-entry-and-proposal-status).
+Runtime implementation follows acceptance of that contract. The chronology
 below preserves earlier milestones and acceptance boundaries.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at

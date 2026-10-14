@@ -8,7 +8,8 @@ CI. The final control observation records USD 250, no unresolved reservation and
 no active lease. Independent raw replay and baseline registration were accepted
 through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 CI `38457745089` attempt 1 (all 46 jobs). **Phase 6 is closed**;
-[Phase 7](PHASE_7_CHECKLIST.md) is next. Historical failure records and costs remain intact.
+[Phase 7](PHASE_7_CHECKLIST.md) and [Phase 8 publication](RELEASE_CHECKLIST.md)
+subsequently completed. Historical failure records and costs remain intact.
 
 **Historical milestones:** entry/model foundation accepted; runtime and its corrections merged
 through PR #219 at `54e203eeca6c087b7ba03954d546c7682e8338f2`. Exact-master CI

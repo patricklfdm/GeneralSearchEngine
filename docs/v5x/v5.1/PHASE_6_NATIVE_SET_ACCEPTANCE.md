@@ -4,8 +4,10 @@
 master `5c88a2b908347fa3e411e2018876657a21fa0912`. Exact-master
 [CI 38457745089](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38457745089),
 attempt 1, passed all 46 jobs. **Phase 6 is closed.** The five paid members,
-independent raw replay and first baseline are accepted. Next is
-[Phase 7 release preparation](PHASE_7_CHECKLIST.md).
+independent raw replay and first baseline are accepted.
+[Phase 7 release preparation](PHASE_7_CHECKLIST.md) and
+[Phase 8 publication](RELEASE_CHECKLIST.md) subsequently completed on the final
+release source, preserving the measured identities below.
 
 ## Measured sources and original runs
 

@@ -7,19 +7,23 @@ bitmaps so readers
 can search without locking while a single writer batches mutations and atomically
 publishes new snapshots.
 
-Version **5.0.0** is the current stable release, published on September 19, 2026.
-Its signed `v5.0.0` tag, three Maven artifacts, protected production deployment and
-[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
-are complete. All nine published JAR hashes match the canonical builds, and clean
-V1–V5 consumers pass against Maven Central. The
-[release checklist](docs/v5x/v5.0/RELEASE_CHECKLIST.md) records publication and
+Version **5.1.0** is the current stable release, published on October 13, 2026
+(Pacific time; `2026-10-14T00:33:12Z`). Its signed `v5.1.0` tag, three Maven
+artifacts, protected production deployment and
+[GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.1.0)
+are complete. All nine published JARs and three POMs match the frozen canonical
+hashes, and clean V1–V5.1 consumers pass against Maven Central. The
+[release checklist](docs/v5x/v5.1/RELEASE_CHECKLIST.md) records publication and
 independent verification.
 
-V5.1 development has completed its automatic-leadership cloud qualification and
-entered [Phase 7B final-candidate review](docs/v5x/v5.1/PHASE_7_CHECKLIST.md)
-at `5.1.0`, with nine JAR and three POM hashes frozen. It remains
-unreleased; see the [V5.1 migration guidance](docs/v5x/v5.1/MIGRATION_GUIDE.md)
-for the opt-in automatic mode and new-group transfer requirements.
+V5.1 adds opt-in automatic leadership, quorum-proven publication, strong leader
+reads and retained-voter recovery for one sealed group of exactly three voters.
+Configured-leader mode remains available. The
+[accepted five-member cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md)
+records qualification under the frozen workload. Public follower reads, dynamic
+membership and mixed-version rolling upgrades remain unsupported. See the
+[V5.1 migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md) for explicit mode selection
+and new-group transfer requirements. V5.2 replica-read contract design is next.
 
 V5.0 adds an optional replication artifact with exactly three fixed voters, a
 configured leader, durable quorum commit proof, explicit activation, catch-up and
@@ -33,8 +37,9 @@ See the [4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md),
 [public runtime semantics](docs/v5x/v5.0/PUBLIC_ADMISSION_RUNTIME.md),
 [V5 development line](docs/v5x/README.md), and
 [development roadmap](DEVELOPMENT_ROADMAP.md).
-Version `4.4.0` remains the prior stable release and frozen single-node compatibility
-reference. The [V4.x development map](docs/v4x/README.md) and
+Version `5.0.0` is the previous stable release and configured-replication reference;
+`4.4.0` remains the frozen single-node compatibility reference. The
+[V4.x development map](docs/v4x/README.md) and
 [complete document map](docs/README.md) preserve the earlier published contracts.
 
 Version 4.4.0 is the final published V4.x release. It contains no production Java,
@@ -200,7 +205,7 @@ retrieval behavior or artifact. Distributed architecture remains deferred to V5.
 
 ## Install
 
-### Stable 5.0.0
+### Stable 5.1.0
 
 The runtime dependency is:
 
@@ -208,23 +213,25 @@ The runtime dependency is:
 <dependency>
     <groupId>io.github.patricklfdm</groupId>
     <artifactId>general-search-engine</artifactId>
-    <version>5.0.0</version>
+    <version>5.1.0</version>
 </dependency>
 ```
 
 The annotation processor and replication runtime are separate optional artifacts,
-using the same `5.0.0` version as core. Replication requires explicit sealed-group
-bootstrap and activation. Existing single-node applications retain their selected
-storage formats; adding the core dependency does not enable replication. See the
-[4.4-to-5.0 migration guide](docs/v5x/v5.0/MIGRATION_GUIDE.md).
+using the same `5.1.0` version as core. Replication requires explicit sealed-group
+bootstrap and mode selection: configured mode retains explicit activation;
+automatic mode elects and activates after the group starts. Existing single-node
+applications retain their selected storage formats; adding the core dependency
+does not enable replication. See the
+[V5.1 migration guide](docs/v5x/v5.1/MIGRATION_GUIDE.md).
 
 All three artifacts are available from Maven Central:
 
-- [general-search-engine](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/5.0.0)
-- [general-search-engine-processor](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/5.0.0)
-- [general-search-engine-replication](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-replication/5.0.0)
+- [general-search-engine](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine/5.1.0)
+- [general-search-engine-processor](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-processor/5.1.0)
+- [general-search-engine-replication](https://central.sonatype.com/artifact/io.github.patricklfdm/general-search-engine-replication/5.1.0)
 
-See the [v5.0.0 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.0.0)
+See the [v5.1.0 GitHub Release](https://github.com/patricklfdm/GeneralSearchEngine/releases/tag/v5.1.0)
 for release notes and the tagged source archive.
 
 V4.2 keeps ordinary search in memory unless `buildDurable(...)` is selected and keeps

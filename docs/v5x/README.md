@@ -1,7 +1,8 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 published and independently verified; V5.1 Phases 0–6 and 7A accepted, Phase 7B candidate in review; V5.2–V5.4 planned
-- **Stable comparison release:** GeneralSearchEngine `4.4.0`
+- **Status:** V5.0 and V5.1 published and independently verified; V5.2 Phase 0 is next; V5.2–V5.4 remain planned
+- **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
+- **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
 
 V5.x builds one replicated group over the frozen V4.4 durable/search semantics. V5.0
@@ -11,21 +12,26 @@ hardening. Sharding and distributed query are not V5 work.
 
 ## Next development entry
 
-Current entry: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md), after
-Phase 6 acceptance in PR #320 / CI `38457745089` (46 jobs, attempt 1) and Phase 7A
-merge in PR #321 under the operator's one-time CI exception.
-The [migration guide](v5.1/MIGRATION_GUIDE.md) and
-[publication checklist](v5.1/RELEASE_CHECKLIST.md) retain the distinction between
-an accepted cloud baseline, final candidate freeze and actual publication.
+V5.1 [Phases 7 and 8](v5.1/RELEASE_CHECKLIST.md) are complete: PR #322,
+exact-master CI `38482900297` (46 jobs, attempt 1), signed tag `v5.1.0` and
+Release `38488481320`. All twelve published files match the canonical hashes;
+independent signatures/checksums and clean V1–V5.1 consumers pass.
+The [migration guide](v5.1/MIGRATION_GUIDE.md) describes the published automatic
+mode and preserves the configured-mode boundary.
+
+Next is [V5.2 Phase 0](NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0): define
+replica-read policies, history-bound progress and failure/resource evidence before
+runtime implementation. The accepted V5.1 cloud evidence retains its original
+sources/sequences; publication does not alter those measurements.
 
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,
 review boundaries, source identities and validation guidance in this repository.
 
-**Planning status:** V5.1 Phase 2 was accepted in PR #187 and Phase 3 was separately
-authorized by the user. Later-minor/V6 refinements remain proposals; they do not
-authorize runtime work, paid execution or publication beyond an accepted phase entry.
+**Planning status:** V5.1 is published. Later-minor/V6 refinements remain proposals;
+runtime work follows the relevant accepted phase entry, with separate authorization
+for paid execution and publication.
 
-Start with the [V5.x roadmap](ROADMAP.md), then the
+For V5.1's historical development, start with the [V5.x roadmap](ROADMAP.md), then the
 [proposed next-development addendum](NEXT_DEVELOPMENT_ADDENDUM.md) and
 [V5.1 Phase 0 entry plan](v5.1/PHASE_0_ENTRY_PLAN.md). The user subsequently assigned
 the design task: its [six-document contract](v5.1/PHASE_0_CONTRACT.md)

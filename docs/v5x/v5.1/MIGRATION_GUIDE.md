@@ -1,8 +1,8 @@
-# Preparing for V5.1 automatic leadership
+# Migrating to V5.1 automatic leadership
 
-**Status:** migration guidance for the `5.1.0` candidate; 5.0.0 remains the published
-stable release. Final release coordinates and publication are tracked in the
-[Phase 7 checklist](PHASE_7_CHECKLIST.md).
+**Status:** migration guidance for published stable `5.1.0`. Final coordinates,
+signed tag, canonical bytes and remote verification are recorded in the
+[release checklist](RELEASE_CHECKLIST.md).
 
 ## Choose the operating mode explicitly
 

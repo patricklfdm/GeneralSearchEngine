@@ -1,42 +1,54 @@
 # GeneralSearchEngine V5.x roadmap
 
-Current batch: [V5.1 Phase 7B release candidate](v5.1/PHASE_7_CHECKLIST.md).
+Current milestone: [V5.1 published and independently verified](v5.1/RELEASE_CHECKLIST.md).
 Phase 6 closed through PR #320 at `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (all 46 jobs). The accepted
 [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md) retains the original
 measured identities, explicit image continuation, USD 250 reserved accounting
 and historical failures.
 
-PR #321 accepted Phase 7A under the operator's one-time CI skip. Phase 7B freezes
-final coordinates, canonical hashes and release verification; its exact-source CI
-and merge are pending. Signed tag, Central/GitHub publication and reconciliation
-are Phase 8.
+PR #321 accepted Phase 7A under the operator's one-time CI skip. Phase 7B was
+accepted through PR #322, master `516fe1efb54ef0787f38209108f322f258f71696`,
+exact-master CI `38482900297` attempt 1 (all 46 jobs). Signed tag `v5.1.0` and
+Release `38488481320` published that source. All twelve remote artifact hashes,
+signatures/checksums and clean V1–V5.1 consumers pass independent verification.
+Phase 8 is complete; stable is **5.1.0**.
 
-- **Status:** V5.0 published; V5.1 Phases 0–6 and 7A accepted, Phase 7B in review; V5.2–V5.4 planned
+- **Status:** V5.0 and V5.1 published; V5.2 Phase 0 is next; V5.2–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
+- **V5.2 replication reference:** published `5.1.0`
 - **Later-minor planning:** PROPOSED revision 0.1, 2026-09-19; V5.1 acceptance and phase scope are recorded below
-
-The owned network and complete failure-drill lanes passed corrected-source master
-CI `37837221623`. The accepted complete canonical gate preserves three 260-call
-healthy modes, 120 read-heavy calls and 180 sustained calls, and independently
-replays all twelve faults. The current integration binds full-preset budgets, remaining-sequence prices and ledger
-constraints, with matching Action member/order choices and native guest/validator paths. Offline
-qualification cannot close a paid preset or the formal five-member cloud set.
 
 ## Version sequence
 
 | Version | Boundary | Completion question |
 | --- | --- | --- |
 | 5.0 — published | Configured-leader replication | Accepted through Phases 0–8; see the [release record](v5.0/RELEASE_CHECKLIST.md). |
-| 5.1 | Automated leadership | Can a quorum safely fence an old leader and restore write availability? |
+| 5.1 — published | Automated leadership | Accepted through Phases 0–8; see the [release record](v5.1/RELEASE_CHECKLIST.md). |
 | 5.2 | Replica reads | Can followers serve only the consistency they explicitly prove? |
 | 5.3 | Cluster operations | Can membership and maintenance change without violating committed history? |
 | 5.4 | Final hardening | Is the replicated single-shard line a stable future architecture reference? |
 
 ## Next entry and proposal status
 
-**Current next batch:** extend the accepted four-cell native path to failure-drill
+**Next batch:** V5.2 Phase 0 replica-read contract and evidence design. Freeze
+strong-leader, stale-allowed and history-bound at-least-index policies; define
+publication-aware waits/rejections, bounded waiters/pins/cursors and behavior under
+lag, fencing, restore and restart. Use published V5.1 as the immediate replication
+reference and preserve the inherited V4.4 search/storage contract. The
+[handoff](NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0) records the reading
+order and scope. V5.2 production work starts after its own Phase 0 acceptance.
+
+## Historical V5.1 implementation milestones
+
+The owned network and complete failure-drill lanes passed corrected-source master
+CI `37837221623`. The accepted complete canonical gate preserves three 260-call
+healthy modes, 120 read-heavy calls and 180 sustained calls, and independently
+replays all twelve faults. Offline qualification preceded the paid five-member
+acceptance recorded above.
+
+An earlier Phase 6 batch extended the accepted four-cell native path to failure-drill
 and canonical following the [native preset entry plan](v5.1/PHASE_6_NATIVE_PRESET_ENTRY_PLAN.md).
 The [native experiment acceptance record](v5.1/PHASE_6_NATIVE_EXPERIMENT_ACCEPTANCE.md)
 binds source `500a41f30a5149703b81c4c2d01da75cd3baf1ed`, protected CI `37718123364`
