@@ -2,7 +2,7 @@
 
 Status: merged together with [PR2 step reuse](CI_V51_STEP_REUSE.md) in PR #325;
 [hosted first-rollout reports verified](CI_SHADOW_ACCEPTANCE.md), valid-baseline
-docs-only observation pending. No core execution
+docs-only observation verified by PR #326. No core execution
 policy is enabled. The existing classifier, all 36 required suites and all
 three complete canonical repetitions continue to run under the original
 full/docs conditions.
@@ -57,8 +57,8 @@ The tested policy must be byte-identical to it. A PR cannot edit its policy file
 to classify its own runtime change as core. **The rollout baseline `62b104e...`
 has no policy**, so its PR and merge-push observations both reported
 `POLICY_UNAVAILABLE` / full, as expected, leaving actual full CI unchanged.
-Current master now contains the policy; a subsequent docs-only change can
-exercise the valid-baseline docs recommendation.
+PR #326 subsequently exercised the valid-baseline docs recommendation in both
+its PR and master push; see the hosted acceptance record.
 
 `git diff --name-only --no-renames -z` preserves both sides of a rename, unusual
 filenames and the complete path set without GitHub file-API pagination limits.
@@ -123,8 +123,8 @@ results and commands are in [the progress record](CI_REFACTOR_PROGRESS.md).
 
 The full PR/master accepted views retain the unchanged suite set and observation
 reports; master includes a partial rerun after its first workload failure, which
-remains recorded. Pending hosted acceptance is a later docs-only PR and master
-push retaining the original expected skips and displaying both docs profiles. Check the
+remains recorded. PR #326 completed docs-only PR and master acceptance, retaining
+the original expected skips and displaying both docs profiles. Check the
 actual tested SHA and attempt in the artifact, not only the API's PR `head_sha`.
 No new workflow is dispatched by this implementation task.
 
@@ -134,4 +134,5 @@ validator/tests and documentation. For a merge commit use
 Keep evidence and the release tag. To retain PR2 while removing only shadow
 observation, remove both new Change scope steps, its test-module binding and
 matching shadow validator/tests/policy together in a reviewed change. There is
-no enabled core execution switch to disable. PR4 has not started.
+no enabled core execution switch to disable. The [PR4 policy review](CI_CORE_POLICY_REVIEW.md)
+recommends deferring activation; its implementation proposal is not an active policy.

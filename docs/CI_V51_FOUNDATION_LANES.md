@@ -1,8 +1,9 @@
 # V5.1 foundation and owned guest CI partition
 
-**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
-Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
-Earlier counts and timings in this document describe their historical migrations.
+**Current topology:** see the [generated inventory](CI_JOB_INVENTORY.md).
+The later [Python/cloud partition](CI_PYTHON_LANES.md) had 32 required job IDs and
+36 expanded jobs at that migration. Counts and timings below remain historical;
+they are not the current complete workflow inventory.
 
 
 The accepted master [job 109353691714](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/36551903980/job/109353691714)

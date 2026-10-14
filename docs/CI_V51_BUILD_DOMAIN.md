@@ -1,8 +1,9 @@
 # V5.1 verification build domain
 
-**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
-Python test and cloud-gate ownership below: 32 required job IDs, 36 executed jobs.
-Earlier counts and timings in this document describe their historical migrations.
+**Current topology:** see the [generated inventory](CI_JOB_INVENTORY.md) and
+[consumer contracts](CI_DEPENDENCY_CONTRACTS.md). Counts, diagrams and timings
+below belong to their historical migrations; they do not describe today's
+complete workflow. No historical measurement is rewritten by this reconciliation.
 
 
 ## Scope and decision

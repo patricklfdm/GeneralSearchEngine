@@ -1,6 +1,7 @@
 # CI dependency and consumer contracts
 
-The [suite registry](../scripts/ci_suite_registry.json) describes the current
+The [generated inventory](CI_JOB_INVENTORY.md), validated against the actual
+workflow and [suite registry](../scripts/ci_suite_registry.json), describes the current
 36 full-CI lane IDs, their dependencies, fixed matrices, artifact handoffs,
 retention and full/docs outcomes. Changes and Required are separate meta jobs:
 38 static IDs expand to **46 full jobs**, or 38 docs records with 36 explicitly
@@ -97,3 +98,8 @@ closed explicit syntax; it is not a general YAML loader. No expression or shell
 string in the registry is evaluated. External consumer tests remain independent;
 matching edits to YAML and JSON alone do not establish compatibility or authorize
 less coverage.
+
+Use the [future-suite onboarding procedure](CI_SUITE_ONBOARDING.md) for new
+version modules and the [operational handoff](CI_REFACTOR_HANDOFF.md) for final
+acceptance, failure accounting and rollback. The generated inventory is checked
+by the existing suite-contract tests; it is never an execution plan.

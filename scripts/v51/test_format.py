@@ -2,8 +2,12 @@ import base64
 from copy import deepcopy
 import hashlib
 import json
+import os
+from pathlib import Path
 import struct
+import tempfile
 import unittest
+from unittest.mock import patch
 from . import fixtures, format_encoder as encoder, format_inspector as inspector
 
 
@@ -91,5 +95,90 @@ class FormatTest(unittest.TestCase):
             proof['epoch'],proof['proposer'],proof['incarnation'],proof['index'],proof['entryDigest'])) for n in ('foreign','node-1')]
         with self.assertRaisesRegex(ValueError,'voter membership'):
             inspector.contextual_frame(encoder.encode('PROOF',proof),'PROOF',self.fixture['manifest'])
+
+class CatalogReuseTest(unittest.TestCase):
+    def setUp(self):
+        original=inspector.CATALOG.parent
+        self.directory=tempfile.TemporaryDirectory();self.addCleanup(self.directory.cleanup)
+        self.root=Path(self.directory.name)
+        for name in ('format-catalog.json','bootstrap-catalog.json','runtime-wire-extension.json','rejoin-wire-extension.json'):
+            (self.root/name).write_bytes((original/name).read_bytes())
+        for name,value in (('CATALOG',self.root/'format-catalog.json'),('WIRE_EXTENSIONS',tuple(self.root/n for n in ('runtime-wire-extension.json','rejoin-wire-extension.json')))):
+            override=patch.object(inspector,name,value);override.start();self.addCleanup(override.stop)
+        for cache in (inspector._records,inspector._bootstrap_records,inspector._wire_catalog):
+            cache.cache_clear();self.addCleanup(cache.cache_clear)
+        fixture=json.loads((original/'format-fixtures.json').read_bytes());self.manifest=fixture['manifest']
+        self.genesis=base64.b64decode(fixture['storage']['GENESIS'])
+        self.bootstrap=encoder.frame(28,encoder.canonical({'descriptor':''}))
+        self.runtime=base64.b64decode(json.loads((original/'runtime-wire-fixtures.json').read_bytes())['request'])
+        self.rejoin=base64.b64decode(json.loads((original/'rejoin-wire-fixtures.json').read_bytes())['SOURCE_OFFER-request'])
+
+    def cases(self):
+        return (
+            ('format-catalog.json',lambda:inspector.inspect(self.genesis,'GENESIS')),
+            ('bootstrap-catalog.json',lambda:inspector.inspect(self.bootstrap,'BOOTSTRAP_BINDING')),
+            ('runtime-wire-extension.json',lambda:inspector.wire(self.runtime,self.manifest)),
+            ('rejoin-wire-extension.json',lambda:inspector.wire(self.rejoin,self.manifest)),
+        )
+
+    def test_warm_catalogs_still_reject_missing_and_corrupt_files(self):
+        for name,decode in self.cases():
+            with self.subTest(name=name):
+                path=self.root/name;data=path.read_bytes();expected=decode()
+                try:
+                    path.unlink()
+                    with self.assertRaises(FileNotFoundError):decode()
+                    path.write_bytes(b'{')
+                    with self.assertRaises(ValueError):decode()
+                    path.write_bytes(data)
+                    self.assertEqual(expected,decode())
+                finally:path.write_bytes(data)
+
+    def test_same_size_same_mtime_catalog_changes_are_not_stale(self):
+        for name,decode in self.cases():
+            with self.subTest(name=name):
+                path=self.root/name;original=path.read_bytes();expected=decode()
+                value=json.loads(original)
+                if name=='format-catalog.json':spec=value['records']['GENESIS']
+                elif name=='bootstrap-catalog.json':spec=value['BOOTSTRAP_BINDING']
+                else:spec=value['wire']['SELECTED_OFFER' if name.startswith('runtime') else 'SOURCE_OFFER']
+                spec['id']+=100
+                changed=json.dumps(value).encode();size=max(len(original),len(changed))
+                data=original.ljust(size);changed=changed.ljust(size)
+                try:
+                    path.write_bytes(data);stamp=path.stat();self.assertEqual(expected,decode())
+                    path.write_bytes(changed);os.utime(path,ns=(stamp.st_atime_ns,stamp.st_mtime_ns))
+                    self.assertEqual((size,stamp.st_mtime_ns),(path.stat().st_size,path.stat().st_mtime_ns))
+                    with self.assertRaises(ValueError):decode()
+                    path.write_bytes(data);self.assertEqual(expected,decode())
+                finally:path.write_bytes(original)
+
+    def test_public_catalog_and_results_remain_independent_mutable_objects(self):
+        original=inspector.load();altered=inspector.load()
+        altered['records']['GENESIS']['maximum']=0
+        self.assertEqual(original,inspector.load())
+        for _,decode in self.cases():
+            expected=decode();changed=decode();changed.clear()
+            self.assertEqual(expected,decode())
+
+    def test_warm_schema_does_not_cache_evidence_or_a_positive_verdict(self):
+        for raw,name in ((self.genesis,'GENESIS'),(self.bootstrap,'BOOTSTRAP_BINDING')):
+            inspector.inspect(raw,name)
+            for bad in (raw[:-1],raw+b'\0',reframe(raw,flags=1)):
+                with self.assertRaises(ValueError):inspector.inspect(bad,name)
+        for raw in (self.runtime,self.rejoin):
+            inspector.wire(raw,self.manifest)
+            for bad in (raw[:-1],reframe(raw,flags=1),reframe(raw,body=raw[48:-1]+b'!')):
+                with self.assertRaises(ValueError):inspector.wire(bad,self.manifest)
+
+    def test_repeated_validation_reuses_parsing_but_rereads_catalog_bytes(self):
+        data=inspector.CATALOG.read_bytes()
+        with patch.object(inspector.json,'loads',wraps=json.loads) as parse:
+            for _ in range(5):inspector.inspect(self.genesis,'GENESIS')
+        self.assertEqual(1,sum(call.args[0]==data for call in parse.call_args_list))
+        # A fresh read after warming the parser must still observe removal.
+        inspector.CATALOG.unlink()
+        with self.assertRaises(FileNotFoundError):inspector.inspect(self.genesis,'GENESIS')
+
 
 if __name__=='__main__':unittest.main()

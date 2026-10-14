@@ -1,12 +1,9 @@
 # V5.1 CI: three jobs split into nine
 
-**Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
-Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
-[complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring
-the topology to 34 required job IDs, 38 executed jobs. The
-[owned canonical tape matrix](v5x/v5.1/PHASE_6_OWNED_CANONICAL_TAPES.md) adds five
-independent whole-tape jobs: current total 35 required job IDs, 43 executed jobs.
-Earlier counts and timings in this document describe their historical migrations.
+**Current topology:** see the [generated inventory](CI_JOB_INVENTORY.md) and
+[consumer contracts](CI_DEPENDENCY_CONTRACTS.md). Counts, diagrams and timings
+below belong to their historical migrations; they do not describe today's
+complete workflow. No historical measurement is rewritten by this reconciliation.
 
 
 The three V5.1 regression jobs now each have three independently required children.

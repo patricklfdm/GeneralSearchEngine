@@ -5,17 +5,41 @@ import json
 import re
 import struct
 import uuid
+from functools import lru_cache
 from pathlib import Path
 
 CATALOG=Path(__file__).resolve().parents[2]/'general-search-engine-replication/src/test/resources/replication/v51/format-catalog.json'
 MAX_IMAGE=67108864
 ZERO='00000000-0000-0000-0000-000000000000'
+WIRE_EXTENSIONS=tuple(CATALOG.parent/name for name in ('runtime-wire-extension.json','rejoin-wire-extension.json'))
 
 
 def need(test,message):
     if not test:raise ValueError(message)
 
 def load():return json.loads(CATALOG.read_bytes())
+
+
+# Cache schema parsing only, never evidence or a validation result. Read the
+# files on every use so deletion, corruption and same-mtime edits still fail.
+# These private trees never escape to callers or get mutated after construction;
+# load() and all decoded frame/packet results retain their fresh-object behavior.
+@lru_cache(maxsize=1)
+def _records(data):return json.loads(data)['records']
+
+
+@lru_cache(maxsize=1)
+def _bootstrap_records(data):return json.loads(data)
+
+
+@lru_cache(maxsize=1)
+def _wire_catalog(data, extensions):
+    catalog=json.loads(data)
+    for raw in extensions:
+        extension=json.loads(raw.decode('utf-8'))
+        catalog['wire'].update(extension['wire']);catalog['envelope']['object']['type']['enum']+=list(extension['wire'])
+    return catalog
+
 
 def json_body(raw):
     def pairs(values):
@@ -85,9 +109,9 @@ class Reader:
 
 def inspect(raw,name,depth=0):
     need(depth<=16,'nested frame depth')
-    catalog=load()['records']
+    catalog=_records(CATALOG.read_bytes())
     if name in ('BOOTSTRAP_BINDING','BOOTSTRAP_CLEANUP'):
-        catalog=json.loads((CATALOG.parent/'bootstrap-catalog.json').read_bytes())
+        catalog=_bootstrap_records((CATALOG.parent/'bootstrap-catalog.json').read_bytes())
     spec=catalog[name]
     need(48<len(raw)<=spec['maximum'],'frame capacity')
     magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16])
@@ -187,7 +211,7 @@ def contextual_frame(raw,name,manifest):
     if name=='PROOF':need(all(r['voter'] in nodes for r in value['receipts']),'proof voter membership')
     if name=='SELECTED':
         need(all(b['node'] in nodes for b in value['bases']) and value['ballot']['proposer'] in {b['node'] for b in value['bases']},'selected quorum identity')
-    walk_context(load()['records'][name]['schema'],value,manifest)
+    walk_context(_records(CATALOG.read_bytes())[name]['schema'],value,manifest)
     return value
 
 
@@ -203,10 +227,8 @@ def walk_context(schema,value,manifest):
 
 def wire(raw,manifest):
     need(48<len(raw)<=MAX_IMAGE,'wire capacity')
-    magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16]);catalog=load()
-    for name in ('runtime-wire-extension.json','rejoin-wire-extension.json'):
-        extension=json.loads((Path(__file__).resolve().parents[2]/'general-search-engine-replication/src/test/resources/replication/v51'/name).read_text())
-        catalog['wire'].update(extension['wire']);catalog['envelope']['object']['type']['enum']+=list(extension['wire'])
+    magic,major,minor,kind,flags,size=struct.unpack('>4sHHHHi',raw[:16])
+    catalog=_wire_catalog(CATALOG.read_bytes(),tuple(path.read_bytes() for path in WIRE_EXTENSIONS))
     spec=next((v for v in catalog['wire'].values() if v['id']==kind),None)
     need((magic,major,minor,flags)==(b'GSRP',1,2,0) and spec is not None,'wire version/kind')
     need(size==len(raw)-48 and hashlib.sha256(raw[:16]+raw[48:]).digest()==raw[16:48],'wire length/digest')
