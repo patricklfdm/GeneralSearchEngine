@@ -1,5 +1,5 @@
 {
-  "schema": "gse-ci-suites-v1",
+  "schema": "gse-ci-suites-v2",
   "workflow": ".github/workflows/ci.yml",
   "metaJobs": {"changes": {"name": "Change scope"}, "required": {"name": "Required"}},
   "suites": [
@@ -16,7 +16,8 @@
         {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-reactor-core-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-verification-build",
@@ -34,7 +35,8 @@
         {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-foundation",
@@ -57,7 +59,8 @@
         {"step": "Retain V5.1 model traces, process cuts and public consumer evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-foundation-${{ github.sha }}", "path": "target/v51-foundation", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-guest-services",
@@ -80,7 +83,8 @@
         {"step": "Retain V5.1 guest lifecycle, receipts and binary collection", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-guest-service-${{ github.sha }}", "path": "target/v51-guest-service", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-owned-experiment",
@@ -99,7 +103,8 @@
         {"step": "Retain V5.1 owned complete experiment and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-experiment-${{ github.sha }}", "path": "target/v51-owned-experiment", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-owned-network-faults",
@@ -118,7 +123,8 @@
         {"step": "Retain V5.1 owned network faults and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-network-faults-${{ github.sha }}", "path": "target/v51-owned-network-faults", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-owned-failure-drill",
@@ -137,7 +143,8 @@
         {"step": "Retain V5.1 owned failure drill and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-failure-drill-${{ github.sha }}", "path": "target/v51-owned-failure-drill", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-owned-canonical-tapes",
@@ -156,7 +163,8 @@
         {"step": "Retain V5.1 owned canonical tape and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-canonical-tapes-${{ matrix.tape }}-${{ github.sha }}", "path": "target/v51-owned-canonical-tapes", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-owned-canonical",
@@ -175,7 +183,8 @@
         {"step": "Retain V5.1 owned canonical aggregate and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-canonical-${{ matrix.repetition }}-${{ github.sha }}", "path": "target/v51-owned-canonical", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "skipped"
     },
     {
       "id": "v51-remote-rich-inputs",
@@ -193,7 +202,8 @@
         {"step": "Retain rich input preparation diagnostics", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-inputs-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-inputs/raw\n${{ runner.temp }}/v51-build/restore.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-remote-rich-shards",
@@ -212,7 +222,8 @@
         {"step": "Retain raw rich shard diagnostics including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-${{ matrix.shard }}-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-shard/${{ matrix.shard }}/raw\n${{ runner.temp }}/v51-build/restore.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-remote-rich",
@@ -233,7 +244,8 @@
         {"step": "Retain aggregate build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-build-inputs-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-remote-faults",
@@ -251,7 +263,8 @@
         {"step": "Retain V5.1 fault JVM evidence including failures and binary replay", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-faults-${{ github.sha }}", "path": "target/v51-remote-faults", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-admission-resources",
@@ -272,7 +285,8 @@
         {"step": "Retain V5.1 combined lifecycle evidence including failed schedules", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-combined-lifecycle-${{ github.sha }}", "path": "target/v51-combined-lifecycle", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-promise-crashes",
@@ -290,7 +304,8 @@
         {"step": "Retain V5.1 public promise and pre-reopen evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-promises-${{ github.sha }}", "path": "target/v51-public-promises", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-public-reads-faults",
@@ -310,7 +325,8 @@
         {"step": "Retain V5.1 public fault matrix including failed cases and pre-reopen bytes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-faults-${{ github.sha }}", "path": "target/v51-public-faults", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-public-recovery-pressure",
@@ -331,7 +347,8 @@
         {"step": "Retain V5.1 final coverage including failed qualification", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-final-coverage-${{ github.sha }}", "path": "target/v51-final-coverage", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-public-hardening",
@@ -350,7 +367,8 @@
         {"step": "Retain V5.1 combined hardening evidence including failed rounds", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-hardening-${{ github.sha }}", "path": "target/v51-hardening", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-protocol-selection",
@@ -369,7 +387,8 @@
         {"step": "Retain V5.1 public selection evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-selection-${{ github.sha }}", "path": "target/v51-public-selection", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-candidate-crashes",
@@ -387,7 +406,8 @@
         {"step": "Retain V5.1 public candidate crash and election evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-candidates-${{ github.sha }}", "path": "target/v51-public-candidates", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-reclamation",
@@ -406,7 +426,8 @@
         {"step": "Retain V5.1 full-size boundary evidence including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-full-size-${{ github.sha }}", "path": "target/v51-full-size", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v51-full-size-runtime",
@@ -424,7 +445,8 @@
         {"step": "Retain V5.1 full-size runtime evidence including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-full-size-runtime-${{ github.sha }}", "path": "target/v51-full-size-runtime", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v50-authority",
@@ -445,7 +467,8 @@
         {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v50-authority-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v50-recovery-workload",
@@ -466,7 +489,8 @@
         {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v50-recovery-workload-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "v4-regression",
@@ -481,7 +505,8 @@
         {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v4-regression-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "soak-examples",
@@ -494,7 +519,8 @@
       "outputs": {},
       "evidence": [],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "compatibility",
@@ -507,7 +533,8 @@
       "outputs": {},
       "evidence": [],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "release-artifacts",
@@ -525,7 +552,8 @@
         {"step": "Upload V4.4 canonical reproducibility receipt", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() && hashFiles('target/v44-canonical-reproducibility/**') != '' }}", "id": null, "with": {"name": "v44-canonical-reproducibility-${{ github.sha }}", "path": "target/v44-canonical-reproducibility", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "python-v51-core",
@@ -540,7 +568,8 @@
         {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-core-${{ github.sha }}", "path": "target/python-v51-core", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "python-v51-admission",
@@ -555,7 +584,8 @@
         {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-admission-${{ github.sha }}", "path": "target/python-v51-admission", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "python-v51-storage",
@@ -570,7 +600,8 @@
         {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-storage-${{ github.sha }}", "path": "target/python-v51-storage", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "cloud-preflight-tests",
@@ -585,7 +616,8 @@
         {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "cloud-cleanup-fixture-tests",
@@ -600,7 +632,8 @@
         {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-cleanup-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "cloud-storage-tests",
@@ -615,7 +648,8 @@
         {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-storage-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "cloud-provider-tests",
@@ -630,7 +664,8 @@
         {"step": "Retain V5.1 provider request and failure qualification", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-provider-${{ github.sha }}", "path": "target/v51-cloud-provider.tar.gz", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     },
     {
       "id": "cloud-runner-tests",
@@ -646,7 +681,8 @@
         {"step": "Retain V5.1 cloud control qualification including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-control-${{ github.sha }}", "path": "target/v51-cloud-control", "if-no-files-found": "warn", "retention-days": "14"}}
       ],
       "fullResult": "success",
-      "docsResult": "skipped"
+      "docsResult": "skipped",
+      "integrationResult": "success"
     }
   ],
   "externalInterfaces": [

@@ -108,13 +108,24 @@ class SuiteContractTest(unittest.TestCase):
 
     def test_classifier_and_validator_binding_cannot_be_skipped_or_replaced(self):
         for job, before, after in (
-            ("changes", "run: python3 scripts/ci_changes.py", "run: echo run_full_ci=false"),
+            ("changes", "run: python3 -m scripts.ci_plan --output target/ci-shadow-plan", "run: echo run_full_ci=false"),
             ("changes", "id: scope", "id: scope\n        if: false"),
             ("changes", "run_full_ci: ${{ steps.scope.outputs.run_full_ci }}", "run_full_ci: 'false'"),
             ("required", "run: python3 -m scripts.ci_required", "run: true"),
             ("required", "CI_NEEDS_JSON: ${{ toJSON(needs) }}", "CI_NEEDS_JSON: '{}'"),
             ("required", "run: python3 -m scripts.ci_required", "if: false\n        run: python3 -m scripts.ci_required")):
             self.rejected(self.replace_job(job, before, after))
+        for job in ("changes", "required"):
+            self.rejected(self.replace_job(job, "fetch-depth: 0", "fetch-depth: 1"))
+
+    def test_integration_cannot_omit_other_suites_or_change_canonical_condition(self):
+        for suite in self.registry["suites"]:
+            value = copy.deepcopy(self.registry)
+            row = next(v for v in value["suites"] if v["id"] == suite["id"])
+            row["integrationResult"] = "success" if row["integrationResult"] == "skipped" else "skipped"
+            with self.subTest(job=suite["id"]):self.rejected(registry=value)
+        self.rejected(self.replace_job("v51-owned-canonical", s.CANONICAL_IF, s.FULL_IF))
+        self.rejected(self.replace_job("reactor-core", s.FULL_IF, s.CANONICAL_IF))
 
     def test_fixed_matrix_members_order_and_fail_fast_rejected(self):
         changes = [

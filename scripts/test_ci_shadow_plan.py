@@ -24,7 +24,10 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_NAME="Fixture", GIT_COMMITTER_NAME="Fixture",
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
-        for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR):
+        for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
+                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py",
+                     ".github/workflows/release.yml", ".github/actions/v51-restore-build/action.yml",
+                     ".github/actions/v51-retain-build/action.yml"):
             self.write(path, (ROOT / path).read_bytes())
         self.write("src/main/java/Engine.java", b"// original source\n")
         self.base = self.commit()
@@ -226,7 +229,7 @@ class ShadowPlanTest(unittest.TestCase):
                 self.result(code="HISTORY_UNAVAILABLE")
 
     def test_changed_policy_cannot_authorize_its_own_core_paths(self):
-        value = copy.deepcopy(p.POLICY_V1); value["corePaths"] = ["src/main/java/Engine.java"]
+        value = copy.deepcopy(p.POLICY_V2); value["integrationRules"] = ["src/main/java/Engine.java"]
         self.pr({p.POLICY: json.dumps(value).encode(), "src/main/java/Engine.java": b"// changed\n"})
         report = self.result(code="POLICY_CHANGED")
         self.assertNotEqual(report["policy"]["sha256"], report["policy"]["testedSha256"])
@@ -236,8 +239,9 @@ class ShadowPlanTest(unittest.TestCase):
         self.pr()
         original = p.blob
         bad = [b"{}", b'{"schema":1,"schema":2}', b"not JSON"]
-        for key, value in (("mode", "active"), ("corePaths", ["README.md"]), ("documentationRule", "all-docs-directory")):
-            policy = copy.deepcopy(p.POLICY_V1); policy[key] = value; bad.append(json.dumps(policy).encode())
+        for key, value in (("mode", "shadow"), ("integrationRules", ["README.md"]),
+                           ("forceFull", 1), ("documentationRule", "all-docs-directory")):
+            policy = copy.deepcopy(p.POLICY_V2); policy[key] = value; bad.append(json.dumps(policy).encode())
         for data in bad:
             def blob(root, source, path):
                 return data if source == self.base and path == p.POLICY else original(root, source, path)
@@ -325,8 +329,8 @@ class ShadowPolicyContractTest(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertFalse(p.documentation(path))
                 self.assertEqual(ci_changes.is_documentation(path), p.documentation(path))
-        self.assertEqual(p.POLICY_V1, p.strict_json((ROOT / p.POLICY).read_bytes()))
-        self.assertEqual([], p.POLICY_V1["corePaths"])
+        self.assertEqual(p.POLICY_V2, p.strict_json((ROOT / p.POLICY).read_bytes()))
+        self.assertEqual([], p.POLICY_V2["integrationRules"])
 
     def test_shadow_cannot_replace_classifier_or_gate_and_retention_is_attempt_specific(self):
         workflow = (ROOT / p.WORKFLOW).read_text()

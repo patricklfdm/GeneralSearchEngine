@@ -12,12 +12,15 @@ import unittest
 
 from scripts import ci_required as gate, ci_suites as suites
 from scripts.ci_changes import decide
+from scripts.ci_test_support import PlanFixture
 from unittest.mock import patch
 
 
 class RequiredTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        cls.fixtures = {full: PlanFixture("full" if full else "docs") for full in (True, False)}
+        for fixture in cls.fixtures.values():cls.addClassCleanup(fixture.close)
         cls.registry = suites.load_registry()
         cls.ids = [s["id"] for s in cls.registry["suites"]]
         legacy = (suites.ROOT / "scripts/fixtures/ci-required-v1.txt").read_text()
@@ -26,7 +29,7 @@ class RequiredTest(unittest.TestCase):
 
     def needs(self, full=True):
         value = {key: dict(result="success" if full else "skipped", outputs={}) for key in self.ids}
-        value["changes"] = dict(result="success", outputs=dict(run_full_ci="true" if full else "false"))
+        value["changes"] = dict(result="success", outputs=dict(self.fixtures[full].outputs))
         return value
 
     def result(self, value):
@@ -113,8 +116,14 @@ class RequiredTest(unittest.TestCase):
 
     def invoke(self, raw, root=suites.ROOT):
         output = io.StringIO()
+        try:
+            full = json.loads(raw)["changes"]["outputs"].get("profile") != "docs"
+        except (ValueError, TypeError, KeyError, AttributeError):full = True
+        fixture = self.fixtures[full]
+        env = dict(fixture.env)
+        if raw is not None:env["CI_NEEDS_JSON"] = raw
         with contextlib.redirect_stdout(output):
-            code = gate.main({} if raw is None else {"CI_NEEDS_JSON": raw}, root)
+            code = gate.main(env, fixture.root if root == suites.ROOT else root)
         return code, json.loads(output.getvalue())
 
     def test_entry_point_uses_real_inventory_and_fails_closed(self):

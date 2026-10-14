@@ -1,7 +1,12 @@
 {
-  "schema": "gse-ci-shadow-policy-v1",
-  "mode": "shadow",
-  "profiles": ["docs", "core", "full"],
+  "schema": "gse-ci-policy-v2",
+  "mode": "execution",
+  "profiles": [
+    "docs",
+    "integration",
+    "full"
+  ],
   "documentationRule": "ci-documentation-v1",
-  "corePaths": []
+  "forceFull": true,
+  "integrationRules": []
 }

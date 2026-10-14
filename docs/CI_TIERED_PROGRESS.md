@@ -20,7 +20,7 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | --- | --- | --- | --- |
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline only; later source pending |
 | T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | HOSTED_PENDING |
-| T2 plan/Required/workflow, forceFull | Pending | Pending | HOSTED_PENDING |
+| T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | HOSTED_PENDING |
 | T3 integration activation | Pending | Pending | HOSTED_PENDING |
 | T4 optional rule review | Pending | Pending | HOSTED_PENDING |
 | T5 Nightly/manual/health controls | Pending | Pending | HOSTED_PENDING |
@@ -44,7 +44,23 @@ drift to undo. No source reset, tag move or Maven clean was performed in T0.
 * T1 self-review: no workflow, policy, runtime, POM, suite or artifact changed.
   The planner still never writes gate outputs. Missing registry yields no suite
   plan and a conservative diagnostic rather than a usable qualification.
-* Next: T2 coordinated closed outputs, plan and Required, initially forceFull.
+* T2: the existing policy is now closed version 2, with forceFull enabled and
+  no integration rules. The registry adds explicit integration results; only the
+  whole canonical suite may be skipped. `ci_plan` reuses the shadow identity/diff
+  logic and emits one source-bound data receipt and five closed outputs. Required
+  independently recomputes it from complete Git history before checking all suites.
+  Raw output booleans, an old schema, missing receipts or forged/stale identities
+  cannot pass. There is no second policy and no shell supplied by JSON.
+* T2 checks: the frozen eight-module command plus `scripts.test_ci_plan`,
+  `scripts.v51.test_cloud_preflight`, `scripts.v51.test_cloud_runner_artifacts`
+  and `scripts.v51.test_phase7_release_fixtures` passed 195 tests in 61.981 seconds
+  (`target/ci-tiered-development/t2/tests-complete.log`). Additional complete-history
+  and integration-result inventory negatives passed 20 tests
+  (`inventory-negatives.log`). Baseline comparison confirms unchanged suite inputs,
+  matrices, artifacts, external interfaces and release retention. Inventory parity
+  and whitespace checks passed. Two small follow-up policy-type checks are retained
+  with the final T2 regression log.
+* Next: T3 exact-path candidate review/activation and real Git event selection tests.
 
 Stage commit IDs are available from Git history for this file; each stage records
 its exact checks and evidence before committing. Final readiness has not been claimed.

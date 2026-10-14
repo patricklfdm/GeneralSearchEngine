@@ -29,6 +29,9 @@ SUITE_VALIDATOR = "scripts/ci_suites.py"
 POLICY_V1 = {"schema": "gse-ci-shadow-policy-v1", "mode": "shadow",
              "profiles": ["docs", "core", "full"],
              "documentationRule": "ci-documentation-v1", "corePaths": []}
+POLICY_V2 = {"schema": "gse-ci-policy-v2", "mode": "execution",
+             "profiles": ["docs", "integration", "full"],
+             "documentationRule": "ci-documentation-v1", "forceFull": True, "integrationRules": []}
 REASONS = {
     "CONTEXT_UNAVAILABLE": "Event or source identity is missing or inconsistent.",
     "HISTORY_UNAVAILABLE": "Complete comparison history is unavailable.",
@@ -129,9 +132,7 @@ def suite_plan(registry, profile):
     """Closed recipes; a policy cannot supply suites, shell or expressions."""
     suites.validate_registry(registry)
     require(profile in ("docs", "integration", "full"), "CONTEXT_UNAVAILABLE")
-    expected = {row["id"]: "skipped" if profile == "docs" or
-                (profile == "integration" and row["id"] == "v51-owned-canonical") else "success"
-                for row in registry["suites"]}
+    expected = {row["id"]: row[profile + "Result"] for row in registry["suites"]}
     selected = [row["id"] for row in registry["suites"] if expected[row["id"]] == "success"]
     for row in registry["suites"]:
         if row["id"] in selected:
@@ -153,7 +154,7 @@ def plan(root, env, event):
                   plannerSha256=None, policy=dict(path=POLICY, source=None, sha256=None, testedSha256=None),
                   baseSha=None, headSha=None, mergeBaseSha=None, comparison=None,
                   changedPaths=[], changedPathsSha256=None, nonDocumentationPaths=[],
-                  changes=[], diffSha256=None, registry=dict(path=REGISTRY, sha256=None, validatorSha256=None),
+                  changes=[], diffSha256=None, forceFull=True, registry=dict(path=REGISTRY, sha256=None, validatorSha256=None),
                   suitePlan=None)
     registry = None
     try:
@@ -218,7 +219,7 @@ def plan(root, env, event):
             value = strict_json(policy)
         except (ValueError, UnicodeError):
             raise Unavailable("POLICY_INVALID") from None
-        require(value == POLICY_V1, "POLICY_INVALID")
+        require(value == POLICY_V2 and type(value.get("forceFull")) is bool, "POLICY_INVALID")
         try:
             tested_policy = blob(root, source, POLICY)
             report["policy"]["testedSha256"] = digest(tested_policy)

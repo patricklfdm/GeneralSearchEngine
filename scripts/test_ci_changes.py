@@ -91,12 +91,15 @@ class ChangeDetectionTest(unittest.TestCase):
 
 
 class RequiredGateTest(unittest.TestCase):
-    """Execute the actual workflow shell, so unexpected skips cannot pass Required."""
+    """Execute the actual workflow shell in source-bound temporary Git contexts."""
 
     @classmethod
     def setUpClass(cls):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
         required = workflow.split("\n  required:\n", 1)[1]
+        from scripts.ci_test_support import PlanFixture
+        cls.fixtures = {full: PlanFixture("full" if full == "true" else "docs") for full in ("true", "false")}
+        for fixture in cls.fixtures.values():cls.addClassCleanup(fixture.close)
         cls.script = re.search(r"^        run: (.+)$", required, re.MULTILINE)[1]
 
     def result(self, full="true", changes="success", results=None):
@@ -104,9 +107,10 @@ class RequiredGateTest(unittest.TestCase):
             results = ["success" if full == "true" else "skipped"] * len(FULL_GATES)
         self.assertEqual(len(FULL_GATES), len(results))
         needs = {key: {"result": value, "outputs": {}} for key, value in zip(FULL_GATES, results)}
-        needs["changes"] = {"result": changes, "outputs": {"run_full_ci": full}}
-        env = dict(os.environ, CI_NEEDS_JSON=json.dumps(needs), PYTHONDONTWRITEBYTECODE="1")
-        return subprocess.run(["bash", "-e", "-c", self.script], env=env, cwd=ROOT,
+        fixture = self.fixtures.get(full, self.fixtures["true"])
+        needs["changes"] = {"result": changes, "outputs": {**fixture.outputs, "run_full_ci": full}}
+        env = dict(fixture.env, CI_NEEDS_JSON=json.dumps(needs))
+        return subprocess.run(["bash", "-e", "-c", self.script], env=env, cwd=fixture.root,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
 
     def test_all_full_gates_success(self):
@@ -176,7 +180,8 @@ class WorkflowTopologyTest(unittest.TestCase):
                 elif name == "v51-remote-rich":
                     needs = "[changes, v51-verification-build, v51-remote-rich-inputs, v51-remote-rich-shards]"
                 self.assertEqual([needs], re.findall(r"^    needs: (.+)$", body, re.MULTILINE))
-                self.assertIn("    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}\n", body)
+                output = "run_canonical" if name == "v51-owned-canonical" else "run_full_ci"
+                self.assertIn("    if: ${{ needs.changes.outputs." + output + " == 'true' }}\n", body)
                 self.assertNotIn("continue-on-error:", body)
 
     def test_required_waits_for_and_reads_every_lane(self):
