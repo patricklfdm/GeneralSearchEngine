@@ -83,4 +83,5 @@ evidence, every historical failure's logs, detailed billing and a new hosted
 PR1 run were not collected. The raw audit directory is not a CI input or a
 portable checkout prerequisite. See [progress](CI_REFACTOR_PROGRESS.md) for
 implementation validation, and [contracts](CI_DEPENDENCY_CONTRACTS.md) for the
-current topology.
+current topology. [PR #325's later observations](CI_SHADOW_ACCEPTANCE.md) retain
+their own source/event/attempt grouping and do not replace this historical sample.

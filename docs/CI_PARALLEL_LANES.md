@@ -4,14 +4,16 @@ The current machine-readable inventory is the [suite registry](../scripts/ci_sui
 The [Required migration](CI_REFACTOR_ADR.md) preserves full/docs outcomes and all
 existing lanes. See [consumer contracts](CI_DEPENDENCY_CONTRACTS.md) and
 [measured PR0 baseline](CI_BASELINE.md); earlier migration timings below remain
-historical. [PR1 progress](CI_REFACTOR_PROGRESS.md) distinguishes local checks
-from pending hosted acceptance.
+historical. [Refactor progress](CI_REFACTOR_PROGRESS.md) distinguishes local and
+hosted checks, including the still-pending docs-only acceptance.
 
 [PR2 step reuse](CI_V51_STEP_REUSE.md) now centralizes the identical build restore
 and provenance steps in eleven ordinary V5.1 consumers. Effective operations and
 job dependencies are preserved; the timing figures below predate that extraction.
 The accompanying [PR3 shadow planner](CI_SHADOW_PLANNER.md) records baseline-policy
 recommendations in Change scope while actual execution stays full/docs.
+See [PR #325's hosted observations](CI_SHADOW_ACCEPTANCE.md) for all attempts,
+source identities and the pending documentation-only follow-up.
 
 **Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and

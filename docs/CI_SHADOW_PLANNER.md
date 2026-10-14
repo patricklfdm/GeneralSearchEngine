@@ -1,7 +1,8 @@
 # CI shadow planner (PR3)
 
-Status: implemented together with [PR2 step reuse](CI_V51_STEP_REUSE.md);
-local validation recorded below, hosted observation pending. No core execution
+Status: merged together with [PR2 step reuse](CI_V51_STEP_REUSE.md) in PR #325;
+[hosted first-rollout reports verified](CI_SHADOW_ACCEPTANCE.md), valid-baseline
+docs-only observation pending. No core execution
 policy is enabled. The existing classifier, all 36 required suites and all
 three complete canonical repetitions continue to run under the original
 full/docs conditions.
@@ -53,10 +54,11 @@ Unsupported event shapes or identity mismatches recommend full.
 
 The baseline policy is obtained with `git show <validated-base-sha>:<fixed-path>`.
 The tested policy must be byte-identical to it. A PR cannot edit its policy file
-to classify its own runtime change as core. **On this first rollout the existing
-master has no policy**, so both its PR and merge-push observation will report
-`POLICY_UNAVAILABLE` / full. That is expected and leaves the actual full CI
-unchanged. Later docs-only changes can produce docs recommendations.
+to classify its own runtime change as core. **The rollout baseline `62b104e...`
+has no policy**, so its PR and merge-push observations both reported
+`POLICY_UNAVAILABLE` / full, as expected, leaving actual full CI unchanged.
+Current master now contains the policy; a subsequent docs-only change can
+exercise the valid-baseline docs recommendation.
 
 `git diff --name-only --no-renames -z` preserves both sides of a rename, unusual
 filenames and the complete path set without GitHub file-API pagination limits.
@@ -92,8 +94,9 @@ rejects nonempty lists rather than supplying a dormant execution switch.
 Under this policy **0% of PRs are eligible for a new core saving**, by construction;
 this is not an empirical traffic estimate. Existing docs-only savings are not new.
 The three historical path fixtures below include two full changes and one docs
-change, but are selected boundary examples, not a representative sample. No
-hosted shadow sample or measured PR2/PR3 speedup is claimed. V5.2+ core development
+change, but are selected boundary examples, not a representative sample. The two
+hosted rollout reports add full-fallback observations, not measured PR2/PR3 speedup.
+V5.2+ core development
 is likely to remain full; a useful future allowlist requires dependency evidence
 and representative path observations first.
 
@@ -118,9 +121,10 @@ Required's full/docs truth table, unchanged external cloud/release consumers and
 expanded PR2 artifact contracts remain independently tested. Combined local
 results and commands are in [the progress record](CI_REFACTOR_PROGRESS.md).
 
-Hosted acceptance remains: one full PR run and exact-master full run must retain
-the unchanged full suite set and an observation report; a later docs-only change
-must retain the original expected skips and display both docs profiles. Check the
+The full PR/master accepted views retain the unchanged suite set and observation
+reports; master includes a partial rerun after its first workload failure, which
+remains recorded. Pending hosted acceptance is a later docs-only PR and master
+push retaining the original expected skips and displaying both docs profiles. Check the
 actual tested SHA and attempt in the artifact, not only the API's PR `head_sha`.
 No new workflow is dispatched by this implementation task.
 
