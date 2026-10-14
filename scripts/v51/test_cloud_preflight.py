@@ -264,13 +264,20 @@ class WorkflowTest(unittest.TestCase):
         self.assertNotIn('id-token:',foundation);self.assertNotIn('google-github-actions/auth',foundation)
     def test_cloud_ci_requires_each_preflight_lane_without_maven(self):
         from scripts.test_ci_changes import FULL_GATES
+        from scripts import ci_suites
         text=(ci.ROOT/ci.WORKFLOW).read_text()
+        required=ci_suites.fields(ci_suites.job_blocks(text)['required'],4)
+        required_needs=ci_suites.dependencies(required['needs'])
+        gate=ci_suites.steps(required['steps'])['Require every CI gate']
+        self.assertEqual(gate['run'],('python3 -m scripts.ci_required',''))
+        self.assertEqual(ci_suites.string_map(gate['env'],10),{'CI_NEEDS_JSON':'${{ toJSON(needs) }}'})
         for key,lane in (('cloud-preflight-tests','admission'),('cloud-cleanup-fixture-tests','cleanup'),('cloud-storage-tests','storage')):
             # Use the same explicit-job boundary as the CI inventory parser.
             body=re.split(r'^  [\w-]+:\n',text.split('\n  '+key+':\n')[1],maxsplit=1,flags=re.M)[0]
             self.assertIn('run: scripts/verify-v51-phase6-cloud-preflight.sh --lane '+lane,body)
             self.assertNotIn('./mvnw',body);self.assertNotIn('id-token:',body)
-            self.assertIn('needs.'+key+'.result',text)
+            self.assertIn(key,required_needs)
+            self.assertIn(key,FULL_GATES)
         self.assertIn('name: v51-cloud-preflight-${{ github.sha }}',text)
         # Changes/Required plus 2 rich, 4 tape and 2 repetition matrix expansions.
         self.assertEqual(len(ci.expected_jobs(text)),len(FULL_GATES)+10)

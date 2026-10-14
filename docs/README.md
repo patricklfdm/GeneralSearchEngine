@@ -1,6 +1,7 @@
 # GeneralSearchEngine documentation
 
 - [CI/CD and release operations](CI_CD.md)
+- [CI refactor baseline, contracts and implementation progress](CI_REFACTOR_PROGRESS.md)
 
 This directory preserves published records through V5.1 and completed development
 phases. The repository root [`README.md`](../README.md) remains the user-facing entry

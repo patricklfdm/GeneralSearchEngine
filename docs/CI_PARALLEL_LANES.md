@@ -1,5 +1,12 @@
 # CI parallel lanes: dependency audit and migration map
 
+The current machine-readable inventory is the [suite registry](../scripts/ci_suite_registry.json).
+The [Required migration](CI_REFACTOR_ADR.md) preserves full/docs outcomes and all
+existing lanes. See [consumer contracts](CI_DEPENDENCY_CONTRACTS.md) and
+[measured PR0 baseline](CI_BASELINE.md); earlier migration timings below remain
+historical. [PR1 progress](CI_REFACTOR_PROGRESS.md) distinguishes local checks
+from pending hosted acceptance.
+
 **Current topology:** the [Python/cloud partition](CI_PYTHON_LANES.md) supersedes
 Python test and cloud-gate ownership below. The [owned network-fault lane](v5x/v5.1/PHASE_6_OWNED_NETWORK_FAULTS.md) and
 [complete owned failure-drill lane](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md) bring

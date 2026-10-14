@@ -1,0 +1,660 @@
+{
+  "schema": "gse-ci-suites-v1",
+  "workflow": ".github/workflows/ci.yml",
+  "metaJobs": {"changes": {"name": "Change scope"}, "required": {"name": "Required"}},
+  "suites": [
+    {
+      "id": "reactor-core",
+      "name": "Reactor tests",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "reactor-core",
+      "timeoutMinutes": 30,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-reactor-core-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-verification-build",
+      "name": "V5.1 verification build",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "v51-build-producer",
+      "timeoutMinutes": 30,
+      "inputs": [],
+      "outputs": {"artifact_id": "${{ steps.handoff.outputs.artifact-id }}"},
+      "evidence": [
+        {"step": "Publish V5.1 verification inputs", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": null, "id": "handoff", "with": {"name": "v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/ci-v51-build/build.tar.gz\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "error", "retention-days": "14", "compression-level": "0"}},
+        {"step": "Retain all Java test reports including build failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-verification-build-java-tests-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "**/target/surefire-reports/**", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain build provenance including bundle failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-verification-build-receipts-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "${{ runner.temp }}/v51-build", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v51-verification-build-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-foundation",
+      "name": "V5.1 foundation and runtime",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-foundation-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 local measurements, raw authority and failed schedules", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-performance-${{ github.sha }}", "path": "target/v51-performance", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 rejoin sources and process evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-rejoin-${{ github.sha }}", "path": "target/v51-rejoin", "retention-days": "14"}},
+        {"step": "Retain V5.1 runtime wire, force and JVM recovery evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-runtime-${{ github.sha }}", "path": "target/v51-runtime", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 protocol transitions and independent causal evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-protocol-${{ github.sha }}", "path": "target/v51-protocol", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 authority bytes and process crash evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-storage-${{ github.sha }}", "path": "target/v51-storage", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 model traces, process cuts and public consumer evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-foundation-${{ github.sha }}", "path": "target/v51-foundation", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-guest-services",
+      "name": "V5.1 guest services and faults (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-guest-services-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-guest-package-${{ github.sha }}", "path": "target/v51-guest-package/guest.tar.gz\ntarget/v51-guest-package/receipt.json\ntarget/v51-guest-package/failure.json\ntarget/v51-guest-package/package/manifest.json\ntarget/v51-guest-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned startup and idle service evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-services-${{ github.sha }}", "path": "target/v51-owned-services", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}},
+        {"step": "Retain V5.1 complete package delivery and SSH service evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-guest-delivery-${{ github.sha }}", "path": "target/v51-guest-delivery", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}},
+        {"step": "Retain V5.1 owned fault receipts and original authority", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-faults-${{ github.sha }}", "path": "target/v51-owned-faults", "if-no-files-found": "warn", "retention-days": "14", "compression-level": "1"}},
+        {"step": "Retain V5.1 distributed bootstrap and isolated guest evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-guest-bootstrap-${{ github.sha }}", "path": "target/v51-guest-bootstrap", "if-no-files-found": "warn", "retention-days": "7"}},
+        {"step": "Retain V5.1 guest lifecycle, receipts and binary collection", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-guest-service-${{ github.sha }}", "path": "target/v51-guest-service", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-owned-experiment",
+      "name": "V5.1 owned experiment (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-owned-experiment-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-experiment-package-${{ github.sha }}", "path": "target/v51-experiment-package/guest.tar.gz\ntarget/v51-experiment-package/receipt.json\ntarget/v51-experiment-package/failure.json\ntarget/v51-experiment-package/package/manifest.json\ntarget/v51-experiment-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned complete experiment and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-experiment-${{ github.sha }}", "path": "target/v51-owned-experiment", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-owned-network-faults",
+      "name": "V5.1 owned network faults (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-owned-network-faults-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-network-package-${{ github.sha }}", "path": "target/v51-network-package/guest.tar.gz\ntarget/v51-network-package/receipt.json\ntarget/v51-network-package/failure.json\ntarget/v51-network-package/package/manifest.json\ntarget/v51-network-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned network faults and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-network-faults-${{ github.sha }}", "path": "target/v51-owned-network-faults", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-owned-failure-drill",
+      "name": "V5.1 owned failure drill (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-owned-failure-drill-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-drill-package-${{ github.sha }}", "path": "target/v51-drill-package/guest.tar.gz\ntarget/v51-drill-package/receipt.json\ntarget/v51-drill-package/failure.json\ntarget/v51-drill-package/package/manifest.json\ntarget/v51-drill-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned failure drill and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-failure-drill-${{ github.sha }}", "path": "target/v51-owned-failure-drill", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-owned-canonical-tapes",
+      "name": "V5.1 owned canonical tape (${{ matrix.tape }}, no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": {"include": [{"tape": "v44-healthy", "mode": "published-v4.4-local", "cell": "healthy"}, {"tape": "v50-healthy", "mode": "published-v5.0-configured", "cell": "healthy"}, {"tape": "automatic-healthy", "mode": "candidate-v5.1-automatic", "cell": "healthy"}, {"tape": "automatic-read-heavy", "mode": "candidate-v5.1-automatic", "cell": "read-heavy"}, {"tape": "automatic-sustained", "mode": "candidate-v5.1-automatic", "cell": "sustained"}]},
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-owned-canonical-tapes-build-inputs-${{ matrix.tape }}-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-canonical-package-${{ matrix.tape }}-${{ github.sha }}", "path": "target/v51-canonical-package/guest.tar.gz\ntarget/v51-canonical-package/receipt.json\ntarget/v51-canonical-package/failure.json\ntarget/v51-canonical-package/package/manifest.json\ntarget/v51-canonical-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned canonical tape and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-canonical-tapes-${{ matrix.tape }}-${{ github.sha }}", "path": "target/v51-owned-canonical-tapes", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-owned-canonical",
+      "name": "V5.1 owned canonical (repetition ${{ matrix.repetition }}, no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": {"repetition": [1, 2, 3]},
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 120,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-owned-canonical-build-inputs-${{ matrix.repetition }}-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 guest package provenance and startup checks", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-canonical-complete-package-${{ matrix.repetition }}-${{ github.sha }}", "path": "target/v51-canonical-complete-package/guest.tar.gz\ntarget/v51-canonical-complete-package/receipt.json\ntarget/v51-canonical-complete-package/failure.json\ntarget/v51-canonical-complete-package/package/manifest.json\ntarget/v51-canonical-complete-package/build\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 owned canonical aggregate and consumed claims", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-owned-canonical-${{ matrix.repetition }}-${{ github.sha }}", "path": "target/v51-owned-canonical", "if-no-files-found": "warn", "retention-days": "7", "compression-level": "1"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-remote-rich-inputs",
+      "name": "V5.1 rich workload inputs (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 30,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {"artifact_id": "${{ steps.handoff.outputs.artifact-id }}"},
+      "evidence": [
+        {"step": "Retain prepared rich inputs including failed receipts", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": "handoff", "with": {"name": "v51-remote-rich-inputs-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-inputs/handoff", "if-no-files-found": "warn", "retention-days": "14", "compression-level": "0"}},
+        {"step": "Retain rich input preparation diagnostics", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-inputs-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-inputs/raw\n${{ runner.temp }}/v51-build/restore.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-remote-rich-shards",
+      "name": "V5.1 rich workload (${{ matrix.shard }}, no GCP)",
+      "needs": ["changes", "v51-verification-build", "v51-remote-rich-inputs"],
+      "matrix": {"shard": ["published-controls", "automatic-healthy", "automatic-concurrent"]},
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}},
+        {"step": "Download the exact prepared rich source", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-remote-rich-inputs.outputs.artifact_id || 'missing-rich-inputs-artifact' }}", "merge-multiple": "true", "path": "${{ runner.temp }}/v51-rich-inputs"}}
+      ],
+      "outputs": {"published_controls": "${{ matrix.shard == 'published-controls' && steps.handoff.outputs.artifact-id || '' }}", "automatic_healthy": "${{ matrix.shard == 'automatic-healthy' && steps.handoff.outputs.artifact-id || '' }}", "automatic_concurrent": "${{ matrix.shard == 'automatic-concurrent' && steps.handoff.outputs.artifact-id || '' }}"},
+      "evidence": [
+        {"step": "Retain partial rich evidence and portable replay", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": "handoff", "with": {"name": "v51-remote-rich-shard-${{ matrix.shard }}-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-shard/${{ matrix.shard }}/handoff", "if-no-files-found": "warn", "retention-days": "14", "compression-level": "0"}},
+        {"step": "Retain raw rich shard diagnostics including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-${{ matrix.shard }}-diagnostics-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich-shard/${{ matrix.shard }}/raw\n${{ runner.temp }}/v51-build/restore.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-remote-rich",
+      "name": "V5.1 full rich workload (no GCP)",
+      "needs": ["changes", "v51-verification-build", "v51-remote-rich-inputs", "v51-remote-rich-shards"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 30,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}},
+        {"step": "Download published-controls rich evidence", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-remote-rich-shards.outputs.published_controls || 'missing-rich-shard-artifact' }}", "merge-multiple": "true", "path": "target/v51-remote-rich/inputs/published-controls"}},
+        {"step": "Download automatic-healthy rich evidence", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-remote-rich-shards.outputs.automatic_healthy || 'missing-rich-shard-artifact' }}", "merge-multiple": "true", "path": "target/v51-remote-rich/inputs/automatic-healthy"}},
+        {"step": "Download automatic-concurrent rich evidence", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-remote-rich-shards.outputs.automatic_concurrent || 'missing-rich-shard-artifact' }}", "merge-multiple": "true", "path": "target/v51-remote-rich/inputs/automatic-concurrent"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain full rich qualification with all portable shard inputs", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "target/v51-remote-rich", "if-no-files-found": "warn", "retention-days": "14", "compression-level": "0"}},
+        {"step": "Retain aggregate build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-rich-build-inputs-${{ github.sha }}-attempt-${{ github.run_attempt }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-remote-faults",
+      "name": "V5.1 frozen fault workloads (no GCP)",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-faults-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 fault JVM evidence including failures and binary replay", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-faults-${{ github.sha }}", "path": "target/v51-remote-faults", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-admission-resources",
+      "name": "V5.1 admission and resources",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-admission-resources-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public bounds and rejection evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-bounds-${{ github.sha }}", "path": "target/v51-public-bounds", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public bootstrap and pre-reopen evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-bootstrap-${{ github.sha }}", "path": "target/v51-bootstrap", "retention-days": "14"}},
+        {"step": "Retain V5.1 resource limits and public exhaustion evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-resources-${{ github.sha }}", "path": "target/v51-resources", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 combined lifecycle evidence including failed schedules", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-combined-lifecycle-${{ github.sha }}", "path": "target/v51-combined-lifecycle", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-promise-crashes",
+      "name": "V5.1 promise crashes",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-promise-crashes-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public promise and pre-reopen evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-promises-${{ github.sha }}", "path": "target/v51-public-promises", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-public-reads-faults",
+      "name": "V5.1 public reads and faults",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-reads-faults-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public runtime and read barrier evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-runtime-${{ github.sha }}", "path": "target/v51-public-runtime", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public qualification including failed histories and pre-reopen bytes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-qualification-${{ github.sha }}", "path": "target/v51-public-qualification", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public fault matrix including failed cases and pre-reopen bytes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-faults-${{ github.sha }}", "path": "target/v51-public-faults", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-public-recovery-pressure",
+      "name": "V5.1 public recovery and pressure",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-recovery-pressure-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public recovery and lifecycle evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-recovery-${{ github.sha }}", "path": "target/v51-public-recovery", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public transport pressure evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-pressure-${{ github.sha }}", "path": "target/v51-public-pressure", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 mailbox and public callback evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "always()", "id": null, "with": {"name": "v51-backpressure-${{ github.sha }}", "path": "target/v51-backpressure", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 final coverage including failed qualification", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-final-coverage-${{ github.sha }}", "path": "target/v51-final-coverage", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-public-hardening",
+      "name": "V5.1 public hardening",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-hardening-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 lifecycle hardening evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-lifecycle-hardening-${{ github.sha }}", "path": "target/v51-lifecycle-hardening", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 combined hardening evidence including failed rounds", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-hardening-${{ github.sha }}", "path": "target/v51-hardening", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-protocol-selection",
+      "name": "V5.1 protocol and selection",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-protocol-selection-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public protocol and recovery evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-protocol-${{ github.sha }}", "path": "target/v51-public-protocol", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public selection evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-selection-${{ github.sha }}", "path": "target/v51-public-selection", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-candidate-crashes",
+      "name": "V5.1 candidate crashes",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-candidate-crashes-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public candidate crash and election evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-candidates-${{ github.sha }}", "path": "target/v51-public-candidates", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-reclamation",
+      "name": "V5.1 reclamation",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-reclamation-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 public reclamation evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-public-reclamation-${{ github.sha }}", "path": "target/v51-public-reclamation", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 full-size boundary evidence including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-full-size-${{ github.sha }}", "path": "target/v51-full-size", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v51-full-size-runtime",
+      "name": "V5.1 full-size runtime",
+      "needs": ["changes", "v51-verification-build"],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 60,
+      "inputs": [
+        {"step": "Download this run's exact-source verification inputs", "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093", "if": null, "id": null, "with": {"artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}", "merge-multiple": "true", "path": "target/ci-v51-build"}}
+      ],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-full-size-runtime-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 full-size runtime evidence including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-full-size-runtime-${{ github.sha }}", "path": "target/v51-full-size-runtime", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v50-authority",
+      "name": "V5.0 authority",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "v50-independent",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.0 public-admission foundation evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-public-admission-foundation-${{ github.sha }}", "path": "target/v50-admission-foundation\ntarget/surefire-reports\ngeneral-search-engine-replication/target/surefire-reports\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 offline authority evidence including killed processes and pre-reopen bytes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-offline-authority-${{ github.sha }}", "path": "target/v50-offline-authority", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 public runtime evidence including SIGKILL cuts and wire bytes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-public-runtime-${{ github.sha }}", "path": "target/v50-public-runtime", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 leader-path evidence including failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-leader-${{ github.sha }}", "path": "target/v50-leader", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 storage evidence including pre-reopen bytes and failed cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-storage-${{ github.sha }}", "path": "target/v50-storage", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 foundation evidence including failed process workspaces", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-foundation-${{ github.sha }}", "path": "target/v50-foundation", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v50-authority-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v50-recovery-workload",
+      "name": "V5.0 recovery and workload",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "v50-independent",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.0 performance evidence including failed probes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-performance-${{ github.sha }}", "path": "target/v50-performance", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 Phase 6B no-GCP evidence", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-cloud-runner-local-${{ github.sha }}", "path": "target/v50-cloud-local", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 cloud workload qualification including failed probes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-cloud-workload-local-${{ github.sha }}", "path": "target/v50-cloud-workload", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 remote adapter qualification including failed probes", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-remote-workload-local-${{ github.sha }}", "path": "target/v50-remote-workload", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 hardening evidence including failed cases and wire attempts", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-hardening-${{ github.sha }}", "path": "target/v50-hardening", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.0 recovery evidence including failed cases and V4.4 comparison", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v50-local-recovery-${{ github.sha }}", "path": "target/v50-recovery", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v50-recovery-workload-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "v4-regression",
+      "name": "V4 regression",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "v4-regression",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain every Maven infrastructure attempt including recovered failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "maven-infra-v4-regression-${{ github.sha }}", "path": "${{ runner.temp }}/gse-maven-infra-retry", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "soak-examples",
+      "name": "Soak and examples",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "soak-examples",
+      "timeoutMinutes": 30,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "compatibility",
+      "name": "Compatibility",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "compatibility",
+      "timeoutMinutes": 20,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "release-artifacts",
+      "name": "Release artifacts",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "release-artifacts",
+      "timeoutMinutes": 30,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 release preparation receipt", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() && hashFiles('target/v51-release-preparation/**') != '' }}", "id": null, "with": {"name": "v51-release-preparation-${{ github.sha }}", "path": "target/v51-release-preparation", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Upload V5.1 canonical reproducibility receipt", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() && hashFiles('target/v51-canonical-reproducibility/**') != '' }}", "id": null, "with": {"name": "v51-canonical-reproducibility-${{ github.sha }}", "path": "target/v51-canonical-reproducibility", "if-no-files-found": "warn", "retention-days": "90"}},
+        {"step": "Upload V5.0 canonical reproducibility receipt", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() && hashFiles('target/v50-canonical-reproducibility/**') != '' }}", "id": null, "with": {"name": "v50-canonical-reproducibility-${{ github.sha }}", "path": "target/v50-canonical-reproducibility", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Upload V4.4 canonical reproducibility receipt", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() && hashFiles('target/v44-canonical-reproducibility/**') != '' }}", "id": null, "with": {"name": "v44-canonical-reproducibility-${{ github.sha }}", "path": "target/v44-canonical-reproducibility", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "python-v51-core",
+      "name": "V5.1 Python core",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-core-${{ github.sha }}", "path": "target/python-v51-core", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "python-v51-admission",
+      "name": "V5.1 Python admission",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-admission-${{ github.sha }}", "path": "target/python-v51-admission", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "python-v51-storage",
+      "name": "V5.1 Python storage",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain test counts and per-test timing including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "python-v51-storage-${{ github.sha }}", "path": "target/python-v51-storage", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "cloud-preflight-tests",
+      "name": "V5.1 cloud preflight (no GCP)",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "cloud-cleanup-fixture-tests",
+      "name": "V5.1 cleanup fixtures (no GCP)",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-cleanup-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "cloud-storage-tests",
+      "name": "V5.1 Runner storage (no GCP)",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 preflight observations and rejection cases", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-preflight-storage-${{ github.sha }}", "path": "target/v51-cloud-preflight", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "cloud-provider-tests",
+      "name": "V5.1 provider adapters (no GCP)",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 provider request and failure qualification", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-provider-${{ github.sha }}", "path": "target/v51-cloud-provider.tar.gz", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    },
+    {
+      "id": "cloud-runner-tests",
+      "name": "Cloud runner (no GCP)",
+      "needs": ["changes"],
+      "matrix": null,
+      "domain": "python-no-gcp",
+      "timeoutMinutes": 60,
+      "inputs": [],
+      "outputs": {},
+      "evidence": [
+        {"step": "Retain V5.1 remote control qualification including failed attempts", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-remote-foundation-${{ github.sha }}", "path": "target/v51-remote-foundation", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.1 cloud control qualification including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v51-cloud-control-${{ github.sha }}", "path": "target/v51-cloud-control", "if-no-files-found": "warn", "retention-days": "14"}}
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped"
+    }
+  ],
+  "externalInterfaces": [
+    {"workflow": ".github/workflows/ci.yml", "job": "v51-verification-build", "name": "V5.1 verification build", "environment": null, "steps": ["Create exact-source V5.1 verification bundle"]},
+    {"workflow": ".github/workflows/ci.yml", "job": "v51-owned-experiment", "name": "V5.1 owned experiment (no GCP)", "environment": null, "steps": ["Build and relocate the V5.1 guest package without GCP", "Qualify V5.1 owned complete experiment history and backup restore without GCP"]},
+    {"workflow": ".github/workflows/ci.yml", "job": "v50-recovery-workload", "name": "V5.0 recovery and workload", "environment": null, "steps": ["Verify V5.0 Phase 6B runner failures and offline volume-layout probe", "Verify V5.0 remote workload adapter and bounded evidence"]},
+    {"workflow": ".github/workflows/ci.yml", "job": "release-artifacts", "name": "Release artifacts", "environment": null, "steps": ["Verify reproducible artifacts"]},
+    {"workflow": ".github/workflows/release.yml", "job": "validate", "name": "Validate release tag", "environment": null, "steps": ["Verify reproducible artifacts"]},
+    {"workflow": ".github/workflows/release.yml", "job": "publish", "name": "Publish approved release", "environment": "production-release", "steps": ["Build, sign, and inspect release artifacts", "Publish approved artifacts to Maven Central", "Verify remote artifacts and clean published consumers"]}
+  ]
+}

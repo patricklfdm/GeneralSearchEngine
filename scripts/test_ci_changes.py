@@ -1,59 +1,23 @@
 from __future__ import annotations
 
 import os
+import json
 from pathlib import Path
 import re
 import subprocess
 import tempfile
-import textwrap
 import unittest
 from unittest.mock import patch
 
 from scripts.ci_changes import comparison, decide, is_documentation, main
+from scripts.ci_suites import load_registry, validate_workflow
 
 
 ROOT = Path(__file__).resolve().parents[1]
 BASE, HEAD = "a" * 40, "b" * 40
 PUSH = {"before": BASE, "after": HEAD}
 PR = {"pull_request": {"base": {"sha": BASE}, "head": {"sha": HEAD}}}
-FULL_GATES = {
-    "reactor-core": "REACTOR_RESULT",
-    "v51-verification-build": "V51_BUILD_RESULT",
-    "v51-foundation": "V51_FOUNDATION_RESULT",
-    "v51-guest-services": "V51_GUEST_SERVICES_RESULT",
-    "v51-owned-experiment": "V51_OWNED_EXPERIMENT_RESULT",
-    "v51-owned-network-faults": "V51_OWNED_NETWORK_RESULT",
-    "v51-owned-failure-drill": "V51_OWNED_DRILL_RESULT",
-    "v51-owned-canonical-tapes": "V51_OWNED_CANONICAL_RESULT",
-    "v51-owned-canonical": "V51_OWNED_CANONICAL_SET_RESULT",
-    "v51-remote-rich": "V51_REMOTE_RICH_RESULT",
-    "v51-remote-rich-inputs": "V51_RICH_INPUTS_RESULT",
-    "v51-remote-rich-shards": "V51_RICH_SHARDS_RESULT",
-    "v51-remote-faults": "V51_REMOTE_FAULTS_RESULT",
-    "v51-admission-resources": "V51_ADMISSION_RESOURCES_RESULT",
-    "v51-promise-crashes": "V51_PROMISE_CRASHES_RESULT",
-    "v51-public-reads-faults": "V51_PUBLIC_READS_FAULTS_RESULT",
-    "v51-public-recovery-pressure": "V51_PUBLIC_RECOVERY_PRESSURE_RESULT",
-    "v51-public-hardening": "V51_PUBLIC_HARDENING_RESULT",
-    "v51-protocol-selection": "V51_PROTOCOL_SELECTION_RESULT",
-    "v51-candidate-crashes": "V51_CANDIDATE_CRASHES_RESULT",
-    "v51-reclamation": "V51_RECLAMATION_RESULT",
-    "v51-full-size-runtime": "V51_FULL_SIZE_RUNTIME_RESULT",
-    "v50-authority": "V50_AUTHORITY_RESULT",
-    "v50-recovery-workload": "V50_RECOVERY_RESULT",
-    "v4-regression": "V4_RESULT",
-    "soak-examples": "SOAK_RESULT",
-    "compatibility": "COMPATIBILITY_RESULT",
-    "release-artifacts": "RELEASE_RESULT",
-    "python-v51-core": "V51_PYTHON_CORE_RESULT",
-    "python-v51-admission": "V51_PYTHON_ADMISSION_RESULT",
-    "python-v51-storage": "V51_PYTHON_STORAGE_RESULT",
-    "cloud-preflight-tests": "CLOUD_PREFLIGHT_RESULT",
-    "cloud-cleanup-fixture-tests": "CLOUD_CLEANUP_FIXTURE_RESULT",
-    "cloud-storage-tests": "CLOUD_STORAGE_RESULT",
-    "cloud-provider-tests": "CLOUD_PROVIDER_RESULT",
-    "cloud-runner-tests": "CLOUD_RUNNER_RESULT",
-}
+FULL_GATES = tuple(suite["id"] for suite in load_registry()["suites"])
 
 
 class ChangeDetectionTest(unittest.TestCase):
@@ -67,6 +31,7 @@ class ChangeDetectionTest(unittest.TestCase):
         for path in ("src/main/java/Engine.java", "module/src/test/resources/input.md",
                      "pom.xml", "new-module/pom.xml", "reactor/pom.xml", "mvnw",
                      ".mvn/wrapper/maven-wrapper.properties", "scripts/check.py", "scripts/input.md",
+                     "scripts/ci_suite_registry.json", "scripts/ci_suites.py", "scripts/ci_required.py",
                      ".github/workflows/ci.yml", ".github/workflows/README.md",
                      "docs/v5x/v5.0/phase1-plan.json", "docs/baseline.sha256",
                      "new-module/new-build-input", "src/test/resources/README.md"):
@@ -131,15 +96,16 @@ class RequiredGateTest(unittest.TestCase):
     def setUpClass(cls):
         workflow = (ROOT / ".github/workflows/ci.yml").read_text()
         required = workflow.split("\n  required:\n", 1)[1]
-        cls.script = textwrap.dedent(required.split("        run: |\n", 1)[1])
+        cls.script = re.search(r"^        run: (.+)$", required, re.MULTILINE)[1]
 
     def result(self, full="true", changes="success", results=None):
         if results is None:
             results = ["success" if full == "true" else "skipped"] * len(FULL_GATES)
         self.assertEqual(len(FULL_GATES), len(results))
-        env = dict(os.environ, CHANGES_RESULT=changes, RUN_FULL_CI=full,
-                   **dict(zip(FULL_GATES.values(), results)))
-        return subprocess.run(["bash", "-e", "-c", self.script], env=env,
+        needs = {key: {"result": value, "outputs": {}} for key, value in zip(FULL_GATES, results)}
+        needs["changes"] = {"result": changes, "outputs": {"run_full_ci": full}}
+        env = dict(os.environ, CI_NEEDS_JSON=json.dumps(needs), PYTHONDONTWRITEBYTECODE="1")
+        return subprocess.run(["bash", "-e", "-c", self.script], env=env, cwd=ROOT,
                               stdout=subprocess.PIPE, stderr=subprocess.PIPE).returncode
 
     def test_all_full_gates_success(self):
@@ -217,8 +183,12 @@ class WorkflowTopologyTest(unittest.TestCase):
         self.assertIn("    if: ${{ always() }}\n", body)
         self.assertIn("    name: Required\n", body)
         self.assertCountEqual(["changes", *FULL_GATES], re.findall(r"^      - ([\w-]+)$", body, re.MULTILINE))
-        result_bindings = re.findall(r"^          (\w+): \$\{\{ needs\.([\w-]+)\.result \}\}$", body, re.MULTILINE)
-        self.assertCountEqual([("CHANGES_RESULT", "changes"), *[(env, job) for job, env in FULL_GATES.items()]], result_bindings)
+        self.assertIn("CI_NEEDS_JSON: ${{ toJSON(needs) }}", body)
+        self.assertIn("run: python3 -m scripts.ci_required", body)
+        self.assertIn("name: Check out the Required validator", body)
+        registry = load_registry()
+        validate_workflow(registry, (ROOT / ".github/workflows/ci.yml").read_text(),
+                          {".github/workflows/release.yml": (ROOT / ".github/workflows/release.yml").read_text()})
 
     def test_v51_split_keeps_every_gate_once_with_its_own_evidence(self):
         expected = {
