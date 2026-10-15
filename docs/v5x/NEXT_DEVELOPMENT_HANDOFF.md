@@ -67,6 +67,10 @@ follow under the local commit authorization.
 partition/restart crash modes and sixteen continuous bounded-pressure rounds,
 with 122 public reads and complete portable physical/query validation. Freeze
 M01–M04 before measurements; no paid cloud execution is authorized here.
+The [Phase 6A program/query foundation](v5.2/PHASE_6_MEASUREMENT_PROGRAM.md) fixes
+the offered requests and checks all 138 query descriptors against published V4.4
+at five actual application states. This is untimed; complete execution freeze,
+replicated measurements and portable measurement evidence remain open.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.
