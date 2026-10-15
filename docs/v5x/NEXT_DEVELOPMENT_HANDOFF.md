@@ -139,6 +139,12 @@ drain and unconditional process cleanup. Virtual-clock coverage includes all 15
 members and partial failures. Controller completion remains OBSERVED, with full
 physical M01 admission and M02–M04 schedules required before the execution freeze.
 
+The [Phase 6M member validator](v5.2/PHASE_6_M01_EVIDENCE.md) connects complete
+offered windows to physical/query/ownership/resource checks and selected-update
+replay. Its streaming aggregate admission runs before physical reconstruction.
+Full-size member and portable negative qualification still await the machine
+freeze; unchanged short histories only validate shared components.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

@@ -62,7 +62,8 @@ class Transfers:
         return value
 
 
-def validate(traces,manifest,projection,mode):
+def validate(traces,manifest,projection,mode,*,selector_limit=MAX_SELECTORS):
+    need(type(selector_limit) is int and 0<selector_limit<=8192,'measurement selector profile limit')
     budget=selection_budget(traces,manifest);selections=reads.selected_prefixes(traces,manifest)
     transfers=Transfers();selectors=installs=local_publications=0
     for node,rows in traces.items():
@@ -74,7 +75,7 @@ def validate(traces,manifest,projection,mode):
                 if row['kind']=='PROOF':forced.add(digest(physical.raw(row['record'])))
                 if row['kind']=='PROMISE':promised=value['epoch']
             elif event=='STORAGE_CUT' and row['cut']=='SELECTOR_BEFORE_ACK':
-                selectors+=1;need(selectors<=MAX_SELECTORS,'measurement selector observation count')
+                selectors+=1;need(selectors<=selector_limit,'measurement selector observation count')
                 need('readGeneration' in row,'measurement selector lacks generation bytes')
                 source=rejoin_evidence.packet(dict(files=row['readGeneration']),manifest)
                 need(source['seal']['node']==node,'measurement forced generation voter')
