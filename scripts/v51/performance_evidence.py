@@ -280,7 +280,11 @@ def artifacts(root,mode,adapter,pinned,source_inventory):
          len({p.parent for p in paths})==1 and
          adapter['cp']==os.pathsep.join(map(str,[*paths,paths[0].parent.parent/classes.name])), 'isolated adapter classpath')
     names=[]
-    if mode=='candidate-v5.1-automatic':candidate_pair([p.name for p in paths])
+    if mode=='candidate-v5.1-automatic':
+        try: candidate_pair([p.name for p in paths])
+        except ValueError:
+            from scripts.build_coordinates import regression_pair
+            regression_pair([p.name for p in paths],source_inventory)
     for artifact in adapter['artifacts']:
         path=retained_artifacts.retained(root,artifact['path'],artifact['sha256'])
         if mode!='candidate-v5.1-automatic':need(pinned[path.name]==artifact['sha256'],'wrong control artifact')

@@ -7,7 +7,7 @@ import subprocess
 import zipfile
 
 from . import controls, native_set_review, remote_command as c, performance_model as m
-from .artifact_version import current as version
+from scripts.build_coordinates import current as version
 
 ROOT = Path(__file__).resolve().parents[2]
 ARTIFACTS = ('general-search-engine', 'general-search-engine-processor', 'general-search-engine-replication')

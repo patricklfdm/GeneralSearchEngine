@@ -1,6 +1,7 @@
 # V5.2 Phase 1 entry: declarations and independent read foundation
 
-**Status:** proposed next implementation batch; not yet authorized or executed.
+**Status:** authorized after PR #335; implementation and validation recorded in
+[Phase 1 foundation](PHASE_1_FOUNDATION.md). Protected full acceptance pending.
 **Prerequisite:** protected acceptance of the complete [Phase 0](PHASE_0_CONTRACT.md),
 recorded exact-master CI with actual scope, then the user's Phase 1 instruction.
 The previous entry-plan merge is not acceptance of this new contract.

@@ -42,7 +42,7 @@ external-reader change with negative tests before it is accepted.
    fixed matrix; preserve failure uploads and `fail-fast: false`. Update the
    exact-count assertions in [test_ci_suites](../scripts/test_ci_suites.py).
    An unregistered job, missing dependency or cycle must fail validation.
-3. Choose the correct build domain. Extending the eleven ordinary consumer
+3. Choose the correct build domain. Extending the twelve ordinary consumer
    actions requires updating `BUILD_CONSUMERS` and their equivalence tests.
    Specialized rich/owned/canonical/release paths stay inline unless separately
    reviewed. Never import new-version artifacts by widening V5.1's historical

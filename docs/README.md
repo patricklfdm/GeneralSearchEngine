@@ -548,3 +548,9 @@ documentation.
 - [V5.1 complete owned canonical qualification](v5x/v5.1/PHASE_6_OWNED_CANONICAL_AGGREGATE.md): all three offline repetitions accepted through PR #310; native admission remains separate.
 - [V5.1 native full-preset integration](v5x/v5.1/PHASE_6_NATIVE_PRESET_REVIEW.md): PR #311 accepted; native experiment passed. [Complete native drill](v5x/v5.1/PHASE_6_NATIVE_DRILL_RECOVERY.md) passed after PR #314. The [canonical window observation correction](v5x/v5.1/PHASE_6_NATIVE_EXPERIMENT_HEADROOM.md#canonical-window-observation-correction) awaits protected CI and paid validation. Full Phase 6 remains open.
 - [V5.1 complete owned failure drill](v5x/v5.1/PHASE_6_OWNED_FAILURE_DRILL.md): twelve-cell offline guest qualification; native integration requires separate acceptance.
+
+### V5.2 read foundation
+
+The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the disabled
+API, token fixtures, independent model, compatibility and CI integration. See
+the [S01–S30 map](v5x/v5.2/PHASE_1_SCHEDULE_MAP.md) for pending runtime coverage.

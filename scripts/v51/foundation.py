@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import zipfile
 from . import cloud_plan, controls, explore, fixtures, process_harness, performance_foundation
 from . import artifact_version
+from scripts.build_coordinates import current as build_version
 from scripts.v50.offline_harness import current_jars
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -23,7 +24,7 @@ def command(args,log):
 def artifact(path):
     if not path.is_file() or path.is_symlink():raise ValueError('missing artifact '+str(path))
     with zipfile.ZipFile(path) as jar:
-        artifact_version.check_manifest(jar.read('META-INF/MANIFEST.MF'), artifact_version.current())
+        artifact_version.check_manifest(jar.read('META-INF/MANIFEST.MF'), build_version())
         if any('/V51' in n or 'scripts/v51/' in n or 'replication/v51/' in n or 'fixture/v51/' in n for n in jar.namelist()):raise ValueError('foundation fixture leaked into product')
     return dict(path=str(path),sha256=hashlib.sha256(path.read_bytes()).hexdigest())
 
@@ -39,7 +40,7 @@ def run(output,control_directory):
                 untrackedSha256=untracked,execution='independent-foundation-only',runtimeExecuted=False,paidCloud=False,status='FAIL')
     try:
         ns={'m':'http://maven.apache.org/POM/4.0.0'}
-        current=artifact_version.current()
+        current=build_version()
         for p in ['pom.xml','general-search-engine-replication/pom.xml','general-search-engine-processor/pom.xml','reactor/pom.xml','examples/travel-search/pom.xml']:
             if ET.parse(ROOT/p).getroot().findtext('m:version',namespaces=ns)!=current:raise ValueError('version '+p)
         for p in ROOT.glob('compatibility/v*-style-consumer/pom.xml'):

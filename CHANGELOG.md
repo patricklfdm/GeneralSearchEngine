@@ -3,6 +3,15 @@
 All notable changes to GeneralSearchEngine are recorded here. The project follows
 Semantic Versioning once the first stable artifact is published.
 
+## Unreleased — 5.2.0-SNAPSHOT
+
+- Add explicit replica-read API declarations, fixed 112-byte history-bound tokens
+  and an additive default method that rejects unsupported reads without invoking
+  callbacks. Runtime policy implementation is not yet enabled.
+- Add independent bounded read-model/token/evidence checks, a seventh external
+  consumer and a required no-GCP foundation suite. Published V5.1 formats and
+  historical release identities remain unchanged.
+
 ## 5.1.0 — 2026-10-13
 
 ### Added

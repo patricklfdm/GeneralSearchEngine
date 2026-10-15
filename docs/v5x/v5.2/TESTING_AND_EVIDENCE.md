@@ -1,9 +1,13 @@
 # V5.2 testing and independent evidence
 
-**Status:** candidate acceptance design, revision 0.1. No V5.2 model, runtime or
+**Status:** accepted evidence design, revision 0.1. No V5.2 model, runtime or
 measurement has been executed by this document batch. Governing
 [contract](PHASE_0_CONTRACT.md), [API](API_FORMAT_AND_COMPATIBILITY.md) and
 [lifecycle](READ_AUTHORITY_AND_LIFECYCLE.md) supply the expected behavior.
+
+Accepted in PR #335; see the [acceptance record](PHASE_0_CHECKLIST.md) and
+[current Phase 1 implementation](PHASE_1_FOUNDATION.md). Statements about unexecuted
+work below describe the original Phase 0 delivery; runtime qualification remains pending.
 
 ## Evidence families
 

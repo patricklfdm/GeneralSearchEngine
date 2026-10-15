@@ -3,6 +3,10 @@
 **Status:** design candidate, revision 0.1; governed by
 [Phase 0](PHASE_0_CONTRACT.md), not an implemented capability.
 
+Accepted in PR #335; see the [acceptance record](PHASE_0_CHECKLIST.md) and
+[current Phase 1 implementation](PHASE_1_FOUNDATION.md). Statements about unexecuted
+work below describe the original Phase 0 delivery; runtime qualification remains pending.
+
 ## Authority and capture
 
 Represent a captured cut as `(group, history, manifest, publishedIndex,

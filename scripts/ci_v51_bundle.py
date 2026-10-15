@@ -15,6 +15,7 @@ import tarfile
 import tempfile
 import time
 import xml.etree.ElementTree as ET
+from scripts.build_coordinates import current
 
 SCHEMA = 'gse-ci-v51-build-v1'
 MODULE = 'general-search-engine-replication'
@@ -69,8 +70,7 @@ def binding(root, source):
 
 
 def layout(root):
-    version = ET.parse(root / 'pom.xml').getroot().findtext('{*}version')
-    need(version and re.fullmatch(r'5\.1\.[0-9]+(?:-SNAPSHOT)?', version), 'not a V5.1 build')
+    version = current(root)
     return [f'target/general-search-engine-{version}.jar',
             f'{MODULE}/target/general-search-engine-replication-{version}.jar', CLASSES, REPORTS]
 
@@ -86,6 +86,7 @@ def prerequisites(files, roots):
     for worker in ('V51StorageWorker', 'V51ProtocolWorker', 'V51RuntimeWorker'):
         need(any(p.startswith(CLASSES + '/') and p.endswith('/' + worker + '.class') for p in files),
              'missing test worker: ' + worker)
+    required = REQUIRED_SUITES | ({'V52ReadTokenTest', 'V52PublicApiInventoryTest', 'V51PublicApiInventoryTest'} if roots[0].endswith('5.2.0-SNAPSHOT.jar') else set())
     suites = set()
     for name, data in files.items():
         if name.startswith(REPORTS + '/TEST-') and name.endswith('.xml'):
@@ -94,10 +95,10 @@ def prerequisites(files, roots):
                  all(int(suite.attrib.get(k, 0)) == 0 for k in ('failures', 'errors')),
                  'failed or empty Java suite: ' + name)
             short = suite.attrib['name'].rsplit('.', 1)[-1]
-            if short in REQUIRED_SUITES:
+            if short in required:
                 need(int(suite.attrib.get('skipped', 0)) == 0, 'skipped prerequisite: ' + short)
             suites.add(short)
-    need(REQUIRED_SUITES <= suites, 'missing executed Java prerequisites: ' + str(sorted(REQUIRED_SUITES - suites)))
+    need(required <= suites, 'missing executed Java prerequisites: ' + str(sorted(required - suites)))
 
 
 def prepare(root, source, state):

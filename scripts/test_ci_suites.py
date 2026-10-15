@@ -31,9 +31,9 @@ class SuiteContractTest(unittest.TestCase):
 
     def test_actual_inventory_matches_independent_cloud_consumer(self):
         names = self.check()
-        self.assertEqual(36, len(self.registry["suites"]))
-        self.assertEqual(38, len(s.job_blocks(self.workflow)))
-        self.assertEqual(46, len(names))
+        self.assertEqual(37, len(self.registry["suites"]))
+        self.assertEqual(39, len(s.job_blocks(self.workflow)))
+        self.assertEqual(47, len(names))
         self.assertCountEqual(cloud_ci.expected_jobs(self.workflow), names)
         for key in ("v51-remote-rich-shards", "v51-owned-canonical-tapes", "v51-owned-canonical"):
             self.assertIsNotNone(next(v["matrix"] for v in self.registry["suites"] if v["id"] == key))
@@ -49,7 +49,7 @@ class SuiteContractTest(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):ci_inventory.check_document(root)
                 document.write_text(ci_inventory.render(root), encoding='utf-8')
                 ci_inventory.check_document(root)
-                document.write_text(document.read_text().replace('46 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
+                document.write_text(document.read_text().replace('47 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
                 with self.assertRaisesRegex(ValueError, 'stale'):ci_inventory.check_document(root)
 
     def test_inventory_generation_propagates_invalid_source_contract(self):

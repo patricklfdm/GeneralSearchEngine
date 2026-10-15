@@ -1,9 +1,13 @@
 # V5.2 Phase 0: explicit replica-read contract
 
-**Status:** design candidate, revision 0.1, 2026-10-15; protected acceptance pending.
+**Status:** accepted design, revision 0.1, 2026-10-15.
 **Reviewed source:** `fd5bf155994887a5d5adc114000afc9e770960ae` (PR #334).
 **Immediate predecessor:** published `5.1.0`, source
 `516fe1efb54ef0787f38209108f322f258f71696`; inherited search/storage oracle `4.4.0`.
+
+Accepted in PR #335; see the [acceptance record](PHASE_0_CHECKLIST.md) and
+[current Phase 1 implementation](PHASE_1_FOUNDATION.md). Statements about unexecuted
+work below describe the original Phase 0 delivery; runtime qualification remains pending.
 
 This resolves the [entry plan](PHASE_0_ENTRY_PLAN.md) into reviewable selections.
 It does not claim runtime, model, performance or cloud acceptance. Stable remains

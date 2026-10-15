@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 contract candidate in review
+## Current milestone: V5.1 published; V5.2 read foundation awaiting protected acceptance
 
 **Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
 are complete. PR #322 and exact-master CI `38482900297` accepted source
@@ -12,13 +12,11 @@ The accepted [Phase 6 cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANC
 preserves its measured sources/sequences and historical failures/costs. The
 one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
 
-**Current:** the [V5.2 Phase 0 candidate](docs/v5x/v5.2/PHASE_0_CONTRACT.md) follows
-entry PR #334. Six documents define explicit read policies, history-bound tokens,
-capture/wait/view lifetimes, compatibility and independent evidence. Protected
-acceptance is pending; the [next foundation batch](docs/v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
-adds guarded declarations/model work only after acceptance and user instruction.
-Runtime implementation follows those gates. The chronology
-below preserves earlier milestones and acceptance boundaries.
+**Current:** Phase 0 PR #335 accepted the [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md).
+The [Phase 1 foundation](docs/v5x/v5.2/PHASE_1_FOUNDATION.md) now adds guarded
+public declarations, token/model evidence and external compatibility at
+`5.2.0-SNAPSHOT`. Explicit runtime reads remain disabled; protected full CI is
+pending before the capture/waiter kernel. Earlier milestones follow below.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI

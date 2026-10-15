@@ -16,6 +16,7 @@ from . import controls, performance_plan as plan, performance_model as model
 from . import performance_fixtures as fixtures, performance_projection as projection, performance_semantics as semantics
 from .storage_inspector import inventory
 from . import artifact_version
+from scripts.build_coordinates import current as build_version
 from scripts.v50.offline_harness import current_jars
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -153,7 +154,7 @@ def run(output, control_directory=ROOT / 'target/v51-controls', candidate_core=N
             with zipfile.ZipFile(jar) as archive:
                 model.need(not any('/V51Rich' in n for n in archive.namelist()), 'rich fixture in production JAR')
                 if name == 'candidate':
-                    artifact_version.check_manifest(archive.read('META-INF/MANIFEST.MF'), artifact_version.current())
+                    artifact_version.check_manifest(archive.read('META-INF/MANIFEST.MF'), build_version())
             classes = root / ('classes-' + name)
             classes.mkdir()
             command(['javac', '--release', '21', '-proc:none', '-cp', jar, '-d', classes, *sources], root, 'compile-' + name, deadline)

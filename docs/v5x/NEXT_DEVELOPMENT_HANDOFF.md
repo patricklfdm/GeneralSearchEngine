@@ -1,7 +1,7 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-next is V5.2 Phase 0 replica-read contract and evidence design.
+V5.2 Phase 1 foundation is implemented locally and awaits full protected acceptance.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
 PR #321 at `9c03356ab343fc5aafcefbbfcc0e33382d19eef0` with the operator's one-time
@@ -13,39 +13,24 @@ check passes twelve signatures/checksums, twelve canonical hashes and all six
 fresh remote consumer modules (22 tests, V1 compile-only). Stable is **5.1.0**.
 The Phase 7A skip did not carry forward to final-candidate or release validation.
 
-## Next batch: V5.2 Phase 0
+<a id="next-batch-v52-phase-0"></a>
 
-The [entry plan](v5.2/PHASE_0_ENTRY_PLAN.md) was accepted in PR #334 at master
-`fd5bf155994887a5d5adc114000afc9e770960ae`. Its implementation task has produced a
-[six-document Phase 0 candidate](v5.2/PHASE_0_CONTRACT.md), with ten selected design
-decisions, nine evidence families, thirty concrete correctness schedules and sixteen
-evidence negatives. Contract acceptance is still pending; these are planned checks,
-not executed replica-read evidence. Original CI failures and remaining
-[Tiered CI observations](../CI_TIERED_ACCEPTANCE.md) stay separate.
+## Current batch: V5.2 Phase 1
 
-Review the contract with the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
-[proposed read-policy refinement](NEXT_DEVELOPMENT_ADDENDUM.md#v52-explicit-read-policies),
-and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). The candidate selects:
+Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
+Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
+36 skipped suite placeholders). See the [acceptance checklist](v5.2/PHASE_0_CHECKLIST.md).
 
-- Strong leader, explicitly stale-allowed and history-bound at-least-index policies.
-- Progress tokens bound to group/history identity, published-state admission and
-  exact wait/reject behavior during lag, leadership changes, restore and restart.
-- Bounded waiters and callback-scoped views; explicit paging is excluded while
-  existing leader paging remains unchanged. Cancellation/close retain real ownership.
-- Adversarial history and physical evidence proving that followers never expose
-  uncommitted state or mislabel stale state as a stronger read.
+The [Phase 1 foundation](v5.2/PHASE_1_FOUNDATION.md) implements six public types,
+one disabled default read method, independent token/model/evidence checks and an
+external V5.2 consumer, at `5.2.0-SNAPSHOT`. Full protected PR/master qualification
+is pending. The [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md) preserves S01–S30 for
+later runtime work; synthetic evidence does not complete those schedules.
 
-Published `5.1.0` becomes the immediate replication reference for V5.2; inherited
-V4.4 search/storage behavior and earlier configured-mode guarantees remain.
-V5.2 runtime work follows acceptance of its own Phase 0. Review
-[API/bytes](v5.2/API_FORMAT_AND_COMPATIBILITY.md),
-[authority/lifecycle](v5.2/READ_AUTHORITY_AND_LIFECYCLE.md) and
-[evidence](v5.2/TESTING_AND_EVIDENCE.md), then record protected acceptance in the
-[checklist](v5.2/PHASE_0_CHECKLIST.md). After acceptance and the user's instruction,
-the next implementation batch is the [Phase 1 foundation](v5.2/PHASE_1_ENTRY_PLAN.md),
-keeping explicit runtime reads disabled until later public qualification. This batch changes documentation only;
-no V5.2 version bump or runtime work has started.
-Commit/push/PR/tag operations remain operator-owned, and paid runs remain manual.
+After acceptance, Phase 2 implements the application capture/waiter kernel;
+Phase 3 enables public read policies. Current explicit reads remain disabled.
+Commit/push/PR/tag operations remain operator-owned; paid runs remain manual.
+The V5.1 published baseline and historical CI failures stay retained.
 
 ## Accepted V5.1 cloud evidence
 
