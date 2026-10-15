@@ -56,7 +56,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
 | S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | 4D8 controlled public startup/fatal-I/O tests; final aggregate |
-| N01–N16 | Phase 1 synthetic sixteen plus Phase 3B eleven physical/query rejection mutations | Complete sixteen targeted physical mutations, before/after relocation |
+| N01–N16 | 4D10 supplies 28 targeted mutations covering all sixteen families on one actual public history, before/after relocation | Final aggregate and hosted exact-source qualification |
 
 ## Local verification
 
@@ -640,3 +640,65 @@ then checks UNAVAILABLE and the subsequent campaign. No runtime change was neede
 
 Logs, JUnit reports and hashes are retained at `target/v52-read-authority/`.
 The complete targeted negative matrix and final source qualification remain open.
+
+## 4D10: complete targeted physical-negative families
+
+`verify-v52-phase4-read-negatives.sh` runs a fresh public three-JVM history with
+all three policies, three confirmed bulk writes, a real positive-wait expiry and
+cancellation of the original Future at the pre-dispatch pause. It validates the
+unmodified physical history and published V4.4 query result before mutations.
+Every negative requires its exact expected rejection reason; a missing original,
+unrelated decoder error or incomplete execution is a failure of qualification.
+
+The 28 deliberately altered inputs cover the sixteen declared families:
+
+| Families | Actual mutations |
+| --- | --- |
+| N01–N04 | Different group/history, changed manifest and ahead index; valid token checksums |
+| N05 | Accepted ancestry claimed as a publication without its terminal proof; valid outer record checksum |
+| N06 | Valid proof retained, actual publication moved after capture; execution count preserved |
+| N07 | Query report from a different/invalid cut |
+| N08 | Missing own barrier index and wrong capture epoch |
+| N09–N10 | Actual expiry/cancellation relabelled success; capture at the exact deadline |
+| N11 | Worker write response moved after token invocation while controller times still claim confirmation first |
+| N12 | Success without release, and a callback reusing an already released pin |
+| N13 | Missing admission, premature release and omitted timer accounting |
+| N14 | Borrowed source, attempt, artifact binding or process generation |
+| N15 | Missing/altered inventoried data and copied authority with invalid original-path mapping |
+| N16 | Unsupported version, reserved bits and trailing bytes, with recomputed checksums |
+
+N11 exposed a checker gap: controller intervals alone did not independently prove
+that the originating worker had acknowledged the three baseline writes before
+its token invocation. The checker now also requires the corresponding same-node,
+same-process CLIENT_SUCCESS events to precede CLIENT_INVOKE. It does not subtract
+clocks across hosts. Using unchanged retained healthy evidence, the previous
+checker accepted the forged chronology; the corrected checker rejects it at the
+specific worker-order check. Both accept the unmodified original. Runtime code
+and actual workload behavior are unchanged.
+
+### Validation
+
+The full gate passes at `target/v52-public-read-negatives/run.vDlElW/evidence`:
+three JVMs, three bulk writes, nine read invocations (seven successful, one expired,
+one cancelled), 28 exact rejections in each location and fresh published query
+execution after archive extraction. The original binding is base `b329e47`,
+checkout `e271cd7d216a435cab027149ca43b8d493488a85030c070fa38c874800a8a844`;
+final result documentation follows that bound execution. The bundle hash and
+complete binding remain in its receipt.
+
+All 45 V5.2 Python tests and 32 CI topology/composite tests pass. The current
+checker also accepts 71 previously qualified original/relocated inputs across all
+existing process families; this is checker replay of their original bindings,
+not a claim that the old workloads ran on the new source. Logs, the old/new N11
+comparison and replay index are at `target/v52-targeted-negatives-process/`.
+
+Development failures remain retained: a proposed wrong group ID matched the
+fixture's fixed ID, removal of publication hit the generic execution-count gate
+before the intended capture check, and hard-link cloning failed across mounts.
+The final driver derives a distinct ID, reorders the publication without reducing
+coverage, and uses independent bounded file copies. None counts as a successful
+negative result. Final 28-case results pass without those unrelated failures.
+
+The new gate joins the existing required promise/install lane, with a distinct
+always-uploaded 14-day evidence artifact. Job names, Required and existing gates
+are unchanged; registry, inventory and artifact-count tests include the addition.

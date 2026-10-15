@@ -320,6 +320,18 @@
             "if-no-files-found": "warn",
             "retention-days": "14"
           }
+        },
+        {
+          "step": "Retain V5.2 targeted read negative evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-public-read-negatives-${{ github.sha }}",
+            "path": "target/v52-public-read-negatives",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
         }
       ],
       "fullResult": "success",

@@ -54,8 +54,10 @@ Phase 4D7 adds public cursor lifecycle tests and reruns seven consumer modules,
 published default/API checks and negative compilation. Phase 4D8 adds real public
 corrupt-startup and fatal-I/O before/after-capture tests. Phase 4D9 adds nine
 public accepted-only, isolated-leader, higher-promise and candidate/snapshot
-state-transition tests. Complete the explicit schedule/negative matrix and final
-source qualification before Phase 5 hardening and Phase 6 preparation.
+state-transition tests. Phase 4D10 completes 28 targeted physical negatives across
+N01–N16, including portable replay and an independently checked confirmation
+edge. Complete the remaining schedule mapping and final source qualification
+before Phase 5 hardening and Phase 6 preparation.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

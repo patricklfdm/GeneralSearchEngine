@@ -58,6 +58,19 @@ def oracle_inputs(root, traces):
 def traces_at(root):return {f'node-{i}':public_trace.fault_rows(root,f'node-{i}') for i in (1,2,3)}
 
 
+def confirmed_order(writes,strong,traces):
+    """Correlate controller sequencing with independent same-process worker edges."""
+    need(len(writes)>=3 and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
+         'missing confirmed-write-before-token ordering')
+    first=strong[0];rows=traces[first['node']]
+    invoked=[r for r in rows if r['event']=='CLIENT_INVOKE' and r['opId']==first['opId'] and r['pid']==first['pid']]
+    need(len(invoked)==1,'token invocation witness missing')
+    for write in writes[:3]:
+        replies=[r for r in rows if r['event']=='CLIENT_SUCCESS' and r['opId']==write['opId'] and r['pid']==write['pid']]
+        need(write['node']==first['node'] and write['pid']==first['pid'] and len(replies)==1 and
+             replies[0]['order']<invoked[0]['order'],'worker confirmed-write-before-token ordering')
+
+
 def publication_identity(snapshot):
     return len(snapshot['anchors']),digest(physical.raw(snapshot['terminalProof'])) if snapshot['terminalProof'] else None
 
@@ -131,9 +144,10 @@ def validate(root, expected, queries, *, traces=None, history=None):
     compaction_case=scenario=='token-below-floor'
     from .public_read_resource_evidence import CAPACITIES
     single_slot_case=scenario=='single-slot'
+    negative_case=scenario=='negative-qualification'
     resource_case=scenario in CAPACITIES or single_slot_case
     read_limit=0 if single_slot_case else min(64,CAPACITIES[scenario]-1) if resource_case else 15
-    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or negative_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -258,7 +272,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
             elif event=='CLIENT_FAILURE' and row['kind']=='read':
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded failed public read')
                 ids=[key for key,value in sources.items() if value==identity]
-                cancelled=(lifecycle or identity_case) and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
+                cancelled=(lifecycle or identity_case or negative_case) and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
                 need(len(ids)<=1 and (cancelled or all(i not in validated for i in ids) and identity not in callbacks),'failed pre-capture call has a view')
                 request=invoked[ids[0]] if ids else None;attempt=attempts[identity]
                 need(attempt['response']=={k:v for k,v in row.items() if k not in
@@ -302,9 +316,12 @@ def validate(root, expected, queries, *, traces=None, history=None):
     else:
         need(len(successes)==sum(a['outcome']=='SUCCESS' for a in reads) and policies=={'LEADER_STRONG','STALE_ALLOWED','AT_LEAST_INDEX'} and local_reads>=3,'incomplete public policy matrix')
     writes=[a for a in history if a['kind']=='addAll'];strong=[a for a in reads if a['policy']=='LEADER_STRONG']
-    need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
-         'missing confirmed-write-before-token ordering')
+    need(len(writes)==3 if scenario is None else len(writes)>=3,'missing public baseline writes')
+    confirmed_order(writes,strong,traces)
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif negative_case:
+        from .public_read_negative_evidence import schedule
+        schedule(root,traces,history,processes)
     elif identity_case:
         from .public_read_identity_evidence import schedule
         schedule(root,traces,history,processes)

@@ -381,6 +381,8 @@ jobs:
           artifact-name: v52-read-protocol-build-inputs-${{ github.sha }}
       - name: Verify V5.2 promise and snapshot install read races
         run: scripts/verify-v52-phase4-read-protocol.sh --skip-build
+      - name: Verify V5.2 targeted physical read evidence negatives
+        run: scripts/verify-v52-phase4-read-negatives.sh --skip-build
 
       - name: Retain V5.2 read protocol evidence including failures
         if: ${{ always() }}
@@ -388,6 +390,15 @@ jobs:
         with:
           name: v52-public-read-protocol-${{ github.sha }}
           path: target/v52-public-read-protocol
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Retain V5.2 targeted read negative evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-negatives-${{ github.sha }}
+          path: target/v52-public-read-negatives
           if-no-files-found: warn
           retention-days: 14
 
