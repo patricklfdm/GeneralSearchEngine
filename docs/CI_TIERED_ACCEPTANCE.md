@@ -46,3 +46,20 @@ explain all differences. Existing tests cannot be replaced with report generatio
 New-source hosted status starts `HOSTED_PENDING`. An unavailable mandatory local
 check is `LOCAL_VALIDATION_BLOCKED`, not hosted pending. Final local readiness
 requires every applicable mandatory local item to pass.
+
+## Observed hosted progress after PR #330
+
+The [hosted acceptance report](CI_TIERED_HOSTED_ACCEPTANCE.md) records complete
+attempt inventories, downloaded plans and the first measured timing sample.
+Manual full, rollout PR/master full, and a real integration PR with its subsequent
+master full have passed. The PR reruns and original local failures remain visible;
+none is relabeled as a clean first attempt or a root-cause fix.
+
+The current documentation-only batch is intended to qualify docs routing on its
+actual PR and master push: two successful meta jobs, all 36 suites skipped, and
+Required accepting that precise recipe. It is pending until those executions occur.
+Read-only rules inspection confirms the stable `Required` check and strict
+up-to-date enforcement. This observation does not test an administrator bypass.
+Actual Nightly/concurrency and hosted forceFull exercises remain pending. These
+observations supplement the frozen checklist above; they do not remove any item
+or replace mandatory local acceptance with hosted success.

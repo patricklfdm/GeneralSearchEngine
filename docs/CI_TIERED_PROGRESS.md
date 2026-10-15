@@ -5,7 +5,7 @@
 The original development task authorized continuous local T0–T6 implementation
 and staged local commits, with one final review. Subsequent user authorization
 allowed pushing that branch and one manual full CI execution; the user then
-created and merged PR #329. Hosted observations are recorded separately below,
+created and merged PRs #329 and #330. Hosted observations are recorded separately below,
 without replacing the retained local failures. Input handoff files remain
 unmodified, uncommitted and unnecessary at runtime.
 
@@ -21,12 +21,12 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | Stage | Implementation | Local validation | New-source hosted |
 | --- | --- | --- | --- |
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline and rollout observations retained |
-| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full rollout passed; reduced-profile observations pending |
+| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full and integration plans observed; docs pending |
 | T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | Full rollout passed; hosted forceFull exercise pending |
-| T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
+| T3 integration activation | Complete | 166 plan/provenance/interface tests passed | PR #330 selected integration; accepted attempt 2 passed 43 jobs with canonical skipped |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | Manual full passed; exact-base health observed; Nightly pending |
-| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full rollout passed after PR/master reruns; remaining hosted checks pending |
+| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full/integration observed; first timing sample and Required rule recorded; docs/forceFull/Nightly pending |
 
 **Local acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
 T0–T5 implementation is committed. The user supplied the missing namespace
@@ -34,14 +34,14 @@ prerequisite, and the predeclared 19-instance continuation has finished: 14 pass
 and five failed. Combined with retained prior executions, all 44 non-meta instances
 have whole-job results: 39 passed and five failed. None remains unexecuted because
 of permissions. Required local acceptance is still incomplete; this is not
-`LOCAL_READY_FOR_FINAL_REVIEW`. Hosted full rollout has subsequently passed;
+`LOCAL_READY_FOR_FINAL_REVIEW`. Hosted full and integration have subsequently passed;
 remaining hosted acceptance and the original local gaps are tracked separately.
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
 handoff implementation base are nine documentation files; there is no runtime
 drift to undo. No source reset, tag move or Maven clean was performed in T0.
 
-## Hosted rollout and integration acceptance preparation
+## Hosted rollout and integration acceptance
 
 [PR #329](https://github.com/patricklfdm/GeneralSearchEngine/pull/329) merged the
 development head `ce8b5d15346683db8b12f282e30b579f1926fc78` into master
@@ -68,29 +68,40 @@ This is an operational health observation; it does not grant cloud admission.
 Raw rollout API pages and summaries are under `target/ci-tiered-hosted-review/`;
 the current health observation is under `target/ci-tiered-integration/`.
 
-The next PR clarifies the travel example's existing core API demonstrations,
+[PR #330](https://github.com/patricklfdm/GeneralSearchEngine/pull/330) clarified the travel example's existing core API demonstrations,
 cursor-request reuse and dynamic index lifecycle using comments only, alongside
-this progress update. Its expected profile is **integration**, conditional on
-the same protected base retaining recent, complete full health. It exercises the
-existing `travel-demo-content-v1` rule without changing the policy, workflow,
-validator, runtime or workload. Expected hosted results are:
+the progress update. Its downloaded execution plan selected **integration** using
+the existing `travel-demo-content-v1` rule and exact-base full health. The policy,
+workflow, validator, runtime and workload were unchanged. Actual observations:
 
-* Change scope reports integration and an execution plan for 43 jobs.
-* Only the complete three-repetition owned canonical suite is unselected; GitHub
-  may display one skipped matrix placeholder rather than three expanded jobs.
-* All 41 selected non-meta instances and both meta jobs succeed, with Required
-  independently replaying the plan and checking the skipped canonical result.
-* Full remains the correct outcome if the base changes, health expires or becomes
-  unavailable, or a newer matching run is incomplete/failed. Such an outcome does
-  not count as integration acceptance and must not be bypassed.
+* PR run `38681060125` attempt 1 had 41 successes, guest-services and Required
+  failures, and one skipped canonical matrix placeholder. Accepted attempt 2 had
+  43 successes and the same skipped suite. Only two jobs actually reran; 41
+  successful executions were carried forward.
+* The plan's PR head is `e22f2c993f564a9da0352b6b0ae904a1c92d5a3c`, tested merge
+  is `a28d3891eb6c3a93a1ca03d7ad3d3eccdb61d7bd`, and base is `8f72b52`.
+  Required accepted the carried attempt-1 plan during attempt 2.
+* Exact-master `938958bfc42c13de5dd4854fcec3ec844d291749` selected **full** in
+  run `38683792757`; all 46 jobs passed on attempt 1.
+* The measured first-attempt integration span was 20:43 but failed. Its total
+  first-start-to-accepted-completion span was 29:45, including rerun and waiting;
+  master full passed in 47:15. These are different sources/events and one sample
+  per profile, not a controlled speedup estimate or a P95.
 
-Further hosted work remains: a docs-only PR, forceFull exercise, actual Nightly
-execution/concurrency, and measured profile timings. No Nightly run was returned
-by the workflow's schedule-event query at this observation. Prefer the eligible
-integration check before merging a new docs-only master, which would require its
-own exact-source full health. A branch manual run always selects full and cannot
-substitute for a real integration PR. No integration speedup or daily savings have
-yet been measured.
+Raw attempt pages and plan artifacts are under
+`target/ci-tiered-integration/hosted-pr330/`. The [hosted acceptance report](CI_TIERED_HOSTED_ACCEPTANCE.md)
+records execution identity, waiting and runner-time accounting, read-only Required
+rule observations and the remaining checks. This batch contains only Markdown
+changes: its intended PR and master profile is **docs**, with two successful meta
+jobs and 36 skipped suite placeholders. That result is pending actual execution.
+
+Further hosted work remains: the docs-only PR/master observation, forceFull
+exercise and actual Nightly execution/concurrency. The schedule query still had
+zero runs at 2026-10-15 05:51 UTC, before the first 10:17 UTC slot after rollout.
+A new docs-only master requires its own exact-source full health before a later
+eligible integration PR can reduce coverage; its docs success is not full health.
+Manual dispatch always selects full. No daily savings or fixed timing guarantee
+are claimed, and the original local failure records remain unresolved.
 
 Later disk cleanup moved large local evidence into the SHA-verified D-drive
 archive `D:\GSE-Archives\GeneralSearchEngine\repo-archives\build-prune-20261014\evidence-archives\ci-tiered-development.tar.gz`.
