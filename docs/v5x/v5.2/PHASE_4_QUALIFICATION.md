@@ -53,7 +53,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
-| S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; P=1 deterministic old-API slot | Public P=1 old-API qualification |
+| S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
 | S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | Public corrupt-authority/fatal capture physical evidence |
 | N01–N16 | Phase 1 synthetic sixteen plus Phase 3B eleven physical/query rejection mutations | Complete sixteen targeted physical mutations, before/after relocation |
@@ -503,3 +503,33 @@ Both original and relocated histories run published V4.4 query replay. Base
 separate. All 41 V5.2 Python tests and 32 CI topology/composite tests pass. The old
 cancel-waiting evidence also replays unchanged at both locations with the default
 ownership limit. Full protected qualification and public P=1 remain pending.
+
+## 4D6: zero explicit-read slots with live old APIs
+
+The `single-slot` three-voter case bootstraps public P=1, completes initialization,
+and submits each explicit policy to the leader. Each returns NOT_APPLICABLE /
+CAPACITY_EXCEEDED without admission, timers, live views or callbacks. The minimum
+request uses a valid independently encoded same-history token at the actual
+published index; it does not claim that a P=1 handle returned an explicit token.
+
+Three unchanged public `get` calls and four writes succeed across the rejection
+window. Each legacy query has its own newly accepted/proven NO_OP, publication,
+epoch validation, captured lifetime and released view before its response. Query
+documents match independent prefix reconstruction and actual V4.4 replay. Final
+queue/semaphore probes preserve the one public slot and zero explicit high-water.
+Only this exact scenario requires zero successful explicit reads; every existing
+positive-policy scenario still requires all three policies and its full matrix.
+
+`target/v52-public-read-single-slot/development-1` passes three capacity rejections,
+three legacy queries, four bulks and eight publications. Both locations replay
+actual V4.4 query controls and four original negatives. A final forged-success
+negative also rejects against both unchanged retained copies (five negatives per
+location). Source base `a112c6f57b6598c6ef6c42f8a191c5cf4d7757a7`, checkout `88aa7207c57f7d9a884d58382307ea6c10c12971cc39c1734cabd07112de4cdc` remain the original run's
+binding; later checker/CI/docs changes are separate.
+
+All 41 V5.2 Python tests pass. Retained P=4/65/10000 evidence revalidates unchanged
+with the exact zero-capacity branch present. The resource verification entry now
+runs this additional whole history and retains it in the same always-uploaded
+resource artifact. No production change, workload retry or paid run. S23/S24 are
+locally covered; final compatibility, state/failure variants, physical negative
+matrix and protected acceptance remain pending.

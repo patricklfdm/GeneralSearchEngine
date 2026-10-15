@@ -104,6 +104,9 @@ public final class V52PublicReadConsumer {
                     try {
                         if(kind.equals("probe")) {
                             respond(command,Map.of("queues",PublicRuntimeConsumer.diagnostics.apply(engine)),null);
+                        } else if(kind.equals("legacy-get")) {
+                            int key=((Number)command.get("key")).intValue();var document=engine.get(key);
+                            respond(command,Map.of("key",key,"document",doc(document)),null);
                         } else if(kind.equals("cancel")) {
                             var target=reads.get((String)command.get("target"));
                             if(target==null)throw new IllegalArgumentException("unknown original read future");

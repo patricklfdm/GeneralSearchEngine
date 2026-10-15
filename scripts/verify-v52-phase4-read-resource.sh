@@ -13,3 +13,5 @@ mkdir -p target/v52-public-read-resource
 work=$(mktemp -d "$root/target/v52-public-read-resource/run.XXXXXX")
 echo "v52PublicReadResourceEvidence=$work/evidence"
 timeout --signal=TERM --kill-after=5s 600s python3 -m scripts.v52.public_read_resource_harness "$work/evidence"
+echo "v52PublicSingleSlotEvidence=$work/single-slot"
+timeout --signal=TERM --kill-after=5s 300s python3 -m scripts.v52.public_read_single_slot_harness "$work/single-slot"

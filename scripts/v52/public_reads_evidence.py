@@ -130,8 +130,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     import_case=scenario in ('backup-export','backup-import')
     compaction_case=scenario=='token-below-floor'
     from .public_read_resource_evidence import CAPACITIES
-    resource_case=scenario in CAPACITIES
-    read_limit=min(64,CAPACITIES[scenario]-1) if resource_case else 15
+    single_slot_case=scenario=='single-slot'
+    resource_case=scenario in CAPACITIES or single_slot_case
+    read_limit=0 if single_slot_case else min(64,CAPACITIES[scenario]-1) if resource_case else 15
     need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
@@ -295,7 +296,11 @@ def validate(root, expected, queries, *, traces=None, history=None):
                          ('event','order','pid','generation','localNanos','node','groupId','manifestDigest')},'controller/worker bulk response differs')
         need(active is None or (crash and process['exitCode']!=0),'unreleased public view')
     reads=[a for a in history if a['kind']=='read']
-    need(len(successes)==sum(a['outcome']=='SUCCESS' for a in reads) and policies=={'LEADER_STRONG','STALE_ALLOWED','AT_LEAST_INDEX'} and local_reads>=3,'incomplete public policy matrix')
+    if single_slot_case:
+        need(not successes and len(reads)==3 and {a['policy'] for a in reads}=={'LEADER_STRONG','STALE_ALLOWED','AT_LEAST_INDEX'} and
+             all(a['outcome']=='NOT_APPLICABLE' and a['reasonCode']=='CAPACITY_EXCEEDED' for a in reads),'single-slot explicit policy rejection matrix')
+    else:
+        need(len(successes)==sum(a['outcome']=='SUCCESS' for a in reads) and policies=={'LEADER_STRONG','STALE_ALLOWED','AT_LEAST_INDEX'} and local_reads>=3,'incomplete public policy matrix')
     writes=[a for a in history if a['kind']=='addAll'];strong=[a for a in reads if a['policy']=='LEADER_STRONG']
     need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
          'missing confirmed-write-before-token ordering')
@@ -310,7 +315,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
         from .public_read_compaction_evidence import schedule
         schedule(root,traces,history,processes)
     elif resource_case:
-        from .public_read_resource_evidence import schedule
+        if single_slot_case:from .public_read_single_slot_evidence import schedule
+        else:from .public_read_resource_evidence import schedule
         schedule(root,traces,history,processes)
     elif application_case:
         from .public_read_application_evidence import schedule
