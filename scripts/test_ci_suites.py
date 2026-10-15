@@ -44,7 +44,7 @@ class SuiteContractTest(unittest.TestCase):
     def test_v52_whole_histories_use_independent_shared_build_lanes(self):
         commands = {
             "v52-foundation": ("phase1-foundation", "phase3-public-reads", "phase4-read-application"),
-            "v52-read-faults": ("phase4-public-faults", "phase4-read-identity"),
+            "v52-read-faults": ("phase4-public-faults", "phase4-read-identity", "phase4-read-import"),
             "v52-read-lifecycle": ("phase4-public-lifecycle",),
             "v52-read-protocol": ("phase4-read-protocol",),
         }

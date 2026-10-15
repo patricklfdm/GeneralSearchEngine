@@ -127,7 +127,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
     from .public_read_application_evidence import CASES as application_cases
     application_case=scenario in application_cases
     identity_case=scenario=='token-admission'
-    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    import_case=scenario in ('backup-export','backup-import')
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -267,7 +268,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
                 elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
                 elif row.get('reasonCode')=='INCOMPATIBLE_HISTORY':
-                    need(identity_case and request is not None,'undeclared identity rejection')
+                    need((identity_case or scenario=='backup-import') and request is not None,'undeclared identity rejection')
                     minimum=token.decode(physical.raw(request['minimum']))
                     need(any(minimum[k]!=manifest[k] for k in ('groupId','historyId')) or minimum['manifestDigest']!=manifest['digest'],
                          'compatible token rejected as foreign')
@@ -294,6 +295,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
     elif identity_case:
         from .public_read_identity_evidence import schedule
+        schedule(root,traces,history,processes)
+    elif import_case:
+        from .public_read_import_evidence import schedule
         schedule(root,traces,history,processes)
     elif application_case:
         from .public_read_application_evidence import schedule

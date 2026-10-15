@@ -22,12 +22,12 @@ def published(worker,index):
     faults.wait_for(ready,'public follower publication unavailable',40)
 
 
-def baseline(root,cp,workers,history):
+def baseline(root,cp,workers,history,*,keys=(20,30,40)):
     workers['node-1']=q.Worker(root,'node-1',cp,history,consumer='replica-read')
     workers['node-1'].call('read',policy='STALE_ALLOWED')
     for node in ('node-2','node-3'):workers[node]=q.Worker(root,node,cp,history,consumer='replica-read')
     leader,active=faults.leader(workers)
-    for key in (20,30,40):active.call('addAll',documents=[dict(id=i,value=f'java search query {i}') for i in (key,key+1)])
+    for key in keys:active.call('addAll',documents=[dict(id=i,value=f'java search query {i}') for i in (key,key+1)])
     carried=active.call('read',policy='LEADER_STRONG');index=token.decode(evidence.physical.raw(carried['token']))['index']
     for node,worker in workers.items():
         if node==leader:continue

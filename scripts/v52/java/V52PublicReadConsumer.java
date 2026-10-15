@@ -3,6 +3,7 @@ package io.github.patricklfdm.generalsearch.admission;
 import static io.github.patricklfdm.generalsearch.admission.V52ReadQueries.*;
 import io.github.patricklfdm.generalsearch.replication.*;
 import io.github.patricklfdm.generalsearch.index.IndexDefinition;
+import io.github.patricklfdm.generalsearch.durability.DurableBackupRequest;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.*;
 import io.github.patricklfdm.generalsearch.search.*;
@@ -59,6 +60,19 @@ public final class V52PublicReadConsumer {
             AutomaticReplicationStorageOperations.applyBootstrap(builder(),request,AutomaticReplicationStorageOperations.planBootstrap(builder(),request));
             print(Map.of("status","SETUP"));return;
         }
+        if(args[1].equals("token-only")) {
+            var minimum=ReplicaReadToken.decode(Base64.getDecoder().decode(args[2]));
+            try(var engine=AutomaticReplicatedSearchEngines.builder(builder(),configs(root).getFirst()).build()) {
+                engine.start().join();
+                engine.read(new ReplicaReadOptions(ReplicaReadPolicy.AT_LEAST_INDEX,Optional.of(minimum),0),v->report(view(v))).join();
+                throw new AssertionError("token repaired missing authority");
+            } catch(RuntimeException failure) {
+                Throwable cause=failure;
+                while(cause instanceof CompletionException&&cause.getCause()!=null)cause=cause.getCause();
+                if(!(cause instanceof AutomaticReplicationException rejected))throw failure;
+                print(Map.of("status","REJECTED","reasonCode",rejected.reason().name()));return;
+            }
+        }
         int ordinal=Integer.parseInt(args[1]);var pending=new ArrayList<CompletableFuture<?>>();
         // Bounded by the fixture's command limit. Retain the original public future,
         // because cancelling a dependent handle stage does not cancel its source.
@@ -86,6 +100,10 @@ public final class V52PublicReadConsumer {
                             pending.add(CompletableFuture.runAsync(()->respond(command,Map.of("cancelled",target.cancel(false)),null)));
                         } else if(kind.equals("begin-close")) {
                             pending.add(CompletableFuture.runAsync(engine::close).handle((v,e)->{respond(command,Map.of(),e);return null;}));
+                        } else if(kind.equals("backup")) {
+                            pending.add(engine.backup(new DurableBackupRequest(root.resolve("backup"),1<<20)).handle((v,e)->{
+                                respond(command,v==null?Map.of():Map.of("sequence",v.sequence(),"sourceHistory",v.sourceHistory().toString(),
+                                        "contentIdentity",v.contentIdentity(),"memberCount",v.memberCount(),"totalBytes",v.totalBytes()),e);return null;}));
                         } else if(Set.of("add","update","addAll","updateAll").contains(kind)) {
                             var docs=((List<Map<String,Object>>)command.get("documents")).stream().map(d->new Doc(((Number)d.get("id")).intValue(),(String)d.get("value"))).toList();
                             var future=switch(kind) {

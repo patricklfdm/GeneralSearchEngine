@@ -48,8 +48,8 @@ This table records implemented evidence without declaring unfinished variants do
 | S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
-| S13 | 4D2 public checks for all three identity mismatches at the same index, before allocation; deterministic exhausted-capacity precedence | New-group/import and final aggregate |
-| S14–S16 | 4B carried-token halt/SIGKILL with pre-reopen inspection; 4C2 verified installed newer prefix | Explicit below-floor cleanup and new-group backup |
+| S13 | 4D2 public checks for all three identity mismatches before allocation; 4D3 new-group import; deterministic exhausted-capacity precedence | Final aggregate |
+| S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import | Explicit below-floor cleanup |
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
@@ -311,7 +311,7 @@ ID. A history remains inside one gate; no continuous process history is split.
 | Job | Complete qualification | Job ceiling |
 | --- | --- | ---: |
 | `v52-foundation` | Foundation/model, healthy and three-policy application replay | 15 min |
-| `v52-read-faults` | Six carried-token/publication faults and token admission | 15 min |
+| `v52-read-faults` | Six faults, token admission and two linked backup/import histories | 15 min |
 | `v52-read-lifecycle` | Eleven cancellation/cooperative-close cases | 15 min |
 | `v52-read-protocol` | Seven higher-promise/snapshot-install cases | 20 min |
 
@@ -406,3 +406,42 @@ All 35 V5.2 Python tests and 32 CI topology/composite tests pass. New fixture te
 verify one-field identity changes and format-error precedence. Subsequent CI/docs
 edits are separate from that bound process run. Evidence and hash summaries are in
 `target/v52-read-identity-process/`; protected hosted qualification remains pending.
+
+
+## 4D3: actual public backup and new-group import
+
+`verify-v52-phase4-read-import.sh` qualifies two distinct whole histories. The first
+runs three public voters and exports through `backup()`. Its exact fresh NO_OP,
+validated capture, release and public response are independently bound to the
+published prefix. A byte decoder verifies backup metadata, checkpoint documents,
+sequence, member hashes, CRC32C, content identity and the reported result fields.
+The second imports those exact bytes through the public verified-backup bootstrap
+into a different group, then starts three new voters. The pair validator binds
+source/build/classes/run/attempt and compares the copied backup inventory.
+
+The imported genesis preserves application sequence 7 and all ten documents while
+resetting the replication index to 0 and changing group, history and manifest
+identities. The old token rejects before read ownership allocation; a fresh token
+succeeds. A separate public startup/read probe supplies only that old token to an
+empty authority directory and returns STORAGE_FAILURE. Startup reads the missing
+manifest before constructing the transport; no replica manifest/genesis is created.
+The probe is a separate JVM, not a voter or a replacement history fragment. Its
+retained stdout is checked against the recorded result.
+
+Local `target/v52-public-read-import/development-1` passes both histories: thirteen
+successful reads, one foreign-token rejection, six baseline bulks and one backup.
+Each history replays its queries with V4.4 before and after relocation; the combined
+23 negative cases reject at both locations, including a forged successful backup
+content identity. The relocated pair retains identical sequence/identity results.
+The process run binds base `c40d851e2a29767ec3a5ff5ea714e6aadc7f87a8` and checkout
+`4e8e5a3cd29dd472b1d9919583d72e14a9ff28942c7195d5b1c88eaa5d3d3ac7`.
+
+Four new byte-parser tests use small recorded output from the actual pinned V4.4
+control. Repaired-CRC mutations still reject foreign codec, document identity and
+live-count changes. The first mutation test used CRC32 instead of the format's
+CRC32C; that test failure remains in `target/v52-read-import-process/parser-tests.log`.
+The corrected four tests, all 39 V5.2 Python tests and 32 CI topology/composite tests
+pass. The strengthened stdout/pair check replays unchanged original and relocated
+artifacts successfully. Final CI/docs/test-only edits do not relabel the process
+run's source binding. This completes the public backup/import S16 schedule locally;
+full Phase 4 and protected hosted qualification remain pending.

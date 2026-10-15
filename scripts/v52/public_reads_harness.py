@@ -33,7 +33,7 @@ def replay(root, traces, output):
     return results
 
 
-def prepare(root, *, scenario=None):
+def prepare(root, *, scenario=None, backup=None):
     """One fresh public bootstrap, exact artifacts and separately compiled controls."""
     root=Path(root).resolve()
     (root/'replica-read-evidence').touch()
@@ -59,7 +59,13 @@ def prepare(root, *, scenario=None):
                json_source,java/'V52ReadQueries.java',java/'V52ReadControl.java'],root,'compile-control')
     binding['classes']={p.relative_to(root).as_posix():digest(p.read_bytes()) for directory in (classes,observer,control)
                         for p in sorted(directory.rglob('*.class'))};save(root/'binding.json',binding)
-    q.command(['java','-cp',control_cp,PACKAGE+'V52ReadControl',root/'control','seed'],root,'published-seed')
+    if backup is None:
+        q.command(['java','-cp',control_cp,PACKAGE+'V52ReadControl',root/'control','seed'],root,'published-seed')
+    else:
+        imported=bundle.members(Path(backup));need(imported,'empty imported public backup')
+        shutil.copytree(backup,root/'control/seed')
+        need(imported==bundle.members(root/'control/seed'),'public backup changed during copy')
+        binding['importedBackup']=imported;save(root/'binding.json',binding)
     cp=os.pathsep.join((candidate_cp,str(classes),str(observer)))
     q.command(['java','-cp',cp,PACKAGE+'V52PublicReadConsumer',root,'setup'],root,'bootstrap')
     if scenario is not None:binding['scenario']=scenario;save(root/'binding.json',binding)
