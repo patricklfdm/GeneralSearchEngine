@@ -39,6 +39,7 @@ public final class TravelSearchDemo {
             TextField<TravelPlace> cityText = engine.textField("city");
             TextField<TravelPlace> description = engine.textField("description");
 
+            // Wait for the initial batch to finish before running the searches below.
             engine.addAll(List.of(
                     new TravelPlace(
                             1L,
