@@ -12,9 +12,13 @@ public final class V52MeasurementWorker {
         Path root=Path.of(args[0]);String node="node-"+args[1];int generation=Integer.parseInt(args[3]);
         var manifest=decode(Files.readAllBytes(root.resolve(node+"/manifest.gsr")),"MANIFEST");
         var trace=new V52MeasurementTrace(root.resolve(node+"-trace.jsonl"),root.resolve(node+"-arm.txt"),generation,node,manifest);
+        var faults=new V52MeasurementFaults(root,args[2]);trace.write("FAULT_CONFIGURATION",faults.configuration);
         var starts=ThreadLocal.withInitial(HashMap<String,Long>::new);
         var readAdmissions=new java.util.concurrent.atomic.AtomicLong();
         var recoveryFloor=new java.util.concurrent.atomic.AtomicLong();
+        var selectedVoters=new java.util.concurrent.atomic.AtomicLong();
+        var selectedEpoch=new java.util.concurrent.atomic.AtomicLong();
+        var installedIndex=new java.util.concurrent.atomic.AtomicLong();
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(new AutomaticStore.Faults() {
             public void at(String event) throws IOException {
                 if(event.equals("SELECTOR_BEFORE_ACK")) {
@@ -49,6 +53,10 @@ public final class V52MeasurementWorker {
                 } catch(IOException failure){throw new UncheckedIOException(failure);}
             }
             public void at(String event,Map<String,Object> request,Map<String,Object> response) throws IOException {
+                if(faults.blocked(event,request)) {
+                    trace.event("NETWORK_DROP",Map.of("barrier",event,"request",b64(AutomaticWire.encode(request,manifest,1<<20))));
+                    throw new IOException("controller-owned measurement network partition");
+                }
                 if(event.equals("BEFORE_REQUEST_WRITE"))trace.event("REQUEST",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20))));
                 if(event.equals("BEFORE_RESPONSE_WRITE")||event.equals("AFTER_RESPONSE_READ"))
                     trace.event(event.equals("BEFORE_RESPONSE_WRITE")?"REPLY":"RECEIVED",Map.of("request",b64(AutomaticWire.encode(request,manifest,1<<20)),"frame",b64(AutomaticWire.encode(response,manifest,1<<20))));
@@ -64,11 +72,26 @@ public final class V52MeasurementWorker {
             // Offline replay must still prove the actual events and floor bytes.
             if(event.equals("REPLICA_READ_ADMITTED"))readAdmissions.incrementAndGet();
             if(event.equals("RECOVERY_FLOOR"))recoveryFloor.set(((Number)row.get("index")).longValue());
+            if(event.equals("PROMISE_QUORUM")) {
+                var selected=decode(Base64.getDecoder().decode((String)row.get("selected")),"SELECTED");long mask=0;
+                for(var basis:(List<?>)selected.value().get("bases")) {
+                    String voter=(String)((Map<?,?>)basis).get("node");if(!V52MeasurementFaults.NODES.contains(voter))throw new IOException("measurement selected voter");
+                    mask|=1L<<(voter.charAt(5)-'1');
+                }
+                selectedVoters.set(mask);
+                selectedEpoch.set(((Number)((Map<?,?>)selected.value().get("ballot")).get("epoch")).longValue());
+            }
+            if(event.equals("REJOIN_INSTALLED")) {
+                var snapshot=decode(Base64.getDecoder().decode((String)row.get("snapshot")),"SNAPSHOT");
+                installedIndex.set(((List<?>)snapshot.value().get("anchors")).size());
+            }
         }));
         V52MeasurementConsumer.observer=(name,row)->{try {trace.event(name,row);}catch(IOException failure){throw new UncheckedIOException(failure);}};
         V52MeasurementConsumer.diagnostics=engine->{
             var values=new LinkedHashMap<String,Object>(V51PublicWorker.queues(engine));
-            values.put("readAdmissionsObserved",readAdmissions.get());values.put("recoveryFloorObserved",recoveryFloor.get());return values;
+            values.put("readAdmissionsObserved",readAdmissions.get());values.put("recoveryFloorObserved",recoveryFloor.get());
+            values.put("selectedVotersObserved",selectedVoters.get());values.put("selectedEpochObserved",selectedEpoch.get());
+            values.put("snapshotInstalledIndexObserved",installedIndex.get());return values;
         };
         try {V52MeasurementConsumer.main(args);}
         finally {AutomaticRuntimeHooks.CURRENT.remove();}

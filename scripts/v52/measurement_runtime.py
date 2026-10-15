@@ -91,8 +91,13 @@ class Worker:
             public_trace.finish(self.root,self.node,self.proc,self.generation)
 
 
-def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=None):
+def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=None,recovery_case=None):
     need(mode in model.MODES,'measurement unknown preparation mode')
+    if recovery_case is not None:
+        from . import measurement_recovery as recovery
+        need(mode=='candidate-minimum' and not exercise_load and m01_repetition is None and read_profile is None,
+             'measurement recovery preparation profile mismatch')
+        recovery_profile=recovery.profile(recovery_case)
     if m01_repetition is not None:
         from .measurement_m01 import profile
         need(not exercise_load and read_profile is None,'measurement smoke and M01 profiles are exclusive')
@@ -103,6 +108,7 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=Non
              'measurement read configuration profile mismatch')
     root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls')
     if read_profile is not None:save(root/options.FILE,parameters)
+    if recovery_case is not None:save(root/recovery.FILE,recovery_profile['faultParameters'])
     save(root/'corpus.json',model.corpus());(root/'group-id.txt').write_text(str(uuid.uuid4())+'\n')
     artifacts=root/'artifacts';artifacts.mkdir();version='5.1.0' if mode.startswith('published') else current()
     jars=[]
@@ -118,7 +124,7 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=Non
     if version!='5.1.0':consumer.append(java/'V52MeasuredExplicitReads.java')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',classes,*consumer],root,'compile-consumer')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',observer,ROOT/'scripts/v51/java/PublicRuntimeConsumer.java',
-               ROOT/'scripts/v51/java/V51PublicWorker.java',java/'V52MeasurementTrace.java',java/'V52MeasurementWorker.java'],root,'compile-observer')
+               ROOT/'scripts/v51/java/V51PublicWorker.java',java/'V52MeasurementTrace.java',java/'V52MeasurementFaults.java',java/'V52MeasurementWorker.java'],root,'compile-observer')
     q.command(['javac','--release','21','-proc:none','-cp',control_cp,'-d',control_classes,*common,java/'V52MeasurementSeed.java',java/'V52MeasurementOracle.java'],root,'compile-control')
     seed=q.command(['java','-cp',control_cp,PACKAGE+'V52MeasurementSeed',root/'control',root/'corpus.json'],root,'seed')
     need(seed.stderr.strip()=='coreSource='+str(control),'measurement seed loaded wrong control')
@@ -129,7 +135,10 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=Non
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
     binding['readParameters']=parameters
-    if m01_repetition is not None:
+    if recovery_case is not None:
+        binding.pop('smokeInitialization');binding.pop('driverExercise')
+        binding['measurementProfile']=recovery_profile;binding['faultParameters']=recovery_profile['faultParameters']
+    elif m01_repetition is not None:
         binding.pop('smokeInitialization');binding.pop('driverExercise')
         binding['measurementProfile']=measured_profile
     elif read_profile is not None:

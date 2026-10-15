@@ -833,3 +833,10 @@ design documents are comparisons, not evidence of GSE protocol correctness.
 Report the exact reviewed source, local changes, commands/results, actual conflicts,
 incomplete checks and unresolved design decisions. Record protected-review and
 exact-master CI acceptance only after they occur. Stop at the assigned phase boundary.
+
+The [Phase 6R recovery controllers](v5.2/PHASE_6_RECOVERY_CONTROLLERS.md) now execute
+both M04 fault schedules with closed observer controls, exact original calls,
+retained pre-reopen bytes and owned-process cleanup. Two fresh development
+histories pass general physical validation. Independent generation/token/query,
+resource and portable M04 admission remains open before the complete machine
+freeze and formal measurements. No production Java or workflow topology changes.

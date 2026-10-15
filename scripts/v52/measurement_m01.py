@@ -90,6 +90,7 @@ def execute_prepared(root,binding,cp,*,worker_factory=runtime.Worker):
     mode=binding['mode'];p=binding.get('measurementProfile',{})
     need(p==profile(mode,p.get('repetition')) and 'smokeInitialization' not in binding and 'driverExercise' not in binding,
          'measurement M01 preparation profile')
-    need(binding.get('readParameters')==options.parameters() and not (root/options.FILE).exists(),'measurement M01 preparation parameters')
+    need(binding.get('readParameters')==options.parameters() and not (root/options.FILE).exists() and
+         'faultParameters' not in binding and not (root/'measurement-fault.json').exists(),'measurement M01 preparation parameters')
     return runtime.execute_observer(root,binding,cp,lambda workers,history:observe(root,workers,history,mode,p['repetition']),
                                     worker_factory=worker_factory,label='measurement M01')

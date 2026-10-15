@@ -49,7 +49,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
             need(name in binding['artifacts'] and identity[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement loaded artifact source')
         if 'readParameters' in binding:
             need(binding['readParameters']==options.parameters() and identity.get('readParameters')==binding['readParameters'] and
-                 not (root/options.FILE).exists(),'measurement smoke read parameters changed')
+                 not (root/options.FILE).exists() and 'faultParameters' not in binding and not (root/'measurement-fault.json').exists(),
+                 'measurement smoke read parameters changed')
     location=(performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
     base=physical.validate(root,traces,evidence_location=location,require_restart=False)
     manifest,genesis,entries=reads.context(root,traces)

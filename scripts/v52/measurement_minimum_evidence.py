@@ -21,7 +21,8 @@ def identity(root,expected):
         plan=controller.profile(binding.get('measurementProfile',{}).get('case'))
         need(binding['mode']==controller.MODE and binding['measurementProfile']==plan and
              binding['programSha256']==model.PLAN_SHA and binding.get('publicationAuthority')=='forced-generation-v1' and
-             not {'driverExercise','smokeInitialization','readConfigurationOnly'}&set(binding),'measurement minimum preparation profile')
+             not {'driverExercise','smokeInitialization','readConfigurationOnly','faultParameters'}&set(binding) and
+             'measurement-fault.json' not in inventory,'measurement minimum preparation profile')
         need(options.validate(binding['readParameters'])==plan['parameters'] and options.FILE in inventory and
              metadata(root,options.FILE,4096)==plan['parameters'],'measurement minimum parameter binding')
     return identities.identity(root,expected,check,label='measurement minimum')

@@ -25,7 +25,7 @@ def bindings(values):
         value=values[name(mode,repetition)];profile=value.get('measurementProfile',{})
         need(value['mode']==mode and profile==m01.profile(mode,repetition) and value['programSha256']==model.PLAN_SHA,
              'measurement M01 member identity/program')
-        need(value.get('readParameters')==options.parameters(),'measurement M01 set read parameters changed')
+        need(value.get('readParameters')==options.parameters() and 'faultParameters' not in value,'measurement M01 set read parameters changed')
         need(re.fullmatch('[0-9a-f]{40}',value['source']) and re.fullmatch('[0-9a-f]{64}',value['checkoutSha256']) and
              type(value['attempt']) is int and value['attempt']>=1 and isinstance(value['run'],str) and value['run'],
              'measurement M01 source/attempt shape')

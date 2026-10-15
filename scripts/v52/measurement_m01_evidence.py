@@ -26,7 +26,8 @@ def metadata(root,name,maximum):
 def identity(root,expected):
     def check_profile(binding,inventory):
         mode=binding['mode'];profile=binding.get('measurementProfile',{})
-        need(binding.get('readParameters')==options.parameters() and options.FILE not in inventory,'measurement M01 read parameters changed')
+        need(binding.get('readParameters')==options.parameters() and options.FILE not in inventory and
+             'faultParameters' not in binding and 'measurement-fault.json' not in inventory,'measurement M01 read parameters changed')
         need(profile==m01.profile(mode,profile.get('repetition')) and binding['programSha256']==model.PLAN_SHA and
              binding.get('publicationAuthority')=='forced-generation-v1' and 'smokeInitialization' not in binding and
              'driverExercise' not in binding,'measurement M01 full preparation profile')

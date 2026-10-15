@@ -149,5 +149,6 @@ def execute_prepared(root,binding,cp,*,worker_factory=runtime.Worker):
     plan=profile(binding.get('measurementProfile',{}).get('case'))
     need(binding['mode']==MODE and binding['measurementProfile']==plan and binding['readParameters']==plan['parameters'] and
          read(root/options.FILE)==plan['parameters'] and 'readConfigurationOnly' not in binding,'measurement minimum prepared profile')
+    need('faultParameters' not in binding and not (root/'measurement-fault.json').exists(),'measurement minimum undeclared fault controls')
     return runtime.execute_observer(root,binding,cp,lambda workers,history:observe(root,workers,history,plan['case']),
                                     worker_factory=worker_factory,label='measurement minimum')
