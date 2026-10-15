@@ -126,7 +126,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
     protocol_case=scenario in protocol_cases
     from .public_read_application_evidence import CASES as application_cases
     application_case=scenario in application_cases
-    need(scenario is None or lifecycle or protocol_case or application_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    identity_case=scenario=='token-admission'
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -251,7 +252,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
             elif event=='CLIENT_FAILURE' and row['kind']=='read':
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded failed public read')
                 ids=[key for key,value in sources.items() if value==identity]
-                cancelled=lifecycle and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
+                cancelled=(lifecycle or identity_case) and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
                 need(len(ids)<=1 and (cancelled or all(i not in validated for i in ids) and identity not in callbacks),'failed pre-capture call has a view')
                 request=invoked[ids[0]] if ids else None;attempt=attempts[identity]
                 need(attempt['response']=={k:v for k,v in row.items() if k not in
@@ -265,6 +266,16 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='CLOSED':need(lifecycle,'undeclared close rejection')
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
                 elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
+                elif row.get('reasonCode')=='INCOMPATIBLE_HISTORY':
+                    need(identity_case and request is not None,'undeclared identity rejection')
+                    minimum=token.decode(physical.raw(request['minimum']))
+                    need(any(minimum[k]!=manifest[k] for k in ('groupId','historyId')) or minimum['manifestDigest']!=manifest['digest'],
+                         'compatible token rejected as foreign')
+                elif row.get('reasonCode') in ('INVALID_TOKEN','UNSUPPORTED_TOKEN_VERSION'):
+                    need(identity_case and request is None,'malformed token reached runtime')
+                    try:token.decode(physical.raw(calls[identity]['minimum']))
+                    except ValueError as error:need(str(error)==row['reasonCode'],'token decoding rejection differs')
+                    else:raise ValueError('well-formed token rejected as malformed')
                 else:raise ValueError('undeclared pre-capture rejection')
             elif event=='CLIENT_SUCCESS' and row['kind'] in MUTATION_FIELDS:
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded mutation response')
@@ -281,6 +292,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
          'missing confirmed-write-before-token ordering')
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif identity_case:
+        from .public_read_identity_evidence import schedule
+        schedule(root,traces,history,processes)
     elif application_case:
         from .public_read_application_evidence import schedule
         schedule(root,scenario,traces,history,processes,queries)

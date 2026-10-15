@@ -48,7 +48,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
-| S13 | All three identity mismatches before admission/allocation | Public new-group/import and retained restart variants |
+| S13 | 4D2 public checks for all three identity mismatches at the same index, before allocation; deterministic exhausted-capacity precedence | New-group/import and final aggregate |
 | S14–S16 | 4B carried-token halt/SIGKILL with pre-reopen inspection; 4C2 verified installed newer prefix | Explicit below-floor cleanup and new-group backup |
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
@@ -311,7 +311,7 @@ ID. A history remains inside one gate; no continuous process history is split.
 | Job | Complete qualification | Job ceiling |
 | --- | --- | ---: |
 | `v52-foundation` | Foundation/model, healthy and three-policy application replay | 15 min |
-| `v52-read-faults` | Six carried-token/publication faults | 15 min |
+| `v52-read-faults` | Six carried-token/publication faults and token admission | 15 min |
 | `v52-read-lifecycle` | Eleven cancellation/cooperative-close cases | 15 min |
 | `v52-read-protocol` | Seven higher-promise/snapshot-install cases | 20 min |
 
@@ -374,3 +374,35 @@ and the paused verified-install history also passes their original negatives.
 Logs, bindings and hash summaries remain at `target/v52-read-application-process/`.
 This closes the physical S21 overlap case; the remaining identity, resource,
 compatibility and complete N01–N16 accounting still prevent Phase 4 closure.
+
+
+## 4D2: token identity, format and maximum bound admission
+
+`verify-v52-phase4-read-identity.sh` runs in the carried-read fault lane. One fresh
+three-voter history rejects eight separately recorded requests: wrong group,
+wrong history, changed manifest digest, unsupported version, nonzero reserved bits,
+trailing bytes, corrupt checksum and an uncovered maximum signed-long index with
+zero wait. The first three preserve the captured index and have valid recomputed
+checksums. Version/reserved mutations also recompute their checksum, so checksum
+failure cannot conceal the intended format rejection.
+
+Foreign and malformed tokens acquire no waiter/timer/capture ownership. Malformed
+bytes are rejected before the runtime invocation; foreign but well-formed tokens
+return INCOMPATIBLE_HISTORY. The uncovered zero-wait token returns
+PROGRESS_NOT_REACHED. A separate request using the maximum index and 60000 ms wait
+owns exactly one waiter and timer, remains pending, and is cancelled through its
+original public Future. Observation counts and actual shared admission return to
+baseline; a subsequent valid carried-token read succeeds. No memory allocation is
+scaled to the lower-bound index. This does not replace the still-pending physical
+authority corruption and new-group import schedules.
+
+Local `target/v52-public-read-identity/development-1` passes: seven successful
+reads, eight explicit rejections and one cancellation, plus three baseline bulks.
+Twelve negative evidence checks reject before and after archive relocation; the
+relocated query oracle executes V4.4 again. The bound base is
+`ffb0c9be5ed6a793d129c4f0eaf9085a9210f02f`, checkout digest
+`b36820017fa4b92942e9924a2895a0bad60b41639146cd5d6cbdbaa0582dad98`.
+All 35 V5.2 Python tests and 32 CI topology/composite tests pass. New fixture tests
+verify one-field identity changes and format-error precedence. Subsequent CI/docs
+edits are separate from that bound process run. Evidence and hash summaries are in
+`target/v52-read-identity-process/`; protected hosted qualification remains pending.

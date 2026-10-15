@@ -154,6 +154,18 @@
           }
         },
         {
+          "step": "Retain V5.2 read identity evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-public-read-identity-${{ github.sha }}",
+            "path": "target/v52-public-read-identity",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
           "step": "Retain V5.2 public read faults including failures",
           "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
           "id": null,

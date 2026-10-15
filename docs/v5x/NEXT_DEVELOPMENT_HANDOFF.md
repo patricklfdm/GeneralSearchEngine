@@ -43,7 +43,9 @@ including halt/SIGKILL and independent ownership accounting. Local 4C2 passes
 seven higher-promise/snapshot-install process cases. Phase 4D0 wires all existing
 V5.2 gates into four required shared-build lanes. Phase 4D1 adds three-policy
 physical application/query lifecycle qualification, including update/delete and
-index create/drop. Continue with identity, resource, compatibility and the full
+index create/drop. Phase 4D2 qualifies public token identity/format rejections and
+maximum-index/wait ownership. Continue with backup/new-group identity, resource,
+compatibility and the full
 schedule/negative matrix before final acceptance.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
