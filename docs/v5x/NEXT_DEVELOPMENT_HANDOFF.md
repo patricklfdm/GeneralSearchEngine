@@ -164,6 +164,12 @@ physical/lifecycle checks. Scenario-specific admission, M04 and the complete
 machine freeze still precede formal measurements; these observations are not a
 formal M02/M03 acceptance set.
 
+The [Phase 6Q independent minimum validator](v5.2/PHASE_6_MINIMUM_EVIDENCE.md)
+connects complete M02/M03 histories to physical/query/lifetime/resource replay and
+reconstructs each live gate from raw events. Portable replay preserves original
+bindings and exact negative results. M04, complete machine freeze and fresh formal
+measurement histories remain required before cloud preparation.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

@@ -15,51 +15,22 @@ from . import measurement_history as lifecycle,measurement_projection as project
 from . import measurement_reads as cuts,measurement_samples as samples,measurement_oracle as oracle
 from . import measurement_authority_budget as budget,public_reads_evidence as reads
 from . import measurement_stream
-from . import measurement_options as options
+from . import measurement_options as options,measurement_identity as identities
 from .evidence import need,digest,encoded
 
 
 def metadata(root,name,maximum):
-    path=root/name
-    need(path.is_file() and not path.is_symlink() and 0<path.stat().st_size<=maximum,'measurement M01 metadata bound: '+name)
-    with path.open('rb') as source:raw=source.read(maximum+1)
-    need(0<len(raw)<=maximum and len(raw)==path.stat().st_size,'measurement M01 metadata changed/bound: '+name)
-    return strict_json(raw)
+    return identities.metadata(root,name,maximum)
 
 
 def identity(root,expected):
-    model.load()
-    binding=metadata(root,'binding.json',4<<20)
-    need(binding==expected,'measurement M01 source/build/attempt binding')
-    inventory=bundle.inventory(root);mode=binding['mode'];profile=binding.get('measurementProfile',{})
-    need(binding.get('readParameters')==options.parameters() and options.FILE not in inventory,'measurement M01 read parameters changed')
-    need(profile==m01.profile(mode,profile.get('repetition')) and binding['programSha256']==model.PLAN_SHA and
-         binding.get('publicationAuthority')=='forced-generation-v1' and 'smokeInitialization' not in binding and
-         'driverExercise' not in binding,'measurement M01 full preparation profile')
-    need(binding['artifacts'] and binding['classes'],'measurement M01 missing artifacts/consumers')
-    for name,sha in binding['artifacts'].items():
-        need(Path(name).name==name and 'artifacts/'+name in inventory and inventory['artifacts/'+name]['sha256']==sha,
-             'measurement M01 artifact binding')
-    for name,sha in binding['classes'].items():
-        need(name in inventory and name.endswith('.class') and inventory[name]['sha256']==sha,'measurement M01 consumer binding')
-    cores=[name for name in binding['artifacts'] if name.startswith('general-search-engine-') and
-           not name.startswith('general-search-engine-replication-') and name!='general-search-engine-4.4.0.jar']
-    need(len(cores)==1,'measurement M01 runtime core identity');version=cores[0][len('general-search-engine-'):-4]
-    need(version=='5.1.0' if mode.startswith('published') else version in ('5.2.0-SNAPSHOT','5.2.0'),'measurement M01 mode artifact version')
-    need(set(binding['artifacts'])=={cores[0],'general-search-engine-replication-'+version+'.jar','general-search-engine-4.4.0.jar'},
-         'measurement M01 artifact set')
-    processes=metadata(root,'processes.json',64<<10)
-    need(len(processes)==3 and len({p['pid'] for p in processes})==3 and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
-         all(p['generation']==1 and p['exitCode']==0 for p in processes),'measurement M01 three stopped JVMs')
-    for process in processes:
-        value=process['identity']
-        need(all(value[k]==process[k] for k in ('node','pid')) and value['mode']==mode,'measurement M01 startup identity')
-        need(value['javaRuntime']==binding['java']['java.runtime.version'] and value['javaVendor']==binding['java']['java.vendor'],
-             'measurement M01 JVM differs from build identity')
-        need(value.get('readParameters')==binding['readParameters'],'measurement M01 observed read parameters differ')
-        for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
-            need(value[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement M01 loaded artifact source')
-    return binding,processes
+    def check_profile(binding,inventory):
+        mode=binding['mode'];profile=binding.get('measurementProfile',{})
+        need(binding.get('readParameters')==options.parameters() and options.FILE not in inventory,'measurement M01 read parameters changed')
+        need(profile==m01.profile(mode,profile.get('repetition')) and binding['programSha256']==model.PLAN_SHA and
+             binding.get('publicationAuthority')=='forced-generation-v1' and 'smokeInitialization' not in binding and
+             'driverExercise' not in binding,'measurement M01 full preparation profile')
+    return identities.identity(root,expected,check_profile,label='measurement M01')
 
 
 def initial_publication(history,scenario,offered,traces,mode):
