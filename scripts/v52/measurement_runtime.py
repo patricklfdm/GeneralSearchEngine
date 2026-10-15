@@ -115,10 +115,21 @@ def prepare(root,mode,*,exercise_load=False):
     need(json.loads(seed.stdout)==dict(status='PASS',documents=64,sequence=1),'measurement seed result')
     q.command(['java','-cp',cp,PACKAGE+'V52MeasurementConsumer',root,'setup'],root,'bootstrap')
     binding=dict(build.binding(ROOT,subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()),mode=mode,
-                 origin=str(root),driverExercise=exercise_load,programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
+                 origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
     save(root/'binding.json',binding);return binding,cp,control_cp
+
+
+def await_publication(workers,index,sequence,*,clock=time.monotonic,sleep=time.sleep):
+    """Observe prepared state on the required read/write targets; never retry a business operation."""
+    deadline=clock()+40
+    while clock()<deadline:
+        states={node:w.call('status') for node,w in workers.items()}
+        need(all(v['state']!='FAILED' for v in states.values()),'measurement prepared voter failed')
+        if all(v['state'] in ('FOLLOWER','LEADER_READY') and v['publishedIndex']>=index and v['sequence']==sequence for v in states.values()):return states
+        sleep(.05)
+    raise ValueError('measurement prepared publication unavailable')
 
 
 def smoke(root,mode,*,exercise_load=False):
@@ -138,7 +149,9 @@ def smoke(root,mode,*,exercise_load=False):
         initial=active.call('read',query=model.query(0),setupToken=True)
         updates=[r['document'] for r in model.program() if r['kind']=='update'][:3]
         for doc in updates:active.call('update',document=doc)
+        prepared=active.call('status');need(prepared['sequence']==4,'measurement confirmed setup sequence')
         target=leader if mode.endswith('strong') else sorted(set(workers)-{leader})[-1]
+        baseline=await_publication({node:workers[node] for node in sorted({leader,target})},prepared['publishedIndex'],4)
         if target!=leader:
             from . import token
             index=token.decode(__import__('base64').b64decode(initial['token']))['index'];until=time.monotonic()+25
@@ -166,7 +179,7 @@ def smoke(root,mode,*,exercise_load=False):
                 response=future.result(timeout=35);need(response is not None and response['outcome']=='SUCCESS','measurement concurrent consumer failure: '+str(response))
         probes={node:worker.call('probe') for node,worker in workers.items()}
         need(all(v['queues']['admissionAvailable']==64 and v['queues'].get('readsOwned',0)==0 for v in probes.values()),'measurement consumer ownership leak')
-        save(root/'scenario.json',dict(mode=mode,leader=leader,readTarget=target,initialRead=initial['opId'],updates=updates,readCount=11,probes=probes))
+        save(root/'scenario.json',dict(mode=mode,leader=leader,readTarget=target,initialRead=initial['opId'],updates=updates,readCount=11,probes=probes,baseline=baseline,baselineIndex=prepared['publishedIndex']))
         result=dict(status='PASS',execution='untimed-measurement-consumer-smoke-only',mode=mode,leader=leader,readTarget=target,reads=11,updates=3,qualifiedMeasurement=False)
     finally:
         errors=[]
@@ -194,6 +207,9 @@ def run(output,only=None,*,exercise_load=False):
             portable=evidence.replay(relocated,binding,root/(mode+'-portable-validation'))
             need(original==portable,'measurement smoke relocated physical/query replay drift')
             result['validation']=original;receipt['cases'].append(result);print(json.dumps({k:result[k] for k in ('mode','status','reads','updates')}),flush=True)
+        if only is None and exercise_load:
+            from . import measurement_bundle_foundation
+            receipt['largePackage']=measurement_bundle_foundation.run(root/'candidate-minimum',root/'large-package')
         receipt['status']='PARTIAL' if only else 'PASS'
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:save(root/'receipt.json',receipt)

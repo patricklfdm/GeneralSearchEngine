@@ -2,6 +2,8 @@ import concurrent.futures
 import copy
 import unittest
 from . import measurement_load as load,measurement_model as model
+from .measurement_runtime import await_publication
+from unittest.mock import Mock
 
 
 class Clock:
@@ -22,6 +24,23 @@ class MeasurementLoadTest(unittest.TestCase):
         calls=model.program() if calls is None else calls
         receipt,pending=load.dispatch(calls,duration,submit,clock=clock,sleep=clock.sleep)
         return receipt,pending,history,clock
+
+    def test_initial_token_is_not_the_completed_setup_publication(self):
+        clock=Clock()
+        def status(index,sequence,state='FOLLOWER'):return dict(state=state,publishedIndex=index,sequence=sequence)
+        workers={n:Mock() for n in ('node-1','node-2','node-3')}
+        workers['node-1'].call.return_value=status(5,4,'LEADER_READY')
+        workers['node-2'].call.return_value=status(5,4)
+        workers['node-3'].call.side_effect=[status(2,1),status(5,4,'RECOVERING'),status(5,4)]
+        result=await_publication(workers,5,4,clock=lambda:clock()/1e9,sleep=clock.sleep)
+        self.assertEqual(4,result['node-3']['sequence']);self.assertEqual(3,workers['node-3'].call.call_count)
+        self.assertTrue(all(c.args==('status',) for worker in workers.values() for c in worker.call.call_args_list))
+
+    def test_failed_or_never_caught_up_preparation_cannot_start_load(self):
+        clock=Clock();worker=Mock();worker.call.return_value=dict(state='FAILED',publishedIndex=5,sequence=4)
+        with self.assertRaisesRegex(ValueError,'prepared voter failed'):await_publication({'node-1':worker},5,4,clock=lambda:clock()/1e9,sleep=clock.sleep)
+        worker.call.return_value=dict(state='FOLLOWER',publishedIndex=2,sequence=1)
+        with self.assertRaisesRegex(ValueError,'publication unavailable'):await_publication({'node-1':worker},5,4,clock=lambda:clock()/1e9,sleep=clock.sleep)
 
     def test_all_1980_offers_keep_original_time_and_wait_entire_window(self):
         receipt,pending,history,clock=self.execute();load.drain(receipt,pending,1,clock=clock)

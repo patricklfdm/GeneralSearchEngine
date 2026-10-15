@@ -16,7 +16,7 @@ class MeasurementRuntimeEvidenceTest(unittest.TestCase):
     def test_invalid_original_never_counts_as_successful_negative_rejections(self):
         with patch.object(e,'validate',side_effect=ValueError('original physical evidence failed')) as check:
             with self.assertRaisesRegex(ValueError,'original physical evidence failed'):e.negatives('unused',{}, {})
-        check.assert_called_once_with('unused',{}, {})
+        check.assert_called_once_with('unused',{}, {},package=e.bundle)
 
 
 if __name__=='__main__':unittest.main()

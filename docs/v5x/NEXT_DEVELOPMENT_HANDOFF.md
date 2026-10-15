@@ -95,6 +95,12 @@ Five short integration histories pass physical/query replay before and after
 relocation. Full-size evidence packaging, M02–M04 schedules and the complete
 execution freeze remain open; no formal measured window has run.
 
+The [Phase 6F package/replay qualification](v5.2/PHASE_6_MEASUREMENT_PACKAGING.md)
+adds a separate bounded large-history archive and original-path authority replay.
+The short driver now confirms its actual read/write targets have published the
+prepared updates; retained failures explain both that correction and the old V5.1
+follower boundary. Full measured validation and M02–M04 execution remain pending.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

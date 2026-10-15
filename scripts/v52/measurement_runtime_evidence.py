@@ -9,7 +9,7 @@ from scripts.v51 import performance_bundle as bundle,performance_artifacts
 from scripts.v51 import public_qualification_harness as q
 from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
 from . import public_reads_evidence as reads
-from . import measurement_load as load,measurement_samples as samples
+from . import measurement_load as load,measurement_samples as samples,measurement_bundle
 from .evidence import need,digest,encoded
 
 
@@ -25,9 +25,11 @@ def stream(root,node):
     return trace.Trace(Path(root)/(node+'-trace.jsonl'),node=node,limits=replace(trace.Limits(),decoded_bytes=64<<20,rows=65536))
 
 
-def validate(root,expected,answers=None,*,traces=None,history=None):
+def validate(root,expected,answers=None,*,traces=None,history=None,package=bundle):
     root=Path(root).resolve();binding=reads.read(root/'binding.json');need(binding==expected,'measurement source/build/attempt binding')
-    need(reads.read(root/'bundle-members.json')==bundle.members(root),'measurement smoke inventory')
+    need(package in (bundle,measurement_bundle),'measurement package profile')
+    if package is measurement_bundle:package.inventory(root)
+    else:need(reads.read(root/'bundle-members.json')==package.members(root),'measurement smoke inventory')
     need(all(digest((root/'artifacts'/name).read_bytes())==sha for name,sha in binding['artifacts'].items()),'measurement artifact hashes')
     need(all(digest((root/name).read_bytes())==sha for name,sha in binding['classes'].items()),'measurement consumer hashes')
     history=reads.read(root/'history.json') if history is None else history;processes=reads.read(root/'processes.json');scenario=reads.read(root/'scenario.json')
@@ -44,7 +46,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None):
         identity=process['identity'];need(all(identity[k]==process[k] for k in ('node','pid')) and identity['mode']==binding['mode'],'measurement startup identity')
         for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
             need(name in binding['artifacts'] and identity[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement loaded artifact source')
-    location=performance_artifacts.EvidenceLocation(root,binding['origin'])
+    location=(performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
     base=physical.validate(root,traces,evidence_location=location,require_restart=False)
     manifest,genesis,entries=reads.context(root,traces)
     calls={r['opId']:r for r in history if r['kind'] in ('read','update')}
@@ -56,6 +58,17 @@ def validate(root,expected,answers=None,*,traces=None,history=None):
     need(len(requested)==10 and [r['query'] for r in requested]==[model.query(i) for i in range(10)] and
          all(r['node']==scenario['readTarget'] for r in requested),'measurement smoke read program/target')
     need(scenario['readTarget']==(scenario['leader'] if binding['mode'].endswith('strong') else sorted({'node-1','node-2','node-3'}-{scenario['leader']})[-1]),'measurement frozen targeting')
+    if 'smokeInitialization' in binding:
+        need(binding['smokeInitialization']=='read-write-targets-confirmed-updates-v1','measurement unknown smoke initialization')
+        baseline=scenario['baseline'];write_indices=[v['index'] for v in entries.values() if v['operation']==2]
+        need(set(baseline)=={scenario['leader'],scenario['readTarget']} and len(write_indices)==3 and max(write_indices)<=scenario['baselineIndex']<=base['chosen'],'measurement prepared cut')
+        for node,status in baseline.items():
+            need(status['state'] in ('FOLLOWER','LEADER_READY') and status['publishedIndex']>=scenario['baselineIndex'] and status['sequence']==4,'measurement prepared publication')
+            call=next((c for c in history if c['opId']==status['opId']),None)
+            observed=next((r for r in traces[node] if r['event']=='CLIENT_SUCCESS' and r.get('opId')==status['opId']),None)
+            need(call is not None and observed is not None and call['node']==node and call['kind']=='status' and
+                 call['response']==status=={k:v for k,v in observed.items() if k not in trace.META} and
+                 updates[-1]['endNanos']<call['startNanos']<call['endNanos']<requested[0]['startNanos'],'measurement prepared observation binding')
     initial=[r for r in calls.values() if r.get('setupToken')]
     need(len(initial)==1 and initial[0]['opId']==scenario['initialRead'] and initial[0]['node']==scenario['leader'] and
          initial[0]['endNanos']<updates[0]['startNanos'],'measurement initial read ordering')
@@ -174,8 +187,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None):
                 oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver)
 
 
-def negatives(root,expected,answers):
-    validate(root,expected,answers)
+def negatives(root,expected,answers,*,package=bundle):
+    validate(root,expected,answers,package=package)
     root=Path(root);original={f'node-{i}':list(stream(root,f'node-{i}')) for i in (1,2,3)}
     history=reads.read(root/'history.json');mode=expected['mode']
     def find(rows,event):return next(r for own in rows.values() for r in own if r['event']==event)
@@ -201,6 +214,10 @@ def negatives(root,expected,answers):
             ('wrong-release-cut',lambda r,h:find(r,'REPLICA_READ_RELEASED').__setitem__('sequence',999),'measurement changed released cut')])
     if mode=='candidate-minimum':
         cases.append(('different-minimum',lambda r,h:next(c for c in h if c['kind']=='read' and not c.get('setupToken')).__setitem__('minimum','AA=='),'measurement initial minimum changed'))
+    if 'smokeInitialization' in expected:
+        baseline=reads.read(root/'scenario.json')['baseline'];baseline_node=next(iter(baseline));identity=baseline[baseline_node]['opId']
+        cases.append(('missing-prepared-publication',lambda r,h:next(v for v in r[baseline_node] if v['event']=='CLIENT_SUCCESS' and v.get('opId')==identity).__setitem__('event','REMOVED_PREPARED_STATUS'),
+                      'measurement prepared observation binding'))
     if expected.get('driverExercise',False):
         cases.extend([
             ('missing-resource-sample',lambda r,h:find(r,'CLIENT_SAMPLE').__setitem__('sampleOrdinal',99),'sample missing/duplicate ordinal'),
@@ -211,19 +228,19 @@ def negatives(root,expected,answers):
     result=[]
     for name,mutate,reason in cases:
         rows=copy.deepcopy(original);calls=copy.deepcopy(history);mutate(rows,calls)
-        try:validate(root,expected,answers,traces=rows,history=calls)
+        try:validate(root,expected,answers,traces=rows,history=calls,package=package)
         except ValueError as error:need(str(error)==reason,'measurement unrelated negative rejection: '+name+': '+str(error));result.append(dict(case=name,status='REJECTED',reason=reason))
         else:raise ValueError('measurement negative accepted: '+name)
     return result
 
 
-def replay(root,expected,output):
+def replay(root,expected,output,*,package=bundle):
     root=Path(root).resolve();output=Path(output).resolve();output.mkdir(parents=True,exist_ok=False)
-    preliminary=validate(root,expected);value=preliminary['oracleInput'];(output/'input.json').write_bytes(encoded(value)+b'\n')
+    preliminary=validate(root,expected,package=package);value=preliminary['oracleInput'];(output/'input.json').write_bytes(encoded(value)+b'\n')
     jar=root/'artifacts/general-search-engine-4.4.0.jar';cp=os.pathsep.join(map(str,(jar,root/'control-classes')))
     result=q.command(['java','-cp',cp,q.PACKAGE+'admission.V52MeasurementOracle',output/'oracle',output/'input.json'],output,'oracle')
     need(result.stderr.strip()=='coreSource='+str(jar),'measurement replay loaded wrong query control')
     need(json.loads(result.stdout)==dict(status='PASS',measured=False,requests=len(value['requests']),updatesApplied=3,finalSequence=4),'measurement query replay incomplete')
-    answers=oracle.validate_output(value,output/'oracle/answers.jsonl');checked=validate(root,expected,answers)
-    checked['negatives']=negatives(root,expected,answers)
+    answers=oracle.validate_output(value,output/'oracle/answers.jsonl');checked=validate(root,expected,answers,package=package)
+    checked['negatives']=negatives(root,expected,answers,package=package)
     (output/'validation.json').write_bytes(encoded(checked)+b'\n');return checked
