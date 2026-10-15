@@ -145,6 +145,12 @@ replay. Its streaming aggregate admission runs before physical reconstruction.
 Full-size member and portable negative qualification still await the machine
 freeze; unchanged short histories only validate shared components.
 
+The [Phase 6N portable set wrapper](v5.2/PHASE_6_M01_SET.md) now requires all 15
+fresh M01 histories with one source/build/JVM/run/attempt, exact compiled controls,
+and independent original/relocated member replay. It preserves all failures and
+never substitutes a PASS receipt for raw evidence. Fixture validation is complete;
+actual full-size execution still waits for M02–M04 and the machine freeze.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

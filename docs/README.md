@@ -48,6 +48,7 @@ protected hosted acceptance remain pending.
 - [Phase 6K asynchronous phase boundaries and resource windows](v5x/v5.2/PHASE_6_MEASUREMENT_RESOURCE_WINDOWS.md)
 - [Phase 6L complete M01 controller](v5x/v5.2/PHASE_6_M01_CONTROLLER.md)
 - [Phase 6M full M01 member evidence](v5x/v5.2/PHASE_6_M01_EVIDENCE.md)
+- [Phase 6N portable M01 set admission](v5x/v5.2/PHASE_6_M01_SET.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership
