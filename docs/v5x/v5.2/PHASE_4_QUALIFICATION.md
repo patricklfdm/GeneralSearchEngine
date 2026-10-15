@@ -1,10 +1,10 @@
 # V5.2 Phase 4 qualification
 
-**Status:** in progress. Phase 4A supplies deterministic and in-JVM public lifecycle
-coverage; 4B adds six physical process faults, and 4C1 adds eleven cancellation/close
-process schedules. These do not complete S01–S30. Hosted exact-source validation,
-the remaining matrix and final hosted acceptance are pending. 4C2 adds the seven
-promise/install process cases described below. Follow the
+**Status:** locally verified through 4D11. S01–S30 and E01–E08 have concrete
+implementation and local evidence in the [schedule map](PHASE_4_SCHEDULE_RESULTS.md).
+This does not declare final hosted acceptance: protected exact-source full CI is
+pending, and older process runs keep their original bindings. Phase 5 combined
+hardening and Phase 6 measurements/pre-cloud preparation follow the authorized
 [local commit sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 ## 4A: lifecycle and resource boundaries
@@ -40,23 +40,11 @@ cases. They do not turn the Phase 1 synthetic model into physical evidence.
 ## Coverage accounting
 
 The normative variants remain in [TESTING_AND_EVIDENCE](TESTING_AND_EVIDENCE.md).
-This table records implemented evidence without declaring unfinished variants done.
-
-| Schedules | Evidence available | Remaining qualification |
-| --- | --- | --- |
-| S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | 4D7 local consumer/API rerun; final exact-source hosted acceptance pending |
-| S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases; 4D9 public accepted-only stale/minimum rejection | Final aggregate |
-| S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
-| S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
-| S13 | 4D2 public checks for all three identity mismatches before allocation; 4D3 new-group import; deterministic exhausted-capacity precedence | Final aggregate |
-| S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import; 4D4 actual two-source retirement below carried token | Final aggregate |
-| S17–S20 | Higher-PREPARE kernel, seven 4C2 public promise/install process cases including halt/SIGKILL; 4D9 public isolated leader, higher promise and CANDIDATE/RECOVERING local variants | Final aggregate |
-| S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
-| S22 | 4D7 public cursor continuity, changed materialization, successor/reopened handles; negative page compilation and nested-page rejection | Final aggregate |
-| S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
-| S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
-| S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | 4D8 controlled public startup/fatal-I/O tests; final aggregate |
-| N01–N16 | 4D10 supplies 28 targeted mutations covering all sixteen families on one actual public history, before/after relocation | Final aggregate and hosted exact-source qualification |
+The [final schedule map](PHASE_4_SCHEDULE_RESULTS.md) lists every S01–S30 variant,
+its deterministic/public/process evidence, and the complete N01–N16 negative
+matrix. E01–E08 are locally verified. E09 measurements belong to Phase 6.
+The subsections below preserve the status and failures at each earlier boundary;
+statements about then-remaining work are historical, not missing final mappings.
 
 ## Local verification
 
@@ -70,12 +58,10 @@ production logic, workload timing, admission limit or CI check was changed for 4
 
 ## Next batches
 
-4B implements the public process fault driver described below. 4C1 completes the
-cancellation/close process schedules below; 4C2 covers promise/install races. 4D
-closes the remaining resource, schedule and negative matrix.
-Each batch is locally verified and committed without a push. Phase 5 combined
-hardening and Phase 6 frozen local/no-GCP measurements follow only after the matrix
-is complete. Paid execution remains outside this authorization.
+Phase 5 combines partition/recovery with retained callback ownership and bounded
+sustained pressure. Phase 6 freezes measurements before execution and prepares
+portable no-GCP/cloud admission. Paid execution remains outside the current local
+authorization. Final protected CI must validate the accumulated committed source.
 
 ## 4B: owned process faults and carried tokens
 
@@ -702,3 +688,44 @@ negative result. Final 28-case results pass without those unrelated failures.
 The new gate joins the existing required promise/install lane, with a distinct
 always-uploaded 14-day evidence artifact. Job names, Required and existing gates
 are unchanged; registry, inventory and artifact-count tests include the addition.
+
+## 4D11: final local matrix and compatibility validation
+
+The S08 public test holds the actual selected follower's stale callback while the
+leader confirms a complete bulk and issues a fresh strong token. The follower
+registers a behind minimum with observed waiter/timer ownership, then returns the
+whole bulk only after actual publication. Snapshot fallback is explicitly held
+for this ordinary-proof schedule; separate snapshot-state cases retain their
+NOT_READY requirements. No failed business call is retried.
+
+The application worker regression replenishes both queues for sixteen alternating
+read/publication turns. Both make progress while nonempty, within the existing
+four ordinary slots and one coalesced read marker. This is finite deterministic
+coverage, not an unbounded fairness or failover SLA. The V1 external consumer now
+executes its original schema/query method instead of receiving compile-only coverage.
+
+Final local checks:
+
+- Complete reactor package: **997 tests**, four existing skips, no failures/errors;
+  9 min 32 s including packaging. All ten public authority tests pass.
+- Seven independent consumer modules: **25 tests**, no failures/errors/skips.
+- Foundation gate: version alignment, three coordinate tests, 45 V5.2 Python tests,
+  actual published-V5.1 old binary/default behavior, API inventory and absent
+  paging/mutation compile negatives pass. The bounded model explores 950,492 states
+  and 3,934,700 transitions; synthetic evidence remains separate from physical runs.
+- 4D10 already replays all 71 retained original/relocated process inputs with the
+  current checker. Those historical executions retain their own source identities;
+  no workload or published-query rerun is claimed for that 71-input checker replay.
+
+The reactor/source validation binding records base `e9c5ab4` and checkout digest
+`cc8864cd7ceec0e4f07699c7f549812ef9fd231aaca7e5fce36af0d009f19c07`.
+Result documentation follows those executions. Local Java is Ubuntu 21.0.12.1;
+hosted pinned Temurin qualification has not run for these unpushed commits.
+Logs, copied JUnit reports, source binding and receipt/hash summary are retained in
+`target/v52-phase4-matrix/`; the foundation receipt is at
+`target/v52-foundation/run.1UuPai/evidence/receipt.json`.
+
+The production runtime, public API, token bytes, published authority formats,
+read deadlines and CI topology are unchanged in 4D11. Root documentation now
+reflects implemented reads and local Phase 4 completion without changing published
+V5.1 guarantees or claiming release/cloud acceptance.

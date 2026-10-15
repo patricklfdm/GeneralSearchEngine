@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 and V5.1 published and independently verified; V5.2 Phase 1 foundation awaiting protected acceptance; runtime reads remain disabled
+- **Status:** V5.0 and V5.1 published and independently verified; V5.2 public reads locally qualified through Phase 4; protected acceptance pending
 - **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
 - **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
@@ -20,10 +20,11 @@ The [migration guide](v5.1/MIGRATION_GUIDE.md) describes the published automatic
 mode and preserves the configured-mode boundary.
 
 Phase 0 PR #335 accepted the [V5.2 read contract](v5.2/PHASE_0_CONTRACT.md).
-The [Phase 1 foundation](v5.2/PHASE_1_FOUNDATION.md) adds disabled declarations,
-independent model/token/evidence checks and a new external consumer. Full protected
-CI is pending; runtime reads remain disabled. The [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md)
-records later runtime obligations.
+The [public runtime](v5.2/PHASE_3_PUBLIC_READS.md) implements all three explicit
+policies. [Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md) and its
+[schedule map](v5.2/PHASE_4_SCHEDULE_RESULTS.md) record local correctness,
+process-fault and consumer evidence. Combined hardening and measurements follow;
+full protected CI and fresh cloud qualification remain pending.
 The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.
 

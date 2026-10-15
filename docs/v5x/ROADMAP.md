@@ -32,13 +32,14 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** [V5.2 Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md), following
+**Current batch:** V5.2 combined hardening after locally completed
+[Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md), following
 accepted Phase 0 PR #335 and locally verified foundation/capture/waiter stages at
 `5.2.0-SNAPSHOT`. [Public reads](v5.2/PHASE_3_PUBLIC_READS.md), follower publication and external
 three-process physical/query evidence are locally verified. The operator authorized [local sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 through pre-cloud implementation.
-Protected PR/master CI remains required before cloud entry. See the [handoff](NEXT_DEVELOPMENT_HANDOFF.md#current-batch-v52-phase-1)
-and [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md).
+Protected PR/master CI remains required before cloud entry. See the
+[handoff](NEXT_DEVELOPMENT_HANDOFF.md) and [schedule map](v5.2/PHASE_4_SCHEDULE_RESULTS.md).
 
 ## Historical V5.1 implementation milestones
 

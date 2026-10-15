@@ -10,7 +10,8 @@ Semantic Versioning once the first stable artifact is published.
   callbacks on implementations retaining that default.
 - Enable explicit strong, stale-allowed and history-bound minimum reads on the
   automatic handle, with callback-scoped views, bounded progress waiting and
-  verified follower application publication. Qualification is in progress.
+  verified follower application publication. Local correctness qualification is
+  complete; combined hardening, measurement and hosted acceptance remain pending.
 - Add independent bounded read-model/token/evidence checks, a seventh external
   consumer and a required no-GCP foundation suite. Published V5.1 formats and
   historical release identities remain unchanged.

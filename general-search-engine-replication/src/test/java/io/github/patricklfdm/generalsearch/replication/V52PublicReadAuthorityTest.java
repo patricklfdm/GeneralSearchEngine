@@ -145,6 +145,46 @@ class V52PublicReadAuthorityTest {
         } finally {isolated.set(null);release.countDown();}
     }
 
+    @Test void confirmedBulkThenStrongTokenWaitsForTheLaggingFollowersActualPublication() throws Exception {
+        var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var heldPeer=new AtomicReference<String>();
+        var pairs=new ConcurrentHashMap<String,Set<String>>();var waitingId=new AtomicLong(-1);var admitted=new AtomicReference<Map<String,Object>>();
+        try(var group=new Group()) {
+            group.events=(node,event,value)->{
+                if(event.equals("PROMISE_QUORUM")) {
+                    var selected=decode(unbase(value.get("selected")),"SELECTED");var members=new HashSet<String>();
+                    for(var basis:list(selected.value().get("bases")))members.add(text(object(basis),"node"));pairs.put(node,Set.copyOf(members));
+                }
+                if(node.equals(heldPeer.get())&&event.equals("REPLICA_READ_INVOKED")&&value.get("policy").equals("AT_LEAST_INDEX"))waitingId.set(number(value,"readId"));
+                if(node.equals(heldPeer.get())&&event.equals("REPLICA_READ_ADMITTED")&&number(value,"readId")==waitingId.get())admitted.set(Map.copyOf(value));
+            };
+            // This schedule isolates ordinary proof publication from the separate
+            // snapshot-install state gate, already qualified above and in process cases.
+            group.network=(node,barrier,request,response)->{
+                if(barrier.equals("BEFORE_REQUEST_WRITE")&&request.get("recipient").equals(heldPeer.get())&&request.get("type").equals("SNAPSHOT_OFFER"))
+                    throw new IOException("hold snapshot fallback during ordinary publication test");
+            };
+            group.start(3);var leader=group.leader("");var original=group.baseline(leader);
+            String peer=pairs.get(group.name(leader)).stream().filter(n->!n.equals(group.name(leader))).findFirst().orElseThrow();
+            var follower=group.node(peer);heldPeer.set(peer);
+            var held=follower.read(STALE,v->{entered.countDown();try {hold(release);}catch(IOException e){throw new java.io.UncheckedIOException(e);}
+                assertNull(v.get(80));assertNull(v.get(81));return v.get(1);});
+            CompletableFuture<ReplicaReadResult<List<Doc>>> waiting;ReplicaReadToken carried;
+            var bulk=List.of(new Doc(80,"complete bulk a"),new Doc(81,"complete bulk b"));
+            try {
+                await(entered);leader.addAll(bulk).get(10,TimeUnit.SECONDS);
+                carried=leader.read(STRONG,v->{assertEquals(bulk,List.of(v.get(80),v.get(81)));return null;}).get(10,TimeUnit.SECONDS).progress();
+                assertTrue(carried.index()>original.index());assertEquals(original.index(),follower.leadershipStatus().appliedIndex());
+                waiting=follower.read(minimum(carried,5000),v->List.of(v.get(80),v.get(81)));
+                until(()->admitted.get()!=null,"minimum did not register while publication was held");
+                assertFalse(waiting.isDone());assertEquals(1,number(admitted.get(),"waiting"));assertEquals(1,number(admitted.get(),"captured"));
+                assertEquals(1,number(admitted.get(),"alarms"));
+            } finally {release.countDown();}
+            assertEquals(original,held.get(5,TimeUnit.SECONDS).progress());
+            var read=waiting.get(10,TimeUnit.SECONDS);assertTrue(read.progress().index()>=carried.index());assertEquals(bulk,read.value());
+            assertEquals(2,read.applicationSequence());idle(follower);
+        } finally {heldPeer.set(null);release.countDown();}
+    }
+
     @ParameterizedTest @ValueSource(booleans={false,true})
     void verifiedSnapshotRecoveryRejectsQueuedReadsButPreservesAnAlreadyCapturedCut(boolean minimumPolicy) throws Exception {
         var isolated=new AtomicReference<String>();var entered=new CountDownLatch(1);var release=new CountDownLatch(1);

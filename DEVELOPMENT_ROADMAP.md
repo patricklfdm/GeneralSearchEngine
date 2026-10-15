@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 read foundation awaiting protected acceptance
+## Current milestone: V5.1 published; V5.2 local read qualification complete
 
 **Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
 are complete. PR #322 and exact-master CI `38482900297` accepted source
@@ -13,10 +13,13 @@ preserves its measured sources/sequences and historical failures/costs. The
 one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
 
 **Current:** Phase 0 PR #335 accepted the [V5.2 read contract](docs/v5x/v5.2/PHASE_0_CONTRACT.md).
-The [Phase 1 foundation](docs/v5x/v5.2/PHASE_1_FOUNDATION.md) now adds guarded
-public declarations, token/model evidence and external compatibility at
-`5.2.0-SNAPSHOT`. Explicit runtime reads remain disabled; protected full CI is
-pending before the capture/waiter kernel. Earlier milestones follow below.
+The capture/waiter kernel and three explicit policies are implemented at
+`5.2.0-SNAPSHOT`. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
+correctness and compatibility qualification, with an explicit
+[schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
+The authorized local sequence continues through combined hardening and pre-cloud
+measurement preparation. Protected full CI and manual cloud admission remain
+required before paid execution. Earlier milestones follow below.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at
 `31b70d08b509ac75037a8eb6386780affc353ed9`, with exact-master documentation CI
