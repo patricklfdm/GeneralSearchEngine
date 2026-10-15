@@ -28,9 +28,20 @@ class V52ReadQueueTest {
         AutomaticReadCut cut=new AutomaticReadCut(new ReplicationGroupId(UUID.randomUUID()),UUID.randomUUID(),"ab".repeat(32),0,7,0);
         AutomaticReplicationException.Reason rejection;
         Runnable captureHook=()->{}, registerHook=()->{};
+        boolean observing;
+        final List<String> observations=new ArrayList<>();
         Fixture(int bound) {
             permits=new Semaphore(bound);
             queue=new AutomaticReadQueue<>(lock,cut,new AutomaticReadQueue.Access<>() {
+                public long invoked(ReplicaReadOptions options,long deadline) {
+                    if(observing){assertFalse(Thread.holdsLock(lock));observations.add("INVOKED");return 1;}return 0;
+                }
+                public void observe(String event,Map<String,Object> values) {
+                    boolean serialized=event.endsWith("ADMITTED")||event.endsWith("VALIDATED");
+                    assertEquals(serialized,Thread.holdsLock(lock));observations.add(event);
+                    assertEquals(1L,values.get("readId"));
+                    if(values.containsKey("token"))assertEquals(cut.token(),ReplicaReadToken.decode(Base64.getDecoder().decode((String)values.get("token"))));
+                }
                 public void check(ReplicaReadOptions options,long epoch,boolean barrierReady) {if(rejection!=null)throw failure(rejection);}
                 public long publishedIndex() {return cut.index();}
                 public AutomaticReadCut capture(ReplicaReadOptions options,long epoch,long index) {
@@ -220,5 +231,14 @@ class V52ReadQueueTest {
         var result=f.queue.submit(STALE,v->fail("refused callback"),100).future();f.drain();
         reason(CAPACITY_EXCEEDED,result);assertEquals(0,f.queue.counts().marker());assertEquals(0,f.alarms.size());
         assertEquals(0,f.queue.counts().owned());assertEquals(3,f.permits.availablePermits());
+    }
+
+    @Test void observationsBindTheActualCutAndPausableHooksNeverHoldTheMonitor() {
+        var f=new Fixture(3);f.observing=true;var error=new IllegalArgumentException("callback");
+        var request=f.queue.submit(STALE,v->{f.observations.add("CALLBACK");throw error;},100);
+        f.drain();assertSame(error,cause(request.future()));
+        assertEquals(List.of("INVOKED","REPLICA_READ_ADMITTED","REPLICA_READ_CAPTURE_VALIDATED",
+                "REPLICA_READ_CAPTURED","CALLBACK","REPLICA_READ_RELEASED"),f.observations);
+        assertEquals(0,f.queue.counts().owned());
     }
 }

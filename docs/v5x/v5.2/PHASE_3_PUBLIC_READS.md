@@ -1,7 +1,7 @@
 # V5.2 Phase 3: public replica reads
 
-**Status:** 3A locally verified; 3B external three-process
-qualification and protected acceptance remain pending. Follow the
+**Status:** 3A and 3B locally verified. Full Phase 4 schedules and protected
+acceptance remain pending. Follow the
 [local commit sequence](LOCAL_DEVELOPMENT_SEQUENCE.md). No cloud run is authorized.
 
 ## Public admission and ownership
@@ -76,9 +76,8 @@ waits for the follower publication before issuing its single read; it does not
 retry that read. State-transition rejection remains covered by separate queue and
 real-store cases. Both original failing logs remain retained.
 
-These tests exercise actual public handles and real sockets in one JVM. They are
-not the required external three-JVM physical/history oracle. Phase 3B must retain
-that evidence and compare all seven query results with published V4.4. Full
+The 3A tests exercise actual public handles and real sockets in one JVM. The 3B
+qualification below adds the external three-JVM physical/query oracle. Full
 S01–S30 fault coverage, combined hardening, frozen measurements and cloud admission
 remain later work. No hosted or paid acceptance is implied by local test success.
 
@@ -109,3 +108,76 @@ remain later work. No hosted or paid acceptance is implied by local test success
 
 Receipt/log hashes and the local changes list are retained in
 `target/v52-public-read/validation-summary.json` and `changed-files.txt`.
+
+## 3B: external consumers and portable physical/query evidence
+
+`scripts/verify-v52-phase3-public-reads.sh --skip-build` compiles the application
+consumer against the packaged candidate core/replication JARs. A separately
+compiled observer may record and pause existing hooks, but every bootstrap, start,
+mutation and read uses the public API. Three owned JVMs use separate durable
+directories and real TCP. A first stale read runs on the imported genesis before
+the other voters start; the sequence is four while the log index is zero.
+
+Three confirmed bulks precede one fresh strong token read. Both followers publish
+that prefix and execute stale and minimum reads. All six callbacks run the same
+seven-method query program: get/absent get, predicate search, ranked top-K, rich
+search, highlighting, explanation and currentSequence. No read or mutation is
+retried. These are healthy policy/semantic cases; a non-readable transition still
+rejects an uncaptured call rather than silently resubmitting it.
+
+The V4.4 control is compiled and executed with only the pinned published core.
+It restores its original public backup and replays the independently decoded
+chosen-prefix commands, then runs the same query program. The control cannot use
+post-V4.4 application-state import APIs. The independent Python validator decodes
+manifest/genesis, ACCEPT quorums, proofs, selected bases, wire ACKs, publications
+and tokens. It checks exact application generation/sequence, invocation/admission/
+capture/release/response order, deadline, policy, lower bound and a fresh strong
+NO_OP. Controller inputs/responses must agree with worker and runtime observations.
+
+New test events expose actual restored/published generations and read capture.
+ADMITTED and CAPTURE_VALIDATED are observation-only under the protocol monitor;
+CAPTURED and RELEASED are outside it. Production without observation hooks does
+not allocate per-read telemetry. The queue test checks lock ownership and release
+when a user callback throws. No public API or persistent/wire format is added.
+
+Raw bytes, JARs, compiled consumer/control classes, process IDs/exits, source/tree,
+run/attempt and all file hashes are retained. Packing/unpacking preserves original
+seal paths through the existing explicit location mapping. Portable validation
+executes the published query control again instead of trusting copied reports.
+The required `v52-foundation` lane now adds this gate and a separate always-retained
+14-day artifact. Existing suite count, Required, profiles and old checks remain
+unchanged; the generated inventory adds one upload operation.
+
+### 3B local results
+
+- Thirty queue/public/old TCP runtime tests passed in
+  `target/v52-public-process/observation-tests-3.log`.
+- Three-process qualification passed at
+  `target/v52-public-reads/run.sPeBad/evidence`: 6 public reads, 3 confirmed bulks,
+  5 chosen entries and 6 observed basis chunk frames. All seven query methods
+  matched V4.4; process cleanup completed with no errors.
+- The initial gate rejected 9 semantic/physical mutations before and after
+  relocation. The final checker adds exact public/runtime option binding and two
+  input mutations. The unchanged raw workload passes all **11** rejection cases;
+  the first manual portable replay exposed mixed relative/absolute paths in the
+  validator entry point. Resolving that root consistently fixed the tooling error.
+  A final complete gate at `target/v52-public-reads/run.4IhUNm/evidence` passed
+  all six reads and eleven negatives, including fresh V4.4 replay after relocation.
+  Its receipt records six independently replayed query cuts and clean JVM exits.
+- 35 oracle/suite/Required tests passed after regenerating the inventory. The
+  composite artifact-count fixture was updated for the additional upload; all 42
+  composite/planner/shared-build/oracle tests then passed. The
+  full old backpressure gate also passed both internal and all four public cases
+  at `target/v51-backpressure/run.2anASr`.
+- Initial compile attempts exposed an unqualified IOException and two APIs absent
+  from V4.4. The first process-gate attempt stopped before starting voters because
+  the query fixture's default maxBatchSize exceeded maxBulkElements. The fixture
+  now declares batch size 16 and storage bound 100. Those failed logs/evidence and
+  the initial stale-inventory test results remain retained.
+
+The retained runtime receipt records base commit `6778cdf` plus the actual dirty
+checkout digest and candidate JAR hashes. Final documentation and checker-only
+strengthening are described separately above. Protected exact-source CI is still
+required after the accumulated local commits are pushed. Phase 4 owns complete
+S01–S30/E01–E08 fault/lifecycle/resource coverage and all N01–N16 physical negatives;
+these eleven healthy-fixture mutations do not close those larger requirements.

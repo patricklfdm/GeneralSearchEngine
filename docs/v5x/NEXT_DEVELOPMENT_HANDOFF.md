@@ -1,7 +1,7 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phases 1/2 are locally verified; Phase 3 public enablement is under qualification.
+V5.2 Phases 1–3 are locally verified; Phase 4 fault/lifecycle/resource qualification is next.
 Full protected acceptance remains pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
@@ -16,7 +16,9 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="next-batch-v52-phase-0"></a>
 
-## Current batch: V5.2 Phase 1
+<a id="current-batch-v52-phase-1"></a>
+
+## Current batch: V5.2 Phase 4
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
@@ -31,8 +33,10 @@ later runtime work; synthetic evidence does not complete those schedules.
 The operator authorized [locally verified sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 without intermediate pushes. The [Phase 2 capture/waiter kernel](v5.2/PHASE_2_CAPTURE_KERNEL.md)
 passes deterministic ownership and real runtime tests. [Phase 3 public reads](v5.2/PHASE_3_PUBLIC_READS.md)
-now implements all three policies and verified follower publication; external
-three-process qualification is next after local runtime/compatibility validation.
+implements all three policies and verified follower publication. The external
+three-process gate now passes with actual published V4.4 query replay, portable
+physical evidence and eleven rejection checks. Phase 4 completes the broader
+fault/lifecycle/resource schedules; the healthy gate does not close that matrix.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

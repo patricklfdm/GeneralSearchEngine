@@ -96,7 +96,10 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
             });
             if(callbackOwner!=null) {
                 var replay=store.replay();startupReplayedRecords=replay.entries().size();
-                byte[] restored=application.reconstruct(replay);application.publish(store.provenSnapshot(restored));protocol.restored(restored);
+                byte[] restored=application.reconstruct(replay);var snapshot=store.provenSnapshot(restored);
+                application.publish(snapshot);protocol.restored(restored);
+                try {events.at("APPLICATION_RESTORED",Map.of("snapshot",b64(snapshot.bytes()),"applicationGeneration",application.readCut().generation()));}
+                catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
                 publishedSequence=application.sequence();
             }
             readIdentity=publishedReadCut=application.readCut();
@@ -145,6 +148,16 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 }
                 public <R> R read(AutomaticReadCut cut,Function<ReplicaReadView<K,T>,R> action) {
                     return application.readCut(cut,action);
+                }
+                public long invoked(ReplicaReadOptions options,long deadline) {
+                    if(events==Events.NONE)return 0;
+                    long id=observedReads.incrementAndGet();capacity(id>0,"read observation identity exhausted");
+                    observe("REPLICA_READ_INVOKED",Map.of("readId",id,"policy",options.policy().name(),"deadlineNanos",deadline,
+                            "waitTimeoutMillis",options.waitTimeoutMillis(),"minimum",options.minimum().map(t->b64(t.encode())).orElse("")));
+                    return id;
+                }
+                public void observe(String event,Map<String,Object> values) {
+                    try {events.at(event,values);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
                 }
             },admission,bounds.maxPendingClientOperations(),System::nanoTime,(deadline,task)->{
                 var alarm=deadlines.schedule(task,Math.max(0,deadline-System.nanoTime()),TimeUnit.NANOSECONDS);
@@ -278,7 +291,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
                 applicationTask(()->{Throwable failure=null;try{events.at(publish.local()?"BEFORE_LOCAL_PUBLISH":"BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
-                    application.publish(publish.snapshot());publishedReadCut=application.readCut();events.at(publish.local()?"LOCAL_PUBLISHED":"PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
+                    application.publish(publish.snapshot());publishedReadCut=application.readCut();events.at(publish.local()?"LOCAL_PUBLISHED":"PUBLISHED",
+                            Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes()),"applicationGeneration",publishedReadCut.generation()));}catch(Throwable e){failure=e;}
                     Throwable error=failure;complete(()->{protocol.published(publish.id(),error,now());
                         if(error==null&&protocol.view().publishedIndex()==AutomaticRecovery.index(publish.snapshot()))publishedSequence=number(publish.snapshot().value(),"applicationSequence");});});
             }else if(action instanceof AutomaticProtocol.Completed done) {

@@ -13,6 +13,8 @@ final class AutomaticReadQueue<K,T> {
         long publishedIndex(); // eligibility hint only; capture must inspect the actual application
         AutomaticReadCut capture(ReplicaReadOptions options, long epoch, long barrierIndex);
         <R> R read(AutomaticReadCut cut, Function<ReplicaReadView<K,T>,R> action);
+        default long invoked(ReplicaReadOptions options,long deadline) {return 0;}
+        default void observe(String event,Map<String,Object> values) { }
     }
     interface Alarm { void cancel(); }
     interface Timer { Alarm schedule(long deadlineNanos, Runnable task); }
@@ -47,10 +49,11 @@ final class AutomaticReadQueue<K,T> {
     final class Request<R> {
         final ReplicaReadOptions options;
         final long deadline;
+        final long observation;
         Function<ReplicaReadView<K,T>,R> action;
         Phase phase=Phase.QUEUED;
         Alarm alarm;
-        long epoch, barrierIndex;
+        long epoch, barrierIndex, capturedNanos;
         boolean barrierReady, preparing, cancelled, completionReturned;
         int cancelling;
         private final CountDownLatch captureSettled=new CountDownLatch(1);
@@ -73,6 +76,7 @@ final class AutomaticReadQueue<K,T> {
 
         Request(ReplicaReadOptions options,Function<ReplicaReadView<K,T>,R> action,long deadline) {
             this.options=options; this.action=action; this.deadline=deadline;
+            observation=access.invoked(options,deadline);
             preparing=options.policy()==ReplicaReadPolicy.LEADER_STRONG;
         }
         CompletableFuture<ReplicaReadResult<R>> future() {return result;}
@@ -115,6 +119,7 @@ final class AutomaticReadQueue<K,T> {
                 owned.add(request); highWater=Math.max(highWater,owned.size());
                 try {
                     request.alarm=timer.schedule(deadline,()->expire(request));
+                    observe(request,"REPLICA_READ_ADMITTED",null);
                     changedLocked(); // register/recheck under the same publication/capture boundary
                 } catch(Throwable error) {settle(request,null,infrastructureFailure(error));}
             } catch(Throwable error) {rejected=error; request.action=null; request.captureSettled.countDown();}
@@ -123,11 +128,13 @@ final class AutomaticReadQueue<K,T> {
         return request;
     }
 
-    private void check(Request<?> request) {
+    private long check(Request<?> request) {
         if(closed)throw failure(CLOSED);
         access.check(request.options,request.epoch,request.barrierReady);
         request.options.minimum().ifPresent(identity::compatible);
-        if(clock.getAsLong()>=request.deadline)throw failure(DEADLINE_EXCEEDED);
+        long observed=clock.getAsLong();
+        if(observed>=request.deadline)throw failure(DEADLINE_EXCEEDED);
+        return observed;
     }
 
     private Throwable infrastructureFailure(Throwable error) {
@@ -185,7 +192,10 @@ final class AutomaticReadQueue<K,T> {
                             throw new ReplicaReadException(ReplicaReadException.Reason.PROGRESS_NOT_REACHED,"published read index is below the requested minimum");
                         }
                     }
-                    request.phase=Phase.CAPTURED; cancelAlarm(request); request.captureSettled.countDown();
+                    request.capturedNanos=check(request);
+                    request.phase=Phase.CAPTURED; cancelAlarm(request);
+                    observe(request,"REPLICA_READ_CAPTURE_VALIDATED",captured); // observation only under the monitor
+                    request.captureSettled.countDown();
                     selected=request; cut=captured; break;
                 } catch(Throwable error) {settle(request,null,error);}
             }
@@ -196,9 +206,29 @@ final class AutomaticReadQueue<K,T> {
 
     private <R> void invoke(Request<R> request,AutomaticReadCut cut) {
         ReplicaReadResult<R> value=null; Throwable failed=null;
-        try {value=new ReplicaReadResult<>(access.read(cut,request.action),request.options.policy(),cut.token(),cut.sequence());}
+        try {
+            observe(request,"REPLICA_READ_CAPTURED",cut); // pausable hook outside the monitor
+            try {value=new ReplicaReadResult<>(access.read(cut,request.action),request.options.policy(),cut.token(),cut.sequence());}
+            finally {observe(request,"REPLICA_READ_RELEASED",cut);}
+        }
         catch(Throwable error) {failed=error;}
         synchronized(lock) {settle(request,value,failed);}
+    }
+
+    private void observe(Request<?> request,String event,AutomaticReadCut cut) {
+        if(request.observation==0)return;
+        var value=new LinkedHashMap<String,Object>();
+        value.put("readId",request.observation);value.put("policy",request.options.policy().name());
+        value.put("deadlineNanos",request.deadline);value.put("barrierEpoch",request.epoch);value.put("barrierIndex",request.barrierIndex);
+        if(cut!=null) {
+            value.put("index",cut.index());value.put("sequence",cut.sequence());value.put("applicationGeneration",cut.generation());
+            value.put("captureNanos",request.capturedNanos);
+            value.put("historyId",cut.history().toString());value.put("token",Base64.getEncoder().encodeToString(cut.token().encode()));
+        }
+        var counts=counts();value.put("owned",counts.owned());value.put("waiting",counts.waiting());
+        value.put("captured",counts.captured());value.put("settling",counts.settling());value.put("alarms",counts.alarms());
+        value.put("marker",counts.marker());value.put("highWater",counts.highWater());
+        access.observe(event,value);
     }
 
     private void cancelAlarm(Request<?> request) {

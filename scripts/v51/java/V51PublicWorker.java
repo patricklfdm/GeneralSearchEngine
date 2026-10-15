@@ -285,7 +285,8 @@ public final class V51PublicWorker {
                 }
             }
         },(name,values)->{
-            if(name.equals("READ_CAPTURE_VALIDATED"))trace.write(name,values); // Observation only; never pause under the protocol monitor.
+            if(name.equals("READ_CAPTURE_VALIDATED")||name.equals("REPLICA_READ_ADMITTED")||name.equals("REPLICA_READ_CAPTURE_VALIDATED"))
+                trace.write(name,values); // Observation only; never pause under the protocol monitor.
             else trace.event(name,values);
         }));
         io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.observer=(name,values)->{try{trace.event(name,values);}catch(IOException e){throw new UncheckedIOException(e);}};
@@ -297,7 +298,9 @@ public final class V51PublicWorker {
                 catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
             };
         }
-        if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||(args[2].equals("performance-small")||args[2].equals("remote-fault"))))
+        if(args.length>2&&args[2].equals("replica-read"))
+            Class.forName("io.github.patricklfdm.generalsearch.admission.V52PublicReadConsumer").getMethod("main",String[].class).invoke(null,(Object)args);
+        else if(args.length>2&&(args[2].equals("qualification")||args[2].equals("lifecycle")||args[2].equals("backpressure")||(args[2].equals("performance-small")||args[2].equals("remote-fault"))))
             Class.forName("io.github.patricklfdm.generalsearch.admission."+(args[2].equals("remote-fault")?"V51RemoteFaultConsumer":args[2].equals("performance-small")?"V51SmallPerformanceConsumer":args[2].equals("lifecycle")?"PublicLifecycleConsumer":args[2].equals("backpressure")?"PublicBackpressureConsumer":"PublicQualificationConsumer")).getMethod("main",String[].class).invoke(null,(Object)args);
         else io.github.patricklfdm.generalsearch.admission.PublicRuntimeConsumer.main(args);
     }
