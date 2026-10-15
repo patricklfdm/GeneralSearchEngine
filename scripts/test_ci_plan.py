@@ -63,6 +63,50 @@ class ExecutionPlanTest(unittest.TestCase):
         plan = copy.deepcopy(f.plan);plan["profile"] = "integration"
         with self.assertRaises(ValueError):p.checked_outputs(p.outputs(plan), registry, f.plan)
 
+    def test_checked_in_policy_controls_real_planner_and_required_cli(self):
+        policy_bytes = (Path(__file__).resolve().parents[1] / p.shadow.POLICY).read_bytes()
+        forced = p.shadow.strict_json(policy_bytes)["forceFull"]
+        for candidate in ("docs", "integration"):
+            with self.subTest(candidate=candidate, forceFull=forced):
+                f = self.fixture(candidate); g = f.graph
+                # Commit the real operational policy into the trusted base before
+                # making an eligible PR; a policy-changing PR alone proves no override.
+                g.write(p.shadow.POLICY, policy_bytes)
+                g.base = g.commit() if g.git("status", "--porcelain") else g.git("rev-parse", "HEAD")
+                g.git("branch", "-D", "topic")
+                path = "README.md" if candidate == "docs" else p.shadow.INTEGRATION_PATH
+                g.pr({path: b"next candidate content\n"})
+                f.install_health(g.base)
+                env = {**f.env, **g.env}
+                Path(env["GITHUB_EVENT_PATH"]).write_text(json.dumps(g.event))
+                expected = "full" if candidate == "integration" and forced else candidate
+                if expected != "integration":
+                    # Neither docs nor forced full may depend on a healthy API response.
+                    f.health_file.write_text("{}")
+                outputs = f.root / "actual-policy-outputs"
+                result = subprocess.run([sys.executable, "-m", "scripts.ci_plan", "--output", "actual-policy-plan"],
+                                        cwd=f.root, env=dict(env, GITHUB_OUTPUT=str(outputs)), capture_output=True, text=True)
+                self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+                actual = dict(line.split("=", 1) for line in outputs.read_text().splitlines())
+                plan = json.loads((f.root / "actual-policy-plan/execution-plan.json").read_text())
+                p.checked_outputs(actual, s.load_registry(), plan)
+                self.assertEqual(candidate, plan["candidateProfile"])
+                self.assertEqual(expected, plan["profile"])
+                self.assertEqual({"docs": 2, "integration": 43, "full": 46}[expected], plan["recipe"]["executedJobCount"])
+                if candidate == "integration" and forced:
+                    self.assertEqual(["REVIEWED_INTEGRATION", "FORCE_FULL"], plan["reasons"])
+                    self.assertIsNone(plan["health"])
+                    self.assertEqual("true", actual["run_canonical"])
+                needs = self.needs(plan)
+                result = subprocess.run([sys.executable, "-m", "scripts.ci_required"], cwd=f.root,
+                                        env=dict(env, CI_NEEDS_JSON=json.dumps(needs)), capture_output=True, text=True)
+                self.assertEqual(0, result.returncode, result.stdout + result.stderr)
+                if candidate == "integration" and forced:
+                    needs["v51-owned-canonical"]["result"] = "skipped"
+                    result = subprocess.run([sys.executable, "-m", "scripts.ci_required"], cwd=f.root,
+                                            env=dict(env, CI_NEEDS_JSON=json.dumps(needs)), capture_output=True, text=True)
+                    self.assertNotEqual(0, result.returncode, result.stdout + result.stderr)
+
     def test_old_baseline_policy_is_valid_conservative_full_but_missing_plan_is_not(self):
         f = self.fixture("docs")
         original = p.shadow.blob
