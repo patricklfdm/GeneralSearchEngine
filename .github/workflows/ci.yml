@@ -213,6 +213,18 @@ jobs:
       - name: Verify V5.2 public replica reads and published query oracle
         run: scripts/verify-v52-phase3-public-reads.sh --skip-build
 
+      - name: Verify V5.2 public read faults and carried tokens
+        run: scripts/verify-v52-phase4-public-faults.sh --skip-build
+
+      - name: Retain V5.2 public read faults including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-faults-${{ github.sha }}
+          path: target/v52-public-faults
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.2 public read evidence including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

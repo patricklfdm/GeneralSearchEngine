@@ -51,6 +51,7 @@
       "outputs": {},
       "evidence": [
         {"step": "Retain restored build provenance including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v52-foundation-build-inputs-${{ github.sha }}", "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n", "if-no-files-found": "warn", "retention-days": "14"}},
+        {"step": "Retain V5.2 public read faults including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v52-public-faults-${{ github.sha }}", "path": "target/v52-public-faults", "if-no-files-found": "warn", "retention-days": "14"}},
         {"step": "Retain V5.2 public read evidence including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v52-public-reads-${{ github.sha }}", "path": "target/v52-public-reads", "if-no-files-found": "warn", "retention-days": "14"}},
         {"step": "Retain V5.2 foundation including failures", "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02", "if": "${{ always() }}", "id": null, "with": {"name": "v52-foundation-${{ github.sha }}", "path": "target/v52-foundation", "if-no-files-found": "warn", "retention-days": "14"}}
       ],

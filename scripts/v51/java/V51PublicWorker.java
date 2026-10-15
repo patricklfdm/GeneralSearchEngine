@@ -173,7 +173,7 @@ public final class V51PublicWorker {
         var manifest=decode(Files.readAllBytes(root.resolve(local+"/manifest.gsr")),"MANIFEST");
         Path tracePath=root.resolve(local+"-trace.jsonl"),armPath=root.resolve(local+"-arm.txt");
         int generation=args.length>3?Integer.parseInt(args[3]):1;
-        Trace trace=args.length>2&&args[2].equals("remote-fault")
+        Trace trace=args.length>2&&Set.of("remote-fault","replica-read").contains(args[2])
             ?new FaultTrace(tracePath,armPath,generation,local,manifest)
             :new Trace(tracePath,armPath,generation,local,manifest);
         trace.pauseSeconds=pauseSeconds;
@@ -218,6 +218,14 @@ public final class V51PublicWorker {
                     }
                     if(Set.of("FLOOR_BEFORE_WRITE","FLOOR_AFTER_FORCE","FLOOR_BEFORE_ACK","SELECTOR_BEFORE_ACK","SOURCE_BEFORE_ACK","WITNESS_BEFORE_ACK","TRANSFER_PROGRESS_BEFORE_ACK").contains(event)||event.startsWith("DELETE_AFTER_")) {
                         var values=new LinkedHashMap<String,Object>();values.put("cut",event);
+                        if(event.equals("SELECTOR_BEFORE_ACK")&&Files.exists(root.resolve("replica-read-evidence"))) {
+                            Path directory=root.resolve(local);byte[] selector=Files.readAllBytes(directory.resolve("current.gsr"));
+                            Path generationDirectory=directory.resolve(text(decode(selector,"SELECTOR").value(),"generation"));
+                            var source=new ArrayList<Map<String,Object>>();source.add(Map.of("name","current.gsr","bytes",b64(selector)));
+                            for(String name:List.of("generation.gsr","snapshot.gsr","accepted.gsr","proofs.gsr"))
+                                source.add(Map.of("name",name,"bytes",b64(Files.readAllBytes(generationDirectory.resolve(name)))));
+                            values.put("readGeneration",source);
+                        }
                         if(Files.exists(root.resolve("reclamation-evidence"))&&(event.startsWith("FLOOR_")||event.startsWith("DELETE_AFTER_")))
                             values.put("authority",reclamationFiles(root.resolve(local)));
                         trace.event("STORAGE_CUT",values);

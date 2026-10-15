@@ -33,36 +33,45 @@ def replay(root, traces, output):
     return results
 
 
+def prepare(root, *, scenario=None):
+    """One fresh public bootstrap, exact artifacts and separately compiled controls."""
+    root=Path(root).resolve()
+    (root/'replica-read-evidence').touch()
+    source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
+    binding=dict(build.binding(ROOT,source),origin=str(root),run=os.environ.get('GITHUB_RUN_ID','local'),
+                 attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),seed=52,codec='v52-read-codec/1')
+    published=controls.resolve(ROOT/'target/v52-controls');artifacts=root/'artifacts';artifacts.mkdir()
+    version=current();candidates=[ROOT/f'target/general-search-engine-{version}.jar',
+            ROOT/f'general-search-engine-replication/target/general-search-engine-replication-{version}.jar']
+    for path,module in zip(candidates,(ROOT,ROOT/'general-search-engine-replication')):
+        need(path.is_file() and all(p.stat().st_mtime_ns<=path.stat().st_mtime_ns for p in (module/'src/main').rglob('*.java')),'stale public read artifact')
+    for path in [*candidates,*[Path(a['path']) for a in published['artifacts']]]:shutil.copyfile(path,artifacts/path.name)
+    binding['artifacts']={p.name:digest(p.read_bytes()) for p in sorted(artifacts.iterdir())};save(root/'binding.json',binding)
+    candidate_cp=os.pathsep.join(str(artifacts/p.name) for p in candidates)
+    classes=root/'consumer';classes.mkdir();observer=root/'observer';observer.mkdir();control=root/'control-classes';control.mkdir()
+    java=ROOT/'scripts/v52/java';old=ROOT/'scripts/v51/java'
+    json_source=ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java'
+    q.command(['javac','--release','21','-proc:none','-cp',candidate_cp,'-d',classes,json_source,
+               old/'PublicRuntimeConsumer.java',java/'V52ReadQueries.java',java/'V52PublicReadConsumer.java'],root,'compile-consumer')
+    q.command(['javac','--release','21','-proc:none','-cp',candidate_cp+os.pathsep+str(classes),'-d',observer,old/'V51PublicWorker.java'],root,'compile-observer')
+    control_cp=os.pathsep.join(map(str,(control,artifacts/'general-search-engine-4.4.0.jar')))
+    q.command(['javac','--release','21','-proc:none','-cp',artifacts/'general-search-engine-4.4.0.jar','-d',control,
+               json_source,java/'V52ReadQueries.java',java/'V52ReadControl.java'],root,'compile-control')
+    binding['classes']={p.relative_to(root).as_posix():digest(p.read_bytes()) for directory in (classes,observer,control)
+                        for p in sorted(directory.rglob('*.class'))};save(root/'binding.json',binding)
+    q.command(['java','-cp',control_cp,PACKAGE+'V52ReadControl',root/'control','seed'],root,'published-seed')
+    cp=os.pathsep.join((candidate_cp,str(classes),str(observer)))
+    q.command(['java','-cp',cp,PACKAGE+'V52PublicReadConsumer',root,'setup'],root,'bootstrap')
+    if scenario is not None:binding['scenario']=scenario;save(root/'binding.json',binding)
+    return binding,cp
+
+
 def run(output):
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     receipt=dict(schema='gse-v52-public-read-v1',status='FAIL',paidCloud=False,execution='public-three-jvm-read-qualification')
     workers={};history=[];processes=[]
     try:
-        source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
-        binding=dict(build.binding(ROOT,source),origin=str(root),run=os.environ.get('GITHUB_RUN_ID','local'),
-                     attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),seed=52,codec='v52-read-codec/1')
-        published=controls.resolve(ROOT/'target/v52-controls');artifacts=root/'artifacts';artifacts.mkdir()
-        version=current();candidates=[ROOT/f'target/general-search-engine-{version}.jar',
-                ROOT/f'general-search-engine-replication/target/general-search-engine-replication-{version}.jar']
-        for path,module in zip(candidates,(ROOT,ROOT/'general-search-engine-replication')):
-            need(path.is_file() and all(p.stat().st_mtime_ns<=path.stat().st_mtime_ns for p in (module/'src/main').rglob('*.java')),'stale public read artifact')
-        for path in [*candidates,*[Path(a['path']) for a in published['artifacts']]]:shutil.copyfile(path,artifacts/path.name)
-        binding['artifacts']={p.name:digest(p.read_bytes()) for p in sorted(artifacts.iterdir())};save(root/'binding.json',binding)
-        candidate_cp=os.pathsep.join(str(artifacts/p.name) for p in candidates)
-        classes=root/'consumer';classes.mkdir();observer=root/'observer';observer.mkdir();control=root/'control-classes';control.mkdir()
-        java=ROOT/'scripts/v52/java';old=ROOT/'scripts/v51/java'
-        json_source=ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java'
-        q.command(['javac','--release','21','-proc:none','-cp',candidate_cp,'-d',classes,json_source,
-                   old/'PublicRuntimeConsumer.java',java/'V52ReadQueries.java',java/'V52PublicReadConsumer.java'],root,'compile-consumer')
-        q.command(['javac','--release','21','-proc:none','-cp',candidate_cp+os.pathsep+str(classes),'-d',observer,old/'V51PublicWorker.java'],root,'compile-observer')
-        control_cp=os.pathsep.join(map(str,(control,artifacts/'general-search-engine-4.4.0.jar')))
-        q.command(['javac','--release','21','-proc:none','-cp',artifacts/'general-search-engine-4.4.0.jar','-d',control,
-                   json_source,java/'V52ReadQueries.java',java/'V52ReadControl.java'],root,'compile-control')
-        binding['classes']={p.relative_to(root).as_posix():digest(p.read_bytes()) for directory in (classes,observer,control)
-                            for p in sorted(directory.rglob('*.class'))};save(root/'binding.json',binding)
-        q.command(['java','-cp',control_cp,PACKAGE+'V52ReadControl',root/'control','seed'],root,'published-seed')
-        cp=os.pathsep.join((candidate_cp,str(classes),str(observer)))
-        q.command(['java','-cp',cp,PACKAGE+'V52PublicReadConsumer',root,'setup'],root,'bootstrap')
+        binding,cp=prepare(root)
         def start(node):workers[node]=q.Worker(root,node,cp,history,consumer='replica-read');return workers[node]
         first=start('node-1');first.call('read',policy='STALE_ALLOWED') # imported genesis without a quorum
         start('node-2');start('node-3')

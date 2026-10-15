@@ -68,10 +68,98 @@ production logic, workload timing, admission limit or CI check was changed for 4
 
 ## Next batches
 
-4B builds the public process fault driver on the same external consumer and
-independent published query replay: retained restart/lost response, isolation and
-proof/publication cuts. Later 4C completes promise/install/cancel/close process
+4B implements the public process fault driver described below. Later 4C completes promise/install/cancel/close process
 races and exact resource evidence; 4D closes the full schedule and negative matrix.
 Each batch is locally verified and committed without a push. Phase 5 combined
 hardening and Phase 6 frozen local/no-GCP measurements follow only after the matrix
 is complete. Paid execution remains outside this authorization.
+
+## 4B: owned process faults and carried tokens
+
+The required foundation lane adds `verify-v52-phase4-public-faults.sh`. It creates
+six independent histories, using only public bootstrap/start/mutation/read calls:
+
+1. Halt at REPLICA_READ_CAPTURED, before the callback starts.
+2. SIGKILL at the same capture boundary.
+3. Halt after actual view release but before client response.
+4. SIGKILL after that release.
+5. Isolate the follower outside the actual selected pair, commit a later bulk on
+   that intact majority, prove the isolated stale cut remains old, reject a zero
+   wait for the later token, then heal and issue a new minimum read.
+6. Pause a real follower publication. A behind minimum cannot expose its future
+   index; an ordinary queued read remains behind the application worker. If actual
+   snapshot install intervenes, both calls instead reject NOT_READY. After verified
+   publication, new calls expose the correct complete prefix.
+
+Each crash case retains the exact pre-reopen voter files before starting the next
+process generation. The independent store inspector checks those copied files
+against their recorded original seal path and proves that the restored application
+matches the retained proven prefix. The prior strong token is then used on both
+the new leader and the restarted follower. A missing response stays PENDING with a
+recorded disconnect; the later successful read never changes that earlier outcome.
+
+### Selected and installed prefix evidence
+
+Follower publication can follow three real authority paths: a local forced proof,
+a verified rejoin snapshot, or adoption of a new campaign's independently selected
+proven prefix. The last path installs generation/selector files and need not append
+another standalone PROOF row for the installed prefix. The read observer now copies
+current selector, generation seal, snapshot and journal bytes at the existing
+SELECTOR_BEFORE_ACK hook. This is read-only telemetry, not a new persistent record.
+The checker parses the seal/file inventory, transfers and validates both selected
+bases, replays selection, and binds the local publication to that proof/index.
+Reconstructed application bytes are still independently replayed against V4.4.
+
+All cases retain complete source/tree, JAR/control/class hashes, Java identity,
+codec/seed, run/attempt, raw inventory, process exits and public histories. The
+matrix rejects changes in those shared bindings between cases. Eleven common
+physical/query mutations plus two fault-specific mutations must reject with the
+expected category. Original evidence must pass before mutations are attempted.
+The published V4.4 query program runs again after packaging and relocation, and
+all thirteen negative results must match. New read traces use the existing bounded
+fault writer; no truncation or silently repaired authority is permitted.
+
+### Failures retained during development
+
+- Initial replay assumed only an individually forced proof or an identical rejoin
+  snapshot could authorize local publication. Selected-prefix adoption and fresh
+  application encoding exposed that incomplete checker. Raw failures remain at
+  `target/v52-public-faults/run.bN3FYB`.
+- The first installation observer used file names as JSON object keys. The existing
+  canonical encoder rejects dots in keys; this observer error failed the runtime
+  rather than hiding the missing evidence. The representation is now a fixed list
+  of name/bytes records. Its failed matrix remains at `run.ug9WyY`.
+- Genesis has no terminal proof. The common evidence identity now treats index-zero
+  authority explicitly. The unchanged halted workload at `run.NF1na0` passes replay
+  and all thirteen negatives after correcting this parser edge.
+- The first complete matrix with the repaired observer passed all four crashes and
+  held publication, but its fixed node-3 isolation sometimes removed the current
+  quorum partner. The following write correctly became indeterminate. The schedule
+  now observes the selected pair and isolates its other follower; it does not retry
+  that failed write. `run.67eNO1` preserves the failure; targeted `run.I5CgY6` passes
+  the corrected isolation and all thirteen negatives.
+
+### Final 4B local verification
+
+The complete gate passes at `target/v52-public-faults/run.uSNQeu/evidence`:
+six cases, 54 successful read responses, four deliberately lost responses, one
+PROGRESS_NOT_REACHED rejection and one DEADLINE_EXCEEDED rejection. All 78
+negative checks pass both before and after archive relocation, with fresh published
+V4.4 query execution each time. The shared binding records base commit `6e5c8aa`
+and actual checkout digest
+`77e69f83db519628d41cb979d7bf7cce8066fc8e80e3c3c352d2690d79fb6b51`.
+Final result documentation is added after that bound execution; protected CI of the
+committed source is still pending.
+
+The unchanged healthy gate also passes at `target/v52-public-reads/run.rn1Cv4/evidence`
+with six reads, eleven negatives and portable query replay. All 63 affected
+Python/CI tests and all 21 V5.2 Python tests pass. Shell syntax, generated CI
+inventory, documentation contract, changed local links and whitespace checks pass.
+No runtime Java, public API, POM, authority format or frozen measurement was changed
+by 4B. The suite/Required/profile topology is unchanged; an additional always-upload
+retains fault evidence for fourteen days. Receipt/log hashes and the final file
+list are retained in `target/v52-fault-qualification/validation-summary.json`.
+
+The original failure receipts are not overwritten or reclassified. These cases
+cover the declared 4B subset; S18/S20/S25/S26 still need their full separate-process
+variants, and the complete N01–N16 physical matrix remains later work.
