@@ -15,9 +15,19 @@ point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase histo
 current planning. Accepted version-specific charters and contracts govern their
 scope. Proposed documents are not accepted merely because they are linked here.
 
-Next development is [V5.2 Phase 0 replica-read contract design](v5x/v5.2/PHASE_0_ENTRY_PLAN.md).
-The entry maps current source, open decisions and required evidence; it is not an
-accepted V5.2 API or runtime implementation.
+Current development is [V5.2 Phase 0 replica-read contract review](v5x/v5.2/PHASE_0_CONTRACT.md).
+The six-document candidate follows entry PR #334; protected acceptance and runtime
+implementation remain pending.
+
+## v5.2 — replica-read design candidate
+
+- [Source-reviewed entry and requirements](v5x/v5.2/PHASE_0_ENTRY_PLAN.md)
+- [Phase 0 contract and decisions](v5x/v5.2/PHASE_0_CONTRACT.md)
+- [Read authority, lifecycle and resource bounds](v5x/v5.2/READ_AUTHORITY_AND_LIFECYCLE.md)
+- [Public API, token bytes and compatibility](v5x/v5.2/API_FORMAT_AND_COMPATIBILITY.md)
+- [Independent testing and evidence matrix](v5x/v5.2/TESTING_AND_EVIDENCE.md)
+- [Phase 0 review and acceptance checklist](v5x/v5.2/PHASE_0_CHECKLIST.md)
+- [Phase 1 guarded foundation entry](v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
 
 ## v5.1 — current stable automatic leadership
 
