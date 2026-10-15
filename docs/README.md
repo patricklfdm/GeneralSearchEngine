@@ -54,6 +54,7 @@ protected hosted acceptance remain pending.
 - [Phase 6Q independent minimum-wait and saturation evidence](v5x/v5.2/PHASE_6_MINIMUM_EVIDENCE.md)
 - [Phase 6R recovery controllers](v5x/v5.2/PHASE_6_RECOVERY_CONTROLLERS.md)
 - [Phase 6S independent recovery evidence](v5x/v5.2/PHASE_6_RECOVERY_EVIDENCE.md)
+- [Phase 6T machine freeze and complete local cohort](v5x/v5.2/PHASE_6_MACHINE_COHORT.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership

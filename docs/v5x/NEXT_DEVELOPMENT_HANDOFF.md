@@ -847,3 +847,10 @@ results and per-process resources, retaining the SIGKILL sampling prefix explici
 Portable original/relocated replay and negative cases are implemented. The full
 machine freeze and fresh formal 28-history M01–M04 cohort remain next; no paid run,
 production Java change or push is authorized by this evidence stage.
+
+The [Phase 6T machine/cohort entry](v5.2/PHASE_6_MACHINE_COHORT.md) now binds a
+separate committed implementation and machine-only freeze commit, with complete
+28-history original/relocated qualification. Unit fixtures are not measurements.
+Next build the exact committed implementation, commit its machine plan, execute
+the fresh full cohort and retain every original failure. Hosted acceptance and
+fresh cloud admission remain required; paid execution remains operator-owned.
