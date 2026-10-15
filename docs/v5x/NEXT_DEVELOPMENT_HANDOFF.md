@@ -51,8 +51,9 @@ installation. Phase 4D5 qualifies three public capacity configurations and reser
 writer progress with independently replayed ownership counters. Phase 4D6 confirms
 P=1 rejects all explicit policies while legacy reads/writes retain their slot.
 Phase 4D7 adds public cursor lifecycle tests and reruns seven consumer modules,
-published default/API checks and negative compilation. Continue with remaining
-state/failure variants and the full
+published default/API checks and negative compilation. Phase 4D8 adds real public
+corrupt-startup and fatal-I/O before/after-capture tests. Continue with remaining
+accepted-only/old-leader/local-state variants and the full
 schedule/negative matrix before final acceptance.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.

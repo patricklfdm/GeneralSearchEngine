@@ -55,7 +55,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S22 | 4D7 public cursor continuity, changed materialization, successor/reopened handles; negative page compilation and nested-page rejection | Final aggregate |
 | S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
-| S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | Public corrupt-authority/fatal capture physical evidence |
+| S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | 4D8 controlled public startup/fatal-I/O tests; final aggregate |
 | N01–N16 | Phase 1 synthetic sixteen plus Phase 3B eleven physical/query rejection mutations | Complete sixteen targeted physical mutations, before/after relocation |
 
 ## Local verification
@@ -566,3 +566,29 @@ Foundation's synthetic/model evidence still does not count as physical matrix
 completion. Source-bound local receipts and copied JUnit XML files are retained
 in `target/v52-cursor-compatibility`. Remaining state/authority-failure variants,
 full physical N01–N16 mapping, Phase 5 and Phase 6 are still pending.
+
+## 4D8: corrupt startup and fatal I/O around capture
+
+Three new public real-TCP tests cover the storage-failure side of S30. Two variants
+flip an actual required manifest/genesis byte before startup. Startup rejects
+INTEGRITY_FAILURE, stays FAILED and never repairs the bytes. Explicit calls on that
+unsuccessfully started handle reject NOT_READY before a callback or identity wait.
+This differs from a previously started runtime observing a fatal storage failure.
+
+For a started leader, an injected IOException at ACCEPT_BEFORE_WRITE follows the
+normal authority failure path. The failed write is INDETERMINATE / STORAGE_FAILURE;
+a waiting minimum read and all new explicit policies reject STORAGE_FAILURE without
+callbacks, and outstanding permits settle. The second running case observes the
+actual selected pair, captures a verified follower view, then injects that peer's
+acceptance I/O failure. Its pending/new reads fail while the captured callback can
+still read the same document and finish. The wrapper becomes inactive after its
+actual release. The tests do not manufacture read results or change authority via
+an internal activation command.
+
+`target/v52-read-storage-failures/tests-1.log` and the copied JUnit XML record all
+three tests passing on the first execution (including both corrupt-file variants).
+These are controlled in-JVM public runtime tests, not independent portable process
+receipts, and they do not claim a live filesystem-tampering detector on every read.
+No production change, retry or timing-limit change. The remaining accepted-only,
+isolated-old-leader and local state-transition mapping and full physical negative
+matrix still block Phase 4 completion.
