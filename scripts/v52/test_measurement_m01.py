@@ -48,6 +48,45 @@ class Consumer:
 
 
 class MeasurementM01Test(unittest.TestCase):
+    def delayed_drain(self, directory, completion_seconds):
+        world=World('published-v51-legacy-strong');complete=world.complete;waits=[]
+        def wait(futures,timeout):
+            self.assertEqual([],waits)
+            waits.append(timeout);world.now+=round(min(completion_seconds,timeout)*1e9)
+            if completion_seconds<=timeout:complete()
+            self.assertTrue(all(not future.cancelled() for future in futures))
+            return {f for f in futures if f.done()},{f for f in futures if not f.done()}
+        # Preserve the real dispatch/drain/ledger path. Only the consumer clock
+        # and Future completion are virtual; no workload is retried.
+        with patch.object(world,'complete'),patch.object(concurrent.futures,'wait',side_effect=wait):
+            result=world.run(directory)
+        return world,result,waits
+
+    def test_queued_legacy_responses_after_35_seconds_keep_the_full_original_window(self):
+        with tempfile.TemporaryDirectory() as directory:
+            world,result,waits=self.delayed_drain(directory,38)
+            self.assertEqual('OBSERVED',result['status']);self.assertEqual([125],waits)
+            self.assertEqual(1980,len(world.business));self.assertFalse(world.pending)
+            offered=json.loads((Path(directory)/'offered.json').read_bytes())
+            self.assertEqual(180_000_000_000,offered['durationNanos'])
+            self.assertEqual(0,offered['unobserved'])
+            elapsed=offered['drainEndNanos']-offered['drainStartNanos']
+            self.assertGreaterEqual(elapsed,38_000_000_000);self.assertLess(elapsed,38_001_000_000)
+            self.assertEqual(model.program(),[row['request'] for row in offered['offers']])
+            self.assertTrue(all(row['completionStatus']=='OBSERVED' for row in offered['offers']))
+
+    def test_stalled_original_responses_still_fail_after_one_common_drain(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError,'incomplete observation'):
+                self.delayed_drain(directory,126)
+            root=Path(directory);offered=json.loads((root/'offered.json').read_bytes())
+            self.assertEqual(1980,offered['unobserved'])
+            self.assertEqual(model.program(),[row['request'] for row in offered['offers']])
+            self.assertTrue(all(row['completionStatus']=='UNOBSERVED' for row in offered['offers']))
+            self.assertEqual('FAIL',json.loads((root/'controller.json').read_bytes())['status'])
+            self.assertGreaterEqual(offered['drainEndNanos']-offered['drainStartNanos'],125_000_000_000)
+            self.assertIn('1980 original responses missing',json.loads((root/'controller.json').read_bytes())['failure']['message'])
+
     def test_all_fifteen_members_keep_full_clock_calls_targets_and_unresolved_futures(self):
         for mode in model.MODES:
             for repetition in (1,2,3):

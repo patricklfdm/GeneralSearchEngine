@@ -25,9 +25,11 @@ targets even if an operation fails or leadership changes. Neither completed
 operations nor control markers pace the next original due time.
 
 Activation and initial-publication observation each use the existing 40-second
-integration bound. Original futures share one 35-second drain after dispatch;
-there is no fresh drain deadline per operation, cancellation or business retry.
-These controller constants still need inclusion in the complete execution freeze.
+integration bound. Original futures share one drain after dispatch; the original
+35-second value was revised to 125 seconds in [Phase 6V](PHASE_6_M01_DRAIN.md)
+to account for queued synchronous consumers. There is no fresh drain deadline per
+operation, cancellation or business retry. The current value is bound by the
+[complete execution freeze](PHASE_6_MACHINE_COHORT.md).
 
 ## Failure retention and qualification boundary
 

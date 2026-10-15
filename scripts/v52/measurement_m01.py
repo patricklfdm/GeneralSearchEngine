@@ -13,7 +13,12 @@ from .evidence import need
 MARKERS=(dict(name='warmup-start',offsetNanos=0),dict(name='measured-start',offsetNanos=60_000_000_000),
          dict(name='measured-end',offsetNanos=180_000_000_000))
 ACTIVATION_SECONDS=40
-DRAIN_SECONDS=35
+# Legacy reads occupy a consumer thread until their API result returns. Eight
+# active plus 64 queued reads can require nine 9.6-second operation intervals
+# after dispatch ends. Round that 86.4s allowance plus the existing 35s observer
+# margin up to 125s. This observes original calls only; it changes no API deadline
+# or offered workload and is an operational bound, not a completion guarantee.
+DRAIN_SECONDS=125
 
 
 def profile(mode,repetition):

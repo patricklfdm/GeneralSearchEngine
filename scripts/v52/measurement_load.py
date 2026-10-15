@@ -74,7 +74,9 @@ def validate(receipt,calls,duration_nanos,history):
     need(receipt['durationNanos']==duration_nanos and receipt['failure'] is None,'load incomplete dispatch')
     start=receipt['startNanos'];rows=receipt['offers'];need(len(rows)==len(calls),'load offered count')
     need(receipt['dispatchEndNanos']>=start+duration_nanos and receipt['drainStartNanos']>=receipt['dispatchEndNanos'] and
-         receipt['drainEndNanos']>=receipt['drainStartNanos'] and receipt['unobserved']==0,'load shortened/incomplete observation')
+         receipt['drainEndNanos']>=receipt['drainStartNanos'],'load shortened/incomplete observation')
+    need(receipt['unobserved']==0,'load incomplete observation: '+str(receipt['unobserved'])+
+         ' original responses missing after '+format((receipt['drainEndNanos']-receipt['drainStartNanos'])/1e9,'.3f')+' seconds')
     calls_by_id={v['opId']:v for v in history};need(len(calls_by_id)==len(history),'load duplicate operation identity')
     ids=set();outcomes={};latencies=[]
     for ordinal,(row,request) in enumerate(zip(rows,calls)):

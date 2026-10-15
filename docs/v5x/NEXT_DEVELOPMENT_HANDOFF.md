@@ -861,3 +861,10 @@ window and failure receipt remain intact. Verified temporary trace bytes remove
 repeated chunk reconstruction while preserving every semantic check. A new
 exact-source freeze and fresh full cohort are required; the old history is used
 only to qualify replay equivalence, not to fill a new measured repetition.
+
+The [Phase 6V M01 drain correction](v5.2/PHASE_6_M01_DRAIN.md) follows the second
+cohort's retained observation failure. All original requests were dispatched;
+seven queued legacy responses completed after the former 35-second drain.
+The revised 125-second common observation allowance accounts for the unchanged
+consumer queue and API interval. Frozen business parameters and M02–M04 remain
+unchanged. Controller regressions pass; a fresh complete cohort remains required.

@@ -56,6 +56,7 @@ protected hosted acceptance remain pending.
 - [Phase 6S independent recovery evidence](v5x/v5.2/PHASE_6_RECOVERY_EVIDENCE.md)
 - [Phase 6T machine freeze and complete local cohort](v5x/v5.2/PHASE_6_MACHINE_COHORT.md)
 - [Phase 6U bounded verified trace replay](v5x/v5.2/PHASE_6_REPLAY_EFFICIENCY.md)
+- [Phase 6V queued-response observation](v5x/v5.2/PHASE_6_M01_DRAIN.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership

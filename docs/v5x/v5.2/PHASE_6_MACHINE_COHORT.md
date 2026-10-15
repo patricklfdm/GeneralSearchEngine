@@ -2,8 +2,10 @@
 
 **Status:** machine/cohort implementation and fixture tests are locally verified.
 Freeze `ee9bdb9` preceded the first formal M01 history. Its cohort was interrupted
-during replay as recorded in [Phase 6U](PHASE_6_REPLAY_EFFICIENCY.md); complete
-M01–M04 qualification and hosted/cloud acceptance remain open. Continue under the
+during replay as recorded in [Phase 6U](PHASE_6_REPLAY_EFFICIENCY.md). Freeze
+`cfc32c6` then failed its first M01 drain as recorded in
+[Phase 6V](PHASE_6_M01_DRAIN.md). Complete M01–M04 qualification and hosted/cloud
+acceptance remain open. Continue under the
 [local development authorization](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 ## Freeze implementation before measurement
