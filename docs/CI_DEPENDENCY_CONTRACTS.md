@@ -3,20 +3,21 @@
 The [generated inventory](CI_JOB_INVENTORY.md), validated against the actual
 workflow and [suite registry](../scripts/ci_suite_registry.json), describes the current
 36 full-CI lane IDs, their dependencies, fixed matrices, artifact handoffs,
-retention and full/docs outcomes. Changes and Required are separate meta jobs:
+retention and full/integration/docs outcomes. Changes and Required are separate meta jobs:
 38 static IDs expand to **46 full jobs**, or 38 docs records with 36 explicitly
 skipped placeholders. The registry describes the workflow; it does not schedule
-commands or introduce a core profile.
+commands. Integration executes 43 instances, omitting only the whole canonical
+suite. The [source-bound policy](CI_TIERED_DESIGN.md) controls eligibility.
 
 ## Execution and artifact boundaries
 
 | Dependency | Contract |
 | --- | --- |
-| Change scope → every lane | The unchanged complete-diff classifier determines full/docs. Unknown inputs require full. |
+| Change scope → every lane | The source-bound execution plan determines docs/integration/full from the complete diff and trusted base policy. Unknown inputs require full; eligible integration also requires recent exact-base full health. |
 | V5.1 verification build → consumers | Tested JARs/classes/Surefire reports, exact source/JDK/content inventory, explicit producer artifact ID. Cache is not test evidence. |
 | Rich inputs → three shards | One immutable source/seed, build binding and explicit input artifact ID. |
 | Three shards + inputs/build → aggregate | All PARTIAL receipts, independent physical/history replay, five whole cells/1080 calls, shared storage/decoded budgets and ten exact negatives. |
-| Changes + all 36 lane results → Required | Every ID must be present; full requires success, docs requires skipped. No missing-as-skipped conversion. |
+| Changes + all 36 lane results → Required | Every ID must be present; full requires success, docs requires skipped, integration skips only canonical. Required independently replays the plan and checks exact results. No missing-as-skipped conversion. |
 
 Shared builds, rich sharding, Python/cloud partitions and relocated-negative
 replay are already implemented. Rich producer outputs are `published_controls`,
@@ -34,6 +35,9 @@ The release workflow's corresponding reproducibility evidence also uses 90 days.
 PR3 adds one independent [shadow observation upload](CI_SHADOW_PLANNER.md) in
 Change scope, with run/attempt identity and 14-day retention. It is diagnostic
 metadata with no qualification consumer; the 99 suite uploads remain unchanged.
+The same meta artifact now also retains the execution receipt and exact raw diff.
+Required consumes the closed plan output and validates its source, workflow,
+registry and producer attempt; it does not infer qualification from the report.
 
 After [PR2 step reuse](CI_V51_STEP_REUSE.md), these contracts are checked against
 the effective steps after expanding the two reviewed local actions. Physical
@@ -54,7 +58,9 @@ by a partial rerun may have an earlier **producing attempt** in that same run;
 the artifact collector verifies its original execution/runner/step identity,
 metadata and time window. This is not permission to use an arbitrary older green
 run. Admission rechecks master, run and attempt after preparation. Docs success
-and Required's result summary cannot substitute for full cloud qualification.
+and integration/Required summaries cannot substitute for full cloud qualification.
+Nightly full is operational health only: the independent cloud consumer still
+accepts only push/manual exact-master full evidence and rejects schedule.
 
 The three fixed matrices remain three rich shards, five canonical tapes
 (tape/mode/cell mapping and order), and three complete canonical repetitions.

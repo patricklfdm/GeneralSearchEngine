@@ -24,9 +24,13 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_NAME="Fixture", GIT_COMMITTER_NAME="Fixture",
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
-        for path in (p.WORKFLOW, p.POLICY, p.PLANNER):
+        for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
+                     "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py", "scripts/ci_observation.py", "scripts/ci_health.py",
+                     ".github/workflows/release.yml", ".github/actions/v51-restore-build/action.yml",
+                     ".github/actions/v51-retain-build/action.yml"):
             self.write(path, (ROOT / path).read_bytes())
         self.write("src/main/java/Engine.java", b"// original source\n")
+        self.write(p.INTEGRATION_PATH, b"// original example\n")
         self.base = self.commit()
 
     def git(self, *args):
@@ -81,6 +85,64 @@ class ShadowPlanTest(unittest.TestCase):
         self.assertEqual(p.digest((self.root / p.WORKFLOW).read_bytes()), report["workflow"]["sha256"])
         self.assertEqual(p.digest((self.root / p.POLICY).read_bytes()), report["policy"]["sha256"])
         self.assertEqual(["docs/guide.md"], report["changedPaths"])
+        self.assertEqual(p.digest((self.root / p.REGISTRY).read_bytes()), report["registry"]["sha256"])
+        self.assertEqual("gse-ci-shadow-plan-v2", report["schema"])
+        self.assertEqual(2, report["suitePlan"]["candidate"]["executedJobCount"])
+        self.assertEqual({"skipped"}, set(report["suitePlan"]["candidate"]["expectedResults"].values()))
+
+    def test_exact_raw_status_mode_type_and_blobs_are_bound(self):
+        self.git("checkout", "-qb", "topic")
+        self.write("src/main/java/Engine.java", b"// changed\n")
+        self.git("update-index", "--chmod=+x", "src/main/java/Engine.java")
+        (self.root / "src/main/java/Engine.java").chmod(0o755)
+        self.write("new.java", b"new\n")
+        self.write("old.java", b"old\n")
+        # Record a real type change and deletion on the same complete PR diff.
+        self.git("checkout", "-q", "master")
+        self.git("add", "--all"); self.git("commit", "-qm", "base files")
+        self.base = self.git("rev-parse", "HEAD")
+        self.git("branch", "-D", "topic")
+        (self.root / "old.java").unlink()
+        (self.root / "new.java").unlink(); (self.root / "new.java").symlink_to("old.java")
+        self.pr({"src/main/java/Engine.java": b"// content only\n"})
+        report = self.result(code="BUILD_OR_UNKNOWN_PATH")
+        rows = {v["path"]: v for v in report["changes"]}
+        self.assertEqual(("D", "absent"), (rows["old.java"]["status"], rows["old.java"]["newType"]))
+        self.assertEqual(("T", "symlink"), (rows["new.java"]["status"], rows["new.java"]["newType"]))
+        row = rows["src/main/java/Engine.java"]
+        self.assertEqual(("M", "100755", "100755"), (row["status"], row["oldMode"], row["newMode"]))
+        self.assertNotEqual(row["oldBlob"], row["newBlob"])
+        self.assertEqual(46, report["suitePlan"]["candidate"]["executedJobCount"])
+
+    def test_registry_missing_dirty_or_invalid_cannot_produce_selection(self):
+        self.pr()
+        for path in (p.REGISTRY, p.SUITE_VALIDATOR):
+            original = (self.root / path).read_bytes()
+            for data in (b"{}", b"bad registry"):
+                self.write(path, data)
+                report = self.result(code="REGISTRY_UNAVAILABLE")
+                self.assertIsNone(report["suitePlan"])
+            self.write(path, original)
+
+    def test_raw_parser_rejects_duplicate_and_inconsistent_records(self):
+        row = b":100644 100644 " + b"a" * 40 + b" " + b"b" * 40 + b" M\0file.java\0"
+        self.assertEqual(1, len(p.change_records(row)))
+        for raw in (row + row, row.replace(b" M\0", b" R100\0"), row.replace(b"100644", b"999999", 1),
+                    row.replace(b"a" * 40, b"0" * 40), row.replace(b"file.java", b"../file.java")):
+            with self.subTest(raw=raw), self.assertRaises(p.Unavailable):p.change_records(raw)
+
+    def test_closed_suite_recipes_keep_matrix_group_and_dependency_closure(self):
+        registry = s.load_registry()
+        for profile, count in (("docs", 2), ("integration", 43), ("full", 46)):
+            result = p.suite_plan(registry, profile)
+            self.assertEqual(count, result["executedJobCount"])
+            self.assertEqual(len(registry["suites"]), len(result["expectedResults"]))
+        result = p.suite_plan(registry, "integration")
+        self.assertEqual(["v51-owned-canonical"], [key for key, value in result["expectedResults"].items() if value == "skipped"])
+        bad = copy.deepcopy(registry)
+        next(v for v in bad["suites"] if v["id"] == "v51-remote-faults")["needs"].append("v51-owned-canonical")
+        with self.assertRaises(p.Unavailable):p.suite_plan(bad, "integration")
+        with self.assertRaises(p.Unavailable):p.suite_plan(registry, "custom")
 
     def test_multiple_commit_diff_and_base_only_changes(self):
         # A PR branches before an unrelated master change; only head-side changes
@@ -168,7 +230,7 @@ class ShadowPlanTest(unittest.TestCase):
                 self.result(code="HISTORY_UNAVAILABLE")
 
     def test_changed_policy_cannot_authorize_its_own_core_paths(self):
-        value = copy.deepcopy(p.POLICY_V1); value["corePaths"] = ["src/main/java/Engine.java"]
+        value = copy.deepcopy(p.POLICY_V2); value["integrationRules"] = ["src/main/java/Engine.java"]
         self.pr({p.POLICY: json.dumps(value).encode(), "src/main/java/Engine.java": b"// changed\n"})
         report = self.result(code="POLICY_CHANGED")
         self.assertNotEqual(report["policy"]["sha256"], report["policy"]["testedSha256"])
@@ -178,8 +240,9 @@ class ShadowPlanTest(unittest.TestCase):
         self.pr()
         original = p.blob
         bad = [b"{}", b'{"schema":1,"schema":2}', b"not JSON"]
-        for key, value in (("mode", "active"), ("corePaths", ["README.md"]), ("documentationRule", "all-docs-directory")):
-            policy = copy.deepcopy(p.POLICY_V1); policy[key] = value; bad.append(json.dumps(policy).encode())
+        for key, value in (("mode", "shadow"), ("integrationRules", ["README.md"]),
+                           ("forceFull", 1), ("documentationRule", "all-docs-directory")):
+            policy = copy.deepcopy(p.POLICY_V2); policy[key] = value; bad.append(json.dumps(policy).encode())
         for data in bad:
             def blob(root, source, path):
                 return data if source == self.base and path == p.POLICY else original(root, source, path)
@@ -267,8 +330,8 @@ class ShadowPolicyContractTest(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertFalse(p.documentation(path))
                 self.assertEqual(ci_changes.is_documentation(path), p.documentation(path))
-        self.assertEqual(p.POLICY_V1, p.strict_json((ROOT / p.POLICY).read_bytes()))
-        self.assertEqual([], p.POLICY_V1["corePaths"])
+        self.assertEqual(p.POLICY_V2, p.strict_json((ROOT / p.POLICY).read_bytes()))
+        self.assertEqual([p.INTEGRATION_RULE], p.POLICY_V2["integrationRules"])
 
     def test_shadow_cannot_replace_classifier_or_gate_and_retention_is_attempt_specific(self):
         workflow = (ROOT / p.WORKFLOW).read_text()

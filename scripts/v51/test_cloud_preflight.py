@@ -49,7 +49,7 @@ class PreflightTest(unittest.TestCase):
             obs[key]=old
     def test_pr_fork_and_changed_attempt_rejected(self):
         obs=self.github['observations'];original=deepcopy(obs)
-        for mutation in ({'event':'pull_request'},{'head_branch':'other'},{'status':'in_progress'},{'path':a.RUNNER_WORKFLOW}):
+        for mutation in ({'event':'pull_request'},{'event':'schedule'},{'head_branch':'other'},{'status':'in_progress'},{'path':a.RUNNER_WORKFLOW}):
             obs['run'].update(mutation);obs['runAfter'].update(mutation);self.blocked('exactSourceCI')
             self.github['observations']=obs=deepcopy(original)
         obs['runAfter']['run_attempt']=3;self.blocked('exactSourceCI')
@@ -270,7 +270,7 @@ class WorkflowTest(unittest.TestCase):
         required_needs=ci_suites.dependencies(required['needs'])
         gate=ci_suites.steps(required['steps'])['Require every CI gate']
         self.assertEqual(gate['run'],('python3 -m scripts.ci_required',''))
-        self.assertEqual(ci_suites.string_map(gate['env'],10),{'CI_NEEDS_JSON':'${{ toJSON(needs) }}'})
+        self.assertEqual(ci_suites.string_map(gate['env'],10),{'CI_NEEDS_JSON':'${{ toJSON(needs) }}','GH_TOKEN':'${{ github.token }}'})
         for key,lane in (('cloud-preflight-tests','admission'),('cloud-cleanup-fixture-tests','cleanup'),('cloud-storage-tests','storage')):
             # Use the same explicit-job boundary as the CI inventory parser.
             body=re.split(r'^  [\w-]+:\n',text.split('\n  '+key+':\n')[1],maxsplit=1,flags=re.M)[0]

@@ -1,5 +1,9 @@
 # CI refactor completed handoff
 
+> Historical PR0–PR6 closeout. The subsequent pre-V5.2 tiered work is tracked in
+> [CI_TIERED_PROGRESS.md](CI_TIERED_PROGRESS.md); its local and hosted acceptance
+> are separate from the completed observations recorded here.
+
 Implementation base: `d12d682e2a16eb2c9a96b326f2875e97768ddd7f` (PR #326).
 The operator combined PR4 review, PR5 replay optimization and PR6 documentation/
 integration checks in PR #327, merged as

@@ -1,5 +1,10 @@
 # PR4 review: defer core activation
 
+> Historical review of PR #326/#327. Its statement that core was disabled describes
+> that baseline. The later [Tiered CI review](CI_TIERED_DESIGN.md) records the
+> separately delegated local activation of the same exact candidate as **integration**,
+> preserving this original review and its historical observations.
+
 Status: review completed against `d12d682e2a16eb2c9a96b326f2875e97768ddd7f`
 (PR #326), 2026-10-14 UTC. **No core policy is enabled or approved by this
 document.** Current execution remains full/docs. Recommendation: keep full

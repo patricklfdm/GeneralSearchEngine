@@ -16,8 +16,10 @@ import re
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY = "scripts/ci_suite_registry.json"
 WORKFLOW = ".github/workflows/ci.yml"
-SCHEMA = "gse-ci-suites-v1"
+SCHEMA = "gse-ci-suites-v2"
 FULL_IF = "${{ needs.changes.outputs.run_full_ci == 'true' }}"
+CANONICAL_IF = "${{ needs.changes.outputs.run_canonical == 'true' }}"
+PLAN_OUTPUTS = ("run_full_ci", "profile", "run_canonical", "plan", "plan_sha256")
 ALWAYS = "${{ always() }}"
 LIMIT = 512 * 1024
 IDENTIFIER = re.compile(r"[a-z][a-z0-9-]*\Z")
@@ -311,12 +313,14 @@ def validate_registry(value):
     suites = value["suites"]
     need(type(suites) is list and suites, "empty suites")
     for suite in suites:
-        keys(suite, {"id", "name", "needs", "matrix", "domain", "timeoutMinutes", "inputs", "outputs", "evidence", "fullResult", "docsResult"}, "suite")
+        keys(suite, {"id", "name", "needs", "matrix", "domain", "timeoutMinutes", "inputs", "outputs", "evidence", "fullResult", "docsResult", "integrationResult"}, "suite")
         need(text(suite["id"]) and IDENTIFIER.fullmatch(suite["id"]) and text(suite["name"]) and text(suite["domain"]), "suite identity")
         unique_strings(suite["needs"], "suite needs")
         need("changes" in suite["needs"] and suite["id"] not in suite["needs"], "suite scope/self dependency")
         need(type(suite["timeoutMinutes"]) is int and suite["timeoutMinutes"] > 0, "suite timeout")
         need(suite["fullResult"] == "success" and suite["docsResult"] == "skipped", "only unchanged full/docs results allowed")
+        need(suite["integrationResult"] == ("skipped" if suite["id"] == "v51-owned-canonical" else "success"),
+             "integration may only omit the whole canonical suite")
         if suite["matrix"] is not None:
             strategy(suite["matrix"])
         need(type(suite["outputs"]) is dict and all(text(k) and text(v) for k, v in suite["outputs"].items()), "suite outputs")
@@ -368,6 +372,15 @@ def artifacts(parsed_steps, direction):
 
 def validate_workflow(registry, workflow, related, actions=None):
     validate_registry(registry)
+    header = fields(workflow.split("\njobs:\n", 1)[0], 0)
+    need(set(header) == {"name", "on", "permissions", "concurrency", "env"} and scalar(header["name"]) == "CI",
+         "CI routing fields")
+    need(not header["on"][0] and content(header["on"][1]) == ["  pull_request:", "  push:", "    branches:", "      - master",
+         "  workflow_dispatch:", "  schedule:", "    - cron: '17 10 * * *'"], "CI routing triggers")
+    need(string_map(header["permissions"], 2) == {"contents": "read", "actions": "read"}, "CI read-only permissions")
+    need(string_map(header["concurrency"], 2) == {
+         "group": "ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event_name == 'pull_request' && github.ref || github.run_id }}",
+         "cancel-in-progress": "${{ github.event_name == 'pull_request' }}"}, "CI concurrency isolation")
     actions = load_actions() if actions is None else actions
     blocks = job_blocks(workflow)
     suites = {s["id"]: s for s in registry["suites"]}
@@ -382,7 +395,7 @@ def validate_workflow(registry, workflow, related, actions=None):
         need(scalar(values["runs-on"]) == "ubuntu-latest", "runner changed: " + key)
         parsed_steps = expand_steps(steps(values["steps"]), key, actions)
         if key in suites:
-            need(scalar(values["if"]) == FULL_IF, "full/docs condition: " + key)
+            need(scalar(values["if"]) == (CANONICAL_IF if key == "v51-owned-canonical" else FULL_IF), "profile condition: " + key)
             need(dependencies(values.get("needs")) == expected["needs"], "needs changed: " + key)
             need(scalar(values["timeout-minutes"]) == str(expected["timeoutMinutes"]), "timeout changed: " + key)
             matrix = expected["matrix"]
@@ -399,19 +412,26 @@ def validate_workflow(registry, workflow, related, actions=None):
             need(scalar(values["if"]) == ALWAYS, "Required must always run")
             need(set(dependencies(values.get("needs"))) == set(suites) | {"changes"}, "Required needs differ")
             need("strategy" not in values and scalar(values["timeout-minutes"]) == "2", "Required execution boundary")
+            checkout = parsed_steps.get("Check out the Required validator", {})
+            need(string_map(checkout.get("with", ("", "")), 10) ==
+                 {"persist-credentials": "false", "fetch-depth": "0"}, "Required complete comparison history")
             gate = parsed_steps.get("Require every CI gate", {})
             need(gate.get("run") == ("python3 -m scripts.ci_required", "") and "if" not in gate and
-                 string_map(gate["env"], 10) == {"CI_NEEDS_JSON": "${{ toJSON(needs) }}"}, "Required validator binding")
+                 string_map(gate["env"], 10) == {"CI_NEEDS_JSON": "${{ toJSON(needs) }}", "GH_TOKEN": "${{ github.token }}"}, "Required validator binding")
         else:
             need("if" not in values and "needs" not in values and "strategy" not in values, "classifier must run")
-            need(string_map(values["outputs"], 6) == {"run_full_ci": "${{ steps.scope.outputs.run_full_ci }}"}, "classifier output binding")
+            checkout = parsed_steps.get("Check out comparison history", {})
+            need(string_map(checkout.get("with", ("", "")), 10) == {"fetch-depth": "0"}, "classifier complete comparison history")
+            need(string_map(values["outputs"], 6) == {key: "${{ steps.scope.outputs." + key + " }}" for key in PLAN_OUTPUTS}, "classifier output binding")
             scope = parsed_steps.get("Classify the complete change set", {})
-            need(scope.get("run") == ("python3 scripts/ci_changes.py", "") and scope.get("id") == ("scope", "") and "if" not in scope,
+            need(scope.get("run") == ("python3 -m scripts.ci_plan --output target/ci-shadow-plan", "") and scope.get("id") == ("scope", "") and "if" not in scope,
                  "classifier execution binding")
+            need(string_map(scope.get("env", ("", "")), 10) == {"GH_TOKEN": "${{ github.token }}"}, "read-only health token binding")
             shadow = parsed_steps.get("Observe the CI shadow plan", {})
             need(set(shadow) == {"run", "env"} and shadow["run"] ==
                  ("python3 -m scripts.ci_shadow_plan --output target/ci-shadow-plan", "") and
-                 string_map(shadow["env"], 10) == {"ACTUAL_RUN_FULL_CI": "${{ steps.scope.outputs.run_full_ci }}"},
+                 string_map(shadow["env"], 10) == {"ACTUAL_RUN_FULL_CI": "${{ steps.scope.outputs.run_full_ci }}",
+                                                "CI_PROFILE": "${{ steps.scope.outputs.profile }}"},
                  "shadow observation binding")
             retained = parsed_steps.get("Retain the CI shadow plan", {})
             need(set(retained) == {"if", "uses", "with"} and scalar(retained["if"]) == ALWAYS and

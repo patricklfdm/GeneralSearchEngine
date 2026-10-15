@@ -22,7 +22,9 @@ def render(root=suites.ROOT):
         f'**{len(rows)} suites + 2 meta jobs = {len(rows)+2} static job IDs; {count} expanded full jobs.**',
         f'Docs mode reports Change scope and Required plus {len(rows)} skipped suite placeholders.',
         'These are configuration counts, not measurements of a particular run.',
-        'Core is disabled. Every suite requires `success` in full and `skipped` in docs.',
+        'Integration executes 43 instances: only the complete canonical suite is skipped.',
+        'Every suite requires `success` in full and `skipped` in docs. Exact rules and',
+        'forceFull are defined in [the tiered policy](CI_TIERED_DESIGN.md); unknown paths stay full.',
         'All jobs currently use `ubuntu-latest`; matrix fail-fast is false.', '',
         '| Suite ID | Display name | Build / responsibility domain | Needs | Full jobs | Job ceiling (min) |',
         '| --- | --- | --- | --- | ---: | ---: |',
@@ -39,10 +41,10 @@ def render(root=suites.ROOT):
     downloads = sum(len(row['inputs']) for row in rows)
     uploads = sum(len(row['evidence']) for row in rows)
     lines += ['## Meta jobs and evidence', '',
-              '- `changes` / `Change scope` has no job dependencies and determines full/docs.',
+              '- `changes` / `Change scope` has no job dependencies and produces the source-bound execution plan.',
               f'- `required` / `Required` always evaluates Change scope and all {len(rows)} suite results.',
               f'- The suites declare {downloads} download and {uploads} upload operations before matrix expansion.',
-              '- Change scope additionally retains a diagnostic shadow report; it does not grant qualification.',
+              '- Change scope retains the execution receipt, complete change records and a diagnostic shadow report.',
               '- Exact artifact IDs, paths, conditions, retention and external step names are in the registry.', '',
               'See [dependency and consumer contracts](CI_DEPENDENCY_CONTRACTS.md),',
               '[operations](CI_CD.md) and [new-suite onboarding](CI_SUITE_ONBOARDING.md).', '']

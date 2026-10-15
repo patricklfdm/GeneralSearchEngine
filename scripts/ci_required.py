@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 
-from scripts import ci_suites as suites
+from scripts import ci_health, ci_observation, ci_plan, ci_suites as suites
 
 
-def evaluate(needs, registry):
+def evaluate(needs, registry, expected_plan=None):
     suites.validate_registry(registry)
     expected_ids = {v["id"] for v in registry["suites"]} | {"changes"}
     errors = []
@@ -39,11 +40,11 @@ def evaluate(needs, registry):
     if changes is not None:
         if changes["result"] != "success":
             reject("changes", changes["result"], "success", "classifier did not succeed")
-        scope = changes["outputs"].get("run_full_ci")
-        if scope not in ("true", "false") or set(changes["outputs"]) != {"run_full_ci"}:
-            reject("changes", scope, "run_full_ci=true or false", "invalid classifier output")
-        else:
-            profile = "full" if scope == "true" else "docs"
+        try:
+            plan = ci_plan.checked_outputs(changes["outputs"], registry, expected_plan)
+            profile = plan["profile"]
+        except (ValueError, KeyError, TypeError):
+            reject("changes", "invalid", "source-bound execution plan", "invalid classifier output")
     for suite in registry["suites"]:
         key = suite["id"]
         if key not in valid:
@@ -60,8 +61,12 @@ def main(env=None, root=suites.ROOT):
     try:
         needs = suites.strict_json(env.get("CI_NEEDS_JSON"))
         registry = suites.check(root)
-        result = evaluate(needs, registry)
-    except (ValueError, OSError, KeyError, TypeError, RecursionError) as error:
+        claimed = ci_plan.checked_outputs(needs["changes"]["outputs"], registry)
+        producer_env = ci_observation.producer_environment(claimed, env)
+        health = ci_health.replay(claimed, root, producer_env, registry, claimed["bindings"])
+        expected, _ = ci_plan.compute(root, producer_env, ci_plan.event(env), health=health)
+        result = evaluate(needs, registry, expected)
+    except (ValueError, OSError, KeyError, TypeError, RecursionError, subprocess.SubprocessError) as error:
         result = dict(status="FAIL", profile=None, errors=[dict(job="Required", reason=str(error))])
     print(json.dumps(result, ensure_ascii=True, sort_keys=True))
     return 0 if result["status"] == "PASS" else 1

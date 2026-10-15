@@ -3,6 +3,8 @@
 - [CI/CD and release operations](CI_CD.md)
 - [CI refactor baseline, contracts and implementation progress](CI_REFACTOR_PROGRESS.md)
 - [Current generated CI job inventory](CI_JOB_INVENTORY.md)
+- [Tiered CI design, exact rules and rollback](CI_TIERED_DESIGN.md)
+- [Tiered CI local progress and hosted acceptance boundary](CI_TIERED_PROGRESS.md)
 - [CI suite onboarding for future versions](CI_SUITE_ONBOARDING.md)
 - [CI refactor completed handoff](CI_REFACTOR_HANDOFF.md)
 - [CI refactor final hosted acceptance and measured replay results](CI_REFACTOR_ACCEPTANCE.md)

@@ -1,5 +1,9 @@
 # CI parallel lanes: dependency audit and migration map
 
+> The records below describe earlier topology/refactor migrations. Current
+> docs/integration/full selection and Nightly operation are defined in
+> [CI_TIERED_DESIGN.md](CI_TIERED_DESIGN.md); the complete full topology is retained.
+
 The current [generated inventory](CI_JOB_INVENTORY.md) is checked against the
 [suite registry](../scripts/ci_suite_registry.json) and actual workflow.
 The [Required migration](CI_REFACTOR_ADR.md) preserves full/docs outcomes and all

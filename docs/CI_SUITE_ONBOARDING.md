@@ -1,7 +1,7 @@
 # Adding CI suites for V5.2 and later
 
 This is an integration procedure, not approval of a future version's design or
-an activation of core CI. Existing full/docs policy remains in force. The
+an authorization to extend the [tiered path policy](CI_TIERED_DESIGN.md). The
 [generated inventory](CI_JOB_INVENTORY.md) lists current ownership;
 [consumer contracts](CI_DEPENDENCY_CONTRACTS.md) define compatibility boundaries.
 
@@ -17,7 +17,7 @@ Record these fields in the version's accepted plan or the proposed PR:
 | Outputs | Success/failure receipts, raw authority/history, negative results, reports, artifact names and retention; identify external readers. |
 | Dependencies | For every `needs`, distinguish data, tested-build evidence, shared state and final result aggregation. |
 | State boundary | Frozen calls/windows, lease/source/history, sequential handoffs, control rotation and combined budgets. State whether whole suites/cells are independently splittable and why. |
-| Execution policy | Full must run and succeed; docs must skip deliberately. New/unknown source paths select full. No new core allowlist is implied. |
+| Execution policy | Full/integration must run and succeed; docs must skip deliberately. Only the existing complete canonical suite is omitted by integration. New/unknown source paths select full. No new allowlist is implied. |
 | Initial budget | Job/step ceilings, expected execution, setup/collection/replay costs, sample size and uncertainty; do not shorten frozen measurement to hit a target. |
 | Failure handling | Diagnostic step and artifact, owner/investigation path, non-retryable integrity/test errors, any separately justified bounded infrastructure retry. |
 | Acceptance | Positive and negative checks, discovered/executed test ownership, source-bound hosted PR/master results and rollback. |
@@ -37,7 +37,8 @@ external-reader change with negative tests before it is accepted.
    failed tests and empty suites. Focused gates may intentionally repeat tests.
 2. Update [ci.yml](../.github/workflows/ci.yml),
    [ci_suite_registry.json](../scripts/ci_suite_registry.json) and Required's
-   explicit `needs` together. Add the new full/docs job condition and reviewed
+   explicit `needs` together. Add the ordinary suite condition, explicit
+   full/integration/docs results and reviewed
    fixed matrix; preserve failure uploads and `fail-fast: false`. Update the
    exact-count assertions in [test_ci_suites](../scripts/test_ci_suites.py).
    An unregistered job, missing dependency or cycle must fail validation.
@@ -70,7 +71,7 @@ python3 -m scripts.ci_suites
 python3 -m scripts.ci_inventory --check
 python3 -m unittest \
   scripts.test_ci_changes scripts.test_ci_suites scripts.test_ci_required \
-  scripts.test_ci_composites scripts.test_ci_shadow_plan \
+  scripts.test_ci_composites scripts.test_ci_shadow_plan scripts.test_ci_plan \
   scripts.test_ci_v51_bundle scripts.test_ci_v51_python \
   scripts.v51.test_cloud_preflight scripts.v51.test_cloud_runner_artifacts \
   scripts.v51.test_cloud_runner_admission \
@@ -86,7 +87,7 @@ to registry and YAML alone do not prove that scripts still execute every oracle.
 Then obtain normal full PR and exact-master CI, including the new suite and all
 existing suites. Capture tested merge vs API head, workflow/policy identities,
 accepted vs producing attempts and artifacts. Docs-only green checks do not
-qualify runtime, and core remains unavailable. Any coverage-policy change needs
+qualify runtime; integration is also not full cloud qualification. Any coverage-policy change needs
 its own approval and acceptance record; unknown paths stay full.
 
 ## Failure and rollback
@@ -99,5 +100,5 @@ One successful rerun does not prove a scheduler root cause.
 Rollback the reviewed suite/workflow/registry/Required/parser/docs change
 together and revalidate the previous full inventory. Keep evidence and published
 inputs. Do not delete Required, disable workflows, move tags or use admin bypass
-as rollback. Current full/docs selection already runs every suite for build
-inputs; no core rollback switch needs activating.
+as rollback. `forceFull=true` is the first rollback for integration. A structural
+rollback must include the planner, closed outputs, registry and Required together.

@@ -24,8 +24,10 @@ supported for the local emergency release procedure.
 
 ## Continuous integration
 
-`.github/workflows/ci.yml` runs for pull requests, pushes to `master`, and manual
-dispatches. It has read-only repository permission and receives no release secrets.
+`.github/workflows/ci.yml` runs for pull requests, pushes to `master`, manual
+dispatches and full Nightly at 10:17 UTC daily. It has contents/actions read-only
+permission and receives no release secrets. Only newer runs for the same PR cancel
+earlier PR runs; master, manual and Nightly have isolated run-specific groups.
 
 A lightweight `Change scope` job compares the complete change set before scheduling
 full CI. Pull requests compare merge-base to PR head, so a final docs commit cannot
@@ -39,16 +41,30 @@ documentation lane. Change scope still runs the CI/helper/registry/Required,
 composite, planner, build-bundle and Python partition-inventory tests and both
 V5 documentation contracts; Required checks the expected skipped suite results.
 Maven and Java qualification do not run. JSON plans, checksums, source/resources,
-POMs, scripts, workflows and unknown paths require full CI. Mixed changes also
-require full; manual dispatch, missing history, empty diffs and unreadable events
-conservatively select full.
+POMs, scripts, workflows and unknown paths require full CI. The sole reviewed
+integration exception is an existing regular-file content change at the exact
+TravelSearchDemo path in [the versioned policy](CI_TIERED_DESIGN.md). It retains
+every suite except the three complete canonical repetitions. Mixed risky changes
+still require full; non-doc master pushes and manual runs stay full. Missing
+history, empty diffs and unavailable policy select conservative full. An invalid
+run/source context or failure to produce a valid plan fails Change scope/Required.
 
 The current [generated job inventory](CI_JOB_INVENTORY.md) is checked against the
 actual workflow, local actions and [suite registry](../scripts/ci_suite_registry.json).
 It lists **36 suites plus Change scope and Required: 38 static IDs, 46 expanded
 full jobs**. Docs mode has two successful meta jobs and 36 skipped placeholders;
-it does not have 46 executed jobs. Core is disabled; the
-[shadow planner](CI_SHADOW_PLANNER.md) cannot change execution.
+it does not have 46 executed jobs. Integration executes 43 instances, leaving the
+canonical suite deliberately skipped. The diagnostic [shadow report](CI_SHADOW_PLANNER.md)
+does not grant qualification. Required independently replays the versioned execution
+plan against source/workflow/policy/registry and all 36 suite results. The legacy
+`run_full_ci=true` means ordinary suites run, including in integration; it alone
+does not establish full qualification.
+
+Integration additionally requires a recent complete full run at the exact PR base
+SHA. Failed, cancelled, pending, docs-only, unavailable or older-than-36-hour results
+upgrade to full. The newest matching run is used, not an older green result. A
+Nightly health success does not satisfy paid-cloud admission, which still rejects
+schedule. See [tiered operations and rollback](CI_TIERED_DESIGN.md).
 
 Required runs with `always()` and checks every expected ID and result. Failed or
 cancelled detection, missing results, unexpected skips and unregistered jobs
