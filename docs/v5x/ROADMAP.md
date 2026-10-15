@@ -35,8 +35,9 @@ Phase 8 is complete; stable is **5.1.0**.
 **Current batch:** [V5.2 Phase 1 foundation](v5.2/PHASE_1_FOUNDATION.md), following
 accepted Phase 0 PR #335. Six public types/default rejection and independent
 foundation checks are implemented locally at `5.2.0-SNAPSHOT`. Explicit runtime
-reads stay disabled. Full protected PR/master CI is required before Phase 2's
-capture/waiter kernel. See the [handoff](NEXT_DEVELOPMENT_HANDOFF.md#current-batch-v52-phase-1)
+reads stay disabled. The operator authorized [local sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
+through pre-cloud implementation, beginning with Phase 2's capture/waiter kernel.
+Protected PR/master CI remains required before cloud entry. See the [handoff](NEXT_DEVELOPMENT_HANDOFF.md#current-batch-v52-phase-1)
 and [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md).
 
 ## Historical V5.1 implementation milestones

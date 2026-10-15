@@ -96,8 +96,10 @@ Local reports are retained under `target/v52-foundation-work/`; final counts and
 paths are recorded in its validation summary and PR body. Run the reactor, seven
 external consumers, new foundation, version alignment, inherited foundation and
 CI/cloud/release interface tests. Local Ubuntu OpenJDK 21 results do not replace
-pinned Temurin hosted results. Full protected PR then exact-master CI remain the
-Phase 1 exit before any Phase 2 kernel work.
+pinned Temurin hosted results. The operator's subsequent
+[local batching instruction](LOCAL_DEVELOPMENT_SEQUENCE.md) permits Phase 2 after
+local verification and defers protected PR/exact-master qualification until the
+combined pre-cloud handoff. Local completion is not hosted acceptance.
 
 Rollback the reviewed API/coordinate/consumer/suite/registry/Required/build-reader
 change together. Revalidate the previous inventory and old coordinates; preserve

@@ -16,6 +16,8 @@ final class AutomaticApplication<K,T> implements AutoCloseable {
     private long stagedIndex=-1;
     private byte[] reconstructed;
     private long reconstructedIndex=-1;
+    private Record readManifest;
+    private long generation;
 
     AutomaticApplication(SearchEngineConfiguration<K,T> captured,DurableStorageConfig<K,T> config,ReplicationBounds bounds) {
         current=new ReplicaApplication<>(captured,config,bounds);
@@ -28,11 +30,26 @@ final class AutomaticApplication<K,T> implements AutoCloseable {
         need(manifest.value().get("codecId").equals(config.codec().codecId())&&number(manifest.value(),"codecVersion")==config.codec().codecVersion()
                 &&manifest.value().get("schemaDigest").equals(schemaDigest)
                 &&manifest.value().get("indexesDigest").equals(current.indexDigest()),"automatic application identities");
+        readManifest=manifest;
     }
     ReplicaApplication<K,T> encoder() {return current;}
     <R> R readLocal(Function<SearchEngine<K,T>,R> action) {return current.read(action);}
     long index() {return current.appliedIndex();}
     long sequence() {return current.sequence();}
+    /** Called on the application worker under the runtime's protocol capture boundary. */
+    AutomaticReadCut readCut() {
+        need(readManifest!=null,"unverified application read identity");
+        return new AutomaticReadCut(new ReplicationGroupId(UUID.fromString(text(readManifest.value(),"groupId"))),
+                UUID.fromString(text(readManifest.value(),"historyId")),readManifest.digest(),index(),sequence(),generation);
+    }
+    /** Same worker turn as readCut; callbacks execute outside the protocol monitor. */
+    <R> R readCut(AutomaticReadCut cut,Function<ReplicaReadView<K,T>,R> action) {
+        need(cut.equals(readCut()),"application read cut changed before callback");
+        return current.read(engine->{
+            var view=new AutomaticReadView<>(engine,cut.sequence());
+            try {return action.apply(view);} finally {view.release();}
+        });
+    }
     byte[] checkpointImage(AutomaticStore.Replay replay) {
         var snapshot=replay.snapshot();
         try(var copy=current.rebuildApplication(unbase(snapshot.value().get("application")),AutomaticRecovery.index(snapshot),number(snapshot.value(),"applicationSequence"))) {
@@ -70,7 +87,10 @@ final class AutomaticApplication<K,T> implements AutoCloseable {
             // Control cuts preserve the live search snapshot/cursors.
             while(current.appliedIndex()<index) {current.prepare("NO_OP",new byte[0]);current.publish(current.appliedIndex()+1);}
             discard();
-        } else {current.replaceWith(staged);staged=null;stagedIndex=-1;}
+        } else {
+            capacity(generation<Long.MAX_VALUE,"application materialization generation exhausted");
+            current.replaceWith(staged);generation++;staged=null;stagedIndex=-1;
+        }
         need(current.appliedIndex()==index&&current.sequence()==sequence,"published application cut");
     }
     @Override public void close() {discard();current.close();}

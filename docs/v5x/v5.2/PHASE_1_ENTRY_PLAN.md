@@ -63,7 +63,9 @@ counterexample and amend that decision. Do not silently enable a weaker policy.
   incomplete explorations remain visible. Model evidence is not production proof.
 - Full source-bound compatibility/regression checks preserve published behavior;
   all new runtime paths remain disabled. The foundation gate has a protected exact
-  source result and retained artifacts before Phase 2 begins.
+  source result and retained artifacts before cloud admission. The operator's
+  [local batching instruction](LOCAL_DEVELOPMENT_SEQUENCE.md) defers intermediate
+  hosted acceptance while locally verified Phase 2 work proceeds.
 - Phase 2 implements the application capture/waiter kernel; Phase 3 enables the
   public policies. Phases 4/5 own the full fault/resource and combined-hardening
   matrix. Later measurement/release entries need their own frozen plans.
@@ -71,4 +73,5 @@ counterexample and amend that decision. Do not silently enable a weaker policy.
 Phase 1 does not authorize new replication records/messages, a different election
 algorithm, membership work, in-place migration, paid infrastructure, cloud execution
 or publication. No new IAM/environment provisioning is needed for this foundation.
-User-owned commit/push/PR operations and manual paid triggers remain unchanged.
+The later [local batching instruction](LOCAL_DEVELOPMENT_SEQUENCE.md) authorizes
+local commits; push/PR and paid triggers remain operator-owned.
