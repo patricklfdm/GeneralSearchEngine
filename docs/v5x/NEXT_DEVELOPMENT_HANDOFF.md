@@ -1,7 +1,7 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phases 1–3 are locally verified; Phase 4 fault/lifecycle/resource qualification is next.
+V5.2 Phases 1–3 are locally verified; [Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md) is in progress.
 Full protected acceptance remains pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through

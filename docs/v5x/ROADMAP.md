@@ -32,7 +32,7 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** V5.2 Phase 4 fault/lifecycle/resource qualification, following
+**Current batch:** [V5.2 Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md), following
 accepted Phase 0 PR #335 and locally verified foundation/capture/waiter stages at
 `5.2.0-SNAPSHOT`. [Public reads](v5.2/PHASE_3_PUBLIC_READS.md), follower publication and external
 three-process physical/query evidence are locally verified. The operator authorized [local sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
