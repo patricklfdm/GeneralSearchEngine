@@ -42,6 +42,7 @@ protected hosted acceptance remain pending.
 - [Phase 6E offered-load driver and process resource observations](v5x/v5.2/PHASE_6_MEASUREMENT_LOAD.md)
 - [Phase 6F large measurement packages and prepared read/write targets](v5x/v5.2/PHASE_6_MEASUREMENT_PACKAGING.md)
 - [Phase 6G chosen-update projection and streaming negative replay](v5x/v5.2/PHASE_6_MEASUREMENT_PROJECTION.md)
+- [Phase 6H complete consumer ledger and read ownership replay](v5x/v5.2/PHASE_6_MEASUREMENT_HISTORY.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership

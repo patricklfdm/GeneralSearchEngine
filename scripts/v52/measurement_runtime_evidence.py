@@ -10,7 +10,7 @@ from scripts.v51 import public_qualification_harness as q
 from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
 from . import public_reads_evidence as reads
 from . import measurement_load as load,measurement_samples as samples,measurement_bundle
-from . import measurement_projection,measurement_stream
+from . import measurement_projection,measurement_stream,measurement_history
 from .evidence import need,digest,encoded
 
 
@@ -165,6 +165,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                     need(identity in reservations and reservations.pop(identity)==row['bytes'],'measurement unmatched transport release')
         need(idle,'measurement missing final resource observation');need(not reservations,'measurement unreleased transport ownership')
     need(set(successes)==set(calls),'measurement incomplete success observations')
+    ledger=measurement_history.validate(traces,processes,history,binding['mode'])
     driver=None
     if binding.get('driverExercise',False):
         offered=reads.read(root/'offered.json')
@@ -182,7 +183,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                 need(call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},'measurement sampler response differs from observation')
         driver=dict(load=dispatched,resources=resources)
     return dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
-                oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver)
+                oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver,ledger=ledger)
 
 
 def negatives(root,expected,answers,*,package=bundle):
@@ -214,6 +215,11 @@ def negatives(root,expected,answers,*,package=bundle):
            ('leaked-permit',find('CLIENT_IDLE'),nested('queues','admissionAvailable',63),None,'measurement final ownership leak'),
            ('wrong-public-capability',find(invocation),edit(event=other),None,'measurement wrong public read capability'),
            ('missing-entered-view',find(entered),edit(event='REMOVED_CAPTURE'),None,'measurement view release identity')]
+    cases.extend([
+        ('missing-received-command',find('CLIENT_RECEIVED',lambda row:row.get('opId')==initial['opId']),edit(event='REMOVED_RECEIVED'),None,
+         'measurement duplicate/unreceived invocation'),
+        ('duplicate-controller-operation',None,None,lambda calls:calls.append(copy.deepcopy(next(c for c in calls if c['opId']==initial['opId']))),
+         'measurement duplicate/invalid operation identity')])
     if not mode.endswith('legacy-strong'):
         strong=find(capture,lambda row:row['policy']=='LEADER_STRONG')
         cases.extend([
@@ -221,6 +227,12 @@ def negatives(root,expected,answers,*,package=bundle):
             ('wrong-strong-epoch',strong,edit(barrierEpoch=999),None,'measurement strong barrier not fresh'),
             ('expired-capture',find(capture),field('captureNanos',lambda row:row['deadlineNanos']),None,'measurement capture deadline/generation'),
             ('wrong-release-cut',find('REPLICA_READ_RELEASED'),edit(sequence=999),None,'measurement changed released cut')])
+        cases.extend([
+            ('missing-read-admission',find('REPLICA_READ_ADMITTED'),edit(event='REMOVED_ADMISSION'),None,'measurement capture without queued ownership'),
+            ('wrong-settling-count',find('REPLICA_READ_SETTLING'),field('settling',lambda row:row['settling']+1),None,'measurement ownership accounting differs from transitions'),
+            ('release-before-completion-return',find('REPLICA_READ_OWNERSHIP_RELEASED'),edit(completionReturned=False),None,'measurement premature ownership release')])
+    if mode!='published-v51-legacy-strong':
+        cases.append(('missing-final-read-counter',find('CLIENT_IDLE'),remove('queues','readsOwned'),None,'measurement idle read counters missing'))
     if mode=='candidate-minimum':
         def minimum(calls):next(c for c in calls if c['kind']=='read' and not c.get('setupToken'))['minimum']='AA=='
         cases.append(('different-minimum',None,None,minimum,'measurement initial minimum changed'))

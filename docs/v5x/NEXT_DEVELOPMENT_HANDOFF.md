@@ -108,6 +108,12 @@ new selected-update replay passes actual V4.4/candidate queries. Ten retained
 original/relocated inputs preserve all 124 existing rejection results without
 materializing whole traces. Full measured-history admission remains open.
 
+The [Phase 6H consumer ledger](v5.2/PHASE_6_MEASUREMENT_HISTORY.md) binds every
+received/invoked/completed call and reconstructs explicit-read permit transitions.
+Transient rejection outcomes remain failures, distinct from successful query cuts;
+fatal or incomplete histories reject. The short smoke still requires all calls to
+succeed. Formal workload coverage, fault schedules and execution freeze remain open.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):
