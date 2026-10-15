@@ -37,6 +37,10 @@ implements all three policies and verified follower publication. The external
 three-process gate now passes with actual published V4.4 query replay, portable
 physical evidence and eleven rejection checks. Phase 4 completes the broader
 fault/lifecycle/resource schedules; the healthy gate does not close that matrix.
+Local 4B now passes six carried-token/partition/publication fault cases. Local 4C1
+passes eleven original-Future cancellation and cooperative-close process cases,
+including halt/SIGKILL and independent ownership accounting. Continue with
+promise/install process races and the remaining schedule/negative matrix.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

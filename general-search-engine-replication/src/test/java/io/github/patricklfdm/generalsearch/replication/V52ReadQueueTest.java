@@ -6,6 +6,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.Function;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 
 /** Deterministic ownership/scheduling kernel tests, not physical/public read evidence. */
@@ -27,7 +28,8 @@ class V52ReadQueueTest {
         final AutomaticReadQueue<Integer,String> queue;
         AutomaticReadCut cut=new AutomaticReadCut(new ReplicationGroupId(UUID.randomUUID()),UUID.randomUUID(),"ab".repeat(32),0,7,0);
         AutomaticReplicationException.Reason rejection;
-        Runnable captureHook=()->{}, registerHook=()->{};
+        Runnable captureHook=()->{}, registerHook=()->{}, dispatchHook=()->{};
+        Consumer<String> observationHook=event->{};
         boolean observing;
         final List<String> observations=new ArrayList<>();
         Fixture(int bound) {
@@ -37,12 +39,14 @@ class V52ReadQueueTest {
                     if(observing){assertFalse(Thread.holdsLock(lock));observations.add("INVOKED");return 1;}return 0;
                 }
                 public void observe(String event,Map<String,Object> values) {
-                    boolean serialized=event.endsWith("ADMITTED")||event.endsWith("VALIDATED");
+                    boolean serialized=event.endsWith("ADMITTED")||event.endsWith("VALIDATED")||event.endsWith("SETTLING")||event.endsWith("OWNERSHIP_RELEASED");
                     assertEquals(serialized,Thread.holdsLock(lock));observations.add(event);
                     assertEquals(1L,values.get("readId"));
                     if(values.containsKey("token"))assertEquals(cut.token(),ReplicaReadToken.decode(Base64.getDecoder().decode((String)values.get("token"))));
+                    observationHook.accept(event);
                 }
                 public void check(ReplicaReadOptions options,long epoch,boolean barrierReady) {if(rejection!=null)throw failure(rejection);}
+                public void beforeDispatch(){assertFalse(Thread.holdsLock(lock));dispatchHook.run();}
                 public long publishedIndex() {return cut.index();}
                 public AutomaticReadCut capture(ReplicaReadOptions options,long epoch,long index) {
                     assertTrue(Thread.holdsLock(lock));captureHook.run();
@@ -238,7 +242,26 @@ class V52ReadQueueTest {
         var request=f.queue.submit(STALE,v->{f.observations.add("CALLBACK");throw error;},100);
         f.drain();assertSame(error,cause(request.future()));
         assertEquals(List.of("INVOKED","REPLICA_READ_ADMITTED","REPLICA_READ_CAPTURE_VALIDATED",
-                "REPLICA_READ_CAPTURED","CALLBACK","REPLICA_READ_RELEASED"),f.observations);
+                "REPLICA_READ_CAPTURED","CALLBACK","REPLICA_READ_RELEASED","REPLICA_READ_SETTLING","REPLICA_READ_OWNERSHIP_RELEASED"),f.observations);
         assertEquals(0,f.queue.counts().owned());
+    }
+
+    @Test void beforeDispatchPauseCannotHoldTheMonitorOrBypassADeadline() {
+        var f=new Fixture(3);f.dispatchHook=()->f.expire(100);
+        var read=f.queue.submit(STALE,v->fail("expired during dispatch pause"),100).future();f.drain();
+        reason(DEADLINE_EXCEEDED,read);assertEquals(3,f.permits.availablePermits());assertEquals(0,f.queue.counts().marker());
+    }
+
+    @Test void repeatedObserverFailureCannotOrphanSettlementThroughSelfSuppression() {
+        var f=new Fixture(3);f.observing=true;var error=new IllegalArgumentException("observer failure");
+        f.observationHook=event->{if(event.equals("REPLICA_READ_SETTLING"))throw error;};
+        var read=f.queue.submit(STALE,v->{throw error;},100).future();f.drain();
+        assertSame(error,cause(read));assertEquals(3,f.permits.availablePermits());assertEquals(0,f.queue.counts().owned());
+    }
+
+    @Test void failingBeforeDispatchObserverCannotOrphanAdmission() {
+        var f=new Fixture(3);var error=new IllegalStateException("observer");f.dispatchHook=()->{throw error;};
+        var read=f.queue.submit(STALE,v->fail("failed observer callback"),100).future();f.drain();
+        assertSame(error,cause(read));assertEquals(3,f.permits.availablePermits());assertTrue(f.alarms.isEmpty());
     }
 }

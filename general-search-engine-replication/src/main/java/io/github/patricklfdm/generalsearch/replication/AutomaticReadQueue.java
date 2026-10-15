@@ -15,6 +15,7 @@ final class AutomaticReadQueue<K,T> {
         <R> R read(AutomaticReadCut cut, Function<ReplicaReadView<K,T>,R> action);
         default long invoked(ReplicaReadOptions options,long deadline) {return 0;}
         default void observe(String event,Map<String,Object> values) { }
+        default void beforeDispatch() { }
     }
     interface Alarm { void cancel(); }
     interface Timer { Alarm schedule(long deadlineNanos, Runnable task); }
@@ -176,10 +177,13 @@ final class AutomaticReadQueue<K,T> {
 
     private void turn() {
         Request<?> selected=null; AutomaticReadCut cut=null;
+        Throwable dispatchFailure=null;
+        try {access.beforeDispatch();}catch(Throwable error){dispatchFailure=infrastructureFailure(error);}
         synchronized(lock) {
             marker=false;
             for(var request:List.copyOf(owned))if(request.phase==Phase.QUEUED) {
                 try {
+                    if(dispatchFailure!=null)throw dispatchFailure;
                     check(request);
                     if(request.cancelled){settle(request,null,new CancellationException());continue;}
                     if(!ready(request))continue;
@@ -220,6 +224,8 @@ final class AutomaticReadQueue<K,T> {
         var value=new LinkedHashMap<String,Object>();
         value.put("readId",request.observation);value.put("policy",request.options.policy().name());
         value.put("deadlineNanos",request.deadline);value.put("barrierEpoch",request.epoch);value.put("barrierIndex",request.barrierIndex);
+        value.put("phase",request.phase.name());value.put("preparing",request.preparing);
+        value.put("cancelled",request.cancelled);value.put("completionReturned",request.completionReturned);value.put("cancelling",request.cancelling);
         if(cut!=null) {
             value.put("index",cut.index());value.put("sequence",cut.sequence());value.put("applicationGeneration",cut.generation());
             value.put("captureNanos",request.capturedNanos);
@@ -237,13 +243,19 @@ final class AutomaticReadQueue<K,T> {
     private <R> void settle(Request<R> request,ReplicaReadResult<R> value,Throwable error) {
         if(request.phase==Phase.SETTLING)return;
         request.phase=Phase.SETTLING; request.action=null; cancelAlarm(request); request.captureSettled.countDown();
+        Throwable observedFailure=error;
+        try {observe(request,"REPLICA_READ_SETTLING",null);}
+        catch(Throwable observation){if(observedFailure==null)observedFailure=observation;else if(observedFailure!=observation)observedFailure.addSuppressed(observation);}
+        Throwable finalFailure=observedFailure;
         completions.execute(()->{
-            try {if(error==null)request.result.complete(value);else request.result.completeExceptionally(error);}
+            try {if(finalFailure==null)request.result.complete(value);else request.result.completeExceptionally(finalFailure);}
             finally {synchronized(lock) {request.completionReturned=true;releaseIfComplete(request);}}
         });
     }
     private void releaseIfComplete(Request<?> request) {
-        if(request.completionReturned&&request.cancelling==0&&!request.preparing&&owned.remove(request))admission.release();
+        if(request.completionReturned&&request.cancelling==0&&!request.preparing&&owned.remove(request)) {
+            admission.release();observe(request,"REPLICA_READ_OWNERSHIP_RELEASED",null);
+        }
     }
     void close() {synchronized(lock) {closed=true;changedLocked();}}
     Counts counts() {

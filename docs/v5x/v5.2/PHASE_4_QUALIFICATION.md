@@ -1,8 +1,9 @@
 # V5.2 Phase 4 qualification
 
-**Status:** in progress. Phase 4A adds deterministic and in-JVM public lifecycle
-coverage; it is not complete acceptance of S01–S30. Hosted exact-source validation
-and separate-process fault schedules remain pending. Follow the
+**Status:** in progress. Phase 4A supplies deterministic and in-JVM public lifecycle
+coverage; 4B adds six physical process faults, and 4C1 adds eleven cancellation/close
+process schedules. These do not complete S01–S30. Hosted exact-source validation,
+promise/install process variants and the remaining matrix are pending. Follow the
 [local commit sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 ## 4A: lifecycle and resource boundaries
@@ -68,8 +69,9 @@ production logic, workload timing, admission limit or CI check was changed for 4
 
 ## Next batches
 
-4B implements the public process fault driver described below. Later 4C completes promise/install/cancel/close process
-races and exact resource evidence; 4D closes the full schedule and negative matrix.
+4B implements the public process fault driver described below. 4C1 completes the
+cancellation/close process schedules below; 4C2 covers promise/install races. 4D
+closes the remaining resource, schedule and negative matrix.
 Each batch is locally verified and committed without a push. Phase 5 combined
 hardening and Phase 6 frozen local/no-GCP measurements follow only after the matrix
 is complete. Paid execution remains outside this authorization.
@@ -163,3 +165,73 @@ list are retained in `target/v52-fault-qualification/validation-summary.json`.
 The original failure receipts are not overwritten or reclassified. These cases
 cover the declared 4B subset; S18/S20/S25/S26 still need their full separate-process
 variants, and the complete N01–N16 physical matrix remains later work.
+
+
+## 4C1: cancellation, cooperative close and actual ownership release
+
+`verify-v52-phase4-public-lifecycle.sh` creates eleven fresh three-voter histories:
+waiting, queued, before-capture, captured and completion-handler cancellation;
+waiting and captured close; then both halt and SIGKILL after a cancelled callback
+or incompletely closed callback releases its view. Each crash preserves exact
+pre-reopen files and starts a second process generation on the retained directory.
+The previously returned token is used through the public minimum policy after
+independently verified restoration. No controller reconstructs product authority.
+
+The external consumer retains the **original public Future**. Cancelling a dependent
+handler would not cancel its source and cannot qualify this schedule. The ordinary
+callback waits until its completion observer is attached, so an extremely fast
+completion cannot turn this test into a late, independently executed handler.
+Cancellation after capture retains the callback's permit. Cancellation during an
+already-completed Future's paused handler returns false, while ownership remains
+until that handler returns. Waiting reads fail CLOSED; a paused callback keeps its
+view after an incomplete close and a subsequent close completes after release.
+A process death leaves a missing response PENDING instead of inventing completion.
+
+### Observation and independent accounting
+
+A before-dispatch pause runs outside the protocol monitor and rechecks the full
+capture conditions afterward. An observer failure cannot orphan queued work.
+SETTLING and OWNERSHIP_RELEASED observations run only at their serialized state
+transitions; they are never pausable. The latter follows actual permit return and
+requires completion handlers, cancellation handlers and any strong barrier to
+have settled. Recording the same exception twice cannot abort settlement through
+self-suppression. The new observation fields do not change authority files or API.
+
+The external observer samples the real semaphore and queue counters without
+changing state. Its V5.2 reflection branch remains compilable against the published
+V5.1 JAR. The independent replay reconstructs admissions, captures, settlements and
+releases, checks exact conservation and integer types, verifies the single active
+view, bounded marker/timers and final zero ownership, and retains outstanding
+ownership explicitly for an abruptly terminated process. A cancelled/completed
+Future alone never counts as a release.
+
+Each case includes all three policies and the seven-query published V4.4 oracle.
+The original source/build/run/attempt, physical authority, query and process checks
+remain mandatory. Eleven common negatives plus missing/duplicate/early release and
+forged counter negatives reject, both before and after archive relocation. The
+new required verification step retains evidence for fourteen days in the existing
+foundation lane; no existing job, profile, check or artifact is removed.
+
+### Local verification and boundary
+
+The complete eleven-case execution passes at
+`target/v52-public-lifecycle/development-2`, with fifteen negative checks per case
+before and after relocation, including a fresh V4.4 query replay after relocation.
+Its runtime/consumer binding records base commit `c133e2c` and actual checkout digest
+`0faa9076ae2121b1fae2bc4d6307c424b19fd0924d1d82e2ca24b487fe86835a`.
+The stricter counter-type checker replays that unchanged evidence separately; it
+does not rerun workloads or overwrite the original receipts. The earlier targeted
+captured-cancellation run is also retained at `development-1`.
+
+The initial affected Java run passes forty tests. The subsequent queue-only run
+passes all eighteen tests including the added identical-observer-exception regression.
+Its first compilation exposed a missing test import; that failed log is retained.
+All 28 V5.2 Python tests and 70 affected CI/evidence tests pass; the unchanged healthy
+entry point passes six reads, eleven negatives and portable replay at
+`target/v52-public-reads/run.zLEvyv/evidence`. Logs are retained at
+`target/v52-read-lifecycle-process/`. The published V5.1 observer compilation,
+Python/CI contract checks and final receipt/hash summary are retained there too.
+CI wiring, additional checker-type tests and result documentation are added after
+the bound process run; protected acceptance of the committed source is pending.
+S18/S20 process variants, the remaining S01–S30/N01–N16 matrix, combined Phase 5
+hardening and frozen Phase 6 measurements are still required before cloud entry.

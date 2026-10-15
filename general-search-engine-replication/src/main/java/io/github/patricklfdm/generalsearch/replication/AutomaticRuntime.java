@@ -159,6 +159,9 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 public void observe(String event,Map<String,Object> values) {
                     try {events.at(event,values);}catch(java.io.IOException error){throw new java.io.UncheckedIOException(error);}
                 }
+                public void beforeDispatch() {
+                    if(events!=Events.NONE)observe("REPLICA_READ_BEFORE_DISPATCH",Map.of());
+                }
             },admission,bounds.maxPendingClientOperations(),System::nanoTime,(deadline,task)->{
                 var alarm=deadlines.schedule(task,Math.max(0,deadline-System.nanoTime()),TimeUnit.NANOSECONDS);
                 return ()->alarm.cancel(false);

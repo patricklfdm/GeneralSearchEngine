@@ -36,6 +36,21 @@ public final class V51PublicWorker {
                     result.put(name+"Active",((java.util.concurrent.ThreadPoolExecutor)field(executor,"worker")).getActiveCount());
                 }
             }
+            // Optional read-only V5.2 counters. Keep this observer compilable against
+            // the published V5.1 artifact, which has no explicit read queue.
+            try {
+                synchronized(field(runtime,"protocol")) {
+                    Object reads=field(runtime,"explicitReads");
+                    if(reads!=null) {
+                        var count=reads.getClass().getDeclaredMethod("counts");count.setAccessible(true);Object snapshot=count.invoke(reads);
+                        for(String name:List.of("owned","waiting","captured","settling","alarms","marker","highWater")) {
+                            var accessor=snapshot.getClass().getDeclaredMethod(name);accessor.setAccessible(true);
+                            result.put("reads"+Character.toUpperCase(name.charAt(0))+name.substring(1),accessor.invoke(snapshot));
+                        }
+                        result.put("admissionAvailable",((java.util.concurrent.Semaphore)field(engine,"admission")).availablePermits());
+                    }
+                }
+            }catch(NoSuchFieldException publishedV51){/* No V5.2 counters in the old artifact. */}
             return result;
         }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
     }
@@ -293,7 +308,8 @@ public final class V51PublicWorker {
                 }
             }
         },(name,values)->{
-            if(name.equals("READ_CAPTURE_VALIDATED")||name.equals("REPLICA_READ_ADMITTED")||name.equals("REPLICA_READ_CAPTURE_VALIDATED"))
+            if(Set.of("READ_CAPTURE_VALIDATED","REPLICA_READ_ADMITTED","REPLICA_READ_CAPTURE_VALIDATED",
+                    "REPLICA_READ_SETTLING","REPLICA_READ_OWNERSHIP_RELEASED").contains(name))
                 trace.write(name,values); // Observation only; never pause under the protocol monitor.
             else trace.event(name,values);
         }));

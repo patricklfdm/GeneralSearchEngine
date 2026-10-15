@@ -40,6 +40,7 @@ public final class V52PublicReadConsumer {
             row.put("reason",failure.toString());
             if(failure instanceof AutomaticReplicationException auto){row.put("reasonCode",auto.reason().name());row.put("outcome",auto.outcome().name());}
             else if(failure instanceof ReplicaReadException read){row.put("reasonCode",read.reason().name());row.put("outcome","REJECTED");}
+            else if(failure instanceof CancellationException){row.put("reasonCode","CancellationException");row.put("outcome","CANCELLED");}
             else {row.put("reasonCode",failure.getClass().getSimpleName());row.put("outcome","VALIDATION_FAILURE");}
         }
         event(failure==null?"CLIENT_SUCCESS":"CLIENT_FAILURE",row);print(row);
@@ -58,6 +59,9 @@ public final class V52PublicReadConsumer {
             print(Map.of("status","SETUP"));return;
         }
         int ordinal=Integer.parseInt(args[1]);var pending=new ArrayList<CompletableFuture<?>>();
+        // Bounded by the fixture's command limit. Retain the original public future,
+        // because cancelling a dependent handle stage does not cancel its source.
+        var reads=new ConcurrentHashMap<String,CompletableFuture<?>>();
         try(var engine=AutomaticReplicatedSearchEngines.builder(builder(),configs(root).get(ordinal-1)).build()) {
             engine.start().get(20,TimeUnit.SECONDS);event("STARTED",Map.of());print(Map.of("status","STARTED","pid",ProcessHandle.current().pid()));
             try(var input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))) {
@@ -73,20 +77,39 @@ public final class V52PublicReadConsumer {
                     }
                     event("CLIENT_INVOKE",command);
                     try {
-                        if(kind.equals("addAll")) {
+                        if(kind.equals("probe")) {
+                            respond(command,Map.of("queues",PublicRuntimeConsumer.diagnostics.apply(engine)),null);
+                        } else if(kind.equals("cancel")) {
+                            var target=reads.get((String)command.get("target"));
+                            if(target==null)throw new IllegalArgumentException("unknown original read future");
+                            pending.add(CompletableFuture.runAsync(()->respond(command,Map.of("cancelled",target.cancel(false)),null)));
+                        } else if(kind.equals("begin-close")) {
+                            pending.add(CompletableFuture.runAsync(engine::close).handle((v,e)->{respond(command,Map.of(),e);return null;}));
+                        } else if(kind.equals("addAll")) {
                             var docs=((List<Map<String,Object>>)command.get("documents")).stream().map(d->new Doc(((Number)d.get("id")).intValue(),(String)d.get("value"))).toList();
                             pending.add(engine.addAll(docs).handle((v,e)->{respond(command,Map.of("documents",docs.stream().map(V52ReadQueries::doc).toList()),e);return null;}));
                         } else if(kind.equals("read")) {
                             var policy=ReplicaReadPolicy.valueOf((String)command.get("policy"));String minimum=(String)command.getOrDefault("minimum","");
                             var options=new ReplicaReadOptions(policy,minimum.isEmpty()?Optional.empty():Optional.of(ReplicaReadToken.decode(Base64.getDecoder().decode(minimum))),
                                     ((Number)command.getOrDefault("waitTimeoutMillis",0L)).intValue());
-                            pending.add(engine.read(options,v->{event("REPLICA_READ_CALLBACK",Map.of("opId",command.get("opId")));return report(view(v));})
-                                    .handle((result,error)->{
+                            // Register the fixture's completion observer before letting
+                            // a very fast callback return. Otherwise a late dependent
+                            // stage is legitimately outside the runtime's ownership.
+                            var attached=new CountDownLatch(1);
+                            var future=engine.read(options,v->{
+                                try {if(!attached.await(5,TimeUnit.SECONDS))throw new IllegalStateException("completion observer not attached");}
+                                catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException(error);}
+                                event("REPLICA_READ_CALLBACK",Map.of("opId",command.get("opId")));return report(view(v));});
+                            reads.put((String)command.get("opId"),future);
+                            pending.add(future.handle((result,error)->{
+                                        event("REPLICA_READ_COMPLETION_ENTER",Map.of("opId",command.get("opId")));
                                         var row=new LinkedHashMap<String,Object>();
                                         if(result!=null){row.put("report",result.value());row.put("documents",result.value().get("documents"));row.put("policy",result.policy().name());
                                             row.put("token",Base64.getEncoder().encodeToString(result.progress().encode()));row.put("sequence",result.applicationSequence());}
-                                        respond(command,row,error);return null;
+                                        respond(command,row,error);
+                                        event("REPLICA_READ_COMPLETION_RETURN",Map.of("opId",command.get("opId")));return null;
                                     }));
+                            attached.countDown();
                         } else throw new IllegalArgumentException("unknown public fixture command");
                     }catch(Throwable error){respond(command,Map.of(),error);}
                 }

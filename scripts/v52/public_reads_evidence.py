@@ -126,9 +126,11 @@ def validate(root, expected, queries, *, traces=None, history=None):
     base=physical.validate(root,traces,evidence_location=location,require_restart=False)
     manifest,genesis,entries=context(root,traces);processes=read(root/'processes.json');selections=selected_prefixes(traces,manifest)
     scenario=binding.get('scenario')
-    need(scenario is None or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    from .public_read_lifecycle_evidence import CASES as lifecycle_cases
+    lifecycle=scenario in lifecycle_cases
+    need(scenario is None or lifecycle or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
-    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill')
+    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or lifecycle and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
          {p['node'] for p in processes}=={'node-1','node-2','node-3'},'public process set')
     if not crash:need(all(p['exitCode']==0 and p['generation']==1 for p in processes),'three stopped public JVMs')
@@ -251,7 +253,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
             elif event=='CLIENT_FAILURE' and row['kind']=='read':
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded failed public read')
                 ids=[key for key,value in sources.items() if value==identity]
-                need(len(ids)<=1 and all(i not in validated for i in ids) and identity not in callbacks,'failed pre-capture call has a view')
+                cancelled=lifecycle and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
+                need(len(ids)<=1 and (cancelled or all(i not in validated for i in ids) and identity not in callbacks),'failed pre-capture call has a view')
                 request=invoked[ids[0]] if ids else None;attempt=attempts[identity]
                 need(attempt['response']=={k:v for k,v in row.items() if k not in
                          ('event','order','pid','generation','localNanos','node','groupId','manifestDigest')},'controller/worker rejection differs')
@@ -260,6 +263,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='PROGRESS_NOT_REACHED':
                     need(request is not None and request['waitTimeoutMillis']==0 and latest is not None and
                          token.decode(physical.raw(request['minimum']))['index']>latest,'zero-wait rejection at satisfied prefix')
+                elif cancelled:need(request is not None,'cancelled read lacks runtime invocation')
+                elif row.get('reasonCode')=='CLOSED':need(lifecycle,'undeclared close rejection')
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof','undeclared non-readable state')
                 else:raise ValueError('undeclared pre-capture rejection')
             elif event=='CLIENT_SUCCESS' and row['kind']=='addAll':
@@ -276,6 +281,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
          'missing confirmed-write-before-token ordering')
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif lifecycle:
+        from .public_read_lifecycle_evidence import schedule
+        schedule(root,scenario,traces,history,processes)
     else:
         from .public_read_fault_evidence import schedule
         schedule(root,scenario,traces,history,processes)
