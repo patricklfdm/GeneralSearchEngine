@@ -1,5 +1,6 @@
 """The crossing promise must lie strictly within the observed hold interval."""
 import unittest
+import copy
 from unittest.mock import patch
 from . import public_read_protocol_evidence as p
 
@@ -27,6 +28,78 @@ class ProtocolReadEvidenceTest(unittest.TestCase):
 
     def test_unknown_schedule_never_qualifies(self):
         with self.assertRaisesRegex(ValueError,'unknown public read protocol schedule'):p.schedule(None,'anything',{},[],[])
+
+
+class EarlyPromiseFencingTest(unittest.TestCase):
+    def setUp(self):
+        self.ballot=dict(epoch=6,proposer='node-2',incarnation='new')
+        self.request=dict(type='HEARTBEAT',sender='node-1',recipient='node-3',epoch=2,proposer='node-1',
+                          incarnationId='old',groupId='g',configurationId='c',manifestDigest='m',traceId='trace',eventSequence=39)
+        self.response=dict(self.request,type='REJECT',sender='node-3',recipient='node-1',
+                           payload=dict(reason='STALE_EPOCH',promised=self.ballot))
+        self.wires={'request':self.request,'response':self.response}
+        self.records={'local':dict(self.ballot),'peer':dict(self.ballot)}
+        # Receiver settlement is order 30, local persistence follows at 40.
+        # Responder order 200 is local to that process and is not compared to 30.
+        self.rows=[dict(event='RECEIVED',order=20,frame='response',request='request',pid=1),
+                   dict(event='FORCE',kind='PROMISE',order=40,record='local',pid=1)]
+        self.peer=[dict(event='FORCE',kind='PROMISE',order=100,record='peer',pid=3),
+                   dict(event='REPLY',order=200,frame='response',request='request',pid=3)]
+
+    def check(self):
+        with patch.object(p.e.physical,'raw',side_effect=lambda v:v), \
+             patch.object(p.e.physical.f,'inspect',side_effect=lambda v,k:self.records[v]), \
+             patch.object(p.e.physical,'frame',side_effect=lambda v,k,m:self.records[v]), \
+             patch.object(p.e.physical.f,'wire',side_effect=lambda v,m:self.wires[v]):
+            return p.fencing_before_settlement(self.rows,{'node-1':self.rows,'node-3':self.peer},'node-1',2,10,30,50,{})
+
+    def test_peer_forced_rejection_can_precede_local_persistence(self):
+        self.assertEqual('peer-promise',self.check())
+
+    def test_local_persistence_before_settlement_remains_valid(self):
+        self.rows=self.rows[1:];self.rows[0]['order']=25
+        self.assertEqual('local-promise',self.check())
+
+    def test_local_force_must_still_cross_the_hold_interval(self):
+        for order in (9,10,50,51):
+            self.rows[1]['order']=order
+            with self.subTest(order=order),self.assertRaisesRegex(ValueError,'crossing higher promise'):self.check()
+
+    def test_late_rejection_cannot_explain_earlier_settlement(self):
+        for order in (9,10,30,31):
+            self.rows[0]['order']=order
+            with self.subTest(order=order),self.assertRaisesRegex(ValueError,'before read settlement'):self.check()
+
+    def test_wire_claim_requires_matching_peer_reply_and_force(self):
+        original=copy.deepcopy(self.peer)
+        for peer,reason in ((original[:1],'unobserved'),(original[1:],'earlier durable'),
+                            ([dict(original[0],order=201),original[1]],'earlier durable'),
+                            ([dict(original[0],pid=99),original[1]],'earlier durable')):
+            self.peer=peer
+            with self.subTest(peer=peer),self.assertRaisesRegex(ValueError,reason):self.check()
+
+    def test_wrong_ballot_cannot_explain_the_rejection(self):
+        original=copy.deepcopy(self.records)
+        for key,value in (('epoch',7),('proposer','node-3'),('incarnation','other')):
+            self.records=copy.deepcopy(original);self.records['peer'][key]=value
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'earlier durable'):self.check()
+
+    def test_local_force_can_already_be_from_a_newer_campaign(self):
+        self.records['local']=dict(epoch=9,proposer='node-3',incarnation='later')
+        self.assertEqual('peer-promise',self.check())
+
+    def test_uncorrelated_reply_never_qualifies(self):
+        original=copy.deepcopy(self.response)
+        for key in ('groupId','configurationId','manifestDigest','traceId','eventSequence','epoch','incarnationId','proposer','sender','recipient'):
+            self.wires['response']=dict(original,**{key:'changed'})
+            with self.subTest(key=key),self.assertRaisesRegex(ValueError,'uncorrelated'):self.check()
+
+    def test_same_epoch_or_wrong_rejection_kind_is_not_a_fence(self):
+        original=copy.deepcopy(self.response)
+        for changed in (dict(original,type='AUTHORITY_STATUS'),dict(original,payload=dict(original['payload'],reason='CAPACITY_EXCEEDED')),
+                        dict(original,payload=dict(original['payload'],promised=dict(self.ballot,epoch=2)))):
+            self.wires['response']=changed
+            with self.subTest(changed=changed),self.assertRaisesRegex(ValueError,'before read settlement'):self.check()
 
 
 if __name__=='__main__':unittest.main()

@@ -241,6 +241,23 @@ A lost response stays PENDING. The independent checker requires a forced higher
 promise within the exact local pause interval, in addition to the existing full
 wire, selection, proof, publication and query oracle.
 
+The old leader may reject the uncaptured read before persisting its own higher
+promise: receiving a peer's higher-promise rejection already fences the runtime.
+For this ordering the checker requires a correlated `STALE_EPOCH` rejection
+received after the pause and before read settlement, the exact responder's matching
+reply, and that responder's earlier durable force of the advertised ballot in the
+same process. Cross-process counters and clocks are never compared. A local higher
+promise must still be forced before the pause releases; a later campaign may have
+advanced it further. A wire claim alone, a late rejection, or an unforced peer
+promise cannot qualify. The read must remain uncaptured and invoke no callback.
+
+The operator-run matrix at `target/v52-public-read-protocol/run.QBpkzD/evidence`
+exposed the former check's incorrect local-force-before-settlement assumption.
+The original failed receipt remains intact. Corrected offline validation and
+portable replay pass all seven unchanged histories and their twelve negatives
+each; results are retained at `target/v52-read-fencing-review/`. This is validation
+of retained evidence, not a new workload execution or a completed Phase 6 cohort.
+
 The install schedule starts from the full three-voter baseline and isolates the
 follower outside the actual selected pair. After a new majority write and retained
 recovery floor, healing performs a real snapshot install. The observer pauses

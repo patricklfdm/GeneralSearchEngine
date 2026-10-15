@@ -14,6 +14,37 @@ def crossing(rows,epoch,start,end):
     need(promises,'missing crossing higher promise');return promises
 
 
+def fencing_before_settlement(rows,traces,node,epoch,start,end,release,manifest):
+    """A peer's correlated durable promise can fence before our own force.
+
+    Keep local promise persistence inside the held-dispatch interval mandatory.
+    A response is causal evidence only with matching peer REPLY and an earlier
+    force of that exact ballot in the responder's own process. Never compare
+    order counters or clocks across processes.
+    """
+    def ballot(value):return tuple(value[k] for k in ('epoch','proposer','incarnation'))
+    promises=crossing(rows,epoch,start,release)
+    if any(r['order']<end for r in promises):return 'local-promise'
+    for row in rows:
+        if row['event']!='RECEIVED' or not start<row['order']<end:continue
+        response=e.physical.f.wire(e.physical.raw(row['frame']),manifest)
+        if response['type']!='REJECT' or response['payload'].get('reason')!='STALE_EPOCH':continue
+        request=e.physical.f.wire(e.physical.raw(row['request']),manifest)
+        need(all(request[k]==response[k] for k in ('groupId','configurationId','manifestDigest','traceId','eventSequence','epoch','incarnationId','proposer')) and
+             request['sender']==response['recipient']==node and request['recipient']==response['sender']!=node,
+             'uncorrelated read fencing rejection')
+        promised=response['payload']['promised']
+        if request['epoch']!=epoch or promised['epoch']<=epoch:continue
+        peer=traces.get(response['sender'],[])
+        replies=[r for r in peer if r['event']=='REPLY' and r['request']==row['request'] and r['frame']==row['frame']]
+        need(replies,'unobserved read fencing responder')
+        need(any(force['event']=='FORCE' and force['kind']=='PROMISE' and force['pid']==reply['pid'] and
+                 force['order']<reply['order'] and ballot(e.physical.frame(force['record'],'PROMISE',manifest))==ballot(promised)
+                 for reply in replies for force in peer),'read fencing reply lacks earlier durable peer promise')
+        return 'peer-promise'
+    raise ValueError('missing higher promise before read settlement')
+
+
 def schedule(root,name,traces,history,processes,*,details=None):
     need(name in CASES,'unknown public read protocol schedule')
     details=e.read(root/'read-protocol.json') if details is None else details
@@ -46,10 +77,12 @@ def schedule(root,name,traces,history,processes,*,details=None):
             need(target.get('reasonCode')=='STALE_EPOCH' and target['outcome']=='NOT_APPLICABLE' and len(failures)==1,
                  'uncaptured strong read was not fenced')
             need(not captures and not events('REPLICA_READ_CALLBACK',target),'fenced request obtained a view')
-            crossing(own,details['oldEpoch'],pause['order'],failures[0]['order'])
             settlements=[r for r in own if r['event']=='REPLICA_READ_SETTLING' and r['readId']==runtime['readId']]
             need(len(settlements)==1 and settlements[0]['barrierEpoch']==details['oldEpoch'] and settlements[0]['barrierIndex']>0,
                  'before-capture fence lacks completed fresh barrier')
+            need(pause['order']<settlements[0]['order']<failures[0]['order'],'fenced read settlement ordering')
+            fencing_before_settlement(own,traces,node,details['oldEpoch'],pause['order'],settlements[0]['order'],
+                                      release[0]['order'],e.context(root,traces)[0])
         else:
             need(len(captures)==1 and captures[0]['barrierEpoch']==details['oldEpoch'] and captures[0]['order']<pause['order'],
                  'crossing promise lacks earlier valid capture')
