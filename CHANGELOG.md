@@ -7,7 +7,10 @@ Semantic Versioning once the first stable artifact is published.
 
 - Add explicit replica-read API declarations, fixed 112-byte history-bound tokens
   and an additive default method that rejects unsupported reads without invoking
-  callbacks. Runtime policy implementation is not yet enabled.
+  callbacks on implementations retaining that default.
+- Enable explicit strong, stale-allowed and history-bound minimum reads on the
+  automatic handle, with callback-scoped views, bounded progress waiting and
+  verified follower application publication. Qualification is in progress.
 - Add independent bounded read-model/token/evidence checks, a seventh external
   consumer and a required no-GCP foundation suite. Published V5.1 formats and
   historical release identities remain unchanged.

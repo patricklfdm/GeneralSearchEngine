@@ -23,7 +23,9 @@ final class AutomaticProtocol implements AutoCloseable {
     sealed interface Action permits Send, Reconstruct, Publish, Completed { }
     record Send(Message message) implements Action { }
     record Reconstruct(long id, AutomaticStore.Replay replay) implements Action { }
-    record Publish(long id, Record ballot, Record snapshot) implements Action { }
+    record Publish(long id, Record ballot, Record snapshot, boolean local) implements Action {
+        Publish(long id,Record ballot,Record snapshot) {this(id,ballot,snapshot,false);}
+    }
     record Completed(long request, long index, AutomaticReplicationException.Reason reason,
                      AutomaticReplicationException.Outcome outcome) implements Action { }
     record View(AutomaticReplicationState state, long promisedEpoch, long observedEpoch,
@@ -53,6 +55,8 @@ final class AutomaticProtocol implements AutoCloseable {
     private final ArrayDeque<Action> actions=new ArrayDeque<>();
     private final Map<Long,Pending> exchanges=new LinkedHashMap<>();
     private AutomaticReplicationState state=STOPPED;
+    private boolean replicaReads;
+    private int localRecoveryThrough;
     private Record fence, campaign, durablePromise;
     private AutomaticRecovery.Basis ownBasis;
     private AutomaticRecovery.Selection selection;
@@ -105,6 +109,7 @@ final class AutomaticProtocol implements AutoCloseable {
     }
     synchronized List<Action> drain() {var result=List.copyOf(actions);actions.clear();return result;}
     synchronized Record promise() {return durablePromise;}
+    synchronized void enableReplicaReads() {replicaReads=true;}
     synchronized void restored(byte[] application) {
         need(state==STOPPED,"initial restoration precedes start");
         var snapshot=store.provenSnapshot(application);image=application.clone();
@@ -125,7 +130,9 @@ final class AutomaticProtocol implements AutoCloseable {
     synchronized void rejoin(Record ballot,Record snapshot) {
         need(maintenanceCurrent(ballot)&&campaign==null&&preparing==null&&reconstruction==null&&publication==null,"rejoin requires quiescent current follower");
         store.installProven(snapshot);imageIndex=-1;proven();
-        // Installation is durable recovery, never a vote or public follower publication.
+        // Installation is durable recovery, never a vote or application publication.
+        // Explicit reads stay unavailable until the verified installed cut is materialized.
+        if(replicaReads)localRecoveryThrough=Math.max(localRecoveryThrough,AutomaticRecovery.index(snapshot));
         armElection();
     }
     synchronized AutomaticRecovery.Basis frozen(Record ballot) {
@@ -134,7 +141,8 @@ final class AutomaticProtocol implements AutoCloseable {
         return store.prepare(ballot.bytes(),text(ballot.value(),"proposer"),new byte[0]);
     }
     synchronized View view() {
-        return new View(state,epoch(durablePromise),maxEpoch,state==FAILED||state==AutomaticReplicationState.CLOSED?lastProven:proven(),publishedIndex,exchanges.size(),
+        var visible=replicaReads&&publishedIndex<localRecoveryThrough&&(state==FOLLOWER||state==UNAVAILABLE)?RECOVERING:state;
+        return new View(visible,epoch(durablePromise),maxEpoch,state==FAILED||state==AutomaticReplicationState.CLOSED?lastProven:proven(),publishedIndex,exchanges.size(),
                 reconstruction!=null||publication!=null);
     }
     synchronized void start(long time) {
@@ -178,6 +186,18 @@ final class AutomaticProtocol implements AutoCloseable {
             heartbeatAt=after(policy.heartbeatIntervalMillis());
         }
         if(campaign==null&&preparing==null&&publication==null&&now>=electionAt) beginCampaign();
+        if(replicaReads&&(state==FOLLOWER||state==UNAVAILABLE)&&campaign==null&&preparing==null&&operation==null
+                &&publication==null&&reconstruction==null&&publishedIndex<proven()) {
+            Record expected=fence;
+            // A previous prepare or fenced publication can leave a cached image without
+            // a live staged engine. Reconstruct the verified prefix in the existing single
+            // application pipeline; no per-read rebuild, extra engine or authority write.
+            imageIndex=-1;
+            withImage(()->{
+                if(campaign!=null||preparing!=null||!same(fence,expected)||state!=FOLLOWER&&state!=UNAVAILABLE)return;
+                publication=new Publish(nextId(),expected,store.provenSnapshot(image),true);emit(publication);
+            });
+        }
     }
     private void beginCampaign() {
         try {
@@ -397,6 +417,11 @@ final class AutomaticProtocol implements AutoCloseable {
         var completed=publication;publication=null;
         if(state==AutomaticReplicationState.CLOSED||state==FAILED)return;
         if(error!=null) {fail(STORAGE_FAILURE);return;}
+        if(completed.local()) {
+            int index=AutomaticRecovery.index(completed.snapshot());
+            need(index>=publishedIndex&&index<=proven(),"local publication outside verified prefix");
+            publishedIndex=index;return; // no leadership activation, vote, or client write acknowledgement
+        }
         if(operation==null||!same(campaign,completed.ballot())||!same(fence,campaign)||!same(store.promised(),campaign))return;
         if(now>=operation.deadline||operation.campaign&&now>=campaignDeadline) {abandon(DEADLINE_EXCEEDED);return;}
         var committed=operation;operation=null;publishedIndex=AutomaticRecovery.index(completed.snapshot());

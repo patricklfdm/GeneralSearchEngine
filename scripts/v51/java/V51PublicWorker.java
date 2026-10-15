@@ -23,7 +23,18 @@ public final class V51PublicWorker {
                 var queue=(java.util.concurrent.BlockingQueue<?>)field(runtime,name);result.put(name+"Queue",queue.size());result.put(name+"Remaining",queue.remainingCapacity());
             }
             for(String name:List.of("network","app","clients")) {
-                var pool=(java.util.concurrent.ThreadPoolExecutor)field(runtime,name);result.put(name+"Queue",pool.getQueue().size());result.put(name+"Active",pool.getActiveCount());
+                Object executor=field(runtime,name);
+                if(executor instanceof java.util.concurrent.ThreadPoolExecutor pool) {
+                    result.put(name+"Queue",pool.getQueue().size());result.put(name+"Active",pool.getActiveCount());
+                } else {
+                    // V5.2 keeps the application worker but separates one explicit-read marker.
+                    // Reflection preserves compilation/replay against the published V5.1 JAR.
+                    if(!name.equals("app"))throw new IllegalStateException("unknown executor shape");
+                    synchronized(field(executor,"lock")) {
+                        result.put(name+"Queue",((Collection<?>)field(executor,"ordinary")).size()+(field(executor,"read")==null?0:1));
+                    }
+                    result.put(name+"Active",((java.util.concurrent.ThreadPoolExecutor)field(executor,"worker")).getActiveCount());
+                }
             }
             return result;
         }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}

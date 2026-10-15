@@ -14,7 +14,7 @@ Release `38488481320` published that source. All twelve remote artifact hashes,
 signatures/checksums and clean V1–V5.1 consumers pass independent verification.
 Phase 8 is complete; stable is **5.1.0**.
 
-- **Status:** V5.0 and V5.1 published; V5.2 Phase 1 foundation awaiting protected acceptance; runtime and V5.3–V5.4 planned
+- **Status:** V5.0 and V5.1 published; V5.2 public reads under local qualification, protected acceptance pending; V5.3–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **V5.2 replication reference:** published `5.1.0`
@@ -32,11 +32,11 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** [V5.2 Phase 1 foundation](v5.2/PHASE_1_FOUNDATION.md), following
-accepted Phase 0 PR #335. Six public types/default rejection and independent
-foundation checks are implemented locally at `5.2.0-SNAPSHOT`. Explicit runtime
-reads stay disabled. The operator authorized [local sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
-through pre-cloud implementation, beginning with Phase 2's capture/waiter kernel.
+**Current batch:** [V5.2 Phase 3 public reads](v5.2/PHASE_3_PUBLIC_READS.md), following
+accepted Phase 0 PR #335 and locally verified foundation/capture/waiter stages at
+`5.2.0-SNAPSHOT`. Public enablement and verified follower publication are under
+qualification. The operator authorized [local sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
+through pre-cloud implementation.
 Protected PR/master CI remains required before cloud entry. See the [handoff](NEXT_DEVELOPMENT_HANDOFF.md#current-batch-v52-phase-1)
 and [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md).
 

@@ -12,13 +12,13 @@ public interface AutomaticReplicatedSearchEngine<K, T> extends DurableSearchEngi
 
     /**
      * Reads one callback-scoped committed view using an explicit consistency policy.
-     * This additive capability is disabled in the V5.2 foundation. Implementations
-     * that do not support it fail without invoking the callback or opening resources.
+     * GSE supports this capability on a started automatic handle. Implementations
+     * that retain this default fail without invoking the callback or opening resources.
      *
      * @param options explicit policy and optional history-bound minimum
      * @param reader callback receiving a read-only view, never the underlying engine
      * @param <R> callback result type
-     * @return a failed future until this capability is supported
+     * @return the captured result, or a failed future when unsupported or rejected
      */
     default <R> CompletableFuture<ReplicaReadResult<R>> read(
             ReplicaReadOptions options, Function<ReplicaReadView<K, T>, R> reader) {

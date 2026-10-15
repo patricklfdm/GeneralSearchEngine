@@ -53,6 +53,7 @@ final class AutomaticReadQueue<K,T> {
         long epoch, barrierIndex;
         boolean barrierReady, preparing, cancelled, completionReturned;
         int cancelling;
+        private final CountDownLatch captureSettled=new CountDownLatch(1);
         final CompletableFuture<ReplicaReadResult<R>> result=new CompletableFuture<>() {
             @Override public boolean cancel(boolean mayInterruptIfRunning) {
                 synchronized(lock) {
@@ -75,6 +76,10 @@ final class AutomaticReadQueue<K,T> {
             preparing=options.policy()==ReplicaReadPolicy.LEADER_STRONG;
         }
         CompletableFuture<ReplicaReadResult<R>> future() {return result;}
+        /** Release writer ordering at capture or rejection, independently of user completion handlers. */
+        boolean awaitCapture(long remainingNanos) throws InterruptedException {
+            return captureSettled.await(Math.max(0,remainingNanos),TimeUnit.NANOSECONDS);
+        }
         /** Only the existing fresh NO_OP barrier may supply these values. */
         void barrier(long epoch,long index) {
             synchronized(lock) {
@@ -93,6 +98,10 @@ final class AutomaticReadQueue<K,T> {
                 releaseIfComplete(this);
             }
         }
+        /** Fail the client without pretending that an already submitted barrier has settled. */
+        void reject(Throwable error) {
+            synchronized(lock) {if(owned.contains(this)&&phase==Phase.QUEUED)settle(this,null,error);}
+        }
     }
 
     <R> Request<R> submit(ReplicaReadOptions options,Function<ReplicaReadView<K,T>,R> action,long deadline) {
@@ -108,7 +117,7 @@ final class AutomaticReadQueue<K,T> {
                     request.alarm=timer.schedule(deadline,()->expire(request));
                     changedLocked(); // register/recheck under the same publication/capture boundary
                 } catch(Throwable error) {settle(request,null,infrastructureFailure(error));}
-            } catch(Throwable error) {rejected=error; request.action=null;}
+            } catch(Throwable error) {rejected=error; request.action=null; request.captureSettled.countDown();}
         }
         if(rejected!=null)request.result.completeExceptionally(rejected);
         return request;
@@ -176,7 +185,8 @@ final class AutomaticReadQueue<K,T> {
                             throw new ReplicaReadException(ReplicaReadException.Reason.PROGRESS_NOT_REACHED,"published read index is below the requested minimum");
                         }
                     }
-                    request.phase=Phase.CAPTURED; cancelAlarm(request); selected=request; cut=captured; break;
+                    request.phase=Phase.CAPTURED; cancelAlarm(request); request.captureSettled.countDown();
+                    selected=request; cut=captured; break;
                 } catch(Throwable error) {settle(request,null,error);}
             }
         }
@@ -196,7 +206,7 @@ final class AutomaticReadQueue<K,T> {
     }
     private <R> void settle(Request<R> request,ReplicaReadResult<R> value,Throwable error) {
         if(request.phase==Phase.SETTLING)return;
-        request.phase=Phase.SETTLING; request.action=null; cancelAlarm(request);
+        request.phase=Phase.SETTLING; request.action=null; cancelAlarm(request); request.captureSettled.countDown();
         completions.execute(()->{
             try {if(error==null)request.result.complete(value);else request.result.completeExceptionally(error);}
             finally {synchronized(lock) {request.completionReturned=true;releaseIfComplete(request);}}

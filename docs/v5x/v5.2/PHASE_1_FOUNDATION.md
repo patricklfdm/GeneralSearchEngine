@@ -1,6 +1,10 @@
 # V5.2 Phase 1: disabled read declarations and independent foundation
 
 **Status:** implemented locally; protected full PR/master acceptance pending.
+This document records the Phase 1 disabled entry. Subsequent
+[Phase 3](PHASE_3_PUBLIC_READS.md) enables the GSE override; the current foundation
+gate still checks unsupported third-party defaults and stopped GSE rejection,
+and explicitly records that it does not qualify runtime reads.
 **Base:** Phase 0 PR #335, master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Master CI `38710485375`, attempt 1, passed **docs scope**: Change scope and Required
 succeeded, 36 suite placeholders skipped. This accepts the documents, not runtime.

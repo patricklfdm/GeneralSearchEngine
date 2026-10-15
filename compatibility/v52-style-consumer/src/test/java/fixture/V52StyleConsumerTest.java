@@ -21,7 +21,8 @@ class V52StyleConsumerTest {
                 var called=new AtomicBoolean();
                 var future=handle.read(options,v->{called.set(true);return v.currentSequence();});
                 assertTrue(future.isCompletedExceptionally());
-                assertInstanceOf(UnsupportedOperationException.class,assertThrows(CompletionException.class,future::join).getCause());
+                assertEquals(AutomaticReplicationException.Reason.NOT_READY,assertInstanceOf(AutomaticReplicationException.class,
+                        assertThrows(CompletionException.class,future::join).getCause()).reason());
                 assertFalse(called.get());
             }
         }

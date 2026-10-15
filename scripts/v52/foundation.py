@@ -1,4 +1,4 @@
-"""Source-bound declaration/disabled consumer/model gate. No automatic read runtime."""
+"""Source-bound declaration/default consumer/model gate. Runtime qualification is separate."""
 import argparse
 import hashlib
 import json
@@ -25,7 +25,7 @@ def command(args,log,expected=0):
 def run(output):
     out=Path(output).resolve();out.mkdir(parents=True,exist_ok=False)
     started=time.monotonic()
-    record=dict(schema='gse-v52-foundation-receipt-v1',status='FAIL',runtimeReadsEnabled=False,paidCloud=False)
+    record=dict(schema='gse-v52-foundation-receipt-v1',status='FAIL',runtimeReadsEnabled=True,runtimeQualification=False,paidCloud=False)
     try:
         source=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
         record['build']=build.binding(ROOT,source)
@@ -56,7 +56,8 @@ def run(output):
         command(['java','-cp',str(classes)+os.pathsep+str(legacy)+os.pathsep+cp,'fixture.v52.ReadConsumer',out/'no-io'],out/'consumer.log')
         oldjars=[ROOT/'target/v52-controls'/f'{a}-5.1.0.jar' for a in ('general-search-engine','general-search-engine-replication')]
         command(['java','-cp',classes,'fixture.v51.PublishedApiCheck',*oldjars,core,repl],out/'published-api.log')
-        record['consumer']=dict(status='PASS',legacyBinary='published-5.1-to-current',surface='seven-methods-compile-only',explicitRead='disabled')
+        record['consumer']=dict(status='PASS',legacyBinary='published-5.1-to-current',surface='seven-methods-compile-only',
+                                legacyDefault='unsupported',stoppedHandle='NOT_READY')
         negative=[]
         for name,expression in [('paging','v.search((io.github.patricklfdm.generalsearch.search.SearchPageRequest<Object>)null)'),('mutation','v.add(new Object())')]:
             path=out/(name.capitalize()+'.java')

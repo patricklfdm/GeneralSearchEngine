@@ -184,6 +184,9 @@ class V52ReadQueueTest {
         f.expire(10);f.completions.drain();reason(DEADLINE_EXCEEDED,request.future());
         assertEquals(1,f.queue.counts().owned(),"fresh barrier still owns real work");
         request.barrier(4,0);assertEquals(0,f.queue.counts().owned());assertEquals(2,f.permits.availablePermits());
+        var h=new Fixture(2);var running=h.queue.submit(STRONG,v->fail("rejected capture"),100);
+        running.reject(failure(DEADLINE_EXCEEDED));h.completions.drain();reason(DEADLINE_EXCEEDED,running.future());
+        assertEquals(1,h.queue.counts().owned());running.fail(failure(QUORUM_UNAVAILABLE));assertEquals(0,h.queue.counts().owned());
         var g=new Fixture(3);var valid=g.queue.submit(STRONG,v->5,100);valid.barrier(4,0);g.drain();assertEquals(5,valid.future().join().value());
         var fenced=g.queue.submit(STRONG,v->fail("stale strong callback"),100);fenced.barrier(7,0);g.drain();reason(STALE_EPOCH,fenced.future());
     }
@@ -193,6 +196,23 @@ class V52ReadQueueTest {
         var result=f.queue.submit(STALE,v->{calls.incrementAndGet();throw failure;},100).future();f.drain();
         assertSame(failure,cause(result));f.publish(1);f.drain();assertEquals(1,calls.get());
         assertEquals(0,f.queue.counts().owned());assertEquals(3,f.permits.availablePermits());
+    }
+
+    @Test void writerCaptureGateOpensAtCaptureOrRejectionWithoutWaitingForCallbackOrHandlers() throws Exception {
+        var f=new Fixture(3);var entered=new CountDownLatch(1);var release=new CountDownLatch(1);
+        var request=f.queue.submit(STRONG,v->{entered.countDown();await(release);return 7;},100);
+        assertFalse(request.awaitCapture(0));request.barrier(4,0);assertFalse(request.awaitCapture(0));
+        var application=Thread.ofPlatform().start(f.app.pending.remove());
+        try {
+            await(entered);assertTrue(request.awaitCapture(0));assertFalse(request.future().isDone());
+            assertEquals(1,f.queue.counts().captured());
+        } finally {release.countDown();application.join(5000);}
+        assertFalse(application.isAlive());assertFalse(request.future().isDone());f.completions.drain();
+        assertEquals(7,request.future().join().value());
+        var expired=f.queue.submit(STRONG,v->fail("expired"),100);f.expire(100);
+        assertTrue(expired.awaitCapture(0));assertFalse(expired.future().isDone());
+        f.completions.drain();expired.fail(failure(DEADLINE_EXCEEDED));assertEquals(3,f.permits.availablePermits());
+        f.queue.close();assertTrue(f.queue.submit(STRONG,v->fail("closed"),200).awaitCapture(0));
     }
 
     @Test void dispatchRefusalHasTypedCapacityFailureAndNoOrphanTimerOrPermit() {

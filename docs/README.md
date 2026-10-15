@@ -28,6 +28,8 @@ implementation remain pending.
 - [Independent testing and evidence matrix](v5x/v5.2/TESTING_AND_EVIDENCE.md)
 - [Phase 0 review and acceptance checklist](v5x/v5.2/PHASE_0_CHECKLIST.md)
 - [Phase 1 guarded foundation entry](v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
+- [Phase 2 application capture and bounded requests](v5x/v5.2/PHASE_2_CAPTURE_KERNEL.md)
+- [Phase 3 public read implementation and qualification](v5x/v5.2/PHASE_3_PUBLIC_READS.md)
 
 ## v5.1 — current stable automatic leadership
 
@@ -551,6 +553,8 @@ documentation.
 
 ### V5.2 read foundation
 
-The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the disabled
-API, token fixtures, independent model, compatibility and CI integration. See
+The [Phase 1 implementation](v5x/v5.2/PHASE_1_FOUNDATION.md) records the initial
+disabled API, token fixtures, independent model, compatibility and CI integration.
+The [Phase 2 kernel](v5x/v5.2/PHASE_2_CAPTURE_KERNEL.md) is locally verified and
+[Phase 3 public enablement](v5x/v5.2/PHASE_3_PUBLIC_READS.md) is under qualification. See
 the [S01–S30 map](v5x/v5.2/PHASE_1_SCHEDULE_MAP.md) for pending runtime coverage.

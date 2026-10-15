@@ -14,7 +14,7 @@ import io.github.patricklfdm.generalsearch.search.SearchExplanation;
 /**
  * Read-only view of one committed publication, valid only on its active callback
  * thread. No pagination, mutation, maintenance or escaping snapshot ownership.
- * No runtime implementation is enabled in the V5.2 foundation.
+ * Returning the wrapper does not extend its lifetime.
  */
 public interface ReplicaReadView<K, T> {
     T get(K id);

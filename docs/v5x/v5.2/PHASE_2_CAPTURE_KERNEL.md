@@ -3,8 +3,9 @@
 **Status:** Phase 2A–2C locally verified; protected qualification deferred to the
 combined pre-cloud handoff. Public enablement remains Phase 3.
 Development follows the [authorized local sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
-The public explicit read method remains the disabled Phase 1 default. No hosted
-acceptance or public follower-read qualification is claimed.
+At this phase boundary the public method retained the disabled Phase 1 default;
+[Phase 3](PHASE_3_PUBLIC_READS.md) owns subsequent enablement. No hosted acceptance
+or external public follower-read qualification is claimed here.
 
 ## 2A: publication identity and scoped view
 

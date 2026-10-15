@@ -132,6 +132,7 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     AutomaticReadQueue<K,T> readQueue(Semaphore admission,ScheduledThreadPoolExecutor deadlines,Executor completions) {
         synchronized(protocol) {
             if(explicitReads!=null)throw new IllegalStateException("replica read queue already attached");
+            protocol.enableReplicaReads();
             explicitReads=new AutomaticReadQueue<>(protocol,readIdentity,new AutomaticReadQueue.Access<>() {
                 public void check(ReplicaReadOptions options,long epoch,boolean barrierReady) {checkReadState(options,epoch,barrierReady);}
                 public long publishedIndex() {return publishedReadCut.index();}
@@ -276,8 +277,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
                 applicationTask(()->{byte[] image=null;Throwable failure=null;try{events.at("RECONSTRUCT_BEGIN",cut);image=application.reconstruct(rebuild.replay());events.at("RECONSTRUCT_END",cut);}catch(Throwable e){failure=e;}
                     byte[] value=image;Throwable error=failure;complete(()->protocol.reconstructed(rebuild.id(),value,error,now()));});
             }else if(action instanceof AutomaticProtocol.Publish publish) {
-                applicationTask(()->{Throwable failure=null;try{events.at("BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
-                    application.publish(publish.snapshot());publishedReadCut=application.readCut();events.at("PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
+                applicationTask(()->{Throwable failure=null;try{events.at(publish.local()?"BEFORE_LOCAL_PUBLISH":"BEFORE_PUBLISH",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));
+                    application.publish(publish.snapshot());publishedReadCut=application.readCut();events.at(publish.local()?"LOCAL_PUBLISHED":"PUBLISHED",Map.of("ballot",b64(publish.ballot().bytes()),"snapshot",b64(publish.snapshot().bytes())));}catch(Throwable e){failure=e;}
                     Throwable error=failure;complete(()->{protocol.published(publish.id(),error,now());
                         if(error==null&&protocol.view().publishedIndex()==AutomaticRecovery.index(publish.snapshot()))publishedSequence=number(publish.snapshot().value(),"applicationSequence");});});
             }else if(action instanceof AutomaticProtocol.Completed done) {
