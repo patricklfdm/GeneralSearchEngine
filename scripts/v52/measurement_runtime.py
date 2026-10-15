@@ -91,7 +91,12 @@ class Worker:
             public_trace.finish(self.root,self.node,self.proc,self.generation)
 
 
-def prepare(root,mode,*,exercise_load=False):
+def prepare(root,mode,*,exercise_load=False,m01_repetition=None):
+    need(mode in model.MODES,'measurement unknown preparation mode')
+    if m01_repetition is not None:
+        from .measurement_m01 import profile
+        need(not exercise_load,'measurement smoke and M01 profiles are exclusive')
+        measured_profile=profile(mode,m01_repetition)
     root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls')
     save(root/'corpus.json',model.corpus());(root/'group-id.txt').write_text(str(uuid.uuid4())+'\n')
     artifacts=root/'artifacts';artifacts.mkdir();version='5.1.0' if mode.startswith('published') else current()
@@ -118,7 +123,10 @@ def prepare(root,mode,*,exercise_load=False):
                  origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',publicationAuthority='forced-generation-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
-    if exercise_load:binding['driverMarkerSchedule']=list(evidence.DRIVER_MARKERS)
+    if m01_repetition is not None:
+        binding.pop('smokeInitialization');binding.pop('driverExercise')
+        binding['measurementProfile']=measured_profile
+    elif exercise_load:binding['driverMarkerSchedule']=list(evidence.DRIVER_MARKERS)
     save(root/'binding.json',binding);return binding,cp,control_cp
 
 
