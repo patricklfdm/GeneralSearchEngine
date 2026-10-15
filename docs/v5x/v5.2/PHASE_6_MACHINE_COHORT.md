@@ -1,8 +1,9 @@
 # V5.2 Phase 6T machine freeze and complete local cohort
 
 **Status:** machine/cohort implementation and fixture tests are locally verified.
-The exact machine JSON has not yet been generated or committed; formal M01–M04
-execution and hosted/cloud acceptance remain open. Continue under the
+Freeze `ee9bdb9` preceded the first formal M01 history. Its cohort was interrupted
+during replay as recorded in [Phase 6U](PHASE_6_REPLAY_EFFICIENCY.md); complete
+M01–M04 qualification and hosted/cloud acceptance remain open. Continue under the
 [local development authorization](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 ## Freeze implementation before measurement
@@ -27,7 +28,7 @@ The generated `phase6-local-machine.json` records:
   local-only acceptance. At least 16 GiB free filesystem space is required before
   each history; this is a storage prerequisite, not a performance threshold.
 
-The next commit must add **only** this JSON and directly follow the implementation
+The next commit must change **only** this JSON and directly follow the implementation
 commit. This avoids putting a commit's own hash inside itself. Every actual
 history independently binds the resulting freeze commit and full checkout hash.
 Execution checks source and machine identity before and after each history;

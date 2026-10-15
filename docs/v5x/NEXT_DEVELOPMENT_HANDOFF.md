@@ -854,3 +854,10 @@ separate committed implementation and machine-only freeze commit, with complete
 Next build the exact committed implementation, commit its machine plan, execute
 the fresh full cohort and retain every original failure. Hosted acceptance and
 fresh cloud admission remain required; paid execution remains operator-owned.
+
+The [Phase 6U replay optimization](v5.2/PHASE_6_REPLAY_EFFICIENCY.md) follows the
+first frozen cohort's agent-aborted independent replay. Its first complete M01
+window and failure receipt remain intact. Verified temporary trace bytes remove
+repeated chunk reconstruction while preserving every semantic check. A new
+exact-source freeze and fresh full cohort are required; the old history is used
+only to qualify replay equivalence, not to fill a new measured repetition.

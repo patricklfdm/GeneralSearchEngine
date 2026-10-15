@@ -98,6 +98,16 @@ class MeasurementMachineTest(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'checkout binding differs'):m.verify_launch(value,wrong,root)
             (root/'source.txt').write_text('changed\n');later=commit();later_binding=m.committed_binding(root,later,java)
             with self.assertRaisesRegex(ValueError,'freeze parent changed'):m.verify_launch(value,later_binding,root)
+            # A corrected implementation includes the old freeze as source. A
+            # new sole-plan child is admissible without reusing prior histories.
+            value['implementation']=later_binding;value['build']['binding']=later_binding
+            plan.write_bytes(m.encoded(value)+b'\n');second=commit();second_binding=m.committed_binding(root,second,java)
+            self.assertEqual(second_binding,m.verify_launch(value,second_binding,root))
+            with patch.object(m,'clean_source',return_value=second_binding),patch.object(m,'environment',return_value={}):
+                self.assertEqual((json.loads(plan.read_bytes()),second_binding),m.admit(root))
+            changed=copy.deepcopy(value);changed['implementation']['checkoutSha256']='f'*64
+            changed['build']['binding']=changed['implementation']
+            with self.assertRaisesRegex(ValueError,'implementation checkout differs'):m.verify_launch(changed,second_binding,root)
 
 
 if __name__=='__main__':unittest.main()

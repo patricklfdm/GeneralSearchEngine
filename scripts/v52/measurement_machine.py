@@ -18,7 +18,7 @@ from . import measurement_runtime as runtime,measurement_model as model,measurem
 from . import measurement_m01 as m01,measurement_m01_evidence as m01_evidence,measurement_m01_set as m01_set
 from . import measurement_minimum as minimum,measurement_minimum_evidence as minimum_evidence
 from . import measurement_recovery as recovery,measurement_recovery_evidence as recovery_evidence
-from . import measurement_trace as trace,measurement_bundle as bundle,measurement_authority_budget as budget,measurement_oracle as oracle
+from . import measurement_trace as trace,measurement_bundle as bundle,measurement_authority_budget as budget,measurement_oracle as oracle,measurement_verified as verified
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -54,6 +54,8 @@ def contract():
             electionMinimumMillis=3600,electionMaximumMillis=6000,defaultRead=options.parameters(),
             consumerThreads=8,consumerQueue=64,commandsPerProcess=4096,commandBytes=16384,responseBytes=65536),
         evidence=dict(tracePerVoterAcrossGenerations=vars(trace.Limits()),bundle=bundle.LIMITS,authority=budget.LIMITS,
+            replaySpool=dict(voters=3,maximumBytesPerVoter=trace.Limits().decoded_bytes+verified.HEADER*trace.Limits().rows,
+                             memory='one bounded row; no whole-history buffer',originalInventory='verified before and after semantic replay'),
             selectedExpansionBytes=budget.MAX_SELECTION_EXPANSION,selectorCount=budget.MAX_SELECTORS,
             snapshotTransferCount=128,snapshotImageBytes=16<<20,snapshotTransferBytes=64<<20,resourceRowsPerProcess=1024,
             preReopenFiles=4096,preReopenBytes=64<<20,preReopenMemberBytes=8<<20,
@@ -116,14 +118,18 @@ def validate_plan(value):
 
 def freeze(build_directory,storage_root,output):
     implementation=clean_source();storage_root=Path(storage_root).resolve();output=Path(output).resolve()
-    need(output==ROOT/PLAN and not output.exists(),'machine freeze output must be fresh designated document')
+    need(output==ROOT/PLAN and not output.is_symlink() and (not output.exists() or output.is_file()),'machine freeze output must be designated document')
     need(not storage_root.exists() and ROOT/'target' in storage_root.parents,'machine fresh target storage root')
     build_directory=Path(build_directory).resolve();manifest=runtime.evidence.reads.read(build_directory/'manifest.json')
     need(manifest['schema']==build.SCHEMA and manifest['binding']==implementation and
          bundle.sha_file(build_directory/'build.tar.gz')==manifest['archiveSha256'],'machine missing exact-source build bundle')
     files={v['path']:v for v in manifest['files']};need(len(files)==len(manifest['files']),'machine duplicate build file')
     for path in build.layout(ROOT)[:2]:need(path in files and bundle.sha_file(ROOT/path)==files[path]['sha256'],'machine current build artifact drift')
-    storage_root.mkdir(parents=True);compiled={};env=environment(storage_root)
+    storage_root.mkdir(parents=True)
+    # A failed/interrupted cohort stays at its original root and Git commit.
+    # Replacing the tracked plan starts a new exact-source cohort, never resume.
+    if output.exists():(storage_root/'previous-freeze.json').write_bytes(output.read_bytes())
+    compiled={};env=environment(storage_root)
     need(shutil.disk_usage(storage_root).free>=MINIMUM_FREE_BYTES,'machine insufficient free storage')
     probes=storage_root/'preparation-only';probes.mkdir()
     for family,mode in (('published','published-v51-legacy-strong'),('candidate','candidate-minimum')):
@@ -147,12 +153,9 @@ def admit(root=ROOT):
     changed=build.git(root,'diff','--name-only',parent,'HEAD').decode().splitlines()
     need(changed==[PLAN],'machine freeze commit changed implementation')
     need(actual['java']==value['implementation']['java'],'machine JVM changed since build')
-    # Reconstruct the exact implementation inventory without the newly added
-    # freeze document. Never treat merely being a descendant as source equality.
-    names=build.git(root,'ls-files','-z').split(b'\0');inventory=[]
-    for raw in sorted(set(names)-{b'',PLAN.encode()}):
-        name=os.fsdecode(raw);p=root/name;inventory.append([name,bool(p.stat().st_mode&0o111),digest(p.read_bytes())])
-    need(build.digest(build.encoded(inventory))==value['implementation']['checkoutSha256'],'machine implementation checkout differs')
+    # The parent may contain a previous freeze. Reconstruct its actual immutable
+    # bytes rather than deleting that file from the implementation fingerprint.
+    need(committed_binding(root,parent,actual['java'])==value['implementation'],'machine implementation checkout differs')
     need(environment(value['storageRoot'])==value['environment'],'machine environment changed since freeze')
     return value,actual
 
@@ -180,6 +183,8 @@ def committed_binding(root,source,java):
 def verify_launch(value,actual,root=ROOT):
     validate_plan(value);source=actual['source']
     need(build.git(root,'rev-parse',source+'^').decode().strip()==value['implementation']['source'], 'machine replay freeze parent changed')
+    need(committed_binding(root,value['implementation']['source'],value['implementation']['java'])==value['implementation'],
+         'machine replay implementation checkout differs')
     need(build.git(root,'diff','--name-only',source+'^',source).decode().splitlines()==[PLAN], 'machine replay implementation changed')
     need(build.git(root,'show',source+':'+PLAN)==encoded(value)+b'\n','machine replay committed plan differs')
     need(actual==committed_binding(root,source,value['implementation']['java']),'machine replay checkout binding differs')

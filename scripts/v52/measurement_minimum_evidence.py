@@ -10,6 +10,7 @@ from . import measurement_model as model,measurement_authority_budget as budget,
 from . import measurement_projection as projection,measurement_publication as publication,measurement_reads as cuts
 from . import measurement_samples as samples,measurement_oracle as oracle,public_reads_evidence as reads
 from . import measurement_window as window
+from . import measurement_verified
 from .evidence import need,digest,encoded
 
 
@@ -133,10 +134,10 @@ def negative_cases(plan,scenario):
     return cases
 
 
-def negatives(root,expected,answers):
-    validate(root,expected,answers)
+def negatives(root,expected,answers,*,traces=None):
+    validate(root,expected,answers,traces=traces)
     root=Path(root);history=metadata(root,'history.json',32<<20);scenario=metadata(root,'scenario.json',1<<20);observed=metadata(root,'observed.json',4<<20)
-    original={f'node-{i}':trace.Trace(root/f'node-{i}-trace.jsonl',node=f'node-{i}') for i in (1,2,3)};result=[]
+    original=traces if traces is not None else {f'node-{i}':trace.Trace(root/f'node-{i}-trace.jsonl',node=f'node-{i}') for i in (1,2,3)};result=[]
     for name,predicate,change,mutate,reason in negative_cases(expected['measurementProfile'],scenario):
         traces=measurement_stream.changed(original,predicate,change) if predicate else original
         h=copy.deepcopy(history);s=copy.deepcopy(scenario);o=copy.deepcopy(observed)
@@ -151,14 +152,16 @@ def negatives(root,expected,answers):
 
 def replay(root,expected,output):
     root=Path(root).resolve();output=Path(output).resolve();output.mkdir(parents=True,exist_ok=False)
-    preliminary=validate(root,expected);value=preliminary['oracleInput'];(output/'input.json').write_bytes(encoded(value)+b'\n')
-    jar=root/'artifacts/general-search-engine-4.4.0.jar';cp=os.pathsep.join(map(str,(jar,root/'control-classes')))
-    run=q.command(['java','-cp',cp,q.PACKAGE+'admission.V52MeasurementOracle',output/'oracle',output/'input.json'],output,'oracle')
-    need(run.stderr.strip()=='coreSource='+str(jar),'measurement minimum loaded wrong query control')
-    need(json.loads(run.stdout)==dict(status='PASS',measured=False,requests=len(value['requests']),updatesApplied=len(value['updates']),
-                                     finalSequence=1+len(value['updates'])),'measurement minimum query replay incomplete')
-    answers=oracle.validate_output(value,output/'oracle/answers.jsonl');checked=validate(root,expected,answers)
-    checked['negatives']=negatives(root,expected,answers);(output/'validation.json').write_bytes(encoded(checked)+b'\n');return checked
+    with measurement_verified.traces(root,output) as traces:
+        preliminary=validate(root,expected,traces=traces);value=preliminary['oracleInput'];(output/'input.json').write_bytes(encoded(value)+b'\n')
+        jar=root/'artifacts/general-search-engine-4.4.0.jar';cp=os.pathsep.join(map(str,(jar,root/'control-classes')))
+        run=q.command(['java','-cp',cp,q.PACKAGE+'admission.V52MeasurementOracle',output/'oracle',output/'input.json'],output,'oracle')
+        need(run.stderr.strip()=='coreSource='+str(jar),'measurement minimum loaded wrong query control')
+        need(json.loads(run.stdout)==dict(status='PASS',measured=False,requests=len(value['requests']),updatesApplied=len(value['updates']),
+                                         finalSequence=1+len(value['updates'])),'measurement minimum query replay incomplete')
+        answers=oracle.validate_output(value,output/'oracle/answers.jsonl');checked=validate(root,expected,answers,traces=traces)
+        checked['negatives']=negatives(root,expected,answers,traces=traces)
+    (output/'validation.json').write_bytes(encoded(checked)+b'\n');return checked
 
 
 def portable_member(source,expected,output):
