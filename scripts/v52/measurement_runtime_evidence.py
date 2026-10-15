@@ -9,6 +9,7 @@ from scripts.v51 import performance_bundle as bundle,performance_artifacts
 from scripts.v51 import public_qualification_harness as q
 from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
 from . import public_reads_evidence as reads
+from . import measurement_load as load,measurement_samples as samples
 from .evidence import need,digest,encoded
 
 
@@ -153,8 +154,24 @@ def validate(root,expected,answers=None,*,traces=None,history=None):
                     need(identity in reservations and reservations.pop(identity)==row['bytes'],'measurement unmatched transport release')
         need(idle,'measurement missing final resource observation');need(not reservations,'measurement unreleased transport ownership')
     need(set(successes)==set(calls),'measurement incomplete success observations')
+    driver=None
+    if binding.get('driverExercise',False):
+        offered=reads.read(root/'offered.json')
+        requests=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
+        dispatched=load.validate(offered,requests,3_000_000_000,history)
+        need(dispatched['outcomes']=={'SUCCESS':10} and {v['opId'] for v in offered['offers']}=={v['opId'] for v in requested},'measurement driver smoke operation set')
+        resources={}
+        for node,reader in traces.items():
+            observed=[r for r in reader if r['event']=='CLIENT_SAMPLE'];resources[node]=samples.validate(observed,binding['mode'])
+            need(resources[node]['periodicSamples']>=2,'measurement driver smoke missing periodic samples')
+            controls=[c for c in history if c['node']==node and c['kind'].startswith('sample-')]
+            need([c['kind'] for c in controls]==['sample-start','sample-stop'] and all(c['outcome']=='SUCCESS' for c in controls),'measurement sampler control ledger')
+            need(controls[0]['endNanos']<=offered['startNanos'] and controls[-1]['startNanos']>=offered['drainEndNanos'],'measurement sampler does not cover dispatch')
+            for call,sample in zip(controls,(observed[0],observed[-1])):
+                need(call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},'measurement sampler response differs from observation')
+        driver=dict(load=dispatched,resources=resources)
     return dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
-                oracleInput=oracle.prepare(cuts,program),timings=timings)
+                oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver)
 
 
 def negatives(root,expected,answers):
@@ -184,6 +201,13 @@ def negatives(root,expected,answers):
             ('wrong-release-cut',lambda r,h:find(r,'REPLICA_READ_RELEASED').__setitem__('sequence',999),'measurement changed released cut')])
     if mode=='candidate-minimum':
         cases.append(('different-minimum',lambda r,h:next(c for c in h if c['kind']=='read' and not c.get('setupToken')).__setitem__('minimum','AA=='),'measurement initial minimum changed'))
+    if expected.get('driverExercise',False):
+        cases.extend([
+            ('missing-resource-sample',lambda r,h:find(r,'CLIENT_SAMPLE').__setitem__('sampleOrdinal',99),'sample missing/duplicate ordinal'),
+            ('fabricated-unsupported-allocation',lambda r,h:find(r,'CLIENT_SAMPLE').__setitem__('allocatedBytes',dict(status='UNSUPPORTED',value=0)),
+             'sample fabricated unavailable metric: allocatedBytes')])
+        if mode!='published-v51-legacy-strong':
+            cases.append(('missing-read-resource-counter',lambda r,h:find(r,'CLIENT_SAMPLE')['queues'].pop('readsOwned'),'sample missing candidate read counters'))
     result=[]
     for name,mutate,reason in cases:
         rows=copy.deepcopy(original);calls=copy.deepcopy(history);mutate(rows,calls)

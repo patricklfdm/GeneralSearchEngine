@@ -71,6 +71,7 @@ public final class V52MeasurementConsumer {
             identity.put("coreSource",Path.of(io.github.patricklfdm.generalsearch.engine.SearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
             identity.put("replicationSource",Path.of(AutomaticReplicatedSearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
             event("STARTED",identity);print(identity);
+            try(var sampler=new V52MeasurementSampler(()->diagnostics.apply(engine),()->engine.durabilityMetrics().retainedBytes(),executor)) {
             try(var input=new BufferedReader(new InputStreamReader(System.in,StandardCharsets.UTF_8))) {
                 String line;while((line=input.readLine())!=null) {
                     if(line.length()>16384)throw new IllegalArgumentException("measurement command bound");
@@ -78,7 +79,7 @@ public final class V52MeasurementConsumer {
                     if(kind.equals("close"))break;
                     long received=System.nanoTime();String id=(String)request.get("opId");
                     if(id==null||id.length()>128||ids.size()>=4096||!ids.add(id))throw new IllegalArgumentException("measurement command identity/count");
-                    if(!Set.of("status","probe","update","read").contains(kind))throw new IllegalArgumentException("measurement command kind");
+                    if(!Set.of("status","probe","update","read","sample-start","sample-mark","sample-stop").contains(kind))throw new IllegalArgumentException("measurement command kind");
                     event("CLIENT_RECEIVED",request);var completion=new CompletableFuture<Void>();pending.add(completion);
                     Runnable invoke=()->{
                         long invoked=System.nanoTime();callId.set(id);
@@ -87,6 +88,9 @@ public final class V52MeasurementConsumer {
                             CompletableFuture<Map<String,Object>> result;
                             if(kind.equals("status"))result=CompletableFuture.completedFuture(status(engine));
                             else if(kind.equals("probe"))result=CompletableFuture.completedFuture(Map.of("queues",diagnostics.apply(engine),"retainedBytes",engine.durabilityMetrics().retainedBytes()));
+                            else if(kind.equals("sample-start"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.start()));
+                            else if(kind.equals("sample-mark"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.mark((String)request.get("marker"))));
+                            else if(kind.equals("sample-stop"))result=CompletableFuture.completedFuture(Map.of("sample",sampler.stop()));
                             else if(kind.equals("update")) {
                                 var doc=(Map<String,Object>)request.get("document");
                                 result=engine.update(new Doc(((Number)doc.get("id")).intValue(),(String)doc.get("value"))).thenApply(ignored->Map.of());
@@ -107,6 +111,7 @@ public final class V52MeasurementConsumer {
             }
             executor.shutdown();if(!executor.awaitTermination(30,TimeUnit.SECONDS))throw new IOException("measurement client executor did not stop");
             CompletableFuture.allOf(pending.toArray(CompletableFuture<?>[]::new)).get(30,TimeUnit.SECONDS);
+            }
             event("CLIENT_IDLE",Map.of("queues",diagnostics.apply(engine),"retainedBytes",engine.durabilityMetrics().retainedBytes()));
             engine.close();event("CLOSED",Map.of());
         } finally {executor.shutdownNow();}

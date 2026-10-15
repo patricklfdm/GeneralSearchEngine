@@ -89,6 +89,12 @@ Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.
 
+The [Phase 6E offered driver and sampler](v5.2/PHASE_6_MEASUREMENT_LOAD.md)
+now retain original due times, every outcome and process-wide resource observations.
+Five short integration histories pass physical/query replay before and after
+relocation. Full-size evidence packaging, M02–M04 schedules and the complete
+execution freeze remain open; no formal measured window has run.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

@@ -18,6 +18,7 @@ from scripts.v51 import public_qualification_harness as q
 from scripts.v51.performance_model import strict_json
 from . import controls,measurement_model as model,measurement_trace as trace
 from . import measurement_runtime_evidence as evidence
+from . import measurement_load as load
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -61,14 +62,16 @@ class Worker:
                 try:self.startup.put_nowait(None)
                 except queue.Full:pass
 
-    def send(self,kind,**values):
+    def submit(self,kind,**values):
         with self.lock:
             need(self.error is None and self.proc.poll() is None,'measurement worker unavailable: '+str(self.error))
             self.serial+=1;identity=f'{self.node}-g{self.generation}-{self.serial}'
             command=dict(opId=identity,kind=kind,**values);record=dict(command,node=self.node,pid=self.proc.pid,generation=self.generation,
                         startNanos=time.monotonic_ns(),endNanos=None,outcome='PENDING')
             future=concurrent.futures.Future();self.pending[identity]=future,record;self.history.append(record)
-            self.proc.stdin.write(encoded(command)+b'\n');self.proc.stdin.flush();return future
+            self.proc.stdin.write(encoded(command)+b'\n');self.proc.stdin.flush();return identity,future
+
+    def send(self,kind,**values):return self.submit(kind,**values)[1]
 
     def call(self,kind,**values):
         result=self.send(kind,**values).result(timeout=35)
@@ -88,7 +91,7 @@ class Worker:
             public_trace.finish(self.root,self.node,self.proc,self.generation)
 
 
-def prepare(root,mode):
+def prepare(root,mode,*,exercise_load=False):
     root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls')
     save(root/'corpus.json',model.corpus());(root/'group-id.txt').write_text(str(uuid.uuid4())+'\n')
     artifacts=root/'artifacts';artifacts.mkdir();version='5.1.0' if mode.startswith('published') else current()
@@ -101,7 +104,7 @@ def prepare(root,mode):
     java=ROOT/'scripts/v52/java';json_source=ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java'
     common=[json_source,java/'V52ReadQueries.java',java/'V52MeasurementQueries.java']
     cp=os.pathsep.join(map(str,(*jars,classes,observer)));control_cp=os.pathsep.join(map(str,(control,control_classes)))
-    consumer=[*common,java/'V52MeasurementConsumer.java']
+    consumer=[*common,java/'V52MeasurementConsumer.java',java/'V52MeasurementSampler.java']
     if version!='5.1.0':consumer.append(java/'V52MeasuredExplicitReads.java')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',classes,*consumer],root,'compile-consumer')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',observer,ROOT/'scripts/v51/java/PublicRuntimeConsumer.java',
@@ -112,14 +115,14 @@ def prepare(root,mode):
     need(json.loads(seed.stdout)==dict(status='PASS',documents=64,sequence=1),'measurement seed result')
     q.command(['java','-cp',cp,PACKAGE+'V52MeasurementConsumer',root,'setup'],root,'bootstrap')
     binding=dict(build.binding(ROOT,subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()),mode=mode,
-                 origin=str(root),programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
+                 origin=str(root),driverExercise=exercise_load,programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
     save(root/'binding.json',binding);return binding,cp,control_cp
 
 
-def smoke(root,mode):
-    binding,cp,control_cp=prepare(root,mode);workers={};history=[];processes=[];result=None
+def smoke(root,mode,*,exercise_load=False):
+    binding,cp,control_cp=prepare(root,mode,exercise_load=exercise_load);workers={};history=[];processes=[];result=None
     try:
         for i in (1,2,3):
             node=f'node-{i}';worker=Worker(root,node,cp,mode,history);workers[node]=worker
@@ -145,10 +148,22 @@ def smoke(root,mode):
                 time.sleep(.02)
             else:raise ValueError('measurement target did not publish initial bound')
         parameters=dict(minimum=initial['token']) if mode=='candidate-minimum' else {}
-        for i in range(5):workers[target].call('read',query=model.query(i),**parameters)
-        pending=[workers[target].send('read',query=model.query(i),**parameters) for i in range(5,10)]
-        for future in pending:
-            response=future.result(timeout=35);need(response is not None and response['outcome']=='SUCCESS','measurement concurrent consumer failure: '+str(response))
+        if exercise_load:
+            # Three-second driver integration only; never an abbreviated M01 run.
+            for worker in workers.values():worker.call('sample-start')
+            calls=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
+            def submit(call):return workers[target].submit(call['kind'],query=call['query'],**parameters)
+            offered,pending=load.dispatch(calls,3_000_000_000,submit)
+            save(root/'offered.json',load.drain(offered,pending,35))
+            for worker in workers.values():worker.call('sample-stop')
+            checked=load.validate(offered,calls,3_000_000_000,history)
+            need(checked['outcomes']=={'SUCCESS':10},'measurement driver smoke outcome')
+            save(root/'load-validation.json',checked)
+        else:
+            for i in range(5):workers[target].call('read',query=model.query(i),**parameters)
+            pending=[workers[target].send('read',query=model.query(i),**parameters) for i in range(5,10)]
+            for future in pending:
+                response=future.result(timeout=35);need(response is not None and response['outcome']=='SUCCESS','measurement concurrent consumer failure: '+str(response))
         probes={node:worker.call('probe') for node,worker in workers.items()}
         need(all(v['queues']['admissionAvailable']==64 and v['queues'].get('readsOwned',0)==0 for v in probes.values()),'measurement consumer ownership leak')
         save(root/'scenario.json',dict(mode=mode,leader=leader,readTarget=target,initialRead=initial['opId'],updates=updates,readCount=11,probes=probes))
@@ -165,14 +180,14 @@ def smoke(root,mode):
     save(root/'receipt.json',result);return result
 
 
-def run(output,only=None):
+def run(output,only=None,*,exercise_load=False):
     root=Path(output).resolve();root.mkdir(parents=True,exist_ok=False)
     need(only is None or only in model.MODES,'unknown measurement smoke mode')
     receipt=dict(schema='gse-v52-measurement-consumer-smoke-v1',status='FAIL',measured=False,paidCloud=False,qualifiedMeasurement=False,cases=[])
     try:
         for mode in model.MODES:
             if only and mode!=only:continue
-            case=root/mode;result=smoke(case,mode);binding=strict_json((case/'binding.json').read_bytes())
+            case=root/mode;result=smoke(case,mode,exercise_load=exercise_load);binding=strict_json((case/'binding.json').read_bytes())
             save(case/'bundle-members.json',bundle.members(case))
             original=evidence.replay(case,binding,root/(mode+'-validation'))
             archive=root/(mode+'.tar.gz');bundle.pack(case,archive);relocated=root/(mode+'-relocated');bundle.unpack(archive,relocated)
@@ -186,4 +201,4 @@ def run(output,only=None):
 
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('output');parser.add_argument('--only');args=parser.parse_args();run(args.output,args.only)
+    parser=argparse.ArgumentParser();parser.add_argument('output');parser.add_argument('--only');parser.add_argument('--exercise-load',action='store_true');args=parser.parse_args();run(args.output,args.only,exercise_load=args.exercise_load)
