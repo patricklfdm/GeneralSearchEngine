@@ -3,15 +3,42 @@
 ## Purpose and current state
 
 Verify that the existing rollback switch forces an otherwise eligible integration
-PR to run the complete CI recipe. The checked-in policy is temporarily `true` for
-this drill; hosted override and restoration are **pending**. No workflow, suite,
+PR to run the complete CI recipe. Hosted routing is **CONFIRMED** in PR #333;
+the user accepted this routing observation without waiting for all workloads to
+finish. The checked-in policy is restored to `false` in the follow-up revision;
+its merge and exact-master verification remain pending. No workflow, suite,
 Required rule, planner, runtime or workload change is needed.
 
 `forceFull` upgrades integration candidates only. Docs stays docs, and non-doc
 master, manual and Nightly execution stays full. The switch is reviewed, versioned
 policy. The user authorized a one-time CI skip for this enabling PR and its master
 merge, using the existing administrator bypass. That skipped validation is not a
-hosted pass; the later probe and restoration still require their actual checks.
+hosted pass. The subsequent routing-only decision is recorded below; restoration
+still requires its normal checks.
+
+## Observed probe and user-directed acceptance scope
+
+[PR #333 run 38692089814](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38692089814),
+attempt 1, binds base `3d05a6f660f6819e06dd3e4291eeb5840bd41e9e`, head
+`7e8b3bd96d67e6f068fa00cb7624ed1b7c768597` and tested merge
+`2c7b3e7592b154f6e40aff2431189448306360b9`. The downloaded plan records
+`candidateProfile=integration`, `profile=full`, exactly
+`REVIEWED_INTEGRATION, FORCE_FULL`, `health=null`, and 46 planned jobs. Change scope
+passed, and all three canonical repetitions were observed running.
+
+At capture, the complete paginated jobs API exposed 44 rows: 12 successful,
+31 in progress and one failed. Other dependent jobs had not yet appeared. The
+automatic-healthy rich workload failed at `frozen guest window failed`; its raw
+log is retained without assigning an unproven scheduling/runtime root cause.
+Thus this observation establishes routing, not successful full qualification or
+Required acceptance. No cancellation or later outcome is inferred from this
+snapshot.
+
+The user explicitly accepted the routing result and chose not to wait for this
+probe to finish before restoration. This narrows the drill's acceptance scope;
+it does not turn any failed or unexecuted checks into passes. Raw run/PR/artifact
+metadata, every jobs page, the downloaded plan, failure log and hash index are in
+`target/ci-tiered-force-full-probe/hosted-38692089814/`.
 
 ## Hosted sequence
 
@@ -29,9 +56,11 @@ hosted pass; the later probe and restoration still require their actual checks.
    record `candidateProfile=integration`, `profile=full`, reasons exactly
    `REVIEWED_INTEGRATION, FORCE_FULL`, and `health=null`. All 46 expanded jobs,
    including the three canonical repetitions, must pass and Required must accept
-   them. A `HEALTH_UNAVAILABLE`, self-change or unknown-path fallback does not
-   qualify this override check. Record failed attempts and carried executions.
-4. Retain the successful probe's exact source/base/attempt and plan before updating
+   them to claim full qualification. For this drill, the user's narrower routing
+   acceptance is established by the plan and actual canonical starts above.
+   A `HEALTH_UNAVAILABLE`, self-change or unknown-path fallback does not qualify
+   this override check. Record failed attempts and carried executions.
+4. Retain the routing probe's exact source/base/attempt and plan before updating
    the probe PR. On that same branch, restore only the switch to `false` and add
    the observed evidence record. The new revision must again run full with
    `POLICY_CHANGED`; it cannot downgrade its own validation. Merge that revision
@@ -43,8 +72,9 @@ hosted pass; the later probe and restoration still require their actual checks.
    Preserve the normal fail-closed health behavior and the complete full recipe.
 
 Do not treat a manual dispatch as the eligible-PR probe: it always selects full.
-The one-time skip above does not apply to the probe or restoration. Do not disable
-their checks or count an earlier source's plan as the new revision's qualification.
+The one-time skip above does not apply to restoration. Updating this PR may cancel
+the still-running probe through the existing PR concurrency policy. Do not count
+an earlier source's plan as the new revision's qualification.
 Workflow dispatch, commits, pushes and merges
 remain operator actions; this preparation does not trigger them automatically.
 

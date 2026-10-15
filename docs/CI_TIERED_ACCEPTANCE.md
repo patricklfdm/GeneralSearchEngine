@@ -47,7 +47,7 @@ New-source hosted status starts `HOSTED_PENDING`. An unavailable mandatory local
 check is `LOCAL_VALIDATION_BLOCKED`, not hosted pending. Final local readiness
 requires every applicable mandatory local item to pass.
 
-## Observed hosted progress after PR #331
+## Observed hosted progress through PR #333's routing probe
 
 The [hosted acceptance report](CI_TIERED_HOSTED_ACCEPTANCE.md) records complete
 attempt inventories, downloaded plans and the first measured timing sample.
@@ -59,7 +59,10 @@ PR #331 and its master push qualified docs routing on attempt 1: two successful
 meta jobs, all 36 suites skipped, and Required accepting that precise recipe.
 Read-only rules inspection confirms the stable `Required` check and strict
 up-to-date enforcement. This observation does not test an administrator bypass.
-Actual Nightly/concurrency and the [hosted forceFull drill](CI_TIERED_FORCE_FULL_DRILL.md)
-remain pending. These
-observations supplement the frozen checklist above; they do not remove any item
-or replace mandatory local acceptance with hosted success.
+The [hosted forceFull drill](CI_TIERED_FORCE_FULL_DRILL.md) now has a verified
+integration-to-full plan and actual starts of all three canonical repetitions.
+The user accepted that routing result without waiting for complete workloads.
+This explicitly narrows this drill's acceptance; the captured automatic-healthy
+failure and unfinished jobs are not passes or full qualification. Restoration and
+actual Nightly/concurrency checks remain pending. These observations preserve the
+original checklist and do not replace mandatory local acceptance with hosted success.
