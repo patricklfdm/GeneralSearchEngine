@@ -120,6 +120,12 @@ qualifying follower publication. Fresh five-mode and large-package replay passes
 earlier control timing and checker-compatibility failures remain retained. The
 complete measured-window path and M02–M04 schedules are next; no formal M01 ran.
 
+The [Phase 6J window ledger](v5.2/PHASE_6_MEASUREMENT_WINDOWS.md) now validates
+the full 1,980-call offered program and retains rejected/late calls in statistics.
+Successful cut validation is shared with the short gate; all ten old results and
+190 negatives remain identical. Resource-window binding, full execution and fault
+schedules still precede the complete machine freeze and formal measurements.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

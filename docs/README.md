@@ -44,6 +44,7 @@ protected hosted acceptance remain pending.
 - [Phase 6G chosen-update projection and streaming negative replay](v5x/v5.2/PHASE_6_MEASUREMENT_PROJECTION.md)
 - [Phase 6H complete consumer ledger and read ownership replay](v5x/v5.2/PHASE_6_MEASUREMENT_HISTORY.md)
 - [Phase 6I local durable publication and snapshot transfer authority](v5x/v5.2/PHASE_6_MEASUREMENT_PUBLICATION.md)
+- [Phase 6J complete offered-window accounting and shared query cuts](v5x/v5.2/PHASE_6_MEASUREMENT_WINDOWS.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership
