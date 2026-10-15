@@ -9,6 +9,8 @@ from scripts.v51.performance_model import strict_json
 from . import token
 from .evidence import need, digest, encoded
 
+MUTATION_FIELDS={'add':'documents','update':'documents','addAll':'documents','updateAll':'documents',
+                 'remove':'keys','removeAll':'keys','createIndex':'index','dropIndex':'field'}
 
 def read(path): return strict_json(Path(path).read_bytes())
 
@@ -30,20 +32,12 @@ def context(root, traces):
 
 def prefix(snapshot, manifest, genesis, entries):
     indexes,initial=physical.application(physical.raw(genesis['application']))
-    documents=dict(initial);sequence=genesis['baseSequence'];commands=[]
+    ancestors=[]
     for index,anchor in enumerate(snapshot['anchors'],1):
         need(anchor['entryDigest'] in entries,'unobserved read ancestor')
         entry=entries[anchor['entryDigest']];need(entry['index']==index,'read ancestor position')
-        operation=entry['operation'];items=[]
-        if operation in (1,2,4,5):
-            items=physical.documents_command(physical.raw(entry['payload']))
-            need(operation in (4,5) or len(items)==1,'single read-prefix mutation')
-            for key,value in items:
-                need((key in documents)==(operation in (2,5)),'read-prefix mutation precondition')
-                documents[key]=value
-            sequence+=1
-        else: need(operation==9,'undeclared read fixture operation')
-        commands.append(dict(operation=operation,documents=[dict(id=k,value=v) for k,v in items]))
+        ancestors.append(entry)
+    indexes,documents,sequence,commands=physical.project_application(ancestors,indexes,initial,genesis['baseSequence'])
     actual_indexes,actual=physical.application(physical.raw(snapshot['application']))
     need(indexes==actual_indexes and list(documents.items())==list(actual.items()) and sequence==snapshot['applicationSequence'],
          'read publication differs from chosen prefix')
@@ -130,7 +124,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     lifecycle=scenario in lifecycle_cases
     from .public_read_protocol_evidence import CASES as protocol_cases
     protocol_case=scenario in protocol_cases
-    need(scenario is None or lifecycle or protocol_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    from .public_read_application_evidence import CASES as application_cases
+    application_case=scenario in application_cases
+    need(scenario is None or lifecycle or protocol_case or application_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -156,7 +152,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
             if event=='CLIENT_INVOKE':
                 identity=row['opId'];need(identity in attempts and identity not in calls,'duplicate/unrecorded client invocation')
                 attempt=attempts[identity]
-                keys=(('kind',None),('documents',None)) if row['kind']=='addAll' else (
+                keys=(('kind',None),(MUTATION_FIELDS[row['kind']],None)) if row['kind'] in MUTATION_FIELDS else (
                         ('kind',None),('policy',None),('minimum',''),('waitTimeoutMillis',0))
                 for key,default in keys:
                     need(row.get(key,default)==attempt.get(key,default),'controller/worker read options differ')
@@ -270,11 +266,12 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
                 elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
                 else:raise ValueError('undeclared pre-capture rejection')
-            elif event=='CLIENT_SUCCESS' and row['kind']=='addAll':
-                identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded bulk response')
+            elif event=='CLIENT_SUCCESS' and row['kind'] in MUTATION_FIELDS:
+                identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded mutation response')
                 attempt=attempts[identity]
+                field=MUTATION_FIELDS[row['kind']]
                 need(attempt['node']==node and attempt['pid']==pid and attempt['outcome']=='SUCCESS' and
-                     attempt['documents']==calls[identity]['documents']==row['documents'] and
+                     attempt[field]==calls[identity][field]==row[field] and
                      attempt['response']=={k:v for k,v in row.items() if k not in
                          ('event','order','pid','generation','localNanos','node','groupId','manifestDigest')},'controller/worker bulk response differs')
         need(active is None or (crash and process['exitCode']!=0),'unreleased public view')
@@ -284,6 +281,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
          'missing confirmed-write-before-token ordering')
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif application_case:
+        from .public_read_application_evidence import schedule
+        schedule(root,scenario,traces,history,processes,queries)
     elif protocol_case:
         from .public_read_protocol_evidence import schedule
         schedule(root,scenario,traces,history,processes)

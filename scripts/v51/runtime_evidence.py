@@ -43,6 +43,66 @@ def documents_command(data):
     f.need(offset==len(data),'command trailing data');return values
 
 
+def application_command(operation,data):
+    """Decode the declared integer-key/string-value fixture without product codecs."""
+    result=dict(operation=operation,documents=[])
+    if operation in (1,2,4,5):
+        items=documents_command(data)
+        f.need(operation in (4,5) or len(items)==1,'single mutation count')
+        result['documents']=[dict(id=k,value=v) for k,v in items]
+    elif operation==9:
+        f.need(data==b'','NO_OP payload must be empty')
+    else:
+        f.need(operation in (3,6,7,8),'unsupported runtime fixture operation')
+        f.need(len(data)>=6 and data[:2]==b'\x00\x01','command header')
+        count=struct.unpack('>i',data[2:6])[0]
+        if operation in (3,6):
+            f.need(0<count<=100 and (operation==6 or count==1),'key command count')
+            f.need(len(data)==6+8*count,'key command size')
+            keys=[]
+            for offset in range(6,len(data),8):
+                size,key=struct.unpack('>ii',data[offset:offset+8])
+                f.need(size==4 and key not in keys,'key command identity');keys.append(key)
+            result['keys']=keys
+        else:
+            f.need(0<count<=(8192 if operation==7 else 1024) and len(data)==6+count,'index command size')
+            if operation==7:
+                descriptor=f.json_body(data[6:])
+                f.need(type(descriptor) is dict and set(descriptor)=={'field','kind','analyzer'} and
+                       all(type(v) is str for v in descriptor.values()),'index descriptor fields')
+                f.need(descriptor['kind'] in ('equality','range','prefix','text') and
+                       descriptor['analyzer']==('gse-simple-v1' if descriptor['kind']=='text' else ''),'index descriptor kind/analyzer')
+                result['index']=descriptor;field=descriptor['field']
+            else:field=data[6:].decode('utf-8');result['field']=field
+            f.need(0<len(field.encode('utf-8'))<=1024 and '\0' not in field,'index command field')
+    return result
+
+
+def project_application(entries,indexes,initial,sequence):
+    """Reconstruct whole published prefixes, including deletes and index lifecycle."""
+    documents=dict(initial);registered={value['field']:value for value in indexes};commands=[]
+    f.need(len(registered)==len(indexes),'duplicate initial index')
+    for entry in entries:
+        command=application_command(entry['operation'],raw(entry['payload']));operation=command['operation']
+        if operation in (1,2,4,5):
+            for item in command['documents']:
+                key=item['id'];f.need((key in documents)==(operation in (2,5)),'application mutation precondition')
+                documents[key]=item['value']
+        elif operation in (3,6):
+            for key in command['keys']:
+                f.need(key in documents,'application removal precondition');del documents[key]
+        elif operation==7:
+            index=command['index'];f.need(index['field'] not in registered,'application index already exists')
+            registered[index['field']]=index
+        elif operation==8:
+            f.need(command['field'] in registered,'application index missing');del registered[command['field']]
+        if operation!=9:sequence+=1
+        commands.append(command)
+    # Replica snapshot descriptors use the registered TreeMap's field order,
+    # independently of the public backup builder's initial-index ordering.
+    return [registered[key] for key in sorted(registered)],documents,sequence,commands
+
+
 def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence_location=None,require_restart=True):
     root=Path(root);encoded=(root/'node-1/manifest.gsr').read_bytes();manifest=dict(f.inspect(encoded,'MANIFEST'),digest=encoded[16:48].hex())
     genesis=f.inspect((root/'node-1/genesis.gsr').read_bytes(),'GENESIS');indexes,initial=application(raw(genesis['application']))
@@ -119,18 +179,13 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
                 snapshot=frame(row['snapshot'],'SNAPSHOT',manifest);proof=frame(snapshot['terminalProof'],'PROOF',manifest);digest=storage.sha(raw(snapshot['terminalProof']))
                 f.need(('PROOF',digest) in forced and digest in received,'publication before local proof/remote ACK')
                 f.need((proof['epoch'],proof['incarnation']) in selections,'publication without verified selected quorum')
-                projection=dict(initial);sequence=genesis['baseSequence']
+                prefix=[]
                 for index,anchor in enumerate(snapshot['anchors'],1):
                     f.need(chosen.get(index)==anchor['entryDigest'],'unobserved publication ancestor');entry=entries[anchor['entryDigest']]
-                    if entry['operation'] in (1,2,4,5):
-                        items=documents_command(raw(entry['payload']))
-                        f.need(entry['operation'] in (4,5) or len(items)==1,'single mutation count')
-                        for key,value in items:
-                            f.need((key in projection)==(entry['operation'] in (2,5)),'application mutation precondition');projection[key]=value
-                        sequence+=1
-                    else:f.need(entry['operation']==9,'unsupported runtime fixture operation')
+                    f.need(entry['index']==index,'publication ancestor position');prefix.append(entry)
+                expected_indexes,projection,sequence,_=project_application(prefix,indexes,initial,genesis['baseSequence'])
                 actual_indexes,actual=application(raw(snapshot['application']))
-                f.need(list(actual.items())==list(projection.items()) and actual_indexes==indexes and snapshot['applicationSequence']==sequence,'V4 canonical application projection')
+                f.need(list(actual.items())==list(projection.items()) and actual_indexes==expected_indexes and snapshot['applicationSequence']==sequence,'V4 canonical application projection')
                 published[len(snapshot['anchors'])]=projection;publications+=1
             elif event=='SUCCESS':
                 f.need(row['index'] in published and published[row['index']].get(row['id'])==row['value'],'success before exact publication');successes+=1

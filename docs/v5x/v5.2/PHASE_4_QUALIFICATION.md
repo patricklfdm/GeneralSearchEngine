@@ -47,11 +47,11 @@ This table records implemented evidence without declaring unfinished variants do
 | S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | Rerun complete compatibility on the final artifact |
 | S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
-| S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, queued strong ordering, update/delete carried bound | Public delayed follower and overlap physical evidence |
+| S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
 | S13 | All three identity mismatches before admission/allocation | Public new-group/import and retained restart variants |
 | S14–S16 | 4B carried-token halt/SIGKILL with pre-reopen inspection; 4C2 verified installed newer prefix | Explicit below-floor cleanup and new-group backup |
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
-| S21 | Real public paused callback with queued update and index create/drop; same generation | Physical process trace of the combined lifecycle |
+| S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
 | S23–S24 | P=4 real public saturation, P=1 old maintenance, P=65/default deterministic cap | Separate-process counters in final resource evidence |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
@@ -310,7 +310,7 @@ ID. A history remains inside one gate; no continuous process history is split.
 
 | Job | Complete qualification | Job ceiling |
 | --- | --- | ---: |
-| `v52-foundation` | Foundation/model and healthy published-query replay | 15 min |
+| `v52-foundation` | Foundation/model, healthy and three-policy application replay | 15 min |
 | `v52-read-faults` | Six carried-token/publication faults | 15 min |
 | `v52-read-lifecycle` | Eleven cancellation/cooperative-close cases | 15 min |
 | `v52-read-protocol` | Seven higher-promise/snapshot-install cases | 20 min |
@@ -333,3 +333,44 @@ unchanged-job/step comparison, generated inventory and documentation links pass.
 Receipts and the original failed test log remain in `target/v52-ci-lanes/`.
 No GSE runtime workload was rerun for this workflow-only split. Protected hosted
 validation and measured lane durations remain pending.
+
+
+## 4D1: physical application lifecycle and published-query replay
+
+The required foundation job now also runs `verify-v52-phase4-read-application.sh`.
+Three fresh histories exercise LEADER_STRONG, STALE_ALLOWED and AT_LEAST_INDEX.
+Each pauses inside the callback after a complete seven-method query report,
+submits update, updateAll, remove, removeAll, index create/drop and add through the
+public API, then repeats the report before releasing the view. All mutations are
+still pending while that callback owns the application worker. After release,
+each successful mutation must have its own exact chosen-and-published command.
+A fresh strong read and the carried older minimum then return the updated prefix,
+including deleted documents staying absent. The old token conveys history coverage,
+not a promise to retain old document values.
+
+The independent fixture decoder now handles operations 1–9, including exact key
+counts/lengths, canonical index descriptors, analyzer identity, trailing bytes and
+empty NO_OP payloads. Snapshot descriptors follow the actual replica TreeMap's
+field ordering. This differs from public backup index ordering; the decoder does
+not substitute a backup's ordering for the snapshot format. Fixture deletes target
+existing documents and bulk commands are nonempty; these checks describe this
+fixture rather than narrowing the product API's general remove/bulk semantics.
+The pinned published V4.4 core executes all decoded operations and all seven query
+methods at every observed publication. No product command decoder is used as its
+oracle, and no runtime Java or persistent format changed.
+
+Local `target/v52-public-read-application/development-1` passes all three histories:
+27 successful reads, nine baseline bulks and 21 overlapping application mutations.
+Each case passes thirteen evidence negatives before packing and after relocation;
+each relocated oracle executes the published control again. The run binds base
+`3746149a1f1e05ca59018cbba3bf0efaf040bca7` and checkout digest
+`0edf5cae45509925a59bde553b973df30b61ec1ec4e47fb91171f7b506ded631`.
+The subsequent CI wiring and documentation edits are checked separately.
+
+Five decoder tests (including three new strict operation/projection cases), all
+32 V5.2 Python tests and 79 affected CI/decoder/cloud tests pass. Replaying unchanged
+healthy evidence both locally and relocated, the cancelled-capture SIGKILL history
+and the paused verified-install history also passes their original negatives.
+Logs, bindings and hash summaries remain at `target/v52-read-application-process/`.
+This closes the physical S21 overlap case; the remaining identity, resource,
+compatibility and complete N01–N16 accounting still prevent Phase 4 closure.

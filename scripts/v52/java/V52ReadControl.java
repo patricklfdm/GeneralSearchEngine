@@ -3,6 +3,7 @@ package io.github.patricklfdm.generalsearch.admission;
 import static io.github.patricklfdm.generalsearch.admission.V52ReadQueries.*;
 import io.github.patricklfdm.generalsearch.durability.*;
 import io.github.patricklfdm.generalsearch.engine.SearchEngine;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import java.nio.file.*;
 import java.util.*;
 
@@ -28,8 +29,17 @@ public final class V52ReadControl {
                     switch(operation) {
                         case 1 -> engine.add(docs.getFirst()).join();
                         case 2 -> engine.update(docs.getFirst()).join();
+                        case 3 -> engine.remove(((Number)((List<?>)command.get("keys")).getFirst()).intValue()).join();
                         case 4 -> engine.addAll(docs).join();
                         case 5 -> engine.updateAll(docs).join();
+                        case 6 -> engine.removeAll(((List<Number>)command.get("keys")).stream().map(Number::intValue).toList()).join();
+                        case 7 -> {
+                            var index=(Map<String,Object>)command.get("index");
+                            if(!index.equals(Map.of("field","id","kind","equality","analyzer","")))
+                                throw new IllegalArgumentException("undeclared control index");
+                            engine.createIndex(IndexDefinition.equality(ID)).join();
+                        }
+                        case 8 -> engine.dropIndex((String)command.get("field")).join();
                         case 9 -> {if(!docs.isEmpty())throw new IllegalArgumentException("NO_OP documents");}
                         default -> throw new IllegalArgumentException("unsupported declared fixture operation");
                     }

@@ -2,6 +2,7 @@ package io.github.patricklfdm.generalsearch.admission;
 
 import static io.github.patricklfdm.generalsearch.admission.V52ReadQueries.*;
 import io.github.patricklfdm.generalsearch.replication.*;
+import io.github.patricklfdm.generalsearch.index.IndexDefinition;
 import io.github.patricklfdm.generalsearch.query.Query;
 import io.github.patricklfdm.generalsearch.ranking.*;
 import io.github.patricklfdm.generalsearch.search.*;
@@ -85,9 +86,25 @@ public final class V52PublicReadConsumer {
                             pending.add(CompletableFuture.runAsync(()->respond(command,Map.of("cancelled",target.cancel(false)),null)));
                         } else if(kind.equals("begin-close")) {
                             pending.add(CompletableFuture.runAsync(engine::close).handle((v,e)->{respond(command,Map.of(),e);return null;}));
-                        } else if(kind.equals("addAll")) {
+                        } else if(Set.of("add","update","addAll","updateAll").contains(kind)) {
                             var docs=((List<Map<String,Object>>)command.get("documents")).stream().map(d->new Doc(((Number)d.get("id")).intValue(),(String)d.get("value"))).toList();
-                            pending.add(engine.addAll(docs).handle((v,e)->{respond(command,Map.of("documents",docs.stream().map(V52ReadQueries::doc).toList()),e);return null;}));
+                            var future=switch(kind) {
+                                case "add" -> engine.add(docs.getFirst());
+                                case "update" -> engine.update(docs.getFirst());
+                                case "updateAll" -> engine.updateAll(docs);
+                                default -> engine.addAll(docs);
+                            };
+                            pending.add(future.handle((v,e)->{respond(command,Map.of("documents",docs.stream().map(V52ReadQueries::doc).toList()),e);return null;}));
+                        } else if(Set.of("remove","removeAll").contains(kind)) {
+                            var keys=((List<Number>)command.get("keys")).stream().map(Number::intValue).toList();
+                            var future=kind.equals("remove")?engine.remove(keys.getFirst()):engine.removeAll(keys);
+                            pending.add(future.handle((v,e)->{respond(command,Map.of("keys",keys),e);return null;}));
+                        } else if(kind.equals("createIndex")) {
+                            if(!command.get("index").equals(Map.of("field","id","kind","equality","analyzer","")))
+                                throw new IllegalArgumentException("undeclared public fixture index");
+                            pending.add(engine.createIndex(IndexDefinition.equality(ID)).handle((v,e)->{respond(command,Map.of("index",command.get("index")),e);return null;}));
+                        } else if(kind.equals("dropIndex")) {
+                            pending.add(engine.dropIndex((String)command.get("field")).handle((v,e)->{respond(command,Map.of("field",command.get("field")),e);return null;}));
                         } else if(kind.equals("read")) {
                             var policy=ReplicaReadPolicy.valueOf((String)command.get("policy"));String minimum=(String)command.getOrDefault("minimum","");
                             var options=new ReplicaReadOptions(policy,minimum.isEmpty()?Optional.empty():Optional.of(ReplicaReadToken.decode(Base64.getDecoder().decode(minimum))),
@@ -99,7 +116,15 @@ public final class V52PublicReadConsumer {
                             var future=engine.read(options,v->{
                                 try {if(!attached.await(5,TimeUnit.SECONDS))throw new IllegalStateException("completion observer not attached");}
                                 catch(InterruptedException error){Thread.currentThread().interrupt();throw new IllegalStateException(error);}
-                                event("REPLICA_READ_CALLBACK",Map.of("opId",command.get("opId")));return report(view(v));});
+                                event("REPLICA_READ_CALLBACK",Map.of("opId",command.get("opId")));
+                                var first=report(view(v));
+                                if(Boolean.TRUE.equals(command.get("repeat"))) {
+                                    event("REPLICA_READ_REPORT_FIRST",Map.of("opId",command.get("opId"),"report",first));
+                                    var second=report(view(v));
+                                    event("REPLICA_READ_REPORT_SECOND",Map.of("opId",command.get("opId"),"report",second));
+                                    if(!first.equals(second))throw new IllegalStateException("same callback changed query cut");
+                                }
+                                return first;});
                             reads.put((String)command.get("opId"),future);
                             pending.add(future.handle((result,error)->{
                                         event("REPLICA_READ_COMPLETION_ENTER",Map.of("opId",command.get("opId")));
