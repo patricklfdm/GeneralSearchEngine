@@ -21,11 +21,26 @@ public final class V52MeasurementOracle {
         Path root=Path.of(args[0]),input=Path.of(args[1]);Files.createDirectory(root);
         if(Files.size(input)>1<<20)throw new IllegalArgumentException("oracle input bound");
         var value=(Map<String,Object>)AdmissionJson.parse(Files.readString(input));
-        if(!value.keySet().equals(Set.of("schema","corpus","updates","requests"))||!"gse-v52-measurement-query-input-v1".equals(value.get("schema")))
+        boolean selected="gse-v52-measurement-query-input-v2".equals(value.get("schema"));
+        if(!(selected?value.keySet().equals(Set.of("schema","corpus","updates","requests","offeredOrdinals")):
+                value.keySet().equals(Set.of("schema","corpus","updates","requests"))&&"gse-v52-measurement-query-input-v1".equals(value.get("schema"))))
             throw new IllegalArgumentException("oracle input fields");
         var corpus=(List<Map<String,Object>>)value.get("corpus");var updates=(List<Map<String,Object>>)value.get("updates");
         var requests=(List<Map<String,Object>>)value.get("requests");
         if(corpus.size()!=64||updates.size()>180||requests.isEmpty()||requests.size()>4096)throw new IllegalArgumentException("oracle input count");
+        if(selected) {
+            var ordinals=(List<Object>)value.get("offeredOrdinals");long previous=-1;
+            if(ordinals.size()!=updates.size())throw new IllegalArgumentException("oracle selected update count");
+            for(int i=0;i<ordinals.size();i++) {
+                Object raw=ordinals.get(i);
+                if(!(raw instanceof Long)&&!(raw instanceof Integer))throw new IllegalArgumentException("oracle offered ordinal type");
+                long ordinal=((Number)raw).longValue();
+                if(ordinal<=previous||ordinal>=180)throw new IllegalArgumentException("oracle offered ordinal order");previous=ordinal;
+                int id=1+(int)(ordinal%64),revision=1+(int)(ordinal/64);
+                var expected=Map.of("id",id,"value","java search memory group "+((id+52)%8)+" item "+id+" revision "+revision);
+                if(!AdmissionJson.canonical(updates.get(i)).equals(AdmissionJson.canonical(expected)))throw new IllegalArgumentException("oracle selected update differs from offered ordinal");
+            }
+        }
         System.err.println("coreSource="+Path.of(SearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
         int applied=0;long outputBytes=0;long lastSequence=0;String stateHash=null,lastKey="";
         try(var engine=measurementBuilder().buildDurable(V52MeasurementQueries.storage(root.resolve("store")));

@@ -23,6 +23,16 @@ class MeasurementOracleTest(unittest.TestCase):
         for updates in (self.updates[1:],list(reversed(self.updates)),self.updates+[self.updates[-1]]):
             with self.assertRaisesRegex(ValueError,'update prefix'):o.prepare(self.cuts,updates)
 
+    def test_selected_schema_keeps_actual_sequence_separate_from_offered_ordinal(self):
+        value=o.prepare_selected([dict(sequence=3,query=m.query(0))],[0,2])
+        self.assertEqual(o.SELECTED_SCHEMA,value['schema']);self.assertEqual([self.updates[0],self.updates[2]],value['updates'])
+        self.assertEqual(3,len(o.states(value)));self.assertEqual(self.updates[2],o.states(value)[3]['documents'][2])
+        for ordinals in ([0,0],[2,0],[True],[180],[-1]):
+            with self.subTest(ordinals=ordinals),self.assertRaises(ValueError):o.prepare_selected([dict(sequence=1,query=m.query(0))],ordinals)
+        for change in (lambda v:v.__setitem__('schema',o.SCHEMA),lambda v:v['updates'].reverse(),lambda v:v['offeredOrdinals'].__setitem__(1,1)):
+            mutated=copy.deepcopy(value);change(mutated)
+            with self.assertRaises(ValueError):o.validate(mutated)
+
     def test_wrong_sequence_or_non_program_query_cannot_be_cached(self):
         for sequence,query in ((True,m.query(0)),(0,m.query(0)),(182,m.query(0)),(1,dict(kind='get',id=65)),(1,dict(kind='get',id=True))):
             with self.subTest(sequence=sequence,query=query),self.assertRaises(ValueError):o.prepare([dict(sequence=sequence,query=query)],self.updates)

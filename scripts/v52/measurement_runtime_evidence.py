@@ -10,6 +10,7 @@ from scripts.v51 import public_qualification_harness as q
 from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
 from . import public_reads_evidence as reads
 from . import measurement_load as load,measurement_samples as samples,measurement_bundle
+from . import measurement_projection,measurement_stream
 from .evidence import need,digest,encoded
 
 
@@ -73,7 +74,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
     need(len(initial)==1 and initial[0]['opId']==scenario['initialRead'] and initial[0]['node']==scenario['leader'] and
          initial[0]['endNanos']<updates[0]['startNanos'],'measurement initial read ordering')
     if binding['mode']=='candidate-minimum':need(all(r['minimum']==initial[0]['response']['token'] for r in requested),'measurement initial minimum changed')
-    state_projection=oracle.states(oracle.prepare([dict(sequence=1,query=model.query(0))],program))
+    projection=measurement_projection.Projection(manifest,genesis,entries,updates)
     cuts=[];successes={};timings={}
     for process in processes:
         node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}
@@ -86,13 +87,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                 if row['kind']=='PROMISE':promised=record['epoch']
                 if row['kind']=='ACCEPT':force_order[record['entryDigest']]=row['order']
             elif event in ('APPLICATION_RESTORED','PUBLISHED','LOCAL_PUBLISHED'):
-                snapshot=recovery.snapshot(physical.raw(row['snapshot']),manifest);value=reads.prefix(snapshot,manifest,genesis,entries)
-                commands=[c for c in value['commands'] if c['operation']!=9]
-                need(commands==[dict(operation=2,documents=[doc]) for doc in program[:value['sequence']-1]] and 1<=value['sequence']<=4,'measurement smoke chosen update prefix')
-                need(value['documents']==state_projection[value['sequence']]['documents'],'measurement smoke application projection')
-                latest=dict(index=len(snapshot['anchors']),sequence=value['sequence'],generation=publication_generation(row,binding['mode']),order=row['order'],
-                            last=snapshot['anchors'][-1]['entryDigest'] if snapshot['anchors'] else None,
-                            epoch=physical.frame(snapshot['terminalProof'],'PROOF',manifest)['epoch'] if snapshot['terminalProof'] else 0)
+                snapshot=recovery.snapshot(physical.raw(row['snapshot']),manifest);value=projection.publication(snapshot)
+                latest=dict(value,generation=publication_generation(row,binding['mode']),order=row['order'])
             elif event=='CLIENT_INVOKE' and row['opId'] in calls:
                 call=calls[row['opId']];need(row['opId'] not in client_invocations and all(row[k]==call[k] for k in ('kind','query','document') if k in call),'measurement client invocation binding')
                 client_invocations[row['opId']]=row
@@ -156,6 +152,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                     timings[identity]=dict(apiNanos=row['apiEndNanos']-row['apiStartNanos'],clientQueueNanos=row['apiStartNanos']-row['receivedNanos'],
                                           validationToCaptureNanos=entered[read_id]['localNanos']-capture['localNanos'],
                                           captureToReleaseNanos=release['localNanos']-entered[read_id]['localNanos'])
+                if call['kind']=='update':
+                    need(latest is not None,'measurement update lacks publication');projection.update_response(call,latest['index'])
                 successes[identity]=row
             elif event=='CLIENT_IDLE':
                 queues=row['queues'];need(queues['admissionAvailable']==64 and all(queues.get(k,0)==0 for k in ('readsOwned','readsWaiting','readsCaptured','readsSettling','readsAlarms')),'measurement final ownership leak');idle=True
@@ -189,45 +187,58 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
 
 def negatives(root,expected,answers,*,package=bundle):
     validate(root,expected,answers,package=package)
-    root=Path(root);original={f'node-{i}':list(stream(root,f'node-{i}')) for i in (1,2,3)}
+    root=Path(root);original={f'node-{i}':stream(root,f'node-{i}') for i in (1,2,3)}
     history=reads.read(root/'history.json');mode=expected['mode']
-    def find(rows,event):return next(r for own in rows.values() for r in own if r['event']==event)
-    def strong(rows):return next(r for own in rows.values() for r in own if r['event']=='REPLICA_READ_CAPTURE_VALIDATED' and r['policy']=='LEADER_STRONG')
-    def response(rows,calls,both):
-        call=next(c for c in calls if c['kind']=='read');call['response']['answer']={'forged':True}
-        if both:next(r for own in rows.values() for r in own if r['event']=='CLIENT_SUCCESS' and r['opId']==call['opId'])['answer']={'forged':True}
+    def find(event,extra=lambda row:True):return lambda row:row['event']==event and extra(row)
+    def edit(**values):
+        def apply(row):row.update(values);return row
+        return apply
+    def field(key,value):
+        def apply(row):row[key]=value(row) if callable(value) else value;return row
+        return apply
+    def nested(field,key,value):
+        def apply(row):row[field][key]=value;return row
+        return apply
+    def remove(field,key):
+        def apply(row):row[field].pop(key);return row
+        return apply
+    initial=next(c for c in history if c['kind']=='read');mode=expected['mode']
     capture='READ_CAPTURE_VALIDATED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURE_VALIDATED'
-    cases=[('changed-controller-answer',lambda r,h:response(r,h,False),'measurement controller/worker response differs'),
-           ('forged-core-answer',lambda r,h:response(r,h,True),'measurement query differs from actual published core'),
-           ('wrong-captured-sequence',lambda r,h:find(r,capture).__setitem__('sequence',999),'measurement capture differs from local publication'),
-           ('leaked-permit',lambda r,h:find(r,'CLIENT_IDLE')['queues'].__setitem__('admissionAvailable',63),'measurement final ownership leak')]
+    entered='READ_CAPTURED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURED'
     invocation='PUBLIC_READ_INVOKE' if mode.endswith('legacy-strong') else 'REPLICA_READ_INVOKED'
     other='REPLICA_READ_INVOKED' if invocation=='PUBLIC_READ_INVOKE' else 'PUBLIC_READ_INVOKE'
-    cases.append(('wrong-public-capability',lambda r,h:find(r,invocation).__setitem__('event',other),'measurement wrong public read capability'))
-    entered='READ_CAPTURED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURED'
-    cases.append(('missing-entered-view',lambda r,h:find(r,entered).__setitem__('event','REMOVED_CAPTURE'),'measurement view release identity'))
+    def response(calls):next(c for c in calls if c['opId']==initial['opId'])['response']['answer']={'forged':True}
+    cases=[('changed-controller-answer',None,None,response,'measurement controller/worker response differs'),
+           ('forged-core-answer',find('CLIENT_SUCCESS',lambda row:row.get('opId')==initial['opId']),edit(answer={'forged':True}),response,'measurement query differs from actual published core'),
+           ('wrong-captured-sequence',find(capture),edit(sequence=999),None,'measurement capture differs from local publication'),
+           ('leaked-permit',find('CLIENT_IDLE'),nested('queues','admissionAvailable',63),None,'measurement final ownership leak'),
+           ('wrong-public-capability',find(invocation),edit(event=other),None,'measurement wrong public read capability'),
+           ('missing-entered-view',find(entered),edit(event='REMOVED_CAPTURE'),None,'measurement view release identity')]
     if not mode.endswith('legacy-strong'):
+        strong=find(capture,lambda row:row['policy']=='LEADER_STRONG')
         cases.extend([
-            ('wrong-policy',lambda r,h:strong(r).__setitem__('policy','STALE_ALLOWED'),'measurement silent read policy fallback'),
-            ('wrong-strong-epoch',lambda r,h:strong(r).__setitem__('barrierEpoch',999),'measurement strong barrier not fresh'),
-            ('expired-capture',lambda r,h:find(r,capture).__setitem__('captureNanos',find(r,capture)['deadlineNanos']),'measurement capture deadline/generation'),
-            ('wrong-release-cut',lambda r,h:find(r,'REPLICA_READ_RELEASED').__setitem__('sequence',999),'measurement changed released cut')])
+            ('wrong-policy',strong,edit(policy='STALE_ALLOWED'),None,'measurement silent read policy fallback'),
+            ('wrong-strong-epoch',strong,edit(barrierEpoch=999),None,'measurement strong barrier not fresh'),
+            ('expired-capture',find(capture),field('captureNanos',lambda row:row['deadlineNanos']),None,'measurement capture deadline/generation'),
+            ('wrong-release-cut',find('REPLICA_READ_RELEASED'),edit(sequence=999),None,'measurement changed released cut')])
     if mode=='candidate-minimum':
-        cases.append(('different-minimum',lambda r,h:next(c for c in h if c['kind']=='read' and not c.get('setupToken')).__setitem__('minimum','AA=='),'measurement initial minimum changed'))
+        def minimum(calls):next(c for c in calls if c['kind']=='read' and not c.get('setupToken'))['minimum']='AA=='
+        cases.append(('different-minimum',None,None,minimum,'measurement initial minimum changed'))
     if 'smokeInitialization' in expected:
         baseline=reads.read(root/'scenario.json')['baseline'];baseline_node=next(iter(baseline));identity=baseline[baseline_node]['opId']
-        cases.append(('missing-prepared-publication',lambda r,h:next(v for v in r[baseline_node] if v['event']=='CLIENT_SUCCESS' and v.get('opId')==identity).__setitem__('event','REMOVED_PREPARED_STATUS'),
-                      'measurement prepared observation binding'))
+        cases.append(('missing-prepared-publication',find('CLIENT_SUCCESS',lambda row:row['node']==baseline_node and row.get('opId')==identity),
+                      edit(event='REMOVED_PREPARED_STATUS'),None,'measurement prepared observation binding'))
     if expected.get('driverExercise',False):
         cases.extend([
-            ('missing-resource-sample',lambda r,h:find(r,'CLIENT_SAMPLE').__setitem__('sampleOrdinal',99),'sample missing/duplicate ordinal'),
-            ('fabricated-unsupported-allocation',lambda r,h:find(r,'CLIENT_SAMPLE').__setitem__('allocatedBytes',dict(status='UNSUPPORTED',value=0)),
+            ('missing-resource-sample',find('CLIENT_SAMPLE'),edit(sampleOrdinal=99),None,'sample missing/duplicate ordinal'),
+            ('fabricated-unsupported-allocation',find('CLIENT_SAMPLE'),edit(allocatedBytes=dict(status='UNSUPPORTED',value=0)),None,
              'sample fabricated unavailable metric: allocatedBytes')])
         if mode!='published-v51-legacy-strong':
-            cases.append(('missing-read-resource-counter',lambda r,h:find(r,'CLIENT_SAMPLE')['queues'].pop('readsOwned'),'sample missing candidate read counters'))
+            cases.append(('missing-read-resource-counter',find('CLIENT_SAMPLE'),remove('queues','readsOwned'),None,'sample missing candidate read counters'))
     result=[]
-    for name,mutate,reason in cases:
-        rows=copy.deepcopy(original);calls=copy.deepcopy(history);mutate(rows,calls)
+    for name,predicate,change,mutate_history,reason in cases:
+        rows=measurement_stream.changed(original,predicate,change) if predicate else original;calls=copy.deepcopy(history)
+        if mutate_history:mutate_history(calls)
         try:validate(root,expected,answers,traces=rows,history=calls,package=package)
         except ValueError as error:need(str(error)==reason,'measurement unrelated negative rejection: '+name+': '+str(error));result.append(dict(case=name,status='REJECTED',reason=reason))
         else:raise ValueError('measurement negative accepted: '+name)

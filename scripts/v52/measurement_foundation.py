@@ -50,9 +50,17 @@ def run(output):
             answers=oracle.validate_output(oracle_input,own/'oracle/answers.jsonl')
             need(answers=={oracle.key(state['sequence'],answer['query']):answer['answer'] for state in value['states'] for answer in state['answers']},
                  'persistent measurement oracle differs from direct core query execution')
+            sparse_input=oracle.prepare_selected([dict(sequence=sequence,query=query) for sequence in range(1,7) for query in model.queries()],
+                                                [0,2,65,130,179])
+            (own/'selected-input.json').write_bytes(encoded(sparse_input)+b'\n')
+            replay=q.command(['java','-cp',os.pathsep.join((str(classes),str(jar))),PACKAGE+'V52MeasurementOracle',own/'selected',own/'selected-input.json'],own,'selected')
+            need(replay.stderr.strip()=='coreSource='+str(jar),'selected oracle loaded wrong artifact')
+            need(json.loads(replay.stdout)==dict(status='PASS',measured=False,requests=828,updatesApplied=5,finalSequence=6),'selected oracle incomplete')
+            selected=oracle.validate_output(sparse_input,own/'selected/answers.jsonl')
+            value['selectedAnswers']=selected
             results[name]=value
         need(results['published-v44']==results['candidate-core'],'candidate queries differ from actual published core')
-        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690)
+        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690,selectedOracleQueriesPerCore=828)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:(root/'receipt.json').write_bytes(encoded(receipt)+b'\n')
     print(json.dumps({k:receipt[k] for k in ('status','execution','measured','states','queriesPerCore')}),flush=True)

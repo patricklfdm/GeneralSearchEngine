@@ -101,6 +101,13 @@ The short driver now confirms its actual read/write targets have published the
 prepared updates; retained failures explain both that correction and the old V5.1
 follower boundary. Full measured validation and M02–M04 execution remain pending.
 
+The [Phase 6G projector and streaming negatives](v5.2/PHASE_6_MEASUREMENT_PROJECTION.md)
+now preserve rejected/uncertain update semantics and distinguish offered ordinals
+from chosen application sequences. The old strict query format remains intact;
+new selected-update replay passes actual V4.4/candidate queries. Ten retained
+original/relocated inputs preserve all 124 existing rejection results without
+materializing whole traces. Full measured-history admission remains open.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

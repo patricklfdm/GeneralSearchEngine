@@ -9,6 +9,7 @@ from .evidence import need,digest,encoded
 from scripts.v51.performance_model import strict_json
 
 SCHEMA='gse-v52-measurement-query-input-v1'
+SELECTED_SCHEMA='gse-v52-measurement-query-input-v2'
 MAX_REQUESTS=4096
 MAX_INPUT_BYTES=1<<20
 MAX_OUTPUT_BYTES=32<<20
@@ -18,7 +19,7 @@ MAX_ROW_BYTES=64<<10
 def key(sequence,query):return digest(encoded(dict(sequence=sequence,query=query)))
 
 
-def prepare(cuts,updates):
+def prepare(cuts,updates,*,offered_ordinals=None):
     need(type(cuts) is list and 0<len(cuts)<=MAX_REQUESTS,'measurement oracle cut bound')
     requests={}
     for cut in cuts:
@@ -27,16 +28,31 @@ def prepare(cuts,updates):
         need(len(requests)<=MAX_REQUESTS,'measurement oracle request bound')
     value=dict(schema=SCHEMA,corpus=model.corpus(),updates=updates,
                requests=sorted(requests.values(),key=lambda r:(r['sequence'],r['key'])))
+    if offered_ordinals is not None:value.update(schema=SELECTED_SCHEMA,offeredOrdinals=offered_ordinals)
     validate(value);return value
 
 
+def prepare_selected(cuts,offered_ordinals):
+    program=[r['document'] for r in model.program() if r['kind']=='update']
+    need(type(offered_ordinals) is list and all(type(i) is int and 0<=i<len(program) for i in offered_ordinals),'measurement oracle offered ordinal')
+    return prepare(cuts,[program[i] for i in offered_ordinals],offered_ordinals=offered_ordinals)
+
+
 def validate(value):
-    need(type(value) is dict and set(value)=={'schema','corpus','updates','requests'} and value['schema']==SCHEMA,'measurement oracle input fields')
+    need(type(value) is dict and value.get('schema') in (SCHEMA,SELECTED_SCHEMA),'measurement oracle input fields')
+    fields={'schema','corpus','updates','requests'}|({'offeredOrdinals'} if value['schema']==SELECTED_SCHEMA else set())
+    need(set(value)==fields,'measurement oracle input fields')
     need(len(encoded(value))<=MAX_INPUT_BYTES,'measurement oracle input byte bound')
     need(encoded(value['corpus'])==encoded(model.corpus()),'measurement oracle corpus')
     expected=[r['document'] for r in model.program() if r['kind']=='update'];updates=value['updates']
-    need(type(updates) is list and len(updates)<=len(expected) and encoded(updates)==encoded(expected[:len(updates)]),
-         'measurement oracle update prefix')
+    if value['schema']==SCHEMA:
+        need(type(updates) is list and len(updates)<=len(expected) and encoded(updates)==encoded(expected[:len(updates)]),
+             'measurement oracle update prefix')
+    else:
+        ordinals=value['offeredOrdinals']
+        need(type(ordinals) is list and len(ordinals)<=len(expected) and all(type(i) is int and 0<=i<len(expected) for i in ordinals) and
+             all(a<b for a,b in zip(ordinals,ordinals[1:])),'measurement oracle offered ordinal')
+        need(type(updates) is list and encoded(updates)==encoded([expected[i] for i in ordinals]),'measurement oracle selected updates')
     requests=value['requests'];need(type(requests) is list and 0<len(requests)<=MAX_REQUESTS,'measurement oracle request bound')
     allowed={encoded(q) for q in model.queries()};seen=set();previous=None
     for row in requests:
