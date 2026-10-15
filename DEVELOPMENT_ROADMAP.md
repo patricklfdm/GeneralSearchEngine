@@ -13,7 +13,7 @@ preserves its measured sources/sequences and historical failures/costs. The
 one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
 
 **Next:** V5.2 Phase 0 replica-read contract and evidence design, starting with
-the [V5.x roadmap](docs/v5x/ROADMAP.md#next-entry-and-proposal-status).
+the [source-reviewed entry plan](docs/v5x/v5.2/PHASE_0_ENTRY_PLAN.md).
 Runtime implementation follows acceptance of that contract. The chronology
 below preserves earlier milestones and acceptance boundaries.
 

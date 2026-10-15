@@ -47,7 +47,7 @@ New-source hosted status starts `HOSTED_PENDING`. An unavailable mandatory local
 check is `LOCAL_VALIDATION_BLOCKED`, not hosted pending. Final local readiness
 requires every applicable mandatory local item to pass.
 
-## Observed hosted progress through PR #333's routing probe
+## Observed hosted progress through PR #333's restoration
 
 The [hosted acceptance report](CI_TIERED_HOSTED_ACCEPTANCE.md) records complete
 attempt inventories, downloaded plans and the first measured timing sample.
@@ -63,6 +63,10 @@ The [hosted forceFull drill](CI_TIERED_FORCE_FULL_DRILL.md) now has a verified
 integration-to-full plan and actual starts of all three canonical repetitions.
 The user accepted that routing result without waiting for complete workloads.
 This explicitly narrows this drill's acceptance; the captured automatic-healthy
-failure and unfinished jobs are not passes or full qualification. Restoration and
-actual Nightly/concurrency checks remain pending. These observations preserve the
-original checklist and do not replace mandatory local acceptance with hosted success.
+failure and unfinished jobs are not passes or full qualification. Restoration
+merged with `forceFull=false`; PR CI `38693534135` passed all 46 jobs on attempt 1,
+and exact-master CI `38699074927` passed all 46 jobs at accepted attempt 2. The
+first master attempt's automatic-healthy canonical tape and Required failures
+remain recorded. Actual Nightly/concurrency checks remain pending. These observations
+preserve the original checklist and do not replace mandatory local acceptance with
+hosted success.

@@ -68,13 +68,17 @@ Stage migration with forceFull enabled before activating integration. Keep a
 versioned forceFull rollback. Nightly runs the complete existing no-GCP workload;
 there is no new paid-cloud schedule or empty Weekly workload. Isolate concurrent
 scheduled/manual/master runs from PR cancellation. Failed, stale or unavailable
-full-health evidence upgrades eligible PRs to full. Hosted scheduling and runtime
-improvement remain unmeasured until actual new-source acceptance.
+full-health evidence upgrades eligible PRs to full. The
+[hosted report](CI_TIERED_HOSTED_ACCEPTANCE.md) retains the first real integration
+timing sample; actual Nightly/concurrency and reliable timing distributions remain
+unobserved.
 
 Nightly is `17 10 * * *` (10:17 UTC daily) in the same CI workflow. Manual dispatch
 is always full. Only PR runs cancel previous runs on the same PR ref; other event
 groups include run ID, keeping master/manual/Nightly isolated. Existing verification
-commands and time ceilings are unchanged. Nightly is expensive: the baseline full
+commands and time ceilings are unchanged. There is no unchanged-source or
+recent-full-success deduplication: every schedule event selects full. Nightly is
+expensive: the baseline full
 execution totaled about 400 runner-minutes; scheduling it is not a claim of reduced
 total daily CI usage.
 
@@ -109,3 +113,8 @@ tests as a group; never restore only a conditional or Required parser. Preserve
 published tags, production Java/POMs, frozen hashes/toolchain, release fixtures,
 nine JARs/three POMs/six consumers, 90-day release evidence, and continuous
 lease/source/history and full canonical windows.
+
+The [hosted drill](CI_TIERED_FORCE_FULL_DRILL.md) now records actual override routing
+and the restoration to `false` through PR #333. The enabling PR/master used the
+user's one-time skip; the routing probe was accepted without awaiting all workloads;
+the restoration PR and master passed full. This is not a general skip-CI policy.

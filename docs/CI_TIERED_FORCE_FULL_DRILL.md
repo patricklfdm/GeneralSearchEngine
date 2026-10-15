@@ -5,8 +5,9 @@
 Verify that the existing rollback switch forces an otherwise eligible integration
 PR to run the complete CI recipe. Hosted routing is **CONFIRMED** in PR #333;
 the user accepted this routing observation without waiting for all workloads to
-finish. The checked-in policy is restored to `false` in the follow-up revision;
-its merge and exact-master verification remain pending. No workflow, suite,
+finish. PR #333 restored the checked-in policy to `false` and merged at
+`0ada3ccbbcb9bcab3ef5ddbf25f28861e6cf7b7d`; its PR and exact-master full results
+are recorded below. No workflow, suite,
 Required rule, planner, runtime or workload change is needed.
 
 `forceFull` upgrades integration candidates only. Docs stays docs, and non-doc
@@ -34,11 +35,33 @@ Thus this observation establishes routing, not successful full qualification or
 Required acceptance. No cancellation or later outcome is inferred from this
 snapshot.
 
+The routing run subsequently ended `cancelled`; that final status does not replace
+the captured failed job or establish the outcome of unfinished work.
+
 The user explicitly accepted the routing result and chose not to wait for this
 probe to finish before restoration. This narrows the drill's acceptance scope;
 it does not turn any failed or unexecuted checks into passes. Raw run/PR/artifact
 metadata, every jobs page, the downloaded plan, failure log and hash index are in
 `target/ci-tiered-force-full-probe/hosted-38692089814/`.
+
+## Completed restoration
+
+The restoration head `88089b1547aec4965dd1116f704c2cf959029a99` passed
+[PR CI 38693534135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38693534135)
+on attempt 1: all 46 jobs successful, tested merge
+`97baf7fc9678c981e0f2fa87700755ee4f7b28e5`. PR #333 merged at
+`0ada3ccbbcb9bcab3ef5ddbf25f28861e6cf7b7d`.
+[Exact-master CI 38699074927](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38699074927)
+passed all 46 jobs at accepted attempt 2. Attempt 1 failed the automatic-healthy
+owned canonical tape and Required; it is not a clean first-attempt pass or evidence
+that the failure's cause was fixed. Carried successes are not new executions.
+
+Both downloaded execution plans select full with `POLICY_CHANGED`. Exact-source
+readback confirms `forceFull=false`. This completes configuration restoration and
+the user-accepted routing drill. Raw attempt pages, plans, policy readback and
+summary are under `target/ci-tiered-force-full-restore/hosted-pr333/`.
+Nightly/concurrency observations and the five historical local failures remain
+separate open items; this result does not mark full T6 acceptance complete.
 
 ## Hosted sequence
 

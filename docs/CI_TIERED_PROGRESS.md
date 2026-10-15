@@ -5,7 +5,7 @@
 The original development task authorized continuous local T0–T6 implementation
 and staged local commits, with one final review. Subsequent user authorization
 allowed pushing that branch and one manual full CI execution; the user then
-created and merged PRs #329–#332. PR #333's routing probe is recorded below,
+created and merged PRs #329–#333. The routing probe and restoration are recorded below,
 without replacing the retained local failures. Input handoff files remain
 unmodified, uncommitted and unnecessary at runtime.
 
@@ -22,11 +22,11 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | --- | --- | --- | --- |
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline and rollout observations retained |
 | T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full, integration and docs plans observed |
-| T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | Full rollout passed; PR #333 forceFull routing confirmed; restoration pending |
+| T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | Full rollout passed; PR #333 forceFull routing and restoration complete |
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | PR #330 selected integration; accepted attempt 2 passed 43 jobs with canonical skipped |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | Manual full passed; exact-base health observed; Nightly pending |
-| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full/integration/docs and forceFull routing observed; restoration and Nightly pending |
+| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full/integration/docs and forceFull restoration observed; Nightly/concurrency pending |
 
 **Local acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
 T0–T5 implementation is committed. The user supplied the missing namespace
@@ -99,15 +99,15 @@ placeholders. Their downloaded plans bind tested merge
 `535add252b43b674a951710393e93d844add2fb1`, respectively. Raw pages, plans and
 the summary are under `target/ci-tiered-docs-acceptance/hosted-pr331/`.
 
-Further hosted work remains: the forceFull restoration and actual Nightly
-execution/concurrency. The schedule query still had
-zero runs at 2026-10-15 05:51 UTC, before the first 10:17 UTC slot after rollout.
+Further hosted work remains: actual Nightly execution/concurrency. The schedule
+query still returned no runs during the 2026-10-15 restoration review. Retain the
+first natural scheduled execution when available; manual full is not a substitute.
 A new docs-only master requires its own exact-source full health before a later
 eligible integration PR can reduce coverage; its docs success is not full health.
 Manual dispatch always selects full. No daily savings or fixed timing guarantee
 are claimed, and the original local failure records remain unresolved.
 
-### Observed forceFull routing and prepared restoration
+### Observed forceFull routing and completed restoration
 
 PR #332 enabled `forceFull=true` with a user-authorized one-time CI skip. The
 [drill procedure](CI_TIERED_FORCE_FULL_DRILL.md) records that validation gap and
@@ -120,9 +120,20 @@ without waiting for the entire probe; full qualification is not claimed.
 The captured API had 44 visible jobs: 12 successful, 31 in progress and one failed
 automatic-healthy workload (`frozen guest window failed`). Raw failure and partial
 execution evidence remain in `target/ci-tiered-force-full-probe/hosted-38692089814/`.
-The same PR now prepares `forceFull=false` and this evidence record. Its policy
-change must still select full with `POLICY_CHANGED`; restoration merge/master
-verification remains pending. Docs retains its two-job recipe in both settings.
+The routing run subsequently ended cancelled; no unfinished workload is relabeled
+as passed. The same PR restored `forceFull=false`: restoration PR CI `38693534135`
+passed all 46 jobs on attempt 1, and master `0ada3ccbbcb9bcab3ef5ddbf25f28861e6cf7b7d`
+passed all 46 jobs in CI `38699074927` at accepted attempt 2. Master attempt 1
+failed the automatic-healthy owned canonical tape and Required. Both retained plans
+select full with `POLICY_CHANGED`; exact-source policy readback confirms `false`.
+Raw pages/plans are under `target/ci-tiered-force-full-restore/hosted-pr333/`.
+Docs retains its two-job recipe in both settings. This closes restoration, not
+the original local gaps or the separate Nightly/concurrency acceptance.
+
+The next mainline task is the documentation-only
+[V5.2 Phase 0 entry](v5x/v5.2/PHASE_0_ENTRY_PLAN.md). Progress on that design does
+not claim Tiered CI's unresolved acceptance checks have passed. Production V5.2
+work still requires its own reviewed Phase 0 and a separately identified entry.
 
 The exercise exposed test coupling: scenario fixtures inherited the deployment
 switch and a contract test required literal `false`. The unchanged planner already

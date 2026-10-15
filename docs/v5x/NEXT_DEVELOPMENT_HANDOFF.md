@@ -15,7 +15,14 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Next batch: V5.2 Phase 0
 
-Start with the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
+The [V5.2 Phase 0 entry plan](v5.2/PHASE_0_ENTRY_PLAN.md) now maps the inspected
+V5.1 public/runtime surfaces, ten open decisions, nine evidence families and six
+required contract outputs. This is the task specification, not an accepted read
+contract or production implementation. The review base is master `0ada3cc` after
+the [Tiered CI restoration](../CI_TIERED_FORCE_FULL_DRILL.md); original CI failures
+and remaining Nightly/concurrency observations stay separate.
+
+Start with that entry, the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
 [proposed read-policy refinement](NEXT_DEVELOPMENT_ADDENDUM.md#v52-explicit-read-policies),
 and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). Define the replica-read
 authority/API contract and its evidence matrix before production implementation:
@@ -29,8 +36,8 @@ authority/API contract and its evidence matrix before production implementation:
 
 Published `5.1.0` becomes the immediate replication reference for V5.2; inherited
 V4.4 search/storage behavior and earlier configured-mode guarantees remain.
-V5.2 runtime work follows acceptance of its own Phase 0. This release-reconciliation
-batch changes documentation only; no V5.2 version bump or runtime work has started.
+V5.2 runtime work follows acceptance of its own Phase 0. The current entry batch
+changes documentation only; no V5.2 version bump or runtime work has started.
 Commit/push/PR/tag operations remain operator-owned, and paid runs remain manual.
 
 ## Accepted V5.1 cloud evidence
