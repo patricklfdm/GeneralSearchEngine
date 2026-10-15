@@ -91,25 +91,5 @@ def execute_prepared(root,binding,cp,*,worker_factory=runtime.Worker):
     need(p==profile(mode,p.get('repetition')) and 'smokeInitialization' not in binding and 'driverExercise' not in binding,
          'measurement M01 preparation profile')
     need(binding.get('readParameters')==options.parameters() and not (root/options.FILE).exists(),'measurement M01 preparation parameters')
-    workers={};history=[];processes=[];failure=None;close_errors=[]
-    try:
-        for i in (1,2,3):
-            node=f'node-{i}';worker=worker_factory(root,node,cp,mode,history);workers[node]=worker
-            for component in ('core','replication'):
-                path=Path(worker.identity[component+'Source'])
-                need(path.parent==root/'artifacts' and runtime.digest(path.read_bytes())==binding['artifacts'][path.name],
-                     'measurement M01 loaded artifact')
-            need(worker.identity['readParameters']==binding['readParameters'],'measurement M01 observed preparation parameters')
-        return observe(root,workers,history,mode,p['repetition'])
-    except BaseException as error:
-        failure=dict(type=type(error).__name__,message=str(error));raise
-    finally:
-        for node,worker in workers.items():
-            try:worker.stop()
-            except BaseException as error:close_errors.append(dict(node=node,type=type(error).__name__,message=str(error)))
-            processes.append(dict(node=node,pid=worker.proc.pid,generation=worker.generation,
-                                  exitCode=worker.proc.returncode,identity=worker.identity))
-        runtime.save(root/'history.json',history);runtime.save(root/'processes.json',processes)
-        runtime.save(root/'execution.json',dict(status='STOPPED' if failure is None and not close_errors else 'FAIL',
-            qualifiedMeasurement=False,paidCloud=False,failure=failure,closeErrors=close_errors))
-        if close_errors and failure is None:raise ValueError('measurement M01 close failed: '+str(close_errors))
+    return runtime.execute_observer(root,binding,cp,lambda workers,history:observe(root,workers,history,mode,p['repetition']),
+                                    worker_factory=worker_factory,label='measurement M01')

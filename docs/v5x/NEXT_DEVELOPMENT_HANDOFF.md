@@ -157,6 +157,13 @@ defaults. Java startup and replay bind the declared values; zero-wait progress
 rejection requires its explicit profile. Relation/saturation schedules, M04 and
 the machine freeze are still required before any formal measurement.
 
+The [Phase 6P minimum controllers](v5.2/PHASE_6_MINIMUM_CONTROLLERS.md) now execute
+all nine M02 and both M03 schedules using original futures, cumulative admission
+gates and reserved writer capacity. Fresh development histories pass the shared
+physical/lifecycle checks. Scenario-specific admission, M04 and the complete
+machine freeze still precede formal measurements; these observations are not a
+formal M02/M03 acceptance set.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

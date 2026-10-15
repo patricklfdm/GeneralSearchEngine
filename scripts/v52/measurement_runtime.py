@@ -149,6 +149,30 @@ def await_publication(workers,index,sequence,*,clock=time.monotonic,sleep=time.s
     raise ValueError('measurement prepared publication unavailable')
 
 
+def execute_observer(root,binding,cp,observe,*,worker_factory=Worker,label='measurement'):
+    """Own every started process and keep original execution/close failures separate."""
+    workers={};history=[];processes=[];failure=None;close_errors=[]
+    try:
+        for i in (1,2,3):
+            node=f'node-{i}';worker=worker_factory(root,node,cp,binding['mode'],history);workers[node]=worker
+            for component in ('core','replication'):
+                path=Path(worker.identity[component+'Source'])
+                need(path.parent==root/'artifacts' and digest(path.read_bytes())==binding['artifacts'][path.name],label+' loaded artifact')
+            need(worker.identity['readParameters']==binding['readParameters'],label+' observed preparation parameters')
+        return observe(workers,history)
+    except BaseException as error:
+        failure=dict(type=type(error).__name__,message=str(error));raise
+    finally:
+        for node,worker in workers.items():
+            try:worker.stop()
+            except BaseException as error:close_errors.append(dict(node=node,type=type(error).__name__,message=str(error)))
+            processes.append(dict(node=node,pid=worker.proc.pid,generation=worker.generation,exitCode=worker.proc.returncode,identity=worker.identity))
+        save(root/'history.json',history);save(root/'processes.json',processes)
+        save(root/'execution.json',dict(status='STOPPED' if failure is None and not close_errors else 'FAIL',qualifiedMeasurement=False,
+            paidCloud=False,failure=failure,closeErrors=close_errors))
+        if close_errors and failure is None:raise ValueError(label+' close failed: '+str(close_errors))
+
+
 def smoke(root,mode,*,exercise_load=False):
     binding,cp,control_cp=prepare(root,mode,exercise_load=exercise_load);workers={};history=[];processes=[];result=None
     try:

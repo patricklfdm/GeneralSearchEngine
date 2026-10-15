@@ -13,6 +13,8 @@ public final class V52MeasurementWorker {
         var manifest=decode(Files.readAllBytes(root.resolve(node+"/manifest.gsr")),"MANIFEST");
         var trace=new V52MeasurementTrace(root.resolve(node+"-trace.jsonl"),root.resolve(node+"-arm.txt"),generation,node,manifest);
         var starts=ThreadLocal.withInitial(HashMap<String,Long>::new);
+        var readAdmissions=new java.util.concurrent.atomic.AtomicLong();
+        var recoveryFloor=new java.util.concurrent.atomic.AtomicLong();
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(new AutomaticStore.Faults() {
             public void at(String event) throws IOException {
                 if(event.equals("SELECTOR_BEFORE_ACK")) {
@@ -58,9 +60,16 @@ public final class V52MeasurementWorker {
             }
             if(Set.of("READ_CAPTURE_VALIDATED","REPLICA_READ_ADMITTED","REPLICA_READ_CAPTURE_VALIDATED","REPLICA_READ_SETTLING","REPLICA_READ_OWNERSHIP_RELEASED").contains(event))trace.write(event,row);
             else trace.event(event,row);
+            // Controller hints update only after the complete observation write.
+            // Offline replay must still prove the actual events and floor bytes.
+            if(event.equals("REPLICA_READ_ADMITTED"))readAdmissions.incrementAndGet();
+            if(event.equals("RECOVERY_FLOOR"))recoveryFloor.set(((Number)row.get("index")).longValue());
         }));
         V52MeasurementConsumer.observer=(name,row)->{try {trace.event(name,row);}catch(IOException failure){throw new UncheckedIOException(failure);}};
-        V52MeasurementConsumer.diagnostics=V51PublicWorker::queues;
+        V52MeasurementConsumer.diagnostics=engine->{
+            var values=new LinkedHashMap<String,Object>(V51PublicWorker.queues(engine));
+            values.put("readAdmissionsObserved",readAdmissions.get());values.put("recoveryFloorObserved",recoveryFloor.get());return values;
+        };
         try {V52MeasurementConsumer.main(args);}
         finally {AutomaticRuntimeHooks.CURRENT.remove();}
     }
