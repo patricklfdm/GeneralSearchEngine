@@ -128,9 +128,11 @@ def validate(root, expected, queries, *, traces=None, history=None):
     scenario=binding.get('scenario')
     from .public_read_lifecycle_evidence import CASES as lifecycle_cases
     lifecycle=scenario in lifecycle_cases
-    need(scenario is None or lifecycle or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    from .public_read_protocol_evidence import CASES as protocol_cases
+    protocol_case=scenario in protocol_cases
+    need(scenario is None or lifecycle or protocol_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
-    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or lifecycle and scenario.endswith(('-halt','-kill'))
+    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
          {p['node'] for p in processes}=={'node-1','node-2','node-3'},'public process set')
     if not crash:need(all(p['exitCode']==0 and p['generation']==1 for p in processes),'three stopped public JVMs')
@@ -265,7 +267,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
                          token.decode(physical.raw(request['minimum']))['index']>latest,'zero-wait rejection at satisfied prefix')
                 elif cancelled:need(request is not None,'cancelled read lacks runtime invocation')
                 elif row.get('reasonCode')=='CLOSED':need(lifecycle,'undeclared close rejection')
-                elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof','undeclared non-readable state')
+                elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
+                elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
                 else:raise ValueError('undeclared pre-capture rejection')
             elif event=='CLIENT_SUCCESS' and row['kind']=='addAll':
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded bulk response')
@@ -281,6 +284,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     need((len(writes)==3 if scenario is None else len(writes)>=3) and strong and all(w['outcome']=='SUCCESS' and w['endNanos']<strong[0]['startNanos'] for w in writes[:3]),
          'missing confirmed-write-before-token ordering')
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif protocol_case:
+        from .public_read_protocol_evidence import schedule
+        schedule(root,scenario,traces,history,processes)
     elif lifecycle:
         from .public_read_lifecycle_evidence import schedule
         schedule(root,scenario,traces,history,processes)

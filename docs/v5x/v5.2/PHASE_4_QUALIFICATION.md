@@ -3,7 +3,8 @@
 **Status:** in progress. Phase 4A supplies deterministic and in-JVM public lifecycle
 coverage; 4B adds six physical process faults, and 4C1 adds eleven cancellation/close
 process schedules. These do not complete S01–S30. Hosted exact-source validation,
-promise/install process variants and the remaining matrix are pending. Follow the
+the remaining matrix and final CI integration are pending. 4C2 adds the seven
+promise/install process cases described below. Follow the
 [local commit sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 ## 4A: lifecycle and resource boundaries
@@ -44,16 +45,16 @@ This table records implemented evidence without declaring unfinished variants do
 | Schedules | Evidence available | Remaining qualification |
 | --- | --- | --- |
 | S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | Rerun complete compatibility on the final artifact |
-| S04–S06 | Actual store/protocol accepted-only, proof-only and staged-publication tests | Public isolated/delayed-publication physical schedules |
+| S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, queued strong ordering, update/delete carried bound | Public delayed follower and overlap physical evidence |
 | S13 | All three identity mismatches before admission/allocation | Public new-group/import and retained restart variants |
-| S14–S16 | Existing publication/recovery kernel and token compatibility rules | Carried-token halt/SIGKILL, below-floor catch-up and new-group backup |
-| S17–S20 | Actual higher-PREPARE before capture, protocol publication/install state gates, captured-state deterministic variants | Public partition/promise/install cases with required process deaths |
+| S14–S16 | 4B carried-token halt/SIGKILL with pre-reopen inspection; 4C2 verified installed newer prefix | Explicit below-floor cleanup and new-group backup |
+| S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | Real public paused callback with queued update and index create/drop; same generation | Physical process trace of the combined lifecycle |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
 | S23–S24 | P=4 real public saturation, P=1 old maintenance, P=65/default deterministic cap | Separate-process counters in final resource evidence |
-| S25–S28 | Queued/waiting/captured/completion cancellation, close, throw/null, blocked callback/handler, FIFO and alternating worker tests | Required halt/SIGKILL variants and physical allocation/release accounting |
+| S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
 | S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | Public corrupt-authority/fatal capture physical evidence |
 | N01–N16 | Phase 1 synthetic sixteen plus Phase 3B eleven physical/query rejection mutations | Complete sixteen targeted physical mutations, before/after relocation |
 
@@ -163,8 +164,8 @@ retains fault evidence for fourteen days. Receipt/log hashes and the final file
 list are retained in `target/v52-fault-qualification/validation-summary.json`.
 
 The original failure receipts are not overwritten or reclassified. These cases
-cover the declared 4B subset; S18/S20/S25/S26 still need their full separate-process
-variants, and the complete N01–N16 physical matrix remains later work.
+cover the declared 4B subset. At that boundary S18/S20/S25/S26 remained for 4C;
+the complete N01–N16 physical matrix remains later work.
 
 
 ## 4C1: cancellation, cooperative close and actual ownership release
@@ -235,3 +236,70 @@ CI wiring, additional checker-type tests and result documentation are added afte
 the bound process run; protected acceptance of the committed source is pending.
 S18/S20 process variants, the remaining S01–S30/N01–N16 matrix, combined Phase 5
 hardening and frozen Phase 6 measurements are still required before cloud entry.
+
+
+## 4C2: higher promises and installed-but-unpublished snapshots
+
+`verify-v52-phase4-read-protocol.sh` executes seven independent public histories:
+strong read before/after a higher promise, halt/SIGKILL after the overlapping
+captured callback releases its view, and paused snapshot installation with normal
+resume or halt/SIGKILL before the minimum rejection response. Every abrupt case
+retains the physical pre-reopen directory and verifies the restarted application
+against its actual retained proven prefix before checking a carried-token read.
+
+The promise schedule establishes a new majority through real partition/election,
+commits a new bulk there, then permits its higher promise to reach the paused old
+leader. An uncaptured request rejects STALE_EPOCH. A valid captured request keeps
+its own original strong result; it does not change policy or recapture new state.
+A lost response stays PENDING. The independent checker requires a forced higher
+promise within the exact local pause interval, in addition to the existing full
+wire, selection, proof, publication and query oracle.
+
+The install schedule starts from the full three-voter baseline and isolates the
+follower outside the actual selected pair. After a new majority write and retained
+recovery floor, healing performs a real snapshot install. The observer pauses
+before local publication. Both stale and minimum reads reject NOT_READY without
+admission or callback; a new minimum read succeeds after actual publication or
+verified retained restart. The checker requires the matching REJOIN_INSTALLED
+snapshot/proof and prevents an already-published prefix from posing as a held one.
+
+### Retained fixture failures and corrected observation budget
+
+The original matrix at `target/v52-public-read-protocol/development-1` is retained.
+Its two normal promise cases observed correct fencing/overlap outcomes but stopped
+waiting for follower recovery at forty seconds. This fault fixture freezes a
+sixty-second operation timeout to isolate promise ordering from read deadline
+expiry; existing rejoin transfers inherit that lease. An installation initially
+rejected for generation capacity can occupy that exact transfer identity until
+expiry, so fresh transfer offers remain rejected during the live lease. Forty
+seconds cannot cover that declared lifecycle. The corrected controller allows the
+sixty-second lease plus twenty seconds of margin and polls status every 200 ms to
+stay within the existing 1000-command fixture bound. Public minimum reads still
+use five seconds; no client mutation/read is silently retried and no production
+lease, capacity or recovery logic is changed.
+
+The first install fixture began with two voters and later started the third.
+Although its installation/read state outcomes were correct, that produced fewer
+basis-transfer frames than the unchanged physical oracle requires. The corrected
+schedule uses the full three-voter baseline and actual isolated-follower catch-up.
+The physical oracle's minimum traffic and every authority check remain unchanged.
+
+### Local result and remaining integration
+
+The complete matrix passes at `target/v52-public-read-protocol/development-2`.
+Its binding records base `008296c` and checkout digest
+`ff3a004611a5f362457a66126479fa41a94a21dcdb52b4d9ab24bc22c6f2de20`.
+All 32 V5.2 Python tests and 50 affected CI/evidence tests pass.
+All seven cases pass twelve negative checks before and after relocation, with a
+fresh published V4.4 query replay after each relocation. The two normal promise
+recoveries took approximately 60.6 seconds, consistent with the declared transfer
+lease; this finite observation does not establish a failover SLA. The later
+no-admission check replays the same original evidence separately rather than
+rerunning the workload. Logs, receipt hashes and the verification summary are at
+`target/v52-read-protocol-process/`.
+
+This stage changes test drivers and independent evidence only. The standalone gate
+is ready; Phase 4D must split the growing V5.2 qualification into shared-build CI
+lanes and wire this gate before hosted acceptance, rather than add all schedules
+to the existing fifteen-minute foundation chain. No current check is removed.
+The remaining S01–S30/N01–N16 coverage still blocks complete Phase 4 acceptance.
