@@ -180,7 +180,6 @@ jobs:
           retention-days: 14
 
   v52-foundation:
-    # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.2 read foundation
     needs: [changes, v51-verification-build]
     if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
@@ -189,53 +188,25 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-
       - name: Set up Java 21
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
         with:
           distribution: temurin
           java-version: '21.0.12+8.0.LTS'
-
       - name: Validate and restore V5.1 verification inputs
         uses: ./.github/actions/v51-restore-build
         with:
           artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
-
       - name: Retain restored build provenance including failures
         if: ${{ always() }}
         uses: ./.github/actions/v51-retain-build
         with:
           artifact-name: v52-foundation-build-inputs-${{ github.sha }}
-
       - name: Verify V5.2 read API and independent foundation
         run: scripts/verify-v52-phase1-foundation.sh --skip-build
 
       - name: Verify V5.2 public replica reads and published query oracle
         run: scripts/verify-v52-phase3-public-reads.sh --skip-build
-
-      - name: Verify V5.2 public read faults and carried tokens
-        run: scripts/verify-v52-phase4-public-faults.sh --skip-build
-
-      - name: Verify V5.2 public cancellation and cooperative close
-        run: scripts/verify-v52-phase4-public-lifecycle.sh --skip-build
-
-      - name: Retain V5.2 public read lifecycle including failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v52-public-lifecycle-${{ github.sha }}
-          path: target/v52-public-lifecycle
-          if-no-files-found: warn
-          retention-days: 14
-
-      - name: Retain V5.2 public read faults including failures
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: v52-public-faults-${{ github.sha }}
-          path: target/v52-public-faults
-          if-no-files-found: warn
-          retention-days: 14
 
       - name: Retain V5.2 public read evidence including failures
         if: ${{ always() }}
@@ -252,6 +223,111 @@ jobs:
         with:
           name: v52-foundation-${{ github.sha }}
           path: target/v52-foundation
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-faults:
+    name: V5.2 carried read faults
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-faults-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 public read faults and carried tokens
+        run: scripts/verify-v52-phase4-public-faults.sh --skip-build
+
+      - name: Retain V5.2 public read faults including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-faults-${{ github.sha }}
+          path: target/v52-public-faults
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-lifecycle:
+    name: V5.2 read lifecycle
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-lifecycle-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 public cancellation and cooperative close
+        run: scripts/verify-v52-phase4-public-lifecycle.sh --skip-build
+
+      - name: Retain V5.2 public read lifecycle including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-lifecycle-${{ github.sha }}
+          path: target/v52-public-lifecycle
+          if-no-files-found: warn
+          retention-days: 14
+
+  v52-read-protocol:
+    name: V5.2 promise and install reads
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-protocol-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 promise and snapshot install read races
+        run: scripts/verify-v52-phase4-read-protocol.sh --skip-build
+
+      - name: Retain V5.2 read protocol evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-public-read-protocol-${{ github.sha }}
+          path: target/v52-public-read-protocol
           if-no-files-found: warn
           retention-days: 14
 
@@ -2669,6 +2745,9 @@ jobs:
       - v51-verification-build
       - v51-foundation
       - v52-foundation
+      - v52-read-faults
+      - v52-read-lifecycle
+      - v52-read-protocol
       - v51-guest-services
       - v51-owned-experiment
       - v51-owned-network-faults

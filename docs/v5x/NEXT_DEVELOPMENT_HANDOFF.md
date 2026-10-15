@@ -40,8 +40,9 @@ fault/lifecycle/resource schedules; the healthy gate does not close that matrix.
 Local 4B now passes six carried-token/partition/publication fault cases. Local 4C1
 passes eleven original-Future cancellation and cooperative-close process cases,
 including halt/SIGKILL and independent ownership accounting. Local 4C2 passes
-seven higher-promise/snapshot-install process cases. Continue with the remaining
-schedule/negative matrix and split V5.2 shared-build CI lanes before final acceptance.
+seven higher-promise/snapshot-install process cases. Phase 4D0 wires all existing
+V5.2 gates into four required shared-build lanes. Continue with the remaining
+schedule/negative matrix before final acceptance.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

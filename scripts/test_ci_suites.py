@@ -31,15 +31,41 @@ class SuiteContractTest(unittest.TestCase):
 
     def test_actual_inventory_matches_independent_cloud_consumer(self):
         names = self.check()
-        self.assertEqual(37, len(self.registry["suites"]))
-        self.assertEqual(39, len(s.job_blocks(self.workflow)))
-        self.assertEqual(47, len(names))
+        self.assertEqual(40, len(self.registry["suites"]))
+        self.assertEqual(42, len(s.job_blocks(self.workflow)))
+        self.assertEqual(50, len(names))
         self.assertCountEqual(cloud_ci.expected_jobs(self.workflow), names)
         for key in ("v51-remote-rich-shards", "v51-owned-canonical-tapes", "v51-owned-canonical"):
             self.assertIsNotNone(next(v["matrix"] for v in self.registry["suites"] if v["id"] == key))
 
     def test_committed_inventory_matches_validated_current_topology(self):
         ci_inventory.check_document()
+
+    def test_v52_whole_histories_use_independent_shared_build_lanes(self):
+        commands = {
+            "v52-foundation": ("phase1-foundation", "phase3-public-reads"),
+            "v52-read-faults": ("phase4-public-faults",),
+            "v52-read-lifecycle": ("phase4-public-lifecycle",),
+            "v52-read-protocol": ("phase4-read-protocol",),
+        }
+        jobs = s.job_blocks(self.workflow)
+        actual = {}
+        for job, body in jobs.items():
+            steps = s.steps(s.fields(body, 4)["steps"])
+            calls = ["".join(values["run"]).strip() for values in steps.values()
+                     if "run" in values and "scripts/verify-v52-" in "".join(values["run"])]
+            if calls:
+                actual[job] = calls
+        self.assertEqual({job: ["scripts/verify-v52-" + gate + ".sh --skip-build" for gate in gates]
+                          for job, gates in commands.items()}, actual)
+        rows = {row["id"]: row for row in self.registry["suites"]}
+        for job in commands:
+            row = rows[job]
+            self.assertEqual(["changes", "v51-verification-build"], row["needs"])
+            self.assertEqual(("success", "success", "skipped"),
+                             (row["fullResult"], row["integrationResult"], row["docsResult"]))
+            self.assertIsNone(row["matrix"])
+            self.assertIn(job, s.BUILD_CONSUMERS)
 
     def test_documentation_rejects_missing_and_stale_inventory(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -49,7 +75,7 @@ class SuiteContractTest(unittest.TestCase):
                 with self.assertRaises(FileNotFoundError):ci_inventory.check_document(root)
                 document.write_text(ci_inventory.render(root), encoding='utf-8')
                 ci_inventory.check_document(root)
-                document.write_text(document.read_text().replace('47 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
+                document.write_text(document.read_text().replace('50 expanded full jobs', '38 expanded full jobs'), encoding='utf-8')
                 with self.assertRaisesRegex(ValueError, 'stale'):ci_inventory.check_document(root)
 
     def test_inventory_generation_propagates_invalid_source_contract(self):

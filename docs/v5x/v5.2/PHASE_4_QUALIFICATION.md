@@ -3,7 +3,7 @@
 **Status:** in progress. Phase 4A supplies deterministic and in-JVM public lifecycle
 coverage; 4B adds six physical process faults, and 4C1 adds eleven cancellation/close
 process schedules. These do not complete S01–S30. Hosted exact-source validation,
-the remaining matrix and final CI integration are pending. 4C2 adds the seven
+the remaining matrix and final hosted acceptance are pending. 4C2 adds the seven
 promise/install process cases described below. Follow the
 [local commit sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
@@ -79,7 +79,7 @@ is complete. Paid execution remains outside this authorization.
 
 ## 4B: owned process faults and carried tokens
 
-The required foundation lane adds `verify-v52-phase4-public-faults.sh`. It creates
+The required carried-read fault lane runs `verify-v52-phase4-public-faults.sh`. It creates
 six independent histories, using only public bootstrap/start/mutation/read calls:
 
 1. Halt at REPLICA_READ_CAPTURED, before the callback starts.
@@ -298,8 +298,38 @@ no-admission check replays the same original evidence separately rather than
 rerunning the workload. Logs, receipt hashes and the verification summary are at
 `target/v52-read-protocol-process/`.
 
-This stage changes test drivers and independent evidence only. The standalone gate
-is ready; Phase 4D must split the growing V5.2 qualification into shared-build CI
-lanes and wire this gate before hosted acceptance, rather than add all schedules
-to the existing fifteen-minute foundation chain. No current check is removed.
+This stage changes test drivers and independent evidence only. Phase 4D0 below
+wires the protocol gate into its own shared-build CI lane. No current check is removed.
 The remaining S01–S30/N01–N16 coverage still blocks complete Phase 4 acceptance.
+
+
+## 4D0: required shared-build CI lanes
+
+Four independent jobs consume the same exact-source verification build by artifact
+ID. A history remains inside one gate; no continuous process history is split.
+
+| Job | Complete qualification | Job ceiling |
+| --- | --- | ---: |
+| `v52-foundation` | Foundation/model and healthy published-query replay | 15 min |
+| `v52-read-faults` | Six carried-token/publication faults | 15 min |
+| `v52-read-lifecycle` | Eleven cancellation/cooperative-close cases | 15 min |
+| `v52-read-protocol` | Seven higher-promise/snapshot-install cases | 20 min |
+
+Each job validates restored source/build/attempt provenance and retains it even on
+failure. Existing evidence artifact names, paths and fourteen-day retention are
+preserved; the protocol gate adds `v52-public-read-protocol`. The protocol job's
+20-minute ceiling leaves setup/upload time around the existing 900-second script.
+Full and integration require all four jobs; docs expects all four skipped. The
+registry, Required dependency set and generated inventory change together. Existing
+V5.1, release, cloud consumer names and fixed matrices are unchanged. This is a
+configuration split, not a measured speedup or a hosted acceptance claim.
+
+
+Local validation passes all 125 affected CI/Required/tiered/observation/health and
+cloud-consumer tests. The first run exposed a new test's scalar-only inspection
+of unrelated multiline shell steps; its corrected 21-test suite passes, while the
+other 104 tests passed unchanged. All 164 shell blocks, the YAML job count, exact
+unchanged-job/step comparison, generated inventory and documentation links pass.
+Receipts and the original failed test log remain in `target/v52-ci-lanes/`.
+No GSE runtime workload was rerun for this workflow-only split. Protected hosted
+validation and measured lane durations remain pending.
