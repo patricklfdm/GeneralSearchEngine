@@ -402,6 +402,41 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
 
+  v52-read-hardening:
+    name: V5.2 combined read hardening
+    needs: [changes, v51-verification-build]
+    if: ${{ needs.changes.outputs.run_full_ci == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Set up Java 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: '21.0.12+8.0.LTS'
+      - name: Validate and restore V5.1 verification inputs
+        uses: ./.github/actions/v51-restore-build
+        with:
+          artifact-id: ${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}
+      - name: Retain restored build provenance including failures
+        if: ${{ always() }}
+        uses: ./.github/actions/v51-retain-build
+        with:
+          artifact-name: v52-read-hardening-build-inputs-${{ github.sha }}
+      - name: Verify V5.2 combined read hardening
+        run: scripts/verify-v52-phase5-hardening.sh --skip-build
+
+      - name: Retain V5.2 read hardening evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-read-hardening-${{ github.sha }}
+          path: target/v52-read-hardening
+          if-no-files-found: warn
+          retention-days: 14
+
   v51-foundation:
     # Isolated execution using verified inputs from the V5.1 build domain.
     name: V5.1 foundation and runtime
@@ -2819,6 +2854,7 @@ jobs:
       - v52-read-faults
       - v52-read-lifecycle
       - v52-read-protocol
+      - v52-read-hardening
       - v51-guest-services
       - v51-owned-experiment
       - v51-owned-network-faults

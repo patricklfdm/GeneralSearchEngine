@@ -115,7 +115,7 @@ class ShadowPlanTest(unittest.TestCase):
         row = rows["src/main/java/Engine.java"]
         self.assertEqual(("M", "100755", "100755"), (row["status"], row["oldMode"], row["newMode"]))
         self.assertNotEqual(row["oldBlob"], row["newBlob"])
-        self.assertEqual(47, report["suitePlan"]["candidate"]["executedJobCount"])
+        self.assertEqual(51, report["suitePlan"]["candidate"]["executedJobCount"])
 
     def test_registry_missing_dirty_or_invalid_cannot_produce_selection(self):
         self.pr()
@@ -136,7 +136,7 @@ class ShadowPlanTest(unittest.TestCase):
 
     def test_closed_suite_recipes_keep_matrix_group_and_dependency_closure(self):
         registry = s.load_registry()
-        for profile, count in (("docs", 2), ("integration", 44), ("full", 47)):
+        for profile, count in (("docs", 2), ("integration", 48), ("full", 51)):
             result = p.suite_plan(registry, profile)
             self.assertEqual(count, result["executedJobCount"])
             self.assertEqual(len(registry["suites"]), len(result["expectedResults"]))

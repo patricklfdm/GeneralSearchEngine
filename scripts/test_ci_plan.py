@@ -34,7 +34,7 @@ class ExecutionPlanTest(unittest.TestCase):
             if profile == "integration":
                 self.assertEqual("true", actual["run_full_ci"])
                 self.assertEqual("false", actual["run_canonical"])
-                self.assertEqual(47, f.plan["recipe"]["executedJobCount"])
+                self.assertEqual(48, f.plan["recipe"]["executedJobCount"])
             needs = self.needs(f.plan)
             for modified, success in ((needs, True), ({**needs, "orphan": dict(result="success", outputs={})}, False)):
                 result = subprocess.run([sys.executable, "-m", "scripts.ci_required"], cwd=f.root,
@@ -92,7 +92,7 @@ class ExecutionPlanTest(unittest.TestCase):
                 p.checked_outputs(actual, s.load_registry(), plan)
                 self.assertEqual(candidate, plan["candidateProfile"])
                 self.assertEqual(expected, plan["profile"])
-                self.assertEqual({"docs": 2, "integration": 47, "full": 50}[expected], plan["recipe"]["executedJobCount"])
+                self.assertEqual({"docs": 2, "integration": 48, "full": 51}[expected], plan["recipe"]["executedJobCount"])
                 if candidate == "integration" and forced:
                     self.assertEqual(["REVIEWED_INTEGRATION", "FORCE_FULL"], plan["reasons"])
                     self.assertIsNone(plan["health"])

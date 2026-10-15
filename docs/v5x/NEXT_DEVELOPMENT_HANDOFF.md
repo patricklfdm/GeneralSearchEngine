@@ -1,7 +1,7 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phases 1–4 are locally verified; combined hardening is next.
+V5.2 Phases 1–5 are locally verified; measurement freeze and pre-cloud preparation are next.
 Full protected acceptance remains pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
@@ -18,7 +18,7 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 5 preparation
+## Current batch: V5.2 Phase 6 preparation
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
@@ -63,6 +63,10 @@ and final local reactor/consumer/API validation. The complete reactor passes
 receipts retain their original source/build bindings; they are not relabelled as
 one run on the final source. Phase 5 combined hardening and Phase 6 preparation
 follow under the local commit authorization.
+[Phase 5 hardening](v5.2/PHASE_5_HARDENING.md) now passes both combined
+partition/restart crash modes and sixteen continuous bounded-pressure rounds,
+with 122 public reads and complete portable physical/query validation. Freeze
+M01–M04 before measurements; no paid cloud execution is authorized here.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

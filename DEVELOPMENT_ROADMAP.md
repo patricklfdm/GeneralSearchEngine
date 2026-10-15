@@ -17,8 +17,9 @@ The capture/waiter kernel and three explicit policies are implemented at
 `5.2.0-SNAPSHOT`. [Phase 4](docs/v5x/v5.2/PHASE_4_QUALIFICATION.md) completes local
 correctness and compatibility qualification, with an explicit
 [schedule-to-evidence map](docs/v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md).
-The authorized local sequence continues through combined hardening and pre-cloud
-measurement preparation. Protected full CI and manual cloud admission remain
+[Phase 5 combined hardening](docs/v5x/v5.2/PHASE_5_HARDENING.md) is locally verified.
+The authorized local sequence continues through measurement freeze and pre-cloud
+preparation. Protected full CI and manual cloud admission remain
 required before paid execution. Earlier milestones follow below.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at

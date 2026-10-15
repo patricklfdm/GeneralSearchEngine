@@ -17,8 +17,9 @@ scope. Proposed documents are not accepted merely because they are linked here.
 
 Current development is V5.2 explicit replica reads. The accepted Phase 0 contract
 now has implemented public policies and completed
-[local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md). Combined hardening,
-measurements and final protected hosted acceptance remain pending.
+[local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md), followed by
+[combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). Measurements and final
+protected hosted acceptance remain pending.
 
 ## v5.2 — unreleased replica reads
 
@@ -33,6 +34,7 @@ measurements and final protected hosted acceptance remain pending.
 - [Phase 3 public read implementation and qualification](v5x/v5.2/PHASE_3_PUBLIC_READS.md)
 - [Phase 4 correctness, resources and compatibility qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md)
 - [Phase 4 S01–S30 evidence mapping](v5x/v5.2/PHASE_4_SCHEDULE_RESULTS.md)
+- [Phase 5 combined fault and bounded-pressure hardening](v5x/v5.2/PHASE_5_HARDENING.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership

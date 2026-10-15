@@ -174,7 +174,9 @@ class WorkflowTopologyTest(unittest.TestCase):
         for name in FULL_GATES:
             with self.subTest(job=name):
                 body = self.jobs[name]
-                needs = "[changes, v51-verification-build]" if (name.startswith("v51-") and name != "v51-verification-build" or name == "v52-foundation") else "changes"
+                shared = name.startswith("v51-") and name != "v51-verification-build" or name in (
+                    "v52-foundation", "v52-read-faults", "v52-read-lifecycle", "v52-read-protocol", "v52-read-hardening")
+                needs = "[changes, v51-verification-build]" if shared else "changes"
                 if name == "v51-remote-rich-shards":
                     needs = "[changes, v51-verification-build, v51-remote-rich-inputs]"
                 elif name == "v51-remote-rich":

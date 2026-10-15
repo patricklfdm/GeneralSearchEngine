@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 and V5.1 published and independently verified; V5.2 public reads locally qualified through Phase 4; protected acceptance pending
+- **Status:** V5.0 and V5.1 published and independently verified; V5.2 public reads locally qualified through Phase 5; protected acceptance pending
 - **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
 - **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
@@ -23,7 +23,8 @@ Phase 0 PR #335 accepted the [V5.2 read contract](v5.2/PHASE_0_CONTRACT.md).
 The [public runtime](v5.2/PHASE_3_PUBLIC_READS.md) implements all three explicit
 policies. [Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md) and its
 [schedule map](v5.2/PHASE_4_SCHEDULE_RESULTS.md) record local correctness,
-process-fault and consumer evidence. Combined hardening and measurements follow;
+process-fault and consumer evidence. [Combined hardening](v5.2/PHASE_5_HARDENING.md)
+is locally verified; measurement freeze and pre-cloud preparation follow;
 full protected CI and fresh cloud qualification remain pending.
 The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.

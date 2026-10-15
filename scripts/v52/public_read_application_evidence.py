@@ -65,7 +65,7 @@ def negatives(root,expected,queries):
         row=next(r for rows in traces.values() for r in rows if r['event']==event);row['report']={}
         try:e.validate(root,expected,queries,traces=traces)
         except ValueError as error:
-            need(str(error)=='application callback reports changed','unexpected application negative reason: '+str(error))
+            need(str(error)=='callback report differs from independent captured cut','unexpected application negative reason: '+str(error))
             cases.append(dict(case='changed-'+event.lower(),status='REJECTED',reason=str(error)))
         else:raise ValueError('changed callback query accepted')
     return cases

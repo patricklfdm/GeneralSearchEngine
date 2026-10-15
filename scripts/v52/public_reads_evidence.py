@@ -145,11 +145,14 @@ def validate(root, expected, queries, *, traces=None, history=None):
     from .public_read_resource_evidence import CAPACITIES
     single_slot_case=scenario=='single-slot'
     negative_case=scenario=='negative-qualification'
+    from .public_read_hardening_evidence import CASES as hardening_cases
+    hardening_case=scenario in hardening_cases
+    sustained_case=scenario=='sustained-bounded-reads'
     resource_case=scenario in CAPACITIES or single_slot_case
-    read_limit=0 if single_slot_case else min(64,CAPACITIES[scenario]-1) if resource_case else 15
-    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or negative_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    read_limit=0 if single_slot_case else 3 if sustained_case else min(64,CAPACITIES[scenario]-1) if resource_case else 15
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or negative_case or hardening_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
-    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
+    crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case or hardening_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
          {p['node'] for p in processes}=={'node-1','node-2','node-3'},'public process set')
     if not crash:need(all(p['exitCode']==0 and p['generation']==1 for p in processes),'three stopped public JVMs')
@@ -254,6 +257,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 need(all(call.get(k,default)==request.get(k,default) for k,default in
                          (('policy',None),('minimum',''),('waitTimeoutMillis',0))),'runtime read options differ from public call')
                 active['callbackOrder']=order
+            elif event in ('REPLICA_READ_REPORT_FIRST','REPLICA_READ_REPORT_SECOND'):
+                need(active is not None and active['opId']==row['opId'],'callback report lacks its active view')
+                need(row['report']==queries[digest(encoded(active['value']))],'callback report differs from independent captured cut')
             elif event=='REPLICA_READ_RELEASED':
                 need(active is not None and active['opId'] is not None and row['token']==active['capture']['token'],'release lacks exact live view')
                 need(active['opId'] not in callbacks,'callback invoked twice');active['releaseOrder']=order
@@ -272,7 +278,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
             elif event=='CLIENT_FAILURE' and row['kind']=='read':
                 identity=row['opId'];need(identity in attempts and identity in calls,'unrecorded failed public read')
                 ids=[key for key,value in sources.items() if value==identity]
-                cancelled=(lifecycle or identity_case or negative_case) and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
+                cancelled=(lifecycle or identity_case or negative_case or hardening_case) and row.get('reasonCode')=='CancellationException' and row.get('outcome')=='CANCELLED'
                 need(len(ids)<=1 and (cancelled or all(i not in validated for i in ids) and identity not in callbacks),'failed pre-capture call has a view')
                 request=invoked[ids[0]] if ids else None;attempt=attempts[identity]
                 need(attempt['response']=={k:v for k,v in row.items() if k not in
@@ -287,7 +293,7 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
                 elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
                 elif row.get('reasonCode')=='CAPACITY_EXCEEDED':
-                    need(resource_case and request is not None and not any(i in admitted for i in ids) and
+                    need((resource_case or sustained_case) and request is not None and not any(i in admitted for i in ids) and
                          row['outcome']=='NOT_APPLICABLE','undeclared or admitted capacity rejection')
                 elif row.get('reasonCode')=='INCOMPATIBLE_HISTORY':
                     need((identity_case or scenario=='backup-import') and request is not None,'undeclared identity rejection')
@@ -319,6 +325,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
     need(len(writes)==3 if scenario is None else len(writes)>=3,'missing public baseline writes')
     confirmed_order(writes,strong,traces)
     if scenario is None:need(all(a['outcome']=='SUCCESS' for a in history),'healthy public fixture had an unsuccessful call')
+    elif hardening_case:
+        from .public_read_hardening_evidence import schedule
+        schedule(root,scenario,traces,history,processes)
     elif negative_case:
         from .public_read_negative_evidence import schedule
         schedule(root,traces,history,processes)

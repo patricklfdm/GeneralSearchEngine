@@ -339,6 +339,60 @@
       "integrationResult": "success"
     },
     {
+      "id": "v52-read-hardening",
+      "name": "V5.2 combined read hardening",
+      "needs": [
+        "changes",
+        "v51-verification-build"
+      ],
+      "matrix": null,
+      "domain": "v51-tested-build",
+      "timeoutMinutes": 20,
+      "inputs": [
+        {
+          "step": "Download this run's exact-source verification inputs",
+          "uses": "actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093",
+          "id": null,
+          "if": null,
+          "with": {
+            "artifact-ids": "${{ needs.v51-verification-build.outputs.artifact_id || 'missing-build-artifact' }}",
+            "merge-multiple": "true",
+            "path": "target/ci-v51-build"
+          }
+        }
+      ],
+      "outputs": {},
+      "evidence": [
+        {
+          "step": "Retain restored build provenance including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-read-hardening-build-inputs-${{ github.sha }}",
+            "path": "${{ runner.temp }}/v51-build/restore.json\ntarget/ci-v51-build/manifest.json\n",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
+          "step": "Retain V5.2 read hardening evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-read-hardening-${{ github.sha }}",
+            "path": "target/v52-read-hardening",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        }
+      ],
+      "fullResult": "success",
+      "docsResult": "skipped",
+      "integrationResult": "success"
+    },
+    {
       "id": "v51-foundation",
       "name": "V5.1 foundation and runtime",
       "needs": ["changes", "v51-verification-build"],
