@@ -1,0 +1,39 @@
+{
+  "schema": "gse-v52-read-hardening-plan-v1",
+  "revision": 1,
+  "execution": "public-three-jvm-combined-hardening",
+  "seed": 52,
+  "paidCloud": false,
+  "operationTimeoutMillis": 60000,
+  "callbackPauseSeconds": 60,
+  "recoveryObservationSeconds": 80,
+  "probeObservationSeconds": 10,
+  "gateSeconds": 900,
+  "cases": [
+    {"name": "partition-captured-halt", "pendingLimit": 16, "exitCode": 71},
+    {"name": "partition-captured-kill", "pendingLimit": 16, "exitCode": -9},
+    {"name": "sustained-bounded-reads", "pendingLimit": 4, "readLimit": 3, "cycles": 16,
+     "behindWaitMillis": 60000, "expiryWaitMillis": 100, "documentsPerCycle": 2, "firstDocumentId": 100}
+  ],
+  "boundaries": {
+    "independentCasesOnly": true,
+    "businessRetries": 0,
+    "baselineFloor": "all-three-voters-at-carried-token",
+    "roundBoundary": "all-three-voters-at-last-confirmed-write-floor-and-no-read-ownership",
+    "partitionCapture": "STALE_ALLOWED callback paused after first seven-method report",
+    "crashCut": "REPLICA_READ_RELEASED",
+    "unacknowledgedCrashRead": "PENDING",
+    "cancelledCapturedRead": "CANCELLED with ownership retained until callback return",
+    "sustainedSequence": ["capture", "behind-minimum", "queued-stale", "reject-excess", "reserve-writer", "cancel-queued", "expire-new-minimum", "cancel-original-minimum", "cancel-captured", "release-view", "complete-original-write", "observe-publication-and-idle"]
+  },
+  "evidence": {
+    "sameCaseSourceBuildRunAttempt": true,
+    "sameMatrixSourceBuildRunAttempt": true,
+    "originalAndRelocatedReplay": true,
+    "publishedQueryControl": "4.4.0",
+    "physicalAuthorityParser": "v51-public-and-v52-read",
+    "exactNegativeReasons": true,
+    "preserveAllAttempts": true,
+    "measurementClaim": false
+  }
+}
