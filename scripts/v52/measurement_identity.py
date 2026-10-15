@@ -1,7 +1,7 @@
 """Shared immutable artifact, JVM and stopped-process identity for measurements."""
 from pathlib import Path
 from scripts.v51.performance_model import strict_json
-from . import measurement_model as model,measurement_bundle as bundle
+from . import measurement_model as model,measurement_bundle as bundle,measurement_generations as generations
 from .evidence import need
 
 
@@ -13,7 +13,7 @@ def metadata(root,name,maximum,*,label="measurement M01"):
     return strict_json(raw)
 
 
-def identity(root,expected,check_profile,*,label):
+def identity(root,expected,check_profile,*,label,restarted=None):
     model.load();binding=metadata(root,'binding.json',4<<20,label=label)
     need(binding==expected,label+' source/build/attempt binding')
     inventory=bundle.inventory(root);mode=binding['mode'];check_profile(binding,inventory)
@@ -30,8 +30,10 @@ def identity(root,expected,check_profile,*,label):
     need(set(binding['artifacts'])=={cores[0],'general-search-engine-replication-'+version+'.jar','general-search-engine-4.4.0.jar'},
          label+' artifact set')
     processes=metadata(root,'processes.json',64<<10,label=label)
-    need(len(processes)==3 and len({p['pid'] for p in processes})==3 and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
-         all(p['generation']==1 and p['exitCode']==0 for p in processes),label+' three stopped JVMs')
+    if restarted is None:
+        need(len(processes)==3 and len({p['pid'] for p in processes})==3 and {p['node'] for p in processes}=={'node-1','node-2','node-3'} and
+             all(p['generation']==1 and p['exitCode']==0 for p in processes),label+' three stopped JVMs')
+    generations.validate(processes,restarted,label=label)
     for process in processes:
         value=process['identity']
         need(all(value[k]==process[k] for k in ('node','pid')) and value['mode']==mode,label+' startup identity')

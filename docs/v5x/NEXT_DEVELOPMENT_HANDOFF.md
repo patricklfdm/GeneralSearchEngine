@@ -840,3 +840,10 @@ retained pre-reopen bytes and owned-process cleanup. Two fresh development
 histories pass general physical validation. Independent generation/token/query,
 resource and portable M04 admission remains open before the complete machine
 freeze and formal measurements. No production Java or workflow topology changes.
+
+The [Phase 6S recovery evidence](v5.2/PHASE_6_RECOVERY_EVIDENCE.md) binds M04's exact
+process generations, pre-reopen proven authority, fault schedule, actual query
+results and per-process resources, retaining the SIGKILL sampling prefix explicitly.
+Portable original/relocated replay and negative cases are implemented. The full
+machine freeze and fresh formal 28-history M01–M04 cohort remain next; no paid run,
+production Java change or push is authorized by this evidence stage.

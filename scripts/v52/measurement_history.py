@@ -2,10 +2,10 @@
 
 This layer proves correlation/lifetime, not physical publication or query truth.
 The caller must also run the independent physical and published-core validators.
-Only cleanly stopped histories are accepted; crash cuts need separate admission.
+One declared M04 SIGKILL is admitted only with completed calls and released views.
 """
 from collections import Counter
-from . import measurement_model as model,measurement_trace as trace,token
+from . import measurement_model as model,measurement_trace as trace,measurement_generations as generations,token
 from scripts.v51.runtime_evidence import raw
 from .evidence import need
 
@@ -106,32 +106,31 @@ def failure(call,response,invocation,captured,callbacks,mode,*,allow_progress_no
     return reason
 
 
-def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_millis=5000,allow_progress_not_reached=False):
+def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_millis=5000,allow_progress_not_reached=False,restarted=None):
     need(mode in model.MODES,'measurement ledger mode')
     need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000) and
          type(allow_progress_not_reached) is bool and (not allow_progress_not_reached or minimum_wait_millis==0),
          'measurement ledger wait profile')
-    need(type(history) is list and len(history)<=3*MAX_CALLS_PER_PROCESS,'measurement controller ledger bound')
-    need(len(processes)==3 and set(traces)=={p['node'] for p in processes} and
-         len({p['node'] for p in processes})==len({p['pid'] for p in processes})==3 and
-         all(p['generation']==1 and p['exitCode']==0 for p in processes),'measurement ledger clean processes')
+    generations.validate(processes,restarted)
+    need(type(history) is list and len(history)<=len(processes)*MAX_CALLS_PER_PROCESS,'measurement controller ledger bound')
+    need(set(traces)=={p['node'] for p in processes},'measurement ledger trace voter set')
     calls={c['opId']:c for c in history}
     need(len(calls)==len(history) and all(isinstance(k,str) and 0<len(k)<=128 for k in calls),'measurement duplicate/invalid operation identity')
-    by_node={p['node']:{} for p in processes}
+    by_process={(p['node'],p['pid'],p['generation']):{} for p in processes}
     for call in calls.values():
-        need(call['node'] in by_node,'measurement foreign consumer')
+        key=call['node'],call['pid'],call['generation'];need(key in by_process,'measurement foreign consumer')
         need(call['outcome']!='PENDING' and 'response' in call and
              integer(call['startNanos'],'controller start')<integer(call['endNanos'],'controller end'),
              'measurement incomplete controller call')
-        request(call);by_node[call['node']][call['opId']]=call
+        request(call);by_process[key][call['opId']]=call
     outcomes={kind:Counter() for kind in ('read','update','control')};reasons={kind:Counter() for kind in outcomes};resources={}
     legacy=mode.endswith('legacy-strong')
     for process in processes:
-        node=process['node'];own=by_node[node];need(len(own)<=MAX_CALLS_PER_PROCESS,'measurement per-consumer ledger bound')
+        node=process['node'];own=by_process[node,process['pid'],process['generation']];need(len(own)<=MAX_CALLS_PER_PROCESS,'measurement per-consumer ledger bound')
         need(all(c['pid']==process['pid'] and c['generation']==process['generation'] for c in own.values()),'measurement controller process binding')
         received={};invoked={};responses={};reads={};read_by_call={};captured={};entered={};released={};callbacks={}
         ownership=Ownership(pending_limit);idle=False;closed=False;last_order=0;last_clock=0
-        for row in traces[node]:
+        for row in generations.rows(traces,process,processes):
             need(row['node']==node and row['pid']==process['pid'] and row['generation']==process['generation'],'measurement ledger observation process')
             need(integer(row['order'],'observation order',1)>last_order and integer(row['localNanos'],'local clock')>=last_clock,
                  'measurement ledger observation order');last_order=row['order'];last_clock=row['localNanos']
@@ -216,8 +215,11 @@ def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_milli
                 if event!='REPLICA_READ_OWNERSHIP_RELEASED':
                     need(read_id in reads and reads[read_id]['opId'] not in responses,'measurement ownership transition after response')
             ownership.observe(row,reads,released)
-        need(idle and closed and set(received)==set(responses)==set(own) and not ownership.owned,'measurement incomplete stopped ledger')
-        resources[node]=dict(admitted=len(ownership.admitted),highWater=ownership.high_water,ownedAtClose=0)
+        need((not idle and not closed if process['exitCode']==-9 else idle and closed) and
+             set(received)==set(responses)==set(own) and not ownership.owned,'measurement incomplete stopped ledger')
+        key=node if restarted is None else node+'-g'+str(process['generation'])
+        resources[key]=dict(admitted=len(ownership.admitted),highWater=ownership.high_water,ownedAtClose=0)
+        if process['exitCode']==-9:resources[key].update(termination='SIGKILL',ownedAtExit=resources[key].pop('ownedAtClose'))
     return dict(status='PASS',execution='complete-consumer-ledger-only',qualifiedMeasurement=False,
                 outcomes={k:dict(sorted(v.items())) for k,v in outcomes.items()},
                 reasons={k:dict(sorted(v.items())) for k,v in reasons.items()},resources=resources)

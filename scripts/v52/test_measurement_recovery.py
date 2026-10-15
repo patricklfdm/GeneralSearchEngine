@@ -40,7 +40,8 @@ class Consumer:
         self.world=world;self.node=node;self.generation=generation;self.serial=0;self.index=world.index;self.sequence=world.sequence;self.installed=0
     def call(self,kind,**values):
         w=self.world;self.serial+=1;identity=f'{self.node}-g{self.generation}-{self.serial}'
-        call=dict(opId=identity,node=self.node,kind=kind,startNanos=w.clock(),**values);w.history.append(call)
+        call=dict(opId=identity,node=self.node,pid=self.generation*10+int(self.node[-1]),generation=self.generation,
+                  kind=kind,startNanos=w.clock(),**values);w.history.append(call)
         if w.problem=='write-failure' and kind=='update' and w.sequence==4:raise OSError('uncertain original write')
         if w.problem=='minimum-failure' and kind=='read' and not values.get('setupToken'):raise OSError('original read failed')
         result=dict(opId=identity,kind=kind,outcome='SUCCESS')

@@ -5,7 +5,7 @@ as well. This helper validates successful reads and updates; failed attempts sta
 in the supplied ledger and never become query cuts or successful samples.
 """
 from scripts.v51 import runtime_evidence as physical,recovery_inspector as recovery
-from . import measurement_trace as trace,measurement_oracle as oracle,token
+from . import measurement_trace as trace,measurement_oracle as oracle,measurement_generations as generations,token
 from .evidence import need,encoded
 
 
@@ -16,13 +16,17 @@ def publication_generation(row,mode):
 
 
 
-def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64,minimum_wait_millis=5000):
+def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64,minimum_wait_millis=5000,restarted=None,restorations=None):
     need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000),'measurement cut wait profile')
-    cuts=[];successes={};timings={}
+    generations.validate(processes,restarted);restorations=restorations or {}
+    cuts=[];successes={};timings={};crash_transport={}
     for process in processes:
         node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}
-        for row in traces[node]:
-            event=row['event'];need(row['pid']==process['pid'] and row['generation']==1,'measurement observation process')
+        if process['generation']!=1:
+            need((node,process['generation']) in restorations,'measurement cut missing retained authority')
+            promised=restorations[node,process['generation']]['promisedEpoch']
+        for row in generations.rows(traces,process,processes):
+            event=row['event'];need(row['pid']==process['pid'] and row['generation']==process['generation'],'measurement observation process')
             need(row['groupId']==manifest['groupId'] and row['manifestDigest']==manifest['digest'],'measurement observation authority')
             if event=='FORCE':
                 record=physical.frame(row['record'],row['kind'],manifest)
@@ -106,6 +110,12 @@ def validate(traces,processes,calls,manifest,entries,projection,mode,answers=Non
                     need(identity>0 and identity not in reservations,'measurement duplicate transport admit');reservations[identity]=row['bytes']
                 elif transition.endswith('_RELEASED'):
                     need(identity in reservations and reservations.pop(identity)==row['bytes'],'measurement unmatched transport release')
-        need(idle,'measurement missing final resource observation');need(not reservations,'measurement unreleased transport ownership')
+        if process['exitCode']==-9:
+            need(not idle,'measurement abrupt process fabricated idle')
+            crash_transport[node+'-g'+str(process['generation'])]=dict(reservations=len(reservations),bytes=sum(reservations.values()),termination='SIGKILL')
+        else:
+            need(idle,'measurement missing final resource observation');need(not reservations,'measurement unreleased transport ownership')
     need(set(successes)=={key for key,call in calls.items() if call['outcome']=='SUCCESS'},'measurement incomplete success observations')
-    return dict(cuts=cuts,timings=timings,successfulReads=sum(calls[k]['kind']=='read' for k in successes),successfulUpdates=sum(calls[k]['kind']=='update' for k in successes))
+    result=dict(cuts=cuts,timings=timings,successfulReads=sum(calls[k]['kind']=='read' for k in successes),successfulUpdates=sum(calls[k]['kind']=='update' for k in successes))
+    if restarted is not None:result['crashTransport']=crash_transport
+    return result

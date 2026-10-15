@@ -18,8 +18,11 @@ def metric(value,label):
     need(set(value)=={'status'},'sample fabricated unavailable metric: '+label);return None
 
 
-def validate(rows,mode,*,pending_limit=64):
-    need(2<=len(rows)<=1024 and rows[0]['sampleKind']=='START' and rows[-1]['sampleKind']=='STOP','sample start/stop coverage')
+def validate(rows,mode,*,pending_limit=64,abrupt=False):
+    need(type(abrupt) is bool,'sample termination profile')
+    need((1 if abrupt else 2)<=len(rows)<=1024 and rows[0]['sampleKind']=='START' and
+         (all(r['sampleKind'] in ('START','PERIODIC') for r in rows) if abrupt else rows[-1]['sampleKind']=='STOP'),
+         'sample start/stop coverage')
     origin=rows[0]['dueNanos'];periodic=1;previous=None;last_counters={};first_counters={};availability={};marks=[]
     peaks={k:0 for k in ('heapUsedBytes','nonHeapUsedBytes','liveThreads','retainedBytes','consumerActive','consumerQueued')}
     durations=[];delays=[]
@@ -65,9 +68,11 @@ def validate(rows,mode,*,pending_limit=64):
     elapsed=rows[-1]['sampleEndNanos']-rows[0]['sampleStartNanos']
     deltas={key:dict(status='AVAILABLE',value=last_counters[key]-first_counters[key]) if availability[key]=={'AVAILABLE'} else
             dict(status='INCOMPLETE',observedStatuses=sorted(availability[key])) for key in COUNTERS}
-    return dict(samples=len(rows),periodicSamples=periodic-1,elapsedNanos=elapsed,sampledHighWater=peaks,
+    result=dict(samples=len(rows),periodicSamples=periodic-1,elapsedNanos=elapsed,sampledHighWater=peaks,
                 cumulativeDeltas=deltas,sampleDurationNanos=durations,sampleDelayNanos=delays,
                 semantics='process-wide-including-observer; sampled-high-water-is-not-exact-peak')
+    if abrupt:result.update(termination='SIGKILL',completeSession=False,semantics=result['semantics']+'; observed-prefix-only-no-inferred-stop')
+    return result
 
 
 def windows(rows,mode,controls,offered,markers,node,*,pending_limit=64):

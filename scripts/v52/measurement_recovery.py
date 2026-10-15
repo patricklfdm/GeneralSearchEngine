@@ -19,7 +19,8 @@ def fault_parameters(case):
 def profile(case):
     return dict(schema='gse-v52-recovery-controller-v1',family='M04',case=case,mode='candidate-minimum',
                 faultParameters=fault_parameters(case),readParameters=options.parameters(),programSha256=model.PLAN_SHA,
-                setupUpdates=3,activationSeconds=40,recoverySeconds=80,pollIntervalNanos=100_000_000,businessRetries=0)
+                setupUpdates=3,activationSeconds=40,recoverySeconds=80,pollIntervalNanos=100_000_000,businessRetries=0,
+                resourceSampling='per-process-start-stop-or-declared-sigkill-prefix')
 
 
 def partition(root,node=None):
@@ -68,6 +69,7 @@ def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sl
         index=token.decode(base64.b64decode(initial['token'],validate=True))['index']
         details['baseline']=runtime.await_publication(workers,index,4,clock=lambda:clock()/1e9,sleep=sleep)
         details['baselineFloors']=wait(lambda:floors(set(workers),index),'baseline floor',plan['recoverySeconds'])
+        details['sampleStarts']=[worker.call('sample-start')['opId'] for worker in workers.values()]
         details['carriedToken']=initial['token'];details['stage']='fault';runtime.save(root/'scenario.json',details)
         if case=='leader-sigkill-retained-restart':
             details['killIssuedNanos']=clock();details['crash']=crash(leader);details['exitObservedNanos']=clock()
@@ -77,6 +79,7 @@ def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sl
             strong=service.call('read',query=model.query(1),setupToken=True);details.update(successorStrong=strong['opId'],strongObservedNanos=clock())
             minimum=service.call('read',query=model.query(2),minimum=initial['token']);details.update(successorMinimum=minimum['opId'],minimumObservedNanos=clock())
             details['restartIssuedNanos']=clock();restart(leader);details['restartStartedNanos']=clock()
+            details['sampleStarts'].append(workers[leader].call('sample-start')['opId'])
             later=token.decode(base64.b64decode(strong['token'],validate=True))['index']
             details['recovered']=wait(lambda:published(leader,later,5),'retained restart publication',plan['recoverySeconds'])
             observed=workers[leader].call('read',query=model.query(3),minimum=initial['token'])
@@ -100,6 +103,7 @@ def observe(root,workers,history,case,crash,restart,*,clock=time.monotonic_ns,sl
             details['publicationObservedNanos']=clock()
             old=target.call('read',query=model.query(2),minimum=initial['token']);details['oldMinimum']=old['opId']
             new=target.call('read',query=model.query(3),minimum=later['token']);details.update(newMinimum=new['opId'],minimumObservedNanos=clock())
+        details['sampleStops']=[worker.call('sample-stop')['opId'] for worker in workers.values()]
         details['stage']='observed';receipt.update(status='OBSERVED');return receipt
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:runtime.save(root/'scenario.json',details);runtime.save(root/'controller.json',receipt)
