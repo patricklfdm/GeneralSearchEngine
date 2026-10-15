@@ -75,6 +75,10 @@ The [Phase 6B trace foundation](v5.2/PHASE_6_MEASUREMENT_TRACE.md) now verifies
 lossless bounded encoding, real SIGKILL append recovery, published V5.1 compatibility
 and relocation. Existing observer encoding is unchanged by default. The measurement
 execution harness and physical/query replay are still required before timed runs.
+The [Phase 6C advancing query replay](v5.2/PHASE_6_MEASUREMENT_REPLAY.md) checks
+690 queries against each actual core using one ordered update replay, with
+independent application-state hashes. All 71 V5.2 Python tests pass; physical
+measurement-cut binding and the actual replicated offered-load harness are next.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

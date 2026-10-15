@@ -8,7 +8,7 @@ import subprocess
 from scripts import ci_v51_bundle as build
 from scripts.build_coordinates import current
 from scripts.v51 import public_qualification_harness as q
-from . import controls,measurement_model as model
+from . import controls,measurement_model as model,measurement_oracle as oracle
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -25,7 +25,7 @@ def run(output):
         for name,value in (('corpus.json',model.corpus()),('calls.json',calls),('queries.json',model.queries())):
             (inputs/name).write_bytes(encoded(value)+b'\n')
         sources=[ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java',
-                 ROOT/'scripts/v52/java/V52ReadQueries.java',ROOT/'scripts/v52/java/V52MeasurementQueries.java']
+                 ROOT/'scripts/v52/java/V52ReadQueries.java',ROOT/'scripts/v52/java/V52MeasurementQueries.java',ROOT/'scripts/v52/java/V52MeasurementOracle.java']
         modes={'published-v44':ROOT/'target/v52-controls/general-search-engine-4.4.0.jar','candidate-core':ROOT/f'target/general-search-engine-{current()}.jar'}
         results={};receipt['artifacts']={};receipt['classes']={}
         for name,source in modes.items():
@@ -41,9 +41,18 @@ def run(output):
                 prefix=[r for r in calls if r['kind']=='update' and r['ordinal']<state['sequence']-1]
                 expected=model.projection(prefix);need(state['documents']==expected['documents'],'measurement corpus/update projection differs')
                 need([r['query'] for r in state['answers']]==model.queries(),'measurement query descriptor set')
+            oracle_input=oracle.prepare([dict(sequence=state['sequence'],query=answer['query']) for state in value['states'] for answer in state['answers']],
+                                        [r['document'] for r in calls if r['kind']=='update'])
+            (own/'oracle-input.json').write_bytes(encoded(oracle_input)+b'\n')
+            replay=q.command(['java','-cp',os.pathsep.join((str(classes),str(jar))),PACKAGE+'V52MeasurementOracle',own/'oracle',own/'oracle-input.json'],own,'oracle')
+            need(replay.stderr.strip()=='coreSource='+str(jar),'measurement oracle loaded wrong artifact')
+            need(json.loads(replay.stdout)==dict(status='PASS',measured=False,requests=690,updatesApplied=180,finalSequence=181),'measurement oracle execution incomplete')
+            answers=oracle.validate_output(oracle_input,own/'oracle/answers.jsonl')
+            need(answers=={oracle.key(state['sequence'],answer['query']):answer['answer'] for state in value['states'] for answer in state['answers']},
+                 'persistent measurement oracle differs from direct core query execution')
             results[name]=value
         need(results['published-v44']==results['candidate-core'],'candidate queries differ from actual published core')
-        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180)
+        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:(root/'receipt.json').write_bytes(encoded(receipt)+b'\n')
     print(json.dumps({k:receipt[k] for k in ('status','execution','measured','states','queriesPerCore')}),flush=True)

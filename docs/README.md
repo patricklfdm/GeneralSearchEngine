@@ -37,6 +37,7 @@ protected hosted acceptance remain pending.
 - [Phase 5 combined fault and bounded-pressure hardening](v5x/v5.2/PHASE_5_HARDENING.md)
 - [Phase 6A offered measurement program and query foundation](v5x/v5.2/PHASE_6_MEASUREMENT_PROGRAM.md)
 - [Phase 6B lossless bounded measurement observation encoding](v5x/v5.2/PHASE_6_MEASUREMENT_TRACE.md)
+- [Phase 6C advancing independent measurement query replay](v5x/v5.2/PHASE_6_MEASUREMENT_REPLAY.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership
