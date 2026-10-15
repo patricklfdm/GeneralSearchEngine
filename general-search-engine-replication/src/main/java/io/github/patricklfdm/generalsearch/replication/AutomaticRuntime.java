@@ -47,7 +47,8 @@ final class AutomaticRuntime<K,T> implements AutoCloseable {
     private final AtomicLong ids=new AtomicLong();
     private final long origin=System.nanoTime();
     private final ArrayBlockingQueue<Runnable> inputs=new ArrayBlockingQueue<>(32),completions=new ArrayBlockingQueue<>(16);
-    private final ThreadPoolExecutor network=pool("network",4,4),app=pool("application",1,4),clients=pool("completion",1,2);
+    private final ThreadPoolExecutor network=pool("network",4,4),clients=pool("completion",1,2);
+    private final AutomaticApplicationWorker app=new AutomaticApplicationWorker(4);
     private final Semaphore submission=new Semaphore(1);
     private final Map<Long,CompletableFuture<AutomaticProtocol.Message>> incoming=new HashMap<>();
     private final Map<Long,CompletableFuture<Long>> requests=new HashMap<>();
