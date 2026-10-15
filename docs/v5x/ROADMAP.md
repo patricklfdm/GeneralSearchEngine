@@ -32,7 +32,9 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Next batch:** V5.2 Phase 0 replica-read contract and evidence design. Freeze
+**Next batch:** implement the documentation-only
+[V5.2 Phase 0 entry plan](v5.2/PHASE_0_ENTRY_PLAN.md), which records the actual
+V5.1 read path and open decision/evidence register. Freeze
 strong-leader, stale-allowed and history-bound at-least-index policies; define
 publication-aware waits/rejections, bounded waiters/pins/cursors and behavior under
 lag, fencing, restore and restart. Use published V5.1 as the immediate replication

@@ -15,7 +15,9 @@ point; [`DEVELOPMENT_ROADMAP.md`](../DEVELOPMENT_ROADMAP.md) indexes phase histo
 current planning. Accepted version-specific charters and contracts govern their
 scope. Proposed documents are not accepted merely because they are linked here.
 
-Next development is [V5.2 Phase 0 replica-read contract design](v5x/NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0).
+Next development is [V5.2 Phase 0 replica-read contract design](v5x/v5.2/PHASE_0_ENTRY_PLAN.md).
+The entry maps current source, open decisions and required evidence; it is not an
+accepted V5.2 API or runtime implementation.
 
 ## v5.1 — current stable automatic leadership
 

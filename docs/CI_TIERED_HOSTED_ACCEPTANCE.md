@@ -2,8 +2,8 @@
 
 ## Scope and source identity
 
-This report records read-only GitHub observations through PR #333's in-progress
-routing probe `38692089814` on 2026-10-15 UTC.
+This report records read-only GitHub observations through PR #333's restoration
+and exact-master CI `38699074927`, accepted attempt 2, on 2026-10-15 UTC.
 It supplements [the frozen acceptance checklist](CI_TIERED_ACCEPTANCE.md) and
 [development progress](CI_TIERED_PROGRESS.md). It does not mark T6 closed or turn
 the five retained local failures into passes.
@@ -24,6 +24,8 @@ needed for that acceptance.
 | [38689603696](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38689603696) | PR #331; tested merge `78beee985a75395f650eadcf484943f5353097de` | Docs, attempt 1: two successes, 36 skipped suite placeholders. |
 | [38689790501](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38689790501) | Master push; `535add252b43b674a951710393e93d844add2fb1` | Docs, attempt 1: two successes, 36 skipped suite placeholders. |
 | [38692089814](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38692089814) | PR #333; tested merge `2c7b3e7592b154f6e40aff2431189448306360b9` | ForceFull routing confirmed on attempt 1: integration candidate, full plan, all three canonical repetitions running. At capture: 44 visible jobs, 12 successful, 31 in progress, one failed automatic-healthy workload. Full qualification not passed. |
+| [38693534135](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38693534135) | PR #333 restoration; tested merge `97baf7fc9678c981e0f2fa87700755ee4f7b28e5` | Full with `POLICY_CHANGED`, attempt 1: 46 successes. |
+| [38699074927](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38699074927) | Master push; `0ada3ccbbcb9bcab3ef5ddbf25f28861e6cf7b7d` | Full with `POLICY_CHANGED`, accepted attempt 2: 46 successes. Attempt 1 failed the automatic-healthy owned canonical tape and Required. |
 
 PR #330's head is `e22f2c993f564a9da0352b6b0ae904a1c92d5a3c`, and its protected
 base is `8f72b529fea901836a1b828b9ae8688f9f7eccf6`. The PR run API reports the
@@ -37,6 +39,12 @@ PR #331's head is `825b003e644b266baa4b720bfe9fdc9b590fe642`. Both its PR and
 master downloaded plans select docs; Change scope and Required are the only
 executed jobs. These observed executions complete the docs-routing check. They
 do not establish full health for the new master source.
+
+PR #333's routing run subsequently ended cancelled; only the observed routing was
+accepted by the user. Its restoration head is `88089b1547aec4965dd1116f704c2cf959029a99`.
+The restored PR/master plans and all attempt job inventories above were checked
+separately. Exact-master policy readback confirms `forceFull=false`. Routing,
+restoration qualification and earlier failed/cancelled work remain distinct.
 
 All original attempts and complete job pages were retained. Integration's single
 skipped UI row represents the entire unexpanded canonical matrix; it does not
@@ -106,9 +114,9 @@ exercised by this audit.
 | Remaining item | Current state / acceptance |
 | --- | --- |
 | Docs PR and its master push | Observed in PR #331 and its master push: docs plans, two successful meta jobs and all 36 suite placeholders skipped; both passed on attempt 1. |
-| Nightly | The schedule-event listing returned `total_count=0` at 05:51 UTC, before the first 10:17 UTC slot following deployment. Manual execution is not a scheduled-run observation. |
+| Nightly | The schedule-event listing still returned no runs in the 2026-10-15 restoration review. Retain the first natural scheduled execution; manual execution is not a scheduled-run observation. |
 | Concurrency isolation | Configuration and local negative tests passed; actual overlapping-event behavior still needs a hosted observation. |
-| forceFull | PR #333's plan and canonical starts confirm the override. The user accepted routing without awaiting a full workload pass; the existing failed workload remains recorded. The [restoration revision](CI_TIERED_FORCE_FULL_DRILL.md) sets `false`; merge/master verification remains pending. |
+| forceFull | PR #333's plan and canonical starts confirm the user-accepted routing check. Restoration merged with `false`; PR full passed attempt 1 and exact-master full passed attempt 2. Original failures remain recorded in the [drill record](CI_TIERED_FORCE_FULL_DRILL.md). |
 | Local regression gaps | Five original failed instances remain documented in the progress record; neither the hosted pass nor a different successful repetition replaces them. |
 | Timing confidence | First measured sample recorded above; further naturally occurring samples are needed before making reliability, percentile or daily-cost claims. |
 
@@ -131,6 +139,8 @@ retained locally under:
 * `target/ci-tiered-force-full-probe/hosted-38692089814/` — PR #333's source/attempt,
   complete API pages at capture, downloaded routing plan, automatic-healthy failure
   log and evidence hash index. This is a partial observation, not a full pass.
+* `target/ci-tiered-force-full-restore/hosted-pr333/` — restoration PR/master plans,
+  all three attempt inventories and exact-master policy readback.
 
 The retained read-only analysis script
 `target/ci-tiered-docs-acceptance/tools/measure.py` regenerates the timing JSON from

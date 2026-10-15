@@ -19,7 +19,7 @@ independent signatures/checksums and clean V1–V5.1 consumers pass.
 The [migration guide](v5.1/MIGRATION_GUIDE.md) describes the published automatic
 mode and preserves the configured-mode boundary.
 
-Next is [V5.2 Phase 0](NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0): define
+Next is [V5.2 Phase 0](v5.2/PHASE_0_ENTRY_PLAN.md): define
 replica-read policies, history-bound progress and failure/resource evidence before
 runtime implementation. The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.
