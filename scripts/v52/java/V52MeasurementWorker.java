@@ -15,6 +15,16 @@ public final class V52MeasurementWorker {
         var starts=ThreadLocal.withInitial(HashMap<String,Long>::new);
         AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(new AutomaticStore.Faults() {
             public void at(String event) throws IOException {
+                if(event.equals("SELECTOR_BEFORE_ACK")) {
+                    // This hook runs after generation files, selector and parent
+                    // directories were forced. Observe bytes; never open a voter.
+                    Path directory=root.resolve(node);byte[] selector=Files.readAllBytes(directory.resolve("current.gsr"));
+                    Path selected=directory.resolve(text(decode(selector,"SELECTOR").value(),"generation"));
+                    var files=new ArrayList<Map<String,Object>>();files.add(Map.of("name","current.gsr","bytes",b64(selector)));
+                    for(String name:List.of("generation.gsr","snapshot.gsr","accepted.gsr","proofs.gsr"))
+                        files.add(Map.of("name",name,"bytes",b64(Files.readAllBytes(selected.resolve(name)))));
+                    trace.event("STORAGE_CUT",Map.of("cut",event,"readGeneration",files));
+                }
                 for(String kind:List.of("PROMISE","ACCEPT","PROOF")) {
                     if(event.equals(kind+"_BEFORE_FORCE"))starts.get().put(kind,System.nanoTime());
                     if(event.equals(kind+"_AFTER_FORCE")) {

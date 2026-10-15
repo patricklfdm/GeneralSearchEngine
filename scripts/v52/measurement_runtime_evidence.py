@@ -10,7 +10,7 @@ from scripts.v51 import public_qualification_harness as q
 from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
 from . import public_reads_evidence as reads
 from . import measurement_load as load,measurement_samples as samples,measurement_bundle
-from . import measurement_projection,measurement_stream,measurement_history
+from . import measurement_projection,measurement_stream,measurement_history,measurement_publication
 from .evidence import need,digest,encoded
 
 
@@ -75,6 +75,10 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
          initial[0]['endNanos']<updates[0]['startNanos'],'measurement initial read ordering')
     if binding['mode']=='candidate-minimum':need(all(r['minimum']==initial[0]['response']['token'] for r in requested),'measurement initial minimum changed')
     projection=measurement_projection.Projection(manifest,genesis,entries,updates)
+    authority=None
+    if 'publicationAuthority' in binding:
+        need(binding['publicationAuthority']=='forced-generation-v1','measurement unknown publication authority profile')
+        authority=measurement_publication.validate(traces,manifest,projection,binding['mode'])
     cuts=[];successes={};timings={}
     for process in processes:
         node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}
@@ -182,8 +186,10 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
             for call,sample in zip(controls,(observed[0],observed[-1])):
                 need(call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},'measurement sampler response differs from observation')
         driver=dict(load=dispatched,resources=resources)
-    return dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
+    result=dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
                 oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver,ledger=ledger)
+    if authority is not None:result['publicationAuthority']=authority
+    return result
 
 
 def negatives(root,expected,answers,*,package=bundle):
@@ -247,6 +253,16 @@ def negatives(root,expected,answers,*,package=bundle):
              'sample fabricated unavailable metric: allocatedBytes')])
         if mode!='published-v51-legacy-strong':
             cases.append(('missing-read-resource-counter',find('CLIENT_SAMPLE'),remove('queues','readsOwned'),None,'sample missing candidate read counters'))
+    if 'publicationAuthority' in expected:
+        selector=find('STORAGE_CUT',lambda row:row['cut']=='SELECTOR_BEFORE_ACK')
+        cases.append(('missing-generation-packet',selector,lambda row:{k:v for k,v in row.items() if k!='readGeneration'},None,
+                      'measurement selector lacks generation bytes'))
+        installs=[(node,r) for node,rows in original.items() for r in rows if r['event']=='REJOIN_INSTALLED']
+        if installs:
+            installed_node,installed_row=installs[0]
+            nonempty=find('STORAGE_CUT',lambda row:row['node']==installed_node and row['cut']=='SELECTOR_BEFORE_ACK' and
+                          any(v['name']=='snapshot.gsr' and v['bytes']==installed_row['snapshot'] for v in row['readGeneration']))
+            cases.append(('missing-forced-rejoin-generation',nonempty,edit(event='REMOVED_SELECTOR'),None,'measurement rejoin lacks forced generation'))
     result=[]
     for name,predicate,change,mutate_history,reason in cases:
         rows=measurement_stream.changed(original,predicate,change) if predicate else original;calls=copy.deepcopy(history)

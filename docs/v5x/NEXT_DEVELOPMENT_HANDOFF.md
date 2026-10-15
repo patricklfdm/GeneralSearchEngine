@@ -114,6 +114,12 @@ Transient rejection outcomes remain failures, distinct from successful query cut
 fatal or incomplete histories reject. The short smoke still requires all calls to
 succeed. Formal workload coverage, fault schedules and execution freeze remain open.
 
+The [Phase 6I durable publication profile](v5.2/PHASE_6_MEASUREMENT_PUBLICATION.md)
+now retains forced generation bytes and reconstructs received snapshot images before
+qualifying follower publication. Fresh five-mode and large-package replay passes;
+earlier control timing and checker-compatibility failures remain retained. The
+complete measured-window path and M02–M04 schedules are next; no formal M01 ran.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

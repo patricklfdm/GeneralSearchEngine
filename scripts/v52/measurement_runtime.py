@@ -115,7 +115,7 @@ def prepare(root,mode,*,exercise_load=False):
     need(json.loads(seed.stdout)==dict(status='PASS',documents=64,sequence=1),'measurement seed result')
     q.command(['java','-cp',cp,PACKAGE+'V52MeasurementConsumer',root,'setup'],root,'bootstrap')
     binding=dict(build.binding(ROOT,subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()),mode=mode,
-                 origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
+                 origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',publicationAuthority='forced-generation-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
     save(root/'binding.json',binding);return binding,cp,control_cp
