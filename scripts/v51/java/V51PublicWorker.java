@@ -124,6 +124,7 @@ public final class V51PublicWorker {
                 row.put("generation",generation);row.put("localNanos",System.nanoTime());
                 row.put("node",node);row.put("groupId",group);row.put("manifestDigest",manifestDigest);
                 byte[] json=canonical(row),line=Arrays.copyOf(json,json.length+1);line[json.length]='\n';
+                line=encodeLine(line); // Default is byte-identical; measured traces may encode losslessly.
                 checkAppend(line); // Reject a known bound before publishing pending bytes.
                 // Test telemetry only, outside replica authority. Publish the complete
                 // observation before SIGKILL can interrupt its JSONL append.
@@ -138,6 +139,7 @@ public final class V51PublicWorker {
             }catch(IOException error){failure=error;throw error;}
         }
         void checkAppend(byte[] line) throws IOException {}
+        byte[] encodeLine(byte[] line) throws IOException {return line;}
         void append(byte[] line) throws IOException {
             Files.write(path,line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
         }

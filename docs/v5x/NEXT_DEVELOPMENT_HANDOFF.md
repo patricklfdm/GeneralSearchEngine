@@ -71,6 +71,10 @@ The [Phase 6A program/query foundation](v5.2/PHASE_6_MEASUREMENT_PROGRAM.md) fix
 the offered requests and checks all 138 query descriptors against published V4.4
 at five actual application states. This is untimed; complete execution freeze,
 replicated measurements and portable measurement evidence remain open.
+The [Phase 6B trace foundation](v5.2/PHASE_6_MEASUREMENT_TRACE.md) now verifies
+lossless bounded encoding, real SIGKILL append recovery, published V5.1 compatibility
+and relocation. Existing observer encoding is unchanged by default. The measurement
+execution harness and physical/query replay are still required before timed runs.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

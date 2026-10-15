@@ -16,3 +16,4 @@ work_dir=$(mktemp -d "$root/target/v52-foundation/run.XXXXXX")
 echo "v52FoundationEvidence=$work_dir/evidence"
 python3 -m scripts.v52.foundation "$work_dir/evidence"
 python3 -m scripts.v52.measurement_foundation "$work_dir/measurement"
+python3 -m scripts.v52.measurement_trace_foundation "$work_dir/measurement-trace"
