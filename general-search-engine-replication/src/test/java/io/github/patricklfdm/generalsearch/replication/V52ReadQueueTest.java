@@ -31,7 +31,7 @@ class V52ReadQueueTest {
         Fixture(int bound) {
             permits=new Semaphore(bound);
             queue=new AutomaticReadQueue<>(lock,cut,new AutomaticReadQueue.Access<>() {
-                public void check(ReplicaReadOptions options) {if(rejection!=null)throw failure(rejection);}
+                public void check(ReplicaReadOptions options,long epoch,boolean barrierReady) {if(rejection!=null)throw failure(rejection);}
                 public long publishedIndex() {return cut.index();}
                 public AutomaticReadCut capture(ReplicaReadOptions options,long epoch,long index) {
                     assertTrue(Thread.holdsLock(lock));captureHook.run();

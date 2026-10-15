@@ -1,7 +1,7 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phase 1 is locally committed; Phase 2 capture/waiter work is in progress.
+V5.2 Phases 1/2 are locally verified; Phase 3 public enablement is next.
 Full protected acceptance remains pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
@@ -29,8 +29,9 @@ is pending. The [schedule map](v5.2/PHASE_1_SCHEDULE_MAP.md) preserves S01–S30
 later runtime work; synthetic evidence does not complete those schedules.
 
 The operator authorized [locally verified sequential commits](v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
-without intermediate pushes. Phase 2 implements the application capture/waiter
-kernel; Phase 3 enables public policies. Current explicit reads remain disabled.
+without intermediate pushes. The [Phase 2 capture/waiter kernel](v5.2/PHASE_2_CAPTURE_KERNEL.md)
+passes deterministic ownership and real runtime tests; Phase 3 enables public
+policies next. Current public explicit reads remain disabled.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

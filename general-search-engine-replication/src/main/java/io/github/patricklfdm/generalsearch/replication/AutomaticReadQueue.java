@@ -9,7 +9,7 @@ import java.util.function.*;
 /** Bounded request ownership. The supplied lock is the runtime's protocol capture monitor. */
 final class AutomaticReadQueue<K,T> {
     interface Access<K,T> {
-        void check(ReplicaReadOptions options);
+        void check(ReplicaReadOptions options, long epoch, boolean barrierReady);
         long publishedIndex(); // eligibility hint only; capture must inspect the actual application
         AutomaticReadCut capture(ReplicaReadOptions options, long epoch, long barrierIndex);
         <R> R read(AutomaticReadCut cut, Function<ReplicaReadView<K,T>,R> action);
@@ -116,7 +116,7 @@ final class AutomaticReadQueue<K,T> {
 
     private void check(Request<?> request) {
         if(closed)throw failure(CLOSED);
-        access.check(request.options);
+        access.check(request.options,request.epoch,request.barrierReady);
         request.options.minimum().ifPresent(identity::compatible);
         if(clock.getAsLong()>=request.deadline)throw failure(DEADLINE_EXCEEDED);
     }

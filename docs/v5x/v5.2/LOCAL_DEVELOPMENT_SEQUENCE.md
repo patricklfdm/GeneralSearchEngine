@@ -15,7 +15,7 @@ protected full CI and fresh cloud admission are still required before cloud runs
 
 ## Remaining implementation order
 
-1. Phase 2: atomic application publication capture, callback lifetime, bounded
+1. [Phase 2](PHASE_2_CAPTURE_KERNEL.md): atomic application publication capture, callback lifetime, bounded
    waiter scheduling, cancellation/deadlines and deterministic race tests. Keep
    the public read default disabled until Phase 3.
 2. Phase 3: connect all three policies to the public handle, existing admission

@@ -1,6 +1,7 @@
 # V5.2 Phase 2: application capture and bounded requests
 
-**Status:** Phase 2A/2B implemented locally; runtime waiter integration pending.
+**Status:** Phase 2A–2C locally verified; protected qualification deferred to the
+combined pre-cloud handoff. Public enablement remains Phase 3.
 Development follows the [authorized local sequence](LOCAL_DEVELOPMENT_SEQUENCE.md).
 The public explicit read method remains the disabled Phase 1 default. No hosted
 acceptance or public follower-read qualification is claimed.
@@ -73,9 +74,29 @@ worker tests, six original internal runtime tests and fourteen public runtime
 tests (`worker-tests.log`). Public `read` is still disabled. The queue will be
 bound to verified runtime state/publication in 2C before public enablement.
 
-## Remaining Phase 2 work
+## 2C: real runtime connection
 
-- Atomic protocol-state/application capture, fresh strong barrier binding and
-  deterministic wakeup/publication/fencing tests with original failure evidence.
-- Integrate the kernel with real publication/state transitions and runtime close;
-  preserve the disabled public default until Phase 3.
+The internal runtime port attaches exactly one queue to verified manifest identity
+and caller-supplied shared permits/deadline/completion executors. Publication updates
+the eligibility hint from the actual application cut. Runtime refresh rechecks
+uncaptured requests, and close rejects them before shutting down the application
+worker. Capture rechecks current state and the application cut under the protocol
+monitor; the callback runs after releasing that monitor on the same application
+worker turn. A completed strong barrier is bound to its activated epoch and exact
+publication index. A later higher PREPARE rejects the queued strong capture as
+STALE_EPOCH; it does not become a follower read.
+
+Six real TCP/application tests passed: lone-follower genesis without quorum,
+publication with every read slot waiting, an unchanged active cut while a write
+queues, captured cancellation with incomplete close and retained store ownership,
+fresh NO_OP token position and higher-PREPARE fencing after that barrier. Together
+with 20 deterministic cut/queue/worker tests and the 14 old public runtime tests,
+the final targeted run passed **40 tests**, zero failures/errors/skips, in 1m45s.
+Log: `target/v52-capture-kernel/runtime-kernel-tests-2.log`.
+
+All these JUnit classes run in the existing shared reactor test build; no CI suite
+was removed or weakened. The real runtime tests use an internal attachment port,
+so they do not close the later external consumer, physical history, SIGKILL,
+seven-query oracle or performance obligations. The next local stage enables the
+public method and owns prompt admission, deadline calculation and fresh-barrier
+dispatch through the existing ordered writer queue.
