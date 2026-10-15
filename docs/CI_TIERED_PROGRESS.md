@@ -2,10 +2,12 @@
 
 ## Authority and baseline
 
-The current task authorizes continuous local T0–T6 implementation and staged local
-commits, with one final review. No push, PR, merge, rerun/dispatch, release, cloud or
-remote settings mutation is authorized by this development task. Input handoff files
-remain unmodified, uncommitted and unnecessary at runtime.
+The original development task authorized continuous local T0–T6 implementation
+and staged local commits, with one final review. Subsequent user authorization
+allowed pushing that branch and one manual full CI execution; the user then
+created and merged PR #329. Hosted observations are recorded separately below,
+without replacing the retained local failures. Input handoff files remain
+unmodified, uncommitted and unnecessary at runtime.
 
 Development branch: `refactor/ci-tiered-t1`; initial HEAD:
 `6a65f24023a8f68ca3437096eeacf77a513219fb`.
@@ -18,25 +20,83 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 
 | Stage | Implementation | Local validation | New-source hosted |
 | --- | --- | --- | --- |
-| T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline only; later source pending |
-| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | HOSTED_PENDING |
-| T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | HOSTED_PENDING |
+| T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline and rollout observations retained |
+| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full rollout passed; reduced-profile observations pending |
+| T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | Full rollout passed; hosted forceFull exercise pending |
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | HOSTED_PENDING |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
-| T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | HOSTED_PENDING |
-| T6 full local regression and review | All planned executions finished; acceptance blocked | 39 passing / five failing non-meta instances; all original attempts retained | HOSTED_PENDING |
+| T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | Manual full passed; exact-base health observed; Nightly pending |
+| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full rollout passed after PR/master reruns; remaining hosted checks pending |
 
-**Acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
+**Local acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
 T0–T5 implementation is committed. The user supplied the missing namespace
 prerequisite, and the predeclared 19-instance continuation has finished: 14 passed
 and five failed. Combined with retained prior executions, all 44 non-meta instances
 have whole-job results: 39 passed and five failed. None remains unexecuted because
 of permissions. Required local acceptance is still incomplete; this is not
-`LOCAL_READY_FOR_FINAL_REVIEW`. New-source hosted acceptance is separately pending.
+`LOCAL_READY_FOR_FINAL_REVIEW`. Hosted full rollout has subsequently passed;
+remaining hosted acceptance and the original local gaps are tracked separately.
 
 T0 uses the accepted docs/full implementation unchanged. Differences from the
 handoff implementation base are nine documentation files; there is no runtime
 drift to undo. No source reset, tag move or Maven clean was performed in T0.
+
+## Hosted rollout and integration acceptance preparation
+
+[PR #329](https://github.com/patricklfdm/GeneralSearchEngine/pull/329) merged the
+development head `ce8b5d15346683db8b12f282e30b579f1926fc78` into master
+`8f72b529fea901836a1b828b9ae8688f9f7eccf6`. Read-only API observations on
+2026-10-15 UTC checked each complete job page at every attempt:
+
+| Execution | Observed result |
+| --- | --- |
+| [Branch manual full 38661192806](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38661192806) | Attempt 1: all 46 jobs successful. The downloaded execution plan binds the exact development head and selects full. |
+| [PR full 38665872994](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38665872994) | Attempt 1: public reads/faults failed in its public-runtime gate and Required rejected the run. Attempt 2: all 46 jobs successful. |
+| [Exact-master full 38674338594](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38674338594) | Attempt 1: automatic-healthy canonical tape failed and Required rejected the run. Attempt 2: all 46 jobs successful. |
+
+The API's PR `head_sha` identifies the development head, not the tested merge
+commit. It is not relabeled as the master source. Carried successful jobs in a
+later attempt are not described as freshly rerun jobs. The two recovered runs
+are not clean first-attempt passes, and hosted success does not establish a fix
+for the original local failures or for either first-attempt hosted failure.
+
+Before pushing, the exact development head passed 217 CI/control-plane and
+consumer tests. All 36 non-meta suite bodies matched the original baseline except
+the canonical selection condition. The actual full-health reader subsequently
+returned `HEALTHY` for master `8f72b52`, run `38674338594`, accepted attempt 2.
+This is an operational health observation; it does not grant cloud admission.
+Raw rollout API pages and summaries are under `target/ci-tiered-hosted-review/`;
+the current health observation is under `target/ci-tiered-integration/`.
+
+The next PR clarifies the travel example's existing core API demonstrations,
+cursor-request reuse and dynamic index lifecycle using comments only, alongside
+this progress update. Its expected profile is **integration**, conditional on
+the same protected base retaining recent, complete full health. It exercises the
+existing `travel-demo-content-v1` rule without changing the policy, workflow,
+validator, runtime or workload. Expected hosted results are:
+
+* Change scope reports integration and an execution plan for 43 jobs.
+* Only the complete three-repetition owned canonical suite is unselected; GitHub
+  may display one skipped matrix placeholder rather than three expanded jobs.
+* All 41 selected non-meta instances and both meta jobs succeed, with Required
+  independently replaying the plan and checking the skipped canonical result.
+* Full remains the correct outcome if the base changes, health expires or becomes
+  unavailable, or a newer matching run is incomplete/failed. Such an outcome does
+  not count as integration acceptance and must not be bypassed.
+
+Further hosted work remains: a docs-only PR, forceFull exercise, actual Nightly
+execution/concurrency, and measured profile timings. No Nightly run was returned
+by the workflow's schedule-event query at this observation. Prefer the eligible
+integration check before merging a new docs-only master, which would require its
+own exact-source full health. A branch manual run always selects full and cannot
+substitute for a real integration PR. No integration speedup or daily savings have
+yet been measured.
+
+Later disk cleanup moved large local evidence into the SHA-verified D-drive
+archive `D:\GSE-Archives\GeneralSearchEngine\repo-archives\build-prune-20261014\evidence-archives\ci-tiered-development.tar.gz`.
+Small summaries and hash indexes remain in `target`; the following historical
+receipt/workspace paths identify original locations, not a claim that every raw
+file remains unpacked. Regenerable build outputs were removed separately.
 
 ## Evidence and next action
 

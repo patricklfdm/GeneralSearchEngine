@@ -18,7 +18,12 @@ import io.github.patricklfdm.generalsearch.search.SearchRequest;
 import io.github.patricklfdm.generalsearch.search.SearchResult;
 import io.github.patricklfdm.generalsearch.search.TotalHitsMode;
 
-/** Processor-free travel search example for the current development API. */
+/**
+ * Processor-free travel search example for the current development API.
+ *
+ * <p>Demonstrates structured and ranked text queries, highlights, cursor paging,
+ * and dynamic indexes using the core API.</p>
+ */
 public final class TravelSearchDemo {
     private TravelSearchDemo() {}
 
@@ -114,6 +119,7 @@ public final class TravelSearchDemo {
                             .build()
             );
             printPage("V3.3 exact page 1", firstPage);
+            // Continue with the same request object and the cursor returned by this engine.
             SearchPageResult<TravelPlace> secondPage = engine.search(
                     SearchPageRequest.<TravelPlace>builder(pagedRequest)
                             .after(firstPage.nextCursor().orElseThrow())
@@ -148,6 +154,7 @@ public final class TravelSearchDemo {
                             explanation.detail().description()
                     ));
 
+            // Rating has no startup index: create one, then demonstrate scan fallback after dropping it.
             engine.createIndex(IndexDefinition.range(rating)).join();
             List<TravelPlace> highlyRated = engine.search(
                     Query.between(rating, 4.7, 5.0));
