@@ -28,6 +28,10 @@ class V52PublicReadAuthorityTest {
     // Deliberately bounded fault-fixture exchanges, not a production or measurement change.
     static final ReplicationBounds LIMITS=ReplicaLeaderTestSupport.bounds(1200,8);
     static final AutomaticLeadershipPolicy TIMING=new AutomaticLeadershipPolicy(1200,3600,6000,60000);
+    // A lost source-export response can occupy its original lease for the whole
+    // operation interval. Baseline retirement must allow that lease to expire
+    // before the existing 30-second convergence observation, without new writes.
+    static final long BASELINE_RETIREMENT_MILLIS=TIMING.operationTimeoutMillis()+30_000L;
     interface Network {void at(String node,String barrier,Map<String,Object> request,Map<String,Object> response) throws IOException;}
     interface Events {void at(String node,String event,Map<String,Object> value);}
     static void until(BooleanSupplier condition,String message) throws Exception {
@@ -43,6 +47,7 @@ class V52PublicReadAuthorityTest {
         final List<AutomaticReplicationGroupConfig<Integer,Doc>> configs;
         final List<AutomaticReplicatedSearchEngine<Integer,Doc>> engines=new ArrayList<>();
         final Map<String,Long> floors=new ConcurrentHashMap<>();
+        final Deque<String> recentRejections=new ArrayDeque<>();
         volatile Network network=(n,b,q,r)->{};
         volatile Events events=(n,e,v)->{};
         Group() throws Exception {
@@ -56,7 +61,15 @@ class V52PublicReadAuthorityTest {
             for(int i=0;i<count;i++) {
                 String node=configs.get(i).localNodeId().value();
                 AutomaticRuntimeHooks.CURRENT.set(new AutomaticRuntimeHooks.Hooks(AutomaticStore.Faults.NONE,
-                        (b,q,r)->network.at(node,b,q,r),(e,v)->{
+                        (b,q,r)->{
+                            if(b.equals("AFTER_RESPONSE_READ")&&r.get("type").equals("REJECT")) {
+                                synchronized(recentRejections) {
+                                    if(recentRejections.size()==32)recentRejections.removeFirst();
+                                    recentRejections.addLast(q.get("sender")+">"+q.get("recipient")+" "+q.get("type")+" "+r.get("payload"));
+                                }
+                            }
+                            network.at(node,b,q,r);
+                        },(e,v)->{
                             if(e.equals("RECOVERY_FLOOR"))floors.merge(node,number(v,"index"),Math::max);
                             events.at(node,e,v);
                         }));
@@ -73,10 +86,47 @@ class V52PublicReadAuthorityTest {
         ReplicaReadToken baseline(AutomaticReplicatedSearchEngine<Integer,Doc> leader) throws Exception {
             leader.add(new Doc(1,"committed before fault")).get(10,TimeUnit.SECONDS);
             var token=leader.read(STRONG,v->v.get(1)).get(10,TimeUnit.SECONDS).progress();
-            until(()->configs.stream().allMatch(c->floors.getOrDefault(c.localNodeId().value(),-1L)>=token.index()),"baseline source retirement incomplete");
+            BooleanSupplier retired=()->configs.stream().allMatch(c->floors.getOrDefault(c.localNodeId().value(),-1L)>=token.index());
+            long end=System.nanoTime()+TimeUnit.MILLISECONDS.toNanos(BASELINE_RETIREMENT_MILLIS);
+            while(!retired.getAsBoolean()&&System.nanoTime()<end) {
+                assertTrue(engines.stream().noneMatch(e->e.leadershipStatus().state()==FAILED),()->retirementDiagnostic(token));
+                Thread.sleep(5);
+            }
+            assertTrue(retired.getAsBoolean(),()->retirementDiagnostic(token));
             return token;
         }
+        String retirementDiagnostic(ReplicaReadToken token) {
+            synchronized(recentRejections) {
+                return "baseline source retirement incomplete: index="+token.index()+" observationMillis="+BASELINE_RETIREMENT_MILLIS+
+                        " floors="+floors+" states="+engines.stream().map(e->e.leadershipStatus().toString()).toList()+
+                        " recentRejections="+recentRejections;
+            }
+        }
         @Override public void close(){for(var engine:engines)engine.close();}
+    }
+
+    @Test void baselineRetirementWaitsForTheOriginalUndeliveredSourceLeases() throws Exception {
+        var lost=new ConcurrentHashMap<String,String>();var drops=new AtomicInteger();
+        try(var group=new Group()) {
+            group.network=(node,barrier,request,response)->{
+                if(node.equals("node-3")&&barrier.equals("AFTER_RESPONSE_READ")&&request.get("type").equals("SOURCE_OFFER")&&
+                        number(object(request.get("payload")),"sourceBytes")==0&&response.get("type").equals("SOURCE_OFFER")) {
+                    String peer=text(request,"recipient"),id=text(object(request.get("payload")),"transferId");
+                    lost.putIfAbsent(peer,id);
+                    // Lose every retry of this original export response. The
+                    // server's undelivered lease remains real and is not cleared
+                    // by the test. A later request must wait for natural expiry.
+                    if(lost.get(peer).equals(id)) {drops.incrementAndGet();throw new IOException("lost baseline source response");}
+                }
+            };
+            group.start(3);var leader=group.leader("");var token=group.baseline(leader);
+            assertEquals(2,lost.size());assertTrue(drops.get()>=2);
+            for(var engine:group.engines) {
+                assertTrue(group.floors.get(group.name(engine))>=token.index());
+                var result=engine.read(minimum(token,0),v->v.get(1)).get(5,TimeUnit.SECONDS);
+                assertEquals(new Doc(1,"committed before fault"),result.value());assertEquals(1,result.applicationSequence());
+            }
+        }
     }
 
     @Test void forcedAcceptanceWithoutProofCannotSatisfyEitherLocalPolicy() throws Exception {

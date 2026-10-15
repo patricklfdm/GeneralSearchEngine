@@ -868,3 +868,11 @@ seven queued legacy responses completed after the former 35-second drain.
 The revised 125-second common observation allowance accounts for the unchanged
 consumer queue and API interval. Frozen business parameters and M02–M04 remain
 unchanged. Controller regressions pass; a fresh complete cohort remains required.
+
+The [Phase 6W baseline observer correction](v5.2/PHASE_6_BASELINE_RETIREMENT.md)
+follows a retained reactor-test preparation failure. A deterministic lost-source
+response reproduces the mismatch between a 60-second recovery lease and the
+former 30-second baseline observation. The fixture now covers the original lease
+plus its convergence allowance and retains bounded rejection diagnostics. The
+original transport cause remains unconfirmed; new exact-source build and complete
+measurements remain required before cloud preparation.
