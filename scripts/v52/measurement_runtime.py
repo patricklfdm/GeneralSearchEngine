@@ -118,6 +118,7 @@ def prepare(root,mode,*,exercise_load=False):
                  origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',publicationAuthority='forced-generation-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
+    if exercise_load:binding['driverMarkerSchedule']=list(evidence.DRIVER_MARKERS)
     save(root/'binding.json',binding);return binding,cp,control_cp
 
 
@@ -166,11 +167,14 @@ def smoke(root,mode,*,exercise_load=False):
             for worker in workers.values():worker.call('sample-start')
             calls=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
             def submit(call):return workers[target].submit(call['kind'],query=call['query'],**parameters)
-            offered,pending=load.dispatch(calls,3_000_000_000,submit)
+            def mark(name):
+                for worker in workers.values():yield worker.submit('sample-mark',marker=name)
+            offered,pending=load.dispatch(calls,3_000_000_000,submit,markers=evidence.DRIVER_MARKERS,mark=mark)
             save(root/'offered.json',load.drain(offered,pending,35))
             for worker in workers.values():worker.call('sample-stop')
             checked=load.validate(offered,calls,3_000_000_000,history)
             need(checked['outcomes']=={'SUCCESS':10},'measurement driver smoke outcome')
+            load.validate_markers(offered,evidence.DRIVER_MARKERS,history,workers)
             save(root/'load-validation.json',checked)
         else:
             for i in range(5):workers[target].call('read',query=model.query(i),**parameters)

@@ -86,5 +86,47 @@ class MeasurementLoadTest(unittest.TestCase):
             modified=copy.deepcopy(receipt);change(modified)
             with self.subTest(change=change),self.assertRaises(ValueError):load.validate(modified,calls,1_000_000_000,history)
 
+    def test_phase_marks_never_wait_for_responses_or_move_business_due_times(self):
+        clock=Clock();history=[];futures=[]
+        schedule=[dict(name=name,offsetNanos=offset) for name,offset in [('warmup-start',0),('measured-start',60_000_000_000),('measured-end',180_000_000_000)]]
+        def submit(request,node='node-1'):
+            identity=str(len(history));response=dict(opId=identity,outcome='SUCCESS')
+            record=dict(request,opId=identity,node=node,startNanos=clock(),endNanos=None,outcome='PENDING')
+            future=concurrent.futures.Future();history.append(record);futures.append((future,record,response));return identity,future
+        def mark(name):
+            for node in ('node-1','node-2','node-3'):yield submit(dict(kind='sample-mark',marker=name),node)
+        receipt,pending=load.dispatch(model.program(),180_000_000_000,submit,markers=schedule,mark=mark,clock=clock,sleep=clock.sleep)
+        self.assertEqual(1989,len(pending));self.assertTrue(all(not future.done() for future,_,_ in futures))
+        for future,record,response in futures:record.update(endNanos=clock(),outcome='SUCCESS',response=response);future.set_result(response)
+        load.drain(receipt,pending,1,clock=clock)
+        self.assertEqual(1980,load.validate(receipt,model.program(),180_000_000_000,history)['offered'])
+        checked=load.validate_markers(receipt,schedule,history,['node-1','node-2','node-3'])
+        self.assertEqual([0,0,0],[v['offerDelayNanos'] for v in checked])
+        self.assertEqual(receipt['startNanos'],receipt['offers'][0]['dueNanos'])
+        broken=copy.deepcopy(receipt);broken['markers'][1]['operations'].pop()
+        with self.assertRaisesRegex(ValueError,'target set'):load.validate_markers(broken,schedule,history,['node-1','node-2','node-3'])
+        broken=copy.deepcopy(receipt);broken['markers'][1]['dueNanos']+=1
+        with self.assertRaisesRegex(ValueError,'phase marker'):load.validate_markers(broken,schedule,history,['node-1','node-2','node-3'])
+
+    def test_partial_marker_transport_failure_retains_already_submitted_future(self):
+        clock=Clock();future=concurrent.futures.Future()
+        def mark(name):
+            yield 'first-node',future
+            raise BrokenPipeError('second target disconnected')
+        receipt,pending=load.dispatch(model.program(),180_000_000_000,lambda _:self.fail('business call after failed mark'),
+                                    markers=[dict(name='warmup-start',offsetNanos=0)],mark=mark,clock=clock,sleep=clock.sleep)
+        self.assertEqual(1,len(pending));self.assertIs(pending[0][1],future)
+        self.assertTrue(all(row['status']=='NOT_DISPATCHED' for row in receipt['offers']))
+        self.assertEqual('DISPATCH_FAILED',receipt['markers'][0]['status']);self.assertFalse(future.cancelled())
+
+    def test_delayed_marker_is_reported_without_shifting_the_offered_program(self):
+        clock=Clock()
+        def mark(name):
+            clock.now+=200_000_000;yield name,concurrent.futures.Future()
+        def submit(call):return 'business',concurrent.futures.Future()
+        receipt,_=load.dispatch(model.program()[:1],1_000_000_000,submit,markers=[dict(name='begin',offsetNanos=0)],mark=mark,clock=clock,sleep=clock.sleep)
+        first=receipt['offers'][0];self.assertEqual(200_000_000,first['offerNanos']-first['dueNanos'])
+        self.assertEqual(receipt['startNanos']+1_000_000_000,receipt['dispatchEndNanos'])
+
 
 if __name__=='__main__':unittest.main()

@@ -126,6 +126,13 @@ Successful cut validation is shared with the short gate; all ten old results and
 190 negatives remain identical. Resource-window binding, full execution and fault
 schedules still precede the complete machine freeze and formal measurements.
 
+The [Phase 6K asynchronous boundaries](v5.2/PHASE_6_MEASUREMENT_RESOURCE_WINDOWS.md)
+now bind resource observations to original controller marker tasks and actual
+process-local warmup/measured boundaries. Five short histories retain all 45 marker
+calls and 30 resource-window reports, with portable physical/query validation and
+200 negatives. Full M01 execution, M02–M04 schedules and the machine freeze remain
+open; the short three-second gate is not a formal measured history.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

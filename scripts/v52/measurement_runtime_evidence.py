@@ -14,6 +14,8 @@ from . import measurement_projection,measurement_stream,measurement_history,meas
 from .measurement_reads import publication_generation
 from .evidence import need,digest,encoded
 
+DRIVER_MARKERS=(dict(name='warmup-start',offsetNanos=0),dict(name='measured-start',offsetNanos=500_000_000),
+                dict(name='measured-end',offsetNanos=3_000_000_000))
 
 
 
@@ -85,16 +87,22 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
         requests=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
         dispatched=load.validate(offered,requests,3_000_000_000,history)
         need(dispatched['outcomes']=={'SUCCESS':10} and {v['opId'] for v in offered['offers']}=={v['opId'] for v in requested},'measurement driver smoke operation set')
-        resources={}
+        resources={};resource_windows={};markers=None
+        if 'driverMarkerSchedule' in binding:
+            need(binding['driverMarkerSchedule']==list(DRIVER_MARKERS),'measurement driver phase schedule changed')
+            markers=load.validate_markers(offered,DRIVER_MARKERS,history,traces)
         for node,reader in traces.items():
             observed=[r for r in reader if r['event']=='CLIENT_SAMPLE'];resources[node]=samples.validate(observed,binding['mode'])
             need(resources[node]['periodicSamples']>=2,'measurement driver smoke missing periodic samples')
             controls=[c for c in history if c['node']==node and c['kind'].startswith('sample-')]
-            need([c['kind'] for c in controls]==['sample-start','sample-stop'] and all(c['outcome']=='SUCCESS' for c in controls),'measurement sampler control ledger')
-            need(controls[0]['endNanos']<=offered['startNanos'] and controls[-1]['startNanos']>=offered['drainEndNanos'],'measurement sampler does not cover dispatch')
-            for call,sample in zip(controls,(observed[0],observed[-1])):
-                need(call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},'measurement sampler response differs from observation')
+            if markers is not None:resource_windows[node]=samples.windows(observed,binding['mode'],controls,offered,markers,node)
+            else:
+                need([c['kind'] for c in controls]==['sample-start','sample-stop'] and all(c['outcome']=='SUCCESS' for c in controls),'measurement sampler control ledger')
+                need(controls[0]['endNanos']<=offered['startNanos'] and controls[-1]['startNanos']>=offered['drainEndNanos'],'measurement sampler does not cover dispatch')
+                for call,sample in zip(controls,(observed[0],observed[-1])):
+                    need(call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},'measurement sampler response differs from observation')
         driver=dict(load=dispatched,resources=resources)
+        if markers is not None:driver.update(phaseMarkers=markers,resourceWindows=resource_windows)
     result=dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
                 oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver,ledger=ledger)
     if authority is not None:result['publicationAuthority']=authority
@@ -172,6 +180,9 @@ def negatives(root,expected,answers,*,package=bundle):
             nonempty=find('STORAGE_CUT',lambda row:row['node']==installed_node and row['cut']=='SELECTOR_BEFORE_ACK' and
                           any(v['name']=='snapshot.gsr' and v['bytes']==installed_row['snapshot'] for v in row['readGeneration']))
             cases.append(('missing-forced-rejoin-generation',nonempty,edit(event='REMOVED_SELECTOR'),None,'measurement rejoin lacks forced generation'))
+    if 'driverMarkerSchedule' in expected:
+        cases.append(('changed-phase-marker',find('CLIENT_SAMPLE',lambda row:row.get('marker')=='measured-start'),
+                      edit(marker='warmup-start'),None,'sample incomplete/out-of-order window markers'))
     result=[]
     for name,predicate,change,mutate_history,reason in cases:
         rows=measurement_stream.changed(original,predicate,change) if predicate else original;calls=copy.deepcopy(history)

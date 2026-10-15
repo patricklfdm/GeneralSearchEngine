@@ -15,6 +15,31 @@ def rows():
     return result
 
 
+def window_rows():
+    template=rows()[0];origin=template['dueNanos'];result=[]
+    specs=[('START',0,''),('MARK',100,'warmup-start'),('PERIODIC',s.INTERVAL,''),
+           ('MARK',s.INTERVAL+500_000_000,'measured-start'),('PERIODIC',2*s.INTERVAL,''),
+           ('PERIODIC',3*s.INTERVAL,''),('MARK',3*s.INTERVAL+100,'measured-end'),('STOP',3*s.INTERVAL+1000,'')]
+    for i,(kind,offset,marker) in enumerate(specs):
+        row=copy.deepcopy(template);time=origin+offset
+        row.update(sampleKind=kind,sampleOrdinal=i,marker=marker,dueNanos=time,sampleStartNanos=time+1,
+                   sampleEndNanos=time+10,localNanos=time+20,heapUsedBytes=10+i)
+        row['processCpuNanos']['value']=1000+i*10;row['allocatedBytes']['value']=2000+i*100;result.append(row)
+    return result
+
+
+def window_input():
+    samples=window_rows();controls=[];markers=[]
+    boundary=[samples[0],samples[1],samples[3],samples[6],samples[7]]
+    for i,(kind,row) in enumerate(zip(('sample-start','sample-mark','sample-mark','sample-mark','sample-stop'),boundary)):
+        identity=str(i);call=dict(opId=identity,node='node-1',kind=kind,outcome='SUCCESS',startNanos=100+i*100,endNanos=150+i*100,
+                                 response=dict(sample={k:v for k,v in row.items() if k not in s.trace.META}))
+        if kind=='sample-mark':
+            call['marker']=row['marker'];markers.append(dict(name=row['marker'],dueNanos=200+(i-1)*100,operations={'node-1':identity}))
+        controls.append(call)
+    return samples,'candidate-stale',controls,dict(startNanos=160,drainEndNanos=490),markers,'node-1'
+
+
 class MeasurementSamplesTest(unittest.TestCase):
     def test_only_same_process_deltas_and_sampled_peaks(self):
         result=s.validate(rows(),'candidate-stale');self.assertEqual(3,result['samples']);self.assertEqual(2,result['cumulativeDeltas']['allocatedBytes']['value'])
@@ -44,6 +69,34 @@ class MeasurementSamplesTest(unittest.TestCase):
     def test_only_complete_ordered_markers_are_accepted(self):
         data=rows();data[1]['sampleKind']='MARK';data[1]['marker']='measured-end'
         with self.assertRaisesRegex(ValueError,'window markers'):s.validate(data,'candidate-stale')
+
+    def test_window_deltas_use_worker_markers_not_whole_session_or_controller_clocks(self):
+        result=s.windows(*window_input())
+        self.assertEqual(70,result['wholeSession']['cumulativeDeltas']['processCpuNanos']['value'])
+        warm=result['windows']['warmup'];measured=result['windows']['measured']
+        self.assertEqual(20,warm['cumulativeDeltas']['processCpuNanos']['value']);self.assertEqual(30,measured['cumulativeDeltas']['processCpuNanos']['value'])
+        self.assertEqual(100,warm['nominalControllerDurationNanos'])
+        self.assertGreater(warm['observedBoundarySpacingNanos'],1_000_000_000)
+        self.assertEqual(13,warm['sampledHighWater']['heapUsedBytes']);self.assertEqual(16,measured['sampledHighWater']['heapUsedBytes'])
+        self.assertEqual(2,measured['periodicSamples'])
+
+    def test_missing_or_forged_window_control_and_boundary_reject(self):
+        for change,reason in (
+                (lambda d:d[2].pop(1),'control ledger'),
+                (lambda d:d[2][0].__setitem__('endNanos',10000),'do not cover'),
+                (lambda d:d[4][1]['operations'].__setitem__('node-1','different'),'original dispatch'),
+                (lambda d:d[2][2]['response']['sample'].__setitem__('heapUsedBytes',999),'differs from observation')):
+            data=window_input();change(data)
+            with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,reason):s.windows(*data)
+
+    def test_unsupported_window_allocation_is_not_a_zero_delta(self):
+        data=window_input()
+        for row in data[0]:row['allocatedBytes']={'status':'UNSUPPORTED'}
+        for call,row in zip(data[2],[data[0][0],data[0][1],data[0][3],data[0][6],data[0][7]]):
+            call['response']['sample']={k:v for k,v in row.items() if k not in s.trace.META}
+        result=s.windows(*data)
+        for name in ('warmup','measured'):
+            self.assertEqual(dict(status='INCOMPLETE',observedStatuses=['UNSUPPORTED']),result['windows'][name]['cumulativeDeltas']['allocatedBytes'])
 
 
 if __name__=='__main__':unittest.main()

@@ -1,5 +1,6 @@
 """Validate JVM-local sampled resources without treating them as exact peaks."""
 from .evidence import need
+from . import measurement_trace as trace
 
 INTERVAL=1_000_000_000
 COUNTERS=('processCpuNanos','allocatedBytes')
@@ -67,3 +68,36 @@ def validate(rows,mode,*,pending_limit=64):
     return dict(samples=len(rows),periodicSamples=periodic-1,elapsedNanos=elapsed,sampledHighWater=peaks,
                 cumulativeDeltas=deltas,sampleDurationNanos=durations,sampleDelayNanos=delays,
                 semantics='process-wide-including-observer; sampled-high-water-is-not-exact-peak')
+
+
+def windows(rows,mode,controls,offered,markers,node):
+    """Resource observations at actual asynchronous boundaries, never fake clocks."""
+    complete=validate(rows,mode)
+    need([c['kind'] for c in controls]==['sample-start','sample-mark','sample-mark','sample-mark','sample-stop'] and
+         all(c['outcome']=='SUCCESS' for c in controls),'sample window control ledger')
+    need(controls[0]['endNanos']<=offered['startNanos'] and controls[-1]['startNanos']>=offered['drainEndNanos'],
+         'sample window controls do not cover dispatch')
+    marks=[r for r in rows if r['sampleKind']=='MARK']
+    need([r['marker'] for r in marks]==[m['name'] for m in markers]==['warmup-start','measured-start','measured-end'],
+         'sample complete window boundaries')
+    for call,sample in zip(controls,[rows[0],*marks,rows[-1]]):
+        need(call['node']==node and call['response']['sample']=={k:v for k,v in sample.items() if k not in trace.META},
+             'sample boundary response differs from observation')
+    need(all(c['opId']==m['operations'][node] and c['marker']==m['name'] for c,m in zip(controls[1:-1],markers)),
+         'sample boundary differs from original dispatch')
+    result={}
+    for ordinal,name in enumerate(('warmup','measured')):
+        first,last=marks[ordinal:ordinal+2];selected=[r for r in rows if first['sampleOrdinal']<=r['sampleOrdinal']<=last['sampleOrdinal']]
+        deltas={}
+        for key in COUNTERS:
+            availability={r[key]['status'] for r in selected}
+            deltas[key]=(dict(status='AVAILABLE',value=last[key]['value']-first[key]['value']) if availability=={'AVAILABLE'} else
+                         dict(status='INCOMPLETE',observedStatuses=sorted(availability)))
+        peaks={key:max(r[key] for r in selected) for key in ('heapUsedBytes','nonHeapUsedBytes','liveThreads','retainedBytes','consumerActive','consumerQueued')}
+        result[name]=dict(samples=len(selected),periodicSamples=sum(r['sampleKind']=='PERIODIC' for r in selected),
+            nominalControllerDurationNanos=markers[ordinal+1]['dueNanos']-markers[ordinal]['dueNanos'],
+            observedBoundarySpacingNanos=last['sampleStartNanos']-first['sampleStartNanos'],
+            boundaryClockIntervals=dict(start=[first['sampleStartNanos'],first['sampleEndNanos']],end=[last['sampleStartNanos'],last['sampleEndNanos']]),
+            cumulativeDeltas=deltas,sampledHighWater=peaks)
+    return dict(status='PASS',wholeSession=complete,windows=result,
+                semantics='actual process-local marker observations; controller dispatch lag retained; includes observer overhead; sampled peaks only')
