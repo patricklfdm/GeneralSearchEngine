@@ -14,7 +14,7 @@ Release `38488481320` published that source. All twelve remote artifact hashes,
 signatures/checksums and clean V1–V5.1 consumers pass independent verification.
 Phase 8 is complete; stable is **5.1.0**.
 
-- **Status:** V5.0 and V5.1 published; V5.2 Phase 0 is next; V5.2–V5.4 planned
+- **Status:** V5.0 and V5.1 published; V5.2 Phase 0 candidate in review; runtime and V5.3–V5.4 planned
 - **Search/storage reference:** published `4.4.0`
 - **V5.1 replication reference:** published `5.0.0`
 - **V5.2 replication reference:** published `5.1.0`
@@ -32,13 +32,15 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Next batch:** implement the documentation-only
-[V5.2 Phase 0 entry plan](v5.2/PHASE_0_ENTRY_PLAN.md), which records the actual
-V5.1 read path and open decision/evidence register. Freeze
-strong-leader, stale-allowed and history-bound at-least-index policies; define
-publication-aware waits/rejections, bounded waiters/pins/cursors and behavior under
-lag, fencing, restore and restart. Use published V5.1 as the immediate replication
-reference and preserve the inherited V4.4 search/storage contract. The
+**Current batch:** review the documentation-only
+[V5.2 Phase 0 contract](v5.2/PHASE_0_CONTRACT.md), following entry PR #334. It selects
+explicit strong/stale/minimum-progress reads, history-bound token issuance,
+publication-aware waits, scoped views and exact resource/format rules. The
+[checklist](v5.2/PHASE_0_CHECKLIST.md) separates local delivery from pending protected
+acceptance. After acceptance and the user's instruction, the
+[Phase 1 foundation](v5.2/PHASE_1_ENTRY_PLAN.md) adds guarded declarations and an
+independent model before runtime enablement. Published V5.1 remains the immediate
+replication reference and V4.4 the inherited search/storage contract. The
 [handoff](NEXT_DEVELOPMENT_HANDOFF.md#next-batch-v52-phase-0) records the reading
 order and scope. V5.2 production work starts after its own Phase 0 acceptance.
 

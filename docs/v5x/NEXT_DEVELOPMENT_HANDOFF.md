@@ -15,29 +15,36 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 ## Next batch: V5.2 Phase 0
 
-The [V5.2 Phase 0 entry plan](v5.2/PHASE_0_ENTRY_PLAN.md) now maps the inspected
-V5.1 public/runtime surfaces, ten open decisions, nine evidence families and six
-required contract outputs. This is the task specification, not an accepted read
-contract or production implementation. The review base is master `0ada3cc` after
-the [Tiered CI restoration](../CI_TIERED_FORCE_FULL_DRILL.md); original CI failures
-and remaining Nightly/concurrency observations stay separate.
+The [entry plan](v5.2/PHASE_0_ENTRY_PLAN.md) was accepted in PR #334 at master
+`fd5bf155994887a5d5adc114000afc9e770960ae`. Its implementation task has produced a
+[six-document Phase 0 candidate](v5.2/PHASE_0_CONTRACT.md), with ten selected design
+decisions, nine evidence families, thirty concrete correctness schedules and sixteen
+evidence negatives. Contract acceptance is still pending; these are planned checks,
+not executed replica-read evidence. Original CI failures and remaining
+[Tiered CI observations](../CI_TIERED_ACCEPTANCE.md) stay separate.
 
-Start with that entry, the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
+Review the contract with the [charter](DEVELOPMENT_CHARTER.md#v52--replica-reads),
 [proposed read-policy refinement](NEXT_DEVELOPMENT_ADDENDUM.md#v52-explicit-read-policies),
-and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). Define the replica-read
-authority/API contract and its evidence matrix before production implementation:
+and [V5.1 migration limits](v5.1/MIGRATION_GUIDE.md). The candidate selects:
 
 - Strong leader, explicitly stale-allowed and history-bound at-least-index policies.
 - Progress tokens bound to group/history identity, published-state admission and
   exact wait/reject behavior during lag, leadership changes, restore and restart.
-- Bounded waiters, snapshot pins/cursors and cancellation/close behavior.
+- Bounded waiters and callback-scoped views; explicit paging is excluded while
+  existing leader paging remains unchanged. Cancellation/close retain real ownership.
 - Adversarial history and physical evidence proving that followers never expose
   uncommitted state or mislabel stale state as a stronger read.
 
 Published `5.1.0` becomes the immediate replication reference for V5.2; inherited
 V4.4 search/storage behavior and earlier configured-mode guarantees remain.
-V5.2 runtime work follows acceptance of its own Phase 0. The current entry batch
-changes documentation only; no V5.2 version bump or runtime work has started.
+V5.2 runtime work follows acceptance of its own Phase 0. Review
+[API/bytes](v5.2/API_FORMAT_AND_COMPATIBILITY.md),
+[authority/lifecycle](v5.2/READ_AUTHORITY_AND_LIFECYCLE.md) and
+[evidence](v5.2/TESTING_AND_EVIDENCE.md), then record protected acceptance in the
+[checklist](v5.2/PHASE_0_CHECKLIST.md). After acceptance and the user's instruction,
+the next implementation batch is the [Phase 1 foundation](v5.2/PHASE_1_ENTRY_PLAN.md),
+keeping explicit runtime reads disabled until later public qualification. This batch changes documentation only;
+no V5.2 version bump or runtime work has started.
 Commit/push/PR/tag operations remain operator-owned, and paid runs remain manual.
 
 ## Accepted V5.1 cloud evidence

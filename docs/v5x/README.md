@@ -1,6 +1,6 @@
 # GeneralSearchEngine V5.x development line
 
-- **Status:** V5.0 and V5.1 published and independently verified; V5.2 Phase 0 is next; V5.2–V5.4 remain planned
+- **Status:** V5.0 and V5.1 published and independently verified; V5.2 Phase 0 candidate in review; later implementation remains planned
 - **Current stable / next replication reference:** GeneralSearchEngine `5.1.0`
 - **Inherited search/storage reference:** GeneralSearchEngine `4.4.0`
 - **Architecture boundary:** replicated single-shard search
@@ -19,9 +19,12 @@ independent signatures/checksums and clean V1–V5.1 consumers pass.
 The [migration guide](v5.1/MIGRATION_GUIDE.md) describes the published automatic
 mode and preserves the configured-mode boundary.
 
-Next is [V5.2 Phase 0](v5.2/PHASE_0_ENTRY_PLAN.md): define
-replica-read policies, history-bound progress and failure/resource evidence before
-runtime implementation. The accepted V5.1 cloud evidence retains its original
+The [V5.2 Phase 0 candidate](v5.2/PHASE_0_CONTRACT.md) now defines explicit
+replica-read policies, history-bound progress, scoped views and failure/resource
+evidence, following entry PR #334. Review its
+[acceptance checklist](v5.2/PHASE_0_CHECKLIST.md) before the
+[Phase 1 foundation](v5.2/PHASE_1_ENTRY_PLAN.md); runtime work has not started.
+The accepted V5.1 cloud evidence retains its original
 sources/sequences; publication does not alter those measurements.
 
 The [development handoff](NEXT_DEVELOPMENT_HANDOFF.md) records the reading order,

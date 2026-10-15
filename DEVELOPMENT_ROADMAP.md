@@ -1,6 +1,6 @@
 # GeneralSearchEngine development roadmap
 
-## Current milestone: V5.1 published; V5.2 contract design next
+## Current milestone: V5.1 published; V5.2 contract candidate in review
 
 **Latest milestone:** V5.1 [Phases 7 and 8](docs/v5x/v5.1/RELEASE_CHECKLIST.md)
 are complete. PR #322 and exact-master CI `38482900297` accepted source
@@ -12,9 +12,12 @@ The accepted [Phase 6 cloud baseline](docs/v5x/v5.1/PHASE_6_NATIVE_SET_ACCEPTANC
 preserves its measured sources/sequences and historical failures/costs. The
 one-time Phase 7A CI skip remains recorded separately from successful Phase 7B CI.
 
-**Next:** V5.2 Phase 0 replica-read contract and evidence design, starting with
-the [source-reviewed entry plan](docs/v5x/v5.2/PHASE_0_ENTRY_PLAN.md).
-Runtime implementation follows acceptance of that contract. The chronology
+**Current:** the [V5.2 Phase 0 candidate](docs/v5x/v5.2/PHASE_0_CONTRACT.md) follows
+entry PR #334. Six documents define explicit read policies, history-bound tokens,
+capture/wait/view lifetimes, compatibility and independent evidence. Protected
+acceptance is pending; the [next foundation batch](docs/v5x/v5.2/PHASE_1_ENTRY_PLAN.md)
+adds guarded declarations/model work only after acceptance and user instruction.
+Runtime implementation follows those gates. The chronology
 below preserves earlier milestones and acceptance boundaries.
 
 V5.0 is published. V5.1 Phase 0 was accepted through PR #184 at

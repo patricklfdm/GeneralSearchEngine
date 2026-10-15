@@ -1,7 +1,9 @@
 # V5.2 Phase 0 entry: explicit replica reads
 
-**Status:** entry plan candidate, 2026-10-15. Source review and documentation only;
-the complete read contract is not yet frozen or accepted.
+**Status:** entry accepted through PR #334 at
+`fd5bf155994887a5d5adc114000afc9e770960ae`, 2026-10-15. The subsequent
+[six-document contract candidate](PHASE_0_CONTRACT.md) resolves the decisions below;
+its protected acceptance remains pending. No replica-read runtime is enabled.
 
 **Reviewed checkout:** `0ada3ccbbcb9bcab3ef5ddbf25f28861e6cf7b7d`, after PR #333.
 Exact-master CI `38699074927` passed all 46 jobs at accepted attempt 2; attempt 1's
@@ -76,8 +78,10 @@ the new public follower-read contract.
 
 ## 3. Decisions that block Phase 1
 
-All rows are **OPEN** in this entry. Recommendations identify the design direction;
-they do not resolve exact signatures, formats or numeric limits by implication.
+All rows were **OPEN** when this entry was accepted. The requirements below are
+preserved as the task register. Their current selections are in the
+[D01–D10 contract register](PHASE_0_CONTRACT.md#d01d10-selections), with explicit
+candidate/review status in the [checklist](PHASE_0_CHECKLIST.md).
 
 | ID | Required decision and completion criterion |
 | --- | --- |
@@ -130,12 +134,12 @@ Prepare one coherent Phase 0 document set before production work:
 
 | Planned file | Required contents |
 | --- | --- |
-| `PHASE_0_CONTRACT.md` | Resolve D01–D10; authority, non-goals and policy/state matrix; unresolved blockers stay explicit. |
-| `READ_AUTHORITY_AND_LIFECYCLE.md` | Read/token transitions, capture ordering, restart/install/cancellation races and counterexample arguments. |
-| `API_FORMAT_AND_COMPATIBILITY.md` | Exact proposed signatures/errors, token encoding/validation, version strategy and supported upgrade path. |
-| `TESTING_AND_EVIDENCE.md` | Concrete E01–E09 schedules, independent oracle/negative rules, public consumers and resource/measurement criteria. |
-| `PHASE_0_CHECKLIST.md` | Decision/evidence cross-reference, reviewed source, open issues and actual acceptance identity. |
-| `PHASE_1_ENTRY_PLAN.md` | Declaration/byte fixtures, independent model and deterministic network/process tests; explicitly separate from production enablement. |
+| [PHASE_0_CONTRACT.md](PHASE_0_CONTRACT.md) | Resolve D01–D10; authority, non-goals and policy/state matrix; unresolved blockers stay explicit. |
+| [READ_AUTHORITY_AND_LIFECYCLE.md](READ_AUTHORITY_AND_LIFECYCLE.md) | Read/token transitions, capture ordering, restart/install/cancellation races and counterexample arguments. |
+| [API_FORMAT_AND_COMPATIBILITY.md](API_FORMAT_AND_COMPATIBILITY.md) | Exact proposed signatures/errors, token encoding/validation, version strategy and supported upgrade path. |
+| [TESTING_AND_EVIDENCE.md](TESTING_AND_EVIDENCE.md) | Concrete E01–E09 schedules, independent oracle/negative rules, public consumers and resource/measurement criteria. |
+| [PHASE_0_CHECKLIST.md](PHASE_0_CHECKLIST.md) | Decision/evidence cross-reference, reviewed source, open issues and actual acceptance identity. |
+| [PHASE_1_ENTRY_PLAN.md](PHASE_1_ENTRY_PLAN.md) | Declaration/byte fixtures, independent model and deterministic network/process tests; explicitly separate from production enablement. |
 
 Resolve token/publication semantics first, then API/lifecycle/bounds, then evidence
 and cross-document review. These are work groups within the next contract batch,
