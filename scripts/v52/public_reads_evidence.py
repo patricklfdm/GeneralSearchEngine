@@ -128,7 +128,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
     application_case=scenario in application_cases
     identity_case=scenario=='token-admission'
     import_case=scenario in ('backup-export','backup-import')
-    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    compaction_case=scenario=='token-below-floor'
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -298,6 +299,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
         schedule(root,traces,history,processes)
     elif import_case:
         from .public_read_import_evidence import schedule
+        schedule(root,traces,history,processes)
+    elif compaction_case:
+        from .public_read_compaction_evidence import schedule
         schedule(root,traces,history,processes)
     elif application_case:
         from .public_read_application_evidence import schedule

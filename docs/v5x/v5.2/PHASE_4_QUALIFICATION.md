@@ -49,7 +49,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
 | S13 | 4D2 public checks for all three identity mismatches before allocation; 4D3 new-group import; deterministic exhausted-capacity precedence | Final aggregate |
-| S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import | Explicit below-floor cleanup |
+| S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import; 4D4 actual two-source retirement below carried token | Final aggregate |
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
@@ -445,3 +445,28 @@ pass. The strengthened stdout/pair check replays unchanged original and relocate
 artifacts successfully. Final CI/docs/test-only edits do not relabel the process
 run's source binding. This completes the public backup/import S16 schedule locally;
 full Phase 4 and protected hosted qualification remain pending.
+
+## 4D4: minimum token below the retired log floor
+
+The public three-voter `token-below-floor` case carries a token at index 5, waits
+for the real two-source floor, isolates the voter outside the actual selected
+pair, and publishes one additional mutation. The leader establishes floor 6 and
+deletes its previous generation. After healing, the isolated voter installs the
+new snapshot and establishes its own floor 6. Both read successfully using the
+original minimum token; their application sequence advances from 7 to 8.
+
+The independent checker decodes the durable floor and both complete source
+packets, verifies the matching downloaded peer source before floor establishment,
+and requires the observed directory deletion. The active accepted/proof journals
+contain headers only. Query results still match fresh published V4.4 replay; the
+read does not depend on the token's old log generation or a token registry.
+
+`target/v52-public-read-compaction/development-1` passes eight reads, four public
+bulks, six publications and portable query replay. Its thirteen original evidence
+negatives pass before/after relocation. The final checker adds a missing-deletion
+negative; all fourteen pass when replaying both unchanged retained copies.
+The process run binds base `d25e531b10ae38ceff7d8d8764d66f174abd094b` and checkout `dfb8c2d4947bc81ccb6a000ddb39aba4b9632238634e0d2e3d8e21e36b34e4d2`.
+CI wiring and the additional negative were added after that run and do not relabel
+its binding. All 39 V5.2 Python tests and 32 CI topology/composite tests pass;
+contract, inventory, shell and whitespace checks pass. This completes S15 locally.
+Full Phase 4 and exact-source hosted acceptance remain pending.

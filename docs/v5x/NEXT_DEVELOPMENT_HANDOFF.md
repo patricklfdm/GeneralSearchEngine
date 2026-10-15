@@ -45,8 +45,9 @@ V5.2 gates into four required shared-build lanes. Phase 4D1 adds three-policy
 physical application/query lifecycle qualification, including update/delete and
 index create/drop. Phase 4D2 qualifies public token identity/format rejections and
 maximum-index/wait ownership. Phase 4D3 links an actual public backup to a new
-group with preserved application sequence and rejected old tokens. Continue with
-below-floor cleanup, resource, compatibility and the full
+group with preserved application sequence and rejected old tokens. Phase 4D4
+qualifies old tokens after actual two-source retirement and follower snapshot
+installation. Continue with resource, compatibility and the full
 schedule/negative matrix before final acceptance.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.

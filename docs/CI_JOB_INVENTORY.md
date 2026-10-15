@@ -121,7 +121,7 @@ Rows and their order are part of the contract; the cloud parser checks them inde
 
 - `changes` / `Change scope` has no job dependencies and produces the source-bound execution plan.
 - `required` / `Required` always evaluates Change scope and all 40 suite results.
-- The suites declare 28 download and 111 upload operations before matrix expansion.
+- The suites declare 28 download and 112 upload operations before matrix expansion.
 - Change scope retains the execution receipt, complete change records and a diagnostic shadow report.
 - Exact artifact IDs, paths, conditions, retention and external step names are in the registry.
 
