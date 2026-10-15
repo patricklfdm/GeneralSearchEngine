@@ -16,10 +16,20 @@ import java.util.concurrent.*;
 
 /** External public consumer. Its optional observer records calls, never supplies read results. */
 public final class V52PublicReadConsumer {
+    private static ReplicationBounds bounds(Path root,ReplicationBounds base) throws IOException {
+        if(!Files.exists(root.resolve("read-capacity.txt")))return base;
+        int pending=Integer.parseInt(Files.readString(root.resolve("read-capacity.txt")).trim());
+        if(!Set.of(1,4,65,ReplicationBounds.defaults().maxPendingClientOperations()).contains(pending))
+            throw new IllegalArgumentException("undeclared public read capacity");
+        return new ReplicationBounds(base.maxFrameBytes(),base.maxEntriesPerAppend(),base.maxInFlightPerPeer(),pending,
+                base.maxRetryAttempts(),base.requestTimeoutMillis(),base.retryBackoffMillis(),base.snapshotChunkBytes(),
+                base.maxRetainedLogBytes(),base.maxSnapshotStagingBytes());
+    }
     private static List<AutomaticReplicationGroupConfig<Integer,Doc>> configs(Path root) throws Exception {
+        var fixtureBounds=bounds(root,PublicRuntimeConsumer.bounds());
         return PublicRuntimeConsumer.configs(root).stream().map(c->new AutomaticReplicationGroupConfig<Integer,Doc>(
                 c.groupId(),"v52-public-read",c.localNodeId(),c.members(),c.replicaDirectory(),
-                storage(root.resolve("app-"+c.localNodeId().value())),c.bounds(),c.leadershipPolicy())).toList();
+                storage(root.resolve("app-"+c.localNodeId().value())),Files.exists(root.resolve("read-capacity.txt"))?fixtureBounds:c.bounds(),c.leadershipPolicy())).toList();
     }
     private static View view(ReplicaReadView<Integer,Doc> view) {
         return new View() {

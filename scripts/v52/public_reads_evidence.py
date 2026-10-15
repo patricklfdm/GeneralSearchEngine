@@ -129,7 +129,10 @@ def validate(root, expected, queries, *, traces=None, history=None):
     identity_case=scenario=='token-admission'
     import_case=scenario in ('backup-export','backup-import')
     compaction_case=scenario=='token-below-floor'
-    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
+    from .public_read_resource_evidence import CAPACITIES
+    resource_case=scenario in CAPACITIES
+    read_limit=min(64,CAPACITIES[scenario]-1) if resource_case else 15
+    need(scenario is None or lifecycle or protocol_case or application_case or identity_case or import_case or compaction_case or resource_case or scenario in ('capture-halt','capture-kill','release-halt','release-kill','isolated-follower','unpublished-proof'),
          'unknown read qualification scenario')
     crash=scenario in ('capture-halt','capture-kill','release-halt','release-kill') or (lifecycle or protocol_case) and scenario.endswith(('-halt','-kill'))
     need(len(processes)==(4 if crash else 3) and len({p['pid'] for p in processes})==len(processes) and
@@ -210,8 +213,8 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 need(request['policy']==row['policy'] and request['deadlineNanos']==row['deadlineNanos'] and
                      request['localNanos']<=row['captureNanos']<row['deadlineNanos'] and
                      request['order']<admitted[identity]['order']<order and publication_order<order,'read deadline/order/policy')
-                need(1<=row['owned']<=15 and row['captured']==1 and row['waiting']+row['captured']+row['settling']==row['owned']
-                     and row['alarms']<=row['waiting'] and row['highWater']<=15,'read ownership bounds')
+                need(1<=row['owned']<=read_limit and row['captured']==1 and row['waiting']+row['captured']+row['settling']==row['owned']
+                     and row['alarms']<=row['waiting'] and row['highWater']<=read_limit,'read ownership bounds')
                 if row['policy']=='LEADER_STRONG':
                     proof=physical.frame(snapshot['terminalProof'],'PROOF',manifest);last=snapshot['anchors'][-1]['entryDigest']
                     need(row['barrierIndex']==index and row['barrierEpoch']==promised==proof['epoch'] and entries[last]['operation']==9
@@ -268,6 +271,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
                 elif row.get('reasonCode')=='CLOSED':need(lifecycle,'undeclared close rejection')
                 elif row.get('reasonCode')=='NOT_READY':need(scenario=='unpublished-proof' or protocol_case and scenario.startswith('install-'),'undeclared non-readable state')
                 elif row.get('reasonCode')=='STALE_EPOCH':need(scenario=='promise-before','undeclared promise rejection')
+                elif row.get('reasonCode')=='CAPACITY_EXCEEDED':
+                    need(resource_case and request is not None and not any(i in admitted for i in ids) and
+                         row['outcome']=='NOT_APPLICABLE','undeclared or admitted capacity rejection')
                 elif row.get('reasonCode')=='INCOMPATIBLE_HISTORY':
                     need((identity_case or scenario=='backup-import') and request is not None,'undeclared identity rejection')
                     minimum=token.decode(physical.raw(request['minimum']))
@@ -302,6 +308,9 @@ def validate(root, expected, queries, *, traces=None, history=None):
         schedule(root,traces,history,processes)
     elif compaction_case:
         from .public_read_compaction_evidence import schedule
+        schedule(root,traces,history,processes)
+    elif resource_case:
+        from .public_read_resource_evidence import schedule
         schedule(root,traces,history,processes)
     elif application_case:
         from .public_read_application_evidence import schedule

@@ -47,7 +47,9 @@ index create/drop. Phase 4D2 qualifies public token identity/format rejections a
 maximum-index/wait ownership. Phase 4D3 links an actual public backup to a new
 group with preserved application sequence and rejected old tokens. Phase 4D4
 qualifies old tokens after actual two-source retirement and follower snapshot
-installation. Continue with resource, compatibility and the full
+installation. Phase 4D5 qualifies three public capacity configurations and reserved
+writer progress with independently replayed ownership counters. Continue with
+public P=1, compatibility and the full
 schedule/negative matrix before final acceptance.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.

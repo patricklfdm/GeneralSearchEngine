@@ -53,7 +53,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
-| S23–S24 | P=4 real public saturation, P=1 old maintenance, P=65/default deterministic cap | Separate-process counters in final resource evidence |
+| S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; P=1 deterministic old-API slot | Public P=1 old-API qualification |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
 | S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | Public corrupt-authority/fatal capture physical evidence |
 | N01–N16 | Phase 1 synthetic sixteen plus Phase 3B eleven physical/query rejection mutations | Complete sixteen targeted physical mutations, before/after relocation |
@@ -470,3 +470,36 @@ CI wiring and the additional negative were added after that run and do not relab
 its binding. All 39 V5.2 Python tests and 32 CI topology/composite tests pass;
 contract, inventory, shell and whitespace checks pass. This completes S15 locally.
 Full Phase 4 and exact-source hosted acceptance remain pending.
+
+## 4D5: bounded public waiters and reserved writer progress
+
+Three independent public three-voter histories configure P=4, P=65 and the default
+pending-operation capacity P=10000. Other small qualification bounds remain
+unchanged; this is not a throughput run with all production default limits. The
+independent checker decodes the actual bootstrap PLAN and verifies every bound.
+
+After all three voters establish their verified baseline recovery floor, register
+R=min(64,P-1) minimum reads for the next unpublished index. Probe the real queue,
+timer and semaphore counts; reject one excess read before allocation. Submit one
+public write using the reserved capacity, then require every waiting read to return
+its exact new application cut. Actual V4.4 replay checks all seven query results.
+Original Future completion is not counted as release: atomic ownership transitions
+and a final quiescent probe must return all slots and timers.
+
+The first full run passed P=4/65 but failed the default-capacity write because its
+selected peer returned NOT_READY for ACCEPT during background source installation.
+Evidence remains at `target/v52-public-read-resource/development-1`; its 64 waiters
+were admitted and then closed during failed-run cleanup. A published baseline alone
+was insufficient to isolate this healthy-capacity schedule from initialization.
+The harness now waits for each real two-source RECOVERY_FLOOR before saturation.
+It does not change runtime logic, retry a business call, increase a deadline or
+claim to remove recovery-time unavailability.
+
+`target/v52-public-read-resource/development-2` passes all three whole histories:
+131 waiting reads, three excess rejections, 149 successful reads including baseline
+queries, twelve successful bulks and 39 evidence negatives at each location.
+Both original and relocated histories run published V4.4 query replay. Base
+`c2e4c94fe6a4763f263aba044573a4d6528a294d`, checkout `fff513528f95151ea3adf28b78c3fb45d4c579fb1dcd5960d4ab4a42f6f51e10` identify this process run; later CI/docs edits are
+separate. All 41 V5.2 Python tests and 32 CI topology/composite tests pass. The old
+cancel-waiting evidence also replays unchanged at both locations with the default
+ownership limit. Full protected qualification and public P=1 remain pending.

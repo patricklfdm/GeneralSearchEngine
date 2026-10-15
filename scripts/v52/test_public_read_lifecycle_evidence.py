@@ -47,5 +47,16 @@ class LifecycleAccountingTest(unittest.TestCase):
             rows=self.rows();rows[0]['owned']=value
             with self.subTest(value=value),self.assertRaisesRegex(ValueError,'field types'):e.ownership(rows)
 
+    def test_declared_capacity_rejects_one_extra_waiter_at_both_boundaries(self):
+        for limit in (3,64):
+            rows=[dict(self.rows()[0],readId=n,owned=n,waiting=n,alarms=n,highWater=n) for n in range(1,limit+2)]
+            with self.subTest(limit=limit):
+                self.assertEqual(limit,e.ownership(rows[:-1],True,limit=limit)['abruptOutstanding'])
+                with self.assertRaisesRegex(ValueError,'conservation'):e.ownership(rows,True,limit=limit)
+
+    def test_zero_read_limit_never_accepts_even_an_eventually_released_read(self):
+        self.assertEqual(0,e.ownership([],limit=0)['admitted'])
+        with self.assertRaisesRegex(ValueError,'conservation'):e.ownership(self.rows(),limit=0)
+
 
 if __name__=='__main__':unittest.main()

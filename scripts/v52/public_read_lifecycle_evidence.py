@@ -12,7 +12,7 @@ ATOMIC=('REPLICA_READ_ADMITTED','REPLICA_READ_CAPTURE_VALIDATED','REPLICA_READ_S
 META=('event','order','pid','generation','localNanos','node','groupId','manifestDigest')
 
 
-def ownership(rows,abrupt=False):
+def ownership(rows,abrupt=False,*,limit=15):
     """Replay serialized state transitions; never infer release from Future completion."""
     owned={};admitted=set();released=set();high=0
     for row in rows:
@@ -37,7 +37,7 @@ def ownership(rows,abrupt=False):
         expected=dict(owned=len(owned),waiting=sum(p=='QUEUED' for p in owned.values()),
                       captured=sum(p=='CAPTURED' for p in owned.values()),settling=sum(p=='SETTLING' for p in owned.values()),highWater=high)
         need(all(row[k]==v for k,v in expected.items()) and row['alarms']==expected['waiting'] and
-             0<=row['marker']<=1 and high<=15 and expected['captured']<=1,'read counter conservation')
+             0<=row['marker']<=1 and high<=limit and expected['captured']<=1,'read counter conservation')
     need(abrupt or not owned,'normal process leaked read ownership')
     return dict(admitted=len(admitted),released=len(released),abruptOutstanding=len(owned))
 
