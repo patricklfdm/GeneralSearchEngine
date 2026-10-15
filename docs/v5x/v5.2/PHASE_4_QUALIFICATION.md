@@ -44,7 +44,7 @@ This table records implemented evidence without declaring unfinished variants do
 
 | Schedules | Evidence available | Remaining qualification |
 | --- | --- | --- |
-| S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | Rerun complete compatibility on the final artifact |
+| S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | 4D7 local consumer/API rerun; final exact-source hosted acceptance pending |
 | S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
@@ -52,7 +52,7 @@ This table records implemented evidence without declaring unfinished variants do
 | S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import; 4D4 actual two-source retirement below carried token | Final aggregate |
 | S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
-| S22 | Compile-negative page API and inherited automatic cursor tests; nested page rejection | Final artifact cursor/restart matrix |
+| S22 | 4D7 public cursor continuity, changed materialization, successor/reopened handles; negative page compilation and nested-page rejection | Final aggregate |
 | S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
 | S25–S28 | Deterministic lifecycle/fairness tests and eleven 4C1 public cancellation/close cases, both crash modes and independent allocation/release accounting | Complete callback/null/reentry and fairness evidence mapping |
 | S29–S30 | Seven-method cross-thread/escaped rejection, reentry, token-byte vectors, Long.MAX_VALUE and maximum wait | Public corrupt-authority/fatal capture physical evidence |
@@ -533,3 +533,36 @@ runs this additional whole history and retains it in the same always-uploaded
 resource artifact. No production change, workload retry or paid run. S23/S24 are
 locally covered; final compatibility, state/failure variants, physical negative
 matrix and protected acceptance remain pending.
+
+## 4D7: legacy cursor and consumer compatibility
+
+Two new public real-TCP tests exercise old paging beside all three explicit read
+policies. A cursor remains usable across a fresh strong NO_OP and local/minimum
+reads. Actual application changes replace the automatic runtime's materialization,
+so the old cursor rejects with DIFFERENT_ENGINE. A successor leader and newly
+opened handles also reject the old opaque cursor while the same-history minimum
+token continues to work. This test retains actual cursor objects across handles;
+it introduces no cursor serialization or cross-process cursor transport format.
+Existing nested-page rejection and compile-negative view paging remain enforced.
+
+The first two local test attempts incorrectly expected STALE_SNAPSHOT after an
+application update. Inspecting AutomaticApplication.publish establishes why that
+was the wrong layer: automatic publication replaces the whole materialization,
+whereas the underlying core engine also has same-instance snapshot invalidation.
+Both failure logs/XML reports remain in `target/v52-cursor-compatibility`. The
+corrected tests require the precise public DIFFERENT_ENGINE outcome; they do not
+accept arbitrary exceptions. No runtime correction was needed.
+
+The corrected twelve targeted Java tests pass, including public lifecycle,
+V5.1/V5.2 API inventories and token bytes. All seven isolated consumer modules
+compile; six run 24 tests (V1 is compile-only), with zero failures/errors/skips.
+The current-artifact foundation rerun at `target/v52-foundation/run.IbIne3/evidence`
+passes published-V5.1 binary/default loading, public API comparison, negative
+paging/mutation compilation, 41 V5.2 Python tests and three coordinate tests.
+The final installed core/replication JAR hashes match that receipt. These checks
+use local Ubuntu Java 21, not the hosted pinned Temurin qualification.
+
+Foundation's synthetic/model evidence still does not count as physical matrix
+completion. Source-bound local receipts and copied JUnit XML files are retained
+in `target/v52-cursor-compatibility`. Remaining state/authority-failure variants,
+full physical N01–N16 mapping, Phase 5 and Phase 6 are still pending.
