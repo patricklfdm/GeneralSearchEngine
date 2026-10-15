@@ -5,7 +5,7 @@
 The original development task authorized continuous local T0–T6 implementation
 and staged local commits, with one final review. Subsequent user authorization
 allowed pushing that branch and one manual full CI execution; the user then
-created and merged PRs #329 and #330. Hosted observations are recorded separately below,
+created and merged PRs #329, #330 and #331. Hosted observations are recorded separately below,
 without replacing the retained local failures. Input handoff files remain
 unmodified, uncommitted and unnecessary at runtime.
 
@@ -21,12 +21,12 @@ preserved; attempt 2 acceptance is not described as a clean first attempt.
 | Stage | Implementation | Local validation | New-source hosted |
 | --- | --- | --- | --- |
 | T0 baseline and frozen acceptance | Complete | Registry/topology and literal command inventory checked | Baseline and rollout observations retained |
-| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full and integration plans observed; docs pending |
+| T1 suite-aware shadow plan | Complete | 130 change-scope tests passed | Full, integration and docs plans observed |
 | T2 plan/Required/workflow, forceFull | Complete | 195 related tests plus 20 extended inventory tests passed | Full rollout passed; hosted forceFull exercise pending |
 | T3 integration activation | Complete | 166 plan/provenance/interface tests passed | PR #330 selected integration; accepted attempt 2 passed 43 jobs with canonical skipped |
 | T4 optional rule review | NOT_ENABLED_WITH_RATIONALE | Closed-policy negatives; see review | No optional tier claimed |
 | T5 Nightly/manual/health controls | Complete | 214 related tests and 34 final negatives passed | Manual full passed; exact-base health observed; Nightly pending |
-| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full/integration observed; first timing sample and Required rule recorded; docs/forceFull/Nightly pending |
+| T6 full local regression and review | All planned local executions finished; acceptance incomplete | 39 passing / five failing non-meta instances; all original attempts retained | Full/integration/docs observed; first timing sample and Required rule recorded; forceFull/Nightly pending |
 
 **Local acceptance status: `LOCAL_VALIDATION_BLOCKED` / `BLOCKED_WITH_PARTIAL_DELIVERY`.**
 T0–T5 implementation is committed. The user supplied the missing namespace
@@ -91,17 +91,43 @@ workflow, validator, runtime and workload were unchanged. Actual observations:
 Raw attempt pages and plan artifacts are under
 `target/ci-tiered-integration/hosted-pr330/`. The [hosted acceptance report](CI_TIERED_HOSTED_ACCEPTANCE.md)
 records execution identity, waiting and runner-time accounting, read-only Required
-rule observations and the remaining checks. This batch contains only Markdown
-changes: its intended PR and master profile is **docs**, with two successful meta
-jobs and 36 skipped suite placeholders. That result is pending actual execution.
+rule observations and the remaining checks. [PR #331](https://github.com/patricklfdm/GeneralSearchEngine/pull/331)
+then qualified **docs**: PR run `38689603696` and master run `38689790501`
+both passed on attempt 1, with two successful meta jobs and 36 skipped suite
+placeholders. Their downloaded plans bind tested merge
+`78beee985a75395f650eadcf484943f5353097de` and master
+`535add252b43b674a951710393e93d844add2fb1`, respectively. Raw pages, plans and
+the summary are under `target/ci-tiered-docs-acceptance/hosted-pr331/`.
 
-Further hosted work remains: the docs-only PR/master observation, forceFull
-exercise and actual Nightly execution/concurrency. The schedule query still had
+Further hosted work remains: the forceFull exercise and actual Nightly
+execution/concurrency. The schedule query still had
 zero runs at 2026-10-15 05:51 UTC, before the first 10:17 UTC slot after rollout.
 A new docs-only master requires its own exact-source full health before a later
 eligible integration PR can reduce coverage; its docs success is not full health.
 Manual dispatch always selects full. No daily savings or fixed timing guarantee
 are claimed, and the original local failure records remain unresolved.
+
+### Prepared forceFull exercise
+
+The next batch temporarily sets the checked-in `forceFull` to `true`; the
+[drill procedure](CI_TIERED_FORCE_FULL_DRILL.md) separates enabling the policy,
+observing a subsequent eligible PR, and restoring `false`. This policy-changing
+PR itself selects full with `POLICY_CHANGED`, so it cannot complete the hosted
+override check. Eligible PRs will run all 46 jobs while the switch is enabled;
+docs continues to run only its two meta jobs. Hosted exercise and restoration are
+pending, not accepted by the local tests. The user subsequently authorized a
+one-time skip of this enabling PR/master CI using the existing bypass. That is a
+validation gap, not a hosted pass; the subsequent probe and restoration remain
+subject to real CI verification.
+
+The exercise exposed test coupling: scenario fixtures inherited the deployment
+switch and a contract test required literal `false`. The unchanged planner already
+accepts either boolean. Fixtures now explicitly start with integration enabled,
+the real policy contract permits only the two boolean values with every other
+field unchanged, and a separate real-Git/CLI regression exercises the checked-in
+policy through both planner and Required. It also rejects skipped canonical work
+under forced full. The original two failures are retained in
+`target/ci-tiered-force-full/before-fixture-fix.log`.
 
 Later disk cleanup moved large local evidence into the SHA-verified D-drive
 archive `D:\GSE-Archives\GeneralSearchEngine\repo-archives\build-prune-20261014\evidence-archives\ci-tiered-development.tar.gz`.

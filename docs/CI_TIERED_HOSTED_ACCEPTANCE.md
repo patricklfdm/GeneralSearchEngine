@@ -2,7 +2,8 @@
 
 ## Scope and source identity
 
-This report records read-only GitHub observations through 2026-10-15 05:51 UTC.
+This report records read-only GitHub observations through PR #331 and its
+master CI run `38689790501` on 2026-10-15 UTC.
 It supplements [the frozen acceptance checklist](CI_TIERED_ACCEPTANCE.md) and
 [development progress](CI_TIERED_PROGRESS.md). It does not mark T6 closed or turn
 the five retained local failures into passes.
@@ -20,6 +21,8 @@ needed for that acceptance.
 | [38674338594](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38674338594) | Master push; `8f72b529fea901836a1b828b9ae8688f9f7eccf6` | Full, accepted attempt 2: 46 successes. Attempt 1 failed automatic-healthy canonical tape and Required. |
 | [38681060125](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38681060125) | PR #330; tested merge `a28d3891eb6c3a93a1ca03d7ad3d3eccdb61d7bd` | Integration, accepted attempt 2: 43 successes, one skipped canonical placeholder. Attempt 1 failed guest services and Required. |
 | [38683792757](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38683792757) | Master push; `938958bfc42c13de5dd4854fcec3ec844d291749` | Full, attempt 1: 46 successes. |
+| [38689603696](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38689603696) | PR #331; tested merge `78beee985a75395f650eadcf484943f5353097de` | Docs, attempt 1: two successes, 36 skipped suite placeholders. |
+| [38689790501](https://github.com/patricklfdm/GeneralSearchEngine/actions/runs/38689790501) | Master push; `535add252b43b674a951710393e93d844add2fb1` | Docs, attempt 1: two successes, 36 skipped suite placeholders. |
 
 PR #330's head is `e22f2c993f564a9da0352b6b0ae904a1c92d5a3c`, and its protected
 base is `8f72b529fea901836a1b828b9ae8688f9f7eccf6`. The PR run API reports the
@@ -28,6 +31,11 @@ different identities. The integration plan was produced in attempt 1 and accepte
 by Required in attempt 2 after checking its carried provenance and full health.
 The exact-master plan independently selects full. An integration result never
 stands in for full cloud or release qualification.
+
+PR #331's head is `825b003e644b266baa4b720bfe9fdc9b590fe642`. Both its PR and
+master downloaded plans select docs; Change scope and Required are the only
+executed jobs. These observed executions complete the docs-routing check. They
+do not establish full health for the new master source.
 
 All original attempts and complete job pages were retained. Integration's single
 skipped UI row represents the entire unexpanded canonical matrix; it does not
@@ -96,10 +104,10 @@ exercised by this audit.
 
 | Remaining item | Current state / acceptance |
 | --- | --- |
-| Docs PR and its master push | This Markdown-only batch is expected to produce docs plans, two successful meta jobs and all 36 suite placeholders skipped. Both real executions remain pending. |
+| Docs PR and its master push | Observed in PR #331 and its master push: docs plans, two successful meta jobs and all 36 suite placeholders skipped; both passed on attempt 1. |
 | Nightly | The schedule-event listing returned `total_count=0` at 05:51 UTC, before the first 10:17 UTC slot following deployment. Manual execution is not a scheduled-run observation. |
 | Concurrency isolation | Configuration and local negative tests passed; actual overlapping-event behavior still needs a hosted observation. |
-| forceFull | Local committed-policy rollback and self-change protection passed. A hosted exercise remains separate; a manual full run does not demonstrate that an otherwise eligible PR was escalated by forceFull. |
+| forceFull | The temporary `true` policy and [drill procedure](CI_TIERED_FORCE_FULL_DRILL.md) are prepared. Hosted override and restoration remain pending; a policy-changing PR or manual full run does not demonstrate `FORCE_FULL` on an otherwise eligible PR. |
 | Local regression gaps | Five original failed instances remain documented in the progress record; neither the hosted pass nor a different successful repetition replaces them. |
 | Timing confidence | First measured sample recorded above; further naturally occurring samples are needed before making reliability, percentile or daily-cost claims. |
 
@@ -117,7 +125,8 @@ retained locally under:
 * `target/ci-tiered-integration/hosted-pr330/` — both PR attempts, master attempt,
   artifact metadata and exact execution plans;
 * `target/ci-tiered-docs-acceptance/` — rule/schedule observations and derived
-  `timings.json`, including per-input SHA-256 and per-job execution/wait breakdown.
+  `timings.json`, including per-input SHA-256 and per-job execution/wait breakdown;
+  `hosted-pr331/` contains the subsequent docs PR/master pages and execution plans.
 
 The retained read-only analysis script
 `target/ci-tiered-docs-acceptance/tools/measure.py` regenerates the timing JSON from

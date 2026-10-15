@@ -24,11 +24,14 @@ class ShadowPlanTest(unittest.TestCase):
                             GIT_AUTHOR_NAME="Fixture", GIT_COMMITTER_NAME="Fixture",
                             GIT_AUTHOR_EMAIL="fixture@example.invalid", GIT_COMMITTER_EMAIL="fixture@example.invalid")
         self.git("init", "-q", "-b", "master")
-        for path in (p.WORKFLOW, p.POLICY, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
+        for path in (p.WORKFLOW, p.PLANNER, p.REGISTRY, p.SUITE_VALIDATOR,
                      "scripts/ci_plan.py", "scripts/ci_required.py", "scripts/ci_changes.py", "scripts/ci_observation.py", "scripts/ci_health.py",
                      ".github/workflows/release.yml", ".github/actions/v51-restore-build/action.yml",
                      ".github/actions/v51-retain-build/action.yml"):
             self.write(path, (ROOT / path).read_bytes())
+        # Scenario fixtures start with integration enabled regardless of the deployed
+        # rollback switch. ExecutionPlanTest also exercises the actual policy via CLI.
+        self.write(p.POLICY, (json.dumps(p.POLICY_V2, indent=2) + "\n").encode())
         self.write("src/main/java/Engine.java", b"// original source\n")
         self.write(p.INTEGRATION_PATH, b"// original example\n")
         self.base = self.commit()
@@ -330,7 +333,9 @@ class ShadowPolicyContractTest(unittest.TestCase):
             with self.subTest(path=path):
                 self.assertFalse(p.documentation(path))
                 self.assertEqual(ci_changes.is_documentation(path), p.documentation(path))
-        self.assertEqual(p.POLICY_V2, p.strict_json((ROOT / p.POLICY).read_bytes()))
+        policy = p.strict_json((ROOT / p.POLICY).read_bytes())
+        self.assertIs(type(policy["forceFull"]), bool)
+        self.assertEqual({**p.POLICY_V2, "forceFull": policy["forceFull"]}, policy)
         self.assertEqual([p.INTEGRATION_RULE], p.POLICY_V2["integrationRules"])
 
     def test_shadow_cannot_replace_classifier_or_gate_and_retention_is_attempt_specific(self):
