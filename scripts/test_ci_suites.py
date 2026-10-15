@@ -47,7 +47,7 @@ class SuiteContractTest(unittest.TestCase):
             "v52-read-faults": ("phase4-public-faults", "phase4-read-identity", "phase4-read-import"),
             "v52-read-lifecycle": ("phase4-public-lifecycle", "phase4-read-resource"),
             "v52-read-protocol": ("phase4-read-protocol", "phase4-read-negatives"),
-            "v52-read-hardening": ("phase5-hardening",),
+            "v52-read-hardening": ("phase5-hardening", "phase6-measurement-runtime"),
         }
         jobs = s.job_blocks(self.workflow)
         actual = {}

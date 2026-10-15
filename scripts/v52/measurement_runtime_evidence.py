@@ -1,0 +1,205 @@
+"""Independent untimed consumer smoke checks; full M01–M04 admission is separate."""
+import copy
+import json
+import os
+from dataclasses import replace
+from pathlib import Path
+from scripts.v51 import runtime_evidence as physical, recovery_inspector as recovery
+from scripts.v51 import performance_bundle as bundle,performance_artifacts
+from scripts.v51 import public_qualification_harness as q
+from . import measurement_model as model,measurement_trace as trace,measurement_oracle as oracle,token
+from . import public_reads_evidence as reads
+from .evidence import need,digest,encoded
+
+
+def publication_generation(row,mode):
+    if 'applicationGeneration' not in row:
+        need(mode=='published-v51-legacy-strong','candidate publication missing application generation');return None
+    value=row['applicationGeneration'];need(type(value) is int and value>0,'measurement publication generation type');return value
+
+
+def stream(root,node):
+    # This short smoke matrix must never materialize a full M01-sized trace during
+    # its post-decode negative mutations. Measured replay has a separate admission.
+    return trace.Trace(Path(root)/(node+'-trace.jsonl'),node=node,limits=replace(trace.Limits(),decoded_bytes=64<<20,rows=65536))
+
+
+def validate(root,expected,answers=None,*,traces=None,history=None):
+    root=Path(root).resolve();binding=reads.read(root/'binding.json');need(binding==expected,'measurement source/build/attempt binding')
+    need(reads.read(root/'bundle-members.json')==bundle.members(root),'measurement smoke inventory')
+    need(all(digest((root/'artifacts'/name).read_bytes())==sha for name,sha in binding['artifacts'].items()),'measurement artifact hashes')
+    need(all(digest((root/name).read_bytes())==sha for name,sha in binding['classes'].items()),'measurement consumer hashes')
+    history=reads.read(root/'history.json') if history is None else history;processes=reads.read(root/'processes.json');scenario=reads.read(root/'scenario.json')
+    need(len(processes)==3 and len({v['pid'] for v in processes})==3 and {v['node'] for v in processes}=={'node-1','node-2','node-3'} and
+         all(v['generation']==1 and v['exitCode']==0 for v in processes),'measurement three stopped public JVMs')
+    need(binding['mode'] in model.MODES and scenario['mode']==binding['mode'] and binding['programSha256']==model.PLAN_SHA,'measurement smoke mode/program')
+    traces=traces if traces is not None else {p['node']:stream(root,p['node']) for p in processes}
+    for reader in traces.values():
+        if isinstance(reader,trace.Trace):reader.verify()
+    cores=[name for name in binding['artifacts'] if name.startswith('general-search-engine-') and not name.startswith('general-search-engine-replication-') and name!='general-search-engine-4.4.0.jar']
+    need(len(cores)==1,'measurement runtime core identity');version=cores[0][len('general-search-engine-'):-4]
+    need(version=='5.1.0' if binding['mode'].startswith('published') else version in ('5.2.0-SNAPSHOT','5.2.0'),'measurement mode artifact version')
+    for process in processes:
+        identity=process['identity'];need(all(identity[k]==process[k] for k in ('node','pid')) and identity['mode']==binding['mode'],'measurement startup identity')
+        for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
+            need(name in binding['artifacts'] and identity[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement loaded artifact source')
+    location=performance_artifacts.EvidenceLocation(root,binding['origin'])
+    base=physical.validate(root,traces,evidence_location=location,require_restart=False)
+    manifest,genesis,entries=reads.context(root,traces)
+    calls={r['opId']:r for r in history if r['kind'] in ('read','update')}
+    need(len(calls)==14 and len([r for r in calls.values() if r['kind']=='read'])==11 and
+         all(r['outcome']=='SUCCESS' and r['startNanos']<r['endNanos'] for r in calls.values()),'measurement smoke complete public ledger')
+    updates=[r for r in calls.values() if r['kind']=='update'];program=[r['document'] for r in model.program() if r['kind']=='update'][:3]
+    need([r['document'] for r in updates]==program==scenario['updates'] and all(r['node']==scenario['leader'] for r in updates),'measurement smoke update program')
+    requested=[r for r in calls.values() if r['kind']=='read' and not r.get('setupToken')]
+    need(len(requested)==10 and [r['query'] for r in requested]==[model.query(i) for i in range(10)] and
+         all(r['node']==scenario['readTarget'] for r in requested),'measurement smoke read program/target')
+    need(scenario['readTarget']==(scenario['leader'] if binding['mode'].endswith('strong') else sorted({'node-1','node-2','node-3'}-{scenario['leader']})[-1]),'measurement frozen targeting')
+    initial=[r for r in calls.values() if r.get('setupToken')]
+    need(len(initial)==1 and initial[0]['opId']==scenario['initialRead'] and initial[0]['node']==scenario['leader'] and
+         initial[0]['endNanos']<updates[0]['startNanos'],'measurement initial read ordering')
+    if binding['mode']=='candidate-minimum':need(all(r['minimum']==initial[0]['response']['token'] for r in requested),'measurement initial minimum changed')
+    state_projection=oracle.states(oracle.prepare([dict(sequence=1,query=model.query(0))],program))
+    cuts=[];successes={};timings={}
+    for process in processes:
+        node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}
+        for row in traces[node]:
+            event=row['event'];need(row['pid']==process['pid'] and row['generation']==1,'measurement observation process')
+            need(row['groupId']==manifest['groupId'] and row['manifestDigest']==manifest['digest'],'measurement observation authority')
+            if event=='FORCE':
+                record=physical.frame(row['record'],row['kind'],manifest)
+                need(row['forceStartNanos']<row['forceEndNanos']<=row['localNanos'],'measurement force timing')
+                if row['kind']=='PROMISE':promised=record['epoch']
+                if row['kind']=='ACCEPT':force_order[record['entryDigest']]=row['order']
+            elif event in ('APPLICATION_RESTORED','PUBLISHED','LOCAL_PUBLISHED'):
+                snapshot=recovery.snapshot(physical.raw(row['snapshot']),manifest);value=reads.prefix(snapshot,manifest,genesis,entries)
+                commands=[c for c in value['commands'] if c['operation']!=9]
+                need(commands==[dict(operation=2,documents=[doc]) for doc in program[:value['sequence']-1]] and 1<=value['sequence']<=4,'measurement smoke chosen update prefix')
+                need(value['documents']==state_projection[value['sequence']]['documents'],'measurement smoke application projection')
+                latest=dict(index=len(snapshot['anchors']),sequence=value['sequence'],generation=publication_generation(row,binding['mode']),order=row['order'],
+                            last=snapshot['anchors'][-1]['entryDigest'] if snapshot['anchors'] else None,
+                            epoch=physical.frame(snapshot['terminalProof'],'PROOF',manifest)['epoch'] if snapshot['terminalProof'] else 0)
+            elif event=='CLIENT_INVOKE' and row['opId'] in calls:
+                call=calls[row['opId']];need(row['opId'] not in client_invocations and all(row[k]==call[k] for k in ('kind','query','document') if k in call),'measurement client invocation binding')
+                client_invocations[row['opId']]=row
+            elif event in ('PUBLIC_READ_INVOKE','REPLICA_READ_INVOKED'):
+                need(event==('PUBLIC_READ_INVOKE' if binding['mode'].endswith('legacy-strong') else 'REPLICA_READ_INVOKED'),'measurement wrong public read capability')
+                need(type(row['readId']) is int and row['readId']>0,'measurement read identity type')
+                identity=row['readId'];need(identity not in invoked and row['opId'] in client_invocations,'measurement read invocation correlation')
+                invoked[identity]=row
+            elif event in ('READ_CAPTURE_VALIDATED','REPLICA_READ_CAPTURE_VALIDATED'):
+                need(event==('READ_CAPTURE_VALIDATED' if binding['mode'].endswith('legacy-strong') else 'REPLICA_READ_CAPTURE_VALIDATED'),'measurement wrong capture capability')
+                need(all(type(row[k]) is int and row[k]>=0 for k in ('readId','index','sequence')),'measurement captured counter type')
+                identity=row['readId'];need(identity in invoked and identity not in captures and latest is not None,'measurement read capture identity')
+                invocation=invoked[identity];call=calls[invocation['opId']]
+                need(latest['index']==row['index'] and latest['sequence']==row['sequence'] and latest['order']<row['order'],'measurement capture differs from local publication')
+                need(invocation['order']<row['order'],'measurement capture before invocation')
+                policy='LEADER_STRONG' if event=='READ_CAPTURE_VALIDATED' else row['policy']
+                expected_policy='LEADER_STRONG' if call.get('setupToken') or binding['mode'].endswith('strong') else 'STALE_ALLOWED' if binding['mode']=='candidate-stale' else 'AT_LEAST_INDEX'
+                need(policy==expected_policy,'measurement silent read policy fallback')
+                if event=='REPLICA_READ_CAPTURE_VALIDATED':
+                    identity_token=token.decode(physical.raw(row['token']))
+                    need(identity_token==dict(version=1,groupId=manifest['groupId'],historyId=manifest['historyId'],manifestDigest=manifest['digest'],index=row['index']), 'measurement captured token identity')
+                    need(row['applicationGeneration']==latest['generation'] and row['captureNanos']<row['deadlineNanos']==invocation['deadlineNanos'],'measurement capture deadline/generation')
+                    need(1<=row['owned']<=63 and row['waiting']+row['captured']+row['settling']==row['owned'] and row['captured']==1,'measurement capture ownership')
+                    if policy=='AT_LEAST_INDEX':
+                        lower=token.decode(physical.raw(call['minimum']));need(invocation['minimum']==call['minimum'] and invocation['waitTimeoutMillis']==5000 and
+                            all(lower[k]==identity_token[k] for k in ('groupId','historyId','manifestDigest')) and lower['index']<=row['index'],'measurement minimum not satisfied')
+                if policy=='LEADER_STRONG':
+                    last=latest['last'];epoch=row['epoch'] if event=='READ_CAPTURE_VALIDATED' else row['barrierEpoch']
+                    need(last in entries and entries[last]['operation']==9 and invocation['order']<force_order.get(last,0)<row['order'] and
+                         epoch==promised==latest['epoch'] and last not in barriers,'measurement strong barrier not fresh')
+                    if event=='REPLICA_READ_CAPTURE_VALIDATED':need(row['barrierIndex']==row['index'],'measurement strong barrier cut')
+                    barriers.add(last)
+                captures[identity]=row
+            elif event in ('READ_CAPTURED','REPLICA_READ_CAPTURED'):
+                need(event==('READ_CAPTURED' if binding['mode'].endswith('legacy-strong') else 'REPLICA_READ_CAPTURED'),'measurement wrong entered capability')
+                identity=row['readId'];need(identity in captures and identity not in entered,'measurement entered view identity')
+                original=captures[identity]
+                need(all(encoded(row[k])==encoded(original[k]) for k in ('index','sequence','token','policy','applicationGeneration') if k in original) and
+                     row['order']>original['order'],'measurement changed entered cut')
+                entered[identity]=row
+            elif event in ('READ_RELEASED','REPLICA_READ_RELEASED'):
+                identity=row['readId'];need(identity in entered and identity not in released,'measurement view release identity')
+                original=captures[identity];need(all(row[k]==original[k] for k in ('index','sequence')) and row['order']>original['order'],'measurement changed released cut')
+                released[identity]=row
+            elif event in ('CLIENT_CALLBACK_BEGIN','CLIENT_CALLBACK_END'):
+                callbacks.setdefault(row['opId'],[]).append(row)
+            elif event=='CLIENT_SUCCESS' and row['opId'] in calls:
+                identity=row['opId'];call=calls[identity];need(identity in client_invocations and identity not in successes,'measurement duplicate/uninvoked response')
+                actual={k:v for k,v in row.items() if k not in trace.META}
+                need(actual==call['response'] and call['pid']==row['pid'] and call['node']==node,'measurement controller/worker response differs')
+                need(row['receivedNanos']<=row['apiStartNanos']<=client_invocations[identity]['localNanos']<=row['apiEndNanos']<=row['localNanos'],'measurement clock-local API timing')
+                if call['kind']=='read':
+                    sources=[i for i,r in invoked.items() if r['opId']==identity];need(len(sources)==1 and sources[0] in released,'measurement read reply before release')
+                    read_id=sources[0];capture=captures[read_id];release=released[read_id];need(release['order']<row['order'],'measurement reply before release')
+                    if 'token' in capture:
+                        need(all(row[k]==capture[k] for k in ('token','sequence','policy')),'measurement read result changed capture')
+                        cb=callbacks.get(identity,[]);need([r['event'] for r in cb]==['CLIENT_CALLBACK_BEGIN','CLIENT_CALLBACK_END'] and
+                           entered[read_id]['order']<cb[0]['order']<cb[1]['order']<release['order'] and all(r['sequence']==capture['sequence'] for r in cb),'measurement callback interval')
+                    cut=dict(sequence=capture['sequence'],query=call['query']);cuts.append(cut)
+                    if answers is not None:need(row['answer']==answers[oracle.key(**cut)],'measurement query differs from actual published core')
+                    timings[identity]=dict(apiNanos=row['apiEndNanos']-row['apiStartNanos'],clientQueueNanos=row['apiStartNanos']-row['receivedNanos'],
+                                          validationToCaptureNanos=entered[read_id]['localNanos']-capture['localNanos'],
+                                          captureToReleaseNanos=release['localNanos']-entered[read_id]['localNanos'])
+                successes[identity]=row
+            elif event=='CLIENT_IDLE':
+                queues=row['queues'];need(queues['admissionAvailable']==64 and all(queues.get(k,0)==0 for k in ('readsOwned','readsWaiting','readsCaptured','readsSettling','readsAlarms')),'measurement final ownership leak');idle=True
+            elif event=='TRANSPORT':
+                identity=row['reservation'];transition=row['transition'];need(type(row['bytes']) is int and row['bytes']>=0,'measurement transport bytes')
+                if transition.endswith('_ADMITTED'):
+                    need(identity>0 and identity not in reservations,'measurement duplicate transport admit');reservations[identity]=row['bytes']
+                elif transition.endswith('_RELEASED'):
+                    need(identity in reservations and reservations.pop(identity)==row['bytes'],'measurement unmatched transport release')
+        need(idle,'measurement missing final resource observation');need(not reservations,'measurement unreleased transport ownership')
+    need(set(successes)==set(calls),'measurement incomplete success observations')
+    return dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
+                oracleInput=oracle.prepare(cuts,program),timings=timings)
+
+
+def negatives(root,expected,answers):
+    validate(root,expected,answers)
+    root=Path(root);original={f'node-{i}':list(stream(root,f'node-{i}')) for i in (1,2,3)}
+    history=reads.read(root/'history.json');mode=expected['mode']
+    def find(rows,event):return next(r for own in rows.values() for r in own if r['event']==event)
+    def strong(rows):return next(r for own in rows.values() for r in own if r['event']=='REPLICA_READ_CAPTURE_VALIDATED' and r['policy']=='LEADER_STRONG')
+    def response(rows,calls,both):
+        call=next(c for c in calls if c['kind']=='read');call['response']['answer']={'forged':True}
+        if both:next(r for own in rows.values() for r in own if r['event']=='CLIENT_SUCCESS' and r['opId']==call['opId'])['answer']={'forged':True}
+    capture='READ_CAPTURE_VALIDATED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURE_VALIDATED'
+    cases=[('changed-controller-answer',lambda r,h:response(r,h,False),'measurement controller/worker response differs'),
+           ('forged-core-answer',lambda r,h:response(r,h,True),'measurement query differs from actual published core'),
+           ('wrong-captured-sequence',lambda r,h:find(r,capture).__setitem__('sequence',999),'measurement capture differs from local publication'),
+           ('leaked-permit',lambda r,h:find(r,'CLIENT_IDLE')['queues'].__setitem__('admissionAvailable',63),'measurement final ownership leak')]
+    invocation='PUBLIC_READ_INVOKE' if mode.endswith('legacy-strong') else 'REPLICA_READ_INVOKED'
+    other='REPLICA_READ_INVOKED' if invocation=='PUBLIC_READ_INVOKE' else 'PUBLIC_READ_INVOKE'
+    cases.append(('wrong-public-capability',lambda r,h:find(r,invocation).__setitem__('event',other),'measurement wrong public read capability'))
+    entered='READ_CAPTURED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURED'
+    cases.append(('missing-entered-view',lambda r,h:find(r,entered).__setitem__('event','REMOVED_CAPTURE'),'measurement view release identity'))
+    if not mode.endswith('legacy-strong'):
+        cases.extend([
+            ('wrong-policy',lambda r,h:strong(r).__setitem__('policy','STALE_ALLOWED'),'measurement silent read policy fallback'),
+            ('wrong-strong-epoch',lambda r,h:strong(r).__setitem__('barrierEpoch',999),'measurement strong barrier not fresh'),
+            ('expired-capture',lambda r,h:find(r,capture).__setitem__('captureNanos',find(r,capture)['deadlineNanos']),'measurement capture deadline/generation'),
+            ('wrong-release-cut',lambda r,h:find(r,'REPLICA_READ_RELEASED').__setitem__('sequence',999),'measurement changed released cut')])
+    if mode=='candidate-minimum':
+        cases.append(('different-minimum',lambda r,h:next(c for c in h if c['kind']=='read' and not c.get('setupToken')).__setitem__('minimum','AA=='),'measurement initial minimum changed'))
+    result=[]
+    for name,mutate,reason in cases:
+        rows=copy.deepcopy(original);calls=copy.deepcopy(history);mutate(rows,calls)
+        try:validate(root,expected,answers,traces=rows,history=calls)
+        except ValueError as error:need(str(error)==reason,'measurement unrelated negative rejection: '+name+': '+str(error));result.append(dict(case=name,status='REJECTED',reason=reason))
+        else:raise ValueError('measurement negative accepted: '+name)
+    return result
+
+
+def replay(root,expected,output):
+    root=Path(root).resolve();output=Path(output).resolve();output.mkdir(parents=True,exist_ok=False)
+    preliminary=validate(root,expected);value=preliminary['oracleInput'];(output/'input.json').write_bytes(encoded(value)+b'\n')
+    jar=root/'artifacts/general-search-engine-4.4.0.jar';cp=os.pathsep.join(map(str,(jar,root/'control-classes')))
+    result=q.command(['java','-cp',cp,q.PACKAGE+'admission.V52MeasurementOracle',output/'oracle',output/'input.json'],output,'oracle')
+    need(result.stderr.strip()=='coreSource='+str(jar),'measurement replay loaded wrong query control')
+    need(json.loads(result.stdout)==dict(status='PASS',measured=False,requests=len(value['requests']),updatesApplied=3,finalSequence=4),'measurement query replay incomplete')
+    answers=oracle.validate_output(value,output/'oracle/answers.jsonl');checked=validate(root,expected,answers)
+    checked['negatives']=negatives(root,expected,answers)
+    (output/'validation.json').write_bytes(encoded(checked)+b'\n');return checked

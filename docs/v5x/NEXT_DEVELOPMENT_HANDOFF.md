@@ -79,6 +79,12 @@ The [Phase 6C advancing query replay](v5.2/PHASE_6_MEASUREMENT_REPLAY.md) checks
 690 queries against each actual core using one ordered update replay, with
 independent application-state hashes. All 71 V5.2 Python tests pass; physical
 measurement-cut binding and the actual replicated offered-load harness are next.
+The [Phase 6D public measurement consumers](v5.2/PHASE_6_MEASUREMENT_CONSUMERS.md)
+now pass five short three-JVM histories (55 reads/15 updates), actual published
+query truth and portable physical replay. The final checker rejects 43 mutations
+per location. These are untimed integration histories; full offered-load windows,
+allocation sampling, M02–M04 execution and the complete measurement freeze remain
+pending. No paid execution or push has occurred.
 Stop before cloud entry for combined push/PR/master acceptance. Push/PR/tag
 operations remain operator-owned; paid runs remain manual.
 The V5.1 published baseline and historical CI failures stay retained.

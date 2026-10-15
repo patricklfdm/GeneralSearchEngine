@@ -376,6 +376,18 @@
           }
         },
         {
+          "step": "Retain V5.2 measurement consumer evidence including failures",
+          "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
+          "id": null,
+          "if": "${{ always() }}",
+          "with": {
+            "name": "v52-measurement-runtime-${{ github.sha }}",
+            "path": "target/v52-measurement-runtime",
+            "if-no-files-found": "warn",
+            "retention-days": "14"
+          }
+        },
+        {
           "step": "Retain V5.2 read hardening evidence including failures",
           "uses": "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
           "id": null,

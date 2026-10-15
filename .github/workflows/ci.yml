@@ -428,6 +428,18 @@ jobs:
       - name: Verify V5.2 combined read hardening
         run: scripts/verify-v52-phase5-hardening.sh --skip-build
 
+      - name: Verify V5.2 measurement consumers without timed windows
+        run: scripts/verify-v52-phase6-measurement-runtime.sh --skip-build
+
+      - name: Retain V5.2 measurement consumer evidence including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-measurement-runtime-${{ github.sha }}
+          path: target/v52-measurement-runtime
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Retain V5.2 read hardening evidence including failures
         if: ${{ always() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

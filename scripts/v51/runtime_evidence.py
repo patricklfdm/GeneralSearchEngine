@@ -193,6 +193,9 @@ def validate(root,traces=None,*,rejected_tails=None,retired_voters=None,evidence
                 # Concurrent callers cannot identify their own cut from a later status cache.
                 # Unique tagged documents must already occur together in one proven publication.
                 f.need(any(all(state.get(d['id'])==d['value'] for d in row['documents']) for state in published.values()),'bulk success before publication');successes+=1
+            elif event=='CLIENT_SUCCESS' and row['kind']=='update' and 'document' in row:
+                document=row['document']
+                f.need(any(state.get(document['id'])==document['value'] for state in published.values()),'update success before publication');successes+=1
         for index,digest in chosen.items():
             if node in reports and reports[node]['provenThrough']>=index:f.need(reports[node]['acceptedDigests'][index-1]==digest,'retained chosen history changed')
     f.need(successes>=3 and publications>=5 and chunks>=6,'incomplete runtime execution')

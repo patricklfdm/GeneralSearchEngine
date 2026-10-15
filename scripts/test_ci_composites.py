@@ -67,7 +67,7 @@ class CompositeTest(unittest.TestCase):
             self.assertEqual(suite["inputs"], actual_in)
             self.assertEqual(suite["evidence"], actual_out)
             downloads += len(actual_in); uploads += len(actual_out)
-        self.assertEqual((29, 116), (downloads, uploads))
+        self.assertEqual((29, 117), (downloads, uploads))
 
     def test_wrong_or_missing_producer_id_never_falls_back_to_a_name(self):
         original = "artifact-id: " + s.BUILD_ID

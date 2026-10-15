@@ -12,7 +12,7 @@ public final class V51PublicWorker {
     private static Object field(Object owner,String name) throws ReflectiveOperationException {
         var value=owner.getClass().getDeclaredField(name);value.setAccessible(true);return value.get(owner);
     }
-    private static Map<String,Object> queues(Object engine) {
+    static Map<String,Object> queues(Object engine) {
         try {
             var result=new LinkedHashMap<String,Object>();Object runtime=field(engine,"node");
             result.put("admissionAvailable",((java.util.concurrent.Semaphore)field(engine,"admission")).availablePermits());
@@ -54,7 +54,7 @@ public final class V51PublicWorker {
             return result;
         }catch(ReflectiveOperationException error){throw new IllegalStateException(error);}
     }
-    private static byte[] lastJournal(Path directory,String kind) throws IOException {
+    static byte[] lastJournal(Path directory,String kind) throws IOException {
         if(!kind.equals("PROMISE")&&Files.exists(directory.resolve("current.gsr")))
             directory=directory.resolve(text(decode(Files.readAllBytes(directory.resolve("current.gsr")),"SELECTOR").value(),"generation"));
         byte[] bytes=Files.readAllBytes(directory.resolve(kind.equals("PROMISE")?"promises.gsr":kind.equals("ACCEPT")?"accepted.gsr":"proofs.gsr"));
