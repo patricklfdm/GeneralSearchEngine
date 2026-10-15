@@ -45,12 +45,12 @@ This table records implemented evidence without declaring unfinished variants do
 | Schedules | Evidence available | Remaining qualification |
 | --- | --- | --- |
 | S01–S03 | Seven consumer modules, old implementation binary/default, stopped/closed checks, seven-query public three-JVM gate for all policies | 4D7 local consumer/API rerun; final exact-source hosted acceptance pending |
-| S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases | Include full accepted-only read variants in final matrix |
+| S04–S06 | Actual store/protocol accepted-only tests; 4B public isolation/held-publication physical cases; 4D9 public accepted-only stale/minimum rejection | Final aggregate |
 | S07 | Three-JVM imported sequence four at index zero, fresh strong NO_OP; independent prefix replay | Included in later aggregate |
 | S08–S12 | P=4 satisfying write, bounds/deadline/registration tests, 4B delayed follower and 4D1 physical update/delete carried-bound overlap | Final variant mapping |
 | S13 | 4D2 public checks for all three identity mismatches before allocation; 4D3 new-group import; deterministic exhausted-capacity precedence | Final aggregate |
 | S14–S16 | 4B carried-token halt/SIGKILL; 4C2 verified installed newer prefix; 4D3 actual backup/new-group import; 4D4 actual two-source retirement below carried token | Final aggregate |
-| S17–S20 | Higher-PREPARE kernel, state gates and seven 4C2 public promise/install cases including halt/SIGKILL | Remaining isolated-old-leader and candidate/local state variants in final matrix |
+| S17–S20 | Higher-PREPARE kernel, seven 4C2 public promise/install process cases including halt/SIGKILL; 4D9 public isolated leader, higher promise and CANDIDATE/RECOVERING local variants | Final aggregate |
 | S21 | 4D1 three-policy process traces: pause complete query report, queue seven application mutations, repeat same-cut report, then verify every publication and later V4.4 query result | Final aggregate |
 | S22 | 4D7 public cursor continuity, changed materialization, successor/reopened handles; negative page compilation and nested-page rejection | Final aggregate |
 | S23–S24 | 4D5 separate-process saturation/counters at P=4/65/10000; 4D6 public P=1 rejection with old-API progress | Final aggregate |
@@ -592,3 +592,51 @@ receipts, and they do not claim a live filesystem-tampering detector on every re
 No production change, retry or timing-limit change. The remaining accepted-only,
 isolated-old-leader and local state-transition mapping and full physical negative
 matrix still block Phase 4 completion.
+
+## 4D9: accepted-only and local authority transitions
+
+`V52PublicReadAuthorityTest` adds nine controlled public-handle tests using real
+TCP, public bootstrap and actual durable stores. Network hooks pause or reject
+real exchanges; they neither manufacture successful reads nor mutate runtime state.
+
+- Hold the leader's receipt of a real follower ACCEPT_ACK. The forced accepted
+  entry is k+1, while the follower's proven/publication cut remains k. Stale and
+  satisfied minimum reads return k; minimum k+1 rejects at zero wait and expires
+  at a positive 100 ms wait, without invoking callbacks. Release the ACK and
+  require the same original write to finish and the new minimum to read k+1.
+- Partition an old leader. A fresh strong request fails QUORUM_UNAVAILABLE;
+  stale and covered minimum reads retain their old publication, while an ahead
+  zero-wait minimum rejects. For each local policy, capture a callback before
+  the old node enters CANDIDATE. Both already queued local policies and new calls
+  then reject NOT_READY. The other two voters activate and write successfully;
+  the original callback still returns its captured prefix.
+- For each local policy, hold a follower callback while the intact selected pair
+  publishes a later write and establishes its recovery floor. Heal the excluded
+  follower and observe an actual REJOIN_INSTALLED plus RECOVERING state. Queued
+  and new local calls reject NOT_READY. The existing captured callback survives;
+  after release and actual publication, a new minimum returns the newer document.
+- For both local policies, send a real higher PREPARE before capture and after
+  capture. Observe the forced higher promise and FOLLOWER state; the verified
+  local cut remains usable. These four cases intentionally contrast with the
+  separate strong-policy fencing requirements, without changing either policy.
+
+The fault fixture uses request/heartbeat 1200 ms, election 3600–6000 ms and a
+60-second operation deadline. The latter bounds controlled callback pauses as in
+4C2; it is not a production/default or measured-workload change. Other bounds use
+the existing eight-slot public fixture. No business request is retried by a test.
+These are controlled in-JVM public tests, not portable three-process receipts.
+
+### Verification and retained failures
+
+All nine final tests pass in `target/v52-read-authority/tests-4.log` (53.88 seconds
+of test execution). The earlier seven-case form also passed before adding queued
+state transitions and the two actual snapshot cases. Initial fixture construction
+incorrectly set request timeout above heartbeat and was rejected before startup;
+that failed run is retained. The next iteration incorrectly waited for heartbeat
+loss alone to clear LEADER_READY. Existing protocol code deliberately removes a
+failed heartbeat exchange without demoting; a fresh strong operation still needs
+its own quorum and fails correctly. The corrected test observes that operation,
+then checks UNAVAILABLE and the subsequent campaign. No runtime change was needed.
+
+Logs, JUnit reports and hashes are retained at `target/v52-read-authority/`.
+The complete targeted negative matrix and final source qualification remain open.
