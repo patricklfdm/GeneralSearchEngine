@@ -11,6 +11,7 @@ from . import measurement_model as model,measurement_trace as trace,measurement_
 from . import public_reads_evidence as reads
 from . import measurement_load as load,measurement_samples as samples,measurement_bundle
 from . import measurement_projection,measurement_stream,measurement_history,measurement_publication,measurement_reads
+from . import measurement_options as options
 from .measurement_reads import publication_generation
 from .evidence import need,digest,encoded
 
@@ -46,6 +47,9 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
         identity=process['identity'];need(all(identity[k]==process[k] for k in ('node','pid')) and identity['mode']==binding['mode'],'measurement startup identity')
         for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
             need(name in binding['artifacts'] and identity[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement loaded artifact source')
+        if 'readParameters' in binding:
+            need(binding['readParameters']==options.parameters() and identity.get('readParameters')==binding['readParameters'] and
+                 not (root/options.FILE).exists(),'measurement smoke read parameters changed')
     location=(performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
     base=physical.validate(root,traces,evidence_location=location,require_restart=False)
     manifest,genesis,entries=reads.context(root,traces)

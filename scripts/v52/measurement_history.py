@@ -83,13 +83,18 @@ def request(call):
     return value
 
 
-def failure(call,response,invocation,captured,callbacks,mode):
+def failure(call,response,invocation,captured,callbacks,mode,*,allow_progress_not_reached=False):
     """Admit observed transient classifications, without inferring their cause."""
     need(not any(k in response for k in ('answer','token','sequence','policy')),'measurement failed call carried result')
     reason=response.get('reasonCode');outcome=response['outcome'];kind=call['kind']
     need(isinstance(response.get('reason'),str) and response['reason'],'measurement failure detail missing')
     if kind=='read':
         need(not captured and not callbacks,'measurement rejected read exposed view')
+        if reason=='PROGRESS_NOT_REACHED':
+            need(allow_progress_not_reached and mode=='candidate-minimum' and outcome=='REJECTED' and invocation is not None and
+                 invocation['policy']=='AT_LEAST_INDEX' and invocation['waitTimeoutMillis']==0,
+                 'measurement undeclared zero-wait progress rejection')
+            return reason
         client_rejected=reason=='RejectedExecutionException' and outcome=='VALIDATION_FAILURE'
         if not client_rejected:
             need(reason in TRANSIENT and outcome=='NOT_APPLICABLE','measurement undeclared read failure')
@@ -101,8 +106,11 @@ def failure(call,response,invocation,captured,callbacks,mode):
     return reason
 
 
-def validate(traces,processes,history,mode,*,pending_limit=64):
+def validate(traces,processes,history,mode,*,pending_limit=64,minimum_wait_millis=5000,allow_progress_not_reached=False):
     need(mode in model.MODES,'measurement ledger mode')
+    need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000) and
+         type(allow_progress_not_reached) is bool and (not allow_progress_not_reached or minimum_wait_millis==0),
+         'measurement ledger wait profile')
     need(type(history) is list and len(history)<=3*MAX_CALLS_PER_PROCESS,'measurement controller ledger bound')
     need(len(processes)==3 and set(traces)=={p['node'] for p in processes} and
          len({p['node'] for p in processes})==len({p['pid'] for p in processes})==3 and
@@ -166,7 +174,8 @@ def validate(traces,processes,history,mode,*,pending_limit=64):
                             need(read_id in released and 'answer' in row,'measurement successful read lacks released view')
                             if not legacy:need(callbacks.get(identity)==['CLIENT_CALLBACK_BEGIN','CLIENT_CALLBACK_END'],'measurement successful read lacks callback')
                     else:
-                        reason=failure(call,row,reads.get(read_id),read_id in captured,callbacks.get(identity),mode)
+                        reason=failure(call,row,reads.get(read_id),read_id in captured,callbacks.get(identity),mode,
+                                       allow_progress_not_reached=allow_progress_not_reached)
                         reasons[call['kind'] if call['kind'] in ('read','update') else 'control'][reason]+=1
                     outcomes[call['kind'] if call['kind'] in ('read','update') else 'control'][call['outcome']]+=1
                     responses[identity]=row
@@ -179,7 +188,7 @@ def validate(traces,processes,history,mode,*,pending_limit=64):
                 if not legacy:
                     expected=policy(own[identity],mode);minimum=own[identity].get('minimum','') if expected=='AT_LEAST_INDEX' else ''
                     need(row['policy']==expected and row['minimum']==minimum and type(row['waitTimeoutMillis']) is int and
-                         row['waitTimeoutMillis']==(5000 if expected=='AT_LEAST_INDEX' else 0),'measurement invoked policy/options changed')
+                         row['waitTimeoutMillis']==(minimum_wait_millis if expected=='AT_LEAST_INDEX' else 0),'measurement invoked policy/options changed')
                     integer(row['deadlineNanos'],'read deadline')
                     if minimum:token.decode(raw(minimum))
                 reads[read_id]=row;read_by_call[identity]=read_id

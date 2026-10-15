@@ -15,6 +15,7 @@ from . import measurement_history as lifecycle,measurement_projection as project
 from . import measurement_reads as cuts,measurement_samples as samples,measurement_oracle as oracle
 from . import measurement_authority_budget as budget,public_reads_evidence as reads
 from . import measurement_stream
+from . import measurement_options as options
 from .evidence import need,digest,encoded
 
 
@@ -31,6 +32,7 @@ def identity(root,expected):
     binding=metadata(root,'binding.json',4<<20)
     need(binding==expected,'measurement M01 source/build/attempt binding')
     inventory=bundle.inventory(root);mode=binding['mode'];profile=binding.get('measurementProfile',{})
+    need(binding.get('readParameters')==options.parameters() and options.FILE not in inventory,'measurement M01 read parameters changed')
     need(profile==m01.profile(mode,profile.get('repetition')) and binding['programSha256']==model.PLAN_SHA and
          binding.get('publicationAuthority')=='forced-generation-v1' and 'smokeInitialization' not in binding and
          'driverExercise' not in binding,'measurement M01 full preparation profile')
@@ -54,6 +56,7 @@ def identity(root,expected):
         need(all(value[k]==process[k] for k in ('node','pid')) and value['mode']==mode,'measurement M01 startup identity')
         need(value['javaRuntime']==binding['java']['java.runtime.version'] and value['javaVendor']==binding['java']['java.vendor'],
              'measurement M01 JVM differs from build identity')
+        need(value.get('readParameters')==binding['readParameters'],'measurement M01 observed read parameters differ')
         for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
             need(value[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement M01 loaded artifact source')
     return binding,processes

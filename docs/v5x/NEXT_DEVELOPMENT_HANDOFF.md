@@ -151,6 +151,12 @@ and independent original/relocated member replay. It preserves all failures and
 never substitutes a PASS receipt for raw evidence. Fixture validation is complete;
 actual full-size execution still waits for M02–M04 and the machine freeze.
 
+The [Phase 6O wait/capacity configuration](v5.2/PHASE_6_WAIT_CAPACITY_PARAMETERS.md)
+separates M02's zero/1s/5s waits and M03's P=4/P=65 fixture from unchanged M01
+defaults. Java startup and replay bind the declared values; zero-wait progress
+rejection requires its explicit profile. Relation/saturation schedules, M04 and
+the machine freeze are still required before any formal measurement.
+
 ## Accepted V5.1 cloud evidence
 
 Accepted [five-member baseline](v5.1/PHASE_6_NATIVE_SET_ACCEPTANCE.md):

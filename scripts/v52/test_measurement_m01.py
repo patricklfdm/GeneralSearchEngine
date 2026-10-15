@@ -117,11 +117,11 @@ class MeasurementM01Test(unittest.TestCase):
     def test_every_worker_stops_and_original_failure_survives_close_failures(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);artifacts=root/'artifacts';artifacts.mkdir();jar=artifacts/'runtime.jar';jar.write_bytes(b'fixture')
-            binding=dict(mode='candidate-stale',measurementProfile=m.profile('candidate-stale',1),artifacts={'runtime.jar':runtime.digest(jar.read_bytes())})
+            binding=dict(mode='candidate-stale',measurementProfile=m.profile('candidate-stale',1),readParameters=m.options.parameters(),artifacts={'runtime.jar':runtime.digest(jar.read_bytes())})
             runtime.save(root/'binding.json',binding);stopped=[]
             class Worker:
                 def __init__(self,root,node,cp,mode,history):
-                    self.node=node;self.generation=1;self.identity=dict(coreSource=str(jar),replicationSource=str(jar))
+                    self.node=node;self.generation=1;self.identity=dict(coreSource=str(jar),replicationSource=str(jar),readParameters=m.options.parameters())
                     self.proc=type('Process',(),dict(pid=int(node[-1]),returncode=None))()
                 def stop(self):
                     stopped.append(self.node);self.proc.returncode=0

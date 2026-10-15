@@ -18,15 +18,17 @@ public final class V52MeasurementConsumer {
     public static BiConsumer<String,Map<String,Object>> observer=(name,row)->{};
     public static Function<Object,Map<String,Object>> diagnostics=engine->Map.of();
     public static final Set<String> MODES=Set.of("published-v51-legacy-strong","candidate-legacy-strong","candidate-explicit-strong","candidate-stale","candidate-minimum");
-    public static ReplicationBounds bounds(){return new ReplicationBounds(1<<20,100,8,64,2,1200,25,65536,64L<<20,64L<<20);}
+    public static ReplicationBounds bounds(){return bounds(64);}
+    private static ReplicationBounds bounds(int pending){return new ReplicationBounds(1<<20,100,8,pending,2,1200,25,65536,64L<<20,64L<<20);}
     public static List<AutomaticReplicationGroupConfig<Integer,Doc>> configs(Path root) throws IOException {
+        var parameters=V52MeasurementConfiguration.read(root);
         var lines=Files.readAllLines(root.resolve("ports.txt"));var members=new ArrayList<ReplicationMember>();
         if(lines.size()!=3)throw new IllegalArgumentException("measurement member count");
         for(int i=0;i<3;i++)members.add(new ReplicationMember(new ReplicationNodeId("node-"+(i+1)),new ReplicationEndpoint("127.0.0.1",Integer.parseInt(lines.get(i)))));
         var group=new ReplicationGroupId(UUID.fromString(Files.readString(root.resolve("group-id.txt")).trim()));
         return members.stream().map(m->new AutomaticReplicationGroupConfig<>(group,"v52-measurement",m.nodeId(),members,
-                root.resolve(m.nodeId().value()),V52MeasurementQueries.storage(root.resolve("app-"+m.nodeId().value())),bounds(),
-                new AutomaticLeadershipPolicy(1200,3600,6000,9600))).toList();
+                root.resolve(m.nodeId().value()),V52MeasurementQueries.storage(root.resolve("app-"+m.nodeId().value())),bounds(parameters.pendingLimit()),
+                new AutomaticLeadershipPolicy(1200,3600,6000,parameters.operationTimeoutMillis()))).toList();
     }
     private static synchronized void print(Object row){System.out.println(AdmissionJson.canonical(row));System.out.flush();}
     public static void event(String name,Map<String,Object> row){observer.accept(name,row);}
@@ -59,15 +61,22 @@ public final class V52MeasurementConsumer {
             AutomaticReplicationStorageOperations.applyBootstrap(measurementBuilder(),request,AutomaticReplicationStorageOperations.planBootstrap(measurementBuilder(),request));
             print(Map.of("status","SETUP"));return;
         }
+        if(action.equals("configuration")) {
+            var config=configs(root).get(0);print(Map.of("parameters",V52MeasurementConfiguration.read(root).value(),
+                    "pendingLimit",config.bounds().maxPendingClientOperations(),"operationTimeoutMillis",config.leadershipPolicy().operationTimeoutMillis()));return;
+        }
         int ordinal=Integer.parseInt(action);String mode=args[2];if(!MODES.contains(mode))throw new IllegalArgumentException("measurement mode");
+        var parameters=V52MeasurementConfiguration.read(root);
+        if(!parameters.family().equals("M01")&&!mode.equals("candidate-minimum"))throw new IllegalArgumentException("measurement parameter/mode mismatch");
         var executor=new ThreadPoolExecutor(8,8,0,TimeUnit.MILLISECONDS,new ArrayBlockingQueue<>(64),new ThreadPoolExecutor.AbortPolicy());
         var pending=new ArrayList<CompletableFuture<?>>();var ids=new HashSet<String>();
         try(var engine=AutomaticReplicatedSearchEngines.builder(measurementBuilder(),configs(root).get(ordinal-1)).build()) {
             Reads reads=mode.endsWith("legacy-strong")?request->CompletableFuture.completedFuture(Map.of("answer",answer(core(engine),(Map<String,Object>)request.get("query")))):
-                    (Reads)Class.forName("io.github.patricklfdm.generalsearch.admission.V52MeasuredExplicitReads").getConstructor(AutomaticReplicatedSearchEngine.class,String.class).newInstance(engine,mode);
+                    (Reads)Class.forName("io.github.patricklfdm.generalsearch.admission.V52MeasuredExplicitReads").getConstructor(AutomaticReplicatedSearchEngine.class,String.class,int.class).newInstance(engine,mode,parameters.waitTimeoutMillis());
             engine.start().get(15,TimeUnit.SECONDS);
             var identity=new LinkedHashMap<String,Object>();identity.put("status","STARTED");identity.put("pid",ProcessHandle.current().pid());
             identity.put("node","node-"+ordinal);identity.put("mode",mode);identity.put("javaRuntime",System.getProperty("java.runtime.version"));identity.put("javaVendor",System.getProperty("java.vendor"));
+            identity.put("readParameters",parameters.value());
             identity.put("coreSource",Path.of(io.github.patricklfdm.generalsearch.engine.SearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
             identity.put("replicationSource",Path.of(AutomaticReplicatedSearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()).toString());
             event("STARTED",identity);print(identity);

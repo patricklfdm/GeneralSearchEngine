@@ -10,8 +10,11 @@ import java.util.concurrent.CompletableFuture;
 
 /** Candidate-only capability; never placed on the published V5.1 classpath. */
 public final class V52MeasuredExplicitReads implements V52MeasurementConsumer.Reads {
-    private final AutomaticReplicatedSearchEngine<Integer,Doc> engine;private final String mode;
-    public V52MeasuredExplicitReads(AutomaticReplicatedSearchEngine<Integer,Doc> engine,String mode){this.engine=engine;this.mode=mode;}
+    private final AutomaticReplicatedSearchEngine<Integer,Doc> engine;private final String mode;private final int waitTimeoutMillis;
+    public V52MeasuredExplicitReads(AutomaticReplicatedSearchEngine<Integer,Doc> engine,String mode,int waitTimeoutMillis){
+        if(!Set.of(0,1000,5000,60000).contains(waitTimeoutMillis))throw new IllegalArgumentException("measurement undeclared minimum wait");
+        this.engine=engine;this.mode=mode;this.waitTimeoutMillis=waitTimeoutMillis;
+    }
     private static View view(ReplicaReadView<Integer,Doc> v) {
         return new View() {
             public Doc get(Integer id){return v.get(id);}
@@ -30,7 +33,7 @@ public final class V52MeasuredExplicitReads implements V52MeasurementConsumer.Re
         ReplicaReadPolicy policy=setup||mode.equals("candidate-explicit-strong")?ReplicaReadPolicy.LEADER_STRONG:
                 mode.equals("candidate-stale")?ReplicaReadPolicy.STALE_ALLOWED:ReplicaReadPolicy.AT_LEAST_INDEX;
         Optional<ReplicaReadToken> minimum=policy==ReplicaReadPolicy.AT_LEAST_INDEX?Optional.of(ReplicaReadToken.decode(Base64.getDecoder().decode((String)request.get("minimum")))):Optional.empty();
-        var options=new ReplicaReadOptions(policy,minimum,policy==ReplicaReadPolicy.AT_LEAST_INDEX?5000:0);
+        var options=new ReplicaReadOptions(policy,minimum,policy==ReplicaReadPolicy.AT_LEAST_INDEX?waitTimeoutMillis:0);
         return engine.read(options,v->{
             V52MeasurementConsumer.event("CLIENT_CALLBACK_BEGIN",Map.of("opId",request.get("opId"),"sequence",v.currentSequence()));
             try {return V52MeasurementQueries.answer(view(v),(Map<String,Object>)request.get("query"));}

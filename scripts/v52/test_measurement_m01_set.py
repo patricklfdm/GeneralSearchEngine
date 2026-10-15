@@ -15,6 +15,7 @@ def fixtures():
         jars=artifacts if mode.startswith('published') else {k:v for k,v in artifacts.items() if k.endswith('-4.4.0.jar')}
         if not mode.startswith('published'):jars=dict(jars,**{'general-search-engine-5.2.0-SNAPSHOT.jar':'1'*64,'general-search-engine-replication-5.2.0-SNAPSHOT.jar':'2'*64})
         key=s.name(mode,repetition);binding=dict(mode=mode,measurementProfile=m.profile(mode,repetition),programSha256=model.PLAN_SHA,
+            readParameters=s.options.parameters(),
             source='a'*40,checkoutSha256='b'*64,java={'java.runtime.version':'21-test','java.vendor':'test'},run='local',attempt=1,
             origin='/fixture/'+key,artifacts=dict(jars),classes={'consumer/Fixture.class':'3'*64})
         expected[key]=binding

@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 from . import measurement_model as model,measurement_load as load,measurement_window as window
 from . import measurement_runtime as runtime
+from . import measurement_options as options
 from .evidence import need
 
 MARKERS=(dict(name='warmup-start',offsetNanos=0),dict(name='measured-start',offsetNanos=60_000_000_000),
@@ -89,6 +90,7 @@ def execute_prepared(root,binding,cp,*,worker_factory=runtime.Worker):
     mode=binding['mode'];p=binding.get('measurementProfile',{})
     need(p==profile(mode,p.get('repetition')) and 'smokeInitialization' not in binding and 'driverExercise' not in binding,
          'measurement M01 preparation profile')
+    need(binding.get('readParameters')==options.parameters() and not (root/options.FILE).exists(),'measurement M01 preparation parameters')
     workers={};history=[];processes=[];failure=None;close_errors=[]
     try:
         for i in (1,2,3):
@@ -97,6 +99,7 @@ def execute_prepared(root,binding,cp,*,worker_factory=runtime.Worker):
                 path=Path(worker.identity[component+'Source'])
                 need(path.parent==root/'artifacts' and runtime.digest(path.read_bytes())==binding['artifacts'][path.name],
                      'measurement M01 loaded artifact')
+            need(worker.identity['readParameters']==binding['readParameters'],'measurement M01 observed preparation parameters')
         return observe(root,workers,history,mode,p['repetition'])
     except BaseException as error:
         failure=dict(type=type(error).__name__,message=str(error));raise

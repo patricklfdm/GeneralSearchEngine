@@ -86,10 +86,11 @@ class MeasurementM01EvidenceTest(unittest.TestCase):
             for name in names:(root/'artifacts'/name).write_bytes(name.encode())
             (root/'consumer/Fixture.class').write_bytes(b'class-fixture')
             binding=dict(mode='candidate-stale',measurementProfile=m.profile('candidate-stale',1),programSha256=model.PLAN_SHA,
+                readParameters=e.options.parameters(),
                 publicationAuthority='forced-generation-v1',origin='/original',java={'java.runtime.version':'21-test','java.vendor':'vendor'},
                 artifacts={n:e.digest(n.encode()) for n in names},classes={'consumer/Fixture.class':e.digest(b'class-fixture')})
             processes=[dict(node=f'node-{i}',pid=i,generation=1,exitCode=0,identity=dict(node=f'node-{i}',pid=i,mode='candidate-stale',
-                javaRuntime='21-test',javaVendor='vendor',coreSource='/original/artifacts/'+names[0],replicationSource='/original/artifacts/'+names[1])) for i in (1,2,3)]
+                javaRuntime='21-test',javaVendor='vendor',readParameters=e.options.parameters(),coreSource='/original/artifacts/'+names[0],replicationSource='/original/artifacts/'+names[1])) for i in (1,2,3)]
             def write(b,p):
                 (root/'binding.json').write_bytes(e.encoded(b));(root/'processes.json').write_bytes(e.encoded(p))
                 (root/e.bundle.INDEX).write_bytes(e.encoded(e.bundle.members(root)))
@@ -99,6 +100,8 @@ class MeasurementM01EvidenceTest(unittest.TestCase):
                 (lambda b,p:b['artifacts'].__setitem__(names[0],'0'*64),'artifact binding'),
                 (lambda b,p:b['classes'].__setitem__('consumer/Fixture.class','0'*64),'consumer binding'),
                 (lambda b,p:p[0]['identity'].__setitem__('javaRuntime','different'),'JVM differs'),
+                (lambda b,p:b['readParameters'].__setitem__('pendingLimit',65),'read parameters changed'),
+                (lambda b,p:p[0]['identity']['readParameters'].__setitem__('waitTimeoutMillis',0),'observed read parameters differ'),
                 (lambda b,p:p[0]['identity'].__setitem__('coreSource','/other/runtime.jar'),'loaded artifact source'),
                 (lambda b,p:p[0].__setitem__('exitCode',1),'stopped JVMs')):
                 b=copy.deepcopy(binding);p=copy.deepcopy(processes);change(b,p);write(b,p)

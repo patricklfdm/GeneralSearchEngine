@@ -18,7 +18,7 @@ from scripts.v51 import public_qualification_harness as q
 from scripts.v51.performance_model import strict_json
 from . import controls,measurement_model as model,measurement_trace as trace
 from . import measurement_runtime_evidence as evidence
-from . import measurement_load as load
+from . import measurement_load as load,measurement_options as options
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -91,13 +91,18 @@ class Worker:
             public_trace.finish(self.root,self.node,self.proc,self.generation)
 
 
-def prepare(root,mode,*,exercise_load=False,m01_repetition=None):
+def prepare(root,mode,*,exercise_load=False,m01_repetition=None,read_profile=None):
     need(mode in model.MODES,'measurement unknown preparation mode')
     if m01_repetition is not None:
         from .measurement_m01 import profile
-        need(not exercise_load,'measurement smoke and M01 profiles are exclusive')
+        need(not exercise_load and read_profile is None,'measurement smoke and M01 profiles are exclusive')
         measured_profile=profile(mode,m01_repetition)
+    parameters=options.parameters() if read_profile is None else options.validate(read_profile)
+    if read_profile is not None:
+        need(parameters['family'] in ('M02','M03') and mode=='candidate-minimum' and not exercise_load,
+             'measurement read configuration profile mismatch')
     root.mkdir(parents=True,exist_ok=False);model.load();published=controls.resolve(ROOT/'target/v52-controls')
+    if read_profile is not None:save(root/options.FILE,parameters)
     save(root/'corpus.json',model.corpus());(root/'group-id.txt').write_text(str(uuid.uuid4())+'\n')
     artifacts=root/'artifacts';artifacts.mkdir();version='5.1.0' if mode.startswith('published') else current()
     jars=[]
@@ -109,7 +114,7 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None):
     java=ROOT/'scripts/v52/java';json_source=ROOT/'general-search-engine-replication/src/test/java/io/github/patricklfdm/generalsearch/admission/AdmissionJson.java'
     common=[json_source,java/'V52ReadQueries.java',java/'V52MeasurementQueries.java']
     cp=os.pathsep.join(map(str,(*jars,classes,observer)));control_cp=os.pathsep.join(map(str,(control,control_classes)))
-    consumer=[*common,java/'V52MeasurementConsumer.java',java/'V52MeasurementSampler.java']
+    consumer=[*common,java/'V52MeasurementConfiguration.java',java/'V52MeasurementConsumer.java',java/'V52MeasurementSampler.java']
     if version!='5.1.0':consumer.append(java/'V52MeasuredExplicitReads.java')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',classes,*consumer],root,'compile-consumer')
     q.command(['javac','--release','21','-proc:none','-cp',cp,'-d',observer,ROOT/'scripts/v51/java/PublicRuntimeConsumer.java',
@@ -123,9 +128,12 @@ def prepare(root,mode,*,exercise_load=False,m01_repetition=None):
                  origin=str(root),driverExercise=exercise_load,smokeInitialization='read-write-targets-confirmed-updates-v1',publicationAuthority='forced-generation-v1',programSha256=model.PLAN_SHA,run=os.environ.get('GITHUB_RUN_ID','local'),attempt=int(os.environ.get('GITHUB_RUN_ATTEMPT','1')),
                  artifacts={p.name:digest(p.read_bytes()) for p in artifacts.iterdir()},classes={p.relative_to(root).as_posix():digest(p.read_bytes())
                  for directory in (classes,observer,control_classes) for p in sorted(directory.rglob('*.class'))})
+    binding['readParameters']=parameters
     if m01_repetition is not None:
         binding.pop('smokeInitialization');binding.pop('driverExercise')
         binding['measurementProfile']=measured_profile
+    elif read_profile is not None:
+        binding.pop('smokeInitialization');binding.pop('driverExercise');binding['readConfigurationOnly']=True
     elif exercise_load:binding['driverMarkerSchedule']=list(evidence.DRIVER_MARKERS)
     save(root/'binding.json',binding);return binding,cp,control_cp
 
@@ -148,6 +156,7 @@ def smoke(root,mode,*,exercise_load=False):
             node=f'node-{i}';worker=Worker(root,node,cp,mode,history);workers[node]=worker
             for component in ('core','replication'):
                 path=Path(worker.identity[component+'Source']);need(path.parent==root/'artifacts' and digest(path.read_bytes())==binding['artifacts'][path.name],'measurement loaded artifact')
+            need(worker.identity['readParameters']==binding['readParameters'],'measurement observed read parameters')
         deadline=time.monotonic()+40;leader=None
         while time.monotonic()<deadline:
             states={node:w.call('status') for node,w in workers.items()};need(all(s['state']!='FAILED' for s in states.values()),'measurement voter failed')

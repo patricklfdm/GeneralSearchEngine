@@ -16,7 +16,8 @@ def publication_generation(row,mode):
 
 
 
-def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64):
+def validate(traces,processes,calls,manifest,entries,projection,mode,answers=None,*,pending_limit=64,minimum_wait_millis=5000):
+    need(type(minimum_wait_millis) is int and minimum_wait_millis in (0,1000,5000,60000),'measurement cut wait profile')
     cuts=[];successes={};timings={}
     for process in processes:
         node=process['node'];invoked={};captures={};entered={};released={};callbacks={};client_invocations={};force_order={};promised=0;barriers=set();latest=None;idle=False;reservations={}
@@ -55,7 +56,7 @@ def validate(traces,processes,calls,manifest,entries,projection,mode,answers=Non
                     need(row['applicationGeneration']==latest['generation'] and row['captureNanos']<row['deadlineNanos']==invocation['deadlineNanos'],'measurement capture deadline/generation')
                     need(1<=row['owned']<=min(64,pending_limit-1) and row['waiting']+row['captured']+row['settling']==row['owned'] and row['captured']==1,'measurement capture ownership')
                     if policy=='AT_LEAST_INDEX':
-                        lower=token.decode(physical.raw(call['minimum']));need(invocation['minimum']==call['minimum'] and invocation['waitTimeoutMillis']==5000 and
+                        lower=token.decode(physical.raw(call['minimum']));need(invocation['minimum']==call['minimum'] and invocation['waitTimeoutMillis']==minimum_wait_millis and
                             all(lower[k]==identity_token[k] for k in ('groupId','historyId','manifestDigest')) and lower['index']<=row['index'],'measurement minimum not satisfied')
                 if policy=='LEADER_STRONG':
                     last=latest['last'];epoch=row['epoch'] if event=='READ_CAPTURE_VALIDATED' else row['barrierEpoch']
@@ -98,7 +99,7 @@ def validate(traces,processes,calls,manifest,entries,projection,mode,answers=Non
                     need(latest is not None,'measurement update lacks publication');projection.update_response(call,latest['index'])
                 successes[identity]=row
             elif event=='CLIENT_IDLE':
-                queues=row['queues'];need(queues['admissionAvailable']==64 and all(queues.get(k,0)==0 for k in ('readsOwned','readsWaiting','readsCaptured','readsSettling','readsAlarms')),'measurement final ownership leak');idle=True
+                queues=row['queues'];need(queues['admissionAvailable']==pending_limit and all(queues.get(k,0)==0 for k in ('readsOwned','readsWaiting','readsCaptured','readsSettling','readsAlarms')),'measurement final ownership leak');idle=True
             elif event=='TRANSPORT':
                 identity=row['reservation'];transition=row['transition'];need(type(row['bytes']) is int and row['bytes']>=0,'measurement transport bytes')
                 if transition.endswith('_ADMITTED'):

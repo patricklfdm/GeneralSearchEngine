@@ -70,9 +70,9 @@ def validate(rows,mode,*,pending_limit=64):
                 semantics='process-wide-including-observer; sampled-high-water-is-not-exact-peak')
 
 
-def windows(rows,mode,controls,offered,markers,node):
+def windows(rows,mode,controls,offered,markers,node,*,pending_limit=64):
     """Resource observations at actual asynchronous boundaries, never fake clocks."""
-    complete=validate(rows,mode)
+    complete=validate(rows,mode,pending_limit=pending_limit)
     need([c['kind'] for c in controls]==['sample-start','sample-mark','sample-mark','sample-mark','sample-stop'] and
          all(c['outcome']=='SUCCESS' for c in controls),'sample window control ledger')
     need(controls[0]['endNanos']<=offered['startNanos'] and controls[-1]['startNanos']>=offered['drainEndNanos'],
