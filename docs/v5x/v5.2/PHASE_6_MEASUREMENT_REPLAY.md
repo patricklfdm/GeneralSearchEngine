@@ -28,6 +28,32 @@ The future physical checker must prove each requested sequence from the original
 captured publication and chosen history. A matching query result alone does not
 prove a token's lower bound, a strong barrier, quorum or response ordering.
 
+## Terminal updates after the last captured read
+
+Successful query cuts do not necessarily reach the terminal chosen application
+sequence. After answering every requested cut, the oracle must apply all remaining
+admitted updates and report its actual final core sequence. It must not add a
+terminal read, move earlier queries to a newer state, omit selected updates, or
+reclassify an indeterminate client outcome. This applies to both the contiguous
+prefix input and the selected-update input used by M01–M04.
+
+The operator's cohort under
+`target/v52-local-acceptance/runs/prepare-20261015T234801Z-2905637/cohort` exposed this
+gap in `published-v51-legacy-strong-r2`: the independently reconstructed history
+selected 169 updates, but its last successful query cut was sequence 169 (168
+updates after the initial corpus). The old oracle answered all 520 query requests
+and exited without applying the final selected update. The unchanged completion
+check correctly rejected its incomplete summary. The first member passed because
+its final successful read already reached its terminal application sequence.
+
+The correction drains only the oracle's unqueried update tail, keeping all query
+answers and completion checks unchanged. Foundation regressions exercise both
+schemas against published V4.4 and the candidate core, including initial-only
+queries with 180 trailing updates and a sparse selected history with a trailing
+update. Retained validation is under `target/v52-oracle-tail-review/`. The original
+failed cohort remains failed; validation with a corrected external oracle is
+diagnostic evidence, not qualification under its old compiled-class binding.
+
 ## Bounded inputs and local validation
 
 Admission permits at most 4,096 requested cuts, 180 updates, 1 MiB input,

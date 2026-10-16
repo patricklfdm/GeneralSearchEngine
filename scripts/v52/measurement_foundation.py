@@ -58,9 +58,21 @@ def run(output):
             need(json.loads(replay.stdout)==dict(status='PASS',measured=False,requests=828,updatesApplied=5,finalSequence=6),'selected oracle incomplete')
             selected=oracle.validate_output(sparse_input,own/'selected/answers.jsonl')
             value['selectedAnswers']=selected
+            # Last successful reads need not observe the terminal chosen update.
+            # Exercise both input schemas without inventing a terminal read.
+            for label,complete,known,through in (('prefix-tail',oracle_input,answers,1),('selected-tail',sparse_input,selected,5)):
+                tail=dict(complete,requests=[row for row in complete['requests'] if row['sequence']<=through])
+                oracle.validate(tail);input_path=own/(label+'-input.json');input_path.write_bytes(encoded(tail)+b'\n')
+                replay=q.command(['java','-cp',os.pathsep.join((str(classes),str(jar))),PACKAGE+'V52MeasurementOracle',own/label,input_path],own,label)
+                need(replay.stderr.strip()=='coreSource='+str(jar),'tail oracle loaded wrong artifact')
+                need(json.loads(replay.stdout)==dict(status='PASS',measured=False,requests=len(tail['requests']),
+                     updatesApplied=len(tail['updates']),finalSequence=1+len(tail['updates'])),'tail oracle execution incomplete: '+label)
+                need(oracle.validate_output(tail,own/label/'answers.jsonl')=={r['key']:known[r['key']] for r in tail['requests']},
+                     'tail updates changed earlier query answers: '+label)
             results[name]=value
         need(results['published-v44']==results['candidate-core'],'candidate queries differ from actual published core')
-        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690,selectedOracleQueriesPerCore=828)
+        receipt.update(status='PASS',states=5,queriesPerCore=5*len(model.queries()),updatesPerCore=180,persistentOracleQueriesPerCore=690,selectedOracleQueriesPerCore=828,
+                       terminalUpdateCasesPerCore=2)
     except BaseException as error:receipt['failure']=dict(type=type(error).__name__,message=str(error));raise
     finally:(root/'receipt.json').write_bytes(encoded(receipt)+b'\n')
     print(json.dumps({k:receipt[k] for k in ('status','execution','measured','states','queriesPerCore')}),flush=True)

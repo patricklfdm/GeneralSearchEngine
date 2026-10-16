@@ -42,7 +42,7 @@ public final class V52MeasurementOracle {
             }
         }
         System.err.println("coreSource="+Path.of(SearchEngine.class.getProtectionDomain().getCodeSource().getLocation().toURI()));
-        int applied=0;long outputBytes=0;long lastSequence=0;String stateHash=null,lastKey="";
+        int applied=0;long outputBytes=0;long lastSequence=0,finalSequence=0;String stateHash=null,lastKey="";
         try(var engine=measurementBuilder().buildDurable(V52MeasurementQueries.storage(root.resolve("store")));
             var output=Files.newBufferedWriter(root.resolve("answers.jsonl"),StandardCharsets.UTF_8,StandardOpenOption.CREATE_NEW)) {
             engine.addAll(corpus.stream().map(V52MeasurementOracle::from).toList()).join();var view=core(engine);
@@ -62,7 +62,12 @@ public final class V52MeasurementOracle {
                 outputBytes+=bytes;if(bytes>64<<10||outputBytes>32L<<20)throw new IllegalStateException("oracle output bound");
                 output.write(line);lastSequence=sequence;lastKey=key;
             }
+            // The final chosen updates may follow the last successful read.
+            // Apply them without inventing a query or changing any earlier cut.
+            while(applied<updates.size())engine.update(from(updates.get(applied++))).join();
+            finalSequence=engine.currentSequence();
+            if(finalSequence!=1L+updates.size())throw new IllegalStateException("oracle final application sequence");
         }
-        System.out.println(AdmissionJson.canonical(Map.of("status","PASS","measured",false,"requests",requests.size(),"updatesApplied",applied,"finalSequence",lastSequence)));
+        System.out.println(AdmissionJson.canonical(Map.of("status","PASS","measured",false,"requests",requests.size(),"updatesApplied",applied,"finalSequence",finalSequence)));
     }
 }
