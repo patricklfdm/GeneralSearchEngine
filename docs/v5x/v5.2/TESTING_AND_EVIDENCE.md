@@ -232,3 +232,11 @@ download to the unchanged untimed history and original/relocated replay. Local
 artifact/seed staging remains; this is not three-host or paid-cloud qualification.
 Run `scripts/verify-v52-phase6-voter-lifecycle.sh --skip-build` with existing
 current Java packages and local OpenSSH prerequisites.
+
+## Phase 6AH receiver delivery
+
+[The receiver-delivery gate](PHASE_6_RECEIVER_DELIVERY.md) uploads one immutable
+JAR/helper/seed capsule to each receiver, observes one detached bootstrap, and
+continues through the prior SSH voter lifecycle and portable physical replay.
+Run `scripts/verify-v52-phase6-receiver-delivery.sh --skip-build`. This remains
+loopback qualification with a shared Python checkout, not cloud acceptance.

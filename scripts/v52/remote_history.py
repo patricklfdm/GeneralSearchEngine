@@ -71,19 +71,23 @@ class Receivers:
         topology.validate(plan);self.binding['remoteTopology']=plan;runtime.save(self.collected/topology.FILE,plan)
         receivers={}
         for node in topology.NODES:
-            own=self.root/'receivers'/node;own.mkdir(parents=True);self.roots[node]=own
-            runtime.save(own/topology.FILE,plan)
-            for directory in ('artifacts','consumer','observer'):shutil.copytree(self.producer/directory,own/directory)
-            for name in (options.FILE,recovery.FILE):
-                if (self.producer/name).exists():shutil.copyfile(self.producer/name,own/name)
-            shutil.copytree(self.producer/'control/seed',own/'control/seed')
-            self.classpath[node]=self.paths(own,original)
-            answer=json.loads(q.command(['java','-cp',self.classpath[node],PACKAGE+'V52RemoteBootstrap',own,node],own,'bootstrap').stdout)
+            own=self.root/'receivers'/node;self.roots[node]=own
+            answer=self.prepare_receiver(node,own,plan,original)
             need(answer['status']=='PREPARED_NOT_STARTED' and answer['node']==node and answer['topology']==plan and
                  answer['originalRoot']==str(own),'remote prepared receiver identity')
             receivers[node]={k:answer[k] for k in ('originalRoot','manifestSha256','genesisSha256')}
         self.binding['remoteReceivers']=receivers;runtime.save(self.collected/'binding.json',self.binding)
         self.release_ports();self.prepared=True
+
+    def prepare_receiver(self,node,own,plan,original):
+        own.mkdir(mode=0o700,parents=True)
+        runtime.save(own/topology.FILE,plan)
+        for directory in ('artifacts','consumer','observer'):shutil.copytree(self.producer/directory,own/directory)
+        for name in (options.FILE,recovery.FILE):
+            if (self.producer/name).exists():shutil.copyfile(self.producer/name,own/name)
+        shutil.copytree(self.producer/'control/seed',own/'control/seed')
+        self.classpath[node]=self.paths(own,original)
+        return json.loads(q.command(['java','-cp',self.classpath[node],PACKAGE+'V52RemoteBootstrap',own,node],own,'bootstrap').stdout)
 
     @staticmethod
     def paths(root,binding):
@@ -101,6 +105,9 @@ class Receivers:
              any(p['node']==node and p['exitCode']==-9 for p in self.processes)), 'remote undeclared voter generation')
         own=self.roots[node];worker=(self.worker_factory or Worker)(own,node,self.classpath[node],self.spec['mode'],self.history,generation)
         self.workers[node]=worker;self.generations[node]=generation
+        self.verify_worker(worker,own)
+
+    def verify_worker(self,worker,own):
         for component in ('core','replication'):
             path=Path(worker.identity[component+'Source'])
             need(path.parent==own/'artifacts' and path.name in self.binding['artifacts'] and

@@ -21,7 +21,6 @@ class Receivers(previous.Receivers):
         self.clients=[];self.exports={};super().__init__(*args,targets=targets)
     def prepare(self):
         super().prepare()
-        for root in self.roots.values():root.chmod(0o700)
         self.binding['remoteVoterLifecycle']=guest.EXECUTION;h.runtime.save(self.collected/'binding.json',self.binding)
     def start_service(self,root,node,cp,mode,history,generation):
         need(generation==1,'lifecycle restart not qualified')

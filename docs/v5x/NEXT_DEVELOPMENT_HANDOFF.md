@@ -59,6 +59,13 @@ qualification and formal fault lifecycle remain open. Its final real SSH gate
 passed eleven reads, three updates, 48 original/relocated physical/query negatives
 and 14 lifecycle negatives in 61.792 seconds. All 385 V5.2 Python tests and 21
 CI suite tests pass; source and evidence hashes remain bound to that local receipt.
+[Receiver capsule delivery and bootstrap](v5.2/PHASE_6_RECEIVER_DELIVERY.md)
+now connects bounded pinned SSH uploads and one detached public bootstrap per
+receiver to that service lifecycle. Receiver inputs are transferred; the Python
+checkout is still shared on one host. Its real gate passed in 109.172 seconds:
+three one-submission bootstraps, eleven reads, three updates, 48 physical/query
+negatives, 14 lifecycle negatives and 14 delivery negatives. All 406 V5.2 Python
+tests and 21 CI suite tests pass; its receipt retains the actual source binding.
 Cross-host transport/identity, complete owned members, protected full CI and fresh
 cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements

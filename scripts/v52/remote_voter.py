@@ -61,6 +61,9 @@ def validate_config(value,control,*,fresh_socket=True):
             path=root/(prefix+name)
             need(not path.is_symlink() and h.bundle.sha_file(path)==sha,'voter delivered bytes changed')
     need(not (root/h.options.FILE).exists() and not (root/h.recovery.FILE).exists(),'voter unexpected parameters')
+    if 'remoteDelivery' in bound or (root/(value['node']+'-delivery.json')).exists():
+        from . import remote_delivery_evidence
+        remote_delivery_evidence.live(root,bound,value['node'])
     endpoint=host.path(value['socket']);host.observe(endpoint.parent)
     need(type(fresh_socket) is bool and len(os.fsencode(endpoint))<100 and
          (not fresh_socket or not endpoint.exists()),'voter socket path')

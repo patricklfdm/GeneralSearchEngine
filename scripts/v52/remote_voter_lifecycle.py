@@ -22,12 +22,13 @@ class Rejected(ValueError):
 
 
 class Endpoint(stream.Endpoint):
+    protocol=guest
     def exchange(self,action,root,value,deadline):
-        need(action in guest.ACTIONS and not self.closed,'lifecycle action/session')
+        need(action in self.protocol.ACTIONS and not self.closed,'lifecycle action/session')
         need(type(deadline) in (int,float) and math.isfinite(deadline) and 0<deadline-time.monotonic()<=300,'lifecycle exchange deadline')
         need(stream.ssh.ssh_args(self.target)==self.args and all(Path(self.target[k]).read_bytes()==b for k,b in self.pins.items()),
              'lifecycle SSH target/credentials changed')
-        remote=['python3','-I','-c',guest.LAUNCH,str(self.checkout),action,str(v.host.path(str(root)))]
+        remote=['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),action,str(v.host.path(str(root)))]
         try:
             if self.master is None:
                 self.master=stream.ssh.master.Master(self.args,self.private.name,float('inf'),None,connect_deadline=deadline);self.connections+=1
@@ -35,7 +36,7 @@ class Endpoint(stream.Endpoint):
                                      maximum=v.c.RESPONSE_BYTES,request_maximum=v.c.REQUEST_BYTES)
         except BaseException:self.disconnect();raise
         result=strict(raw)
-        if type(result) is dict and result.get('schema')==guest.ERROR_SCHEMA:
+        if type(result) is dict and result.get('schema')==self.protocol.ERROR_SCHEMA:
             need(set(result)=={'schema','code'},'lifecycle error envelope');raise Rejected(result['code'])
         return result
 

@@ -19,6 +19,10 @@ def location(root,binding):
         any((Path(root)/(node+'-control')).exists() for node in topology.NODES)):
         from . import remote_voter_evidence
         remote_voter_evidence.validate(root,binding)
+    if 'remoteDelivery' in binding or (Path(root)/'delivery-package.tar.gz').exists() or any(
+        (Path(root)/(node+'-delivery.json')).exists() for node in topology.NODES):
+        from . import remote_delivery_evidence
+        remote_delivery_evidence.validate(root,binding)
     result=authority.EvidenceLocation(root,binding['remoteReceivers'])
     for node in topology.NODES:
         path=Path(root)/node/'manifest.gsr'
