@@ -14,6 +14,21 @@ def schedule_fixture(case,directory):
 
 
 class MeasurementMinimumEvidenceTest(unittest.TestCase):
+    def test_formal_minimum_requires_complete_selected_quorums_without_extra_campaigns(self):
+        for case in ('m02-above-1000','m03-p4','m03-p65'):
+            with tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);history,scenario,observed,plan=schedule_fixture(case,root)
+                (root/'node-1').mkdir();(root/'node-1/manifest.gsr').write_bytes(b'x'*48)
+                binding=dict(measurementProfile=plan);stopped=dict(status='STOPPED',qualifiedMeasurement=False,paidCloud=False,failure=None,closeErrors=[])
+                with patch.object(e,'identity',return_value=(binding,[])),patch.object(e,'metadata',return_value=stopped),\
+                     patch.object(e.physical.f,'inspect',return_value={}),patch.object(e.budget,'validate'),\
+                     patch.object(e.identities,'evidence_location',return_value=None),\
+                     patch.object(e.physical,'validate',side_effect=ValueError('physical sentinel')) as physical:
+                    with self.assertRaisesRegex(ValueError,'physical sentinel'):
+                        e.validate(root,binding,history=history,scenario=scenario,observed=observed,traces={})
+                    self.assertEqual('selected-quorums',physical.call_args.kwargs['basis_coverage'])
+                    self.assertFalse(physical.call_args.kwargs['require_restart'])
+
     def test_every_declared_controller_schedule_has_complete_independent_ledger(self):
         for case in controller.CASES:
             with self.subTest(case=case),tempfile.TemporaryDirectory() as directory:

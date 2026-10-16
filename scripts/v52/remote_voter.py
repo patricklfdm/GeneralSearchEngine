@@ -52,10 +52,12 @@ def validate_config(value,control,*,fresh_socket=True):
     gen=scope.generation(value)
     need(control==root/scope.control_name(value['node'],gen) and host.observe(control)==value['host'],'voter host changed')
     bound=value['binding'];need(bound['mode'] in h.runtime.model.MODES,'voter service mode')
-    recovery=scope.history(bound)
+    profile=scope.history(bound)
+    recovery=profile if profile and profile['family']=='M04' else None
     if recovery:
         marker,execution=('remoteRestart',scope.RESTART_EXECUTION) if recovery['case']==scope.RESTART_CASE else ('remotePartition',scope.partition.EXECUTION)
         need(bound.get(marker)==execution,'voter recovery control binding')
+    elif profile:need(scope.formal(bound),'voter formal control binding')
     need(bound.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
     need(bound['remoteTopology']['placement']=='local-no-gcp' and h.topology.read(root)==bound['remoteTopology'],'voter local topology')
     need(bound['remoteReceivers'][value['node']]['originalRoot']==str(root),'voter root binding')
@@ -65,7 +67,9 @@ def validate_config(value,control,*,fresh_socket=True):
             if section=='classes' and name.startswith('control-classes/'):continue
             path=root/(prefix+name)
             need(not path.is_symlink() and h.bundle.sha_file(path)==sha,'voter delivered bytes changed')
-    need(not (root/h.options.FILE).exists(),'voter unexpected parameters')
+    if profile and profile['family'] in ('M02','M03'):
+        need(c.read(root/h.options.FILE)==profile['parameters'],'voter formal parameters')
+    else:need(not (root/h.options.FILE).exists(),'voter unexpected parameters')
     if recovery:need(c.read(root/h.recovery.FILE)==recovery['faultParameters'],'voter recovery parameters')
     else:need(not (root/h.recovery.FILE).exists(),'voter unexpected parameters')
     if 'remoteDelivery' in bound or (root/(value['node']+'-delivery.json')).exists():

@@ -251,6 +251,26 @@ join the existing portable physical/query/resource replay. Run
 loopback fault qualification; independent hosts remain open. The second M04
 crash/restart history is qualified separately below.
 
+## Phase 6AK formal SSH histories
+
+`scripts/verify-v52-phase6-remote-formal.sh --skip-build` executes the unchanged
+M02 above/1000, both M03 capacities, candidate explicit-strong M01 r1 and published
+V5.1 legacy-strong M01 r1 through delivered SSH services. Each history must pass
+complete original/relocated replay, all frozen negatives, exact business counts
+and owner cleanup. No window is shortened and no original call is retried.
+The [stage record](PHASE_6_REMOTE_FORMAL.md) retains the initial M03 recovery failure,
+the deterministic runtime correction and the new acceptance status. This remains
+single-host qualification; the full three-host/cloud suite is still pending.
+
+## Phase 6AL independent Python inputs
+
+`python3 -m scripts.v52.remote_python_qualification target/v52-remote-python/new-run`
+packages the actual guest dependency closure, installs it through a standalone
+bounded receiver and validates real isolated imports without a Git checkout.
+The [stage record](PHASE_6_REMOTE_PYTHON.md) describes the source/inventory/ownership
+checks and thirteen regressions. This gate starts no workload or cloud resource;
+the real SSH launcher still needs integration with the installed identity.
+
 ## Phase 6AJ remote retained restart
 
 [The remote restart gate](PHASE_6_REMOTE_RESTART.md) executes the complete frozen

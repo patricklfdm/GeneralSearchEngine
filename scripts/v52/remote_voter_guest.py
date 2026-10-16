@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 from . import remote_voter as v
+from . import remote_voter_export as export
 from .evidence import need, encoded, digest, strict
 
 c,host,h=v.c,v.host,v.h
@@ -145,7 +146,10 @@ def abort(control,config):
     return inspection(control,config)
 
 
-def selected(root,node):
+def selected(root,node,config=None):
+    formal=config is not None and export.formal(config)
+    max_files=h.bundle.LIMITS['files']-1 if formal else MAX_FILES
+    max_bytes=h.bundle.LIMITS['expanded'] if formal else MAX_ARCHIVE
     result={};total=directories=0
     for path in sorted(root.iterdir()):
         if path.name==node or path.name.startswith(node+'-'):
@@ -157,7 +161,7 @@ def selected(root,node):
                     directories+=1;need(directories<=h.bundle.LIMITS['directories'],'lifecycle directory bound');continue
                 info=item.stat();need(stat.S_ISREG(info.st_mode) and info.st_nlink==1,'lifecycle regular unlinked file')
                 total+=info.st_size
-                need(len(result)<MAX_FILES and total<=MAX_ARCHIVE,'lifecycle collection bound')
+                need(len(result)<max_files and total<=max_bytes and info.st_size<=h.bundle.LIMITS['member'],'lifecycle collection bound')
                 name=h.bundle.name(item.relative_to(root).as_posix());result[name]=dict(bytes=info.st_size,sha256=h.bundle.sha_file(item))
     need(result,'lifecycle empty collection');return result
 
@@ -168,10 +172,11 @@ def collect(control,config):
         from . import remote_partition_guest
         remote_partition_guest.seal(control,config)
     root=Path(config['root']);archive=root/'voter-collection.tar.gz';manifest=root/'voter-collection.json'
-    index=selected(root,config['node']);sha=digest(encoded(config))
+    index=selected(root,config['node'],config);sha=digest(encoded(config));formal=export.formal(config)
+    descriptor=export.summary(index) if formal else None
     if manifest.exists():
         result=c.read(manifest,c.RESPONSE_BYTES)
-        need(result['configSha256']==sha and result['members']==index and archive.stat().st_size==result['bytes'] and
+        need(result['configSha256']==sha and (result['inventory']==descriptor if formal else result['members']==index) and archive.stat().st_size==result['bytes'] and
              h.bundle.sha_file(archive)==result['sha256'],'lifecycle collection changed');return result
     # Partial archive/staging consumes this export, retaining failure evidence.
     staging=root/'voter-collection';staging.mkdir(mode=0o700)
@@ -179,9 +184,11 @@ def collect(control,config):
         path=staging/name;path.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(root/name,path)
     need(h.bundle.members(staging)==index,'lifecycle collection changed during copy')
     h.bundle.pack(staging,archive)
-    need(selected(root,config['node'])==index and 0<archive.stat().st_size<=MAX_ARCHIVE,'lifecycle collection changed/bound')
-    result=dict(schema=SCHEMA,configSha256=sha,node=config['node'],bytes=archive.stat().st_size,
-                sha256=h.bundle.sha_file(archive),members=index,terminal=terminal)
+    need(selected(root,config['node'],config)==index and 0<archive.stat().st_size<=(h.bundle.LIMITS['compressed'] if formal else MAX_ARCHIVE),
+         'lifecycle collection changed/bound')
+    result=dict(schema=export.SCHEMA if formal else SCHEMA,configSha256=sha,node=config['node'],bytes=archive.stat().st_size,
+                sha256=h.bundle.sha_file(archive),terminal=terminal)
+    result['inventory' if formal else 'members']=descriptor if formal else index
     c.write_once(manifest,result,c.RESPONSE_BYTES);return result
 
 
@@ -189,7 +196,8 @@ def chunk(control,config,value):
     need(type(value) is dict and set(value)=={'sha256','offset'},'lifecycle chunk fields')
     root=Path(config['root']);meta=c.read(root/'voter-collection.json',c.RESPONSE_BYTES)
     need(meta['configSha256']==digest(encoded(config)) and value['sha256']==meta['sha256'],'lifecycle chunk identity')
-    offset=value['offset'];need(type(offset) is int and 0<=offset<meta['bytes']<=MAX_ARCHIVE and offset%CHUNK==0,'lifecycle chunk offset')
+    maximum=h.bundle.LIMITS['compressed'] if export.formal(config) else MAX_ARCHIVE
+    offset=value['offset'];need(type(offset) is int and 0<=offset<meta['bytes']<=maximum and offset%CHUNK==0,'lifecycle chunk offset')
     fd=os.open(root/'voter-collection.tar.gz',os.O_RDONLY|os.O_NOFOLLOW)
     with os.fdopen(fd,'rb') as stream:
         info=os.fstat(stream.fileno());need(stat.S_ISREG(info.st_mode) and info.st_size==meta['bytes'],'lifecycle archive type/size')

@@ -96,8 +96,22 @@ the corrected complete history passed in 100.497 seconds with 0.418/0.423-second
 cut/heal barriers and all 76 negatives. The final Python suite passes 448 tests.
 The final shared SSH implementation also passed a fresh complete restart history
 in 102.110 seconds, with all 68 negatives and all original owners stopped.
-General M01–M03 service profiles, independent
-hosts/clocks, complete owned members and protected CI/provider admission remain.
+[Formal SSH histories](v5.2/PHASE_6_REMOTE_FORMAL.md) add exact M01–M03 admission,
+parameter delivery and large stopped exports with the existing bundle bounds.
+The first real gate passed M02 and exposed a stale snapshot transfer occupying
+one M03 follower after an install rejection. A deterministic regression reproduces
+that failure; failed exchanges now abort their own transfer while preserving the
+original failure and accepted/proven authority. Rebuilt five-history qualification
+is pending. Independent hosts/clocks, complete owned members and protected
+CI/provider admission remain.
+
+[Independent Python source packaging](v5.2/PHASE_6_REMOTE_PYTHON.md) supplies the
+next deployment foundation: a static guest dependency closure, bounded standalone
+installer, exact source/file hashes and isolated imports without a Git checkout.
+Its actual source-bound gate passes with 159 files and 84 loaded modules;
+all 476 V5.2 Python tests and 21 CI suite tests pass.
+It does not yet replace the shared Python path in the real SSH history backend;
+launch-context integration and independent-host qualification remain open.
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,

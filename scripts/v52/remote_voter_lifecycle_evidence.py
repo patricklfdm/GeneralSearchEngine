@@ -1,6 +1,7 @@
 """Portable lifecycle/export binding, supplemental to unchanged physical replay."""
 from pathlib import Path
 from . import remote_voter as v,remote_voter_guest as guest,remote_voter_ssh_evidence as ssh
+from . import remote_voter_export as export
 from .evidence import need,digest,encoded
 
 
@@ -49,6 +50,9 @@ def observation(value,config,sha):
 
 
 def manifest(value,config,sha):
+    if export.formal(config):
+        export.manifest(value,config,sha);observation(value['terminal'],config,sha)
+        need(value['terminal']['state']=='STOPPED','lifecycle incomplete collection');return value
     need(type(value) is dict and set(value)=={'schema','configSha256','node','bytes','sha256','members','terminal'} and
          value['schema']==guest.SCHEMA and value['configSha256']==sha and value['node']==config['node'],'lifecycle collection identity')
     need(type(value['bytes']) is int and 0<value['bytes']<=guest.MAX_ARCHIVE,'lifecycle archive size')
@@ -85,5 +89,6 @@ def validate(root,binding,config,sha):
     observed={name:record for name,record in index.items() if
         (name.split('/')[0]==node or name.split('/')[0].startswith(node+'-')) and
         name not in metadata(node)}
-    need(observed==meta['members'],'lifecycle collected bytes differ')
+    if export.formal(config):export.verify_inventory(observed,meta)
+    else:need(observed==meta['members'],'lifecycle collected bytes differ')
     return dict(files=len(observed),bytes=sum(r['bytes'] for r in observed.values()))

@@ -9,6 +9,22 @@ from .test_measurement_window import fixture
 
 
 class MeasurementM01EvidenceTest(unittest.TestCase):
+    def test_full_m01_requires_complete_selected_quorums_without_extra_campaigns(self):
+        offered,history,mode,leader,target,initial,repetition=fixture()
+        scenario=dict(family='M01',stage='observed',mode=mode,repetition=repetition,leader=leader,readTarget=target,initialRead=initial)
+        binding=dict(mode=mode,measurementProfile=m.profile(mode,repetition))
+        stopped=dict(status='STOPPED',qualifiedMeasurement=False,paidCloud=False,failure=None,closeErrors=[])
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'node-1').mkdir();(root/'node-1/manifest.gsr').write_bytes(b'x'*48)
+            with patch.object(e,'identity',return_value=(binding,[])),patch.object(e,'metadata',return_value=stopped),\
+                 patch.object(e.physical.f,'inspect',return_value={}),patch.object(e.budget,'validate'),\
+                 patch.object(e.identities,'evidence_location',return_value=None),\
+                 patch.object(e.physical,'validate',side_effect=ValueError('physical sentinel')) as physical:
+                with self.assertRaisesRegex(ValueError,'physical sentinel'):
+                    e.validate(root,binding,traces={},history=history,offered=offered,scenario=scenario)
+                self.assertEqual('selected-quorums',physical.call_args.kwargs['basis_coverage'])
+                self.assertFalse(physical.call_args.kwargs['require_restart'])
+
     def baseline(self):
         history=[dict(opId='setup',kind='read',endNanos=20),dict(opId='status',kind='status',node='node-1',startNanos=21,endNanos=22,
                  response=dict(opId='status',sequence=1,state='LEADER_READY',publishedIndex=5))]

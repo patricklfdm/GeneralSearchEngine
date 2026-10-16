@@ -19,7 +19,7 @@ def selection(binding):
     need(type(value) is dict and set(value)=={'schema','execution','package','nodes'} and value['schema']=='gse-v52-delivered-receivers-v1' and
          value['execution']==p.EXECUTION and set(value['nodes'])==set(p.h.topology.NODES),'delivery retained selection')
     meta=p.validate(value['package'])
-    need(meta.get('recovery')==p.scope.history(binding),'delivery history scope changed')
+    need(meta.get('recovery',meta.get('measurement'))==p.scope.history(binding),'delivery history scope changed')
     need(meta['source']=={k:binding[k] for k in p.SOURCE_KEYS} and meta['mode']==binding['mode'] and
          meta['topology']==binding['remoteTopology'] and meta['artifacts']==binding['artifacts'] and
          meta['classes']=={k:v for k,v in binding['classes'].items() if not k.startswith('control-classes/')},'delivery final source/input binding')

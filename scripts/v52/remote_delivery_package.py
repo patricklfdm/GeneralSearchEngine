@@ -1,4 +1,4 @@
-"""Closed JAR/helper/seed capsule for untimed and frozen M04 loopback receivers."""
+"""Closed JAR/helper/seed capsule for the frozen loopback receiver profiles."""
 from copy import deepcopy
 import hashlib
 from pathlib import Path
@@ -20,9 +20,13 @@ SEED={'control/seed/gse-backup-manifest','control/seed/gse-backup-checkpoint','c
 
 def validate(meta):
     need(type(meta) is dict and set(meta)=={'schema','source','mode','topology','artifacts','classes','members','bytes','sha256','parts'} |
-         ({'recovery'} if 'recovery' in meta else set()),'delivery package fields')
+         ({'recovery'} if 'recovery' in meta else set()) | ({'measurement'} if 'measurement' in meta else set()),'delivery package fields')
+    need(not {'recovery','measurement'}<=set(meta),'delivery mixed profiles')
     if 'recovery' in meta:
-        scope.profile(meta['recovery']);need(meta['mode']=='candidate-minimum','delivery recovery mode')
+        scope.profile(meta['recovery']);need(meta['recovery']['family']=='M04' and meta['mode']=='candidate-minimum','delivery recovery mode')
+    if 'measurement' in meta:
+        plan=scope.profile(meta['measurement'])
+        need(plan['family'] in ('M01','M02','M03') and meta['mode']==plan['mode'],'delivery measurement mode')
     need(meta['schema']==SCHEMA and meta['mode'] in h.runtime.model.MODES,'delivery package scope')
     source=meta['source'];need(type(source) is dict and set(source)==set(SOURCE_KEYS),'delivery source fields')
     c.hex_value(source['source'],40,'delivery source');c.hex_value(source['checkoutSha256'],64,'delivery checkout')
@@ -41,6 +45,7 @@ def validate(meta):
             need(name in members and members[name]['sha256']==sha,'delivery input hash binding')
     expected={'artifacts/'+n for n in meta['artifacts']}|set(meta['classes'])|SEED|{h.topology.FILE}
     if 'recovery' in meta:expected.add(h.recovery.FILE)
+    if meta.get('measurement',{}).get('family') in ('M02','M03'):expected.add(h.options.FILE)
     need(set(members)==expected,'delivery closed file inventory')
     parts=meta['parts'];need(type(parts) is list and len(parts)==(meta['bytes']+PART-1)//PART,'delivery part count')
     for i,row in enumerate(parts):
@@ -51,12 +56,15 @@ def validate(meta):
 
 def create(producer,target,binding):
     target=Path(target);target.mkdir();stage=target/'files';stage.mkdir()
-    recovery=scope.history(binding)
+    plan=scope.history(binding)
     for name in ('artifacts','consumer','observer'):shutil.copytree(Path(producer)/name,stage/name)
     shutil.copytree(Path(producer)/'control/seed',stage/'control/seed')
-    if recovery:
-        need(c.read(Path(producer)/h.recovery.FILE)==recovery['faultParameters'],'delivery recovery parameters')
+    if plan and plan['family']=='M04':
+        need(c.read(Path(producer)/h.recovery.FILE)==plan['faultParameters'],'delivery recovery parameters')
         shutil.copyfile(Path(producer)/h.recovery.FILE,stage/h.recovery.FILE)
+    if plan and plan['family'] in ('M02','M03'):
+        need(c.read(Path(producer)/h.options.FILE)==plan['parameters'],'delivery measurement parameters')
+        shutil.copyfile(Path(producer)/h.options.FILE,stage/h.options.FILE)
     h.runtime.save(stage/h.topology.FILE,binding['remoteTopology']);archive=target/CAPSULE
     members=h.bundle.pack(stage,archive);parts=[]
     with archive.open('rb') as stream:
@@ -65,7 +73,7 @@ def create(producer,target,binding):
         topology=deepcopy(binding['remoteTopology']),artifacts=deepcopy(binding['artifacts']),
         classes={k:v for k,v in binding['classes'].items() if not k.startswith('control-classes/')},members=members,
         bytes=archive.stat().st_size,sha256=h.bundle.sha_file(archive),parts=parts)
-    if recovery:meta['recovery']=recovery
+    if plan:meta['recovery' if plan['family']=='M04' else 'measurement']=plan
     validate(meta);verify_archive(archive,meta);return archive,meta
 
 
@@ -106,6 +114,8 @@ def installed(root,meta):
     need(h.topology.read(root)==meta['topology'],'delivery installed topology changed')
     if 'recovery' in meta:
         need(c.read(root/h.recovery.FILE)==meta['recovery']['faultParameters'],'delivery installed recovery parameters')
+    if meta.get('measurement',{}).get('family') in ('M02','M03'):
+        need(c.read(root/h.options.FILE)==meta['measurement']['parameters'],'delivery installed measurement parameters')
 
 
 def descriptor(value):

@@ -11,6 +11,7 @@ import tarfile
 import time
 from . import remote_voter as v,remote_voter_ssh as stream,remote_voter_guest as guest
 from . import remote_voter_lifecycle_evidence as evidence
+from . import remote_voter_export as export
 from .evidence import need,encoded,digest,strict
 
 
@@ -119,9 +120,10 @@ class Client(stream.Client):
                 self.final=self.await_state(seen,{'STOPPED','FAILED','CRASHED'},15)
         finally:self.endpoint.close()
 
-    def collect(self,destination,staging):
+    def collect(self,destination,staging,*,admit=lambda meta:None):
         need(self.final is not None and self.final['state']=='STOPPED','lifecycle controller collection before stop')
         meta=self.control_call('collect');evidence.manifest(meta,self.config,self.sha)
+        admit(meta)
         staging=Path(staging);staging.mkdir(parents=True,exist_ok=False);archive=staging/'receiver.tar.gz'
         with archive.open('xb') as output:
             for offset in range(0,meta['bytes'],guest.CHUNK):
@@ -129,7 +131,9 @@ class Client(stream.Client):
                 output.write(decode_chunk(answer,meta,offset))
         need(archive.stat().st_size==meta['bytes'] and v.h.bundle.sha_file(archive)==meta['sha256'],'lifecycle downloaded archive hash')
         unpacked=unpack_export(archive,staging/'unpacked',meta)
-        need(v.h.bundle.inventory(unpacked)==meta['members'],'lifecycle downloaded inventory')
+        index=v.h.bundle.inventory(unpacked)
+        if export.formal(self.config):export.verify_inventory(index,meta)
+        else:need(index==meta['members'],'lifecycle downloaded inventory')
         for path in unpacked.iterdir():
             if path.name==v.h.bundle.INDEX:continue
             target=Path(destination)/path.name;need(not target.exists() and not target.is_symlink(),'lifecycle destination occupied')
@@ -171,8 +175,14 @@ def unpack_export(archive,target,meta):
     # BEFORE the generic extractor allocates/writes any member bodies.
     with tarfile.open(archive,'r|gz',tarinfo=v.h.bundle.ClosedTarInfo,encoding='ascii',errors='strict') as source:
         first=source.next()
+        formal=meta.get('schema')==export.SCHEMA
+        limit=export.descriptor(meta['inventory'])['bytes'] if formal else v.c.RESPONSE_BYTES
         need(first is not None and first.name==v.h.bundle.INDEX and first.isfile() and
-             0<first.size<=v.c.RESPONSE_BYTES,'lifecycle archive first inventory')
-        with source.extractfile(first) as stream:raw=stream.read(v.c.RESPONSE_BYTES+1)
-        need(len(raw)==first.size and strict(raw)==meta['members'],'lifecycle archive declared inventory')
+             0<first.size<=limit and (not formal or first.size==limit),'lifecycle archive first inventory')
+        with source.extractfile(first) as stream:raw=stream.read(limit+1)
+        need(len(raw)==first.size,'lifecycle archive declared inventory')
+        index=strict(raw)
+        if formal:
+            need(digest(raw)==meta['inventory']['sha256'],'formal export inventory bytes changed');export.verify_inventory(index,meta)
+        else:need(index==meta['members'],'lifecycle archive declared inventory')
     return v.h.bundle.unpack(archive,target)
