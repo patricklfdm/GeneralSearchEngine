@@ -9,7 +9,9 @@ from . import remote_voter_lifecycle as lifecycle
 from .evidence import need,encoded,digest
 
 
-class Endpoint(lifecycle.Endpoint):protocol=guest
+class Endpoint(lifecycle.Endpoint):
+    protocol=guest
+    python_entry='delivery'
 
 
 def observed(value,descriptor):
@@ -38,8 +40,8 @@ def observed(value,descriptor):
 
 
 class Delivery:
-    def __init__(self,target,parent,node,meta):
-        self.endpoint=Endpoint(target,p.h.ROOT);self.parent=Path(parent);self.value=None;self.calls=[];self.losses=[]
+    def __init__(self,target,parent,node,meta,*,python_context=None):
+        self.endpoint=Endpoint(target,p.h.ROOT,python_context=python_context);self.parent=Path(parent);self.value=None;self.calls=[];self.losses=[]
         self.node=node;self.meta=deepcopy(meta);self.discarded=set()
     def close(self):self.endpoint.close()
     def exchange(self,action,payload=None):

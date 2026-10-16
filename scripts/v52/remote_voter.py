@@ -19,6 +19,7 @@ from types import SimpleNamespace
 from . import remote_command as c, remote_host as host, remote_history as h
 from . import measurement_history as ledger
 from . import remote_voter_scope as scope
+from . import remote_python_context as python_context
 from .evidence import need, encoded, digest, strict
 
 SCHEMA='gse-v52-voter-service-v1'
@@ -61,6 +62,7 @@ def validate_config(value,control,*,fresh_socket=True):
     need(bound.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
     need(bound['remoteTopology']['placement']=='local-no-gcp' and h.topology.read(root)==bound['remoteTopology'],'voter local topology')
     need(bound['remoteReceivers'][value['node']]['originalRoot']==str(root),'voter root binding')
+    python_context.require_binding(bound,value['node'])
     source=h.source();need(all(source[k]==bound[k] for k in source),'voter source changed')
     for section,prefix in (('artifacts','artifacts/'),('classes','')):
         for name,sha in bound[section].items():
@@ -211,6 +213,7 @@ def serve(control):
     need(c.read(control/'launch.json')==dict(configSha256=sha),'voter launch binding')
     # Atomic publication/partial publication both consume the original launch.
     c.write_once(control/'started.json',dict(configSha256=sha,service=process(os.getpid())))
+    python_context.record(control/'python-runtime.json')
     worker=None;engine=None
     try:
         worker=h.Worker(root,value['node'],h.Receivers.paths(root,value['binding']),value['binding']['mode'],[],scope.generation(value))

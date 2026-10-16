@@ -48,6 +48,9 @@ def validate(root,binding):
     root=Path(root);need(binding['remoteTopology']['placement']=='local-no-gcp','voter cross-host qualification unavailable')
     need(binding.get('remoteVoterControl')=='local-persistent-voters-v1','voter control binding')
     voter.h.bundle.inventory(root)
+    if 'remotePython' in binding or (root/'python-capsule.json').exists():
+        from . import remote_python_runtime_evidence
+        remote_python_runtime_evidence.validate(root,binding)
     need(c.read(root/'binding.json',4<<20)==binding,'voter evidence binding changed')
     history=c.read(root/'history.json',16<<20);processes=c.read(root/'processes.json',64<<10)
     controller=c.read(root/'controller-domain.json',4096)

@@ -191,6 +191,11 @@ class Receivers:
 
 
 def source():
+    from . import remote_python_context
+    installed=remote_python_context.source()
+    if installed is not None:return installed
+    need(Path(runtime.subprocess.check_output(['git','rev-parse','--show-toplevel'],cwd=ROOT,text=True).strip())==ROOT,
+         'remote source requires checkout root or explicit installed context')
     return runtime.build.binding(ROOT,runtime.subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip())
 
 

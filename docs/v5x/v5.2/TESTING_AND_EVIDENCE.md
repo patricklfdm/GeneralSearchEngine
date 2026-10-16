@@ -279,3 +279,10 @@ the original crash, pre-reopen bytes, two service generations and lost-reply
 queries to the existing portable physical/query/resource replay. Run
 `scripts/verify-v52-phase6-remote-restart.sh --skip-build`. This remains single-host
 qualification with shared Python sources; it is not cloud member acceptance.
+
+## Installed Python runtime over SSH
+
+See [Phase 6AM](PHASE_6_REMOTE_PYTHON_RUNTIME.md) for the source-bound capsule,
+isolated children, full smoke receipt and retained failures. Run
+`scripts/verify-v52-phase6-remote-python.sh --skip-build` after the reactor artifacts
+are available. This is local loopback qualification, not three-host acceptance.

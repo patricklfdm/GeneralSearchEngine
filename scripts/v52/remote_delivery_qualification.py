@@ -26,10 +26,12 @@ class Receivers(previous.Receivers):
         if self.capsule is None:
             self.capsule,self.meta=package.create(self.producer,self.root/'delivery-source',self.binding)
             shutil.copyfile(self.capsule,self.collected/package.CAPSULE)
-        endpoint=delivery.Delivery(self.targets[node],own.parent,node,self.meta);self.deliveries.append(endpoint)
+        endpoint=self.delivery_client(node,own);self.deliveries.append(endpoint)
         try:value=endpoint.run(self.capsule,discard_part=node=='node-1',discard_install=node=='node-2')
         finally:endpoint.close()
         self.bootstraps[node]=value;self.classpath[node]=self.paths(own,original);return value['answer']
+    def delivery_client(self,node,own):
+        return delivery.Delivery(self.targets[node],own.parent,node,self.meta)
     def verify_worker(self,worker,own):
         # Files live on the guest. Its fixed entry verifies the delivered bytes;
         # the controller checks loaded paths against the retained package inputs.

@@ -1,5 +1,6 @@
 """Fixed guest upload and detached bootstrap; no voter or arbitrary command entry."""
 import argparse
+from . import remote_python_context as python_context
 import base64
 import os
 from pathlib import Path
@@ -102,7 +103,7 @@ def install(store,value):
     try:c.write_once(store/'launch.json',dict(descriptorSha256=digest(encoded(value))))
     except FileExistsError:return query(store,value)
     with (store/'worker.log').open('xb') as log:
-        subprocess.Popen([sys.executable,'-I','-c',LAUNCH,str(h.ROOT),'worker',str(store)],cwd=h.ROOT,
+        subprocess.Popen(python_context.child('delivery',LAUNCH,['worker',str(store)]),cwd=h.ROOT,
                          stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)
     return query(store,value)
 
@@ -123,6 +124,7 @@ def worker(store):
         p.bootstrap_answer(answer,value);p.installed(destination,meta);p.check(value)
         receipt=dict(schema='gse-v52-receiver-bootstrap-v1',execution=p.EXECUTION,descriptor=value,descriptorSha256=sha,
                      process=identity,receiverHost=host.observe(destination),answer=answer)
+        python_context.record(destination/(value['node']+'-python-bootstrap.json'))
         c.write_once(destination/(value['node']+'-delivery.json'),receipt,c.REQUEST_BYTES)
         result=dict(descriptorSha256=sha,process=identity,state='SUCCEEDED',receipt=receipt)
     finally:c.write_once(store/'terminal.json',result,c.REQUEST_BYTES)

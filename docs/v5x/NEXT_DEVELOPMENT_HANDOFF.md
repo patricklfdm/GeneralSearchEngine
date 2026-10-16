@@ -110,8 +110,15 @@ next deployment foundation: a static guest dependency closure, bounded standalon
 installer, exact source/file hashes and isolated imports without a Git checkout.
 Its actual source-bound gate passes with 159 files and 84 loaded modules;
 all 476 V5.2 Python tests and 21 CI suite tests pass.
-It does not yet replace the shared Python path in the real SSH history backend;
-launch-context integration and independent-host qualification remain open.
+[Installed Python runtime over SSH](v5.2/PHASE_6_REMOTE_PYTHON_RUNTIME.md) now
+replaces that shared path for the complete smoke history. Three independently
+installed capsules, explicit source pins and isolated children pass original and
+relocated replay, 48 ordinary negatives, 18 Python-source negatives and all
+28 delivery/lifecycle negatives. The whole gate passes in 159.016 seconds;
+all 498 V5.2 Python tests pass. Its separate source snapshot preserves the still
+running formal gate's worktree and retains its own immutable source identity.
+Formal/fault histories over installed helpers and independent-host qualification
+remain open.
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,

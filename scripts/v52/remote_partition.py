@@ -9,8 +9,9 @@ from .evidence import need,digest
 
 class Endpoint(stream.Endpoint):
     protocol=SimpleNamespace(LAUNCH=guest.STREAM_LAUNCH)
-    def __init__(self,*args):
-        super().__init__(*args);self.channel=None;self.control=None;self.sha=None;self.streams=[];self.owners=[]
+    python_entry='partition-stream'
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs);self.channel=None;self.control=None;self.sha=None;self.streams=[];self.owners=[]
     def answer(self):
         value=guest.v.receive(self.channel.reader)
         if value is None:raise ConnectionError('partition original control channel ended')
@@ -52,8 +53,8 @@ def observed(value,config,command):
 
 
 class Controller:
-    def __init__(self,worker,target):
-        self.worker=worker;self.endpoint=Endpoint(target,guest.v.h.ROOT);self.calls=[];self.losses=[];self.records=[]
+    def __init__(self,worker,target,*,python_context=None):
+        self.worker=worker;self.endpoint=Endpoint(target,guest.v.h.ROOT,python_context=python_context);self.calls=[];self.losses=[];self.records=[]
     def warm(self):
         answer=self.exchange('query',dict(operation='cleanup',target=None))
         need(answer==dict(state='NOT_ISSUED',request=dict(operation='cleanup',target=None),result=None,currentSha256=None),

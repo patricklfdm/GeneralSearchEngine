@@ -24,12 +24,13 @@ class Rejected(ValueError):
 
 class Endpoint(stream.Endpoint):
     protocol=guest
+    python_entry='voter'
     def exchange(self,action,root,value,deadline):
         need(action in self.protocol.ACTIONS and not self.closed,'lifecycle action/session')
         need(type(deadline) in (int,float) and math.isfinite(deadline) and 0<deadline-time.monotonic()<=300,'lifecycle exchange deadline')
         need(stream.ssh.ssh_args(self.target)==self.args and all(Path(self.target[k]).read_bytes()==b for k,b in self.pins.items()),
              'lifecycle SSH target/credentials changed')
-        remote=['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),action,str(v.host.path(str(root)))]
+        remote=self.launch([action,str(v.host.path(str(root)))])
         try:
             if self.master is None:
                 self.master=stream.ssh.master.Master(self.args,self.private.name,float('inf'),None,connect_deadline=deadline);self.connections+=1
@@ -52,11 +53,11 @@ def original_launch(start,query,*,lost=lambda:None):
 
 
 class Client(stream.Client):
-    def __init__(self,root,node,binding,history,*,target,discard_launch=False,generation=1):
+    def __init__(self,root,node,binding,history,*,target,discard_launch=False,generation=1,python_context=None):
         need(binding.get('remoteVoterLifecycle')==guest.EXECUTION and
              binding['remoteVoterTransport']['nodes'][node]==stream.public_target(target),'lifecycle target binding')
         self.initialize(root,node,history,generation)
-        self.endpoint=stream.Endpoint(target,v.h.ROOT);self.lifecycle=Endpoint(target,v.h.ROOT)
+        self.endpoint=stream.Endpoint(target,v.h.ROOT,python_context=python_context);self.lifecycle=Endpoint(target,v.h.ROOT,python_context=python_context)
         self.channels=[];self.active_stream=None;self.recorded=[];self.config=None;self.sha=None
         self.final=None;self.launch_lost=False;self.discard_launch=discard_launch;self.launch_submissions=0;self.released=False
         try:

@@ -5,6 +5,7 @@ retained restart can admit a second generation after its original crash receipt.
 Launch publication consumes the identity even if its reply or worker is lost.
 """
 import argparse
+from . import remote_python_context as python_context
 import base64
 import os
 from pathlib import Path
@@ -111,7 +112,7 @@ def start(control,config):
     try:c.write_once(control/'launch.json',dict(configSha256=sha))
     except FileExistsError:return inspection(control,config)
     with (control/'agent.log').open('xb') as log:
-        subprocess.Popen([sys.executable,'-I','-c',LAUNCH,str(h.ROOT),'worker',str(control)],cwd=h.ROOT,
+        subprocess.Popen(python_context.child('voter',LAUNCH,['worker',str(control)]),cwd=h.ROOT,
                          stdin=subprocess.DEVNULL,stdout=log,stderr=log,start_new_session=True)
     return inspection(control,config)
 

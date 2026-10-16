@@ -56,7 +56,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
                  not (root/options.FILE).exists() and 'faultParameters' not in binding and not (root/'measurement-fault.json').exists(),
                  'measurement smoke read parameters changed')
     location=remote if remote is not None else (performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
-    base=physical.validate(root,traces,evidence_location=location,require_restart=False)
+    base=physical.validate(root,traces,evidence_location=location,require_restart=False,basis_coverage='selected-quorums')
     manifest,genesis,entries=reads.context(root,traces)
     calls={r['opId']:r for r in history if r['kind'] in ('read','update')}
     need(len(calls)==14 and len([r for r in calls.values() if r['kind']=='read'])==11 and

@@ -71,9 +71,9 @@ class Stream:
     def settimeout(self,seconds):
         need(seconds is None or type(seconds) in (int,float) and 0<seconds<=300,'SSH stream timeout')
         self.read_deadline=None if seconds is None else time.monotonic()+seconds
-    def sendall(self,data):
+    def sendall(self,data,*,deadline=None):
         need(not self.closed and type(data) is bytes and len(data)<=voter.FRAME,'SSH stream send bound/closed')
-        deadline=time.monotonic()+10;cursor=0
+        deadline=min(time.monotonic()+10,deadline) if deadline is not None else time.monotonic()+10;cursor=0
         while cursor<len(data):
             left=deadline-time.monotonic()
             if left<=0:raise TimeoutError('SSH stream original send deadline')
@@ -98,6 +98,13 @@ class Stream:
 
 class Endpoint(ssh.Endpoint):
     protocol=relay
+    python_entry='relay'
+    def __init__(self,target,checkout,*,python_context=None):
+        super().__init__(target,checkout);self.python_context=python_context
+    def launch(self,args):
+        if self.python_context is None:return ['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),*map(str,args)]
+        from . import remote_python_context as context
+        return context.command(self.python_context,self.python_entry,args)
     def open(self,control,sha,deadline):
         need(not self.closed and 0<deadline-time.monotonic()<=300,'SSH voter endpoint deadline/closed')
         need(ssh.ssh_args(self.target)==self.args,'SSH V5.2 target changed')
@@ -110,7 +117,7 @@ class Endpoint(ssh.Endpoint):
             # A lost multiplexing socket must fail this channel, never open an
             # unnoticed replacement connection or resubmit its bytes.
             args=[v if not v.startswith('ProxyCommand=') else 'ProxyCommand=false' for v in self.master.args]
-            remote=['python3','-I','-c',self.protocol.LAUNCH,str(self.checkout),str(control),sha]
+            remote=self.launch([str(control),sha])
             return Stream([*args,shlex.join(remote)],self.master,deadline)
         except BaseException:self.disconnect();raise
 
