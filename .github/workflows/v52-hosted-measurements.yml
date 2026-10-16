@@ -1,0 +1,189 @@
+name: V5.2 hosted measurements (experiment only)
+
+# Push this branch without opening a PR. Regular CI only listens to master
+# pushes and PRs. Do not use [skip ci], which would skip this workflow too.
+on:
+  push:
+    branches: [experiment/v52-hosted-measurements]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: v52-hosted-measurements-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  MAVEN_ARGS: --batch-mode --no-transfer-progress -Dstyle.color=never
+  PYTHONUNBUFFERED: '1'
+  LANG: C.UTF-8
+  LC_ALL: C.UTF-8
+  TZ: UTC
+
+jobs:
+  build:
+    name: Build and freeze hosted measurement inputs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ./.github/actions/v52-hosted-setup
+      - name: Test the hosted orchestration contract
+        run: python -m unittest scripts.v52.test_hosted_measurements
+      - name: Record exact source before building
+        run: >-
+          python -m scripts.ci_v51_bundle prepare --source "$GITHUB_SHA"
+          --state "$RUNNER_TEMP/hosted-build-state.json"
+          --receipt target/v52-hosted/build-prepare.json
+      - name: Build once and execute reactor prerequisite tests
+        run: scripts/run-maven-with-infra-retry.sh ./mvnw -f reactor/pom.xml clean package
+      - name: Package tested artifacts
+        run: >-
+          python -m scripts.ci_v51_bundle create --source "$GITHUB_SHA"
+          --state "$RUNNER_TEMP/hosted-build-state.json" --bundle target/v52-hosted/build
+          --receipt target/v52-hosted/build-create.json
+      - name: Freeze workload, artifacts and compiled consumers before measurement
+        run: >-
+          python -m scripts.v52.hosted_measurements prepare
+          --build target/v52-hosted/build --output target/v52-hosted/preparation
+      - name: Publish immutable shared inputs
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v52-hosted/build
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+      - name: Retain build diagnostics including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-build-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: |
+            target/v52-hosted/*.json
+            target/v52-hosted/preparation
+            **/target/surefire-reports
+            ${{ runner.temp }}/gse-maven-infra-retry
+          if-no-files-found: warn
+          retention-days: 14
+
+  measure:
+    name: Measure (${{ matrix.shard }})
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [m01-r1, m01-r2, m01-r3, minimum-waits, capacity, recovery]
+    env:
+      MEASUREMENT_SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ./.github/actions/v52-hosted-setup
+      - name: Download this exact run and attempt's build and plan
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v52-hosted-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v52-hosted/build
+      - name: Verify and restore tested artifacts
+        run: >-
+          python -m scripts.ci_v51_bundle restore --source "$GITHUB_SHA"
+          --bundle target/v52-hosted/build --receipt target/v52-hosted/restore.json
+      - name: Run complete serial histories on this isolated runner
+        run: >-
+          python -m scripts.v52.hosted_measurements run --shard "$MEASUREMENT_SHARD"
+          --build target/v52-hosted/build --output "target/v52-hosted/measure/$MEASUREMENT_SHARD"
+      - name: Retain complete archives, original replays and failed histories
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.shard }}
+          path: target/v52-hosted/measure/${{ matrix.shard }}
+          if-no-files-found: error
+          retention-days: 14
+          compression-level: 0
+
+  verify:
+    name: Replay downloaded evidence (${{ matrix.shard }})
+    needs: [build, measure]
+    if: ${{ always() && !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [m01-r1, m01-r2, m01-r3, minimum-waits, capacity, recovery]
+    env:
+      MEASUREMENT_SHARD: ${{ matrix.shard }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ./.github/actions/v52-hosted-setup
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v52-hosted-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v52-hosted/build
+      - name: Download retained measurement from this run and attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v52-hosted-raw-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.shard }}
+          path: target/v52-hosted/input
+      - name: Independently replay actual downloaded bytes and every negative
+        run: >-
+          python -m scripts.v52.hosted_measurements verify --shard "$MEASUREMENT_SHARD"
+          --build target/v52-hosted/build --inputs target/v52-hosted/input
+          --output "target/v52-hosted/verify/$MEASUREMENT_SHARD"
+      - name: Publish only complete independently verified shard receipts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-verified-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.shard }}
+          path: target/v52-hosted/verify/${{ matrix.shard }}/receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Retain replay diagnostics including failures
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-replay-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-${{ matrix.shard }}
+          path: |
+            target/v52-hosted/verify/${{ matrix.shard }}
+            !target/v52-hosted/verify/${{ matrix.shard }}/downloaded
+          if-no-files-found: warn
+          retention-days: 14
+
+  aggregate:
+    name: Complete 28-history hosted result
+    needs: [build, measure, verify]
+    if: ${{ always() && !cancelled() && needs.build.result == 'success' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: ./.github/actions/v52-hosted-setup
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: v52-hosted-build-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v52-hosted/build
+      - name: Download only independent verifier receipts from this exact attempt
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: v52-hosted-verified-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}-*
+          path: target/v52-hosted/inputs
+      - name: Cross-check every source, environment, history, call and negative
+        env:
+          MEASURE_RESULT: ${{ needs.measure.result }}
+          VERIFY_RESULT: ${{ needs.verify.result }}
+        run: >-
+          python -m scripts.v52.hosted_measurements aggregate --build target/v52-hosted/build
+          --inputs target/v52-hosted/inputs --output target/v52-hosted/aggregate
+      - name: Retain final summary including incomplete cohorts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: v52-hosted-result-${{ github.run_id }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: target/v52-hosted/aggregate
+          if-no-files-found: warn
+          retention-days: 14
