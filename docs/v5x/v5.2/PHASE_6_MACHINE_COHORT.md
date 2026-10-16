@@ -8,6 +8,14 @@ during replay as recorded in [Phase 6U](PHASE_6_REPLAY_EFFICIENCY.md). Freeze
 acceptance remain open. Continue under the
 [local development authorization](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
+The later operator freeze `ade96fd` passes all preceding local regression/adapter
+gates and nine complete M01 members. Its tenth member, `candidate-stale-r1`,
+completes the original workload but exceeds the old short-profile transfer count
+during replay. The [full-history decoder correction](PHASE_6_MEASUREMENT_PUBLICATION.md#full-history-bound-correction)
+keeps that cohort failed and requires a fresh freeze. The new contract binds the
+2,048-transfer measured profile directly from the publication validator, retaining
+the existing snapshot byte limits and all 28 histories/439 negative definitions.
+
 ## Freeze implementation before measurement
 
 `measurement_machine.py` requires a clean committed checkout and the existing

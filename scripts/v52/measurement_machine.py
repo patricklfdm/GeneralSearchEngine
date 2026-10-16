@@ -19,6 +19,7 @@ from . import measurement_m01 as m01,measurement_m01_evidence as m01_evidence,me
 from . import measurement_minimum as minimum,measurement_minimum_evidence as minimum_evidence
 from . import measurement_recovery as recovery,measurement_recovery_evidence as recovery_evidence
 from . import measurement_trace as trace,measurement_bundle as bundle,measurement_authority_budget as budget,measurement_oracle as oracle,measurement_verified as verified
+from . import measurement_publication as publication
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
@@ -57,7 +58,8 @@ def contract():
             replaySpool=dict(voters=3,maximumBytesPerVoter=trace.Limits().decoded_bytes+verified.HEADER*trace.Limits().rows,
                              memory='one bounded row; no whole-history buffer',originalInventory='verified before and after semantic replay'),
             selectedExpansionBytes=budget.MAX_SELECTION_EXPANSION,selectorCount=budget.MAX_SELECTORS,
-            snapshotTransferCount=128,snapshotImageBytes=16<<20,snapshotTransferBytes=64<<20,resourceRowsPerProcess=1024,
+            snapshotTransferCount=publication.MAX_MEASURED_TRANSFERS,snapshotImageBytes=16<<20,
+            snapshotTransferBytes=publication.MAX_TRANSFER_BYTES,resourceRowsPerProcess=1024,
             preReopenFiles=4096,preReopenBytes=64<<20,preReopenMemberBytes=8<<20,
             queryRequests=oracle.MAX_REQUESTS,queryInputBytes=oracle.MAX_INPUT_BYTES,queryOutputBytes=oracle.MAX_OUTPUT_BYTES,queryRowBytes=oracle.MAX_ROW_BYTES),
         execution=dict(order=list(specs),concurrentHistories=1,businessRetries=0,workloadRetries=0,stopAfterFailedMember=True,

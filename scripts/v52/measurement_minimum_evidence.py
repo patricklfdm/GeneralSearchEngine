@@ -43,7 +43,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None
     base=physical.validate(root,traces,evidence_location=bundle.EvidenceLocation(root,binding['origin']),require_restart=False)
     manifest,genesis,entries=reads.context(root,traces);calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     state=projection.Projection(manifest,genesis,entries,[c for c in calls.values() if c['kind']=='update'])
-    authority=publication.validate(traces,manifest,state,controller.MODE,selector_limit=budget.MAX_SELECTORS)
+    authority=publication.validate(traces,manifest,state,controller.MODE,selector_limit=budget.MAX_SELECTORS,
+                                   transfer_limit=publication.MAX_MEASURED_TRANSFERS)
     ledger=lifecycle.validate(traces,processes,history,controller.MODE,pending_limit=parameters['pendingLimit'],
         minimum_wait_millis=parameters['waitTimeoutMillis'],allow_progress_not_reached=plan['family']=='M02' and parameters['waitTimeoutMillis']==0)
     successful=cuts.validate(traces,processes,calls,manifest,entries,state,controller.MODE,answers,

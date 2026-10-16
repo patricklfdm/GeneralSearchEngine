@@ -39,11 +39,14 @@ class MeasurementMachineTest(unittest.TestCase):
         self.assertTrue(result['qualifiedMeasurement']);self.assertFalse(result['hostedAcceptance']);self.assertFalse(result['cloudAcceptance'])
         self.assertEqual((28,27373,2745,2700),tuple(result[k] for k in ('histories','originalReads','originalUpdates','nominalM01Seconds')))
         self.assertEqual(439,sum(len(v) for v in value['contract']['negativeRules'].values()))
+        self.assertEqual(2048,value['contract']['evidence']['snapshotTransferCount'])
+        self.assertEqual(64<<20,value['contract']['evidence']['snapshotTransferBytes'])
 
     def test_frozen_bounds_profiles_outcomes_and_negatives_cannot_drift(self):
         for change in (lambda v:v['contract']['execution'].__setitem__('businessRetries',1),
                        lambda v:v['contract']['execution'].__setitem__('concurrentHistories',2),
                        lambda v:v['contract']['evidence']['bundle'].__setitem__('expanded',100),
+                       lambda v:v['contract']['evidence'].__setitem__('snapshotTransferCount',128),
                        lambda v:next(iter(v['contract']['negativeRules'].values())).pop(),
                        lambda v:v['contract']['members'].pop('m03-p65')):
             value,*_=fixture();value=copy.deepcopy(value);change(value)

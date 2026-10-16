@@ -74,7 +74,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,offered=None,
     manifest,genesis,entries=reads.context(root,traces)
     calls={c['opId']:c for c in history if c['kind'] in ('read','update')}
     updates=[c for c in calls.values() if c['kind']=='update'];state=projection.Projection(manifest,genesis,entries,updates)
-    authority=publication.validate(traces,manifest,state,mode,selector_limit=budget.MAX_SELECTORS)
+    authority=publication.validate(traces,manifest,state,mode,selector_limit=budget.MAX_SELECTORS,
+                                   transfer_limit=publication.MAX_MEASURED_TRANSFERS)
     ledger=lifecycle.validate(traces,processes,history,mode)
     observed=cuts.validate(traces,processes,calls,manifest,entries,state,mode,answers)
     initial=initial_publication(history,scenario,offered,traces,mode)

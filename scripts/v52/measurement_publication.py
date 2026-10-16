@@ -12,6 +12,9 @@ MAX_SELECTIONS=64
 MAX_BASES=128
 MAX_TRANSFER_BYTES=64<<20
 MAX_TRANSFERS=128
+# Full M01-M04 histories can install hundreds of distinct follower snapshots.
+# Keep the short smoke profile separate and retain the same aggregate byte bound.
+MAX_MEASURED_TRANSFERS=2048
 MAX_SELECTORS=256
 
 
@@ -34,12 +37,15 @@ def selection_budget(traces,manifest):
 
 
 class Transfers:
-    def __init__(self):self.offers={};self.chunks={};self.bytes=0
+    def __init__(self,limit=None):
+        self.limit=MAX_TRANSFERS if limit is None else limit
+        need(type(self.limit) is int and 0<self.limit<=MAX_MEASURED_TRANSFERS,'measurement snapshot transfer profile limit')
+        self.offers={};self.chunks={};self.bytes=0
     def offer(self,identity,value):
         need(type(value['imageBytes']) is int and 0<value['imageBytes']<=16<<20,'measurement snapshot offer byte bound')
         if identity in self.offers:need(self.offers[identity]==value,'measurement changed snapshot offer')
         else:
-            need(len(self.offers)<MAX_TRANSFERS,'measurement snapshot transfer count')
+            need(len(self.offers)<self.limit,'measurement snapshot transfer count')
             self.offers[identity]=dict(value);self.chunks[identity]={}
     def chunk(self,identity,offset,data):
         need(identity in self.offers,'measurement snapshot chunk without offer')
@@ -62,10 +68,11 @@ class Transfers:
         return value
 
 
-def validate(traces,manifest,projection,mode,*,selector_limit=MAX_SELECTORS,restorations=None):
+def validate(traces,manifest,projection,mode,*,selector_limit=MAX_SELECTORS,transfer_limit=MAX_TRANSFERS,restorations=None):
     need(type(selector_limit) is int and 0<selector_limit<=8192,'measurement selector profile limit')
+    transfers=Transfers(transfer_limit)
     budget=selection_budget(traces,manifest);selections=reads.selected_prefixes(traces,manifest)
-    transfers=Transfers();selectors=installs=local_publications=0;restorations=restorations or {};observed_restorations=set()
+    selectors=installs=local_publications=0;restorations=restorations or {};observed_restorations=set()
     for node,rows in traces.items():
         forced=set();installed=set();promised=0;restored=False;generation=0
         for row in rows:

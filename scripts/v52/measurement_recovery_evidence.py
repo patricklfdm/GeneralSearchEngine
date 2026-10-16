@@ -75,7 +75,8 @@ def validate(root,expected,answers=None,*,traces=None,history=None,scenario=None
     state=projection.Projection(manifest,genesis,entries,[c for c in calls.values() if c['kind']=='update'])
     restorations={};retained_report=None
     if restarted is not None:restorations,retained_report=retained.validate(root,binding,dict(scenario,initialIndex=schedule['initialIndex']),traces,manifest,genesis,state)
-    authority=publication.validate(traces,manifest,state,'candidate-minimum',selector_limit=budget.MAX_SELECTORS,restorations=restorations)
+    authority=publication.validate(traces,manifest,state,'candidate-minimum',selector_limit=budget.MAX_SELECTORS,
+                                   transfer_limit=publication.MAX_MEASURED_TRANSFERS,restorations=restorations)
     life=lifecycle.validate(traces,processes,history,'candidate-minimum',restarted=restarted)
     successful=cuts.validate(traces,processes,calls,manifest,entries,state,'candidate-minimum',answers,restarted=restarted,restorations=restorations)
     fault=ledger.gates(history,scenario,plan,traces,processes,manifest)
