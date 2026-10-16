@@ -63,7 +63,7 @@ def contract():
             preReopenFiles=4096,preReopenBytes=64<<20,preReopenMemberBytes=8<<20,
             queryRequests=oracle.MAX_REQUESTS,queryInputBytes=oracle.MAX_INPUT_BYTES,queryOutputBytes=oracle.MAX_OUTPUT_BYTES,queryRowBytes=oracle.MAX_ROW_BYTES),
         execution=dict(order=list(specs),concurrentHistories=1,businessRetries=0,workloadRetries=0,stopAfterFailedMember=True,
-            consumerClose=measurement_close.POLICY,
+            consumerClose=measurement_close.POLICY,consumerStopSeconds=runtime.STOP_TIMEOUT_SECONDS,
             minimumFreeBytes=MINIMUM_FREE_BYTES,paidCloud=False,nominalM01Seconds=2700,totalHistories=28,
             acceptance='complete original and relocated physical/public/query/resource replay plus exact negatives; no speedup or latency SLA',
             timing='controller and each JVM clock remain separate; every offered outcome retained',

@@ -11,7 +11,7 @@ from . import measurement_minimum as m,measurement_model as model,token
 class World:
     def __init__(self,case,*,fault=None):
         self.case=case;self.plan=m.profile(case);self.fault=fault;self.now=10_000_000_000
-        self.leader='node-2';self.index=7;self.sequence=1;self.history=[];self.pending=[];self.reads=[];self.admissions={n:0 for n in ('node-1','node-2','node-3')}
+        self.leader='node-2';self.selected=6;self.index=7;self.sequence=1;self.history=[];self.pending=[];self.reads=[];self.admissions={n:0 for n in ('node-1','node-2','node-3')}
         self.token=base64.b64encode(token.encode(dict(version=1,groupId='00000000-0000-0000-0000-000000000001',
             historyId='00000000-0000-0000-0000-000000000002',manifestDigest='ab'*32,index=self.index))).decode()
         self.workers={node:Consumer(self,node) for node in self.admissions}
@@ -56,14 +56,14 @@ class Consumer:
                 if w.fault=='write-failure':w.finish(future,call,'INDETERMINATE',reasonCode='QUORUM_UNAVAILABLE');return identity,future
         elif kind=='read':extra=dict(token=w.token,sequence=4)
         elif kind=='status':
-            extra=dict(state='LEADER_READY' if self.node==w.leader else 'FOLLOWER',publishedIndex=w.index,sequence=w.sequence)
+            extra=dict(epoch=3,state='LEADER_READY' if self.node==w.leader else 'FOLLOWER',publishedIndex=w.index,sequence=w.sequence)
             if w.fault=='changed-role' and w.sequence==4 and self.node=='node-3':extra['state']='LEADER_READY'
             if w.fault=='unplanned-progress' and w.reads:extra['publishedIndex']+=1
         elif kind=='probe':
-            count=len(w.pending) if self.node in (w.leader,'node-3') else 0
-            if self.node!=('node-2' if w.plan['family']=='M03' else 'node-3'):count=0
+            count=len(w.pending)
+            if self.node!=(w.leader if w.plan['family']=='M03' else m.selected_follower(w.leader,dict(selectedVotersObserved=w.selected,selectedEpochObserved=3))):count=0
             p=w.plan['parameters']['pendingLimit']
-            extra=dict(queues=dict(readAdmissionsObserved=w.admissions[self.node],recoveryFloorObserved=0 if w.fault=='missing-floor' else w.index,
+            extra=dict(queues=dict(readAdmissionsObserved=w.admissions[self.node],selectedVotersObserved=w.selected,selectedEpochObserved=3,recoveryFloorObserved=0 if w.fault=='missing-floor' else w.index,
                 readsOwned=count,readsWaiting=count,readsAlarms=count,readsCaptured=0,readsSettling=0,readsMarker=0,admissionAvailable=p-count))
             if w.fault=='missing-reserve' and count:extra['queues']['admissionAvailable']=0
         w.finish(future,call,**extra);return identity,future
@@ -87,6 +87,17 @@ class MeasurementMinimumTest(unittest.TestCase):
                 self.assertTrue(observed['drained']);self.assertEqual(0,observed['unobserved'])
                 self.assertTrue(all(c['completionStatus']=='OBSERVED' and c['status']=='DISPATCHED' for c in observed['operations']))
                 self.assertEqual(3,sum(c['kind']=='sample-start' for c in w.history));self.assertEqual(3,sum(c['kind']=='sample-stop' for c in w.history))
+
+    def test_selected_pair_can_exclude_the_highest_ordinal_follower(self):
+        with tempfile.TemporaryDirectory() as directory:
+            w=World('m02-above-5000');w.selected=3;w.run(directory)
+            scenario=json.loads((Path(directory)/'scenario.json').read_text())
+            self.assertEqual('node-1',scenario['readTarget'])
+            self.assertEqual(30,len(w.reads));self.assertTrue(all(c['node']=='node-1' for c in w.reads))
+            self.assertEqual(4,sum(c['kind']=='update' for c in w.history))
+        for mask in (0,1,2,4,5,7,True):
+            with self.subTest(mask=mask),self.assertRaisesRegex(ValueError,'selected quorum'):
+                m.selected_follower('node-2',dict(selectedVotersObserved=mask,selectedEpochObserved=3))
 
     def test_zero_wait_rejections_are_retained_and_do_not_trigger_progress_update(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -43,15 +43,19 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
     cores=[name for name in binding['artifacts'] if name.startswith('general-search-engine-') and not name.startswith('general-search-engine-replication-') and name!='general-search-engine-4.4.0.jar']
     need(len(cores)==1,'measurement runtime core identity');version=cores[0][len('general-search-engine-'):-4]
     need(version=='5.1.0' if binding['mode'].startswith('published') else version in ('5.2.0-SNAPSHOT','5.2.0'),'measurement mode artifact version')
+    remote=None
+    if 'remoteTopology' in binding or 'remoteReceivers' in binding:
+        from . import remote_identity
+        remote=remote_identity.location(root,binding)
     for process in processes:
         identity=process['identity'];need(all(identity[k]==process[k] for k in ('node','pid')) and identity['mode']==binding['mode'],'measurement startup identity')
         for component,name in (('core',cores[0]),('replication','general-search-engine-replication-'+version+'.jar')):
-            need(name in binding['artifacts'] and identity[component+'Source']==str(Path(binding['origin'])/'artifacts'/name),'measurement loaded artifact source')
+            need(name in binding['artifacts'] and identity[component+'Source']==str((remote_identity.original_root(binding,process['node']) if remote is not None else Path(binding['origin']))/'artifacts'/name),'measurement loaded artifact source')
         if 'readParameters' in binding:
             need(binding['readParameters']==options.parameters() and identity.get('readParameters')==binding['readParameters'] and
                  not (root/options.FILE).exists() and 'faultParameters' not in binding and not (root/'measurement-fault.json').exists(),
                  'measurement smoke read parameters changed')
-    location=(performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
+    location=remote if remote is not None else (performance_artifacts if package is bundle else package).EvidenceLocation(root,binding['origin'])
     base=physical.validate(root,traces,evidence_location=location,require_restart=False)
     manifest,genesis,entries=reads.context(root,traces)
     calls={r['opId']:r for r in history if r['kind'] in ('read','update')}
@@ -111,6 +115,7 @@ def validate(root,expected,answers=None,*,traces=None,history=None,package=bundl
     result=dict(status='PASS',execution='untimed-measurement-consumer-physical-smoke',qualifiedMeasurement=False,base=base,reads=11,updates=3,
                 oracleInput=oracle.prepare(cuts,program),timings=timings,driver=driver,ledger=ledger)
     if authority is not None:result['publicationAuthority']=authority
+    if remote is not None:result['placement']='local-no-gcp-receiver-pipes';result['fullRemoteQualification']=False
     return result
 
 

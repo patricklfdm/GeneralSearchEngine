@@ -128,8 +128,10 @@ def negative_cases(mode,initial,leader):
          'sample fabricated unavailable metric: allocatedBytes'),
         ('changed-resource-boundary',event('CLIENT_SAMPLE',lambda r:r.get('marker')=='measured-start'),replace(marker='warmup-start'),None,
          'sample incomplete/out-of-order window markers'),
-        ('missing-generation-bytes',event('STORAGE_CUT',lambda r:r['cut']=='SELECTOR_BEFORE_ACK'),
-         lambda r:{k:v for k,v in r.items() if k!='readGeneration'},None,'measurement selector lacks generation bytes')]
+        # A healthy run need not install a snapshot. Every successful setup read
+        # does require a captured view; mutate that mandatory authority instead.
+        ('missing-read-capture',event('READ_CAPTURE_VALIDATED' if mode.endswith('legacy-strong') else 'REPLICA_READ_CAPTURE_VALIDATED'),
+         replace(event='REMOVED_CAPTURE'),None,'measurement missing/duplicate entered view')]
     if not mode.endswith('legacy-strong'):
         def settling(row):row['settling']+=1;return row
         cases.extend([

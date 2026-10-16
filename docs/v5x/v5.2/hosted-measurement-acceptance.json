@@ -1,0 +1,46 @@
+{
+  "schema": "gse-v52-hosted-acceptance-record-v1",
+  "status": "PASS",
+  "execution": "downloaded-receipt-and-immutable-source-review",
+  "source": "bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7",
+  "run": 38888573888,
+  "attempt": 1,
+  "qualifiedMeasurement": true,
+  "hostedAcceptance": true,
+  "localMachineAcceptance": false,
+  "protectedFullCI": false,
+  "cloudAcceptance": false,
+  "physicalReplayRerun": false,
+  "dependencyModulesChecked": 65,
+  "jobs": 14,
+  "histories": 28,
+  "originalReads": 27373,
+  "originalUpdates": 2745,
+  "negativesPerLocation": 439,
+  "negativeRejections": 878,
+  "wallSeconds": 8574.0,
+  "cumulativeJobSeconds": 21565.0,
+  "artifactExpiresAt": "2026-10-30T10:47:51Z",
+  "previousRun": {
+    "run": 38875654052,
+    "m01R2Replay": "success",
+    "aggregate": "failure from incomplete/failed shards"
+  },
+  "files": {
+    "aggregate/result.json": "8a0939a02e6b8cb726beebc3468d2e13df0242e0e01a216ca6c6c4eb24aa383e",
+    "build/plan.json": "50e6b8950d9c2c7b5be4f9a86d5bcc07e26eeee162f65070a4835f4f427c3efb",
+    "build/manifest.json": "8f1b6d3c0442203d9a6a4272b30fc4a969996e192e2e46f000a959425a4e0928",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-capacity/receipt.json": "47218b1474cf363ae83ba1ac91f2d65e184e122e769bc038e4af624463434904",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-m01-r1/receipt.json": "d766dd6303b80600fdee28f31be6e8943df4a4681df62ecf1ce63ddf6c08502a",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-m01-r2/receipt.json": "9077e7d4d4cd5154cdff239b0df3877a882668bb1cbc5927014186fee13c8189",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-m01-r3/receipt.json": "3e9cf0e5904721f85071d1d4a85be29fc5b41f83014f76244c4f138a71bf7a4d",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-minimum-waits/receipt.json": "8bae741ba3d0962235414498f1e6506fbe9ab11138f537f15c742f98f072b124",
+    "verified/v52-hosted-verified-38888573888-1-bd16e3af8b0f2ccf1820a5df2746e45cd99f07b7-recovery/receipt.json": "16c1017952ac8efc83a78f33139ed38697857b470bf89b0b8b02345abe76c18a"
+  },
+  "archive": {
+    "artifacts": 21,
+    "totalBytes": 667539197,
+    "manifestSha256": "45283988078730b67f947b8b23a084a06c3716dcbc7a9670a6eaa169618f0e8f",
+    "verified": "GitHub artifact SHA-256 and ZIP CRC"
+  }
+}

@@ -9,12 +9,13 @@ from scripts.v51 import public_qualification_harness as q
 from .evidence import need,digest,encoded
 
 ROOT=Path(__file__).resolve().parents[2]
-POLICY=dict(attempts=8,retryWindowMillis=20000,backoffMillis=100,
+POLICY=dict(attempts=8,retryWindowMillis=20000,backoffMillis=100,ownershipDrainMillis=20000,
             retryReason='DEADLINE_EXCEEDED',retryOutcome='NOT_APPLICABLE')
 CHECKS=['single-success-and-no-implicit-repeat','timeouts-then-success','attempt-exhaustion-no-ninth-close',
         'window-exhaustion','window-expired-during-backoff','non-timeout-outcome-and-cause-fail-fast',
         'interrupted-close-no-retry','interrupted-backoff-retains-timeout','original-failure-with-clean-cleanup',
-        'original-failure-with-exhausted-cleanup','same-timeout-object-no-self-suppression']
+        'original-failure-with-exhausted-cleanup','same-timeout-object-no-self-suppression','idle-waits-for-original-barrier-ownership',
+        'idle-leak-and-partial-counters-fail-closed','idle-interruption-propagates']
 
 
 def run(output):

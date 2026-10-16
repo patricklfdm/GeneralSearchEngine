@@ -1,7 +1,8 @@
 # Next-development documentation handoff
 
 Current milestone: [V5.1 publication](v5.1/RELEASE_CHECKLIST.md) is complete;
-V5.2 Phases 1–5 are locally verified; measurement freeze and pre-cloud preparation are next.
+V5.2 Phases 1–5 are locally verified and the complete hosted M01–M04 cohort passed;
+pre-cloud adapter integration and complete remote qualification are next.
 Full protected acceptance remains pending.
 Phase 6 closed through PR #320, master `5c88a2b908347fa3e411e2018876657a21fa0912`,
 exact-master CI `38457745089` attempt 1 (46 successful jobs). Phase 7A merged through
@@ -18,7 +19,20 @@ The Phase 7A skip did not carry forward to final-candidate or release validation
 
 <a id="current-batch-v52-phase-1"></a>
 
-## Current batch: V5.2 Phase 6 preparation
+## Current batch: V5.2 Phase 6 remote integration
+
+The [hosted acceptance record](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) binds successful
+run `38888573888`, attempt 1: 28 histories, 27,373 reads, 2,745 updates and 878
+negative rejections. All 21 original artifacts are archived. The measurement
+fixes and recovered pre-cloud stages now share the development worktree.
+[Stable command slots and one owned real history](v5.2/PHASE_6_REMOTE_OWNED_HISTORY.md)
+connect the existing receiver and command foundations. The integrated local gate
+passed both five-mode entries, six receiver bootstraps, four command subprocess
+cases and the one-submission real history; all 292 V5.2 Python tests passed.
+Complete remote M01–M04,
+protected full CI and fresh cloud admission remain open. The milestones below
+retain their original validation scope and source; earlier pending statements
+describe those historical stages, not the current hosted cohort result.
 
 Phase 0 PR #335 is accepted at master `9e1aeb282135802ff8886c4585351ce42a7908b0`.
 Exact-master CI `38710485375` attempt 1 passed docs scope (2 successful meta jobs,
@@ -876,3 +890,36 @@ former 30-second baseline observation. The fixture now covers the original lease
 plus its convergence allowance and retains bounded rejection diagnostics. The
 original transport cause remains unconfirmed; new exact-source build and complete
 measurements remain required before cloud preparation.
+
+The [Phase 6X cloud suite contract](v5.2/PHASE_6_CLOUD_SUITE.md) groups the unchanged
+28 formal histories and five separate untimed readiness histories into experiment,
+failure-drill and three canonical members. Members may be selected in any order;
+the closed set binds one exact source/sequence/build/package/control identity and
+rejects duplicate attempts or partial histories. Selection is not admission or
+execution evidence. Local complete measurement, remote transport/bootstrap/replay,
+owned no-GCP qualification and final exact-master/provider admission remain open.
+
+The [Phase 6Y remote preparation boundary](v5.2/PHASE_6_REMOTE_BOOTSTRAP.md)
+now validates explicit topology and performs receiver-local public bootstrap from
+one immutable V4.4 seed under both published V5.1 and candidate V5.2 JARs. Six
+unstarted receiver authorities pass original and relocated inspection; duplicate
+preparation and wrong seal paths reject. This is preparation qualification only.
+Persistent remote commands, actual remote voter operation, complete no-GCP
+workloads and live cloud admission are still required.
+
+The [Phase 6Z receiver pipe bridge](v5.2/PHASE_6_REMOTE_RUNTIME.md) reuses the
+existing public consumer, observation hooks and whole untimed smoke program over
+three receiver-local bootstrap roots. Its separate validator checks receiver paths,
+actual topology and loaded artifacts before applying the same physical/query/read
+checks. Development source drift was retained as an invalidated attempt; source
+checks now stop on drift before accepting a member. Both five-mode entries and
+the existing large-package replay pass locally, with 100 receiver negative variants
+at each location. Cross-host command ownership and cloud qualification remain open.
+
+The [Phase 6AA command foundation](v5.2/PHASE_6_REMOTE_COMMANDS.md) now retains
+immutable V5.2 history/node/session claims and queries original results after a
+lost response. Soft total time warnings coexist with finite exchange deadlines,
+bounded failure thresholds and dead/reused-process detection. Twenty-one unit
+cases and four real subprocess cases pass; no engine or cloud workload is claimed
+by those markers. Next connect stable semantic command slots and persistent guest
+execution, then complete cross-host identity and M01–M04 portable qualification.

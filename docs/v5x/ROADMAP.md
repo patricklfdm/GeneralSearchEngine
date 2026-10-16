@@ -32,7 +32,8 @@ Phase 8 is complete; stable is **5.1.0**.
 
 ## Next entry and proposal status
 
-**Current batch:** V5.2 measurement freeze and pre-cloud preparation after locally
+**Current batch:** V5.2 pre-cloud adapter integration after the complete
+[hosted M01–M04 acceptance](v5.2/PHASE_6_HOSTED_ACCEPTANCE.md), with locally
 completed [Phase 4 qualification](v5.2/PHASE_4_QUALIFICATION.md) and
 [Phase 5 combined hardening](v5.2/PHASE_5_HARDENING.md), following
 accepted Phase 0 PR #335 and locally verified foundation/capture/waiter stages at

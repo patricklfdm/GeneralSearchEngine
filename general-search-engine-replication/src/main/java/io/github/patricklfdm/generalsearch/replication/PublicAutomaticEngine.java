@@ -236,8 +236,11 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
     private CompletableFuture<Void> mutate(String operation,Function<ReplicaApplication<K,T>,byte[]> encoder) {
         return enqueue(true,true,until->{
             var submitted=available(true,NOT_SUBMITTED).submit(ReplicaEntry.OPERATIONS.indexOf(operation)+1,encoder);
-            try {await(submitted,until,INDETERMINATE);return null;}
-            catch(RuntimeException error){submitted.cancel(false);throw error;}
+            // The public deadline includes time in the ordered queue. Once
+            // submitted, the protocol owns a separate bounded operation which
+            // may already be proven. A client timeout cannot cancel that proof
+            // or depose the leader; retain the original INDETERMINATE outcome.
+            await(submitted,until,INDETERMINATE);return null;
         });
     }
     private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action) {
@@ -246,7 +249,9 @@ final class PublicAutomaticEngine<K,T> implements AutomaticReplicatedSearchEngin
     private <R> R capture(long until,Function<AutomaticApplication<K,T>,R> action,long readId) {
         var value=available(true,NOT_APPLICABLE);long epoch=value.status().promisedEpoch();
         var barrier=value.submit(9,app->new byte[0]);long cut;
-        try {cut=await(barrier,until,NOT_APPLICABLE);}catch(RuntimeException error){barrier.cancel(false);throw error;}
+        // As with explicit strong reads, an issued NO_OP outlives a shorter
+        // public queue deadline and settles under the runtime's own ownership.
+        cut=await(barrier,until,NOT_APPLICABLE);
         var captured=value.capture(epoch,cut,until,action,readId);
         try {await(captured.begun(),until,NOT_APPLICABLE);}catch(RuntimeException error){captured.result().cancel(false);throw error;}
         // The deadline bounds admission/barrier/capture. An active user query is cooperative.

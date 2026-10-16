@@ -8,7 +8,11 @@ import java.util.*;
 
 /** Observation-only hooks; all bootstrap, reads and mutations remain public calls. */
 public final class V52MeasurementWorker {
+    @FunctionalInterface public interface Entrypoint {void run() throws Exception;}
     public static void main(String[] args) throws Exception {
+        observe(args,()->V52MeasurementConsumer.main(args));
+    }
+    public static void observe(String[] args,Entrypoint consumer) throws Exception {
         Path root=Path.of(args[0]);String node="node-"+args[1];int generation=Integer.parseInt(args[3]);
         var manifest=decode(Files.readAllBytes(root.resolve(node+"/manifest.gsr")),"MANIFEST");
         var trace=new V52MeasurementTrace(root.resolve(node+"-trace.jsonl"),root.resolve(node+"-arm.txt"),generation,node,manifest);
@@ -93,7 +97,7 @@ public final class V52MeasurementWorker {
             values.put("selectedVotersObserved",selectedVoters.get());values.put("selectedEpochObserved",selectedEpoch.get());
             values.put("snapshotInstalledIndexObserved",installedIndex.get());return values;
         };
-        try {V52MeasurementConsumer.main(args);}
+        try {consumer.run();}
         finally {AutomaticRuntimeHooks.CURRENT.remove();}
     }
 }

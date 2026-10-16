@@ -28,12 +28,16 @@ PACKAGE=q.PACKAGE+'admission.'
 def save(path,value):path.write_bytes(encoded(value)+b'\n')
 
 
+STOP_TIMEOUT_SECONDS=55
+
 class Worker:
+    ENTRY=q.PACKAGE+'replication.V52MeasurementWorker'
+
     def __init__(self,root,node,cp,mode,history,generation=1):
         self.root,self.node,self.history,self.generation=root,node,history,generation
         self.lock=threading.Lock();self.pending={};self.serial=0;self.startup=queue.Queue(1);self.error=None
         self.log=(root/(node+'-stderr.log')).open('ab');self.output=(root/(node+'-stdout.jsonl')).open('ab')
-        self.proc=subprocess.Popen(['java','-cp',cp,q.PACKAGE+'replication.V52MeasurementWorker',str(root),node[-1],mode,str(generation)],
+        self.proc=subprocess.Popen(['java','-cp',cp,self.ENTRY,str(root),node[-1],mode,str(generation)],
                                    stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=self.log)
         self.reader=threading.Thread(target=self.receive,daemon=True);self.reader.start()
         try:
@@ -82,7 +86,9 @@ class Worker:
             if self.proc.poll() is None:
                 if kill:self.proc.kill()
                 else:self.proc.stdin.write(b'{"kind":"close"}\n');self.proc.stdin.flush();self.proc.stdin.close()
-            code=self.proc.wait(timeout=35);self.reader.join(timeout=5)
+            # Original client responses can precede barrier settlement (20s), then
+            # bounded close can consume another 20s. This is shutdown observation.
+            code=self.proc.wait(timeout=STOP_TIMEOUT_SECONDS);self.reader.join(timeout=5)
             need(not self.reader.is_alive() and self.error is None,'measurement response reader failed: '+str(self.error))
             if not kill:need(code==0,'measurement close failed: '+str(code))
         finally:
@@ -182,6 +188,56 @@ def execute_observer(root,binding,cp,observe,*,worker_factory=Worker,label='meas
         if close_errors and failure is None:raise ValueError(label+' close failed: '+str(close_errors))
 
 
+def observe_smoke(root,workers,history,mode,*,exercise_load=False):
+    """The same untimed public program over already owned local or guest pipes."""
+    deadline=time.monotonic()+40;leader=None
+    while time.monotonic()<deadline:
+        states={node:w.call('status') for node,w in workers.items()};need(all(s['state']!='FAILED' for s in states.values()),'measurement voter failed')
+        ready=[node for node,s in states.items() if s['state']=='LEADER_READY']
+        if len(ready)==1:leader=ready[0];break
+        time.sleep(.05)
+    need(leader is not None,'measurement smoke activation timeout');active=workers[leader]
+    initial=active.call('read',query=model.query(0),setupToken=True)
+    updates=[r['document'] for r in model.program() if r['kind']=='update'][:3]
+    for doc in updates:active.call('update',document=doc)
+    prepared=active.call('status');need(prepared['sequence']==4,'measurement confirmed setup sequence')
+    target=leader if mode.endswith('strong') else sorted(set(workers)-{leader})[-1]
+    baseline=await_publication({node:workers[node] for node in sorted({leader,target})},prepared['publishedIndex'],4)
+    if target!=leader:
+        from . import token
+        index=token.decode(__import__('base64').b64decode(initial['token']))['index'];until=time.monotonic()+25
+        while time.monotonic()<until:
+            status=workers[target].call('status')
+            if status['state']=='FOLLOWER' and status['publishedIndex']>=index:break
+            time.sleep(.02)
+        else:raise ValueError('measurement target did not publish initial bound')
+    parameters=dict(minimum=initial['token']) if mode=='candidate-minimum' else {}
+    if exercise_load:
+        # Three-second driver integration only; never an abbreviated M01 run.
+        for worker in workers.values():worker.call('sample-start')
+        calls=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
+        def submit(call):return workers[target].submit(call['kind'],query=call['query'],**parameters)
+        def mark(name):
+            for worker in workers.values():yield worker.submit('sample-mark',marker=name)
+        offered,pending=load.dispatch(calls,3_000_000_000,submit,markers=evidence.DRIVER_MARKERS,mark=mark)
+        save(root/'offered.json',load.drain(offered,pending,35))
+        for worker in workers.values():worker.call('sample-stop')
+        checked=load.validate(offered,calls,3_000_000_000,history)
+        need(checked['outcomes']=={'SUCCESS':10},'measurement driver smoke outcome')
+        load.validate_markers(offered,evidence.DRIVER_MARKERS,history,workers)
+        save(root/'load-validation.json',checked)
+    else:
+        for i in range(5):workers[target].call('read',query=model.query(i),**parameters)
+        pending=[workers[target].send('read',query=model.query(i),**parameters) for i in range(5,10)]
+        for future in pending:
+            response=future.result(timeout=35);need(response is not None and response['outcome']=='SUCCESS','measurement concurrent consumer failure: '+str(response))
+    probes={node:worker.call('probe') for node,worker in workers.items()}
+    need(all(v['queues']['admissionAvailable']==64 and v['queues'].get('readsOwned',0)==0 for v in probes.values()),'measurement consumer ownership leak')
+    save(root/'scenario.json',dict(mode=mode,leader=leader,readTarget=target,initialRead=initial['opId'],updates=updates,readCount=11,probes=probes,baseline=baseline,baselineIndex=prepared['publishedIndex']))
+    result=dict(status='PASS',execution='untimed-measurement-consumer-smoke-only',mode=mode,leader=leader,readTarget=target,reads=11,updates=3,qualifiedMeasurement=False)
+    return result
+
+
 def smoke(root,mode,*,exercise_load=False):
     binding,cp,control_cp=prepare(root,mode,exercise_load=exercise_load);workers={};history=[];processes=[];result=None
     try:
@@ -190,51 +246,7 @@ def smoke(root,mode,*,exercise_load=False):
             for component in ('core','replication'):
                 path=Path(worker.identity[component+'Source']);need(path.parent==root/'artifacts' and digest(path.read_bytes())==binding['artifacts'][path.name],'measurement loaded artifact')
             need(worker.identity['readParameters']==binding['readParameters'],'measurement observed read parameters')
-        deadline=time.monotonic()+40;leader=None
-        while time.monotonic()<deadline:
-            states={node:w.call('status') for node,w in workers.items()};need(all(s['state']!='FAILED' for s in states.values()),'measurement voter failed')
-            ready=[node for node,s in states.items() if s['state']=='LEADER_READY']
-            if len(ready)==1:leader=ready[0];break
-            time.sleep(.05)
-        need(leader is not None,'measurement smoke activation timeout');active=workers[leader]
-        initial=active.call('read',query=model.query(0),setupToken=True)
-        updates=[r['document'] for r in model.program() if r['kind']=='update'][:3]
-        for doc in updates:active.call('update',document=doc)
-        prepared=active.call('status');need(prepared['sequence']==4,'measurement confirmed setup sequence')
-        target=leader if mode.endswith('strong') else sorted(set(workers)-{leader})[-1]
-        baseline=await_publication({node:workers[node] for node in sorted({leader,target})},prepared['publishedIndex'],4)
-        if target!=leader:
-            from . import token
-            index=token.decode(__import__('base64').b64decode(initial['token']))['index'];until=time.monotonic()+25
-            while time.monotonic()<until:
-                status=workers[target].call('status')
-                if status['state']=='FOLLOWER' and status['publishedIndex']>=index:break
-                time.sleep(.02)
-            else:raise ValueError('measurement target did not publish initial bound')
-        parameters=dict(minimum=initial['token']) if mode=='candidate-minimum' else {}
-        if exercise_load:
-            # Three-second driver integration only; never an abbreviated M01 run.
-            for worker in workers.values():worker.call('sample-start')
-            calls=[dict(kind='read',ordinal=i,offsetNanos=i*100_000_000,window='driver-smoke',query=model.query(i)) for i in range(10)]
-            def submit(call):return workers[target].submit(call['kind'],query=call['query'],**parameters)
-            def mark(name):
-                for worker in workers.values():yield worker.submit('sample-mark',marker=name)
-            offered,pending=load.dispatch(calls,3_000_000_000,submit,markers=evidence.DRIVER_MARKERS,mark=mark)
-            save(root/'offered.json',load.drain(offered,pending,35))
-            for worker in workers.values():worker.call('sample-stop')
-            checked=load.validate(offered,calls,3_000_000_000,history)
-            need(checked['outcomes']=={'SUCCESS':10},'measurement driver smoke outcome')
-            load.validate_markers(offered,evidence.DRIVER_MARKERS,history,workers)
-            save(root/'load-validation.json',checked)
-        else:
-            for i in range(5):workers[target].call('read',query=model.query(i),**parameters)
-            pending=[workers[target].send('read',query=model.query(i),**parameters) for i in range(5,10)]
-            for future in pending:
-                response=future.result(timeout=35);need(response is not None and response['outcome']=='SUCCESS','measurement concurrent consumer failure: '+str(response))
-        probes={node:worker.call('probe') for node,worker in workers.items()}
-        need(all(v['queues']['admissionAvailable']==64 and v['queues'].get('readsOwned',0)==0 for v in probes.values()),'measurement consumer ownership leak')
-        save(root/'scenario.json',dict(mode=mode,leader=leader,readTarget=target,initialRead=initial['opId'],updates=updates,readCount=11,probes=probes,baseline=baseline,baselineIndex=prepared['publishedIndex']))
-        result=dict(status='PASS',execution='untimed-measurement-consumer-smoke-only',mode=mode,leader=leader,readTarget=target,reads=11,updates=3,qualifiedMeasurement=False)
+        result=observe_smoke(root,workers,history,mode,exercise_load=exercise_load)
     finally:
         errors=[]
         for node,worker in workers.items():

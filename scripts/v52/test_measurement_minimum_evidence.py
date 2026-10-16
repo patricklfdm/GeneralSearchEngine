@@ -54,6 +54,17 @@ class MeasurementMinimumEvidenceTest(unittest.TestCase):
                         if c['query']['kind']=='get':c['outcome']='NOT_APPLICABLE';c['response']['outcome']='NOT_APPLICABLE';row['response']['outcome']='NOT_APPLICABLE'
                 with self.subTest(fault=fault),self.assertRaisesRegex(ValueError,reason):gates.schedule(h,s,o,p)
 
+    def test_routing_hint_must_match_retained_selected_bases_and_epoch(self):
+        chosen=dict(bases=[dict(node='node-1'),dict(node='node-2')],ballot=dict(epoch=3))
+        queues=dict(selectedVotersObserved=3,selectedEpochObserved=3)
+        with patch.object(gates.physical,'frame',return_value=chosen) as decode:
+            gates.selected_quorum(dict(selected='actual-selected-record'),queues,{'manifest':'binding'})
+            decode.assert_called_once_with('actual-selected-record','SELECTED',{'manifest':'binding'})
+            for field,value in (('selectedVotersObserved',6),('selectedVotersObserved',True),('selectedEpochObserved',6)):
+                with self.subTest(field=field,value=value),self.assertRaisesRegex(ValueError,'fabricated selected quorum'):
+                    gates.selected_quorum(dict(selected='actual-selected-record'),dict(queues,**{field:value}),{})
+            with self.assertRaisesRegex(ValueError,'missing selected quorum'):gates.selected_quorum(None,queues,{})
+
     def test_invalid_original_cannot_qualify_negative_cases(self):
         with patch.object(e,'validate',side_effect=ValueError('original invalid')),patch.object(e,'negative_cases') as cases:
             with self.assertRaisesRegex(ValueError,'original invalid'):e.negatives('unused',{}, {})

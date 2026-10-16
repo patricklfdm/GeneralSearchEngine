@@ -1,11 +1,13 @@
 # V5.2 Phase 6T machine freeze and complete local cohort
 
 **Status:** machine/cohort implementation and fixture tests are locally verified.
+The separate [hosted complete cohort](PHASE_6_HOSTED_ACCEPTANCE.md) now passes at
+`bd16e3a`; it does not relabel the failed serial local-machine runs below.
 Freeze `ee9bdb9` preceded the first formal M01 history. Its cohort was interrupted
 during replay as recorded in [Phase 6U](PHASE_6_REPLAY_EFFICIENCY.md). Freeze
 `cfc32c6` then failed its first M01 drain as recorded in
-[Phase 6V](PHASE_6_M01_DRAIN.md). Complete M01–M04 qualification and hosted/cloud
-acceptance remain open. Continue under the
+[Phase 6V](PHASE_6_M01_DRAIN.md). Serial local-machine and cloud acceptance
+remain open. Continue under the
 [local development authorization](LOCAL_DEVELOPMENT_SEQUENCE.md).
 
 The later operator freeze `ade96fd` passes all preceding local regression/adapter
@@ -21,6 +23,12 @@ post-window public close timeout. The [consumer shutdown correction](PHASE_6_MEA
 uses the already documented repeatable-close contract, retains every measured
 failure, and binds a finite cleanup retry policy in the next freeze. The old
 cohort remains failed; no passing histories are spliced into a new source cohort.
+
+The `a40c510` local freeze and the first hosted attempt later expose the
+[2026-10-16 measurement corrections](PHASE_6_MEASUREMENT_REPAIRS.md): submitted
+operation lifetime, truthful idle observation, selected M02 follower routing and
+a mandatory M01 negative target. Their failed receipts remain failed. New sources,
+consumer classes and contract definitions require another complete fresh cohort.
 
 ## Freeze implementation before measurement
 

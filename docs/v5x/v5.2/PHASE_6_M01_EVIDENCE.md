@@ -62,7 +62,10 @@ The closed negative driver first validates the unchanged complete history agains
 actual query answers. It then requires exact declared rejection reasons for missing
 offers, shortened windows, moved due times, hidden retries, retargeting, substituted
 answers, missing command receipts, missing proof force, leaked admission, forged
-resource counters/markers and missing generation bytes. Explicit modes additionally
+resource counters/markers and a missing mandatory read-capture record. Normal
+M01 operation need not install a snapshot, so selector events cannot be required
+as negative targets. Actual selector bytes remain mandatory whenever an install
+occurs; the M02/M04 negative matrices still exercise missing generation bytes. Explicit modes additionally
 check capture sequence, fresh strong epoch, ownership settlement and completion;
 minimum adds changed carried-token rejection. Each mutation changes one decoded
 row or a bounded controller copy. Raw authority inventory remains unchanged.

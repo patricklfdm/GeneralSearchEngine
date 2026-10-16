@@ -4,6 +4,15 @@ from scripts.v51 import runtime_evidence as physical,rejoin_evidence as rejoin,r
 from .evidence import need
 
 
+def selected_quorum(selection,queues,manifest):
+    need(selection is not None,'minimum missing selected quorum')
+    chosen=physical.frame(selection['selected'],'SELECTED',manifest)
+    mask=sum(1<<(int(b['node'][-1])-1) for b in chosen['bases'])
+    need(type(queues.get('selectedVotersObserved')) is int and type(queues.get('selectedEpochObserved')) is int and
+         mask==queues['selectedVotersObserved'] and chosen['ballot']['epoch']==queues['selectedEpochObserved'],
+         'minimum fabricated selected quorum')
+
+
 def schedule(history,scenario,observed,plan):
     need(plan==controller.profile(plan.get('case')) and scenario['case']==plan['case'] and
          scenario['family']==plan['family'] and scenario['stage']=='observed','minimum changed/incomplete scenario')
@@ -11,7 +20,7 @@ def schedule(history,scenario,observed,plan):
     def call(identity,kind,node):
         c=calls.get(identity);need(c is not None and c['kind']==kind and c['node']==node,'minimum command target/kind');return c
     leader=scenario['leader'];target=scenario['readTarget'];nodes={'node-1','node-2','node-3'}
-    need(leader in nodes and target==(leader if plan['family']=='M03' else sorted(nodes-{leader})[-1]),'minimum changed frozen target')
+    need(leader in nodes and target==(leader if plan['family']=='M03' else controller.selected_follower(leader,scenario['floorProbes'][leader]['queues'])),'minimum changed frozen target')
     need(set(scenario['baseline'])==set(scenario['floorProbes'])==nodes,'minimum preparation voter set')
     initial=call(scenario['initialRead'],'read',leader)
     need(initial.get('setupToken') is True and initial['query']==model.query(0) and initial['outcome']=='SUCCESS' and
@@ -90,9 +99,9 @@ def validate(history,scenario,observed,traces,manifest,plan):
         c=calls.get(identity);need(c is not None and c['kind']==kind and c['node']==node,'minimum command target/kind');return c
     # Replay only compact metadata. General authority admission bounds the raw
     # observations before this pass; physical/lifecycle checks remain mandatory.
-    streams={};floors={}
+    streams={};floors={};selected={}
     for node,values in traces.items():
-        invocations={};admitted={};settled={};captures={};responses={};starts={};latest=None;count=0;last_floor=None
+        invocations={};admitted={};settled={};captures={};responses={};starts={};latest=None;count=0;last_floor=None;last_selection=None
         for row in values:
             event=row['event'];identity=row.get('opId')
             if event in ('APPLICATION_RESTORED','PUBLISHED','LOCAL_PUBLISHED'):
@@ -103,10 +112,11 @@ def validate(history,scenario,observed,traces,manifest,plan):
             elif event=='REPLICA_READ_SETTLING':settled[invocations[row['readId']]['opId']]=dict(order=row['order'],publication=latest)
             elif event=='REPLICA_READ_CAPTURE_VALIDATED':captures[invocations[row['readId']]['opId']]=row
             elif event=='RECOVERY_FLOOR':last_floor=row
+            elif event=='PROMISE_QUORUM':last_selection=row
             elif event=='CLIENT_INVOKE':starts[identity]=dict(order=row['order'],publication=latest,admissions=count)
             elif event in ('CLIENT_SUCCESS','CLIENT_FAILURE'):
                 responses[identity]=dict(order=row['order'],publication=latest,admissions=count,row=row)
-                if identity==scenario['floorProbes'][node]['opId']:floors[node]=last_floor
+                if identity==scenario['floorProbes'][node]['opId']:floors[node]=last_floor;selected[node]=last_selection
         streams[node]=dict(starts=starts,responses=responses,admitted=admitted,settled=settled,captures=captures)
     def event_of(c,key):return streams[c['node']][key][c['opId']]
     for node in nodes:
@@ -121,6 +131,9 @@ def validate(history,scenario,observed,traces,manifest,plan):
         own=rejoin.packet(floor['local'],manifest);peer=rejoin.packet(floor['remote'],manifest)
         need(own['seal']['node']==node and peer['seal']['node'] in nodes-{node} and
              own['snapshot']==peer['snapshot'] and len(own['snapshot']['anchors'])==floor['index'],'minimum baseline floor source identity')
+    # A controller mask is only a routing hint. Bind it to the actual immutable
+    # selected bases observed before that probe, checked by physical replay too.
+    selected_quorum(selected.get(leader),scenario['floorProbes'][leader]['queues'],manifest)
     for c in (base_call,held_call):
         need(event_of(c,'starts')['publication']==event_of(c,'responses')['publication']==(baseline_index,4),'minimum baseline lacks physical publication')
     target_stream=streams[target];base_seen=event_of(baseline_probe,'responses');gate_seen=event_of(gate,'responses')

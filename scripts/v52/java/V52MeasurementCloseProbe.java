@@ -74,9 +74,30 @@ public final class V52MeasurementCloseProbe {
             try(var close=w.close(()->{throw repeated;})){close.close();}catch(Throwable e){caught=e;}
             need(caught==repeated && caught.getSuppressed().length==0,"self suppression");w.stopped(8,8,false);checks.add("same-timeout-object-no-self-suppression");
         }
+        {
+            var now=new AtomicLong();var polls=new AtomicInteger();var done=new LinkedHashMap<String,Object>();
+            done.put("admissionAvailable",64);
+            for(String key:List.of("readsOwned","readsWaiting","readsCaptured","readsSettling","readsAlarms","readsMarker"))done.put(key,0);
+            var busy=new LinkedHashMap<>(done);busy.put("admissionAvailable",63);busy.put("readsOwned",1);busy.put("readsSettling",1);
+            var result=V52MeasurementConsumer.awaitIdle(64,()->polls.incrementAndGet()<3?busy:done,now::get,ms->now.addAndGet(ms*1_000_000));
+            need(result==done && polls.get()==3 && now.get()==20_000_000,"idle before preparing barrier released");
+            need(V52MeasurementConsumer.awaitIdle(64,()->Map.of("admissionAvailable",64),now::get,ms->{throw new AssertionError("published idle slept");}).size()==1,"published diagnostics");
+            checks.add("idle-waits-for-original-barrier-ownership");
+            for(var invalid:List.of(busy,Map.<String,Object>of("admissionAvailable",64,"readsOwned",0))) {
+                now.set(0);Throwable caught=null;
+                try {V52MeasurementConsumer.awaitIdle(64,()->invalid,now::get,ms->now.addAndGet(TimeUnit.SECONDS.toNanos(20)));}
+                catch(IOException error){caught=error;}
+                need(caught!=null,"leak or incomplete diagnostics claimed idle");
+            }
+            checks.add("idle-leak-and-partial-counters-fail-closed");
+            Throwable caught=null;
+            try {V52MeasurementConsumer.awaitIdle(64,()->busy,()->0,ms->{throw new InterruptedException("idle interrupt");});}
+            catch(InterruptedException error){caught=error;}
+            need(caught!=null,"idle interruption ignored");checks.add("idle-interruption-propagates");
+        }
         V52MeasurementConsumer.observer=(event,row)->{};
         System.out.println(AdmissionJson.canonical(Map.of("status","PASS","execution","consumer-close-policy-only","checks",checks,
                 "policy",Map.of("attempts",V52MeasurementConsumer.Close.ATTEMPTS,"retryWindowMillis",V52MeasurementConsumer.Close.WINDOW_MILLIS,
-                "backoffMillis",V52MeasurementConsumer.Close.BACKOFF_MILLIS,"retryReason","DEADLINE_EXCEEDED","retryOutcome","NOT_APPLICABLE"))));
+                "backoffMillis",V52MeasurementConsumer.Close.BACKOFF_MILLIS,"ownershipDrainMillis",V52MeasurementConsumer.IDLE_WINDOW_MILLIS,"retryReason","DEADLINE_EXCEEDED","retryOutcome","NOT_APPLICABLE"))));
     }
 }

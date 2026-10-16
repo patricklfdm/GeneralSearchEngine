@@ -14,7 +14,11 @@ observe its recovery floor before measured requests are offered. The original
 leader and target stay fixed; unexpected publication progress rejects the fixture.
 
 M02 runs each below/equal/above minimum at 0, 1,000 and 5,000 ms, with 30 original
-requests to the highest-ordinal initial follower. The minimum preserves the setup
+requests to the follower in the initial leader’s actual selected voting pair.
+The preparation probe freezes that peer before offering any reads; independent
+replay checks its mask and epoch against the retained `PROMISE_QUORUM` record.
+The passive third voter is a snapshot-recovery target, which can correctly reject
+all queued reads with `NOT_READY` and does not isolate the M02 wait behavior. The minimum preserves the setup
 token's group/history/manifest and sets its index relative to the actual target's
 published index. It is a constructed lower bound, not an issued commit certificate.
 

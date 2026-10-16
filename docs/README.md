@@ -18,8 +18,9 @@ scope. Proposed documents are not accepted merely because they are linked here.
 Current development is V5.2 explicit replica reads. The accepted Phase 0 contract
 now has implemented public policies and completed
 [local Phase 4 qualification](v5x/v5.2/PHASE_4_QUALIFICATION.md), followed by
-[combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). Measurements and final
-protected hosted acceptance remain pending.
+[combined Phase 5 hardening](v5x/v5.2/PHASE_5_HARDENING.md). The complete
+[hosted M01–M04 cohort](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md) passed; remote adapter
+qualification, protected full CI and cloud acceptance remain pending.
 
 ## v5.2 — unreleased replica reads
 
@@ -58,6 +59,12 @@ protected hosted acceptance remain pending.
 - [Phase 6U bounded verified trace replay](v5x/v5.2/PHASE_6_REPLAY_EFFICIENCY.md)
 - [Phase 6V queued-response observation](v5x/v5.2/PHASE_6_M01_DRAIN.md)
 - [Phase 6W baseline retirement observation](v5x/v5.2/PHASE_6_BASELINE_RETIREMENT.md)
+- [Phase 6X cloud suite selection contract](v5x/v5.2/PHASE_6_CLOUD_SUITE.md)
+- [Phase 6Y receiver-local bootstrap and collection](v5x/v5.2/PHASE_6_REMOTE_BOOTSTRAP.md)
+- [Phase 6Z receiver-local public consumer bridge](v5x/v5.2/PHASE_6_REMOTE_RUNTIME.md)
+- [Phase 6AA durable command ownership](v5x/v5.2/PHASE_6_REMOTE_COMMANDS.md)
+- [Phase 6AB stable command slots and owned history](v5x/v5.2/PHASE_6_REMOTE_OWNED_HISTORY.md)
+- [Complete hosted M01–M04 acceptance](v5x/v5.2/PHASE_6_HOSTED_ACCEPTANCE.md)
 - [Authorized local commit sequence through pre-cloud preparation](v5x/v5.2/LOCAL_DEVELOPMENT_SEQUENCE.md)
 
 ## v5.1 — current stable automatic leadership
