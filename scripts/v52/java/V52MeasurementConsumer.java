@@ -81,6 +81,27 @@ public final class V52MeasurementConsumer {
             }
         }
     }
+    /** A completed client future may still own an in-flight strong barrier.
+     * Observe real ownership after consumer callbacks return; never claim idle
+     * just because all response lines have been written.
+     */
+    static final long IDLE_WINDOW_MILLIS=20_000;
+    static Map<String,Object> awaitIdle(int pending,Supplier<Map<String,Object>> snapshot,
+            LongSupplier clock,Close.Pause pause) throws IOException,InterruptedException {
+        long start=clock.getAsLong();
+        for(;;) {
+            var queues=snapshot.get();
+            boolean idle=queues.get("admissionAvailable") instanceof Number permits && permits.intValue()==pending;
+            // Published V5.1 has no explicit read counters. Candidate diagnostics
+            // must include the complete counter set if any of it is present.
+            var counters=List.of("readsOwned","readsWaiting","readsCaptured","readsSettling","readsAlarms","readsMarker");
+            if(counters.stream().anyMatch(queues::containsKey))
+                idle &= counters.stream().allMatch(k->queues.get(k) instanceof Number n && n.longValue()==0);
+            if(idle)return queues;
+            if(clock.getAsLong()-start>=TimeUnit.MILLISECONDS.toNanos(IDLE_WINDOW_MILLIS))throw new IOException("measurement runtime ownership did not drain: "+queues);
+            pause.sleep(10);
+        }
+    }
     private static Map<String,Object> status(AutomaticReplicatedSearchEngine<Integer,Doc> engine) {
         var s=engine.leadershipStatus();return Map.of("state",s.state().name(),"epoch",s.promisedEpoch(),"provenIndex",s.provenIndex(),
                 "publishedIndex",s.appliedIndex(),"sequence",s.applicationSequence());
@@ -172,7 +193,8 @@ public final class V52MeasurementConsumer {
             executor.shutdown();if(!executor.awaitTermination(30,TimeUnit.SECONDS))throw new IOException("measurement client executor did not stop");
             CompletableFuture.allOf(pending.toArray(CompletableFuture<?>[]::new)).get(30,TimeUnit.SECONDS);
             }
-            event("CLIENT_IDLE",Map.of("queues",diagnostics.apply(engine),"retainedBytes",engine.durabilityMetrics().retainedBytes()));
+            var idle=awaitIdle(parameters.pendingLimit(),()->diagnostics.apply(engine),System::nanoTime,Thread::sleep);
+            event("CLIENT_IDLE",Map.of("queues",idle,"retainedBytes",engine.durabilityMetrics().retainedBytes()));
             closing.close();
         }
         } finally {executor.shutdownNow();}

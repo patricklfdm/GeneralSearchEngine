@@ -83,3 +83,12 @@ acceptance from the prior controller validation.
 M04, the exact machine freeze, fresh formal M01–M04 histories and a complete
 same-source measurement set remain open. No runtime Java, workflow topology,
 production default, paid run or push is changed by this evidence stage.
+
+### Selected follower routing
+
+M02 freezes the follower from the leader’s actual immutable selected pair, using
+its preparation probe only as a routing hint. Offline replay decodes the retained
+`PROMISE_QUORUM` record and matches both voter mask and epoch. A fabricated probe,
+missing selection, changed target, empty query coverage or incomplete original
+requests still fails. Requests, lower bounds, wait durations and the 250 ms release
+spacing are unchanged; old highest-ordinal profiles cannot qualify the new freeze.

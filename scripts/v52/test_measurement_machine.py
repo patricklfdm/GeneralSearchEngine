@@ -41,12 +41,15 @@ class MeasurementMachineTest(unittest.TestCase):
         self.assertEqual(439,sum(len(v) for v in value['contract']['negativeRules'].values()))
         self.assertEqual(2048,value['contract']['evidence']['snapshotTransferCount'])
         self.assertEqual(64<<20,value['contract']['evidence']['snapshotTransferBytes'])
-        self.assertEqual(dict(attempts=8,retryWindowMillis=20000,backoffMillis=100,
+        self.assertEqual(dict(attempts=8,retryWindowMillis=20000,backoffMillis=100,ownershipDrainMillis=20000,
                               retryReason='DEADLINE_EXCEEDED',retryOutcome='NOT_APPLICABLE'),value['contract']['execution']['consumerClose'])
+        self.assertEqual(55,value['contract']['execution']['consumerStopSeconds'])
 
     def test_frozen_bounds_profiles_outcomes_and_negatives_cannot_drift(self):
         for change in (lambda v:v['contract']['execution'].__setitem__('businessRetries',1),
                        lambda v:v['contract']['execution']['consumerClose'].__setitem__('attempts',9),
+                       lambda v:v['contract']['execution']['consumerClose'].__setitem__('ownershipDrainMillis',0),
+                       lambda v:v['contract']['execution'].__setitem__('consumerStopSeconds',35),
                        lambda v:v['contract']['execution'].__setitem__('concurrentHistories',2),
                        lambda v:v['contract']['evidence']['bundle'].__setitem__('expanded',100),
                        lambda v:v['contract']['evidence'].__setitem__('snapshotTransferCount',128),

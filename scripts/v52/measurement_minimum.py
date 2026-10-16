@@ -18,11 +18,20 @@ def profile(case):
         relation='above';parameters=options.parameters('M03',wait=60000,pending=int(case.split('p')[1]));reads=min(64,parameters['pendingLimit']-1)
     return dict(schema='gse-v52-minimum-controller-v1',case=case,family=parameters['family'],mode=MODE,parameters=parameters,
                 programSha256=model.PLAN_SHA,relation=relation,readCount=reads,setupUpdates=3,
-                readTarget='initial-leader' if parameters['family']=='M03' else 'highest-ordinal-initial-follower',
+                readTarget='initial-leader' if parameters['family']=='M03' else 'selected-quorum-follower',
                 releaseUpdate=parameters['family']=='M03' or relation=='above' and parameters['waitTimeoutMillis']>0,
                 releaseDelayNanos=250_000_000 if parameters['family']=='M02' and relation=='above' and parameters['waitTimeoutMillis']>0 else 0,
                 activationSeconds=40,floorSeconds=80,gateSeconds=10,pollIntervalNanos=100_000_000,
                 drainSeconds=75 if parameters['family']=='M03' else 35,businessRetries=0)
+
+
+def selected_follower(leader,queues):
+    """Freeze the voting follower, not the passive snapshot recipient."""
+    nodes=('node-1','node-2','node-3');mask=queues.get('selectedVotersObserved');epoch=queues.get('selectedEpochObserved')
+    need(leader in nodes and type(mask) is int and mask in (3,5,6) and
+         mask & (1<<nodes.index(leader)) and type(epoch) is int and epoch>0,
+         'measurement minimum selected quorum unavailable')
+    return next(n for i,n in enumerate(nodes) if n!=leader and mask & (1<<i))
 
 
 def lower_bound(carried,index,relation):
@@ -67,8 +76,8 @@ def observe(root,workers,history,case,*,clock=time.monotonic_ns,sleep=time.sleep
             leaders=[n for n,v in states.items() if v['state']=='LEADER_READY']
             return leaders[0] if len(leaders)==1 else None
         leader=check_gate(ready,'measurement minimum activation timeout',plan['activationSeconds'])
-        target=leader if plan['family']=='M03' else sorted(set(workers)-{leader})[-1];active=workers[leader];reader=workers[target]
-        updates=[c['document'] for c in model.program() if c['kind']=='update'];details.update(leader=leader,readTarget=target,stage='initialization')
+        active=workers[leader]
+        updates=[c['document'] for c in model.program() if c['kind']=='update'];details.update(leader=leader,stage='initialization')
         details['setupUpdates']=[active.call('update',document=doc)['opId'] for doc in updates[:3]]
         initial=active.call('read',query=model.query(0),setupToken=True);details['initialRead']=initial['opId']
         need(initial['sequence']==4,'measurement minimum setup application sequence')
@@ -78,9 +87,13 @@ def observe(root,workers,history,case,*,clock=time.monotonic_ns,sleep=time.sleep
             probes={n:w.call('probe') for n,w in workers.items()}
             return probes if all(v['queues']['recoveryFloorObserved']>=initial_index for v in probes.values()) else None
         details['floorProbes']=check_gate(floors,'measurement minimum baseline recovery floor',plan['floorSeconds'])
+        target=leader if plan['family']=='M03' else selected_follower(leader,details['floorProbes'][leader]['queues'])
+        reader=workers[target];details['readTarget']=target
         actual=reader.call('status');need(actual['sequence']==4 and actual['publishedIndex']>=initial_index and
             actual['state']==('LEADER_READY' if target==leader else 'FOLLOWER'),'measurement minimum prepared target changed')
-        need(active.call('status')['state']=='LEADER_READY','measurement minimum initial leader changed')
+        leader_status=active.call('status')
+        need(leader_status['state']=='LEADER_READY' and leader_status['epoch']==details['floorProbes'][leader]['queues']['selectedEpochObserved'],
+             'measurement minimum initial leader changed')
         baseline=reader.call('probe');count=baseline['queues']['readAdmissionsObserved']
         minimum=lower_bound(initial['token'],actual['publishedIndex'],plan['relation'])
         details.update(baselineStatus=actual,baselineProbe=baseline['opId'],minimum=minimum,stage='reads',readOps=[])

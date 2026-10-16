@@ -28,6 +28,8 @@ PACKAGE=q.PACKAGE+'admission.'
 def save(path,value):path.write_bytes(encoded(value)+b'\n')
 
 
+STOP_TIMEOUT_SECONDS=55
+
 class Worker:
     def __init__(self,root,node,cp,mode,history,generation=1):
         self.root,self.node,self.history,self.generation=root,node,history,generation
@@ -82,7 +84,9 @@ class Worker:
             if self.proc.poll() is None:
                 if kill:self.proc.kill()
                 else:self.proc.stdin.write(b'{"kind":"close"}\n');self.proc.stdin.flush();self.proc.stdin.close()
-            code=self.proc.wait(timeout=35);self.reader.join(timeout=5)
+            # Original client responses can precede barrier settlement (20s), then
+            # bounded close can consume another 20s. This is shutdown observation.
+            code=self.proc.wait(timeout=STOP_TIMEOUT_SECONDS);self.reader.join(timeout=5)
             need(not self.reader.is_alive() and self.error is None,'measurement response reader failed: '+str(self.error))
             if not kill:need(code==0,'measurement close failed: '+str(code))
         finally:

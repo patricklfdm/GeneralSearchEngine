@@ -27,6 +27,24 @@ class MeasurementM01EvidenceTest(unittest.TestCase):
             data=self.baseline();change(data)
             with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,reason):e.initial_publication(*data)
 
+    def test_negative_targets_do_not_require_optional_snapshot_installation(self):
+        from .test_measurement_history import fixture
+        from . import measurement_history as lifecycle,measurement_stream
+        traces,processes,history=fixture()
+        self.assertFalse(any(r['event']=='STORAGE_CUT' for rows in traces.values() for r in rows))
+        for mode in model.MODES:
+            cases=e.negative_cases(mode,'read-1','node-1')
+            name,predicate,change,mutate,reason=next(c for c in cases if c[0]=='missing-read-capture')
+            rows=copy.deepcopy(traces)
+            if mode.endswith('legacy-strong'):
+                for row in rows['node-1']:
+                    if row['event']=='REPLICA_READ_CAPTURE_VALIDATED':row['event']='READ_CAPTURE_VALIDATED'
+            changed=measurement_stream.changed(rows,predicate,change)
+            self.assertEqual(1,sum(r['event']=='REMOVED_CAPTURE' for rs in changed.values() for r in rs))
+            self.assertFalse(any(c[0]=='missing-generation-bytes' for c in cases))
+            if mode=='candidate-explicit-strong':
+                with self.assertRaisesRegex(ValueError,reason):lifecycle.validate(changed,processes,history,mode)
+
     def test_metadata_is_bounded_and_symlinks_are_not_read(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory);(root/'a.json').write_text('{"a":1}')

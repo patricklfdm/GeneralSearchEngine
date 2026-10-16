@@ -22,6 +22,12 @@ uses the already documented repeatable-close contract, retains every measured
 failure, and binds a finite cleanup retry policy in the next freeze. The old
 cohort remains failed; no passing histories are spliced into a new source cohort.
 
+The `a40c510` local freeze and the first hosted attempt later expose the
+[2026-10-16 measurement corrections](PHASE_6_MEASUREMENT_REPAIRS.md): submitted
+operation lifetime, truthful idle observation, selected M02 follower routing and
+a mandatory M01 negative target. Their failed receipts remain failed. New sources,
+consumer classes and contract definitions require another complete fresh cohort.
+
 ## Freeze implementation before measurement
 
 `measurement_machine.py` requires a clean committed checkout and the existing
