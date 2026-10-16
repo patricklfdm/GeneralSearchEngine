@@ -203,15 +203,20 @@ def serve(control):
 
 class Client:
     """One persistent stream. Reconnect reads results; submit is never retried."""
-    def __init__(self,root,node,binding,history):
+    def initialize(self,root,node,history):
         self.root,self.node,self.generation,self.history=Path(root),node,1,history
-        self.control=self.root/(node+'-control');self.control.mkdir(mode=0o700)
+        self.control=self.root/(node+'-control')
+        self.lock=threading.RLock();self.pending={};self.serial=0;self.cursor=0
+        self.channel=None;self.reader=None;self.error=None;self.terminal=Future();self.agent=None
+        self.proc=SimpleNamespace(pid=0,returncode=None,poll=lambda:self.proc.returncode)
+        self.events=[];self.owner_identity=None;self.identity=None;self.connections=0
+
+    def __init__(self,root,node,binding,history):
+        self.initialize(root,node,history);self.control.mkdir(mode=0o700)
         self.socket_dir=tempfile.TemporaryDirectory(prefix='v52-voter-')
         self.config=dict(schema=SCHEMA,execution='local-persistent-voters-only',node=node,root=str(self.root),
                          host=host.observe(self.control),binding=binding,socket=self.socket_dir.name+'/channel',session=os.urandom(16).hex())
-        self.sha=digest(encoded(self.config));self.lock=threading.RLock();self.pending={};self.serial=0;self.cursor=0
-        self.channel=None;self.reader=None;self.error=None;self.terminal=Future();self.agent=None;self.proc=SimpleNamespace(pid=0,returncode=None,poll=lambda:self.proc.returncode)
-        self.events=[];self.owner_identity=None;self.identity=None;self.connections=0
+        self.sha=digest(encoded(self.config))
         self.agent_log=(self.control/'agent.log').open('xb')
         try:
             c.write_once(self.control/'config.json',self.config,c.REQUEST_BYTES)
@@ -237,11 +242,8 @@ class Client:
         try:
             stream=channel.makefile('rb')
             send(channel,dict(configSha256=self.sha,after=self.cursor));identity=receive(stream)
-            expected=c.read(self.control/'identity.json')
+            expected=self.observe_identity()
             need(identity==dict(kind='IDENTITY',configSha256=self.sha,identity=expected),'voter channel identity')
-            need(expected['host']==self.config['host'] and expected['session']==self.config['session'] and
-                expected['service']['pid']==self.agent.pid and c.process_alive(expected['service']) and
-                c.process_alive(expected['jvm']),'voter process ownership')
             need(self.owner_identity is None or self.owner_identity==expected,'voter process changed on reconnect')
             self.owner_identity=expected;self.identity=expected['consumer'];self.proc.pid=expected['jvm']['pid']
             channel.settimeout(None);self.channel=channel;self.error=None;self.connections+=1
@@ -249,6 +251,16 @@ class Client:
         except BaseException:
             if stream:stream.close()
             channel.close();raise
+
+    def observe_identity(self):
+        expected=c.read(self.control/'identity.json')
+        need(expected['host']==self.config['host'] and expected['session']==self.config['session'] and
+             expected['service']['pid']==self.agent.pid and c.process_alive(expected['service']) and
+             c.process_alive(expected['jvm']),'voter process ownership')
+        return expected
+
+    def wait_stopped(self):
+        need(self.agent.wait(timeout=10)==0,'voter agent exit failed')
 
     def receive(self,stream):
         try:
@@ -299,7 +311,7 @@ class Client:
                 send(self.channel,{'close':True})
             row=self.terminal.result(timeout=h.runtime.STOP_TIMEOUT_SECONDS+5)
             need(row['failure'] is None and row['exitCode']==0 and not self.pending,'voter incomplete close: '+str(row))
-            need(self.agent.wait(timeout=10)==0,'voter agent exit failed')
+            self.wait_stopped()
         finally:self.abort()
 
     def abort(self):

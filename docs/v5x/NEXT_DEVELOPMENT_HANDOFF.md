@@ -50,8 +50,15 @@ This remains an untimed local lifecycle backend.
 controller to each existing service with pinned persistent channels and exact
 resume cursors. Its real loopback gate passed eleven reads, three updates and
 48 original/relocated negatives with all service/JVM/SSH processes stopped.
-Preparation, process launch and collection remain local; remote lifecycle and
-independent-host qualification remain open.
+That stage retained local process launch and collection.
+[SSH service lifecycle and evidence export](v5.2/PHASE_6_VOTER_LIFECYCLE.md)
+now adds fixed remote preparation/start/query/stop ownership and bounded stopped
+archive download, with one consumed launch and original-result reattachment.
+Artifact/seed staging and public bootstrap still remain local; independent-host
+qualification and formal fault lifecycle remain open. Its final real SSH gate
+passed eleven reads, three updates, 48 original/relocated physical/query negatives
+and 14 lifecycle negatives in 61.792 seconds. All 385 V5.2 Python tests and 21
+CI suite tests pass; source and evidence hashes remain bound to that local receipt.
 Cross-host transport/identity, complete owned members, protected full CI and fresh
 cloud admission remain open. The milestones below
 retain their original validation scope and source; earlier pending statements

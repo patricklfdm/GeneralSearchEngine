@@ -223,3 +223,12 @@ The optional [Phase 6AF gate](PHASE_6_SSH_VOTERS.md) qualifies three pinned SSH
 streams, a lost update response and observation-only reconnect against the same
 original history. Both portable replays require route and sequence evidence.
 Service launch and file delivery remain local; this does not admit cloud hosts.
+
+## Phase 6AG SSH service lifecycle
+
+[The local lifecycle gate](PHASE_6_VOTER_LIFECYCLE.md) connects remote service
+configuration, one original launch, terminal observation and bounded evidence
+download to the unchanged untimed history and original/relocated replay. Local
+artifact/seed staging remains; this is not three-host or paid-cloud qualification.
+Run `scripts/verify-v52-phase6-voter-lifecycle.sh --skip-build` with existing
+current Java packages and local OpenSSH prerequisites.

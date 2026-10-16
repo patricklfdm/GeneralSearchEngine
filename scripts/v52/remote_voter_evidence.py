@@ -82,6 +82,9 @@ def validate(root,binding):
                 events.append(value);need(len(events)<=2*voter.MAX_CALLS+1,'voter journal count bound')
         need(stopped==dict(schema=voter.SCHEMA,configSha256=sha,identity=identity,lastSequence=len(events),
              journalSha256=voter.h.bundle.sha_file(path),exitCode=0,failure=None),'voter retained terminal binding')
+        if 'remoteVoterLifecycle' in binding or (control/'lifecycle.json').exists():
+            from . import remote_voter_lifecycle_evidence
+            remote_voter_lifecycle_evidence.validate(root,binding,config,sha)
         own=[call for call in history if call['node']==node]
         need(all(call['pid']==identity['jvm']['pid'] for call in own),'voter controller process binding')
         results[node]=edges(events,own,node)

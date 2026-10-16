@@ -155,28 +155,29 @@ class Receivers:
         for node,worker in self.workers.items():
             retain(node,worker.stop);self.record(worker)
         for node,own in self.roots.items():
-            def collect(node=node,own=own):
-                need(all(p['exitCode'] is not None for p in self.processes if p['node']==node),'remote collecting active process')
-                worker=self.workers.get(node)
-                need(worker is None or worker.proc.poll() is not None,'remote collecting live voter')
-                for path in own.iterdir():
-                    if path.name==node or path.name.startswith(node+'-'):
-                        need(not path.is_symlink(),'remote collected symlink')
-                        if path.is_dir():shutil.copytree(path,self.collected/path.name,symlinks=True)
-                        else:shutil.copyfile(path,self.collected/path.name)
-                if self.prepared:
-                    need(all(bundle.sha_file(own/'artifacts'/n)==sha for n,sha in self.binding['artifacts'].items()),'remote artifact changed')
-                    need(all(bundle.sha_file(own/n)==sha for n,sha in self.binding['classes'].items() if not n.startswith('control-classes/')),
-                         'remote classes changed')
-                    for name in (options.FILE,recovery.FILE):
-                        source=self.producer/name;target=own/name
-                        need(source.exists()==target.exists() and (not source.exists() or source.read_bytes()==target.read_bytes()),'remote receiver parameters changed')
-                    if self.name==recovery.CASES[1]:need((own/'network-blocks.txt').read_bytes()==b'','remote receiver not healed')
-            retain(node,collect)
+            retain(node,lambda node=node,own=own:self.collect_receiver(node,own))
         runtime.save(self.collected/'history.json',self.history);runtime.save(self.collected/'processes.json',self.processes)
         runtime.save(self.collected/'execution.json',dict(status='STOPPED' if failure is None and not errors else 'FAIL',
             failure=failure,closeErrors=errors,qualifiedMeasurement=False,paidCloud=False))
         if errors and failure is None:raise ValueError('remote receiver cleanup failed: '+json.dumps(errors))
+
+    def collect_receiver(self,node,own):
+        need(all(p['exitCode'] is not None for p in self.processes if p['node']==node),'remote collecting active process')
+        worker=self.workers.get(node)
+        need(worker is None or worker.proc.poll() is not None,'remote collecting live voter')
+        for path in own.iterdir():
+            if path.name==node or path.name.startswith(node+'-'):
+                need(not path.is_symlink(),'remote collected symlink')
+                if path.is_dir():shutil.copytree(path,self.collected/path.name,symlinks=True)
+                else:shutil.copyfile(path,self.collected/path.name)
+        if self.prepared:
+            need(all(bundle.sha_file(own/'artifacts'/n)==sha for n,sha in self.binding['artifacts'].items()),'remote artifact changed')
+            need(all(bundle.sha_file(own/n)==sha for n,sha in self.binding['classes'].items() if not n.startswith('control-classes/')),
+                 'remote classes changed')
+            for name in (options.FILE,recovery.FILE):
+                source=self.producer/name;target=own/name
+                need(source.exists()==target.exists() and (not source.exists() or source.read_bytes()==target.read_bytes()),'remote receiver parameters changed')
+            if self.name==recovery.CASES[1]:need((own/'network-blocks.txt').read_bytes()==b'','remote receiver not healed')
 
 
 def source():
